@@ -86,6 +86,7 @@ typedef struct {
   const char* rootPath;
   const char* previouslyCrashedFileRootPath;
   const char* sessionId;
+  const char* appQualitySessionId;
   const char* betaToken;
   bool errorsEnabled;
   bool customExceptionsEnabled;
@@ -96,10 +97,12 @@ typedef struct {
 } FIRCLSContextInitData;
 
 #ifdef __OBJC__
-bool FIRCLSContextInitialize(FIRCLSInternalReport* report,
-                             FIRCLSSettings* settings,
-                             FIRCLSFileManager* fileManager);
-
+bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager* fileManager);
+FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
+                                                 FIRCLSSettings* settings,
+                                                 FIRCLSFileManager* fileManager,
+                                                 NSString* appQualitySessionId);
+bool FIRCLSContextRecordMetadata(NSString* rootPath, const FIRCLSContextInitData* initData);
 #endif
 
 void FIRCLSContextBaseInit(void);

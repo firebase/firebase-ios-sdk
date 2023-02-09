@@ -59,16 +59,18 @@ typedef struct _google_crashlytics_Report {
     pb_bytes_array_t *build_version;
     pb_bytes_array_t *display_version;
     google_crashlytics_FilesPayload apple_payload;
+    pb_bytes_array_t *firebase_installation_id;
+    pb_bytes_array_t *app_quality_session_id;
 /* @@protoc_insertion_point(struct:google_crashlytics_Report) */
 } google_crashlytics_Report;
 
 /* Default values for struct fields */
 
 /* Initializer values for message structs */
-#define google_crashlytics_Report_init_default   {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_default}
+#define google_crashlytics_Report_init_default   {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_default, NULL, NULL}
 #define google_crashlytics_FilesPayload_init_default {0, NULL}
 #define google_crashlytics_FilesPayload_File_init_default {NULL, NULL}
-#define google_crashlytics_Report_init_zero      {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_zero}
+#define google_crashlytics_Report_init_zero      {NULL, NULL, _google_crashlytics_Platforms_MIN, NULL, NULL, NULL, google_crashlytics_FilesPayload_init_zero, NULL, NULL}
 #define google_crashlytics_FilesPayload_init_zero {0, NULL}
 #define google_crashlytics_FilesPayload_File_init_zero {NULL, NULL}
 
@@ -80,12 +82,14 @@ typedef struct _google_crashlytics_Report {
 #define google_crashlytics_Report_gmp_app_id_tag 3
 #define google_crashlytics_Report_platform_tag   4
 #define google_crashlytics_Report_installation_uuid_tag 5
+#define google_crashlytics_Report_firebase_installation_id_tag 16
+#define google_crashlytics_Report_app_quality_session_id_tag 17
 #define google_crashlytics_Report_build_version_tag 6
 #define google_crashlytics_Report_display_version_tag 7
 #define google_crashlytics_Report_apple_payload_tag 10
 
 /* Struct field encoding specification for nanopb */
-extern const pb_field_t google_crashlytics_Report_fields[8];
+extern const pb_field_t google_crashlytics_Report_fields[10];
 extern const pb_field_t google_crashlytics_FilesPayload_fields[2];
 extern const pb_field_t google_crashlytics_FilesPayload_File_fields[3];
 

@@ -239,11 +239,13 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
                                                        scope:kFIRMessagingDefaultTokenScope]
           .token;
   // When there is a cached token, do the token refresh.
+  // Before fetching FCM token, confirm there is an APNS token to avoid validation error
+  // This error is innocuous since we refetch after APNS token is set but it can seem alarming
   if (cachedToken) {
     // Clean up expired tokens by checking the token refresh policy.
     [self.installations installationIDWithCompletion:^(NSString *_Nullable identifier,
                                                        NSError *_Nullable error) {
-      if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier]) {
+      if ([self.tokenManager checkTokenRefreshPolicyWithIID:identifier] && self.APNSToken) {
         // Default token is expired, fetch default token from server.
         [self retrieveFCMTokenForSenderID:self.tokenManager.fcmSenderID
                                completion:^(NSString *_Nullable FCMToken, NSError *_Nullable error){
@@ -255,7 +257,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
       // TODO(chliangGoogle) Need to investigate better solution.
       [self updateDefaultFCMToken:self.FCMToken];
     }];
-  } else if (self.isAutoInitEnabled) {
+  } else if (self.isAutoInitEnabled && self.APNSToken) {
     // When there is no cached token, must check auto init is enabled.
     // If it's disabled, don't initiate token generation/refresh.
     // If no cache token and auto init is enabled, fetch a token from server.

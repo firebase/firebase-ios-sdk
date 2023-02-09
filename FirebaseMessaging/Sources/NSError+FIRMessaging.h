@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 // FIRMessaging Internal Error Code
 typedef NS_ENUM(NSUInteger, FIRMessagingErrorCode) {
   kFIRMessagingErrorCodeUnknown = 0,
+  kFIRMessagingErrorCodeInternal = 1,
 
   kFIRMessagingErrorCodeNetwork = 4,
 

@@ -155,10 +155,11 @@ typedef struct _firebase_appquality_sessions_AppleApplicationInfo {
 
 typedef struct _firebase_appquality_sessions_SessionInfo {
     pb_bytes_array_t *session_id;
-    pb_bytes_array_t *previous_session_id;
     pb_bytes_array_t *firebase_installation_id;
     int64_t event_timestamp_us;
     firebase_appquality_sessions_DataCollectionStatus data_collection_status;
+    pb_bytes_array_t *first_session_id;
+    int32_t session_index;
 /* @@protoc_insertion_point(struct:firebase_appquality_sessions_SessionInfo) */
 } firebase_appquality_sessions_SessionInfo;
 
@@ -189,14 +190,14 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 /* Initializer values for message structs */
 #define firebase_appquality_sessions_SessionEvent_init_default {_firebase_appquality_sessions_EventType_MIN, firebase_appquality_sessions_SessionInfo_init_default, firebase_appquality_sessions_ApplicationInfo_init_default}
 #define firebase_appquality_sessions_NetworkConnectionInfo_init_default {_firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MIN, _firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_MIN}
-#define firebase_appquality_sessions_SessionInfo_init_default {NULL, NULL, NULL, 0, firebase_appquality_sessions_DataCollectionStatus_init_default}
+#define firebase_appquality_sessions_SessionInfo_init_default {NULL, NULL, 0, firebase_appquality_sessions_DataCollectionStatus_init_default, NULL, 0}
 #define firebase_appquality_sessions_DataCollectionStatus_init_default {_firebase_appquality_sessions_DataCollectionState_MIN, _firebase_appquality_sessions_DataCollectionState_MIN, 0}
 #define firebase_appquality_sessions_ApplicationInfo_init_default {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_default}, NULL, _firebase_appquality_sessions_LogEnvironment_MIN}
 #define firebase_appquality_sessions_AndroidApplicationInfo_init_default {NULL, NULL}
 #define firebase_appquality_sessions_AppleApplicationInfo_init_default {NULL, firebase_appquality_sessions_NetworkConnectionInfo_init_default, _firebase_appquality_sessions_OsName_MIN, NULL}
 #define firebase_appquality_sessions_SessionEvent_init_zero {_firebase_appquality_sessions_EventType_MIN, firebase_appquality_sessions_SessionInfo_init_zero, firebase_appquality_sessions_ApplicationInfo_init_zero}
 #define firebase_appquality_sessions_NetworkConnectionInfo_init_zero {_firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MIN, _firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_MIN}
-#define firebase_appquality_sessions_SessionInfo_init_zero {NULL, NULL, NULL, 0, firebase_appquality_sessions_DataCollectionStatus_init_zero}
+#define firebase_appquality_sessions_SessionInfo_init_zero {NULL, NULL, 0, firebase_appquality_sessions_DataCollectionStatus_init_zero, NULL, 0}
 #define firebase_appquality_sessions_DataCollectionStatus_init_zero {_firebase_appquality_sessions_DataCollectionState_MIN, _firebase_appquality_sessions_DataCollectionState_MIN, 0}
 #define firebase_appquality_sessions_ApplicationInfo_init_zero {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_zero}, NULL, _firebase_appquality_sessions_LogEnvironment_MIN}
 #define firebase_appquality_sessions_AndroidApplicationInfo_init_zero {NULL, NULL}
@@ -215,7 +216,8 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 #define firebase_appquality_sessions_AppleApplicationInfo_os_name_tag 4
 #define firebase_appquality_sessions_AppleApplicationInfo_mcc_mnc_tag 5
 #define firebase_appquality_sessions_SessionInfo_session_id_tag 1
-#define firebase_appquality_sessions_SessionInfo_previous_session_id_tag 2
+#define firebase_appquality_sessions_SessionInfo_first_session_id_tag 7
+#define firebase_appquality_sessions_SessionInfo_session_index_tag 8
 #define firebase_appquality_sessions_SessionInfo_firebase_installation_id_tag 3
 #define firebase_appquality_sessions_SessionInfo_event_timestamp_us_tag 4
 #define firebase_appquality_sessions_SessionInfo_data_collection_status_tag 6
@@ -234,7 +236,7 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 /* Struct field encoding specification for nanopb */
 extern const pb_field_t firebase_appquality_sessions_SessionEvent_fields[4];
 extern const pb_field_t firebase_appquality_sessions_NetworkConnectionInfo_fields[3];
-extern const pb_field_t firebase_appquality_sessions_SessionInfo_fields[6];
+extern const pb_field_t firebase_appquality_sessions_SessionInfo_fields[7];
 extern const pb_field_t firebase_appquality_sessions_DataCollectionStatus_fields[4];
 extern const pb_field_t firebase_appquality_sessions_ApplicationInfo_fields[9];
 extern const pb_field_t firebase_appquality_sessions_AndroidApplicationInfo_fields[3];

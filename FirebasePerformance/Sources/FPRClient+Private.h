@@ -19,6 +19,11 @@
 @class FPRConfigurations;
 @class FIRInstallations;
 
+/// Protocol to define the Firebase performance provider for the component framework.
+@protocol FIRPerformanceProvider <NSObject>
+
+@end
+
 /**
  * Extension that is added on top of the class FPRClient to make the private properties visible
  * between the implementation file and the unit tests.

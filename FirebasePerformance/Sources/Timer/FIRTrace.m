@@ -136,7 +136,7 @@
 - (void)start {
   if (![self isTraceStarted]) {
     if (!self.isStage) {
-      [[FPRGaugeManager sharedInstance] collectAllGauges];
+      [[FPRSessionManager sharedInstance] collectAllGaugesOnce];
     }
     self.startTime = [NSDate date];
     self.backgroundActivityTracker = [[FPRTraceBackgroundActivityTracker alloc] init];
@@ -169,7 +169,7 @@
     self.stopTime = [NSDate date];
     [self.fprClient logTrace:self];
     if (!self.isStage) {
-      [[FPRGaugeManager sharedInstance] collectAllGauges];
+      [[FPRSessionManager sharedInstance] collectAllGaugesOnce];
     }
   } else {
     FPRLogError(kFPRTraceNotStarted,

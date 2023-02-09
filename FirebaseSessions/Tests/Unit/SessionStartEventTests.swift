@@ -28,16 +28,32 @@ import XCTest
 @testable import FirebaseSessions
 
 class SessionStartEventTests: XCTestCase {
-  var identifiers: MockIdentifierProvider!
   var time: MockTimeProvider!
   var appInfo: MockApplicationInfo!
 
   override func setUp() {
     super.setUp()
 
-    identifiers = MockIdentifierProvider()
     time = MockTimeProvider()
     appInfo = MockApplicationInfo()
+  }
+
+  var defaultSessionInfo: SessionInfo {
+    return SessionInfo(
+      sessionId: "test_session_id",
+      firstSessionId: "test_first_session_id",
+      dispatchEvents: true,
+      sessionIndex: 0
+    )
+  }
+
+  var thirdSessionInfo: SessionInfo {
+    return SessionInfo(
+      sessionId: "test_third_session_id",
+      firstSessionId: "test_first_session_id",
+      dispatchEvents: true,
+      sessionIndex: 2
+    )
   }
 
   /// This function runs the `testCase` twice, once for the proto object stored in
@@ -54,31 +70,28 @@ class SessionStartEventTests: XCTestCase {
     testCase(decodedProto)
   }
 
-  func test_init_setsSessionIDs() {
-    identifiers.mockAllValidIDs()
-
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+  func test_init_setsSessionData() {
+    let event = SessionStartEvent(sessionInfo: thirdSessionInfo, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
         proto.session_data.session_id,
-        expected: MockIdentifierProvider.testSessionID,
+        expected: "test_third_session_id",
         fieldName: "session_id"
       )
       assertEqualProtoString(
-        proto.session_data.previous_session_id,
-        expected: MockIdentifierProvider.testPreviousSessionID,
-        fieldName: "previous_session_id"
+        proto.session_data.first_session_id,
+        expected: "test_first_session_id",
+        fieldName: "first_session_id"
       )
+      XCTAssertEqual(proto.session_data.session_index, 2)
 
       XCTAssertEqual(proto.session_data.event_timestamp_us, 123)
     }
   }
 
   func test_init_setsApplicationInfo() {
-    appInfo.mockAllInfo()
-
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
@@ -101,11 +114,6 @@ class SessionStartEventTests: XCTestCase {
         expected: MockApplicationInfo.testDeviceModel,
         fieldName: "device_model"
       )
-      assertEqualProtoString(
-        proto.application_info.apple_app_info.mcc_mnc,
-        expected: MockApplicationInfo.testMCCMNC,
-        fieldName: "mcc_mnc"
-      )
 
       // Ensure we convert the test OS name into the enum.
       XCTAssertEqual(
@@ -116,15 +124,14 @@ class SessionStartEventTests: XCTestCase {
   }
 
   func test_setInstallationID_setsInstallationID() {
-    identifiers.mockAllValidIDs()
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
     event.setInstallationID(installationId: "testInstallationID")
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       assertEqualProtoString(
         proto.session_data.firebase_installation_id,
-        expected: MockIdentifierProvider.testInstallationID,
+        expected: "testInstallationID",
         fieldName: "firebase_installation_id"
       )
     }
@@ -145,7 +152,11 @@ class SessionStartEventTests: XCTestCase {
     expectations.forEach { (given: String, expected: firebase_appquality_sessions_OsName) in
       appInfo.osName = given
 
-      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+      let event = SessionStartEvent(
+        sessionInfo: self.defaultSessionInfo,
+        appInfo: appInfo,
+        time: time
+      )
 
       testProtoAndDecodedProto(sessionEvent: event) { proto in
         XCTAssertEqual(event.proto.application_info.apple_app_info.os_name, expected)
@@ -171,25 +182,94 @@ class SessionStartEventTests: XCTestCase {
                             expected: firebase_appquality_sessions_LogEnvironment) in
         appInfo.environment = given
 
-        let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+        let event = SessionStartEvent(
+          sessionInfo: self.defaultSessionInfo,
+          appInfo: appInfo,
+          time: time
+        )
 
         XCTAssertEqual(event.proto.application_info.log_environment, expected)
     }
   }
 
   func test_dataCollectionState_defaultIsUnknown() {
-    identifiers.mockAllValidIDs()
-
-    let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
 
     testProtoAndDecodedProto(sessionEvent: event) { proto in
       XCTAssertEqual(
         proto.session_data.data_collection_status.performance,
-        firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+        firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
       )
       XCTAssertEqual(
         proto.session_data.data_collection_status.crashlytics,
-        firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+        firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
+      )
+    }
+  }
+
+  func test_newtworkInfo_onlyPresentWhenPerformanceInstalled() {
+    let mockNetworkInfo = MockNetworkInfo()
+    mockNetworkInfo.networkType = .mobile
+    // Mobile Subtypes are always empty on non-iOS platforms, and
+    // Performance doesn't support those platforms anyways
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+      mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
+    #else
+      mockNetworkInfo.mobileSubtype = ""
+    #endif
+    appInfo.networkInfo = mockNetworkInfo
+
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
+
+    // These fields will not be filled in when Crashlytics is installed
+    event.set(subscriber: .Crashlytics, isDataCollectionEnabled: true, appInfo: appInfo)
+
+    // They should also not be filled in when Performance data collection is disabled
+    event.set(subscriber: .Performance, isDataCollectionEnabled: false, appInfo: appInfo)
+
+    // Expect empty because Crashlytics is installed, but not Perf
+    testProtoAndDecodedProto(sessionEvent: event) { proto in
+      XCTAssertEqual(
+        event.proto.application_info.apple_app_info.network_connection_info.network_type,
+        firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_DUMMY
+      )
+      XCTAssertEqual(
+        event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+        firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+      )
+      assertEqualProtoString(
+        proto.application_info.apple_app_info.mcc_mnc,
+        expected: "",
+        fieldName: "mcc_mnc"
+      )
+    }
+
+    // These fields will only be filled in when the Perf SDK is installed
+    event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
+
+    // Now the field should be set with the real thing
+    testProtoAndDecodedProto(sessionEvent: event) { proto in
+      XCTAssertEqual(
+        event.proto.application_info.apple_app_info.network_connection_info.network_type,
+        firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MOBILE
+      )
+      // Mobile Subtypes are always empty on non-iOS platforms, and
+      // Performance doesn't support those platforms anyways
+      #if os(iOS) && !targetEnvironment(macCatalyst)
+        XCTAssertEqual(
+          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+        )
+      #else
+        XCTAssertEqual(
+          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+        )
+      #endif
+      assertEqualProtoString(
+        proto.application_info.apple_app_info.mcc_mnc,
+        expected: MockApplicationInfo.testMCCMNC,
+        fieldName: "mcc_mnc"
       )
     }
   }
@@ -221,7 +301,14 @@ class SessionStartEventTests: XCTestCase {
       mockNetworkInfo.networkType = given
       appInfo.networkInfo = mockNetworkInfo
 
-      let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+      let event = SessionStartEvent(
+        sessionInfo: self.defaultSessionInfo,
+        appInfo: appInfo,
+        time: time
+      )
+
+      // These fields will only be filled in when the Perf SDK is installed
+      event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
 
       testProtoAndDecodedProto(sessionEvent: event) { proto in
         XCTAssertEqual(
@@ -298,7 +385,14 @@ class SessionStartEventTests: XCTestCase {
           mockNetworkInfo.mobileSubtype = given
           appInfo.networkInfo = mockNetworkInfo
 
-          let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+          let event = SessionStartEvent(
+            sessionInfo: self.defaultSessionInfo,
+            appInfo: appInfo,
+            time: time
+          )
+
+          // These fields will only be filled in when the Perf SDK is installed
+          event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
 
           testProtoAndDecodedProto(sessionEvent: event) { proto in
             XCTAssertEqual(
@@ -384,7 +478,14 @@ class SessionStartEventTests: XCTestCase {
           mockNetworkInfo.mobileSubtype = given
           appInfo.networkInfo = mockNetworkInfo
 
-          let event = SessionStartEvent(identifiers: identifiers, appInfo: appInfo, time: time)
+          let event = SessionStartEvent(
+            sessionInfo: self.defaultSessionInfo,
+            appInfo: appInfo,
+            time: time
+          )
+
+          // These fields will only be filled in when the Perf SDK is installed
+          event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
 
           testProtoAndDecodedProto(sessionEvent: event) { proto in
             XCTAssertEqual(

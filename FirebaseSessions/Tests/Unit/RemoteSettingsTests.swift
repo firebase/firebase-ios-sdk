@@ -16,7 +16,7 @@
 import XCTest
 @testable import FirebaseSessions
 
-class SettingsTests: XCTestCase {
+class RemoteSettingsTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
   let validSettings: [String: Any] = [
@@ -39,7 +39,7 @@ class SettingsTests: XCTestCase {
   var cache: SettingsCacheClient!
   var appInfo: MockApplicationInfo!
   var downloader: MockSettingsDownloader!
-  var settings: SettingsProtocol!
+  var settings: RemoteSettings!
 
   override func setUp() {
     super.setUp()
@@ -47,36 +47,34 @@ class SettingsTests: XCTestCase {
     downloader = MockSettingsDownloader(successResponse: validSettings)
     cache = SettingsCache()
     cache.removeCache() // just reinstantiating cache isn't enough because of persistence
-    settings = Settings(appInfo: appInfo, downloader: downloader, cache: cache)
+    settings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
   }
 
-  func test_noCacheSaved_returnsDefaultSettings() {
+  func test_noCacheSaved_returnsNilSettings() {
     downloader.shouldSucceed = false
-    settings.fetchAndCacheSettings(currentTime: Date.distantFuture)
+    settings.updateSettings(currentTime: Date.distantFuture)
     XCTAssertTrue(cache.cacheContent.isEmpty)
     XCTAssertNil(cache.cacheKey)
-    XCTAssertTrue(settings.sessionsEnabled)
-    XCTAssertEqual(settings.samplingRate, 1)
-    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
+    XCTAssertNil(settings.sessionsEnabled)
+    XCTAssertNil(settings.samplingRate)
+    XCTAssertNil(settings.sessionTimeout)
   }
 
   func test_successfulFetch_returnsCachedSettings() {
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: date)
+    settings.updateSettings(currentTime: date)
 
     // Should be same as self.validSettings
-    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertFalse(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.5)
     XCTAssertEqual(settings.sessionTimeout, 10)
   }
 
   func test_cacheKeyIsNotExpired_stopsFetchFromProceeding() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: date)
-    XCTAssertFalse(settings.sessionsEnabled)
+    settings.updateSettings(currentTime: date)
+    XCTAssertFalse(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.5)
     XCTAssertEqual(settings.sessionTimeout, 10)
 
@@ -86,19 +84,18 @@ class SettingsTests: XCTestCase {
     // downloader will return new setting
     downloader.successResponse = validSettings2
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // fetch did not happen, still provide old cached settings
-    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertFalse(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.5)
     XCTAssertEqual(settings.sessionTimeout, 10)
   }
 
   func test_cacheKeyExpiredFromAppVersion_fetchNewSettingsOrContinueOldSettings() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: date)
+    settings.updateSettings(currentTime: date)
 
     // When
     // time passed = 5, TTL = 10, time passed < TTL
@@ -107,10 +104,10 @@ class SettingsTests: XCTestCase {
     appInfo.appDisplayVersion = "testNewAppDisplayVersion"
     // downloader fails
     downloader.shouldSucceed = false
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // However, still provide already cached settings
-    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertFalse(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.5)
     XCTAssertEqual(settings.sessionTimeout, 10)
 
@@ -119,29 +116,28 @@ class SettingsTests: XCTestCase {
     // downloader succeeds
     downloader.successResponse = validSettings2
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // provide new settings
-    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertTrue(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.2)
     XCTAssertEqual(settings.sessionTimeout, 20)
   }
 
   func test_cacheKeyExpiredFromTTL_fetchNewSettingsOrContinueOldSettings() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: date)
+    settings.updateSettings(currentTime: date)
 
     // When
     // time passed = 11, TTL = 10, tim passed > TTL
     let now = date.addingTimeInterval(11)
     // downloader fails
     downloader.shouldSucceed = false
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // However, still provide already cached settings
-    XCTAssertFalse(settings.sessionsEnabled)
+    XCTAssertFalse(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.5)
     XCTAssertEqual(settings.sessionTimeout, 10)
 
@@ -150,19 +146,18 @@ class SettingsTests: XCTestCase {
     // downloader succeeds
     downloader.successResponse = validSettings2
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // provide new settings
-    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertTrue(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.2)
     XCTAssertEqual(settings.sessionTimeout, 20)
   }
 
   func test_cacheKeyGoogleAppIDChanged_fetchNewSettingsOrReturnDefaults() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: date)
+    settings.updateSettings(currentTime: date)
 
     // When
     // change appID
@@ -171,32 +166,31 @@ class SettingsTests: XCTestCase {
     let now = date.addingTimeInterval(5)
     // downloader fails
     downloader.shouldSucceed = false
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // provide default settings
-    XCTAssertTrue(settings.sessionsEnabled)
-    XCTAssertEqual(settings.samplingRate, 1)
-    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
+    XCTAssertNil(settings.sessionsEnabled)
+    XCTAssertNil(settings.samplingRate)
+    XCTAssertNil(settings.sessionTimeout)
 
     // When
     // time passed = 5, TTL = 10, time passed < TTL
     // downloader succeeds
     downloader.successResponse = validSettings2
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // provide new settings
-    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertTrue(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.2)
     XCTAssertEqual(settings.sessionTimeout, 20)
   }
 
   func test_corruptedCache_fetchNewSettingsOrReturnDefaults() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: date)
-    XCTAssertFalse(settings.sessionsEnabled)
+    settings.updateSettings(currentTime: date)
+    XCTAssertFalse(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.5)
     XCTAssertEqual(settings.sessionTimeout, 10)
 
@@ -204,29 +198,28 @@ class SettingsTests: XCTestCase {
     write(jsonString: corruptedJSONString, isCacheKey: false)
     // Then
     // should provide default values
-    XCTAssertTrue(settings.sessionsEnabled)
-    XCTAssertEqual(settings.samplingRate, 1)
-    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
+    XCTAssertNil(settings.sessionsEnabled)
+    XCTAssertNil(settings.samplingRate)
+    XCTAssertNil(settings.sessionTimeout)
 
     // When
     // time passed = 5, TTL = 10, time passed < TTL
     let now = date.addingTimeInterval(5)
     downloader.successResponse = validSettings2
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // Fetch proceeds, provide new settings
-    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertTrue(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.2)
     XCTAssertEqual(settings.sessionTimeout, 20)
   }
 
   func test_corruptedCacheKey_fetchNewSettingsOrReturnDefaults() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: date)
-    XCTAssertFalse(settings.sessionsEnabled)
+    settings.updateSettings(currentTime: date)
+    XCTAssertFalse(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.5)
     XCTAssertEqual(settings.sessionTimeout, 10)
 
@@ -234,22 +227,22 @@ class SettingsTests: XCTestCase {
     // cache key is corrupted, and fetch fails
     write(jsonString: corruptedJSONString, isCacheKey: true)
     downloader.shouldSucceed = false
-    settings.fetchAndCacheSettings(currentTime: date)
+    settings.updateSettings(currentTime: date)
     // Then
     // should provide default values
-    XCTAssertTrue(settings.sessionsEnabled)
-    XCTAssertEqual(settings.samplingRate, 1)
-    XCTAssertEqual(settings.sessionTimeout, 30 * 60)
+    XCTAssertNil(settings.sessionsEnabled)
+    XCTAssertNil(settings.samplingRate)
+    XCTAssertNil(settings.sessionTimeout)
 
     // When
     // time passed = 5, TTL = 10, time passed < TTL
     let now = date.addingTimeInterval(5)
     downloader.successResponse = validSettings2
     downloader.shouldSucceed = true
-    settings.fetchAndCacheSettings(currentTime: now)
+    settings.updateSettings(currentTime: now)
     // Then
     // Fetch proceeds, provide new settings
-    XCTAssertTrue(settings.sessionsEnabled)
+    XCTAssertTrue(settings.sessionsEnabled!)
     XCTAssertEqual(settings.samplingRate, 0.2)
     XCTAssertEqual(settings.sessionTimeout, 20)
   }

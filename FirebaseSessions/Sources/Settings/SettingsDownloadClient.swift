@@ -22,24 +22,32 @@ import Foundation
 #endif // SWIFT_PACKAGE
 
 protocol SettingsDownloadClient {
-  func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void)
+  func fetch(completion: @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void)
+}
+
+enum SettingsDownloaderError: Error {
+  /// Error contructing the URL
+  case URLError(String)
+  /// Error from the URLSession task
+  case URLSessionError(String)
+  /// Error parsing the JSON response from Settings
+  case JSONParseError(String)
+  /// Error getting the Installation ID
+  case InstallationIDError(String)
 }
 
 class SettingsDownloader: SettingsDownloadClient {
   private let appInfo: ApplicationInfoProtocol
-  private let identifiers: IdentifierProvider
   private let installations: InstallationsProtocol
 
-  init(appInfo: ApplicationInfoProtocol, identifiers: IdentifierProvider,
-       installations: InstallationsProtocol) {
+  init(appInfo: ApplicationInfoProtocol, installations: InstallationsProtocol) {
     self.appInfo = appInfo
-    self.identifiers = identifiers
     self.installations = installations
   }
 
-  func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void) {
+  func fetch(completion: @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void) {
     guard let validURL = url else {
-      completion(.failure(FirebaseSessionsError.SettingsError("Invalid URL")))
+      completion(.failure(.URLError("Invalid URL")))
       return
     }
 
@@ -52,17 +60,18 @@ class SettingsDownloader: SettingsDownloadClient {
             if let dict = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
               completion(.success(dict))
             } else {
-              completion(.failure(FirebaseSessionsError
-                  .SettingsError("Failed to parse JSON to dictionary")))
+              completion(.failure(
+                .JSONParseError("Failed to parse JSON to dictionary")
+              ))
             }
           } else if let error = error {
-            completion(.failure(FirebaseSessionsError.SettingsError(error.localizedDescription)))
+            completion(.failure(.URLSessionError(error.localizedDescription)))
           }
         }
         // Start the task that sends the network request
         task.resume()
       case let .failure(error):
-        completion(.failure(FirebaseSessionsError.SettingsError(error.localizedDescription)))
+        completion(.failure(.InstallationIDError(error.localizedDescription)))
       }
     }
   }
