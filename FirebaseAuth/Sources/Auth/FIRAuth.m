@@ -479,14 +479,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID {
-    return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil appcheck:nil];
+  return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil appcheck:nil];
 }
 
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
-                               appcheck:(nullable id<FIRAppCheckInterop>)appcheck{
+                               appcheck:(nullable id<FIRAppCheckInterop>)appcheck {
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];

@@ -649,10 +649,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [requestConfiguration.appcheck
         getTokenForcingRefresh:false
                     completion:^(id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
-                        if (tokenResult.error) {
-                            FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                                        @"Error loading saved user when starting up: %@", tokenResult.error);
-                        }
+                      if (tokenResult.error) {
+                        FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                                    @"Error loading saved user when starting up: %@",
+                                    tokenResult.error);
+                      }
                       [request setValue:tokenResult.token
                           forHTTPHeaderField:@"X-Firebase-AppCheck"];
                       completionHandler(request);
