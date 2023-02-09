@@ -19,8 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRCreateAuthURIRequest;
-@class FIRCreateAuthURIResponse;
 @class FIRDeleteAccountRequest;
 @class FIRDeleteAccountResponse;
 @class FIREmailLinkSignInRequest;
@@ -67,16 +65,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
                                                          NSError *_Nullable error);
-
-/** @typedef FIRCreateAuthURIResponseCallback
-    @brief The type of block used to return the result of a call to the createAuthURI
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRCreateAuthURIResponseCallback)(FIRCreateAuthURIResponse *_Nullable response,
-                                                 NSError *_Nullable error);
 
 /** @typedef FIRGetAccountInfoResponseCallback
     @brief The type of block used to return the result of a call to the getAccountInfo
@@ -237,6 +225,12 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 @interface FIRAuthBackend : NSObject
 
+
+// TODO: should be fileprivate after full port.
++ (nullable NSError *)clientErrorWithServerErrorMessage:(NSString *)serverErrorMessage
+                                        errorDictionary:(NSDictionary *)errorDictionary
+                                               response:(id<FIRAuthRPCResponse>)response;
+
 /** @fn authUserAgent
     @brief Retrieves the Firebase Auth user agent.
     @return The Firebase Auth user agent.
@@ -262,15 +256,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
-
-/** @fn createAuthURI:callback:
-    @brief Calls the createAuthURI endpoint, which is responsible for creating the URI used by the
-        IdP to authenticate the user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback;
 
 /** @fn getAccountInfo:callback:
     @brief Calls the getAccountInfo endpoint, which returns account info for a given account.
@@ -444,15 +429,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
         or a mock backend.
  */
 @protocol FIRAuthBackendImplementation <NSObject>
-
-/** @fn createAuthURI:callback:
-    @brief Calls the createAuthURI endpoint, which is responsible for creating the URI used by the
-        IdP to authenticate the user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback;
 
 /** @fn getAccountInfo:callback:
     @brief Calls the getAccountInfo endpoint, which returns account info for a given account.

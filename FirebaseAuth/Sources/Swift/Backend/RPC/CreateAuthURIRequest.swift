@@ -64,7 +64,7 @@ private let kTenantIDKey = "tenantId"
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
  */
 @objc(FIRCreateAuthURIRequest) public class CreateAuthURIRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+                                                                  AuthRPCRequest {
   /** @property identifier
       @brief The email or federated ID of the user.
    */
@@ -103,10 +103,16 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public var appID: String?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse
+
   @objc public init(identifier: String, continueURI: String,
                     requestConfiguration: AuthRequestConfiguration) {
     self.identifier = identifier
     self.continueURI = continueURI
+    self.response = CreateAuthURIResponse()
     super.init(endpoint: kCreateAuthURIEndpoint, requestConfiguration: requestConfiguration)
   }
 

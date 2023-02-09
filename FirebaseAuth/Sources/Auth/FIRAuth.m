@@ -414,7 +414,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   if (!defaultApp) {
     [NSException
          raise:NSInternalInconsistencyException
-        format:@"The default FirebaseApp instance must be configured before the default Auth"
+        format:@"The default FirebaseApp instance must be configured before the default Auth "
                @"instance can be initialized. One way to ensure this is to call "
                @"`FirebaseApp.configure()` in the App Delegate's "
                @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
@@ -654,7 +654,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [[FIRCreateAuthURIRequest alloc] initWithIdentifier:email
                                                 continueURI:@"http://www.google.com/"
                                        requestConfiguration:self->_requestConfiguration];
-    [FIRAuthBackend
+    [FIRAuthBackend2
         createAuthURI:request
              callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error) {
                if (completion) {

@@ -90,7 +90,7 @@ static NSString *const kExpectedAPIURL =
                                   requestConfiguration:requestConfiguration];
   __block BOOL callbackInvoked;
   __block NSError *RPCError;
-  [FIRAuthBackend deleteAccount:request
+  [FIRAuthBackend2 deleteAccount:request
                        callback:^(NSError *_Nullable error) {
                          callbackInvoked = YES;
                          RPCError = error;

@@ -484,11 +484,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   gBackendImplementation = defaultImplementation;
 }
 
-+ (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback {
-  [[self implementation] createAuthURI:request callback:callback];
-}
-
 + (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   [[self implementation] getAccountInfo:request callback:callback];
@@ -658,20 +653,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     _RPCIssuer = [[FIRAuthBackendRPCIssuerImplementation alloc] init];
   }
   return self;
-}
-
-- (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback {
-  FIRCreateAuthURIResponse *response = [[FIRCreateAuthURIResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
 }
 
 - (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
