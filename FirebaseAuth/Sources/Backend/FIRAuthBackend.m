@@ -1545,7 +1545,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kRecaptchaNotEnabled]) {
-      return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeRecaptchaNotEnabled
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeRecaptchaNotEnabled
                                     message:serverErrorMessage];
   }
 
