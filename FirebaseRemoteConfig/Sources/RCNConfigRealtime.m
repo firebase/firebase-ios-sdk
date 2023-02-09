@@ -591,9 +591,9 @@ static NSInteger const gMaxRetries = 7;
     /// on success reset retry parameters
     _remainingRetryCount = gMaxRetries;
     [self->_settings setRealtimeRetryCount:0];
-
-    completionHandler(NSURLSessionResponseAllow);
   }
+
+  completionHandler(NSURLSessionResponseAllow);
 }
 
 /// Delegate to handle data task completion
