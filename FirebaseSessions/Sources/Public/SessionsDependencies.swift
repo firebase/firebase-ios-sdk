@@ -15,22 +15,18 @@
 
 import Foundation
 
-@testable import FirebaseSessions
+// Sessions Dependencies determines when a dependent SDK is
+// installed in the app. The Sessions SDK uses this to figure
+// out which dependencies to wait for to getting the data
+// collection state.
+//
+// This is important because the Sessions SDK starts up before
+// dependent SDKs
+@objc(FIRSessionsDependencies)
+public class SessionsDependencies: NSObject {
+  static var dependencies: Set<SessionsSubscriberName> = .init()
 
-class MockIdentifierProvider: IdentifierProvider {
-  var sessionID: String = ""
-
-  var previousSessionID: String?
-
-  var installationID: String = ""
-
-  static let testSessionID = "testSessionID"
-  static let testPreviousSessionID = "testPreviousSessionID"
-  static let testInstallationID = "testInstallationID"
-
-  func mockAllValidIDs() {
-    sessionID = MockIdentifierProvider.testSessionID
-    previousSessionID = MockIdentifierProvider.testPreviousSessionID
-    installationID = MockIdentifierProvider.testInstallationID
+  @objc public static func addDependency(name: SessionsSubscriberName) {
+    SessionsDependencies.dependencies.insert(name)
   }
 }

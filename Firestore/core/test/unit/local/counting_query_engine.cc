@@ -185,11 +185,13 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
   return result;
 }
 
-model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
-    const model::ResourcePath& path,
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetDocumentsMatchingQuery(
+    const core::Query& query,
     const model::IndexOffset& offset,
-    absl::optional<size_t>) const {
-  auto result = subject_->GetAll(path, offset);
+    absl::optional<size_t> limit,
+    const model::OverlayByDocumentKeyMap& mutated_docs) const {
+  auto result =
+      subject_->GetDocumentsMatchingQuery(query, offset, limit, mutated_docs);
   query_engine_->documents_read_by_query_ += result.size();
   return result;
 }

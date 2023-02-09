@@ -35,15 +35,16 @@ import Foundation
 class SessionStartEvent: NSObject, GDTCOREventDataObject {
   var proto: firebase_appquality_sessions_SessionEvent
 
-  init(identifiers: IdentifierProvider, appInfo: ApplicationInfoProtocol,
+  init(sessionInfo: SessionInfo, appInfo: ApplicationInfoProtocol,
        time: TimeProvider = Time()) {
     proto = firebase_appquality_sessions_SessionEvent()
 
     super.init()
 
     proto.event_type = firebase_appquality_sessions_EventType_SESSION_START
-    proto.session_data.session_id = makeProtoString(identifiers.sessionID)
-    proto.session_data.previous_session_id = makeProtoStringOrNil(identifiers.previousSessionID)
+    proto.session_data.session_id = makeProtoString(sessionInfo.sessionId)
+    proto.session_data.first_session_id = makeProtoString(sessionInfo.firstSessionId)
+    proto.session_data.session_index = sessionInfo.sessionIndex
     proto.session_data.event_timestamp_us = time.timestampUS
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
@@ -57,17 +58,20 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
     proto.application_info.apple_app_info
       .bundle_short_version = makeProtoString(appInfo.appDisplayVersion)
-    proto.application_info.apple_app_info.network_connection_info
-      .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
-    proto.application_info.apple_app_info.network_connection_info
-      .mobile_subtype = convertMobileSubtype(mobileSubtype: appInfo.networkInfo.mobileSubtype)
     proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
-    proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
+
+    // Set network info to base values but don't fill them in with the real
+    // value because these are only tracked when Performance is installed
+    proto.application_info.apple_app_info.mcc_mnc = makeProtoString("")
+    proto.application_info.apple_app_info.network_connection_info
+      .network_type = convertNetworkType(networkType: .none)
+    proto.application_info.apple_app_info.network_connection_info
+      .mobile_subtype = convertMobileSubtype(mobileSubtype: "")
 
     proto.session_data.data_collection_status
-      .crashlytics = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      .crashlytics = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
     proto.session_data.data_collection_status
-      .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_UNKNOWN
+      .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
   }
 
   func setInstallationID(installationId: String) {
@@ -78,6 +82,43 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.session_data.data_collection_status.session_sampling_rate = samplingRate
   }
 
+  func set(subscriber: SessionsSubscriberName, isDataCollectionEnabled: Bool,
+           appInfo: ApplicationInfoProtocol) {
+    let dataCollectionState = makeDataCollectionProto(isDataCollectionEnabled)
+    switch subscriber {
+    case .Crashlytics:
+      proto.session_data.data_collection_status.crashlytics = dataCollectionState
+    case .Performance:
+      proto.session_data.data_collection_status.performance = dataCollectionState
+    default:
+      Logger
+        .logWarning("Attempted to set Data Collection status for unknown Subscriber: \(subscriber)")
+    }
+
+    // Only set restricted fields if Data Collection is enabled. If it's disabled,
+    // we're treating that as if the product isn't installed.
+    if isDataCollectionEnabled {
+      setRestrictedFields(subscriber: subscriber,
+                          appInfo: appInfo)
+    }
+  }
+
+  /// This method should be called for every subscribed Subscriber. This is for cases where
+  /// fields should only be collected if a specific SDK is installed.
+  private func setRestrictedFields(subscriber: SessionsSubscriberName,
+                                   appInfo: ApplicationInfoProtocol) {
+    switch subscriber {
+    case .Performance:
+      proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
+      proto.application_info.apple_app_info.network_connection_info
+        .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
+      proto.application_info.apple_app_info.network_connection_info
+        .mobile_subtype = convertMobileSubtype(mobileSubtype: appInfo.networkInfo.mobileSubtype)
+    default:
+      break
+    }
+  }
+
   // MARK: - GDTCOREventDataObject
 
   func transportBytes() -> Data {
@@ -85,16 +126,26 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     var error: NSError?
     let data = FIRSESEncodeProto(&fields.0, &proto, &error)
     if error != nil {
-      Logger.logError(error.debugDescription)
+      Logger
+        .logError("Session Event failed to encode as proto with error: \(error.debugDescription)")
     }
     guard let data = data else {
-      Logger.logError("Session event generated nil transportBytes. Returning empty data.")
+      Logger.logError("Session Event generated nil transportBytes. Returning empty data.")
       return Data()
     }
     return data
   }
 
   // MARK: - Data Conversion
+
+  func makeDataCollectionProto(_ isDataCollectionEnabled: Bool)
+    -> firebase_appquality_sessions_DataCollectionState {
+    if isDataCollectionEnabled {
+      return firebase_appquality_sessions_DataCollectionState_COLLECTION_ENABLED
+    } else {
+      return firebase_appquality_sessions_DataCollectionState_COLLECTION_DISABLED
+    }
+  }
 
   private func makeProtoStringOrNil(_ string: String?) -> UnsafeMutablePointer<pb_bytes_array_t>? {
     guard let string = string else {
@@ -143,7 +194,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     if !pb_decode(&istream, &fields.0, &proto) {
       let errorMessage = FIRSESPBGetError(istream)
       if errorMessage.count > 0 {
-        Logger.logInfo("Failed to decode transportBytes: \(errorMessage)")
+        Logger.logError("Session Event failed to decode transportBytes: \(errorMessage)")
       }
     }
     return proto

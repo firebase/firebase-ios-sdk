@@ -594,6 +594,12 @@ static NSString *const kFIRAuthErrorMessageUnsupportedTenantOperation =
 static NSString *const kFIRAuthErrorMessageRecaptchaNotEnabled =
     @"The recaptcha integration is not enabled for this project.";
 
+/** @var kFIRAuthErrorMessageBlockingCloudFunctionReturnedError
+    @brief Message for @c FIRAuthErrorCodeBlockingCloudFunctionError error code.
+ */
+static NSString *const kFIRAuthErrorMessageBlockingCloudFunctionReturnedError =
+    @"Blocking cloud function returned an error.";
+
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
@@ -760,6 +766,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageUnsupportedTenantOperation;
     case FIRAuthErrorCodeRecaptchaNotEnabled:
       return kFIRAuthErrorMessageRecaptchaNotEnabled;
+    case FIRAuthErrorCodeBlockingCloudFunctionError:
+      return kFIRAuthErrorMessageBlockingCloudFunctionReturnedError;
   }
 }
 
@@ -929,6 +937,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_UNSUPPORTED_TENANT_OPERATION";
     case FIRAuthErrorCodeRecaptchaNotEnabled:
       return @"ERROR_RECAPTCHA_NOT_ENABLED";
+    case FIRAuthErrorCodeBlockingCloudFunctionError:
+      return @"ERROR_BLOCKING_CLOUD_FUNCTION_RETURNED_ERROR";
   }
 }
 
@@ -1410,6 +1420,32 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)unsupportedTenantOperationError {
   return [self errorWithCode:FIRAuthInternalErrorCodeUnsupportedTenantOperation];
+}
+
++ (NSError *)blockingCloudFunctionServerResponseWithMessage:(nullable NSString *)message {
+  if (message == nil) {
+    return [self errorWithCode:FIRAuthInternalErrorBlockingCloudFunctionError message:message];
+  }
+
+  NSString *jsonString =
+      [message stringByReplacingOccurrencesOfString:@"HTTP Cloud Function returned an error:"
+                                         withString:@""];
+  jsonString = [jsonString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
+  NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+  NSError *jsonError;
+  NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                           options:0
+                                                             error:&jsonError];
+
+  if (jsonError) {
+    return [self JSONSerializationErrorWithUnderlyingError:jsonError];
+  }
+
+  NSDictionary *errorDict = jsonDict[@"error"];
+  NSString *errorMessage = errorDict[@"message"];
+
+  return [self errorWithCode:FIRAuthInternalErrorBlockingCloudFunctionError message:errorMessage];
 }
 
 @end

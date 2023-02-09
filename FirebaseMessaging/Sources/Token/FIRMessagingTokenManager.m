@@ -239,17 +239,25 @@
   }
 
   FIRMessaging_WEAKIFY(self);
-  [_authService
-      fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences, NSError *error) {
-        FIRMessaging_STRONGIFY(self);
-        if (error) {
-          newHandler(nil, error);
-          return;
-        }
+  [_authService fetchCheckinInfoWithHandler:^(FIRMessagingCheckinPreferences *preferences,
+                                              NSError *error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      newHandler(nil, error);
+      return;
+    }
 
-        FIRMessaging_WEAKIFY(self);
-        [self->_installations installationIDWithCompletion:^(NSString *_Nullable identifier,
-                                                             NSError *_Nullable error) {
+    if (!self) {
+      NSError *derefErr =
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                            failureReason:@"Unable to fetch token. Lost Reference to TokenManager"];
+      handler(nil, derefErr);
+      return;
+    }
+
+    FIRMessaging_WEAKIFY(self);
+    [self->_installations
+        installationIDWithCompletion:^(NSString *_Nullable identifier, NSError *_Nullable error) {
           FIRMessaging_STRONGIFY(self);
 
           if (error) {
@@ -275,7 +283,7 @@
                                             handler:newHandler];
           }
         }];
-      }];
+  }];
 }
 
 - (void)fetchNewTokenWithAuthorizedEntity:(NSString *)authorizedEntity
@@ -292,52 +300,60 @@
                                              options:options
                                           instanceID:instanceID];
   FIRMessaging_WEAKIFY(self);
-  FIRMessagingTokenOperationCompletion completion =
-      ^(FIRMessagingTokenOperationResult result, NSString *_Nullable token,
-        NSError *_Nullable error) {
-        FIRMessaging_STRONGIFY(self);
-        if (error) {
-          handler(nil, error);
-          return;
-        }
-        if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
-          [self postTokenRefreshNotificationWithDefaultFCMToken:token];
-        }
-        NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
-        FIRMessagingTokenInfo *tokenInfo =
-            [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
-                                                              scope:scope
-                                                              token:token
-                                                         appVersion:FIRMessagingCurrentAppVersion()
-                                                      firebaseAppID:firebaseAppID];
-        tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:options];
+  FIRMessagingTokenOperationCompletion completion = ^(FIRMessagingTokenOperationResult result,
+                                                      NSString *_Nullable token,
+                                                      NSError *_Nullable error) {
+    FIRMessaging_STRONGIFY(self);
+    if (error) {
+      handler(nil, error);
+      return;
+    }
 
-        [self->_tokenStore
-            saveTokenInfo:tokenInfo
-                  handler:^(NSError *error) {
-                    if (!error) {
-                      // Do not send the token back in case the save was unsuccessful. Since with
-                      // the new asychronous fetch mechanism this can lead to infinite loops, for
-                      // example, we will return a valid token even though we weren't able to store
-                      // it in our cache. The first token will lead to a onTokenRefresh callback
-                      // wherein the user again calls `getToken` but since we weren't able to save
-                      // it we won't hit the cache but hit the server again leading to an infinite
-                      // loop.
-                      FIRMessagingLoggerDebug(
-                          kFIRMessagingMessageCodeTokenManager001,
-                          @"Token fetch successful, token: %@, authorizedEntity: %@, scope:%@",
-                          token, authorizedEntity, scope);
+    if (!self) {
+      NSError *lostRefError = [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                                                failureReason:@"Lost Reference to TokenManager"];
+      handler(nil, lostRefError);
+      return;
+    }
 
-                      if (handler) {
-                        handler(token, nil);
-                      }
-                    } else {
-                      if (handler) {
-                        handler(nil, error);
-                      }
-                    }
-                  }];
-      };
+    if ([self isDefaultTokenWithAuthorizedEntity:authorizedEntity scope:scope]) {
+      [self postTokenRefreshNotificationWithDefaultFCMToken:token];
+    }
+    NSString *firebaseAppID = options[kFIRMessagingTokenOptionsFirebaseAppIDKey];
+    FIRMessagingTokenInfo *tokenInfo =
+        [[FIRMessagingTokenInfo alloc] initWithAuthorizedEntity:authorizedEntity
+                                                          scope:scope
+                                                          token:token
+                                                     appVersion:FIRMessagingCurrentAppVersion()
+                                                  firebaseAppID:firebaseAppID];
+    tokenInfo.APNSInfo = [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:options];
+
+    [self->_tokenStore
+        saveTokenInfo:tokenInfo
+              handler:^(NSError *error) {
+                if (!error) {
+                  // Do not send the token back in case the save was unsuccessful. Since with
+                  // the new asychronous fetch mechanism this can lead to infinite loops, for
+                  // example, we will return a valid token even though we weren't able to store
+                  // it in our cache. The first token will lead to a onTokenRefresh callback
+                  // wherein the user again calls `getToken` but since we weren't able to save
+                  // it we won't hit the cache but hit the server again leading to an infinite
+                  // loop.
+                  FIRMessagingLoggerDebug(
+                      kFIRMessagingMessageCodeTokenManager001,
+                      @"Token fetch successful, token: %@, authorizedEntity: %@, scope:%@", token,
+                      authorizedEntity, scope);
+
+                  if (handler) {
+                    handler(token, nil);
+                  }
+                } else {
+                  if (handler) {
+                    handler(nil, error);
+                  }
+                }
+              }];
+  };
   // Add completion handler, and ensure it's called on the main queue
   [operation addCompletionHandler:^(FIRMessagingTokenOperationResult result,
                                     NSString *_Nullable token, NSError *_Nullable error) {
@@ -456,6 +472,15 @@
       handler(error);
       return;
     }
+
+    if (!self) {
+      NSError *lostRefError =
+          [NSError messagingErrorWithCode:kFIRMessagingErrorCodeInternal
+                            failureReason:@"Cannot delete token. Lost reference to TokenManager"];
+      handler(lostRefError);
+      return;
+    }
+
     [self deleteAllTokensLocallyWithHandler:^(NSError *localError) {
       [self postTokenRefreshNotificationWithDefaultFCMToken:nil];
       self->_defaultFCMToken = nil;

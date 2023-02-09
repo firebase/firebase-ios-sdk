@@ -1,5 +1,12 @@
+
 # Unreleased
-- [fixed] Fix an issue that stops some performance optimization being applied.
+- [fixed] Fix a potential high memory usage issue.
+
+# 10.5.0
+- [fixed] Add @discardableResult to addDocument API for easy handling unused return value. (#10640)
+
+# 10.4.0
+- [fixed] Fix an issue that stops some performance optimization being applied (#10579).
 
 # 10.3.0
 - [feature] Add MultiDb support.

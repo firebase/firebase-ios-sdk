@@ -86,6 +86,23 @@ extension firebase_appquality_sessions_OsName: CustomStringConvertible {
   }
 }
 
+extension firebase_appquality_sessions_LogEnvironment: CustomStringConvertible {
+  public var description: String {
+    switch self {
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD:
+      return "PROD"
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING:
+      return "STAGING"
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH:
+      return "AUTOPUSH"
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN:
+      return "UNKNOWN"
+    default:
+      return "Unrecognized LogEnvironment. Please update the firebase_appquality_sessions_LogEnvironment CustomStringConvertible extension"
+    }
+  }
+}
+
 extension UnsafeMutablePointer<pb_bytes_array_t>: CustomStringConvertible {
   public var description: String {
     let decoded = FIRSESDecodeString(self)

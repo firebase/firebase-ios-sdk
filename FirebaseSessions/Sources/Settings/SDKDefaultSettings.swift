@@ -16,7 +16,7 @@
 import Foundation
 
 /// Class that manages the local overrides configs related to the library.
-class SDKDefaultSettings: SettingsProvider, SettingsProtocol {
+class SDKDefaultSettings: SettingsProvider {
   var sessionsEnabled: Bool? {
     // Default is sessions enabled
     return true

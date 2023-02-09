@@ -150,7 +150,7 @@ static NSString *const kRecoverEmailRequestType = @"RECOVER_EMAIL";
 static NSString *const kEmailLinkSignInRequestType = @"EMAIL_SIGNIN";
 
 /** @var kVerifyAndChangeEmailRequestType
-    @brief The action code type value for verifing and changing email in the check action code
+    @brief The action code type value for verifying and changing email in the check action code
            response.
  */
 static NSString *const kVerifyAndChangeEmailRequestType = @"VERIFY_AND_CHANGE_EMAIL";
@@ -790,6 +790,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                              callback:(FIRAuthDataResultCallback)callback {
   FIRSignInWithGameCenterRequest *request =
       [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:credential.playerID
+                                                  teamPlayerID:credential.teamPlayerID
+                                                  gamePlayerID:credential.gamePlayerID
                                                   publicKeyURL:credential.publicKeyURL
                                                      signature:credential.signature
                                                           salt:credential.salt

@@ -16,7 +16,7 @@
 import Foundation
 
 /// Class that manages the configs related to the settings library
-class SessionsSettings {
+class SessionsSettings: SettingsProtocol {
   private let appInfo: ApplicationInfoProtocol
   private let installations: InstallationsProtocol
   private let sdkDefaults: SDKDefaultSettings
@@ -46,13 +46,22 @@ class SessionsSettings {
   }
 
   var sessionsEnabled: Bool {
-    // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
+    // TODO: Remove this block before release
+    // Disabling the SDK because some customers seem to be building from master
+    // Uncomment the code below before release
     if let sessionEnabled = localOverrides.sessionsEnabled {
       return sessionEnabled
-    } else if let sessionEnabled = remoteSettings.sessionsEnabled {
-      return sessionEnabled
     }
-    return sdkDefaults.sessionsEnabled!
+    return false
+
+    // TODO: uncomment before release
+//    // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
+//    if let sessionEnabled = localOverrides.sessionsEnabled {
+//      return sessionEnabled
+//    } else if let sessionEnabled = remoteSettings.sessionsEnabled {
+//      return sessionEnabled
+//    }
+//    return sdkDefaults.sessionsEnabled!
   }
 
   var sessionTimeout: TimeInterval {

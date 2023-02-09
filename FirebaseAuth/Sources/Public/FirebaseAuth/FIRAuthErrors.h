@@ -417,6 +417,11 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeRecaptchaNotEnabled = 17095,
 
+    /** Raised when a Cloud Function returns a blocking error. Will include a message returned from
+     * the function.
+     */
+    FIRAuthErrorCodeBlockingCloudFunctionError = 17105,
+
     /** Indicates an error for when the client identifier is missing.
      */
     FIRAuthErrorCodeMissingClientIdentifier = 17993,
