@@ -19,6 +19,14 @@ final class UITestsiOS: XCTestCase {
   func test_sessionGenerated_onColdStart() throws {
     // UI tests must launch the application that they test.
     let app = XCUIApplication()
+
+    // Collect necessary environment variables and propagate them as necessary
+    let environment = ProcessInfo.processInfo.environment["FirebaseSessionsRunEnvironment"]
+    if environment != nil {
+      let variables = ["FirebaseSessionsRunEnvironment": environment!]
+      app.launchEnvironment = variables
+    }
+
     app.launch()
     XCUIDevice.shared.press(.home)
     app.activate()

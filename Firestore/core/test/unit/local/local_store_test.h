@@ -214,9 +214,15 @@ class LocalStoreTest : public LocalStoreTestBase,
 #define FSTAssertOverlaysRead(by_key, by_query)                        \
   do {                                                                 \
     ASSERT_EQ(query_engine_.overlays_read_by_key(), (by_key))          \
-        << "Mutations read (by key)";                                  \
+        << "Overlays read (by key)";                                   \
     ASSERT_EQ(query_engine_.overlays_read_by_collection(), (by_query)) \
-        << "Mutations read (by query)";                                \
+        << "Overlays read (by query)";                                 \
+  } while (0)
+
+#define FSTAssertOverlayTypes(expected_types)                \
+  do {                                                       \
+    ASSERT_EQ(query_engine_.overlay_types(), expected_types) \
+        << "Overlay types read";                             \
   } while (0)
 
 /**

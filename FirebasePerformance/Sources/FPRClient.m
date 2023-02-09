@@ -35,7 +35,9 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@interface FPRClient ()
+@import FirebaseSessions;
+
+@interface FPRClient () <FIRLibrary, FIRPerformanceProvider, FIRSessionsSubscriber>
 
 /** The original configuration object used to initialize the client. */
 @property(nonatomic, strong) FPRConfiguration *config;
@@ -48,22 +50,32 @@
 @implementation FPRClient
 
 + (void)load {
-  __weak NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-  __block id listener;
+  [FIRApp registerInternalLibrary:[FPRClient class]
+                         withName:@"fire-perf"
+                      withVersion:[NSString stringWithUTF8String:kFPRSDKVersion]];
+  [FIRSessionsDependencies addDependencyWithName:FIRSessionsSubscriberNamePerformance];
+}
 
-  void (^observerBlock)(NSNotification *) = ^(NSNotification *aNotification) {
-    NSDictionary *appInfoDict = aNotification.userInfo;
-    NSNumber *isDefaultApp = appInfoDict[kFIRAppIsDefaultAppKey];
-    if (![isDefaultApp boolValue]) {
-      return;
+#pragma mark - Component registration system
+
++ (nonnull NSArray<FIRComponent *> *)componentsToRegister {
+  FIRDependency *sessionsDep =
+      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider)];
+
+  FIRComponentCreationBlock creationBlock =
+      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+    if (!container.app.isDefaultApp) {
+      return nil;
     }
 
-    NSString *appName = appInfoDict[kFIRAppNameKey];
+    id<FIRSessionsProvider> sessions = FIR_COMPONENT(FIRSessionsProvider, container);
+
+    NSString *appName = container.app.name;
     FIRApp *app = [FIRApp appNamed:appName];
     FIROptions *options = app.options;
     NSError *error = nil;
 
-    // Based on the environment variable SDK decides if events are dispatchd to Autopush or Prod.
+    // Based on the environment variable SDK decides if events are dispatched to Autopush or Prod.
     // By default, events are sent to Prod.
     BOOL useAutoPush = NO;
     NSDictionary<NSString *, NSString *> *environment = [NSProcessInfo processInfo].environment;
@@ -79,17 +91,27 @@
       FPRLogError(kFPRClientInitialize, @"Failed to initialize the client with error:  %@.", error);
     }
 
-    [notificationCenter removeObserver:listener];
-    listener = nil;
+    if (sessions) {
+      FPRLogDebug(kFPRClientInitialize, @"Registering Sessions SDK subscription for session data");
+
+      // Subscription should be made after the first call to [FPRClient sharedInstance] where
+      // _configuration is initialized so that the sessions SDK can immediately get the data
+      // collection state.
+      [sessions registerWithSubscriber:[self sharedInstance]];
+    }
+
+    *isCacheable = YES;
+
+    return [self sharedInstance];
   };
 
-  // Register the Perf library for Firebase Core tracking.
-  [FIRApp registerLibrary:@"fire-perf"  // From go/firebase-sdk-platform-info
-              withVersion:[NSString stringWithUTF8String:kFPRSDKVersion]];
-  listener = [notificationCenter addObserverForName:kFIRAppReadyToConfigureSDKNotification
-                                             object:[FIRApp class]
-                                              queue:nil
-                                         usingBlock:observerBlock];
+  FIRComponent *component =
+      [FIRComponent componentWithProtocol:@protocol(FIRPerformanceProvider)
+                      instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
+                             dependencies:@[ sessionsDep ]
+                            creationBlock:creationBlock];
+
+  return @[ component ];
 }
 
 + (FPRClient *)sharedInstance {
@@ -246,7 +268,7 @@
   });
 
   // Check and update the sessionID if the session is running for too long.
-  [[FPRSessionManager sharedInstance] renewSessionIdIfRunningTooLong];
+  [[FPRSessionManager sharedInstance] stopGaugesIfRunningTooLong];
 }
 
 - (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event {
@@ -333,6 +355,20 @@
   [self.instrumentation deregisterInstrumentGroup:kFPRInstrumentationGroupUIKitKey];
   self.swizzled = NO;
   [self.configuration setInstrumentationEnabled:NO];
+}
+
+#pragma mark - FIRSessionsSubscriber
+
+- (void)onSessionChanged:(FIRSessionDetails *_Nonnull)session {
+  [[FPRSessionManager sharedInstance] updateSessionId:session.sessionId];
+}
+
+- (BOOL)isDataCollectionEnabled {
+  return self.configuration.isDataCollectionEnabled;
+}
+
+- (FIRSessionsSubscriberName)sessionsSubscriberName {
+  return FIRSessionsSubscriberNamePerformance;
 }
 
 @end

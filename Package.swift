@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.4.0"
+let firebaseVersion = "10.5.0"
 
 let package = Package(
   name: "Firebase",
@@ -150,7 +150,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("10.1.0")
+      .exact("10.4.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -328,8 +328,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.1.0/FirebaseAnalytics.zip",
-      checksum: "c5429b2e293d7ab2ed2f291bd5edf13f7612b4b69c8261259f48a7b948fa824d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.4.0/FirebaseAnalytics.zip",
+      checksum: "d5098cd2d731104dddb11c39b2cbbd3aab11a604c528706a16ff0114abd8d53a"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -397,7 +397,6 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
@@ -491,7 +490,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "FirebaseSessions",
                      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                      .product(name: "GULEnvironment", package: "GoogleUtilities"),
                      .product(name: "FBLPromises", package: "Promises"),
@@ -536,7 +535,7 @@ let package = Package(
       dependencies: ["FirebaseCrashlytics", "OCMock"],
       path: "Crashlytics/UnitTests",
       resources: [
-        .process("FIRCLSMachO/data"),
+        .copy("FIRCLSMachO/machO_data"),
         .copy("Data"),
       ],
       cSettings: [
@@ -949,6 +948,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseInstallations",
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULISASwizzler", package: "GoogleUtilities"),
@@ -1089,6 +1089,7 @@ let package = Package(
         "FirebaseInstallations",
         "FirebaseCoreExtension",
         "FirebaseSessionsObjC",
+        .product(name: "Promises", package: "Promises"),
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],

@@ -31,7 +31,7 @@ static NSInteger const kLogSource = 462;  // LogRequest_LogSource_Fireperf
 
 + (NSBundle *)getBundle {
 #if SWIFT_PACKAGE
-  return Firebase_PerformanceUnit_SWIFTPM_MODULE_BUNDLE();
+  return SWIFTPM_MODULE_BUNDLE;
 #else
   return [NSBundle bundleForClass:[FPRTestUtils class]];
 #endif

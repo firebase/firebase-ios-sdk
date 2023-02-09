@@ -43,6 +43,8 @@ class SignInWithGameCenterTests: XCTestCase {
   fileprivate static let localID = "LOCALID"
   fileprivate static let playerIDKey = "playerId"
   fileprivate static let playerID = "PLAYERID"
+  fileprivate static let teamPlayerID = "TEAMPLAYERID"
+  fileprivate static let gamePlayerID = "GAMEPLAYERID"
   fileprivate static let approximateExpirationDateKey = "expiresIn"
   fileprivate static let approximateExpirationDate = "3600"
   fileprivate static let isNewUserKey = "isNewUser"
@@ -110,6 +112,8 @@ class SignInWithGameCenterTests: XCTestCase {
 
     let request = FIRSignInWithGameCenterRequest(
       playerID: Self.playerID,
+      teamPlayerID: Self.teamPlayerID,
+      gamePlayerID: Self.gamePlayerID,
       publicKeyURL: URL(string: Self.publicKeyURL)!,
       signature: signature,
       salt: salt,

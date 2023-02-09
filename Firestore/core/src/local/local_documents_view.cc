@@ -64,9 +64,6 @@ using model::OverlayByDocumentKeyMap;
 using model::ResourcePath;
 using model::SnapshotVersion;
 
-using OverlayByDocumentKeyMap = std::
-    unordered_map<model::DocumentKey, model::Overlay, model::DocumentKeyHash>;
-
 Document LocalDocumentsView::GetDocument(
     const DocumentKey& key, const std::vector<MutationBatch>& batches) {
   MutableDocument document = remote_document_cache_->Get(key);
@@ -157,11 +154,12 @@ LocalWriteResult LocalDocumentsView::GetNextDocuments(
 
 DocumentMap LocalDocumentsView::GetDocumentsMatchingCollectionQuery(
     const Query& query, const IndexOffset& offset) {
-  MutableDocumentMap remote_documents =
-      remote_document_cache_->GetAll(query.path(), offset);
-  // Get locally persisted mutation batches.
+  // Get locally mutated documents
   OverlayByDocumentKeyMap overlays = document_overlay_cache_->GetOverlays(
       query.path(), offset.largest_batch_id());
+  MutableDocumentMap remote_documents =
+      remote_document_cache_->GetDocumentsMatchingQuery(
+          query, offset, absl::nullopt, overlays);
 
   // As documents might match the query because of their overlay we need to
   // include documents for all overlays in the initial document set.
@@ -266,6 +264,9 @@ model::OverlayedDocumentMap LocalDocumentsView::ComputeViews(
           {doc->key(), overlay_it->second.mutation().field_mask()});
       overlay_it->second.mutation().ApplyToLocalView(*doc, absl::nullopt,
                                                      Timestamp::Now());
+    } else {  // No overlay for this document
+      // Using empty mask to indicate there is no overlay for the document.
+      mutated_fields.emplace(doc->key(), FieldMask{});
     }
   }
 

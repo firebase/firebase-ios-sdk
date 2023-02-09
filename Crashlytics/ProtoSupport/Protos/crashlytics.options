@@ -18,6 +18,8 @@
 google_crashlytics.Report.sdk_version type:FT_POINTER
 google_crashlytics.Report.gmp_app_id type:FT_POINTER
 google_crashlytics.Report.installation_uuid type:FT_POINTER
+google_crashlytics.Report.firebase_installation_id type:FT_POINTER
+google_crashlytics.Report.app_quality_session_id type:FT_POINTER
 google_crashlytics.Report.build_version type:FT_POINTER
 google_crashlytics.Report.display_version type:FT_POINTER
 google_crashlytics.FilesPayload.File.filename type:FT_POINTER

@@ -413,6 +413,37 @@ class TestFirebaseDataEncoder: XCTestCase {
     _testRoundTrip(of: Optional(data), expected: expected)
   }
 
+  func testEncodingDataBlob() {
+    let data = Data([0xDE, 0xAD, 0xBE, 0xEF])
+
+    _testRoundTrip(of: data,
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+
+    // Optional data should encode the same way.
+    _testRoundTrip(of: Optional(data),
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+  }
+
+  func testEncodingData2Blob() {
+    let string = "abcdef"
+    let data = string.data(using: .utf8)!
+
+    _testRoundTrip(of: data,
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+
+    // Optional data should encode the same way.
+    _testRoundTrip(of: Optional(data),
+                   expected: data,
+                   dataEncodingStrategy: .blob,
+                   dataDecodingStrategy: .blob)
+  }
+
   func testEncodingDataCustom() {
     // We'll encode a number instead of data.
     let encode = { (_ data: Data, _ encoder: Encoder) throws -> Void in
@@ -449,6 +480,34 @@ class TestFirebaseDataEncoder: XCTestCase {
                    expected: [:] as [String: String],
                    dataEncodingStrategy: .custom(encode),
                    dataDecodingStrategy: .custom(decode))
+  }
+
+  // Tests implicit migration of data that was written with .base64 (String type) using Firestore
+  // 10.0 through 10.3 (see PR #10604).
+  func testDecodingBase64StringAsBlobData() throws {
+    let inputString = "abcdef"
+    let data = inputString.data(using: .utf8)!
+    let base64String = "YWJjZGVm"
+
+    let encoder = FirebaseDataEncoder()
+    encoder.dataEncodingStrategy = .base64
+    let payload = try encoder.encode(data)
+
+    XCTAssertEqual(
+      base64String,
+      try XCTUnwrap(payload as? String, "Encoding did not produce a \(String.self)."),
+      "Encoding \"\(inputString)\" did not produce expected the base64 string \"\(base64String)\"."
+    )
+
+    let decoder = FirebaseDataDecoder()
+    decoder.dataDecodingStrategy = .blob
+    let decoded = try decoder.decode(Data.self, from: payload)
+
+    XCTAssertEqual(
+      inputString,
+      try XCTUnwrap(String(data: decoded, encoding: .utf8)),
+      "Decoding base64-encoded payload did not produce original value \"\(inputString)\"."
+    )
   }
 
   // MARK: - Non-Conforming Floating Point Strategy Tests

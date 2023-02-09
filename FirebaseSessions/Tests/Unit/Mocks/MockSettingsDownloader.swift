@@ -25,11 +25,11 @@ class MockSettingsDownloader: SettingsDownloadClient {
     self.successResponse = successResponse
   }
 
-  func fetch(completion: @escaping (Result<[String: Any], Error>) -> Void) {
+  func fetch(completion: @escaping (Result<[String: Any], SettingsDownloaderError>) -> Void) {
     if shouldSucceed {
       completion(.success(successResponse))
     } else {
-      completion(.failure(FirebaseSessionsError.SettingsError("Mocked Error.")))
+      completion(.failure(.URLError("Mocked Error.")))
     }
   }
 }

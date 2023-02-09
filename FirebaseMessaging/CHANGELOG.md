@@ -1,3 +1,9 @@
+# 10.6.0
+- [fixed] Configure flow validates existence of an APNS token before fetching an FCM token (#10742). This also addresses the scenario 1 mentioned in the comment - https://github.com/firebase/firebase-ios-sdk/issues/10679#issuecomment-1402776795
+
+# 10.5.0
+- [fixed] Fixed a crash for strongSelf dereference (#10707).
+
 # 10.4.0
 - [changed] On app startup, an APNS Token must be provided to FCM SDK before retrieving an FCM Token otherwise an error will be returned as part of the completion.
 

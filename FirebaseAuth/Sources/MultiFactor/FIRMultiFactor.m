@@ -178,17 +178,20 @@ static NSString *kUserCodingKey = @"user";
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   self = [self init];
   if (self) {
+    NSSet *enrolledFactorsClasses = [NSSet setWithArray:@[
+      [NSArray class], [FIRMultiFactorInfo class], [FIRPhoneMultiFactorInfo class]
+    ]];
     NSArray<FIRMultiFactorInfo *> *enrolledFactors =
-        [aDecoder decodeObjectForKey:kEnrolledFactorsCodingKey];
+        [aDecoder decodeObjectOfClasses:enrolledFactorsClasses forKey:kEnrolledFactorsCodingKey];
     _enrolledFactors = enrolledFactors;
-    _user = [aDecoder decodeObjectOfClass:[FIRUser class] forKey:kUserCodingKey];
+    // Do not decode `user` weak property.
   }
   return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
   [aCoder encodeObject:_enrolledFactors forKey:kEnrolledFactorsCodingKey];
-  [aCoder encodeObject:_user forKey:kUserCodingKey];
+  // Do not encode `user` weak property.
 }
 
 @end

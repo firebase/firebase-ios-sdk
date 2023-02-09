@@ -29,6 +29,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, readonly) NSString *playerID;
 
+/** @property teamPlayerID
+    @brief The team player ID of the Game Center local player.
+ */
+@property(nonatomic, readonly) NSString *teamPlayerID;
+
+/** @property gamePlayerID
+    @brief The game player ID of the Game Center local player.
+ */
+@property(nonatomic, readonly) NSString *gamePlayerID;
+
 /** @property publicKeyURL
     @brief The URL for the public encryption key.
  */
@@ -63,6 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param displayName The display name of the Game Center player.
  */
 - (nullable instancetype)initWithPlayerID:(NSString *)playerID
+                             teamPlayerID:(nullable NSString *)teamPlayerID
+                             gamePlayerID:(nullable NSString *)gamePlayerID
                              publicKeyURL:(NSURL *)publicKeyURL
                                 signature:(NSData *)signature
                                      salt:(NSData *)salt

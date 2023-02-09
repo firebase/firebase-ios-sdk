@@ -131,7 +131,7 @@
 #pragma mark - Path Helpers
 - (NSString *)resourcePath {
 #if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_FirebaseCrashlyticsUnit_SWIFTPM_MODULE_BUNDLE();
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
   return [bundle.resourcePath stringByAppendingPathComponent:@"Data"];
 #else
   NSBundle *bundle = [NSBundle bundleForClass:[self class]];

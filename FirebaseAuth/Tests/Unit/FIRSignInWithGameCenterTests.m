@@ -78,6 +78,26 @@ static NSString *const kPlayerIDKey = @"playerId";
  */
 static NSString *const kPlayerID = @"PLAYERID";
 
+/** @var kTeamPlayerIDKey
+    @brief The key of team player id.
+ */
+static NSString *const kTeamPlayerIDKey = @"teamPlayerId";
+
+/** @var kPlayerID
+    @brief The testing player id.
+ */
+static NSString *const kTeamPlayerID = @"TEAMPLAYERID";
+
+/** @var kGamePlayerIDKey
+    @brief The key of game player id.
+ */
+static NSString *const kGamePlayerIDKey = @"gamePlayerId";
+
+/** @var kGamePlayerID
+    @brief The testing game player id.
+ */
+static NSString *const kGamePlayerID = @"GAMEPLAYERID";
+
 /** @var kApproximateExpirationDateKey
     @brief The approximate expiration date key.
  */
@@ -198,6 +218,8 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
   NSData *salt = [[NSData alloc] initWithBase64EncodedString:kSalt options:0];
   FIRSignInWithGameCenterRequest *request =
       [[FIRSignInWithGameCenterRequest alloc] initWithPlayerID:kPlayerID
+                                                  teamPlayerID:kTeamPlayerID
+                                                  gamePlayerID:kGamePlayerID
                                                   publicKeyURL:[NSURL URLWithString:kPublicKeyURL]
                                                      signature:signature
                                                           salt:salt
@@ -221,6 +243,8 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
   XCTAssertEqualObjects(self.RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(self.RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(self.RPCIssuer.decodedRequest[kPlayerIDKey], kPlayerID);
+  XCTAssertEqualObjects(self.RPCIssuer.decodedRequest[kTeamPlayerIDKey], kTeamPlayerID);
+  XCTAssertEqualObjects(self.RPCIssuer.decodedRequest[kGamePlayerIDKey], kGamePlayerID);
   XCTAssertEqualObjects(self.RPCIssuer.decodedRequest[kPublicKeyURLKey], kPublicKeyURL);
   XCTAssertEqualObjects(self.RPCIssuer.decodedRequest[kSignatureKey], kSignature);
   XCTAssertEqualObjects(self.RPCIssuer.decodedRequest[kSaltKey], kSalt);
@@ -234,6 +258,8 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
     @"refreshToken" : kRefreshToken,
     @"localId" : kLocalID,
     @"playerId" : kPlayerID,
+    @"teamPlayerId" : kTeamPlayerID,
+    @"gamePlayerId" : kGamePlayerID,
     @"expiresIn" : kApproximateExpirationDate,
     @"isNewUser" : [NSNumber numberWithBool:kIsNewUser],
     @"displayName" : kDisplayName,
@@ -246,6 +272,8 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
   XCTAssertEqualObjects(RPCResponse.refreshToken, kRefreshToken);
   XCTAssertEqualObjects(RPCResponse.localID, kLocalID);
   XCTAssertEqualObjects(RPCResponse.playerID, kPlayerID);
+  XCTAssertEqualObjects(RPCResponse.teamPlayerID, kTeamPlayerID);
+  XCTAssertEqualObjects(RPCResponse.gamePlayerID, kGamePlayerID);
   XCTAssertEqual(RPCResponse.isNewUser, kIsNewUser);
   XCTAssertEqualObjects(RPCResponse.displayName, kDisplayName);
 }

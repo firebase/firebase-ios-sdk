@@ -33,9 +33,6 @@
 
 @interface FIRMockInstallations ()
 
-@property(nonatomic, copy) NSString *instanceID;
-@property(nonatomic, strong) NSError *error;
-
 @end
 
 @implementation FIRMockInstallations
