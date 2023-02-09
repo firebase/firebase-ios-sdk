@@ -73,7 +73,7 @@ NS_SWIFT_NAME(AppDistribution)
  * Conditions).
  */
 - (void)startFeedbackWithInfoText:(NSString *)infoText
-                        withImage:(UIImage *)image
+                        image:(UIImage *)image
     NS_SWIFT_NAME(startFeedback(infoText:withImage:));
 
 /**
@@ -83,12 +83,14 @@ NS_SWIFT_NAME(AppDistribution)
  *
  * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
  * Conditions).
+ * @param showAlertInfo Boolean that indicates whether to show a UIAlert which tells the user that capturing
+ * a screenshot will start the feedback process.
  *
  * Note: Using this method requires you to add `NSPhotoLibraryUsageDescription` to your Info.plist,
  * otherwise the app will crash.
  */
-- (void)enableFeedbackOnScreenshotWithInfoText:(NSString *)infoText
-    NS_SWIFT_NAME(startFeedbackOnScreenshot(infoText:));
+- (void)enableFeedbackOnScreenshotWithInfoText:(NSString *)infoText showAlertInfo:(BOOL)showAlertInfo
+    NS_SWIFT_NAME(startFeedbackOnScreenshot(infoText:showAlertInfo:));
 
 /**
  * Handle an App Distribution URL, for example a link to download a new pre-release version.

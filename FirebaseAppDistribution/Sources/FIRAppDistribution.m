@@ -348,11 +348,11 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                                        completion:nil];
 }
 
-- (void)startFeedbackWithInfoText:(NSString *)infoText withImage:(UIImage *)image {
+- (void)startFeedbackWithInfoText:(NSString *)infoText image:(UIImage *)image {
   // TODO: Implement it.
 }
 
-- (void)enableFeedbackOnScreenshotWithInfoText:(NSString *)infoText {
+- (void)enableFeedbackOnScreenshotWithInfoText:(NSString *)infoText showAlertInfo:(BOOL)showAlertInfo {
   // TODO: Implement it.
 }
 
