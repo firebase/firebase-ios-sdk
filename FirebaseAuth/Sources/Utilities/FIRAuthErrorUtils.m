@@ -1311,12 +1311,14 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 #if TARGET_OS_IOS
 + (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)MFAPendingCredential
-                                                      hints:(NSArray<FIRMultiFactorInfo *> *)hints {
+                                                      hints:(NSArray<FIRMultiFactorInfo *> *)hints
+                                                       auth:(FIRAuth *)auth {
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
   if (MFAPendingCredential && hints) {
     FIRMultiFactorResolver *resolver =
         [[FIRMultiFactorResolver alloc] initWithMFAPendingCredential:MFAPendingCredential
-                                                               hints:hints];
+                                                               hints:hints
+                                                                auth:auth];
     userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver;
   }
   return [self errorWithCode:FIRAuthInternalErrorCodeSecondFactorRequired userInfo:userInfo];
