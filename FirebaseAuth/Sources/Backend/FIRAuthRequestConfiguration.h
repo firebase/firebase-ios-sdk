@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) NSString *appID;
 
-@property(nonatomic, strong, readonly) FIRAuth *auth;
+@property(nonatomic, readonly, nullable) FIRAuth *auth;
 
 /** @property heartbeatLogger
     @brief The heartbeat logger used to add heartbeats to the corresponding request's header.
