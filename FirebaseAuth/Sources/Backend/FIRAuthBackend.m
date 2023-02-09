@@ -28,6 +28,7 @@
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
@@ -648,6 +649,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     [requestConfiguration.appcheck
         getTokenForcingRefresh:false
                     completion:^(id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
+                        if (tokenResult.error) {
+                            FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                                        @"Error loading saved user when starting up: %@", tokenResult.error);
+                        }
                       [request setValue:tokenResult.token
                           forHTTPHeaderField:@"X-Firebase-AppCheck"];
                       completionHandler(request);
