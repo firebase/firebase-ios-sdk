@@ -50,7 +50,7 @@ static NSString *const kFakeErrorDomain = @"fake domain";
                        contentType:contentType
               requestConfiguration:requestConfiguration
                  completionHandler:^(NSMutableURLRequest *request) {
-                   _completeRequest = request;
+                   self->_completeRequest = request;
                  }];
 
     NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:body options:0 error:nil];
