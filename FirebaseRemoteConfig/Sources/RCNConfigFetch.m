@@ -166,16 +166,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       } else {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
                     @"A fetch is already in progress. Ignoring duplicate request.");
-        NSError *error =
-            [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:sFIRErrorCodeConfigFailed
-                            userInfo:@{
-                              NSLocalizedDescriptionKey :
-                                  @"FetchError: Duplicate request while the previous one is pending"
-                            }];
         return [strongSelf reportCompletionOnHandler:completionHandler
                                           withStatus:FIRRemoteConfigFetchStatusFailure
-                                           withError:error];
+                                           withError:nil];
       }
     }
 
@@ -236,16 +229,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       } else {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
                     @"A fetch is already in progress. Ignoring duplicate request.");
-        NSError *error =
-            [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:sFIRErrorCodeConfigFailed
-                            userInfo:@{
-                              NSLocalizedDescriptionKey :
-                                  @"FetchError: Duplicate request while the previous one is pending"
-                            }];
         return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
                                            withUpdate:nil
-                                            withError:error
+                                            withError:nil
                                     completionHandler:nil
                               updateCompletionHandler:completionHandler];
       }
