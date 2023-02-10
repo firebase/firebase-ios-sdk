@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+#if TARGET_OS_IOS
+
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
@@ -52,3 +54,5 @@
 }
 
 @end
+
+#endif

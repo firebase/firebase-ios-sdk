@@ -81,6 +81,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
         'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
         'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
         'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+        'FirebaseAuth/Tests/Unit/FIRMultiFactorResolverTests.m',
       ]
       unit_tests.tvos.exclude_files = [
         'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
@@ -93,6 +94,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
         'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
         'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
         'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+        'FirebaseAuth/Tests/Unit/FIRMultiFactorResolverTests.m',
       ]
       # app_host is needed for tests with keychain
       unit_tests.requires_app_host = true
