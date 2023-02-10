@@ -21,7 +21,7 @@ import XCTest
     @brief An implementation of @c FIRAuthBackendRPCIssuer which is used to test backend request,
         response, and glue logic.
  */
-class FakeBackendRPCIssuer : NSObject, AuthBackendRPCIssuer {
+class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   /** @property requestURL
       @brief The URL which was requested.
    */
@@ -35,7 +35,7 @@ class FakeBackendRPCIssuer : NSObject, AuthBackendRPCIssuer {
   /** @property decodedRequest
       @brief The raw data in the POST body decoded as JSON.
    */
-  var decodedRequest: Dictionary<String, Any>?
+  var decodedRequest: [String: Any]?
 
   /** @property contentType
       @brief The value of the content type HTTP header in the request.
@@ -52,12 +52,13 @@ class FakeBackendRPCIssuer : NSObject, AuthBackendRPCIssuer {
    */
   private var handler: ((Data?, Error?) -> Void)?
 
-
-  func asyncPostToURLWithRequestConfiguration(requestConfiguration: FirebaseAuth.AuthRequestConfiguration,
-                                              url: URL,
-                                              body: Data?,
-                                              contentType: String,
-                                              completionHandler: @escaping ((Data?, Error?) -> Void)) {
+  func asyncPostToURLWithRequestConfiguration(requestConfiguration: FirebaseAuth
+    .AuthRequestConfiguration,
+    url: URL,
+    body: Data?,
+    contentType: String,
+    completionHandler: @escaping ((Data?, Error?)
+      -> Void)) {
     requestURL = url
     if let body = body {
       requestData = body
@@ -66,32 +67,35 @@ class FakeBackendRPCIssuer : NSObject, AuthBackendRPCIssuer {
       completeRequest = AuthBackend.request(withURL: url,
                                             contentType: contentType,
                                             requestConfiguration: requestConfiguration)
-      decodedRequest = try? JSONSerialization.jsonObject(with: body) as? Dictionary<String, Any>
+      decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
     self.contentType = contentType
-    self.handler = completionHandler
+    handler = completionHandler
   }
 
   func respond(serverErrorMessage errorMessage: String) throws -> Data {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
-    return try self.respond(serverErrorMessage: errorMessage, error: error)
+    return try respond(serverErrorMessage: errorMessage, error: error)
   }
 
   func respond(serverErrorMessage errorMessage: String, error: NSError) throws -> Data {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
-    return try self.respond(withJSON: ["error": [ "message": errorMessage]], error: error)
+    return try respond(withJSON: ["error": ["message": errorMessage]], error: error)
   }
 
   func respond(withJSON json: [String: Any], error: NSError? = nil) throws -> Data {
     let data = try JSONSerialization.data(withJSONObject: json,
                                           options: JSONSerialization.WritingOptions.prettyPrinted)
-    try self.respond(withData: data, error: error)
+    try respond(withData: data, error: error)
     return data
   }
 
   func respond(withData data: Data?, error: NSError?) throws {
     let handler = try XCTUnwrap(handler, "There is no pending RPC request.")
-    XCTAssertTrue((data != nil) || (error != nil), "At least one of: data or error should be been non-nil.")
+    XCTAssertTrue(
+      (data != nil) || (error != nil),
+      "At least one of: data or error should be been non-nil."
+    )
     self.handler = nil
     handler(data, error)
   }

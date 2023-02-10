@@ -91,10 +91,10 @@ static NSString *const kExpectedAPIURL =
   __block BOOL callbackInvoked;
   __block NSError *RPCError;
   [FIRAuthBackend2 deleteAccount:request
-                       callback:^(NSError *_Nullable error) {
-                         callbackInvoked = YES;
-                         RPCError = error;
-                       }];
+                        callback:^(NSError *_Nullable error) {
+                          callbackInvoked = YES;
+                          RPCError = error;
+                        }];
 
   XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
   XCTAssertNotNil(_RPCIssuer.decodedRequest);

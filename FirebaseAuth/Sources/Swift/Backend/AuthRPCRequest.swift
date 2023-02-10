@@ -47,5 +47,5 @@ import Foundation
   /** @var response
       @brief The corresponding response for this request
    */
-  //var response: AuthRPCResponse { get }
+  var response: AuthRPCResponse { get }
 }

@@ -225,7 +225,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 @interface FIRAuthBackend : NSObject
 
-
 // TODO: should be fileprivate after full port.
 + (nullable NSError *)clientErrorWithServerErrorMessage:(NSString *)serverErrorMessage
                                         errorDictionary:(NSDictionary *)errorDictionary

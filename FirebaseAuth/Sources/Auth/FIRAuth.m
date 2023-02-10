@@ -655,14 +655,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                 continueURI:@"http://www.google.com/"
                                        requestConfiguration:self->_requestConfiguration];
     [FIRAuthBackend2
-        createAuthURI:request
-             callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error) {
-               if (completion) {
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                   completion(response.signinMethods, error);
-                 });
-               }
-             }];
+        postWithRequest:request
+               callback:^(FIRCreateAuthURIResponse *_Nullable response, NSError *_Nullable error) {
+                 if (completion) {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                     completion(response.signinMethods, error);
+                   });
+                 }
+               }];
   });
 }
 

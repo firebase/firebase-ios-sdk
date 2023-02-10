@@ -36,6 +36,11 @@ private let kIDTokenKey = "idToken"
    */
   @objc public let accessToken: String
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = GetAccountInfoResponse()
+
   /** @fn initWithAccessToken:requestConfiguration
       @brief Designated initializer.
       @param accessToken The Access Token of the authenticated user.

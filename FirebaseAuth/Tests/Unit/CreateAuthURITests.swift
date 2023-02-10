@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 
 class StorageAuthorizerTests: XCTestCase {
-
   /** @var kTestAPIKey
       @brief Fake API key used for testing.
    */
@@ -88,7 +87,7 @@ class StorageAuthorizerTests: XCTestCase {
   /** @var kInvalidEmailErrorMessage
       @brief The error returned by the server if the email is invalid.
    */
-  private let  kInvalidEmailErrorMessage = "INVALID_EMAIL"
+  private let kInvalidEmailErrorMessage = "INVALID_EMAIL"
 
   var RPCIssuer: FakeBackendRPCIssuer?
 
@@ -106,16 +105,19 @@ class StorageAuthorizerTests: XCTestCase {
       @brief Tests the encoding of an create auth URI request.
    */
   func testCreateAuthUriRequest() {
-    let requestConfiguration = AuthRequestConfiguration(APIKey: kTestAPIKey, appID: kTestFirebaseAppID)
+    let requestConfiguration = AuthRequestConfiguration(
+      APIKey: kTestAPIKey,
+      appID: kTestFirebaseAppID
+    )
     let request = CreateAuthURIRequest(identifier: kTestIdentifier,
                                        continueURI: kTestContinueURI,
                                        requestConfiguration: requestConfiguration)
 
-    AuthBackend.createAuthURI(request) { response, error in
+    AuthBackend.post(withRequest: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
     XCTAssertEqual(RPCIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
-    guard let requestDictionary = RPCIssuer?.decodedRequest as? Dictionary<AnyHashable, Any> else {
+    guard let requestDictionary = RPCIssuer?.decodedRequest as? [AnyHashable: Any] else {
       XCTFail("decodedRequest is not a dictionary")
       return
     }
@@ -126,7 +128,10 @@ class StorageAuthorizerTests: XCTestCase {
       @brief This test checks for invalid continue URI in the response.
    */
   func testMissingContinueURIError() throws {
-    let requestConfiguration = AuthRequestConfiguration(APIKey: kTestAPIKey, appID: kTestFirebaseAppID)
+    let requestConfiguration = AuthRequestConfiguration(
+      APIKey: kTestAPIKey,
+      appID: kTestFirebaseAppID
+    )
     let request = CreateAuthURIRequest(identifier: kTestIdentifier,
                                        continueURI: kTestContinueURI,
                                        requestConfiguration: requestConfiguration)
@@ -135,24 +140,27 @@ class StorageAuthorizerTests: XCTestCase {
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
 
-    AuthBackend.createAuthURI(request) { response, error in
+    AuthBackend.post(withRequest: request) { response, error in
       callbackInvoked = true
-      rpcResponse = response
+      rpcResponse = response as? CreateAuthURIResponse
       rpcError = error as? NSError
     }
 
-    let _ = try RPCIssuer?.respond(serverErrorMessage: kMissingContinueURIErrorMessage)
+    _ = try RPCIssuer?.respond(serverErrorMessage: kMissingContinueURIErrorMessage)
 
     XCTAssert(callbackInvoked)
     XCTAssertEqual(rpcError?.code, AuthErrorCode.missingContinueURI.rawValue)
     XCTAssertNil(rpcResponse)
   }
 
-/** @fn testInvalidIdentifierError
-    @brief This test checks for the INVALID_IDENTIFIER error message from the backend.
- */
+  /** @fn testInvalidIdentifierError
+      @brief This test checks for the INVALID_IDENTIFIER error message from the backend.
+   */
   func testInvalidIdentifierError() throws {
-    let requestConfiguration = AuthRequestConfiguration(APIKey: kTestAPIKey, appID: kTestFirebaseAppID)
+    let requestConfiguration = AuthRequestConfiguration(
+      APIKey: kTestAPIKey,
+      appID: kTestFirebaseAppID
+    )
     let request = CreateAuthURIRequest(identifier: kTestIdentifier,
                                        continueURI: kTestContinueURI,
                                        requestConfiguration: requestConfiguration)
@@ -161,24 +169,27 @@ class StorageAuthorizerTests: XCTestCase {
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
 
-    AuthBackend.createAuthURI(request) { response, error in
+    AuthBackend.post(withRequest: request) { response, error in
       callbackInvoked = true
-      rpcResponse = response
+      rpcResponse = response as? CreateAuthURIResponse
       rpcError = error as? NSError
     }
 
-    let _ = try RPCIssuer?.respond(serverErrorMessage: kInvalidIdentifierErrorMessage)
+    _ = try RPCIssuer?.respond(serverErrorMessage: kInvalidIdentifierErrorMessage)
 
     XCTAssert(callbackInvoked)
     XCTAssertEqual(rpcError?.code, AuthErrorCode.invalidEmail.rawValue)
     XCTAssertNil(rpcResponse)
   }
 
-/** @fn testInvalidEmailError
-    @brief This test checks for INVALID_EMAIL error message from the backend.
- */
+  /** @fn testInvalidEmailError
+      @brief This test checks for INVALID_EMAIL error message from the backend.
+   */
   func testInvalidEmailError() throws {
-    let requestConfiguration = AuthRequestConfiguration(APIKey: kTestAPIKey, appID: kTestFirebaseAppID)
+    let requestConfiguration = AuthRequestConfiguration(
+      APIKey: kTestAPIKey,
+      appID: kTestFirebaseAppID
+    )
     let request = CreateAuthURIRequest(identifier: kTestIdentifier,
                                        continueURI: kTestContinueURI,
                                        requestConfiguration: requestConfiguration)
@@ -187,13 +198,13 @@ class StorageAuthorizerTests: XCTestCase {
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
 
-    AuthBackend.createAuthURI(request) { response, error in
+    AuthBackend.post(withRequest: request) { response, error in
       callbackInvoked = true
-      rpcResponse = response
+      rpcResponse = response as? CreateAuthURIResponse
       rpcError = error as? NSError
     }
 
-    let _ = try RPCIssuer?.respond(serverErrorMessage: kInvalidEmailErrorMessage)
+    _ = try RPCIssuer?.respond(serverErrorMessage: kInvalidEmailErrorMessage)
 
     XCTAssert(callbackInvoked)
     XCTAssertEqual(rpcError?.code, AuthErrorCode.invalidEmail.rawValue)
@@ -203,31 +214,37 @@ class StorageAuthorizerTests: XCTestCase {
   /** @fn testSuccessfulCreateAuthURI
       @brief This test checks for a successful response
    */
-    func testSuccessfulCreateAuthURIResponse() throws {
-      let requestConfiguration = AuthRequestConfiguration(APIKey: kTestAPIKey, appID: kTestFirebaseAppID)
-      let request = CreateAuthURIRequest(identifier: kTestIdentifier,
-                                         continueURI: kTestContinueURI,
-                                         requestConfiguration: requestConfiguration)
+  func testSuccessfulCreateAuthURIResponse() throws {
+    let requestConfiguration = AuthRequestConfiguration(
+      APIKey: kTestAPIKey,
+      appID: kTestFirebaseAppID
+    )
+    let request = CreateAuthURIRequest(identifier: kTestIdentifier,
+                                       continueURI: kTestContinueURI,
+                                       requestConfiguration: requestConfiguration)
 
-      var callbackInvoked = false
-      var rpcResponse: CreateAuthURIResponse?
-      var rpcError: NSError?
+    var callbackInvoked = false
+    var rpcResponse: CreateAuthURIResponse?
+    var rpcError: NSError?
 
-      AuthBackend.createAuthURI(request) { response, error in
-        callbackInvoked = true
-        rpcResponse = response
-        rpcError = error as? NSError
-      }
-
-      let _ = try RPCIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
-
-      XCTAssert(callbackInvoked)
-      XCTAssertNil(rpcError)
-      XCTAssertEqual(rpcResponse?.authURI, kTestAuthUri)
+    AuthBackend.post(withRequest: request) { response, error in
+      callbackInvoked = true
+      rpcResponse = response as? CreateAuthURIResponse
+      rpcError = error as? NSError
     }
 
+    _ = try RPCIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
+
+    XCTAssert(callbackInvoked)
+    XCTAssertNil(rpcError)
+    XCTAssertEqual(rpcResponse?.authURI, kTestAuthUri)
+  }
+
   func testRequestAndResponseEncoding() throws {
-    let requestConfiguration = AuthRequestConfiguration(APIKey: kTestAPIKey, appID: kTestFirebaseAppID)
+    let requestConfiguration = AuthRequestConfiguration(
+      APIKey: kTestAPIKey,
+      appID: kTestFirebaseAppID
+    )
     let request = CreateAuthURIRequest(identifier: kTestIdentifier,
                                        continueURI: kTestContinueURI,
                                        requestConfiguration: requestConfiguration)
@@ -235,9 +252,9 @@ class StorageAuthorizerTests: XCTestCase {
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
 
-    AuthBackend.createAuthURI(request) { response, error in
+    AuthBackend.post(withRequest: request) { response, error in
       callbackInvoked = true
-      rpcResponse = response
+      rpcResponse = response as? CreateAuthURIResponse
       rpcError = error as? NSError
     }
 
@@ -245,7 +262,9 @@ class StorageAuthorizerTests: XCTestCase {
     XCTAssertEqual(RPCIssuer?.decodedRequest?["identifier"] as? String, kTestIdentifier)
     XCTAssertEqual(RPCIssuer?.decodedRequest?["continueUri"] as? String, kTestContinueURI)
 
-    let _ = try RPCIssuer?.respond(withJSON: ["kind": kTestExpectedKind, "allProviders": [kTestProviderID1, kTestProviderID2]])
+    _ = try RPCIssuer?
+      .respond(withJSON: ["kind": kTestExpectedKind,
+                          "allProviders": [kTestProviderID1, kTestProviderID2]])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)

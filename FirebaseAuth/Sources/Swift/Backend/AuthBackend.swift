@@ -92,16 +92,22 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     return (gBackendImplementation)!
   }
 
-  /** @fn createAuthURI:callback:
-      @brief Calls the createAuthURI endpoint, which is responsible for creating the URI used by the
-          IdP to authenticate the user.
-      @param request The request parameters.
-      @param callback The callback.
+  /** @fn postWithRequest:response:callback:
+      @brief Calls the RPC using HTTP POST.
+      @remarks Possible error responses:
+          @see FIRAuthInternalErrorCodeRPCRequestEncodingError
+          @see FIRAuthInternalErrorCodeJSONSerializationError
+          @see FIRAuthInternalErrorCodeNetworkError
+          @see FIRAuthInternalErrorCodeUnexpectedErrorResponse
+          @see FIRAuthInternalErrorCodeUnexpectedResponse
+          @see FIRAuthInternalErrorCodeRPCResponseDecodingError
+      @param request The request.
+      @param response The empty response to be filled.
+      @param callback The callback for both success and failure.
    */
-  @objc public class func createAuthURI(_ request: CreateAuthURIRequest,
-                                        callback: @escaping ((CreateAuthURIResponse?, Error?)
-                                          -> Void)) {
-    implementation().createAuthURI(request, callback: callback)
+  @objc public class func post(withRequest request: AuthRPCRequest,
+                               callback: @escaping ((AuthRPCResponse?, Error?) -> Void)) {
+    implementation().post(withRequest: request, callback: callback)
   }
 
   /** @fn deleteAccount:
@@ -114,10 +120,10 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     implementation().deleteAccount(request, callback: callback)
   }
 
-  // TODO: Why does this need to be public to be visible by unit tests? 
+  // TODO: Why does this need to be public to be visible by unit tests?
   public class func request(withURL url: URL,
-                      contentType: String,
-                      requestConfiguration: AuthRequestConfiguration) -> URLRequest {
+                            contentType: String,
+                            requestConfiguration: AuthRequestConfiguration) -> URLRequest {
     var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration
@@ -143,10 +149,10 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
 }
 
 protocol AuthBackendImplementation {
-  func createAuthURI(_ request: CreateAuthURIRequest,
-                     callback: @escaping ((CreateAuthURIResponse?, Error?) -> Void))
   func deleteAccount(_ request: DeleteAccountRequest,
                      callback: @escaping ((Error?) -> Void))
+  func post(withRequest request: AuthRPCRequest,
+            callback: @escaping ((AuthRPCResponse?, Error?) -> Void))
   func post(withRequest request: AuthRPCRequest,
             response: AuthRPCResponse,
             callback: @escaping ((Error?) -> Void))
@@ -156,24 +162,6 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
   var RPCIssuer: AuthBackendRPCIssuer
   override init() {
     RPCIssuer = AuthBackendRPCIssuerImplementation()
-  }
-
-  /** @fn createAuthURI:callback:
-      @brief Calls the createAuthURI endpoint, which is responsible for creating the URI used by the
-          IdP to authenticate the user.
-      @param request The request parameters.
-      @param callback The callback.
-   */
-  func createAuthURI(_ request: CreateAuthURIRequest,
-                     callback: @escaping ((CreateAuthURIResponse?, Error?) -> Void)) {
-    let response = CreateAuthURIResponse()
-    post(withRequest: request, response: response) { error in
-      if let error = error {
-        callback(nil, error)
-      } else {
-        callback(response, nil)
-      }
-    }
   }
 
   /** @fn postWithRequest:response:callback:
@@ -189,18 +177,17 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param response The empty response to be filled.
       @param callback The callback for both success and failure.
    */
-//  fileprivate func post(withRequest request: AuthRPCRequest,
-//            response: AuthRPCResponse,
-//                     callback: @escaping ((AuthRPCResponse?, Error?) -> Void)) {
-//    let response = request.response
-//    post(withRequest: request, response: response) { error in
-//      if let error = error {
-//        callback(nil, error)
-//      } else {
-//        callback(response, nil)
-//      }
-//    }
-//  }
+  fileprivate func post(withRequest request: AuthRPCRequest,
+                        callback: @escaping ((AuthRPCResponse?, Error?) -> Void)) {
+    let response = request.response
+    post(withRequest: request, response: response) { error in
+      if let error = error {
+        callback(nil, error)
+      } else {
+        callback(response, nil)
+      }
+    }
+  }
 
   func deleteAccount(_ request: DeleteAccountRequest, callback: @escaping ((Error?) -> Void)) {
     let response = DeleteAccountResponse()
@@ -221,8 +208,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param callback The callback for both success and failure.
    */
   fileprivate func post(withRequest request: AuthRPCRequest,
-            response: AuthRPCResponse,
-            callback: @escaping ((Error?) -> Void)) {
+                        response: AuthRPCResponse,
+                        callback: @escaping ((Error?) -> Void)) {
     var bodyData: Data?
     if request.containsPostBody?() != nil {
       do {
@@ -312,12 +299,14 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         if let errorDictionary = dictionary["error"] as? [String: Any] {
           // TODO: port clientError
           if let errorMessage = errorDictionary["message"] as? String {
-               let clientError = AuthBackendRPCImplementation.clientError(withServerErrorMessage: errorMessage,
-                                                              errorDictionary: errorDictionary,
-                                                              response: response)
-                callback(clientError)
-                return
-            }
+            let clientError = AuthBackendRPCImplementation.clientError(
+              withServerErrorMessage: errorMessage,
+              errorDictionary: errorDictionary,
+              response: response
+            )
+            callback(clientError)
+            return
+          }
           // Not a message we know, return the message directly.
           callback(AuthErrorUtils.unexpectedErrorResponse(
             deserializedResponse: errorDictionary,
@@ -344,36 +333,41 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       // @YES, the server may return a 200 with a response that may contain a
       // server error.
       // TODO: port clientError
-        if let verifyAssertionRequest = request as? VerifyAssertionRequest {
-          if verifyAssertionRequest.returnIDPCredential {
-            if let errorMessage = dictionary["errorMessage"] as? String {
-               let clientError = AuthBackendRPCImplementation.clientError(withServerErrorMessage: errorMessage,
-                                                            errorDictionary: dictionary,
-                                                            response: response)
-              callback(clientError)
-              return
-            }
+      if let verifyAssertionRequest = request as? VerifyAssertionRequest {
+        if verifyAssertionRequest.returnIDPCredential {
+          if let errorMessage = dictionary["errorMessage"] as? String {
+            let clientError = AuthBackendRPCImplementation.clientError(
+              withServerErrorMessage: errorMessage,
+              errorDictionary: dictionary,
+              response: response
+            )
+            callback(clientError)
+            return
           }
         }
+      }
       callback(nil)
     }
   }
+
   private class func clientError(withServerErrorMessage serverErrorMessage: String,
-                           errorDictionary: [String: Any],
-                           response: AuthRPCResponse) -> Error {
+                                 errorDictionary: [String: Any],
+                                 response: AuthRPCResponse) -> Error {
     let split = serverErrorMessage.split(separator: ":")
     let shortErrorMessage = split.first
     let serverDetailErrorMessage = String(split.count > 1 ? split[1] : "")
     switch shortErrorMessage {
-    case "USER_NOT_FOUND": return AuthErrorUtils.userNotFoundError(message: serverDetailErrorMessage)
-    case "MISSING_CONTINUE_URI": return AuthErrorUtils.missingContinueURIError(message: serverDetailErrorMessage)
-      // "INVALID_IDENTIFIER" can be returned by createAuthURI RPC. Considering email addresses are
-      //  currently the only identifiers, we surface the FIRAuthErrorCodeInvalidEmail error code in this
-      //  case.
-    case "INVALID_IDENTIFIER": return AuthErrorUtils.invalidEmailError(message: serverDetailErrorMessage)
+    case "USER_NOT_FOUND": return AuthErrorUtils
+      .userNotFoundError(message: serverDetailErrorMessage)
+    case "MISSING_CONTINUE_URI": return AuthErrorUtils
+      .missingContinueURIError(message: serverDetailErrorMessage)
+    // "INVALID_IDENTIFIER" can be returned by createAuthURI RPC. Considering email addresses are
+    //  currently the only identifiers, we surface the FIRAuthErrorCodeInvalidEmail error code in this
+    //  case.
+    case "INVALID_IDENTIFIER": return AuthErrorUtils
+      .invalidEmailError(message: serverDetailErrorMessage)
     case "INVALID_EMAIL": return AuthErrorUtils.invalidEmailError(message: serverDetailErrorMessage)
     default: fatalError("Implement missing message")
     }
-
   }
 }
