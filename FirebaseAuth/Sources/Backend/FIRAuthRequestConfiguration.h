@@ -38,6 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly) NSString *appID;
 
+/** @property auth
+    @brief The FIRAuth instance used in the request.
+ */
 @property(nonatomic, weak, readonly, nullable) FIRAuth *auth;
 
 /** @property heartbeatLogger
@@ -69,6 +72,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey appID:(NSString *)appID;
 
+/** @fn initWithAPIKey:appID:
+    @brief Convenience initializer.
+    @param APIKey The API key to be used in the request.
+ @param appID The Firebase app ID to be passed in the request header.
+ @param auth The FIRAuth instance used in the request.
+ */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
                                    auth:(nullable FIRAuth *)auth;
@@ -76,13 +85,20 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn initWithAPIKey:appID:heartbeatLogger:
     @brief Designated initializer.
     @param APIKey The API key to be used in the request.
-    @param appID The Firebase app ID to be passed in the request header.
+ @param appID The Firebase app ID to be passed in the request header.
     @param heartbeatLogger The heartbeat logger used to add heartbeats to the request header.
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger;
 
+/** @fn initWithAPIKey:appID:heartbeatLogger:
+    @brief Designated initializer.
+    @param APIKey The API key to be used in the request.
+ @param appID The Firebase app ID to be passed in the request header.
+ @param auth The FIRAuth instance used in the request.
+    @param heartbeatLogger The heartbeat logger used to add heartbeats to the request header.
+ */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
                                    auth:(nullable FIRAuth *)auth
