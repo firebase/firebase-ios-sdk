@@ -17,6 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
+#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 
 /** @var kEndpoint
     @brief The endpoint for the requests.
@@ -156,6 +157,27 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
                                  kEmulatorHostAndPort, kEndpoint, kAPIKey];
 
   XCTAssertEqualObjects(expectedURL, request.requestURL.absoluteString);
+}
+
+/** @fn testExpectedTenantIDWithNonDefaultFIRApp
+    @brief Tests the request correctly populated the tenant ID from a non default app.
+ */
+- (void)testExpectedTenantIDWithNonDefaultFIRApp {
+  FIRApp *nonDefautlApp = [FIRApp appForAuthUnitTestsWithName:@"nonDefautlApp"];
+  FIRAuth *nonDefaultAuth = [FIRAuth authWithApp:nonDefautlApp];
+  nonDefaultAuth.tenantID = @"tenant-id";
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey
+                                                    appID:kFirebaseAppID
+                                                     auth:nonDefaultAuth];
+  requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
+  FIRIdentityToolkitRequest *request =
+      [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:YES
+                                               useStaging:NO];
+
+  XCTAssertEqualObjects(@"tenant-id", request.tenantID);
 }
 
 @end
