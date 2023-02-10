@@ -37,7 +37,7 @@
 
   FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"app"];
   FIRAuth *auth = [FIRAuth authWithApp:app];
-    auth.tenantID = @"tenant-id";
+  auth.tenantID = @"tenant-id";
 
   FIRMultiFactorResolver *resolver =
       [[FIRMultiFactorResolver alloc] initWithMFAPendingCredential:fakeMFAPendingCredential
