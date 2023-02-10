@@ -163,8 +163,8 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
     @brief Tests the request correctly populated the tenant ID from a non default app.
  */
 - (void)testExpectedTenantIDWithNonDefaultFIRApp {
-  FIRApp *nonDefautlApp = [FIRApp appForAuthUnitTestsWithName:@"nonDefautlApp"];
-  FIRAuth *nonDefaultAuth = [FIRAuth authWithApp:nonDefautlApp];
+  FIRApp *nonDefaultApp = [FIRApp appForAuthUnitTestsWithName:@"nonDefaultApp"];
+  FIRAuth *nonDefaultAuth = [FIRAuth authWithApp:nonDefaultApp];
   nonDefaultAuth.tenantID = @"tenant-id";
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey
