@@ -1085,8 +1085,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                        oobCode:actionCode
                                           requestConfiguration:requestConfiguration];
           request.IDToken = accessToken;
-          [FIRAuthBackend
-              emailLinkSignin:request
+          [FIRAuthBackend2
+              postWithRequest:request
                      callback:^(FIREmailLinkSignInResponse *_Nullable response,
                                 NSError *_Nullable error) {
                        if (error) {

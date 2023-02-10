@@ -837,8 +837,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                oobCode:actionCode
                                   requestConfiguration:_requestConfiguration];
 
-  [FIRAuthBackend
-      emailLinkSignin:request
+  [FIRAuthBackend2
+      postWithRequest:request
              callback:^(FIREmailLinkSignInResponse *_Nullable response, NSError *_Nullable error) {
                if (error) {
                  if (callback) {

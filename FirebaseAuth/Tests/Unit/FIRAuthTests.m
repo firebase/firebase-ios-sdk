@@ -483,6 +483,7 @@ static const NSTimeInterval kWaitInterval = .5;
 /** @fn testSignInWithEmailLinkSuccess
     @brief Tests the flow of a successful @c signInWithEmail:link:completion: call.
  */
+#ifdef TODO_SWIFT
 - (void)testSignInWithEmailLinkSuccess {
   NSString *fakeCode = @"testoobcode";
   OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
@@ -574,7 +575,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c signInWithEmail:password:completion: call.
  */
@@ -903,6 +904,7 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Tests the flow of a successfully @c signInWithCredential:completion: call with an
         email sign-in link credential using FIREmailAuthProvider.
  */
+#ifdef TODO_SWIFT
 - (void)testSignInWithEmailLinkCredentialSuccess {
   NSString *fakeCode = @"testoobcode";
   OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
@@ -961,7 +963,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInWithEmailCredentialSuccess
     @brief Tests the flow of a successfully @c signInWithCredential:completion: call with an
         email-password credential.

@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 
 class DeleteAccountTests: RPCBaseTests {
-
   /** @var kLocalID
       @brief Fake LocalID used for testing.
    */
@@ -38,11 +37,28 @@ class DeleteAccountTests: RPCBaseTests {
   func testDeleteAccount() throws {
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kInvalidUserTokenErrorMessage = "INVALID_ID_TOKEN:"
-    let kCredentialTooOldErrorMessage = "CREDENTIAL_TOO_OLD_LOGIN_AGAIN:";
-    checkRequest(request: makeDeleteAccountRequest(), expected: kExpectedAPIURL, key: kLocalIDKey, value: kLocalID)
-    try checkBackendError(request: makeDeleteAccountRequest(), message: kUserDisabledErrorMessage, errorCode: AuthErrorCode.userDisabled)
-    try checkBackendError(request: makeDeleteAccountRequest(), message: kInvalidUserTokenErrorMessage, errorCode: AuthErrorCode.invalidUserToken)
-    try checkBackendError(request: makeDeleteAccountRequest(), message: kCredentialTooOldErrorMessage, errorCode: AuthErrorCode.requiresRecentLogin)
+    let kCredentialTooOldErrorMessage = "CREDENTIAL_TOO_OLD_LOGIN_AGAIN:"
+    checkRequest(
+      request: makeDeleteAccountRequest(),
+      expected: kExpectedAPIURL,
+      key: kLocalIDKey,
+      value: kLocalID
+    )
+    try checkBackendError(
+      request: makeDeleteAccountRequest(),
+      message: kUserDisabledErrorMessage,
+      errorCode: AuthErrorCode.userDisabled
+    )
+    try checkBackendError(
+      request: makeDeleteAccountRequest(),
+      message: kInvalidUserTokenErrorMessage,
+      errorCode: AuthErrorCode.invalidUserToken
+    )
+    try checkBackendError(
+      request: makeDeleteAccountRequest(),
+      message: kCredentialTooOldErrorMessage,
+      errorCode: AuthErrorCode.requiresRecentLogin
+    )
   }
 
   /** @fn testSuccessfulDeleteAccount
@@ -65,7 +81,7 @@ class DeleteAccountTests: RPCBaseTests {
 
   private func makeDeleteAccountRequest() -> DeleteAccountRequest {
     return DeleteAccountRequest(localID: kLocalID,
-                                       accessToken: "Access Token",
-                                       requestConfiguration: makeRequestConfiguration())
+                                accessToken: "Access Token",
+                                requestConfiguration: makeRequestConfiguration())
   }
 }

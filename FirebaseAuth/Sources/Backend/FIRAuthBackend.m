@@ -514,11 +514,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyPassword:request callback:callback];
 }
 
-+ (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback {
-  [[self implementation] emailLinkSignin:request callback:callback];
-}
-
 + (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   [[self implementation] secureToken:request callback:callback];
@@ -740,36 +735,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)verifyPassword:(FIRVerifyPasswordRequest *)request
               callback:(FIRVerifyPasswordResponseCallback)callback {
   FIRVerifyPasswordResponse *response = [[FIRVerifyPasswordResponse alloc] init];
-  [self
-      postWithRequest:request
-             response:response
-             callback:^(NSError *error) {
-               if (error) {
-                 callback(nil, error);
-               } else {
-                 if (!response.IDToken && response.MFAInfo) {
-#if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-                   for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     FIRPhoneMultiFactorInfo *info =
-                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                     [multiFactorInfo addObject:info];
-                   }
-                   NSError *multiFactorRequiredError = [FIRAuthErrorUtils
-                       secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo];
-                   callback(nil, multiFactorRequiredError);
-#endif
-                 } else {
-                   callback(response, nil);
-                 }
-               }
-             }];
-}
-
-- (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback {
-  FIREmailLinkSignInResponse *response = [[FIREmailLinkSignInResponse alloc] init];
   [self
       postWithRequest:request
              response:response

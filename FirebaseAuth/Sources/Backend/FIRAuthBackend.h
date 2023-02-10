@@ -19,8 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIREmailLinkSignInRequest;
-@class FIREmailLinkSignInResponse;
 @class FIRGetAccountInfoRequest;
 @class FIRGetAccountInfoResponse;
 @class FIRGetProjectConfigRequest;
@@ -122,16 +120,6 @@ typedef void (^FIRVerifyAssertionResponseCallback)(FIRVerifyAssertionResponse *_
  */
 typedef void (^FIRVerifyPasswordResponseCallback)(FIRVerifyPasswordResponse *_Nullable response,
                                                   NSError *_Nullable error);
-
-/** @typedef FIREmailLinkSigninResponseCallback
-    @brief The type of block used to return the result of a call to the emailLinkSignin
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIREmailLinkSigninResponseCallback)(FIREmailLinkSignInResponse *_Nullable response,
-                                                   NSError *_Nullable error);
 
 /** @typedef FIRVerifyCustomTokenResponseCallback
     @brief The type of block used to return the result of a call to the verifyCustomToken
@@ -307,15 +295,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)verifyPassword:(FIRVerifyPasswordRequest *)request
               callback:(FIRVerifyPasswordResponseCallback)callback;
 
-/** @fn emailLinkSignin:callback:
-    @brief Calls the emailLinkSignin endpoint, which is responsible for authenticating a
-        user through passwordless sign-in.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback;
-
 /** @fn secureToken:callback:
     @brief Calls the token endpoint, which is responsible for performing STS token exchanges and
         token refreshes.
@@ -472,15 +451,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)verifyPassword:(FIRVerifyPasswordRequest *)request
               callback:(FIRVerifyPasswordResponseCallback)callback;
-
-/** @fn emailLinkSignin:callback:
-    @brief Calls the emailLinkSignin endpoint, which is responsible for authenticating a
-        user through passwordless sign-in.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback;
 
 /** @fn secureToken:callback:
     @brief Calls the token endpoint, which is responsible for performing STS token exchanges and

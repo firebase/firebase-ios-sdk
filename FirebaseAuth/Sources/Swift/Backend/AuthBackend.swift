@@ -170,11 +170,36 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     post(withRequest: request, response: response) { error in
       if let error = error {
         callback(nil, error)
+      } else if let mfaError = AuthBackendRPCImplementation.generateMFAError(response: response) {
+        callback(nil, mfaError)
       } else {
         callback(response, nil)
       }
     }
   }
+
+  #if os(iOS)
+    private class func generateMFAError(response: AuthRPCResponse) -> Error? {
+      if let mfaResponse = response as? EmailLinkSignInResponse,
+         mfaResponse.IDToken == nil,
+         let enrollments = mfaResponse.MFAInfo {
+        var info: [MultiFactorInfo] = []
+        for enrollment in enrollments {
+          info.append(MultiFactorInfo(proto: enrollment))
+        }
+        return AuthErrorUtils.secondFactorRequiredError(
+          pendingCredential: mfaResponse.MFAPendingCredential,
+          hints: info
+        )
+      } else {
+        return nil
+      }
+    }
+  #else
+    private class func generateMFAError(response: AuthRPCResponse) -> Error? {
+      return nil
+    }
+  #endif
 
   /** @fn postWithRequest:response:callback:
       @brief Calls the RPC using HTTP POST.
