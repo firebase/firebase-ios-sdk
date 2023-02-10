@@ -534,10 +534,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] signUpNewUser:request callback:callback];
 }
 
-+ (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback {
-  [[self implementation] deleteAccount:request callback:callback];
-}
-
 + (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback {
   [[self implementation] signInWithGameCenter:request callback:callback];
@@ -841,11 +837,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                    callback(response, nil);
                  }
                }];
-}
-
-- (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback {
-  FIRDeleteAccountResponse *response = [[FIRDeleteAccountResponse alloc] init];
-  [self postWithRequest:request response:response callback:callback];
 }
 
 #if TARGET_OS_IOS

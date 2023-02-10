@@ -19,8 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRDeleteAccountRequest;
-@class FIRDeleteAccountResponse;
 @class FIREmailLinkSignInRequest;
 @class FIREmailLinkSignInResponse;
 @class FIRGetAccountInfoRequest;
@@ -354,13 +352,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback;
 
-/** @fn deleteAccount:
-    @brief Calls the DeleteAccount endpoint, which is responsible for deleting a user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback;
-
 /** @fn SignInWithGameCenter:callback:
     @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
       who has Game Center credentials.
@@ -517,13 +508,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback;
-
-/** @fn deleteAccount:
-    @brief Calls the DeleteAccount endpoint, which is responsible for deleting a user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback;
 
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:

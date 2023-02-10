@@ -102,22 +102,11 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
           @see FIRAuthInternalErrorCodeUnexpectedResponse
           @see FIRAuthInternalErrorCodeRPCResponseDecodingError
       @param request The request.
-      @param response The empty response to be filled.
       @param callback The callback for both success and failure.
    */
   @objc public class func post(withRequest request: AuthRPCRequest,
                                callback: @escaping ((AuthRPCResponse?, Error?) -> Void)) {
     implementation().post(withRequest: request, callback: callback)
-  }
-
-  /** @fn deleteAccount:
-      @brief Calls the DeleteAccount endpoint, which is responsible for deleting a user.
-      @param request The request parameters.
-      @param callback The callback.
-   */
-  @objc public class func deleteAccount(_ request: DeleteAccountRequest,
-                                        callback: @escaping ((Error?) -> Void)) {
-    implementation().deleteAccount(request, callback: callback)
   }
 
   // TODO: Why does this need to be public to be visible by unit tests?
@@ -149,8 +138,6 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
 }
 
 protocol AuthBackendImplementation {
-  func deleteAccount(_ request: DeleteAccountRequest,
-                     callback: @escaping ((Error?) -> Void))
   func post(withRequest request: AuthRPCRequest,
             callback: @escaping ((AuthRPCResponse?, Error?) -> Void))
   func post(withRequest request: AuthRPCRequest,
@@ -187,11 +174,6 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         callback(response, nil)
       }
     }
-  }
-
-  func deleteAccount(_ request: DeleteAccountRequest, callback: @escaping ((Error?) -> Void)) {
-    let response = DeleteAccountResponse()
-    post(withRequest: request, response: response, callback: callback)
   }
 
   /** @fn postWithRequest:response:callback:
@@ -367,7 +349,13 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     case "INVALID_IDENTIFIER": return AuthErrorUtils
       .invalidEmailError(message: serverDetailErrorMessage)
     case "INVALID_EMAIL": return AuthErrorUtils.invalidEmailError(message: serverDetailErrorMessage)
-    default: fatalError("Implement missing message")
+    case "USER_DISABLED": return AuthErrorUtils
+      .userDisabledErrorWith(message: serverDetailErrorMessage)
+    case "INVALID_ID_TOKEN": return AuthErrorUtils
+      .invalidUserTokenError(message: serverDetailErrorMessage)
+    case "CREDENTIAL_TOO_OLD_LOGIN_AGAIN": return AuthErrorUtils
+      .requiresRecentLoginError(message: serverDetailErrorMessage)
+    default: fatalError("Implement missing message for: \(shortErrorMessage ?? "missing value")")
     }
   }
 }
