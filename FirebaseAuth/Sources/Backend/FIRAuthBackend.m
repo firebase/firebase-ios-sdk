@@ -486,11 +486,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   gBackendImplementation = defaultImplementation;
 }
 
-+ (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback {
-  [[self implementation] createAuthURI:request callback:callback];
-}
-
 + (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   [[self implementation] getAccountInfo:request callback:callback];
@@ -521,11 +516,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyPassword:request callback:callback];
 }
 
-+ (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback {
-  [[self implementation] emailLinkSignin:request callback:callback];
-}
-
 + (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   [[self implementation] secureToken:request callback:callback];
@@ -539,10 +529,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 + (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback {
   [[self implementation] signUpNewUser:request callback:callback];
-}
-
-+ (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback {
-  [[self implementation] deleteAccount:request callback:callback];
 }
 
 + (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
@@ -681,20 +667,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   return self;
 }
 
-- (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback {
-  FIRCreateAuthURIResponse *response = [[FIRCreateAuthURIResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
-}
-
 - (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
               callback:(FIRGetAccountInfoResponseCallback)callback {
   FIRGetAccountInfoResponse *response = [[FIRGetAccountInfoResponse alloc] init];
@@ -815,38 +787,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
              }];
 }
 
-- (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback {
-  FIREmailLinkSignInResponse *response = [[FIREmailLinkSignInResponse alloc] init];
-  [self
-      postWithRequest:request
-             response:response
-             callback:^(NSError *error) {
-               if (error) {
-                 callback(nil, error);
-               } else {
-                 if (!response.IDToken && response.MFAInfo) {
-#if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-                   for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     FIRPhoneMultiFactorInfo *info =
-                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                     [multiFactorInfo addObject:info];
-                   }
-                   NSError *multiFactorRequiredError = [FIRAuthErrorUtils
-                       secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo
-                                                                 auth:request.requestConfiguration
-                                                                          .auth];
-                   callback(nil, multiFactorRequiredError);
-#endif
-                 } else {
-                   callback(response, nil);
-                 }
-               }
-             }];
-}
-
 - (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   FIRSecureTokenResponse *response = [[FIRSecureTokenResponse alloc] init];
@@ -887,11 +827,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                    callback(response, nil);
                  }
                }];
-}
-
-- (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback {
-  FIRDeleteAccountResponse *response = [[FIRDeleteAccountResponse alloc] init];
-  [self postWithRequest:request response:response callback:callback];
 }
 
 #if TARGET_OS_IOS
