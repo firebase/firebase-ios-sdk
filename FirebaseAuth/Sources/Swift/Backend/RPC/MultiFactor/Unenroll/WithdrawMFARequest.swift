@@ -25,6 +25,12 @@ private let kTenantIDKey = "tenantId"
   AuthRPCRequest {
   @objc public var IDToken: String?
   @objc public var MFAEnrollmentID: String?
+
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = WithdrawMFAResponse()
+
   @objc public init(IDToken: String?, MFAEnrollmentID: String?,
                     requestConfiguration: AuthRequestConfiguration) {
     self.IDToken = IDToken
