@@ -63,6 +63,11 @@ public class SendVerificationCodeRequest: IdentityToolkitRequest,
    */
   @objc public let reCAPTCHAToken: String?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = SendVerificationCodeResponse()
+
   @objc public init(phoneNumber: String, appCredential: AuthAppCredential?,
                     reCAPTCHAToken: String?, requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber

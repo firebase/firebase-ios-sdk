@@ -30,6 +30,11 @@ public class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest,
 
   @objc public var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
+
   @objc public init(IDToken: String?, displayName: String?,
                     verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
                     requestConfiguration: AuthRequestConfiguration) {
