@@ -204,8 +204,9 @@ static NSString *const kAccessToken = @"ACCESSTOKEN";
   FIRFakeBackendRPCIssuer *RPCIssuer = [[FIRFakeBackendRPCIssuer alloc] init];
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   self.RPCIssuer = RPCIssuer;
-  self.requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+  self.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                                            appID:kTestFirebaseAppID
+                                                                             auth:nil];
 }
 
 - (void)tearDown {

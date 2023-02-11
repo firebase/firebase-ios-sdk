@@ -460,8 +460,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
                                                                           appID:appID
-                                                                           auth:self
-                                                                heartbeatLogger:heartbeatLogger];
+                                                                           auth:self];
+    // TODO: heartbeat
+    // heartbeatLogger:heartbeatLogger];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
