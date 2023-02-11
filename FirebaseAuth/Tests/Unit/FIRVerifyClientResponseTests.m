@@ -109,7 +109,8 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
   _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey
-                                                                        appID:kFakeFirebaseAppID];
+                                                                        appID:kFakeFirebaseAppID
+                                                                         auth:nil];
 }
 
 /** @fn testMissingAppCredentialError

@@ -80,7 +80,9 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testGetAccountInfoRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRGetAccountInfoRequest *request =
       [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
                                        requestConfiguration:requestConfiguration];

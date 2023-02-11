@@ -20,7 +20,6 @@
 
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorResolver.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 
