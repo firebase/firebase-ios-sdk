@@ -91,6 +91,11 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public var returnSecureToken: Bool
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = VerifyPasswordResponse()
+
   @objc public init(email: String, password: String,
                     requestConfiguration: AuthRequestConfiguration) {
     self.email = email

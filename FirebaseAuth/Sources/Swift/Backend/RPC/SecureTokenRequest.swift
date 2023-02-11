@@ -105,6 +105,11 @@ private var gAPIHost = "securetoken.googleapis.com"
    */
   @objc public let APIKey: String
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = SecureTokenResponse()
+
   let _requestConfiguration: AuthRequestConfiguration
   public func requestConfiguration() -> AuthRequestConfiguration {
     _requestConfiguration

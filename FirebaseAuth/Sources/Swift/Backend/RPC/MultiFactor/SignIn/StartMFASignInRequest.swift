@@ -26,6 +26,12 @@ private let kTenantIDKey = "tenantId"
   var MFAPendingCredential: String?
   var MFAEnrollmentID: String?
   var signInInfo: AuthProtoStartMFAPhoneRequestInfo?
+
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = StartMFASignInResponse()
+
   init(MFAPendingCredential: String?, MFAEnrollmentID: String?,
        signInInfo: AuthProtoStartMFAPhoneRequestInfo?,
        requestConfiguration: AuthRequestConfiguration) {

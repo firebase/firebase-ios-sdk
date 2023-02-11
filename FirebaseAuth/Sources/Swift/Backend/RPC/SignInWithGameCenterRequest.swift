@@ -57,6 +57,11 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest,
    */
   @objc public var displayName: String?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = SignInWithGameCenterResponse()
+
   /** @fn initWithPlayerID:publicKeyURL:signature:salt:timestamp:displayName:requestConfiguration:
       @brief Designated initializer.
       @param playerID The ID of the Game Center player.

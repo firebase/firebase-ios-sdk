@@ -1089,8 +1089,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                        oobCode:actionCode
                                           requestConfiguration:requestConfiguration];
           request.IDToken = accessToken;
-          [FIRAuthBackend
-              emailLinkSignin:request
+          [FIRAuthBackend2
+              postWithRequest:request
                      callback:^(FIREmailLinkSignInResponse *_Nullable response,
                                 NSError *_Nullable error) {
                        if (error) {
@@ -1450,19 +1450,21 @@ static void callInMainThreadWithAuthDataResultAndError(
               [[FIRDeleteAccountRequest alloc] initWithLocalID:self->_userID
                                                    accessToken:accessToken
                                           requestConfiguration:self->_auth.requestConfiguration];
-          [FIRAuthBackend deleteAccount:deleteUserRequest
-                               callback:^(NSError *_Nullable error) {
-                                 if (error) {
-                                   callInMainThreadWithError(completion, error);
-                                   return;
-                                 }
-                                 if (![self->_auth signOutByForceWithUserID:self->_userID
-                                                                      error:&error]) {
-                                   callInMainThreadWithError(completion, error);
-                                   return;
-                                 }
-                                 callInMainThreadWithError(completion, error);
-                               }];
+
+          [FIRAuthBackend2 postWithRequest:deleteUserRequest
+                                  callback:^(FIRDeleteAccountResponse *_Nullable response,
+                                             NSError *_Nullable error) {
+                                    if (error) {
+                                      callInMainThreadWithError(completion, error);
+                                      return;
+                                    }
+                                    if (![self->_auth signOutByForceWithUserID:self->_userID
+                                                                         error:&error]) {
+                                      callInMainThreadWithError(completion, error);
+                                      return;
+                                    }
+                                    callInMainThreadWithError(completion, error);
+                                  }];
         }];
   });
 }
