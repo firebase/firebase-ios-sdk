@@ -136,7 +136,8 @@ static const double kAllowedTimeDifference = 0.1;
   [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:RPCIssuer];
   _RPCIssuer = RPCIssuer;
   _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
-                                                                        appID:kTestFirebaseAppID];
+                                                                        appID:kTestFirebaseAppID
+                                                                         auth:nil];
 }
 
 - (void)tearDown {

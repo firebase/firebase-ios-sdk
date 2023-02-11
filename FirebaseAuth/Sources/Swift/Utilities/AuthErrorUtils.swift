@@ -547,13 +547,15 @@ private let kFIRAuthErrorMessageMalformedJWT =
   #if os(iOS)
     // TODO(ncooke3): Address the optionality of these arguments.
     @objc public static func secondFactorRequiredError(pendingCredential: String?,
-                                                       hints: [MultiFactorInfo]?)
+                                                       hints: [MultiFactorInfo]?,
+                                                       auth: Auth?)
       -> Error {
       var userInfo: [String: Any] = [:]
       if let pendingCredential = pendingCredential, let hints = hints {
         let resolver = MultiFactorResolver(
           mfaPendingCredential: pendingCredential,
-          hints: hints
+          hints: hints,
+          auth: auth
         )
         userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver
       }
