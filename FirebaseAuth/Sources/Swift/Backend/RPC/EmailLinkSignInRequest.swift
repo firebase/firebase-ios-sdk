@@ -59,6 +59,11 @@ private let kTenantIDKey = "tenantId"
 
   @objc public var IDToken: String?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = EmailLinkSignInResponse()
+
   @objc public init(email: String, oobCode: String,
                     requestConfiguration: AuthRequestConfiguration) {
     self.email = email
