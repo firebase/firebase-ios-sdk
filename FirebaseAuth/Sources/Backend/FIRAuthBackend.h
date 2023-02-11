@@ -19,12 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRCreateAuthURIRequest;
-@class FIRCreateAuthURIResponse;
-@class FIRDeleteAccountRequest;
-@class FIRDeleteAccountResponse;
-@class FIREmailLinkSignInRequest;
-@class FIREmailLinkSignInResponse;
 @class FIRGetAccountInfoRequest;
 @class FIRGetAccountInfoResponse;
 @class FIRGetProjectConfigRequest;
@@ -67,16 +61,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
                                                          NSError *_Nullable error);
-
-/** @typedef FIRCreateAuthURIResponseCallback
-    @brief The type of block used to return the result of a call to the createAuthURI
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRCreateAuthURIResponseCallback)(FIRCreateAuthURIResponse *_Nullable response,
-                                                 NSError *_Nullable error);
 
 /** @typedef FIRGetAccountInfoResponseCallback
     @brief The type of block used to return the result of a call to the getAccountInfo
@@ -136,16 +120,6 @@ typedef void (^FIRVerifyAssertionResponseCallback)(FIRVerifyAssertionResponse *_
  */
 typedef void (^FIRVerifyPasswordResponseCallback)(FIRVerifyPasswordResponse *_Nullable response,
                                                   NSError *_Nullable error);
-
-/** @typedef FIREmailLinkSigninResponseCallback
-    @brief The type of block used to return the result of a call to the emailLinkSignin
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIREmailLinkSigninResponseCallback)(FIREmailLinkSignInResponse *_Nullable response,
-                                                   NSError *_Nullable error);
 
 /** @typedef FIRVerifyCustomTokenResponseCallback
     @brief The type of block used to return the result of a call to the verifyCustomToken
@@ -246,6 +220,11 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 @interface FIRAuthBackend : NSObject
 
+// TODO: should be fileprivate after full port.
++ (nullable NSError *)clientErrorWithServerErrorMessage:(NSString *)serverErrorMessage
+                                        errorDictionary:(NSDictionary *)errorDictionary
+                                               response:(id<FIRAuthRPCResponse>)response;
+
 /** @fn authUserAgent
     @brief Retrieves the Firebase Auth user agent.
     @return The Firebase Auth user agent.
@@ -271,15 +250,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
-
-/** @fn createAuthURI:callback:
-    @brief Calls the createAuthURI endpoint, which is responsible for creating the URI used by the
-        IdP to authenticate the user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback;
 
 /** @fn getAccountInfo:callback:
     @brief Calls the getAccountInfo endpoint, which returns account info for a given account.
@@ -334,15 +304,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)verifyPassword:(FIRVerifyPasswordRequest *)request
               callback:(FIRVerifyPasswordResponseCallback)callback;
 
-/** @fn emailLinkSignin:callback:
-    @brief Calls the emailLinkSignin endpoint, which is responsible for authenticating a
-        user through passwordless sign-in.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback;
-
 /** @fn secureToken:callback:
     @brief Calls the token endpoint, which is responsible for performing STS token exchanges and
         token refreshes.
@@ -378,13 +339,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)resetPassword:(FIRResetPasswordRequest *)request
              callback:(FIRResetPasswordCallback)callback;
-
-/** @fn deleteAccount:
-    @brief Calls the DeleteAccount endpoint, which is responsible for deleting a user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback;
 
 /** @fn SignInWithGameCenter:callback:
     @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
@@ -464,15 +418,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 @protocol FIRAuthBackendImplementation <NSObject>
 
-/** @fn createAuthURI:callback:
-    @brief Calls the createAuthURI endpoint, which is responsible for creating the URI used by the
-        IdP to authenticate the user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)createAuthURI:(FIRCreateAuthURIRequest *)request
-             callback:(FIRCreateAuthURIResponseCallback)callback;
-
 /** @fn getAccountInfo:callback:
     @brief Calls the getAccountInfo endpoint, which returns account info for a given account.
     @param request The request parameters.
@@ -526,15 +471,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 - (void)verifyPassword:(FIRVerifyPasswordRequest *)request
               callback:(FIRVerifyPasswordResponseCallback)callback;
 
-/** @fn emailLinkSignin:callback:
-    @brief Calls the emailLinkSignin endpoint, which is responsible for authenticating a
-        user through passwordless sign-in.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)emailLinkSignin:(FIREmailLinkSignInRequest *)request
-               callback:(FIREmailLinkSigninResponseCallback)callback;
-
 /** @fn secureToken:callback:
     @brief Calls the token endpoint, which is responsible for performing STS token exchanges and
         token refreshes.
@@ -561,13 +497,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback;
-
-/** @fn deleteAccount:
-    @brief Calls the DeleteAccount endpoint, which is responsible for deleting a user.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)deleteAccount:(FIRDeleteAccountRequest *)request callback:(FIRDeleteCallBack)callback;
 
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:
