@@ -310,7 +310,8 @@ static NSString *const kTestValue = @"TestValue";
 - (FIRAuthRequestConfiguration *)requestConfiguration {
   if (!_requestConfiguration) {
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
-                                                                          appID:kFakeFirebaseAppID];
+                                                                          appID:kFakeFirebaseAppID
+                                                                           auth:nil];
   }
   return _requestConfiguration;
 }

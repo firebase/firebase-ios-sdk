@@ -27,6 +27,16 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest,
    */
   @objc public var playerID: String
 
+  /** @property teamPlayerID
+      @brief The team player ID of the Game Center local player.
+   */
+  @objc public var teamPlayerID: String?
+
+  /** @property gamePlayerID
+      @brief The game player ID of the Game Center local player.
+   */
+  @objc public var gamePlayerID: String?
+
   /** @property publicKeyURL
       @brief The URL for the public encryption key.
    */
@@ -65,16 +75,22 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest,
   /** @fn initWithPlayerID:publicKeyURL:signature:salt:timestamp:displayName:requestConfiguration:
       @brief Designated initializer.
       @param playerID The ID of the Game Center player.
+      @param teamPlayerID The teamPlayerID of the Game Center local player.
+      @param gamePlayerID The gamePlayerID of the Game Center local player.
       @param publicKeyURL The URL for the public encryption key.
       @param signature The verification signature generated.
       @param salt A random string used to compute the hash and keep it randomized.
       @param timestamp The date and time that the signature was created.
       @param displayName The display name of the Game Center player.
    */
-  @objc public init(playerID: String, publicKeyURL: URL, signature: Data, salt: Data,
+  @objc public init(playerID: String, teamPlayerID: String?, gamePlayerID: String?,
+                    publicKeyURL: URL,
+                    signature: Data, salt: Data,
                     timestamp: UInt64, displayName: String?,
                     requestConfiguration: AuthRequestConfiguration) {
     self.playerID = playerID
+    self.teamPlayerID = teamPlayerID
+    self.gamePlayerID = gamePlayerID
     self.publicKeyURL = publicKeyURL
     self.signature = signature
     self.salt = salt
@@ -95,6 +111,12 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest,
     ]
     if timestamp != 0 {
       postBody["timestamp"] = timestamp
+    }
+    if let teamPlayerID {
+      postBody["teamPlayerId"] = teamPlayerID
+    }
+    if let gamePlayerID {
+      postBody["gamePlayerId"] = gamePlayerID
     }
     if let accessToken {
       postBody["idToken"] = accessToken
