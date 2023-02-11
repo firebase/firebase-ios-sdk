@@ -109,6 +109,11 @@ extension AuthOperationType {
    */
   @objc public var operation: AuthOperationType
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = VerifyPhoneNumberResponse()
+
   /** @fn initWithTemporaryProof:phoneNumberAPIKey
       @brief Designated initializer.
       @param temporaryProof The temporary proof sent by the backed.

@@ -43,4 +43,9 @@ import Foundation
       @return Returns the request configurations.
    */
   func requestConfiguration() -> AuthRequestConfiguration
+
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  var response: AuthRPCResponse { get }
 }
