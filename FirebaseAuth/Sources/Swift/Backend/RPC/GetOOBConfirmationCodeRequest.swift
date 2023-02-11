@@ -196,6 +196,11 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
    */
   @objc public var dynamicLinkDomain: String?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = GetOOBConfirmationCodeResponse()
+
   /** @fn initWithRequestType:email:APIKey:
       @brief Designated initializer.
       @param requestType The types of OOB Confirmation Code to request.

@@ -46,6 +46,11 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public let updatedPassword: String?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = ResetPasswordResponse()
+
   /** @fn initWithOobCode:newPassword:requestConfiguration:
       @brief Designated initializer.
       @param oobCode The OOB Code.
