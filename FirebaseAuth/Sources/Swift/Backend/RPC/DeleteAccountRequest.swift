@@ -42,6 +42,11 @@ private let kLocalIDKey = "localId"
    */
   @objc public let localID: String
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = DeleteAccountResponse()
+
   @objc(initWithLocalID:accessToken:requestConfiguration:) public init(localID: String,
                                                                        accessToken: String,
                                                                        requestConfiguration: AuthRequestConfiguration) {

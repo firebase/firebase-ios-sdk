@@ -21,6 +21,11 @@ private let kGetProjectConfigEndPoint = "getProjectConfig"
 
 @objc(FIRGetProjectConfigRequest) public class GetProjectConfigRequest: IdentityToolkitRequest,
   AuthRPCRequest {
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = GetProjectConfigResponse()
+
   @objc public init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
