@@ -89,7 +89,9 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testResetPasswordRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRResetPasswordRequest *request =
       [[FIRResetPasswordRequest alloc] initWithOobCode:kTestOOBCode
                                            newPassword:kTestNewPassword
