@@ -106,7 +106,9 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testSendVerificationCodeRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt
                                                                             secret:kTestSecret];
   FIRSendVerificationCodeRequest *request =
