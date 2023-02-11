@@ -87,7 +87,9 @@ static NSString *const kExpectedAPIURL =
  */
 - (void)testVerifyClientRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey appID:kFakeFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey
+                                                    appID:kFakeFirebaseAppID
+                                                     auth:nil];
   // TODO(ncooke3): Bridge the `FIRVerifyClientRequest` to Swift.
   FIRVerifyClientRequest *request = nil;
   //      [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken

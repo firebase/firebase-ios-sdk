@@ -20,6 +20,8 @@ import Foundation
   @objc public var refreshToken: String?
   @objc public var localID: String?
   @objc public var playerID: String?
+  @objc public var teamPlayerID: String?
+  @objc public var gamePlayerID: String?
   @objc public var approximateExpirationDate: Date?
   @objc public var isNewUser: Bool = false
   @objc public var displayName: String?
@@ -35,6 +37,8 @@ import Foundation
     }
     refreshToken = dictionary["refreshToken"] as? String
     playerID = dictionary["playerId"] as? String
+    teamPlayerID = dictionary["teamPlayerId"] as? String
+    gamePlayerID = dictionary["gamePlayerId"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
     displayName = dictionary["displayName"] as? String
   }
