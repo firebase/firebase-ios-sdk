@@ -53,7 +53,7 @@ static NSString *const kFirebaseAppID = @"appID";
   FIRAuthCredential *credential = [FIRTwitterAuthProvider credentialWithToken:kTwitterToken
                                                                        secret:kTwitterSecret];
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID auth:nil];
   FIRVerifyAssertionRequest *request =
       [[FIRVerifyAssertionRequest alloc] initWithProviderID:FIRTwitterAuthProvider.id
                                        requestConfiguration:requestConfiguration];

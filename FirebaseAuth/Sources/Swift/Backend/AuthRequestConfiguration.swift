@@ -33,6 +33,11 @@ import Foundation
   //    @brief The Firebase appID used in the request.
   // */
   @objc public var appID: String
+
+  /** @property auth
+      @brief The FIRAuth instance used in the request.
+   */
+  @objc public weak var auth: Auth?
   //
   /// ** @property heartbeatLogger
   //    @brief The heartbeat logger used to add heartbeats to the corresponding request's header.
@@ -55,9 +60,10 @@ import Foundation
    @brief Designated initializer.
    @param APIKey The API key to be used in the request.
    */
-  @objc public init(APIKey: String, appID: String) {
+  @objc public init(APIKey: String, appID: String, auth: Auth? = nil) {
     self.APIKey = APIKey
     self.appID = appID
+    self.auth = auth
   }
 
   // TODO:

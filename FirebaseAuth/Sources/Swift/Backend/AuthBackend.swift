@@ -170,7 +170,11 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     post(withRequest: request, response: response) { error in
       if let error = error {
         callback(nil, error)
-      } else if let mfaError = AuthBackendRPCImplementation.generateMFAError(response: response) {
+      } else if let mfaError = AuthBackendRPCImplementation.generateMFAError(response: response,
+                                                                             auth: request
+                                                                               .requestConfiguration(
+                                                                               )
+                                                                               .auth) {
         callback(nil, mfaError)
       } else {
         callback(response, nil)
@@ -179,7 +183,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
   }
 
   #if os(iOS)
-    private class func generateMFAError(response: AuthRPCResponse) -> Error? {
+    private class func generateMFAError(response: AuthRPCResponse, auth: Auth?) -> Error? {
       if let mfaResponse = response as? EmailLinkSignInResponse,
          mfaResponse.IDToken == nil,
          let enrollments = mfaResponse.MFAInfo {
@@ -189,14 +193,15 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         }
         return AuthErrorUtils.secondFactorRequiredError(
           pendingCredential: mfaResponse.MFAPendingCredential,
-          hints: info
+          hints: info,
+          auth: auth
         )
       } else {
         return nil
       }
     }
   #else
-    private class func generateMFAError(response: AuthRPCResponse) -> Error? {
+    private class func generateMFAError(response: AuthRPCResponse, auth: Auth?) -> Error? {
       return nil
     }
   #endif
