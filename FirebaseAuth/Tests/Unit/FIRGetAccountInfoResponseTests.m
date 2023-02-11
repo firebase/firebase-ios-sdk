@@ -157,7 +157,9 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
  */
 - (void)testGetAccountInfoUnexpectedResponseError {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRGetAccountInfoRequest *request =
       [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
                                        requestConfiguration:requestConfiguration];
@@ -192,7 +194,9 @@ static NSString *const kEmailVerifiedKey = @"emailVerified";
  */
 - (void)testSuccessfulGetAccountInfoResponse {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRGetAccountInfoRequest *request =
       [[FIRGetAccountInfoRequest alloc] initWithAccessToken:kTestAccessToken
                                        requestConfiguration:requestConfiguration];
