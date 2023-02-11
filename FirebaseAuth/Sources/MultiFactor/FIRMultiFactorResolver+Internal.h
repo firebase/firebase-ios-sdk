@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithMFAPendingCredential:(NSString *_Nullable)MFAPendingCredential
                                        hints:(NSArray<FIRMultiFactorInfo *> *)hints
-                                        auth:(FIRAuth *)auth;
+                                        auth:(FIRAuth *_Nullable)auth;
 
 @end
 

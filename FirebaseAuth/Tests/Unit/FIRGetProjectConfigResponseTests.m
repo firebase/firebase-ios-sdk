@@ -81,7 +81,9 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
  */
 - (void)testMissingAPIKeyError {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 
@@ -110,7 +112,9 @@ static NSString *const kMissingAPIKeyErrorMessage = @"MISSING_API_KEY";
  */
 - (void)testSuccessFulGetProjectConfigRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 

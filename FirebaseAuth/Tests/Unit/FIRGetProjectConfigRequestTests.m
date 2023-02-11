@@ -79,7 +79,9 @@ static NSString *gAPIHost = @"www.googleapis.com";
  */
 - (void)testGetProjectConfigRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey
+                                                    appID:kTestFirebaseAppID
+                                                     auth:nil];
   FIRGetProjectConfigRequest *request =
       [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 
