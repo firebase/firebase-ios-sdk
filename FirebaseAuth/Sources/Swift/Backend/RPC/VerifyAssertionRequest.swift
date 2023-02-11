@@ -170,6 +170,11 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public var autoCreate: Bool = false
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = VerifyClientResponse()
+
   @objc public init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
     self.providerID = providerID
     returnSecureToken = true
