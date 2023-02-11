@@ -103,6 +103,11 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public var appID: String?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = CreateAuthURIResponse()
+
   @objc public init(identifier: String, continueURI: String,
                     requestConfiguration: AuthRequestConfiguration) {
     self.identifier = identifier

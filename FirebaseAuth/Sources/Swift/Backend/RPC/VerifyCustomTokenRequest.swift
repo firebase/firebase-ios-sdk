@@ -40,6 +40,11 @@ private let kTenantIDKey = "tenantId"
 
   @objc public var returnSecureToken: Bool
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = VerifyCustomTokenResponse()
+
   @objc public init(token: String, requestConfiguration: AuthRequestConfiguration) {
     self.token = token
     returnSecureToken = true

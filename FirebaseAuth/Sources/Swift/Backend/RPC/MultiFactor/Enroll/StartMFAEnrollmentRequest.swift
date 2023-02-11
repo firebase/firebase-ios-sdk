@@ -26,6 +26,11 @@ private let kTenantIDKey = "tenantId"
   private(set) var IDToken: String?
   private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = StartMFAEnrollmentResponse()
+
   init(IDToken: String?,
        enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
        requestConfiguration: AuthRequestConfiguration) {

@@ -67,6 +67,11 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public var returnSecureToken: Bool = true
 
+  /** @var response
+      @brief The corresponding response for this request
+   */
+  @objc public var response: AuthRPCResponse = SignUpNewUserResponse()
+
   @objc public init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
   }
