@@ -37,12 +37,22 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     }
   }
 
+  private func set(items: T) {
+      if let animation = configuration.animation {
+          withAnimation(animation) {
+            self.items = items
+          }
+          return
+      }
+      self.items = items
+  }
+
   init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [U] {
     items = []
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
-        self?.items = []
+        self?.set(items: [])
         self?.projectError(error)
         return
       } else {
@@ -50,7 +60,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.items = []
+        self?.set(items: [])
         return
       }
 
@@ -67,12 +77,12 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
       if self?.configuration.error != nil {
         if configuration.decodingFailureStrategy == .raise {
-          self?.items = []
+          self?.set(items: [])
         } else {
-          self?.items = decodedDocuments
+          self?.set(items: decodedDocuments)
         }
       } else {
-        self?.items = decodedDocuments
+        self?.set(items: decodedDocuments)
       }
     }
 
@@ -164,9 +174,17 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
   }
 
   private func projectError(_ error: Error?) {
-    shouldUpdateListener = false
-    configuration.error = error
-    shouldUpdateListener = true
+      if let animation = configuration.animation {
+          withAnimation(animation) {
+              shouldUpdateListener = false
+              configuration.error = error
+              shouldUpdateListener = true
+          }
+          return
+      }
+      shouldUpdateListener = false
+      configuration.error = error
+      shouldUpdateListener = true
   }
 
   private func removeListener() {
