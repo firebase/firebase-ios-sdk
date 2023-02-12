@@ -94,7 +94,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
-        self?.items = .failure(error)
+        self?.set(items: .failure(error))
         self?.projectError(error)
         return
       } else {
@@ -102,7 +102,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.items = .success([])
+        self?.set(items: .success([]))
         return
       }
 
@@ -119,12 +119,12 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
       if let error = self?.configuration.error {
         if configuration.decodingFailureStrategy == .raise {
-          self?.items = .failure(error)
+          self?.set(items: .failure(error))
         } else {
-          self?.items = .success(decodedDocuments)
+          self?.set(items: .success(decodedDocuments))
         }
       } else {
-        self?.items = .success(decodedDocuments)
+        self?.set(items: .success(decodedDocuments))
       }
     }
 
