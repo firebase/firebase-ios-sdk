@@ -13,15 +13,36 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseInstallations
+// Avoids exposing internal APIs to Swift users
+@_implementationOnly import FirebaseCoreInternal
+@_implementationOnly import FirebaseInstallations
 
+@objc(FIRFADFetchReleasesCompletion)
+typealias AppDistributionFetchReleasesCompletion = (releases: Array?, error: Error?)
 
-@objc(FIRFADFetchReleasesCompletion) typealias AppDistributionFetchReleasesCompletion = (releases: Array?, error: Error?)
-@objc(FIRFADGenerateAuthTokenCompletion) typealias AppDistributionGenerateAuthTokenCompletion = (identifier: String?, authTokenResult: InstallationsAuthTokenResult?, error: Error?)
+@objc(FIRFADGenerateAuthTokenCompletion)
+typealias AppDistributionGenerateAuthTokenCompletion = (identifier: String?, authTokenResult: InstallationsAuthTokenResult?, error: Error?)
+
+enum Strings {
+  static let errorDomain = "com.firebase.appdistribution.api"
+  static let errorDetailsKey = "details"
+  static let httpGet = "GET"
+  static let releaseEndpointUrlTemplate = "https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases"
+  static let installationsAuthHeader = "X-Goog-Firebase-Installations-Auth"
+  static let apiHeaderKey = "X-Goog-Api-Key"
+  static let apiBundleKey = "X-Ios-Bundle-Identifier"
+  static let responseReleaseKey = "releases"
+}
 
 
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+    let installations = Installations.installations()
+    
+    installations.authToken(completion: { (authTokenResult, error) -> Void in
+      
+      
+    })
 
   }
   
