@@ -130,7 +130,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
     /// If any errors occurred, they will be exposed here as well.
     public var error: Error?
 
-    /// The type of animation to apply to updating the view.
+    /// The type of animation to apply when updating the view. If this is ommitted then no animations are fired.
     public var animation: Animation?
   }
 
@@ -159,8 +159,10 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///     filter for the fetched results.
   ///   - decodingFailureStrategy: The strategy to use when there is a failure
   ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  ///   - animation: The type of animation to apply when updating the view. If this is ommitted then no animations are fired.
   public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
-                            decodingFailureStrategy: DecodingFailureStrategy = .raise, animation: Animation? = nil)
+                            decodingFailureStrategy: DecodingFailureStrategy = .raise,
+                            animation: Animation? = nil)
     where T == [U] {
     let configuration = Configuration(
       path: collectionPath,
@@ -180,8 +182,10 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///     filter for the fetched results.
   ///   - decodingFailureStrategy: The strategy to use when there is a failure
   ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  ///   - animation: The type of animation to apply when updating the view. If this is ommitted then no animations are fired.
   public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
-                            decodingFailureStrategy: DecodingFailureStrategy = .raise, animation: Animation? = nil)
+                            decodingFailureStrategy: DecodingFailureStrategy = .raise,
+                            animation: Animation? = nil)
     where T == Result<[U], Error> {
     let configuration = Configuration(
       path: collectionPath,

@@ -23,7 +23,8 @@ private struct Fruit: Codable, Identifiable, Equatable {
 struct FavouriteFruitsMappingErrorView2: View {
   @FirestoreQuery(
     collectionPath: "mappingFailure",
-    decodingFailureStrategy: .ignore
+    decodingFailureStrategy: .ignore,
+    animation: .default
   ) private var fruits: [Fruit]
 
   var body: some View {

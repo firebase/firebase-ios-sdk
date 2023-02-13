@@ -38,13 +38,13 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
   }
 
   private func set(items: T) {
-      if let animation = configuration.animation {
-          withAnimation(animation) {
-            self.items = items
-          }
+      guard let animation = configuration.animation else {
+          self.items = items
           return
       }
-      self.items = items
+      withAnimation(animation) {
+        self.items = items
+      }
   }
 
   init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [U] {
@@ -172,19 +172,21 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       self.listener = query.addSnapshotListener(handler)
     }
   }
-
-  private func projectError(_ error: Error?) {
-      if let animation = configuration.animation {
-          withAnimation(animation) {
-              shouldUpdateListener = false
-              configuration.error = error
-              shouldUpdateListener = true
-          }
-          return
-      }
+    
+    private func setProjectedError(_ error: Error?) {
       shouldUpdateListener = false
       configuration.error = error
       shouldUpdateListener = true
+    }
+
+  private func projectError(_ error: Error?) {
+      guard let animation = configuration.animation else {
+        setProjectedError(error)
+        return
+      }
+      withAnimation(animation) {
+          setProjectedError(error)
+      }
   }
 
   private func removeListener() {
