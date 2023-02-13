@@ -129,7 +129,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
 
     /// If any errors occurred, they will be exposed here as well.
     public var error: Error?
-      
+
     /// The type of animation to apply when updating the view. If this is ommitted then no animations are fired.
     public var animation: Animation?
   }

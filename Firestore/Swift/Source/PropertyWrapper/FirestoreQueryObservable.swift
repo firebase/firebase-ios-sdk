@@ -36,7 +36,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       setupListener()
     }
   }
-    
+
   private func set(items: T) {
     guard let animation = configuration.animation else {
       self.items = items
@@ -172,7 +172,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       self.listener = query.addSnapshotListener(handler)
     }
   }
-    
+
   private func setProjectedError(_ error: Error?) {
     shouldUpdateListener = false
     configuration.error = error
@@ -182,11 +182,11 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
   private func projectError(_ error: Error?) {
     guard let animation = configuration.animation else {
       setProjectedError(error)
-        return
-      }
-      withAnimation(animation) {
-        setProjectedError(error)
-      }
+      return
+    }
+    withAnimation(animation) {
+      setProjectedError(error)
+    }
   }
 
   private func removeListener() {
