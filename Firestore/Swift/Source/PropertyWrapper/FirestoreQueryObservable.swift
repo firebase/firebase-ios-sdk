@@ -36,13 +36,23 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       setupListener()
     }
   }
+    
+  private func set(items: T) {
+    guard let animation = configuration.animation else {
+      self.items = items
+      return
+    }
+    withAnimation(animation) {
+      self.items = items
+    }
+  }
 
   init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [U] {
     items = []
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
-        self?.items = []
+        self?.set(items: [])
         self?.projectError(error)
         return
       } else {
@@ -50,7 +60,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.items = []
+        self?.set(items: [])
         return
       }
 
@@ -67,12 +77,12 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
       if self?.configuration.error != nil {
         if configuration.decodingFailureStrategy == .raise {
-          self?.items = []
+          self?.set(items: [])
         } else {
-          self?.items = decodedDocuments
+          self?.set(items: decodedDocuments)
         }
       } else {
-        self?.items = decodedDocuments
+        self?.set(items: decodedDocuments)
       }
     }
 
@@ -84,7 +94,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
-        self?.items = .failure(error)
+        self?.set(items: .failure(error))
         self?.projectError(error)
         return
       } else {
@@ -92,7 +102,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.items = .success([])
+        self?.set(items: .success([]))
         return
       }
 
@@ -109,12 +119,12 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
       if let error = self?.configuration.error {
         if configuration.decodingFailureStrategy == .raise {
-          self?.items = .failure(error)
+          self?.set(items: .failure(error))
         } else {
-          self?.items = .success(decodedDocuments)
+          self?.set(items: .success(decodedDocuments))
         }
       } else {
-        self?.items = .success(decodedDocuments)
+        self?.set(items: .success(decodedDocuments))
       }
     }
 
@@ -162,11 +172,21 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       self.listener = query.addSnapshotListener(handler)
     }
   }
-
-  private func projectError(_ error: Error?) {
+    
+  private func setProjectedError(_ error: Error?) {
     shouldUpdateListener = false
     configuration.error = error
     shouldUpdateListener = true
+  }
+
+  private func projectError(_ error: Error?) {
+    guard let animation = configuration.animation else {
+      setProjectedError(error)
+        return
+      }
+      withAnimation(animation) {
+        setProjectedError(error)
+      }
   }
 
   private func removeListener() {
