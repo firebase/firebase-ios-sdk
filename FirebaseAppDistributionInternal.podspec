@@ -50,5 +50,13 @@ Pod::Spec.new do |s|
       'GCC_C_LANGUAGE_STANDARD' => 'c99',
       'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"',
     }
+
+    s.test_spec 'unit' do |unit_tests|
+      unit_tests.scheme = { :code_coverage => true }
+      unit_tests.source_files = [
+        'FirebaseAppDistributionInternal/Tests/Unit/*.swift',
+      ]
+      unit_tests.dependency 'OCMock'
+     end
   end
   
