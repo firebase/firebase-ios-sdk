@@ -128,6 +128,7 @@
 		DF8AEF36295CA3F40013BF14 /* AppQualityDevApp_Crashlytics_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_Crashlytics_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF9759B8295CE10700EF01BA /* AppQualityDevApp_CrashlyticsPerformance_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_CrashlyticsPerformance_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF9AC004295CD14F00EFFEB7 /* AppQualityDevApp_Performance_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AppQualityDevApp_Performance_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DFB0F328299A9B5B008DBCB7 /* AppQualityDevApp-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "AppQualityDevApp-iOS-Info.plist"; sourceTree = "<group>"; };
 		E26B04C91ED8B954BD747D36 /* Pods-AppQualityDevApp_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevApp_iOS.release.xcconfig"; path = "Target Support Files/Pods-AppQualityDevApp_iOS/Pods-AppQualityDevApp_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		EDA875D20BA56FABDFC9A521 /* Pods_AppQualityDevApp_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AppQualityDevApp_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F1720B933F39C0D8D6A031E5 /* Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig"; path = "Target Support Files/Pods-AppQualityDevAppWatchOS WatchKit Extension/Pods-AppQualityDevAppWatchOS WatchKit Extension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -235,6 +236,7 @@
 		DF33DA5E28E4941100F7B88B = {
 			isa = PBXGroup;
 			children = (
+				DFB0F328299A9B5B008DBCB7 /* AppQualityDevApp-iOS-Info.plist */,
 				DF33DA6328E4941100F7B88B /* Shared */,
 				DF33DA7228E4941400F7B88B /* macOS */,
 				CF94D83B29070DF600308FF7 /* UITestsiOS */,
@@ -930,6 +932,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AppQualityDevApp-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -966,6 +969,7 @@
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "AppQualityDevApp-iOS-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = AppQualityDevApp_iOS;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
