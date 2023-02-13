@@ -13,3 +13,19 @@
 // limitations under the License.
 
 import Foundation
+import FirebaseInstallations
+
+
+@objc(FIRFADFetchReleasesCompletion) typealias AppDistributionFetchReleasesCompletion = (releases: Array?, error: Error?)
+@objc(FIRFADGenerateAuthTokenCompletion) typealias AppDistributionGenerateAuthTokenCompletion = (identifier: String?, authTokenResult: InstallationsAuthTokenResult?, error: Error?)
+
+
+@objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
+  @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+
+  }
+  
+  @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
+
+  }
+}
