@@ -67,9 +67,6 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeInternalError = 500;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
-// Deprecated error code previously from FirebaseCore
-static const NSInteger sFIRErrorCodeConfigFailed = -114;
-
 #pragma mark - RCNConfig
 
 @implementation RCNConfigFetch {
