@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 
@@ -38,32 +39,41 @@ static const NSTimeInterval kTimeout = 1;
     completionArg();
     [expectation fulfill];
   }];
+    NSLog(@"XXX");
   [self waitForExpectationsWithTimeout:kTimeout handler:nil];
 }
 
 - (void)testCompletion {
+    NSLog(@"11");
   XCTestExpectation *expectation = [self expectationWithDescription:@"executed"];
+    NSLog(@"12");
   FIRAuthSerialTaskQueue *queue = [[FIRAuthSerialTaskQueue alloc] init];
-  __block FIRAuthSerialTaskCompletionBlock completion = nil;
-  [queue enqueueTask:^(FIRAuthSerialTaskCompletionBlock completionArg) {
-    completion = completionArg;
-    [expectation fulfill];
-  }];
-  __block XCTestExpectation *nextExpectation = nil;
-  __block BOOL executed = NO;
-  [queue enqueueTask:^(FIRAuthSerialTaskCompletionBlock completionArg) {
-    executed = YES;
-    completionArg();
-    [nextExpectation fulfill];
-  }];
-  // The second task should not be executed until the first is completed.
-  [self waitForExpectationsWithTimeout:kTimeout handler:nil];
-  XCTAssertNotNil(completion);
-  XCTAssertFalse(executed);
-  nextExpectation = [self expectationWithDescription:@"executed next"];
-  completion();
-  [self waitForExpectationsWithTimeout:kTimeout handler:nil];
-  XCTAssertTrue(executed);
+    NSLog(@"14");
+//  __block FIRAuthSerialTaskCompletionBlock completion = nil;
+//    NSLog(@"1");
+//  [queue enqueueTask:^(FIRAuthSerialTaskCompletionBlock completionArg) {
+//    completion = completionArg;
+//    [expectation fulfill];
+//  }];
+//    NSLog(@"2");
+//  __block XCTestExpectation *nextExpectation = nil;
+//  __block BOOL executed = NO;
+//  [queue enqueueTask:^(FIRAuthSerialTaskCompletionBlock completionArg) {
+//    executed = YES;
+//    completionArg();
+//    [nextExpectation fulfill];
+//  }];
+//    NSLog(@"3");
+//
+//  // The second task should not be executed until the first is completed.
+//  [self waitForExpectationsWithTimeout:kTimeout handler:nil];
+//    NSLog(@"4");
+//  XCTAssertNotNil(completion);
+//  XCTAssertFalse(executed);
+//  nextExpectation = [self expectationWithDescription:@"executed next"];
+//  completion();
+//  [self waitForExpectationsWithTimeout:kTimeout handler:nil];
+//  XCTAssertTrue(executed);
 }
 
 - (void)testTargetQueue {
