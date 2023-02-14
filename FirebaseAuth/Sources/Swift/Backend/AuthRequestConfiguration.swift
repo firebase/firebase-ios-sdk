@@ -13,7 +13,13 @@
 // limitations under the License.
 
 import Foundation
-@_implementationOnly import FirebaseCoreInternal
+
+#if COCOAPODS
+  // TODO: Prefix with `@_implementationOnly` after port.
+  import FirebaseAuth_Private
+#else
+  @_implementationOnly import FirebaseCoreExtension
+#endif
 
 /** @class FIRAuthRequestConfiguration
    @brief Defines configurations to be added to a request to Firebase Auth's backend.
@@ -38,13 +44,9 @@ import Foundation
       @brief The FIRAuth instance used in the request.
    */
   @objc public weak var auth: Auth?
-  //
-  /// ** @property heartbeatLogger
-  //    @brief The heartbeat logger used to add heartbeats to the corresponding request's header.
-  // */
-  // TODO:
-  // @objc public var heartbeatLogger: FIRHeartbeatLoggerProtocol?
-  // @property(nonatomic, copy, nullable) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
+
+  /// The heartbeat logger used to add heartbeats to the corresponding request's header.
+  @objc public var heartbeatLogger: FIRHeartbeatLoggerProtocol?
 
   /** @property additionalFrameworkMarker
    @brief Additional framework marker that will be added as part of the header of every request.
@@ -66,11 +68,13 @@ import Foundation
     self.auth = auth
   }
 
-  // TODO:
-//  @objc public init(APIKey: String, appID: String) { // }, heartbeatLogger: FIRHeartbeatLoggerProtocol?) {
-//        self.APIKey = APIKey
-//        self.appID = appID
-//
-//        // self.heartbeatLogger = heartbeatLogger
-//    }
+  @objc public init(APIKey: String,
+                    appID: String,
+                    auth: Auth? = nil,
+                    heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil) {
+    self.APIKey = APIKey
+    self.appID = appID
+    self.auth = auth
+    self.heartbeatLogger = heartbeatLogger
+  }
 }

@@ -577,10 +577,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [request setValue:bundleID forHTTPHeaderField:kIosBundleIdentifierHeader];
   NSString *appID = requestConfiguration.appID;
   [request setValue:appID forHTTPHeaderField:kFirebaseAppIDHeader];
-  // TODO:
-  //  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-  //                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
-  //      forHTTPHeaderField:kFirebaseHeartbeatHeader];
+  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
+                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
+      forHTTPHeaderField:kFirebaseHeartbeatHeader];
   NSArray<NSString *> *preferredLocalizations = [NSBundle mainBundle].preferredLocalizations;
   if (preferredLocalizations.count) {
     NSString *acceptLanguage = preferredLocalizations.firstObject;
