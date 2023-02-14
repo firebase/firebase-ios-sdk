@@ -20,7 +20,6 @@
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAdditionalUserInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
