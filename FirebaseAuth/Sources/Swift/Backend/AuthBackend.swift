@@ -30,8 +30,7 @@ public protocol AuthBackendRPCIssuer: NSObjectProtocol {
       @param handler provided that handles POST response. Invoked asynchronously on the auth global
           work queue in the future.
    */
-  func asyncPostToURLWithRequestConfiguration(requestConfiguration: AuthRequestConfiguration,
-                                              url: URL,
+  func asyncPostToURLWithRequestConfiguration(request: AuthRPCRequest,
                                               body: Data?,
                                               contentType: String,
                                               completionHandler: @escaping ((Data?, Error?)
@@ -52,15 +51,15 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     fetcherService.reuseSession = false
   }
 
-  public func asyncPostToURLWithRequestConfiguration(requestConfiguration: AuthRequestConfiguration,
-                                                     url: URL,
+  public func asyncPostToURLWithRequestConfiguration(request: AuthRPCRequest,
                                                      body: Data?,
                                                      contentType: String,
                                                      completionHandler: @escaping ((Data?, Error?)
                                                        -> Void)) {
-    let request = AuthBackend.request(withURL: url, contentType: contentType,
-                                      requestConfiguration: requestConfiguration)
-    let fetcher = fetcherService.fetcher(with: request)
+    let requestConfiguration = request.requestConfiguration()
+    let urlRequest = AuthBackend.request(withURL: request.requestURL(), contentType: contentType,
+                                         requestConfiguration: requestConfiguration)
+    let fetcher = fetcherService.fetcher(with: urlRequest)
     if let _ = requestConfiguration.emulatorHostAndPort {
       fetcher.allowLocalhostRequest = true
       fetcher.allowedInsecureSchemes = ["http"]
@@ -258,8 +257,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       }
     }
     RPCIssuer.asyncPostToURLWithRequestConfiguration(
-      requestConfiguration: request.requestConfiguration(),
-      url: request.requestURL(),
+      request: request,
       body: bodyData,
       contentType: "application/json"
     ) { data, error in
@@ -413,6 +411,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .invalidRecipientEmailError(message: serverDetailErrorMessage)
     case "WEAK_PASSWORD": return AuthErrorUtils
       .weakPasswordError(serverResponseReason: serverDetailErrorMessage)
+    case "TOO_MANY_ATTEMPTS_TRY_LATER": return AuthErrorUtils
+      .tooManyRequestsError(message: serverDetailErrorMessage)
 
     // TODO: MISSING_API_KEY should go away and its code should be default
     case "MISSING_API_KEY": return AuthErrorUtils.unexpectedResponse(
