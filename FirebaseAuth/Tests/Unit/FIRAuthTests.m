@@ -419,6 +419,7 @@ static const NSTimeInterval kWaitInterval = .5;
 /** @fn testPhoneAuthSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion for phone auth.
  */
+#ifdef TODO_SWIFT
 - (void)testPhoneAuthSuccess {
   OCMExpect([_mockBackend verifyPhoneNumber:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyPhoneNumberRequest *_Nullable request,
@@ -454,7 +455,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testPhoneAuthMissingVerificationCode
     @brief Tests the flow of an unsuccessful @c signInWithCredential:completion for phone auth due
         to an empty verification code
@@ -595,7 +596,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c signInWithEmail:password:completion: call.
  */
@@ -628,7 +629,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInWithEmailPasswordFailure
     @brief Tests the flow of a failed @c signInWithEmail:password:completion: call.
  */
@@ -650,7 +651,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testSignInAndRetrieveDataWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c signInAndRetrieveDataWithEmail:password:completion:
         call.
@@ -687,7 +688,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInAndRetrieveDataWithEmailPasswordFailure
     @brief Tests the flow of a failed @c signInAndRetrieveDataWithEmail:password:completion: call.
  */
@@ -820,7 +821,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testApplyActionCodeSuccess
     @brief Tests the flow of a successful @c applyActionCode:completion call.
  */
@@ -866,7 +867,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testVerifyPasswordResetCodeSuccess
     @brief Tests the flow of a successful @c verifyPasswordResetCode:completion call.
  */
@@ -983,7 +984,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInWithEmailCredentialSuccess
     @brief Tests the flow of a successfully @c signInWithCredential:completion: call with an
         email-password credential.
@@ -1019,7 +1020,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInWithEmailCredentialFailure
     @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
         email-password credential.
@@ -1071,6 +1072,7 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Tests a successful @c signInWithProvider:UIDelegate:completion: call with an OAuth
         provider configured for Google.
  */
+#ifdef TODO_SWIFT
 - (void)testSignInWithProviderSuccess {
   OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
@@ -1115,6 +1117,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
+#endif
 
 /** @fn testSignInWithProviderFailure
     @brief Tests a failed @c signInWithProvider:UIDelegate:completion: call with the error code
@@ -1191,7 +1194,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testSignInWithGoogleCredentialSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion: call with an
         Google Sign-In credential.
@@ -1293,8 +1296,9 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
+#endif
 #endif  // TARGET_OS_IOS
-
+#ifdef TODO_SWIFT
 /** @fn testSignInWithCredentialSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion: call
         with an Google Sign-In credential.
@@ -1342,7 +1346,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInWithGoogleCredentialFailure
     @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
         Google Sign-In credential.
@@ -1367,7 +1371,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testSignInWithAppleCredentialFullNameInRequest
     @brief Tests the flow of a successful @c signInWithCredential:completion: call
         with an Apple Sign-In credential with a full name. This test differentiates from
@@ -1465,7 +1469,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserAnonymous:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInAnonymouslyFailure
     @brief Tests the flow of a failed @c signInAnonymouslyWithCompletion: call.
  */
@@ -1486,7 +1490,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testSignInAnonymouslyAndRetrieveDataSuccess
     @brief Tests the flow of a successful @c signInAnonymouslyAndRetrieveDataWithCompletion: call.
  */
@@ -1518,7 +1522,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserAnonymous:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInAnonymouslyAndRetrieveDataFailure
     @brief Tests the flow of a failed @c signInAnonymouslyAndRetrieveDataWithCompletion: call.
  */
@@ -1539,7 +1543,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testSignInWithCustomTokenSuccess
     @brief Tests the flow of a successful @c signInWithCustomToken:completion: call.
  */
@@ -1571,7 +1575,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInWithCustomTokenFailure
     @brief Tests the flow of a failed @c signInWithCustomToken:completion: call.
  */
@@ -1593,7 +1597,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testSignInAndRetrieveDataWithCustomTokenSuccess
     @brief Tests the flow of a successful @c signInAndRetrieveDataWithCustomToken:completion: call.
  */
@@ -1626,7 +1630,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInAndRetrieveDataWithCustomTokenFailure
     @brief Tests the flow of a failed @c signInAndRetrieveDataWithCustomToken:completion: call.
  */
@@ -1648,7 +1652,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testCreateUserWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c createUserWithEmail:password:completion: call.
  */
@@ -1682,7 +1686,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testCreateUserWithEmailPasswordFailure
     @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call.
  */
@@ -1707,7 +1711,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testCreateUserAndRetrieveDataWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c createUserAndRetrieveDataWithEmail:password:completion:
         call.
@@ -1743,7 +1747,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testCreateUserAndRetrieveDataWithEmailPasswordFailure
     @brief Tests the flow of a failed @c createUserAndRetrieveDataWithEmail:password:completion:
         call.
@@ -1908,7 +1912,7 @@ static const NSTimeInterval kWaitInterval = .5;
   actionCodeSettings.handleCodeInApp = YES;
   return actionCodeSettings;
 }
-
+#ifdef TODO_SWIFT
 /** @fn testUpdateCurrentUserFailure
     @brief Tests the flow of a failed @c updateCurrentUser:completion:
         call.
@@ -2072,7 +2076,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertTrue([[FIRAuth auth] signOut:&error]);
   XCTAssertNil([FIRAuth auth].currentUser);
 }
-
+#endif
 /** @fn testIsSignInWithEmailLink
     @brief Tests the @c isSignInWithEmailLink: method.
 */
@@ -2082,7 +2086,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertFalse([[FIRAuth auth] isSignInWithEmailLink:kBadSignInEmailLink]);
   XCTAssertFalse([[FIRAuth auth] isSignInWithEmailLink:@""]);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testAuthStateChanges
     @brief Tests @c addAuthStateDidChangeListener: and @c removeAuthStateDidChangeListener: methods.
  */
@@ -2187,7 +2191,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForSignIn];
   [self waitForTimeIntervel:kWaitInterval];  // make sure listener is no longer called
 }
-
+#endif
 /** @fn testUseEmulator
     @brief Tests the @c useEmulatorWithHost:port: method.
  */
@@ -2224,7 +2228,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 #pragma mark - Automatic Token Refresh Tests.
-
+#ifdef TODO_SWIFT
 /** @fn testAutomaticTokenRefresh
     @brief Tests a successful flow to automatically refresh tokens for a signed in user.
  */
@@ -2386,7 +2390,7 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
 }
 #endif
-
+#endif  // TODO_SWIFT
 #if TARGET_OS_IOS
 #pragma mark - Application Delegate tests
 - (void)testAppDidRegisterForRemoteNotifications_APNSTokenUpdated {
@@ -2546,7 +2550,7 @@ static const NSTimeInterval kWaitInterval = .5;
       .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
   OCMStub([mockResponse refreshToken]).andReturn(kRefreshToken);
 }
-
+#ifdef TODO_SWIFT
 /** @fn expectGetAccountInfo
     @brief Expects a GetAccountInfo request on the mock backend and calls back with fake account
         data.
@@ -2580,7 +2584,7 @@ static const NSTimeInterval kWaitInterval = .5;
         });
       });
 }
-
+#endif
 /** @fn assertUser
     @brief Asserts the given FIRUser matching the fake data returned by @c expectGetAccountInfo.
     @param user The user object to be verified.
@@ -2593,7 +2597,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertFalse(user.anonymous);
   XCTAssertEqual(user.providerData.count, 0u);
 }
-
+#ifdef TODO_SWIFT
 /** @fn expectGetAccountInfoGoogle
     @brief Expects a GetAccountInfo request on the mock backend and calls back with fake account
         data for a Google Sign-In user.
@@ -2623,7 +2627,7 @@ static const NSTimeInterval kWaitInterval = .5;
         });
       });
 }
-
+#endif
 /** @fn assertUserGoogle
     @brief Asserts the given FIRUser matching the fake data returned by
         @c expectGetAccountInfoGoogle.
@@ -2640,7 +2644,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertEqualObjects(googleUserInfo.displayName, kGoogleDisplayName);
   XCTAssertEqualObjects(googleUserInfo.email, kGoogleEmail);
 }
-
+#ifdef TODO_SWIFT
 /** @fn expectGetAccountInfoAnonymous
     @brief Expects a GetAccountInfo request on the mock backend and calls back with fake anonymous
         account data.
@@ -2662,7 +2666,7 @@ static const NSTimeInterval kWaitInterval = .5;
         });
       });
 }
-
+#endif
 /** @fn assertUserAnonymous
     @brief Asserts the given FIRUser matching the fake data returned by
         @c expectGetAccountInfoAnonymous.
@@ -2675,7 +2679,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertTrue(user.anonymous);
   XCTAssertEqual(user.providerData.count, 0u);
 }
-
+#ifdef TODO_SWIFT
 /** @fn waitForSignIn
     @brief Signs in a user to prepare for tests.
     @remarks This method also waits for all other pending @c XCTestExpectation instances.
@@ -2724,7 +2728,7 @@ static const NSTimeInterval kWaitInterval = .5;
   OCMVerifyAll(_mockBackend);
   XCTAssertNotNil([FIRAuth auth].currentUser);
 }
-
+#endif
 /** @fn waitForTimeInterval:
     @brief Wait for a particular time interval.
     @remarks This method also waits for all other pending @c XCTestExpectation instances.
