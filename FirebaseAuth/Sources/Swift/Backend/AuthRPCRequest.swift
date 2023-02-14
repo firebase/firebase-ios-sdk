@@ -14,6 +14,10 @@
 
 import Foundation
 
+// TODO: Once this type doesn't need to be @objc, perhaps it would make sense to make the response an
+// associated type of the request protocol and perform all encoding of requests and decoding of responses
+// using Codable.
+
 /** @protocol FIRAuthRPCRequest
     @brief The generic interface for an RPC request needed by @c FIRAuthBackend.
  */
@@ -27,7 +31,7 @@ import Foundation
   /** @fn containsPostBody
       @brief Returns whether the request contains a post body or not. Requests without a post body
           are get requests.
-      @remarks The default implementation returns YES.
+      @remarks The default implementation returns true.
    */
   @objc optional func containsPostBody() -> Bool
 

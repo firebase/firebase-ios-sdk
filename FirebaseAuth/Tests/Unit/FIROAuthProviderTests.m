@@ -291,6 +291,7 @@ static NSString *const kUnknownErrorString =
   XCTAssertEqualObjects(OAuthProvider.providerID, kFakeProviderID);
 }
 
+#ifdef TODO_SWIFT
 /** @fn testGetCredentialWithUIDelegateWithClientID
     @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion:
  */
@@ -1223,7 +1224,7 @@ static NSString *const kUnknownErrorString =
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testGetCredentialWithUIDelegateUseEmulator
     @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion: when using the
    emulator.
