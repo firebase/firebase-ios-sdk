@@ -19,18 +19,12 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRGetAccountInfoRequest;
-@class FIRGetAccountInfoResponse;
-@class FIRGetProjectConfigRequest;
-@class FIRGetProjectConfigResponse;
 @class FIRGetOOBConfirmationCodeRequest;
 @class FIRGetOOBConfirmationCodeResponse;
 @class FIRResetPasswordRequest;
 @class FIRResetPasswordResponse;
 @class FIRSecureTokenRequest;
 @class FIRSecureTokenResponse;
-@class FIRSetAccountInfoRequest;
-@class FIRSetAccountInfoResponse;
 @class FIRVerifyAssertionRequest;
 @class FIRVerifyAssertionResponse;
 @class FIRVerifyClientRequest;
@@ -61,36 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
                                                          NSError *_Nullable error);
-
-/** @typedef FIRGetAccountInfoResponseCallback
-    @brief The type of block used to return the result of a call to the getAccountInfo
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRGetAccountInfoResponseCallback)(FIRGetAccountInfoResponse *_Nullable response,
-                                                  NSError *_Nullable error);
-
-/** @typedef FIRGetProjectConfigResponseCallback
-    @brief The type of block used to return the result of a call to the getProjectInfo
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRGetProjectConfigResponseCallback)(FIRGetProjectConfigResponse *_Nullable response,
-                                                    NSError *_Nullable error);
-
-/** @typedef FIRSetAccountInfoResponseCallback
-    @brief The type of block used to return the result of a call to the setAccountInfo
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRSetAccountInfoResponseCallback)(FIRSetAccountInfoResponse *_Nullable response,
-                                                  NSError *_Nullable error);
 
 /** @typedef FIRSecureTokenResponseCallback
     @brief The type of block used to return the result of a call to the token endpoint.
@@ -251,32 +215,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
 
-/** @fn getAccountInfo:callback:
-    @brief Calls the getAccountInfo endpoint, which returns account info for a given account.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
-              callback:(FIRGetAccountInfoResponseCallback)callback;
-
-/** @fn getProjectConfig:callback:
-    @brief Calls the getProjectConfig endpoint, which returns configuration information for a given
-        project.
-    @param request An object wrapping the backend get request.
-    @param callback The callback.
- */
-+ (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
-                callback:(FIRGetProjectConfigResponseCallback)callback;
-
-/** @fn setAccountInfo:callback:
-    @brief Calls the setAccountInfo endpoint, which is responsible for setting account info for a
-        user, for example, to sign up a new user with email and password.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
-              callback:(FIRSetAccountInfoResponseCallback)callback;
-
 /** @fn verifyAssertion:callback:
     @brief Calls the verifyAssertion endpoint, which is responsible for authenticating a
         user who has IDP-related credentials (an ID Token, an Access Token, etc.)
@@ -417,32 +355,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
         or a mock backend.
  */
 @protocol FIRAuthBackendImplementation <NSObject>
-
-/** @fn getAccountInfo:callback:
-    @brief Calls the getAccountInfo endpoint, which returns account info for a given account.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
-              callback:(FIRGetAccountInfoResponseCallback)callback;
-
-/** @fn getProjectConfig:callback:
-    @brief Calls the getProjectInfo endpoint, which returns configuration information for a given
-        project.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
-                callback:(FIRGetProjectConfigResponseCallback)callback;
-
-/** @fn setAccountInfo:callback:
-    @brief Calls the setAccountInfo endpoint, which is responsible for setting account info for a
-        user, for example, to sign up a new user with email and password.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
-              callback:(FIRSetAccountInfoResponseCallback)callback;
 
 /** @fn verifyAssertion:callback:
     @brief Calls the verifyAssertion endpoint, which is responsible for authenticating a
