@@ -67,9 +67,6 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeInternalError = 500;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeServiceUnavailable = 503;
 static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
 
-// Deprecated error code previously from FirebaseCore
-static const NSInteger sFIRErrorCodeConfigFailed = -114;
-
 #pragma mark - RCNConfig
 
 @implementation RCNConfigFetch {
@@ -166,16 +163,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       } else {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
                     @"A fetch is already in progress. Ignoring duplicate request.");
-        NSError *error =
-            [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:sFIRErrorCodeConfigFailed
-                            userInfo:@{
-                              NSLocalizedDescriptionKey :
-                                  @"FetchError: Duplicate request while the previous one is pending"
-                            }];
         return [strongSelf reportCompletionOnHandler:completionHandler
                                           withStatus:FIRRemoteConfigFetchStatusFailure
-                                           withError:error];
+                                           withError:nil];
       }
     }
 
@@ -236,16 +226,9 @@ static const NSInteger sFIRErrorCodeConfigFailed = -114;
       } else {
         FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
                     @"A fetch is already in progress. Ignoring duplicate request.");
-        NSError *error =
-            [NSError errorWithDomain:FIRRemoteConfigErrorDomain
-                                code:sFIRErrorCodeConfigFailed
-                            userInfo:@{
-                              NSLocalizedDescriptionKey :
-                                  @"FetchError: Duplicate request while the previous one is pending"
-                            }];
         return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
                                            withUpdate:nil
-                                            withError:error
+                                            withError:nil
                                     completionHandler:nil
                               updateCompletionHandler:completionHandler];
       }
