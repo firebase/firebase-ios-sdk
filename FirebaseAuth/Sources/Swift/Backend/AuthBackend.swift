@@ -16,7 +16,6 @@ import Foundation
 @_implementationOnly import FirebaseCore
 #if COCOAPODS
   import GTMSessionFetcher
-  import FirebaseAuth_Private
 #else
   import GTMSessionFetcherCore
 #endif
