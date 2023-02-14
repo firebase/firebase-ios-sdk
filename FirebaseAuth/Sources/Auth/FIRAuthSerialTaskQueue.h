@@ -29,22 +29,4 @@ typedef void (^FIRAuthSerialTaskCompletionBlock)(void);
  */
 typedef void (^FIRAuthSerialTask)(FIRAuthSerialTaskCompletionBlock complete);
 
-/** @class FIRAuthSerialTaskQueue
-    @brief An easy to use serial task queue which supports a callback-based completion notification
-        system for easy asyncronous call chaining.
- */
-@interface FIRAuthSerialTaskQueue : NSObject
-
-/** @fn enqueueTask:
-    @brief Enqueues a task for serial execution in the queue.
-    @remarks The task MUST call the complete method when done. This method is thread-safe.
-        The task block won't be executed concurrently with any other blocks in other task queues or
-        the global work queue as returned by @c FIRAuthGlobalWorkQueue , but an uncompleted task
-        (e.g. task block finished executation before complete method is called at a later time)
-        does not affect other task queues or the global work queue.
- */
-- (void)enqueueTask:(FIRAuthSerialTask)task;
-
-@end
-
 NS_ASSUME_NONNULL_END
