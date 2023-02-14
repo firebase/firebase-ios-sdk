@@ -15,16 +15,12 @@
  */
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth-Swift.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 dispatch_queue_t FIRAuthGlobalWorkQueue() {
-  static dispatch_once_t once;
-  static dispatch_queue_t queue;
-  dispatch_once(&once, ^{
-    queue = dispatch_queue_create("com.google.firebase.auth.globalWorkQueue", NULL);
-  });
-  return queue;
+    return [FIRAuthGlobalWorkQueueWrapper queue];
 }
 
 NS_ASSUME_NONNULL_END
