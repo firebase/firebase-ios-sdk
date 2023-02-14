@@ -223,9 +223,14 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
                         response: AuthRPCResponse,
                         callback: @escaping ((Error?) -> Void)) {
     var bodyData: Data?
-    if request.containsPostBody?() != nil {
+    if let contains = request.containsPostBody,
+       contains() {
       do {
         // TODO: Can unencodedHTTPRequestBody ever throw?
+        // They don't today, but there are a few fatalErrors that might better be implemented as
+        // thrown errors.. Although perhaps the case of 'containsPostBody' returning false could
+        // perhaps be modelled differently so that the failing unencodedHTTPRequestBody could only
+        // be called when a body exists...
         let postBody = try request.unencodedHTTPRequestBody()
         var JSONWritingOptions: JSONSerialization.WritingOptions = .init(rawValue: 0)
         #if DEBUG
@@ -314,7 +319,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
             let clientError = AuthBackendRPCImplementation.clientError(
               withServerErrorMessage: errorMessage,
               errorDictionary: errorDictionary,
-              response: response
+              response: response,
+              error: error
             )
             callback(clientError)
             return
@@ -344,14 +350,14 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       // In case returnIDPCredential of a verifyAssertion request is set to
       // @YES, the server may return a 200 with a response that may contain a
       // server error.
-      // TODO: port clientError
       if let verifyAssertionRequest = request as? VerifyAssertionRequest {
         if verifyAssertionRequest.returnIDPCredential {
           if let errorMessage = dictionary["errorMessage"] as? String {
             let clientError = AuthBackendRPCImplementation.clientError(
               withServerErrorMessage: errorMessage,
               errorDictionary: dictionary,
-              response: response
+              response: response,
+              error: error
             )
             callback(clientError)
             return
@@ -364,10 +370,12 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
 
   private class func clientError(withServerErrorMessage serverErrorMessage: String,
                                  errorDictionary: [String: Any],
-                                 response: AuthRPCResponse) -> Error {
+                                 response: AuthRPCResponse,
+                                 error: Error?) -> Error {
     let split = serverErrorMessage.split(separator: ":")
-    let shortErrorMessage = split.first
+    let shortErrorMessage = split.first?.trimmingCharacters(in: .whitespacesAndNewlines)
     let serverDetailErrorMessage = String(split.count > 1 ? split[1] : "")
+      .trimmingCharacters(in: .whitespacesAndNewlines)
     switch shortErrorMessage {
     case "USER_NOT_FOUND": return AuthErrorUtils
       .userNotFoundError(message: serverDetailErrorMessage)
@@ -378,13 +386,39 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     //  case.
     case "INVALID_IDENTIFIER": return AuthErrorUtils
       .invalidEmailError(message: serverDetailErrorMessage)
-    case "INVALID_EMAIL": return AuthErrorUtils.invalidEmailError(message: serverDetailErrorMessage)
-    case "USER_DISABLED": return AuthErrorUtils
-      .userDisabledErrorWith(message: serverDetailErrorMessage)
     case "INVALID_ID_TOKEN": return AuthErrorUtils
       .invalidUserTokenError(message: serverDetailErrorMessage)
     case "CREDENTIAL_TOO_OLD_LOGIN_AGAIN": return AuthErrorUtils
       .requiresRecentLoginError(message: serverDetailErrorMessage)
+
+    case "EMAIL_EXISTS": return AuthErrorUtils
+      .emailAlreadyInUseError(email: nil)
+    case "OPERATION_NOT_ALLOWED": return AuthErrorUtils
+      .operationNotAllowedError(message: serverDetailErrorMessage)
+    case "PASSWORD_LOGIN_DISABLED": return AuthErrorUtils
+      .operationNotAllowedError(message: serverDetailErrorMessage)
+    case "USER_DISABLED": return AuthErrorUtils
+      .userDisabledError(message: serverDetailErrorMessage)
+    case "INVALID_EMAIL": return AuthErrorUtils
+      .invalidEmailError(message: serverDetailErrorMessage)
+    case "EXPIRED_OOB_CODE": return AuthErrorUtils
+      .expiredActionCodeError(message: serverDetailErrorMessage)
+    case "INVALID_OOB_CODE": return AuthErrorUtils
+      .invalidActionCodeError(message: serverDetailErrorMessage)
+    case "INVALID_MESSAGE_PAYLOAD": return AuthErrorUtils
+      .invalidMessagePayloadError(message: serverDetailErrorMessage)
+    case "INVALID_SENDER": return AuthErrorUtils
+      .invalidSenderError(message: serverDetailErrorMessage)
+    case "INVALID_RECIPIENT_EMAIL": return AuthErrorUtils
+      .invalidRecipientEmailError(message: serverDetailErrorMessage)
+    case "WEAK_PASSWORD": return AuthErrorUtils
+      .weakPasswordError(serverResponseReason: serverDetailErrorMessage)
+
+    // TODO: MISSING_API_KEY should go away and its code should be default
+    case "MISSING_API_KEY": return AuthErrorUtils.unexpectedResponse(
+        deserializedResponse: errorDictionary,
+        underlyingError: error
+      )
     default: fatalError("Implement missing message for: \(shortErrorMessage ?? "missing value")")
     }
   }

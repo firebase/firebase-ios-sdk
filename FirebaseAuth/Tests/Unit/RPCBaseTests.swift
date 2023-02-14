@@ -48,23 +48,36 @@ class RPCBaseTests: XCTestCase {
   /** @fn checkRequest
       @brief Tests the encoding of a request.
    */
-  func checkRequest(request: AuthRPCRequest, expected: String, key: String, value: String) {
+  @discardableResult func checkRequest(request: AuthRPCRequest,
+                                       expected: String,
+                                       key: String,
+                                       value: String?,
+                                       checkPostBody: Bool = false) throws -> FakeBackendRPCIssuer {
     AuthBackend.post(withRequest: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
-    XCTAssertEqual(RPCIssuer?.requestURL?.absoluteString, expected)
-    guard let requestDictionary = RPCIssuer?.decodedRequest as? [AnyHashable: String] else {
+    let rpcIssuer = try XCTUnwrap(RPCIssuer)
+    XCTAssertEqual(rpcIssuer.requestURL?.absoluteString, expected)
+    if checkPostBody,
+       let containsPostBody = request.containsPostBody?() {
+      XCTAssertFalse(containsPostBody)
+    } else if let requestDictionary = rpcIssuer.decodedRequest as? [String: AnyHashable] {
+      XCTAssertEqual(requestDictionary[key], value)
+    } else {
       XCTFail("decodedRequest is not a dictionary")
-      return
     }
-    XCTAssertEqual(requestDictionary[key], value)
+    return rpcIssuer
   }
 
   /** @fn checkBackendError
       @brief This test checks error messagess from the backend map to the expected error codes
    */
-  func checkBackendError(request: AuthRPCRequest, message: String,
-                         errorCode: AuthErrorCode) throws {
+  func checkBackendError(request: AuthRPCRequest,
+                         message: String = "",
+                         json: [String: AnyHashable]? = nil,
+                         errorCode: AuthErrorCode,
+                         errorReason: String? = nil,
+                         underlyingErrorKey: String? = nil) throws {
     var callbackInvoked = false
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
@@ -75,11 +88,23 @@ class RPCBaseTests: XCTestCase {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(serverErrorMessage: message)
+    if let json = json {
+      _ = try RPCIssuer?.respond(withJSON: json)
+    } else {
+      _ = try RPCIssuer?.respond(serverErrorMessage: message)
+    }
 
     XCTAssert(callbackInvoked)
-    XCTAssertEqual(rpcError?.code, errorCode.rawValue)
     XCTAssertNil(rpcResponse)
+    XCTAssertEqual(rpcError?.code, errorCode.rawValue)
+    if errorCode == .internalError {
+      let underlyingError = try XCTUnwrap(rpcError?
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertNotNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
+    }
+    if let errorReason = errorReason {
+      XCTAssertEqual(errorReason, rpcError?.userInfo[NSLocalizedFailureReasonErrorKey] as? String)
+    }
   }
 
   func makeRequestConfiguration() -> AuthRequestConfiguration {
