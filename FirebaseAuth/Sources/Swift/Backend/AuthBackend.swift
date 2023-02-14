@@ -44,8 +44,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
   override init() {
     fetcherService = GTMSessionFetcherService()
     fetcherService.userAgent = AuthBackend.authUserAgent()
-    // TODO: next line.
-    // fetcherService.callbackQueue = FIRAuthGlobalWorkQueue()
+    fetcherService.callbackQueue = FIRAuthGlobalWorkQueue()
 
     // Avoid reusing the session to prevent
     // https://github.com/firebase/firebase-ios-sdk/issues/1261

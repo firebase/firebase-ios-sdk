@@ -25,11 +25,9 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 #import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
-#import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
 #import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
