@@ -484,21 +484,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   gBackendImplementation = defaultImplementation;
 }
 
-+ (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
-              callback:(FIRGetAccountInfoResponseCallback)callback {
-  [[self implementation] getAccountInfo:request callback:callback];
-}
-
-+ (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
-                callback:(FIRGetProjectConfigResponseCallback)callback {
-  [[self implementation] getProjectConfig:request callback:callback];
-}
-
-+ (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
-              callback:(FIRSetAccountInfoResponseCallback)callback {
-  [[self implementation] setAccountInfo:request callback:callback];
-}
-
 + (void)verifyAssertion:(FIRVerifyAssertionRequest *)request
                callback:(FIRVerifyAssertionResponseCallback)callback {
   [[self implementation] verifyAssertion:request callback:callback];
@@ -643,48 +628,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     _RPCIssuer = [[FIRAuthBackendRPCIssuerImplementation alloc] init];
   }
   return self;
-}
-
-- (void)getAccountInfo:(FIRGetAccountInfoRequest *)request
-              callback:(FIRGetAccountInfoResponseCallback)callback {
-  FIRGetAccountInfoResponse *response = [[FIRGetAccountInfoResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
-}
-
-- (void)getProjectConfig:(FIRGetProjectConfigRequest *)request
-                callback:(FIRGetProjectConfigResponseCallback)callback {
-  FIRGetProjectConfigResponse *response = [[FIRGetProjectConfigResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
-}
-
-- (void)setAccountInfo:(FIRSetAccountInfoRequest *)request
-              callback:(FIRSetAccountInfoResponseCallback)callback {
-  FIRSetAccountInfoResponse *response = [[FIRSetAccountInfoResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
 }
 
 - (void)verifyAssertion:(FIRVerifyAssertionRequest *)request

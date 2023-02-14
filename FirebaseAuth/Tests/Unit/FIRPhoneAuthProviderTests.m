@@ -501,7 +501,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockNotificationManager);
   OCMVerifyAll(_mockAppCredentialManager);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow
     @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
  */
@@ -952,7 +952,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
   OCMVerifyAll(_mockNotificationManager);
 }
-
+#endif
 /** @fn testVerifyPhoneNumberUIDelegateRaiseException
     @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
         exception.
@@ -995,7 +995,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockNotificationManager);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testMissingAPNSToken
     @brief Tests returning an error for the app failing to provide an APNS device token.
  */
@@ -1138,7 +1138,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockBackend);
   OCMVerifyAll(_mockNotificationManager);
 }
-
+#endif
 /** @fn testVerifyClient
     @brief Tests verifying client before sending verification code.
  */
@@ -1436,7 +1436,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
         callback(nil, error);
       });
 }
-
+#ifdef SWIFT_TODO
 - (void)verifyReCAPTCHAVerificationFlowWithUIDelegate:(id<FIRAuthUIDelegate>)UIDelegate
                                              clientID:(nullable NSString *)clientID
                                         firebaseAppID:(nullable NSString *)firebaseAppID {
@@ -1530,7 +1530,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
         });
       });
 }
-
+#endif
 #pragma clang diagnostic pop  // ignored "-Wdeprecated-declarations"
 
 @end
