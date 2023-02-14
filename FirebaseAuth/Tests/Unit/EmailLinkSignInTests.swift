@@ -103,6 +103,7 @@ class EmailLinkSignInTests: RPCBaseTests {
     let kTestEmailResponse = "fakeEmail@example.com"
     let kTestTokenExpirationTimeInterval: Double = 55 * 60
     let kTestRefreshToken = "testRefreshToken"
+
     var callbackInvoked = false
     var rpcResponse: EmailLinkSignInResponse?
     var rpcError: NSError?

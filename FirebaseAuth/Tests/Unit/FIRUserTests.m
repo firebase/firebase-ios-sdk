@@ -17,6 +17,8 @@
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
+#ifdef TODO_SWIFT
+// Migrate the mocks!
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"
 
@@ -3410,3 +3412,4 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
 @end
 
 NS_ASSUME_NONNULL_END
+#endif  // TODO_SWIFT
