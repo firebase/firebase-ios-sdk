@@ -38,7 +38,7 @@ class DeleteAccountTests: RPCBaseTests {
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kInvalidUserTokenErrorMessage = "INVALID_ID_TOKEN:"
     let kCredentialTooOldErrorMessage = "CREDENTIAL_TOO_OLD_LOGIN_AGAIN:"
-    checkRequest(
+    try checkRequest(
       request: makeDeleteAccountRequest(),
       expected: kExpectedAPIURL,
       key: kLocalIDKey,
