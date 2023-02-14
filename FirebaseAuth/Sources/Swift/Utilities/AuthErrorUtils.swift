@@ -18,31 +18,6 @@ import Foundation
   @_implementationOnly import FirebaseAuth_Private
 #endif // COCOAPODS
 
-private let FIRAuthErrorDomain = "FIRAuthErrorDomain"
-
-private let FIRAuthInternalErrorDomain = "FIRAuthInternalErrorDomain"
-
-private let FIRAuthErrorUserInfoDeserializedResponseKey =
-  "FIRAuthErrorUserInfoDeserializedResponseKey"
-
-private let FIRAuthErrorUserInfoDataKey = "FIRAuthErrorUserInfoDataKey"
-
-private let FIRAuthErrorUserInfoEmailKey = "FIRAuthErrorUserInfoEmailKey"
-
-private let FIRAuthErrorUserInfoUpdatedCredentialKey =
-  "FIRAuthErrorUserInfoUpdatedCredentialKey"
-
-private let FIRAuthErrorUserInfoNameKey = "FIRAuthErrorUserInfoNameKey"
-
-private let FIRAuthErrorUserInfoMultiFactorResolverKey =
-  "FIRAuthErrorUserInfoMultiFactorResolverKey"
-
-/** @var kServerErrorDetailMarker
-    @brief This marker indicates that the server error message contains a detail error message which
-        should be used instead of the hardcoded client error message.
- */
-private let kServerErrorDetailMarker = " : "
-
 // MARK: - URL response error codes
 
 /** @var kURLResponseErrorCodeInvalidClientID
@@ -66,6 +41,31 @@ private let kFIRAuthErrorMessageMalformedJWT =
   "Failed to parse JWT. Check the userInfo dictionary for the full token."
 
 @objc(FIRAuthErrorUtils) public class AuthErrorUtils: NSObject {
+  private static let errorDomain = "FIRAuthErrorDomain"
+
+  private static let internalErrorDomain = "FIRAuthInternalErrorDomain"
+
+  static let userInfoDeserializedResponseKey =
+    "FIRAuthErrorUserInfoDeserializedResponseKey"
+
+  private static let userInfoDataKey = "FIRAuthErrorUserInfoDataKey"
+
+  private static let userInfoEmailKey = "FIRAuthErrorUserInfoEmailKey"
+
+  private static let userInfoUpdatedCredentialKey =
+    "FIRAuthErrorUserInfoUpdatedCredentialKey"
+
+  private static let userInfoNameKey = "FIRAuthErrorUserInfoNameKey"
+
+  private static let userInfoMultiFactorResolverKey =
+    "FIRAuthErrorUserInfoMultiFactorResolverKey"
+
+  /** @var kServerErrorDetailMarker
+      @brief This marker indicates that the server error message contains a detail error message which
+          should be used instead of the hardcoded client error message.
+   */
+  private static let kServerErrorDetailMarker = " : "
+
   static func error(code: SharedErrorCode, userInfo: [String: Any]? = nil) -> Error {
     switch code {
     case let .public(publicCode):
@@ -73,16 +73,16 @@ private let kFIRAuthErrorMessageMalformedJWT =
       if errorUserInfo[NSLocalizedDescriptionKey] == nil {
         errorUserInfo[NSLocalizedDescriptionKey] = publicCode.errorDescription
       }
-      errorUserInfo[FIRAuthErrorUserInfoNameKey] = publicCode.errorCodeString
+      errorUserInfo[userInfoNameKey] = publicCode.errorCodeString
       return NSError(
-        domain: FIRAuthErrorDomain,
+        domain: errorDomain,
         code: publicCode.rawValue,
         userInfo: errorUserInfo
       )
     case let .internal(internalCode):
       // This is an internal error. Wrap it in an internal error.
       let error = NSError(
-        domain: FIRAuthInternalErrorDomain,
+        domain: internalErrorDomain,
         code: internalCode.rawValue,
         userInfo: userInfo
       )
@@ -117,7 +117,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
     return error(code: SharedErrorCode.public(code), userInfo: userInfo)
   }
 
-  @objc public static func userDisabledErrorWith(message: String?) -> Error {
+  @objc public static func userDisabledError(message: String?) -> Error {
     error(code: .userDisabled, message: message)
   }
 
@@ -312,7 +312,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
   @objc public static func emailAlreadyInUseError(email: String?) -> Error {
     var userInfo: [String: Any]?
     if let email, !email.isEmpty {
-      userInfo = [FIRAuthErrorUserInfoEmailKey: email]
+      userInfo = [userInfoEmailKey: email]
     }
     return error(code: .emailAlreadyInUse, userInfo: userInfo)
   }
@@ -322,10 +322,10 @@ private let kFIRAuthErrorMessageMalformedJWT =
                                                        email: String?) -> Error {
     var userInfo: [String: Any] = [:]
     if let credential {
-      userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey] = credential
+      userInfo[userInfoUpdatedCredentialKey] = credential
     }
     if let email, !email.isEmpty {
-      userInfo[FIRAuthErrorUserInfoEmailKey] = email
+      userInfo[userInfoEmailKey] = email
     }
     if !userInfo.isEmpty {
       return error(code: .credentialAlreadyInUse, userInfo: userInfo)
@@ -424,7 +424,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
   @objc public static func unexpectedResponse(data: Data?, underlyingError: Error?) -> Error {
     var userInfo: [String: Any] = [:]
     if let data {
-      userInfo[FIRAuthErrorUserInfoDataKey] = data
+      userInfo[userInfoDataKey] = data
     }
     if let underlyingError {
       userInfo[NSUnderlyingErrorKey] = underlyingError
@@ -436,7 +436,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
                                                    underlyingError: Error?) -> Error {
     var userInfo: [String: Any] = [:]
     if let data {
-      userInfo[FIRAuthErrorUserInfoDataKey] = data
+      userInfo[userInfoDataKey] = data
     }
     if let underlyingError {
       userInfo[NSUnderlyingErrorKey] = underlyingError
@@ -447,7 +447,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
   @objc public static func unexpectedErrorResponse(deserializedResponse: Any?) -> Error {
     var userInfo: [String: Any]?
     if let deserializedResponse {
-      userInfo = [FIRAuthErrorUserInfoDeserializedResponseKey: deserializedResponse]
+      userInfo = [userInfoDeserializedResponseKey: deserializedResponse]
     }
     return error(code: .internal(.unexpectedErrorResponse), userInfo: userInfo)
   }
@@ -455,7 +455,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
   @objc public static func unexpectedResponse(deserializedResponse: Any?) -> Error {
     var userInfo: [String: Any]?
     if let deserializedResponse {
-      userInfo = [FIRAuthErrorUserInfoDeserializedResponseKey: deserializedResponse]
+      userInfo = [userInfoDeserializedResponseKey: deserializedResponse]
     }
     return error(code: .internal(.unexpectedResponse), userInfo: userInfo)
   }
@@ -464,7 +464,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
                                               underlyingError: Error?) -> Error {
     var userInfo: [String: Any] = [:]
     if let deserializedResponse {
-      userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse
+      userInfo[userInfoDeserializedResponseKey] = deserializedResponse
     }
     if let underlyingError {
       userInfo[NSUnderlyingErrorKey] = underlyingError
@@ -476,7 +476,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
                                                    underlyingError: Error?) -> Error {
     var userInfo: [String: Any] = [:]
     if let deserializedResponse {
-      userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse
+      userInfo[userInfoDeserializedResponseKey] = deserializedResponse
     }
     if let underlyingError {
       userInfo[NSUnderlyingErrorKey] = underlyingError
@@ -490,7 +490,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
   @objc public static func malformedJWTError(token: String, underlyingError: Error?) -> Error {
     var userInfo: [String: Any] = [
       NSLocalizedDescriptionKey: kFIRAuthErrorMessageMalformedJWT,
-      FIRAuthErrorUserInfoDataKey: token,
+      userInfoDataKey: token,
     ]
     if let underlyingError {
       userInfo[NSUnderlyingErrorKey] = underlyingError
@@ -502,7 +502,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
                                                     underlyingError: Error?) -> Error {
     var userInfo: [String: Any] = [:]
     if let deserializedResponse {
-      userInfo[FIRAuthErrorUserInfoDeserializedResponseKey] = deserializedResponse
+      userInfo[userInfoDeserializedResponseKey] = deserializedResponse
     }
     if let underlyingError {
       userInfo[NSUnderlyingErrorKey] = underlyingError
@@ -515,10 +515,10 @@ private let kFIRAuthErrorMessageMalformedJWT =
     -> Error {
     var userInfo: [String: Any] = [:]
     if let email {
-      userInfo[FIRAuthErrorUserInfoEmailKey] = email
+      userInfo[userInfoEmailKey] = email
     }
     if let updatedCredential {
-      userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey] = updatedCredential
+      userInfo[userInfoUpdatedCredentialKey] = updatedCredential
     }
     return error(code: .accountExistsWithDifferentCredential, userInfo: userInfo)
   }
@@ -557,7 +557,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
           hints: hints,
           auth: auth
         )
-        userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey] = resolver
+        userInfo[userInfoMultiFactorResolverKey] = resolver
       }
 
       return error(code: .secondFactorRequired, userInfo: userInfo)
