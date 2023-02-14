@@ -37,30 +37,27 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     }
   }
 
-  private func set(items: T) {
-    guard let animation = configuration.animation else {
-      self.items = items
-      return
-    }
-    withAnimation(animation) {
-      self.items = items
-    }
-  }
-
   init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [U] {
     items = []
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
+      guard let self else { return }
       if let error = error {
-        self?.set(items: [])
-        self?.projectError(error)
+        self.animated {
+          self.items = []
+          self.projectError(error)
+        }
         return
       } else {
-        self?.projectError(nil)
+        self.animated {
+          self.projectError(nil)
+        }
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.set(items: [])
+        self.animated {
+          self.items = []
+        }
         return
       }
 
@@ -70,19 +67,27 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         case let .success(decodedDocument):
           return decodedDocument
         case let .failure(error):
-          self?.projectError(error)
+          self.animated {
+            self.projectError(error)
+          }
           return nil
         }
       }
 
-      if self?.configuration.error != nil {
+      if configuration.error != nil {
         if configuration.decodingFailureStrategy == .raise {
-          self?.set(items: [])
+          self.animated {
+            self.items = []
+          }
         } else {
-          self?.set(items: decodedDocuments)
+          self.animated {
+            self.items = decodedDocuments
+          }
         }
       } else {
-        self?.set(items: decodedDocuments)
+        self.animated {
+          self.items = decodedDocuments
+        }
       }
     }
 
@@ -93,16 +98,23 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     items = .success([])
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
+      guard let self else { return }
       if let error = error {
-        self?.set(items: .failure(error))
-        self?.projectError(error)
+        self.animated {
+          self.items = .failure(error)
+          self.projectError(error)
+        }
         return
       } else {
-        self?.projectError(nil)
+        self.animated {
+          self.projectError(nil)
+        }
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.set(items: .success([]))
+        self.animated {
+          self.items = .success([])
+        }
         return
       }
 
@@ -112,19 +124,27 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
         case let .success(decodedDocument):
           return decodedDocument
         case let .failure(error):
-          self?.projectError(error)
+          self.animated {
+            self.projectError(error)
+          }
           return nil
         }
       }
 
-      if let error = self?.configuration.error {
+      if let error = self.configuration.error {
         if configuration.decodingFailureStrategy == .raise {
-          self?.set(items: .failure(error))
+          self.animated {
+            self.items = .failure(error)
+          }
         } else {
-          self?.set(items: .success(decodedDocuments))
+          self.animated {
+            self.items = .success(decodedDocuments)
+          }
         }
       } else {
-        self?.set(items: .success(decodedDocuments))
+        self.animated {
+          self.items = .success(decodedDocuments)
+        }
       }
     }
 
@@ -173,24 +193,24 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     }
   }
 
-  private func setProjectedError(_ error: Error?) {
+  private func projectError(_ error: Error?) {
     shouldUpdateListener = false
     configuration.error = error
     shouldUpdateListener = true
   }
 
-  private func projectError(_ error: Error?) {
-    guard let animation = configuration.animation else {
-      setProjectedError(error)
-      return
-    }
-    withAnimation(animation) {
-      setProjectedError(error)
-    }
-  }
-
   private func removeListener() {
     listener?.remove()
     listener = nil
+  }
+
+  private func animated(_ body: () -> Void) {
+    if let animation = configuration.animation {
+      withAnimation(animation) {
+        body()
+      }
+    } else {
+      body()
+    }
   }
 }
