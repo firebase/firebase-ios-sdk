@@ -16,6 +16,7 @@ import Foundation
 @_implementationOnly import FirebaseCore
 #if COCOAPODS
   import GTMSessionFetcher
+  import FirebaseAuth_Private
 #else
   import GTMSessionFetcherCore
 #endif
@@ -121,7 +122,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    // TODO:
+    // TODO(ncooke3): The `FIRHeaderValueFromHeartbeatsPayload` does translate into Swift.
     //  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
     //                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
     //      forHTTPHeaderField:kFirebaseHeartbeatHeader];
