@@ -1226,15 +1226,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     FIRSetAccountInfoRequest *request =
         [[FIRSetAccountInfoRequest alloc] initWithRequestConfiguration:self->_requestConfiguration];
     request.OOBCode = code;
-    [FIRAuthBackend
-        setAccountInfo:request
-              callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
-                if (completion) {
-                  dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(error);
-                  });
-                }
-              }];
+    [FIRAuthBackend2
+        postWithRequest:request
+               callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+                 if (completion) {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                     completion(error);
+                   });
+                 }
+               }];
   });
 }
 
