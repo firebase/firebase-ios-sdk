@@ -76,21 +76,6 @@ static NSString *stringFromData(NSData *data) {
   return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
-/** @fn fakeError
-    @brief Creates a fake error object.
-    @return a non-nil NSError instance.
- */
-static NSError *fakeError() {
-  return [NSError errorWithDomain:@"ERROR" code:-1 userInfo:nil];
-}
-
-@interface FIRAuthKeychainServices ()
-
-// Exposed for testing.
-- (nullable NSData *)itemWithQuery:(NSDictionary *)query error:(NSError **_Nullable)error;
-
-@end
-
 /** @class FIRAuthKeychainTests
     @brief Tests for @c FIRAuthKeychainTests .
  */
@@ -106,7 +91,7 @@ static NSError *fakeError() {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
   [self setPassword:nil account:kKey service:nil];  // legacy form
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
-  NSError *error = fakeError();
+  NSError *error = nil;
   XCTAssertNil([[keychain dataForKey:kKey error:&error] data]);
   XCTAssertNil(error);
 }
@@ -117,7 +102,7 @@ static NSError *fakeError() {
 - (void)testReadExisting {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
-  NSError *error = fakeError();
+  NSError *error = nil;
   XCTAssertEqualObjects([[keychain dataForKey:kKey error:&error] data], dataFromString(kData));
   XCTAssertNil(error);
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kService];
@@ -135,10 +120,10 @@ static NSError *fakeError() {
     (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
     (__bridge id)kSecAttrAccount : queriedAccount,
   };
-  NSError *error = fakeError();
+  NSError *error = nil;
   // Keychain on macOS returns items in a different order than keychain on iOS,
   // so test that the returned object is one of any of the added objects.
-  NSData *queriedData = [keychain itemWithQuery:query error:&error];
+  NSData *queriedData = [[keychain itemWithQuery:query error:&error] data];
   BOOL isValidKeychainItem =
       [@[ dataFromString(kData), dataFromString(kOtherData) ] containsObject:queriedData];
   XCTAssertTrue(isValidKeychainItem);
@@ -154,7 +139,7 @@ static NSError *fakeError() {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
   [self setPassword:kData account:accountFromKey(kKey) service:kOtherService];
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
-  NSError *error = fakeError();
+  NSError *error = nil;
   XCTAssertNil([[keychain dataForKey:kKey error:&error] data]);
   XCTAssertNil(error);
   [self deletePasswordWithAccount:accountFromKey(kKey) service:kOtherService];
@@ -210,7 +195,7 @@ static NSError *fakeError() {
   [self setPassword:nil account:accountFromKey(kKey) service:kService];
   [self setPassword:kData account:kKey service:nil];  // legacy form
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
-  NSError *error = fakeError();
+  NSError *error = nil;
   XCTAssertEqualObjects([[keychain dataForKey:kKey error:&error] data], dataFromString(kData));
   XCTAssertNil(error);
   // Legacy item should have been moved to current form.
@@ -226,7 +211,7 @@ static NSError *fakeError() {
   [self setPassword:kData account:accountFromKey(kKey) service:kService];
   [self setPassword:kOtherData account:kKey service:nil];  // legacy form
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
-  NSError *error = fakeError();
+  NSError *error = nil;
   XCTAssertEqualObjects([[keychain dataForKey:kKey error:&error] data], dataFromString(kData));
   XCTAssertNil(error);
   // Legacy item should have leave untouched.
@@ -253,7 +238,10 @@ static NSError *fakeError() {
  */
 - (void)testNullErrorParameter {
   FIRAuthKeychainServices *keychain = [[FIRAuthKeychainServices alloc] initWithService:kService];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-result"
   [keychain dataForKey:kKey error:NULL];
+#pragma clang diagnostic pop
   [keychain setData:dataFromString(kData) forKey:kKey error:NULL];
   [keychain removeDataForKey:kKey error:NULL];
 }
