@@ -77,24 +77,24 @@ static NSString *const kProviderID = @"PROVIDER_ID";
         @c userInfoWithVerifyAssertionResponse call.
  */
 - (void)testAdditionalUserInfoCreationWithStaticInitializer {
-    FIRVerifyAssertionResponse *response = [[FIRVerifyAssertionResponse alloc] init];
-    response.providerID = kProviderID;
-    response.profile = [[self class] profile];
-    response.username = kUserName;
-    response.isNewUser = kIsNewUser;
-    // XXX TODO: Mocking doesn't appear to work across language boundary.
-//  id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
-//  OCMExpect([mockVerifyAssertionResponse providerID]).andReturn(kProviderID);
-//  OCMExpect([mockVerifyAssertionResponse profile]).andReturn([[self class] profile]);
-//  OCMExpect([mockVerifyAssertionResponse username]).andReturn(kUserName);
-//  OCMExpect([mockVerifyAssertionResponse isNewUser]).andReturn(kIsNewUser);
+  FIRVerifyAssertionResponse *response = [[FIRVerifyAssertionResponse alloc] init];
+  response.providerID = kProviderID;
+  response.profile = [[self class] profile];
+  response.username = kUserName;
+  response.isNewUser = kIsNewUser;
+  // XXX TODO: Mocking doesn't appear to work across language boundary.
+  //  id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+  //  OCMExpect([mockVerifyAssertionResponse providerID]).andReturn(kProviderID);
+  //  OCMExpect([mockVerifyAssertionResponse profile]).andReturn([[self class] profile]);
+  //  OCMExpect([mockVerifyAssertionResponse username]).andReturn(kUserName);
+  //  OCMExpect([mockVerifyAssertionResponse isNewUser]).andReturn(kIsNewUser);
   FIRAdditionalUserInfo *userInfo =
       [FIRAdditionalUserInfo userInfoWithVerifyAssertionResponse:response];
   XCTAssertEqualObjects(userInfo.providerID, kProviderID);
   XCTAssertEqualObjects(userInfo.profile, [[self class] profile]);
   XCTAssertEqualObjects(userInfo.username, kUserName);
   XCTAssertEqual(userInfo.isNewUser, kIsNewUser);
-//  OCMVerifyAll(mockVerifyAssertionResponse);
+  //  OCMVerifyAll(mockVerifyAssertionResponse);
 }
 
 /** @fn testAdditionalUserInfoCoding
