@@ -32,6 +32,15 @@ static NSString *const kServerURLNamespaces = @"/namespaces/";
 static NSString *const kServerURLQuery = @":streamFetchInvalidations?";
 static NSString *const kServerURLKey = @"key=";
 
+/// Realtime API enablement
+static NSString *const kEnableRealtimeURL =
+    @"https://console.developers.google.com/apis/api/firebaseremoteconfigrealtime.googleapis.com/"
+    @"overview?project=";
+static NSString *const kApiDisabledErrorMessage =
+    @"The Remote Config Realtime API is disabled. It must be enabled in the Google Cloud Console. "
+    @"If you enabled this API recently, wait a few minutes for the action to propagate to our "
+    @"systems and retry. You can enable the API by following this URL: %@";
+
 /// Header names
 static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method config fetch using
 static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Header Field Name
@@ -532,6 +541,23 @@ static NSInteger const gMaxRetries = 7;
     didReceiveData:(NSData *)data {
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+  if ([strData containsString:kEnableRealtimeURL]) {
+    NSString *enableRealtimeUrlLink =
+        [kEnableRealtimeURL stringByAppendingString:[self->_options GCMSenderID]];
+    NSError *error = [NSError
+        errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                   code:FIRRemoteConfigUpdateErrorStreamError
+               userInfo:@{
+                 NSLocalizedDescriptionKey :
+                     [NSString stringWithFormat:kApiDisabledErrorMessage, enableRealtimeUrlLink]
+               }];
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
+                error);
+    [self propogateErrors:error];
+    return;
+  }
+
   NSRange endRange = [strData rangeOfString:@"}"];
   NSRange beginRange = [strData rangeOfString:@"{"];
   if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
