@@ -42,6 +42,11 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
    */
   var contentType: String?
 
+  /** @property request
+      @brief Save the request for validation.
+   */
+  var request: AuthRPCRequest?
+
   /** @property completeRequest
       @brief The last request to be processed by the backend.
    */
@@ -52,28 +57,36 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
    */
   private var handler: ((Data?, Error?) -> Void)?
 
-  func asyncPostToURLWithRequestConfiguration(requestConfiguration: FirebaseAuth
-    .AuthRequestConfiguration,
-    url: URL,
-    body: Data?,
-    contentType: String,
-    completionHandler: @escaping ((Data?, Error?)
-      -> Void)) {
-    requestURL = url
+  /** @var group
+      @brief Block on handler initialization
+   */
+  var group: DispatchGroup?
+
+  func asyncPostToURLWithRequestConfiguration(request: AuthRPCRequest,
+                                              body: Data?,
+                                              contentType: String,
+                                              completionHandler: @escaping (
+                                                (Data?, Error?) -> Void
+                                              )) {
+    self.request = request
+    requestURL = request.requestURL()
     if let body = body {
       requestData = body
       // Use the real implementation so that the complete request can
       // be verified during testing.
-      completeRequest = AuthBackend.request(withURL: url,
+      completeRequest = AuthBackend.request(withURL: requestURL!,
                                             contentType: contentType,
-                                            requestConfiguration: requestConfiguration)
+                                            requestConfiguration: request.requestConfiguration())
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
     self.contentType = contentType
     handler = completionHandler
+    if let group {
+      group.leave()
+    }
   }
 
-  func respond(serverErrorMessage errorMessage: String) throws -> Data {
+  @discardableResult func respond(serverErrorMessage errorMessage: String) throws -> Data {
     let error = NSError(domain: NSCocoaErrorDomain, code: 0)
     return try respond(serverErrorMessage: errorMessage, error: error)
   }
