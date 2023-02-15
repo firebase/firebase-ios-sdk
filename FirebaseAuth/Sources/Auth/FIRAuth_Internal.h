@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
-#import "FirebaseCore/Extension/FIRLogger.h"
+@import FirebaseCoreExtension;
 
 @class FIRAuthRequestConfiguration;
 @class FIRAuthURLPresenter;
