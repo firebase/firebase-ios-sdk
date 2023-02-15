@@ -45,7 +45,7 @@ private let kAccountPrefix = "firebase_auth_1_"
     if key.isEmpty {
       fatalError("The key cannot be empty.")
     }
-    if let data = try item(query: genericPasswordQuery(key: key)) {
+    if let data = try item(query: genericPasswordQuery(key: key)).data {
       return DataWrapper(data: data)
     }
 
@@ -53,7 +53,7 @@ private let kAccountPrefix = "firebase_auth_1_"
     if legacyEntryDeletedForKey.contains(key) {
       return DataWrapper(data: nil)
     }
-    if let data = try item(query: legacyGenericPasswordQuery(key: key)) {
+    if let data = try item(query: legacyGenericPasswordQuery(key: key)).data {
       // Move the data to current form.
       try setData(data, forKey: key)
       deleteLegacyItem(key: key)
@@ -88,7 +88,8 @@ private let kAccountPrefix = "firebase_auth_1_"
 
   // MARK: - Private methods for non-sharing keychain operations
 
-  private func item(query: [String: Any]) throws -> Data? {
+  // TODO(ncooke3): Mark internal after converting corresponding test file to Swift.
+  @objc public func item(query: [String: Any]) throws -> DataWrapper {
     var returningQuery = query
     returningQuery[kSecReturnData as String] = true
     returningQuery[kSecReturnAttributes as String] = true
@@ -122,18 +123,18 @@ private let kAccountPrefix = "firebase_auth_1_"
       // Return the non-legacy item.
       for item in items {
         if item[kSecAttrService as String] != nil {
-          return item[kSecValueData as String] as? Data
+          return DataWrapper(data: item[kSecValueData as String] as? Data)
         }
       }
 
       // If they were all legacy items, just return the first one.
       // This should not happen, since only one account should be
       // stored.
-      return items[0][kSecValueData as String] as? Data
+      return DataWrapper(data: items[0][kSecValueData as String] as? Data)
     }
 
     if status == errSecItemNotFound {
-      return nil
+      return DataWrapper(data: nil)
     } else {
       throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
     }
