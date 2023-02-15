@@ -36,6 +36,7 @@ enum Strings {
 
 
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
+  
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     let installations = Installations.installations()
     
@@ -55,28 +56,24 @@ enum Strings {
       })
     })
   }
-  
+ 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
     self.generateAuthToken() { (identifier, authTokenResult, error) in
       let urlString = String(format: Strings.releaseEndpointUrlTemplate, FirebaseApp.app()!.options.googleAppID, identifier!)
       let request = self.createHttpRequest(method: Strings.httpGet, url: urlString, authTokenResult: authTokenResult!)
       
       let listReleaseDataTask = URLSession.shared.dataTask(with: request as URLRequest) { (data, response, error) in
-        let releases = self.handleReleaseResponse(data: data! as NSData, response: response!, error: error)
-        var updatedError = error
-        handleHttpResponseError(response: response!, error: &updatedError!)
+        let (releases, fadError) = self.handleReleaseResponse(data: data! as NSData, response: response!, error: error)
+        let statusCode = (response as! HTTPURLResponse).statusCode
         DispatchQueue.main.async {
-          completion(releases, updatedError)
+          completion(releases, fadError)
         }
       }
       
       listReleaseDataTask.resume()
     }
   }
-  
-  static func handleHttpResponseError(response: URLResponse, error: inout Error) {
-  }
-  
+    
   static func createHttpRequest(method: String, url: String, authTokenResult: InstallationsAuthTokenResult) -> NSMutableURLRequest {
     let request = NSMutableURLRequest()
     request.url = URL(string: url)
@@ -87,17 +84,17 @@ enum Strings {
     return request
   }
   
-  static func handleReleaseResponse(data: NSData, response: URLResponse, error: Error?) -> Array<Any>? {
+  static func handleReleaseResponse(data: NSData, response: URLResponse, error: Error?) -> (Array<Any>?, Error?) {
     return self.parseApiResponseWithData(data: data, error: error)
   }
     
-  static func parseApiResponseWithData(data: NSData, error: Error?) -> Array<Any>? {
+  static func parseApiResponseWithData(data: NSData, error: Error?) -> (Array<Any>?, Error?) {
     do {
       let serializedResponse = try JSONSerialization.jsonObject(with: data as Data, options: JSONSerialization.ReadingOptions(rawValue: 0)) as? [String: Any]
-      return serializedResponse![Strings.responseReleaseKey] as? Array<Any>
+      return (serializedResponse![Strings.responseReleaseKey] as? Array<Any>, nil)
     } catch {
       // TODO: Handle error
-      return nil
+      return (nil, nil)
     }
   }
 }

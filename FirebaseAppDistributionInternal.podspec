@@ -48,6 +48,7 @@ Pod::Spec.new do |s|
 
     s.dependency 'FirebaseCore', '~> 10.0'
     s.dependency 'FirebaseInstallations', '~> 10.0'
+    s.dependency 'FirebaseCoreExtension', '~> 10.0'
   
     s.pod_target_xcconfig = {
       'GCC_C_LANGUAGE_STANDARD' => 'c99',

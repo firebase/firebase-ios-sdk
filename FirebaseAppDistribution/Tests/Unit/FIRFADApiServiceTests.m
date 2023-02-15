@@ -304,7 +304,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   [self verifyInstallationAuthCompletion];
   [self verifyInstallationIdCompletion];
   [self verifyUrlSessionResponseWithData];
-//  OCMVerify([fakeResponse statusCode]);
+  OCMVerify([fakeResponse statusCode]);
 }
 
 //- (void)testFetchReleasesWithCompletionUnknownFailure {
