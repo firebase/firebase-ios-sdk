@@ -17,7 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #ifndef FIREBASE_BUILD_CMAKE
-@class FIRHeartbeatsPayload;
+@import FirebaseCoreInternal;
 #endif  // FIREBASE_BUILD_CMAKE
 
 /// Enum representing different daily heartbeat codes.
