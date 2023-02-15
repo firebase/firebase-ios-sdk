@@ -14,12 +14,8 @@
 
 import Foundation
 
-#if COCOAPODS
-  // TODO: Prefix with `@_implementationOnly` after port.
-  import FirebaseAuth_Private
-#else
-  @_implementationOnly import FirebaseCoreExtension
-#endif
+// TODO: Prefix with `@_implementationOnly` after port.
+import FirebaseCoreExtension
 
 /** @class FIRAuthRequestConfiguration
    @brief Defines configurations to be added to a request to Firebase Auth's backend.
