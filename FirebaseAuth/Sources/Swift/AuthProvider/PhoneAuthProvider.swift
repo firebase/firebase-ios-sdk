@@ -68,7 +68,7 @@ import Foundation
     public func verify(phoneNumber: String,
                        UIDelegate: AuthUIDelegate?,
                        completion: ((_: String?, _: Error?) -> Void)?) {
-      guard FIRAuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme) else {
+      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme) else {
         fatalError(
           "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
         )
@@ -225,7 +225,7 @@ import Foundation
     private func reCAPTCHAFlowWithUIDelegate(withUIDelegate UIDelegate: AuthUIDelegate,
                                              completion: @escaping (AuthAppCredential?, String?,
                                                                     Error?) -> Void) {
-      let eventID = FIRAuthWebUtils.randomString(withLength: 10)
+      let eventID = AuthWebUtils.randomString(withLength: 10)
       reCAPTCHAURL(withEventID: eventID) { reCAPTCHAURL, error in
         if let error = error {
           completion(nil, nil, error)
@@ -237,7 +237,7 @@ import Foundation
           )
         }
         let callbackMatcher: (URL?) -> Bool = { callbackURL in
-          FIRAuthWebUtils.isExpectedCallbackURL(
+          AuthWebUtils.isExpectedCallbackURL(
             callbackURL,
             eventID: eventID,
             authType: self.kAuthTypeVerifyApp,
@@ -267,13 +267,13 @@ import Foundation
       guard let queryItems = actualURLComponents?.queryItems else {
         return nil
       }
-      guard let deepLinkURL = FIRAuthWebUtils.queryItemValue("deep_link_id", from: queryItems)
+      guard let deepLinkURL = AuthWebUtils.queryItemValue(name: "deep_link_id", from: queryItems)
       else {
         return nil
       }
       let deepLinkComponents = URLComponents(string: deepLinkURL)
       if let queryItems = deepLinkComponents?.queryItems {
-        return FIRAuthWebUtils.queryItemValue("recaptchaToken", from: queryItems)
+        return AuthWebUtils.queryItemValue(name: "recaptchaToken", from: queryItems)
       }
       return nil
     }
@@ -353,36 +353,37 @@ import Foundation
      */
     private func reCAPTCHAURL(withEventID eventID: String,
                               completion: @escaping ((URL?, Error?) -> Void)) {
-      FIRAuthWebUtils.fetchAuthDomain(with: auth.requestConfiguration) { authDomain, error in
-        if let error = error {
-          completion(nil, error)
-          return
+      AuthWebUtils
+        .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration) { authDomain, error in
+          if let error = error {
+            completion(nil, error)
+            return
+          }
+          if let authDomain = authDomain {
+            let bundleID = Bundle.main.bundleIdentifier
+            let clientID = self.auth.app?.options.clientID
+            let appID = self.auth.app?.options.googleAppID
+            let apiKey = self.auth.requestConfiguration.APIKey
+            var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
+                              URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
+                              URLQueryItem(name: "ibi", value: bundleID ?? ""),
+                              URLQueryItem(name: "v", value: FIRAuthBackend.authUserAgent()),
+                              URLQueryItem(name: "eventID", value: eventID)]
+            if self.usingClientIDScheme {
+              queryItems.append(URLQueryItem(name: "clientID", value: clientID))
+            } else {
+              queryItems.append(URLQueryItem(name: "appId", value: appID))
+            }
+            if let languageCode = self.auth.requestConfiguration.languageCode {
+              queryItems.append(URLQueryItem(name: "hl", value: languageCode))
+            }
+            var components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
+            components?.queryItems = queryItems
+            if let url = components?.url {
+              completion(url, nil)
+            }
+          }
         }
-        if let authDomain = authDomain {
-          let bundleID = Bundle.main.bundleIdentifier
-          let clientID = self.auth.app?.options.clientID
-          let appID = self.auth.app?.options.googleAppID
-          let apiKey = self.auth.requestConfiguration.APIKey
-          var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
-                            URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
-                            URLQueryItem(name: "ibi", value: bundleID ?? ""),
-                            URLQueryItem(name: "v", value: FIRAuthBackend.authUserAgent()),
-                            URLQueryItem(name: "eventID", value: eventID)]
-          if self.usingClientIDScheme {
-            queryItems.append(URLQueryItem(name: "clientID", value: clientID))
-          } else {
-            queryItems.append(URLQueryItem(name: "appId", value: appID))
-          }
-          if let languageCode = self.auth.requestConfiguration.languageCode {
-            queryItems.append(URLQueryItem(name: "hl", value: languageCode))
-          }
-          var components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
-          components?.queryItems = queryItems
-          if let url = components?.url {
-            completion(url, nil)
-          }
-        }
-      }
     }
 
 //  - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
@@ -510,7 +511,7 @@ import Foundation
       if let clientID = auth.app?.options.clientID {
         let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()
           .joined(separator: ".")
-        if FIRAuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme) {
+        if AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme) {
           callbackScheme = reverseClientIDScheme
           usingClientIDScheme = true
           return
