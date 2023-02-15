@@ -92,9 +92,10 @@ const pb_field_t google_firestore_v1_DocumentRemove_fields[4] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_firestore_v1_ExistenceFilter_fields[3] = {
+const pb_field_t google_firestore_v1_ExistenceFilter_fields[4] = {
     PB_FIELD(  1, INT32   , SINGULAR, STATIC  , FIRST, google_firestore_v1_ExistenceFilter, target_id, target_id, 0),
     PB_FIELD(  2, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1_ExistenceFilter, count, target_id, 0),
+    PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_ExistenceFilter, unchanged_names, count, &google_firestore_v1_BloomFilter_fields),
     PB_LAST_FIELD
 };
 
@@ -109,7 +110,7 @@ const pb_field_t google_firestore_v1_ExistenceFilter_fields[3] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 65536 && pb_membersize(google_firestore_v1_Write, transform) < 65536 && pb_membersize(google_firestore_v1_Write, update_mask) < 65536 && pb_membersize(google_firestore_v1_Write, current_document) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, increment) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, maximum) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, minimum) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, append_missing_elements) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, remove_all_from_array) < 65536 && pb_membersize(google_firestore_v1_WriteResult, update_time) < 65536 && pb_membersize(google_firestore_v1_DocumentChange, document) < 65536 && pb_membersize(google_firestore_v1_DocumentDelete, read_time) < 65536 && pb_membersize(google_firestore_v1_DocumentRemove, read_time) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1_Write_google_firestore_v1_DocumentTransform_google_firestore_v1_DocumentTransform_FieldTransform_google_firestore_v1_WriteResult_google_firestore_v1_DocumentChange_google_firestore_v1_DocumentDelete_google_firestore_v1_DocumentRemove_google_firestore_v1_ExistenceFilter)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 65536 && pb_membersize(google_firestore_v1_Write, transform) < 65536 && pb_membersize(google_firestore_v1_Write, update_mask) < 65536 && pb_membersize(google_firestore_v1_Write, current_document) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, increment) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, maximum) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, minimum) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, append_missing_elements) < 65536 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, remove_all_from_array) < 65536 && pb_membersize(google_firestore_v1_WriteResult, update_time) < 65536 && pb_membersize(google_firestore_v1_DocumentChange, document) < 65536 && pb_membersize(google_firestore_v1_DocumentDelete, read_time) < 65536 && pb_membersize(google_firestore_v1_DocumentRemove, read_time) < 65536 && pb_membersize(google_firestore_v1_ExistenceFilter, unchanged_names) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1_Write_google_firestore_v1_DocumentTransform_google_firestore_v1_DocumentTransform_FieldTransform_google_firestore_v1_WriteResult_google_firestore_v1_DocumentChange_google_firestore_v1_DocumentDelete_google_firestore_v1_DocumentRemove_google_firestore_v1_ExistenceFilter)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -120,7 +121,7 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 65536 && pb
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 256 && pb_membersize(google_firestore_v1_Write, transform) < 256 && pb_membersize(google_firestore_v1_Write, update_mask) < 256 && pb_membersize(google_firestore_v1_Write, current_document) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, increment) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, maximum) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, minimum) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, append_missing_elements) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, remove_all_from_array) < 256 && pb_membersize(google_firestore_v1_WriteResult, update_time) < 256 && pb_membersize(google_firestore_v1_DocumentChange, document) < 256 && pb_membersize(google_firestore_v1_DocumentDelete, read_time) < 256 && pb_membersize(google_firestore_v1_DocumentRemove, read_time) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_Write_google_firestore_v1_DocumentTransform_google_firestore_v1_DocumentTransform_FieldTransform_google_firestore_v1_WriteResult_google_firestore_v1_DocumentChange_google_firestore_v1_DocumentDelete_google_firestore_v1_DocumentRemove_google_firestore_v1_ExistenceFilter)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_Write, update) < 256 && pb_membersize(google_firestore_v1_Write, transform) < 256 && pb_membersize(google_firestore_v1_Write, update_mask) < 256 && pb_membersize(google_firestore_v1_Write, current_document) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, increment) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, maximum) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, minimum) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, append_missing_elements) < 256 && pb_membersize(google_firestore_v1_DocumentTransform_FieldTransform, remove_all_from_array) < 256 && pb_membersize(google_firestore_v1_WriteResult, update_time) < 256 && pb_membersize(google_firestore_v1_DocumentChange, document) < 256 && pb_membersize(google_firestore_v1_DocumentDelete, read_time) < 256 && pb_membersize(google_firestore_v1_DocumentRemove, read_time) < 256 && pb_membersize(google_firestore_v1_ExistenceFilter, unchanged_names) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_Write_google_firestore_v1_DocumentTransform_google_firestore_v1_DocumentTransform_FieldTransform_google_firestore_v1_WriteResult_google_firestore_v1_DocumentChange_google_firestore_v1_DocumentDelete_google_firestore_v1_DocumentRemove_google_firestore_v1_ExistenceFilter)
 #endif
 
 
@@ -316,14 +317,11 @@ std::string google_firestore_v1_ExistenceFilter::ToString(int indent) const {
         target_id, indent + 1, false);
     tostring_result += PrintPrimitiveField("count: ",
         count, indent + 1, false);
+    tostring_result += PrintMessageField("unchanged_names ",
+        unchanged_names, indent + 1, false);
 
-    bool is_root = indent == 0;
-    if (!tostring_result.empty() || is_root) {
-      std::string tostring_tail = PrintTail(indent);
-      return tostring_header + tostring_result + tostring_tail;
-    } else {
-      return "";
-    }
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
 }
 
 }  // namespace firestore
