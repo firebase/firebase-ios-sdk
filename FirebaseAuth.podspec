@@ -42,7 +42,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.source_files = [
     'FirebaseAuth/Sources/Swift/**/*.swift',
     source + '**/*.[mh]',
-    'FirebaseCore/Extension/*.h',
     'FirebaseAuth/Interop/*.h',
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
@@ -50,7 +49,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
   # All headers except the ones in the `Public` should be private.
   s.private_header_files = Dir['FirebaseAuth/Sources/**/*.h']
     .reject{ |f| f['FirebaseAuth/Sources/Public/'] } + [
-      'FirebaseCore/Extension/*.h',
       'FirebaseAuth/Interop/*.h'
     ]
 
@@ -69,6 +67,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
   s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
