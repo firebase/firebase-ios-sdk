@@ -17,6 +17,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #ifndef FIREBASE_BUILD_CMAKE
+//@import FirebaseCoreInternal;
 @class FIRHeartbeatsPayload;
 #endif  // FIREBASE_BUILD_CMAKE
 
