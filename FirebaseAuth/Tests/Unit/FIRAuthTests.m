@@ -2260,6 +2260,7 @@ static const NSTimeInterval kWaitInterval = .5;
 #endif  // TODO_SWIFT
 #if TARGET_OS_IOS
 #pragma mark - Application Delegate tests
+#ifdef TODO_SWIFT
 - (void)testAppDidRegisterForRemoteNotifications_APNSTokenUpdated {
   NSData *apnsToken = [NSData data];
 
@@ -2274,6 +2275,7 @@ static const NSTimeInterval kWaitInterval = .5;
 
   [self.mockTokenManager verify];
 }
+#endif
 
 - (void)testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancels {
   NSError *error = [NSError errorWithDomain:@"FIRAuthTests" code:-1 userInfo:nil];

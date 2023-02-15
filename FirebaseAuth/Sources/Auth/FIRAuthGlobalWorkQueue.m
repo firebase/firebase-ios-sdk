@@ -20,7 +20,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 dispatch_queue_t FIRAuthGlobalWorkQueue() {
-    return [FIRAuthGlobalWorkQueueWrapper queue];
+  return [FIRAuthGlobalWorkQueueWrapper queue];
 }
 
 NS_ASSUME_NONNULL_END
