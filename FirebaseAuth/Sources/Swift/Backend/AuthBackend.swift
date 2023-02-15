@@ -14,6 +14,7 @@
 
 import Foundation
 @_implementationOnly import FirebaseCore
+@_implementationOnly import FirebaseCoreExtension
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -119,10 +120,12 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    // TODO(ncooke3): The `FIRHeaderValueFromHeartbeatsPayload` does translate into Swift.
-    //  [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-    //                        [requestConfiguration.heartbeatLogger flushHeartbeatsIntoPayload])
-    //      forHTTPHeaderField:kFirebaseHeartbeatHeader];
+    if let heartbeatLogger = requestConfiguration.heartbeatLogger {
+      request.setValue(
+        FIRHeaderValueFromHeartbeatsPayload(heartbeatLogger.flushHeartbeatsIntoPayload()),
+        forHTTPHeaderField: "X-Firebase-Client"
+      )
+    }
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
       request.setValue(preferredLocalizations.first, forHTTPHeaderField: "Accept-Language")
