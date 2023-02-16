@@ -2180,8 +2180,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRComponentCreationBlock authCreationBlock =
       ^id _Nullable(FIRComponentContainer *_Nonnull container, BOOL *_Nonnull isCacheable) {
     *isCacheable = YES;
-    // id<FIRAppCheckInterop> appCheckInterop = FIR_COMPONENT(FIRAppCheckInterop, container);
-
     return [[FIRAuth alloc] initWithApp:container.app];
   };
 
