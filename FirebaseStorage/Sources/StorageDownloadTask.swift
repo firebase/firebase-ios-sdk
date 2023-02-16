@@ -28,7 +28,7 @@ import Foundation
  * Downloads can currently be returned as `Data` in memory, or as a `URL` to a file on disk.
  * Downloads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
- * Currently all uploads must be initiated and managed on the main queue.
+ * Currently all downloads must be initiated and managed on the main queue.
  */
 @objc(FIRStorageDownloadTask)
 open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
@@ -43,24 +43,21 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    * Pauses a task currently in progress. Calling this on a paused task has no effect.
    */
   @objc open func pause() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else { return }
-      if strongSelf.state == .paused || strongSelf.state == .pausing {
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      if self.state == .paused || self.state == .pausing {
         return
       }
-      strongSelf.state = .pausing
+      self.state = .pausing
       // Use the resume callback to confirm pause status since it always runs after the last
       // NSURLSession update.
-      strongSelf.fetcher?.resumeDataBlock = { (data: Data) in
-        let strongerSelf = weakSelf
-        strongerSelf?.downloadData = data
-        strongerSelf?.state = .paused
-        if let snapshot = strongerSelf?.snapshot {
-          strongerSelf?.fire(for: .pause, snapshot: snapshot)
-        }
+      self.fetcher?.resumeDataBlock = { [weak self] (data: Data) in
+        guard let self = self else { return }
+        self.downloadData = data
+        self.state = .paused
+        self.fire(for: .pause, snapshot: self.snapshot)
       }
-      strongSelf.fetcher?.stopFetching()
+      self.fetcher?.stopFetching()
     }
   }
 
@@ -76,20 +73,21 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
    * Resumes a paused task. Calling this on a running task has no effect.
    */
   @objc open func resume() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      weakSelf?.state = .resuming
-      if let snapshot = weakSelf?.snapshot {
-        weakSelf?.fire(for: .resume, snapshot: snapshot)
-      }
-      weakSelf?.state = .running
-      weakSelf?.enqueueImplementation(resumeWith: self.downloadData)
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      self.state = .resuming
+      self.fire(for: .resume, snapshot: self.snapshot)
+      self.state = .running
+      self.enqueueImplementation(resumeWith: self.downloadData)
     }
   }
 
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   internal var downloadData: Data?
+  // Hold completion in object to force it to be retained until completion block is called.
+  internal var completionData: ((Data?, Error?) -> Void)?
+  internal var completionURL: ((URL?, Error?) -> Void)?
 
   // MARK: - Internal Implementations
 
@@ -105,13 +103,12 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
   }
 
   internal func enqueueImplementation(resumeWith resumeData: Data? = nil) {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else { return }
-      strongSelf.state = .queueing
-      var request = strongSelf.baseRequest
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      self.state = .queueing
+      var request = self.baseRequest
       request.httpMethod = "GET"
-      request.timeoutInterval = strongSelf.reference.storage.maxDownloadRetryTime
+      request.timeoutInterval = self.reference.storage.maxDownloadRetryTime
       var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)
       components?.query = "alt=media"
       request.url = components?.url
@@ -121,41 +118,46 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
         fetcher = GTMSessionFetcher(downloadResumeData: resumeData)
         fetcher.comment = "Resuming DownloadTask"
       } else {
-        fetcher = strongSelf.fetcherService.fetcher(with: request)
-        fetcher.comment = "Resuming DownloadTask"
+        fetcher = self.fetcherService.fetcher(with: request)
+        fetcher.comment = "Starting DownloadTask"
       }
-      fetcher.maxRetryInterval = strongSelf.reference.storage.maxDownloadRetryInterval
+      fetcher.maxRetryInterval = self.reference.storage.maxDownloadRetryInterval
 
-      if let fileURL = strongSelf.fileURL {
+      if let fileURL = self.fileURL {
         // Handle file downloads
         fetcher.destinationFileURL = fileURL
-        fetcher.downloadProgressBlock = { (bytesWritten: Int64,
-                                           totalBytesWritten: Int64,
-                                           totalBytesExpectedToWrite: Int64) in
-            weakSelf?.state = .progress
-            weakSelf?.progress.completedUnitCount = totalBytesWritten
-            weakSelf?.progress.totalUnitCount = totalBytesExpectedToWrite
-            if let snapshot = weakSelf?.snapshot {
-              weakSelf?.fire(for: .progress, snapshot: snapshot)
-            }
-            weakSelf?.state = .running
+        fetcher.downloadProgressBlock = { [weak self] (bytesWritten: Int64,
+                                                       totalBytesWritten: Int64,
+                                                       totalBytesExpectedToWrite: Int64) in
+            guard let self = self else { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesWritten
+            self.progress.totalUnitCount = totalBytesExpectedToWrite
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
         }
       } else {
         // Handle data downloads
-        fetcher.receivedProgressBlock = { (bytesWritten: Int64, totalBytesWritten: Int64) in
-          weakSelf?.state = .progress
-          weakSelf?.progress.completedUnitCount = totalBytesWritten
-          if let totalLength = weakSelf?.fetcher?.response?.expectedContentLength {
-            weakSelf?.progress.totalUnitCount = totalLength
-          }
-          if let snapshot = weakSelf?.snapshot {
-            weakSelf?.fire(for: .progress, snapshot: snapshot)
-          }
-          weakSelf?.state = .running
+        fetcher.receivedProgressBlock = { [weak self] (bytesWritten: Int64,
+                                                       totalBytesWritten: Int64) in
+            guard let self = self else { return }
+            self.state = .progress
+            self.progress.completedUnitCount = totalBytesWritten
+            if let totalLength = self.fetcher?.response?.expectedContentLength {
+              self.progress.totalUnitCount = totalLength
+            }
+            self.fire(for: .progress, snapshot: self.snapshot)
+            self.state = .running
         }
       }
-      strongSelf.fetcher = fetcher
-      strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
+      self.fetcher = fetcher
+
+      // Capture self here to retain until completion.
+      self.fetcherCompletion = { [self] (data: Data?, error: NSError?) in
+        defer {
+          self.removeAllObservers()
+          self.fetcherCompletion = nil
+        }
         self.fire(for: .progress, snapshot: self.snapshot)
 
         // Handle potential issues with download
@@ -163,8 +165,6 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
           self.state = .failed
           self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
           self.fire(for: .failure, snapshot: self.snapshot)
-          self.removeAllObservers()
-          self.fetcherCompletion = nil
           return
         }
         // Download completed successfully, fire completion callbacks
@@ -173,26 +173,21 @@ open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
           self.downloadData = data
         }
         self.fire(for: .success, snapshot: self.snapshot)
-        self.removeAllObservers()
-        self.fetcherCompletion = nil
       }
-      strongSelf.state = .running
-      strongSelf.fetcher?.beginFetch { data, error in
-        let strongSelf = weakSelf
-        if let fetcherCompletion = strongSelf?.fetcherCompletion {
-          fetcherCompletion(data, error as? NSError)
-        }
+      self.state = .running
+      self.fetcher?.beginFetch { [self] data, error in
+        self.fetcherCompletion?(data, error as? NSError)
       }
     }
   }
 
   internal func cancel(withError error: NSError) {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      weakSelf?.state = .cancelled
-      weakSelf?.fetcher?.stopFetching()
-      weakSelf?.error = error
-      weakSelf?.fire(for: .failure, snapshot: self.snapshot)
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      self.state = .cancelled
+      self.fetcher?.stopFetching()
+      self.error = error
+      self.fire(for: .failure, snapshot: self.snapshot)
     }
   }
 }

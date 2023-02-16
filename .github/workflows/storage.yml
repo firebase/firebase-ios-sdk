@@ -6,7 +6,6 @@ on:
     - 'FirebaseStorage**'
     - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/storage.yml'
-    - 'scripts/**'
     # Rebuild on Ruby infrastructure changes.
     - 'Gemfile*'
   schedule:
@@ -88,7 +87,6 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
@@ -99,6 +97,33 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true)
     - name: Test swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
+
+  quickstart-ftl-cron-only:
+    # Don't run on private repo.
+    if: github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule'
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      LEGACY: true
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+    - name: Setup quickstart
+      run: scripts/setup_quickstart.sh storage
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-storage.plist.gpg \
+          quickstart-ios/storage/GoogleService-Info.plist "$plist_secret"
+    # - name: Build objc quickstart
+    #   run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Storage)
+    - name: Build swift quickstart
+      run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Storage swift)
+    - id: ftl_test
+      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+      with:
+        credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
+        testapp_dir: quickstart-ios/build-for-testing
+        test_type: "xctest"
 
   pod-lib-lint:
     # Don't run on private repo unless it is a PR.

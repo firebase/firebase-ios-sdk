@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include("${CMAKE_CURRENT_LIST_DIR}/firebase_utils.cmake")
+
 function(download_external_sources)
   file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/external)
 
@@ -37,7 +39,7 @@ function(download_external_sources)
     )
   endif()
 
-  execute_process(
+  firebase_execute_process(
     COMMAND
       ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"
       -DFIREBASE_DOWNLOAD_DIR=${FIREBASE_DOWNLOAD_DIR}
@@ -56,7 +58,7 @@ function(download_external_sources)
     set(cmake_build_args -j)
   endif()
 
-  execute_process(
+  firebase_execute_process(
     COMMAND ${CMAKE_COMMAND} --build . -- ${cmake_build_args}
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR}/external
   )

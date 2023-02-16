@@ -265,6 +265,106 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
+  func testPutFileLimitedChunk() throws {
+    defer {
+      // Reset since tests share storage instance.
+      storage.uploadChunkSizeBytes = Int64.max
+    }
+    let expectation = self.expectation(description: #function)
+    let putFileExpectation = self.expectation(description: "putFile")
+    let ref = storage.reference(withPath: "ios/public/testPutFilePauseResume")
+    let bundle = Bundle(for: StorageIntegrationCommon.self)
+    let filePath = try XCTUnwrap(bundle.path(forResource: "1mb", ofType: "dat"),
+                                 "Failed to get filePath")
+    let data = try XCTUnwrap(try Data(contentsOf: URL(fileURLWithPath: filePath)),
+                             "Failed to load file")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("LargePutFile.txt")
+    var progressCount = 0
+
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    // Limit the upload chunk size
+    storage.uploadChunkSizeBytes = 256_000
+
+    let task = ref.putFile(from: fileURL) { result in
+      XCTAssertGreaterThanOrEqual(progressCount, 4)
+      self.assertResultSuccess(result)
+      putFileExpectation.fulfill()
+    }
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+
+    var uploadedBytes: Int64 = -1
+
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
+        snapshot.description.starts(with: "<State: Resume"))
+      guard let progress = snapshot.progress else {
+        XCTFail("Failed to get snapshot.progress")
+        return
+      }
+      progressCount = progressCount + 1
+      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
+      uploadedBytes = progress.completedUnitCount
+    }
+    waitForExpectations()
+  }
+
+  func testPutFileTinyChunk() throws {
+    defer {
+      // Reset since tests share storage instance.
+      storage.uploadChunkSizeBytes = Int64.max
+    }
+    let expectation = self.expectation(description: #function)
+    let putFileExpectation = self.expectation(description: "putFile")
+    let ref = storage.reference(withPath: "ios/public/testPutFilePauseResume")
+    let bundle = Bundle(for: StorageIntegrationCommon.self)
+    let filePath = try XCTUnwrap(bundle.path(forResource: "1mb", ofType: "dat"),
+                                 "Failed to get filePath")
+    let data = try XCTUnwrap(try Data(contentsOf: URL(fileURLWithPath: filePath)),
+                             "Failed to load file")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("LargePutFile.txt")
+    var progressCount = 0
+
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    // Limit the upload chunk size. This should behave exactly like the previous
+    // test since small chunk sizes are rounded up to 256K.
+    storage.uploadChunkSizeBytes = 1
+
+    let task = ref.putFile(from: fileURL) { result in
+      XCTAssertGreaterThanOrEqual(progressCount, 4)
+      XCTAssertLessThanOrEqual(progressCount, 6)
+      self.assertResultSuccess(result)
+      putFileExpectation.fulfill()
+    }
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+
+    var uploadedBytes: Int64 = -1
+
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
+        snapshot.description.starts(with: "<State: Resume"))
+      guard let progress = snapshot.progress else {
+        XCTFail("Failed to get snapshot.progress")
+        return
+      }
+      progressCount = progressCount + 1
+      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
+      uploadedBytes = progress.completedUnitCount
+    }
+    waitForExpectations()
+  }
+
   func testAttemptToUploadDirectoryShouldFail() throws {
     // This `.numbers` file is actually a directory.
     let fileName = "HomeImprovement.numbers"
@@ -585,6 +685,88 @@ class StorageResultTests: StorageIntegrationCommon {
       }
     }
     waitForExpectations()
+  }
+
+  func testResumeGetFile() {
+    let expectation = self.expectation(description: #function)
+    let expectationPause = self.expectation(description: "pause")
+    let expectationResume = self.expectation(description: "resume")
+    let ref = storage.reference().child("ios/public/1mb")
+
+    let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+    let task = ref.write(toFile: fileURL)
+    var downloadedBytes: Int64 = 0
+    var resumeAtBytes = 256 * 1024
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      let description = snapshot.description
+      XCTAssertTrue(description.contains("State: Progress") ||
+        description.contains("State: Resume"))
+      let progress = snapshot.progress
+      if let completed = progress?.completedUnitCount {
+        XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+        downloadedBytes = completed
+        if completed > resumeAtBytes {
+          task.pause()
+          expectationPause.fulfill()
+          resumeAtBytes = Int.max
+        }
+      }
+    }
+    task.observe(StorageTaskStatus.pause) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Paused>")
+      task.resume()
+      expectationResume.fulfill()
+    }
+    waitForExpectations()
+    XCTAssertEqual(resumeAtBytes, Int.max)
+  }
+
+  func testResumeGetFileInBackgroundQueue() {
+    let expectation = self.expectation(description: #function)
+    let expectationPause = self.expectation(description: "pause")
+    let expectationResume = self.expectation(description: "resume")
+    let ref = storage.reference().child("ios/public/1mb")
+
+    let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+    let task = ref.write(toFile: fileURL)
+    var downloadedBytes: Int64 = 0
+    var resumeAtBytes = 256 * 1024
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      let description = snapshot.description
+      XCTAssertTrue(description.contains("State: Progress") ||
+        description.contains("State: Resume"))
+      let progress = snapshot.progress
+      if let completed = progress?.completedUnitCount {
+        XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+        downloadedBytes = completed
+        if completed > resumeAtBytes {
+          DispatchQueue.global(qos: .background).async {
+            task.pause()
+          }
+          expectationPause.fulfill()
+          resumeAtBytes = Int.max
+        }
+      }
+    }
+    task.observe(StorageTaskStatus.pause) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Paused>")
+      DispatchQueue.global(qos: .background).async {
+        task.resume()
+      }
+      expectationResume.fulfill()
+    }
+    waitForExpectations()
+    XCTAssertEqual(resumeAtBytes, Int.max)
   }
 
   func testPagedListFiles() {

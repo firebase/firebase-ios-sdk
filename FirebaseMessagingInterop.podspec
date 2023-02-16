@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseMessagingInterop'
-  s.version          = '10.2.0'
+  s.version          = '10.6.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Messaging functionality.'
 
   s.description      = <<-DESC

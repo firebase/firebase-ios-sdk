@@ -15,9 +15,17 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  @_implementationOnly import GoogleUtilities_Environment
+#else
+  @_implementationOnly import GoogleUtilities
+#endif // SWIFT_PACKAGE
+
 @testable import FirebaseSessions
 
 class MockNetworkInfo: NetworkInfoProtocol {
   var mobileCountryCode: String?
   var mobileNetworkCode: String?
+  var networkType: GULNetworkType = .WIFI
+  var mobileSubtype: String = ""
 }

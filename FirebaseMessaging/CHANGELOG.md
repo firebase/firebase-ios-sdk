@@ -1,3 +1,15 @@
+# 10.6.0
+- [fixed] Configure flow validates existence of an APNS token before fetching an FCM token (#10742). This also addresses the scenario 1 mentioned in the comment - https://github.com/firebase/firebase-ios-sdk/issues/10679#issuecomment-1402776795
+
+# 10.5.0
+- [fixed] Fixed a crash for strongSelf dereference (#10707).
+
+# 10.4.0
+- [changed] On app startup, an APNS Token must be provided to FCM SDK before retrieving an FCM Token otherwise an error will be returned as part of the completion.
+
+# 10.3.0
+- [changed] Allow notification support on iOS 16 Simulator on Xcode 14 (#9968) (Reference: Xcode 14 Release Notes -> Simulator -> New Features: https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes)
+
 # 10.1.0
 - [fixed] App bundle identifier gets incorrectly shortened for watchOS apps created on Xcode 14 (#10147)
 

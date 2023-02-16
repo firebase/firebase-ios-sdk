@@ -1,6 +1,10 @@
 {
   "10.0.0": "https://dl.google.com/dl/firebase/ios/carthage/10.0.0/Google-Mobile-Ads-SDK-d588c632d268acbb.zip",
   "10.1.0": "https://dl.google.com/dl/firebase/ios/carthage/10.1.0/Google-Mobile-Ads-SDK-6856ec2c0d236d2b.zip",
+  "10.2.0": "https://dl.google.com/dl/firebase/ios/carthage/10.2.0/Google-Mobile-Ads-SDK-c8bc252ed3323212.zip",
+  "10.3.0": "https://dl.google.com/dl/firebase/ios/carthage/10.3.0/Google-Mobile-Ads-SDK-8b0d1ce3d1162b67.zip",
+  "10.4.0": "https://dl.google.com/dl/firebase/ios/carthage/10.4.0/Google-Mobile-Ads-SDK-046511c3fd0189eb.zip",
+  "10.5.0": "https://dl.google.com/dl/firebase/ios/carthage/10.5.0/Google-Mobile-Ads-SDK-50008c143ad8f268.zip",
   "4.11.0": "https://dl.google.com/dl/firebase/ios/carthage/4.11.0/AdMob-8a654a42c33bbcc8.zip",
   "4.12.0": "https://dl.google.com/dl/firebase/ios/carthage/4.12.0/AdMob-63dab3b525b94cd9.zip",
   "4.9.0": "https://dl.google.com/dl/firebase/ios/carthage/4.9.0/AdMob-134752c6180a2a41.zip",

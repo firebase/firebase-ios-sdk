@@ -23,6 +23,7 @@ enum Platforms {
   MAC_OS_X = 5;
 }
 
+// Next tag: 18
 message Report {
   // SDK version that generated this session
   string sdk_version = 1;
@@ -33,8 +34,15 @@ message Report {
   // General device type which generated the Event
   Platforms platform = 4;
 
-  // Unique device generated guid for application install.
+  // Unique Crashlytics-specific device generated guid for application install.
+  // Equivalent to Session.app.installation_uuid
   string installation_uuid = 5;
+
+  // Unique device generated ID from the FirebaseInstallations SDK
+  string firebase_installation_id = 16;
+
+  // The last Session ID associated with the crash report.
+  string app_quality_session_id = 17;
 
   // App build version.
   string build_version = 6;

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCrashlytics'
-  s.version          = '10.2.0'
+  s.version          = '10.6.0'
   s.summary          = 'Best and lightest-weight crash reporting for mobile, desktop and tvOS.'
   s.description      = 'Firebase Crashlytics helps you track, prioritize, and fix stability issues that erode app quality.'
   s.homepage         = 'https://firebase.google.com/'
@@ -53,8 +53,9 @@ Pod::Spec.new do |s|
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
   PREPARE_COMMAND_END
 
-  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 10.5'
   s.dependency 'FirebaseInstallations', '~> 10.0'
+  s.dependency 'FirebaseSessions', '~> 10.5'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
@@ -115,6 +116,6 @@ Pod::Spec.new do |s|
                               'Crashlytics/UnitTests/*/*.[mh]'
     unit_tests.resources = 'Crashlytics/UnitTests/Data/*',
                            'Crashlytics/UnitTests/*.clsrecord',
-                           'Crashlytics/UnitTests/FIRCLSMachO/data/*'
+                           'Crashlytics/UnitTests/FIRCLSMachO/machO_data/*'
   end
 end

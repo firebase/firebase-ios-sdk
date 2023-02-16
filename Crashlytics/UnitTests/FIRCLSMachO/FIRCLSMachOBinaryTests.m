@@ -19,7 +19,13 @@
 @implementation FIRCLSMachOBinaryTests
 
 - (NSString*)resourcePath {
-  return [[NSBundle bundleForClass:[self class]] resourcePath];
+#if SWIFT_PACKAGE
+  NSBundle* bundle = SWIFTPM_MODULE_BUNDLE;
+  return [bundle.resourcePath stringByAppendingPathComponent:@"machO_data"];
+#else
+  NSBundle* bundle = [NSBundle bundleForClass:[self class]];
+  return bundle.resourcePath;
+#endif
 }
 
 - (NSURL*)URLForResource:(NSString*)resource {

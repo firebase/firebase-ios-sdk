@@ -377,9 +377,11 @@ static void callInMainThreadWithAuthDataResultAndError(
     // The `heartbeatLogger` will be set later via a property update.
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
                                                                           appID:appID
+                                                                           auth:_auth
                                                                 heartbeatLogger:nil];
 #if TARGET_OS_IOS
     _multiFactor = multiFactor ?: [[FIRMultiFactor alloc] init];
+    _multiFactor.user = self;
 #endif
   }
   return self;
@@ -1180,6 +1182,8 @@ static void callInMainThreadWithAuthDataResultAndError(
         FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
         FIRSignInWithGameCenterRequest *gameCenterRequest = [[FIRSignInWithGameCenterRequest alloc]
                 initWithPlayerID:gameCenterCredential.playerID
+                    teamPlayerID:gameCenterCredential.teamPlayerID
+                    gamePlayerID:gameCenterCredential.gamePlayerID
                     publicKeyURL:gameCenterCredential.publicKeyURL
                        signature:gameCenterCredential.signature
                             salt:gameCenterCredential.salt

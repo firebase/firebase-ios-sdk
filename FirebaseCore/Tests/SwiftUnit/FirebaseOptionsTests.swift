@@ -69,7 +69,6 @@ class FirebaseOptionsTests: XCTestCase {
     options.bundleID = Constants.Options.bundleID
     options.apiKey = Constants.Options.apiKey
     options.clientID = Constants.Options.clientID
-    options.trackingID = Constants.Options.trackingID
     options.projectID = Constants.Options.projectID
     options.databaseURL = Constants.Options.databaseURL
     options.storageBucket = Constants.Options.storageBucket
@@ -95,10 +94,6 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertNil(options.deepLinkURLScheme)
     options.deepLinkURLScheme = Constants.Options.deepLinkURLScheme
     XCTAssertEqual(options.deepLinkURLScheme, Constants.Options.deepLinkURLScheme)
-
-    XCTAssertNil(options.androidClientID)
-    options.androidClientID = Constants.Options.androidClientID
-    XCTAssertEqual(options.androidClientID, Constants.Options.androidClientID)
 
     XCTAssertNil(options.appGroupID)
     options.appGroupID = Constants.Options.appGroupID
@@ -147,10 +142,8 @@ class FirebaseOptionsTests: XCTestCase {
     XCTAssertEqual(options.apiKey, Constants.Options.apiKey)
     XCTAssertEqual(options.bundleID, Constants.Options.bundleID)
     XCTAssertEqual(options.clientID, Constants.Options.clientID)
-    XCTAssertEqual(options.trackingID, Constants.Options.trackingID)
     XCTAssertEqual(options.gcmSenderID, Constants.Options.gcmSenderID)
     XCTAssertEqual(options.projectID, Constants.Options.projectID)
-    XCTAssertNil(options.androidClientID)
     XCTAssertEqual(options.googleAppID, Constants.Options.googleAppID)
     XCTAssertEqual(options.databaseURL, Constants.Options.databaseURL)
     XCTAssertNil(options.deepLinkURLScheme)
@@ -161,9 +154,7 @@ class FirebaseOptionsTests: XCTestCase {
   private func assertNullableOptionsAreEmpty(options: FirebaseOptions) {
     XCTAssertNil(options.apiKey)
     XCTAssertNil(options.clientID)
-    XCTAssertNil(options.trackingID)
     XCTAssertNil(options.projectID)
-    XCTAssertNil(options.androidClientID)
     XCTAssertNil(options.databaseURL)
     XCTAssertNil(options.deepLinkURLScheme)
     XCTAssertNil(options.storageBucket)

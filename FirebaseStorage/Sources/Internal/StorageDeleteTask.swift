@@ -44,34 +44,34 @@ internal class StorageDeleteTask: StorageTask, StorageTaskManagement {
    * Prepares a task and begins execution.
    */
   internal func enqueue() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else { return }
-      strongSelf.state = .queueing
-      var request = strongSelf.baseRequest
+    let completion = taskCompletion
+    taskCompletion = { (error: Error?) in
+      completion?(error)
+      // Reference self in completion handler in order to retain self until completion is called.
+      self.taskCompletion = nil
+    }
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      self.state = .queueing
+      var request = self.baseRequest
       request.httpMethod = "DELETE"
-      request.timeoutInterval = strongSelf.reference.storage.maxOperationRetryTime
+      request.timeoutInterval = self.reference.storage.maxOperationRetryTime
 
-      let callback = strongSelf.taskCompletion
-      strongSelf.taskCompletion = nil
-
-      let fetcher = strongSelf.fetcherService.fetcher(with: request)
+      let fetcher = self.fetcherService.fetcher(with: request)
       fetcher.comment = "DeleteTask"
-      strongSelf.fetcher = fetcher
+      self.fetcher = fetcher
 
-      strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
+      self.fetcherCompletion = { [weak self] (data: Data?, error: NSError?) in
+        guard let self = self else { return }
         if let error = error, self.error == nil {
-          self.error = StorageErrorCode.error(withServerError: error, ref: strongSelf.reference)
+          self.error = StorageErrorCode.error(withServerError: error, ref: self.reference)
         }
-        callback?(self.error)
+        self.taskCompletion?(self.error)
         self.fetcherCompletion = nil
       }
 
-      strongSelf.fetcher?.beginFetch { data, error in
-        let strongSelf = weakSelf
-        if let fetcherCompletion = strongSelf?.fetcherCompletion {
-          fetcherCompletion(data, error as? NSError)
-        }
+      self.fetcher?.beginFetch { [weak self] data, error in
+        self?.fetcherCompletion?(data, error as? NSError)
       }
     }
   }

@@ -1,3 +1,18 @@
+
+# Unreleased
+- [fixed] Fix a potential high memory usage issue.
+
+# 10.5.0
+- [fixed] Add @discardableResult to addDocument API for easy handling unused return value. (#10640)
+
+# 10.4.0
+- [fixed] Fix an issue that stops some performance optimization being applied (#10579).
+
+# 10.3.0
+- [feature] Add MultiDb support.
+- [fixed] Fix App crashed when there are nested data structures inside IN
+  Filter (#10507).
+
 # 10.2.0
 - [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
   transaction (#10431).

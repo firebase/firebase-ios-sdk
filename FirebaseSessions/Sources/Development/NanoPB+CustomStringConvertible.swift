@@ -15,6 +15,10 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
 ///
 /// These extensions allows us to console log properties of our Session Events
 /// proto for development and debugging purposes without having to call decode
@@ -82,7 +86,27 @@ extension firebase_appquality_sessions_OsName: CustomStringConvertible {
   }
 }
 
-extension UnsafeMutablePointer<pb_bytes_array_t>: CustomStringConvertible {
+extension firebase_appquality_sessions_LogEnvironment: CustomStringConvertible {
+  public var description: String {
+    switch self {
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_PROD:
+      return "PROD"
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_STAGING:
+      return "STAGING"
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_AUTOPUSH:
+      return "AUTOPUSH"
+    case firebase_appquality_sessions_LogEnvironment_LOG_ENVIRONMENT_UNKNOWN:
+      return "UNKNOWN"
+    default:
+      return "Unrecognized LogEnvironment. Please update the firebase_appquality_sessions_LogEnvironment CustomStringConvertible extension"
+    }
+  }
+}
+
+// This is written like this for Swift backwards-compatibility.
+// Once we upgrade to Xcode 14, this can be written as
+// UnsafeMutablePointer<pb_bytes_array_t>
+extension UnsafeMutablePointer: CustomStringConvertible where Pointee == pb_bytes_array_t {
   public var description: String {
     let decoded = FIRSESDecodeString(self)
     if decoded.count == 0 {
@@ -93,7 +117,11 @@ extension UnsafeMutablePointer<pb_bytes_array_t>: CustomStringConvertible {
 }
 
 // For an optional field
-extension UnsafeMutablePointer<pb_bytes_array_t>?: CustomStringConvertible {
+// This is written like this for Swift backwards-compatibility.
+// Once we upgrade to Xcode 14, this can be written as
+// UnsafeMutablePointer<pb_bytes_array_t>?
+extension Optional: CustomStringConvertible
+  where Wrapped == UnsafeMutablePointer<pb_bytes_array_t> {
   public var description: String {
     guard let this = self else {
       return "<NULL>"

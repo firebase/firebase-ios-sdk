@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseSessions'
-  s.version          = '10.0.0'
+  s.version          = '10.6.0'
   s.summary          = 'Firebase Sessions'
 
   s.description      = <<-DESC
@@ -35,17 +35,17 @@ Pod::Spec.new do |s|
 
   base_dir = "FirebaseSessions/"
   s.source_files = [
-    base_dir + 'Sources/**/*.{swift,h,m}',
-    base_dir + 'Protogen/**/*.{c,h,m,mm}',
+    base_dir + 'Sources/**/*.{swift}',
+    base_dir + 'SourcesObjC/**/*.{c,h,m,mm}',
   ]
 
-  s.ios.framework = 'CoreTelephony'
-  s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 10.5'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
-  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.10'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
+  s.dependency 'PromisesSwift', '~> 2.1'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

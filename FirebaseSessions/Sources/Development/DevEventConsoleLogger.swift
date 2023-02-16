@@ -15,6 +15,10 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+  import FirebaseSessionsObjC
+#endif // SWIFT_PACKAGE
+
 class DevEventConsoleLogger: EventGDTLoggerProtocol {
   private let commandLineArgument = "-FIRSessionsDebugEvents"
 
@@ -29,16 +33,19 @@ class DevEventConsoleLogger: EventGDTLoggerProtocol {
 
   func prettyPrint(proto: firebase_appquality_sessions_SessionEvent) {
     let logOutput = """
-    Logging Session Event due to \"\(commandLineArgument)\" command line argument
+    Printing Session Event due to \"\(commandLineArgument)\" command line argument
     Session Event:
       event_type: \(proto.event_type)
       session_data
         session_id: \(proto.session_data.session_id.description)
-        previous_session_id: \(proto.session_data.previous_session_id.description)
+        first_session_id: \(proto.session_data.first_session_id.description)
+        session_index: \(proto.session_data.session_index)
         event_timestamp_us: \(proto.session_data.event_timestamp_us)
+        firebase_installation_id: \(proto.session_data.firebase_installation_id.description)
         data_collection_status
           crashlytics: \(proto.session_data.data_collection_status.crashlytics)
           performance: \(proto.session_data.data_collection_status.performance)
+          session_sampling_rate: \(proto.session_data.data_collection_status.session_sampling_rate)
       application_info
         app_id: \(proto.application_info.app_id.description)
         device_model: \(proto.application_info.device_model.description)

@@ -18,42 +18,75 @@ import XCTest
 class InitiatorTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)
   let date = Date(timeIntervalSince1970: 1_635_739_200)
+  let validSettings: [String: Any] = [:]
+
+  var cache: SettingsCacheClient!
+  var appInfo: MockApplicationInfo!
+  var downloader: MockSettingsDownloader!
+  var remoteSettings: RemoteSettings!
+  var localOverrideSettings: LocalOverrideSettings!
+  var sdkDefaultSettings: SDKDefaultSettings!
+  var sessionSettings: SessionsSettings!
+
+  override func setUp() {
+    super.setUp()
+    appInfo = MockApplicationInfo()
+    cache = SettingsCache()
+    cache.removeCache() // just reinstantiating cache isn't enough because of persistence
+    downloader = MockSettingsDownloader(successResponse: validSettings)
+    remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
+    remoteSettings.updateSettings(currentTime: Date())
+
+    localOverrideSettings = LocalOverrideSettings()
+    sdkDefaultSettings = SDKDefaultSettings()
+
+    sessionSettings = SessionsSettings(
+      appInfo: appInfo,
+      installations: MockInstallationsProtocol(),
+      sdkDefaults: sdkDefaultSettings,
+      localOverrides: localOverrideSettings,
+      remoteSettings: remoteSettings
+    )
+  }
 
   func test_beginListening_initiatesColdStart() throws {
-    let initiator = SessionInitiator()
+    let initiator = SessionInitiator(settings: sessionSettings)
     var initiateCalled = false
     initiator.beginListening {
       initiateCalled = true
     }
-    assert(initiateCalled)
+    XCTAssert(initiateCalled)
   }
 
   func test_appForegrounded_initiatesNewSession() throws {
     // Given
     var pausedClock = date
-    let initiator = SessionInitiator(currentTimeProvider: { pausedClock })
+    let initiator = SessionInitiator(
+      settings: sessionSettings,
+      currentTimeProvider: { pausedClock }
+    )
     var sessionCount = 0
     initiator.beginListening {
       sessionCount += 1
     }
-    assert(sessionCount == 1)
+    XCTAssert(sessionCount == 1)
 
     // When
     // Background, advance time by 30 minutes + 1 second, then foreground
-    initiator.appBackgrounded()
+    postBackgroundedNotification()
     pausedClock.addTimeInterval(30 * 60 + 1)
-    initiator.appForegrounded()
+    postForegroundedNotification()
     // Then
     // Session count increases because time spent in background > 30 minutes
-    assert(sessionCount == 2)
+    XCTAssert(sessionCount == 2)
 
     // When
     // Background, advance time by exactly 30 minutes, then foreground
-    initiator.appBackgrounded()
+    postBackgroundedNotification()
     pausedClock.addTimeInterval(30 * 60)
-    initiator.appForegrounded()
+    postForegroundedNotification()
     // Then
     // Session count doesn't increase because time spent in background <= 30 minutes
-    assert(sessionCount == 2)
+    XCTAssert(sessionCount == 2)
   }
 }

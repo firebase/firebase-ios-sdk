@@ -28,6 +28,8 @@ static NSString *const kSignInWithGameCenterEndPoint = @"signInWithGameCenter";
 @implementation FIRSignInWithGameCenterRequest
 
 - (nullable instancetype)initWithPlayerID:(NSString *)playerID
+                             teamPlayerID:(nullable NSString *)teamPlayerID
+                             gamePlayerID:(nullable NSString *)gamePlayerID
                              publicKeyURL:(NSURL *)publicKeyURL
                                 signature:(NSData *)signature
                                      salt:(NSData *)salt
@@ -38,6 +40,8 @@ static NSString *const kSignInWithGameCenterEndPoint = @"signInWithGameCenter";
             requestConfiguration:requestConfiguration];
   if (self) {
     _playerID = playerID;
+    _teamPlayerID = [teamPlayerID copy];
+    _gamePlayerID = [gamePlayerID copy];
     _publicKeyURL = [publicKeyURL copy];
     _signature = [signature copy];
     _salt = [salt copy];
@@ -53,6 +57,12 @@ static NSString *const kSignInWithGameCenterEndPoint = @"signInWithGameCenter";
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_playerID) {
     postBody[@"playerId"] = _playerID;
+  }
+  if (_teamPlayerID) {
+    postBody[@"teamPlayerId"] = _teamPlayerID;
+  }
+  if (_gamePlayerID) {
+    postBody[@"gamePlayerId"] = _gamePlayerID;
   }
   if (_publicKeyURL) {
     postBody[@"publicKeyUrl"] = _publicKeyURL.absoluteString;

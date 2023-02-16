@@ -36,21 +36,20 @@ import Foundation
    * Prepares a task and begins execution.
    */
   @objc open func enqueue() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      guard let strongSelf = weakSelf else { return }
-      if let contentValidationError = strongSelf.contentUploadError() {
-        strongSelf.error = contentValidationError
-        strongSelf.finishTaskWithStatus(status: .failure, snapshot: strongSelf.snapshot)
+    // Capturing self so that the upload is done whether or not there is a callback.
+    dispatchQueue.async { [self] in
+      if let contentValidationError = self.contentUploadError() {
+        self.error = contentValidationError
+        self.finishTaskWithStatus(status: .failure, snapshot: self.snapshot)
         return
       }
 
-      strongSelf.state = .queueing
-      var request = strongSelf.baseRequest
+      self.state = .queueing
+      var request = self.baseRequest
       request.httpMethod = "POST"
-      request.timeoutInterval = strongSelf.reference.storage.maxUploadRetryTime
+      request.timeoutInterval = self.reference.storage.maxUploadRetryTime
 
-      let dataRepresentation = strongSelf.uploadMetadata.dictionaryRepresentation()
+      let dataRepresentation = self.uploadMetadata.dictionaryRepresentation()
       let bodyData = try? JSONSerialization.data(withJSONObject: dataRepresentation)
 
       request.httpBody = bodyData
@@ -64,48 +63,47 @@ import Foundation
          let path = components?.path {
         components?.percentEncodedPath = "/upload\(path)"
       }
-      guard let path = strongSelf.GCSEscapedString(self.uploadMetadata.path) else {
+      guard let path = self.GCSEscapedString(self.uploadMetadata.path) else {
         fatalError("Internal error enqueueing a Storage task")
       }
       components?.percentEncodedQuery = "uploadType=resumable&name=\(path)"
 
       request.url = components?.url
 
-      guard let contentType = strongSelf.uploadMetadata.contentType else {
+      guard let contentType = self.uploadMetadata.contentType else {
         fatalError("Internal error enqueueing a Storage task")
       }
       let uploadFetcher = GTMSessionUploadFetcher(
         request: request,
         uploadMIMEType: contentType,
-        chunkSize: Int64.max,
-        fetcherService: strongSelf.fetcherService
+        chunkSize: self.reference.storage.uploadChunkSizeBytes,
+        fetcherService: self.fetcherService
       )
-      if let data = strongSelf.uploadData {
+      if let data = self.uploadData {
         uploadFetcher.uploadData = data
         uploadFetcher.comment = "Data UploadTask"
-      } else if let fileURL = strongSelf.fileURL {
+      } else if let fileURL = self.fileURL {
         uploadFetcher.uploadFileURL = fileURL
         uploadFetcher.comment = "File UploadTask"
       }
-      uploadFetcher.maxRetryInterval = strongSelf.reference.storage.maxUploadRetryInterval
+      uploadFetcher.maxRetryInterval = self.reference.storage.maxUploadRetryInterval
 
-      uploadFetcher.sendProgressBlock = { (bytesSent: Int64, totalBytesSent: Int64,
-                                           totalBytesExpectedToSend: Int64) in
-          weakSelf?.state = .progress
-          weakSelf?.progress.completedUnitCount = totalBytesSent
-          weakSelf?.progress.totalUnitCount = totalBytesExpectedToSend
-          weakSelf?.metadata = weakSelf?.uploadMetadata
-          if let snapshot = weakSelf?.snapshot {
-            weakSelf?.fire(for: .progress, snapshot: snapshot)
-          }
-          weakSelf?.state = .running
+      uploadFetcher.sendProgressBlock = { [weak self] (bytesSent: Int64, totalBytesSent: Int64,
+                                                       totalBytesExpectedToSend: Int64) in
+          guard let self = self else { return }
+          self.state = .progress
+          self.progress.completedUnitCount = totalBytesSent
+          self.progress.totalUnitCount = totalBytesExpectedToSend
+          self.metadata = self.uploadMetadata
+          self.fire(for: .progress, snapshot: self.snapshot)
+          self.state = .running
       }
-      strongSelf.uploadFetcher = uploadFetcher
+      self.uploadFetcher = uploadFetcher
 
       // Process fetches
-      strongSelf.state = .running
+      self.state = .running
 
-      strongSelf.fetcherCompletion = { (data: Data?, error: NSError?) in
+      self.fetcherCompletion = { [self] (data: Data?, error: NSError?) in
         // Fire last progress updates
         self.fire(for: .progress, snapshot: self.snapshot)
 
@@ -134,11 +132,8 @@ import Foundation
         }
         self.finishTaskWithStatus(status: .success, snapshot: self.snapshot)
       }
-      strongSelf.uploadFetcher?.beginFetch { (data: Data?, error: Error?) in
-        let strongSelf = weakSelf
-        if let fetcherCompletion = strongSelf?.fetcherCompletion {
-          fetcherCompletion(data, error as NSError?)
-        }
+      self.uploadFetcher?.beginFetch { [weak self] (data: Data?, error: Error?) in
+        self?.fetcherCompletion?(data, error as NSError?)
       }
     }
   }
@@ -147,16 +142,14 @@ import Foundation
    * Pauses a task currently in progress.
    */
   @objc open func pause() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      weakSelf?.state = .paused
-      weakSelf?.uploadFetcher?.pauseFetching()
-      if weakSelf?.state != .success {
-        weakSelf?.metadata = weakSelf?.uploadMetadata
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      self.state = .paused
+      self.uploadFetcher?.pauseFetching()
+      if self.state != .success {
+        self.metadata = self.uploadMetadata
       }
-      if let snapshot = weakSelf?.snapshot {
-        weakSelf?.fire(for: .pause, snapshot: snapshot)
-      }
+      self.fire(for: .pause, snapshot: self.snapshot)
     }
   }
 
@@ -164,20 +157,18 @@ import Foundation
    * Cancels a task.
    */
   @objc open func cancel() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      weakSelf?.state = .cancelled
-      weakSelf?.uploadFetcher?.stopFetching()
-      if weakSelf?.state != .success {
-        weakSelf?.metadata = weakSelf?.uploadMetadata
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      self.state = .cancelled
+      self.uploadFetcher?.stopFetching()
+      if self.state != .success {
+        self.metadata = self.uploadMetadata
       }
-      weakSelf?.error = StorageErrorCode.error(
+      self.error = StorageErrorCode.error(
         withServerError: StorageErrorCode.cancelled as NSError,
         ref: self.reference
       )
-      if let snapshot = weakSelf?.snapshot {
-        weakSelf?.fire(for: .failure, snapshot: snapshot)
-      }
+      self.fire(for: .failure, snapshot: self.snapshot)
     }
   }
 
@@ -185,17 +176,15 @@ import Foundation
    * Resumes a paused task.
    */
   @objc open func resume() {
-    weak var weakSelf = self
-    DispatchQueue.global(qos: .background).async {
-      weakSelf?.state = .resuming
-      weakSelf?.uploadFetcher?.resumeFetching()
-      if weakSelf?.state != .success {
-        weakSelf?.metadata = weakSelf?.uploadMetadata
+    dispatchQueue.async { [weak self] in
+      guard let self = self else { return }
+      self.state = .resuming
+      self.uploadFetcher?.resumeFetching()
+      if self.state != .success {
+        self.metadata = self.uploadMetadata
       }
-      if let snapshot = weakSelf?.snapshot {
-        weakSelf?.fire(for: .resume, snapshot: snapshot)
-      }
-      weakSelf?.state = .running
+      self.fire(for: .resume, snapshot: self.snapshot)
+      self.state = .running
     }
   }
 
@@ -203,6 +192,8 @@ import Foundation
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
+  // Hold completion in object to force it to be retained until completion block is called.
+  internal var completionMetadata: ((StorageMetadata?, Error?) -> Void)?
 
   // MARK: - Internal Implementations
 
