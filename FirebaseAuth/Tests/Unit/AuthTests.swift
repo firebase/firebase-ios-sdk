@@ -37,11 +37,14 @@ class AuthTests: RPCBaseTests {
     let kEmail = "user@company.com"
     let allSignInMethods = ["emailLink", "facebook.com"]
     let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
     let group = DispatchGroup()
     RPCIssuer?.group = group
     group.enter()
 
     AuthTests.auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
+      // 4. After the reponse triggers the callback, verify the returned signInMethods.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual(signInMethods, allSignInMethods)
       XCTAssertNil(error)
@@ -49,16 +52,16 @@ class AuthTests: RPCBaseTests {
     }
     group.wait()
 
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(RPCIssuer?.request as? CreateAuthURIRequest)
     XCTAssertEqual(request.identifier, kEmail)
     XCTAssertEqual(request.endpoint, "createAuthUri")
     XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
 
-    let response = CreateAuthURIResponse()
-    response.signinMethods = allSignInMethods
-    _ = try RPCIssuer?.respond(withJSON: ["signinMethods": ["emailLink", "facebook.com"]])
+    // 3. Send the response from the fake backend.
+    _ = try RPCIssuer?.respond(withJSON: ["signinMethods": allSignInMethods])
 
-    waitForExpectations(timeout: 100)
+    waitForExpectations(timeout: 5)
   }
 
   /** @fn testFetchSignInMethodsForEmailFailure
@@ -83,6 +86,6 @@ class AuthTests: RPCBaseTests {
     let message = "TOO_MANY_ATTEMPTS_TRY_LATER"
     try RPCIssuer?.respond(serverErrorMessage: message)
 
-    waitForExpectations(timeout: 100)
+    waitForExpectations(timeout: 5)
   }
 }
