@@ -29,15 +29,15 @@ import Foundation
   @objc public static let id = "phone"
   #if os(iOS)
     /**
-        @brief Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
+     @brief Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
      */
     @objc(provider) public class func provider() -> PhoneAuthProvider {
       return PhoneAuthProvider(auth: Auth.auth())
     }
 
     /**
-        @brief Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
-        @param auth The auth object to associate with the phone auth provider instance.
+     @brief Returns an instance of `PhoneAuthProvider` for the provided `Auth` object.
+     @param auth The auth object to associate with the phone auth provider instance.
      */
     @objc(providerWithAuth:)
     public class func provider(auth: Auth) -> PhoneAuthProvider {
@@ -47,26 +47,26 @@ import Foundation
     // TODO: review/remove public objc
 
     /**
-        @brief Starts the phone number authentication flow by sending a verification code to the
-            specified phone number.
-        @param phoneNumber The phone number to be verified.
-        @param UIDelegate An object used to present the SFSafariViewController. The object is retained
-            by this method until the completion block is executed.
-        @param completion The callback to be invoked when the verification flow is finished.
-        @remarks Possible error codes:
+     @brief Starts the phone number authentication flow by sending a verification code to the
+     specified phone number.
+     @param phoneNumber The phone number to be verified.
+     @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+     by this method until the completion block is executed.
+     @param completion The callback to be invoked when the verification flow is finished.
+     @remarks Possible error codes:
 
-            + `AuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
-                the Firebase Auth is invalid or has expired.
-            + `AuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
-                project has been exceeded.
-            + `AuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
-                invalid.
-            + `AuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
+     + `AuthErrorCodeCaptchaCheckFailed` - Indicates that the reCAPTCHA token obtained by
+     the Firebase Auth is invalid or has expired.
+     + `AuthErrorCodeQuotaExceeded` - Indicates that the phone verification quota for this
+     project has been exceeded.
+     + `AuthErrorCodeInvalidPhoneNumber` - Indicates that the phone number provided is
+     invalid.
+     + `AuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
      */
     @objc(verifyPhoneNumber:UIDelegate:completion:)
-    public func verify(phoneNumber: String,
-                       UIDelegate: AuthUIDelegate?,
-                       completion: ((_: String?, _: Error?) -> Void)?) {
+    public func verifyPhoneNumber(_ phoneNumber: String,
+                                  uiDelegate: AuthUIDelegate?,
+                                  completion: ((_: String?, _: Error?) -> Void)?) {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme) else {
         fatalError(
           "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
@@ -74,6 +74,20 @@ import Foundation
       }
       Auth.globalWorkQueue().async {
         let callbackOnMainThread = {}
+      }
+    }
+
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    public func verifyPhoneNumber(_ phoneNumber: String,
+                                  uiDelegate: AuthUIDelegate?) async throws -> String {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate) { result, error in
+          if let error {
+            continuation.resume(throwing: error)
+          } else if let result {
+            continuation.resume(returning: result)
+          }
+        }
       }
     }
 
@@ -104,12 +118,12 @@ import Foundation
     }
 
     /** @fn
-        @brief Starts the flow to verify the client via silent push notification.
-        @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
-            FIRAuthErrorCodeInvalidAppCredential error is returned from the backend.
-        @param phoneNumber The phone number to be verified.
-        @param callback The callback to be invoked on the global work queue when the flow is
-            finished.
+     @brief Starts the flow to verify the client via silent push notification.
+     @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
+     FIRAuthErrorCodeInvalidAppCredential error is returned from the backend.
+     @param phoneNumber The phone number to be verified.
+     @param callback The callback to be invoked on the global work queue when the flow is
+     finished.
      */
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
@@ -117,94 +131,94 @@ import Foundation
                                                  callback: @escaping (String?, Error?) -> Void) {
       // TODO(ncooke3): Uncomment below lines when `FIRAuthBackend` is
       // written in Swift.
-//      if let settings = auth.settings,
-//         settings.isAppVerificationDisabledForTesting {
-//        let request = SendVerificationCodeRequest(
-//          phoneNumber: phoneNumber,
-//          appCredential: nil,
-//          reCAPTCHAToken: nil,
-//          requestConfiguration: auth.requestConfiguration
-//        )
-//
-//        FIRAuthBackend.sendVerificationCode(request) { response, error in
-//          callback(response?.verificationID, error)
-//        }
-//        return
-//      }
+      //      if let settings = auth.settings,
+      //         settings.isAppVerificationDisabledForTesting {
+      //        let request = SendVerificationCodeRequest(
+      //          phoneNumber: phoneNumber,
+      //          appCredential: nil,
+      //          reCAPTCHAToken: nil,
+      //          requestConfiguration: auth.requestConfiguration
+      //        )
+      //
+      //        FIRAuthBackend.sendVerificationCode(request) { response, error in
+      //          callback(response?.verificationID, error)
+      //        }
+      //        return
+      //      }
       // self.verifyClient(withUIDelegate ...
     }
 
-//  - (void)verifyClientAndSendVerificationCodeToPhoneNumber:(NSString *)phoneNumber
-//                               retryOnInvalidAppCredential:(BOOL)retryOnInvalidAppCredential
-//                                                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-//                                                  callback:(FIRVerificationResultCallback)callback {
+    //  - (void)verifyClientAndSendVerificationCodeToPhoneNumber:(NSString *)phoneNumber
+    //                               retryOnInvalidAppCredential:(BOOL)retryOnInvalidAppCredential
+    //                                                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+    //                                                  callback:(FIRVerificationResultCallback)callback {
 
-//    [self
-//        verifyClientWithUIDelegate:UIDelegate
-//                        completion:^(FIRAuthAppCredential *_Nullable appCredential,
-//                                     NSString *_Nullable reCAPTCHAToken, NSError *_Nullable error) {
-//                          if (error) {
-//                            callback(nil, error);
-//                            return;
-//                          }
-//                          FIRSendVerificationCodeRequest *_Nullable request;
-//                          if (appCredential) {
-//                            request = [[FIRSendVerificationCodeRequest alloc]
-//                                 initWithPhoneNumber:phoneNumber
-//                                       appCredential:appCredential
-//                                      reCAPTCHAToken:nil
-//                                requestConfiguration:self->_auth.requestConfiguration];
-//                          } else if (reCAPTCHAToken) {
-//                            request = [[FIRSendVerificationCodeRequest alloc]
-//                                 initWithPhoneNumber:phoneNumber
-//                                       appCredential:nil
-//                                      reCAPTCHAToken:reCAPTCHAToken
-//                                requestConfiguration:self->_auth.requestConfiguration];
-//                          }
-//                          if (request) {
-//                            [FIRAuthBackend
-//                                sendVerificationCode:request
-//                                            callback:^(
-//                                                FIRSendVerificationCodeResponse *_Nullable response,
-//                                                NSError *_Nullable error) {
-//                                              if (error) {
-//                                                if (error.code ==
-//                                                    FIRAuthErrorCodeInvalidAppCredential) {
-//                                                  if (retryOnInvalidAppCredential) {
-//                                                    [self->_auth
-//                                                            .appCredentialManager clearCredential];
-//                                                    [self
-//                                                        verifyClientAndSendVerificationCodeToPhoneNumber:
-//                                                            phoneNumber
-//                                                                             retryOnInvalidAppCredential:
-//                                                                                 NO
-//                                                                                              UIDelegate:
-//                                                                                                  UIDelegate
-//                                                                                                callback:
-//                                                                                                    callback];
-//                                                    return;
-//                                                  }
-//                                                  callback(
-//                                                      nil,
-//                                                      [FIRAuthErrorUtils
-//                                                          unexpectedResponseWithDeserializedResponse:
-//                                                              nil
-//                                                                                     underlyingError:
-//                                                                                         error]);
-//                                                  return;
-//                                                }
-//                                                callback(nil, error);
-//                                                return;
-//                                              }
-//                                              callback(response.verificationID, nil);
-//                                            }];
-//                          }
-//                        }];
-//  }
+    //    [self
+    //        verifyClientWithUIDelegate:UIDelegate
+    //                        completion:^(FIRAuthAppCredential *_Nullable appCredential,
+    //                                     NSString *_Nullable reCAPTCHAToken, NSError *_Nullable error) {
+    //                          if (error) {
+    //                            callback(nil, error);
+    //                            return;
+    //                          }
+    //                          FIRSendVerificationCodeRequest *_Nullable request;
+    //                          if (appCredential) {
+    //                            request = [[FIRSendVerificationCodeRequest alloc]
+    //                                 initWithPhoneNumber:phoneNumber
+    //                                       appCredential:appCredential
+    //                                      reCAPTCHAToken:nil
+    //                                requestConfiguration:self->_auth.requestConfiguration];
+    //                          } else if (reCAPTCHAToken) {
+    //                            request = [[FIRSendVerificationCodeRequest alloc]
+    //                                 initWithPhoneNumber:phoneNumber
+    //                                       appCredential:nil
+    //                                      reCAPTCHAToken:reCAPTCHAToken
+    //                                requestConfiguration:self->_auth.requestConfiguration];
+    //                          }
+    //                          if (request) {
+    //                            [FIRAuthBackend
+    //                                sendVerificationCode:request
+    //                                            callback:^(
+    //                                                FIRSendVerificationCodeResponse *_Nullable response,
+    //                                                NSError *_Nullable error) {
+    //                                              if (error) {
+    //                                                if (error.code ==
+    //                                                    FIRAuthErrorCodeInvalidAppCredential) {
+    //                                                  if (retryOnInvalidAppCredential) {
+    //                                                    [self->_auth
+    //                                                            .appCredentialManager clearCredential];
+    //                                                    [self
+    //                                                        verifyClientAndSendVerificationCodeToPhoneNumber:
+    //                                                            phoneNumber
+    //                                                                             retryOnInvalidAppCredential:
+    //                                                                                 NO
+    //                                                                                              UIDelegate:
+    //                                                                                                  UIDelegate
+    //                                                                                                callback:
+    //                                                                                                    callback];
+    //                                                    return;
+    //                                                  }
+    //                                                  callback(
+    //                                                      nil,
+    //                                                      [FIRAuthErrorUtils
+    //                                                          unexpectedResponseWithDeserializedResponse:
+    //                                                              nil
+    //                                                                                     underlyingError:
+    //                                                                                         error]);
+    //                                                  return;
+    //                                                }
+    //                                                callback(nil, error);
+    //                                                return;
+    //                                              }
+    //                                              callback(response.verificationID, nil);
+    //                                            }];
+    //                          }
+    //                        }];
+    //  }
 
     /** @fn
-        @brief Continues the flow to verify the client via silent push notification.
-        @param completion The callback to be invoked when the client verification flow is finished.
+     @brief Continues the flow to verify the client via silent push notification.
+     @param completion The callback to be invoked when the client verification flow is finished.
      */
     private func verifyClient(withUIDelegate UIDelegate: AuthUIDelegate,
                               completion: (AuthAppCredential?, Error?)) {
@@ -218,8 +232,8 @@ import Foundation
     }
 
     /** @fn
-        @brief Continues the flow to verify the client via silent push notification.
-        @param completion The callback to be invoked when the client verification flow is finished.
+     @brief Continues the flow to verify the client via silent push notification.
+     @param completion The callback to be invoked when the client verification flow is finished.
      */
     private func reCAPTCHAFlowWithUIDelegate(withUIDelegate UIDelegate: AuthUIDelegate,
                                              completion: @escaping (AuthAppCredential?, String?,
@@ -256,10 +270,10 @@ import Foundation
     }
 
     /**
-        @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.
-        @param URL The url to be parsed for a reCAPTCHA token.
-        @param error The error that occurred if any.
-        @return The reCAPTCHA token if successful.
+     @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.
+     @param URL The url to be parsed for a reCAPTCHA token.
+     @param error The error that occurred if any.
+     @return The reCAPTCHA token if successful.
      */
     private func reCAPTCHAToken(forURL url: URL, error: NSError) -> String? {
       let actualURLComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
@@ -277,50 +291,50 @@ import Foundation
       return nil
     }
 
-//  - (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {
-//    NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL
-//                                                      resolvingAgainstBaseURL:NO];
-//    NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
-//    NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
-//    NSData *errorData;
-//    if (deepLinkURL) {
-//      actualURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
-//      queryItems = [actualURLComponents queryItems];
-//      NSString *recaptchaToken = [FIRAuthWebUtils queryItemValue:@"recaptchaToken" from:queryItems];
-//      if (recaptchaToken) {
-//        return recaptchaToken;
-//      }
-//      NSString *firebaseError = [FIRAuthWebUtils queryItemValue:@"firebaseError" from:queryItems];
-//      errorData = [firebaseError dataUsingEncoding:NSUTF8StringEncoding];
-//    } else {
-//      errorData = nil;
-//    }
-//    if (error != NULL && errorData != nil) {
-//      NSError *jsonError;
-//      NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
-//                                                                options:0
-//                                                                  error:&jsonError];
-//      if (jsonError) {
-//        *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
-//        return nil;
-//      }
-//      *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
-//                                                   message:errorDict[@"message"]];
-//      if (!*error) {
-//        NSString *reason;
-//        if (errorDict[@"code"] && errorDict[@"message"]) {
-//          reason =
-//              [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
-//        } else {
-//          reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
-//                                               "response: %@",
-//                                              deepLinkURL];
-//        }
-//        *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
-//      }
-//    }
-//    return nil;
-//  }
+    //  - (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {
+    //    NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL
+    //                                                      resolvingAgainstBaseURL:NO];
+    //    NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
+    //    NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
+    //    NSData *errorData;
+    //    if (deepLinkURL) {
+    //      actualURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
+    //      queryItems = [actualURLComponents queryItems];
+    //      NSString *recaptchaToken = [FIRAuthWebUtils queryItemValue:@"recaptchaToken" from:queryItems];
+    //      if (recaptchaToken) {
+    //        return recaptchaToken;
+    //      }
+    //      NSString *firebaseError = [FIRAuthWebUtils queryItemValue:@"firebaseError" from:queryItems];
+    //      errorData = [firebaseError dataUsingEncoding:NSUTF8StringEncoding];
+    //    } else {
+    //      errorData = nil;
+    //    }
+    //    if (error != NULL && errorData != nil) {
+    //      NSError *jsonError;
+    //      NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
+    //                                                                options:0
+    //                                                                  error:&jsonError];
+    //      if (jsonError) {
+    //        *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
+    //        return nil;
+    //      }
+    //      *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
+    //                                                   message:errorDict[@"message"]];
+    //      if (!*error) {
+    //        NSString *reason;
+    //        if (errorDict[@"code"] && errorDict[@"message"]) {
+    //          reason =
+    //              [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
+    //        } else {
+    //          reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
+    //                                               "response: %@",
+    //                                              deepLinkURL];
+    //        }
+    //        *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
+    //      }
+    //    }
+    //    return nil;
+    //  }
 
     //                                completion:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
     //                                  if (error) {
@@ -344,11 +358,11 @@ import Foundation
     // POp back up with ObjC below after this
 
     /** @fn
-        @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event
-            ID.
-        @param eventID The event ID used for this purpose.
-        @param completion The callback invoked after the URL has been constructed or an error
-            has been encountered.
+     @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event
+     ID.
+     @param eventID The event ID used for this purpose.
+     @param completion The callback invoked after the URL has been constructed or an error
+     has been encountered.
      */
     private func reCAPTCHAURL(withEventID eventID: String,
                               completion: @escaping ((URL?, Error?) -> Void)) {
@@ -385,103 +399,139 @@ import Foundation
         }
     }
 
-//  - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
-//                          completion:(FIRVerifyClientCallback)completion {
-//  // Remove the simulator check below after FCM supports APNs in simulators
-//  #if TARGET_OS_SIMULATOR
-//    if (@available(iOS 16, *)) {
-//      NSDictionary *environment = [[NSProcessInfo processInfo] environment];
-//      if ((environment[@"XCTestConfigurationFilePath"] == nil)) {
-//        [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
-//        return;
-//      }
-//    }
-//  #endif
-//
-//    if (_auth.appCredentialManager.credential) {
-//      completion(_auth.appCredentialManager.credential, nil, nil);
-//      return;
-//    }
-//    [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token,
-//                                               NSError *_Nullable error) {
-//      if (!token) {
-//        [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
-//        return;
-//      }
-//      FIRVerifyClientRequest *request =
-//          [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
-//                                                 isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
-//                                      requestConfiguration:self->_auth.requestConfiguration];
-//      [FIRAuthBackend
-//          verifyClient:request
-//              callback:^(FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error) {
-//                if (error) {
-//                  NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
-//                  BOOL isInvalidAppCredential =
-//                      error.code == FIRAuthErrorCodeInternalError &&
-//                      underlyingError.code == FIRAuthErrorCodeInvalidAppCredential;
-//                  if (error.code != FIRAuthErrorCodeMissingAppToken && !isInvalidAppCredential) {
-//                    completion(nil, nil, error);
-//                    return;
-//                  } else {
-//                    [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
-//                    return;
-//                  }
-//                }
-//                NSTimeInterval timeout = [response.suggestedTimeOutDate timeIntervalSinceNow];
-//                [self->_auth.appCredentialManager
-//                    didStartVerificationWithReceipt:response.receipt
-//                                            timeout:timeout
-//                                           callback:^(FIRAuthAppCredential *credential) {
-//                                             if (!credential.secret) {
-//                                               FIRLogWarning(kFIRLoggerAuth, @"I-AUT000014",
-//                                                             @"Failed to receive remote notification "
-//                                                             @"to verify app identity within "
-//                                                             @"%.0f second(s), falling back to "
-//                                                             @"reCAPTCHA verification.",
-//                                                             timeout);
-//                                               [self reCAPTCHAFlowWithUIDelegate:UIDelegate
-//                                                                      completion:completion];
-//                                               return;
-//                                             }
-//                                             completion(credential, nil, nil);
-//                                           }];
-//              }];
-//    }];
-//  }
+    //  - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+    //                          completion:(FIRVerifyClientCallback)completion {
+    //  // Remove the simulator check below after FCM supports APNs in simulators
+    //  #if TARGET_OS_SIMULATOR
+    //    if (@available(iOS 16, *)) {
+    //      NSDictionary *environment = [[NSProcessInfo processInfo] environment];
+    //      if ((environment[@"XCTestConfigurationFilePath"] == nil)) {
+    //        [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
+    //        return;
+    //      }
+    //    }
+    //  #endif
+    //
+    //    if (_auth.appCredentialManager.credential) {
+    //      completion(_auth.appCredentialManager.credential, nil, nil);
+    //      return;
+    //    }
+    //    [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token,
+    //                                               NSError *_Nullable error) {
+    //      if (!token) {
+    //        [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
+    //        return;
+    //      }
+    //      FIRVerifyClientRequest *request =
+    //          [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
+    //                                                 isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
+    //                                      requestConfiguration:self->_auth.requestConfiguration];
+    //      [FIRAuthBackend
+    //          verifyClient:request
+    //              callback:^(FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error) {
+    //                if (error) {
+    //                  NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    //                  BOOL isInvalidAppCredential =
+    //                      error.code == FIRAuthErrorCodeInternalError &&
+    //                      underlyingError.code == FIRAuthErrorCodeInvalidAppCredential;
+    //                  if (error.code != FIRAuthErrorCodeMissingAppToken && !isInvalidAppCredential) {
+    //                    completion(nil, nil, error);
+    //                    return;
+    //                  } else {
+    //                    [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
+    //                    return;
+    //                  }
+    //                }
+    //                NSTimeInterval timeout = [response.suggestedTimeOutDate timeIntervalSinceNow];
+    //                [self->_auth.appCredentialManager
+    //                    didStartVerificationWithReceipt:response.receipt
+    //                                            timeout:timeout
+    //                                           callback:^(FIRAuthAppCredential *credential) {
+    //                                             if (!credential.secret) {
+    //                                               FIRLogWarning(kFIRLoggerAuth, @"I-AUT000014",
+    //                                                             @"Failed to receive remote notification "
+    //                                                             @"to verify app identity within "
+    //                                                             @"%.0f second(s), falling back to "
+    //                                                             @"reCAPTCHA verification.",
+    //                                                             timeout);
+    //                                               [self reCAPTCHAFlowWithUIDelegate:UIDelegate
+    //                                                                      completion:completion];
+    //                                               return;
+    //                                             }
+    //                                             completion(credential, nil, nil);
+    //                                           }];
+    //              }];
+    //    }];
+    //  }
 
     /**
-         @brief Verify ownership of the second factor phone number by the current user.
-         @param phoneNumber The phone number to be verified.
-         @param UIDelegate An object used to present the SFSafariViewController. The object is retained
-             by this method until the completion block is executed.
-         @param session A session to identify the MFA flow. For enrollment, this identifies the user
-             trying to enroll. For sign-in, this identifies that the user already passed the first
-             factor challenge.
-         @param completion The callback to be invoked when the verification flow is finished.
+     @brief Verify ownership of the second factor phone number by the current user.
+     @param phoneNumber The phone number to be verified.
+     @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+     by this method until the completion block is executed.
+     @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
+     trying to enroll. For sign-in, this identifies that the user already passed the first
+     factor challenge.
+     @param completion The callback to be invoked when the verification flow is finished.
      */
+
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
-    public func verify(phoneNumber: String, UIDelegate: AuthUIDelegate?,
-                       session: MultiFactorSession?,
-                       completion: ((_: String?, _: Error?) -> Void)?) {
+    public func verifyPhoneNumber(_ phoneNumber: String, uiDelegate: AuthUIDelegate?,
+                                  multiFactorSession: MultiFactorSession?,
+                                  completion: ((_: String?, _: Error?) -> Void)?) {
       // TODO:
+    }
+
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    public func verifyPhoneNumber(_ phoneNumber: String,
+                                  uiDelegate: AuthUIDelegate?,
+                                  multiFactorSession: MultiFactorSession?) async throws -> String {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.verifyPhoneNumber(phoneNumber,
+                               uiDelegate: uiDelegate,
+                               multiFactorSession: multiFactorSession) { result, error in
+          if let error {
+            continuation.resume(throwing: error)
+          } else if let result {
+            continuation.resume(returning: result)
+          }
+        }
+      }
     }
 
     /**
          @brief Verify ownership of the second factor phone number by the current user.
-         @param phoneMultiFactorInfo The phone multi factor whose number need to be verified.
-         @param UIDelegate An object used to present the SFSafariViewController. The object is retained
+         @param multiFactorInfo The phone multi factor whose number need to be verified.
+         @param uiDelegate An object used to present the SFSafariViewController. The object is retained
              by this method until the completion block is executed.
-         @param session A session to identify the MFA flow. For enrollment, this identifies the user
+         @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
              trying to enroll. For sign-in, this identifies that the user already passed the first
              factor challenge.
          @param completion The callback to be invoked when the verification flow is finished.
      */
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
-    public func verify(phoneMultiFactorInfo: PhoneMultiFactorInfo, UIDelegate: AuthUIDelegate?,
-                       session: MultiFactorSession?,
-                       completion: ((_: String?, _: Error?) -> Void)?) {
+    public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
+                                  uiDelegate: AuthUIDelegate?,
+                                  multiFactorSession: MultiFactorSession?,
+                                  completion: ((_: String?, _: Error?) -> Void)?) {
       // TODO:
+    }
+
+    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
+                                  uiDelegate: AuthUIDelegate?,
+                                  multiFactorSession: MultiFactorSession?) async throws -> String {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.verifyPhoneNumber(with: multiFactorInfo,
+                               uiDelegate: uiDelegate,
+                               multiFactorSession: multiFactorSession) { result, error in
+          if let error {
+            continuation.resume(throwing: error)
+          } else if let result {
+            continuation.resume(returning: result)
+          }
+        }
+      }
     }
 
     /**
@@ -495,7 +545,8 @@ import Foundation
             provided.
      */
     @objc(credentialWithVerificationID:verificationCode:)
-    public func credential(verificationID: String, verificationCode: String) -> AuthCredential {
+    public func credential(withVerificationID verificationID: String,
+                           verificationCode: String) -> PhoneAuthCredential {
       return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
                                  verificationID: verificationID,
                                  verificationCode: verificationCode)
