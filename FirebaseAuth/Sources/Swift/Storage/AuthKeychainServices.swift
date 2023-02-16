@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import Foundation
+@_implementationOnly import FirebaseCoreExtension
 
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.
@@ -108,16 +109,12 @@ private let kAccountPrefix = "firebase_auth_1_"
         throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
       } else if items.count > 1 {
         // More than one keychain item was found, all but the first will be ignored.
-
-        // XXX TODO: FIRLogWarning is unavailable
-        print(
-          "I-AUT000005",
-          "Keychain query returned multiple results, all but the first will be ignored: \(items)"
+        FirebaseLogger.log(
+          level: .warning,
+          service: "[FirebaseAuth]",
+          code: "I-AUT000005",
+          message: "Keychain query returned multiple results, all but the first will be ignored: \(items)"
         )
-//                FIRLogWarning(
-//                    kFIRLoggerAuth, "I-AUT000005",
-//                    "Keychain query returned multiple results, all but the first will be ignored: %@",
-//                    items)
       }
 
       // Return the non-legacy item.
