@@ -83,7 +83,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
         :osx => osx_deployment_target,
         :tvos => tvos_deployment_target
       }
-      unit_tests.source_files = 'FirebaseAuth/Tests/Unit/*.[mh]'
+      unit_tests.source_files = [
+        'FirebaseAuth/Tests/Unit/*.[mh]',
+        'FirebaseAuth/Tests/Unit/*.swift'
+      ]
       unit_tests.osx.exclude_files = [
         'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
         'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenTests.m',

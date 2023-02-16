@@ -58,8 +58,14 @@ import Foundation
       of: NSString.self,
       forKey: AdditionalUserInfo.usernameCodingKey
     ) as String?
-    isNewUser = aDecoder.decodeObject(of: NSNumber.self, forKey: AdditionalUserInfo.newUserKey)?
-      .boolValue ?? false
+    if let newUser = aDecoder.decodeObject(
+      of: NSNumber.self,
+      forKey: AdditionalUserInfo.newUserKey
+    ) {
+      isNewUser = newUser.boolValue
+    } else {
+      isNewUser = false
+    }
   }
 
   public func encode(with aCoder: NSCoder) {
