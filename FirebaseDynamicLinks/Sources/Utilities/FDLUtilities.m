@@ -27,9 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const kFIRDLParameterDeepLinkIdentifier = @"deep_link_id";
 NSString *const kFIRDLParameterLink = @"link";
 NSString *const kFIRDLParameterMinimumAppVersion = @"imv";
-NSString *const kFIRDLParameterSource = @"utm_source";
-NSString *const kFIRDLParameterMedium = @"utm_medium";
 NSString *const kFIRDLParameterCampaign = @"utm_campaign";
+NSString *const kFIRDLParameterContent = @"utm_content";
+NSString *const kFIRDLParameterMedium = @"utm_medium";
+NSString *const kFIRDLParameterSource = @"utm_source";
+NSString *const kFIRDLParameterTerm = @"utm_term";
 NSString *const kFIRDLParameterMatchType = @"match_type";
 NSString *const kFIRDLParameterInviteId = @"invitation_id";
 NSString *const kFIRDLParameterWeakMatchEndpoint = @"invitation_weakMatchEndpoint";
@@ -98,6 +100,8 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
                                     NSString *_Nullable utmSource,
                                     NSString *_Nullable utmMedium,
                                     NSString *_Nullable utmCampaign,
+                                    NSString *_Nullable utmContent,
+                                    NSString *_Nullable utmTerm,
                                     BOOL isWeakLink,
                                     NSString *_Nullable weakMatchEndpoint,
                                     NSString *_Nullable minAppVersion,
@@ -122,6 +126,15 @@ NSURL *FIRDLDeepLinkURLWithInviteID(NSString *_Nullable inviteID,
   if (utmCampaign != nil) {
     queryDictionary[kFIRDLParameterCampaign] = utmCampaign;
   }
+
+  if (utmContent != nil) {
+    queryDictionary[kFIRDLParameterContent] = utmContent;
+  }
+
+  if (utmTerm != nil) {
+    queryDictionary[kFIRDLParameterTerm] = utmTerm;
+  }
+
   if (isWeakLink) {
     queryDictionary[kFIRDLParameterMatchType] = @"weak";
   } else {
@@ -253,11 +266,14 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
   BOOL matchesRegularExpression = false;
   NSString *urlStr = URL.absoluteString;
 
-  if ([URL.host containsString:@".page.link"] || [URL.host containsString:@".app.goo.gl"]) {
+  if ([URL.host containsString:@".page.link"] || [URL.host containsString:@".app.goo.gl"] ||
+      [URL.host containsString:@".app.google"]) {
     // Matches the *.page.link and *.app.goo.gl domains.
     matchesRegularExpression =
-        ([urlStr rangeOfString:@"^https?://[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))((\\/"
-                               @"?\\?.*link=https?.*)|(\\/[a-zA-Z0-9-_]+)((\\/?\\?.*=.*)?$|$))"
+        ([urlStr rangeOfString:
+                     @"^https?://"
+                     @"[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link)|(\\.app\\.google))((\\/"
+                     @"?\\?.*link=https?.*)|(\\/[a-zA-Z0-9-_]+)((\\/?\\?.*=.*)?$|$))"
                        options:NSRegularExpressionSearch]
              .location != NSNotFound);
 
@@ -266,9 +282,11 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
       // Checks whether the URL is of the format :
       // http(s)://$DOMAIN(.page.link or .app.goo.gl)/i/$ANYTHING
       matchesRegularExpression =
-          ([urlStr rangeOfString:
-                       @"^https?:\\/\\/[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link))\\/i\\/.*$"
-                         options:NSRegularExpressionSearch]
+          ([urlStr
+               rangeOfString:
+                   @"^https?:\\/\\/"
+                   @"[a-zA-Z0-9]+((\\.app\\.goo\\.gl)|(\\.page\\.link)|(\\.app\\.google))\\/i\\/.*$"
+                     options:NSRegularExpressionSearch]
                .location != NSNotFound);
     }
   }
@@ -286,7 +304,8 @@ BOOL FIRDLIsAValidDLWithFDLDomain(NSURL *_Nullable URL) {
 BOOL FIRDLCanParseUniversalLinkURL(NSURL *_Nullable URL) {
   // Handle universal links with format |https://goo.gl/app/<appcode>?<parameters>|.
   // Also support page.link format.
-  BOOL isDDLWithAppcodeInPath = ([URL.host isEqual:@"goo.gl"] || [URL.host isEqual:@"page.link"]) &&
+  BOOL isDDLWithAppcodeInPath = ([URL.host isEqual:@"goo.gl"] || [URL.host isEqual:@"page.link"] ||
+                                 [URL.host isEqual:@"app.google"]) &&
                                 [URL.path hasPrefix:@"/app"];
 
   return isDDLWithAppcodeInPath || FIRDLIsAValidDLWithFDLDomain(URL) ||

@@ -148,7 +148,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.deepLinkURLScheme = kDeepLinkURLScheme;
   options.projectID = kProjectID;
   options.storageBucket = kStorageBucket;
-  options.trackingID = kTrackingID;
   [self assertOptionsMatchDefaults:options andProjectID:YES];
   XCTAssertEqualObjects(options.deepLinkURLScheme, kDeepLinkURLScheme);
   XCTAssertFalse(options.usingOptionsFromDefaultPlist);
@@ -158,9 +157,7 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.googleAppID, kGoogleAppID);
   XCTAssertEqualObjects(options.APIKey, kAPIKey);
   XCTAssertEqualObjects(options.clientID, kClientID);
-  XCTAssertEqualObjects(options.trackingID, kTrackingID);
   XCTAssertEqualObjects(options.GCMSenderID, kGCMSenderID);
-  XCTAssertNil(options.androidClientID);
   XCTAssertEqualObjects(options.libraryVersionID, kFIRLibraryVersionID);
   XCTAssertEqualObjects(options.databaseURL, kDatabaseURL);
   XCTAssertEqualObjects(options.storageBucket, kStorageBucket);
@@ -193,11 +190,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqualObjects(options.clientID, @"1");
 
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
-  options.trackingID = mutableString;
-  [mutableString appendString:@"2"];
-  XCTAssertEqualObjects(options.trackingID, @"1");
-
-  mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.GCMSenderID = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.GCMSenderID, @"1");
@@ -206,11 +198,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.projectID = mutableString;
   [mutableString appendString:@"2"];
   XCTAssertEqualObjects(options.projectID, @"1");
-
-  mutableString = [[NSMutableString alloc] initWithString:@"1"];
-  options.androidClientID = mutableString;
-  [mutableString appendString:@"2"];
-  XCTAssertEqualObjects(options.androidClientID, @"1");
 
   mutableString = [[NSMutableString alloc] initWithString:@"1"];
   options.googleAppID = mutableString;
@@ -597,7 +584,6 @@ extern NSString *const kFIRLibraryVersionID;
   options.editingLocked = YES;
 
   // Modification to every property should result in an exception.
-  XCTAssertThrows(options.androidClientID = @"should_throw");
   XCTAssertThrows(options.APIKey = @"should_throw");
   XCTAssertThrows(options.bundleID = @"should_throw");
   XCTAssertThrows(options.clientID = @"should_throw");
@@ -607,7 +593,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertThrows(options.googleAppID = @"should_throw");
   XCTAssertThrows(options.projectID = @"should_throw");
   XCTAssertThrows(options.storageBucket = @"should_throw");
-  XCTAssertThrows(options.trackingID = @"should_throw");
 }
 
 - (void)testVersionFormat {
@@ -626,7 +611,6 @@ extern NSString *const kFIRLibraryVersionID;
   XCTAssertEqual(numberOfMatches, 1, @"Incorrect library version format.");
 }
 
-// TODO: The version test will break when the Firebase major version hits 10.
 - (void)testVersionConsistency {
   // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
@@ -636,15 +620,14 @@ extern NSString *const kFIRLibraryVersionID;
 
   // Now `kFIRLibraryVersionID` is assigned, test that it is formatted correctly.
   const char *versionString = [kFIRLibraryVersionID UTF8String];
-  int major = versionString[0] - '0';
-  int minor = (versionString[1] - '0') * 10 + versionString[2] - '0';
-  int patch = (versionString[3] - '0') * 10 + versionString[4] - '0';
+  int major = (versionString[0] - '0') * 10 + versionString[1] - '0';
+  int minor = (versionString[2] - '0') * 10 + versionString[3] - '0';
+  int patch = (versionString[4] - '0') * 10 + versionString[5] - '0';
   NSString *str = [NSString stringWithFormat:@"%d.%d.%d", major, minor, patch];
   XCTAssertEqualObjects(str, FIRFirebaseVersion());
 }
 
 // Repeat test with more Objective-C.
-// TODO: The version test will break when the Firebase major version hits 10.
 - (void)testVersionConsistency2 {
   // `kFIRLibraryVersionID` is `nil` until `libraryVersion` is called on `FIROptions`.
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kGoogleAppID
@@ -652,9 +635,9 @@ extern NSString *const kFIRLibraryVersionID;
   __unused NSString *libraryVersion = options.libraryVersionID;
   options = nil;
 
-  NSRange major = NSMakeRange(0, 1);
-  NSRange minor = NSMakeRange(1, 2);
-  NSRange patch = NSMakeRange(3, 2);
+  NSRange major = NSMakeRange(0, 2);
+  NSRange minor = NSMakeRange(2, 2);
+  NSRange patch = NSMakeRange(4, 2);
   NSString *str =
       [NSString stringWithFormat:@"%@.%d.%d", [kFIRLibraryVersionID substringWithRange:major],
                                  [[kFIRLibraryVersionID substringWithRange:minor] intValue],

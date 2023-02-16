@@ -7,11 +7,10 @@ use_frameworks!
 pod 'FirebaseCore', :path => '../../../..'
 pod 'FirebaseCoreInternal', :path => '../../../..'
 pod 'FirebaseInstallations', :path => '../../../..'
-pod 'FirebaseCoreDiagnostics', :path => '../../../..'
 pod 'FirebaseABTesting', :path => '../../../..'
 
 target 'FiamDisplaySwiftExample' do
-  platform :ios, '10.0'
+  platform :ios, '11.0'
   pod 'FirebaseInAppMessaging', :path => '../../../..'
 end
 

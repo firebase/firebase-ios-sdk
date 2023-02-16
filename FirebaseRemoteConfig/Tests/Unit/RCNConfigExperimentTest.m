@@ -255,7 +255,7 @@
 
 + (NSData *)payloadDataFromTestFile {
 #if SWIFT_PACKAGE
-  NSBundle *bundle = Firebase_RemoteConfigUnit_SWIFTPM_MODULE_BUNDLE();
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
 #else
   NSBundle *bundle = [NSBundle bundleForClass:[self class]];
 #endif

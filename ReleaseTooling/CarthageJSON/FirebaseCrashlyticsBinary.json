@@ -1,4 +1,10 @@
 {
+  "10.0.0": "https://dl.google.com/dl/firebase/ios/carthage/10.0.0/FirebaseCrashlytics-59b1fffe41d52a08.zip",
+  "10.1.0": "https://dl.google.com/dl/firebase/ios/carthage/10.1.0/FirebaseCrashlytics-15efab8a4392b221.zip",
+  "10.2.0": "https://dl.google.com/dl/firebase/ios/carthage/10.2.0/FirebaseCrashlytics-054718c61ef054f9.zip",
+  "10.3.0": "https://dl.google.com/dl/firebase/ios/carthage/10.3.0/FirebaseCrashlytics-d29d3285a7d9fa1d.zip",
+  "10.4.0": "https://dl.google.com/dl/firebase/ios/carthage/10.4.0/FirebaseCrashlytics-165beb64483b4278.zip",
+  "10.5.0": "https://dl.google.com/dl/firebase/ios/carthage/10.5.0/FirebaseCrashlytics-53604573442e756b.zip",
   "6.15.0": "https://dl.google.com/dl/firebase/ios/carthage/6.15.0/FirebaseCrashlytics-1c6d22d5b73c84fd.zip",
   "6.16.0": "https://dl.google.com/dl/firebase/ios/carthage/6.16.0/FirebaseCrashlytics-938e5fd0e2eab3b3.zip",
   "6.17.0": "https://dl.google.com/dl/firebase/ios/carthage/6.17.0/FirebaseCrashlytics-fa09f0c8f31ed5d9.zip",
@@ -48,5 +54,7 @@
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseCrashlytics-94818161ae000f6e.zip",
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseCrashlytics-06938a462073d07e.zip",
   "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseCrashlytics-d81c99b927fdd409.zip",
-  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseCrashlytics-75118dc51acf861a.zip"
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseCrashlytics-75118dc51acf861a.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseCrashlytics-ef29a50f36d655dd.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseCrashlytics-0fb1140f20ce3358.zip"
 }

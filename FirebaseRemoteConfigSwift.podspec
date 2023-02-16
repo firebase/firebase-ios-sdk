@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseRemoteConfigSwift'
-  s.version                 = '9.5.0'
+  s.version                 = '10.6.0'
   s.summary                 = 'Swift Extensions for Firebase Remote Config'
 
   s.description      = <<-DESC
@@ -21,9 +21,9 @@ app update.
 
   s.swift_version           = '5.3'
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.ios.deployment_target = ios_deployment_target
@@ -35,11 +35,11 @@ app update.
   s.prefix_header_file      = false
 
   s.source_files = [
-    'FirebaseRemoteConfigSwift/Sources/*.swift',
+    'FirebaseRemoteConfigSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseRemoteConfig', '~> 9.0'
-  s.dependency 'FirebaseSharedSwift', '~> 9.0'
+  s.dependency 'FirebaseRemoteConfig', '~> 10.0'
+  s.dependency 'FirebaseSharedSwift', '~> 10.0'
 
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
@@ -53,6 +53,9 @@ app update.
                               'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
                               'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
                              ]
+    # Excludes tests that cannot be include in API tests because it requires fetch remote values from
+    # a real console but only one test can be run without poluting other tests' remote values.
+    swift_api.exclude_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/PropertyWrapperTests.swift']
     swift_api.resources = 'FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist'
     swift_api.requires_app_host = true
     swift_api.pod_target_xcconfig = {

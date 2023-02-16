@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseABTesting'
-  s.version          = '9.5.0'
+  s.version          = '10.6.0'
   s.summary          = 'Firebase ABTesting'
 
   s.description      = <<-DESC
@@ -22,9 +22,9 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.ios.deployment_target = ios_deployment_target
@@ -49,7 +49,7 @@ Firebase Cloud Messaging and Firebase Remote Config in your app.
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
-  s.dependency 'FirebaseCore', '~> 9.0'
+  s.dependency 'FirebaseCore', '~> 10.0'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }

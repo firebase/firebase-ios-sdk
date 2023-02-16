@@ -1,4 +1,10 @@
 {
+  "10.0.0": "https://dl.google.com/dl/firebase/ios/carthage/10.0.0/FirebaseABTesting-7e99c47d786adc1b.zip",
+  "10.1.0": "https://dl.google.com/dl/firebase/ios/carthage/10.1.0/FirebaseABTesting-51e22666b1949041.zip",
+  "10.2.0": "https://dl.google.com/dl/firebase/ios/carthage/10.2.0/FirebaseABTesting-3c0e5c9ddc52bccd.zip",
+  "10.3.0": "https://dl.google.com/dl/firebase/ios/carthage/10.3.0/FirebaseABTesting-e87c686cee02758a.zip",
+  "10.4.0": "https://dl.google.com/dl/firebase/ios/carthage/10.4.0/FirebaseABTesting-6a65ab8b888172af.zip",
+  "10.5.0": "https://dl.google.com/dl/firebase/ios/carthage/10.5.0/FirebaseABTesting-197f0cb4125363b6.zip",
   "4.11.0": "https://dl.google.com/dl/firebase/ios/carthage/4.11.0/ABTesting-d0fdf10c43e985b1.zip",
   "4.12.0": "https://dl.google.com/dl/firebase/ios/carthage/4.12.0/ABTesting-d0fdf10c43e985b1.zip",
   "4.9.0": "https://dl.google.com/dl/firebase/ios/carthage/4.9.0/ABTesting-a71d17cadc209af9.zip",
@@ -87,5 +93,7 @@
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseABTesting-20e472d53d01cfdf.zip",
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseABTesting-9e68df134b1e6b66.zip",
   "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseABTesting-46e2b1615dfa4a02.zip",
-  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseABTesting-58f1a082bdfe2c6b.zip"
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseABTesting-58f1a082bdfe2c6b.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseABTesting-2e8d21380a5a0b72.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseABTesting-1f72b09dc9a38fe4.zip"
 }

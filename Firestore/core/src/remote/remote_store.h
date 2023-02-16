@@ -194,6 +194,9 @@ class RemoteStore : public TargetMetadataProvider,
   absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const override;
 
+  void RunCountQuery(const core::Query& query,
+                     api::CountQueryCallback&& result_callback);
+
   void OnWatchStreamOpen() override;
   void OnWatchStreamChange(
       const WatchChange& change,

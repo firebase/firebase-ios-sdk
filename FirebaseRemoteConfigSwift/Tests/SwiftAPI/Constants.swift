@@ -37,10 +37,18 @@ enum Constants {
   static let falseKey = "myFalse"
   static let dataKey = "myData"
   static let dataValue: Data = "data".data(using: .utf8)!
+  static let arrayKey = "fruits"
+  static let arrayValue: [String] = ["mango", "pineapple", "papaya"]
+  static let dictKey = "platforms"
+  static let dictValue: [String: String] = [
+    "iOS": "14.0", "macOS": "14.0", "tvOS": "10.0", "watchOS": "6.0",
+  ]
   static let jsonKey = "Recipe"
-  static let jsonValue: [String: AnyHashable] = ["recipeName": "PB&J",
-                                                 "ingredients": ["bread", "peanut butter", "jelly"],
-                                                 "cookTime": 7]
+  static let jsonValue: [String: AnyHashable] = [
+    "recipeName": "PB&J",
+    "ingredients": ["bread", "peanut butter", "jelly"],
+    "cookTime": 7,
+  ]
   static let nonJsonKey = "notJSON"
   static let nonJsonValue = "notJSON"
 }

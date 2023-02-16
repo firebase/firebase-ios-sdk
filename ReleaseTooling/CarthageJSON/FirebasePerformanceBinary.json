@@ -1,4 +1,10 @@
 {
+  "10.0.0": "https://dl.google.com/dl/firebase/ios/carthage/10.0.0/FirebasePerformance-c842a05ab2e3a37f.zip",
+  "10.1.0": "https://dl.google.com/dl/firebase/ios/carthage/10.1.0/FirebasePerformance-5a6e015d91228ace.zip",
+  "10.2.0": "https://dl.google.com/dl/firebase/ios/carthage/10.2.0/FirebasePerformance-7a7398acc615dbb6.zip",
+  "10.3.0": "https://dl.google.com/dl/firebase/ios/carthage/10.3.0/FirebasePerformance-36ac6dfb99caa11b.zip",
+  "10.4.0": "https://dl.google.com/dl/firebase/ios/carthage/10.4.0/FirebasePerformance-f9f5be8ffad5cbb0.zip",
+  "10.5.0": "https://dl.google.com/dl/firebase/ios/carthage/10.5.0/FirebasePerformance-0ffe559f7554d8a5.zip",
   "4.11.0": "https://dl.google.com/dl/firebase/ios/carthage/4.11.0/Performance-d8693eb892bfa05b.zip",
   "4.12.0": "https://dl.google.com/dl/firebase/ios/carthage/4.12.0/Performance-0a400f9460f7a71d.zip",
   "4.9.0": "https://dl.google.com/dl/firebase/ios/carthage/4.9.0/Performance-f5b4002ab96523e4.zip",
@@ -86,5 +92,7 @@
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebasePerformance-813af21be925c753.zip",
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebasePerformance-8e6643592992fdc6.zip",
   "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebasePerformance-6a6cb6b26559e769.zip",
-  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebasePerformance-37c06790e07e83e2.zip"
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebasePerformance-37c06790e07e83e2.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebasePerformance-4a264650958620a2.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebasePerformance-eab6cd779b535da7.zip"
 }

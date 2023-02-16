@@ -1,0 +1,22 @@
+# For understanding why this file exists, and how this list was generated, see
+# https://github.com/firebase/firebase-ios-sdk/issues/10577
+ignorePaths:
+  # Ignore reason: These artifacts are used in unit tests
+- Crashlytics/UnitTests/Data/10.9.3_libobjc.A.dylib
+- Crashlytics/UnitTests/Data/10.9.4_libsystem_kernel.dylib
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/armv7-armv7s-arm64.dylib
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/armv7-armv7s-executable
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/armv7-armv7s.dSYM/Contents/Resources/DWARF/CrashTest
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/armv7k
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/i386-simulator.dSYM/Contents/Resources/DWARF/CrashTest
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/tvos-binary
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/tvsimulator-binary
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/watchOS-simulator
+- Crashlytics/UnitTests/FIRCLSMachO/machO_data/x86_64-executable
+  # Ignore reason: Crashlytics precompiles this binary for public release
+- Crashlytics/upload-symbols
+  # Ignore reason: These artifacts are used in unit tests
+- FirebaseAppDistribution/Tests/Unit/Resources/armv7-armv7s-executable
+- FirebaseAppDistribution/Tests/Unit/Resources/x86_64-executable
+  # This is involved with release tooling, but not sent to customers
+- ReleaseTooling/Template/dummy_Firebase_lib

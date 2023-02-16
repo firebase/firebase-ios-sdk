@@ -60,6 +60,7 @@ void CountingQueryEngine::ResetCounts() {
   overlays_read_by_key_ = 0;
   overlays_read_by_collection_ = 0;
   overlays_read_by_collection_group_ = 0;
+  overlay_types_.clear();
 }
 
 // MARK: - WrappedMutationQueue
@@ -168,7 +169,10 @@ model::MutableDocument WrappedRemoteDocumentCache::Get(
 model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
     const model::DocumentKeySet& keys) const {
   auto result = subject_->GetAll(keys);
-  query_engine_->documents_read_by_key_ += result.size();
+  for (const auto& key_doc : result) {
+    query_engine_->documents_read_by_key_ +=
+        key_doc.second.is_found_document() ? 1 : 0;
+  }
   return result;
 }
 
@@ -181,11 +185,13 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
   return result;
 }
 
-model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
-    const model::ResourcePath& path,
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetDocumentsMatchingQuery(
+    const core::Query& query,
     const model::IndexOffset& offset,
-    absl::optional<size_t>) const {
-  auto result = subject_->GetAll(path, offset);
+    absl::optional<size_t> limit,
+    const model::OverlayByDocumentKeyMap& mutated_docs) const {
+  auto result =
+      subject_->GetDocumentsMatchingQuery(query, offset, limit, mutated_docs);
   query_engine_->documents_read_by_query_ += result.size();
   return result;
 }
@@ -195,7 +201,13 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetAll(
 absl::optional<model::Overlay> WrappedDocumentOverlayCache::GetOverlay(
     const model::DocumentKey& key) const {
   ++query_engine_->overlays_read_by_key_;
-  return subject_->GetOverlay(key);
+  auto result = subject_->GetOverlay(key);
+  if (result.has_value()) {
+    query_engine_->overlay_types_.emplace(key,
+                                          result.value().mutation().type());
+  }
+
+  return result;
 }
 
 void WrappedDocumentOverlayCache::SaveOverlays(
@@ -211,6 +223,10 @@ OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
     const model::ResourcePath& collection, int since_batch_id) const {
   auto result = subject_->GetOverlays(collection, since_batch_id);
   query_engine_->overlays_read_by_collection_ += result.size();
+  for (const auto& r : result) {
+    query_engine_->overlay_types_.emplace(r.first, r.second.mutation().type());
+  }
+
   return result;
 }
 
@@ -220,6 +236,10 @@ OverlayByDocumentKeyMap WrappedDocumentOverlayCache::GetOverlays(
     std::size_t count) const {
   auto result = subject_->GetOverlays(collection_group, since_batch_id, count);
   query_engine_->overlays_read_by_collection_group_ += result.size();
+  for (const auto& r : result) {
+    query_engine_->overlay_types_.emplace(r.first, r.second.mutation().type());
+  }
+
   return result;
 }
 

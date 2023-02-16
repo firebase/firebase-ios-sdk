@@ -19,5 +19,6 @@
 @interface FIRCLSRecordIdentity : FIRCLSRecordBase
 
 @property(nonatomic, copy) NSString *build_version;
+@property(nonatomic, copy) NSString *app_quality_session_id;
 
 @end

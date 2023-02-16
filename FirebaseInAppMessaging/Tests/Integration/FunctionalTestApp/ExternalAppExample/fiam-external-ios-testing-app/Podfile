@@ -1,5 +1,5 @@
 # Uncomment the next line to define a global platform for your project
-platform :ios, '9.0'
+platform :ios, '11.0'
 
 # uncomment the follow two lines if you are trying to test internal releases
 #source 'sso://cpdc-internal/spec.git'

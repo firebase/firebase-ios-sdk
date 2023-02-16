@@ -17,9 +17,10 @@
 #import "FIRFilter+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
+using firebase::firestore::core::CompositeFilter;
+using firebase::firestore::core::FieldFilter;
 using firebase::firestore::model::FieldPath;
 using firebase::firestore::util::MakeString;
-using firebase::firestore::core::FieldFilter;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,11 +32,46 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 
 }  // namespace
 
-@interface FIRFilter ()
+@interface FSTUnaryFilter ()
 
 @property(nonatomic, strong, readwrite) FIRFieldPath *fieldPath;
-@property(nonatomic, readwrite) FieldFilter::Operator op;
+@property(nonatomic, readwrite) FieldFilter::Operator unaryOp;
 @property(nonatomic, strong, readwrite) id value;
+
+@end
+
+@implementation FSTUnaryFilter
+
+- (instancetype)initWithFIRFieldPath:(nonnull FIRFieldPath *)fieldPath
+                                  op:(FieldFilter::Operator)op
+                               value:(nonnull id)value {
+  if (self = [super init]) {
+    self.fieldPath = fieldPath;
+    self.unaryOp = op;
+    self.value = value;
+  }
+  return self;
+}
+
+@end
+
+@interface FSTCompositeFilter ()
+
+@property(nonatomic, strong, readwrite) NSArray<FIRFilter *> *filters;
+@property(nonatomic, readwrite) CompositeFilter::Operator compOp;
+
+@end
+
+@implementation FSTCompositeFilter
+
+- (instancetype)initWithFilters:(nonnull NSArray<FIRFilter *> *)filters
+                             op:(CompositeFilter::Operator)op {
+  if (self = [super init]) {
+    self.filters = filters;
+    self.compOp = op;
+  }
+  return self;
+}
 
 @end
 
@@ -43,23 +79,14 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 
 #pragma mark - Constructor Methods
 
-- (instancetype)initWithFIRFieldPath:(nonnull FIRFieldPath *)fieldPath
-                                  op:(FieldFilter::Operator)op
-                               value:(nonnull id)value {
-  if (self = [super init]) {
-    self.fieldPath = fieldPath;
-    self.op = op;
-    self.value = value;
-  }
-  return self;
-}
-
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field isEqualTo:(nonnull id)value {
   return [self filterWhereFieldPath:MakeFIRFieldPath(field) isEqualTo:value];
 }
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field isEqualTo:(nonnull id)value {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field op:FieldFilter::Operator::Equal value:value];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::Equal
+                                                value:value];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field isNotEqualTo:(nonnull id)value {
@@ -67,9 +94,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 }
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field isNotEqualTo:(nonnull id)value {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::NotEqual
-                                           value:value];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::NotEqual
+                                                value:value];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field isGreaterThan:(nonnull id)value {
@@ -77,9 +104,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 }
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field isGreaterThan:(nonnull id)value {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::GreaterThan
-                                           value:value];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::GreaterThan
+                                                value:value];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field isGreaterThanOrEqualTo:(nonnull id)value {
@@ -88,9 +115,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
              isGreaterThanOrEqualTo:(nonnull id)value {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::GreaterThanOrEqual
-                                           value:value];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::GreaterThanOrEqual
+                                                value:value];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field isLessThan:(nonnull id)value {
@@ -98,9 +125,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 }
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field isLessThan:(nonnull id)value {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::LessThan
-                                           value:value];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::LessThan
+                                                value:value];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field isLessThanOrEqualTo:(nonnull id)value {
@@ -109,9 +136,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
                 isLessThanOrEqualTo:(nonnull id)value {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::LessThanOrEqual
-                                           value:value];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::LessThanOrEqual
+                                                value:value];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field arrayContains:(nonnull id)value {
@@ -119,9 +146,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 }
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field arrayContains:(nonnull id)value {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::ArrayContains
-                                           value:value];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::ArrayContains
+                                                value:value];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field
@@ -131,9 +158,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
                    arrayContainsAny:(nonnull NSArray<id> *)values {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::ArrayContainsAny
-                                           value:values];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::ArrayContainsAny
+                                                value:values];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field in:(nonnull NSArray<id> *)values {
@@ -141,7 +168,9 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 }
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field in:(nonnull NSArray<id> *)values {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field op:FieldFilter::Operator::In value:values];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::In
+                                                value:values];
 }
 
 + (FIRFilter *)filterWhereField:(nonnull NSString *)field notIn:(nonnull NSArray<id> *)values {
@@ -150,11 +179,18 @@ FIRFieldPath *MakeFIRFieldPath(NSString *field) {
 
 + (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
                               notIn:(nonnull NSArray<id> *)values {
-  return [[FIRFilter alloc] initWithFIRFieldPath:field
-                                              op:FieldFilter::Operator::NotIn
-                                           value:values];
+  return [[FSTUnaryFilter alloc] initWithFIRFieldPath:field
+                                                   op:FieldFilter::Operator::NotIn
+                                                value:values];
 }
 
++ (FIRFilter *)orFilterWithFilters:(NSArray<FIRFilter *> *)filters {
+  return [[FSTCompositeFilter alloc] initWithFilters:filters op:CompositeFilter::Operator::Or];
+}
+
++ (FIRFilter *)andFilterWithFilters:(NSArray<FIRFilter *> *)filters {
+  return [[FSTCompositeFilter alloc] initWithFilters:filters op:CompositeFilter::Operator::And];
+}
 @end
 
 NS_ASSUME_NONNULL_END

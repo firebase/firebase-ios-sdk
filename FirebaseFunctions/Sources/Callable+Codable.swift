@@ -121,18 +121,13 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     /// resumes with a new FCM Token the next time you call this method.
     ///
     /// - Parameter data: The `Request` representing the data to pass to the trigger.
-    /// - Parameter encoder: The encoder instance to use to run the encoding.
-    /// - Parameter decoder: The decoder instance to use to run the decoding.
     ///
     /// - Throws: An error if any value throws an error during encoding or decoding.
     /// - Throws: An error if the callable fails to complete
     ///
     /// - Returns: The decoded `Response` value
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func call(_ data: Request,
-                     encoder: FirebaseDataEncoder = FirebaseDataEncoder(),
-                     decoder: FirebaseDataDecoder =
-                       FirebaseDataDecoder()) async throws -> Response {
+    public func call(_ data: Request) async throws -> Response {
       let encoded = try encoder.encode(data)
       let result = try await callable.call(encoded)
       return try decoder.decode(Response.self, from: result.data)

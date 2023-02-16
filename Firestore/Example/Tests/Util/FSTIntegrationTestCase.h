@@ -24,6 +24,8 @@
 #import "FIRFirestoreSource.h"
 
 @class FIRApp;
+@class FIRAggregateQuery;
+@class FIRAggregateQuerySnapshot;
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
 @class FIRDocumentReference;
@@ -95,6 +97,8 @@ extern "C" {
 
 - (FIRDocumentSnapshot *)readSnapshotForRef:(FIRDocumentReference *)query
                               requireOnline:(BOOL)online;
+
+- (FIRAggregateQuerySnapshot *)readSnapshotForAggregate:(FIRAggregateQuery *)query;
 
 - (void)writeDocumentRef:(FIRDocumentReference *)ref data:(NSDictionary<NSString *, id> *)data;
 

@@ -1,6 +1,41 @@
+
 # Unreleased
+- [fixed] Fix a potential high memory usage issue.
+
+# 10.5.0
+- [fixed] Add @discardableResult to addDocument API for easy handling unused return value. (#10640)
+
+# 10.4.0
+- [fixed] Fix an issue that stops some performance optimization being applied (#10579).
+
+# 10.3.0
+- [feature] Add MultiDb support.
+- [fixed] Fix App crashed when there are nested data structures inside IN
+  Filter (#10507).
+
+# 10.2.0
+- [fixed] Fix FAILED_PRECONDITION when writing to a deleted document in a
+  transaction (#10431).
+- [fixed] Fixed data race in credentials provider (#10393).
+- [fixed] Fix Firestore failing to raise initial snapshot from empty local cache
+  result (#10437).
+
+# 10.0.0
+- [feature] Added `Query.count()`, which fetches the number of documents in the
+  result set without actually downloading the documents (#10246).
+- [fixed] Fixed compiler warning about `@param comparator` (#10226).
+
+# 9.6.0
+- [added] Expose client side indexing feature with `FIRFirestore.setIndexConfigurationFromJSON` and
+  `FIRFirestore.setIndexConfigurationFromStream` (#10090).
+- [fixed] Fixed high CPU usage whenever Firestore was in use (#10168).
+
+# 9.5.0
 - [fixed] Fixed an intermittent crash if `ListenerRegistration::Remove()` was
   invoked concurrently (#10065).
+- [fixed] Fixed a crash if multiple large write batches with overlapping
+  documents were executed where at least one batch performed a delete operation
+  (#9965).
 
 # 9.4.0
 - [fixed] Fixed a crash during app start (#9985, #10018).

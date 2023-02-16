@@ -171,7 +171,6 @@
   [metadata size];
   [metadata timeCreated];
   [metadata updated];
-  [metadata storageReference];
   FIRStorageMetadata __unused *ref2 = [metadata initWithDictionary:@{}];
   NSDictionary<NSString *, id> __unused *dict = [metadata dictionaryRepresentation];
   [metadata isFile];

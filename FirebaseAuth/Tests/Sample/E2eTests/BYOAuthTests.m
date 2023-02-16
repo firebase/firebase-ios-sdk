@@ -17,7 +17,7 @@
 #import "FIRAuthE2eTestsBase.h"
 
 /** The url for obtaining a valid custom token string used to test BYOAuth. */
-static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
+static NSString *const kCustomTokenUrl = @"https://gcip-testapps.wl.r.appspot.com/token";
 
 /** The invalid custom token string for testing BYOAuth. */
 static NSString *const kInvalidCustomToken = @"invalid token.";

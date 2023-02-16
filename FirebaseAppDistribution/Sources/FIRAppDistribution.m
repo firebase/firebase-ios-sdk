@@ -148,7 +148,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
     }
 
     NSString *requestURL = [NSString
-        stringWithFormat:@"https://appdistribution.firebase.dev/nba/pub/apps/%@/"
+        stringWithFormat:@"https://appdistribution.firebase.google.com/pub/testerapps/%@/"
                          @"installations/%@/buildalerts?appName=%@",
                          [[FIRApp defaultApp] options].googleAppID, identifier, [self getAppName]];
 
@@ -336,4 +336,13 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
+
+#pragma mark - Swizzling disabled
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<NSString *, id> *)options {
+  return [self.uiService application:application openURL:url options:options];
+}
+
 @end

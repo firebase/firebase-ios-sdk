@@ -130,7 +130,13 @@
 
 #pragma mark - Path Helpers
 - (NSString *)resourcePath {
-  return [[NSBundle bundleForClass:[self class]] resourcePath];
+#if SWIFT_PACKAGE
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+  return [bundle.resourcePath stringByAppendingPathComponent:@"Data"];
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  return bundle.resourcePath;
+#endif
 }
 
 - (NSArray *)contentsOfActivePath {

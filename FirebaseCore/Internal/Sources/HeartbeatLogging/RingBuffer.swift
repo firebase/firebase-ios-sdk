@@ -14,25 +14,25 @@
 
 import Foundation
 
-/// Error types for `RingBuffer` operations.
-enum RingBufferError: LocalizedError {
-  case outOfBoundsPush(pushIndex: Array.Index, endIndex: Array.Index)
-
-  var errorDescription: String {
-    switch self {
-    case let .outOfBoundsPush(pushIndex, endIndex):
-      return "Out-of-bounds push at index \(pushIndex) to ring buffer with" +
-        "end index of \(endIndex)."
-    }
-  }
-}
-
 /// A generic circular queue structure.
 struct RingBuffer<Element>: Sequence {
   /// An array of heartbeats treated as a circular queue and intialized with a fixed capacity.
   private var circularQueue: [Element?]
   /// The current "tail" and insert point for the `circularQueue`.
   private var tailIndex: Array<Element?>.Index
+
+  /// Error types for `RingBuffer` operations.
+  enum Error: LocalizedError {
+    case outOfBoundsPush(pushIndex: Array<Element?>.Index, endIndex: Array<Element?>.Index)
+
+    var errorDescription: String {
+      switch self {
+      case let .outOfBoundsPush(pushIndex, endIndex):
+        return "Out-of-bounds push at index \(pushIndex) to ring buffer with" +
+          "end index of \(endIndex)."
+      }
+    }
+  }
 
   /// Designated initializer.
   /// - Parameter capacity: An `Int` representing the capacity.
@@ -54,7 +54,7 @@ struct RingBuffer<Element>: Sequence {
 
     guard circularQueue.indices.contains(tailIndex) else {
       // We have somehow entered an invalid state (#10025).
-      throw RingBufferError.outOfBoundsPush(
+      throw Self.Error.outOfBoundsPush(
         pushIndex: tailIndex,
         endIndex: circularQueue.endIndex
       )

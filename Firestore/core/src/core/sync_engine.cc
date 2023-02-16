@@ -110,10 +110,11 @@ TargetId SyncEngine::Listen(Query query) {
 
   TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
   TargetId target_id = target_data.target_id();
+  nanopb::ByteString resume_token = target_data.resume_token();
   remote_store_->Listen(std::move(target_data));
 
-  ViewSnapshot view_snapshot =
-      InitializeViewAndComputeSnapshot(query, target_id);
+  ViewSnapshot view_snapshot = InitializeViewAndComputeSnapshot(
+      query, target_id, std::move(resume_token));
   std::vector<ViewSnapshot> snapshots;
   // Not using the `std::initializer_list` constructor to avoid extra copies.
   snapshots.push_back(std::move(view_snapshot));
@@ -122,8 +123,8 @@ TargetId SyncEngine::Listen(Query query) {
   return target_id;
 }
 
-ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
-                                                          TargetId target_id) {
+ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
+    const Query& query, TargetId target_id, nanopb::ByteString resume_token) {
   QueryResult query_result =
       local_store_->ExecuteQuery(query, /* use_previous_results= */ true);
 
@@ -135,9 +136,9 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(const Query& query,
     const Query& mirror_query = queries_by_target_[target_id][0];
     current_sync_state =
         query_views_by_query_[mirror_query]->view().sync_state();
-    synthesized_current_change = TargetChange::CreateSynthesizedTargetChange(
-        current_sync_state == SyncState::Synced);
   }
+  synthesized_current_change = TargetChange::CreateSynthesizedTargetChange(
+      current_sync_state == SyncState::Synced, std::move(resume_token));
 
   View view(query, query_result.remote_keys());
   ViewDocumentChanges view_doc_changes =
@@ -247,6 +248,11 @@ void SyncEngine::Transaction(int max_attempts,
       worker_queue, remote_store_, std::move(update_callback),
       std::move(result_callback), max_attempts);
   runner->Run();
+}
+
+void SyncEngine::RunCountQuery(const core::Query& query,
+                               api::CountQueryCallback&& result_callback) {
+  remote_store_->RunCountQuery(query, std::move(result_callback));
 }
 
 void SyncEngine::HandleCredentialChange(const credentials::User& user) {

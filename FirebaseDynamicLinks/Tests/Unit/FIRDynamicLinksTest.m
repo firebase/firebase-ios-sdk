@@ -811,8 +811,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                 apiKey:kAPIKey
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, nil, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, nil, kURLScheme, nil);
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
 
   XCTAssertNil(dynamicLink.minimumAppVersion, @"Min app version was not nil when not set.");
@@ -825,8 +825,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                                 apiKey:kAPIKey
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, expectedMinVersion, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, expectedMinVersion, kURLScheme, nil);
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
 
   NSString *minVersion = dynamicLink.minimumAppVersion;
@@ -841,8 +841,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, nil, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, nil, kURLScheme, nil);
 
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromUniversalLinkURL:url];
 
@@ -857,8 +857,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
                              urlScheme:kURLScheme
                           userDefaults:self.userDefaults];
 
-  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, NO,
-                                            nil, nil, kURLScheme, nil);
+  NSURL *url = FIRDLDeepLinkURLWithInviteID(nil, kEncodedComplicatedURLString, nil, nil, nil, nil,
+                                            nil, NO, nil, nil, kURLScheme, nil);
 
   XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
   [self.service
@@ -892,6 +892,63 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   NSString *minVersion = dynamicLink.minimumAppVersion;
 
   XCTAssertEqualObjects(expectedMinVersion, minVersion, @"Min version didn't match imv= parameter");
+}
+
+- (void)testDynamicLinkFromUniversalLinkURLReturnsUTMParams {
+  NSString *expectedUtmSource = @"utm_source";
+  NSString *expectedUtmMedium = @"utm_medium";
+  NSString *expectedUtmCampaign = @"utm_campaign";
+  NSString *expectedUtmTerm = @"utm_term";
+  NSString *expectedUtmContent = @"utm_content";
+
+  NSString *utmParamsString = [NSString
+      stringWithFormat:@"utm_source=%@&utm_medium=%@&utm_campaign=%@&utm_term=%@&utm_content=%@",
+                       expectedUtmSource, expectedUtmMedium, expectedUtmCampaign, expectedUtmTerm,
+                       expectedUtmContent];
+  NSString *urlSuffix =
+      [NSString stringWithFormat:@"%@&%@", kEncodedComplicatedURLString, utmParamsString];
+
+  NSString *urlString =
+      [NSString stringWithFormat:kStructuredUniversalLinkFmtSubdomainDeepLink, urlSuffix];
+  NSURL *url = [NSURL URLWithString:urlString];
+
+  [self.service setUpWithLaunchOptions:nil
+                                apiKey:kAPIKey
+                             urlScheme:kURLScheme
+                          userDefaults:self.userDefaults];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"completion called"];
+  [self.service
+      dynamicLinkFromUniversalLinkURL:url
+                           completion:^(FIRDynamicLink *_Nullable dynamicLink,
+                                        NSError *_Nullable error) {
+                             XCTAssertTrue([NSThread isMainThread]);
+                             NSDictionary *utmParameters = dynamicLink.utmParametersDictionary;
+                             NSString *utmSource = [utmParameters objectForKey:@"utm_source"];
+                             XCTAssertEqualObjects(utmSource, expectedUtmSource,
+                                                   @"UtmSource doesn't match utm_source parameter");
+
+                             NSString *utmMedium = [utmParameters objectForKey:@"utm_medium"];
+                             XCTAssertEqualObjects(utmMedium, expectedUtmMedium,
+                                                   @"UtmMedium doesn't match utm_medium parameter");
+
+                             NSString *utmCampaign = [utmParameters objectForKey:@"utm_campaign"];
+                             XCTAssertEqualObjects(
+                                 utmCampaign, expectedUtmCampaign,
+                                 @"UtmCampaign doesn't match utm_campaign parameter");
+
+                             NSString *utmTerm = [utmParameters objectForKey:@"utm_term"];
+                             XCTAssertEqualObjects(utmTerm, expectedUtmTerm,
+                                                   @"UtmTerm doesn't match utm_term parameter");
+
+                             NSString *utmContent = [utmParameters objectForKey:@"utm_content"];
+                             XCTAssertEqualObjects(
+                                 utmContent, expectedUtmContent,
+                                 @"UtmContent doesn't match utm_content parameter");
+
+                             [expectation fulfill];
+                           }];
+
+  [self waitForExpectationsWithTimeout:kAsyncTestTimout handler:nil];
 }
 
 - (void)testDynamicLinkFromUniversalLinkURLCompletionReturnsDLMinimumVersion {
@@ -1100,17 +1157,27 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
 
 - (void)testPassMatchesShortLinkFormatForDDLDomains {
   NSArray<NSString *> *urlStrings = @[
-    @"https://someapp.app.goo.gl/somepath", @"https://someapp.app.goo.gl/link",
+    @"https://someapp.app.goo.gl/somepath",
+    @"https://someapp.app.goo.gl/link",
     @"https://someapp.app.goo.gl/somepath?link=https://somedomain",
     @"https://someapp.app.goo.gl/somepath?somekey=somevalue",
     @"https://someapp.app.goo.gl/somepath/?link=https://somedomain",
     @"https://someapp.app.goo.gl/somepath/?somekey=somevalue",
-    @"https://someapp.page.link/somepath", @"https://someapp.page.link/link",
+    @"https://someapp.app.google/somepath",
+    @"https://someapp.app.google/link",
+    @"https://someapp.app.google/somepath?link=https://somedomain",
+    @"https://someapp.app.google/somepath?somekey=somevalue",
+    @"https://someapp.app.google/somepath/?link=https://somedomain",
+    @"https://someapp.app.google/somepath/?somekey=somevalue",
+    @"https://someapp.page.link/somepath",
+    @"https://someapp.page.link/link",
     @"https://someapp.page.link/somepath?link=https://somedomain",
     @"https://someapp.page.link/somepath?somekey=somevalue",
     @"https://someapp.page.link/somepath/?link=https://somedomain",
-    @"https://someapp.page.link/somepath/?somekey=somevalue", @"http://someapp.page.link/somepath",
-    @"http://someapp.page.link/link", @"http://someapp.page.link/somepath?link=https://somedomain",
+    @"https://someapp.page.link/somepath/?somekey=somevalue",
+    @"http://someapp.page.link/somepath",
+    @"http://someapp.page.link/link",
+    @"http://someapp.page.link/somepath?link=https://somedomain",
     @"http://someapp.page.link/somepath?somekey=somevalue",
     @"http://someapp.page.link/somepath/?link=http://somedomain",
     @"http://someapp.page.link/somepath/?somekey=somevalue"
@@ -1136,6 +1203,15 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"https://someapp.app.goo.gl/somepath/somepath2",
     @"https://someapp.app.goo.gl/somepath/somepath2?somekey=somevalue",
     @"https://someapp.app.goo.gl/somepath/somepath2?link=https://somedomain",
+    @"https://someapp.app.google",
+    @"https://someapp.app.google/",
+    @"https://someapp.app.google?",
+    @"https://someapp.app.google/?",
+    @"https://someapp.app.google?somekey=somevalue",
+    @"https://someapp.app.google/?somekey=somevalue",
+    @"https://someapp.app.google/somepath/somepath2",
+    @"https://someapp.app.google/somepath/somepath2?somekey=somevalue",
+    @"https://someapp.app.google/somepath/somepath2?link=https://somedomain",
     @"https://someapp.page.link",
     @"https://someapp.page.link/",
     @"https://someapp.page.link?",
@@ -1376,9 +1452,11 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   NSArray<NSString *> *urlStrings = @[
     @"https://some.page.link/test", @"https://some.page.link/test-test",
     @"https://some.page.link/test_test", @"https://some.page.link/test_test-test",
-    @"https://some.app.goo.gl/test_test-test",
+    @"https://some.app.goo.gl/test_test-test", @"https://some.app.google/test_test-test",
     @"https://n8r9f.app.goo.gl/?ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0&link=https%3A%2F%2Fwww%2Egoogle%2Ecom",
-    @"https://n8r9f.app.goo.gl/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0"
+    @"https://n8r9f.app.goo.gl/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0",
+    @"https://n8r9f.app.google/?ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0&link=https%3A%2F%2Fwww%2Egoogle%2Ecom",
+    @"https://n8r9f.app.google/?link=https%3A%2F%2Fwww%2Egoogle%2Ecom&ibi=com%2Egoogle%2EGCMTestApp%2Edev&amv=0&imv=1%2E0"
   ];
 
   for (NSString *urlString in urlStrings) {
@@ -1457,6 +1535,8 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
     @"utm_campaign" : @"Maksym M Test",
     @"utm_medium" : @"test_medium",
     @"utm_source" : @"test_source",
+    @"utm_content" : @"test_content",
+    @"utm_term" : @"test_term",
     @"a_parameter" : @"a_value"
   };
 

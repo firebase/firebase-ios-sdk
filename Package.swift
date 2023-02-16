@@ -19,11 +19,11 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "9.5.0"
+let firebaseVersion = "10.6.0"
 
 let package = Package(
   name: "Firebase",
-  platforms: [.iOS(.v11), .macOS(.v10_12), .tvOS(.v12), .watchOS(.v7)],
+  platforms: [.iOS(.v11), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
       name: "FirebaseAnalytics",
@@ -150,22 +150,22 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("9.3.0")
+      .exact("10.4.0")
     ),
     .package(
       name: "GoogleDataTransport",
       url: "https://github.com/google/GoogleDataTransport.git",
-      "9.1.4" ..< "10.0.0"
+      "9.2.0" ..< "10.0.0"
     ),
     .package(
       name: "GoogleUtilities",
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.7.1" ..< "8.0.0"
+      "7.10.0" ..< "8.0.0"
     ),
     .package(
       name: "GTMSessionFetcher",
       url: "https://github.com/google/gtm-session-fetcher.git",
-      "1.7.2" ..< "3.0.0"
+      "2.1.0" ..< "4.0.0"
     ),
     .package(
       name: "nanopb",
@@ -208,7 +208,6 @@ let package = Package(
       name: "FirebaseCore",
       dependencies: [
         "Firebase",
-        "FirebaseCoreDiagnostics",
         "FirebaseCoreInternal",
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
@@ -243,6 +242,8 @@ let package = Package(
     // MARK: - Firebase Core Extension
 
     // Extension of FirebaseCore for consuming by Swift product SDKs.
+    // When depending on `FirebaseCoreExtension`, also depend on `FirebaseCore`
+    // to avoid potential linker issues.
     .target(
       name: "FirebaseCoreExtension",
       path: "FirebaseCore/Extension",
@@ -276,23 +277,6 @@ let package = Package(
       path: "FirebaseCore/Internal/Tests"
     ),
 
-    .target(
-      name: "FirebaseCoreDiagnostics",
-      dependencies: [
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-        .product(name: "GULEnvironment", package: "GoogleUtilities"),
-        .product(name: "GULLogger", package: "GoogleUtilities"),
-        .product(name: "nanopb", package: "nanopb"),
-      ],
-      path: "Firebase/CoreDiagnostics/FIRCDLibrary",
-      publicHeadersPath: ".",
-      cSettings: [
-        .headerSearchPath("../../.."),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-      ]
-    ),
     .target(
       name: "FirebaseABTesting",
       dependencies: ["FirebaseCore"],
@@ -344,8 +328,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/9.3.0/FirebaseAnalytics.zip",
-      checksum: "5f0b6ad144c6894f06e66f3dc51812655e1aa1e4ff444e4c62ddae24d438345c"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.4.0/FirebaseAnalytics.zip",
+      checksum: "d5098cd2d731104dddb11c39b2cbbd3aab11a604c528706a16ff0114abd8d53a"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -413,7 +397,6 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
@@ -502,13 +485,12 @@ let package = Package(
       name: "FirebaseStorageCombineSwift",
       dependencies: [
         "FirebaseStorage",
-        "FirebaseStorageInternal",
       ],
       path: "FirebaseCombineSwift/Sources/Storage"
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "FirebaseSessions",
                      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                      .product(name: "GULEnvironment", package: "GoogleUtilities"),
                      .product(name: "FBLPromises", package: "Promises"),
@@ -548,7 +530,23 @@ let package = Package(
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
-
+    .testTarget(
+      name: "FirebaseCrashlyticsUnit",
+      dependencies: ["FirebaseCrashlytics", "OCMock"],
+      path: "Crashlytics/UnitTests",
+      resources: [
+        .copy("FIRCLSMachO/machO_data"),
+        .copy("Data"),
+      ],
+      cSettings: [
+        .headerSearchPath("../.."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: [.macOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
+        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+      ]
+    ),
     .target(
       name: "FirebaseDatabase",
       dependencies: [
@@ -720,7 +718,12 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreSwift",
-      dependencies: ["FirebaseFirestore"],
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseFirestore",
+        "FirebaseSharedSwift",
+      ],
       path: "Firestore",
       exclude: [
         "CHANGELOG.md",
@@ -737,12 +740,9 @@ let package = Package(
         "Swift/README.md",
         "Swift/Tests/",
         "third_party/nlohmann_json",
-        "third_party/FirestoreEncoder/LICENSE",
-        "third_party/FirestoreEncoder/METADATA",
       ],
       sources: [
         "Swift/Source/",
-        "third_party/FirestoreEncoder/",
       ]
     ),
 
@@ -873,6 +873,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULLogger", package: "GoogleUtilities"),
         "SwiftProtobuf",
       ],
@@ -947,6 +948,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseInstallations",
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULISASwizzler", package: "GoogleUtilities"),
@@ -997,6 +999,7 @@ let package = Package(
                      "FirebaseAppCheckInterop",
                      "FirebaseAuthInterop",
                      "FirebaseMessagingInterop",
+                     "GoogleDataTransport",
                      "OCMock"],
       path: "SharedTestUtilities",
       publicHeadersPath: "./",
@@ -1077,32 +1080,73 @@ let package = Package(
       ]
     ),
 
-    // MARK: - Firebase Storage
+    // MARK: - Firebase Sessions
 
     .target(
-      name: "FirebaseStorageInternal",
+      name: "FirebaseSessions",
       dependencies: [
         "FirebaseCore",
-        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
+        "FirebaseInstallations",
+        "FirebaseCoreExtension",
+        "FirebaseSessionsObjC",
+        .product(name: "Promises", package: "Promises"),
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
       ],
-      path: "FirebaseStorageInternal/Sources",
-      publicHeadersPath: "Public",
+      path: "FirebaseSessions/Sources",
       cSettings: [
-        .headerSearchPath("../../"),
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
       ],
       linkerSettings: [
-        .linkedFramework("MobileCoreServices", .when(platforms: [.iOS])),
-        .linkedFramework("CoreServices", .when(platforms: [.macOS])),
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+      ]
+    ),
+    // The Sessions SDK is Swift-first with Objective-C code to support
+    // nanopb. Because Swift Package Manager doesn't support mixed
+    // language targets, the ObjC code has been extracted out into
+    // a separate target.
+    .target(
+      name: "FirebaseSessionsObjC",
+      dependencies: [
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
+      path: "FirebaseSessions",
+      exclude: [
+        "README.md",
+        "Sources/",
+        "Tests/",
+        "ProtoSupport/",
+        "generate_project.sh",
+        "generate_protos.sh",
+        "generate_testapp.sh",
+      ],
+      publicHeadersPath: "SourcesObjC",
+      cSettings: [
+        .headerSearchPath(".."),
+        .define("DISPLAY_VERSION", to: firebaseVersion),
+        .define("PB_FIELD_32BIT", to: "1"),
+        .define("PB_NO_PACKED_STRUCTS", to: "1"),
+        .define("PB_ENABLE_MALLOC", to: "1"),
+      ],
+      linkerSettings: [
+        .linkedFramework("Security"),
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
     ),
     .testTarget(
-      name: "StorageUnit",
-      dependencies: ["FirebaseStorageInternal", "OCMock", "SharedTestUtilities"],
-      path: "FirebaseStorageInternal/Tests/Unit",
-      cSettings: [
-        .headerSearchPath("../../.."),
-      ]
+      name: "FirebaseSessionsUnit",
+      dependencies: ["FirebaseSessions"],
+      path: "FirebaseSessions/Tests/Unit"
     ),
+
+    // MARK: - Firebase Storage
+
     .target(
       name: "FirebaseStorage",
       dependencies: [
@@ -1110,7 +1154,7 @@ let package = Package(
         "FirebaseAuthInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "FirebaseStorageInternal",
+        .product(name: "GTMSessionFetcherCore", package: "GTMSessionFetcher"),
       ],
       path: "FirebaseStorage/Sources"
     ),
@@ -1124,12 +1168,14 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "StorageObjcIntegration",
+      name: "StorageObjCIntegration",
       dependencies: ["FirebaseStorage"],
-      path: "FirebaseStorage/Tests/ObjcIntegration",
+      path: "FirebaseStorage/Tests/ObjCIntegration",
       exclude: [
         // See https://forums.swift.org/t/importing-swift-libraries-from-objective-c/56730
+        "FIRStorageIntegrationTests.m",
         "ObjCPPAPITests.mm",
+        "Credentials.h",
       ],
       cSettings: [
         .headerSearchPath("../../.."),
@@ -1165,8 +1211,8 @@ let package = Package(
         .target(name: "FirebasePerformance",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         "FirebaseStorage",
-        "FirebaseStorageInternal",
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "SwiftPMTests/swift-test"
@@ -1256,12 +1302,6 @@ let package = Package(
       exclude: [
         // Disable Swift tests as mixed targets are not supported (Xcode 12.3).
         "Unit/Swift",
-
-        // Disable Keychain dependent tests as they require a host application on iOS.
-        "Integration",
-        "Unit/AppAttestProvider/Storage/FIRAppAttestArtifactStorageTests.m",
-        "Unit/Core/FIRAppCheckIntegrationTests.m",
-        "Unit/Core/FIRAppCheckStorageTests.m",
       ],
       resources: [
         .process("Fixture"),

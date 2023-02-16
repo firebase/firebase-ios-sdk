@@ -15,8 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
-
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
 
 @class FIRAuthCredential;
@@ -489,9 +489,10 @@ NS_ASSUME_NONNULL_BEGIN
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeSecondFactorRequired code.
     @return The NSError instance associated with the given FIRAuthError.
  */
-+ (NSError *)secondFactorRequiredErrorWithPendingCredential:(NSString *)MFAPendingCredential
-                                                      hints:(NSArray<FIRMultiFactorInfo *> *)
-                                                                multiFactorInfo;
++ (NSError *)
+    secondFactorRequiredErrorWithPendingCredential:(NSString *)MFAPendingCredential
+                                             hints:(NSArray<FIRMultiFactorInfo *> *)multiFactorInfo
+                                              auth:(FIRAuth *)auth;
 #endif
 
 /** @fn appNotVerifiedErrorWithMessage:
@@ -604,6 +605,8 @@ NS_ASSUME_NONNULL_BEGIN
     @remarks This error indicates the operation is not supported in a multi-tenant context.
  */
 + (NSError *)unsupportedTenantOperationError;
+
++ (NSError *)blockingCloudFunctionServerResponseWithMessage:(nullable NSString *)message;
 
 @end
 

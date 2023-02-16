@@ -17,9 +17,9 @@ Pod::Spec.new do |s|
     :tag => 'CocoaPods-' + s.version.to_s
   }
 
-  ios_deployment_target = '10.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '11.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.swift_version = '5.3'
@@ -42,7 +42,7 @@ Pod::Spec.new do |s|
 
   s.public_header_files = base_dir + '**/*.h'
 
-  s.dependency 'FirebaseFirestore', '~> 9.0'
+  s.dependency 'FirebaseFirestore', '~> 10.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

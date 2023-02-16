@@ -23,7 +23,7 @@
 
 @implementation AutoDisplayMesagesTableVC
 
-- (void)dataChanged {
+- (void)messageDataChanged {
   dispatch_async(dispatch_get_main_queue(), ^{
     [self.tableView reloadData];
   });

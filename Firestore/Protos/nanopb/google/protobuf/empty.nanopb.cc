@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,14 +43,14 @@ const pb_field_t google_protobuf_Empty_fields[1] = {
 
 
 std::string google_protobuf_Empty::ToString(int indent) const {
-    std::string header = PrintHeader(indent, "Empty", this);
-    std::string result;
+    std::string tostring_header = PrintHeader(indent, "Empty", this);
+    std::string tostring_result;
 
 
     bool is_root = indent == 0;
-    if (!result.empty() || is_root) {
-      std::string tail = PrintTail(indent);
-      return header + result + tail;
+    if (!tostring_result.empty() || is_root) {
+      std::string tostring_tail = PrintTail(indent);
+      return tostring_header + tostring_result + tostring_tail;
     } else {
       return "";
     }

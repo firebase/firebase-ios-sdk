@@ -15,6 +15,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSInstallIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
@@ -44,6 +45,7 @@
   _dataArbiter = dataArbiter;
   _settings = settings;
   _onDemandModel = onDemandModel;
+  _contextManager = [[FIRCLSContextManager alloc] init];
 
   _appIDModel = [[FIRCLSApplicationIdentifierModel alloc] init];
   _installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:installations];

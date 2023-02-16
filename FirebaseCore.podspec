@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCore'
-  s.version          = '9.5.0'
+  s.version          = '10.6.0'
   s.summary          = 'Firebase Core'
 
   s.description      = <<-DESC
@@ -18,9 +18,9 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '9.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '10.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.ios.deployment_target = ios_deployment_target
@@ -33,8 +33,7 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
 
   s.source_files = [
     'FirebaseCore/Sources/**/*.[mh]',
-    'FirebaseCore/Extension/*.h',
-    'Interop/CoreDiagnostics/Public/*.h'
+    'FirebaseCore/Extension/*.h'
   ]
 
   s.swift_version = '5.3'
@@ -45,12 +44,12 @@ Firebase Core includes FIRApp and FIROptions which provide central configuration
   s.ios.framework = 'UIKit'
   s.osx.framework = 'AppKit'
   s.tvos.framework = 'UIKit'
+  s.watchos.framework = 'WatchKit'
 
   # Remember to also update version in `cmake/external/GoogleUtilities.cmake`
-  s.dependency 'GoogleUtilities/Environment', '~> 7.7'
-  s.dependency 'GoogleUtilities/Logger', '~> 7.7'
-  s.dependency 'FirebaseCoreDiagnostics', '~> 9.0'
-  s.dependency 'FirebaseCoreInternal', '~> 9.0'
+  s.dependency 'GoogleUtilities/Environment', '~> 7.8'
+  s.dependency 'GoogleUtilities/Logger', '~> 7.8'
+  s.dependency 'FirebaseCoreInternal', '~> 10.0'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',

@@ -34,9 +34,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kCustomTokenUrl = @"https://fb-sa-1211.appspot.com/token";
+static NSString *const kCustomTokenUrl = @"https://gcip-testapps.wl.r.appspot.com/token";
 
-static NSString *const kExpiredCustomTokenUrl = @"https://fb-sa-1211.appspot.com/expired_token";
+static NSString *const kExpiredCustomTokenUrl = @"https://gcip-testapps.wl.r.appspot.com/expired_token";
 
 static NSString *const kInvalidCustomToken = @"invalid custom token.";
 

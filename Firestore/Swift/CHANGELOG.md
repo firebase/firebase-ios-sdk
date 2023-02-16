@@ -1,3 +1,23 @@
+# 10.4.0
+- [fixed] Restore 9.x Codable behavior of encoding `Data` types as an `NSData`
+  blob instead of a String.
+- [added] Added support for decoding base64-encoded strings when using the
+  `blob` `DataEncodingStrategy` for `Codable`s with `Data` types.
+
+# 10.0.0
+- [changed] **Breaking Change:** The `DocumentID` constructor from a
+  `DocumentReference` is now internal; this does not affect instantiating a
+  `@DocumentID` property wrapper for a `DocumentReference`. (#9368)
+- [changed] Passing a non-nil value to the `@DocumentID` property wrapper's
+  constructor or setter will log a warning and the set value will be ignored.
+  (#9368)
+- [changed] `Firestore.Encoder` and `Firestore.Decoder` now wraps the shared
+  `FirebaseDataEncoder` and `FirebaseDataDecoder` types, which provides new
+  customization options for encoding and decoding data to and from Firestore
+  into `Codable`s - similar to the options present on `JSONEncoder` and
+  `JSONDecoder` from `Foundation`.
+- [added] Added a `FirebaseDataEncoder.DateEncodingStrategy` for `Timestamp`s.
+
 # 9.0.0
 - [added] **Breaking change:** `FirebaseFirestoreSwift` has exited beta and is
   now generally available for use.

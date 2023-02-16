@@ -24,8 +24,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-using firebase::firestore::local::MemoryPersistenceWithLruGcForTesting;
 using firebase::firestore::local::MemoryPersistenceWithEagerGcForTesting;
+using firebase::firestore::local::MemoryPersistenceWithLruGcForTesting;
 using firebase::firestore::local::Persistence;
 
 /**

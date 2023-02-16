@@ -30,6 +30,7 @@ target_link_libraries(
   absl_strings
   absl_time
   firestore_core
+  firestore_remote_testing
 )
 
 if(APPLE)

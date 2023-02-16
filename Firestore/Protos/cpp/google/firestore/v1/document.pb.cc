@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -220,40 +220,38 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_google_2ffirestore_2fv1_2fdocument_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\"google/firestore/v1/document.proto\022\023go"
-  "ogle.firestore.v1\032\034google/api/annotation"
-  "s.proto\032\034google/protobuf/struct.proto\032\037g"
-  "oogle/protobuf/timestamp.proto\032\030google/t"
-  "ype/latlng.proto\"\200\002\n\010Document\022\014\n\004name\030\001 "
-  "\001(\t\0229\n\006fields\030\002 \003(\0132).google.firestore.v"
-  "1.Document.FieldsEntry\022/\n\013create_time\030\003 "
-  "\001(\0132\032.google.protobuf.Timestamp\022/\n\013updat"
-  "e_time\030\004 \001(\0132\032.google.protobuf.Timestamp"
-  "\032I\n\013FieldsEntry\022\013\n\003key\030\001 \001(\t\022)\n\005value\030\002 "
-  "\001(\0132\032.google.firestore.v1.Value:\0028\001\"\256\003\n\005"
-  "Value\0220\n\nnull_value\030\013 \001(\0162\032.google.proto"
-  "buf.NullValueH\000\022\027\n\rboolean_value\030\001 \001(\010H\000"
-  "\022\027\n\rinteger_value\030\002 \001(\003H\000\022\026\n\014double_valu"
-  "e\030\003 \001(\001H\000\0225\n\017timestamp_value\030\n \001(\0132\032.goo"
-  "gle.protobuf.TimestampH\000\022\026\n\014string_value"
-  "\030\021 \001(\tH\000\022\025\n\013bytes_value\030\022 \001(\014H\000\022\031\n\017refer"
-  "ence_value\030\005 \001(\tH\000\022.\n\017geo_point_value\030\010 "
-  "\001(\0132\023.google.type.LatLngH\000\0226\n\013array_valu"
-  "e\030\t \001(\0132\037.google.firestore.v1.ArrayValue"
-  "H\000\0222\n\tmap_value\030\006 \001(\0132\035.google.firestore"
-  ".v1.MapValueH\000B\014\n\nvalue_type\"8\n\nArrayVal"
-  "ue\022*\n\006values\030\001 \003(\0132\032.google.firestore.v1"
-  ".Value\"\220\001\n\010MapValue\0229\n\006fields\030\001 \003(\0132).go"
-  "ogle.firestore.v1.MapValue.FieldsEntry\032I"
-  "\n\013FieldsEntry\022\013\n\003key\030\001 \001(\t\022)\n\005value\030\002 \001("
-  "\0132\032.google.firestore.v1.Value:\0028\001B\261\001\n\027co"
-  "m.google.firestore.v1B\rDocumentProtoP\001Z<"
-  "google.golang.org/genproto/googleapis/fi"
-  "restore/v1;firestore\242\002\004GCFS\252\002\036Google.Clo"
-  "ud.Firestore.V1Beta1\312\002\036Google\\Cloud\\Fire"
-  "store\\V1beta1b\006proto3"
+  "ogle.firestore.v1\032\034google/protobuf/struc"
+  "t.proto\032\037google/protobuf/timestamp.proto"
+  "\032\030google/type/latlng.proto\"\200\002\n\010Document\022"
+  "\014\n\004name\030\001 \001(\t\0229\n\006fields\030\002 \003(\0132).google.f"
+  "irestore.v1.Document.FieldsEntry\022/\n\013crea"
+  "te_time\030\003 \001(\0132\032.google.protobuf.Timestam"
+  "p\022/\n\013update_time\030\004 \001(\0132\032.google.protobuf"
+  ".Timestamp\032I\n\013FieldsEntry\022\013\n\003key\030\001 \001(\t\022)"
+  "\n\005value\030\002 \001(\0132\032.google.firestore.v1.Valu"
+  "e:\0028\001\"\256\003\n\005Value\0220\n\nnull_value\030\013 \001(\0162\032.go"
+  "ogle.protobuf.NullValueH\000\022\027\n\rboolean_val"
+  "ue\030\001 \001(\010H\000\022\027\n\rinteger_value\030\002 \001(\003H\000\022\026\n\014d"
+  "ouble_value\030\003 \001(\001H\000\0225\n\017timestamp_value\030\n"
+  " \001(\0132\032.google.protobuf.TimestampH\000\022\026\n\014st"
+  "ring_value\030\021 \001(\tH\000\022\025\n\013bytes_value\030\022 \001(\014H"
+  "\000\022\031\n\017reference_value\030\005 \001(\tH\000\022.\n\017geo_poin"
+  "t_value\030\010 \001(\0132\023.google.type.LatLngH\000\0226\n\013"
+  "array_value\030\t \001(\0132\037.google.firestore.v1."
+  "ArrayValueH\000\0222\n\tmap_value\030\006 \001(\0132\035.google"
+  ".firestore.v1.MapValueH\000B\014\n\nvalue_type\"8"
+  "\n\nArrayValue\022*\n\006values\030\001 \003(\0132\032.google.fi"
+  "restore.v1.Value\"\220\001\n\010MapValue\0229\n\006fields\030"
+  "\001 \003(\0132).google.firestore.v1.MapValue.Fie"
+  "ldsEntry\032I\n\013FieldsEntry\022\013\n\003key\030\001 \001(\t\022)\n\005"
+  "value\030\002 \001(\0132\032.google.firestore.v1.Value:"
+  "\0028\001B\261\001\n\027com.google.firestore.v1B\rDocumen"
+  "tProtoP\001Z<google.golang.org/genproto/goo"
+  "gleapis/firestore/v1;firestore\242\002\004GCFS\252\002\036"
+  "Google.Cloud.Firestore.V1Beta1\312\002\036Google\\"
+  "Cloud\\Firestore\\V1beta1b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_deps[4] = {
-  &::descriptor_table_google_2fapi_2fannotations_2eproto,
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_deps[3] = {
   &::descriptor_table_google_2fprotobuf_2fstruct_2eproto,
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
   &::descriptor_table_google_2ftype_2flatlng_2eproto,
@@ -266,8 +264,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_goo
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_once;
 static bool descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fdocument_2eproto, "google/firestore/v1/document.proto", 1261,
-  &descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_deps, 3, 4,
+  &descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fdocument_2eproto, "google/firestore/v1/document.proto", 1231,
+  &descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto_deps, 3, 3,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2fdocument_2eproto::offsets,
   file_level_metadata_google_2ffirestore_2fv1_2fdocument_2eproto, 6, file_level_enum_descriptors_google_2ffirestore_2fv1_2fdocument_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fdocument_2eproto,
 };

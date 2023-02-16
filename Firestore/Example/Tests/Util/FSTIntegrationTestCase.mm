@@ -35,6 +35,7 @@
 #import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "Firestore/Example/Tests/Util/FIRFirestore+Testing.h"
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
+#import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
 
 #include "Firestore/core/src/credentials/credentials_provider.h"
@@ -56,8 +57,8 @@
 
 using firebase::firestore::core::DatabaseInfo;
 using firebase::firestore::credentials::CredentialChangeListener;
-using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::EmptyAppCheckCredentialsProvider;
+using firebase::firestore::credentials::EmptyAuthCredentialsProvider;
 using firebase::firestore::credentials::User;
 using firebase::firestore::local::LevelDbOpener;
 using firebase::firestore::model::DatabaseId;
@@ -443,6 +444,22 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
   [self awaitExpectation:expectation];
   [listener remove];
+
+  return result;
+}
+
+- (FIRAggregateQuerySnapshot *)readSnapshotForAggregate:(FIRAggregateQuery *)query {
+  __block FIRAggregateQuerySnapshot *result;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"aggregate result"];
+
+  [query aggregationWithSource:FIRAggregateSourceServer
+                    completion:^(FIRAggregateQuerySnapshot *snapshot, NSError *error) {
+                      XCTAssertNil(error);
+                      result = snapshot;
+                      [expectation fulfill];
+                    }];
+
+  [self awaitExpectation:expectation];
 
   return result;
 }

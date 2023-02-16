@@ -1493,7 +1493,7 @@
                 "value": {
                   "match": true
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -1534,7 +1534,7 @@
                 "value": {
                   "match": true
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "errorCode": 0,

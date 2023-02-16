@@ -5077,7 +5077,7 @@ def CheckIncludeLine(filename, clean_lines, linenum, include_state, error):
   # framework-style imports should not be used for project imports
   match = Match(r'#import\s*<(Firestore/Source/[^>]+)', line)
   if match:
-    error(filenamne, linenum, 'build/include', 4,
+    error(filename, linenum, 'build/include', 4,
           'Prefer #import "%s" for project import rather than #import <>' %
           match.group(1))
 

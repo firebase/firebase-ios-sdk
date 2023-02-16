@@ -1,0 +1,69 @@
+name: sessions
+
+on:
+  pull_request:
+    paths:
+    - 'FirebaseSessions**'
+    - 'FirebaseSessions.podspec'
+    - '.github/workflows/sessions.yml'
+    - 'Gemfile*'
+  schedule:
+    # Run every day at 9am (PST) - cron uses UTC times
+    - cron:  '0 1 * * *'
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+
+  pod-lib-lint:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macos-12
+
+    strategy:
+      matrix:
+        target: [ios, tvos, macos]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Build and test
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSessions.podspec --platforms=${{ matrix.target }}
+
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-12
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS, catalyst, watchOS]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseSessionsUnit ${{ matrix.target }} spm
+
+  catalyst:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+
+    runs-on: macos-12
+    steps:
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Setup project and Build for Catalyst
+      run: scripts/test_catalyst.sh FirebaseSessions test FirebaseSessions-Unit-unit

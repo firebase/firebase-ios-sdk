@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -30,6 +31,7 @@
 #include "Firestore/core/src/model/document_set.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/precondition.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -43,9 +45,22 @@ class Timestamp;
 namespace firestore {
 class GeoPoint;
 
+namespace remote {
+class RemoteEvent;
+}  // namespace remote
+
+namespace model {
+class MutableDocument;
+}  // namespace model
+
 namespace nanopb {
 class ByteString;
 }  // namespace nanopb
+
+namespace core {
+class FieldFilter;
+class CompositeFilter;
+}  // namespace core
 
 namespace testutil {
 namespace details {
@@ -144,6 +159,10 @@ nanopb::Message<google_firestore_v1_Value> Value(
 
 nanopb::Message<google_firestore_v1_Value> Value(
     const model::ObjectValue& value);
+
+using OverlayTypeMap = std::unordered_map<model::DocumentKey,
+                                          model::Mutation::Type,
+                                          model::DocumentKeyHash>;
 
 namespace details {
 
@@ -351,6 +370,10 @@ core::FieldFilter Filter(absl::string_view key,
                          absl::string_view op,
                          double value);
 
+core::CompositeFilter AndFilters(std::vector<core::Filter> filters);
+
+core::CompositeFilter OrFilters(std::vector<core::Filter> filters);
+
 core::Direction Direction(absl::string_view direction);
 
 core::OrderBy OrderBy(absl::string_view key,
@@ -361,6 +384,25 @@ core::OrderBy OrderBy(model::FieldPath field_path, core::Direction direction);
 core::Query Query(absl::string_view path);
 
 core::Query CollectionGroupQuery(absl::string_view collection_id);
+
+remote::RemoteEvent AddedRemoteEvent(
+    const std::vector<model::MutableDocument>& docs,
+    const std::vector<model::TargetId>& added_to_targets);
+
+remote::RemoteEvent AddedRemoteEvent(
+    const model::MutableDocument& doc,
+    const std::vector<model::TargetId>& added_to_targets);
+
+remote::RemoteEvent UpdateRemoteEvent(
+    const model::MutableDocument& doc,
+    const std::vector<model::TargetId>& updated_in_targets,
+    const std::vector<model::TargetId>& removed_from_targets);
+
+remote::RemoteEvent UpdateRemoteEventWithLimboTargets(
+    const model::MutableDocument& doc,
+    const std::vector<model::TargetId>& updated_in_targets,
+    const std::vector<model::TargetId>& removed_from_targets,
+    const std::vector<model::TargetId>& limbo_targets);
 
 model::SetMutation SetMutation(
     absl::string_view path,
@@ -394,6 +436,14 @@ model::PatchMutation PatchMutationHelper(
     std::vector<std::pair<std::string, model::TransformOperation>> transforms,
     model::Precondition precondition,
     const absl::optional<std::vector<model::FieldPath>>& update_mask);
+
+/**
+ * Creates a pair of field name, TransformOperation that represents a
+ * server-generated timestamp, suitable for passing to TransformMutation,
+ * above.
+ */
+std::pair<std::string, model::TransformOperation> ServerTimestamp(
+    std::string field);
 
 /**
  * Creates a pair of field name, TransformOperation that represents a numeric

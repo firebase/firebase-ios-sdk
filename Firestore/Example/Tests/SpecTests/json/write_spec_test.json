@@ -126,7 +126,7 @@
                 "value": {
                   "v": 2
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -336,7 +336,7 @@
                 "value": {
                   "v": 3
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -597,7 +597,7 @@
                 "value": {
                   "v": 2
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -1092,7 +1092,7 @@
                   },
                   "v": 2
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -1308,7 +1308,7 @@
                 "value": {
                   "v": 2
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -1567,7 +1567,7 @@
                 "value": {
                   "v": 2
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -1858,7 +1858,7 @@
                   "local": 5,
                   "remote": 2
                 },
-                "version": 2000
+                "version": 0
               }
             ],
             "query": {
@@ -5547,7 +5547,7 @@
                 "value": {
                   "v": 2
                 },
-                "version": 1000
+                "version": 0
               }
             ],
             "query": {
@@ -5650,7 +5650,7 @@
                 "value": {
                   "v": 2
                 },
-                "version": 500
+                "version": 0
               }
             ],
             "query": {

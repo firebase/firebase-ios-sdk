@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@
 #include <pb.h>
 
 #include "google/api/resource.nanopb.h"
-
-#include "google/api/annotations.nanopb.h"
 
 #include <string>
 

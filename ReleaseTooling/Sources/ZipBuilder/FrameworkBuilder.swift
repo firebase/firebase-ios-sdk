@@ -147,7 +147,7 @@ struct FrameworkBuilder {
   /// Build all thin slices for an open source pod.
   /// - Parameter framework: The name of the framework to be built.
   /// - Parameter logsDir: The path to the directory to place build logs.
-  /// - Parameter setCarthage: Set Carthage flag in CoreDiagnostics for metrics.
+  /// - Parameter setCarthage: Set Carthage flag in GoogleUtilities for metrics.
   /// - Returns: A dictionary of URLs to the built thin libraries keyed by platform.
   private func buildFrameworksForAllPlatforms(withName framework: String,
                                               logsDir: URL,
@@ -173,7 +173,7 @@ struct FrameworkBuilder {
   ///   - targetPlatform: The target platform to target for the build.
   ///   - buildDir: Location where the project should be built.
   ///   - logRoot: Root directory where all logs should be written.
-  ///   - setCarthage: Set Carthage flag in CoreDiagnostics for metrics.
+  ///   - setCarthage: Set Carthage flag in GoogleUtilities for metrics.
   /// - Returns: A URL to the framework that was built.
   private func buildSlicedFramework(withName framework: String,
                                     targetPlatform: TargetPlatform,
@@ -211,14 +211,13 @@ struct FrameworkBuilder {
                 // files to be generated in the .swiftmodule directory. The .swiftinterface files
                 // are required for xcodebuild to successfully generate an xcframework.
                 "BUILD_LIBRARY_FOR_DISTRIBUTION=YES",
+                // Remove the -fembed-bitcode-marker compiling flag.
+                "ENABLE_BITCODE=NO",
                 "SUPPORTS_MACCATALYST=\(isMacCatalystString)",
                 "BUILD_DIR=\(buildDir.path)",
                 "-sdk", targetPlatform.sdkName,
                 cFlags]
-    // Add bitcode option for platforms that need it.
-    if targetPlatform.shouldEnableBitcode {
-      args.append("BITCODE_GENERATION_MODE=bitcode")
-    }
+
     // Code signing isn't needed for libraries. Disabling signing is required for
     // Catalyst libs with resources. See
     // https://github.com/CocoaPods/CocoaPods/issues/8891#issuecomment-573301570

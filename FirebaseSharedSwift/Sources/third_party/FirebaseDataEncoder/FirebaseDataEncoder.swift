@@ -14,6 +14,18 @@
 
 import Foundation
 
+public protocol StructureCodingPassthroughTypeResolver {
+    static func isPassthroughType<T>(_ t: T) -> Bool
+}
+
+private struct NoPassthroughTypes: StructureCodingPassthroughTypeResolver {
+    static func isPassthroughType<T>(_ t: T) -> Bool {
+        return false
+    }
+}
+
+public protocol StructureCodingUncodedUnkeyed {}
+
 extension DecodingError {
   /// Returns a `.typeMismatch` error describing the expected type.
   ///
@@ -127,8 +139,11 @@ public class FirebaseDataEncoder {
     /// Defer to `Data` for choosing an encoding.
     case deferredToData
 
-    /// Encoded the `Data` as a Base64-encoded string. This is the default strategy.
+    /// Encode the `Data` as a Base64-encoded string. This is the default strategy.
     case base64
+
+    /// Encode the `Data` as an `NSData` blob.
+    case blob
 
     /// Encode the `Data` as a custom value encoded by the given closure.
     ///
@@ -233,6 +248,9 @@ public class FirebaseDataEncoder {
   /// The strategy to use for encoding keys. Defaults to `.useDefaultKeys`.
   open var keyEncodingStrategy: KeyEncodingStrategy = .useDefaultKeys
 
+  /// A type that can resolve which types to 'pass through' - or leave alone while encoding. Defaults to not passing any types through.
+  open var passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type = NoPassthroughTypes.self
+
   /// Contextual user-provided information for use during encoding.
   open var userInfo: [CodingUserInfoKey : Any] = [:]
 
@@ -242,6 +260,7 @@ public class FirebaseDataEncoder {
     let dataEncodingStrategy: DataEncodingStrategy
     let nonConformingFloatEncodingStrategy: NonConformingFloatEncodingStrategy
     let keyEncodingStrategy: KeyEncodingStrategy
+    let passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type
     let userInfo: [CodingUserInfoKey : Any]
   }
 
@@ -251,6 +270,7 @@ public class FirebaseDataEncoder {
                     dataEncodingStrategy: dataEncodingStrategy,
                     nonConformingFloatEncodingStrategy: nonConformingFloatEncodingStrategy,
                     keyEncodingStrategy: keyEncodingStrategy,
+                    passthroughTypeResolver: passthroughTypeResolver,
                     userInfo: userInfo)
   }
 
@@ -501,6 +521,7 @@ fileprivate struct _JSONKeyedEncodingContainer<K : CodingKey> : KeyedEncodingCon
   }
 
   public mutating func encode<T : Encodable>(_ value: T, forKey key: Key) throws {
+    if T.self is StructureCodingUncodedUnkeyed.Type { return }
     self.encoder.codingPath.append(key)
     defer { self.encoder.codingPath.removeLast() }
     self.container[_converted(key).stringValue] = try self.encoder.box(value)
@@ -856,6 +877,9 @@ extension __JSONEncoder {
     case .base64:
       return NSString(string: data.base64EncodedString())
 
+    case .blob:
+      return data as NSData
+
     case .custom(let closure):
       let depth = self.storage.count
       do {
@@ -928,6 +952,8 @@ extension __JSONEncoder {
       return (value as! NSDecimalNumber)
     } else if value is _JSONStringDictionaryEncodableMarker {
       return try self.box(value as! [String : Encodable])
+    } else if let object = value as? NSObject, self.options.passthroughTypeResolver.isPassthroughType(value) {
+      return object
     }
 
     // The value should request a container from the __JSONEncoder.
@@ -1072,6 +1098,9 @@ public class FirebaseDataDecoder {
     /// Decode the `Data` from a Base64-encoded string. This is the default strategy.
     case base64
 
+    /// Decode the `Data` as an `NSData` blob.
+    case blob
+
     /// Decode the `Data` as a custom value decoded by the given closure.
     case custom((_ decoder: Swift.Decoder) throws -> Data)
   }
@@ -1166,6 +1195,9 @@ public class FirebaseDataDecoder {
   /// The strategy to use for decoding keys. Defaults to `.useDefaultKeys`.
   open var keyDecodingStrategy: KeyDecodingStrategy = .useDefaultKeys
 
+  /// A type that can resolve which types to 'pass through' - or leave alone while decoding. Defaults to not passing any types through.
+  open var passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type = NoPassthroughTypes.self
+
   /// Contextual user-provided information for use during decoding.
   open var userInfo: [CodingUserInfoKey : Any] = [:]
 
@@ -1175,6 +1207,7 @@ public class FirebaseDataDecoder {
     let dataDecodingStrategy: DataDecodingStrategy
     let nonConformingFloatDecodingStrategy: NonConformingFloatDecodingStrategy
     let keyDecodingStrategy: KeyDecodingStrategy
+    let passthroughTypeResolver: StructureCodingPassthroughTypeResolver.Type
     let userInfo: [CodingUserInfoKey : Any]
   }
 
@@ -1184,6 +1217,7 @@ public class FirebaseDataDecoder {
                     dataDecodingStrategy: dataDecodingStrategy,
                     nonConformingFloatDecodingStrategy: nonConformingFloatDecodingStrategy,
                     keyDecodingStrategy: keyDecodingStrategy,
+                    passthroughTypeResolver: passthroughTypeResolver,
                     userInfo: userInfo)
   }
 
@@ -1617,6 +1651,11 @@ fileprivate struct _JSONKeyedDecodingContainer<K : CodingKey> : KeyedDecodingCon
   }
 
   public func decode<T : Decodable>(_ type: T.Type, forKey key: Key) throws -> T {
+    if type is StructureCodingUncodedUnkeyed.Type {
+      // Note: not pushing and popping key to codingPath since the key is
+      // not part of the decoded structure.
+      return try T.init(from: self.decoder)
+    }
     guard let entry = self.container[key.stringValue] else {
       throw DecodingError.keyNotFound(key, DecodingError.Context(codingPath: self.decoder.codingPath, debugDescription: "No value associated with key \(_errorDescription(of: key))."))
     }
@@ -2454,6 +2493,17 @@ extension __JSONDecoder {
 
       return data
 
+    case .blob:
+      if let data = value as? Data {
+        return data
+      } else if let string = value as? String, let data = Data(base64Encoded: string) {
+        // Support implicit migration of data that was written with .base64 (String type) using
+        // Firestore 10.0 through 10.3.
+        return data
+      }
+
+      throw DecodingError._typeMismatch(at: self.codingPath, expectation: type, reality: value)
+
     case .custom(let closure):
       self.storage.push(container: value)
       defer { self.storage.popContainer() }
@@ -2505,12 +2555,12 @@ extension __JSONDecoder {
     return try unbox_(value, as: type) as? T
   }
 
-  fileprivate func unbox_(_ value: Any, as type: Decodable.Type) throws -> Any? {
-    if type == Date.self || type == NSDate.self {
+  fileprivate func unbox_(_ value: Any, as _type: Decodable.Type) throws -> Any? {
+    if _type == Date.self || _type == NSDate.self {
       return try self.unbox(value, as: Date.self)
-    } else if type == Data.self || type == NSData.self {
+    } else if _type == Data.self || _type == NSData.self {
       return try self.unbox(value, as: Data.self)
-    } else if type == URL.self || type == NSURL.self {
+    } else if _type == URL.self || _type == NSURL.self {
       guard let urlString = try self.unbox(value, as: String.self) else {
         return nil
       }
@@ -2520,14 +2570,17 @@ extension __JSONDecoder {
                                                                 debugDescription: "Invalid URL string."))
       }
       return url
-    } else if type == Decimal.self || type == NSDecimalNumber.self {
+    } else if _type == Decimal.self || _type == NSDecimalNumber.self {
       return try self.unbox(value, as: Decimal.self)
-    } else if let stringKeyedDictType = type as? _JSONStringDictionaryDecodableMarker.Type {
+    } else if let stringKeyedDictType = _type as? _JSONStringDictionaryDecodableMarker.Type {
       return try self.unbox(value, as: stringKeyedDictType)
     } else {
       self.storage.push(container: value)
       defer { self.storage.popContainer() }
-      return try type.init(from: self)
+      if self.options.passthroughTypeResolver.isPassthroughType(value) && type(of: value) == _type  {
+        return value
+      }
+      return try _type.init(from: self)
     }
   }
 }

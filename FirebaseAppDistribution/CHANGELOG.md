@@ -1,3 +1,13 @@
+# Unreleased
+- [fixed] Fixed bug where testers were sent to the wrong URL when signing in (#10772).
+
+# 10.2.0
+- [added] Added a public `application(_:openURL:options:)` method so users
+  with swizzling disabled can still use App Distribution (#10418).
+
+# 10.1.0
+- [fixed] Fixed inconsistent sign in prompts in single scene apps (#8096).
+
 # 9.0.0
 - [fixed] Marked `releaseNotes` as `nullable` as they don't always exist (#8602).
 - [fixed] **Breaking change:** Fixed an ObjC-to-Swift API conversion error where`checkForUpdate()`

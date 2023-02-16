@@ -62,12 +62,11 @@ def configure_local_pods()
   # to its podspec can still function. See Firestore-*-xcodebuild in
   # scripts/install_prereqs.sh for more details.
   pod 'FirebaseCore', :path => '../..'
-  pod 'FirebaseCoreDiagnostics', :path => '../..'
-  pod 'FirebaseCoreInternal',:path => '../..'
+  pod 'FirebaseCoreInternal', :path => '../..'
+  pod 'FirebaseCoreExtension',:path => '../..'
 
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
-  maybe_local_pod 'FirebaseCoreDiagnostics'
 end
 
 # Reads the value of the PLATFORM environment variable, converts it to the
@@ -116,6 +115,7 @@ if is_platform(:ios)
     target 'Firestore_IntegrationTests_iOS' do
       inherit! :search_paths
 
+      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
@@ -135,7 +135,7 @@ end
 
 if is_platform(:osx)
   target 'Firestore_Example_macOS' do
-    platform :osx, '10.12'
+    platform :osx, '10.13'
 
     configure_local_pods()
 
@@ -152,6 +152,7 @@ if is_platform(:osx)
     target 'Firestore_IntegrationTests_macOS' do
       inherit! :search_paths
 
+      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
@@ -164,7 +165,7 @@ end
 
 if is_platform(:tvos)
   target 'Firestore_Example_tvOS' do
-    platform :tvos, '11.0'
+    platform :tvos, '12.0'
 
     configure_local_pods()
 
@@ -181,6 +182,7 @@ if is_platform(:tvos)
     target 'Firestore_IntegrationTests_tvOS' do
       inherit! :search_paths
 
+      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'

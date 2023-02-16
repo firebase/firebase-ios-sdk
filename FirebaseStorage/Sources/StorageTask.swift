@@ -14,7 +14,11 @@
 
 import Foundation
 
-import FirebaseStorageInternal
+#if COCOAPODS
+  import GTMSessionFetcher
+#else
+  import GTMSessionFetcherCore
+#endif
 
 /**
  * A superclass to all Storage tasks, including `StorageUploadTask`
@@ -29,15 +33,66 @@ import FirebaseStorageInternal
    * An immutable view of the task and associated metadata, progress, error, etc.
    */
   @objc public var snapshot: StorageTaskSnapshot {
-    return StorageTaskSnapshot(task: self)
+    objc_sync_enter(StorageTask.self)
+    defer { objc_sync_exit(StorageTask.self) }
+    let progress = Progress(totalUnitCount: self.progress.totalUnitCount)
+    progress.completedUnitCount = self.progress.completedUnitCount
+    return StorageTaskSnapshot(
+      task: self,
+      state: state,
+      reference: reference,
+      progress: progress,
+      metadata: metadata,
+      error: error
+    )
   }
 
-  // MARK: - Internal APIs
+  // MARK: - Internal Implementations
 
-  internal let impl: FIRIMPLStorageTask
+  /**
+   * State for the current task in progress.
+   */
+  internal var state: StorageTaskState
 
-  internal init(impl: FIRIMPLStorageTask) {
-    self.impl = impl
+  /**
+   * StorageMetadata for the task in progress, or nil if none present.
+   */
+  internal var metadata: StorageMetadata?
+
+  /**
+   * Error which occurred during task execution, or nil if no error occurred.
+   */
+  internal var error: NSError?
+
+  /**
+   * NSProgress object which tracks the progress of an observable task.
+   */
+  internal var progress: Progress
+
+  /**
+   * Reference pointing to the location the task is being performed against.
+   */
+  internal let reference: StorageReference
+
+  /**
+   * A serial queue for all storage operations.
+   */
+  internal let dispatchQueue: DispatchQueue
+
+  internal let fetcherService: GTMSessionFetcherService
+
+  internal let baseRequest: URLRequest
+
+  internal init(reference: StorageReference,
+                service: GTMSessionFetcherService,
+                queue: DispatchQueue) {
+    self.reference = reference
+    fetcherService = service
+    fetcherService.maxRetryInterval = reference.storage.maxOperationRetryInterval
+    dispatchQueue = queue
+    state = .unknown
+    progress = Progress(totalUnitCount: 0)
+    baseRequest = StorageUtils.defaultRequestForReference(reference: reference)
   }
 }
 

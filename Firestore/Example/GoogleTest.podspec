@@ -33,9 +33,9 @@ Google's C++ test framework.
     :commit => 'bf66935e07825318ae519675d73d0f3e313b3ec6'
   }
 
-  s.ios.deployment_target = '10.0'
-  s.osx.deployment_target = '10.12'
-  s.tvos.deployment_target = '10.0'
+  s.ios.deployment_target = '11.0'
+  s.osx.deployment_target = '10.13'
+  s.tvos.deployment_target = '12.0'
 
   s.requires_arc = false
 

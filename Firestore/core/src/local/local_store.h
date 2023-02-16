@@ -45,6 +45,10 @@ namespace core {
 class Query;
 }  // namespace core
 
+namespace model {
+class FieldIndex;
+}  // namespace model
+
 namespace remote {
 class RemoteEvent;
 class TargetChange;
@@ -282,10 +286,12 @@ class LocalStore : public bundle::BundleCallback {
   absl::optional<bundle::NamedQuery> GetNamedQuery(
       const std::string& query_name);
 
+  void ConfigureFieldIndexes(std::vector<model::FieldIndex> new_field_indexes);
+
  private:
   friend class IndexBackfiller;
   friend class IndexBackfillerTest;
-  friend class LocalStoreTest;
+  friend class LocalStoreTestBase;
   friend class LevelDbOverlayMigrationManagerTest;
 
   IndexManager* index_manager() const {
@@ -359,6 +365,9 @@ class LocalStore : public bundle::BundleCallback {
       const model::DocumentUpdateMap& documents,
       const model::DocumentVersionMap& document_versions,
       const model::SnapshotVersion& global_version);
+
+  // For testing
+  std::vector<model::FieldIndex> GetFieldIndexes();
 
   /** Manages our in-memory or durable persistence. Owned by FirestoreClient. */
   Persistence* persistence_ = nullptr;

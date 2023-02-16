@@ -31,7 +31,8 @@
 
 /// The timeout to set for outgoing fetch requests.
 @property(nonatomic, readwrite, assign) NSTimeInterval fetchTimeout;
-
+// The Google App ID of the configured FIRApp.
+@property(nonatomic, readwrite, copy) NSString *googleAppID;
 #pragma mark - Data required by config request.
 /// Device authentication ID required by config request.
 @property(nonatomic, copy) NSString *deviceAuthID;

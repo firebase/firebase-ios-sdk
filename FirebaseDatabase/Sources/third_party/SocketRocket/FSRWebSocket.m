@@ -543,7 +543,8 @@ static __strong NSData *CRLFCRLF;
                                                           _url.host, _url.port] : _url.host));
 
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
-    int result = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+    int __unused result =
+        SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
     assert(result == 0);
     _secKey = [FSRUtilities base64EncodedStringFromData:keyBytes];
     assert([_secKey length] == 24);
@@ -688,7 +689,14 @@ static __strong NSData *CRLFCRLF;
 
             NSUInteger usedLength = 0;
 
-            BOOL success = [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t) maxLength:payload.length - sizeof(uint16_t) usedLength:&usedLength encoding:NSUTF8StringEncoding options:NSStringEncodingConversionExternalRepresentation range:NSMakeRange(0, reason.length) remainingRange:&remainingRange];
+            BOOL __unused success =
+                [reason getBytes:(char *)mutablePayload.mutableBytes + sizeof(uint16_t)
+                       maxLength:payload.length - sizeof(uint16_t)
+                      usedLength:&usedLength
+                        encoding:NSUTF8StringEncoding
+                         options:NSStringEncodingConversionExternalRepresentation
+                           range:NSMakeRange(0, reason.length)
+                  remainingRange:&remainingRange];
 
             assert(success);
             assert(remainingRange.length == 0);
@@ -1055,7 +1063,7 @@ static const uint8_t SRPayloadLenMask   = 0x7F;
             [self _handleFrameHeader:header curData:self->_currentFrameData];
         } else {
             [self _addConsumerWithDataLength:extra_bytes_needed callback:^(FSRWebSocket *self, NSData *data) {
-                size_t mapped_size = data.length;
+                size_t __unused mapped_size = data.length;
                 const void *mapped_buffer = data.bytes;
                 size_t offset = 0;
 
@@ -1425,7 +1433,8 @@ static const size_t SRFrameHeaderOverhead = 32;
         }
     } else {
         uint8_t *mask_key = frame_buffer + frame_buffer_size;
-        int result = SecRandomCopyBytes(kSecRandomDefault, sizeof(uint32_t), (uint8_t *)mask_key);
+        int __unused result =
+                  SecRandomCopyBytes(kSecRandomDefault, sizeof(uint32_t), (uint8_t *)mask_key);
         assert(result == 0);
         frame_buffer_size += sizeof(uint32_t);
 
@@ -1799,6 +1808,7 @@ static NSRunLoop *networkRunLoop = nil;
     dispatch_once(&onceToken, ^{
         networkThread = [[_FSRRunLoopThread alloc] init];
         networkThread.name = @"com.squareup.SocketRocket.NetworkThread";
+        networkThread.qualityOfService = NSQualityOfServiceUserInitiated;
         [networkThread start];
         networkRunLoop = networkThread.runLoop;
     });

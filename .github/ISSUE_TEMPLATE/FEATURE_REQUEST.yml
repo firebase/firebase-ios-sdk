@@ -1,0 +1,68 @@
+name: ➕ Feature Request
+description: File a file request if you have a suggestion for a new feature.
+title: "[FR]: "
+labels: ["type: feature request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For large or ambiguous requests, such as significant breaking changes
+        or use cases that could be addressed by multiple different features,
+        consider instead starting a [Pitch][1] discussion to discuss with
+        the Firebase community.
+
+        A good feature request ideally
+        * is either immediately obvious (e.g. _Add Sign in with Apple support_), or
+        * starts with a use case that is not achievable with the existing
+          Firebase API and includes a brief API proposal that would make the use
+          case possible.
+
+        <!--- Links -->
+        [1]: https://github.com/firebase/firebase-ios-sdk/discussions/categories/pitches
+  - type: textarea
+    attributes:
+      label: Description
+      description: |
+        Describe the feature request. Provide the following:
+            1. Use case
+            2. How the Firebase SDK _currently_ handles it
+            3. How you propose the Firebase SDK _should_ handle it
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: API Proposal
+      description: |
+        If your feature request requires API changes, describe the changes and the
+        new API's signature and usage.
+    validations:
+      required: false
+  - type: dropdown
+    attributes:
+      label: Firebase Product(s)
+      description: Which Firebase products does this feature request apply to?
+      multiple: true
+      options:
+        - AB Testing
+        - Analytics
+        - App Check
+        - App Distribution
+        - Authentication
+        - Crashlytics
+        - Database
+        - DynamicLinks
+        - Firestore
+        - Functions
+        - In-App Messaging
+        - Installations
+        - ML Model Downloader
+        - Messaging
+        - Performance
+        - Remote Config
+        - Storage
+    validations:
+      required: true

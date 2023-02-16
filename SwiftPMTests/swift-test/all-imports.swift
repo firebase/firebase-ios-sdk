@@ -38,6 +38,7 @@ import FirebaseMessaging
   import FirebasePerformance
 #endif
 import FirebaseRemoteConfig
+import FirebaseSessions
 import FirebaseStorage
 import GoogleDataTransport
 import GoogleUtilities_AppDelegateSwizzler
@@ -75,7 +76,7 @@ class importTest: XCTestCase {
 
     let versionParts = FirebaseVersion().split(separator: ".")
     XCTAssert(versionParts.count == 3)
-    XCTAssertEqual(Int(versionParts[0]), 9)
+    XCTAssertEqual(Int(versionParts[0]), 10)
     XCTAssertNotNil(Int(versionParts[1]))
     XCTAssertNotNil(Int(versionParts[2]))
 

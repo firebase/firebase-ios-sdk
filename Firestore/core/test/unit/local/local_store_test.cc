@@ -16,6 +16,7 @@
 
 #include "Firestore/core/test/unit/local/local_store_test.h"
 
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -31,7 +32,10 @@
 #include "Firestore/core/src/local/target_data.h"
 #include "Firestore/core/src/model/delete_mutation.h"
 #include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/document_key.h"
+#include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/src/model/mutable_document.h"
+#include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/model/patch_mutation.h"
 #include "Firestore/core/src/model/set_mutation.h"
@@ -80,13 +84,17 @@ using remote::WatchTargetChange;
 using remote::WatchTargetChangeState;
 using util::Status;
 
+using testutil::AddedRemoteEvent;
 using testutil::Array;
 using testutil::DeletedDoc;
 using testutil::Doc;
 using testutil::Key;
 using testutil::Map;
+using testutil::OverlayTypeMap;
 using testutil::Query;
 using testutil::UnknownDoc;
+using testutil::UpdateRemoteEvent;
+using testutil::UpdateRemoteEventWithLimboTargets;
 using testutil::Value;
 using testutil::Vector;
 
@@ -104,28 +112,6 @@ MutableDocumentMap DocVectorToMap(const std::vector<MutableDocument>& docs) {
     result = result.insert(d.key(), d);
   }
   return result;
-}
-
-RemoteEvent UpdateRemoteEventWithLimboTargets(
-    const MutableDocument& doc,
-    const std::vector<TargetId>& updated_in_targets,
-    const std::vector<TargetId>& removed_from_targets,
-    const std::vector<TargetId>& limbo_targets) {
-  HARD_ASSERT(!doc.is_found_document() || !doc.has_local_mutations(),
-              "Docs from remote updates shouldn't have local changes.");
-  DocumentWatchChange change{updated_in_targets, removed_from_targets,
-                             doc.key(), doc};
-
-  std::vector<TargetId> listens = updated_in_targets;
-  listens.insert(listens.end(), removed_from_targets.begin(),
-                 removed_from_targets.end());
-
-  auto metadata_provider =
-      FakeTargetMetadataProvider::CreateSingleResultProvider(doc.key(), listens,
-                                                             limbo_targets);
-  WatchChangeAggregator aggregator{&metadata_provider};
-  aggregator.HandleDocumentChange(change);
-  return aggregator.CreateRemoteEvent(doc.version());
 }
 
 RemoteEvent NoChangeEvent(int target_id,
@@ -148,45 +134,6 @@ RemoteEvent NoChangeEvent(int target_id,
 
 RemoteEvent NoChangeEvent(int target_id, int version) {
   return NoChangeEvent(target_id, version, testutil::ResumeToken(version));
-}
-
-/** Creates a remote event that inserts a list of documents. */
-RemoteEvent AddedRemoteEvent(const std::vector<MutableDocument>& docs,
-                             const std::vector<TargetId>& added_to_targets) {
-  HARD_ASSERT(!docs.empty(), "Cannot pass empty docs array");
-
-  const ResourcePath& collection_path = docs[0].key().path().PopLast();
-  auto metadata_provider =
-      FakeTargetMetadataProvider::CreateEmptyResultProvider(collection_path,
-                                                            added_to_targets);
-  WatchChangeAggregator aggregator{&metadata_provider};
-
-  SnapshotVersion version;
-  for (const MutableDocument& doc : docs) {
-    HARD_ASSERT(!doc.has_local_mutations(),
-                "Docs from remote updates shouldn't have local changes.");
-    DocumentWatchChange change{added_to_targets, {}, doc.key(), doc};
-    aggregator.HandleDocumentChange(change);
-    version = version > doc.version() ? version : doc.version();
-  }
-
-  return aggregator.CreateRemoteEvent(version);
-}
-
-/** Creates a remote event that inserts a new document. */
-RemoteEvent AddedRemoteEvent(const MutableDocument& doc,
-                             const std::vector<TargetId>& added_to_targets) {
-  std::vector<MutableDocument> docs{doc};
-  return AddedRemoteEvent(docs, added_to_targets);
-}
-
-/** Creates a remote event with changes to a document. */
-RemoteEvent UpdateRemoteEvent(
-    const MutableDocument& doc,
-    const std::vector<TargetId>& updated_in_targets,
-    const std::vector<TargetId>& removed_from_targets) {
-  return UpdateRemoteEventWithLimboTargets(doc, updated_in_targets,
-                                           removed_from_targets, {});
 }
 
 /** Creates a remote event that inserts a list of documents. */
@@ -225,19 +172,20 @@ LocalViewChanges TestViewChanges(TargetId target_id,
 
 }  // namespace
 
-LocalStoreTest::LocalStoreTest()
-    : test_helper_(GetParam()()),
+LocalStoreTestBase::LocalStoreTestBase(
+    std::unique_ptr<LocalStoreTestHelper>&& test_helper)
+    : test_helper_(std::move(test_helper)),
       persistence_(test_helper_->MakePersistence()),
       local_store_(
           persistence_.get(), &query_engine_, User::Unauthenticated()) {
   local_store_.Start();
 }
 
-void LocalStoreTest::WriteMutation(Mutation mutation) {
+void LocalStoreTestBase::WriteMutation(Mutation mutation) {
   WriteMutations({std::move(mutation)});
 }
 
-void LocalStoreTest::WriteMutations(std::vector<Mutation>&& mutations) {
+void LocalStoreTestBase::WriteMutations(std::vector<Mutation>&& mutations) {
   auto mutations_copy = mutations;
   LocalWriteResult result =
       local_store_.WriteLocally(std::move(mutations_copy));
@@ -246,20 +194,24 @@ void LocalStoreTest::WriteMutations(std::vector<Mutation>&& mutations) {
   last_changes_ = result.changes();
 }
 
-void LocalStoreTest::ApplyRemoteEvent(const RemoteEvent& event) {
+void LocalStoreTestBase::ApplyRemoteEvent(const RemoteEvent& event) {
   last_changes_ = local_store_.ApplyRemoteEvent(event);
 }
 
-void LocalStoreTest::NotifyLocalViewChanges(LocalViewChanges changes) {
+void LocalStoreTestBase::NotifyLocalViewChanges(LocalViewChanges changes) {
   local_store_.NotifyLocalViewChanges(
       std::vector<LocalViewChanges>{std::move(changes)});
 }
 
-void LocalStoreTest::UpdateViews(int target_id, bool from_cache) {
+void LocalStoreTestBase::BackfillIndexes() {
+  local_store_.Backfill();
+}
+
+void LocalStoreTestBase::UpdateViews(int target_id, bool from_cache) {
   NotifyLocalViewChanges(TestViewChanges(target_id, from_cache, {}, {}));
 }
 
-void LocalStoreTest::AcknowledgeMutationWithVersion(
+void LocalStoreTestBase::AcknowledgeMutationWithVersion(
     int64_t document_version,
     absl::optional<Message<google_firestore_v1_Value>> transform_result) {
   ASSERT_GT(batches_.size(), 0) << "Missing batch to acknowledge.";
@@ -282,140 +234,52 @@ void LocalStoreTest::AcknowledgeMutationWithVersion(
   last_changes_ = local_store_.AcknowledgeBatch(result);
 }
 
-void LocalStoreTest::RejectMutation() {
+void LocalStoreTestBase::RejectMutation() {
   MutationBatch batch = batches_.front();
   batches_.erase(batches_.begin());
   last_changes_ = local_store_.RejectBatch(batch.batch_id());
 }
 
-TargetId LocalStoreTest::AllocateQuery(core::Query query) {
+std::vector<model::FieldIndex> LocalStoreTestBase::GetFieldIndexes() {
+  return local_store_.GetFieldIndexes();
+}
+
+void LocalStoreTestBase::ConfigureFieldIndexes(
+    std::vector<model::FieldIndex>&& new_field_indexes) {
+  local_store_.ConfigureFieldIndexes(std::move(new_field_indexes));
+}
+
+TargetId LocalStoreTestBase::AllocateQuery(core::Query query) {
   TargetData target_data = local_store_.AllocateTarget(query.ToTarget());
   last_target_id_ = target_data.target_id();
   return target_data.target_id();
 }
 
-TargetData LocalStoreTest::GetTargetData(const core::Query& query) {
+TargetData LocalStoreTestBase::GetTargetData(const core::Query& query) {
   return persistence_->Run("GetTargetData", [&] {
     return *local_store_.GetTargetData(query.ToTarget());
   });
 }
 
-QueryResult LocalStoreTest::ExecuteQuery(const core::Query& query) {
+QueryResult LocalStoreTestBase::ExecuteQuery(const core::Query& query) {
   ResetPersistenceStats();
   last_query_result_ =
       local_store_.ExecuteQuery(query, /* use_previous_results= */ true);
   return last_query_result_;
 }
 
-void LocalStoreTest::ApplyBundledDocuments(
+void LocalStoreTestBase::ApplyBundledDocuments(
     const std::vector<MutableDocument>& documents) {
   last_changes_ =
       local_store_.ApplyBundledDocuments(DocVectorToMap(documents), "");
 }
 
-void LocalStoreTest::ResetPersistenceStats() {
+void LocalStoreTestBase::ResetPersistenceStats() {
   query_engine_.ResetCounts();
 }
 
-/** Asserts that the last target ID is the given number. */
-#define FSTAssertTargetID(target_id)       \
-  do {                                     \
-    ASSERT_EQ(last_target_id_, target_id); \
-  } while (0)
-
-/** Asserts that a the last_changes contain the docs in the given array. */
-#define FSTAssertChanged(...)                               \
-  do {                                                      \
-    std::vector<Document> expected = {__VA_ARGS__};         \
-    ASSERT_EQ(last_changes_.size(), expected.size());       \
-    auto last_changes_list = DocMapToVector(last_changes_); \
-    ASSERT_EQ(last_changes_list, expected);                 \
-    last_changes_ = DocumentMap{};                          \
-  } while (0)
-
-/**
- * Asserts that the last ExecuteQuery results contain the docs in the given
- * array.
- */
-#define FSTAssertQueryReturned(...)                                         \
-  do {                                                                      \
-    std::vector<std::string> expected_keys = {__VA_ARGS__};                 \
-    ASSERT_EQ(last_query_result_.documents().size(), expected_keys.size()); \
-    auto expected_keys_iterator = expected_keys.begin();                    \
-    for (const auto& kv : last_query_result_.documents()) {                 \
-      const DocumentKey& actual_key = kv.first;                             \
-      DocumentKey expected_key = Key(*expected_keys_iterator);              \
-      ASSERT_EQ(actual_key, expected_key);                                  \
-      ++expected_keys_iterator;                                             \
-    }                                                                       \
-    last_query_result_ = QueryResult{};                                     \
-  } while (0)
-
-/** Asserts that the given keys were removed. */
-#define FSTAssertRemoved(...)                             \
-  do {                                                    \
-    std::vector<std::string> key_paths = {__VA_ARGS__};   \
-    ASSERT_EQ(last_changes_.size(), key_paths.size());    \
-    auto key_path_iterator = key_paths.begin();           \
-    for (const auto& kv : last_changes_) {                \
-      const DocumentKey& actual_key = kv.first;           \
-      const Document& value = kv.second;                  \
-      DocumentKey expected_key = Key(*key_path_iterator); \
-      ASSERT_EQ(actual_key, expected_key);                \
-      ASSERT_FALSE(value->is_found_document());           \
-      ++key_path_iterator;                                \
-    }                                                     \
-    last_changes_ = DocumentMap{};                        \
-  } while (0)
-
-/** Asserts that the given local store contains the given document. */
-#define FSTAssertContains(document)                              \
-  do {                                                           \
-    MutableDocument expected = (document);                       \
-    Document actual = local_store_.ReadDocument(expected.key()); \
-    ASSERT_EQ(actual, expected);                                 \
-  } while (0)
-
-/** Asserts that the given local store does not contain the given document. */
-#define FSTAssertNotContains(key_path_string)         \
-  do {                                                \
-    DocumentKey key = Key(key_path_string);           \
-    Document actual = local_store_.ReadDocument(key); \
-    ASSERT_FALSE(actual->is_valid_document());        \
-  } while (0)
-
-/**
- * Asserts the expected numbers of documents read by the RemoteDocumentCache
- * since the last call to `ResetPersistenceStats()`.
- */
-#define FSTAssertRemoteDocumentsRead(by_key, by_query)             \
-  do {                                                             \
-    ASSERT_EQ(query_engine_.documents_read_by_key(), (by_key))     \
-        << "Remote documents read (by key)";                       \
-    ASSERT_EQ(query_engine_.documents_read_by_query(), (by_query)) \
-        << "Remote documents read (by query)";                     \
-  } while (0)
-
-/**
- * Asserts the expected numbers of documents read by the MutationQueue since the
- * last call to `ResetPersistenceStats()`.
- */
-#define FSTAssertOverlaysRead(by_key, by_query)                        \
-  do {                                                                 \
-    ASSERT_EQ(query_engine_.overlays_read_by_key(), (by_key))          \
-        << "Mutations read (by key)";                                  \
-    ASSERT_EQ(query_engine_.overlays_read_by_collection(), (by_query)) \
-        << "Mutations read (by query)";                                \
-  } while (0)
-
-/**
- * Asserts the expected document keys mapped to a given target id.
- */
-#define FSTAssertQueryDocumentMapping(target_id, keys)               \
-  do {                                                               \
-    ASSERT_EQ(local_store_.GetRemoteDocumentKeys(target_id), (keys)) \
-        << "Query Document Mapping";                                 \
-  } while (0)
+LocalStoreTest::LocalStoreTest() : LocalStoreTestBase(GetParam()()) {
+}
 
 TEST_P(LocalStoreTest, MutationBatchKeys) {
   Mutation base = testutil::SetMutation("foo/ignore", Map("foo", "bar"));
@@ -1046,6 +910,8 @@ TEST_P(LocalStoreTest, ReadsAllDocumentsForInitialCollectionQueries) {
 
   FSTAssertRemoteDocumentsRead(/* by_key= */ 0, /* by_query= */ 2);
   FSTAssertOverlaysRead(/* by_key= */ 0, /* by_query= */ 1);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("foo/bonk"), model::Mutation::Type::Set}}));
 }
 
 TEST_P(LocalStoreTest, PersistsResumeTokens) {
@@ -1170,10 +1036,10 @@ TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
   AcknowledgeMutationWithVersion(10);
   AcknowledgeMutationWithVersion(10);
 
-  // Execute the query, but note that we read all existing documents from the
+  // Execute the query, but note that we read matching documents from the
   // RemoteDocumentCache since we do not yet have target mapping.
   ExecuteQuery(query);
-  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 3);
+  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 2);
 
   // Issue a RemoteEvent to persist the target mapping.
   ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
@@ -1801,6 +1667,21 @@ TEST_P(LocalStoreTest, MultipleFieldPatchesOnLocalDocs) {
       Doc("foo/bar", 0, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
   FSTAssertContains(
       Doc("foo/bar", 0, Map("likes", 1, "stars", 2)).SetHasLocalMutations());
+}
+
+TEST_P(LocalStoreTest, PatchMutationLeadsToPatchOverlay) {
+  AllocateQuery(Query("foo"));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/baz", 10, Map("a", 1)), {2}, {}));
+  ApplyRemoteEvent(UpdateRemoteEvent(Doc("foo/bar", 20, Map()), {2}, {}));
+  WriteMutation(testutil::PatchMutation("foo/baz", Map("b", 2)));
+
+  ResetPersistenceStats();
+
+  ExecuteQuery(Query("foo"));
+  FSTAssertRemoteDocumentsRead(0, 2);
+  FSTAssertOverlaysRead(0, 1);
+  FSTAssertOverlayTypes(
+      OverlayTypeMap({{Key("foo/baz"), model::Mutation::Type::Patch}}));
 }
 
 }  // namespace local

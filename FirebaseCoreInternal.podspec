@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseCoreInternal'
-  s.version          = '9.5.0'
+  s.version          = '10.6.0'
   s.summary          = 'APIs for internal FirebaseCore usage.'
 
   s.description      = <<-DESC
@@ -18,9 +18,9 @@ Pod::Spec.new do |s|
   }
   s.social_media_url = 'https://twitter.com/Firebase'
 
-  ios_deployment_target = '9.0'
-  osx_deployment_target = '10.12'
-  tvos_deployment_target = '10.0'
+  ios_deployment_target = '10.0'
+  osx_deployment_target = '10.13'
+  tvos_deployment_target = '12.0'
   watchos_deployment_target = '6.0'
 
   s.ios.deployment_target = ios_deployment_target
@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.3'
 
-  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.7'
+  s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
 
   # Using environment variable because of the dependency on the unpublished
   # HeartbeatLoggingTestUtils.

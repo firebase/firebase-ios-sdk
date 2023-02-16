@@ -31,10 +31,12 @@ public extension CollectionReference {
   ///                 the client is offline, though local changes will be visible
   ///                 immediately.
   /// - Returns: A `DocumentReference` pointing to the newly created document.
+  @discardableResult
   func addDocument<T: Encodable>(from value: T,
                                  encoder: Firestore.Encoder = Firestore.Encoder(),
                                  completion: ((Error?) -> Void)? = nil) throws
     -> DocumentReference {
-    return addDocument(data: try encoder.encode(value), completion: completion)
+    let encoded = try encoder.encode(value)
+    return addDocument(data: encoded, completion: completion)
   }
 }

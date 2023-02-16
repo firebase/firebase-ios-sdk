@@ -482,16 +482,11 @@ enum CocoaPodUtils {
     for pod in pods {
       let rootPod = String(pod.name.split(separator: "/").first!)
 
-      let podIsClosedSource: Bool = FirebaseManifest.shared.pods
-        .filter(\.isClosedSource)
-        .map(\.name)
-        .contains(rootPod)
-
       // Check if we want to use a local version of the podspec.
-      if !podIsClosedSource,
-         let localURL = localPodspecPath,
-         FileManager.default
-         .fileExists(atPath: localURL.appendingPathComponent("\(rootPod).podspec").path) {
+      if let localURL = localPodspecPath,
+         let pathURL = localPodspecPath?.appendingPathComponent("\(rootPod).podspec").path,
+         FileManager.default.fileExists(atPath: pathURL),
+         isSourcePodspec(pathURL) {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
         // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
@@ -535,7 +530,6 @@ enum CocoaPodUtils {
       let podspecs = try! FileManager.default.contentsOfDirectory(atPath: localURL.path)
       for podspec in podspecs {
         if podspec == "FirebaseInstallations.podspec" ||
-          podspec == "FirebaseCoreDiagnostics.podspec" ||
           podspec == "FirebaseCore.podspec" ||
           podspec == "FirebaseCoreExtension.podspec" ||
           podspec == "FirebaseCoreInternal.podspec" ||
@@ -551,6 +545,16 @@ enum CocoaPodUtils {
     }
     podfile += "end"
     return podfile
+  }
+
+  private static func isSourcePodspec(_ podspecPath: String) -> Bool {
+    do {
+      let contents = try String(contentsOfFile: podspecPath, encoding: .utf8)
+      // The presence of ".vendored_frameworks" in a podspec indicates a binary pod.
+      return contents.range(of: ".vendored_frameworks") == nil
+    } catch {
+      fatalError("Could not read \(podspecPath): \(error)")
+    }
   }
 
   /// Write a podfile that contains all the pods passed in to the directory passed in with a name

@@ -1,4 +1,10 @@
 {
+  "10.0.0": "https://dl.google.com/dl/firebase/ios/carthage/10.0.0/FirebaseMessaging-31a5d25e099280b3.zip",
+  "10.1.0": "https://dl.google.com/dl/firebase/ios/carthage/10.1.0/FirebaseMessaging-90c34382a1b9958b.zip",
+  "10.2.0": "https://dl.google.com/dl/firebase/ios/carthage/10.2.0/FirebaseMessaging-289a04c85f7e771d.zip",
+  "10.3.0": "https://dl.google.com/dl/firebase/ios/carthage/10.3.0/FirebaseMessaging-59ef1cc63c660712.zip",
+  "10.4.0": "https://dl.google.com/dl/firebase/ios/carthage/10.4.0/FirebaseMessaging-76c02a69e3fe1008.zip",
+  "10.5.0": "https://dl.google.com/dl/firebase/ios/carthage/10.5.0/FirebaseMessaging-439a17dcc8b8172b.zip",
   "4.11.0": "https://dl.google.com/dl/firebase/ios/carthage/4.11.0/Messaging-a22ef2b5f2f30f82.zip",
   "4.12.0": "https://dl.google.com/dl/firebase/ios/carthage/4.12.0/Messaging-94fa4e090c7e9185.zip",
   "4.9.0": "https://dl.google.com/dl/firebase/ios/carthage/4.9.0/Messaging-2a00a1c64a19d176.zip",
@@ -87,5 +93,7 @@
   "9.1.0": "https://dl.google.com/dl/firebase/ios/carthage/9.1.0/FirebaseMessaging-116cbea4b12ceb23.zip",
   "9.2.0": "https://dl.google.com/dl/firebase/ios/carthage/9.2.0/FirebaseMessaging-edba135aeb14ada7.zip",
   "9.3.0": "https://dl.google.com/dl/firebase/ios/carthage/9.3.0/FirebaseMessaging-bc3ac74b078aab5a.zip",
-  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseMessaging-94101abda1b6af66.zip"
+  "9.4.0": "https://dl.google.com/dl/firebase/ios/carthage/9.4.0/FirebaseMessaging-94101abda1b6af66.zip",
+  "9.5.0": "https://dl.google.com/dl/firebase/ios/carthage/9.5.0/FirebaseMessaging-9733aa43000770a7.zip",
+  "9.6.0": "https://dl.google.com/dl/firebase/ios/carthage/9.6.0/FirebaseMessaging-d3f65f1a01731f6d.zip"
 }

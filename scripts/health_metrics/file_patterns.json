@@ -45,17 +45,7 @@
     "podspecs": ["FirebaseCore.podspec"],
     "filePatterns": [
       "^FirebaseCore.*",
-      "FirebaseCore.podspec",
-      "Interop/CoreDiagnostics/Public/[^/]+\\.h"
-    ]
-  },
-  {
-    "sdk": "core-diagnostics",
-    "podspecs": ["FirebaseCoreDiagnostics.podspec"],
-    "filePatterns": [
-      "Firebase/CoreDiagnostics/.*",
-      "Example/CoreDiagnostics/.*",
-      "Interop/CoreDiagnostics/Public/[^/]+\\.h"
+      "FirebaseCore.podspec"
     ]
   },
   {
@@ -187,7 +177,7 @@
   },
   {
     "sdk": "storage",
-    "podspecs": ["FirebaseStorage.podspec", "FirebaseStorageInternal.podspec"],
+    "podspecs": ["FirebaseStorage.podspec"],
     "filePatterns": [
       "^FirebaseStorage.*",
       "FirebaseAuth/Interop/[^/]+\\.h",

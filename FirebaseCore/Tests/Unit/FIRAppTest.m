@@ -12,13 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#if __has_include(<UIKit/UIKit.h>)
+#import <UIKit/UIKit.h>
+#endif
+
+#if __has_include(<AppKit/AppKit.h>)
+#import <AppKit/AppKit.h>
+#endif
+
+#if __has_include(<WatchKit/WatchKit.h>)
+#import <WatchKit/WatchKit.h>
+#endif
+
 #import "FirebaseCore/Tests/Unit/FIRTestCase.h"
 #import "FirebaseCore/Tests/Unit/FIRTestComponents.h"
 
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponentType.h"
-#import "FirebaseCore/Extension/FIRCoreDiagnosticsConnector.h"
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 #import "FirebaseCore/Extension/FIROptionsInternal.h"
 #import "FirebaseCore/Sources/FIRAnalyticsConfiguration.h"
@@ -54,7 +65,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 @interface FIRAppTest : FIRTestCase
 
 @property(nonatomic) id appClassMock;
-@property(nonatomic) id mockCoreDiagnosticsConnector;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
 @property(nonatomic) id mockHeartbeatLogger;
 
@@ -71,7 +81,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIRApp resetApps];
   // TODO: Don't mock the class we are testing.
   _appClassMock = OCMClassMock([FIRApp class]);
-  _mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
 
   // Set up mocks for all instances of `FIRHeartbeatLogger`.
   _mockHeartbeatLogger = OCMClassMock([FIRHeartbeatLogger class]);
@@ -81,13 +90,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [FIROptionsMock mockFIROptions];
 
   self.assertNoLogCoreTelemetry = NO;
-  OCMStub(ClassMethod([self.mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:[OCMArg any]]))
-      .andDo(^(NSInvocation *invocation) {
-        if (self.assertNoLogCoreTelemetry) {
-          XCTFail(@"Method `-[mockCoreDiagnosticsConnector logCoreTelemetryWithOptions:]` must not "
-                  @"be called");
-        }
-      });
 
   // TODO: Remove all usages of defaultCenter in Core, then we can instantiate an instance here to
   //       inject instead of using defaultCenter.
@@ -104,7 +106,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [_appClassMock stopMocking];
   _appClassMock = nil;
   _notificationCenter = nil;
-  _mockCoreDiagnosticsConnector = nil;
   _mockHeartbeatLogger = nil;
 
   [super tearDown];
@@ -116,7 +117,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Doing this in the instance `tearDown` causes test failures due to a race
   // condition between `NSNoticationCenter` and `OCMVerifyAllWithDelay`.
   // Affected tests:
-  // - testCoreDiagnosticsLoggedWhenAppDidBecomeActive
   // - testHeartbeatLogIsAttemptedWhenAppDidBecomeActive
   [OCMClassMock([FIRHeartbeatLogger class]) stopMocking];
   [super tearDown];
@@ -766,7 +766,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
                                          object:nil];
   // Wait for some time because diagnostics is logged asynchronously.
-  OCMVerifyAllWithDelay(self.mockCoreDiagnosticsConnector, 1);
+  OCMVerifyAll(self.mockHeartbeatLogger);
 }
 
 #pragma mark - Analytics Flag Tests
@@ -827,17 +827,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 #pragma mark - Core Telemetry
 
-#if !TARGET_OS_WATCH
-- (void)testCoreDiagnosticsLoggedWhenAppDidBecomeActive {
-  FIRApp *app = [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
-  [self expectCoreDiagnosticsDataLogWithOptions:app.options];
-
-  [self.notificationCenter postNotificationName:[self appDidBecomeActiveNotificationName]
-                                         object:nil];
-
-  OCMVerifyAllWithDelay(self.mockCoreDiagnosticsConnector, 0.5);
-}
-
 - (void)testHeartbeatLogIsAttemptedWhenAppDidBecomeActive {
   [self createConfiguredAppWithName:NSStringFromSelector(_cmd)];
   OCMExpect([self.mockHeartbeatLogger log]).andDo(nil);
@@ -845,7 +834,6 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
                                          object:nil];
   OCMVerifyAll(self.mockHeartbeatLogger);
 }
-#endif  // TARGET_OS_WATCH
 
 #pragma mark - private
 
@@ -872,28 +860,18 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   };
 }
 
-- (void)expectCoreDiagnosticsDataLogWithOptions:(nullable FIROptions *)expectedOptions {
-  [self.mockCoreDiagnosticsConnector stopMocking];
-  self.mockCoreDiagnosticsConnector = nil;
-  self.mockCoreDiagnosticsConnector = OCMClassMock([FIRCoreDiagnosticsConnector class]);
-
-  OCMExpect(ClassMethod([self.mockCoreDiagnosticsConnector
-      logCoreTelemetryWithOptions:[OCMArg checkWithBlock:^BOOL(FIROptions *options) {
-        if (!expectedOptions) {
-          return YES;
-        }
-        return [options.googleAppID isEqualToString:expectedOptions.googleAppID] &&
-               [options.GCMSenderID isEqualToString:expectedOptions.GCMSenderID];
-      }]]));
-}
-
 - (NSNotificationName)appDidBecomeActiveNotificationName {
 #if TARGET_OS_IOS || TARGET_OS_TV
   return UIApplicationDidBecomeActiveNotification;
-#endif
-
-#if TARGET_OS_OSX
+#elif TARGET_OS_OSX
   return NSApplicationDidBecomeActiveNotification;
+#elif TARGET_OS_WATCH
+  // See comment in `- [FIRApp subscribeForAppDidBecomeActiveNotifications]`.
+  if (@available(watchOS 7.0, *)) {
+    return WKApplicationDidBecomeActiveNotification;
+  } else {
+    return kFIRAppReadyToConfigureSDKNotification;
+  }
 #endif
 }
 

@@ -179,9 +179,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
   if (self.registrationFlowCompletion) {
     FIRFADDebugLog(@"Continuing registration flow: %@", [self registrationFlowCompletion]);
     [self resetUIState];
-    if (@available(iOS 9.0, *)) {
-      [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
-    }
+    [self logRegistrationCompletion:nil authType:[SFSafariViewController description]];
     self.registrationFlowCompletion(nil);
   }
   return NO;
@@ -213,7 +211,15 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
     if (foregroundedScene) {
       self.window = [[UIWindow alloc] initWithWindowScene:foregroundedScene];
+    } else if ([UIApplication sharedApplication].connectedScenes.count == 1) {
+      // There are situations where a scene isn't considered foreground in viewDidAppear
+      // and this fixes the issue in single scene apps.
+      // https://github.com/firebase/firebase-ios-sdk/issues/8096
+      UIWindowScene *scene =
+          (UIWindowScene *)[UIApplication sharedApplication].connectedScenes.anyObject;
+      self.window = [[UIWindow alloc] initWithWindowScene:scene];
     } else {
+      // TODO: Consider using UISceneDidActivateNotification.
       FIRFADInfoLog(@"No foreground scene found.");
       self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     }

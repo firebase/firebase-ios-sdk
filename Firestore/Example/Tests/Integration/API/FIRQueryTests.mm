@@ -18,6 +18,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Source/API/FIRFilter+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
@@ -28,6 +29,25 @@
 @end
 
 @implementation FIRQueryTests
+
+/**
+ * Checks that running the query while online (against the backend/emulator) results in the same
+ * documents as running the query while offline. It also checks that both online and offline
+ * query result is equal to the expected documents.
+ *
+ * @param query The query to check.
+ * @param expectedDocs Array of document keys that are expected to match the query.
+ */
+- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs {
+  FIRQuerySnapshot *docsFromServer = [self readDocumentSetForRef:query
+                                                          source:FIRFirestoreSourceServer];
+  FIRQuerySnapshot *docsFromCache = [self readDocumentSetForRef:query
+                                                         source:FIRFirestoreSourceCache];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
+                        FIRQuerySnapshotGetIDs(docsFromCache));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromCache), expectedDocs);
+}
 
 - (void)testLimitQueries {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
@@ -371,6 +391,50 @@
   [self enableNetwork];
   querySnap = [self.eventAccumulator awaitEventWithName:@"back online event with isFromCache=NO"];
   XCTAssertEqual(querySnap.metadata.isFromCache, NO);
+
+  [registration remove];
+}
+
+- (void)testQueriesCanRaiseInitialSnapshotFromCachedEmptyResults {
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:@{}];
+
+  // Populate the cache with empty query result.
+  FIRQuerySnapshot *querySnapshotA = [self readDocumentSetForRef:collection];
+  XCTAssertFalse(querySnapshotA.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotA), @[]);
+
+  // Add a snapshot listener whose first event should be raised from cache.
+  id<FIRListenerRegistration> registration = [collection
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *querySnapshotB = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertTrue(querySnapshotB.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotB), @[]);
+
+  [registration remove];
+}
+
+- (void)testQueriesCanRaiseInitialSnapshotFromEmptyDueToDeleteCachedResults {
+  NSDictionary *testDocs = @{
+    @"a" : @{@"foo" : @1},
+  };
+  FIRCollectionReference *collection = [self collectionRefWithDocuments:testDocs];
+  // Populate the cache with a single document.
+  FIRQuerySnapshot *querySnapshotA = [self readDocumentSetForRef:collection];
+  XCTAssertFalse(querySnapshotA.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotA), @[ @{@"foo" : @1} ]);
+
+  // Delete the document, making the cached query result empty.
+  FIRDocumentReference *docRef = [collection documentWithPath:@"a"];
+  [self deleteDocumentRef:docRef];
+
+  // Add a snapshot listener whose first event should be raised from cache.
+  id<FIRListenerRegistration> registration = [collection
+      addSnapshotListenerWithIncludeMetadataChanges:YES
+                                           listener:self.eventAccumulator.valueEventHandler];
+  FIRQuerySnapshot *querySnapshotB = [self.eventAccumulator awaitEventWithName:@"initial event"];
+  XCTAssertTrue(querySnapshotB.metadata.fromCache);
+  XCTAssertEqualObjects(FIRQuerySnapshotGetData(querySnapshotB), @[]);
 
   [registration remove];
 }
@@ -802,6 +866,158 @@
 
   NSArray<NSString *> *ids = FIRQuerySnapshotGetIDs(querySnapshot);
   XCTAssertEqualObjects(ids, (@[ @"cg-doc2" ]));
+}
+
+- (void)testOrQueries {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @0},
+    @"doc2" : @{@"a" : @2, @"b" : @1},
+    @"doc3" : @{@"a" : @3, @"b" : @2},
+    @"doc4" : @{@"a" : @1, @"b" : @3},
+    @"doc5" : @{@"a" : @1, @"b" : @1}
+  }];
+
+  // Two equalities: a==1 || b==1.
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc1", @"doc2", @"doc4", @"doc5" ]];
+
+  // with one inequality: a>2 || b==1.
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
+                                                                          isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
+                     matchesResult:@[ @"doc5", @"doc2", @"doc3" ]];
+
+  // (a==1 && b==0) || (a==3 && b==2)
+  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b" isEqualTo:@0]
+    ]],
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" isEqualTo:@3], [FIRFilter filterWhereField:@"b" isEqualTo:@2]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
+                     matchesResult:@[ @"doc1", @"doc3" ]];
+
+  // a==1 && (b==0 || b==3).
+  FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"b" isEqualTo:@0], [FIRFilter filterWhereField:@"b" isEqualTo:@3]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4]
+                     matchesResult:@[ @"doc1", @"doc4" ]];
+
+  // (a==2 || b==2) && (a==3 || b==3)
+  FIRFilter *filter5 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@2]
+    ]],
+    [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" isEqualTo:@3], [FIRFilter filterWhereField:@"b" isEqualTo:@3]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter5] matchesResult:@[ @"doc3" ]];
+
+  // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
+  FIRFilter *filter6 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
+                                                                  isGreaterThan:@0]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter6] queryLimitedTo:2]
+                     matchesResult:@[ @"doc1", @"doc2" ]];
+
+  // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
+  // Note: The public query API does not allow implicit ordering when limitToLast is used.
+  FIRFilter *filter7 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
+                                                                  isGreaterThan:@0]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter7] queryLimitedToLast:2]
+                                       queryOrderedByField:@"b"]
+                     matchesResult:@[ @"doc3", @"doc4" ]];
+
+  // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
+  FIRFilter *filter8 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter8] queryLimitedTo:1]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc5" ]];
+
+  // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
+  FIRFilter *filter9 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter9] queryLimitedToLast:1]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc2" ]];
+
+  // Test with limits without orderBy (the __name__ ordering is the tie breaker).
+  FIRFilter *filter10 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter10] queryLimitedTo:1]
+                     matchesResult:@[ @"doc2" ]];
+}
+
+- (void)testOrQueriesWithInAndNotIn {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @0},
+    @"doc2" : @{@"b" : @1},
+    @"doc3" : @{@"a" : @3, @"b" : @2},
+    @"doc4" : @{@"a" : @1, @"b" : @3},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2}
+  }];
+
+  // a==2 || b in [2,3]
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" in:@[ @2, @3 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+
+  // a==2 || b not-in [2,3]
+  // Has implicit orderBy b.
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
+                                                                          notIn:@[ @2, @3 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
+                     matchesResult:@[ @"doc1", @"doc2" ]];
+}
+
+- (void)testOrQueriesWithArrayMembership {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
+    @"doc2" : @{@"b" : @[ @1 ]},
+    @"doc3" : @{@"a" : @3, @"b" : @[ @2, @7 ]},
+    @"doc4" : @{@"a" : @1, @"b" : @[ @3, @7 ]},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2}
+  }];
+
+  // a==2 || b array-contains 7
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
+                                                                  arrayContains:@7]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+
+  // a==2 || b array-contains-any [0, 3]
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
+                                                               arrayContainsAny:@[ @0, @3 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
+                     matchesResult:@[ @"doc1", @"doc4", @"doc6" ]];
 }
 
 @end
