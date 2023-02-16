@@ -184,11 +184,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 @interface FIRAuthBackend : NSObject
 
-// TODO: should be fileprivate after full port.
-+ (nullable NSError *)clientErrorWithServerErrorMessage:(NSString *)serverErrorMessage
-                                        errorDictionary:(NSDictionary *)errorDictionary
-                                               response:(id<FIRAuthRPCResponse>)response;
-
 /** @fn authUserAgent
     @brief Retrieves the Firebase Auth user agent.
     @return The Firebase Auth user agent.
