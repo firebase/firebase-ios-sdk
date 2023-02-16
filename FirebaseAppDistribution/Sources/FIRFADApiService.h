@@ -89,6 +89,6 @@ typedef NS_ENUM(NSUInteger, FIRFADApiError) {
   // Failure to parse Api response
   FIRApiErrorParseFailure = 7,
 
-} NS_SWIFT_NAME(AppDistributionApiError);
+};
 
 NS_ASSUME_NONNULL_END

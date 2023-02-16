@@ -22,7 +22,7 @@ import Foundation
 ///
 enum Logger {
   private static let logServiceTag = "[FirebaseAppDistributionInternal]"
-  private static let logCode = "I-FAD000000"
+  private static let logCode = "I-FADI000000"
 
   static func logInfo(_ message: String) {
     FirebaseLogger.log(
