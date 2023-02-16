@@ -273,7 +273,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
         XCTAssertNil(identifier);
         XCTAssertNil(authTokenResult);
         XCTAssertNotNil(error);
-//        XCTAssertEqual([error code], FIRFADApiInstallationIdentifierError);
+        XCTAssertEqual([error code], FIRFADApiInstallationIdentifierError);
         [expectation fulfill];
       }];
 

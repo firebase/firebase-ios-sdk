@@ -53,16 +53,19 @@ enum AppDistributionApiError: NSInteger {
     let installations = Installations.installations()
     
     installations.authToken(completion: { (authTokenResult, error) -> Void in
-      if error != nil {
+      var fadError = error
+      if self.handleError(error: &fadError, description: "Failed to generate Firebase installation auth token", code: .ApiTokenGenerationFailure) {
         Logger.logError(String(format: "Error getting auth token. Error: %@", error?.localizedDescription ?? ""))
-        completion(nil, nil, error)
+        completion(nil, nil, fadError)
         return
       }
       
       installations.installationID(completion: { (identifier, error) -> Void in
-        if error != nil {
+        var fadError = error
+        if self.handleError(error: &fadError, description: "Failed to generate Firebase installation id",
+                            code: .ApiInstallationIdentifierError) {
           Logger.logError(String(format: "Error getting installation ID. Error: %@", error?.localizedDescription ?? ""))
-          completion(nil, nil, error)
+          completion(nil, nil, fadError)
           return
         }
         
@@ -79,11 +82,11 @@ enum AppDistributionApiError: NSInteger {
       Logger.logInfo(String(format: "Url: %@ Auth token: %@ Api Key: %@", urlString, authTokenResult?.authToken ?? "", FirebaseApp.app()?.options.apiKey ?? "unknown"))
       
       let listReleaseDataTask = URLSession.shared.dataTask(with: request as URLRequest) { (data, response, error) in
-        
-        let releases = self.handleReleaseResponse(data: data! as NSData, response: response!, error: error)
+        var fadError = error
+        let releases = self.handleReleaseResponse(data: data! as NSData, response: response, error: &fadError)
         let statusCode = (response as! HTTPURLResponse).statusCode
         DispatchQueue.main.async {
-          completion(releases, error)
+          completion(releases, fadError)
         }
       }
       
@@ -91,12 +94,22 @@ enum AppDistributionApiError: NSInteger {
     }
   }
   
+  static func handleError(httpResponse: HTTPURLResponse?, error: inout Error?) -> Bool {
+    if error != nil || httpResponse == nil {
+      return self.handleError(error: &error, description: "Unknown http error occurred", code: .ApiErrorUnknownFailure)
+    } else if httpResponse?.statusCode == 200 {
+      error = self.createError(statusCode: httpResponse!.statusCode)
+      return true
+    }
+    
+    return false
+  }
+  
   static func handleError(error: inout Error?, description: String?, code: AppDistributionApiError) -> Bool {
     if error != nil {
       error = self.createError(description: description!, code: code)
       return true
     }
-    
     return false
   }
   
@@ -133,11 +146,26 @@ enum AppDistributionApiError: NSInteger {
     return request
   }
   
-  static func handleReleaseResponse(data: NSData, response: URLResponse, error: Error?) -> Array<Any>? {
+  static func handleReleaseResponse(data: NSData?, response: URLResponse?, error: inout Error?) -> Array<Any>? {
+    guard let response = response else {
+      return nil
+    }
+    
+    let httpResponse = response as! HTTPURLResponse
+    Logger.logInfo(String(format:"HTTPResponse status code %ld, response %@", httpResponse.statusCode, httpResponse))
+    
+    if (self.handleError(httpResponse: httpResponse, error: &error)) {
+      Logger.logError(String(format:"App tester API service error: %@", error?.localizedDescription ?? ""))
+      return nil
+    }
     return self.parseApiResponseWithData(data: data, error: error)
   }
     
-  static func parseApiResponseWithData(data: NSData, error: Error?) -> Array<Any>? {
+  static func parseApiResponseWithData(data: NSData?, error: Error?) -> Array<Any>? {
+    guard let data = data else {
+      return nil
+    }
+    
     do {
       let serializedResponse = try JSONSerialization.jsonObject(with: data as Data, options: JSONSerialization.ReadingOptions(rawValue: 0)) as? [String: Any]
       return serializedResponse![Strings.responseReleaseKey] as? Array<Any>
