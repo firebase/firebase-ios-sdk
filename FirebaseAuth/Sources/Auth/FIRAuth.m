@@ -361,9 +361,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance and
    AppCheck Interop.
     @param app The application to associate the auth instance with.
-    @param appCheck The AppCheck Interop.
  */
-- (instancetype)initWithApp:(FIRApp *)app appCheck:(nullable id<FIRAppCheckInterop>)appCheck;
+- (instancetype)initWithApp:(FIRApp *)app;
 
 @end
 
@@ -460,13 +459,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return (FIRAuth *)auth;
 }
 
-- (instancetype)initWithApp:(FIRApp *)app appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
+- (instancetype)initWithApp:(FIRApp *)app {
   [FIRAuth setKeychainServiceNameForApp:app];
   self = [self initWithAPIKey:app.options.APIKey
                       appName:app.name
                         appID:app.options.googleAppID
               heartbeatLogger:app.heartbeatLogger
-                     appcheck:appCheck];
+                     appcheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
   if (self) {
     _app = app;
 #if TARGET_OS_IOS
@@ -2181,9 +2180,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRComponentCreationBlock authCreationBlock =
       ^id _Nullable(FIRComponentContainer *_Nonnull container, BOOL *_Nonnull isCacheable) {
     *isCacheable = YES;
-    id<FIRAppCheckInterop> appCheckInterop = FIR_COMPONENT(FIRAppCheckInterop, container);
+    // id<FIRAppCheckInterop> appCheckInterop = FIR_COMPONENT(FIRAppCheckInterop, container);
 
-    return [[FIRAuth alloc] initWithApp:container.app appCheck:appCheckInterop];
+    return [[FIRAuth alloc] initWithApp:container.app];
   };
 
   FIRComponent *authInterop = [FIRComponent componentWithProtocol:@protocol(FIRAuthInterop)
