@@ -543,14 +543,12 @@ static NSInteger const gMaxRetries = 7;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
   if ([strData containsString:kEnableRealtimeURL]) {
-    NSString *enableRealtimeUrlLink =
-        [kEnableRealtimeURL stringByAppendingString:[self->_options GCMSenderID]];
     NSError *error = [NSError
         errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                    code:FIRRemoteConfigUpdateErrorStreamError
                userInfo:@{
                  NSLocalizedDescriptionKey :
-                     [NSString stringWithFormat:kApiDisabledErrorMessage, enableRealtimeUrlLink]
+                     strData
                }];
     FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
                 error);
