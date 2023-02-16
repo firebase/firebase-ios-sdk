@@ -120,7 +120,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
       # This pre-processor directive is used to selectively disable keychain
       # related code that blocks unit testing on macOS.
       s.osx.pod_target_xcconfig = {
-        'GCC_PREPROCESSOR_DEFINITIONS' => 'FIREBASE_AUTH_MACOS_TESTING=1'
+        'OTHER_SWIFT_FLAGS' => '$(inherited) -D FIREBASE_AUTH_MACOS_TESTING',
       }
 
     end

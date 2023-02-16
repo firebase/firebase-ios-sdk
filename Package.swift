@@ -465,7 +465,7 @@ let package = Package(
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
+        "AuthKeychainServicesTests.swift", // TODO: figure out SPM keychain testing
         "FIRAuthTests.m",
         "FIRUserTests.m",
       ],
