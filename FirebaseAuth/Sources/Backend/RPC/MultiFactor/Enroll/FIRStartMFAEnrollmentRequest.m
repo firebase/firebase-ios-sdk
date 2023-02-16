@@ -41,6 +41,18 @@ static NSString *const kTenantIDKey = @"tenantId";
   return self;
 }
 
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
+  if (self) {
+    _IDToken = IDToken;
+  }
+  return self;
+}
+
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_IDToken) {
@@ -50,6 +62,10 @@ static NSString *const kTenantIDKey = @"tenantId";
     if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
       postBody[@"phoneEnrollmentInfo"] = [_enrollmentInfo dictionary];
     }
+  } else {
+      // totpEnrollmentInfo is always an empty object.
+      NSMutableDictionary *totpEnrollmentInfo = [NSMutableDictionary dictionary];
+      postBody[@"totpEnrollmentInfo"] = [totpEnrollmentInfo copy];
   }
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;

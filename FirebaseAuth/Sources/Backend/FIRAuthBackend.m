@@ -1060,6 +1060,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                            completionHandler:^(NSData *data, NSError *error) {
                              // If there is an error with no body data at all, then this must be a
                              // network error.
+      NSString *endpoint;
+      NSString *helpertest = @"requestURL";
+      endpoint =
+          [NSString stringWithFormat:@"%@ - %@", helpertest, [request requestURL]];
+      NSLog(endpoint);
                              if (error && !data) {
                                callback([FIRAuthErrorUtils networkErrorWithUnderlyingError:error]);
                                return;

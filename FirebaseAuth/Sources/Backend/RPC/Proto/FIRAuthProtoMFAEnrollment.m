@@ -34,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
       NSDate *date = [dateFormatter dateFromString:dictionary[@"enrolledAt"]];
       _enrolledAt = date;
     }
+      if (dictionary[@"totpInfo"]) {
+          _totpInfo = [dictionary[@"totpInfo"] copy];
+      }
   }
   return self;
 }
