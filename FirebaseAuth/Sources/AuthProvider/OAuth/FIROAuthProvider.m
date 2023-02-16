@@ -88,7 +88,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:nil
                                             accessToken:accessToken
                                                  secret:nil
-                                            displayName:nil
+                                               fullName:nil
                                            pendingToken:nil];
 }
 
@@ -99,7 +99,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:nil
                                             accessToken:accessToken
                                                  secret:nil
-                                            displayName:nil
+                                               fullName:nil
                                            pendingToken:nil];
 }
 
@@ -112,7 +112,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:rawNonce
                                             accessToken:accessToken
                                                  secret:nil
-                                            displayName:nil
+                                               fullName:nil
                                            pendingToken:nil];
 }
 
@@ -124,21 +124,19 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                rawNonce:rawNonce
                                             accessToken:nil
                                                  secret:nil
-                                            displayName:nil
+                                               fullName:nil
                                            pendingToken:nil];
 }
 
-+ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                        rawNonce:(nullable NSString *)rawNonce
-                                     accessToken:(nullable NSString *)accessToken
-                                     displayName:(nonnull NSString *)displayName {
-  return [[FIROAuthCredential alloc] initWithProviderID:providerID
++ (FIROAuthCredential *)appleCredentialWithIDToken:(NSString *)IDToken
+                                          rawNonce:(nullable NSString *)rawNonce
+                                          fullName:(nullable NSPersonNameComponents *)fullName {
+  return [[FIROAuthCredential alloc] initWithProviderID:@"apple.com"
                                                 IDToken:IDToken
                                                rawNonce:rawNonce
-                                            accessToken:accessToken
+                                            accessToken:nil
                                                  secret:nil
-                                            displayName:displayName
+                                               fullName:fullName
                                            pendingToken:nil];
 }
 

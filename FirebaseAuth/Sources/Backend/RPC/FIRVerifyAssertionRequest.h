@@ -96,10 +96,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign) BOOL autoCreate;
 
-/** @property displayName
-    @brief A displayName linked to its provider
+/** @property fullName
+    @brief A full name from the IDP.
  */
-@property(nonatomic, copy, nullable) NSString *displayName;
+@property(nonatomic, copy, nullable) NSPersonNameComponents *fullName;
 
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithProviderID:requestConfifuration instead.

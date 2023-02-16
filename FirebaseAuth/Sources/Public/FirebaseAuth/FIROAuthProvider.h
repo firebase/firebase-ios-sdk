@@ -114,23 +114,19 @@ NS_SWIFT_NAME(OAuthProvider)
                                          IDToken:(NSString *)IDToken
                                         rawNonce:(nullable NSString *)rawNonce;
 
-/** @fn credentialWithProviderID:IDToken:rawNonce:accessToken:
-    @brief Creates an `AuthCredential` for that OAuth 2 provider identified by provider ID, ID
-        token, raw nonce, and access token.
-
-    @param providerID The provider ID associated with the Auth credential being created.
-    @param IDToken The IDToken associated with the Auth credential being created.
-    @param rawNonce The raw nonce associated with the Auth credential being created.
-    @param accessToken The access token associated with the Auth credential be created, if
-        available.
-    @param displayName The displayName associated with the Auth credential being created.
-    @return A `AuthCredential` for the specified provider ID, ID token and access token.
+/** @fn appleCredentialWithIDToken:rawNonce:fullName:
+ *  @brief Creates an `AuthCredential` for the Sign in with Apple OAuth 2 provider identified by ID
+ * token, raw nonce, and full name.
+ *
+ *  @param IDToken The IDToken associated with the Sign in with Apple Auth credential being created.
+ *  @param rawNonce The raw nonce associated with the Sign in with Apple Auth credential being
+ * created.
+ *  @param fullName The full name associated with the Sign in with Apple Auth credential being
+ * created.
  */
-+ (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
-                                         IDToken:(NSString *)IDToken
-                                        rawNonce:(nullable NSString *)rawNonce
-                                     accessToken:(nullable NSString *)accessToken
-                                     displayName:(NSString *)displayName;
++ (FIROAuthCredential *)appleCredentialWithIDToken:(NSString *)IDToken
+                                          rawNonce:(nullable NSString *)rawNonce
+                                          fullName:(nullable NSPersonNameComponents *)fullName;
 
 /** @fn init
     @brief This class is not meant to be initialized.

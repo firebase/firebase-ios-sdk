@@ -43,11 +43,6 @@ NS_SWIFT_NAME(OAuthCredential)
  */
 @property(nonatomic, readonly, nullable) NSString *secret;
 
-/** @property displayName
-    @brief The displayName associated with this credential.
- */
-@property(nonatomic, readonly, nullable) NSString *displayName;
-
 /** @fn init
     @brief This class is not supposed to be instantiated directly.
  */

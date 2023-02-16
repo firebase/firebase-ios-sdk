@@ -410,12 +410,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization API_AVAILABLE(ios(13.0)) {
   ASAuthorizationAppleIDCredential* appleIDCredential = authorization.credential;
   NSString *IDToken = [NSString stringWithUTF8String:[appleIDCredential.identityToken bytes]];
-  NSString *displayName = [appleIDCredential.fullName.givenName stringByAppendingFormat:@" %@", appleIDCredential.fullName.familyName];
-  FIROAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:@"apple.com"
-                                                                      IDToken:IDToken
-                                                                     rawNonce:self.appleRawNonce
-                                                                  accessToken:nil
-                                                                  displayName:displayName];
+  FIROAuthCredential *credential =
+      [FIROAuthProvider appleCredentialWithIDToken:IDToken
+                                          rawNonce:self.appleRawNonce
+                                          fullName:appleIDCredential.fullName];
 
   if ([appleIDCredential.state isEqualToString:@"signIn"]) {
     [FIRAuth.auth signInWithCredential:credential completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
