@@ -183,17 +183,17 @@ private let kAccountPrefix = "firebase_auth_1_"
       @param key The key for the value being manipulated, used as the account field in the query.
    */
   private func genericPasswordQuery(key: String) -> [String: Any] {
-    var query: [String : Any] = [
+    var query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: kAccountPrefix + key,
       kSecAttrService as String: service,
     ]
 
     #if !FIREBASE_AUTH_MACOS_TESTING
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
-      query[kSecUseDataProtectionKeychain as String] = true
-    }
-    #endif  // !FIREBASE_AUTH_MACOS_TESTING
+      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
+        query[kSecUseDataProtectionKeychain as String] = true
+      }
+    #endif // !FIREBASE_AUTH_MACOS_TESTING
 
     return query
   }
