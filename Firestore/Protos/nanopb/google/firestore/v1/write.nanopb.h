@@ -21,6 +21,8 @@
 #define PB_GOOGLE_FIRESTORE_V1_WRITE_NANOPB_H_INCLUDED
 #include <pb.h>
 
+#include "google/firestore/v1/bloom_filter.nanopb.h"
+
 #include "google/firestore/v1/common.nanopb.h"
 
 #include "google/firestore/v1/document.nanopb.h"
@@ -108,6 +110,7 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
 typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t target_id;
     int32_t count;
+    google_firestore_v1_BloomFilter unchanged_names;
 
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_ExistenceFilter) */
@@ -152,7 +155,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_DocumentChange_init_default {google_firestore_v1_Document_init_default, 0, NULL, 0, NULL}
 #define google_firestore_v1_DocumentDelete_init_default {NULL, false, google_protobuf_Timestamp_init_default, 0, NULL}
 #define google_firestore_v1_DocumentRemove_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1_ExistenceFilter_init_default {0, 0}
+#define google_firestore_v1_ExistenceFilter_init_default {0, 0, google_firestore_v1_BloomFilter_init_default}
 #define google_firestore_v1_Write_init_zero      {0, {google_firestore_v1_Document_init_zero}, false, google_firestore_v1_DocumentMask_init_zero, false, google_firestore_v1_Precondition_init_zero, 0, NULL}
 #define google_firestore_v1_DocumentTransform_init_zero {NULL, 0, NULL}
 #define google_firestore_v1_DocumentTransform_FieldTransform_init_zero {NULL, 0, {_google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_MIN}}
@@ -160,7 +163,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_DocumentChange_init_zero {google_firestore_v1_Document_init_zero, 0, NULL, 0, NULL}
 #define google_firestore_v1_DocumentDelete_init_zero {NULL, false, google_protobuf_Timestamp_init_zero, 0, NULL}
 #define google_firestore_v1_DocumentRemove_init_zero {NULL, 0, NULL, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1_ExistenceFilter_init_zero {0, 0}
+#define google_firestore_v1_ExistenceFilter_init_zero {0, 0, google_firestore_v1_BloomFilter_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_firestore_v1_DocumentTransform_document_tag 1
@@ -183,6 +186,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_DocumentTransform_FieldTransform_field_path_tag 1
 #define google_firestore_v1_ExistenceFilter_target_id_tag 1
 #define google_firestore_v1_ExistenceFilter_count_tag 2
+#define google_firestore_v1_ExistenceFilter_unchanged_names_tag 3
 #define google_firestore_v1_Write_update_tag     1
 #define google_firestore_v1_Write_delete_tag     2
 #define google_firestore_v1_Write_verify_tag     5
@@ -201,7 +205,7 @@ extern const pb_field_t google_firestore_v1_WriteResult_fields[3];
 extern const pb_field_t google_firestore_v1_DocumentChange_fields[4];
 extern const pb_field_t google_firestore_v1_DocumentDelete_fields[4];
 extern const pb_field_t google_firestore_v1_DocumentRemove_fields[4];
-extern const pb_field_t google_firestore_v1_ExistenceFilter_fields[3];
+extern const pb_field_t google_firestore_v1_ExistenceFilter_fields[4];
 
 /* Maximum encoded size of messages (where known) */
 /* google_firestore_v1_Write_size depends on runtime parameters */
@@ -211,7 +215,7 @@ extern const pb_field_t google_firestore_v1_ExistenceFilter_fields[3];
 /* google_firestore_v1_DocumentChange_size depends on runtime parameters */
 /* google_firestore_v1_DocumentDelete_size depends on runtime parameters */
 /* google_firestore_v1_DocumentRemove_size depends on runtime parameters */
-#define google_firestore_v1_ExistenceFilter_size 22
+#define google_firestore_v1_ExistenceFilter_size (28 + google_firestore_v1_BloomFilter_size)
 
 /* Message IDs (where set with "msgid" option) */
 #ifdef PB_MSGID
