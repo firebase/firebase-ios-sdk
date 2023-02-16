@@ -89,16 +89,16 @@ import Foundation
           token, and access token.
 
       @param providerID The provider ID associated with the Auth credential being created.
-      @param IDToken The IDToken associated with the Auth credential being created.
+      @param idToken The IDToken associated with the Auth credential being created.
       @param accessToken The access token associated with the Auth credential be created, if
           available.
       @return A `AuthCredential` for the specified provider ID, ID token and access token.
    */
   @objc(credentialWithProviderID:IDToken:accessToken:)
-  public static func credential(providerID: String,
-                                IDToken: String,
+  public static func credential(withProviderID providerID: String,
+                                idToken: String,
                                 accessToken: String?) -> OAuthCredential {
-    return OAuthCredential(withProviderID: providerID, IDToken: IDToken, accessToken: accessToken)
+    return OAuthCredential(withProviderID: providerID, IDToken: idToken, accessToken: accessToken)
   }
 
   /**
@@ -110,7 +110,7 @@ import Foundation
       @return An `AuthCredential`.
    */
   @objc(credentialWithProviderID:accessToken:)
-  public static func credential(providerID: String,
+  public static func credential(withProviderID providerID: String,
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(withProviderID: providerID, accessToken: accessToken)
   }
@@ -120,18 +120,19 @@ import Foundation
           token, raw nonce, and access token.
 
       @param providerID The provider ID associated with the Auth credential being created.
-      @param IDToken The IDToken associated with the Auth credential being created.
+      @param idToken The IDToken associated with the Auth credential being created.
       @param rawNonce The raw nonce associated with the Auth credential being created.
       @param accessToken The access token associated with the Auth credential be created, if
           available.
       @return A `AuthCredential` for the specified provider ID, ID token and access token.
    */
   @objc(credentialWithProviderID:IDToken:rawNonce:accessToken:)
-  func credential(providerID: String, IDToken: String, rawNonce: String,
-                  accessToken: String) -> OAuthCredential {
+  public static func credential(withProviderID providerID: String, idToken: String,
+                                rawNonce: String,
+                                accessToken: String) -> OAuthCredential {
     return OAuthCredential(
       withProviderID: providerID,
-      IDToken: IDToken,
+      IDToken: idToken,
       rawNonce: rawNonce,
       accessToken: accessToken
     )
@@ -142,13 +143,14 @@ import Foundation
         an ID token and raw nonce.
 
       @param providerID The provider ID associated with the Auth credential being created.
-      @param IDToken The IDToken associated with the Auth credential being created.
+      @param idToken The IDToken associated with the Auth credential being created.
       @param rawNonce The raw nonce associated with the Auth credential being created.
       @return A `AuthCredential`.
    */
   @objc(credentialWithProviderID:IDToken:rawNonce:)
-  func credential(providerID: String, IDToken: String, rawNonce: String) -> OAuthCredential {
-    return OAuthCredential(withProviderID: providerID, IDToken: IDToken, rawNonce: rawNonce)
+  public static func credential(withProviderID providerID: String, idToken: String,
+                                rawNonce: String) -> OAuthCredential {
+    return OAuthCredential(withProviderID: providerID, IDToken: idToken, rawNonce: rawNonce)
   }
 
   #if os(iOS)
