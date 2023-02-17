@@ -92,8 +92,13 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   }
 
   func respond(serverErrorMessage errorMessage: String, error: NSError) throws -> Data {
-    let error = NSError(domain: NSCocoaErrorDomain, code: 0)
     return try respond(withJSON: ["error": ["message": errorMessage]], error: error)
+  }
+
+  @discardableResult func respond(underlyingErrorMessage errorMessage: String) throws -> Data {
+    let error = NSError(domain: NSCocoaErrorDomain, code: 0)
+    return try respond(withJSON: ["error": ["message": "Fall through to underlying",
+                                            "errors": [["reason": errorMessage]]]], error: error)
   }
 
   func respond(withJSON json: [String: Any], error: NSError? = nil) throws -> Data {
