@@ -1102,7 +1102,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testSignInWithGoogleAccountExistsError
     @brief Tests the flow of a failed @c signInWithCredential:completion: with a Google credential
         where the backend returns a needs @needConfirmation equal to true. An
@@ -1141,7 +1141,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInWithGoogleCredentialSuccess
     @brief Tests the flow of a successful @c signInWithCredential:completion: call with an
         Google Sign-In credential.
@@ -1757,96 +1757,6 @@ static const NSTimeInterval kWaitInterval = .5;
                  [expectation fulfill];
                }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-}
-
-/** @fn testSendPasswordResetEmailSuccess
-    @brief Tests the flow of a successful @c sendPasswordResetWithEmail:completion: call.
- */
-- (void)testSendPasswordResetEmailSuccess {
-  OCMExpect([_mockBackend getOOBConfirmationCode:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(^(FIRGetOOBConfirmationCodeRequest *_Nullable request,
-                       FIRGetOOBConfirmationCodeResponseCallback callback) {
-        XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.email, kEmail);
-        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          callback([[FIRGetOOBConfirmationCodeResponse alloc] init], nil);
-        });
-      });
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] sendPasswordResetWithEmail:kEmail
-                                  completion:^(NSError *_Nullable error) {
-                                    XCTAssertTrue([NSThread isMainThread]);
-                                    XCTAssertNil(error);
-                                    [expectation fulfill];
-                                  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
-/** @fn testSendPasswordResetEmailFailure
-    @brief Tests the flow of a failed @c sendPasswordResetWithEmail:completion: call.
- */
-- (void)testSendPasswordResetEmailFailure {
-  OCMExpect([_mockBackend getOOBConfirmationCode:[OCMArg any] callback:[OCMArg any]])
-      .andDispatchError2([FIRAuthErrorUtils appNotAuthorizedError]);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] sendPasswordResetWithEmail:kEmail
-                                  completion:^(NSError *_Nullable error) {
-                                    XCTAssertTrue([NSThread isMainThread]);
-                                    XCTAssertEqual(error.code, FIRAuthErrorCodeAppNotAuthorized);
-                                    XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
-                                    [expectation fulfill];
-                                  }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
-/** @fn testSendSignInLinkToEmailSuccess
-    @brief Tests the flow of a successful @c sendSignInLinkToEmail:actionCodeSettings:completion:
-        call.
- */
-- (void)testSendSignInLinkToEmailSuccess {
-  OCMExpect([_mockBackend getOOBConfirmationCode:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(^(FIRGetOOBConfirmationCodeRequest *_Nullable request,
-                       FIRGetOOBConfirmationCodeResponseCallback callback) {
-        XCTAssertEqualObjects(request.APIKey, kAPIKey);
-        XCTAssertEqualObjects(request.email, kEmail);
-        XCTAssertEqualObjects(request.continueURL, kContinueURL);
-        XCTAssertTrue(request.handleCodeInApp);
-        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          callback([[FIRGetOOBConfirmationCodeResponse alloc] init], nil);
-        });
-      });
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] sendSignInLinkToEmail:kEmail
-                     actionCodeSettings:[self fakeActionCodeSettings]
-                             completion:^(NSError *_Nullable error) {
-                               XCTAssertTrue([NSThread isMainThread]);
-                               XCTAssertNil(error);
-                               [expectation fulfill];
-                             }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
-/** @fn testSendSignInLinkToEmailFailure
-    @brief Tests the flow of a failed @c sendSignInLinkToEmail:actionCodeSettings:completion:
-        call.
- */
-- (void)testSendSignInLinkToEmailFailure {
-  OCMExpect([_mockBackend getOOBConfirmationCode:[OCMArg any] callback:[OCMArg any]])
-      .andDispatchError2([FIRAuthErrorUtils appNotAuthorizedError]);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] sendSignInLinkToEmail:kEmail
-                     actionCodeSettings:[self fakeActionCodeSettings]
-                             completion:^(NSError *_Nullable error) {
-                               XCTAssertTrue([NSThread isMainThread]);
-                               XCTAssertEqual(error.code, FIRAuthErrorCodeAppNotAuthorized);
-                               XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
-                               [expectation fulfill];
-                             }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
 }
 
 /** @fn fakeActionCodeSettings

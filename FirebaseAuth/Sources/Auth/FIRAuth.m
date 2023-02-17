@@ -1273,15 +1273,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         passwordResetRequestWithEmail:email
                    actionCodeSettings:actionCodeSettings
                  requestConfiguration:self->_requestConfiguration];
-    [FIRAuthBackend getOOBConfirmationCode:request
-                                  callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
-                                             NSError *_Nullable error) {
-                                    if (completion) {
-                                      dispatch_async(dispatch_get_main_queue(), ^{
-                                        completion(error);
-                                      });
-                                    }
-                                  }];
+    [FIRAuthBackend2 postWithRequest:request
+                            callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                       NSError *_Nullable error) {
+                              if (completion) {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                  completion(error);
+                                });
+                              }
+                            }];
   });
 }
 
@@ -1302,15 +1302,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
                                                   actionCodeSettings:actionCodeSettings
                                                 requestConfiguration:self->_requestConfiguration];
-    [FIRAuthBackend getOOBConfirmationCode:request
-                                  callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
-                                             NSError *_Nullable error) {
-                                    if (completion) {
-                                      dispatch_async(dispatch_get_main_queue(), ^{
-                                        completion(error);
-                                      });
-                                    }
-                                  }];
+    [FIRAuthBackend2 postWithRequest:request
+                            callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                       NSError *_Nullable error) {
+                              if (completion) {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                  completion(error);
+                                });
+                              }
+                            }];
   });
 }
 
