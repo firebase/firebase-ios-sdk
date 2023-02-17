@@ -506,11 +506,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] secureToken:request callback:callback];
 }
 
-+ (void)getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
-                      callback:(FIRGetOOBConfirmationCodeResponseCallback)callback {
-  [[self implementation] getOOBConfirmationCode:request callback:callback];
-}
-
 + (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback {
   [[self implementation] signUpNewUser:request callback:callback];
@@ -738,20 +733,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   FIRSecureTokenResponse *response = [[FIRSecureTokenResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
-}
-
-- (void)getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
-                      callback:(FIRGetOOBConfirmationCodeResponseCallback)callback {
-  FIRGetOOBConfirmationCodeResponse *response = [[FIRGetOOBConfirmationCodeResponse alloc] init];
   [self postWithRequest:request
                response:response
                callback:^(NSError *error) {
