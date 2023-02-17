@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIREBASE_CORE_SRC_REMOTE_BLOOM_FILTER_H
-#define FIREBASE_CORE_SRC_REMOTE_BLOOM_FILTER_H
+#ifndef FIRESTORE_CORE_SRC_REMOTE_BLOOM_FILTER_H_
+#define FIRESTORE_CORE_SRC_REMOTE_BLOOM_FILTER_H_
 
 #include <string>
 #include <vector>
@@ -85,4 +85,4 @@ class BloomFilter final {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_CORE_SRC_REMOTE_BLOOM_FILTER_H
+#endif  // FIRESTORE_CORE_SRC_REMOTE_BLOOM_FILTER_H_
