@@ -19,8 +19,11 @@ import XCTest
 import FirebaseCore
 
 class AuthTests: RPCBaseTests {
+  private let kEmail = "user@company.com"
+  private let kContinueURL = "continueURL"
   static let kFakeAPIKey = "FAKE_API_KEY"
   static var auth: Auth?
+
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
@@ -34,7 +37,6 @@ class AuthTests: RPCBaseTests {
       @brief Tests the flow of a successful @c fetchSignInMethodsForEmail:completion: call.
    */
   func testFetchSignInMethodsForEmailSuccess() throws {
-    let kEmail = "user@company.com"
     let allSignInMethods = ["emailLink", "facebook.com"]
     let expectation = self.expectation(description: #function)
 
@@ -68,7 +70,6 @@ class AuthTests: RPCBaseTests {
       @brief Tests the flow of a failed @c fetchSignInMethodsForEmail:completion: call.
    */
   func testFetchSignInMethodsForEmailFailure() throws {
-    let kEmail = "user@company.com"
     let expectation = self.expectation(description: #function)
     let group = DispatchGroup()
     RPCIssuer?.group = group
@@ -85,6 +86,123 @@ class AuthTests: RPCBaseTests {
 
     let message = "TOO_MANY_ATTEMPTS_TRY_LATER"
     try RPCIssuer?.respond(serverErrorMessage: message)
+
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testSendPasswordResetEmailSuccess
+      @brief Tests the flow of a successful @c sendPasswordReset call.
+   */
+  func testSendPasswordResetEmailSuccess() throws {
+    let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
+    let group = DispatchGroup()
+    RPCIssuer?.group = group
+    group.enter()
+
+    AuthTests.auth?.sendPasswordReset(withEmail: kEmail) { error in
+      // 4. After the reponse triggers the callback, verify the returned signInMethods.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(RPCIssuer?.request as? GetOOBConfirmationCodeRequest)
+    XCTAssertEqual(request.email, kEmail)
+    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+
+    // 3. Send the response from the fake backend.
+    _ = try RPCIssuer?.respond(withJSON: [:])
+
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testSendPasswordResetEmailFailure
+      @brief Tests the flow of a failed @c sendPasswordReset call.
+   */
+  func testSendPasswordResetEmailFailure() throws {
+    let expectation = self.expectation(description: #function)
+    let group = DispatchGroup()
+    RPCIssuer?.group = group
+    group.enter()
+
+    AuthTests.auth?.sendPasswordReset(withEmail: kEmail) { error in
+      XCTAssertTrue(Thread.isMainThread)
+      let rpcError = (error as? NSError)!
+      XCTAssertEqual(rpcError.code, AuthErrorCode.appNotAuthorized.rawValue)
+      XCTAssertNotNil(rpcError.userInfo[NSLocalizedDescriptionKey])
+      expectation.fulfill()
+    }
+    group.wait()
+
+    try RPCIssuer?.respond(underlyingErrorMessage: "ipRefererBlocked")
+
+    waitForExpectations(timeout: 5)
+  }
+
+//  /** @fn testSendSignInLinkToEmailSuccess
+//      @brief Tests the flow of a successful @c sendSignInLinkToEmail call.
+//   */
+  func testSendSignInLinkToEmailSuccess() throws {
+    let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
+    let group = DispatchGroup()
+    RPCIssuer?.group = group
+    group.enter()
+
+    AuthTests.auth?.sendSignInLink(toEmail: kEmail,
+                                   actionCodeSettings: fakeActionCodeSettings()) { error in
+      // 4. After the reponse triggers the callback, verify the returned signInMethods.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(RPCIssuer?.request as? GetOOBConfirmationCodeRequest)
+    XCTAssertEqual(request.email, kEmail)
+    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.continueURL, kContinueURL)
+    XCTAssertTrue(request.handleCodeInApp)
+
+    // 3. Send the response from the fake backend.
+    _ = try RPCIssuer?.respond(withJSON: [:])
+
+    waitForExpectations(timeout: 5)
+  }
+
+  private func fakeActionCodeSettings() -> ActionCodeSettings {
+    let settings = ActionCodeSettings()
+    settings.handleCodeInApp = true
+    settings.URL = URL(string: kContinueURL)
+    return settings
+  }
+
+  /** @fn testSendSignInLinkToEmailFailure
+      @brief Tests the flow of a failed @c sendSignInLink call.
+   */
+  func testSendPasswordResetEmtestSendSignInLinkToEmailFailureailFailure() throws {
+    let expectation = self.expectation(description: #function)
+    let group = DispatchGroup()
+    RPCIssuer?.group = group
+    group.enter()
+
+    AuthTests.auth?.sendSignInLink(toEmail: kEmail,
+                                   actionCodeSettings: fakeActionCodeSettings()) { error in
+      XCTAssertTrue(Thread.isMainThread)
+      let rpcError = (error as? NSError)!
+      XCTAssertEqual(rpcError.code, AuthErrorCode.appNotAuthorized.rawValue)
+      XCTAssertNotNil(rpcError.userInfo[NSLocalizedDescriptionKey])
+      expectation.fulfill()
+    }
+    group.wait()
+
+    try RPCIssuer?.respond(underlyingErrorMessage: "ipRefererBlocked")
 
     waitForExpectations(timeout: 5)
   }
