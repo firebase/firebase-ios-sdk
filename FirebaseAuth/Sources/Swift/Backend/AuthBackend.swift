@@ -314,7 +314,6 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       // first:
       if error != nil {
         if let errorDictionary = dictionary["error"] as? [String: Any] {
-          // TODO: port clientError
           if let errorMessage = errorDictionary["message"] as? String {
             let clientError = AuthBackendRPCImplementation.clientError(
               withServerErrorMessage: errorMessage,
@@ -415,13 +414,39 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .weakPasswordError(serverResponseReason: serverDetailErrorMessage)
     case "TOO_MANY_ATTEMPTS_TRY_LATER": return AuthErrorUtils
       .tooManyRequestsError(message: serverDetailErrorMessage)
+    case "EMAIL_NOT_FOUND": return AuthErrorUtils
+      .userNotFoundError(message: serverDetailErrorMessage)
+    case "MISSING_EMAIL": return AuthErrorUtils
+      .missingEmailError(message: serverDetailErrorMessage)
+    case "MISSING_IOS_BUNDLE_ID": return AuthErrorUtils
+      .missingIosBundleIDError(message: serverDetailErrorMessage)
+    case "MISSING_ANDROID_PACKAGE_NAME": return AuthErrorUtils
+      .missingAndroidPackageNameError(message: serverDetailErrorMessage)
+    case "UNAUTHORIZED_DOMAIN": return AuthErrorUtils
+      .unauthorizedDomainError(message: serverDetailErrorMessage)
+    case "INVALID_CONTINUE_URI": return AuthErrorUtils
+      .invalidContinueURIError(message: serverDetailErrorMessage)
 
-    // TODO: MISSING_API_KEY should go away and its code should be default
+    // TODO: MISSING_API_KEY should go away and its code should be generated in the "keyInvalid".
     case "MISSING_API_KEY": return AuthErrorUtils.unexpectedResponse(
         deserializedResponse: errorDictionary,
         underlyingError: error
       )
-    default: fatalError("Implement missing message for: \(shortErrorMessage ?? "missing value")")
+    default:
+      if let underlyingErrors = errorDictionary["errors"] as? [[String: String]] {
+        for underlyingError in underlyingErrors {
+          if let reason = underlyingError["reason"] {
+            if reason.starts(with: "keyInvalid") {
+              return AuthErrorUtils.invalidAPIKeyError()
+            }
+            if underlyingError["reason"] == "ipRefererBlocked" {
+              return AuthErrorUtils.appNotAuthorizedError()
+            }
+          }
+        }
+      }
     }
+    // TODO: Old code returns nil on fall through.
+    fatalError("Implement missing message for: \(shortErrorMessage ?? "missing value")")
   }
 }
