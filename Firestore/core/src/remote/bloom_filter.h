@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef FIREBASE_BLOOM_FILTER_H
-#define FIREBASE_BLOOM_FILTER_H
+#ifndef FIREBASE_CORE_SRC_REMOTE_BLOOM_FILTER_H
+#define FIREBASE_CORE_SRC_REMOTE_BLOOM_FILTER_H
 
 #include <string>
 #include "absl/status/statusor.h"
@@ -73,4 +73,4 @@ class BloomFilter {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_BLOOM_FILTER_H
+#endif  // FIREBASE_CORE_SRC_REMOTE_BLOOM_FILTER_H
