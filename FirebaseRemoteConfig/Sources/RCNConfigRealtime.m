@@ -36,10 +36,6 @@ static NSString *const kServerURLKey = @"key=";
 static NSString *const kEnableRealtimeURL =
     @"https://console.developers.google.com/apis/api/firebaseremoteconfigrealtime.googleapis.com/"
     @"overview?project=";
-static NSString *const kApiDisabledErrorMessage =
-    @"The Remote Config Realtime API is disabled. It must be enabled in the Google Cloud Console. "
-    @"If you enabled this API recently, wait a few minutes for the action to propagate to our "
-    @"systems and retry. You can enable the API by following this URL: %@";
 
 /// Header names
 static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method config fetch using
@@ -542,6 +538,8 @@ static NSInteger const gMaxRetries = 7;
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 
+  /// If response data contains the API enablement link, return the entire message to the user in
+  /// the form of a error.
   if ([strData containsString:kEnableRealtimeURL]) {
     NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                                          code:FIRRemoteConfigUpdateErrorStreamError
