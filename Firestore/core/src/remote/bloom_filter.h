@@ -25,7 +25,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-class BloomFilter final{
+class BloomFilter final {
  public:
   BloomFilter(std::vector<uint8_t> bitmap, int32_t padding, int32_t hash_count);
 
@@ -44,22 +44,22 @@ class BloomFilter final{
    * @return true if the given string might be contained in the bloom filter, or
    * false if the given string is definitely not contained in the bloom filter.
    */
-   bool MightContain(absl::string_view value) const;
+  bool MightContain(absl::string_view value) const;
 
-   // Get the `bit_count_` field. Used for testing purpose.
-   int32_t bit_count() const {
+  // Get the `bit_count_` field. Used for testing purpose.
+  int32_t bit_count() const {
     return bit_count_;
-   }
-   
+  }
+
  private:
   // The number of bits in the bloom filter. Guaranteed to be non-negative, and
   // less than the max number of bits `bitmap_` can represent, i.e.,
   // bitmap_.size() * 8.
-  int32_t bit_count_=0;
+  int32_t bit_count_ = 0;
 
   // The number of hash functions used to construct the filter. Guaranteed to be
   // non-negative.
-  int32_t hash_count_=0;
+  int32_t hash_count_ = 0;
 
   // Bloom filter's bitmap.
   std::vector<uint8_t> bitmap_;
