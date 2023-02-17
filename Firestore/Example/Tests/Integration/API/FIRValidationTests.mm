@@ -774,23 +774,6 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
                    "the same field. But you have inequality filters on 'x' and 'y'");
 }
 
-- (void)testQueriesWithMultipleArrayFiltersFail {
-  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
-  FSTAssertThrows([[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo"
-                                                                    arrayContains:@2],
-                  @"Invalid Query. You cannot use more than one 'arrayContains' filter.");
-
-  FSTAssertThrows(
-      [[coll queryWhereField:@"foo" arrayContains:@1] queryWhereField:@"foo"
-                                                     arrayContainsAny:@[ @2 ]],
-      @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'arrayContains' filters.");
-
-  FSTAssertThrows(
-      [[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo"
-                                                                arrayContains:@2],
-      @"Invalid Query. You cannot use 'arrayContains' filters with 'arrayContainsAny' filters.");
-}
-
 - (void)testQueriesWithNotEqualAndNotInFiltersFail {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
 
@@ -805,24 +788,10 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
 
 - (void)testQueriesWithMultipleDisjunctiveFiltersFail {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
-  FSTAssertThrows([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo" in:@[ @2 ]],
-                  @"Invalid Query. You cannot use more than one 'in' filter.");
-
-  FSTAssertThrows([[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo"
-                                                                         arrayContainsAny:@[ @2 ]],
-                  @"Invalid Query. You cannot use more than one 'arrayContainsAny' filter.");
 
   FSTAssertThrows([[coll queryWhereField:@"foo" notIn:@[ @1 ]] queryWhereField:@"foo"
                                                                          notIn:@[ @2 ]],
                   @"Invalid Query. You cannot use more than one 'notIn' filter.");
-
-  FSTAssertThrows([[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo"
-                                                                                       in:@[ @2 ]],
-                  @"Invalid Query. You cannot use 'in' filters with 'arrayContainsAny' filters.");
-
-  FSTAssertThrows([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo"
-                                                           arrayContainsAny:@[ @2 ]],
-                  @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
 
   FSTAssertThrows(
       [[coll queryWhereField:@"foo" arrayContainsAny:@[ @1 ]] queryWhereField:@"foo" notIn:@[ @2 ]],
@@ -837,31 +806,6 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
 
   FSTAssertThrows([[coll queryWhereField:@"foo" notIn:@[ @1 ]] queryWhereField:@"foo" in:@[ @2 ]],
                   @"Invalid Query. You cannot use 'in' filters with 'notIn' filters.");
-
-  // This is redundant with the above tests, but makes sure our validation doesn't get confused.
-  FSTAssertThrows([[[coll queryWhereField:@"foo"
-                                       in:@[ @1 ]] queryWhereField:@"foo"
-                                                     arrayContains:@2] queryWhereField:@"foo"
-                                                                      arrayContainsAny:@[ @2 ]],
-                  @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'in' filters.");
-
-  FSTAssertThrows(
-      [[[coll queryWhereField:@"foo"
-                arrayContains:@1] queryWhereField:@"foo" in:@[ @2 ]] queryWhereField:@"foo"
-                                                                    arrayContainsAny:@[ @2 ]],
-      @"Invalid Query. You cannot use 'arrayContainsAny' filters with 'arrayContains' filters.");
-
-  FSTAssertThrows([[[coll queryWhereField:@"foo"
-                                    notIn:@[ @1 ]] queryWhereField:@"foo"
-                                                     arrayContains:@2] queryWhereField:@"foo"
-                                                                      arrayContainsAny:@[ @2 ]],
-                  @"Invalid Query. You cannot use 'arrayContains' filters with 'notIn' filters.");
-
-  FSTAssertThrows([[[coll queryWhereField:@"foo"
-                            arrayContains:@1] queryWhereField:@"foo"
-                                                           in:@[ @2 ]] queryWhereField:@"foo"
-                                                                                 notIn:@[ @2 ]],
-                  @"Invalid Query. You cannot use 'notIn' filters with 'arrayContains' filters.");
 }
 
 - (void)testQueriesCanUseInWithArrayContain {
@@ -873,18 +817,6 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
   XCTAssertNoThrow([[coll queryWhereField:@"foo" in:@[ @1 ]] queryWhereField:@"foo"
                                                                arrayContains:@2],
                    @"IN with arrayContains works.");
-
-  FSTAssertThrows([[[coll queryWhereField:@"foo"
-                                       in:@[ @1 ]] queryWhereField:@"foo"
-                                                     arrayContains:@2] queryWhereField:@"foo"
-                                                                         arrayContains:@3],
-                  @"Invalid Query. You cannot use more than one 'arrayContains' filter.");
-
-  FSTAssertThrows([[[coll queryWhereField:@"foo"
-                            arrayContains:@1] queryWhereField:@"foo"
-                                                           in:@[ @2 ]] queryWhereField:@"foo"
-                                                                                    in:@[ @3 ]],
-                  @"Invalid Query. You cannot use more than one 'in' filter.");
 }
 
 - (void)testQueriesInAndArrayContainsAnyArrayRules {
@@ -898,18 +830,6 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
 
   FSTAssertThrows([coll queryWhereField:@"foo" arrayContainsAny:@[]],
                   @"Invalid Query. A non-empty array is required for 'arrayContainsAny' filters.");
-
-  // The 10 element max includes duplicates.
-  NSArray *values = @[ @1, @2, @3, @4, @5, @6, @7, @8, @9, @9, @9 ];
-  FSTAssertThrows(
-      [coll queryWhereField:@"foo" in:values],
-      @"Invalid Query. 'in' filters support a maximum of 10 elements in the value array.");
-  FSTAssertThrows([coll queryWhereField:@"foo" arrayContainsAny:values],
-                  @"Invalid Query. 'arrayContainsAny' filters support a maximum of 10 elements"
-                   " in the value array.");
-  FSTAssertThrows(
-      [coll queryWhereField:@"foo" notIn:values],
-      @"Invalid Query. 'notIn' filters support a maximum of 10 elements in the value array.");
 }
 
 #pragma mark - GeoPoint Validation
