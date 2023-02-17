@@ -19,8 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRGetOOBConfirmationCodeRequest;
-@class FIRGetOOBConfirmationCodeResponse;
 @class FIRResetPasswordRequest;
 @class FIRResetPasswordResponse;
 @class FIRSecureTokenRequest;
@@ -100,16 +98,6 @@ typedef void (^FIRVerifyCustomTokenResponseCallback)(
     @param error The error which occurred, or nil if the request was successful.
  */
 typedef void (^FIRDeleteCallBack)(NSError *_Nullable error);
-
-/** @typedef FIRGetOOBConfirmationCodeResponseCallback
-    @brief The type of block used to return the result of a call to the getOOBConfirmationCode
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRGetOOBConfirmationCodeResponseCallback)(
-    FIRGetOOBConfirmationCodeResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRSignupNewUserCallback
     @brief The type of block used to return the result of a call to the signupNewUser endpoint.
@@ -246,15 +234,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback;
 
-/** @fn getOOBConfirmationCode:callback:
-    @brief Calls the getOOBConfirmationCode endpoint, which is responsible for sending email change
-        request emails, and password reset emails.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
-                      callback:(FIRGetOOBConfirmationCodeResponseCallback)callback;
-
 /** @fn signUpNewUser:
     @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
         or signing in a user anonymously.
@@ -386,15 +365,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback;
-
-/** @fn getOOBConfirmationCode:callback:
-    @brief Calls the getOOBConfirmationCode endpoint, which is responsible for sending email change
-        request emails, email sign-in link emails, and password reset emails.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
-                      callback:(FIRGetOOBConfirmationCodeResponseCallback)callback;
 
 /** @fn signUpNewUser:
     @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
