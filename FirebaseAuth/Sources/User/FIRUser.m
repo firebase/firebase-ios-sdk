@@ -1031,12 +1031,11 @@ static void callInMainThreadWithAuthDataResultAndError(
                                             newEmail:newEmail
                                   actionCodeSettings:settings
                                 requestConfiguration:configuration];
-          [FIRAuthBackend
-              getOOBConfirmationCode:request
-                            callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
-                                       NSError *_Nullable error) {
-                              callInMainThreadWithError(completion, error);
-                            }];
+          [FIRAuthBackend2 postWithRequest:request
+                                  callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                             NSError *_Nullable error) {
+                                    callInMainThreadWithError(completion, error);
+                                  }];
         }];
   });
 }
@@ -1424,13 +1423,12 @@ static void callInMainThreadWithAuthDataResultAndError(
               [FIRGetOOBConfirmationCodeRequest verifyEmailRequestWithAccessToken:accessToken
                                                                actionCodeSettings:actionCodeSettings
                                                              requestConfiguration:configuration];
-          [FIRAuthBackend
-              getOOBConfirmationCode:request
-                            callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
-                                       NSError *_Nullable error) {
-                              [self signOutIfTokenIsInvalidWithError:error];
-                              callInMainThreadWithError(completion, error);
-                            }];
+          [FIRAuthBackend2 postWithRequest:request
+                                  callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                             NSError *_Nullable error) {
+                                    [self signOutIfTokenIsInvalidWithError:error];
+                                    callInMainThreadWithError(completion, error);
+                                  }];
         }];
   });
 }
