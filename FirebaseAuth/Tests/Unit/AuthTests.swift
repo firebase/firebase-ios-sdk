@@ -186,7 +186,7 @@ class AuthTests: RPCBaseTests {
   /** @fn testSendSignInLinkToEmailFailure
       @brief Tests the flow of a failed @c sendSignInLink call.
    */
-  func testSendPasswordResetEmtestSendSignInLinkToEmailFailureailFailure() throws {
+  func testSendSignInLinkToEmailFailure() throws {
     let expectation = self.expectation(description: #function)
     let group = DispatchGroup()
     RPCIssuer?.group = group
