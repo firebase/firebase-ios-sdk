@@ -30,15 +30,59 @@ TEST_F(BloomFilterTest, CanInstantiateEmptyBloomFilter) {
 }
 
 TEST_F(BloomFilterTest, CanInstantiateNonEmptyBloomFilter) {
-  BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{1}, 1, 1);
-  EXPECT_EQ(bloomFilter.bit_count(), 7);
+  {
+    BloomFilter bloomFilter1 = BloomFilter(std::vector<uint8_t>{1}, 0, 1);
+    EXPECT_EQ(bloomFilter1.bit_count(), 8);
+  }
+  {
+    BloomFilter bloomFilter2 = BloomFilter(std::vector<uint8_t>{1}, 7, 1);
+    EXPECT_EQ(bloomFilter2.bit_count(), 1);
+  }
 }
 
-TEST_F(BloomFilterTest, CanRunMightContain) {
+/** handle exception */
+//TEST_F(BloomFilterTest,
+//       ConstructorShouldThrowIAEOnNonEmptyBloomFilterWithZeroHashCount) {
+//  BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{1}, 1, 0);
+//}
+//
+//TEST_F(BloomFilterTest, ConstructorShouldThrowIAEOnNegativePadding) {
+//  { BloomFilter bloomFilter1 = BloomFilter(std::vector<uint8_t>{0}, -1, 1); }
+//  { BloomFilter bloomFilter2 = BloomFilter(std::vector<uint8_t>{1}, -1, 1); }
+//}
+//
+//TEST_F(BloomFilterTest, ConstructorShouldThrowIAEOnNegativeHashCount) {
+//  { BloomFilter bloomFilter1 = BloomFilter(std::vector<uint8_t>{0}, 0, -1); }
+//  { BloomFilter bloomFilter2 = BloomFilter(std::vector<uint8_t>{1}, 1, -1); }
+//}
+//
+//TEST_F(BloomFilterTest, ConstructorShouldThrowIAEIfPaddingIsTooLarge) {
+//  BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{1}, 8, 1);
+//}
+
+TEST_F(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
   // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
   BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{237, 5}, 5, 8);
   EXPECT_TRUE(bloomFilter.MightContain("ÀÒ∑"));
   EXPECT_FALSE(bloomFilter.MightContain("Ò∑À"));
+}
+
+TEST_F(BloomFilterTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
+  BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{}, 0, 0);
+  EXPECT_FALSE(bloomFilter.MightContain(""));
+  EXPECT_FALSE(bloomFilter.MightContain("a"));
+}
+
+TEST_F(BloomFilterTest,
+       MightContainWithEmptyStringMightReturnFalsePositiveResult) {
+  {
+    BloomFilter bloomFilter1 = BloomFilter(std::vector<uint8_t>{1}, 1, 1);
+    EXPECT_FALSE(bloomFilter1.MightContain(""));
+  }
+  {
+    BloomFilter bloomFilter2 = BloomFilter(std::vector<uint8_t>{255}, 0, 16);
+    EXPECT_TRUE(bloomFilter2.MightContain(""));
+  }
 }
 
 }  // namespace remote

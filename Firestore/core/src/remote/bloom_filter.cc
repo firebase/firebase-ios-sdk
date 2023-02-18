@@ -27,7 +27,6 @@ namespace remote {
 BloomFilter::Hash BloomFilter::Md5HashDigest(
     const absl::string_view key) const {
   unsigned char md5_digest[MD5_DIGEST_LENGTH];
-  static_assert(sizeof(md5_digest) == sizeof(BloomFilter::Hash), "");
 
   MD5_CTX context;
   MD5_Init(&context);
@@ -61,7 +60,6 @@ bool BloomFilter::IsBitSet(const std::vector<uint8_t>& bitmap,
 BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
                          int32_t padding,
                          int32_t hash_count) {
-
   if (padding < 0 || padding >= 8) {
     throw std::invalid_argument(&"Invalid padding: "[padding]);
   }
