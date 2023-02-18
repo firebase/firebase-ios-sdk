@@ -79,6 +79,15 @@ class BloomFilter final {
 
   // Bloom filter's bitmap.
   std::vector<uint8_t> bitmap_;
+
+  // Do we want these here? if not, I can remove the MakeString:: in .cc
+  BloomFilter::Hash Md5HashDigest(const absl::string_view key) const;
+
+  int32_t GetBitIndex(const BloomFilter::Hash& hash,
+                      int32_t i,
+                      int32_t bit_count) const;
+
+  bool IsBitSet(const std::vector<uint8_t>& bitmap, int32_t index) const;
 };
 
 }  // namespace remote
