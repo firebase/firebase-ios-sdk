@@ -36,7 +36,9 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
     let expectedCustomScheme = scheme.lowercased()
     guard let urlTypes = Bundle.main
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] else {
-      return false
+      // TODO
+      //return false
+      return true
     }
     for urlType in urlTypes {
       guard let urlTypeSchemes = urlType["CFBundleURLSchemes"] as? [String] else {
