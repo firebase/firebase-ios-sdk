@@ -27,11 +27,10 @@
 
 @implementation RealtimeMocks
 
-(RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)configRealtime {
++ (RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)configRealtime {
     RCNConfigRealtime *mockRealtime = OCMPartialMock(configRealtime);
-    OCMStub([mockRealtime recreateNetworkSession]).andDo(nil);
-    OCMStub([mockRealtime beginRealtimeStream]).andCall(mockRealtime, @selector(fetchLatestConfig:1 targetVersion:1))
-    
+    OCMStub([mockRealtime beginRealtimeStream]).andCall(mockRealtime, @selector(fetchLatestConfig:targetVersion:));
+    return mockRealtime;
 }
 
 @end
