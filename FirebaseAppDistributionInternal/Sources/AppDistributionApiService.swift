@@ -84,7 +84,6 @@ enum AppDistributionApiError: NSInteger {
       let listReleaseDataTask = URLSession.shared.dataTask(with: request as URLRequest) { (data, response, error) in
         var fadError = error
         let releases = self.handleReleaseResponse(data: data! as NSData, response: response, error: &fadError)
-        let statusCode = (response as! HTTPURLResponse).statusCode
         DispatchQueue.main.async {
           completion(releases, fadError)
         }
@@ -97,7 +96,7 @@ enum AppDistributionApiError: NSInteger {
   static func handleError(httpResponse: HTTPURLResponse?, error: inout Error?) -> Bool {
     if error != nil || httpResponse == nil {
       return self.handleError(error: &error, description: "Unknown http error occurred", code: .ApiErrorUnknownFailure)
-    } else if httpResponse?.statusCode == 200 {
+    } else if httpResponse?.statusCode != 200 {
       error = self.createError(statusCode: httpResponse!.statusCode)
       return true
     }
@@ -152,20 +151,20 @@ enum AppDistributionApiError: NSInteger {
     }
     
     let httpResponse = response as! HTTPURLResponse
-//    Logger.logInfo(String(format:"HTTPResponse status code %ld, response %@", httpResponse.statusCode, httpResponse))
+    Logger.logInfo(String(format:"HTTPResponse status code %ld, response %@", httpResponse.statusCode, httpResponse))
     
     if (self.handleError(httpResponse: httpResponse, error: &error)) {
 //      Logger.logError(String(format:"App tester API service error: %@", error?.localizedDescription ?? ""))
       return nil
     }
-    return self.parseApiResponseWithData(data: data, error: error)
+    return self.parseApiResponseWithData(data: data, error: &error)
   }
     
-  static func parseApiResponseWithData(data: NSData?, error: Error?) -> Array<Any>? {
+  static func parseApiResponseWithData(data: NSData?, error: inout Error?) -> Array<Any>? {
     guard let data = data else {
       return nil
     }
-    
+        
     do {
       let serializedResponse = try JSONSerialization.jsonObject(with: data as Data, options: JSONSerialization.ReadingOptions(rawValue: 0)) as? [String: Any]
       return serializedResponse![Strings.responseReleaseKey] as? Array<Any>
