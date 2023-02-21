@@ -147,11 +147,11 @@ class APITests: APITestBase {
   func testRealtimeRemoteConfigFetch() {
     let expectation = self.expectation(description: #function)
     config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
-        if let error = Error {
-            XCTFail("Realtime update Error \(error)")
-        }
+      if let error = Error {
+        XCTFail("Realtime update Error \(error)")
+      }
             
-        expectation.fulfill()
+      expectation.fulfill()
     }
         
     waitForExpectations()
