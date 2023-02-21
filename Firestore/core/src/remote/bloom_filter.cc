@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
+#include <CommonCrypto/CommonDigest.h>
 
 #include "bloom_filter.h"
-// #include <CommonCrypto/CommonDigest.h>
-#include <openssl/md5.h>
+#include "bloom_filter_exception.h"
 
 namespace firebase {
 namespace firestore {
@@ -26,12 +29,12 @@ namespace remote {
  * array of 16 bytes. */
 BloomFilter::Hash BloomFilter::Md5HashDigest(
     const absl::string_view key) const {
-  unsigned char md5_digest[MD5_DIGEST_LENGTH];
+  unsigned char md5_digest[CC_MD5_DIGEST_LENGTH];
 
-  MD5_CTX context;
-  MD5_Init(&context);
-  MD5_Update(&context, key.data(), key.size());
-  MD5_Final(md5_digest, &context);
+  CC_MD5_CTX context;
+  CC_MD5_Init(&context);
+  CC_MD5_Update(&context, key.data(), key.size());
+  CC_MD5_Final(md5_digest, &context);
 
   uint64_t* hash128 = reinterpret_cast<uint64_t*>(md5_digest);
   return BloomFilter::Hash{hash128[0], hash128[1]};
@@ -61,20 +64,23 @@ BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
                          int32_t padding,
                          int32_t hash_count) {
   if (padding < 0 || padding >= 8) {
-    throw std::invalid_argument(&"Invalid padding: "[padding]);
+    throw BloomFilterException("Invalid padding: " + std::to_string(padding));
   }
   if (hash_count < 0) {
-    throw std::invalid_argument(&"Invalid hash count: "[hash_count]);
+    throw BloomFilterException("Invalid hash count: " +
+                               std::to_string(hash_count));
   }
   if (bitmap.size() > 0 && hash_count == 0) {
     // Only empty bloom filter can have 0 hash count.
-    throw std::invalid_argument(&"Invalid hash count: "[hash_count]);
+    throw BloomFilterException("Invalid hash count: " +
+                               std::to_string(hash_count));
   }
   if (bitmap.size() == 0) {
     // Empty bloom filter should have 0 padding.
     if (padding != 0) {
-      throw std::invalid_argument(
-          &"Expected padding of 0 when bitmap length is 0, but got "[padding]);
+      throw BloomFilterException(
+          "Expected padding of 0 when bitmap length is 0, but got " +
+          std::to_string(padding));
     }
   }
 
@@ -106,6 +112,8 @@ bool BloomFilter::MightContain(const absl::string_view value) const {
   }
   return true;
 }
+
+#pragma clang diagnostic pop
 
 }  // namespace remote
 }  // namespace firestore
