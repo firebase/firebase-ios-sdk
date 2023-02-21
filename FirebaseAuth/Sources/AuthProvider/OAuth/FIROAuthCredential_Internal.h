@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param rawNonce The raw nonce associated with the Auth credential being created.
     @param accessToken The access token associated with the credential being created.
     @param secret The secret associated with the credential being created.
-    @param fullName The displayName associated with the credential being created.
+    @param fullName The full name associated with the credential being created.
     @param pendingToken The pending token associated with the credential being created.
  */
 - (instancetype)initWithProviderID:(NSString *)providerID
