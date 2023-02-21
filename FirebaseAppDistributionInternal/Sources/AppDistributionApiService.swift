@@ -55,7 +55,7 @@ enum AppDistributionApiError: NSInteger {
     installations.authToken(completion: { (authTokenResult, error) -> Void in
       var fadError = error
       if self.handleError(error: &fadError, description: "Failed to generate Firebase installation auth token", code: .ApiTokenGenerationFailure) {
-        Logger.logError(String(format: "Error getting auth token. Error: %@", error?.localizedDescription ?? ""))
+//        Logger.logError(String(format: "Error getting auth token. Error: %@", error?.localizedDescription ?? ""))
         completion(nil, nil, fadError)
         return
       }
@@ -64,7 +64,7 @@ enum AppDistributionApiError: NSInteger {
         var fadError = error
         if self.handleError(error: &fadError, description: "Failed to generate Firebase installation id",
                             code: .ApiInstallationIdentifierError) {
-          Logger.logError(String(format: "Error getting installation ID. Error: %@", error?.localizedDescription ?? ""))
+//          Logger.logError(String(format: "Error getting installation ID. Error: %@", error?.localizedDescription ?? ""))
           completion(nil, nil, fadError)
           return
         }
@@ -75,11 +75,11 @@ enum AppDistributionApiError: NSInteger {
   }
  
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
-    Logger.logInfo(String(format: "Requesting release for app id - %@", FirebaseApp.app()?.options.googleAppID ?? "unknown"))
+//    Logger.logInfo(String(format: "Requesting release for app id - %@", FirebaseApp.app()?.options.googleAppID ?? "unknown"))
     self.generateAuthToken() { (identifier, authTokenResult, error) in
       let urlString = String(format: Strings.releaseEndpointUrlTemplate, FirebaseApp.app()!.options.googleAppID, identifier!)
       let request = self.createHttpRequest(method: Strings.httpGet, url: urlString, authTokenResult: authTokenResult!)
-      Logger.logInfo(String(format: "Url: %@ Auth token: %@ Api Key: %@", urlString, authTokenResult?.authToken ?? "", FirebaseApp.app()?.options.apiKey ?? "unknown"))
+//      Logger.logInfo(String(format: "Url: %@ Auth token: %@ Api Key: %@", urlString, authTokenResult?.authToken ?? "", FirebaseApp.app()?.options.apiKey ?? "unknown"))
       
       let listReleaseDataTask = URLSession.shared.dataTask(with: request as URLRequest) { (data, response, error) in
         var fadError = error
@@ -129,7 +129,7 @@ enum AppDistributionApiError: NSInteger {
     case 408, 504:
       return self.createError(description: "Request timeout", code: .ApiErrorTimeout)
     default:
-      Logger.logError(String(format: "Encountered unmapped status code: %ld", statusCode))
+      print("Unknown status code")
     }
     
     let description = String(format: "Unknown status code: %ld", statusCode)
@@ -152,10 +152,10 @@ enum AppDistributionApiError: NSInteger {
     }
     
     let httpResponse = response as! HTTPURLResponse
-    Logger.logInfo(String(format:"HTTPResponse status code %ld, response %@", httpResponse.statusCode, httpResponse))
+//    Logger.logInfo(String(format:"HTTPResponse status code %ld, response %@", httpResponse.statusCode, httpResponse))
     
     if (self.handleError(httpResponse: httpResponse, error: &error)) {
-      Logger.logError(String(format:"App tester API service error: %@", error?.localizedDescription ?? ""))
+//      Logger.logError(String(format:"App tester API service error: %@", error?.localizedDescription ?? ""))
       return nil
     }
     return self.parseApiResponseWithData(data: data, error: error)

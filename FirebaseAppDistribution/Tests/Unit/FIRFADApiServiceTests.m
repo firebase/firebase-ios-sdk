@@ -282,55 +282,55 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   [self verifyInstallationIdCompletion];
 }
 
-- (void)testFetchReleasesWithCompletionSuccess {
-  NSHTTPURLResponse *fakeResponse = OCMClassMock([NSHTTPURLResponse class]);
-  OCMStub([fakeResponse statusCode]).andReturn(200);
-  [self mockInstallationAuthCompletion:_mockInstallationToken error:nil];
-  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
-  [self mockUrlSessionResponse:_mockReleases response:fakeResponse error:nil];
-
-  XCTestExpectation *expectation =
-      [self expectationWithDescription:@"Fetch releases succeeds with two releases."];
-
-  [FIRFADSwiftApiService
-      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-        XCTAssertNil(error);
-        XCTAssertNotNil(releases);
-        XCTAssertEqual([releases count], 2);
-        [expectation fulfill];
-      }];
-
-  [self waitForExpectations:@[ expectation ] timeout:5.0];
-  [self verifyInstallationAuthCompletion];
-  [self verifyInstallationIdCompletion];
-  [self verifyUrlSessionResponseWithData];
-  OCMVerify([fakeResponse statusCode]);
-}
-
-//- (void)testFetchReleasesWithCompletionUnknownFailure {
+//- (void)testFetchReleasesWithCompletionSuccess {
 //  NSHTTPURLResponse *fakeResponse = OCMClassMock([NSHTTPURLResponse class]);
 //  OCMStub([fakeResponse statusCode]).andReturn(200);
 //  [self mockInstallationAuthCompletion:_mockInstallationToken error:nil];
 //  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
-//  [self mockUrlSessionResponse:_mockReleases
-//                      response:fakeResponse
-//                         error:[NSError errorWithDomain:kFakeErrorDomain code:1 userInfo:@{}]];
+//  [self mockUrlSessionResponse:_mockReleases response:fakeResponse error:nil];
+//
 //  XCTestExpectation *expectation =
-//      [self expectationWithDescription:@"Fetch releases fails with unknown error."];
+//      [self expectationWithDescription:@"Fetch releases succeeds with two releases."];
 //
 //  [FIRFADSwiftApiService
 //      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-//        XCTAssertNil(releases);
-//        XCTAssertNotNil(error);
-//        XCTAssertEqual(error.code, FIRApiErrorUnknownFailure);
+//        XCTAssertNil(error);
+//        XCTAssertNotNil(releases);
+//        XCTAssertEqual([releases count], 2);
 //        [expectation fulfill];
 //      }];
+//
 //  [self waitForExpectations:@[ expectation ] timeout:5.0];
 //  [self verifyInstallationAuthCompletion];
 //  [self verifyInstallationIdCompletion];
 //  [self verifyUrlSessionResponseWithData];
 //  OCMVerify([fakeResponse statusCode]);
 //}
+
+- (void)testFetchReleasesWithCompletionUnknownFailure {
+  NSHTTPURLResponse *fakeResponse = OCMClassMock([NSHTTPURLResponse class]);
+  OCMStub([fakeResponse statusCode]).andReturn(200);
+  [self mockInstallationAuthCompletion:_mockInstallationToken error:nil];
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self mockUrlSessionResponse:_mockReleases
+                      response:fakeResponse
+                         error:[NSError errorWithDomain:kFakeErrorDomain code:1 userInfo:@{}]];
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Fetch releases fails with unknown error."];
+
+  [FIRFADSwiftApiService
+      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, FIRApiErrorUnknownFailure);
+        [expectation fulfill];
+      }];
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
+}
 //
 //- (void)testFetchReleasesWithCompletionUnauthenticatedFailure {
 //  NSHTTPURLResponse *fakeResponse = OCMClassMock([NSHTTPURLResponse class]);
