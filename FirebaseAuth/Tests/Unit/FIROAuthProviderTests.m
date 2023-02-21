@@ -67,10 +67,15 @@ static NSString *const kFakeIDToken = @"fakeIDToken";
  */
 static NSString *const kFakeProviderID = @"fakeProviderID";
 
-/** @var kFakeProviderID
-    @brief A fake provider ID for testing.
+/** @var kFakeGivenName
+    @brief A fake given name for testing.
  */
-static NSString *const kFakeDisplayName = @"fakeDisplayName";
+static NSString *const kFakeGivenName = @"fakeGivenName";
+
+/** @var kFakeFamilyName
+    @brief A fake family name for testing.
+ */
+static NSString *const kFakeFamilyName = @"fakeFamilyName";
 
 /** @var kFakeAPIKey
     @brief A fake API key.
@@ -243,21 +248,23 @@ static NSString *const kUnknownErrorString =
   XCTAssertNil(OAuthCredential.IDToken);
 }
 
-/** @fn testObtainingOAuthCredentialWithDisplayName
-    @brief Tests the correct creation of an OAuthCredential with a displayName.
+/** @fn testObtainingOAuthCredentialWithFullName
+    @brief Tests the correct creation of an OAuthCredential with a fullName.
  */
-- (void)testObtainingOAuthCredentialWithDisplayName {
-  FIRAuthCredential *credential = [FIROAuthProvider credentialWithProviderID:kFakeProviderID
-                                                                     IDToken:kFakeIDToken
-                                                                    rawNonce:nil
-                                                                 accessToken:kFakeAccessToken
-                                                                 displayName:kFakeDisplayName];
+- (void)testObtainingOAuthCredentialWithFullName {
+  NSPersonNameComponents *fullName = [[NSPersonNameComponents alloc] init];
+  fullName.givenName = kFakeGivenName;
+  fullName.familyName = kFakeFamilyName;
+  FIRAuthCredential *credential = [FIROAuthProvider appleCredentialWithIDToken:kFakeIDToken
+                                                                      rawNonce:nil
+                                                                      fullName:fullName];
+
   XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
   FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
-  XCTAssertEqualObjects(OAuthCredential.accessToken, kFakeAccessToken);
-  XCTAssertEqualObjects(OAuthCredential.provider, kFakeProviderID);
+  XCTAssertEqualObjects(OAuthCredential.provider, @"apple.com");
   XCTAssertEqualObjects(OAuthCredential.IDToken, kFakeIDToken);
-  XCTAssertEqualObjects(OAuthCredential.displayName, kFakeDisplayName);
+  XCTAssertEqualObjects(OAuthCredential.fullName, fullName);
+  XCTAssertNil(OAuthCredential.accessToken);
 }
 
 /** @fn testObtainingOAuthCredentialWithIDToken
