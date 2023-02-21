@@ -544,8 +544,7 @@ static NSInteger const gMaxRetries = 7;
     NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                                          code:FIRRemoteConfigUpdateErrorStreamError
                                      userInfo:@{NSLocalizedDescriptionKey : strData}];
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
-                error);
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. %@", error);
     [self propogateErrors:error];
     return;
   }
@@ -603,7 +602,9 @@ static NSInteger const gMaxRetries = 7;
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
                   error);
-      [self propogateErrors:error];
+      if (statusCode != 403) {
+        [self propogateErrors:error];
+      }
     }
   } else {
     /// on success reset retry parameters
