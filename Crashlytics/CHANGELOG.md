@@ -1,4 +1,4 @@
-# Unreleased
+# 10.6.0
 - [added] Added dependency on Firebase Sessions SDK to power future metrics and debugging features in Crashlytics
 
 # 10.4.0
