@@ -144,18 +144,18 @@ class APITests: APITestBase {
   }
     
   // MARK: - RemoteConfigRealtime Tests
-    func testRealtimeRemoteConfigFetch() {
-        let expectation = self.expectation(description: #function)
-        config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
-            if let error = Error {
-              XCTFail("Realtime update Error \(error)")
-            }
-            
-            expectation.fulfill()
+  func testRealtimeRemoteConfigFetch() {
+    let expectation = self.expectation(description: #function)
+    config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
+        if let error = Error {
+            XCTFail("Realtime update Error \(error)")
         }
-        
-        waitForExpectations()
+            
+        expectation.fulfill()
     }
+        
+    waitForExpectations()
+  }
     
 
   // MARK: - RemoteConfigConsole Tests

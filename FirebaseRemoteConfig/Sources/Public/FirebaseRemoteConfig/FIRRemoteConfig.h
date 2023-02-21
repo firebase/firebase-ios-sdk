@@ -337,7 +337,8 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
 /// @param listener              The configured listener that is called for every config update.
 /// @return                 Returns a registration that is used to remove a listener. If it is the
 /// last listener, it stops the stream.
-- (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener: (FIRRemoteConfigUpdateCompletion _Nonnull)listener
-NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
+- (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
+    (FIRRemoteConfigUpdateCompletion _Nonnull)listener
+    NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
 @end
