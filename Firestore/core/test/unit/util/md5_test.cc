@@ -48,43 +48,43 @@ std::array<unsigned char, 16> UnsignedCharArrayFromHexDigest(
 // of pre-calculated digests that it returns.
 // It is an error if this function does not have a pre-calculated digest for the
 // given string.
-std::array<unsigned char, 16> GetPreComputedDigest(const std::string&);
+std::array<unsigned char, 16> GetPreComputedMd5Digest(const std::string&);
 
 // Generates and returns a string with all possible characters with the given
 // length. The given length must be at least 256.
 std::string GetStringWithAllPossibleCharacters(int length);
 
 TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfEmptyString) {
-  EXPECT_EQ(CalculateMd5Digest(""), GetPreComputedDigest(""));
+  EXPECT_EQ(CalculateMd5Digest(""), GetPreComputedMd5Digest(""));
 }
 
 TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfA) {
-  EXPECT_EQ(CalculateMd5Digest("a"), GetPreComputedDigest("a"));
+  EXPECT_EQ(CalculateMd5Digest("a"), GetPreComputedMd5Digest("a"));
 }
 
 TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfABC) {
-  EXPECT_EQ(CalculateMd5Digest("abc"), GetPreComputedDigest("abc"));
+  EXPECT_EQ(CalculateMd5Digest("abc"), GetPreComputedMd5Digest("abc"));
 }
 
 TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfHelloWorld) {
   EXPECT_EQ(CalculateMd5Digest("hello world!"),
-            GetPreComputedDigest("hello world!"));
+            GetPreComputedMd5Digest("hello world!"));
 }
 
 TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfTheQuickBrownFox) {
   EXPECT_EQ(
       CalculateMd5Digest("the quick brown fox jumps over the lazy dog"),
-      GetPreComputedDigest("the quick brown fox jumps over the lazy dog"));
+      GetPreComputedMd5Digest("the quick brown fox jumps over the lazy dog"));
 }
 
 TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfShortStringWithAllChars) {
   const std::string s = GetStringWithAllPossibleCharacters(512);
-  EXPECT_EQ(CalculateMd5Digest(s), GetPreComputedDigest(s));
+  EXPECT_EQ(CalculateMd5Digest(s), GetPreComputedMd5Digest(s));
 }
 
 TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfLongStringWithAllChars) {
   const std::string s = GetStringWithAllPossibleCharacters(8192);
-  EXPECT_EQ(CalculateMd5Digest(s), GetPreComputedDigest(s));
+  EXPECT_EQ(CalculateMd5Digest(s), GetPreComputedMd5Digest(s));
 }
 
 unsigned char UnsignedCharFromHexDigit(char digit) {
@@ -137,7 +137,7 @@ std::array<unsigned char, 16> UnsignedCharArrayFromHexDigest(
   return result;
 }
 
-std::array<unsigned char, 16> GetPreComputedDigest(const std::string& s) {
+std::array<unsigned char, 16> GetPreComputedMd5Digest(const std::string& s) {
   if (s == "") {
     return UnsignedCharArrayFromHexDigest("d41d8cd98f00b204e9800998ecf8427e");
   } else if (s == "hello world!") {
