@@ -129,6 +129,20 @@ if(HAVE_COMMONCRYPTO_MD5)
     util_sources APPEND
     src/util/md5_commoncrypto.cc
   )
+  # Suppress deprecation warnings when compiling md5_commoncrypto.cc because
+  # using CommonCrypto's md5 functions results in deprecation warnings, which
+  # causes the build to fail because warnings are treated as errors. The MD5
+  # functions are marked as "deprecated" because they are "cryptographically
+  # broken"; however, Firestore's use of md5 is _not_ in a cryptographic context
+  # and, therefore, a non-cryptographically-secure algorithm is acceptable.
+  if(CXX_CLANG OR CXX_GNU)
+    set_source_files_properties(
+      src/util/md5_commoncrypto.cc
+      PROPERTIES
+      COMPILE_FLAGS
+      -Wno-deprecated-declarations
+    )
+  endif()
 elseif(HAVE_OPENSSL_MD5_H)
   set(FIRESTORE_MD5_IMPL_OPENSSL 1)
   firebase_ios_glob(
