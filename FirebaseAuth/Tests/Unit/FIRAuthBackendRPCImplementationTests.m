@@ -176,6 +176,22 @@ static NSString *const kTestValue = @"TestValue";
 
 @end
 
+#pragma mark - FIRFakeAppCheck
+
+/// A fake appCheck used for dependency injection during testing.
+@interface FIRFakeAppCheck : NSObject <FIRAppCheckInterop>
+@property(nonatomic, nonnull, readwrite, copy) NSString *tokenDidChangeNotificationName;
+@property(nonatomic, nonnull, readwrite, copy) NSString *notificationAppNameKey;
+@property(nonatomic, nonnull, readwrite, copy) NSString *notificationTokenKey;
+@end
+
+@implementation FIRFakeAppCheck
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
+                    completion:(nonnull FIRAppCheckTokenHandlerInterop)handler {
+}
+
+@end
+
 #pragma mark - FIRFakeRequest
 
 /** @class FIRFakeRequest
@@ -424,10 +440,12 @@ static NSString *const kTestValue = @"TestValue";
 - (void)testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending {
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
                                                     appID:kFakeFirebaseAppID
-                                          heartbeatLogger:fakeHeartbeatLogger];
+                                          heartbeatLogger:fakeHeartbeatLogger
+                                                 appCheck:fakeAppCheck];
   FIRFakeRequest *request =
       [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
   FIRFakeResponse *response = [FIRFakeResponse fakeResponse];
@@ -463,10 +481,12 @@ static NSString *const kTestValue = @"TestValue";
 - (void)testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending {
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
                                                     appID:kFakeFirebaseAppID
-                                          heartbeatLogger:fakeHeartbeatLogger];
+                                          heartbeatLogger:fakeHeartbeatLogger
+                                                 appCheck:fakeAppCheck];
   FIRFakeRequest *request =
       [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
   FIRFakeResponse *response = [FIRFakeResponse fakeResponse];

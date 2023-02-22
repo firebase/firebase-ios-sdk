@@ -645,8 +645,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if (languageCode.length) {
     [request setValue:languageCode forHTTPHeaderField:kFirebaseLocalHeader];
   }
-  if (requestConfiguration.appcheck) {
-    [requestConfiguration.appcheck
+  if (requestConfiguration.appCheck) {
+    [requestConfiguration.appCheck
         getTokenForcingRefresh:false
                     completion:^(id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
                       if (tokenResult.error) {

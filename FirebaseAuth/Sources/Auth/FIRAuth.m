@@ -358,8 +358,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 @property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
 
 /** @fn initWithApp:
-    @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance and
-   AppCheck Interop.
+    @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance.
     @param app The application to associate the auth instance with.
  */
 - (instancetype)initWithApp:(FIRApp *)app;
@@ -465,7 +464,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                       appName:app.name
                         appID:app.options.googleAppID
               heartbeatLogger:app.heartbeatLogger
-                     appcheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
+                     appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
   if (self) {
     _app = app;
 #if TARGET_OS_IOS
@@ -478,21 +477,21 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID {
-  return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil appcheck:nil];
+  return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil appCheck:nil];
 }
 
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
-                               appcheck:(nullable id<FIRAppCheckInterop>)appcheck {
+                               appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
                                                                           appID:appID
                                                                 heartbeatLogger:heartbeatLogger
-                                                                       appcheck:appcheck];
+                                                                       appCheck:appCheck];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
@@ -2182,7 +2181,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     *isCacheable = YES;
     return [[FIRAuth alloc] initWithApp:container.app];
   };
-
   FIRComponent *authInterop = [FIRComponent componentWithProtocol:@protocol(FIRAuthInterop)
                                               instantiationTiming:FIRInstantiationTimingAlwaysEager
                                                      dependencies:@[]
@@ -2336,10 +2334,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   } else {
 #if TARGET_OS_TV
     if (self.shareAuthStateAcrossDevices) {
-      FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                  @"Getting a stored user for a given access group is not supported "
-                  @"on tvOS when `shareAuthStateAcrossDevices` is set to `true` (#8878)."
-                  @"This case will return `nil`.");
+      FIRLogWarning(kFIRLoggerAuth, @"I-AUT000018",
+                    @"Getting a stored user for a given access group is not supported "
+                    @"on tvOS when `shareAuthStateAcrossDevices` is set to `true` (#8878)."
+                    @"This case will return `nil`.");
       return nil;
     }
 #endif  // TARGET_OS_TV
