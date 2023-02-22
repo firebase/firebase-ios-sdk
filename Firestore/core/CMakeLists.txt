@@ -126,16 +126,19 @@ if(HAVE_OPENSSL_MD5_H)
     util_sources APPEND
     src/util/md5_openssl.cc
   )
-  # Suppress deprecation warnings from openssl since its md5
-  # implementation is deprecated, but only because md5 is not
-  # cryptographically secure, something we don't care about in our
-  # md5 usage.
-  set_source_files_properties(
-    src/util/md5_openssl.cc
-    PROPERTIES
-    COMPILE_FLAGS
-    -Wno-deprecated-declarations
-  )
+  # Suppress deprecation warnings when compiling md5_openssl.cc because using
+  # openssl's md5 functions results in deprecation warnings, which causes the
+  # build to fail because warnings are treated as errors. In the future, we can
+  # migrate to the newer-style digest algorithms in openssl/evp.h and remove
+  # this deprecation suppression.
+  if(CXX_CLANG OR CXX_GNU)
+    set_source_files_properties(
+      src/util/md5_openssl.cc
+      PROPERTIES
+      COMPILE_FLAGS
+      -Wno-deprecated-declarations
+    )
+  endif()
 else()
   message(
     FATAL_ERROR
