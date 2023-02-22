@@ -60,7 +60,7 @@ enum AppDistributionApiError: NSInteger {
         description: "Failed to generate Firebase installation auth token",
         code: .ApiTokenGenerationFailure
       ) {
-//        Logger.logError(String(format: "Error getting auth token. Error: %@", error?.localizedDescription ?? ""))
+        Logger.logError(String(format: "Error getting auth token. Error: %@", error?.localizedDescription ?? ""))
         completion(nil, nil, fadError)
         return
       }
@@ -72,7 +72,7 @@ enum AppDistributionApiError: NSInteger {
           description: "Failed to generate Firebase installation id",
           code: .ApiInstallationIdentifierError
         ) {
-//          Logger.logError(String(format: "Error getting installation ID. Error: %@", error?.localizedDescription ?? ""))
+          Logger.logError(String(format: "Error getting installation ID. Error: %@", error?.localizedDescription ?? ""))
           completion(nil, nil, fadError)
           return
         }
@@ -95,7 +95,7 @@ enum AppDistributionApiError: NSInteger {
         url: urlString,
         authTokenResult: authTokenResult!
       )
-//      Logger.logInfo(String(format: "Url: %@ Auth token: %@ Api Key: %@", urlString, authTokenResult?.authToken ?? "", FirebaseApp.app()?.options.apiKey ?? "unknown"))
+      Logger.logInfo(String(format: "Url: %@ Auth token: %@ Api Key: %@", urlString, authTokenResult?.authToken ?? "", FirebaseApp.app()?.options.apiKey ?? "unknown"))
 
       let listReleaseDataTask = URLSession.shared
         .dataTask(with: request as URLRequest) { data, response, error in
@@ -188,7 +188,7 @@ enum AppDistributionApiError: NSInteger {
                       httpResponse))
 
     if handleError(httpResponse: httpResponse, error: &error) {
-//      Logger.logError(String(format:"App tester API service error: %@", error?.localizedDescription ?? ""))
+      Logger.logError(String(format:"App tester API service error: %@", error?.localizedDescription ?? ""))
       return nil
     }
     return parseApiResponseWithData(data: data, error: &error)
@@ -206,6 +206,7 @@ enum AppDistributionApiError: NSInteger {
       ) as? [String: Any]
       return serializedResponse![Strings.responseReleaseKey] as? [Any]
     } catch {
+      Logger.logError("Tester API - Error deserializing json response")
       // TODO: Handle error
       return nil
     }

@@ -525,32 +525,32 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   OCMVerify([fakeResponse statusCode]);
 }
 
-//- (void)testFetchReleasesWithCompletionParsingFailure {
-//  NSHTTPURLResponse *fakeResponse = OCMClassMock([NSHTTPURLResponse class]);
-//  OCMStub([fakeResponse statusCode]).andReturn(200);
-//  [self mockInstallationAuthCompletion:_mockInstallationToken error:nil];
-//  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
-//  [self
-//      mockUrlSessionResponseWithData:[@"malformed{json[data"
-//      dataUsingEncoding:NSUTF8StringEncoding]
-//                            response:fakeResponse
-//                               error:nil];
-//  XCTestExpectation *expectation =
-//      [self expectationWithDescription:@"Fetch releases rejects with a parsing failure."];
-//
-//  [FIRFADSwiftApiService
-//      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-//        XCTAssertNil(releases);
-//        XCTAssertNotNil(error);
-//        XCTAssertEqual([error code], FIRApiErrorParseFailure);
-//        [expectation fulfill];
-//      }];
-//
-//  [self waitForExpectations:@[ expectation ] timeout:5.0];
-//  [self verifyInstallationAuthCompletion];
-//  [self verifyInstallationIdCompletion];
-//  [self verifyUrlSessionResponseWithData];
-//  OCMVerify([fakeResponse statusCode]);
-//}
+- (void)testFetchReleasesWithCompletionParsingFailure {
+  NSHTTPURLResponse *fakeResponse = OCMClassMock([NSHTTPURLResponse class]);
+  OCMStub([fakeResponse statusCode]).andReturn(200);
+  [self mockInstallationAuthCompletion:_mockInstallationToken error:nil];
+  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
+  [self
+      mockUrlSessionResponseWithData:[@"malformed{json[data"
+      dataUsingEncoding:NSUTF8StringEncoding]
+                            response:fakeResponse
+                               error:nil];
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"Fetch releases rejects with a parsing failure."];
+
+  [FIRFADSwiftApiService
+      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+        XCTAssertNil(releases);
+        XCTAssertNotNil(error);
+        XCTAssertEqual([error code], FIRApiErrorParseFailure);
+        [expectation fulfill];
+      }];
+
+  [self waitForExpectations:@[ expectation ] timeout:5.0];
+  [self verifyInstallationAuthCompletion];
+  [self verifyInstallationIdCompletion];
+  [self verifyUrlSessionResponseWithData];
+  OCMVerify([fakeResponse statusCode]);
+}
 
 @end
