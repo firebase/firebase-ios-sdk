@@ -20,9 +20,9 @@
 
 #if FIRESTORE_MD5_IMPL_COMMONCRYPTO
 
-#include "Firestore/core/src/util/hard_assert.h"
-
 #include <CommonCrypto/CommonDigest.h>
+
+#include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
 namespace firestore {
