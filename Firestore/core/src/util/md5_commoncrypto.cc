@@ -20,6 +20,7 @@
 
 #if FIRESTORE_MD5_IMPL_COMMONCRYPTO
 
+// NOLINTNEXTLINE(build/include)
 #include <CommonCrypto/CommonDigest.h>
 
 #include "Firestore/core/src/util/hard_assert.h"
