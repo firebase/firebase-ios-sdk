@@ -66,32 +66,26 @@ bool BloomFilter::IsBitSet(const std::vector<uint8_t>& bitmap,
 BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
                          int32_t padding,
                          int32_t hash_count) {
-  //  HARD_ASSERT(padding >= 0 && padding < 8, "Invalid padding: %s",
-  //              std::to_string(padding));
-  //  HARD_ASSERT(hash_count >= 0, "Invalid hash count: %s",
-  //              std::to_string(hash_count));
-  //  // Only empty bloom filter can have 0 hash count.
-  //  HARD_ASSERT(bitmap.size() == 0 || hash_count != 0, "Invalid hash count:
-  //  %s",
-  //              std::to_string(hash_count));
-  //  // Empty bloom filter should have 0 padding.
-  //  HARD_ASSERT(bitmap.size() != 0 || padding == 0,
-  //              "Expected padding of 0 when bitmap length is 0, but got %s",
-  //              std::to_string(padding));
+  HARD_ASSERT(padding >= 0 && padding < 8, "Invalid padding: %s",
+              std::to_string(padding));
+  HARD_ASSERT(hash_count >= 0, "Invalid hash count: %s",
+              std::to_string(hash_count));
+  // Only empty bloom filter can have 0 hash count.
+  HARD_ASSERT(bitmap.size() == 0 || hash_count != 0, "Invalid hash count:%s",
+              std::to_string(hash_count));
+  // Empty bloom filter should have 0 padding.
+  HARD_ASSERT(bitmap.size() != 0 || padding == 0,
+              "Expected padding of 0 when bitmap length is 0, but got %s",
+              std::to_string(padding));
 
-  StatusOr<BloomFilter> maybe_bloom_filter =
-      Create(bitmap, padding, hash_count);
-
-  if (!maybe_bloom_filter.ok()) {
-    LOG_WARN("Creating bloom filter failed: %s",
-             maybe_bloom_filter.status().error_message());
-    return;
-  }
+  bitmap_ = bitmap;
+  hash_count_ = hash_count;
+  bit_count_ = bitmap.size() * 8 - padding;
 }
 
-StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t>& bitmap,
-                                          int32_t& padding,
-                                          int32_t& hash_count) {
+StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t> bitmap,
+                                          int32_t padding,
+                                          int32_t hash_count) {
   if (padding < 0 || padding >= 8) {
     return Status(firestore::Error::kErrorInvalidArgument,
                   "Invalid padding: " + std::to_string(padding));
@@ -112,11 +106,7 @@ StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t>& bitmap,
                       std::to_string(padding));
   }
 
-  bitmap_ = bitmap;
-  hash_count_ = hash_count;
-  bit_count_ = bitmap.size() * 8 - padding;
-
-  return *this;
+  return BloomFilter(bitmap, padding, hash_count);
 }
 
 /**

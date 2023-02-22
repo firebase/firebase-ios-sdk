@@ -37,6 +37,16 @@ class BloomFilter final {
   BloomFilter& operator=(BloomFilter&&) = default;
 
   /**
+   * Creates a BloomFilter object or return a status.
+   *
+   * @return a new BloomFilter if the inputs are valid, otherwise returns a not
+   * `ok()` status.
+   */
+  static util::StatusOr<BloomFilter> Create(std::vector<uint8_t> bitmap,
+                                            int32_t padding,
+                                            int32_t hash_count);
+
+  /**
    * Check whether the given string is a possible member of the bloom filter. It
    * might return false positive result, ie, the given string is not a member of
    * the bloom filter, but the method returned true.
@@ -80,9 +90,6 @@ class BloomFilter final {
                       int32_t bit_count) const;
 
   bool IsBitSet(const std::vector<uint8_t>& bitmap, int32_t index) const;
-  util::StatusOr<BloomFilter> Create(std::vector<uint8_t>& bitmap,
-                                     int32_t& padding,
-                                     int32_t& hash_count);
 };
 
 }  // namespace remote
