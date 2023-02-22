@@ -15,8 +15,6 @@
  */
 
 #include "Firestore/core/src/remote/bloom_filter.h"
-#include "Firestore/core/src/remote/bloom_filter_exception.h"
-
 #include <vector>
 #include "gtest/gtest.h"
 
@@ -42,41 +40,26 @@ TEST_F(BloomFilterTest, CanInstantiateNonEmptyBloomFilter) {
   }
 }
 
-/** Handle exception in creating bloomFilter instance*/
+/** handle exception silently*/
 TEST_F(BloomFilterTest,
-       ConstructorShouldThrowExceptionOnNonEmptyBloomFilterWithZeroHashCount) {
-  EXPECT_THROW(BloomFilter(std::vector<uint8_t>{1}, 1, 0),
-               BloomFilterException);
+       ConstructorShouldThrowIAEOnNonEmptyBloomFilterWithZeroHashCount) {
+  BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{1}, 1, 0);
 }
 
-TEST_F(BloomFilterTest, ConstructorShouldThrowExceptionOnNegativePadding) {
-  {
-    EXPECT_THROW(BloomFilter(std::vector<uint8_t>{0}, -1, 1),
-                 BloomFilterException);
-  }
-  {
-    EXPECT_THROW(BloomFilter(std::vector<uint8_t>{1}, -1, 1),
-                 BloomFilterException);
-  }
+TEST_F(BloomFilterTest, ConstructorShouldThrowIAEOnNegativePadding) {
+  { BloomFilter bloomFilter1 = BloomFilter(std::vector<uint8_t>{0}, -1, 1); }
+  { BloomFilter bloomFilter2 = BloomFilter(std::vector<uint8_t>{1}, -1, 1); }
 }
 
-TEST_F(BloomFilterTest, ConstructorShouldThrowExceptionOnNegativeHashCount) {
-  {
-    EXPECT_THROW(BloomFilter(std::vector<uint8_t>{0}, 0, -1),
-                 BloomFilterException);
-  }
-  {
-    EXPECT_THROW(BloomFilter(std::vector<uint8_t>{1}, 1, -1),
-                 BloomFilterException);
-  }
+TEST_F(BloomFilterTest, ConstructorShouldThrowIAEOnNegativeHashCount) {
+  { BloomFilter bloomFilter1 = BloomFilter(std::vector<uint8_t>{0}, 0, -1); }
+  { BloomFilter bloomFilter2 = BloomFilter(std::vector<uint8_t>{1}, 1, -1); }
 }
 
-TEST_F(BloomFilterTest, ConstructorShouldThrowExceptionIfPaddingIsTooLarge) {
-  EXPECT_THROW(BloomFilter(std::vector<uint8_t>{1}, 8, 1),
-               BloomFilterException);
+TEST_F(BloomFilterTest, ConstructorShouldThrowIAEIfPaddingIsTooLarge) {
+  BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{1}, 8, 1);
 }
 
-/* Test mightContain result */
 TEST_F(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
   // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
   BloomFilter bloomFilter = BloomFilter(std::vector<uint8_t>{237, 5}, 5, 8);

@@ -16,14 +16,18 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-#include <CommonCrypto/CommonDigest.h>
-
 #include "bloom_filter.h"
-#include "bloom_filter_exception.h"
+#include <CommonCrypto/CommonDigest.h>
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/log.h"
+#include "Firestore/core/src/util/statusor.h"
 
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+using util::Status;
+using util::StatusOr;
 
 /** Helper function to hash a string using md5 hashing algorithm, and return an
  * array of 16 bytes. */
@@ -47,7 +51,6 @@ BloomFilter::Hash BloomFilter::Md5HashDigest(
 int32_t BloomFilter::GetBitIndex(const BloomFilter::Hash& hash,
                                  int32_t i,
                                  int32_t bit_count) const {
-  //  CHECK_GT(bit_count, 0);  // Crash ok.
   uint64_t val = hash.h1 + i * hash.h2;
   return val % bit_count;
 }
@@ -63,30 +66,57 @@ bool BloomFilter::IsBitSet(const std::vector<uint8_t>& bitmap,
 BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
                          int32_t padding,
                          int32_t hash_count) {
+  //  HARD_ASSERT(padding >= 0 && padding < 8, "Invalid padding: %s",
+  //              std::to_string(padding));
+  //  HARD_ASSERT(hash_count >= 0, "Invalid hash count: %s",
+  //              std::to_string(hash_count));
+  //  // Only empty bloom filter can have 0 hash count.
+  //  HARD_ASSERT(bitmap.size() == 0 || hash_count != 0, "Invalid hash count:
+  //  %s",
+  //              std::to_string(hash_count));
+  //  // Empty bloom filter should have 0 padding.
+  //  HARD_ASSERT(bitmap.size() != 0 || padding == 0,
+  //              "Expected padding of 0 when bitmap length is 0, but got %s",
+  //              std::to_string(padding));
+
+  StatusOr<BloomFilter> maybe_bloom_filter =
+      Create(bitmap, padding, hash_count);
+
+  if (!maybe_bloom_filter.ok()) {
+    LOG_WARN("Creating bloom filter failed: %s",
+             maybe_bloom_filter.status().error_message());
+    return;
+  }
+}
+
+StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t>& bitmap,
+                                          int32_t& padding,
+                                          int32_t& hash_count) {
   if (padding < 0 || padding >= 8) {
-    throw BloomFilterException("Invalid padding: " + std::to_string(padding));
+    return Status(firestore::Error::kErrorInvalidArgument,
+                  "Invalid padding: " + std::to_string(padding));
   }
   if (hash_count < 0) {
-    throw BloomFilterException("Invalid hash count: " +
-                               std::to_string(hash_count));
+    return Status(firestore::Error::kErrorInvalidArgument,
+                  "Invalid hash count: " + std::to_string(hash_count));
   }
   if (bitmap.size() > 0 && hash_count == 0) {
     // Only empty bloom filter can have 0 hash count.
-    throw BloomFilterException("Invalid hash count: " +
-                               std::to_string(hash_count));
+    return Status(firestore::Error::kErrorInvalidArgument,
+                  "Invalid hash count: " + std::to_string(hash_count));
   }
-  if (bitmap.size() == 0) {
+  if (bitmap.size() == 0 && padding != 0) {
     // Empty bloom filter should have 0 padding.
-    if (padding != 0) {
-      throw BloomFilterException(
-          "Expected padding of 0 when bitmap length is 0, but got " +
-          std::to_string(padding));
-    }
+    return Status(firestore::Error::kErrorInvalidArgument,
+                  "Expected padding of 0 when bitmap length is 0, but got " +
+                      std::to_string(padding));
   }
 
   bitmap_ = bitmap;
   hash_count_ = hash_count;
   bit_count_ = bitmap.size() * 8 - padding;
+
+  return *this;
 }
 
 /**

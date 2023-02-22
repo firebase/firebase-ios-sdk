@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -79,6 +80,9 @@ class BloomFilter final {
                       int32_t bit_count) const;
 
   bool IsBitSet(const std::vector<uint8_t>& bitmap, int32_t index) const;
+  util::StatusOr<BloomFilter> Create(std::vector<uint8_t>& bitmap,
+                                     int32_t& padding,
+                                     int32_t& hash_count);
 };
 
 }  // namespace remote
