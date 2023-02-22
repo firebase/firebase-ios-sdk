@@ -538,7 +538,7 @@ static NSInteger const gMaxRetries = 7;
 
   /// If response data contains the API enablement link, return the entire message to the user in
   /// the form of a error.
-  if ([strData containsString:kEnableRealtimeURL]) {
+  if ([strData containsString:kServerForbiddenStatusCode]) {
     NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
                                          code:FIRRemoteConfigUpdateErrorStreamError
                                      userInfo:@{NSLocalizedDescriptionKey : strData}];
@@ -582,6 +582,11 @@ static NSInteger const gMaxRetries = 7;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   NSInteger statusCode = [_httpURLResponse statusCode];
 
+  if (statusCode == 403) {
+    completionHandler(NSURLSessionResponseAllow);
+    return;
+  }
+
   if (statusCode != kRCNFetchResponseHTTPStatusOk) {
     [self->_settings updateRealtimeExponentialBackoffTime];
     [self pauseRealtimeStream];
@@ -600,9 +605,6 @@ static NSInteger const gMaxRetries = 7;
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
                   error);
-      if (statusCode != 403) {
-        [self propogateErrors:error];
-      }
     }
   } else {
     /// on success reset retry parameters
