@@ -33,9 +33,7 @@ static NSString *const kServerURLQuery = @":streamFetchInvalidations?";
 static NSString *const kServerURLKey = @"key=";
 
 /// Realtime API enablement
-static NSString *const kEnableRealtimeURL =
-    @"https://console.developers.google.com/apis/api/firebaseremoteconfigrealtime.googleapis.com/"
-    @"overview?project=";
+static NSString *const kServerForbiddenStatusCode = @"\"code\": 403";
 
 /// Header names
 static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method config fetch using
