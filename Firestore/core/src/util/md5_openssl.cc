@@ -18,28 +18,34 @@
 
 #include "Firestore/core/src/util/hard_assert.h"
 
+#include "openssl/md5.h"
+
 namespace firebase {
 namespace firestore {
 namespace util {
 
-Md5::Md5() {
-  const int md5_init_result = MD5_Init(&ctx_);
-  HARD_ASSERT(md5_init_result == 1, "MD5_Init() returns %s but expected 1",
-              md5_init_result);
-}
+std::array<unsigned char, 16> CalculateMd5Digest(absl::string_view s) {
+  MD5_CTX ctx;
 
-void Md5::Update(const void* data, int len) {
-  int md5_update_result = MD5_Update(&ctx_, data, len);
-  HARD_ASSERT(md5_update_result == 1, "MD5_Update() returns %s but expected 1",
-              md5_update_result);
-}
+  {
+    const int md5_init_result = MD5_Init(&ctx);
+    HARD_ASSERT(md5_init_result == 1, "MD5_Init() returned %s, but expected 1",
+                md5_init_result);
+  }
 
-std::array<unsigned char, 16> Md5::Digest() {
-  std::array<unsigned char, 16> digest;
-  int md5_final_result = MD5_Final(digest.data(), &ctx_);
-  HARD_ASSERT(md5_final_result == 1, "MD5_Final() returns %s but expected 1",
-              md5_final_result);
-  return digest;
+  {
+    int md5_update_result = MD5_Update(&ctx, s.data(), s.length());
+    HARD_ASSERT(md5_update_result == 1,
+                "MD5_Update() returned %s, but expected 1", md5_update_result);
+  }
+
+  {
+    std::array<unsigned char, 16> digest;
+    int md5_final_result = MD5_Final(digest.data(), &ctx);
+    HARD_ASSERT(md5_final_result == 1, "MD5_Final() returned %s but expected 1",
+                md5_final_result);
+    return digest;
+  }
 }
 
 }  // namespace util

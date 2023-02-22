@@ -22,7 +22,7 @@
 
 #include "gtest/gtest.h"
 
-using firebase::firestore::util::Md5;
+using firebase::firestore::util::CalculateMd5Digest;
 
 namespace {
 
@@ -54,54 +54,37 @@ std::array<unsigned char, 16> GetPreComputedDigest(const std::string&);
 // length. The given length must be at least 256.
 std::string GetStringWithAllPossibleCharacters(int length);
 
-TEST(Md5Test, DefaultConstrutorWorks) {
-  Md5 instance1;
-  Md5 instance2;
+TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfEmptyString) {
+  EXPECT_EQ(CalculateMd5Digest(""), GetPreComputedDigest(""));
 }
 
-TEST(Md5Test, DigestReturnsCorrectValueOnDefaultConstructedInstance) {
-  Md5 md5;
-  EXPECT_EQ(md5.Digest(), GetPreComputedDigest(""));
+TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfA) {
+  EXPECT_EQ(CalculateMd5Digest("a"), GetPreComputedDigest("a"));
 }
 
-TEST(Md5Test, UpdateInvokedOnceYieldCorrectDigest) {
-  Md5 md5;
-
-  md5.Update("hello world!", 12);
-
-  EXPECT_EQ(md5.Digest(), GetPreComputedDigest("hello world!"));
+TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfABC) {
+  EXPECT_EQ(CalculateMd5Digest("abc"), GetPreComputedDigest("abc"));
 }
 
-TEST(Md5Test, UpdateInvokedTwiceYieldCorrectDigest) {
-  Md5 md5;
-
-  md5.Update("hello ", 6);
-  md5.Update("world!", 6);
-
-  EXPECT_EQ(md5.Digest(), GetPreComputedDigest("hello world!"));
+TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfHelloWorld) {
+  EXPECT_EQ(CalculateMd5Digest("hello world!"),
+            GetPreComputedDigest("hello world!"));
 }
 
-TEST(Md5Test, UpdateInvokedThriceYieldCorrectDigest) {
-  Md5 md5;
-
-  md5.Update("hell", 4);
-  md5.Update("o wo", 4);
-  md5.Update("rld!", 4);
-
-  EXPECT_EQ(md5.Digest(), GetPreComputedDigest("hello world!"));
+TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfTheQuickBrownFox) {
+  EXPECT_EQ(
+      CalculateMd5Digest("the quick brown fox jumps over the lazy dog"),
+      GetPreComputedDigest("the quick brown fox jumps over the lazy dog"));
 }
 
-TEST(Md5Test, DigestsOfVariousStrings) {
-  std::vector<std::string> strings{
-      "a", "abc", "the quick brown fox jumps over the lazy dog",
-      GetStringWithAllPossibleCharacters(512),
-      GetStringWithAllPossibleCharacters(8192)};
+TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfShortStringWithAllChars) {
+  const std::string s = GetStringWithAllPossibleCharacters(512);
+  EXPECT_EQ(CalculateMd5Digest(s), GetPreComputedDigest(s));
+}
 
-  for (const std::string& s : strings) {
-    Md5 md5;
-    md5.Update(s.data(), s.length());
-    EXPECT_EQ(md5.Digest(), GetPreComputedDigest(s));
-  }
+TEST(CalculateMd5DigestTest, ShouldReturnMd5DigestOfLongStringWithAllChars) {
+  const std::string s = GetStringWithAllPossibleCharacters(8192);
+  EXPECT_EQ(CalculateMd5Digest(s), GetPreComputedDigest(s));
 }
 
 unsigned char UnsignedCharFromHexDigit(char digit) {
