@@ -25,8 +25,6 @@
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
 
-@import FirebaseAppDistributionInternal;
-
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
@@ -340,12 +338,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
-  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
-  feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-  [[self uiService] initializeUIState];
-  [self.uiService.window.rootViewController presentViewController:feedbackViewController
-                                                         animated:YES
-                                                       completion:nil];
+  // TODO: Implement it.
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
