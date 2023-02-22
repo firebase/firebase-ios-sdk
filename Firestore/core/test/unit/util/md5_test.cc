@@ -121,7 +121,7 @@ unsigned char UnsignedCharFromHexDigit(char digit) {
       return 0xE;
     case 'f':
       return 0xF;
-  };
+  }
   HARD_FAIL("unrecognized hex digit: %s", std::to_string(digit));
 }
 
