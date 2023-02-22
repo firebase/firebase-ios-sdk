@@ -24,12 +24,15 @@
 
 - (void)propagateUpdate:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate, NSError *_Nullable error))listener;
 
+- (void)beginRealtimeStream;
+
 @end
 
 @implementation RealtimeMocks
 
 + (RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)realtime {
     RCNConfigRealtime *realtimeMock = OCMPartialMock(realtime);
+    OCMStub([realtimeMock beginRealtimeStream])._andDo(nil);
     OCMStub([realtimeMock addConfigUpdateListener: [OCMArg any]]).andCall(realtimeMock, @selector(propagateUpdate:));
     return realtimeMock;
 }
