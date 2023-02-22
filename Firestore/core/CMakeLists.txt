@@ -101,6 +101,8 @@ if(TARGET OpenSSL::Crypto)
   check_include_files(openssl/md5.h HAVE_OPENSSL_MD5_H)
 endif()
 
+check_symbol_exists(CC_MD5_Init CommonCrypto/CommonDigest.h HAVE_COMMONCRYPTO_MD5)
+
 firebase_ios_glob(
   util_sources EXCLUDE src/util/secure_random_*.cc
 )
@@ -121,7 +123,14 @@ else()
   )
 endif()
 
-if(HAVE_OPENSSL_MD5_H)
+if(HAVE_COMMONCRYPTO_MD5)
+  set(FIRESTORE_MD5_IMPL_COMMONCRYPTO 1)
+  firebase_ios_glob(
+    util_sources APPEND
+    src/util/md5_commoncrypto.cc
+  )
+elseif(HAVE_OPENSSL_MD5_H)
+  set(FIRESTORE_MD5_IMPL_OPENSSL 1)
   firebase_ios_glob(
     util_sources APPEND
     src/util/md5_openssl.cc
@@ -173,7 +182,7 @@ target_link_libraries(
   grpc++
 )
 
-if(HAVE_OPENSSL_RAND_H OR HAVE_OPENSSL_MD5_H)
+if(HAVE_OPENSSL_RAND_H OR FIRESTORE_MD5_IMPL_OPENSSL)
   target_link_libraries(
     firestore_util PRIVATE
     OpenSSL::Crypto
