@@ -100,10 +100,10 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   [super tearDown];
   // These methods fail when using FIRFADSwiftApi.
   // Commenting these out doesn't affect the tests.
-//  [_mockFIRAppClass stopMocking];
-//  [_mockInstallationToken stopMocking];
-//  [_mockURLSession stopMocking];
-//  [_mockFIRInstallations stopMocking];
+  //  [_mockFIRAppClass stopMocking];
+  //  [_mockInstallationToken stopMocking];
+  //  [_mockURLSession stopMocking];
+  //  [_mockFIRInstallations stopMocking];
 }
 
 - (void)mockInstallationAuthCompletion:(FIRInstallationsAuthTokenResult *_Nullable)token
