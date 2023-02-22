@@ -14,7 +14,7 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h
+#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
 #import "FirebaseRemoteConfigSwift/Tests/ObjC/RealtimeMocks.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
@@ -27,7 +27,7 @@
 
 @end
 
-@interface RealtimeMocks
+@implementation RealtimeMocks
 
 + (RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)realtime {
     RCNConfigRealtime *realtimeMock = OCMPartialMock(realtime);
