@@ -531,8 +531,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   [self mockInstallationAuthCompletion:_mockInstallationToken error:nil];
   [self mockInstallationIdCompletion:_mockInstallationId error:nil];
   [self
-      mockUrlSessionResponseWithData:[@"malformed{json[data"
-      dataUsingEncoding:NSUTF8StringEncoding]
+      mockUrlSessionResponseWithData:[@"malformed{json[data" dataUsingEncoding:NSUTF8StringEncoding]
                             response:fakeResponse
                                error:nil];
   XCTestExpectation *expectation =
