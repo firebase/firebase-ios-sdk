@@ -33,18 +33,22 @@ std::array<unsigned char, 16> CalculateMd5Digest(absl::string_view s) {
 
   {
     const int md5_init_result = CC_MD5_Init(&ctx);
-    HARD_ASSERT(md5_init_result == 1, "CC_MD5_Init() returned %s, but expected 1", md5_init_result);
+    HARD_ASSERT(md5_init_result == 1,
+                "CC_MD5_Init() returned %s, but expected 1", md5_init_result);
   }
 
   {
     int md5_update_result = CC_MD5_Update(&ctx, s.data(), s.length());
-    HARD_ASSERT(md5_update_result == 1, "CC_MD5_Update() returned %s, but expected 1", md5_update_result);
+    HARD_ASSERT(md5_update_result == 1,
+                "CC_MD5_Update() returned %s, but expected 1",
+                md5_update_result);
   }
 
   {
     std::array<unsigned char, 16> digest;
     int md5_final_result = CC_MD5_Final(digest.data(), &ctx);
-    HARD_ASSERT(md5_final_result == 1, "CC_MD5_Final() returned %s but expected 1", md5_final_result);
+    HARD_ASSERT(md5_final_result == 1,
+                "CC_MD5_Final() returned %s but expected 1", md5_final_result);
     return digest;
   }
 }
