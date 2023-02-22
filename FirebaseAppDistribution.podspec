@@ -12,9 +12,7 @@ iOS SDK for App Distribution for Firebase.
   s.authors          = 'Google, Inc.'
   s.source           = {
     :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-    # :tag => 'CocoaPods-' + s.version.to_s
-    # TODO: Revert
-    :branch => 'td/iaf'
+    :tag => 'CocoaPods-' + s.version.to_s
   }
 
   s.ios.deployment_target = '11.0'
