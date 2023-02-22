@@ -60,11 +60,11 @@ NS_SWIFT_NAME(AppDistribution)
  * Take a screenshot, prompt the tester to sign in if they haven't already, the start a modal view
  * controller to collect and submit feedback from the tester.
  *
- * Note: The programmatic screenshot may not be able to capture everything on the tester's display.
- *       Consider using `enableFeedbackOnScreenshot`.
- *
  * @param additionalFormText Text to display to the tester before collecting feedback data (eg.
  * Terms and Conditions).
+ *
+ * Note: The programmatic screenshot may not be able to capture everything on the tester's display.
+ *       Consider using `enableFeedbackOnScreenshot`.
  */
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
     NS_SWIFT_NAME(startFeedback(additionalFormText:));
