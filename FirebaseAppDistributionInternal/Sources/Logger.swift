@@ -21,7 +21,7 @@ import Foundation
 /// Logger is responsible for printing console logs
 ///
 enum Logger {
-  private static let logServiceTag = "[FirebaseAppDistributionInternal]"
+  private static let logServiceTag = "[FirebaseAppDistribution]"
   private static let logCode = "I-FAD000001"
 
   static func logInfo(_ message: String) {
