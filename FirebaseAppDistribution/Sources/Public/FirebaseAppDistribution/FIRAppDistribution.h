@@ -63,38 +63,40 @@ NS_SWIFT_NAME(AppDistribution)
  * Note: The programmatic screenshot may not be able to capture everything on the tester's display.
  *       Consider using `enableFeedbackOnScreenshot`.
  *
- * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
- * Conditions).
+ * @param additionalFormText Text to display to the tester before collecting feedback data (eg.
+ * Terms and Conditions).
  */
-- (void)startFeedbackWithInfoText:(NSString *)infoText NS_SWIFT_NAME(startFeedback(infoText:));
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+    NS_SWIFT_NAME(startFeedback(additionalFormText:));
 
 /**
  * Start a modal view controller to collect and submit feedback from the tester and attach the
  * image that's provided.
  *
- * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
- * Conditions).
- * @param image UIImage to attach to the feedback.
+ * @param additionalFormText Text to display to the tester before collecting feedback data (eg.
+ * Terms and Conditions).
+ * @param image UIImage to attach to the feedback. No image if nil is passed.
  */
-- (void)startFeedbackWithInfoText:(NSString *)infoText
-                            image:(UIImage *)image NS_SWIFT_NAME(startFeedback(infoText:image:));
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+                                      image:(UIImage *)image
+    NS_SWIFT_NAME(startFeedback(additionalFormText:image:));
 
 /**
  * After calling the method, whenever a tester takes a screenshot, request access to it if needed,
  * prompt the tester to sign in if they haven't already, and start a modal view controller to
  * collect and submit feedback.
  *
- * @param infoText Text to display to the tester before collecting feedback data (eg. Terms and
- * Conditions).
+ * @param additionalFormText Text to display to the tester before collecting feedback data (eg.
+ * Terms and Conditions).
  * @param showAlertInfo Boolean that indicates whether to show a UIAlert which tells the user that
  * capturing a screenshot will start the feedback process.
  *
  * Note: Using this method requires you to add `NSPhotoLibraryUsageDescription` to your Info.plist,
  * otherwise the app will crash.
  */
-- (void)enableFeedbackOnScreenshotWithInfoText:(NSString *)infoText
-                                 showAlertInfo:(BOOL)showAlertInfo
-    NS_SWIFT_NAME(startFeedbackOnScreenshot(infoText:showAlertInfo:));
+- (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                           showAlertInfo:(BOOL)showAlertInfo
+    NS_SWIFT_NAME(startFeedbackOnScreenshot(additionalFormText:showAlertInfo:));
 
 /**
  * Handle an App Distribution URL, for example a link to download a new pre-release version.

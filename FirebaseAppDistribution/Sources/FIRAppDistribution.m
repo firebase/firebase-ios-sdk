@@ -339,7 +339,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
 
-- (void)startFeedbackWithInfoText:(NSString *)infoText {
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
   UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
   feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
   [[self uiService] initializeUIState];
@@ -348,12 +348,12 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                                        completion:nil];
 }
 
-- (void)startFeedbackWithInfoText:(NSString *)infoText image:(UIImage *)image {
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
   // TODO: Implement it.
 }
 
-- (void)enableFeedbackOnScreenshotWithInfoText:(NSString *)infoText
-                                 showAlertInfo:(BOOL)showAlertInfo {
+- (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                           showAlertInfo:(BOOL)showAlertInfo {
   // TODO: Implement it.
 }
 
