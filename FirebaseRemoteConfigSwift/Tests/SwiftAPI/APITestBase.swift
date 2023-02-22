@@ -74,10 +74,10 @@ class APITestBase: XCTestCase {
     }
 
     if APITests.useFakeConfig {
+      config.configRealtime = RealtimeMocks.mockRealtime(config.configRealtime)
       if !APITests.mockedFetch {
         APITests.mockedFetch = true
         config.configFetch = FetchMocks.mockFetch(config.configFetch)
-        config.configRealtime = RealtimeMocks.mockRealtime(config.configRealtime)
       }
       fakeConsole = FakeConsole()
       config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)
