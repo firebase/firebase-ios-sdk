@@ -32,7 +32,7 @@
 
 + (RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)realtime {
     RCNConfigRealtime *realtimeMock = OCMPartialMock(realtime);
-    OCMStub([realtimeMock beginRealtimeStream])._andDo(nil);
+    OCMStub([realtimeMock beginRealtimeStream]).andDo(nil);
     OCMStub([realtimeMock addConfigUpdateListener: [OCMArg any]]).andCall(realtimeMock, @selector(propagateUpdate:));
     return realtimeMock;
 }
