@@ -51,6 +51,14 @@ class BloomFilter final {
     return bit_count_;
   }
 
+  // When checking membership of a key in bitmap, the first step is to generate
+  // a 128-bit hash, and treat it as 2 distinct 64-bit hash values, named `h1`
+  // and `h2`, interpreted as unsigned integers using 2's  complement encoding.
+  struct Hash {
+    uint64_t h1;
+    uint64_t h2;
+  };
+
  private:
   // The number of bits in the bloom filter. Guaranteed to be non-negative, and
   // less than the max number of bits `bitmap_` can represent, i.e.,
@@ -71,14 +79,6 @@ class BloomFilter final {
                       int32_t bit_count) const;
 
   bool IsBitSet(const std::vector<uint8_t>& bitmap, int32_t index) const;
-
-  // When checking membership of a key in bitmap, the first step is to generate
-  // a 128-bit hash, and treat it as 2 distinct 64-bit hash values, named `h1`
-  // and `h2`, interpreted as unsigned integers using 2's  complement encoding.
-  struct Hash {
-    uint64_t h1;
-    uint64_t h2;
-  };
 };
 
 }  // namespace remote
