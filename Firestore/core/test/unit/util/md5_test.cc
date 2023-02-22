@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include <string>
+#include <vector>
+
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/md5.h"
 
 #include "gtest/gtest.h"
@@ -22,9 +26,162 @@ using firebase::firestore::util::Md5;
 
 namespace {
 
+// Gets the unsigned char corresponding to the given hex digit.
+// The digit must be one of '0', '1', ... , '9', 'a', 'b', ... , 'f'.
+// The lower 4 bits of the returned value will be set and the rest will be 0.
+unsigned char UnsignedCharFromHexDigit(char digit);
+
+// Calculates the 16-byte unsigned char array represented by the given hex
+// string. The given string must be exactly 32 characters and each character
+// must be one that is accepted by the UnsignedCharFromHexDigit() function.
+// e.g. "fc3ff98e8c6a0d3087d515c0473f8677".
+// The `md5sum` command from GNU coreutils can be used to generate a string to
+// specify to this function.
+// e.g.
+// $ printf 'hello world!' | md5sum -
+// fc3ff98e8c6a0d3087d515c0473f8677 -
+std::array<unsigned char, 16> UnsignedCharArrayFromHexDigest(
+    const std::string&);
+
+// Returns the md5 digest for the given string.
+// This function does not "calculate" the digest, but rather has a hardcoded set
+// of pre-calculated digests that it returns.
+// It is an error if this function does not have a pre-calculated digest for the
+// given string.
+std::array<unsigned char, 16> GetPreComputedDigest(const std::string&);
+
+// Generates and returns a string with all possible characters with the given
+// length. The given length must be at least 256.
+std::string GetStringWithAllPossibleCharacters(int length);
+
 TEST(Md5Test, DefaultConstrutorWorks) {
   Md5 instance1;
   Md5 instance2;
+}
+
+TEST(Md5Test, DigestReturnsCorrectValueOnDefaultConstructedInstance) {
+  Md5 md5;
+  EXPECT_EQ(md5.Digest(), GetPreComputedDigest(""));
+}
+
+TEST(Md5Test, UpdateInvokedOnceYieldCorrectDigest) {
+  Md5 md5;
+
+  md5.Update("hello world!", 12);
+
+  EXPECT_EQ(md5.Digest(), GetPreComputedDigest("hello world!"));
+}
+
+TEST(Md5Test, UpdateInvokedTwiceYieldCorrectDigest) {
+  Md5 md5;
+
+  md5.Update("hello ", 6);
+  md5.Update("world!", 6);
+
+  EXPECT_EQ(md5.Digest(), GetPreComputedDigest("hello world!"));
+}
+
+TEST(Md5Test, UpdateInvokedThriceYieldCorrectDigest) {
+  Md5 md5;
+
+  md5.Update("hell", 4);
+  md5.Update("o wo", 4);
+  md5.Update("rld!", 4);
+
+  EXPECT_EQ(md5.Digest(), GetPreComputedDigest("hello world!"));
+}
+
+TEST(Md5Test, DigestsOfVariousStrings) {
+  std::vector<std::string> strings{
+      "a", "abc", "the quick brown fox jumps over the lazy dog",
+      GetStringWithAllPossibleCharacters(512),
+      GetStringWithAllPossibleCharacters(8192)};
+
+  for (const std::string& s : strings) {
+    Md5 md5;
+    md5.Update(s.data(), s.length());
+    EXPECT_EQ(md5.Digest(), GetPreComputedDigest(s));
+  }
+}
+
+unsigned char UnsignedCharFromHexDigit(char digit) {
+  switch (digit) {
+    case '0':
+      return 0x0;
+    case '1':
+      return 0x1;
+    case '2':
+      return 0x2;
+    case '3':
+      return 0x3;
+    case '4':
+      return 0x4;
+    case '5':
+      return 0x5;
+    case '6':
+      return 0x6;
+    case '7':
+      return 0x7;
+    case '8':
+      return 0x8;
+    case '9':
+      return 0x9;
+    case 'a':
+      return 0xA;
+    case 'b':
+      return 0xB;
+    case 'c':
+      return 0xC;
+    case 'd':
+      return 0xD;
+    case 'e':
+      return 0xE;
+    case 'f':
+      return 0xF;
+  };
+  HARD_FAIL("unrecognized hex digit: %s", std::to_string(digit));
+}
+
+std::array<unsigned char, 16> UnsignedCharArrayFromHexDigest(
+    const std::string& s) {
+  HARD_ASSERT(s.length() == 32);
+  std::array<unsigned char, 16> result;
+  for (int i = 0; i < 16; ++i) {
+    unsigned char c1 = UnsignedCharFromHexDigit(s[i * 2]);
+    unsigned char c2 = UnsignedCharFromHexDigit(s[(i * 2) + 1]);
+    result[i] = (c1 << 4) | c2;
+  }
+  return result;
+}
+
+std::array<unsigned char, 16> GetPreComputedDigest(const std::string& s) {
+  if (s == "") {
+    return UnsignedCharArrayFromHexDigest("d41d8cd98f00b204e9800998ecf8427e");
+  } else if (s == "hello world!") {
+    return UnsignedCharArrayFromHexDigest("fc3ff98e8c6a0d3087d515c0473f8677");
+  } else if (s == "a") {
+    return UnsignedCharArrayFromHexDigest("0cc175b9c0f1b6a831c399e269772661");
+  } else if (s == "abc") {
+    return UnsignedCharArrayFromHexDigest("900150983cd24fb0d6963f7d28e17f72");
+  } else if (s == "the quick brown fox jumps over the lazy dog") {
+    return UnsignedCharArrayFromHexDigest("77add1d5f41223d5582fca736a5cb335");
+  } else if (s == GetStringWithAllPossibleCharacters(512)) {
+    return UnsignedCharArrayFromHexDigest("f5c8e3c31c044bae0e65569560b54332");
+  } else if (s == GetStringWithAllPossibleCharacters(8192)) {
+    return UnsignedCharArrayFromHexDigest("6556112372898c69e1de0bf689d8db26");
+  } else {
+    HARD_FAIL("no precomputed digest for string: %s", s);
+    return {};
+  }
+}
+
+std::string GetStringWithAllPossibleCharacters(int length) {
+  HARD_ASSERT(length >= 256);
+  std::string result;
+  for (int i = 0; i < length; ++i) {
+    result += static_cast<char>(i);
+  }
+  return result;
 }
 
 }  // namespace

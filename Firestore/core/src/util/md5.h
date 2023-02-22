@@ -60,6 +60,9 @@ class Md5 final {
 
   /**
    * Returns the calculated digest based on previous calls to Update().
+   *
+   * NOTE: After calling Digest(), calling Update() or Digest() again is
+   * undefined behavior. To continue using this object, call Reset().
    */
   std::array<unsigned char, 16> Digest();
 

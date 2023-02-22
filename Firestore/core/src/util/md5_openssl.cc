@@ -28,6 +28,20 @@ Md5::Md5() {
               md5_init_result);
 }
 
+void Md5::Update(const void* data, int len) {
+  int md5_update_result = MD5_Update(&ctx_, data, len);
+  HARD_ASSERT(md5_update_result == 1, "MD5_Update() returns %s but expected 1",
+              md5_update_result);
+}
+
+std::array<unsigned char, 16> Md5::Digest() {
+  std::array<unsigned char, 16> digest;
+  int md5_final_result = MD5_Final(digest.data(), &ctx_);
+  HARD_ASSERT(md5_final_result == 1, "MD5_Final() returns %s but expected 1",
+              md5_final_result);
+  return digest;
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
