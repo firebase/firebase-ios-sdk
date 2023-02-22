@@ -17,18 +17,24 @@
 #include "Firestore/core/src/util/md5.h"
 
 #include "Firestore/core/src/util/config.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/warnings.h"
 
 #if FIRESTORE_MD5_IMPL_COMMONCRYPTO
 
 // NOLINTNEXTLINE(build/include)
 #include <CommonCrypto/CommonDigest.h>
 
-#include "Firestore/core/src/util/hard_assert.h"
-
 namespace firebase {
 namespace firestore {
 namespace util {
 
+// Suppress deprecation warnings because due to CommonCrypto's md5 functions.
+// The MD5 functions are marked as "deprecated" because they are
+// "cryptographically broken"; however, Firestore's use of md5 is _not_ in a
+// cryptographic context and, therefore, a non-cryptographically-secure
+// algorithm is acceptable.
+SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
 std::array<unsigned char, 16> CalculateMd5Digest(absl::string_view s) {
   CC_MD5_CTX ctx;
 
@@ -53,6 +59,7 @@ std::array<unsigned char, 16> CalculateMd5Digest(absl::string_view s) {
     return digest;
   }
 }
+SUPPRESS_END()
 
 }  // namespace util
 }  // namespace firestore

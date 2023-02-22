@@ -17,10 +17,10 @@
 #include "Firestore/core/src/util/md5.h"
 
 #include "Firestore/core/src/util/config.h"
+#include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/warnings.h"
 
 #if FIRESTORE_MD5_IMPL_OPENSSL
-
-#include "Firestore/core/src/util/hard_assert.h"
 
 #include "openssl/md5.h"
 
@@ -28,6 +28,10 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
+// Suppress deprecation warnings due to using openssl's md5 functions.
+// In the future, we can migrate to the newer-style digest algorithms in
+// openssl/evp.h and remove this deprecation suppression.
+SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN()
 std::array<unsigned char, 16> CalculateMd5Digest(absl::string_view s) {
   MD5_CTX ctx;
 
