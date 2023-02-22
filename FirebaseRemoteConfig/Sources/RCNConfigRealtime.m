@@ -159,6 +159,11 @@ static NSInteger const gMaxRetries = 7;
   });
 }
 
+// For testing purposes only
+- (void)propagateUpdate:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate, NSError *_Nullable error))listener {
+    listener(nil, nil);
+}
+
 #pragma mark - Http Helpers
 
 - (NSString *)constructServerURL {
