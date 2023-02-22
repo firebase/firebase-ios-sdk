@@ -27,6 +27,4 @@
 
 #cmakedefine HAVE_OPENSSL_RAND_H 1
 
-#cmakedefine HAVE_OPENSSL_MD5_H 1
-
 #endif  // FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_
