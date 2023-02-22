@@ -15,7 +15,4 @@
 import XCTest
 @testable import FirebaseAppDistributionInternal
 
-class AppDistributionApiServiceTests: XCTestCase {
-  
-
-}
+class AppDistributionApiServiceTests: XCTestCase {}

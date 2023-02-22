@@ -98,13 +98,14 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
 - (void)tearDown {
   [super tearDown];
-  // This is resulting in an EXC_BAD_ACCESS (code=EXC_I386_GPFLT) when using the swift implementation.
-  // Based on documentation, this isn't necessary, as as part of deallocation, OCMock will call this.
-  
-//  [_mockFIRAppClass stopMocking];
-//  [_mockInstallationToken stopMocking];
-//  [_mockURLSession stopMocking];
-//  [_mockFIRInstallations stopMocking];
+  // This is resulting in an EXC_BAD_ACCESS (code=EXC_I386_GPFLT) when using the swift
+  // implementation. Based on documentation, this isn't necessary, as as part of deallocation,
+  // OCMock will call this.
+
+  //  [_mockFIRAppClass stopMocking];
+  //  [_mockInstallationToken stopMocking];
+  //  [_mockURLSession stopMocking];
+  //  [_mockFIRInstallations stopMocking];
 }
 
 - (void)mockInstallationAuthCompletion:(FIRInstallationsAuthTokenResult *_Nullable)token
@@ -530,7 +531,8 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 //  [self mockInstallationAuthCompletion:_mockInstallationToken error:nil];
 //  [self mockInstallationIdCompletion:_mockInstallationId error:nil];
 //  [self
-//      mockUrlSessionResponseWithData:[@"malformed{json[data" dataUsingEncoding:NSUTF8StringEncoding]
+//      mockUrlSessionResponseWithData:[@"malformed{json[data"
+//      dataUsingEncoding:NSUTF8StringEncoding]
 //                            response:fakeResponse
 //                               error:nil];
 //  XCTestExpectation *expectation =
