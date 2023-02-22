@@ -5,7 +5,7 @@
 
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAppDistributionInternal'
-    s.version          = '10.4.0-beta'
+    s.version          = '10.5.0-beta'
     s.summary          = 'Firebase App Distribution Internal for Swift implementations'
 
     s.description      = <<-DESC
