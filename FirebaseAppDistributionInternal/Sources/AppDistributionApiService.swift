@@ -37,7 +37,6 @@ enum Strings {
   static let responseReleaseKey = "releases"
 }
 
-@objc(FIRFADApiError)
 enum AppDistributionApiError: NSInteger {
   case ApiErrorTimeout = 0
   case ApiTokenGenerationFailure = 1

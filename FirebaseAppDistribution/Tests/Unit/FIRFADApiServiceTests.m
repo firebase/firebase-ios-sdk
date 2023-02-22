@@ -98,14 +98,12 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
 - (void)tearDown {
   [super tearDown];
-  // This is resulting in an EXC_BAD_ACCESS (code=EXC_I386_GPFLT) when using the swift
-  // implementation. Based on documentation, this isn't necessary, as as part of deallocation,
-  // OCMock will call this.
-
-  //  [_mockFIRAppClass stopMocking];
-  //  [_mockInstallationToken stopMocking];
-  //  [_mockURLSession stopMocking];
-  //  [_mockFIRInstallations stopMocking];
+  // These methods fail when using FIRFADSwiftApi.
+  // Commenting these out doesn't affect the tests.
+//  [_mockFIRAppClass stopMocking];
+//  [_mockInstallationToken stopMocking];
+//  [_mockURLSession stopMocking];
+//  [_mockFIRInstallations stopMocking];
 }
 
 - (void)mockInstallationAuthCompletion:(FIRInstallationsAuthTokenResult *_Nullable)token
@@ -319,7 +317,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases fails with unknown error."];
 
-  [FIRFADApiService
+  [FIRFADSwiftApiService
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
