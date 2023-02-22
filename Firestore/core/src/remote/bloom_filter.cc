@@ -16,8 +16,9 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-#include "bloom_filter.h"
-#include <CommonCrypto/CommonDigest.h>
+#include "Firestore/core/src/remote/bloom_filter.h"
+
+#include "CommonCrypto/CommonDigest.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
