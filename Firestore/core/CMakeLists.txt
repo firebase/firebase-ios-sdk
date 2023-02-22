@@ -98,6 +98,7 @@ if(TARGET OpenSSL::Crypto)
     CMAKE_REQUIRED_INCLUDES OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
   )
   check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
+  check_include_files(openssl/md5.h HAVE_OPENSSL_MD5_H)
 endif()
 
 firebase_ios_glob(
@@ -120,6 +121,27 @@ else()
   )
 endif()
 
+if(HAVE_OPENSSL_MD5_H)
+  firebase_ios_glob(
+    util_sources APPEND
+    src/util/md5_openssl.cc
+  )
+  # Suppress deprecation warnings from openssl since its md5
+  # implementation is deprecated, but only because md5 is not
+  # cryptographically secure, something we don't care about in our
+  # md5 usage.
+  set_source_files_properties(
+    src/util/md5_openssl.cc
+    PROPERTIES
+    COMPILE_FLAGS
+    -Wno-deprecated-declarations
+  )
+else()
+  message(
+    FATAL_ERROR
+    "Don't know how to calculate md5 digests on this platform."
+  )
+endif()
 
 configure_file(
   src/util/config_detected.h.in
@@ -148,7 +170,7 @@ target_link_libraries(
   grpc++
 )
 
-if(HAVE_OPENSSL_RAND_H)
+if(HAVE_OPENSSL_RAND_H OR HAVE_OPENSSL_MD5_H)
   target_link_libraries(
     firestore_util PRIVATE
     OpenSSL::Crypto

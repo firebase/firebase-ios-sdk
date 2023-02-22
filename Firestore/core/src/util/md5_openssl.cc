@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_
-#define FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_
+#include "Firestore/core/src/util/md5.h"
 
-// This header defines macros for all available platform configuration values.
-// When building with CMake, it will substitute the lines marked with
-// cmakedefine with values corresponding to the local configuration.
+#include "Firestore/core/src/util/hard_assert.h"
 
-#cmakedefine HAVE_ARC4RANDOM 1
+namespace firebase {
+namespace firestore {
+namespace util {
 
-#cmakedefine HAVE_LIBDISPATCH 1
+Md5::Md5() {
+  const int md5_init_result = MD5_Init(&ctx_);
+  HARD_ASSERT(md5_init_result == 1, "MD5_Init() returns %s but expected 1",
+              md5_init_result);
+}
 
-#cmakedefine HAVE_OPENSSL_RAND_H 1
-
-#cmakedefine HAVE_OPENSSL_MD5_H 1
-
-#endif  // FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_
+}  // namespace util
+}  // namespace firestore
+}  // namespace firebase
