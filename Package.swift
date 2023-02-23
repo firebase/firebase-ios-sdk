@@ -397,6 +397,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
+        "FirebaseAppDistributionInternal",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
@@ -405,6 +406,15 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../"),
       ]
+    ),
+    .target(
+      name: "FirebaseAppDistributionInternal",
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseCoreExtensions",
+        "FirebaseInstallations",
+      ],
+      path: "FirebaseAppDistributionInternal/Sources",
     ),
     .testTarget(
       name: "AppDistributionUnit",
