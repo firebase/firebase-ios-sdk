@@ -149,9 +149,7 @@ class APITests: APITestBase {
     
     let expectation = self.expectation(description: #function)
     let registration = config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
-      if let error = Error {
-        XCTFail("Realtime update Error \(error)")
-      }
+      XCTAssertNil(Error, "Realtime Error \(Error!)")
             
       expectation.fulfill()
     }
@@ -165,9 +163,7 @@ class APITests: APITestBase {
       
     let expectation = self.expectation(description: #function)
     let registration = config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
-      if let error = Error {
-        XCTFail("Realtime update Error \(error)")
-      }
+      XCTAssertNil(Error, "Realtime Error \(Error!)")
               
       expectation.fulfill()
     }
