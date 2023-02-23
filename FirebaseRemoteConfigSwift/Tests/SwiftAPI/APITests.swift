@@ -170,7 +170,6 @@ class APITests: APITestBase {
               
       expectation.fulfill()
     }
-    console.updateRemoteConfigValue(Constants.captainrex, forKey: Constants.clone)
           
     waitForExpectations()
   }

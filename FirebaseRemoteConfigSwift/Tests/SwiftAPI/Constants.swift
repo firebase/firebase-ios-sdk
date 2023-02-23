@@ -23,8 +23,6 @@ enum Constants {
   static let obiwan = "Obi-Wan"
   static let yoda = "Yoda"
   static let darthSidious = "Darth Sidious"
-  static let clone = "Clone_Trooper"
-  static let captainrex = "Captain Rex"
 
   static let stringKey = "myString"
   static let stringValue = "string contents"
