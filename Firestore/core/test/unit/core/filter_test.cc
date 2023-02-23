@@ -18,7 +18,6 @@
 #include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/core/query.h"
-#include "Firestore/core/src/core/target.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
 
@@ -103,10 +102,8 @@ TEST(FilterTest, CompositeFilterNestedChecks) {
 }
 
 TEST(FilterTest, CanonicalIdOfFlatConjunctions) {
-  auto query1 = Query("col")
-                    .AddingFilter(A).AddingFilter(B).AddingFilter(C);
-  auto query2 = Query("col")
-                    .AddingFilter(AndFilters({A, B, C}));
+  auto query1 = Query("col").AddingFilter(A).AddingFilter(B).AddingFilter(C);
+  auto query2 = Query("col").AddingFilter(AndFilters({A, B, C}));
   EXPECT_EQ(query1.CanonicalId(), query2.CanonicalId());
 }
 
