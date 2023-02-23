@@ -20,6 +20,22 @@
 #import <UIKit/UIKit.h>
 
 @class FIRAuthWebViewController;
+@protocol FIRAuthUIDelegate;
+
+/** @typedef FIRAuthURLPresentationCompletion
+    @brief The type of block invoked when the URLPresentation completes.
+    @param callbackURL The callback URL if the presentation ends with a matching callback.
+    @param error The error if the presentation fails to start or ends with an error.
+ */
+typedef void (^FIRAuthURLPresentationCompletion)(NSURL *_Nullable callbackURL,
+                                                 NSError *_Nullable error);
+
+/** @typedef FIRAuthCallbackMatcher
+    @brief The type of block invoked for checking whether a callback URL matches.
+    @param callbackURL The callback URL to check for match.
+    @return Whether or not the specific callback URL matches or not.
+ */
+typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL *_Nullable callbackURL);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -48,6 +64,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)webViewController:(FIRAuthWebViewController *)webViewController
          didFailWithError:(NSError *)error;
+
+/** @fn presentURL:UIDelegate:callbackMatcher:completion:
+    @brief Presents an URL to interact with user.
+    @param URL The URL to present.
+    @param UIDelegate The UI delegate to present view controller.
+    @param completion A block to be called either synchronously if the presentation fails to start,
+        or asynchronously in future on an unspecified thread once the presentation finishes.
+ */
+- (void)presentURL:(NSURL *)URL
+         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+    callbackMatcher:(FIRAuthURLCallbackMatcher)callbackMatcher
+         completion:(FIRAuthURLPresentationCompletion)completion;
 
 @end
 

@@ -46,7 +46,7 @@ class AuthTests: RPCBaseTests {
     group.enter()
 
     AuthTests.auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
-      // 4. After the reponse triggers the callback, verify the returned signInMethods.
+      // 4. After the response triggers the callback, verify the returned signInMethods.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual(signInMethods, allSignInMethods)
       XCTAssertNil(error)
@@ -102,7 +102,7 @@ class AuthTests: RPCBaseTests {
     group.enter()
 
     AuthTests.auth?.sendPasswordReset(withEmail: kEmail) { error in
-      // 4. After the reponse triggers the callback, verify the returned signInMethods.
+      // 4. After the response triggers the callback, verify success.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(error)
       expectation.fulfill()
@@ -156,7 +156,7 @@ class AuthTests: RPCBaseTests {
 
     AuthTests.auth?.sendSignInLink(toEmail: kEmail,
                                    actionCodeSettings: fakeActionCodeSettings()) { error in
-      // 4. After the reponse triggers the callback, verify the returned signInMethods.
+      // 4. After the response triggers the callback, verify success.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(error)
       expectation.fulfill()

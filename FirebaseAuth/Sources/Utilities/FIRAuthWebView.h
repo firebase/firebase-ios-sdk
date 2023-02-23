@@ -23,7 +23,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class FIRAuthWebView
-    @brief A class reponsible for creating a WKWebView for use within Firebase Auth.
+    @brief A class responsible for creating a WKWebView for use within Firebase Auth.
  */
 @interface FIRAuthWebView : UIView
 

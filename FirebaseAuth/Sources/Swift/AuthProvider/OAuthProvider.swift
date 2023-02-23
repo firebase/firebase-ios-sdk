@@ -21,26 +21,6 @@ import CommonCrypto
 @objc(FIROAuthProvider) open class OAuthProvider: NSObject, FederatedAuthProvider {
   @objc public static let id = "OAuth"
 
-  /**
-      @param providerID The provider ID of the IDP for which this auth provider instance will be
-          configured.
-      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
-   */
-  @objc(providerWithProviderID:) public class func provider(providerID: String) -> OAuthProvider {
-    return OAuthProvider(providerID: providerID, auth: Auth.auth())
-  }
-
-  /**
-      @param providerID The provider ID of the IDP for which this auth provider instance will be
-          configured.
-      @param auth The auth instance to be associated with the `OAuthProvider` instance.
-      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
-   */
-  @objc(providerWithProviderID:auth:) public class func provider(providerID: String,
-                                                                 auth: Auth) -> OAuthProvider {
-    return OAuthProvider(providerID: providerID, auth: auth)
-  }
-
   /** @property scopes
       @brief Array used to configure the OAuth scopes.
    */
@@ -62,6 +42,26 @@ import CommonCrypto
           configured.
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
+  @objc(providerWithProviderID:) public class func provider(providerID: String) -> OAuthProvider {
+    return OAuthProvider(providerID: providerID, auth: Auth.auth())
+  }
+
+  /**
+      @param providerID The provider ID of the IDP for which this auth provider instance will be
+          configured.
+      @param auth The auth instance to be associated with the `OAuthProvider` instance.
+      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
+   */
+  @objc(providerWithProviderID:auth:) public class func provider(providerID: String,
+                                                                 auth: Auth) -> OAuthProvider {
+    return OAuthProvider(providerID: providerID, auth: auth)
+  }
+
+  /**
+      @param providerID The provider ID of the IDP for which this auth provider instance will be
+          configured.
+      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
+   */
   @objc(providerWithProviderID:) public convenience init(providerID: String) {
     self.init(providerID: providerID, auth: Auth.auth())
   }
@@ -76,11 +76,11 @@ import CommonCrypto
     if auth.requestConfiguration.emulatorHostAndPort == nil {
       if providerID == FacebookAuthProvider.id {
         fatalError("Sign in with Facebook is not supported via generic IDP; the Facebook TOS " +
-                   "dictate that you must use the Facebook iOS SDK for Facebook login.")
+          "dictate that you must use the Facebook iOS SDK for Facebook login.")
       }
       if providerID == AuthProviderString.apple.rawValue {
         fatalError("Sign in with Apple is not supported via generic IDP; You must use the Apple SDK" +
-                   " for Sign in with Apple.")
+          " for Sign in with Apple.")
       }
     }
     self.auth = auth
@@ -89,15 +89,21 @@ import CommonCrypto
     customParameters = [:]
 
     if let clientID = auth.app?.options.clientID {
-      let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed().joined(separator: ".")
-      if AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme) {
+      let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()
+        .joined(separator: ".")
+      if AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme,
+                                                 urlTypes: auth.mainBundleUrlTypes) {
         callbackScheme = reverseClientIDScheme
         usingClientIDScheme = true
         return
       }
     }
-    callbackScheme = ""
     usingClientIDScheme = false
+    if let appID = auth.app?.options.googleAppID {
+      callbackScheme = "app-\(appID.replacingOccurrences(of: ":", with: "-"))"
+    } else {
+      fatalError("Missing googleAppID for constructing callbackScheme")
+    }
   }
 
   /**
@@ -173,15 +179,18 @@ import CommonCrypto
     @objc(getCredentialWithUIDelegate:completion:)
     public func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
                                   completion: ((AuthCredential?, Error?) -> Void)? = nil) {
-      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme) else {
-        fatalError("Please register custom URL scheme \(callbackScheme) in the app's Info.plist file.")
+      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+                                                    urlTypes: auth.mainBundleUrlTypes) else {
+        fatalError(
+          "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
+        )
       }
       kAuthGlobalWorkQueue.async { [weak self] in
         guard let self = self else { return }
         let eventID = AuthWebUtils.randomString(withLength: 10)
         let sessionID = AuthWebUtils.randomString(withLength: 10)
 
-        let callbackOnMainThread: ((AuthCredential?, Error?)->Void) = { credential, error in
+        let callbackOnMainThread: ((AuthCredential?, Error?) -> Void) = { credential, error in
           if let completion {
             DispatchQueue.main.async {
               completion(credential, error)
@@ -197,10 +206,10 @@ import CommonCrypto
             fatalError("FirebaseAuth Internal Error: Both error and headfulLiteURL return are nil")
           }
           let callbackMatcher: (URL?) -> Bool = { callbackURL in
-            return AuthWebUtils.isExpectedCallbackURL(callbackURL,
-                                                      eventID: eventID,
-                                                      authType: "signInWithRedirect",
-                                                      callbackScheme: self.callbackScheme)
+            AuthWebUtils.isExpectedCallbackURL(callbackURL,
+                                               eventID: eventID,
+                                               authType: "signInWithRedirect",
+                                               callbackScheme: self.callbackScheme)
           }
           self.auth.authURLPresenter.present(headfulLiteURL,
                                              uiDelegate: UIDelegate,
@@ -218,7 +227,9 @@ import CommonCrypto
               return
             }
             guard let oAuthResponseURLString else {
-              fatalError("FirebaseAuth Internal Error: Both error and oAuthResponseURLString return are nil")
+              fatalError(
+                "FirebaseAuth Internal Error: Both error and oAuthResponseURLString return are nil"
+              )
             }
             let credential = OAuthCredential(withProviderID: self.providerID,
                                              sessionID: sessionID,
@@ -242,238 +253,146 @@ import CommonCrypto
       }
     }
 
-  /** @fn OAuthResponseForURL:error:
-      @brief Parses the redirected URL and returns a string representation of the OAuth response URL.
-      @param URL The url to be parsed for an OAuth response URL.
-      @param error The error that occurred if any.
-      @return The OAuth response if successful.
-   */
-  private func oAuthResponseForURL(url: URL) -> (String?, Error?) {
-    var urlQueryItems = AuthWebUtils.dictionary(withHttpArgumentsString: url.query)
-    if let item = urlQueryItems["deep_link_id"],
-       let deepLinkURL = URL(string:item) {
-      urlQueryItems = AuthWebUtils.dictionary(withHttpArgumentsString: deepLinkURL.query)
-      if let queryItemLink = urlQueryItems["link"] {
-        return (queryItemLink, nil)
-      }
-    }
-    if let errorData = urlQueryItems["firebaseError"]?.data(using: .utf8) {
-      do {
-        let error = try JSONSerialization.jsonObject(with: errorData) as? [String: Any]
-        let code = (error?["code"] as? String) ?? "missing code"
-        let message = (error?["message"] as? String) ?? "missing message"
-        return (nil, AuthErrorUtils.URLResponseError(code: code, message: message))
-      } catch {
-        return (nil, AuthErrorUtils.JSONSerializationError(underlyingError: error))
-      }
-    }
-    return (nil, AuthErrorUtils.webSignInUserInteractionFailure(
-      reason: "SignIn failed with unparseable firebaseError"))
-  }
+    // MARK: - Private Methods
 
-  /** @fn getHeadfulLiteURLWithEventID
-      @brief Constructs a URL used for opening a headful-lite flow using a given event
-          ID and session ID.
-      @param eventID The event ID used for this purpose.
-      @param sessionID The session ID used when completing the headful lite flow.
-      @param completion The callback invoked after the URL has been constructed or an error
-          has been encountered.
-   */
-  private func getHeadfulLiteUrl(eventID: String,
-                         sessionID: String,
-                         completion: @escaping ((URL?, Error?) -> Void)) {
-    weak var weakSelf = self
-    AuthWebUtils.fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration) { authDomain, error in
-      if let error = error {
-        completion(nil, error)
-        return
-      }
-      let strongSelf = weakSelf
-      let bundleID = Bundle.main.bundleIdentifier
-      let clientID = strongSelf?.auth.app?.options.clientID
-      let appID = strongSelf?.auth.app?.options.googleAppID
-      let apiKey = strongSelf?.auth.requestConfiguration.APIKey
-      let tenantID = strongSelf?.auth.tenantID
-
-      // TODO: Should we fail if these strings are empty? Only ibi was explicit in ObjC.
-      var urlArguments = ["apiKey" : apiKey ?? "",
-                          "authType" : "signInWithRedirect",
-                          "ibi" : bundleID ?? "",
-                          "sessionId" : strongSelf?.hashForString(sessionID) ?? "",
-                          "v" : AuthBackend.authUserAgent(),
-                          "eventId" : eventID,
-                          "providerId" : strongSelf?.providerID ?? ""]
-
-      if let usingClientIDScheme = strongSelf?.usingClientIDScheme, usingClientIDScheme {
-        urlArguments["clientId"] = clientID
-      } else {
-        urlArguments["appId"] = appID
-      }
-      if let tenantID {
-        urlArguments["tid"] = tenantID
-      }
-      if let scopes = strongSelf?.scopes, scopes.count > 0 {
-        urlArguments["scopes"] = scopes.joined(separator: ",")
-      }
-      if let customParameters = strongSelf?.customParameters, customParameters.count > 0 {
-        do {
-          let customParametersJSONData = try JSONSerialization.data(withJSONObject: customParameters)
-          let rawJson = String(decoding:customParametersJSONData, as: UTF8.self)
-          urlArguments["customParameters"] = rawJson
-        } catch {
-          completion(nil, AuthErrorUtils.JSONSerializationError(underlyingError: error))
+    /** @fn OAuthResponseForURL:error:
+        @brief Parses the redirected URL and returns a string representation of the OAuth response URL.
+        @param URL The url to be parsed for an OAuth response URL.
+        @param error The error that occurred if any.
+        @return The OAuth response if successful.
+     */
+    private func oAuthResponseForURL(url: URL) -> (String?, Error?) {
+      var urlQueryItems = AuthWebUtils.dictionary(withHttpArgumentsString: url.query)
+      if let item = urlQueryItems["deep_link_id"],
+         let deepLinkURL = URL(string: item) {
+        urlQueryItems = AuthWebUtils.dictionary(withHttpArgumentsString: deepLinkURL.query)
+        if let queryItemLink = urlQueryItems["link"] {
+          return (queryItemLink, nil)
         }
       }
-      if let languageCode = strongSelf?.auth.requestConfiguration.languageCode {
-        urlArguments["hl"] = languageCode
+      if let errorData = urlQueryItems["firebaseError"]?.data(using: .utf8) {
+        do {
+          let error = try JSONSerialization.jsonObject(with: errorData) as? [String: Any]
+          let code = (error?["code"] as? String) ?? "missing code"
+          let message = (error?["message"] as? String) ?? "missing message"
+          return (nil, AuthErrorUtils.urlResponseError(code: code, message: message))
+        } catch {
+          return (nil, AuthErrorUtils.JSONSerializationError(underlyingError: error))
+        }
       }
-      let argumentsString = strongSelf?.httpArgumentsString(forArgsDictionary: urlArguments) ?? ""
-      var urlString: String
-      if ((strongSelf?.auth.requestConfiguration.emulatorHostAndPort) != nil) {
-        urlString = "http://\(authDomain ?? "")/emulator/auth/handler?\(argumentsString)";
-      } else {
-        urlString = "https://\(authDomain ?? "")/__/auth/handler?\(argumentsString)"
+      return (nil, AuthErrorUtils.webSignInUserInteractionFailure(
+        reason: "SignIn failed with unparseable firebaseError"
+      ))
+    }
+
+    /** @fn getHeadfulLiteURLWithEventID
+        @brief Constructs a URL used for opening a headful-lite flow using a given event
+            ID and session ID.
+        @param eventID The event ID used for this purpose.
+        @param sessionID The session ID used when completing the headful lite flow.
+        @param completion The callback invoked after the URL has been constructed or an error
+            has been encountered.
+     */
+    private func getHeadfulLiteUrl(eventID: String,
+                                   sessionID: String,
+                                   completion: @escaping ((URL?, Error?) -> Void)) {
+      weak var weakSelf = self
+      AuthWebUtils
+        .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration) { authDomain, error in
+          if let error = error {
+            completion(nil, error)
+            return
+          }
+          let strongSelf = weakSelf
+          let bundleID = Bundle.main.bundleIdentifier
+          let clientID = strongSelf?.auth.app?.options.clientID
+          let appID = strongSelf?.auth.app?.options.googleAppID
+          let apiKey = strongSelf?.auth.requestConfiguration.APIKey
+          let tenantID = strongSelf?.auth.tenantID
+
+          // TODO: Should we fail if these strings are empty? Only ibi was explicit in ObjC.
+          var urlArguments = ["apiKey": apiKey ?? "",
+                              "authType": "signInWithRedirect",
+                              "ibi": bundleID ?? "",
+                              "sessionId": strongSelf?.hash(forString: sessionID) ?? "",
+                              "v": AuthBackend.authUserAgent(),
+                              "eventId": eventID,
+                              "providerId": strongSelf?.providerID ?? ""]
+
+          if let usingClientIDScheme = strongSelf?.usingClientIDScheme, usingClientIDScheme {
+            urlArguments["clientId"] = clientID
+          } else {
+            urlArguments["appId"] = appID
+          }
+          if let tenantID {
+            urlArguments["tid"] = tenantID
+          }
+          if let scopes = strongSelf?.scopes, scopes.count > 0 {
+            urlArguments["scopes"] = scopes.joined(separator: ",")
+          }
+          if let customParameters = strongSelf?.customParameters, customParameters.count > 0 {
+            do {
+              let customParametersJSONData = try JSONSerialization
+                .data(withJSONObject: customParameters)
+              let rawJson = String(decoding: customParametersJSONData, as: UTF8.self)
+              urlArguments["customParameters"] = rawJson
+            } catch {
+              completion(nil, AuthErrorUtils.JSONSerializationError(underlyingError: error))
+            }
+          }
+          if let languageCode = strongSelf?.auth.requestConfiguration.languageCode {
+            urlArguments["hl"] = languageCode
+          }
+          let argumentsString = strongSelf?
+            .httpArgumentsString(forArgsDictionary: urlArguments) ?? ""
+          var urlString: String
+          if (strongSelf?.auth.requestConfiguration.emulatorHostAndPort) != nil {
+            urlString = "http://\(authDomain ?? "")/emulator/auth/handler?\(argumentsString)"
+          } else {
+            urlString = "https://\(authDomain ?? "")/__/auth/handler?\(argumentsString)"
+          }
+          completion(URL(string: urlString.addingPercentEncoding(
+            withAllowedCharacters: CharacterSet.urlFragmentAllowed
+          ) ?? ""), nil)
+        }
+    }
+
+    /** @fn hashforString:
+        @brief Returns the SHA256 hash representation of a given string object.
+        @param string The string for which a SHA256 hash is desired.
+        @return An hexadecimal string representation of the SHA256 hash.
+     */
+    private func hash(forString string: String) -> String {
+      guard let sessionIdData = string.data(using: .utf8) as? NSData else {
+        fatalError("FirebaseAuth Internal error: Failed to create hash for sessionID")
       }
-      completion(URL(string: urlString.addingPercentEncoding(
-        withAllowedCharacters: CharacterSet.urlFragmentAllowed) ?? ""), nil)
-    }
-  }
+      let digestLength = Int(CC_SHA256_DIGEST_LENGTH)
+      var hash = [UInt8](repeating: 0, count: digestLength)
+      CC_SHA256(sessionIdData.bytes, UInt32(sessionIdData.length), &hash)
+      let dataHash = NSData(bytes: hash, length: digestLength)
+      var bytes = [UInt8](repeating: 0, count: digestLength)
+      dataHash.getBytes(&bytes, length: digestLength)
 
-  private func httpArgumentsString(forArgsDictionary argsDictionary:[String:String]) -> String {
-    var argsString: [String] = []
-    for (key, value) in argsDictionary {
-      let keyString = AuthWebUtils.string(byUnescapingFromURLArgument: key)
-      let valueString = AuthWebUtils.string(byUnescapingFromURLArgument: value.description)
-      argsString.append("\(keyString)=\(valueString)")
+      var hexString = ""
+      for byte in bytes {
+        hexString += String(format: "%02x", UInt8(byte))
+      }
+      return hexString
     }
-    return argsString.joined(separator: "&")
-  }
 
-  /** @fn hashforString:
-      @brief Returns the SHA256 hash representation of a given string object.
-      @param string The string for which a SHA256 hash is desired.
-      @return An hexadecimal string representation of the SHA256 hash.
-   */
-  private func hashForString(_ string: String) -> String {
-    guard let sessionIdData = string.data(using: .utf8) as? NSData else {
-      fatalError("FirebaseAuth Internal error: Failed to create hash for sessionID")
+    private func httpArgumentsString(forArgsDictionary argsDictionary: [String: String]) -> String {
+      var argsString: [String] = []
+      for (key, value) in argsDictionary {
+        let keyString = AuthWebUtils.string(byUnescapingFromURLArgument: key)
+        let valueString = AuthWebUtils.string(byUnescapingFromURLArgument: value.description)
+        argsString.append("\(keyString)=\(valueString)")
+      }
+      return argsString.joined(separator: "&")
     }
-    let digestLength = Int(CC_SHA256_DIGEST_LENGTH)
-    var hash = [UInt8](repeating: 0, count: digestLength)
-    CC_SHA256(sessionIdData.bytes, UInt32(sessionIdData.length), &hash)
-    let dataHash = NSData(bytes: hash, length: digestLength)
-    var bytes = [UInt8](repeating: 0, count: digestLength)
-    dataHash.getBytes(&bytes, length: digestLength)
-
-    var hexString = ""
-    for byte in bytes {
-        hexString += String(format:"%02x", UInt8(byte))
-    }
-    return hexString
-  }
 
   #endif
 
   private let auth: Auth
   private let callbackScheme: String
   private let usingClientIDScheme: Bool
-}
-
-@objc(FIROAuthCredential) public class OAuthCredential: AuthCredential { // }, NSSecureCoding {
-  /** @property IDToken
-      @brief The ID Token associated with this credential.
-   */
-  @objc public let IDToken: String?
-
-  /** @property accessToken
-      @brief The access token associated with this credential.
-   */
-  @objc public let accessToken: String?
-
-  /** @property secret
-      @brief The secret associated with this credential. This will be nil for OAuth 2.0 providers.
-      @detail OAuthCredential already exposes a providerId getter. This will help the developer
-          determine whether an access token/secret pair is needed.
-   */
-  @objc public let secret: String?
-
-  // TODO: delete objc's and public's below
-  // internal
-  @objc public let OAuthResponseURLString: String?
-  @objc public let sessionID: String?
-  @objc public let pendingToken: String?
-  // private
-  @objc public let rawNonce: String?
-
-  // TODO: Remove public objc
-  @objc public init(withProviderID providerID: String,
-                    IDToken: String? = nil,
-                    rawNonce: String? = nil,
-                    accessToken: String? = nil,
-                    secret: String? = nil,
-                    pendingToken: String? = nil) {
-    self.IDToken = IDToken
-    self.rawNonce = rawNonce
-    self.accessToken = accessToken
-    self.pendingToken = pendingToken
-    self.secret = secret
-    OAuthResponseURLString = nil
-    sessionID = nil
-    super.init(provider: providerID)
-  }
-
-  @objc public init(withProviderID providerID: String,
-                    sessionID: String,
-                    OAuthResponseURLString: String) {
-    self.sessionID = sessionID
-    self.OAuthResponseURLString = OAuthResponseURLString
-    accessToken = nil
-    pendingToken = nil
-    secret = nil
-    IDToken = nil
-    rawNonce = nil
-    super.init(provider: providerID)
-  }
-
-  @objc public convenience init(withVerifyAssertionResponse response: VerifyAssertionResponse) {
-    self.init(withProviderID: response.providerID ?? OAuthProvider.id,
-              IDToken: response.oauthIDToken,
-              rawNonce: nil,
-              accessToken: response.oauthAccessToken,
-              secret: response.oauthSecretToken,
-              pendingToken: response.pendingToken)
-  }
-//
-//  public static var supportsSecureCoding = true
-//
-//  public func encode(with coder: NSCoder) {
-//    coder.encode(verificationID)
-//    coder.encode(verificationCode)
-//    coder.encode(temporaryProof)
-//    coder.encode(OAuthNumber)
-//  }
-//
-//  required public init?(coder: NSCoder) {
-//    let verificationID = coder.decodeObject(forKey: "verificationID") as? String
-//    let verificationCode = coder.decodeObject(forKey: "verificationCode") as? String
-//    let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String
-//    let OAuthNumber = coder.decodeObject(forKey: "OAuthNumber") as? String
-//    if let temporaryProof = temporaryProof,
-//       let OAuthNumber = OAuthNumber {
-//      self.temporaryProof = temporaryProof
-//      self.OAuthNumber = OAuthNumber
-//      self.verificationID = nil
-//      self.verificationCode = nil
-//      super.init(provider: OAuthProvider.id)
-//    } else if let verificationID = verificationID,
-//              let verificationCode = verificationCode {
-//      self.verificationID = verificationID
-//      self.verificationCode = verificationCode
-//      self.temporaryProof = nil
-//      self.OAuthNumber = nil
-//      super.init(provider: OAuthProvider.id)
-//    } else {
-//      return nil
-//    }
-//  }
 }

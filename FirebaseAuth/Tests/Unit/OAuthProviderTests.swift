@@ -20,116 +20,381 @@ import FirebaseCore
 
 #if os(iOS)
 
-class OAuthProviderTests: RPCBaseTests {
-  private let kFakeAuthorizedDomain = "test.firebaseapp.com"
-  private let kFakeBundleID = "com.firebaseapp.example"
-  private let kFakeAccessToken = "fakeAccessToken"
-  private let kFakeIDToken = "fakeIDToken"
-  private let kFakeProviderID = "fakeProviderID"
-  private let kFakeAPIKey = "asdfghjkl"
-  private let kFakeEmulatorHost = "emulatorhost"
-  private let kFakeEmulatorPort = "12345"
-  private let kFakeClientID = "123456.apps.googleusercontent.com"
-  private let kFakeReverseClientID = "com.googleusercontent.apps.123456"
-  private let kFakeFirebaseAppID = "1:123456789:ios:123abc456def"
-  private let kFakeEncodedFirebaseAppID = "app-1-123456789-ios-123abc456def"
-  private let kFakeTenantID = "tenantID"
-  private let kFakeOAuthResponseURL = "fakeOAuthResponseURL"
-//  private let kFakeRedirectURLResponseURL
-//  private let kFakeRedirectURLBaseErrorString
-//  private let kNetworkRequestFailedErrorString
-//  private let kInvalidClientIDString
-//  private let kInternalErrorString
-//  private let kUnknownErrorString
+  class OAuthProviderTests: RPCBaseTests {
+    static let kFakeAuthorizedDomain = "test.firebaseapp.com"
+    static let kFakeBundleID = "com.firebaseapp.example"
+    private let kFakeAccessToken = "fakeAccessToken"
+    private let kFakeIDToken = "fakeIDToken"
+    private let kFakeProviderID = "fakeProviderID"
+    static let kFakeAPIKey = "asdfghjkl"
+    static let kFakeEmulatorHost = "emulatorhost"
+    static let kFakeEmulatorPort = 12345
+    static let kFakeClientID = "123456.apps.googleusercontent.com"
+    static let kFakeOAuthResponseURL = "fakeOAuthResponseURL"
+    static let kFakeFirebaseAppID = "1:123456789:ios:123abc456def"
+    static let kFakeEncodedFirebaseAppID = "app-1-123456789-ios-123abc456def"
+    static let kFakeTenantID = "tenantID"
+    static let kFakeReverseClientID = "com.googleusercontent.apps.123456"
 
-  static let kFakeAPIKey = "FAKE_API_KEY"
-  static var auth: Auth?
+    // Switches for testing different OAuth test flows
+    // TODO: Consider using an enum for these instead.
+    static var testTenantID = false
+    static var testCancel = false
+    static var testErrorString = false
+    static var testInternalError = false
+    static var testInvalidClientID = false
+    static var testUnknownError = false
+    static var testAppID = false
+    static var testEmulator = false
 
-  override class func setUp() {
-    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                  gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kFakeAPIKey
-    options.projectID = "myProjectID"
-    FirebaseApp.configure(name: "test-AuthTests", options: options)
-    auth = Auth.auth(app: FirebaseApp.app(name: "test-AuthTests")!)
-  }
+    static var auth: Auth?
 
-  /** @fn testObtainingOAuthCredentialNoIDToken
-      @brief Tests the correct creation of an OAuthCredential without an IDToken.
-   */
-  func testObtainingOAuthCredentialNoIDToken() throws {
-    let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
-                                              accessToken: kFakeAccessToken)
-    XCTAssertEqual(credential.accessToken, kFakeAccessToken)
-    XCTAssertEqual(credential.provider, kFakeProviderID)
-    XCTAssertNil(credential.IDToken)
-  }
-
-  /** @fn testObtainingOAuthCredentialWithIDToken
-      @brief Tests the correct creation of an OAuthCredential with an IDToken
-   */
-  func testObtainingOAuthCredentialWithIDToken() throws {
-    let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
-                                              idToken: kFakeIDToken,
-                                              accessToken: kFakeAccessToken)
-    XCTAssertEqual(credential.accessToken, kFakeAccessToken)
-    XCTAssertEqual(credential.provider, kFakeProviderID)
-    XCTAssertEqual(credential.IDToken, kFakeIDToken)
-  }
-
-  /** @fn testObtainingOAuthProvider
-      @brief Tests the correct creation of an FIROAuthProvider instance.
-   */
-  func testObtainingOAuthProvider() throws {
-    let provider = OAuthProvider(providerID: kFakeProviderID, auth: OAuthProviderTests.auth!)
-    XCTAssertEqual(provider.providerID, kFakeProviderID)
-  }
-
-  private class FakeUIDelegate: NSObject, AuthUIDelegate {
-    func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
-     // completion?()
-      viewControllerToPresent.dismiss(animated: flag, completion: completion)
-      //self.dismiss(animated: flag, completion: completion)
-      viewControllerToPresent.
+    /** @fn testObtainingOAuthCredentialNoIDToken
+        @brief Tests the correct creation of an OAuthCredential without an IDToken.
+     */
+    func testObtainingOAuthCredentialNoIDToken() throws {
+      initApp(#function)
+      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
+                                                accessToken: kFakeAccessToken)
+      XCTAssertEqual(credential.accessToken, kFakeAccessToken)
+      XCTAssertEqual(credential.provider, kFakeProviderID)
+      XCTAssertNil(credential.IDToken)
     }
-    func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
-      XCTFail("got to dismiss")
+
+    /** @fn testObtainingOAuthCredentialWithIDToken
+        @brief Tests the correct creation of an OAuthCredential with an IDToken
+     */
+    func testObtainingOAuthCredentialWithIDToken() throws {
+      initApp(#function)
+      let credential = OAuthProvider.credential(withProviderID: kFakeProviderID,
+                                                idToken: kFakeIDToken,
+                                                accessToken: kFakeAccessToken)
+      XCTAssertEqual(credential.accessToken, kFakeAccessToken)
+      XCTAssertEqual(credential.provider, kFakeProviderID)
+      XCTAssertEqual(credential.IDToken, kFakeIDToken)
+    }
+
+    /** @fn testObtainingOAuthProvider
+        @brief Tests the correct creation of an FIROAuthProvider instance.
+     */
+    func testObtainingOAuthProvider() throws {
+      initApp(#function)
+      let provider = OAuthProvider(providerID: kFakeProviderID, auth: OAuthProviderTests.auth!)
+      XCTAssertEqual(provider.providerID, kFakeProviderID)
+    }
+
+    /** @fn testGetCredentialWithUIDelegateWithClientID
+        @brief Tests a successful invocation of @c getCredentialWithUIDelegate
+     */
+    func testGetCredentialWithUIDelegateWithClientID() throws {
+      initApp(#function)
+      try testOAuthFlow(description: #function)
+    }
+
+    /** @fn testGetCredentialWithUIDelegateWithTenantID
+        @brief Tests a successful invocation of @c getCredentialWithUIDelegate:completion:
+     */
+    func testGetCredentialWithUIDelegateWithTenantID() throws {
+      initApp(#function)
+
+      // Update tenantID on workqueue to enable _protectedDataDidBecomeAvailableObserver to finish init.
+      kAuthGlobalWorkQueue.sync {
+        OAuthProviderTests.auth?.tenantID = OAuthProviderTests.kFakeTenantID
+      }
+      OAuthProviderTests.testTenantID = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.auth?.tenantID = nil
+      OAuthProviderTests.testTenantID = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateUserCancellationWithClientID
+        @brief Tests an unsuccessful invocation of @c testGetCredentialWithUIDelegateUserCancellationWithClientID due to user
+            cancelation.
+     */
+    func testGetCredentialWithUIDelegateUserCancellationWithClientID() throws {
+      initApp(#function)
+      OAuthProviderTests.testCancel = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testCancel = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateNetworkRequestFailedWithClientID
+        @brief Tests an unsuccessful invocation of @c getCredentialWithUIDelegate due to a
+            failed network request within the web context.
+     */
+    func testGetCredentialWithUIDelegateNetworkRequestFailedWithClientID() throws {
+      initApp(#function)
+      OAuthProviderTests.testErrorString = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testErrorString = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateInternalErrorWithClientID
+        @brief Tests an unsuccessful invocation of @c getCredentialWithUIDelegate due to an
+            internal error within the web context.
+     */
+    func testGetCredentialWithUIDelegateInternalErrorWithClientID() throws {
+      initApp(#function)
+      OAuthProviderTests.testInternalError = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testInternalError = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateInvalidClientID
+        @brief Tests an unsuccessful invocation of @c getCredentialWithUIDelegate due to an
+            use of an invalid client ID.
+     */
+    func testGetCredentialWithUIDelegateInvalidClientID() throws {
+      initApp(#function)
+      OAuthProviderTests.testInvalidClientID = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testInvalidClientID = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateUnknownErrorWithClientID
+        @brief Tests an unsuccessful invocation of @c getCredentialWithUIDelegate due to an
+            unknown error.
+     */
+    func testGetCredentialWithUIDelegateUnknownErrorWithClientID() throws {
+      initApp(#function)
+      OAuthProviderTests.testUnknownError = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testUnknownError = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateWithFirebaseAppID
+        @brief Tests a successful invocation of @c getCredentialWithUIDelegate
+     */
+    func testGetCredentialWithUIDelegateWithFirebaseAppID() throws {
+      initApp(#function, useAppID: true, omitClientID: true,
+              scheme: OAuthProviderTests.kFakeEncodedFirebaseAppID)
+      OAuthProviderTests.testAppID = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testAppID = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateWithFirebaseAppIDWhileClientIdPresent
+        @brief Tests a successful invocation of @c getCredentialWithUIDelegate when the
+       client ID is present in the plist file, but the encoded app ID is the registered custom URL
+       scheme.
+     */
+    func testGetCredentialWithUIDelegateWithFirebaseAppIDWhileClientIdPresent() throws {
+      initApp(#function, useAppID: true, scheme: OAuthProviderTests.kFakeEncodedFirebaseAppID)
+      OAuthProviderTests.testAppID = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testAppID = false
+    }
+
+    /** @fn testGetCredentialWithUIDelegateUseEmulator
+        @brief Tests a successful invocation of @c getCredentialWithUIDelegate when using the emulator.
+     */
+    func testGetCredentialWithUIDelegateUseEmulator() throws {
+      initApp(#function, useAppID: true)
+      OAuthProviderTests.auth?.requestConfiguration.emulatorHostAndPort =
+        "\(OAuthProviderTests.kFakeEmulatorHost):\(OAuthProviderTests.kFakeEmulatorPort)"
+      OAuthProviderTests.testEmulator = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testEmulator = false
+    }
+
+    private func initApp(_ functionName: String, useAppID: Bool = false, omitClientID: Bool = false,
+                         scheme: String = OAuthProviderTests.kFakeReverseClientID) {
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      options.apiKey = OAuthProviderTests.kFakeAPIKey
+      options.projectID = "myProjectID"
+      if useAppID {
+        options.googleAppID = OAuthProviderTests.kFakeFirebaseAppID
+      }
+      if !omitClientID {
+        options.clientID = OAuthProviderTests.kFakeClientID
+      }
+
+      let strippedName = functionName.replacingOccurrences(of: "(", with: "")
+        .replacingOccurrences(of: ")", with: "")
+      FirebaseApp.configure(name: strippedName, options: options)
+      OAuthProviderTests.auth = Auth.auth(app: FirebaseApp.app(name: strippedName)!)
+      OAuthProviderTests.auth?.mainBundleUrlTypes =
+        [["CFBundleURLSchemes": [scheme]]]
+    }
+
+    private func testOAuthFlow(description: String) throws {
+      let expectation = self.expectation(description: description)
+      let provider = OAuthProvider(providerID: kFakeProviderID, auth: OAuthProviderTests.auth!)
+
+      // Use fake authURLPresenter so we can test the parameters that get sent to it.
+      OAuthProviderTests.auth?.authURLPresenter = FakePresenter()
+
+      // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
+      let group = DispatchGroup()
+      if !OAuthProviderTests.testEmulator {
+        RPCIssuer?.group = group
+        group.enter()
+      }
+
+      class FakePresenter: NSObject, FIRAuthWebViewControllerDelegate {
+        func webViewController(_ webViewController: FIRAuthWebViewController,
+                               canHandle URL: URL) -> Bool {
+          XCTFail("Do not call")
+          return false
+        }
+
+        func webViewControllerDidCancel(_ webViewController: FIRAuthWebViewController) {
+          XCTFail("Do not call")
+        }
+
+        func webViewController(_ webViewController: FIRAuthWebViewController,
+                               didFailWithError error: Error) {
+          XCTFail("Do not call")
+        }
+
+        func present(_ presentURL: URL, uiDelegate UIDelegate: AuthUIDelegate?,
+                     callbackMatcher: @escaping (URL?) -> Bool,
+                     completion: @escaping (URL?, Error?) -> Void) {
+          // 6. Verify flow triggers present in the FakePresenter class with the right parameters.
+          if OAuthProviderTests.testEmulator {
+            XCTAssertEqual(presentURL.scheme, "http")
+            XCTAssertEqual(presentURL.host, OAuthProviderTests.kFakeEmulatorHost)
+            XCTAssertEqual(presentURL.port, OAuthProviderTests.kFakeEmulatorPort)
+            XCTAssertEqual(presentURL.path, "/emulator/auth/handler")
+          } else {
+            XCTAssertEqual(presentURL.scheme, "https")
+            XCTAssertEqual(presentURL.host, OAuthProviderTests.kFakeAuthorizedDomain)
+            XCTAssertEqual(presentURL.path, "/__/auth/handler")
+          }
+          let params = AuthWebUtils.dictionary(withHttpArgumentsString: presentURL.query)
+          XCTAssertEqual(params["ibi"], Bundle.main.bundleIdentifier)
+          if OAuthProviderTests.testAppID {
+            XCTAssertEqual(params["appId"], OAuthProviderTests.kFakeFirebaseAppID)
+          } else {
+            XCTAssertEqual(params["clientId"], OAuthProviderTests.kFakeClientID)
+          }
+          XCTAssertEqual(params["apiKey"], OAuthProviderTests.kFakeAPIKey)
+          XCTAssertEqual(params["authType"], "signInWithRedirect")
+          XCTAssertNotNil(params["v"])
+          if OAuthProviderTests.testTenantID {
+            XCTAssertEqual(params["tid"], OAuthProviderTests.kFakeTenantID)
+          } else {
+            XCTAssertNil(params["tid"])
+          }
+
+          // 7. Test callbackMatcher
+          let kFakeRedirectStart = OAuthProviderTests
+            .testAppID ? "app-1-123456789-ios-123abc456def" :
+            OAuthProviderTests.kFakeReverseClientID
+          let kFakeRedirectURLBase = kFakeRedirectStart + "://firebaseauth/" +
+            "link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcallback%3F"
+          var kFakeRedirectURLRest = "authType%3DsignInWithRedirect%26link%3D"
+
+          if OAuthProviderTests.testInternalError {
+            kFakeRedirectURLRest = "firebaseError%3D%257B%2522code%2522%253" +
+              "A%2522auth%252Finternal-error%2522%252C%2522message%2522%253A%2522Internal%2520" +
+              "error%2520.%2522%257D%26authType%3DsignInWithRedirect"
+          } else if OAuthProviderTests.testInvalidClientID {
+            kFakeRedirectURLRest = "firebaseError%3D%257B%2522code%2522%253A%2522auth" +
+              "%252Finvalid-oauth-client-id%2522%252C%2522message%2522%253A%2522The%2520OAuth%2520client%" +
+              "2520ID%2520provided%2520is%2520either%2520invalid%2520or%2520does%2520not%2520match%2520the%" +
+              "2520specified%2520API%2520key.%2522%257D%26authType%3DsignInWithRedirect"
+          } else if OAuthProviderTests.testErrorString {
+            kFakeRedirectURLRest = "firebaseError%3D%257B%2522code%2" +
+              "522%253A%2522auth%252Fnetwork-request-failed%2522%252C%2522message%2522%253A%2522The%" +
+              "2520network%2520request%2520failed%2520.%2522%257D%26authType%3DsignInWithRedirect"
+          } else if OAuthProviderTests.testUnknownError {
+            kFakeRedirectURLRest = "firebaseError%3D%257B%2522code%2522%253A%2522auth%2" +
+              "52Funknown-error-id%2522%252C%2522message%2522%253A%2522The%2520OAuth%2520client%2520ID%" +
+              "2520provided%2520is%2520either%2520invalid%2520or%2520does%2520not%2520match%2520the%2520" +
+              "specified%2520API%2520key.%2522%257D%26authType%3DsignInWithRedirect"
+          }
+          var redirectURL = "\(kFakeRedirectURLBase)\(kFakeRedirectURLRest)"
+          // Add fake OAuthResponse to callback.
+          if !OAuthProviderTests.testErrorString, !OAuthProviderTests.testInternalError,
+             !OAuthProviderTests.testInvalidClientID, !OAuthProviderTests.testUnknownError {
+            redirectURL += OAuthProviderTests.kFakeOAuthResponseURL
+          }
+
+          // Verify that the URL is rejected by the callback matcher without the event ID.
+          XCTAssertFalse(callbackMatcher(URL(string: "\(redirectURL)")))
+
+          // Verify that the URL is accepted by the callback matcher with the matching event ID.
+          let redirectWithEventID =
+            "\(redirectURL)%26eventId%3D\(params["eventId"] ?? "missingEventID")"
+          let originalComponents = URLComponents(string: redirectWithEventID)!
+          XCTAssertTrue(callbackMatcher(originalComponents.url))
+
+          var components = originalComponents
+          components.query = "https"
+          XCTAssertFalse(callbackMatcher(components.url))
+
+          components = originalComponents
+          components.host = "badhost"
+          XCTAssertFalse(callbackMatcher(components.url))
+
+          components = originalComponents
+          components.path = "badpath"
+          XCTAssertFalse(callbackMatcher(components.url))
+
+          components = originalComponents
+          components.query = "badquery"
+          XCTAssertFalse(callbackMatcher(components.url))
+
+          // 8. Do the callback to the original call.
+          kAuthGlobalWorkQueue.async {
+            if OAuthProviderTests.testCancel {
+              completion(nil, AuthErrorUtils.webContextCancelledError(message: nil))
+            } else {
+              completion(originalComponents.url, nil)
+            }
+          }
+        }
+      }
+
+      // 2. Request the credential.
+      provider.getCredentialWith(nil) { credential, error in
+
+        // 9. After the response triggers the callback, verify the values in the callback credential
+        XCTAssertTrue(Thread.isMainThread)
+        if OAuthProviderTests.testCancel {
+          XCTAssertNil(credential)
+          XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.webContextCancelled.rawValue)
+        } else if OAuthProviderTests.testErrorString {
+          XCTAssertNil(credential)
+          XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.webNetworkRequestFailed.rawValue)
+        } else if OAuthProviderTests.testInternalError {
+          XCTAssertNil(credential)
+          XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.webInternalError.rawValue)
+        } else if OAuthProviderTests.testInvalidClientID {
+          XCTAssertNil(credential)
+          XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.invalidClientID.rawValue)
+        } else if OAuthProviderTests.testUnknownError {
+          XCTAssertNil(credential)
+          XCTAssertEqual(
+            (error as? NSError)?.code,
+            AuthErrorCode.webSignInUserInteractionFailure.rawValue
+          )
+        } else {
+          XCTAssertNil(error)
+          let oAuthCredential = credential as? OAuthCredential
+          XCTAssertEqual(
+            oAuthCredential?.OAuthResponseURLString,
+            OAuthProviderTests.kFakeOAuthResponseURL
+          )
+        }
+        expectation.fulfill()
+      }
+      if !OAuthProviderTests.testEmulator {
+        // 3. Wait for fake RPCIssuer to leave the group.
+        group.wait()
+
+        // 4. After the fake RPCIssuer leaves the group, validate the created Request instance.
+        let request = try XCTUnwrap(RPCIssuer?.request as? GetProjectConfigRequest)
+        XCTAssertEqual(request.endpoint, "getProjectConfig")
+        XCTAssertEqual(request.APIKey, OAuthProviderTests.kFakeAPIKey)
+
+        // 5. Send the response from the fake backend.
+        _ = try RPCIssuer?
+          .respond(withJSON: ["authorizedDomains": [OAuthProviderTests.kFakeAuthorizedDomain]])
+      }
+      waitForExpectations(timeout: 105)
     }
   }
-
-  /** @fn testGetCredentialWithUIDelegateWithClientID
-      @brief Tests a successful invocation of @c getCredentialWithUIDelegate
-   */
-  func testGetCredentialWithUIDelegateWithClientID() throws {
-    let expectation = self.expectation(description: #function)
-    let provider = OAuthProvider(providerID: kFakeProviderID, auth: OAuthProviderTests.auth!)
-
-    // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
-
-    provider.getCredentialWith(FakeUIDelegate()) { credential, error in
-      // 4. After the response triggers the callback, verify the values in the callback credential
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(error)
-      let oAuthCredential = credential as? OAuthCredential
-      XCTAssertEqual(oAuthCredential?.OAuthResponseURLString, self.kFakeOAuthResponseURL)
-      expectation.fulfill()
-    }
-    group.wait()
-
-    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(RPCIssuer?.request as? GetProjectConfigRequest)
-    XCTAssertEqual(request.endpoint, "getProjectConfig")
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
-
-    // 3. Send the response from the fake backend.
-    _ = try RPCIssuer?.respond(withJSON: ["authorizedDomains": [kFakeAuthorizedDomain]])
-
-    waitForExpectations(timeout: 105)
-  }
-
-
-}
 #endif
