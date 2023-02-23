@@ -204,6 +204,7 @@ static NSString *const kTestValue = @"TestValue";
 @end
 
 @implementation FIRFakeAppCheck
+
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(nonnull FIRAppCheckTokenHandlerInterop)completion {
   FIRFakeAppCheckResult *fakeAppCheckResult = [[FIRFakeAppCheckResult alloc] init];
@@ -212,6 +213,7 @@ static NSString *const kTestValue = @"TestValue";
 }
 
 @end
+
 #pragma mark - FIRFakeRequest
 
 /** @class FIRFakeRequest
