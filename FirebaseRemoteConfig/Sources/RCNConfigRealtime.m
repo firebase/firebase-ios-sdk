@@ -32,6 +32,9 @@ static NSString *const kServerURLNamespaces = @"/namespaces/";
 static NSString *const kServerURLQuery = @":streamFetchInvalidations?";
 static NSString *const kServerURLKey = @"key=";
 
+/// Realtime API enablement
+static NSString *const kServerForbiddenStatusCode = @"\"code\": 403";
+
 /// Header names
 static NSString *const kHTTPMethodPost = @"POST";  ///< HTTP request method config fetch using
 static NSString *const kContentTypeHeaderName = @"Content-Type";  ///< HTTP Header Field Name
@@ -532,6 +535,18 @@ static NSInteger const gMaxRetries = 7;
     didReceiveData:(NSData *)data {
   NSError *dataError;
   NSString *strData = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+
+  /// If response data contains the API enablement link, return the entire message to the user in
+  /// the form of a error.
+  if ([strData containsString:kServerForbiddenStatusCode]) {
+    NSError *error = [NSError errorWithDomain:FIRRemoteConfigUpdateErrorDomain
+                                         code:FIRRemoteConfigUpdateErrorStreamError
+                                     userInfo:@{NSLocalizedDescriptionKey : strData}];
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. %@", error);
+    [self propogateErrors:error];
+    return;
+  }
+
   NSRange endRange = [strData rangeOfString:@"}"];
   NSRange beginRange = [strData rangeOfString:@"{"];
   if (beginRange.location != NSNotFound && endRange.location != NSNotFound) {
@@ -567,6 +582,11 @@ static NSInteger const gMaxRetries = 7;
   NSHTTPURLResponse *_httpURLResponse = (NSHTTPURLResponse *)response;
   NSInteger statusCode = [_httpURLResponse statusCode];
 
+  if (statusCode == 403) {
+    completionHandler(NSURLSessionResponseAllow);
+    return;
+  }
+
   if (statusCode != kRCNFetchResponseHTTPStatusOk) {
     [self->_settings updateRealtimeExponentialBackoffTime];
     [self pauseRealtimeStream];
@@ -585,7 +605,6 @@ static NSInteger const gMaxRetries = 7;
                  }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000021", @"Cannot establish connection. Error: %@",
                   error);
-      [self propogateErrors:error];
     }
   } else {
     /// on success reset retry parameters
