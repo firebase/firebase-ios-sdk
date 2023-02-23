@@ -142,9 +142,9 @@ class APITests: APITestBase {
 
     waitForExpectations()
   }
-    
+
   // MARK: - RemoteConfigRealtime Tests
-    
+
   func testRealtimeRemoteConfigFakeConsole() {
     guard APITests.useFakeConfig == true else { return }
 
