@@ -18,6 +18,7 @@
 
 @import HeartbeatLoggingTestUtils;
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
@@ -38,6 +39,11 @@ static NSString *const kFakeRequestURL = @"https://www.google.com/";
     @brief Used as a fake APIKey for a fake RPC request. We don't test this here.
  */
 static NSString *const kFakeAPIkey = @"FAKE_API_KEY";
+
+/** @var kFakeAppCheckToken
+    @brief Used as a fakeappCheck token for a fake RPC request.
+ */
+static NSString *const kFakeAppCheckToken = @"FAKE_APP_CHECK_TOKEN";
 
 /** @var kFakeFirebaseAppID
     @brief Used as a fake Firebase app ID for a fake RPC request. We don't test this here.
@@ -176,6 +182,18 @@ static NSString *const kTestValue = @"TestValue";
 
 @end
 
+#pragma mark - FIRFakeAppCheckResult
+
+/// A fake appCheckResult used for dependency injection during testing.
+@interface FIRFakeAppCheckResult : NSObject <FIRAppCheckTokenResultInterop>
+@property(nonatomic) NSString *token;
+@property(nonatomic, nullable) NSError *error;
+@end
+
+@implementation FIRFakeAppCheckResult
+
+@end
+
 #pragma mark - FIRFakeAppCheck
 
 /// A fake appCheck used for dependency injection during testing.
@@ -187,11 +205,13 @@ static NSString *const kTestValue = @"TestValue";
 
 @implementation FIRFakeAppCheck
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(nonnull FIRAppCheckTokenHandlerInterop)handler {
+                    completion:(nonnull FIRAppCheckTokenHandlerInterop)completion {
+  FIRFakeAppCheckResult *fakeAppCheckResult = [[FIRFakeAppCheckResult alloc] init];
+  fakeAppCheckResult.token = kFakeAppCheckToken;
+  completion(fakeAppCheckResult);
 }
 
 @end
-
 #pragma mark - FIRFakeRequest
 
 /** @class FIRFakeRequest
@@ -471,6 +491,33 @@ static NSString *const kTestValue = @"TestValue";
   NSString *expectedHeader = FIRHeaderValueFromHeartbeatsPayload(nonEmptyHeartbeatsPayload);
   XCTAssertEqualObjects([_RPCIssuer.completeRequest valueForHTTPHeaderField:@"X-Firebase-Client"],
                         expectedHeader);
+}
+
+- (void)testRequest_includesAppCheckHeader {
+  // Given
+  FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
+                                                    appID:kFakeFirebaseAppID
+                                          heartbeatLogger:fakeHeartbeatLogger
+                                                 appCheck:fakeAppCheck];
+  FIRFakeRequest *request =
+      [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
+  FIRFakeResponse *response = [FIRFakeResponse fakeResponse];
+
+  __block NSError *callbackError;
+  __block BOOL callbackInvoked;
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
+
+  // Then
+  XCTAssertEqualObjects([_RPCIssuer.completeRequest valueForHTTPHeaderField:@"X-Firebase-AppCheck"],
+                        kFakeAppCheckToken);
 }
 
 /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
