@@ -114,7 +114,6 @@ class APITestBase: XCTestCase {
     } else {
       console.removeRemoteConfigValue(forKey: Constants.sith)
       console.removeRemoteConfigValue(forKey: Constants.jedi)
-      console.removeRemoteConfigValue(forKey: Constants.clone)
     }
     app = nil
     config = nil
