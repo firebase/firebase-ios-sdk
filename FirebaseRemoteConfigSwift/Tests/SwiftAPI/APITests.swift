@@ -170,7 +170,7 @@ class APITests: APITestBase {
               
       expectation.fulfill()
     }
-    console.updateRemoteConfigValue(Constants.yoda, forKey: Constants.jedi)
+    console.updateRemoteConfigValue(Constants.yoda, forKey: Constants.sith)
           
     waitForExpectations()
   }
