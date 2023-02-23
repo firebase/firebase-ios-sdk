@@ -20,6 +20,8 @@
 
 #include "Firestore/core/src/remote/bloom_filter.h"
 
+#include <utility>
+
 #include "CommonCrypto/CommonDigest.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
@@ -32,8 +34,7 @@ namespace remote {
 using util::Status;
 using util::StatusOr;
 
-BloomFilter::Hash BloomFilter::Md5HashDigest(
-    const absl::string_view& key) const {
+BloomFilter::Hash BloomFilter::Md5HashDigest(absl::string_view key) const {
   unsigned char md5_digest[CC_MD5_DIGEST_LENGTH];
 
   CC_MD5_CTX context;
@@ -41,13 +42,12 @@ BloomFilter::Hash BloomFilter::Md5HashDigest(
   CC_MD5_Update(&context, key.data(), key.size());
   CC_MD5_Final(md5_digest, &context);
 
-  // TODO(Mila): Replace this casting with safer function.
+  // TODO(Mila): Replace this casting with safer function (b/270568625).
   uint64_t* hash128 = reinterpret_cast<uint64_t*>(md5_digest);
-  return BloomFilter::Hash{hash128[0], hash128[1]};
+  return Hash{hash128[0], hash128[1]};
 }
 
-int32_t BloomFilter::GetBitIndex(const BloomFilter::Hash& hash,
-                                 int32_t hash_index) const {
+int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
   uint64_t val = hash.h1 + (hash_index * hash.h2);
   return val % bit_count_;
 }
@@ -104,7 +104,7 @@ StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t> bitmap,
   return BloomFilter(std::move(bitmap), padding, hash_count);
 }
 
-bool BloomFilter::MightContain(const absl::string_view value) const {
+bool BloomFilter::MightContain(absl::string_view value) const {
   // Empty bitmap should return false on membership check.
   if (bit_count_ == 0) return false;
   Hash hash = Md5HashDigest(value);

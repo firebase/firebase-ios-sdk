@@ -77,13 +77,13 @@ class BloomFilter final {
    * Helper function to hash a string using md5 hashing algorithm, and return a
    * Hash object.
    */
-  Hash Md5HashDigest(const absl::string_view& key) const;
+  Hash Md5HashDigest(absl::string_view key) const;
 
   /**
    * Calculate the ith hash value based on the hashed 64 bit unsigned integers,
    * and calculate its corresponding bit index in the bitmap to be checked.
    */
-  int32_t GetBitIndex(const BloomFilter::Hash& hash, int32_t hash_index) const;
+  int32_t GetBitIndex(const Hash& hash, int32_t hash_index) const;
 
   /** Return whether the bit at the given index in the bitmap is set to 1. */
 
