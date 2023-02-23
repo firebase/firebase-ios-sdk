@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// TODO(Mila): Replace this CommonCrypto with platform based MD5 calculation.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -30,10 +32,8 @@ namespace remote {
 using util::Status;
 using util::StatusOr;
 
-/** Helper function to hash a string using md5 hashing algorithm, and return an
- * array of 16 bytes. */
 BloomFilter::Hash BloomFilter::Md5HashDigest(
-    const absl::string_view key) const {
+    const absl::string_view& key) const {
   unsigned char md5_digest[CC_MD5_DIGEST_LENGTH];
 
   CC_MD5_CTX context;
@@ -41,27 +41,21 @@ BloomFilter::Hash BloomFilter::Md5HashDigest(
   CC_MD5_Update(&context, key.data(), key.size());
   CC_MD5_Final(md5_digest, &context);
 
+  // TODO(Mila): Replace this casting with safer function.
   uint64_t* hash128 = reinterpret_cast<uint64_t*>(md5_digest);
   return BloomFilter::Hash{hash128[0], hash128[1]};
 }
 
-/**
- * Calculate the ith hash value based on the hashed 64 bit unsigned integers,
- * and calculate its corresponding bit index in the bitmap to be checked.
- */
 int32_t BloomFilter::GetBitIndex(const BloomFilter::Hash& hash,
-                                 int32_t i,
-                                 int32_t bit_count) const {
-  uint64_t val = hash.h1 + i * hash.h2;
-  return val % bit_count;
+                                 int32_t hash_index) const {
+  uint64_t val = hash.h1 + (hash_index * hash.h2);
+  return val % bit_count_;
 }
 
-/** Return whether the bit at the given index in the bitmap is set to 1. */
-bool BloomFilter::IsBitSet(const std::vector<uint8_t>& bitmap,
-                           int32_t index) const {
-  uint8_t byteAtIndex = bitmap[index / 8];
-  int offset = index % 8;
-  return (byteAtIndex & (0x01 << offset)) != 0;
+bool BloomFilter::IsBitSet(int32_t index) const {
+  uint8_t byte_at_index{bitmap_[index / 8]};
+  int offset{index % 8};
+  return (byte_at_index & (0x01 << offset)) != 0;
 }
 
 BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
@@ -79,9 +73,9 @@ BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
               "Expected padding of 0 when bitmap length is 0, but got %s",
               std::to_string(padding));
 
-  bitmap_ = bitmap;
+  bitmap_ = std::move(bitmap);
   hash_count_ = hash_count;
-  bit_count_ = bitmap.size() * 8 - padding;
+  bit_count_ = bitmap_.size() * 8 - padding;
 }
 
 StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t> bitmap,
@@ -107,18 +101,9 @@ StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t> bitmap,
                       std::to_string(padding));
   }
 
-  return BloomFilter(bitmap, padding, hash_count);
+  return BloomFilter(std::move(bitmap), padding, hash_count);
 }
 
-/**
- * Check whether the given string is a possible member of the bloom filter. It
- * might return false positive result, ie, the given string is not a member of
- * the bloom filter, but the method returned true.
- *
- * @param value the string to be tested for membership.
- * @return true if the given string might be contained in the bloom filter, or
- * false if the given string is definitely not contained in the bloom filter.
- */
 bool BloomFilter::MightContain(const absl::string_view value) const {
   // Empty bitmap should return false on membership check.
   if (bit_count_ == 0) return false;
@@ -126,8 +111,8 @@ bool BloomFilter::MightContain(const absl::string_view value) const {
   // The `hash_count_` and `bit_count_` fields are guaranteed to be
   // non-negative when the `BloomFilter` object is constructed.
   for (int32_t i = 0; i < hash_count_; i++) {
-    int32_t index = GetBitIndex(hash, i, bit_count_);
-    if (!IsBitSet(bitmap_, index)) {
+    int32_t index = GetBitIndex(hash, i);
+    if (!IsBitSet(index)) {
       return false;
     }
   }
