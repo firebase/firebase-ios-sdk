@@ -173,7 +173,6 @@ class APITests: APITestBase {
     waitForExpectations()
     registration.remove()
   }
-    
 
   // MARK: - RemoteConfigConsole Tests
 
