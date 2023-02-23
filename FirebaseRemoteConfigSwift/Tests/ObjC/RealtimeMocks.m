@@ -20,9 +20,10 @@
 @interface RCNConfigRealtime (ExposedForTest)
 
 - (FIRConfigUpdateListenerRegistration *)addConfigUpdateListener:
-(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate, NSError *_Nullable error))listener;
+    (void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate, NSError *_Nullable error))listener;
 
-- (void)propagateUpdate:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate, NSError *_Nullable error))listener;
+- (void)triggerListenerForTesting:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate,
+                                                    NSError *_Nullable error))listener;
 
 - (void)beginRealtimeStream;
 
@@ -31,10 +32,11 @@
 @implementation RealtimeMocks
 
 + (RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)realtime {
-    RCNConfigRealtime *realtimeMock = OCMPartialMock(realtime);
-    OCMStub([realtimeMock beginRealtimeStream]).andDo(nil);
-    OCMStub([realtimeMock addConfigUpdateListener: [OCMArg any]]).andCall(realtimeMock, @selector(propagateUpdate:));
-    return realtimeMock;
+  RCNConfigRealtime *realtimeMock = OCMPartialMock(realtime);
+  OCMStub([realtimeMock beginRealtimeStream]).andDo(nil);
+  OCMStub([realtimeMock addConfigUpdateListener:[OCMArg any]])
+      .andCall(realtimeMock, @selector(triggerListenerForTesting:));
+  return realtimeMock;
 }
 
 @end

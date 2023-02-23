@@ -144,7 +144,7 @@ class APITests: APITestBase {
   }
     
   // MARK: - RemoteConfigRealtime Tests
-  func testRealtimeRemoteConfigFetch() {
+  func testRealtimeRemoteConfigFakeConsole() {
     guard APITests.useFakeConfig == true else { return }
     
     let expectation = self.expectation(description: #function)
@@ -160,7 +160,7 @@ class APITests: APITestBase {
     registration.remove()
   }
 
-  func testIntegrationRealtimeRemoteConfigFetch() {
+  func testRealtimeRemoteConfigRealConsole() {
     guard APITests.useFakeConfig == false else { return }
       
     let expectation = self.expectation(description: #function)
