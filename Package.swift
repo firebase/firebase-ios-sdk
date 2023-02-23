@@ -411,7 +411,7 @@ let package = Package(
       name: "FirebaseAppDistributionInternal",
       dependencies: [
         "FirebaseCore",
-        "FirebaseCoreExtensions",
+        "FirebaseCoreExtension",
         "FirebaseInstallations",
       ],
       path: "FirebaseAppDistributionInternal/Sources",
