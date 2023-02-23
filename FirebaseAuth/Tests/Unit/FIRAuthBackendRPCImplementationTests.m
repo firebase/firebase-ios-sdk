@@ -493,7 +493,12 @@ static NSString *const kTestValue = @"TestValue";
                         expectedHeader);
 }
 
-- (void)testRequest_includesAppCheckHeader {
+/** @fn testRequest_IncludesAppCheckHeader
+    @brief This test checks the behavior of @c postWithRequest:response:callback:
+        to verify that a appCheck token is attached as a header to an
+        outgoing request .
+ */
+- (void)testRequest_IncludesAppCheckHeader {
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
   FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
