@@ -86,7 +86,10 @@ enum AppDistributionApiError: NSInteger {
   }
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
-    Logger.logInfo(String(format: "Requesting release for app id - %@", FirebaseApp.app()?.options.googleAppID ?? "unknown"))
+    Logger.logInfo(String(
+      format: "Requesting release for app id - %@",
+      FirebaseApp.app()?.options.googleAppID ?? "unknown"
+    ))
     generateAuthToken { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.releaseEndpointUrlTemplate,
