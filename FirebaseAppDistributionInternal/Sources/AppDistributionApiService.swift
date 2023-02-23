@@ -21,7 +21,8 @@ import FirebaseCore
 
 public typealias AppDistributionFetchReleasesCompletion = (_ releases: [Any]?, _ error: Error?)
   -> Void
-public typealias AppDistributionFindReleaseCompletion = (_ releaseName: String?, _ error: Error?) -> Void
+public typealias AppDistributionFindReleaseCompletion = (_ releaseName: String?, _ error: Error?)
+  -> Void
 public typealias AppDistributionGenerateAuthTokenCompletion = (_ identifier: String?,
                                                                _ authTokenResult: InstallationsAuthTokenResult?,
                                                                _ error: Error?) -> Void
@@ -32,7 +33,8 @@ enum Strings {
   static let httpGet = "GET"
   static let releaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases"
-  static let findReleaseEndpointUrlTemplate = "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find"
+  static let findReleaseEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find"
   static let installationsAuthHeader = "X-Goog-Firebase-Installations-Auth"
   static let apiHeaderKey = "X-Goog-Api-Key"
   static let apiBundleKey = "X-Ios-Bundle-Identifier"
@@ -51,14 +53,14 @@ enum AppDistributionApiError: NSInteger {
   case ApiErrorParseFailure = 7
 }
 
-struct CompositeBinaryId : Codable {
+struct CompositeBinaryId: Codable {
   var displayVersion: String
   var buildVersion: String
   var codeHash: String
 }
 
-struct FindReleaseResponse : Codable {
-  var release: String;
+struct FindReleaseResponse: Codable {
+  var release: String
 }
 
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
@@ -99,7 +101,10 @@ struct FindReleaseResponse : Codable {
   }
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
-    Logger.logInfo(String(format: "Requesting release for app id - %@", FirebaseApp.app()?.options.googleAppID ?? "unknown"))
+    Logger.logInfo(String(
+      format: "Requesting release for app id - %@",
+      FirebaseApp.app()?.options.googleAppID ?? "unknown"
+    ))
     generateAuthToken { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.releaseEndpointUrlTemplate,
@@ -134,39 +139,61 @@ struct FindReleaseResponse : Codable {
       listReleaseDataTask.resume()
     }
   }
-    
-  public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String, completion: @escaping AppDistributionFindReleaseCompletion) {
-    self.generateAuthToken() { (identifier, authTokenResult, error) in
+
+  public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
+                                 completion: @escaping AppDistributionFindReleaseCompletion) {
+    generateAuthToken { identifier, authTokenResult, error in
       // TODO(tundeagboola) The backend may not accept project ID here in which case
       // we'll have to figure out a way to get the project number
-      let urlString = String(format: Strings.findReleaseEndpointUrlTemplate, FirebaseApp.app()!.options.projectID!, identifier!)
+      let urlString = String(
+        format: Strings.findReleaseEndpointUrlTemplate,
+        FirebaseApp.app()!.options.projectID!,
+        identifier!
+      )
       guard var urlComponents = URLComponents(string: urlString) else {
         // TODO(tundeagboola) Should I throw an exception here?
         return
       }
-      let compositeBinaryId = CompositeBinaryId(displayVersion: displayVersion, buildVersion: buildVersion, codeHash: codeHash)
+      let compositeBinaryId = CompositeBinaryId(
+        displayVersion: displayVersion,
+        buildVersion: buildVersion,
+        codeHash: codeHash
+      )
       guard let compositeBinaryIdData = try? JSONEncoder().encode(compositeBinaryId) else {
         // TODO(tundeagboola) Should I throw an exception here?
         return
       }
-      urlComponents.queryItems = [URLQueryItem(name: Strings.compositeBinaryIdQueryParamName, value: String(data: compositeBinaryIdData, encoding: .utf8))]
+      urlComponents.queryItems = [URLQueryItem(
+        name: Strings.compositeBinaryIdQueryParamName,
+        value: String(data: compositeBinaryIdData, encoding: .utf8)
+      )]
       guard let url = urlComponents.url else {
         // TODO(tundeagboola) Should I throw an exception here?
         return
       }
-      let request = self.createHttpRequest(method: Strings.httpGet, url: url, authTokenResult: authTokenResult!)
-      let findReleaseDataTask = URLSession.shared.dataTask(with: request as URLRequest) { (data, response, error) in
-        var fadError = error
-        let findReleaseResponse = self.handleResponse(data: data, response: response, error: &fadError, returnType: FindReleaseResponse.self)
-        DispatchQueue.main.async {
-          completion(findReleaseResponse?.release, fadError)
+      let request = self.createHttpRequest(
+        method: Strings.httpGet,
+        url: url,
+        authTokenResult: authTokenResult!
+      )
+      let findReleaseDataTask = URLSession.shared
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          let findReleaseResponse = self.handleResponse(
+            data: data,
+            response: response,
+            error: &fadError,
+            returnType: FindReleaseResponse.self
+          )
+          DispatchQueue.main.async {
+            completion(findReleaseResponse?.release, fadError)
+          }
         }
-      }
-      
+
       findReleaseDataTask.resume()
     }
   }
-  
+
   static func handleError(httpResponse: HTTPURLResponse?, error: inout Error?) -> Bool {
     if error != nil || httpResponse == nil {
       return handleError(
@@ -217,10 +244,16 @@ struct FindReleaseResponse : Codable {
   static func createHttpRequest(method: String, url: String,
                                 authTokenResult: InstallationsAuthTokenResult)
     -> NSMutableURLRequest {
-    return createHttpRequest(method: method, url: URL(string: url), authTokenResult: authTokenResult)
+    return createHttpRequest(
+      method: method,
+      url: URL(string: url),
+      authTokenResult: authTokenResult
+    )
   }
-  
-  static func createHttpRequest(method: String, url: URL?, authTokenResult: InstallationsAuthTokenResult) -> NSMutableURLRequest {
+
+  static func createHttpRequest(method: String, url: URL?,
+                                authTokenResult: InstallationsAuthTokenResult)
+    -> NSMutableURLRequest {
     let request = NSMutableURLRequest()
     request.url = url
     request.httpMethod = method
@@ -232,29 +265,31 @@ struct FindReleaseResponse : Codable {
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: Strings.apiBundleKey)
     return request
   }
-  
-  static func handleResponse<T: Codable>(data: Data?, response: URLResponse?, error: inout Error?, returnType: T.Type) -> T? {
+
+  static func handleResponse<T: Codable>(data: Data?, response: URLResponse?, error: inout Error?,
+                                         returnType: T.Type) -> T? {
     guard let response = response else {
       return nil
     }
-    
+
     let httpResponse = response as! HTTPURLResponse
-    if (self.handleError(httpResponse: httpResponse, error: &error)) {
+    if handleError(httpResponse: httpResponse, error: &error) {
       return nil
     }
-    
+
     guard let data = data else {
       return nil
     }
-    
+
     guard let mappedResponse = try? JSONDecoder().decode(T.self, from: data) else {
       return nil
     }
-                                                         
-     return mappedResponse
+
+    return mappedResponse
   }
-  
-  static func handleReleaseResponse(data: NSData?, response: URLResponse?, error: inout Error?) -> Array<Any>? {
+
+  static func handleReleaseResponse(data: NSData?, response: URLResponse?,
+                                    error: inout Error?) -> [Any]? {
     guard let response = response else {
       return nil
     }
