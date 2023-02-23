@@ -46,22 +46,13 @@ class SessionsSettings: SettingsProtocol {
   }
 
   var sessionsEnabled: Bool {
-    // TODO: Remove this block before release
-    // Disabling the SDK because some customers seem to be building from master
-    // Uncomment the code below before release
+    // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
     if let sessionEnabled = localOverrides.sessionsEnabled {
       return sessionEnabled
+    } else if let sessionEnabled = remoteSettings.sessionsEnabled {
+      return sessionEnabled
     }
-    return false
-
-    // TODO: uncomment before release
-//    // Order of precendence LocalOverrides > Remote Settings > SDK Defaults
-//    if let sessionEnabled = localOverrides.sessionsEnabled {
-//      return sessionEnabled
-//    } else if let sessionEnabled = remoteSettings.sessionsEnabled {
-//      return sessionEnabled
-//    }
-//    return sdkDefaults.sessionsEnabled!
+    return sdkDefaults.sessionsEnabled!
   }
 
   var sessionTimeout: TimeInterval {
