@@ -17,7 +17,6 @@ target 'AuthSample' do
   pod 'FBSDKLoginKit', '< 13'
   pod 'GoogleSignIn', '~> 6'
   pod 'GTMSessionFetcher/Core'
-  pod 'FirebaseAppCheck'
 
   target 'Auth_ApiTests' do
     inherit! :search_paths

@@ -650,9 +650,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
         getTokenForcingRefresh:false
                     completion:^(id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
                       if (tokenResult.error) {
-                        FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                                    @"Error loading saved user when starting up: %@",
-                                    tokenResult.error);
+                        FIRLogWarning(kFIRLoggerAuth, @"I-AUT000018",
+                                      @"Error getting App Check token; using placeholder token "
+                                      @"instead. Error: %@",
+                                      tokenResult.error);
                       }
                       [request setValue:tokenResult.token
                           forHTTPHeaderField:@"X-Firebase-AppCheck"];
