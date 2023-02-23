@@ -145,6 +145,8 @@ class APITests: APITestBase {
     
   // MARK: - RemoteConfigRealtime Tests
   func testRealtimeRemoteConfigFetch() {
+    guard APITests.useFakeConfig == true else { return }
+    
     let expectation = self.expectation(description: #function)
     config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
       if let error = Error {
@@ -153,8 +155,23 @@ class APITests: APITestBase {
             
       expectation.fulfill()
     }
+
+    waitForExpectations()
+  }
+
+  func testIntegrationRealtimeRemoteConfigFetch() {
+    guard APITests.useFakeConfig == false else { return }
+      
+    let expectation = self.expectation(description: #function)
+    config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
+      if let error = Error {
+        XCTFail("Realtime update Error \(error)")
+      }
+              
+      expectation.fulfill()
+    }
     console.updateRemoteConfigValue(Constants.yoda, forKey: Constants.jedi)
-        
+          
     waitForExpectations()
   }
     
