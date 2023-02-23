@@ -81,7 +81,7 @@ class APITestBase: XCTestCase {
         config.configFetch = FetchMocks.mockFetch(config.configFetch)
       }
       if !APITests.mockedRealtime {
-        APITests.mockedRealtime = true;
+        APITests.mockedRealtime = true
         config.configRealtime = RealtimeMocks.mockRealtime(config.configRealtime)
       }
       fakeConsole = FakeConsole()
