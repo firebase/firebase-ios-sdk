@@ -37,7 +37,7 @@ class BloomFilter final {
   BloomFilter& operator=(BloomFilter&&) = default;
 
   /**
-   * Creates a BloomFilter object or return a status.
+   * Creates a BloomFilter object or returns a status.
    *
    * @return a new BloomFilter if the inputs are valid, otherwise returns a not
    * `ok()` status.
@@ -66,7 +66,7 @@ class BloomFilter final {
   /**
    * When checking membership of a key in bitmap, the first step is to generate
    * a 128-bit hash, and treat it as 2 distinct 64-bit hash values, named `h1`
-   * and `h2`, interpreted as unsigned integers using 2's  complement encoding.
+   * and `h2`, interpreted as unsigned integers using 2's complement encoding.
    */
   struct Hash {
     uint64_t h1;
