@@ -13,6 +13,23 @@
 // limitations under the License.
 
 import XCTest
+import FirebaseCore
+
 @testable import FirebaseAppDistributionInternal
 
-class AppDistributionApiServiceTests: XCTestCase {}
+class AppDistributionApiServiceTests: XCTestCase {
+  
+  override class func setUp() {
+    let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000", gcmSenderID: "00000000000000000-00000000000-000000000")
+    options.projectID = "myProjectID"
+    options.apiKey = "AIzaSyByd9FGaZjtoILTq6Ff--zm8EyIoJsu3bg"
+    FirebaseApp.configure(name: "__FIRAPP_DEFAULT", options: options)
+    let _ = FirebaseApp.app()
+  }
+  
+  func testFindRelease() {
+    AppDistributionApiService.findRelease(displayVersion: "1.0", buildVersion: "1.0", codeHash: "1234", completion: { releaseName,error in
+      XCTAssertNotNil(error)
+    })
+  }
+}
