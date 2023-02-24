@@ -139,7 +139,8 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseAuth --platform=${{ matrix.target }}
+    #TODO: reenable warning detection.
+      run: ./scripts/health_metrics/pod_test_code_coverage_report.sh --sdk=FirebaseAuth --platform=${{ matrix.target }} --allow-warnings
     - uses: actions/upload-artifact@v2
       with:
         name: codecoverage

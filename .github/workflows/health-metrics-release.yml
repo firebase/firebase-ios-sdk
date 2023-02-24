@@ -1,12 +1,8 @@
 name: health-metrics-release
 
 on:
-  # TODO: restore
-  # release:
-  #   types: [published]
-  pull_request:
-    branches:
-      - none
+  release:
+    types: [published]
 
 env:
   gpg_passphrase: ${{ secrets.GHASecretsGPGPassphrase1 }}
