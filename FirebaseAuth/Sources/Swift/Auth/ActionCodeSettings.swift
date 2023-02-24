@@ -24,7 +24,7 @@ import Foundation
           the app where the action code would be handled or continue to the app after the action code
           is handled by Firebase.
    */
-  @objc public var URL: URL?
+  @objc(URL) public var url: URL?
 
   /** @property handleCodeInApp
       @brief Indicates whether the action code link will open the app directly or after being
@@ -35,7 +35,7 @@ import Foundation
   /** @property iOSBundleID
       @brief The iOS bundle ID, if available. The default value is the current app's bundle ID.
    */
-  @objc public var iOSBundleID: String?
+  public var iOSBundleID: String?
 
   /** @property androidPackageName
       @brief The Android package name, if available.
@@ -82,5 +82,9 @@ import Foundation
     self.androidPackageName = androidPackageName
     androidInstallIfNotAvailable = installIfNotAvailable
     androidMinimumVersion = minimumVersion
+  }
+
+  @objc public func setIOSBundleID(_ bundleID: String) {
+    iOSBundleID = bundleID
   }
 }

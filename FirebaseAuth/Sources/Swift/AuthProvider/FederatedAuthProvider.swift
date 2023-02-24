@@ -37,6 +37,5 @@ import Foundation
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential
-
   #endif
 }
