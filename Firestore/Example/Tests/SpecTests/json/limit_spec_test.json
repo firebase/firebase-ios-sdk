@@ -5455,12 +5455,14 @@
         }
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/b"
           ],
-          "collection/b"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {

@@ -1425,7 +1425,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
     ReadContext*, const google_firestore_v1_ExistenceFilter& filter) const {
-  ExistenceFilter existence_filter{filter.count};
+  ExistenceFilter existence_filter{filter.count, filter.unchanged_names};
   return absl::make_unique<ExistenceFilterWatchChange>(existence_filter,
                                                        filter.target_id);
 }

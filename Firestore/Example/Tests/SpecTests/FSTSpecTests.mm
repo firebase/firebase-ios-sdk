@@ -70,12 +70,16 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
+
 #include "absl/memory/memory.h"
+#include "absl/strings/escaping.h"
 #include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
 using firebase::firestore::Error;
 using firebase::firestore::google_firestore_v1_ArrayValue;
+using firebase::firestore::google_firestore_v1_BitSequence;
+using firebase::firestore::google_firestore_v1_BloomFilter;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
@@ -325,6 +329,27 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
+- (google_firestore_v1_BloomFilter)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
+  NSDictionary *bitsData = bloomFilterProto[@"bits"];
+  NSString *bitmapData = bitsData[@"bitmap"];
+
+  // Decode base64 json string: bitmap
+  std::string bitmap;
+  absl::Base64Unescape([bitmapData UTF8String], &bitmap);
+
+  int32_t padding = [bitsData[@"padding"] intValue];
+  int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
+
+  // Parse data into bloom filter proto type
+  google_firestore_v1_BitSequence bits;
+  bits.bitmap = nanopb::MakeBytesArray(bitmap);
+  bits.padding = padding;
+  google_firestore_v1_BloomFilter filter;
+  filter.hash_count = hashCount;
+
+  return filter;
+}
+
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
@@ -463,13 +488,15 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
-- (void)doWatchFilter:(NSArray *)watchFilter {
-  NSArray<NSNumber *> *targets = watchFilter[0];
+- (void)doWatchFilter:(NSDictionary *)watchFilter {
+  NSArray<NSNumber *> *targets = watchFilter[@"targetIds"];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
-  int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
+  NSArray<NSNumber *> *keys = watchFilter[@"keys"];
+  int keyCount = keys ? keys.count : 0;
 
-  ExistenceFilter filter{keyCount};
+  google_firestore_v1_BloomFilter bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+  ExistenceFilter filter{keyCount, bloomFilter};
   ExistenceFilterWatchChange change{filter, targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
