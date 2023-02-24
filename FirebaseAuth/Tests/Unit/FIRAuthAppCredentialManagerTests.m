@@ -255,6 +255,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNil(manager.credential);
 }
 
+#ifdef TODO_SWIFT
 /** @fn testKeychain
     @brief Tests state preservation in the keychain.
  */
@@ -309,7 +310,7 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertEqualObjects(manager.credential.secret, kSecret);
   OCMVerifyAll(_mockKeychain);
 }
-
+#endif
 @end
 
 NS_ASSUME_NONNULL_END

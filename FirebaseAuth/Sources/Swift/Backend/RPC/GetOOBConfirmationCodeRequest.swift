@@ -221,7 +221,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
     self.email = email
     updatedEmail = newEmail
     self.accessToken = accessToken
-    continueURL = actionCodeSettings?.URL?.absoluteString
+    continueURL = actionCodeSettings?.url?.absoluteString
     iOSBundleID = actionCodeSettings?.iOSBundleID
     androidPackageName = actionCodeSettings?.androidPackageName
     androidMinimumVersion = actionCodeSettings?.androidMinimumVersion

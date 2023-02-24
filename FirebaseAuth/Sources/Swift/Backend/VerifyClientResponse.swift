@@ -24,6 +24,10 @@ public class VerifyClientResponse: NSObject, AuthRPCResponse {
 
   public func setFields(dictionary: [String: Any]) throws {
     receipt = dictionary["receipt"] as? String
-    suggestedTimeOutDate = dictionary["suggestedTimeOutDate"] as? Date
+    let suggestedTimeout = dictionary["suggestedTimeout"]
+    if let string = suggestedTimeout as? String,
+       let doubleVal = Double(string) {
+      suggestedTimeOutDate = Date(timeIntervalSinceNow: doubleVal)
+    }
   }
 }
