@@ -343,4 +343,3 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
 @end
-
