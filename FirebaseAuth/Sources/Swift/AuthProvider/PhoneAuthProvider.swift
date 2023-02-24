@@ -67,7 +67,8 @@ import Foundation
     public func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate?,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
-      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme) else {
+      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+                                                    urlTypes: auth.mainBundleUrlTypes) else {
         fatalError(
           "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
         )
@@ -561,7 +562,8 @@ import Foundation
       if let clientID = auth.app?.options.clientID {
         let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()
           .joined(separator: ".")
-        if AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme) {
+        if AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme,
+                                                   urlTypes: auth.mainBundleUrlTypes) {
           callbackScheme = reverseClientIDScheme
           usingClientIDScheme = true
           return

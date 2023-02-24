@@ -361,7 +361,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
     return error(code: .webSignInUserInteractionFailure, userInfo: userInfo)
   }
 
-  @objc public static func URLResponseError(code: String, message: String?) -> Error? {
+  @objc public static func urlResponseError(code: String, message: String?) -> Error {
     let errorCode: AuthErrorCode
     switch code {
     case kURLResponseErrorCodeInvalidClientID:
@@ -371,7 +371,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
     case kURLResponseErrorCodeInternalError:
       errorCode = .webInternalError
     default:
-      return nil
+      return AuthErrorUtils.webSignInUserInteractionFailure(reason: "[\(code)] - \(message ?? "")")
     }
     return error(code: errorCode, message: message)
   }

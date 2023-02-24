@@ -18,30 +18,18 @@
 #if TARGET_OS_IOS
 
 #import <Foundation/Foundation.h>
+#import <SafariServices/SafariServices.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol FIRAuthUIDelegate;
 
-/** @typedef FIRAuthURLPresentationCompletion
-    @brief The type of block invoked when the URLPresentation completes.
-    @param callbackURL The callback URL if the presentation ends with a matching callback.
-    @param error The error if the presentation fails to start or ends with an error.
- */
-typedef void (^FIRAuthURLPresentationCompletion)(NSURL *_Nullable callbackURL,
-                                                 NSError *_Nullable error);
-
-/** @typedef FIRAuthCallbackMatcher
-    @brief The type of block invoked for checking whether a callback URL matches.
-    @param callbackURL The callback URL to check for match.
-    @return Whether or not the specific callback URL matches or not.
- */
-typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL *_Nullable callbackURL);
-
 /** @class FIRAuthURLPresenter
     @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
  */
-@interface FIRAuthURLPresenter : NSObject
+@interface FIRAuthURLPresenter
+    : NSObject <SFSafariViewControllerDelegate, FIRAuthWebViewControllerDelegate>
 
 /** @fn presentURL:UIDelegate:callbackMatcher:completion:
     @brief Presents an URL to interact with user.
