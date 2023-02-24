@@ -22,14 +22,11 @@
 
 #import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebViewController.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRAuthURLPresenter () <SFSafariViewControllerDelegate, FIRAuthWebViewControllerDelegate>
-@end
 
 // Disable unguarded availability warnings because SFSafariViewController is been used throughout
 // the code, including as an iVar, which cannot be simply excluded by @available check.
