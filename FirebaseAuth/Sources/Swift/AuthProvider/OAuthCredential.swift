@@ -18,7 +18,7 @@ import Foundation
   /** @property IDToken
       @brief The ID Token associated with this credential.
    */
-  @objc public let IDToken: String?
+  @objc(IDToken) public let idToken: String?
 
   /** @property accessToken
       @brief The access token associated with this credential.
@@ -42,12 +42,12 @@ import Foundation
 
   // TODO: Remove public objc
   @objc public init(withProviderID providerID: String,
-                    IDToken: String? = nil,
+                    idToken: String? = nil,
                     rawNonce: String? = nil,
                     accessToken: String? = nil,
                     secret: String? = nil,
                     pendingToken: String? = nil) {
-    self.IDToken = IDToken
+    self.idToken = idToken
     self.rawNonce = rawNonce
     self.accessToken = accessToken
     self.pendingToken = pendingToken
@@ -65,7 +65,7 @@ import Foundation
     accessToken = nil
     pendingToken = nil
     secret = nil
-    IDToken = nil
+    idToken = nil
     rawNonce = nil
     super.init(provider: providerID)
   }
@@ -77,7 +77,7 @@ import Foundation
       return nil
     }
     self.init(withProviderID: response.providerID ?? OAuthProvider.id,
-              IDToken: response.oauthIDToken,
+              idToken: response.oauthIDToken,
               rawNonce: nil,
               accessToken: response.oauthAccessToken,
               secret: response.oauthSecretToken,
@@ -85,7 +85,7 @@ import Foundation
   }
 
   @objc override public func prepare(_ request: VerifyAssertionRequest) {
-    request.providerIDToken = IDToken
+    request.providerIDToken = idToken
     request.providerRawNonce = rawNonce
     request.providerAccessToken = accessToken
     request.requestURI = OAuthResponseURLString
@@ -99,7 +99,7 @@ import Foundation
   public static var supportsSecureCoding: Bool = true
 
   public func encode(with coder: NSCoder) {
-    coder.encode(IDToken)
+    coder.encode(idToken)
     coder.encode(rawNonce)
     coder.encode(accessToken)
     coder.encode(pendingToken)
@@ -107,7 +107,7 @@ import Foundation
   }
 
   public required init?(coder: NSCoder) {
-    IDToken = coder.decodeObject(forKey: "IDToken") as? String
+    idToken = coder.decodeObject(forKey: "idToken") as? String
     rawNonce = coder.decodeObject(forKey: "rawNonce") as? String
     accessToken = coder.decodeObject(forKey: "accessToken") as? String
     pendingToken = coder.decodeObject(forKey: "pendingToken") as? String
