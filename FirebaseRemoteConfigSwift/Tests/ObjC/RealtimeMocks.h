@@ -1,4 +1,4 @@
-// Copyright 2020 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
-#import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
-#import "FirebaseRemoteConfigSwift/Tests/ObjC/FetchMocks.h"
-#import "FirebaseRemoteConfigSwift/Tests/ObjC/RealtimeMocks.h"
+#import <Foundation/Foundation.h>
+#import "FirebaseRemoteConfig/Sources/RCNConfigRealtime.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface RealtimeMocks : NSObject
++ (RCNConfigRealtime *)mockRealtime:(RCNConfigRealtime *)realtime;
+@end
+
+NS_ASSUME_NONNULL_END

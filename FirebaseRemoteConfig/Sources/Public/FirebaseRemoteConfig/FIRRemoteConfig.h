@@ -31,11 +31,12 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
     RemoteConfigThrottledEndTimeInSecondsKey);
 
 /**
- * Represents a listener that can be removed by calling it's only method remove. This is returned
- * when calling addOnConfigUpdateListener and the method should be used when you no longer want to
+ * Represents a listener that can be removed by calling its only method: remove. This is returned
+ * when calling `addOnConfigUpdateListener` and the method should be used when you no longer want to
  * listen for new config updates. If this is the last listener it will close the Realtime stream.
  */
-extern @interface FIRConfigUpdateListenerRegistration : NSObject
+NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
+@interface FIRConfigUpdateListenerRegistration : NSObject
 /**
  * Removes the listener being tracked by this 'ConfigUpdateListenerRegistration`. After the initial
  * call, subsequent calls have no effect.
@@ -338,6 +339,7 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
 /// @return                 Returns a registration that is used to remove a listener. If it is the
 /// last listener, it stops the stream.
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addOnConfigUpdateListener:
-    (FIRRemoteConfigUpdateCompletion _Nonnull)listener;
+    (FIRRemoteConfigUpdateCompletion _Nonnull)listener
+    NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
 @end
