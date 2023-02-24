@@ -32,14 +32,14 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
     return randomString
   }
 
-  @objc public static func isCallbackSchemeRegistered(forCustomURLScheme scheme: String) -> Bool {
+  @objc public static func isCallbackSchemeRegistered(forCustomURLScheme scheme: String,
+                                                      urlTypes: [[String: [String]]]?) -> Bool {
     let expectedCustomScheme = scheme.lowercased()
-    guard let urlTypes = Bundle.main
-      .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] else {
+    guard let urlTypes = urlTypes else {
       return false
     }
     for urlType in urlTypes {
-      guard let urlTypeSchemes = urlType["CFBundleURLSchemes"] as? [String] else {
+      guard let urlTypeSchemes = urlType["CFBundleURLSchemes"] else {
         continue
       }
       for urlTypeScheme in urlTypeSchemes {
@@ -72,8 +72,8 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
     if expectedURL != actualURL {
       return false
     }
-    let URLQueryItems = dictionary(withHttpArgumentsString: url.query)
-    guard let deeplinkURLString = URLQueryItems["deep_link_id"],
+    let urlQueryItems = dictionary(withHttpArgumentsString: url.query)
+    guard let deeplinkURLString = urlQueryItems["deep_link_id"],
           let deeplinkURL = URL(string: deeplinkURLString) else {
       return false
     }
