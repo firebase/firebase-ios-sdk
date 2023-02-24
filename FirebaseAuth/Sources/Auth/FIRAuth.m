@@ -436,6 +436,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
               heartbeatLogger:app.heartbeatLogger];
   if (self) {
     _app = app;
+    _mainBundleUrlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
 #if TARGET_OS_IOS
     _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
 #endif
@@ -1589,7 +1590,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (BOOL)canHandleURL:(NSURL *)URL {
   __block BOOL result = NO;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
-    result = [self->_authURLPresenter canHandleURL:URL];
+    FIRAuthURLPresenter *presenter = (FIRAuthURLPresenter *)self->_authURLPresenter;
+    result = [presenter canHandleURL:URL];
   });
   return result;
 }
