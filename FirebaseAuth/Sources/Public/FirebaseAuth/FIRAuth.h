@@ -18,6 +18,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthAPNSTokenType.h"
+#import "FIRAuthWebViewController.h"
 
 @class FIRActionCodeSettings;
 @class FIRApp;
@@ -292,10 +293,20 @@ typedef void (^FIRCheckActionCodeCallBack)(FIRActionCodeInfo *_Nullable info,
 NS_SWIFT_NAME(Auth)
 @interface FIRAuth : NSObject
 
+#if TARGET_OS_IOS
+// TODO: authURLPresenter is internal, with a setter only used for tests.
 /** @property authURLPresenter
     @brief An object that takes care of presenting URLs via the auth instance.
  */
-@property(nonatomic, strong, readonly) FIRAuthURLPresenter *authURLPresenter;
+@property(nonatomic, strong) id<FIRAuthWebViewControllerDelegate> authURLPresenter;
+#endif
+
+// TODO: mainBundle is internal, with a setter only used for tests.
+/** @property mainBundle
+    @brief Allow tests to swap in an alternate mainBundle.
+ */
+@property(nonatomic, strong)
+    NSArray<NSDictionary<NSString *, NSArray<NSString *> *> *> *mainBundleUrlTypes;
 
 /** @property notificationManager
     @brief The manager for remote notifications used by phone number auth.
