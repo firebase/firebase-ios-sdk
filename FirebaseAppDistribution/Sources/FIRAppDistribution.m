@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULUserDefaults.h>
@@ -24,8 +25,6 @@
 #import "FirebaseAppDistribution/Sources/FIRFADLogger.h"
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
-
-@import FirebaseAppDistributionInternal;
 
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
@@ -339,20 +338,16 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
 
-- (void)startFeedback:(NSString *)infoText {
-  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
-  feedbackViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-  [[self uiService] initializeUIState];
-  [self.uiService.window.rootViewController presentViewController:feedbackViewController
-                                                         animated:YES
-                                                       completion:nil];
-}
-
-- (void)startFeedback:(NSString *)infoText withImage:(UIImage *)image {
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
   // TODO: Implement it.
 }
 
-- (void)enableFeedbackOnScreenshot:(NSString *)infoText {
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
+  // TODO: Implement it.
+}
+
+- (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                           showAlertInfo:(BOOL)showAlertInfo {
   // TODO: Implement it.
 }
 
