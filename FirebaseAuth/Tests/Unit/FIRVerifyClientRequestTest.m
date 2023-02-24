@@ -90,11 +90,10 @@ static NSString *const kExpectedAPIURL =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIKey
                                                     appID:kFakeFirebaseAppID
                                                      auth:nil];
-  // TODO(ncooke3): Bridge the `FIRVerifyClientRequest` to Swift.
-  FIRVerifyClientRequest *request = nil;
-  //      [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
-  //                                             isSandbox:YES
-  //                                  requestConfiguration:requestConfiguration];
+  FIRVerifyClientRequest *request =
+      [[FIRVerifyClientRequest alloc] initWithAppToken:kFakeAppToken
+                                             isSandbox:YES
+                                  requestConfiguration:requestConfiguration];
   [FIRAuthBackend
       verifyClient:request
           callback:^(FIRVerifyClientResponse *_Nullable response, NSError *_Nullable error){

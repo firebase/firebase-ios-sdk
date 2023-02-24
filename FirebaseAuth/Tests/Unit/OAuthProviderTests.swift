@@ -58,7 +58,7 @@ import FirebaseCore
                                                 accessToken: kFakeAccessToken)
       XCTAssertEqual(credential.accessToken, kFakeAccessToken)
       XCTAssertEqual(credential.provider, kFakeProviderID)
-      XCTAssertNil(credential.IDToken)
+      XCTAssertNil(credential.idToken)
     }
 
     /** @fn testObtainingOAuthCredentialWithIDToken
@@ -71,7 +71,7 @@ import FirebaseCore
                                                 accessToken: kFakeAccessToken)
       XCTAssertEqual(credential.accessToken, kFakeAccessToken)
       XCTAssertEqual(credential.provider, kFakeProviderID)
-      XCTAssertEqual(credential.IDToken, kFakeIDToken)
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
     }
 
     /** @fn testObtainingOAuthProvider
