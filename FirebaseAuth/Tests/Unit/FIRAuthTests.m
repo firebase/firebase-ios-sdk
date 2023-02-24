@@ -1064,7 +1064,6 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#endif
 
 /** @fn testSignInWithProviderFailure
     @brief Tests a failed @c signInWithProvider:UIDelegate:completion: call with the error code
@@ -1102,7 +1101,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInWithGoogleAccountExistsError
     @brief Tests the flow of a failed @c signInWithCredential:completion: with a Google credential
         where the backend returns a needs @needConfirmation equal to true. An
