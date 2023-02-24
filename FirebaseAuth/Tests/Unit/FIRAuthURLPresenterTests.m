@@ -24,8 +24,8 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
 
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebViewController.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebViewController.h"
 
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
