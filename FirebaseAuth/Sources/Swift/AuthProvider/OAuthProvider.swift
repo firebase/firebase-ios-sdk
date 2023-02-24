@@ -120,7 +120,7 @@ import CommonCrypto
   public static func credential(withProviderID providerID: String,
                                 idToken: String,
                                 accessToken: String?) -> OAuthCredential {
-    return OAuthCredential(withProviderID: providerID, IDToken: idToken, accessToken: accessToken)
+    return OAuthCredential(withProviderID: providerID, idToken: idToken, accessToken: accessToken)
   }
 
   /**
@@ -154,7 +154,7 @@ import CommonCrypto
                                 accessToken: String) -> OAuthCredential {
     return OAuthCredential(
       withProviderID: providerID,
-      IDToken: idToken,
+      idToken: idToken,
       rawNonce: rawNonce,
       accessToken: accessToken
     )
@@ -172,7 +172,7 @@ import CommonCrypto
   @objc(credentialWithProviderID:IDToken:rawNonce:)
   public static func credential(withProviderID providerID: String, idToken: String,
                                 rawNonce: String) -> OAuthCredential {
-    return OAuthCredential(withProviderID: providerID, IDToken: idToken, rawNonce: rawNonce)
+    return OAuthCredential(withProviderID: providerID, idToken: idToken, rawNonce: rawNonce)
   }
 
   #if os(iOS)
