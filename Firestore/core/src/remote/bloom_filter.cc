@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-// TODO(Mila): Replace this CommonCrypto with platform based MD5 calculation.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
 #include "Firestore/core/src/remote/bloom_filter.h"
 
 #include <utility>
@@ -26,6 +22,7 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/warnings.h"
 
 namespace firebase {
 namespace firestore {
@@ -33,6 +30,10 @@ namespace remote {
 
 using util::Status;
 using util::StatusOr;
+
+// TODO(Mila): Replace CommonCrypto with platform based MD5 calculation and
+// remove suppress.
+SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN();
 
 BloomFilter::Hash BloomFilter::Md5HashDigest(absl::string_view key) const {
   unsigned char md5_digest[CC_MD5_DIGEST_LENGTH];
@@ -46,36 +47,38 @@ BloomFilter::Hash BloomFilter::Md5HashDigest(absl::string_view key) const {
   uint64_t* hash128 = reinterpret_cast<uint64_t*>(md5_digest);
   return Hash{hash128[0], hash128[1]};
 }
+SUPPRESS_END();
 
 int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
-  uint64_t val = hash.h1 + (hash_index * hash.h2);
-  return val % bit_count_;
+  uint64_t hash_index_uint64 = static_cast<uint64_t>(hash_index);
+  uint64_t bit_count_uint64 = static_cast<uint64_t>(bit_count_);
+
+  uint64_t val = hash.h1 + (hash_index_uint64 * hash.h2);
+  uint64_t bit_index = val % bit_count_uint64;
+
+  HARD_ASSERT(bit_index <= INT32_MAX);
+  return bit_index;
 }
 
 bool BloomFilter::IsBitSet(int32_t index) const {
-  uint8_t byte_at_index{bitmap_[index / 8]};
-  int offset{index % 8};
-  return (byte_at_index & (0x01 << offset)) != 0;
+  uint8_t byte_at_index = bitmap_[index / 8];
+  int offset = index % 8;
+  return (byte_at_index & (static_cast<uint8_t>(0x01) << offset)) != 0;
 }
 
 BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
                          int32_t padding,
-                         int32_t hash_count) {
-  HARD_ASSERT(padding >= 0 && padding < 8, "Invalid padding: %s",
-              std::to_string(padding));
-  HARD_ASSERT(hash_count >= 0, "Invalid hash count: %s",
-              std::to_string(hash_count));
+                         int32_t hash_count)
+    : bit_count_(static_cast<int32_t>(bitmap.size()) * 8 - padding),
+      hash_count_(hash_count),
+      bitmap_(std::move(bitmap)) {
+  HARD_ASSERT(padding >= 0 && padding < 8);
+  HARD_ASSERT(hash_count_ >= 0);
   // Only empty bloom filter can have 0 hash count.
-  HARD_ASSERT(bitmap.size() == 0 || hash_count != 0, "Invalid hash count:%s",
-              std::to_string(hash_count));
+  HARD_ASSERT(bitmap_.size() == 0 || hash_count_ != 0);
   // Empty bloom filter should have 0 padding.
-  HARD_ASSERT(bitmap.size() != 0 || padding == 0,
-              "Expected padding of 0 when bitmap length is 0, but got %s",
-              std::to_string(padding));
-
-  bitmap_ = std::move(bitmap);
-  hash_count_ = hash_count;
-  bit_count_ = bitmap_.size() * 8 - padding;
+  HARD_ASSERT(bitmap_.size() != 0 || padding == 0);
+  HARD_ASSERT(bit_count_ >= 0);
 }
 
 StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t> bitmap,
@@ -110,7 +113,7 @@ bool BloomFilter::MightContain(absl::string_view value) const {
   Hash hash = Md5HashDigest(value);
   // The `hash_count_` and `bit_count_` fields are guaranteed to be
   // non-negative when the `BloomFilter` object is constructed.
-  for (int32_t i = 0; i < hash_count_; i++) {
+  for (int32_t i = 0; i < hash_count_; ++i) {
     int32_t index = GetBitIndex(hash, i);
     if (!IsBitSet(index)) {
       return false;
@@ -118,8 +121,6 @@ bool BloomFilter::MightContain(absl::string_view value) const {
   }
   return true;
 }
-
-#pragma clang diagnostic pop
 
 }  // namespace remote
 }  // namespace firestore

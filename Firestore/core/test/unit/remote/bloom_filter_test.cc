@@ -21,113 +21,119 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+namespace {
 
 using util::Status;
 using util::StatusOr;
 
-class BloomFilterTest : public ::testing::Test {};
-
-TEST_F(BloomFilterTest, CanInstantiateEmptyBloomFilter) {
-  BloomFilter bloom_Filter = BloomFilter(std::vector<uint8_t>{}, 0, 0);
-  EXPECT_EQ(bloom_Filter.bit_count(), 0);
+TEST(BloomFilterTest, CanInstantiateEmptyBloomFilter) {
+  BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{}, 0, 0);
+  EXPECT_EQ(bloom_filter.bit_count(), 0);
 }
 
-TEST_F(BloomFilterTest, CanInstantiateNonEmptyBloomFilter) {
+TEST(BloomFilterTest, CanInstantiateNonEmptyBloomFilter) {
   {
-    BloomFilter bloom_Filter_1 = BloomFilter(std::vector<uint8_t>{1}, 0, 1);
-    EXPECT_EQ(bloom_Filter_1.bit_count(), 8);
+    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{1}, 0, 1);
+    EXPECT_EQ(bloom_filter.bit_count(), 8);
   }
   {
-    BloomFilter bloom_Filter_2 = BloomFilter(std::vector<uint8_t>{1}, 7, 1);
-    EXPECT_EQ(bloom_Filter_2.bit_count(), 1);
+    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{1}, 7, 1);
+    EXPECT_EQ(bloom_filter.bit_count(), 1);
   }
 }
 
 /* Test Create factory method with valid and invalid inputs */
-TEST_F(BloomFilterTest, CreateMethodShouldReturnBloomFilterOnValidInputs) {
+TEST(BloomFilterTest, CreateShouldReturnBloomFilterOnValidInputs) {
   StatusOr<BloomFilter> maybe_bloom_filter =
       BloomFilter::Create(std::vector<uint8_t>{1}, 1, 1);
-  EXPECT_TRUE(maybe_bloom_filter.ok());
+  ASSERT_TRUE(maybe_bloom_filter.ok());
   BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
   EXPECT_EQ(bloom_filter.bit_count(), 7);
 }
 
-TEST_F(BloomFilterTest, CreateMethodShouldReturnNotOKStatusOnNegativePadding) {
+TEST(BloomFilterTest, CreateShouldBeAbleToCreatEmptyBloomFilter) {
+  StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(std::vector<uint8_t>{}, 0, 0);
+  ASSERT_TRUE(maybe_bloom_filter.ok());
+  BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
+  EXPECT_EQ(bloom_filter.bit_count(), 0);
+}
+
+TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnNegativePadding) {
   {
-    StatusOr<BloomFilter> maybe_bloom_filter_1 =
+    StatusOr<BloomFilter> maybe_bloom_filter =
         BloomFilter::Create(std::vector<uint8_t>{0}, -1, 1);
-    EXPECT_FALSE(maybe_bloom_filter_1.ok());
-    EXPECT_EQ(maybe_bloom_filter_1.status().error_message(),
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid padding: -1");
   }
   {
-    StatusOr<BloomFilter> maybe_bloom_filter_2 =
+    StatusOr<BloomFilter> maybe_bloom_filter =
         BloomFilter::Create(std::vector<uint8_t>{1}, -1, 1);
-    EXPECT_FALSE(maybe_bloom_filter_2.ok());
-    EXPECT_EQ(maybe_bloom_filter_2.status().error_message(),
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid padding: -1");
   }
 }
 
-TEST_F(BloomFilterTest,
-       CreateMethodShouldReturnNotOKStatusOnNegativeHashCount) {
+TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnNegativeHashCount) {
   {
-    StatusOr<BloomFilter> maybe_bloom_filter_1 =
+    StatusOr<BloomFilter> maybe_bloom_filter =
         BloomFilter::Create(std::vector<uint8_t>{0}, 0, -1);
-    EXPECT_FALSE(maybe_bloom_filter_1.ok());
-    EXPECT_EQ(maybe_bloom_filter_1.status().error_message(),
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid hash count: -1");
   }
   {
-    StatusOr<BloomFilter> maybe_bloom_filter_2 =
+    StatusOr<BloomFilter> maybe_bloom_filter =
         BloomFilter::Create(std::vector<uint8_t>{1}, 1, -1);
-    EXPECT_FALSE(maybe_bloom_filter_2.ok());
-    EXPECT_EQ(maybe_bloom_filter_2.status().error_message(),
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid hash count: -1");
   }
 }
 
-TEST_F(BloomFilterTest, CreateMethodShouldReturnNotOKStatusOnZeroHashCount) {
+TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnZeroHashCount) {
   StatusOr<BloomFilter> maybe_bloom_filter =
       BloomFilter::Create(std::vector<uint8_t>{1}, 1, 0);
-  EXPECT_FALSE(maybe_bloom_filter.ok());
+  ASSERT_FALSE(maybe_bloom_filter.ok());
   EXPECT_EQ(maybe_bloom_filter.status().error_message(),
             "Invalid hash count: 0");
 }
 
-TEST_F(BloomFilterTest,
-       CreateMethodShouldReturnNotOKStatusIfPaddingIsTooLarge) {
+TEST(BloomFilterTest, CreateShouldReturnNotOKStatusIfPaddingIsTooLarge) {
   StatusOr<BloomFilter> maybe_bloom_filter =
       BloomFilter::Create(std::vector<uint8_t>{1}, 8, 1);
-  EXPECT_FALSE(maybe_bloom_filter.ok());
+  ASSERT_FALSE(maybe_bloom_filter.ok());
   EXPECT_EQ(maybe_bloom_filter.status().error_message(), "Invalid padding: 8");
 }
 
-TEST_F(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
+TEST(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
   // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
-  BloomFilter bloom_Filter = BloomFilter(std::vector<uint8_t>{237, 5}, 5, 8);
-  EXPECT_TRUE(bloom_Filter.MightContain("ÀÒ∑"));
-  EXPECT_FALSE(bloom_Filter.MightContain("Ò∑À"));
+  BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{237, 5}, 5, 8);
+  EXPECT_TRUE(bloom_filter.MightContain("ÀÒ∑"));
+  EXPECT_FALSE(bloom_filter.MightContain("Ò∑À"));
 }
 
-TEST_F(BloomFilterTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
-  BloomFilter bloom_Filter = BloomFilter(std::vector<uint8_t>{}, 0, 0);
-  EXPECT_FALSE(bloom_Filter.MightContain(""));
-  EXPECT_FALSE(bloom_Filter.MightContain("a"));
+TEST(BloomFilterTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
+  BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{}, 0, 0);
+  EXPECT_FALSE(bloom_filter.MightContain(""));
+  EXPECT_FALSE(bloom_filter.MightContain("a"));
 }
 
-TEST_F(BloomFilterTest,
-       MightContainWithEmptyStringMightReturnFalsePositiveResult) {
+TEST(BloomFilterTest,
+     MightContainWithEmptyStringMightReturnFalsePositiveResult) {
   {
-    BloomFilter bloom_Filter_1 = BloomFilter(std::vector<uint8_t>{1}, 1, 1);
-    EXPECT_FALSE(bloom_Filter_1.MightContain(""));
+    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{1}, 1, 1);
+    EXPECT_FALSE(bloom_filter.MightContain(""));
   }
   {
-    BloomFilter bloom_Filter_2 = BloomFilter(std::vector<uint8_t>{255}, 0, 16);
-    EXPECT_TRUE(bloom_Filter_2.MightContain(""));
+    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{255}, 0, 16);
+    EXPECT_TRUE(bloom_filter.MightContain(""));
   }
 }
 
+}  // namespace
 }  // namespace remote
-}  //  namespace firestore
-}  //  namespace firebase
+}  // namespace firestore
+}  // namespace firebase

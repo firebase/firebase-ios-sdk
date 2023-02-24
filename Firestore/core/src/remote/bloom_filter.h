@@ -74,8 +74,7 @@ class BloomFilter final {
   };
 
   /**
-   * Helper function to hash a string using md5 hashing algorithm, and return a
-   * Hash object.
+   * Calculate the MD5 digest of the given string, and return a Hash object.
    */
   Hash Md5HashDigest(absl::string_view key) const;
 
@@ -86,7 +85,6 @@ class BloomFilter final {
   int32_t GetBitIndex(const Hash& hash, int32_t hash_index) const;
 
   /** Return whether the bit at the given index in the bitmap is set to 1. */
-
   bool IsBitSet(int32_t index) const;
 
   /**
