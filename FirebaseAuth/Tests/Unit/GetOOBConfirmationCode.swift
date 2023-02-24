@@ -234,7 +234,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
                                    installIfNotAvailable: true,
                                    minimumVersion: kAndroidMinimumVersion)
     settings.handleCodeInApp = true
-    settings.URL = URL(string: kContinueURL)
+    settings.url = URL(string: kContinueURL)
     settings.dynamicLinkDomain = kDynamicLinkDomain
     return settings
   }

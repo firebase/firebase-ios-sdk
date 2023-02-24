@@ -179,7 +179,7 @@ class AuthTests: RPCBaseTests {
   private func fakeActionCodeSettings() -> ActionCodeSettings {
     let settings = ActionCodeSettings()
     settings.handleCodeInApp = true
-    settings.URL = URL(string: kContinueURL)
+    settings.url = URL(string: kContinueURL)
     return settings
   }
 

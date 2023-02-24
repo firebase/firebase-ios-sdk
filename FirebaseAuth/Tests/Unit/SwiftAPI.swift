@@ -48,13 +48,18 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.signIn(withEmail: "abc@abc.com", link: "link") { result, error in
     }
     #if !os(macOS)
-      let provider = OAuthProvider(providerID: "abc")
-      auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
+      let provider = OAuthProvider(
+        providerID: GoogleAuthProvider.id,
+        auth: FirebaseAuth.Auth.auth()
+      )
+      auth.signIn(with: provider, uiDelegate: nil) { result, error in
       }
-      provider.getCredentialWith(nil) { credential, error in
-        auth.signIn(with: credential!) { result, error in
+      #if !os(tvOS)
+        provider.getCredentialWith(nil) { credential, error in
+          auth.signIn(with: credential!) { result, error in
+          }
         }
-      }
+      #endif
       auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
       }
     #endif
@@ -89,7 +94,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.removeIDTokenDidChangeListener(handle)
     auth.useAppLanguage()
     auth.useEmulator(withHost: "myHost", port: 123)
-    #if !os(macOS)
+    #if os(iOS)
       auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
       auth.canHandleNotification([:])
@@ -113,7 +118,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
     let provider = OAuthProvider(providerID: "abc")
-    #if !os(macOS)
+    #if os(iOS)
       let credential = try await provider.credential(with: nil)
       _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
       _ = try await auth.signIn(with: credential)

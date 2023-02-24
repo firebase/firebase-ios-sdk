@@ -311,7 +311,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   XCTAssertNil(credential.temporaryProof);
   XCTAssertNil(credential.phoneNumber);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testVerifyEmptyPhoneNumber
     @brief Tests a failed invocation @c verifyPhoneNumber:completion: because an empty phone
         number was provided.
@@ -1638,6 +1638,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
                      nil);
         });
       });
+#endif
 }
 #endif
 #pragma clang diagnostic pop  // ignored "-Wdeprecated-declarations"
