@@ -35,6 +35,7 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
  * when calling `addOnConfigUpdateListener` and the method should be used when you no longer want to
  * listen for new config updates. If this is the last listener it will close the Realtime stream.
  */
+NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
 @interface FIRConfigUpdateListenerRegistration : NSObject
 /**
  * Removes the listener being tracked by this 'ConfigUpdateListenerRegistration`. After the initial
@@ -342,3 +343,4 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
 @end
+

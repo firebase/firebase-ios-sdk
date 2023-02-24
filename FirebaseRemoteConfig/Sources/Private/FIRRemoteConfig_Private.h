@@ -44,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// Config settings are custom settings.
 @property(nonatomic, readwrite, strong, nonnull) RCNConfigFetch *configFetch;
 
-/// Config settings are custom settings.
 @property(nonatomic, readwrite, strong, nonnull) RCNConfigRealtime *configRealtime;
 
 /// Returns the FIRRemoteConfig instance for your namespace and for the default Firebase App.
