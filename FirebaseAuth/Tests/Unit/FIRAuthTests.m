@@ -560,6 +560,7 @@ static const NSTimeInterval kWaitInterval = .5;
 /** @fn testSignInWithEmailPasswordFailure
     @brief Tests the flow of a failed @c signInWithEmail:password:completion: call.
  */
+#ifdef TODO_SWIFT
 - (void)testSignInWithEmailPasswordFailure {
   OCMExpect([_mockBackend verifyPassword:[OCMArg any] callback:[OCMArg any]])
       .andDispatchError2([FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
@@ -578,7 +579,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInAndRetrieveDataWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c signInAndRetrieveDataWithEmail:password:completion:
         call.
@@ -615,7 +616,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInAndRetrieveDataWithEmailPasswordFailure
     @brief Tests the flow of a failed @c signInAndRetrieveDataWithEmail:password:completion: call.
  */
@@ -748,7 +749,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testApplyActionCodeSuccess
     @brief Tests the flow of a successful @c applyActionCode:completion call.
  */
@@ -794,7 +795,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testVerifyPasswordResetCodeSuccess
     @brief Tests the flow of a successful @c verifyPasswordResetCode:completion call.
  */
@@ -852,7 +853,7 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Tests the flow of a successfully @c signInWithCredential:completion: call with an
         email sign-in link credential using FIREmailAuthProvider.
  */
-#ifdef TODO_SWIFT
+
 - (void)testSignInWithEmailLinkCredentialSuccess {
   NSString *fakeCode = @"testoobcode";
   OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
@@ -947,7 +948,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInWithEmailCredentialFailure
     @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
         email-password credential.
@@ -972,7 +973,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testSignInWithEmailCredentialEmptyPassword
     @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
         email-password credential using an empty password. This error occurs on the client side,

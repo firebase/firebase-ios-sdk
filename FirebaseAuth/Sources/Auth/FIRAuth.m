@@ -719,19 +719,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
     return;
   }
-  [FIRAuthBackend
-      verifyPassword:request
-            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
-              if (error) {
-                callback(nil, error);
-                return;
-              }
-              [self completeSignInWithAccessToken:response.IDToken
-                        accessTokenExpirationDate:response.approximateExpirationDate
-                                     refreshToken:response.refreshToken
-                                        anonymous:NO
-                                         callback:callback];
-            }];
+  [FIRAuthBackend2
+      postWithRequest:request
+             callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+               if (error) {
+                 callback(nil, error);
+                 return;
+               }
+               [self completeSignInWithAccessToken:response.IDToken
+                         accessTokenExpirationDate:response.approximateExpirationDate
+                                      refreshToken:response.refreshToken
+                                         anonymous:NO
+                                          callback:callback];
+             }];
 }
 
 /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
@@ -1169,19 +1169,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [[FIRResetPasswordRequest alloc] initWithOobCode:code
                                              newPassword:newPassword
                                     requestConfiguration:self->_requestConfiguration];
-    [FIRAuthBackend
-        resetPassword:request
-             callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
-               if (completion) {
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                   if (error) {
-                     completion(error);
-                     return;
-                   }
-                   completion(nil);
-                 });
-               }
-             }];
+    [FIRAuthBackend2
+        postWithRequest:request
+               callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+                 if (completion) {
+                   dispatch_async(dispatch_get_main_queue(), ^{
+                     if (error) {
+                       completion(error);
+                       return;
+                     }
+                     completion(nil);
+                   });
+                 }
+               }];
   });
 }
 
@@ -1191,27 +1191,27 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [[FIRResetPasswordRequest alloc] initWithOobCode:code
                                              newPassword:nil
                                     requestConfiguration:self->_requestConfiguration];
-    [FIRAuthBackend
-        resetPassword:request
-             callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
-               if (completion) {
-                 if (error) {
+    [FIRAuthBackend2
+        postWithRequest:request
+               callback:^(FIRResetPasswordResponse *_Nullable response, NSError *_Nullable error) {
+                 if (completion) {
+                   if (error) {
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                       completion(nil, error);
+                     });
+                     return;
+                   }
+                   FIRActionCodeOperation operation =
+                       [FIRActionCodeInfo actionCodeOperationForRequestType:response.requestType];
+                   FIRActionCodeInfo *actionCodeInfo =
+                       [[FIRActionCodeInfo alloc] initWithOperation:operation
+                                                              email:response.email
+                                                           newEmail:response.verifiedEmail];
                    dispatch_async(dispatch_get_main_queue(), ^{
-                     completion(nil, error);
+                     completion(actionCodeInfo, nil);
                    });
-                   return;
                  }
-                 FIRActionCodeOperation operation =
-                     [FIRActionCodeInfo actionCodeOperationForRequestType:response.requestType];
-                 FIRActionCodeInfo *actionCodeInfo =
-                     [[FIRActionCodeInfo alloc] initWithOperation:operation
-                                                            email:response.email
-                                                         newEmail:response.verifiedEmail];
-                 dispatch_async(dispatch_get_main_queue(), ^{
-                   completion(actionCodeInfo, nil);
-                 });
-               }
-             }];
+               }];
   });
 }
 
