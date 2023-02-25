@@ -494,11 +494,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyCustomToken:request callback:callback];
 }
 
-+ (void)verifyPassword:(FIRVerifyPasswordRequest *)request
-              callback:(FIRVerifyPasswordResponseCallback)callback {
-  [[self implementation] verifyPassword:request callback:callback];
-}
-
 + (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   [[self implementation] secureToken:request callback:callback];
@@ -529,11 +524,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyClient:request callback:callback];
 }
 #endif
-
-+ (void)resetPassword:(FIRResetPasswordRequest *)request
-             callback:(FIRResetPasswordCallback)callback {
-  [[self implementation] resetPassword:request callback:callback];
-}
 
 + (NSString *)authUserAgent {
   return [NSString stringWithFormat:@"FirebaseAuth.iOS/%@ %@", FIRFirebaseVersion(),
@@ -671,38 +661,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                }];
 }
 
-- (void)verifyPassword:(FIRVerifyPasswordRequest *)request
-              callback:(FIRVerifyPasswordResponseCallback)callback {
-  FIRVerifyPasswordResponse *response = [[FIRVerifyPasswordResponse alloc] init];
-  [self
-      postWithRequest:request
-             response:response
-             callback:^(NSError *error) {
-               if (error) {
-                 callback(nil, error);
-               } else {
-                 if (!response.IDToken && response.MFAInfo) {
-#if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
-                   for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     FIRPhoneMultiFactorInfo *info =
-                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                     [multiFactorInfo addObject:info];
-                   }
-                   NSError *multiFactorRequiredError = [FIRAuthErrorUtils
-                       secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo
-                                                                 auth:request.requestConfiguration
-                                                                          .auth];
-                   callback(nil, multiFactorRequiredError);
-#endif
-                 } else {
-                   callback(response, nil);
-                 }
-               }
-             }];
-}
-
 - (void)secureToken:(FIRSecureTokenRequest *)request
            callback:(FIRSecureTokenResponseCallback)callback {
   FIRSecureTokenResponse *response = [[FIRSecureTokenResponse alloc] init];
@@ -786,20 +744,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                }];
 }
 #endif
-
-- (void)resetPassword:(FIRResetPasswordRequest *)request
-             callback:(FIRResetPasswordCallback)callback {
-  FIRResetPasswordResponse *response = [[FIRResetPasswordResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                   return;
-                 }
-                 callback(response, nil);
-               }];
-}
 
 - (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback {
