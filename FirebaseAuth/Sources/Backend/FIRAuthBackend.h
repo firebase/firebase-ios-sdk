@@ -19,8 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRResetPasswordRequest;
-@class FIRResetPasswordResponse;
 @class FIRSecureTokenRequest;
 @class FIRSecureTokenResponse;
 @class FIRVerifyAssertionRequest;
@@ -29,8 +27,6 @@
 @class FIRVerifyClientResponse;
 @class FIRVerifyCustomTokenRequest;
 @class FIRVerifyCustomTokenResponse;
-@class FIRVerifyPasswordRequest;
-@class FIRVerifyPasswordResponse;
 @class FIRVerifyPhoneNumberRequest;
 @class FIRVerifyPhoneNumberResponse;
 @class FIRSendVerificationCodeResponse;
@@ -73,16 +69,6 @@ typedef void (^FIRSecureTokenResponseCallback)(FIRSecureTokenResponse *_Nullable
 typedef void (^FIRVerifyAssertionResponseCallback)(FIRVerifyAssertionResponse *_Nullable response,
                                                    NSError *_Nullable error);
 
-/** @typedef FIRVerifyPasswordResponseCallback
-    @brief The type of block used to return the result of a call to the verifyPassword
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRVerifyPasswordResponseCallback)(FIRVerifyPasswordResponse *_Nullable response,
-                                                  NSError *_Nullable error);
-
 /** @typedef FIRVerifyCustomTokenResponseCallback
     @brief The type of block used to return the result of a call to the verifyCustomToken
         endpoint.
@@ -106,15 +92,6 @@ typedef void (^FIRDeleteCallBack)(NSError *_Nullable error);
     @remarks One of response or error will be non-nil.
  */
 typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable response,
-                                         NSError *_Nullable error);
-
-/** @typedef FIRResetPasswordCallback
-    @brief The type of block used to return the result of a call to the resetPassword endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRResetPasswordCallback)(FIRResetPasswordResponse *_Nullable response,
                                          NSError *_Nullable error);
 
 /** @typedef FIRSendVerificationCodeResponseCallback
@@ -207,15 +184,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback;
 
-/** @fn verifyPassword:callback:
-    @brief Calls the verifyPassword endpoint, which is responsible for authenticating a
-        user who has email and password credentials.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)verifyPassword:(FIRVerifyPasswordRequest *)request
-              callback:(FIRVerifyPasswordResponseCallback)callback;
-
 /** @fn secureToken:callback:
     @brief Calls the token endpoint, which is responsible for performing STS token exchanges and
         token refreshes.
@@ -233,15 +201,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback;
-
-/** @fn resetPassword:callback
-    @brief Calls the resetPassword endpoint, which is responsible for resetting a user's password
-      given an OOB code and new password.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)resetPassword:(FIRResetPasswordRequest *)request
-             callback:(FIRResetPasswordCallback)callback;
 
 /** @fn SignInWithGameCenter:callback:
     @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
@@ -329,15 +288,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 - (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback;
 
-/** @fn verifyPassword:callback:
-    @brief Calls the verifyPassword endpoint, which is responsible for authenticating a
-        user who has email and password credentials.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)verifyPassword:(FIRVerifyPasswordRequest *)request
-              callback:(FIRVerifyPasswordResponseCallback)callback;
-
 /** @fn secureToken:callback:
     @brief Calls the token endpoint, which is responsible for performing STS token exchanges and
         token refreshes.
@@ -393,15 +343,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
                     callback:(FIRSignInWithGameCenterResponseCallback)callback;
-
-/** @fn resetPassword:callback
-    @brief Calls the resetPassword endpoint, which is responsible for resetting a user's password
-      given an OOB code and new password.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)resetPassword:(FIRResetPasswordRequest *)request
-             callback:(FIRResetPasswordCallback)callback;
 
 /** @fn postWithRequest:response:callback:
     @brief Calls the RPC using HTTP POST.
