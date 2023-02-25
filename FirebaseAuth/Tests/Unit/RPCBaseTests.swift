@@ -74,6 +74,7 @@ class RPCBaseTests: XCTestCase {
    */
   func checkBackendError(request: AuthRPCRequest,
                          message: String = "",
+                         reason: String? = nil,
                          json: [String: AnyHashable]? = nil,
                          errorCode: AuthErrorCode,
                          errorReason: String? = nil,
@@ -90,6 +91,8 @@ class RPCBaseTests: XCTestCase {
 
     if let json = json {
       _ = try RPCIssuer?.respond(withJSON: json)
+    } else if let reason = reason {
+      _ = try RPCIssuer?.respond(underlyingErrorMessage: reason, message: message)
     } else {
       _ = try RPCIssuer?.respond(serverErrorMessage: message)
     }
