@@ -53,8 +53,8 @@ int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
   uint64_t hash_index_uint64 = static_cast<uint64_t>(hash_index);
   uint64_t bit_count_uint64 = static_cast<uint64_t>(bit_count_);
 
-  uint64_t val = hash.h1 + (hash_index_uint64 * hash.h2);
-  uint64_t bit_index = val % bit_count_uint64;
+  uint64_t combined_hash = hash.h1 + (hash_index_uint64 * hash.h2);
+  uint64_t bit_index = combined_hash % bit_count_uint64;
 
   HARD_ASSERT(bit_index <= INT32_MAX);
   return bit_index;
@@ -62,7 +62,7 @@ int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
 
 bool BloomFilter::IsBitSet(int32_t index) const {
   uint8_t byte_at_index = bitmap_[index / 8];
-  int offset = index % 8;
+  int32_t offset = index % 8;
   return (byte_at_index & (static_cast<uint8_t>(0x01) << offset)) != 0;
 }
 
