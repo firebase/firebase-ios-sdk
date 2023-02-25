@@ -171,11 +171,9 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     post(withRequest: request, response: response) { error in
       if let error = error {
         callback(nil, error)
-      } else if let mfaError = AuthBackendRPCImplementation.generateMFAError(response: response,
-                                                                             auth: request
-                                                                               .requestConfiguration(
-                                                                               )
-                                                                               .auth) {
+      } else if let mfaError = AuthBackendRPCImplementation
+        .generateMFAError(response: response,
+                          auth: request.requestConfiguration().auth) {
         callback(nil, mfaError)
       } else {
         callback(response, nil)
@@ -426,6 +424,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .unauthorizedDomainError(message: serverDetailErrorMessage)
     case "INVALID_CONTINUE_URI": return AuthErrorUtils
       .invalidContinueURIError(message: serverDetailErrorMessage)
+    case "INVALID_PASSWORD": return AuthErrorUtils
+      .wrongPasswordError(message: serverDetailErrorMessage)
 
     // TODO: MISSING_API_KEY should go away and its code should be generated in the "keyInvalid".
     case "MISSING_API_KEY": return AuthErrorUtils.unexpectedResponse(
