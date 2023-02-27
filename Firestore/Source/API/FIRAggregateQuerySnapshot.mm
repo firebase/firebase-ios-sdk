@@ -59,6 +59,11 @@ NS_ASSUME_NONNULL_BEGIN
   return _query;
 }
 
+- (nullable id)valueForAggregation:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:)) {
+  // TODO(sumavg) implement this method
+  return [NSNumber numberWithDouble:100.5];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

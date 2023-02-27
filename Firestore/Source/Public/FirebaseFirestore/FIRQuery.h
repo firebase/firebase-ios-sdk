@@ -24,6 +24,7 @@
 @class FIRFirestore;
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
+@class FIRAggregateField;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -554,6 +555,16 @@ NS_SWIFT_NAME(Query)
  * set would be prohibitively large to download entirely (e.g. thousands of documents).
  */
 @property(nonatomic, readonly) FIRAggregateQuery *count;
+
+/**
+ * Creates and returns a new `AggregateQuery` that aggregates the documents in the result set
+ * of this query, without actually downloading the documents.
+ *
+ * Using an `AggregateQuery` to perform aggregations is efficient because only the final aggregation values,
+ * not the documents' data, is downloaded. The query can even aggregate the documents if the result
+ * set would be prohibitively large to download entirely (e.g. thousands of documents).
+ */
+- (FIRAggregateQuery*) aggregate: (NSArray<FIRAggregateField *> *) aggregations;
 
 @end
 

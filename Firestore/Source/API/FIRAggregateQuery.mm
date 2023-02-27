@@ -18,6 +18,7 @@
 
 #import "FIRAggregateQuerySnapshot+Internal.h"
 #import "FIRQuery+Internal.h"
+#import "FIRAggregateField+Internal.h"
 
 #include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/api/query_core.h"
@@ -33,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<api::AggregateQuery> _aggregation;
 }
 
-- (instancetype)initWithQuery:(FIRQuery *)query {
+- (instancetype)initWithQueryAndAggregations:(FIRQuery *)query
+                                aggregations:(NSArray<FIRAggregateField *> *)aggregations{
   if (self = [super init]) {
     _query = query;
     _aggregation = absl::make_unique<api::AggregateQuery>(query.apiQuery.Count());
