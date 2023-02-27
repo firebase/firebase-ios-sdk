@@ -16,6 +16,7 @@ import XCTest
 import FirebaseCore
 
 @testable import FirebaseAppDistributionInternal
+@testable import FirebaseInstallations
 
 class AppDistributionApiServiceTests: XCTestCase {
   
@@ -28,6 +29,17 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
   
   func testFindRelease() {
+    
+    class MockFIRInstallation: FirebaseInstallations.Installations {
+      override func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
+        let authTokenResult = InstallationsAuthTokenResult.init(withToken:"abcde" expirationDate)
+        authTokenResult.authToken = "abcde"
+        authTokenResult.expirationDate = Date()
+        completion(
+      }
+      
+    }
+    
     AppDistributionApiService.findRelease(displayVersion: "1.0", buildVersion: "1.0", codeHash: "1234", completion: { releaseName,error in
       XCTAssertNotNil(error)
     })

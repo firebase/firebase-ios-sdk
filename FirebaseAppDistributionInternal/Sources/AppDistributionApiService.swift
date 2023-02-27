@@ -65,8 +65,10 @@ struct FindReleaseResponse: Codable {
 
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
-    let installations = Installations.installations()
-
+    generateAuthToken(installations: Installations.installations(), completion: completion)
+  }
+  
+  static func generateAuthToken(installations: Installations, completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     installations.authToken(completion: { authTokenResult, error in
       var fadError = error
       if self.handleError(
@@ -101,6 +103,10 @@ struct FindReleaseResponse: Codable {
   }
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
+    fetchReleases(urlSession: URLSession.shared, completion: completion)
+  }
+  
+  public static func fetchReleases(urlSession: URLSession, completion: @escaping AppDistributionFetchReleasesCompletion) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
       FirebaseApp.app()?.options.googleAppID ?? "unknown"
