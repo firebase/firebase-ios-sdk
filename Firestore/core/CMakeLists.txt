@@ -98,10 +98,7 @@ if(TARGET OpenSSL::Crypto)
     CMAKE_REQUIRED_INCLUDES OpenSSL::Crypto INTERFACE_INCLUDE_DIRECTORIES
   )
   check_include_files(openssl/rand.h HAVE_OPENSSL_RAND_H)
-  check_include_files(openssl/md5.h HAVE_OPENSSL_MD5_H)
 endif()
-
-check_symbol_exists(CC_MD5_Init CommonCrypto/CommonDigest.h HAVE_COMMONCRYPTO_MD5)
 
 firebase_ios_glob(
   util_sources EXCLUDE src/util/secure_random_*.cc
@@ -123,24 +120,6 @@ else()
   )
 endif()
 
-if(HAVE_COMMONCRYPTO_MD5)
-  set(FIRESTORE_MD5_IMPL_COMMONCRYPTO 1)
-  firebase_ios_glob(
-    util_sources APPEND
-    src/util/md5_commoncrypto.cc
-  )
-elseif(HAVE_OPENSSL_MD5_H)
-  set(FIRESTORE_MD5_IMPL_OPENSSL 1)
-  firebase_ios_glob(
-    util_sources APPEND
-    src/util/md5_openssl.cc
-  )
-else()
-  message(
-    FATAL_ERROR
-    "Don't know how to calculate md5 digests on this platform."
-  )
-endif()
 
 configure_file(
   src/util/config_detected.h.in
@@ -169,7 +148,7 @@ target_link_libraries(
   grpc++
 )
 
-if(HAVE_OPENSSL_RAND_H OR FIRESTORE_MD5_IMPL_OPENSSL)
+if(HAVE_OPENSSL_RAND_H)
   target_link_libraries(
     firestore_util PRIVATE
     OpenSSL::Crypto

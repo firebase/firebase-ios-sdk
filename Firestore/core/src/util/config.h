@@ -46,11 +46,9 @@
 // Handle CocoaPods the same way since the settings are the same.
 #define HAVE_ARC4RANDOM 1
 #define HAVE_LIBDISPATCH 1
-#define FIRESTORE_MD5_IMPL_COMMONCRYPTO 1
 
 #elif __linux__ && SWIFT_PACKAGE
 #define HAVE_OPENSSL_RAND_H 1
-#define FIRESTORE_MD5_IMPL_OPENSSL 1
 
 #else
 #error "Unknown build configuration"

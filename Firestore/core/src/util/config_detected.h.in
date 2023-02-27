@@ -27,8 +27,4 @@
 
 #cmakedefine HAVE_OPENSSL_RAND_H 1
 
-// Exactly one of the following FIRESTORE_MD5_IMPL_ will be defined.
-#cmakedefine FIRESTORE_MD5_IMPL_COMMONCRYPTO 1
-#cmakedefine FIRESTORE_MD5_IMPL_OPENSSL 1
-
 #endif  // FIRESTORE_CORE_SRC_UTIL_CONFIG_DETECTED_H_
