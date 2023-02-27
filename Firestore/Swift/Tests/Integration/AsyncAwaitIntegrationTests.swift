@@ -74,21 +74,21 @@ let emptyBundle = """
 
       XCTAssertNil(value, "value should be nil on success")
     }
-      
+
       func testCount() async throws {
         let collection = collectionRef()
         try await collection.addDocument(data: [:])
         let snapshot = try await collection.count.getAggregation(source: .server)
         XCTAssertEqual(snapshot.count, 1)
       }
-      
+
       func testSum() async throws {
           let collection = collectionRef()
           let sumOfFoo = AggregateField.sum("foo");
-          
+
           try await collection.addDocument(data: [:])
           let snapshot = try await collection.aggregate([sumOfFoo]).getAggregation(source: .server)
-          
+
           XCTAssertEqual(try snapshot.getDouble(sumOfFoo), 100.5)
           XCTAssertEqual(try snapshot.getLong(sumOfFoo), 100)
           XCTAssertEqual(try snapshot.get(sumOfFoo) as? Int64, 100)

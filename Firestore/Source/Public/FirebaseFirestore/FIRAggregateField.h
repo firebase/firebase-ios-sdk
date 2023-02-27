@@ -48,15 +48,16 @@ NS_SWIFT_NAME(AggregateField)
  *
  * - Summing over zero documents or fields will result in 0L.
  * - Summing over NaN will result in a double value representing NaN.
- * - A sum that overflows the maximum representable 64-bit integer value will result in a double return value. This may result in lost precision of the result.
- * - A sum that overflows the maximum representable double value will result in a double return value representing infinity.
+ * - A sum that overflows the maximum representable 64-bit integer value will result in a double
+ * return value. This may result in lost precision of the result.
+ * - A sum that overflows the maximum representable double value will result in a double return
+ * value representing infinity.
  *
  * @param field Specifies the field to sum across the result set.
  * @return AggregateField object that can be used to compute the sum of
  * a specified field over a range of documents in the result set of a query.
  */
-+ (instancetype)aggregateFieldForSumOfField:
-    (NSString *)field NS_SWIFT_NAME(sum(_:));
++ (instancetype)aggregateFieldForSumOfField:(NSString *)field NS_SWIFT_NAME(sum(_:));
 
 /**
  * Create an AggregateField object that can be used to compute the sum of
@@ -66,15 +67,16 @@ NS_SWIFT_NAME(AggregateField)
  *
  * - Summing over zero documents or fields will result in 0L.
  * - Summing over NaN will result in a double value representing NaN.
- * - A sum that overflows the maximum representable 64-bit integer value will result in a double return value. This may result in lost precision of the result.
- * - A sum that overflows the maximum representable double value will result in a double return value representing infinity.
+ * - A sum that overflows the maximum representable 64-bit integer value will result in a double
+ * return value. This may result in lost precision of the result.
+ * - A sum that overflows the maximum representable double value will result in a double return
+ * value representing infinity.
  *
  * @param fieldPath Specifies the field to sum across the result set.
  * @return AggregateField object that can be used to compute the sum of
  * a specified field over a range of documents in the result set of a query.
  */
-+ (instancetype)aggregateFieldForSumOfFieldPath:
-    (FIRFieldPath *)fieldPath NS_SWIFT_NAME(sum(_:));
++ (instancetype)aggregateFieldForSumOfFieldPath:(FIRFieldPath *)fieldPath NS_SWIFT_NAME(sum(_:));
 
 /**
  * Create an AggregateField object that can be used to compute the average of
@@ -89,26 +91,24 @@ NS_SWIFT_NAME(AggregateField)
  * @return AggregateField object that can be used to compute the average of
  * a specified field over a range of documents in the result set of a query.
  */
-+ (instancetype)aggregateFieldForAverageOfField:
-    (NSString *)field NS_SWIFT_NAME(average(_:));
++ (instancetype)aggregateFieldForAverageOfField:(NSString *)field NS_SWIFT_NAME(average(_:));
 
 /**
-* Create an AggregateField object that can be used to compute the average of
-* a specified field over a range of documents in the result set of a query.
-*
-* The result of an average operation will always be a 64-bit integer value, a double, or NaN.
-*
-* - Averaging over zero documents or fields will result in a double value representing NaN.
-* - Averaging over NaN will result in a double value representing NaN.
-*
-* @param fieldPath Specifies the field to average across the result set.
-* @return AggregateField object that can be used to compute the average of
-* a specified field over a range of documents in the result set of a query.
-*/
-+ (instancetype)aggregateFieldForAverageOfFieldPath:
-    (FIRFieldPath *)fieldPath NS_SWIFT_NAME(average(_:));
+ * Create an AggregateField object that can be used to compute the average of
+ * a specified field over a range of documents in the result set of a query.
+ *
+ * The result of an average operation will always be a 64-bit integer value, a double, or NaN.
+ *
+ * - Averaging over zero documents or fields will result in a double value representing NaN.
+ * - Averaging over NaN will result in a double value representing NaN.
+ *
+ * @param fieldPath Specifies the field to average across the result set.
+ * @return AggregateField object that can be used to compute the average of
+ * a specified field over a range of documents in the result set of a query.
+ */
++ (instancetype)aggregateFieldForAverageOfFieldPath:(FIRFieldPath *)fieldPath
+    NS_SWIFT_NAME(average(_:));
 
 @end
-
 
 NS_ASSUME_NONNULL_END

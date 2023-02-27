@@ -185,13 +185,13 @@ class Query {
   Query Wrap(core::Query chained_query) const {
     return Query(std::move(chained_query), firestore_);
   }
-    
+
   /**
    * Creates a new `AggregateQuery` counting the number of documents matching
    * this query.
    */
   AggregateQuery Count() const;
-  
+
   /**
    * Creates a new `AggregateQuery` that performs the specified aggregates.
    */

@@ -20,8 +20,8 @@
 #include <utility>
 #include <vector>
 
-#import "FIRAggregateQuery+Internal.h"
 #import "FIRAggregateField+Internal.h"
+#import "FIRAggregateQuery+Internal.h"
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -477,11 +477,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (FIRAggregateQuery *)count {
   FIRAggregateField *countAF = [FIRAggregateField aggregateFieldForCount];
-  NSArray<FIRAggregateField *> *aggregations = @[countAF];
+  NSArray<FIRAggregateField *> *aggregations = @[ countAF ];
   return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:aggregations];
 }
 
-- (FIRAggregateQuery*) aggregate: (NSArray<FIRAggregateField *> *) aggregations {
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations {
   // TODO(sumavg) implement this method
   return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:aggregations];
 }

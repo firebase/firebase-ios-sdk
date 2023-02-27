@@ -52,7 +52,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTAverageAggregateField alloc] initWithFieldPath:fieldPath];
 }
 
-+ (instancetype)aggregateFieldForAverageOfFieldPath: (FIRFieldPath *)fieldPath NS_SWIFT_NAME(average(_:)) {
++ (instancetype)aggregateFieldForAverageOfFieldPath:(FIRFieldPath *)fieldPath
+    NS_SWIFT_NAME(average(_:)) {
   return [[FSTAverageAggregateField alloc] initWithFieldPath:fieldPath];
 }
 

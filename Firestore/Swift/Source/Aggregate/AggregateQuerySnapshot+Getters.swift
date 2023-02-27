@@ -32,10 +32,10 @@ public extension AggregateQuerySnapshot {
         guard let number = self.get(aggregation) as? NSNumber else {
             throw FirestoreError.incompatibleType("Unable to represent the result as a Double.")
         }
-        
+
         return number.doubleValue
     }
-    
+
     /// Gets the aggregation result for the specified aggregation, coercing te result to an Int64.
     ///
     /// See the `AggregateField` class for the expected aggregration result values and types.
