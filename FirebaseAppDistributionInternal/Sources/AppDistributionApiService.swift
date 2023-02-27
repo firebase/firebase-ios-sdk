@@ -23,6 +23,12 @@ public typealias AppDistributionFetchReleasesCompletion = (_ releases: [Any]?, _
   -> Void
 public typealias AppDistributionFindReleaseCompletion = (_ releaseName: String?, _ error: Error?)
   -> Void
+public typealias AppDistributionCreateFeedbackCompletion = (_ feedbackName: String?, _ error: Error?)
+  -> Void
+public typealias AppDistributionUploadImageCompletion = (_ error: Error?)
+-> Void
+public typealias AppDistributionCommitFeedbackCompletion = (_ error: Error?)
+  -> Void
 public typealias AppDistributionGenerateAuthTokenCompletion = (_ identifier: String?,
                                                                _ authTokenResult: InstallationsAuthTokenResult?,
                                                                _ error: Error?) -> Void
@@ -31,15 +37,28 @@ enum Strings {
   static let errorDomain = "com.firebase.appdistribution.api"
   static let errorDetailsKey = "details"
   static let httpGet = "GET"
+  static let httpPost = "POST"
   static let releaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases"
   static let findReleaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find"
+  static let createFeedbackEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/%@/feedbackReports"
+  static let uploadImageEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/%@/feedbackReports"
+  static let commitFeedbackEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/%@:commit"
   static let installationsAuthHeader = "X-Goog-Firebase-Installations-Auth"
   static let apiHeaderKey = "X-Goog-Api-Key"
   static let apiBundleKey = "X-Ios-Bundle-Identifier"
   static let responseReleaseKey = "releases"
   static let compositeBinaryIdQueryParamName = "compositeBinaryId"
+  static let uploadArtifactTypeQueryParamName = "type"
+  static let uploadArtifactScreenshotType = "SCREENSHOT"
+  static let GoogleUploadProtocolHeader = "X-Goog-Upload-Protocol"
+  static let GoogleUploadProtocolRaw = "raw"
+  static let GoogleUploadFileNameHeader = "X-Goog-Upload-File-Name"
+  static let GoogleUploadFileName = "screenshot.png"
 }
 
 enum AppDistributionApiError: NSInteger {
@@ -63,7 +82,16 @@ struct FindReleaseResponse: Codable {
   var release: String
 }
 
-@objc(FIRFADApiServiceSwift) open class AppDistributionApiService: NSObject {
+struct FeedbackReport : Codable {
+  var name: String?
+  var text: String
+}
+
+struct CreateFeedbackReportRequest : Codable {
+  var feedbackReport: FeedbackReport
+}
+
+@objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     generateAuthToken(installations: Installations.installations(), completion: completion)
   }
@@ -152,6 +180,152 @@ struct FindReleaseResponse: Codable {
         }
 
       listReleaseDataTask.resume()
+    }
+  }
+
+
+  public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
+                                 completion: @escaping AppDistributionFindReleaseCompletion) {
+    generateAuthToken { identifier, authTokenResult, error in
+      // TODO(tundeagboola) The backend may not accept project ID here in which case
+      // we'll have to figure out a way to get the project number
+      let urlString = String(
+        format: Strings.findReleaseEndpointUrlTemplate,
+        FirebaseApp.app()!.options.projectID!,
+        identifier!
+      )
+      guard var urlComponents = URLComponents(string: urlString) else {
+        // TODO(tundeagboola) Should I throw an exception here?
+        return
+      }
+      let compositeBinaryId = CompositeBinaryId(
+        displayVersion: displayVersion,
+        buildVersion: buildVersion,
+        codeHash: codeHash
+      )
+      guard let compositeBinaryIdData = try? JSONEncoder().encode(compositeBinaryId) else {
+        // TODO(tundeagboola) Should I throw an exception here?
+        return
+      }
+      urlComponents.queryItems = [URLQueryItem(
+        name: Strings.compositeBinaryIdQueryParamName,
+        value: String(data: compositeBinaryIdData, encoding: .utf8)
+      )]
+      guard let url = urlComponents.url else {
+        // TODO(tundeagboola) Should I throw an exception here?
+        return
+      }
+      let request = self.createHttpRequest(
+        method: Strings.httpGet,
+        url: url,
+        authTokenResult: authTokenResult!
+      )
+      let findReleaseDataTask = URLSession.shared
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          let findReleaseResponse = self.handleResponse(
+            data: data,
+            response: response,
+            error: &fadError,
+            returnType: FindReleaseResponse.self
+          )
+          DispatchQueue.main.async {
+            completion(findReleaseResponse?.release, fadError)
+          }
+        }
+
+      findReleaseDataTask.resume()
+    }
+  }
+  
+  public static func createFeedback(releaseName: String, feedbackText: String, completion: @escaping AppDistributionCreateFeedbackCompletion) {
+    generateAuthToken { identifier, authTokenResult, error in
+      let urlString = String(
+        format: Strings.createFeedbackEndpointUrlTemplate,
+        releaseName
+      )
+      let request = createHttpRequest(
+        method: Strings.httpPost,
+        url: urlString,
+        authTokenResult: authTokenResult!
+      )
+      let createFeedbackRequest = CreateFeedbackReportRequest(feedbackReport: FeedbackReport(text: feedbackText))
+      request.httpBody = try? JSONEncoder().encode(createFeedbackRequest)
+      let createFeedbackTask = URLSession.shared
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          let feedback = self.handleResponse(
+            data: data,
+            response: response,
+            error: &fadError,
+            returnType: FeedbackReport.self
+          )
+          DispatchQueue.main.async {
+            completion(feedback?.name, fadError)
+          }
+        }
+      
+      createFeedbackTask.resume()
+    }
+  }
+  
+  public static func uploadImage(feedbackName: String, image: UIImage, completion: @escaping AppDistributionUploadImageCompletion) {
+    generateAuthToken { identifier, authTokenResult, error in
+      let urlString = String(
+        format: Strings.uploadImageEndpointUrlTemplate,
+        feedbackName
+      )
+      guard var urlComponents = URLComponents(string: urlString) else {
+        // TODO(tundeagboola) Should I throw an exception here?
+        return
+      }
+      urlComponents.queryItems = [URLQueryItem(
+        name: Strings.uploadArtifactTypeQueryParamName,
+        value: Strings.uploadArtifactScreenshotType
+      )]
+      guard let url = urlComponents.url else {
+        // TODO(tundeagboola) Should I throw an exception here?
+        return
+      }
+      let request = createHttpRequest(
+        method: Strings.httpPost,
+        url: url,
+        authTokenResult: authTokenResult!
+      )
+      request.setValue(Strings.GoogleUploadProtocolHeader, forHTTPHeaderField: Strings.GoogleUploadProtocolRaw)
+      request.setValue(Strings.GoogleUploadFileNameHeader, forHTTPHeaderField: Strings.GoogleUploadFileName)
+      let uploadImageTask = URLSession.shared
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          DispatchQueue.main.async {
+            completion(fadError)
+          }
+        }
+      
+      uploadImageTask.resume()
+    }
+  }
+  
+  public static func commitFeedback(feedbackName: String, completion: @escaping AppDistributionCommitFeedbackCompletion) {
+    generateAuthToken { identifier, authTokenResult, error in
+      let urlString = String(
+        format: Strings.commitFeedbackEndpointUrlTemplate,
+        feedbackName
+      )
+      let request = createHttpRequest(
+        method: Strings.httpPost,
+        url: urlString,
+        authTokenResult: authTokenResult!
+      )
+      let commitFeedbackTask = URLSession.shared
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          DispatchQueue.main.async {
+            completion(fadError)
+          }
+        }
+      
+      commitFeedbackTask.resume()
     }
   }
 
