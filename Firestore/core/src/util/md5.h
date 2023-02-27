@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_UTIL_MD5_H_
 
 #include <array>
+#include <cstdint>
 
 #include "absl/strings/string_view.h"
 
@@ -28,7 +29,7 @@ namespace util {
 /**
  * Calculates and returns the md5 digest of the given string.
  */
-std::array<unsigned char, 16> CalculateMd5Digest(absl::string_view);
+std::array<uint8_t, 16> CalculateMd5Digest(absl::string_view);
 
 }  // namespace util
 }  // namespace firestore

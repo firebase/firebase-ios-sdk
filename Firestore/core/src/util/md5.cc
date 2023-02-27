@@ -16,381 +16,288 @@
 
 #include "Firestore/core/src/util/md5.h"
 
-#include <cstdlib>
-#include <cstring>
+#include <algorithm>
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
-// This anonymous namespace contains the md5 implementation copied from
-// BoringSSL.
+// The contents of this anonymous namespace were copied, and slightly adapted,
+// from
+// https://source.chromium.org/chromium/chromium/src/+/main:base/hash/md5_nacl.cc;drc=e4622aaeccea84652488d1822c28c78b7115684f
 namespace {
 
-// MD5_CBLOCK is the block size of MD5.
-#define MD5_CBLOCK 64
+// Copyright 2011 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
 
-// MD5_DIGEST_LENGTH is the length of an MD5 digest.
-#define MD5_DIGEST_LENGTH 16
+// The original file was copied from sqlite, and was in the public domain.
 
-struct md5_state_st {
-  uint32_t h[4];
-  uint32_t Nl, Nh;
-  uint8_t data[MD5_CBLOCK];
-  unsigned num;
+/*
+ * This code implements the MD5 message-digest algorithm.
+ * The algorithm is due to Ron Rivest.  This code was
+ * written by Colin Plumb in 1993, no copyright is claimed.
+ * This code is in the public domain; do with it what you wish.
+ *
+ * Equivalent code is available from RSA Data Security, Inc.
+ * This code has been tested against that, and is equivalent,
+ * except that you don't need to include two pages of legalese
+ * with every copy.
+ *
+ * To compute the message digest of a chunk of bytes, declare an
+ * MD5Context structure, pass it to MD5Init, call MD5Update as
+ * needed on buffers full of bytes, and then call MD5Final, which
+ * will fill a supplied 16-byte array with the digest.
+ */
+
+// The output of an MD5 operation.
+struct MD5Digest {
+  uint8_t a[16];
 };
-typedef struct md5_state_st MD5_CTX;
 
-inline void OPENSSL_memset(void* dst, int c, size_t n) {
-  if (n != 0) {
-    std::memset(dst, c, n);
-  }
+// Used for storing intermediate data during an MD5 computation. Callers
+// should not access the data.
+typedef char MD5Context[88];
+
+struct Context {
+  uint32_t buf[4];
+  uint32_t bits[2];
+  uint8_t in[64];
+};
+
+/*
+ * Note: this code is harmless on little-endian machines.
+ */
+void byteReverse(uint8_t* buf, unsigned longs) {
+  do {
+    uint32_t temp =
+        static_cast<uint32_t>(static_cast<unsigned>(buf[3]) << 8 | buf[2])
+            << 16 |
+        (static_cast<unsigned>(buf[1]) << 8 | buf[0]);
+    *reinterpret_cast<uint32_t*>(buf) = temp;
+    buf += 4;
+  } while (--longs);
 }
 
-inline void OPENSSL_memcpy(void* dst, const void* src, size_t n) {
-  if (n != 0) {
-    std::memcpy(dst, src, n);
-  }
+/* The four core functions - F1 is optimized somewhat */
+
+/* #define F1(x, y, z) (x & y | ~x & z) */
+#define F1(x, y, z) (z ^ (x & (y ^ z)))
+#define F2(x, y, z) F1(z, x, y)
+#define F3(x, y, z) (x ^ y ^ z)
+#define F4(x, y, z) (y ^ (x | ~z))
+
+/* This is the central step in the MD5 algorithm. */
+#define MD5STEP(f, w, x, y, z, data, s) \
+  (w += f(x, y, z) + data, w = w << s | w >> (32 - s), w += x)
+
+/*
+ * The core of the MD5 algorithm, this alters an existing MD5 hash to
+ * reflect the addition of 16 longwords of new data.  MD5Update blocks
+ * the data and converts bytes into longwords for this routine.
+ */
+void MD5Transform(uint32_t buf[4], const uint32_t in[16]) {
+  uint32_t a, b, c, d;
+
+  a = buf[0];
+  b = buf[1];
+  c = buf[2];
+  d = buf[3];
+
+  MD5STEP(F1, a, b, c, d, in[0] + 0xd76aa478, 7);
+  MD5STEP(F1, d, a, b, c, in[1] + 0xe8c7b756, 12);
+  MD5STEP(F1, c, d, a, b, in[2] + 0x242070db, 17);
+  MD5STEP(F1, b, c, d, a, in[3] + 0xc1bdceee, 22);
+  MD5STEP(F1, a, b, c, d, in[4] + 0xf57c0faf, 7);
+  MD5STEP(F1, d, a, b, c, in[5] + 0x4787c62a, 12);
+  MD5STEP(F1, c, d, a, b, in[6] + 0xa8304613, 17);
+  MD5STEP(F1, b, c, d, a, in[7] + 0xfd469501, 22);
+  MD5STEP(F1, a, b, c, d, in[8] + 0x698098d8, 7);
+  MD5STEP(F1, d, a, b, c, in[9] + 0x8b44f7af, 12);
+  MD5STEP(F1, c, d, a, b, in[10] + 0xffff5bb1, 17);
+  MD5STEP(F1, b, c, d, a, in[11] + 0x895cd7be, 22);
+  MD5STEP(F1, a, b, c, d, in[12] + 0x6b901122, 7);
+  MD5STEP(F1, d, a, b, c, in[13] + 0xfd987193, 12);
+  MD5STEP(F1, c, d, a, b, in[14] + 0xa679438e, 17);
+  MD5STEP(F1, b, c, d, a, in[15] + 0x49b40821, 22);
+
+  MD5STEP(F2, a, b, c, d, in[1] + 0xf61e2562, 5);
+  MD5STEP(F2, d, a, b, c, in[6] + 0xc040b340, 9);
+  MD5STEP(F2, c, d, a, b, in[11] + 0x265e5a51, 14);
+  MD5STEP(F2, b, c, d, a, in[0] + 0xe9b6c7aa, 20);
+  MD5STEP(F2, a, b, c, d, in[5] + 0xd62f105d, 5);
+  MD5STEP(F2, d, a, b, c, in[10] + 0x02441453, 9);
+  MD5STEP(F2, c, d, a, b, in[15] + 0xd8a1e681, 14);
+  MD5STEP(F2, b, c, d, a, in[4] + 0xe7d3fbc8, 20);
+  MD5STEP(F2, a, b, c, d, in[9] + 0x21e1cde6, 5);
+  MD5STEP(F2, d, a, b, c, in[14] + 0xc33707d6, 9);
+  MD5STEP(F2, c, d, a, b, in[3] + 0xf4d50d87, 14);
+  MD5STEP(F2, b, c, d, a, in[8] + 0x455a14ed, 20);
+  MD5STEP(F2, a, b, c, d, in[13] + 0xa9e3e905, 5);
+  MD5STEP(F2, d, a, b, c, in[2] + 0xfcefa3f8, 9);
+  MD5STEP(F2, c, d, a, b, in[7] + 0x676f02d9, 14);
+  MD5STEP(F2, b, c, d, a, in[12] + 0x8d2a4c8a, 20);
+
+  MD5STEP(F3, a, b, c, d, in[5] + 0xfffa3942, 4);
+  MD5STEP(F3, d, a, b, c, in[8] + 0x8771f681, 11);
+  MD5STEP(F3, c, d, a, b, in[11] + 0x6d9d6122, 16);
+  MD5STEP(F3, b, c, d, a, in[14] + 0xfde5380c, 23);
+  MD5STEP(F3, a, b, c, d, in[1] + 0xa4beea44, 4);
+  MD5STEP(F3, d, a, b, c, in[4] + 0x4bdecfa9, 11);
+  MD5STEP(F3, c, d, a, b, in[7] + 0xf6bb4b60, 16);
+  MD5STEP(F3, b, c, d, a, in[10] + 0xbebfbc70, 23);
+  MD5STEP(F3, a, b, c, d, in[13] + 0x289b7ec6, 4);
+  MD5STEP(F3, d, a, b, c, in[0] + 0xeaa127fa, 11);
+  MD5STEP(F3, c, d, a, b, in[3] + 0xd4ef3085, 16);
+  MD5STEP(F3, b, c, d, a, in[6] + 0x04881d05, 23);
+  MD5STEP(F3, a, b, c, d, in[9] + 0xd9d4d039, 4);
+  MD5STEP(F3, d, a, b, c, in[12] + 0xe6db99e5, 11);
+  MD5STEP(F3, c, d, a, b, in[15] + 0x1fa27cf8, 16);
+  MD5STEP(F3, b, c, d, a, in[2] + 0xc4ac5665, 23);
+
+  MD5STEP(F4, a, b, c, d, in[0] + 0xf4292244, 6);
+  MD5STEP(F4, d, a, b, c, in[7] + 0x432aff97, 10);
+  MD5STEP(F4, c, d, a, b, in[14] + 0xab9423a7, 15);
+  MD5STEP(F4, b, c, d, a, in[5] + 0xfc93a039, 21);
+  MD5STEP(F4, a, b, c, d, in[12] + 0x655b59c3, 6);
+  MD5STEP(F4, d, a, b, c, in[3] + 0x8f0ccc92, 10);
+  MD5STEP(F4, c, d, a, b, in[10] + 0xffeff47d, 15);
+  MD5STEP(F4, b, c, d, a, in[1] + 0x85845dd1, 21);
+  MD5STEP(F4, a, b, c, d, in[8] + 0x6fa87e4f, 6);
+  MD5STEP(F4, d, a, b, c, in[15] + 0xfe2ce6e0, 10);
+  MD5STEP(F4, c, d, a, b, in[6] + 0xa3014314, 15);
+  MD5STEP(F4, b, c, d, a, in[13] + 0x4e0811a1, 21);
+  MD5STEP(F4, a, b, c, d, in[4] + 0xf7537e82, 6);
+  MD5STEP(F4, d, a, b, c, in[11] + 0xbd3af235, 10);
+  MD5STEP(F4, c, d, a, b, in[2] + 0x2ad7d2bb, 15);
+  MD5STEP(F4, b, c, d, a, in[9] + 0xeb86d391, 21);
+
+  buf[0] += a;
+  buf[1] += b;
+  buf[2] += c;
+  buf[3] += d;
 }
 
-inline uint32_t CRYPTO_rotl_u32(uint32_t value, int shift) {
-#if defined(_MSC_VER)
-  return _rotl(value, shift);
-#else
-  return (value << shift) | (value >> ((-shift) & 31));
-#endif
+/*
+ * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
+ * initialization constants.
+ */
+void MD5Init(MD5Context* context) {
+  struct Context* ctx = reinterpret_cast<struct Context*>(context);
+  ctx->buf[0] = 0x67452301;
+  ctx->buf[1] = 0xefcdab89;
+  ctx->buf[2] = 0x98badcfe;
+  ctx->buf[3] = 0x10325476;
+  ctx->bits[0] = 0;
+  ctx->bits[1] = 0;
 }
 
-inline uint32_t CRYPTO_bswap4(uint32_t x) {
-  x = (x >> 16) | (x << 16);
-  x = ((x & 0xff00ff00) >> 8) | ((x & 0x00ff00ff) << 8);
-  return x;
-}
+/*
+ * Update context to reflect the concatenation of another buffer full
+ * of bytes.
+ */
+void MD5Update(MD5Context* context, absl::string_view data) {
+  struct Context* ctx = reinterpret_cast<struct Context*>(context);
+  const uint8_t* buf = reinterpret_cast<const uint8_t*>(data.data());
+  size_t len = data.size();
 
-inline uint32_t CRYPTO_load_u32_le(const void* in) {
-  uint32_t v;
-  OPENSSL_memcpy(&v, in, sizeof(v));
-  return v;
-}
+  /* Update bitcount */
 
-inline void CRYPTO_store_u32_le(void* out, uint32_t v) {
-  OPENSSL_memcpy(out, &v, sizeof(v));
-}
+  uint32_t t = ctx->bits[0];
+  if ((ctx->bits[0] = t + (static_cast<uint32_t>(len) << 3)) < t)
+    ctx->bits[1]++; /* Carry from low to high */
+  ctx->bits[1] += static_cast<uint32_t>(len >> 29);
 
-inline void CRYPTO_store_u32_be(void* out, uint32_t v) {
-  v = CRYPTO_bswap4(v);
-  OPENSSL_memcpy(out, &v, sizeof(v));
-}
+  t = (t >> 3) & 0x3f; /* Bytes already in shsInfo->data */
 
-#define F(b, c, d) ((((c) ^ (d)) & (b)) ^ (d))
-#define G(b, c, d) ((((b) ^ (c)) & (d)) ^ (c))
-#define H(b, c, d) ((b) ^ (c) ^ (d))
-#define I(b, c, d) (((~(d)) | (b)) ^ (c))
+  /* Handle any leading odd-sized chunks */
 
-#define R0(a, b, c, d, k, s, t)            \
-  do {                                     \
-    (a) += ((k) + (t) + F((b), (c), (d))); \
-    (a) = CRYPTO_rotl_u32(a, s);           \
-    (a) += (b);                            \
-  } while (0)
+  if (t) {
+    uint8_t* p = static_cast<uint8_t*>(ctx->in + t);
 
-#define R1(a, b, c, d, k, s, t)            \
-  do {                                     \
-    (a) += ((k) + (t) + G((b), (c), (d))); \
-    (a) = CRYPTO_rotl_u32(a, s);           \
-    (a) += (b);                            \
-  } while (0)
-
-#define R2(a, b, c, d, k, s, t)            \
-  do {                                     \
-    (a) += ((k) + (t) + H((b), (c), (d))); \
-    (a) = CRYPTO_rotl_u32(a, s);           \
-    (a) += (b);                            \
-  } while (0)
-
-#define R3(a, b, c, d, k, s, t)            \
-  do {                                     \
-    (a) += ((k) + (t) + I((b), (c), (d))); \
-    (a) = CRYPTO_rotl_u32(a, s);           \
-    (a) += (b);                            \
-  } while (0)
-
-#ifdef X
-#undef X
-#endif
-static void md5_block_data_order(uint32_t* state,
-                                 const uint8_t* data,
-                                 size_t num) {
-  uint32_t A, B, C, D;
-  uint32_t XX0, XX1, XX2, XX3, XX4, XX5, XX6, XX7, XX8, XX9, XX10, XX11, XX12,
-      XX13, XX14, XX15;
-#define X(i) XX##i
-
-  A = state[0];
-  B = state[1];
-  C = state[2];
-  D = state[3];
-
-  for (; num--;) {
-    X(0) = CRYPTO_load_u32_le(data);
-    data += 4;
-    X(1) = CRYPTO_load_u32_le(data);
-    data += 4;
-    // Round 0
-    R0(A, B, C, D, X(0), 7, 0xd76aa478L);
-    X(2) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(D, A, B, C, X(1), 12, 0xe8c7b756L);
-    X(3) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(C, D, A, B, X(2), 17, 0x242070dbL);
-    X(4) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(B, C, D, A, X(3), 22, 0xc1bdceeeL);
-    X(5) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(A, B, C, D, X(4), 7, 0xf57c0fafL);
-    X(6) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(D, A, B, C, X(5), 12, 0x4787c62aL);
-    X(7) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(C, D, A, B, X(6), 17, 0xa8304613L);
-    X(8) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(B, C, D, A, X(7), 22, 0xfd469501L);
-    X(9) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(A, B, C, D, X(8), 7, 0x698098d8L);
-    X(10) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(D, A, B, C, X(9), 12, 0x8b44f7afL);
-    X(11) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(C, D, A, B, X(10), 17, 0xffff5bb1L);
-    X(12) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(B, C, D, A, X(11), 22, 0x895cd7beL);
-    X(13) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(A, B, C, D, X(12), 7, 0x6b901122L);
-    X(14) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(D, A, B, C, X(13), 12, 0xfd987193L);
-    X(15) = CRYPTO_load_u32_le(data);
-    data += 4;
-    R0(C, D, A, B, X(14), 17, 0xa679438eL);
-    R0(B, C, D, A, X(15), 22, 0x49b40821L);
-    // Round 1
-    R1(A, B, C, D, X(1), 5, 0xf61e2562L);
-    R1(D, A, B, C, X(6), 9, 0xc040b340L);
-    R1(C, D, A, B, X(11), 14, 0x265e5a51L);
-    R1(B, C, D, A, X(0), 20, 0xe9b6c7aaL);
-    R1(A, B, C, D, X(5), 5, 0xd62f105dL);
-    R1(D, A, B, C, X(10), 9, 0x02441453L);
-    R1(C, D, A, B, X(15), 14, 0xd8a1e681L);
-    R1(B, C, D, A, X(4), 20, 0xe7d3fbc8L);
-    R1(A, B, C, D, X(9), 5, 0x21e1cde6L);
-    R1(D, A, B, C, X(14), 9, 0xc33707d6L);
-    R1(C, D, A, B, X(3), 14, 0xf4d50d87L);
-    R1(B, C, D, A, X(8), 20, 0x455a14edL);
-    R1(A, B, C, D, X(13), 5, 0xa9e3e905L);
-    R1(D, A, B, C, X(2), 9, 0xfcefa3f8L);
-    R1(C, D, A, B, X(7), 14, 0x676f02d9L);
-    R1(B, C, D, A, X(12), 20, 0x8d2a4c8aL);
-    // Round 2
-    R2(A, B, C, D, X(5), 4, 0xfffa3942L);
-    R2(D, A, B, C, X(8), 11, 0x8771f681L);
-    R2(C, D, A, B, X(11), 16, 0x6d9d6122L);
-    R2(B, C, D, A, X(14), 23, 0xfde5380cL);
-    R2(A, B, C, D, X(1), 4, 0xa4beea44L);
-    R2(D, A, B, C, X(4), 11, 0x4bdecfa9L);
-    R2(C, D, A, B, X(7), 16, 0xf6bb4b60L);
-    R2(B, C, D, A, X(10), 23, 0xbebfbc70L);
-    R2(A, B, C, D, X(13), 4, 0x289b7ec6L);
-    R2(D, A, B, C, X(0), 11, 0xeaa127faL);
-    R2(C, D, A, B, X(3), 16, 0xd4ef3085L);
-    R2(B, C, D, A, X(6), 23, 0x04881d05L);
-    R2(A, B, C, D, X(9), 4, 0xd9d4d039L);
-    R2(D, A, B, C, X(12), 11, 0xe6db99e5L);
-    R2(C, D, A, B, X(15), 16, 0x1fa27cf8L);
-    R2(B, C, D, A, X(2), 23, 0xc4ac5665L);
-    // Round 3
-    R3(A, B, C, D, X(0), 6, 0xf4292244L);
-    R3(D, A, B, C, X(7), 10, 0x432aff97L);
-    R3(C, D, A, B, X(14), 15, 0xab9423a7L);
-    R3(B, C, D, A, X(5), 21, 0xfc93a039L);
-    R3(A, B, C, D, X(12), 6, 0x655b59c3L);
-    R3(D, A, B, C, X(3), 10, 0x8f0ccc92L);
-    R3(C, D, A, B, X(10), 15, 0xffeff47dL);
-    R3(B, C, D, A, X(1), 21, 0x85845dd1L);
-    R3(A, B, C, D, X(8), 6, 0x6fa87e4fL);
-    R3(D, A, B, C, X(15), 10, 0xfe2ce6e0L);
-    R3(C, D, A, B, X(6), 15, 0xa3014314L);
-    R3(B, C, D, A, X(13), 21, 0x4e0811a1L);
-    R3(A, B, C, D, X(4), 6, 0xf7537e82L);
-    R3(D, A, B, C, X(11), 10, 0xbd3af235L);
-    R3(C, D, A, B, X(2), 15, 0x2ad7d2bbL);
-    R3(B, C, D, A, X(9), 21, 0xeb86d391L);
-
-    A = state[0] += A;
-    B = state[1] += B;
-    C = state[2] += C;
-    D = state[3] += D;
-  }
-}
-
-#undef X
-
-#undef F
-#undef G
-#undef H
-#undef I
-#undef R0
-#undef R1
-#undef R2
-#undef R3
-
-typedef void (*crypto_md32_block_func)(uint32_t* state,
-                                       const uint8_t* data,
-                                       size_t num_blocks);
-
-// crypto_md32_update adds |len| bytes from |in| to the digest. |data| must be a
-// buffer of length |block_size| with the first |*num| bytes containing a
-// partial block. This function combines the partial block with |in| and
-// incorporates any complete blocks into the digest state |h|. It then updates
-// |data| and |*num| with the new partial block and updates |*Nh| and |*Nl| with
-// the data consumed.
-inline void crypto_md32_update(crypto_md32_block_func block_func,
-                               uint32_t* h,
-                               uint8_t* data,
-                               size_t block_size,
-                               unsigned* num,
-                               uint32_t* Nh,
-                               uint32_t* Nl,
-                               const uint8_t* in,
-                               size_t len) {
-  if (len == 0) {
-    return;
-  }
-
-  uint32_t l = *Nl + (((uint32_t)len) << 3);
-  if (l < *Nl) {
-    // Handle carries.
-    (*Nh)++;
-  }
-  *Nh += (uint32_t)(len >> 29);
-  *Nl = l;
-
-  size_t n = *num;
-  if (n != 0) {
-    if (len >= block_size || len + n >= block_size) {
-      OPENSSL_memcpy(data + n, in, block_size - n);
-      block_func(h, data, 1);
-      n = block_size - n;
-      in += n;
-      len -= n;
-      *num = 0;
-      // Keep |data| zeroed when unused.
-      OPENSSL_memset(data, 0, block_size);
-    } else {
-      OPENSSL_memcpy(data + n, in, len);
-      *num += (unsigned)len;
+    t = 64 - t;
+    if (len < t) {
+      memcpy(p, buf, len);
       return;
     }
+    memcpy(p, buf, t);
+    byteReverse(ctx->in, 16);
+    MD5Transform(ctx->buf, reinterpret_cast<uint32_t*>(ctx->in));
+    buf += t;
+    len -= t;
   }
 
-  n = len / block_size;
-  if (n > 0) {
-    block_func(h, in, n);
-    n *= block_size;
-    in += n;
-    len -= n;
+  /* Process data in 64-byte chunks */
+
+  while (len >= 64) {
+    memcpy(ctx->in, buf, 64);
+    byteReverse(ctx->in, 16);
+    MD5Transform(ctx->buf, reinterpret_cast<uint32_t*>(ctx->in));
+    buf += 64;
+    len -= 64;
   }
 
-  if (len != 0) {
-    *num = (unsigned)len;
-    OPENSSL_memcpy(data, in, len);
-  }
+  /* Handle any remaining bytes of data. */
+
+  memcpy(ctx->in, buf, len);
 }
 
-// crypto_md32_final incorporates the partial block and trailing length into the
-// digest state |h|. The trailing length is encoded in little-endian if
-// |is_big_endian| is zero and big-endian otherwise. |data| must be a buffer of
-// length |block_size| with the first |*num| bytes containing a partial block.
-// |Nh| and |Nl| contain the total number of bits processed. On return, this
-// function clears the partial block in |data| and
-// |*num|.
-//
-// This function does not serialize |h| into a final digest. This is the
-// responsibility of the caller.
-inline void crypto_md32_final(crypto_md32_block_func block_func,
-                              uint32_t* h,
-                              uint8_t* data,
-                              size_t block_size,
-                              unsigned* num,
-                              uint32_t Nh,
-                              uint32_t Nl,
-                              int is_big_endian) {
-  // |data| always has room for at least one byte. A full block would have
-  // been consumed.
-  size_t n = *num;
-  assert(n < block_size);
-  data[n] = 0x80;
-  n++;
+/*
+ * Final wrapup - pad to 64-byte boundary with the bit pattern
+ * 1 0* (64-bit count of bits processed, MSB-first)
+ */
+void MD5Final(MD5Digest* digest, MD5Context* context) {
+  struct Context* ctx = reinterpret_cast<struct Context*>(context);
+  unsigned count;
+  uint8_t* p;
 
-  // Fill the block with zeros if there isn't room for a 64-bit length.
-  if (n > block_size - 8) {
-    OPENSSL_memset(data + n, 0, block_size - n);
-    n = 0;
-    block_func(h, data, 1);
-  }
-  OPENSSL_memset(data + n, 0, block_size - 8 - n);
+  /* Compute number of bytes mod 64 */
+  count = (ctx->bits[0] >> 3) & 0x3F;
 
-  // Append a 64-bit length to the block and process it.
-  if (is_big_endian) {
-    CRYPTO_store_u32_be(data + block_size - 8, Nh);
-    CRYPTO_store_u32_be(data + block_size - 4, Nl);
+  /* Set the first char of padding to 0x80.  This is safe since there is
+     always at least one byte free */
+  p = ctx->in + count;
+  *p++ = 0x80;
+
+  /* Bytes of padding needed to make 64 bytes */
+  count = 64 - 1 - count;
+
+  /* Pad out to 56 mod 64 */
+  if (count < 8) {
+    /* Two lots of padding:  Pad the first block to 64 bytes */
+    memset(p, 0, count);
+    byteReverse(ctx->in, 16);
+    MD5Transform(ctx->buf, reinterpret_cast<uint32_t*>(ctx->in));
+
+    /* Now fill the next block with 56 bytes */
+    memset(ctx->in, 0, 56);
   } else {
-    CRYPTO_store_u32_le(data + block_size - 8, Nl);
-    CRYPTO_store_u32_le(data + block_size - 4, Nh);
+    /* Pad block to 56 bytes */
+    memset(p, 0, count - 8);
   }
-  block_func(h, data, 1);
-  *num = 0;
-  OPENSSL_memset(data, 0, block_size);
-}
+  byteReverse(ctx->in, 14);
 
-void MD5_Init(MD5_CTX* md5) {
-  OPENSSL_memset(md5, 0, sizeof(MD5_CTX));
-  md5->h[0] = 0x67452301UL;
-  md5->h[1] = 0xefcdab89UL;
-  md5->h[2] = 0x98badcfeUL;
-  md5->h[3] = 0x10325476UL;
-}
+  /* Append length in bits and transform */
+  memcpy(&ctx->in[14 * sizeof(ctx->bits[0])], &ctx->bits[0],
+         sizeof(ctx->bits[0]));
+  memcpy(&ctx->in[15 * sizeof(ctx->bits[1])], &ctx->bits[1],
+         sizeof(ctx->bits[1]));
 
-void MD5_Update(MD5_CTX* c, const void* data, size_t len) {
-  crypto_md32_update(&md5_block_data_order, c->h, c->data, MD5_CBLOCK, &c->num,
-                     &c->Nh, &c->Nl, static_cast<const uint8_t*>(data), len);
-}
-
-void MD5_Final(uint8_t out[MD5_DIGEST_LENGTH], MD5_CTX* c) {
-  crypto_md32_final(&md5_block_data_order, c->h, c->data, MD5_CBLOCK, &c->num,
-                    c->Nh, c->Nl, /*is_big_endian=*/0);
-
-  CRYPTO_store_u32_le(out, c->h[0]);
-  CRYPTO_store_u32_le(out + 4, c->h[1]);
-  CRYPTO_store_u32_le(out + 8, c->h[2]);
-  CRYPTO_store_u32_le(out + 12, c->h[3]);
+  MD5Transform(ctx->buf, reinterpret_cast<uint32_t*>(ctx->in));
+  byteReverse(reinterpret_cast<uint8_t*>(ctx->buf), 4);
+  memcpy(digest->a, ctx->buf, 16);
+  memset(ctx, 0, sizeof(*ctx)); /* In case it's sensitive */
 }
 
 }  // namespace
 
-std::array<unsigned char, 16> CalculateMd5Digest(absl::string_view s) {
-  MD5_CTX ctx;
-  MD5_Init(&ctx);
-  MD5_Update(&ctx, s.data(), s.length());
-  std::array<unsigned char, MD5_DIGEST_LENGTH> digest;
-  MD5_Final(digest.data(), &ctx);
+std::array<uint8_t, 16> CalculateMd5Digest(absl::string_view s) {
+  MD5Context ctx;
+  MD5Init(&ctx);
+  MD5Update(&ctx, s);
+  std::array<uint8_t, 16> digest;
+  static_assert(sizeof(uint8_t[16]) == sizeof(MD5Digest), "");
+  MD5Final(reinterpret_cast<MD5Digest*>(digest.data()), &ctx);
   return digest;
 }
 
