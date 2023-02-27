@@ -637,6 +637,11 @@ google_firestore_v1_Target Serializer::EncodeTarget(
         nanopb::CopyBytesArray(target_data.resume_token().get());
   }
 
+  if (target_data.expected_count()) {
+    int32_t expected_count = target_data.expected_count().value();
+    result.expected_count.value = expected_count;
+  }
+
   return result;
 }
 

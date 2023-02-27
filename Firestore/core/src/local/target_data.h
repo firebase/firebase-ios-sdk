@@ -78,7 +78,18 @@ class TargetData {
              model::SnapshotVersion snapshot_version,
              model::SnapshotVersion last_limbo_free_snapshot_version,
              nanopb::ByteString resume_token,
-             int32_t expected_count);
+             absl::optional<int32_t> expected_count);
+
+  /**
+   * Convenience constructor for creating a TargetData without expected count.
+   */
+  TargetData(core::Target target,
+             model::TargetId target_id,
+             model::ListenSequenceNumber sequence_number,
+             QueryPurpose purpose,
+             model::SnapshotVersion snapshot_version,
+             model::SnapshotVersion last_limbo_free_snapshot_version,
+             nanopb::ByteString resume_token);
 
   /**
    * Convenience constructor for use when creating a TargetData for the first
@@ -151,10 +162,9 @@ class TargetData {
    * read time. Documents are counted only when making a listen request with
    * resume token or read time, otherwise, keep it null.
    */
-   int32_t expected_count() const {
+  absl::optional<int32_t> expected_count() const {
     return expected_count_;
   }
-
 
   /** Creates a new target data instance with an updated sequence number. */
   TargetData WithSequenceNumber(
@@ -168,7 +178,7 @@ class TargetData {
                              model::SnapshotVersion snapshot_version) const;
 
   /** Creates a new target data instance with an updated expected count. */
-  TargetData withExpectedCount(int32_t expected_count) const;
+  TargetData WithExpectedCount(int32_t expected_count) const;
 
   /**
    * Creates a new target data instance with an updated last limbo free snapshot
@@ -193,7 +203,7 @@ class TargetData {
   model::SnapshotVersion snapshot_version_;
   model::SnapshotVersion last_limbo_free_snapshot_version_;
   nanopb::ByteString resume_token_;
-  int32_t expected_count_ = 0;
+  absl::optional<int32_t> expected_count_;
 };
 
 inline bool operator!=(const TargetData& lhs, const TargetData& rhs) {

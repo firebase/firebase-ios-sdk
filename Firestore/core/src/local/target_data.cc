@@ -61,7 +61,7 @@ TargetData::TargetData(Target target,
                        SnapshotVersion snapshot_version,
                        SnapshotVersion last_limbo_free_snapshot_version,
                        ByteString resume_token,
-                       int32_t expected_count)
+                       absl::optional<int32_t> expected_count)
     : target_(std::move(target)),
       target_id_(target_id),
       sequence_number_(sequence_number),
@@ -70,7 +70,25 @@ TargetData::TargetData(Target target,
       last_limbo_free_snapshot_version_(
           std::move(last_limbo_free_snapshot_version)),
       resume_token_(std::move(resume_token)),
-      expected_count_(expected_count){
+      expected_count_(expected_count) {
+}
+
+TargetData::TargetData(Target target,
+                       TargetId target_id,
+                       ListenSequenceNumber sequence_number,
+                       QueryPurpose purpose,
+                       SnapshotVersion snapshot_version,
+                       SnapshotVersion last_limbo_free_snapshot_version,
+                       ByteString resume_token)
+    : target_(std::move(target)),
+      target_id_(target_id),
+      sequence_number_(sequence_number),
+      purpose_(purpose),
+      snapshot_version_(std::move(snapshot_version)),
+      last_limbo_free_snapshot_version_(
+          std::move(last_limbo_free_snapshot_version)),
+      resume_token_(std::move(resume_token)),
+      expected_count_(absl::nullopt) {
 }
 
 TargetData::TargetData(Target target,
@@ -83,35 +101,44 @@ TargetData::TargetData(Target target,
                  purpose,
                  SnapshotVersion::None(),
                  SnapshotVersion::None(),
-                 ByteString()) {
+                 ByteString(),
+                 absl::nullopt) {
 }
 
 TargetData TargetData::Invalid() {
-  return TargetData({}, /*target_id=*/-1, /*sequence_number=*/-1,
-                    QueryPurpose::Listen,
-                    SnapshotVersion(SnapshotVersion::None()),
-                    SnapshotVersion(SnapshotVersion::None()), {});
+  return TargetData(
+      {}, /*target_id=*/-1, /*sequence_number=*/-1, QueryPurpose::Listen,
+      SnapshotVersion(SnapshotVersion::None()),
+      SnapshotVersion(SnapshotVersion::None()), {}, absl::nullopt);
 }
 
 TargetData TargetData::WithSequenceNumber(
     ListenSequenceNumber sequence_number) const {
   return TargetData(target_, target_id_, sequence_number, purpose_,
                     snapshot_version_, last_limbo_free_snapshot_version_,
-                    resume_token_);
+                    resume_token_, expected_count_);
 }
 
 TargetData TargetData::WithResumeToken(ByteString resume_token,
                                        SnapshotVersion snapshot_version) const {
   return TargetData(target_, target_id_, sequence_number_, purpose_,
                     std::move(snapshot_version),
-                    last_limbo_free_snapshot_version_, std::move(resume_token));
+                    last_limbo_free_snapshot_version_, std::move(resume_token),
+                    expected_count_);
+}
+
+TargetData TargetData::WithExpectedCount(int32_t expected_count) const {
+  return TargetData(target_, target_id_, sequence_number_, purpose_,
+                    snapshot_version_, last_limbo_free_snapshot_version_,
+                    resume_token_, expected_count);
 }
 
 TargetData TargetData::WithLastLimboFreeSnapshotVersion(
     SnapshotVersion last_limbo_free_snapshot_version) const {
   return TargetData(target_, target_id_, sequence_number_, purpose_,
                     snapshot_version_,
-                    std::move(last_limbo_free_snapshot_version), resume_token_);
+                    std::move(last_limbo_free_snapshot_version), resume_token_,
+                    expected_count_);
 }
 
 bool operator==(const TargetData& lhs, const TargetData& rhs) {
@@ -119,12 +146,13 @@ bool operator==(const TargetData& lhs, const TargetData& rhs) {
          lhs.sequence_number() == rhs.sequence_number() &&
          lhs.purpose() == rhs.purpose() &&
          lhs.snapshot_version() == rhs.snapshot_version() &&
-         lhs.resume_token() == rhs.resume_token();
+         lhs.resume_token() == rhs.resume_token() &&
+         lhs.expected_count() == rhs.expected_count();
 }
 
 size_t TargetData::Hash() const {
   return util::Hash(target_, target_id_, sequence_number_, purpose_,
-                    snapshot_version_, resume_token_);
+                    snapshot_version_, resume_token_, expected_count_);
 }
 
 std::string TargetData::ToString() const {
@@ -140,7 +168,8 @@ std::ostream& operator<<(std::ostream& os, const TargetData& value) {
             << ", version=" << value.snapshot_version_
             << ", last_limbo_free_snapshot_version="
             << value.last_limbo_free_snapshot_version_
-            << ", resume_token=" << value.resume_token_ << ")";
+            << ", resume_token=" << value.resume_token_
+            << ", expected_count=" << (value.expected_count_ || "null") << ")";
 }
 
 }  // namespace local
