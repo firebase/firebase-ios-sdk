@@ -60,7 +60,8 @@ TargetData::TargetData(Target target,
                        QueryPurpose purpose,
                        SnapshotVersion snapshot_version,
                        SnapshotVersion last_limbo_free_snapshot_version,
-                       ByteString resume_token)
+                       ByteString resume_token,
+                       int32_t expected_count)
     : target_(std::move(target)),
       target_id_(target_id),
       sequence_number_(sequence_number),
@@ -68,7 +69,8 @@ TargetData::TargetData(Target target,
       snapshot_version_(std::move(snapshot_version)),
       last_limbo_free_snapshot_version_(
           std::move(last_limbo_free_snapshot_version)),
-      resume_token_(std::move(resume_token)) {
+      resume_token_(std::move(resume_token)),
+      expected_count_(expected_count){
 }
 
 TargetData::TargetData(Target target,
