@@ -23,10 +23,11 @@ public typealias AppDistributionFetchReleasesCompletion = (_ releases: [Any]?, _
   -> Void
 public typealias AppDistributionFindReleaseCompletion = (_ releaseName: String?, _ error: Error?)
   -> Void
-public typealias AppDistributionCreateFeedbackCompletion = (_ feedbackName: String?, _ error: Error?)
+public typealias AppDistributionCreateFeedbackCompletion = (_ feedbackName: String?,
+                                                            _ error: Error?)
   -> Void
 public typealias AppDistributionUploadImageCompletion = (_ error: Error?)
--> Void
+  -> Void
 public typealias AppDistributionCommitFeedbackCompletion = (_ error: Error?)
   -> Void
 public typealias AppDistributionGenerateAuthTokenCompletion = (_ identifier: String?,
@@ -82,12 +83,12 @@ struct FindReleaseResponse: Codable {
   var release: String
 }
 
-struct FeedbackReport : Codable {
+struct FeedbackReport: Codable {
   var name: String?
   var text: String
 }
 
-struct CreateFeedbackReportRequest : Codable {
+struct CreateFeedbackReportRequest: Codable {
   var feedbackReport: FeedbackReport
 }
 
@@ -237,8 +238,9 @@ struct CreateFeedbackReportRequest : Codable {
       findReleaseDataTask.resume()
     }
   }
-  
-  public static func createFeedback(releaseName: String, feedbackText: String, completion: @escaping AppDistributionCreateFeedbackCompletion) {
+
+  public static func createFeedback(releaseName: String, feedbackText: String,
+                                    completion: @escaping AppDistributionCreateFeedbackCompletion) {
     generateAuthToken { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.createFeedbackEndpointUrlTemplate,
@@ -249,7 +251,8 @@ struct CreateFeedbackReportRequest : Codable {
         url: urlString,
         authTokenResult: authTokenResult!
       )
-      let createFeedbackRequest = CreateFeedbackReportRequest(feedbackReport: FeedbackReport(text: feedbackText))
+      let createFeedbackRequest =
+        CreateFeedbackReportRequest(feedbackReport: FeedbackReport(text: feedbackText))
       request.httpBody = try? JSONEncoder().encode(createFeedbackRequest)
       let createFeedbackTask = URLSession.shared
         .dataTask(with: request as URLRequest) { data, response, error in
@@ -264,12 +267,13 @@ struct CreateFeedbackReportRequest : Codable {
             completion(feedback?.name, fadError)
           }
         }
-      
+
       createFeedbackTask.resume()
     }
   }
-  
-  public static func uploadImage(feedbackName: String, image: UIImage, completion: @escaping AppDistributionUploadImageCompletion) {
+
+  public static func uploadImage(feedbackName: String, image: UIImage,
+                                 completion: @escaping AppDistributionUploadImageCompletion) {
     generateAuthToken { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.uploadImageEndpointUrlTemplate,
@@ -292,8 +296,14 @@ struct CreateFeedbackReportRequest : Codable {
         url: url,
         authTokenResult: authTokenResult!
       )
-      request.setValue(Strings.GoogleUploadProtocolHeader, forHTTPHeaderField: Strings.GoogleUploadProtocolRaw)
-      request.setValue(Strings.GoogleUploadFileNameHeader, forHTTPHeaderField: Strings.GoogleUploadFileName)
+      request.setValue(
+        Strings.GoogleUploadProtocolHeader,
+        forHTTPHeaderField: Strings.GoogleUploadProtocolRaw
+      )
+      request.setValue(
+        Strings.GoogleUploadFileNameHeader,
+        forHTTPHeaderField: Strings.GoogleUploadFileName
+      )
       let uploadImageTask = URLSession.shared
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
@@ -301,12 +311,13 @@ struct CreateFeedbackReportRequest : Codable {
             completion(fadError)
           }
         }
-      
+
       uploadImageTask.resume()
     }
   }
-  
-  public static func commitFeedback(feedbackName: String, completion: @escaping AppDistributionCommitFeedbackCompletion) {
+
+  public static func commitFeedback(feedbackName: String,
+                                    completion: @escaping AppDistributionCommitFeedbackCompletion) {
     generateAuthToken { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.commitFeedbackEndpointUrlTemplate,
@@ -324,7 +335,7 @@ struct CreateFeedbackReportRequest : Codable {
             completion(fadError)
           }
         }
-      
+
       commitFeedbackTask.resume()
     }
   }
