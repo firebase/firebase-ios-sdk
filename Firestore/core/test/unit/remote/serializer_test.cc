@@ -1489,7 +1489,7 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
   TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
                    SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}));
+                   Bytes({1, 2, 3}),absl::nullopt);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));

@@ -74,24 +74,6 @@ TargetData::TargetData(Target target,
 }
 
 TargetData::TargetData(Target target,
-                       TargetId target_id,
-                       ListenSequenceNumber sequence_number,
-                       QueryPurpose purpose,
-                       SnapshotVersion snapshot_version,
-                       SnapshotVersion last_limbo_free_snapshot_version,
-                       ByteString resume_token)
-    : target_(std::move(target)),
-      target_id_(target_id),
-      sequence_number_(sequence_number),
-      purpose_(purpose),
-      snapshot_version_(std::move(snapshot_version)),
-      last_limbo_free_snapshot_version_(
-          std::move(last_limbo_free_snapshot_version)),
-      resume_token_(std::move(resume_token)),
-      expected_count_(absl::nullopt) {
-}
-
-TargetData::TargetData(Target target,
                        int target_id,
                        ListenSequenceNumber sequence_number,
                        QueryPurpose purpose)
@@ -124,7 +106,7 @@ TargetData TargetData::WithResumeToken(ByteString resume_token,
   return TargetData(target_, target_id_, sequence_number_, purpose_,
                     std::move(snapshot_version),
                     last_limbo_free_snapshot_version_, std::move(resume_token),
-                    expected_count_);
+                    absl::nullopt);
 }
 
 TargetData TargetData::WithExpectedCount(int32_t expected_count) const {

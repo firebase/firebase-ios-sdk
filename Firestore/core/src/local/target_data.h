@@ -81,17 +81,6 @@ class TargetData {
              absl::optional<int32_t> expected_count);
 
   /**
-   * Convenience constructor for creating a TargetData without expected count.
-   */
-  TargetData(core::Target target,
-             model::TargetId target_id,
-             model::ListenSequenceNumber sequence_number,
-             QueryPurpose purpose,
-             model::SnapshotVersion snapshot_version,
-             model::SnapshotVersion last_limbo_free_snapshot_version,
-             nanopb::ByteString resume_token);
-
-  /**
    * Convenience constructor for use when creating a TargetData for the first
    * time.
    */

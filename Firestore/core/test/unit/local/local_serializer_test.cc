@@ -469,7 +469,7 @@ TEST_F(LocalSerializerTest, EncodesTargetData) {
   TargetData target_data(query.ToTarget(), target_id, sequence_number,
                          QueryPurpose::Listen, SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token));
+                         ByteString(resume_token),absl::nullopt);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -533,7 +533,7 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithDocumentQuery) {
   TargetData target_data(query.ToTarget(), target_id, sequence_number,
                          QueryPurpose::Listen, SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token));
+                         ByteString(resume_token),absl::nullopt);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
