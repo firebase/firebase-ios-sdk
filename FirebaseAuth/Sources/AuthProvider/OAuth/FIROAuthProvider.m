@@ -315,7 +315,8 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                      NSString *apiKey =
                                          strongSelf->_auth.requestConfiguration.APIKey;
                                      NSString *tenantID = strongSelf->_auth.tenantID;
-                                     id<FIRAppCheckInterop> appCheck = strongSelf->_auth.requestConfiguration.appCheck;
+                                     id<FIRAppCheckInterop> appCheck =
+                                         strongSelf->_auth.requestConfiguration.appCheck;
                                      NSMutableDictionary *urlArguments = [@{
                                        @"apiKey" : apiKey,
                                        @"authType" : kAuthTypeSignInWithRedirect,
@@ -352,19 +353,26 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                        urlArguments[@"hl"] =
                                            strongSelf->_auth.requestConfiguration.languageCode;
                                      }
-      /*
-                                     if (appCheck) {
-                                        [appCheck getTokenForcingRefresh:false completion:^(id<FIRAppCheckTokenResultInterop>  _Nonnull tokenResult) {
-                                              if (tokenResult.error){
-                                                  FIRLogWarning(kFIRLoggerAuth, @"I-AUT000018",
-                                                                @"Error getting App Check token; using placeholder token "
-                                                                @"instead. Error: %@",
-                                                                tokenResult.error);
-                                              }
-                                              NSString *appCheckTokenFragment = [kAppCheckTokenURLFormat stringByAppendingString:tokenResult.token];
-                                              urlArguments[@"appCheck"] = appCheckTokenFragment;
-                                        }];
-                                     }*/
+                                     /*
+                                                                    if (appCheck) {
+                                                                       [appCheck
+                                        getTokenForcingRefresh:false
+                                        completion:^(id<FIRAppCheckTokenResultInterop>  _Nonnull
+                                        tokenResult) { if (tokenResult.error){
+                                                                                 FIRLogWarning(kFIRLoggerAuth,
+                                        @"I-AUT000018",
+                                                                                               @"Error
+                                        getting App Check token; using placeholder token "
+                                                                                               @"instead.
+                                        Error: %@", tokenResult.error);
+                                                                             }
+                                                                             NSString
+                                        *appCheckTokenFragment = [kAppCheckTokenURLFormat
+                                        stringByAppendingString:tokenResult.token];
+                                                                             urlArguments[@"appCheck"]
+                                        = appCheckTokenFragment;
+                                                                       }];
+                                                                    }*/
                                      NSString *argumentsString = [strongSelf
                                          httpArgumentsStringForArgsDictionary:urlArguments];
                                      NSString *URLString;

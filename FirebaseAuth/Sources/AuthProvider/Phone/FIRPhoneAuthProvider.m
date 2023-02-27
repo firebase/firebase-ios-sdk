@@ -22,6 +22,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
@@ -44,7 +45,6 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
@@ -719,8 +719,9 @@ extern NSString *const FIRPhoneMultiFactorID;
                                      NSString *clientID = self->_auth.app.options.clientID;
                                      NSString *appID = self->_auth.app.options.googleAppID;
                                      NSString *apiKey = self->_auth.requestConfiguration.APIKey;
-                                     id<FIRAppCheckInterop> appCheck = self->_auth.requestConfiguration.appCheck;
-      
+                                     id<FIRAppCheckInterop> appCheck =
+                                         self->_auth.requestConfiguration.appCheck;
+
                                      NSMutableArray<NSURLQueryItem *> *queryItems = [@[
                                        [NSURLQueryItem queryItemWithName:@"apiKey" value:apiKey],
                                        [NSURLQueryItem queryItemWithName:@"authType"
@@ -750,22 +751,27 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                                .requestConfiguration
                                                                                .languageCode]];
                                      }
-      /*
-                                     if (appCheck) {
-                                         [appCheck getTokenForcingRefresh:false completion:^(id<FIRAppCheckTokenResultInterop>  _Nonnull tokenResult) {
-                                               if (tokenResult.error){
-                                                   FIRLogWarning(kFIRLoggerAuth, @"I-AUT000018",
-                                                                 @"Error getting App Check token; using placeholder token "
-                                                                 @"instead. Error: %@",
-                                                                 tokenResult.error);
-                                               }
-                                               NSString *appCheckTokenFragment = [@"fac=" stringByAppendingString:tokenResult.token];
-                                               [queryItems
-                                                    addObject:[NSURLQueryItem
-                                            queryItemWithName:@"appCheck"
-                                                        value:appCheckTokenFragment]];
-                                         }];
-                                     }*/
+                                     /*
+                                                                    if (appCheck) {
+                                                                        [appCheck
+                                        getTokenForcingRefresh:false
+                                        completion:^(id<FIRAppCheckTokenResultInterop>  _Nonnull
+                                        tokenResult) { if (tokenResult.error){
+                                                                                  FIRLogWarning(kFIRLoggerAuth,
+                                        @"I-AUT000018",
+                                                                                                @"Error
+                                        getting App Check token; using placeholder token "
+                                                                                                @"instead.
+                                        Error: %@", tokenResult.error);
+                                                                              }
+                                                                              NSString
+                                        *appCheckTokenFragment = [@"fac="
+                                        stringByAppendingString:tokenResult.token]; [queryItems
+                                                                                   addObject:[NSURLQueryItem
+                                                                           queryItemWithName:@"appCheck"
+                                                                                       value:appCheckTokenFragment]];
+                                                                        }];
+                                                                    }*/
                                      NSURLComponents *components = [[NSURLComponents alloc]
                                          initWithString:
                                              [NSString stringWithFormat:kReCAPTCHAURLStringFormat,
