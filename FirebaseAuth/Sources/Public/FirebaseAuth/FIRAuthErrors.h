@@ -413,10 +413,6 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeMissingOrInvalidNonce = 17094,
 
-    /** Indicates that the recaptcha integration is not enabled for this project.
-     */
-    FIRAuthErrorCodeRecaptchaNotEnabled = 17095,
-
     /** Raised when a Cloud Function returns a blocking error. Will include a message returned from
      * the function.
      */
@@ -438,6 +434,10 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
         describing which step of the JWT parsing process failed.
      */
     FIRAuthErrorCodeMalformedJWT = 18000,
+
+    /** Indicates that the recaptcha integration is not enabled for this project.
+     */
+    FIRAuthErrorCodeRecaptchaNotEnabled = 18005,
 } NS_SWIFT_NAME(AuthErrorCode);
 
 @end
