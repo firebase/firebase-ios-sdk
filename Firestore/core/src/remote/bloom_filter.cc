@@ -20,7 +20,6 @@
 
 #include "CommonCrypto/CommonDigest.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/warnings.h"
 
@@ -50,6 +49,7 @@ BloomFilter::Hash BloomFilter::Md5HashDigest(absl::string_view key) const {
 SUPPRESS_END();
 
 int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
+  HARD_ASSERT(hash_index >= 0);
   uint64_t hash_index_uint64 = static_cast<uint64_t>(hash_index);
   uint64_t bit_count_uint64 = static_cast<uint64_t>(bit_count_);
 

@@ -27,22 +27,21 @@ using util::Status;
 using util::StatusOr;
 
 TEST(BloomFilterTest, CanInstantiateEmptyBloomFilter) {
-  BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{}, 0, 0);
+  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
   EXPECT_EQ(bloom_filter.bit_count(), 0);
 }
 
 TEST(BloomFilterTest, CanInstantiateNonEmptyBloomFilter) {
   {
-    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{1}, 0, 1);
+    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 0, 1);
     EXPECT_EQ(bloom_filter.bit_count(), 8);
   }
   {
-    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{1}, 7, 1);
+    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 7, 1);
     EXPECT_EQ(bloom_filter.bit_count(), 1);
   }
 }
 
-/* Test Create factory method with valid and invalid inputs */
 TEST(BloomFilterTest, CreateShouldReturnBloomFilterOnValidInputs) {
   StatusOr<BloomFilter> maybe_bloom_filter =
       BloomFilter::Create(std::vector<uint8_t>{1}, 1, 1);
@@ -62,7 +61,7 @@ TEST(BloomFilterTest, CreateShouldBeAbleToCreatEmptyBloomFilter) {
 TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnNegativePadding) {
   {
     StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{0}, -1, 1);
+        BloomFilter::Create(std::vector<uint8_t>{}, -1, 0);
     ASSERT_FALSE(maybe_bloom_filter.ok());
     EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid padding: -1");
@@ -79,7 +78,7 @@ TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnNegativePadding) {
 TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnNegativeHashCount) {
   {
     StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{0}, 0, -1);
+        BloomFilter::Create(std::vector<uint8_t>{}, 0, -1);
     ASSERT_FALSE(maybe_bloom_filter.ok());
     EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid hash count: -1");
@@ -110,13 +109,13 @@ TEST(BloomFilterTest, CreateShouldReturnNotOKStatusIfPaddingIsTooLarge) {
 
 TEST(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
   // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
-  BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{237, 5}, 5, 8);
+  BloomFilter bloom_filter(std::vector<uint8_t>{237, 5}, 5, 8);
   EXPECT_TRUE(bloom_filter.MightContain("ÀÒ∑"));
   EXPECT_FALSE(bloom_filter.MightContain("Ò∑À"));
 }
 
 TEST(BloomFilterTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
-  BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{}, 0, 0);
+  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
   EXPECT_FALSE(bloom_filter.MightContain(""));
   EXPECT_FALSE(bloom_filter.MightContain("a"));
 }
@@ -124,11 +123,11 @@ TEST(BloomFilterTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
 TEST(BloomFilterTest,
      MightContainWithEmptyStringMightReturnFalsePositiveResult) {
   {
-    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{1}, 1, 1);
+    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 1, 1);
     EXPECT_FALSE(bloom_filter.MightContain(""));
   }
   {
-    BloomFilter bloom_filter = BloomFilter(std::vector<uint8_t>{255}, 0, 16);
+    BloomFilter bloom_filter(std::vector<uint8_t>{255}, 0, 16);
     EXPECT_TRUE(bloom_filter.MightContain(""));
   }
 }
