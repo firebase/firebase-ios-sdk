@@ -194,8 +194,8 @@ void RemoteStore::SendWatchRequest(const TargetData& target_data) {
   // from watch so we wait for the ack to process any messages from this target.
   watch_change_aggregator_->RecordPendingTargetRequest(target_data.target_id());
 
-  if (!target_data.resume_token().empty() ||
-      target_data.snapshot_version() != SnapshotVersion::None()) {
+  // Add expectedCount to target if there is a resume token.
+  if (!target_data.resume_token().empty()) {
     int32_t expectedCount =
         GetRemoteKeysForTarget(target_data.target_id()).size();
     TargetData new_target_data = target_data.WithExpectedCount(expectedCount);

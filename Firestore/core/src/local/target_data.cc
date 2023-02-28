@@ -150,8 +150,11 @@ std::ostream& operator<<(std::ostream& os, const TargetData& value) {
             << ", version=" << value.snapshot_version_
             << ", last_limbo_free_snapshot_version="
             << value.last_limbo_free_snapshot_version_
-            << ", resume_token=" << value.resume_token_
-            << ", expected_count=" << (value.expected_count_ || "null") << ")";
+            << ", resume_token=" << value.resume_token_ << ", expected_count="
+            << (value.expected_count_.has_value()
+                    ? std::to_string(value.expected_count_.value())
+                    : "null")
+            << ")";
 }
 
 }  // namespace local
