@@ -24,8 +24,8 @@ class AppDistributionApiServiceTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000", gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
     options.apiKey = "AIzaSyByd9FGaZjtoILTq6Ff--zm8EyIoJsu3bg"
-    FirebaseApp.configure(name: "appdistro-test-app", options: options)
-    let _ = FirebaseApp.app(name: "appdistro-test-app")
+    FirebaseApp.configure(name: "__FIRAPP_DEFAULT", options: options)
+    let _ = FirebaseApp.app()
   }
   
   func testFetchRelease() {
@@ -37,8 +37,7 @@ class AppDistributionApiServiceTests: XCTestCase {
       }
     }
     
-    let firebaseApp = FirebaseApp.app(name: "appdistro-test-app")
-    AppDistributionApiService.fetchReleases(firInstallation: MockFIRInstallation.installations(app: firebaseApp!), urlSession: URLSession.shared) { releases,error in
+    AppDistributionApiService.fetchReleases(firInstallation: MockFIRInstallation.installations(), urlSession: URLSession.shared) { releases,error in
       
     }
   }
