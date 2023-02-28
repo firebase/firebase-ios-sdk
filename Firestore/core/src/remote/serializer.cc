@@ -26,6 +26,7 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
@@ -1425,8 +1426,13 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
     ReadContext*, const google_firestore_v1_ExistenceFilter& filter) const {
-  // TODO(Mila)
-  //  BloomFilter bloomFilter{}
+
+  // TODO(Mila): convert pb_bytes_array_t into std::vector<uint8_t>
+  ByteString bitmap_string(filter.unchanged_names.bits.bitmap);
+  std::vector<uint8_t> bitmap = MakeVector(bitmap_string);
+
+  BloomFilter bloomFilter(bitmap, filter.unchanged_names.bits.padding,
+                          filter.unchanged_names.hash_count);
   ExistenceFilter existence_filter{filter.count, absl::nullopt};
   return absl::make_unique<ExistenceFilterWatchChange>(
       std::move(existence_filter), filter.target_id);

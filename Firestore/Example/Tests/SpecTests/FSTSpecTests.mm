@@ -336,12 +336,12 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   // Decode base64 json string: bitmap
   std::string bitmap;
   absl::Base64Unescape([bitmapData UTF8String], &bitmap);
+  std::vector<uint8_t> bitmapVector(bitmap.begin(), bitmap.end());
 
   int32_t padding = [bitsData[@"padding"] intValue];
   int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
 
-  BloomFilter filter{bitmap, padding, hashCount};
-
+  BloomFilter filter(bitmapVector, padding, hashCount);
   return filter;
 }
 
@@ -491,6 +491,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   int keyCount = keys ? keys.count : 0;
 
   BloomFilter bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+
   ExistenceFilter filter{keyCount, bloomFilter};
   ExistenceFilterWatchChange change{filter, targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];

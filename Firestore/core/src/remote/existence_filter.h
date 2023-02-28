@@ -19,6 +19,8 @@
 
 #include "Firestore/core/src/remote/bloom_filter.h"
 
+#include <utility>
+
 namespace firebase {
 namespace firestore {
 namespace remote {
