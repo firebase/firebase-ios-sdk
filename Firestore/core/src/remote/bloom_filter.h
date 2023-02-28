@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/string_view.h"
 
 namespace firebase {
@@ -36,6 +37,16 @@ class BloomFilter final {
   BloomFilter& operator=(BloomFilter&&) = default;
 
   /**
+   * Creates a BloomFilter object or returns a status.
+   *
+   * @return a new BloomFilter if the inputs are valid, otherwise returns a not
+   * `ok()` status.
+   */
+  static util::StatusOr<BloomFilter> Create(std::vector<uint8_t> bitmap,
+                                            int32_t padding,
+                                            int32_t hash_count);
+
+  /**
    * Check whether the given string is a possible member of the bloom filter. It
    * might return false positive result, ie, the given string is not a member of
    * the bloom filter, but the method returned true.
@@ -46,22 +57,50 @@ class BloomFilter final {
    */
   bool MightContain(absl::string_view value) const;
 
-  // Get the `bit_count_` field. Used for testing purpose.
+  /** Get the `bit_count_` field. Used for testing purpose. */
   int32_t bit_count() const {
     return bit_count_;
   }
 
  private:
-  // The number of bits in the bloom filter. Guaranteed to be non-negative, and
-  // less than the max number of bits `bitmap_` can represent, i.e.,
-  // bitmap_.size() * 8.
+  /**
+   * When checking membership of a key in bitmap, the first step is to generate
+   * a 128-bit hash, and treat it as 2 distinct 64-bit hash values, named `h1`
+   * and `h2`, interpreted as unsigned integers using 2's complement encoding.
+   */
+  struct Hash {
+    uint64_t h1;
+    uint64_t h2;
+  };
+
+  /**
+   * Calculate the MD5 digest of the given string, and return a Hash object.
+   */
+  Hash Md5HashDigest(absl::string_view key) const;
+
+  /**
+   * Calculate the ith hash value based on the hashed 64 bit unsigned integers,
+   * and calculate its corresponding bit index in the bitmap to be checked.
+   */
+  int32_t GetBitIndex(const Hash& hash, int32_t hash_index) const;
+
+  /** Return whether the bit at the given index in the bitmap is set to 1. */
+  bool IsBitSet(int32_t index) const;
+
+  /**
+   * The number of bits in the bloom filter. Guaranteed to be non-negative, and
+   * less than the max number of bits `bitmap_` can represent, i.e.,
+   * bitmap_.size() * 8.
+   */
   int32_t bit_count_ = 0;
 
-  // The number of hash functions used to construct the filter. Guaranteed to be
-  // non-negative.
+  /**
+   * The number of hash functions used to construct the filter. Guaranteed to
+   * be non-negative.
+   */
   int32_t hash_count_ = 0;
 
-  // Bloom filter's bitmap.
+  /** Bloom filter's bitmap. */
   std::vector<uint8_t> bitmap_;
 };
 
