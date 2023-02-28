@@ -185,7 +185,8 @@ struct CreateFeedbackReportRequest: Codable {
   }
 
 
-  public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
+  public static func findRelease(urlSession: URLSession = URLSession.shared, displayVersion: String,
+                                 buildVersion: String, codeHash: String,
                                  completion: @escaping AppDistributionFindReleaseCompletion) {
     generateAuthToken { identifier, authTokenResult, error in
       // TODO(tundeagboola) The backend may not accept project ID here in which case
@@ -239,9 +240,14 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
-  public static func createFeedback(releaseName: String, feedbackText: String,
+  public static func createFeedback(urlSession: URLSession = URLSession.shared, releaseName: String,
+                                    feedbackText: String,
                                     completion: @escaping AppDistributionCreateFeedbackCompletion) {
     generateAuthToken { identifier, authTokenResult, error in
+      guard let authTokenResult = authTokenResult else {
+        completion(nil, error)
+        return
+      }
       let urlString = String(
         format: Strings.createFeedbackEndpointUrlTemplate,
         releaseName
@@ -249,7 +255,7 @@ struct CreateFeedbackReportRequest: Codable {
       let request = createHttpRequest(
         method: Strings.httpPost,
         url: urlString,
-        authTokenResult: authTokenResult!
+        authTokenResult: authTokenResult
       )
       let createFeedbackRequest =
         CreateFeedbackReportRequest(feedbackReport: FeedbackReport(text: feedbackText))
@@ -272,9 +278,14 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
-  public static func uploadImage(feedbackName: String, image: UIImage,
+  public static func uploadImage(urlSession: URLSession = URLSession.shared, feedbackName: String,
+                                 image: UIImage,
                                  completion: @escaping AppDistributionUploadImageCompletion) {
     generateAuthToken { identifier, authTokenResult, error in
+      guard let authTokenResult = authTokenResult else {
+        completion(error)
+        return
+      }
       let urlString = String(
         format: Strings.uploadImageEndpointUrlTemplate,
         feedbackName
@@ -294,7 +305,7 @@ struct CreateFeedbackReportRequest: Codable {
       let request = createHttpRequest(
         method: Strings.httpPost,
         url: url,
-        authTokenResult: authTokenResult!
+        authTokenResult: authTokenResult
       )
       request.setValue(
         Strings.GoogleUploadProtocolHeader,
@@ -316,9 +327,14 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
-  public static func commitFeedback(feedbackName: String,
+  public static func commitFeedback(urlSession: URLSession = URLSession.shared,
+                                    feedbackName: String,
                                     completion: @escaping AppDistributionCommitFeedbackCompletion) {
     generateAuthToken { identifier, authTokenResult, error in
+      guard let authTokenResult = authTokenResult else {
+        completion(error)
+        return
+      }
       let urlString = String(
         format: Strings.commitFeedbackEndpointUrlTemplate,
         feedbackName
@@ -326,7 +342,7 @@ struct CreateFeedbackReportRequest: Codable {
       let request = createHttpRequest(
         method: Strings.httpPost,
         url: urlString,
-        authTokenResult: authTokenResult!
+        authTokenResult: authTokenResult
       )
       let commitFeedbackTask = URLSession.shared
         .dataTask(with: request as URLRequest) { data, response, error in
