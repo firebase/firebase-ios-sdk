@@ -1,4 +1,4 @@
-# Unreleased
+# 10.6.0
 - [fixed] Fixed bug where testers were sent to the wrong URL when signing in (#10772).
 
 # 10.2.0
