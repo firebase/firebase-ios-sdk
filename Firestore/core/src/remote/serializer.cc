@@ -1425,9 +1425,11 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
     ReadContext*, const google_firestore_v1_ExistenceFilter& filter) const {
-  ExistenceFilter existence_filter{filter.count, filter.unchanged_names};
-  return absl::make_unique<ExistenceFilterWatchChange>(existence_filter,
-                                                       filter.target_id);
+  // TODO(Mila)
+  //  BloomFilter bloomFilter{}
+  ExistenceFilter existence_filter{filter.count, absl::nullopt};
+  return absl::make_unique<ExistenceFilterWatchChange>(
+      std::move(existence_filter), filter.target_id);
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {

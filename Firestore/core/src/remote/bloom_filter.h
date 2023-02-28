@@ -57,9 +57,19 @@ class BloomFilter final {
    */
   bool MightContain(absl::string_view value) const;
 
-  /** Get the `bit_count_` field. Used for testing purpose. */
+  /** Get the `bit_count_` field.  */
   int32_t bit_count() const {
     return bit_count_;
+  }
+
+  /** Get the `hash_count_` field.  */
+  int32_t hash_count() const {
+    return hash_count_;
+  }
+
+  /** Get the `bitmap_` field. */
+  const std::vector<uint8_t>& bitmap() const {
+    return bitmap_;
   }
 
  private:
@@ -103,6 +113,8 @@ class BloomFilter final {
   /** Bloom filter's bitmap. */
   std::vector<uint8_t> bitmap_;
 };
+
+bool operator==(const BloomFilter& lhs, const BloomFilter& rhs);
 
 }  // namespace remote
 }  // namespace firestore

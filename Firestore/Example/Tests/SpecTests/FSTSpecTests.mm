@@ -56,6 +56,7 @@
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/bloom_filter.h"
 #include "Firestore/core/src/remote/existence_filter.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/remote/watch_change.h"
@@ -78,8 +79,6 @@
 namespace objc = firebase::firestore::objc;
 using firebase::firestore::Error;
 using firebase::firestore::google_firestore_v1_ArrayValue;
-using firebase::firestore::google_firestore_v1_BitSequence;
-using firebase::firestore::google_firestore_v1_BloomFilter;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
@@ -102,6 +101,7 @@ using firebase::firestore::model::TargetId;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::Message;
+using firebase::firestore::remote::BloomFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -329,10 +329,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
-- (google_firestore_v1_BloomFilter)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
+- (BloomFilter)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
   NSDictionary *bitsData = bloomFilterProto[@"bits"];
-  NSString *bitmapData = bitsData[@"bitmap"];
 
+  NSString *bitmapData = bitsData[@"bitmap"];
   // Decode base64 json string: bitmap
   std::string bitmap;
   absl::Base64Unescape([bitmapData UTF8String], &bitmap);
@@ -340,12 +340,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   int32_t padding = [bitsData[@"padding"] intValue];
   int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
 
-  // Parse data into bloom filter proto type
-  google_firestore_v1_BitSequence bits;
-  bits.bitmap = nanopb::MakeBytesArray(bitmap);
-  bits.padding = padding;
-  google_firestore_v1_BloomFilter filter;
-  filter.hash_count = hashCount;
+  BloomFilter filter{bitmap, padding, hashCount};
 
   return filter;
 }
@@ -495,7 +490,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSArray<NSNumber *> *keys = watchFilter[@"keys"];
   int keyCount = keys ? keys.count : 0;
 
-  google_firestore_v1_BloomFilter bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+  BloomFilter bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
   ExistenceFilter filter{keyCount, bloomFilter};
   ExistenceFilterWatchChange change{filter, targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];

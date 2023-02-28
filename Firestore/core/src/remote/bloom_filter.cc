@@ -122,6 +122,12 @@ bool BloomFilter::MightContain(absl::string_view value) const {
   return true;
 }
 
+bool operator==(const BloomFilter& lhs, const BloomFilter& rhs) {
+  return lhs.bit_count() == rhs.bit_count() &&
+         lhs.hash_count() == rhs.hash_count() &&
+         equal(lhs.bitmap().begin(), lhs.bitmap().end(), rhs.bitmap().begin());
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase
