@@ -36,12 +36,12 @@ extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOB
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentDelete_google_2ffirestore_2fv1_2fwrite_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentRemove_google_2ffirestore_2fv1_2fwrite_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ListenRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Precondition_google_2ffirestore_2fv1_2fcommon_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_StructuredAggregationQuery_google_2ffirestore_2fv1_2fquery_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fquery_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<6> scc_info_StructuredQuery_google_2ffirestore_2fv1_2fquery_2eproto;
-extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_TargetChange_google_2ffirestore_2fv1_2ffirestore_2eproto;
@@ -49,6 +49,7 @@ extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTO
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<5> scc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2ffirestore_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_WriteRequest_LabelsEntry_DoNotUse_google_2ffirestore_2fv1_2ffirestore_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_WriteResult_google_2ffirestore_2fv1_2fwrite_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2fwrappers_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Int32Value_google_2fprotobuf_2fwrappers_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2fprotobuf_2ftimestamp_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2frpc_2fstatus_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_Status_google_2frpc_2fstatus_2eproto;
 namespace google {
@@ -540,11 +541,12 @@ static void InitDefaultsscc_info_Target_google_2ffirestore_2fv1_2ffirestore_2epr
   ::google::firestore::v1::Target::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<3> scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 3, 0, InitDefaultsscc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<4> scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 4, 0, InitDefaultsscc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto}, {
       &scc_info_Target_QueryTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
       &scc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto.base,
-      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,}};
+      &scc_info_Timestamp_google_2fprotobuf_2ftimestamp_2eproto.base,
+      &scc_info_Int32Value_google_2fprotobuf_2fwrappers_2eproto.base,}};
 
 static void InitDefaultsscc_info_Target_DocumentsTarget_google_2ffirestore_2fv1_2ffirestore_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -897,6 +899,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2ffire
   offsetof(::google::firestore::v1::TargetDefaultTypeInternal, read_time_),
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, target_id_),
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, once_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, expected_count_),
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, target_type_),
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::Target, resume_type_),
   ~0u,  // no _has_bits_
@@ -952,9 +955,9 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOB
   { 214, -1, sizeof(::google::firestore::v1::Target_DocumentsTarget)},
   { 220, -1, sizeof(::google::firestore::v1::Target_QueryTarget)},
   { 228, -1, sizeof(::google::firestore::v1::Target)},
-  { 241, -1, sizeof(::google::firestore::v1::TargetChange)},
-  { 251, -1, sizeof(::google::firestore::v1::ListCollectionIdsRequest)},
-  { 259, -1, sizeof(::google::firestore::v1::ListCollectionIdsResponse)},
+  { 242, -1, sizeof(::google::firestore::v1::TargetChange)},
+  { 252, -1, sizeof(::google::firestore::v1::ListCollectionIdsRequest)},
+  { 260, -1, sizeof(::google::firestore::v1::ListCollectionIdsResponse)},
 };
 
 static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] = {
@@ -998,198 +1001,200 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2ffirestore_2eproto
   "roto\032\037google/firestore/v1/query.proto\032\037g"
   "oogle/firestore/v1/write.proto\032\033google/p"
   "rotobuf/empty.proto\032\037google/protobuf/tim"
-  "estamp.proto\032\027google/rpc/status.proto\"\263\001"
-  "\n\022GetDocumentRequest\022\014\n\004name\030\001 \001(\t\022/\n\004ma"
-  "sk\030\002 \001(\0132!.google.firestore.v1.DocumentM"
-  "ask\022\025\n\013transaction\030\003 \001(\014H\000\022/\n\tread_time\030"
-  "\005 \001(\0132\032.google.protobuf.TimestampH\000B\026\n\024c"
-  "onsistency_selector\"\235\002\n\024ListDocumentsReq"
-  "uest\022\016\n\006parent\030\001 \001(\t\022\025\n\rcollection_id\030\002 "
-  "\001(\t\022\021\n\tpage_size\030\003 \001(\005\022\022\n\npage_token\030\004 \001"
-  "(\t\022\020\n\010order_by\030\006 \001(\t\022/\n\004mask\030\007 \001(\0132!.goo"
-  "gle.firestore.v1.DocumentMask\022\025\n\013transac"
-  "tion\030\010 \001(\014H\000\022/\n\tread_time\030\n \001(\0132\032.google"
-  ".protobuf.TimestampH\000\022\024\n\014show_missing\030\014 "
-  "\001(\010B\026\n\024consistency_selector\"b\n\025ListDocum"
-  "entsResponse\0220\n\tdocuments\030\001 \003(\0132\035.google"
-  ".firestore.v1.Document\022\027\n\017next_page_toke"
-  "n\030\002 \001(\t\"\265\001\n\025CreateDocumentRequest\022\016\n\006par"
-  "ent\030\001 \001(\t\022\025\n\rcollection_id\030\002 \001(\t\022\023\n\013docu"
-  "ment_id\030\003 \001(\t\022/\n\010document\030\004 \001(\0132\035.google"
-  ".firestore.v1.Document\022/\n\004mask\030\005 \001(\0132!.g"
-  "oogle.firestore.v1.DocumentMask\"\356\001\n\025Upda"
-  "teDocumentRequest\022/\n\010document\030\001 \001(\0132\035.go"
-  "ogle.firestore.v1.Document\0226\n\013update_mas"
-  "k\030\002 \001(\0132!.google.firestore.v1.DocumentMa"
-  "sk\022/\n\004mask\030\003 \001(\0132!.google.firestore.v1.D"
-  "ocumentMask\022;\n\020current_document\030\004 \001(\0132!."
-  "google.firestore.v1.Precondition\"b\n\025Dele"
-  "teDocumentRequest\022\014\n\004name\030\001 \001(\t\022;\n\020curre"
-  "nt_document\030\002 \001(\0132!.google.firestore.v1."
-  "Precondition\"\224\002\n\030BatchGetDocumentsReques"
-  "t\022\020\n\010database\030\001 \001(\t\022\021\n\tdocuments\030\002 \003(\t\022/"
-  "\n\004mask\030\003 \001(\0132!.google.firestore.v1.Docum"
-  "entMask\022\025\n\013transaction\030\004 \001(\014H\000\022B\n\017new_tr"
-  "ansaction\030\005 \001(\0132\'.google.firestore.v1.Tr"
-  "ansactionOptionsH\000\022/\n\tread_time\030\007 \001(\0132\032."
+  "estamp.proto\032\036google/protobuf/wrappers.p"
+  "roto\032\027google/rpc/status.proto\"\263\001\n\022GetDoc"
+  "umentRequest\022\014\n\004name\030\001 \001(\t\022/\n\004mask\030\002 \001(\013"
+  "2!.google.firestore.v1.DocumentMask\022\025\n\013t"
+  "ransaction\030\003 \001(\014H\000\022/\n\tread_time\030\005 \001(\0132\032."
   "google.protobuf.TimestampH\000B\026\n\024consisten"
-  "cy_selector\"\254\001\n\031BatchGetDocumentsRespons"
-  "e\022.\n\005found\030\001 \001(\0132\035.google.firestore.v1.D"
-  "ocumentH\000\022\021\n\007missing\030\002 \001(\tH\000\022\023\n\013transact"
-  "ion\030\003 \001(\014\022-\n\tread_time\030\004 \001(\0132\032.google.pr"
-  "otobuf.TimestampB\010\n\006result\"e\n\027BeginTrans"
-  "actionRequest\022\020\n\010database\030\001 \001(\t\0228\n\007optio"
-  "ns\030\002 \001(\0132\'.google.firestore.v1.Transacti"
-  "onOptions\"/\n\030BeginTransactionResponse\022\023\n"
-  "\013transaction\030\001 \001(\014\"b\n\rCommitRequest\022\020\n\010d"
-  "atabase\030\001 \001(\t\022*\n\006writes\030\002 \003(\0132\032.google.f"
-  "irestore.v1.Write\022\023\n\013transaction\030\003 \001(\014\"z"
-  "\n\016CommitResponse\0227\n\rwrite_results\030\001 \003(\0132"
-  " .google.firestore.v1.WriteResult\022/\n\013com"
-  "mit_time\030\002 \001(\0132\032.google.protobuf.Timesta"
-  "mp\"8\n\017RollbackRequest\022\020\n\010database\030\001 \001(\t\022"
-  "\023\n\013transaction\030\002 \001(\014\"\225\002\n\017RunQueryRequest"
-  "\022\016\n\006parent\030\001 \001(\t\022@\n\020structured_query\030\002 \001"
-  "(\0132$.google.firestore.v1.StructuredQuery"
-  "H\000\022\025\n\013transaction\030\005 \001(\014H\001\022B\n\017new_transac"
-  "tion\030\006 \001(\0132\'.google.firestore.v1.Transac"
-  "tionOptionsH\001\022/\n\tread_time\030\007 \001(\0132\032.googl"
-  "e.protobuf.TimestampH\001B\014\n\nquery_typeB\026\n\024"
-  "consistency_selector\"\240\001\n\020RunQueryRespons"
-  "e\022\023\n\013transaction\030\002 \001(\014\022/\n\010document\030\001 \001(\013"
-  "2\035.google.firestore.v1.Document\022-\n\tread_"
-  "time\030\003 \001(\0132\032.google.protobuf.Timestamp\022\027"
-  "\n\017skipped_results\030\004 \001(\005\"\267\002\n\032RunAggregati"
-  "onQueryRequest\022\016\n\006parent\030\001 \001(\t\022W\n\034struct"
-  "ured_aggregation_query\030\002 \001(\0132/.google.fi"
-  "restore.v1.StructuredAggregationQueryH\000\022"
-  "\025\n\013transaction\030\004 \001(\014H\001\022B\n\017new_transactio"
+  "cy_selector\"\235\002\n\024ListDocumentsRequest\022\016\n\006"
+  "parent\030\001 \001(\t\022\025\n\rcollection_id\030\002 \001(\t\022\021\n\tp"
+  "age_size\030\003 \001(\005\022\022\n\npage_token\030\004 \001(\t\022\020\n\010or"
+  "der_by\030\006 \001(\t\022/\n\004mask\030\007 \001(\0132!.google.fire"
+  "store.v1.DocumentMask\022\025\n\013transaction\030\010 \001"
+  "(\014H\000\022/\n\tread_time\030\n \001(\0132\032.google.protobu"
+  "f.TimestampH\000\022\024\n\014show_missing\030\014 \001(\010B\026\n\024c"
+  "onsistency_selector\"b\n\025ListDocumentsResp"
+  "onse\0220\n\tdocuments\030\001 \003(\0132\035.google.firesto"
+  "re.v1.Document\022\027\n\017next_page_token\030\002 \001(\t\""
+  "\265\001\n\025CreateDocumentRequest\022\016\n\006parent\030\001 \001("
+  "\t\022\025\n\rcollection_id\030\002 \001(\t\022\023\n\013document_id\030"
+  "\003 \001(\t\022/\n\010document\030\004 \001(\0132\035.google.firesto"
+  "re.v1.Document\022/\n\004mask\030\005 \001(\0132!.google.fi"
+  "restore.v1.DocumentMask\"\356\001\n\025UpdateDocume"
+  "ntRequest\022/\n\010document\030\001 \001(\0132\035.google.fir"
+  "estore.v1.Document\0226\n\013update_mask\030\002 \001(\0132"
+  "!.google.firestore.v1.DocumentMask\022/\n\004ma"
+  "sk\030\003 \001(\0132!.google.firestore.v1.DocumentM"
+  "ask\022;\n\020current_document\030\004 \001(\0132!.google.f"
+  "irestore.v1.Precondition\"b\n\025DeleteDocume"
+  "ntRequest\022\014\n\004name\030\001 \001(\t\022;\n\020current_docum"
+  "ent\030\002 \001(\0132!.google.firestore.v1.Precondi"
+  "tion\"\224\002\n\030BatchGetDocumentsRequest\022\020\n\010dat"
+  "abase\030\001 \001(\t\022\021\n\tdocuments\030\002 \003(\t\022/\n\004mask\030\003"
+  " \001(\0132!.google.firestore.v1.DocumentMask\022"
+  "\025\n\013transaction\030\004 \001(\014H\000\022B\n\017new_transactio"
   "n\030\005 \001(\0132\'.google.firestore.v1.Transactio"
-  "nOptionsH\001\022/\n\tread_time\030\006 \001(\0132\032.google.p"
-  "rotobuf.TimestampH\001B\014\n\nquery_typeB\026\n\024con"
-  "sistency_selector\"\231\001\n\033RunAggregationQuer"
-  "yResponse\0226\n\006result\030\001 \001(\0132&.google.fires"
-  "tore.v1.AggregationResult\022\023\n\013transaction"
-  "\030\002 \001(\014\022-\n\tread_time\030\003 \001(\0132\032.google.proto"
-  "buf.Timestamp\"\343\001\n\014WriteRequest\022\020\n\010databa"
-  "se\030\001 \001(\t\022\021\n\tstream_id\030\002 \001(\t\022*\n\006writes\030\003 "
-  "\003(\0132\032.google.firestore.v1.Write\022\024\n\014strea"
-  "m_token\030\004 \001(\014\022=\n\006labels\030\005 \003(\0132-.google.f"
-  "irestore.v1.WriteRequest.LabelsEntry\032-\n\013"
-  "LabelsEntry\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:"
-  "\0028\001\"\242\001\n\rWriteResponse\022\021\n\tstream_id\030\001 \001(\t"
-  "\022\024\n\014stream_token\030\002 \001(\014\0227\n\rwrite_results\030"
-  "\003 \003(\0132 .google.firestore.v1.WriteResult\022"
-  "/\n\013commit_time\030\004 \001(\0132\032.google.protobuf.T"
-  "imestamp\"\355\001\n\rListenRequest\022\020\n\010database\030\001"
-  " \001(\t\0221\n\nadd_target\030\002 \001(\0132\033.google.firest"
-  "ore.v1.TargetH\000\022\027\n\rremove_target\030\003 \001(\005H\000"
-  "\022>\n\006labels\030\004 \003(\0132..google.firestore.v1.L"
-  "istenRequest.LabelsEntry\032-\n\013LabelsEntry\022"
-  "\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001B\017\n\rtarge"
-  "t_change\"\325\002\n\016ListenResponse\022:\n\rtarget_ch"
-  "ange\030\002 \001(\0132!.google.firestore.v1.TargetC"
-  "hangeH\000\022>\n\017document_change\030\003 \001(\0132#.googl"
-  "e.firestore.v1.DocumentChangeH\000\022>\n\017docum"
-  "ent_delete\030\004 \001(\0132#.google.firestore.v1.D"
-  "ocumentDeleteH\000\022>\n\017document_remove\030\006 \001(\013"
-  "2#.google.firestore.v1.DocumentRemoveH\000\022"
-  "6\n\006filter\030\005 \001(\0132$.google.firestore.v1.Ex"
-  "istenceFilterH\000B\017\n\rresponse_type\"\241\003\n\006Tar"
-  "get\0228\n\005query\030\002 \001(\0132\'.google.firestore.v1"
-  ".Target.QueryTargetH\000\022@\n\tdocuments\030\003 \001(\013"
-  "2+.google.firestore.v1.Target.DocumentsT"
-  "argetH\000\022\026\n\014resume_token\030\004 \001(\014H\001\022/\n\tread_"
-  "time\030\013 \001(\0132\032.google.protobuf.TimestampH\001"
-  "\022\021\n\ttarget_id\030\005 \001(\005\022\014\n\004once\030\006 \001(\010\032$\n\017Doc"
-  "umentsTarget\022\021\n\tdocuments\030\002 \003(\t\032m\n\013Query"
-  "Target\022\016\n\006parent\030\001 \001(\t\022@\n\020structured_que"
-  "ry\030\002 \001(\0132$.google.firestore.v1.Structure"
-  "dQueryH\000B\014\n\nquery_typeB\r\n\013target_typeB\r\n"
-  "\013resume_type\"\252\002\n\014TargetChange\022N\n\022target_"
-  "change_type\030\001 \001(\01622.google.firestore.v1."
-  "TargetChange.TargetChangeType\022\022\n\ntarget_"
-  "ids\030\002 \003(\005\022!\n\005cause\030\003 \001(\0132\022.google.rpc.St"
-  "atus\022\024\n\014resume_token\030\004 \001(\014\022-\n\tread_time\030"
-  "\006 \001(\0132\032.google.protobuf.Timestamp\"N\n\020Tar"
-  "getChangeType\022\r\n\tNO_CHANGE\020\000\022\007\n\003ADD\020\001\022\n\n"
-  "\006REMOVE\020\002\022\013\n\007CURRENT\020\003\022\t\n\005RESET\020\004\"Q\n\030Lis"
-  "tCollectionIdsRequest\022\016\n\006parent\030\001 \001(\t\022\021\n"
-  "\tpage_size\030\002 \001(\005\022\022\n\npage_token\030\003 \001(\t\"L\n\031"
-  "ListCollectionIdsResponse\022\026\n\016collection_"
-  "ids\030\001 \003(\t\022\027\n\017next_page_token\030\002 \001(\t2\236\024\n\tF"
-  "irestore\022\217\001\n\013GetDocument\022\'.google.firest"
-  "ore.v1.GetDocumentRequest\032\035.google.fires"
-  "tore.v1.Document\"8\202\323\344\223\0022\0220/v1/{name=proj"
-  "ects/*/databases/*/documents/*/**}\022\262\001\n\rL"
-  "istDocuments\022).google.firestore.v1.ListD"
-  "ocumentsRequest\032*.google.firestore.v1.Li"
-  "stDocumentsResponse\"J\202\323\344\223\002D\022B/v1/{parent"
-  "=projects/*/databases/*/documents/*/**}/"
-  "{collection_id}\022\257\001\n\016CreateDocument\022*.goo"
-  "gle.firestore.v1.CreateDocumentRequest\032\035"
-  ".google.firestore.v1.Document\"R\202\323\344\223\002L\"@/"
-  "v1/{parent=projects/*/databases/*/docume"
-  "nts/**}/{collection_id}:\010document\022\250\001\n\016Up"
-  "dateDocument\022*.google.firestore.v1.Updat"
-  "eDocumentRequest\032\035.google.firestore.v1.D"
-  "ocument\"K\202\323\344\223\002E29/v1/{document.name=proj"
-  "ects/*/databases/*/documents/*/**}:\010docu"
-  "ment\022\216\001\n\016DeleteDocument\022*.google.firesto"
-  "re.v1.DeleteDocumentRequest\032\026.google.pro"
-  "tobuf.Empty\"8\202\323\344\223\0022*0/v1/{name=projects/"
-  "*/databases/*/documents/*/**}\022\271\001\n\021BatchG"
-  "etDocuments\022-.google.firestore.v1.BatchG"
-  "etDocumentsRequest\032..google.firestore.v1"
-  ".BatchGetDocumentsResponse\"C\202\323\344\223\002=\"8/v1/"
-  "{database=projects/*/databases/*}/docume"
-  "nts:batchGet:\001*0\001\022\274\001\n\020BeginTransaction\022,"
-  ".google.firestore.v1.BeginTransactionReq"
-  "uest\032-.google.firestore.v1.BeginTransact"
-  "ionResponse\"K\202\323\344\223\002E\"@/v1/{database=proje"
-  "cts/*/databases/*}/documents:beginTransa"
-  "ction:\001*\022\224\001\n\006Commit\022\".google.firestore.v"
-  "1.CommitRequest\032#.google.firestore.v1.Co"
-  "mmitResponse\"A\202\323\344\223\002;\"6/v1/{database=proj"
-  "ects/*/databases/*}/documents:commit:\001*\022"
-  "\215\001\n\010Rollback\022$.google.firestore.v1.Rollb"
-  "ackRequest\032\026.google.protobuf.Empty\"C\202\323\344\223"
-  "\002=\"8/v1/{database=projects/*/databases/*"
-  "}/documents:rollback:\001*\022\337\001\n\010RunQuery\022$.g"
-  "oogle.firestore.v1.RunQueryRequest\032%.goo"
-  "gle.firestore.v1.RunQueryResponse\"\203\001\202\323\344\223"
-  "\002}\"6/v1/{parent=projects/*/databases/*/d"
-  "ocuments}:runQuery:\001*Z@\";/v1/{parent=pro"
-  "jects/*/databases/*/documents/*/**}:runQ"
-  "uery:\001*0\001\022\227\002\n\023RunAggregationQuery\022/.goog"
-  "le.firestore.v1.RunAggregationQueryReque"
-  "st\0320.google.firestore.v1.RunAggregationQ"
-  "ueryResponse\"\232\001\202\323\344\223\002\223\001\"A/v1/{parent=proj"
-  "ects/*/databases/*/documents}:runAggrega"
-  "tionQuery:\001*ZK\"F/v1/{parent=projects/*/d"
-  "atabases/*/documents/*/**}:runAggregatio"
-  "nQuery:\001*0\001\022\224\001\n\005Write\022!.google.firestore"
-  ".v1.WriteRequest\032\".google.firestore.v1.W"
-  "riteResponse\"@\202\323\344\223\002:\"5/v1/{database=proj"
-  "ects/*/databases/*}/documents:write:\001*(\001"
-  "0\001\022\230\001\n\006Listen\022\".google.firestore.v1.List"
-  "enRequest\032#.google.firestore.v1.ListenRe"
-  "sponse\"A\202\323\344\223\002;\"6/v1/{database=projects/*"
-  "/databases/*}/documents:listen:\001*(\0010\001\022\213\002"
-  "\n\021ListCollectionIds\022-.google.firestore.v"
-  "1.ListCollectionIdsRequest\032..google.fire"
-  "store.v1.ListCollectionIdsResponse\"\226\001\202\323\344"
-  "\223\002\217\001\"\?/v1/{parent=projects/*/databases/*"
-  "/documents}:listCollectionIds:\001*ZI\"D/v1/"
-  "{parent=projects/*/databases/*/documents"
-  "/*/**}:listCollectionIds:\001*B\262\001\n\027com.goog"
-  "le.firestore.v1B\016FirestoreProtoP\001Z<googl"
-  "e.golang.org/genproto/googleapis/firesto"
-  "re/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Fi"
-  "restore.V1Beta1\312\002\036Google\\Cloud\\Firestore"
-  "\\V1beta1b\006proto3"
+  "nOptionsH\000\022/\n\tread_time\030\007 \001(\0132\032.google.p"
+  "rotobuf.TimestampH\000B\026\n\024consistency_selec"
+  "tor\"\254\001\n\031BatchGetDocumentsResponse\022.\n\005fou"
+  "nd\030\001 \001(\0132\035.google.firestore.v1.DocumentH"
+  "\000\022\021\n\007missing\030\002 \001(\tH\000\022\023\n\013transaction\030\003 \001("
+  "\014\022-\n\tread_time\030\004 \001(\0132\032.google.protobuf.T"
+  "imestampB\010\n\006result\"e\n\027BeginTransactionRe"
+  "quest\022\020\n\010database\030\001 \001(\t\0228\n\007options\030\002 \001(\013"
+  "2\'.google.firestore.v1.TransactionOption"
+  "s\"/\n\030BeginTransactionResponse\022\023\n\013transac"
+  "tion\030\001 \001(\014\"b\n\rCommitRequest\022\020\n\010database\030"
+  "\001 \001(\t\022*\n\006writes\030\002 \003(\0132\032.google.firestore"
+  ".v1.Write\022\023\n\013transaction\030\003 \001(\014\"z\n\016Commit"
+  "Response\0227\n\rwrite_results\030\001 \003(\0132 .google"
+  ".firestore.v1.WriteResult\022/\n\013commit_time"
+  "\030\002 \001(\0132\032.google.protobuf.Timestamp\"8\n\017Ro"
+  "llbackRequest\022\020\n\010database\030\001 \001(\t\022\023\n\013trans"
+  "action\030\002 \001(\014\"\225\002\n\017RunQueryRequest\022\016\n\006pare"
+  "nt\030\001 \001(\t\022@\n\020structured_query\030\002 \001(\0132$.goo"
+  "gle.firestore.v1.StructuredQueryH\000\022\025\n\013tr"
+  "ansaction\030\005 \001(\014H\001\022B\n\017new_transaction\030\006 \001"
+  "(\0132\'.google.firestore.v1.TransactionOpti"
+  "onsH\001\022/\n\tread_time\030\007 \001(\0132\032.google.protob"
+  "uf.TimestampH\001B\014\n\nquery_typeB\026\n\024consiste"
+  "ncy_selector\"\240\001\n\020RunQueryResponse\022\023\n\013tra"
+  "nsaction\030\002 \001(\014\022/\n\010document\030\001 \001(\0132\035.googl"
+  "e.firestore.v1.Document\022-\n\tread_time\030\003 \001"
+  "(\0132\032.google.protobuf.Timestamp\022\027\n\017skippe"
+  "d_results\030\004 \001(\005\"\267\002\n\032RunAggregationQueryR"
+  "equest\022\016\n\006parent\030\001 \001(\t\022W\n\034structured_agg"
+  "regation_query\030\002 \001(\0132/.google.firestore."
+  "v1.StructuredAggregationQueryH\000\022\025\n\013trans"
+  "action\030\004 \001(\014H\001\022B\n\017new_transaction\030\005 \001(\0132"
+  "\'.google.firestore.v1.TransactionOptions"
+  "H\001\022/\n\tread_time\030\006 \001(\0132\032.google.protobuf."
+  "TimestampH\001B\014\n\nquery_typeB\026\n\024consistency"
+  "_selector\"\231\001\n\033RunAggregationQueryRespons"
+  "e\0226\n\006result\030\001 \001(\0132&.google.firestore.v1."
+  "AggregationResult\022\023\n\013transaction\030\002 \001(\014\022-"
+  "\n\tread_time\030\003 \001(\0132\032.google.protobuf.Time"
+  "stamp\"\343\001\n\014WriteRequest\022\020\n\010database\030\001 \001(\t"
+  "\022\021\n\tstream_id\030\002 \001(\t\022*\n\006writes\030\003 \003(\0132\032.go"
+  "ogle.firestore.v1.Write\022\024\n\014stream_token\030"
+  "\004 \001(\014\022=\n\006labels\030\005 \003(\0132-.google.firestore"
+  ".v1.WriteRequest.LabelsEntry\032-\n\013LabelsEn"
+  "try\022\013\n\003key\030\001 \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001\"\242\001\n\r"
+  "WriteResponse\022\021\n\tstream_id\030\001 \001(\t\022\024\n\014stre"
+  "am_token\030\002 \001(\014\0227\n\rwrite_results\030\003 \003(\0132 ."
+  "google.firestore.v1.WriteResult\022/\n\013commi"
+  "t_time\030\004 \001(\0132\032.google.protobuf.Timestamp"
+  "\"\355\001\n\rListenRequest\022\020\n\010database\030\001 \001(\t\0221\n\n"
+  "add_target\030\002 \001(\0132\033.google.firestore.v1.T"
+  "argetH\000\022\027\n\rremove_target\030\003 \001(\005H\000\022>\n\006labe"
+  "ls\030\004 \003(\0132..google.firestore.v1.ListenReq"
+  "uest.LabelsEntry\032-\n\013LabelsEntry\022\013\n\003key\030\001"
+  " \001(\t\022\r\n\005value\030\002 \001(\t:\0028\001B\017\n\rtarget_change"
+  "\"\325\002\n\016ListenResponse\022:\n\rtarget_change\030\002 \001"
+  "(\0132!.google.firestore.v1.TargetChangeH\000\022"
+  ">\n\017document_change\030\003 \001(\0132#.google.firest"
+  "ore.v1.DocumentChangeH\000\022>\n\017document_dele"
+  "te\030\004 \001(\0132#.google.firestore.v1.DocumentD"
+  "eleteH\000\022>\n\017document_remove\030\006 \001(\0132#.googl"
+  "e.firestore.v1.DocumentRemoveH\000\0226\n\006filte"
+  "r\030\005 \001(\0132$.google.firestore.v1.ExistenceF"
+  "ilterH\000B\017\n\rresponse_type\"\326\003\n\006Target\0228\n\005q"
+  "uery\030\002 \001(\0132\'.google.firestore.v1.Target."
+  "QueryTargetH\000\022@\n\tdocuments\030\003 \001(\0132+.googl"
+  "e.firestore.v1.Target.DocumentsTargetH\000\022"
+  "\026\n\014resume_token\030\004 \001(\014H\001\022/\n\tread_time\030\013 \001"
+  "(\0132\032.google.protobuf.TimestampH\001\022\021\n\ttarg"
+  "et_id\030\005 \001(\005\022\014\n\004once\030\006 \001(\010\0223\n\016expected_co"
+  "unt\030\014 \001(\0132\033.google.protobuf.Int32Value\032$"
+  "\n\017DocumentsTarget\022\021\n\tdocuments\030\002 \003(\t\032m\n\013"
+  "QueryTarget\022\016\n\006parent\030\001 \001(\t\022@\n\020structure"
+  "d_query\030\002 \001(\0132$.google.firestore.v1.Stru"
+  "cturedQueryH\000B\014\n\nquery_typeB\r\n\013target_ty"
+  "peB\r\n\013resume_type\"\252\002\n\014TargetChange\022N\n\022ta"
+  "rget_change_type\030\001 \001(\01622.google.firestor"
+  "e.v1.TargetChange.TargetChangeType\022\022\n\nta"
+  "rget_ids\030\002 \003(\005\022!\n\005cause\030\003 \001(\0132\022.google.r"
+  "pc.Status\022\024\n\014resume_token\030\004 \001(\014\022-\n\tread_"
+  "time\030\006 \001(\0132\032.google.protobuf.Timestamp\"N"
+  "\n\020TargetChangeType\022\r\n\tNO_CHANGE\020\000\022\007\n\003ADD"
+  "\020\001\022\n\n\006REMOVE\020\002\022\013\n\007CURRENT\020\003\022\t\n\005RESET\020\004\"Q"
+  "\n\030ListCollectionIdsRequest\022\016\n\006parent\030\001 \001"
+  "(\t\022\021\n\tpage_size\030\002 \001(\005\022\022\n\npage_token\030\003 \001("
+  "\t\"L\n\031ListCollectionIdsResponse\022\026\n\016collec"
+  "tion_ids\030\001 \003(\t\022\027\n\017next_page_token\030\002 \001(\t2"
+  "\236\024\n\tFirestore\022\217\001\n\013GetDocument\022\'.google.f"
+  "irestore.v1.GetDocumentRequest\032\035.google."
+  "firestore.v1.Document\"8\202\323\344\223\0022\0220/v1/{name"
+  "=projects/*/databases/*/documents/*/**}\022"
+  "\262\001\n\rListDocuments\022).google.firestore.v1."
+  "ListDocumentsRequest\032*.google.firestore."
+  "v1.ListDocumentsResponse\"J\202\323\344\223\002D\022B/v1/{p"
+  "arent=projects/*/databases/*/documents/*"
+  "/**}/{collection_id}\022\257\001\n\016CreateDocument\022"
+  "*.google.firestore.v1.CreateDocumentRequ"
+  "est\032\035.google.firestore.v1.Document\"R\202\323\344\223"
+  "\002L\"@/v1/{parent=projects/*/databases/*/d"
+  "ocuments/**}/{collection_id}:\010document\022\250"
+  "\001\n\016UpdateDocument\022*.google.firestore.v1."
+  "UpdateDocumentRequest\032\035.google.firestore"
+  ".v1.Document\"K\202\323\344\223\002E29/v1/{document.name"
+  "=projects/*/databases/*/documents/*/**}:"
+  "\010document\022\216\001\n\016DeleteDocument\022*.google.fi"
+  "restore.v1.DeleteDocumentRequest\032\026.googl"
+  "e.protobuf.Empty\"8\202\323\344\223\0022*0/v1/{name=proj"
+  "ects/*/databases/*/documents/*/**}\022\271\001\n\021B"
+  "atchGetDocuments\022-.google.firestore.v1.B"
+  "atchGetDocumentsRequest\032..google.firesto"
+  "re.v1.BatchGetDocumentsResponse\"C\202\323\344\223\002=\""
+  "8/v1/{database=projects/*/databases/*}/d"
+  "ocuments:batchGet:\001*0\001\022\274\001\n\020BeginTransact"
+  "ion\022,.google.firestore.v1.BeginTransacti"
+  "onRequest\032-.google.firestore.v1.BeginTra"
+  "nsactionResponse\"K\202\323\344\223\002E\"@/v1/{database="
+  "projects/*/databases/*}/documents:beginT"
+  "ransaction:\001*\022\224\001\n\006Commit\022\".google.firest"
+  "ore.v1.CommitRequest\032#.google.firestore."
+  "v1.CommitResponse\"A\202\323\344\223\002;\"6/v1/{database"
+  "=projects/*/databases/*}/documents:commi"
+  "t:\001*\022\215\001\n\010Rollback\022$.google.firestore.v1."
+  "RollbackRequest\032\026.google.protobuf.Empty\""
+  "C\202\323\344\223\002=\"8/v1/{database=projects/*/databa"
+  "ses/*}/documents:rollback:\001*\022\337\001\n\010RunQuer"
+  "y\022$.google.firestore.v1.RunQueryRequest\032"
+  "%.google.firestore.v1.RunQueryResponse\"\203"
+  "\001\202\323\344\223\002}\"6/v1/{parent=projects/*/database"
+  "s/*/documents}:runQuery:\001*Z@\";/v1/{paren"
+  "t=projects/*/databases/*/documents/*/**}"
+  ":runQuery:\001*0\001\022\227\002\n\023RunAggregationQuery\022/"
+  ".google.firestore.v1.RunAggregationQuery"
+  "Request\0320.google.firestore.v1.RunAggrega"
+  "tionQueryResponse\"\232\001\202\323\344\223\002\223\001\"A/v1/{parent"
+  "=projects/*/databases/*/documents}:runAg"
+  "gregationQuery:\001*ZK\"F/v1/{parent=project"
+  "s/*/databases/*/documents/*/**}:runAggre"
+  "gationQuery:\001*0\001\022\224\001\n\005Write\022!.google.fire"
+  "store.v1.WriteRequest\032\".google.firestore"
+  ".v1.WriteResponse\"@\202\323\344\223\002:\"5/v1/{database"
+  "=projects/*/databases/*}/documents:write"
+  ":\001*(\0010\001\022\230\001\n\006Listen\022\".google.firestore.v1"
+  ".ListenRequest\032#.google.firestore.v1.Lis"
+  "tenResponse\"A\202\323\344\223\002;\"6/v1/{database=proje"
+  "cts/*/databases/*}/documents:listen:\001*(\001"
+  "0\001\022\213\002\n\021ListCollectionIds\022-.google.firest"
+  "ore.v1.ListCollectionIdsRequest\032..google"
+  ".firestore.v1.ListCollectionIdsResponse\""
+  "\226\001\202\323\344\223\002\217\001\"\?/v1/{parent=projects/*/databa"
+  "ses/*/documents}:listCollectionIds:\001*ZI\""
+  "D/v1/{parent=projects/*/databases/*/docu"
+  "ments/*/**}:listCollectionIds:\001*B\262\001\n\027com"
+  ".google.firestore.v1B\016FirestoreProtoP\001Z<"
+  "google.golang.org/genproto/googleapis/fi"
+  "restore/v1;firestore\242\002\004GCFS\252\002\036Google.Clo"
+  "ud.Firestore.V1Beta1\312\002\036Google\\Cloud\\Fire"
+  "store\\V1beta1b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_deps[9] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_deps[10] = {
   &::descriptor_table_google_2fapi_2fannotations_2eproto,
   &::descriptor_table_google_2ffirestore_2fv1_2faggregation_5fresult_2eproto,
   &::descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto,
@@ -1198,6 +1203,7 @@ static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor
   &::descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto,
   &::descriptor_table_google_2fprotobuf_2fempty_2eproto,
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
+  &::descriptor_table_google_2fprotobuf_2fwrappers_2eproto,
   &::descriptor_table_google_2frpc_2fstatus_2eproto,
 };
 static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_sccs[29] = {
@@ -1234,8 +1240,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_goo
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_once;
 static bool descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2ffirestore_2eproto, "google/firestore/v1/firestore.proto", 7896,
-  &descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_deps, 29, 9,
+  &descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2ffirestore_2eproto, "google/firestore/v1/firestore.proto", 7981,
+  &descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2ffirestore_2eproto_deps, 29, 10,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2ffirestore_2eproto::offsets,
   file_level_metadata_google_2ffirestore_2fv1_2ffirestore_2eproto, 29, file_level_enum_descriptors_google_2ffirestore_2fv1_2ffirestore_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2ffirestore_2eproto,
 };
@@ -9164,12 +9170,15 @@ void Target::InitAsDefaultInstance() {
       &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited());
   ::google::firestore::v1::_Target_default_instance_.read_time_ = const_cast< PROTOBUF_NAMESPACE_ID::Timestamp*>(
       PROTOBUF_NAMESPACE_ID::Timestamp::internal_default_instance());
+  ::google::firestore::v1::_Target_default_instance_._instance.get_mutable()->expected_count_ = const_cast< PROTOBUF_NAMESPACE_ID::Int32Value*>(
+      PROTOBUF_NAMESPACE_ID::Int32Value::internal_default_instance());
 }
 class Target::_Internal {
  public:
   static const ::google::firestore::v1::Target_QueryTarget& query(const Target* msg);
   static const ::google::firestore::v1::Target_DocumentsTarget& documents(const Target* msg);
   static const PROTOBUF_NAMESPACE_ID::Timestamp& read_time(const Target* msg);
+  static const PROTOBUF_NAMESPACE_ID::Int32Value& expected_count(const Target* msg);
 };
 
 const ::google::firestore::v1::Target_QueryTarget&
@@ -9183,6 +9192,10 @@ Target::_Internal::documents(const Target* msg) {
 const PROTOBUF_NAMESPACE_ID::Timestamp&
 Target::_Internal::read_time(const Target* msg) {
   return *msg->resume_type_.read_time_;
+}
+const PROTOBUF_NAMESPACE_ID::Int32Value&
+Target::_Internal::expected_count(const Target* msg) {
+  return *msg->expected_count_;
 }
 void Target::set_allocated_query(::google::firestore::v1::Target_QueryTarget* query) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
@@ -9233,6 +9246,12 @@ void Target::clear_read_time() {
     clear_has_resume_type();
   }
 }
+void Target::clear_expected_count() {
+  if (GetArenaNoVirtual() == nullptr && expected_count_ != nullptr) {
+    delete expected_count_;
+  }
+  expected_count_ = nullptr;
+}
 Target::Target()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -9242,6 +9261,11 @@ Target::Target(const Target& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from._internal_has_expected_count()) {
+    expected_count_ = new PROTOBUF_NAMESPACE_ID::Int32Value(*from.expected_count_);
+  } else {
+    expected_count_ = nullptr;
+  }
   ::memcpy(&target_id_, &from.target_id_,
     static_cast<size_t>(reinterpret_cast<char*>(&once_) -
     reinterpret_cast<char*>(&target_id_)) + sizeof(once_));
@@ -9278,9 +9302,9 @@ Target::Target(const Target& from)
 
 void Target::SharedCtor() {
   ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_Target_google_2ffirestore_2fv1_2ffirestore_2eproto.base);
-  ::memset(&target_id_, 0, static_cast<size_t>(
+  ::memset(&expected_count_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&once_) -
-      reinterpret_cast<char*>(&target_id_)) + sizeof(once_));
+      reinterpret_cast<char*>(&expected_count_)) + sizeof(once_));
   clear_has_target_type();
   clear_has_resume_type();
 }
@@ -9291,6 +9315,7 @@ Target::~Target() {
 }
 
 void Target::SharedDtor() {
+  if (this != internal_default_instance()) delete expected_count_;
   if (has_target_type()) {
     clear_target_type();
   }
@@ -9351,6 +9376,10 @@ void Target::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  if (GetArenaNoVirtual() == nullptr && expected_count_ != nullptr) {
+    delete expected_count_;
+  }
+  expected_count_ = nullptr;
   ::memset(&target_id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&once_) -
       reinterpret_cast<char*>(&target_id_)) + sizeof(once_));
@@ -9406,6 +9435,13 @@ const char* Target::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
       case 11:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 90)) {
           ptr = ctx->ParseMessage(_internal_mutable_read_time(), ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.protobuf.Int32Value expected_count = 12;
+      case 12:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 98)) {
+          ptr = ctx->ParseMessage(_internal_mutable_expected_count(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -9477,6 +9513,14 @@ failure:
         11, _Internal::read_time(this), target, stream);
   }
 
+  // .google.protobuf.Int32Value expected_count = 12;
+  if (this->has_expected_count()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        12, _Internal::expected_count(this), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
@@ -9492,6 +9536,13 @@ size_t Target::ByteSizeLong() const {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // .google.protobuf.Int32Value expected_count = 12;
+  if (this->has_expected_count()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *expected_count_);
+  }
 
   // int32 target_id = 5;
   if (this->target_id() != 0) {
@@ -9574,6 +9625,9 @@ void Target::MergeFrom(const Target& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.has_expected_count()) {
+    _internal_mutable_expected_count()->PROTOBUF_NAMESPACE_ID::Int32Value::MergeFrom(from._internal_expected_count());
+  }
   if (from.target_id() != 0) {
     _internal_set_target_id(from._internal_target_id());
   }
@@ -9629,6 +9683,7 @@ bool Target::IsInitialized() const {
 void Target::InternalSwap(Target* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(expected_count_, other->expected_count_);
   swap(target_id_, other->target_id_);
   swap(once_, other->once_);
   swap(target_type_, other->target_type_);
