@@ -289,7 +289,8 @@ TargetData LocalSerializer::DecodeTargetData(
   if (!reader->status().ok()) return TargetData();
   return TargetData(std::move(target), target_id, sequence_number,
                     QueryPurpose::Listen, version,
-                    last_limbo_free_snapshot_version, std::move(resume_token),absl::nullopt);
+                    last_limbo_free_snapshot_version, std::move(resume_token),
+                    absl::nullopt);
 }
 
 Message<firestore_client_WriteBatch> LocalSerializer::EncodeMutationBatch(
