@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/remote/bloom_filter.h"
+
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -28,13 +29,120 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+namespace {
 using nlohmann::json;
 using util::JsonReader;
 using util::Path;
 using util::Status;
 using util::StatusOr;
 
-class BloomFilterTest : public ::testing::Test {
+TEST(BloomFilterUnitTest, CanInstantiateEmptyBloomFilter) {
+  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
+  EXPECT_EQ(bloom_filter.bit_count(), 0);
+}
+
+TEST(BloomFilterUnitTest, CanInstantiateNonEmptyBloomFilter) {
+  {
+    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 0, 1);
+    EXPECT_EQ(bloom_filter.bit_count(), 8);
+  }
+  {
+    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 7, 1);
+    EXPECT_EQ(bloom_filter.bit_count(), 1);
+  }
+}
+
+TEST(BloomFilterUnitTest, CreateShouldReturnBloomFilterOnValidInputs) {
+  StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(std::vector<uint8_t>{1}, 1, 1);
+  ASSERT_TRUE(maybe_bloom_filter.ok());
+  BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
+  EXPECT_EQ(bloom_filter.bit_count(), 7);
+}
+
+TEST(BloomFilterUnitTest, CreateShouldBeAbleToCreatEmptyBloomFilter) {
+  StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(std::vector<uint8_t>{}, 0, 0);
+  ASSERT_TRUE(maybe_bloom_filter.ok());
+  BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
+  EXPECT_EQ(bloom_filter.bit_count(), 0);
+}
+
+TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnNegativePadding) {
+  {
+    StatusOr<BloomFilter> maybe_bloom_filter =
+        BloomFilter::Create(std::vector<uint8_t>{}, -1, 0);
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
+              "Invalid padding: -1");
+  }
+  {
+    StatusOr<BloomFilter> maybe_bloom_filter =
+        BloomFilter::Create(std::vector<uint8_t>{1}, -1, 1);
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
+              "Invalid padding: -1");
+  }
+}
+
+TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnNegativeHashCount) {
+  {
+    StatusOr<BloomFilter> maybe_bloom_filter =
+        BloomFilter::Create(std::vector<uint8_t>{}, 0, -1);
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
+              "Invalid hash count: -1");
+  }
+  {
+    StatusOr<BloomFilter> maybe_bloom_filter =
+        BloomFilter::Create(std::vector<uint8_t>{1}, 1, -1);
+    ASSERT_FALSE(maybe_bloom_filter.ok());
+    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
+              "Invalid hash count: -1");
+  }
+}
+
+TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnZeroHashCount) {
+  StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(std::vector<uint8_t>{1}, 1, 0);
+  ASSERT_FALSE(maybe_bloom_filter.ok());
+  EXPECT_EQ(maybe_bloom_filter.status().error_message(),
+            "Invalid hash count: 0");
+}
+
+TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusIfPaddingIsTooLarge) {
+  StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(std::vector<uint8_t>{1}, 8, 1);
+  ASSERT_FALSE(maybe_bloom_filter.ok());
+  EXPECT_EQ(maybe_bloom_filter.status().error_message(), "Invalid padding: 8");
+}
+
+TEST(BloomFilterUnitTest, MightContainCanProcessNonStandardCharacters) {
+  // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
+  BloomFilter bloom_filter(std::vector<uint8_t>{237, 5}, 5, 8);
+  EXPECT_TRUE(bloom_filter.MightContain("ÀÒ∑"));
+  EXPECT_FALSE(bloom_filter.MightContain("Ò∑À"));
+}
+
+TEST(BloomFilterUnitTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
+  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
+  EXPECT_FALSE(bloom_filter.MightContain(""));
+  EXPECT_FALSE(bloom_filter.MightContain("a"));
+}
+
+TEST(BloomFilterUnitTest,
+     MightContainWithEmptyStringMightReturnFalsePositiveResult) {
+  {
+    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 1, 1);
+    EXPECT_FALSE(bloom_filter.MightContain(""));
+  }
+  {
+    BloomFilter bloom_filter(std::vector<uint8_t>{255}, 0, 16);
+    EXPECT_TRUE(bloom_filter.MightContain(""));
+  }
+}
+
+class BloomFilterGoldenTest : public ::testing::Test {
  public:
   void RunGoldenTest(std::string& test_file) {
     size_t start_pos = test_file.find("bloom_filter_proto");
@@ -64,8 +172,6 @@ class BloomFilterTest : public ::testing::Test {
       bool expectedResult = membership_result[i] == '1';
       bool mightContainResult = bloom_filter.MightContain(
           GOLDEN_DOCUMENT_PREFIX_ + std::to_string(i));
-      std::cout << "expectedResult: " << expectedResult << std::endl;
-      std::cout << "mightContainResult: " << mightContainResult << std::endl;
 
       EXPECT_EQ(mightContainResult, expectedResult);
     }
@@ -86,112 +192,6 @@ class BloomFilterTest : public ::testing::Test {
   JsonReader reader;
 };
 
-TEST(BloomFilterTest, CanInstantiateEmptyBloomFilter) {
-  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
-  EXPECT_EQ(bloom_filter.bit_count(), 0);
-}
-
-TEST(BloomFilterTest, CanInstantiateNonEmptyBloomFilter) {
-  {
-    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 0, 1);
-    EXPECT_EQ(bloom_filter.bit_count(), 8);
-  }
-  {
-    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 7, 1);
-    EXPECT_EQ(bloom_filter.bit_count(), 1);
-  }
-}
-
-TEST(BloomFilterTest, CreateShouldReturnBloomFilterOnValidInputs) {
-  StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{1}, 1, 1);
-  ASSERT_TRUE(maybe_bloom_filter.ok());
-  BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
-  EXPECT_EQ(bloom_filter.bit_count(), 7);
-}
-
-TEST(BloomFilterTest, CreateShouldBeAbleToCreatEmptyBloomFilter) {
-  StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{}, 0, 0);
-  ASSERT_TRUE(maybe_bloom_filter.ok());
-  BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
-  EXPECT_EQ(bloom_filter.bit_count(), 0);
-}
-
-TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnNegativePadding) {
-  {
-    StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{}, -1, 0);
-    ASSERT_FALSE(maybe_bloom_filter.ok());
-    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
-              "Invalid padding: -1");
-  }
-  {
-    StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{1}, -1, 1);
-    ASSERT_FALSE(maybe_bloom_filter.ok());
-    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
-              "Invalid padding: -1");
-  }
-}
-
-TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnNegativeHashCount) {
-  {
-    StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{}, 0, -1);
-    ASSERT_FALSE(maybe_bloom_filter.ok());
-    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
-              "Invalid hash count: -1");
-  }
-  {
-    StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{1}, 1, -1);
-    ASSERT_FALSE(maybe_bloom_filter.ok());
-    EXPECT_EQ(maybe_bloom_filter.status().error_message(),
-              "Invalid hash count: -1");
-  }
-}
-
-TEST(BloomFilterTest, CreateShouldReturnNotOKStatusOnZeroHashCount) {
-  StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{1}, 1, 0);
-  ASSERT_FALSE(maybe_bloom_filter.ok());
-  EXPECT_EQ(maybe_bloom_filter.status().error_message(),
-            "Invalid hash count: 0");
-}
-
-TEST(BloomFilterTest, CreateShouldReturnNotOKStatusIfPaddingIsTooLarge) {
-  StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{1}, 8, 1);
-  ASSERT_FALSE(maybe_bloom_filter.ok());
-  EXPECT_EQ(maybe_bloom_filter.status().error_message(), "Invalid padding: 8");
-}
-
-TEST(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
-  // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
-  BloomFilter bloom_filter(std::vector<uint8_t>{237, 5}, 5, 8);
-  EXPECT_TRUE(bloom_filter.MightContain("ÀÒ∑"));
-  EXPECT_FALSE(bloom_filter.MightContain("Ò∑À"));
-}
-
-TEST(BloomFilterTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
-  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
-  EXPECT_FALSE(bloom_filter.MightContain(""));
-  EXPECT_FALSE(bloom_filter.MightContain("a"));
-}
-
-TEST(BloomFilterTest,
-     MightContainWithEmptyStringMightReturnFalsePositiveResult) {
-  {
-    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 1, 1);
-    EXPECT_FALSE(bloom_filter.MightContain(""));
-  }
-  {
-    BloomFilter bloom_filter(std::vector<uint8_t>{255}, 0, 16);
-    EXPECT_TRUE(bloom_filter.MightContain(""));
-  }
-}
-
 /**
  * Golden tests are generated by backend based on inserting n number of document
  * paths into a bloom filter.
@@ -204,64 +204,64 @@ TEST(BloomFilterTest,
  * expected to be true, and the membership results from n to 2n is expected to
  * be false with some false positive results.
  */
-TEST_F(BloomFilterTest, GoldenTest1Document1FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest1Document1FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_1_1_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest1Document01FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest1Document01FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest1Document0001FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest1Document0001FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_1_0001_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest500Document1FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest500Document1FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_500_1_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest500Document01FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest500Document01FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_500_01_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest500Document0001FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest500Document0001FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
 
-TEST_F(BloomFilterTest, GoldenTest5000Document1FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest5000Document1FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest5000Document01FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest5000Document01FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_5000_01_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest5000Document0001FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest5000Document0001FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_5000_0001_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
 
-TEST_F(BloomFilterTest, GoldenTest50000Document1FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest50000Document1FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_50000_1_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest50000Document01FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest50000Document01FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_50000_01_bloom_filter_proto.json";
   RunGoldenTest(test_file);
 }
-TEST_F(BloomFilterTest, GoldenTest50000Document0001FalsePositiveRate) {
+TEST_F(BloomFilterGoldenTest, GoldenTest50000Document0001FalsePositiveRate) {
   std::string test_file =
       "Validation_BloomFilterTest_MD5_50000_0001_bloom_filter_proto.json";
   RunGoldenTest(test_file);

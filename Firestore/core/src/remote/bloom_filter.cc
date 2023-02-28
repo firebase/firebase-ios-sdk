@@ -18,10 +18,9 @@
 
 #include <utility>
 
-#include "CommonCrypto/CommonDigest.h"
 #include "Firestore/core/src/util/hard_assert.h"
+#include "Firestore/core/src/util/md5.h"
 #include "Firestore/core/src/util/statusor.h"
-#include "Firestore/core/src/util/warnings.h"
 
 namespace firebase {
 namespace firestore {
@@ -30,23 +29,15 @@ namespace remote {
 using util::Status;
 using util::StatusOr;
 
-// TODO(Mila): Replace CommonCrypto with platform based MD5 calculation and
-// remove suppress.
-SUPPRESS_DEPRECATED_DECLARATIONS_BEGIN();
-
 BloomFilter::Hash BloomFilter::Md5HashDigest(absl::string_view key) const {
-  unsigned char md5_digest[CC_MD5_DIGEST_LENGTH];
+  std::array<uint8_t, 16> md5_digest{util::CalculateMd5Digest(key.data())};
 
-  CC_MD5_CTX context;
-  CC_MD5_Init(&context);
-  CC_MD5_Update(&context, key.data(), key.size());
-  CC_MD5_Final(md5_digest, &context);
+  // TODO(Mila): Handle big endian processor.
+  uint64_t* hash128 = reinterpret_cast<uint64_t*>(md5_digest.data());
+  static_assert(sizeof(uint64_t[2]) == sizeof(uint8_t[16]), "");
 
-  // TODO(Mila): Replace this casting with safer function (b/270568625).
-  uint64_t* hash128 = reinterpret_cast<uint64_t*>(md5_digest);
   return Hash{hash128[0], hash128[1]};
 }
-SUPPRESS_END();
 
 int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
   HARD_ASSERT(hash_index >= 0);
