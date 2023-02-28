@@ -60,6 +60,9 @@ Pod::Spec.new do |s|
       unit_tests.source_files = [
         'FirebaseAppDistributionInternal/Tests/Unit/*.swift',
       ]
+      unit_tests.pod_target_xcconfig = {
+        'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppDistributionInternal/Tests/Unit/Bridging-Header.h'
+      }
       unit_tests.dependency 'OCMock'
      end
   end

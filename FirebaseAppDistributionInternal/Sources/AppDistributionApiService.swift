@@ -65,11 +65,11 @@ struct FindReleaseResponse: Codable {
 
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
-    generateAuthToken(installations: Installations.installations(), completion: completion)
+    generateAuthToken(firInstallation: Installations.installations(), completion: completion)
   }
   
-  static func generateAuthToken(installations: Installations, completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
-    installations.authToken(completion: { authTokenResult, error in
+  static func generateAuthToken(firInstallation: Installations, completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+    firInstallation.authToken(completion: { authTokenResult, error in
       var fadError = error
       if self.handleError(
         error: &fadError,
@@ -83,7 +83,7 @@ struct FindReleaseResponse: Codable {
         return
       }
 
-      installations.installationID(completion: { identifier, error in
+      firInstallation.installationID(completion: { identifier, error in
         var fadError = error
         if self.handleError(
           error: &fadError,
@@ -103,15 +103,15 @@ struct FindReleaseResponse: Codable {
   }
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
-    fetchReleases(urlSession: URLSession.shared, completion: completion)
+    fetchReleases(firInstallation: Installations.installations(), urlSession: URLSession.shared, completion: completion)
   }
   
-  public static func fetchReleases(urlSession: URLSession, completion: @escaping AppDistributionFetchReleasesCompletion) {
+  public static func fetchReleases(firInstallation: Installations, urlSession: URLSession, completion: @escaping AppDistributionFetchReleasesCompletion) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
       FirebaseApp.app()?.options.googleAppID ?? "unknown"
     ))
-    generateAuthToken { identifier, authTokenResult, error in
+    generateAuthToken(firInstallation: firInstallation) { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.releaseEndpointUrlTemplate,
         FirebaseApp.app()!.options.googleAppID,
@@ -143,60 +143,6 @@ struct FindReleaseResponse: Codable {
         }
 
       listReleaseDataTask.resume()
-    }
-  }
-
-  public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
-                                 completion: @escaping AppDistributionFindReleaseCompletion) {
-    generateAuthToken { identifier, authTokenResult, error in
-      // TODO(tundeagboola) The backend may not accept project ID here in which case
-      // we'll have to figure out a way to get the project number
-      let urlString = String(
-        format: Strings.findReleaseEndpointUrlTemplate,
-        FirebaseApp.app()!.options.projectID!,
-        identifier!
-      )
-      guard var urlComponents = URLComponents(string: urlString) else {
-        // TODO(tundeagboola) Should I throw an exception here?
-        return
-      }
-      let compositeBinaryId = CompositeBinaryId(
-        displayVersion: displayVersion,
-        buildVersion: buildVersion,
-        codeHash: codeHash
-      )
-      guard let compositeBinaryIdData = try? JSONEncoder().encode(compositeBinaryId) else {
-        // TODO(tundeagboola) Should I throw an exception here?
-        return
-      }
-      urlComponents.queryItems = [URLQueryItem(
-        name: Strings.compositeBinaryIdQueryParamName,
-        value: String(data: compositeBinaryIdData, encoding: .utf8)
-      )]
-      guard let url = urlComponents.url else {
-        // TODO(tundeagboola) Should I throw an exception here?
-        return
-      }
-      let request = self.createHttpRequest(
-        method: Strings.httpGet,
-        url: url,
-        authTokenResult: authTokenResult!
-      )
-      let findReleaseDataTask = URLSession.shared
-        .dataTask(with: request as URLRequest) { data, response, error in
-          var fadError = error
-          let findReleaseResponse = self.handleResponse(
-            data: data,
-            response: response,
-            error: &fadError,
-            returnType: FindReleaseResponse.self
-          )
-          DispatchQueue.main.async {
-            completion(findReleaseResponse?.release, fadError)
-          }
-        }
-
-      findReleaseDataTask.resume()
     }
   }
 

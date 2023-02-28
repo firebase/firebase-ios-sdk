@@ -24,24 +24,22 @@ class AppDistributionApiServiceTests: XCTestCase {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000", gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
     options.apiKey = "AIzaSyByd9FGaZjtoILTq6Ff--zm8EyIoJsu3bg"
-    FirebaseApp.configure(name: "__FIRAPP_DEFAULT", options: options)
-    let _ = FirebaseApp.app()
+    FirebaseApp.configure(name: "appdistro-test-app", options: options)
+    let _ = FirebaseApp.app(name: "appdistro-test-app")
   }
   
-  func testFindRelease() {
+  func testFetchRelease() {
     
-    class MockFIRInstallation: FirebaseInstallations.Installations {
+    class MockFIRInstallation: FirebaseInstallations.Installations {      
       override func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
-        let authTokenResult = InstallationsAuthTokenResult.init(withToken:"abcde" expirationDate)
-        authTokenResult.authToken = "abcde"
-        authTokenResult.expirationDate = Date()
-        completion(
+        let authToken = InstallationsAuthTokenResult(token: "abcde", expirationDate: Date())
+        completion(authToken, nil)
       }
-      
     }
     
-    AppDistributionApiService.findRelease(displayVersion: "1.0", buildVersion: "1.0", codeHash: "1234", completion: { releaseName,error in
-      XCTAssertNotNil(error)
-    })
+    let firebaseApp = FirebaseApp.app(name: "appdistro-test-app")
+    AppDistributionApiService.fetchReleases(firInstallation: MockFIRInstallation.installations(app: firebaseApp!), urlSession: URLSession.shared) { releases,error in
+      
+    }
   }
 }
