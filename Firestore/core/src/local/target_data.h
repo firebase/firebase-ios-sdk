@@ -151,7 +151,7 @@ class TargetData {
    * read time. Documents are counted only when making a listen request with
    * resume token or read time, otherwise, keep it null.
    */
-  absl::optional<int32_t> expected_count() const {
+  const absl::optional<int32_t>& expected_count() const {
     return expected_count_;
   }
 

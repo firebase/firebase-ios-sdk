@@ -466,10 +466,10 @@ TEST_F(LocalSerializerTest, EncodesTargetData) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  TargetData target_data(query.ToTarget(), target_id, sequence_number,
-                         QueryPurpose::Listen, SnapshotVersion(version),
-                         SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token), absl::nullopt);
+  TargetData target_data(
+      query.ToTarget(), target_id, sequence_number, QueryPurpose::Listen,
+      SnapshotVersion(version), SnapshotVersion(limbo_free_version),
+      ByteString(resume_token), /*expected_count=*/absl::nullopt);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -530,10 +530,10 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithDocumentQuery) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
-  TargetData target_data(query.ToTarget(), target_id, sequence_number,
-                         QueryPurpose::Listen, SnapshotVersion(version),
-                         SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token), absl::nullopt);
+  TargetData target_data(
+      query.ToTarget(), target_id, sequence_number, QueryPurpose::Listen,
+      SnapshotVersion(version), SnapshotVersion(limbo_free_version),
+      ByteString(resume_token), /*expected_count=*/absl::nullopt);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);

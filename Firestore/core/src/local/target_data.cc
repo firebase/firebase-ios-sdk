@@ -70,7 +70,7 @@ TargetData::TargetData(Target target,
       last_limbo_free_snapshot_version_(
           std::move(last_limbo_free_snapshot_version)),
       resume_token_(std::move(resume_token)),
-      expected_count_(expected_count) {
+      expected_count_(std::move(expected_count)) {
 }
 
 TargetData::TargetData(Target target,
@@ -84,14 +84,15 @@ TargetData::TargetData(Target target,
                  SnapshotVersion::None(),
                  SnapshotVersion::None(),
                  ByteString(),
-                 absl::nullopt) {
+                 /*expected_count=*/absl::nullopt) {
 }
 
 TargetData TargetData::Invalid() {
-  return TargetData(
-      {}, /*target_id=*/-1, /*sequence_number=*/-1, QueryPurpose::Listen,
-      SnapshotVersion(SnapshotVersion::None()),
-      SnapshotVersion(SnapshotVersion::None()), {}, absl::nullopt);
+  return TargetData({}, /*target_id=*/-1, /*sequence_number=*/-1,
+                    QueryPurpose::Listen,
+                    SnapshotVersion(SnapshotVersion::None()),
+                    SnapshotVersion(SnapshotVersion::None()), {},
+                    /*expected_count=*/absl::nullopt);
 }
 
 TargetData TargetData::WithSequenceNumber(
@@ -106,7 +107,7 @@ TargetData TargetData::WithResumeToken(ByteString resume_token,
   return TargetData(target_, target_id_, sequence_number_, purpose_,
                     std::move(snapshot_version),
                     last_limbo_free_snapshot_version_, std::move(resume_token),
-                    absl::nullopt);
+                    /*expected_count=*/absl::nullopt);
 }
 
 TargetData TargetData::WithExpectedCount(int32_t expected_count) const {
