@@ -765,7 +765,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                          NSString *appCheckTokenFragments = [@"fac="
                                                              stringByAppendingString:tokenResult
                                                                                          .token];
-                                                         NSString *URLString = url.absoluteString;
+                                                         NSString *URLString = [url absoluteString];
                                                          NSString *URLStringWithAppCheckToken =
                                                              [URLString stringByAppendingString:
                                                                             appCheckTokenFragments];
