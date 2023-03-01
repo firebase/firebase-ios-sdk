@@ -742,6 +742,13 @@ extern NSString *const FIRPhoneMultiFactorID;
                                            addObject:[NSURLQueryItem queryItemWithName:@"appId"
                                                                                  value:appID]];
                                      }
+
+                                     NSURLComponents *components = [[NSURLComponents alloc]
+                                         initWithString:
+                                             [NSString stringWithFormat:kReCAPTCHAURLStringFormat,
+                                                                        authDomain]];
+                                     [components setQueryItems:queryItems];
+                                     NSURL *url = [components URL];
                                      if (appCheck) {
                                        [appCheck
                                            getTokenForcingRefresh:false
@@ -758,23 +765,21 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                          NSString *appCheckTokenFragments = [@"fac="
                                                              stringByAppendingString:tokenResult
                                                                                          .token];
-                                                         [queryItems
-                                                             addObject:
-                                                                 [NSURLQueryItem
-                                                                     queryItemWithName:
-                                                                         @"appCheckToken"
-                                                                                 value:
-                                                                                     appCheckTokenFragments]];
+                                                         NSString *URLString = url.absoluteString;
+                                                         NSString *URLStringWithAppCheckToken =
+                                                             [URLString stringByAppendingString:
+                                                                            appCheckTokenFragments];
+                                                         NSURL *URLWithAppCheckToken =
+                                                             [NSURL URLWithString:
+                                                                        URLStringWithAppCheckToken];
+                                                         if (completion) {
+                                                           completion(URLWithAppCheckToken, nil);
+                                                         }
                                                        }];
-                                     }
-
-                                     NSURLComponents *components = [[NSURLComponents alloc]
-                                         initWithString:
-                                             [NSString stringWithFormat:kReCAPTCHAURLStringFormat,
-                                                                        authDomain]];
-                                     [components setQueryItems:queryItems];
-                                     if (completion) {
-                                       completion([components URL], nil);
+                                     } else {
+                                       if (completion) {
+                                         completion(url, nil);
+                                       }
                                      }
                                    }];
 }
