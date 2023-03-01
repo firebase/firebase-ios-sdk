@@ -53,10 +53,10 @@ NSString *const kHeadfulLiteURLStringFormat = @"https://%@/__/auth/handler?%@";
  */
 NSString *const kHeadfulLiteEmulatorURLStringFormat = @"http://%@/emulator/auth/handler?%@";
 
-/** @var kAppCheckTokenURLFormat
+/** @var kAppCheckURLFragmentKey
     @brief The format of passing appCheck token as a URL fragment.
  */
-NSString *const kAppCheckTokenURLFormat = @"fac=";
+NSString *const kAppCheckURLFragmentKey = @"fac=";
 
 /** @var kauthTypeSignInWithRedirect
     @brief The auth type to be specified in the sign-in request with redirect request and response.
@@ -354,27 +354,6 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                            strongSelf->_auth.requestConfiguration.languageCode;
                                      }
 
-                                     if (appCheck) {
-                                       [appCheck
-                                           getTokenForcingRefresh:false
-                                                       completion:^(
-                                                           id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
-                                                         if (tokenResult.error) {
-                                                           FIRLogWarning(
-                                                               kFIRLoggerAuth, @"I-AUT000018",
-                                                               @"Error getting App Check token; "
-                                                               @"using placeholder token "
-                                                               @"instead. Error: %@",
-                                                               tokenResult.error);
-                                                         }
-                                                         NSString *appCheckTokenFragments =
-                                                             [kAppCheckTokenURLFormat
-                                                                 stringByAppendingString:
-                                                                     tokenResult.token];
-                                                         urlArguments[@"appCheckToken"] =
-                                                             appCheckTokenFragments;
-                                                       }];
-                                     }
                                      NSString *argumentsString = [strongSelf
                                          httpArgumentsStringForArgsDictionary:urlArguments];
                                      NSString *URLString;
@@ -388,17 +367,51 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                            [NSString stringWithFormat:kHeadfulLiteURLStringFormat,
                                                                       authDomain, argumentsString];
                                      }
-                                     if (completion) {
-                                       NSCharacterSet *set =
-                                           [NSCharacterSet URLFragmentAllowedCharacterSet];
-                                       completion(
-                                           [NSURL
-                                               URLWithString:
-                                                   [URLString
-                                                       stringByAddingPercentEncodingWithAllowedCharacters:
-                                                           set]],
-                                           nil);
-                                     }
+                                      if (appCheck) {
+                                        [appCheck
+                                            getTokenForcingRefresh:false
+                                                        completion:^(
+                                                            id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
+                                                          if (tokenResult.error) {
+                                                            FIRLogWarning(
+                                                                kFIRLoggerAuth, @"I-AUT000018",
+                                                                @"Error getting App Check token; "
+                                                                @"using placeholder token "
+                                                                @"instead. Error: %@",
+                                                                tokenResult.error);
+                                                          }
+                                                          NSString *appCheckTokenFragments =
+                                                              [kAppCheckURLFragmentKey
+                                                                  stringByAppendingString:
+                                                                      tokenResult.token];
+                                                        NSString *URLStringWithAppCheckToken = [URLString stringByAppendingString:appCheckTokenFragments];
+                                                        NSLog(@"URLString with appCheckTokenFragment: %@",URLString);
+                                                        if (completion) {
+                                                          NSCharacterSet *set =
+                                                              [NSCharacterSet URLFragmentAllowedCharacterSet];
+                                                          completion(
+                                                              [NSURL
+                                                                  URLWithString:
+                                                                      [URLStringWithAppCheckToken
+                                                                          stringByAddingPercentEncodingWithAllowedCharacters:
+                                                                              set]],
+                                                              nil);
+                                                        }
+                                                        }];
+                                          
+                                      } else {
+                                          if (completion) {
+                                            NSCharacterSet *set =
+                                                [NSCharacterSet URLFragmentAllowedCharacterSet];
+                                            completion(
+                                                [NSURL
+                                                    URLWithString:
+                                                        [URLString
+                                                            stringByAddingPercentEncodingWithAllowedCharacters:
+                                                                set]],
+                                                nil);
+                                          }
+                                      }
                                    }];
 }
 
