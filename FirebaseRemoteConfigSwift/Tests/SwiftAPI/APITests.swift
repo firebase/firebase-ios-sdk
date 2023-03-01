@@ -152,6 +152,7 @@ class APITests: APITestBase {
 
     let registration = config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
       XCTAssertNil(Error, "Realtime error \(Error!)")
+      XCTAssertNotNil(RemoteConfigUpdate)
 
       expectation.fulfill()
     }
@@ -167,7 +168,8 @@ class APITests: APITestBase {
 
     let registration = config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
       XCTAssertNil(Error, "Realtime error \(Error!)")
-
+      XCTAssertNotNil(RemoteConfigUpdate)
+      XCTAssertNotNil(RemoteConfigUpdate?.updatedKeys.contains(Constants.jedi))
       expectation.fulfill()
     }
 
