@@ -108,6 +108,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
     }
   }
 
+  /// UI popup for Realtime that shows if realtime_test_key was included in update.
   UIAlertController *alert = [UIAlertController
       alertControllerWithTitle:@"Alert"
                        message:@"The value for realtime_test_key has been updated!"
@@ -129,7 +130,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         } else {
           [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
           if (update != nil) {
-            /// UI popup that lets user know that fetch included realtime_test_key in updatedKeys
+            /// UI popup that lets user know that fetch included realtime_test_key in updatedKeys.
             if ([[update updatedKeys] containsObject:@"realtime_test_key"]) {
               [self presentViewController:alert animated:YES completion:nil];
             }
