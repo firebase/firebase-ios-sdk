@@ -762,19 +762,19 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                @"instead. Error: %@",
                                                                tokenResult.error);
                                                          }
-                                                   NSString *appCheckTokenFragments = [@"fac="
-                                                       stringByAppendingString:tokenResult
-                                                                                   .token];
-                                                   NSString *URLString = url.absoluteString;
-                                                   NSString *URLStringWithAppCheckToken =
-                                                       [URLString stringByAppendingString:
-                                                                      appCheckTokenFragments];
-                                                   NSURL *URLWithAppCheckToken =
-                                                       [NSURL URLWithString:
-                                                                  URLStringWithAppCheckToken];
-                                                   if (completion) {
-                                                     completion(URLWithAppCheckToken, nil);
-                                                   }
+                                                         NSString *appCheckTokenFragments = [@"fac="
+                                                             stringByAppendingString:tokenResult
+                                                                                         .token];
+                                                         NSString *URLString = url.absoluteString;
+                                                         NSString *URLStringWithAppCheckToken =
+                                                             [URLString stringByAppendingString:
+                                                                            appCheckTokenFragments];
+                                                         NSURL *URLWithAppCheckToken =
+                                                             [NSURL URLWithString:
+                                                                        URLStringWithAppCheckToken];
+                                                         if (completion) {
+                                                           completion(URLWithAppCheckToken, nil);
+                                                         }
                                                        }];
                                      } else {
                                        if (completion) {
