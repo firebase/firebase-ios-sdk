@@ -167,7 +167,8 @@ static NSInteger const gMaxRetries = 7;
 // TESTING ONLY
 - (void)triggerListenerForTesting:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate,
                                                     NSError *_Nullable error))listener {
-  listener(nil, nil);
+  NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
+  listener([[FIRRemoteConfigUpdate alloc] init], nil);
 }
 
 #pragma mark - Http Helpers

@@ -107,6 +107,17 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
       ((FIRRemoteConfig *)(self.RCInstances[namespaceString][appString])).configSettings = settings;
     }
   }
+
+  UIAlertController *alert = [UIAlertController
+      alertControllerWithTitle:@"Alert"
+                       message:@"The value for realtime_test_key has been updated!"
+                preferredStyle:UIAlertControllerStyleAlert];
+  UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^(UIAlertAction *action){
+                                                        }];
+  [alert addAction:defaultAction];
+
   // Add realtime listener for firebase namespace
   [self.RCInstances[FIRNamespaceGoogleMobilePlatform][FIRDefaultFIRAppName]
       addOnConfigUpdateListener:^(FIRRemoteConfigUpdate *_Nullable update,
@@ -118,6 +129,9 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         } else {
           [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
           if (update != nil) {
+            if ([[update updatedKeys] containsObject:@"welcome_message"]) {
+              [self presentViewController:alert animated:YES completion:nil];
+            }
             NSString *updatedParams = [update updatedKeys];
             [[FRCLog sharedInstance]
                 logToConsole:[NSString stringWithFormat:[updatedParams description]]];
