@@ -19,21 +19,6 @@ import FirebaseCore
 // Avoids exposing internal APIs to Swift users
 @_implementationOnly import FirebaseCoreInternal
 
-public typealias AppDistributionFetchReleasesCompletion = (_ releases: [Any]?, _ error: Error?)
-  -> Void
-public typealias AppDistributionFindReleaseCompletion = (_ releaseName: String?, _ error: Error?)
-  -> Void
-public typealias AppDistributionCreateFeedbackCompletion = (_ feedbackName: String?,
-                                                            _ error: Error?)
-  -> Void
-public typealias AppDistributionUploadImageCompletion = (_ error: Error?)
-  -> Void
-public typealias AppDistributionCommitFeedbackCompletion = (_ error: Error?)
-  -> Void
-public typealias AppDistributionGenerateAuthTokenCompletion = (_ identifier: String?,
-                                                               _ authTokenResult: InstallationsAuthTokenResult?,
-                                                               _ error: Error?) -> Void
-
 enum Strings {
   static let errorDomain = "com.firebase.appdistribution.api"
   static let errorDetailsKey = "details"
@@ -93,12 +78,17 @@ struct CreateFeedbackReportRequest: Codable {
 }
 
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
-  @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+  @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping (_ identifier: String?,
+                                                                                                      _ authTokenResult: InstallationsAuthTokenResult?,
+                                                                                                      _ error: Error?)
+      -> Void) {
     generateAuthToken(installations: Installations.installations(), completion: completion)
   }
-
-  static func generateAuthToken(installations: InstallationsProtocol,
-                                completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+  
+  static func generateAuthToken(installations: InstallationsProtocol, completion: @escaping (_ identifier: String?,
+                                                                                             _ authTokenResult: InstallationsAuthTokenResult?,
+                                                                                             _ error: Error?)
+-> Void) {
     installations.authToken(completion: { authTokenResult, error in
       var fadError: Error? = error
       if self.handleError(
@@ -132,18 +122,19 @@ struct CreateFeedbackReportRequest: Codable {
     })
   }
 
-  @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
-    fetchReleases(
-      app: FirebaseApp.app()!,
-      installations: Installations.installations(),
-      urlSession: URLSession.shared,
-      completion: completion
-    )
+    @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping (_ releases: [Any]?,
+                                                                       _ error: Error?) -> Void) {
+      fetchReleases(
+        app: FirebaseApp.app()!,
+        installations: Installations.installations(),
+        urlSession: URLSession.shared,
+        completion: completion
+      )
   }
-
-  static func fetchReleases(app: FirebaseApp, installations: InstallationsProtocol,
-                            urlSession: URLSession,
-                            completion: @escaping AppDistributionFetchReleasesCompletion) {
+  
+    static func fetchReleases(app: FirebaseApp, installations: InstallationsProtocol,
+                              urlSession: URLSession, completion: @escaping (_ releases: [Any]?,
+                                                                                                                 _ error: Error?) -> Void) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
       app.options.googleAppID
@@ -185,10 +176,18 @@ struct CreateFeedbackReportRequest: Codable {
   }
 
 
-  public static func findRelease(urlSession: URLSession = URLSession.shared, displayVersion: String,
+  @objc(findReleaseWithDisplayVersion:buildVersion:codeHash:completion:)
+  public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
+                                 completion: @escaping (_ releaseName: String?, _ error: Error?)
+                                 -> Void) {
+    findRelease(app: FirebaseApp.app()!,  urlSession:URLSession.shared,  installations: Installations.installations(), displayVersion: displayVersion, buildVersion: buildVersion, codeHash: codeHash, completion: completion)
+  }
+  
+  static func findRelease(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol, displayVersion: String,
                                  buildVersion: String, codeHash: String,
-                                 completion: @escaping AppDistributionFindReleaseCompletion) {
-    generateAuthToken { identifier, authTokenResult, error in
+                                 completion: @escaping (_ releaseName: String?, _ error: Error?)
+                                   -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       // TODO(tundeagboola) The backend may not accept project ID here in which case
       // we'll have to figure out a way to get the project number
       let urlString = String(
@@ -218,6 +217,7 @@ struct CreateFeedbackReportRequest: Codable {
         return
       }
       let request = self.createHttpRequest(
+        app: app,
         method: Strings.httpGet,
         url: url,
         authTokenResult: authTokenResult!
@@ -240,10 +240,19 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
-  public static func createFeedback(urlSession: URLSession = URLSession.shared, releaseName: String,
+  @objc(createFeedbackWithReleaseName:feedbackText:completion:)
+  public static func createFeedback(releaseName: String,
                                     feedbackText: String,
-                                    completion: @escaping AppDistributionCreateFeedbackCompletion) {
-    generateAuthToken { identifier, authTokenResult, error in
+                                    completion: @escaping (_ releaseName: String?, _ error: Error?)
+                                    -> Void) {
+    createFeedback(app: FirebaseApp.app()!, urlSession: URLSession.shared, installations: Installations.installations(), releaseName: releaseName, feedbackText: feedbackText, completion: completion)
+  }
+  
+  static func createFeedback(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol, releaseName: String,
+                                    feedbackText: String,
+                                    completion: @escaping (_ releaseName: String?, _ error: Error?)
+                                      -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       guard let authTokenResult = authTokenResult else {
         completion(nil, error)
         return
@@ -253,6 +262,7 @@ struct CreateFeedbackReportRequest: Codable {
         releaseName
       )
       let request = createHttpRequest(
+        app: app,
         method: Strings.httpPost,
         url: urlString,
         authTokenResult: authTokenResult
@@ -278,10 +288,19 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
-  public static func uploadImage(urlSession: URLSession = URLSession.shared, feedbackName: String,
+  @objc(uploadImageWithFeedbackName:image:completion:)
+  public static func uploadImage(feedbackName: String,
                                  image: UIImage,
-                                 completion: @escaping AppDistributionUploadImageCompletion) {
-    generateAuthToken { identifier, authTokenResult, error in
+                                 completion: @escaping (_ error: Error?)
+                                 -> Void) {
+    uploadImage(app: FirebaseApp.app()!, urlSession: URLSession.shared, installations: Installations.installations(), feedbackName: feedbackName, image: image, completion: completion)
+  }
+  
+  static func uploadImage(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol, feedbackName: String,
+                                 image: UIImage,
+                                 completion: @escaping (_ error: Error?)
+                                   -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       guard let authTokenResult = authTokenResult else {
         completion(error)
         return
@@ -303,6 +322,7 @@ struct CreateFeedbackReportRequest: Codable {
         return
       }
       let request = createHttpRequest(
+        app: app,
         method: Strings.httpPost,
         url: url,
         authTokenResult: authTokenResult
@@ -327,10 +347,18 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
-  public static func commitFeedback(urlSession: URLSession = URLSession.shared,
+  @objc(commitFeedbackWithFeedbackName:completion:)
+  public static func commitFeedback(feedbackName: String,
+                                    completion: @escaping (_ error: Error?)
+                                    -> Void) {
+    commitFeedback(app: FirebaseApp.app()!, urlSession: URLSession.shared, installations: Installations.installations(), feedbackName: feedbackName, completion: completion)
+  }
+  
+  static func commitFeedback(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol,
                                     feedbackName: String,
-                                    completion: @escaping AppDistributionCommitFeedbackCompletion) {
-    generateAuthToken { identifier, authTokenResult, error in
+                                    completion: @escaping (_ error: Error?)
+                                      -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       guard let authTokenResult = authTokenResult else {
         completion(error)
         return
@@ -340,13 +368,14 @@ struct CreateFeedbackReportRequest: Codable {
         feedbackName
       )
       let request = createHttpRequest(
+        app: app,
         method: Strings.httpPost,
         url: urlString,
         authTokenResult: authTokenResult
       )
       let commitFeedbackTask = URLSession.shared
         .dataTask(with: request as URLRequest) { data, response, error in
-          var fadError = error
+          let fadError = error
           DispatchQueue.main.async {
             completion(fadError)
           }
@@ -427,6 +456,24 @@ struct CreateFeedbackReportRequest: Codable {
     )
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: Strings.apiBundleKey)
     return request
+  }
+  
+  static func handleResponse<T: Codable>(data: Data?, response: URLResponse?, error: inout Error?,
+                                         returnType: T.Type) -> T? {
+    guard let response = response else {
+      return nil
+    }
+    let httpResponse = response as! HTTPURLResponse
+    if handleError(httpResponse: httpResponse, error: &error) {
+      return nil
+    }
+    guard let data = data else {
+      return nil
+    }
+    guard let mappedResponse = try? JSONDecoder().decode(T.self, from: data) else {
+      return nil
+    }
+    return mappedResponse
   }
 
   static func handleReleaseResponse(data: NSData?, response: URLResponse?,
