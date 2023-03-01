@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1085102361755-3q27hfltto03dbsq8dlevtk3pgv759t7.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1085102361755-3q27hfltto03dbsq8dlevtk3pgv759t7</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>1085102361755-25883i3au67ear5df2vppeld7ac5t77l.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBIsLm2BBhRP-M-_j34bLZYcRa8UVYl774</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1085102361755</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.firebase.auth1</string>
+	<key>PROJECT_ID</key>
+	<string>fb-sa-upgraded</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fb-sa-upgraded.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1085102361755:ios:2f518722bfc57a665dca3e</string>
+	<key>DATABASE_URL</key>
+	<string>https://fb-sa-upgraded.firebaseio.com</string>
+</dict>
+</plist>

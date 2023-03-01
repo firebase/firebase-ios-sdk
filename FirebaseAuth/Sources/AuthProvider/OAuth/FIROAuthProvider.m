@@ -387,9 +387,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                          NSString *URLStringWithAppCheckToken =
                                                              [URLString stringByAppendingString:
                                                                             appCheckTokenFragments];
-                                                         NSLog(@"URLString with "
-                                                               @"appCheckTokenFragment: %@",
-                                                               URLString);
+
                                                          if (completion) {
                                                            NSCharacterSet *set = [NSCharacterSet
                                                                URLFragmentAllowedCharacterSet];
@@ -404,6 +402,8 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                        }];
 
                                      } else {
+                                       NSLog(@"URLString with appCheckTokenFragment: %@",
+                                             URLString);
                                        if (completion) {
                                          NSCharacterSet *set =
                                              [NSCharacterSet URLFragmentAllowedCharacterSet];
