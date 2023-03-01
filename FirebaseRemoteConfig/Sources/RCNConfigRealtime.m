@@ -167,7 +167,6 @@ static NSInteger const gMaxRetries = 7;
 // TESTING ONLY
 - (void)triggerListenerForTesting:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate,
                                                     NSError *_Nullable error))listener {
-  NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
   listener([[FIRRemoteConfigUpdate alloc] init], nil);
 }
 
