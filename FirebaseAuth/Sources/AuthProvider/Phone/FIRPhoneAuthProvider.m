@@ -762,7 +762,6 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                @"instead. Error: %@",
                                                                tokenResult.error);
                                                          }
-                                                         /*
                                                    NSString *appCheckTokenFragments = [@"fac="
                                                        stringByAppendingString:tokenResult
                                                                                    .token];
@@ -775,7 +774,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                   URLStringWithAppCheckToken];
                                                    if (completion) {
                                                      completion(URLWithAppCheckToken, nil);
-                                                   }*/
+                                                   }
                                                        }];
                                      } else {
                                        if (completion) {
