@@ -30,9 +30,9 @@ using util::Status;
 using util::StatusOr;
 
 BloomFilter::Hash BloomFilter::Md5HashDigest(absl::string_view key) const {
-  std::array<uint8_t, 16> md5_digest{util::CalculateMd5Digest(key.data())};
+  std::array<uint8_t, 16> md5_digest{util::CalculateMd5Digest(key)};
 
-  // TODO(Mila): Handle big endian processor.
+  // TODO(Mila): Handle big endian processor b/271174523.
   uint64_t* hash128 = reinterpret_cast<uint64_t*>(md5_digest.data());
   static_assert(sizeof(uint64_t[2]) == sizeof(uint8_t[16]), "");
 

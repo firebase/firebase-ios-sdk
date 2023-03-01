@@ -20,6 +20,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/json_reader.h"
 #include "Firestore/core/src/util/path.h"
 #include "absl/strings/escaping.h"
@@ -144,18 +145,20 @@ TEST(BloomFilterUnitTest,
 
 class BloomFilterGoldenTest : public ::testing::Test {
  public:
-  void RunGoldenTest(std::string& test_file) {
-    size_t start_pos = test_file.find("bloom_filter_proto");
-    if (start_pos == std::string::npos) {
-      return;
-    }
+  void RunGoldenTest(const std::string& test_file) {
+    const std::string substring = "bloom_filter_proto";
+    size_t start_pos = test_file.find(substring);
+    HARD_ASSERT(start_pos != std::string::npos,
+                "Test file name is not valid, expected to include "
+                "\"bloom_filter_proto\".");
+
     std::string result_file = test_file;
-    result_file.replace(start_pos, sizeof("bloom_filter_proto") - 1,
-                        "membership_test_result");
+    result_file.replace(start_pos, substring.size(), "membership_test_result");
 
     json test_file_json = ReadFile(test_file);
     json result_file_json = ReadFile(result_file);
 
+    JsonReader reader;
     nlohmann::json bits = reader.OptionalObject("bits", test_file_json, {});
     std::string bitmap = reader.OptionalString("bitmap", bits, "");
     int padding = reader.OptionalInt("padding", bits, 0);
@@ -163,33 +166,38 @@ class BloomFilterGoldenTest : public ::testing::Test {
     std::string decoded;
     absl::Base64Unescape(bitmap, &decoded);
     std::vector<uint8_t> decoded_map(decoded.begin(), decoded.end());
-    BloomFilter bloom_filter = BloomFilter(decoded_map, padding, hash_count);
+    BloomFilter bloom_filter(decoded_map, padding, hash_count);
 
-    std::string membership_result =
-        reader.OptionalString("membershipTestResults", result_file_json, "");
+    std::string membership_result = reader.OptionalString(
+        "membershipTestResults", result_file_json, "[invalid]");
 
     for (size_t i = 0; i < membership_result.length(); i++) {
       bool expectedResult = membership_result[i] == '1';
-      bool mightContainResult = bloom_filter.MightContain(
-          GOLDEN_DOCUMENT_PREFIX_ + std::to_string(i));
+      bool mightContainResult =
+          bloom_filter.MightContain(kGoldenDocumentPrefix + std::to_string(i));
 
       EXPECT_EQ(mightContainResult, expectedResult);
     }
   }
 
  private:
-  std::string GOLDEN_DOCUMENT_PREFIX_ =
+  const std::string kGoldenDocumentPrefix =
       "projects/project-1/databases/database-1/documents/coll/doc";
-  Path GOLDEN_TEST_FOLDER_ = (Path::FromUtf8(__FILE__).Dirname())
-                                 .AppendUtf8("bloom_filter_golden_test_data/");
+  const Path kGoldenTestFolder =
+      (Path::FromUtf8(__FILE__).Dirname())
+          .AppendUtf8("bloom_filter_golden_test_data/");
 
-  json ReadFile(std::string& file_name) {
-    Path file_path = GOLDEN_TEST_FOLDER_.AppendUtf8(file_name);
+  json ReadFile(const std::string& file_name) {
+    Path file_path = kGoldenTestFolder.AppendUtf8(file_name);
     std::ifstream stream(file_path.native_value());
-    return nlohmann::json::parse(stream);
+    HARD_ASSERT(stream.good());
+    try {
+      return nlohmann::json::parse(stream);
+    } catch (const json::parse_error& e) {
+      util::ThrowIllegalState("Failed to read the json file: %s",
+                              file_name.c_str());
+    }
   }
-
-  JsonReader reader;
 };
 
 /**
@@ -205,66 +213,60 @@ class BloomFilterGoldenTest : public ::testing::Test {
  * be false with some false positive results.
  */
 TEST_F(BloomFilterGoldenTest, GoldenTest1Document1FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_1_1_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest("Validation_BloomFilterTest_MD5_1_1_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest1Document01FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest("Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest1Document0001FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_1_0001_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_1_0001_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest500Document1FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_500_1_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest("Validation_BloomFilterTest_MD5_500_1_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest500Document01FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_500_01_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_500_01_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest500Document0001FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json");
 }
 
 TEST_F(BloomFilterGoldenTest, GoldenTest5000Document1FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_5000_1_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest5000Document01FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_5000_01_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_5000_01_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest5000Document0001FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_5000_0001_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_5000_0001_bloom_filter_proto.json");
 }
 
 TEST_F(BloomFilterGoldenTest, GoldenTest50000Document1FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_50000_1_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_50000_1_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest50000Document01FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_50000_01_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_50000_01_bloom_filter_proto.json");
 }
+
 TEST_F(BloomFilterGoldenTest, GoldenTest50000Document0001FalsePositiveRate) {
-  std::string test_file =
-      "Validation_BloomFilterTest_MD5_50000_0001_bloom_filter_proto.json";
-  RunGoldenTest(test_file);
+  RunGoldenTest(
+      "Validation_BloomFilterTest_MD5_50000_0001_bloom_filter_proto.json");
 }
 
 }  // namespace
