@@ -129,7 +129,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         } else {
           [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
           if (update != nil) {
-            if ([[update updatedKeys] containsObject:@"welcome_message"]) {
+            if ([[update updatedKeys] containsObject:@"realtime_test_key"]) {
               [self presentViewController:alert animated:YES completion:nil];
             }
             NSString *updatedParams = [update updatedKeys];
