@@ -129,6 +129,7 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
         } else {
           [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
           if (update != nil) {
+            /// UI popup that lets user know that fetch included realtime_test_key in updatedKeys
             if ([[update updatedKeys] containsObject:@"realtime_test_key"]) {
               [self presentViewController:alert animated:YES completion:nil];
             }
