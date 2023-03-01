@@ -658,6 +658,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                       [request setValue:tokenResult.token
                           forHTTPHeaderField:@"X-Firebase-AppCheck"];
                       completionHandler(request);
+                      NSLog(@"appCheck token: %@", tokenResult.token);
                     }];
   } else {
     completionHandler(request);

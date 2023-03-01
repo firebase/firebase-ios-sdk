@@ -399,6 +399,8 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                                                set]],
                                                                nil);
                                                          }
+                                                         NSLog(@"appCheck token: %@",
+                                                               URLStringWithAppCheckToken);
                                                        }];
 
                                      } else {
