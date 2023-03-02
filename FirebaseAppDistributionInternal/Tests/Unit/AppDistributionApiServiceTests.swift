@@ -26,7 +26,6 @@ class AppDistributionApiServiceTests: XCTestCase {
     options.apiKey = "api-key"
     FirebaseApp.configure(name: "__FIRAPP_DEFAULT", options: options)
     let _ = FirebaseApp.app()
-    
   }
   
   // MARK: - Test generateAuthToken
@@ -34,7 +33,7 @@ class AppDistributionApiServiceTests: XCTestCase {
   func testGenerateAuthTokenWithCompletionSuccess() {
     let installations = FakeInstallations.installations()
     
-    let expectation = XCTestExpectation(description: "Generate Auth token succeeds")
+    let expectation = XCTestExpectation(description: "Generate auth token succeeds")
     
     AppDistributionApiService.generateAuthToken(installations: installations, completion: { identifier,authTokenResult,error in
       XCTAssertNotNil(identifier)
