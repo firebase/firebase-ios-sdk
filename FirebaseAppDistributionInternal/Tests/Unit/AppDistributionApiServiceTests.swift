@@ -30,12 +30,12 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
   
   func testFetchReleasesWithCompletionSuccess() {
-    let firInstallation = FakeInstallations.installations()
+    let installations = FakeInstallations.installations()
     let urlSession = URLSessionMock()
     
     let expectation = XCTestExpectation(description: "testFetchReleasesWithCompletionSuccess")
     
-    AppDistributionApiService.fetchReleases(firInstallation: firInstallation, urlSession: urlSession, completion: { releases,error in
+    AppDistributionApiService.fetchReleases(installations: installations, urlSession: urlSession, completion: { releases,error in
       XCTAssertNotNil(releases)
       XCTAssertNil(error)
       XCTAssertEqual(releases?.count, 2)
