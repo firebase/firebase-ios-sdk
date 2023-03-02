@@ -11,7 +11,7 @@ import Foundation
 
 class FakeInstallations: InstallationsProtocol {
   func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
-    let authToken = InstallationsAuthTokenResult(token: "abcde", expirationDate: Date())
+    let authToken = InstallationsAuthTokenResult()
     completion(authToken, nil)
   }
 

@@ -61,8 +61,5 @@ Pod::Spec.new do |s|
         'FirebaseAppDistributionInternal/Tests/Unit/*.swift',
         'FirebaseAppDistributionInternal/Tests/Unit/*.h',
       ]
-      unit_tests.pod_target_xcconfig = {
-        'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseAppDistributionInternal/Tests/Unit/Bridging-Header.h'
-      }
      end
   end

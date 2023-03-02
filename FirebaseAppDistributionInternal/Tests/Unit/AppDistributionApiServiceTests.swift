@@ -30,7 +30,7 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
   
   func testFetchReleasesWithCompletionSuccess() {
-    let firInstallation = Installations.installations()
+    let firInstallation = FakeInstallations.installations()
     let urlSession = URLSessionMock()
     
     let expectation = XCTestExpectation(description: "testFetchReleasesWithCompletionSuccess")

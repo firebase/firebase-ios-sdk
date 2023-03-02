@@ -12,4 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
+#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallationsAuthTokenResult.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FIRInstallationsAuthTokenResult (Internal)
+
+- (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationTime;
+
+@end
+
+NS_ASSUME_NONNULL_END
