@@ -21,8 +21,6 @@
 @class FIRAuthRequestConfiguration;
 @class FIRSecureTokenRequest;
 @class FIRSecureTokenResponse;
-@class FIRVerifyAssertionRequest;
-@class FIRVerifyAssertionResponse;
 @class FIRVerifyClientRequest;
 @class FIRVerifyClientResponse;
 @class FIRVerifyCustomTokenRequest;
@@ -58,16 +56,6 @@ typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
  */
 typedef void (^FIRSecureTokenResponseCallback)(FIRSecureTokenResponse *_Nullable response,
                                                NSError *_Nullable error);
-
-/** @typedef FIRVerifyAssertionResponseCallback
-    @brief The type of block used to return the result of a call to the verifyAssertion
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRVerifyAssertionResponseCallback)(FIRVerifyAssertionResponse *_Nullable response,
-                                                   NSError *_Nullable error);
 
 /** @typedef FIRVerifyCustomTokenResponseCallback
     @brief The type of block used to return the result of a call to the verifyCustomToken
@@ -166,15 +154,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
 
-/** @fn verifyAssertion:callback:
-    @brief Calls the verifyAssertion endpoint, which is responsible for authenticating a
-        user who has IDP-related credentials (an ID Token, an Access Token, etc.)
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)verifyAssertion:(FIRVerifyAssertionRequest *)request
-               callback:(FIRVerifyAssertionResponseCallback)callback;
-
 /** @fn verifyCustomToken:callback:
     @brief Calls the verifyCustomToken endpoint, which is responsible for authenticating a
         user who has BYOAuth credentials (a self-signed token using their BYOAuth private key.)
@@ -269,15 +248,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
         or a mock backend.
  */
 @protocol FIRAuthBackendImplementation <NSObject>
-
-/** @fn verifyAssertion:callback:
-    @brief Calls the verifyAssertion endpoint, which is responsible for authenticating a
-        user who has IDP-related credentials (an ID Token, an Access Token, etc.)
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)verifyAssertion:(FIRVerifyAssertionRequest *)request
-               callback:(FIRVerifyAssertionResponseCallback)callback;
 
 /** @fn verifyCustomToken:callback:
     @brief Calls the verifyCustomToken endpoint, which is responsible for authenticating a

@@ -1273,7 +1273,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInWithGoogleCredentialFailure
     @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
         Google Sign-In credential.
@@ -1298,7 +1298,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInAnonymouslySuccess
     @brief Tests the flow of a successful @c signInAnonymouslyWithCompletion: call.
  */
