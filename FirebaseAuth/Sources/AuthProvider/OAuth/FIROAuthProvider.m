@@ -53,11 +53,6 @@ NSString *const kHeadfulLiteURLStringFormat = @"https://%@/__/auth/handler?%@";
  */
 NSString *const kHeadfulLiteEmulatorURLStringFormat = @"http://%@/emulator/auth/handler?%@";
 
-/** @var kAppCheckURLFragmentKey
-    @brief The format of passing appCheck token as a URL fragment.
- */
-NSString *const kAppCheckURLFragmentKey = @"fac=";
-
 /** @var kauthTypeSignInWithRedirect
     @brief The auth type to be specified in the sign-in request with redirect request and response.
  */

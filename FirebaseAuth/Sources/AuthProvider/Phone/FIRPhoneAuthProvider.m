@@ -768,9 +768,9 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                                @"instead. Error: %@",
                                                                tokenResult.error);
                                                          }
-                                                         NSString *appCheckTokenFragments =
-                                                             [@"#fac=" stringByAppendingString:
-                                                                           tokenResult.token];
+                                                         NSString *appCheckTokenFragments = [@"fac="
+                                                             stringByAppendingString:tokenResult
+                                                                                         .token];
                                                          [components
                                                              setFragment:appCheckTokenFragments];
                                                          if (completion) {
