@@ -147,6 +147,17 @@ static const int kNanosPerSecond = 1000000000;
   return [self compare:other] == NSOrderedSame;
 }
 
+#pragma mark - Force Link Unreferenced Symbols
+
+extern void FSTIncludeFSTFirestoreComponent(void);
+
+/// This method forces the linker to include all the Analytics categories without requiring app
+/// developers to include the '-ObjC' linker flag in their projects. DO NOT CALL THIS METHOD.
++ (void)notCalled {
+  NSAssert(NO, @"+notCalled should never be called");
+  FSTIncludeFSTFirestoreComponent();
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
