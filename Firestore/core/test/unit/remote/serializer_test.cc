@@ -1540,6 +1540,7 @@ TEST_F(SerializerTest, EncodesExpectedCount) {
   expectedCount->set_value(2);
   proto.set_allocated_expected_count(expectedCount);
 
+  EXPECT_TRUE(proto.has_expected_count());
   ExpectRoundTrip(model, proto);
 }
 
@@ -1564,6 +1565,7 @@ TEST_F(SerializerTest, EncodeExpectedCountSkippedWithoutResumeToken) {
   *proto.mutable_query()->mutable_structured_query()->add_order_by() =
       std::move(order);
 
+  EXPECT_FALSE(proto.has_expected_count());
   ExpectRoundTrip(model, proto);
 }
 
