@@ -13,6 +13,7 @@ target 'AuthSample' do
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  pod 'FirebaseAppCheck'
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FBSDKLoginKit', '< 13'
   pod 'GoogleSignIn', '~> 6'

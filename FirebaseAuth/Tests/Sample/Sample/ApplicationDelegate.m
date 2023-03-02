@@ -25,6 +25,8 @@
 #import "GTMSessionFetcherLogging.h"
 #import "MainViewController.h"
 
+@import FirebaseAppCheck;
+
 /** @var gOpenURLDelegate
     @brief The delegate to for application:openURL:... method.
  */
@@ -43,6 +45,11 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   [GTMSessionFetcher  setLoggingEnabled:YES];
   [[FIRConfiguration sharedInstance] setLoggerLevel:FIRLoggerLevelInfo];
+
+  // Configure Firebase App Check
+  FIRAppCheckDebugProviderFactory *providerFactory =
+        [[FIRAppCheckDebugProviderFactory alloc] init];
+  [FIRAppCheck setAppCheckProviderFactory:providerFactory];
 
   // Configure the default Firebase application:
   [FIRApp configure];

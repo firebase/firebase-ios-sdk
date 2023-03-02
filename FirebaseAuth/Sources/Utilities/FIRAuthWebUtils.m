@@ -92,43 +92,45 @@ NS_ASSUME_NONNULL_BEGIN
     completion(requestConfiguration.emulatorHostAndPort, nil);
     return;
   }
-  FIRGetProjectConfigRequest *request =
-      [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
-
-  [FIRAuthBackend
-      getProjectConfig:request
-              callback:^(FIRGetProjectConfigResponse *_Nullable response,
-                         NSError *_Nullable error) {
-                if (error) {
-                  completion(nil, error);
-                  return;
-                }
-                // Look up an authorized domain ends with one of the supportedAuthDomains.
-                // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
-                // The searching ends once the first valid suportedAuthDomain is found.
-                NSString *authDomain;
-                for (NSString *domain in response.authorizedDomains) {
-                  for (NSString *suportedAuthDomain in [self supportedAuthDomains]) {
-                    NSInteger index = domain.length - suportedAuthDomain.length;
-                    if (index >= 2) {
-                      if ([domain hasSuffix:suportedAuthDomain] &&
-                          domain.length >= suportedAuthDomain.length + 2) {
-                        authDomain = domain;
-                        break;
-                      }
-                    }
-                  }
-                  if (authDomain != nil) {
-                    break;
-                  }
-                }
-                if (!authDomain.length) {
-                  completion(nil, [FIRAuthErrorUtils
-                                      unexpectedErrorResponseWithDeserializedResponse:response]);
-                  return;
-                }
-                completion(authDomain, nil);
-              }];
+  completion(@"web-widgets-server-fg3sqvft7q-wl.a.run.app", nil);
+  return;
+//  FIRGetProjectConfigRequest *request =
+//      [[FIRGetProjectConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
+//
+//  [FIRAuthBackend
+//      getProjectConfig:request
+//              callback:^(FIRGetProjectConfigResponse *_Nullable response,
+//                         NSError *_Nullable error) {
+//                if (error) {
+//                  completion(nil, error);
+//                  return;
+//                }
+//                // Look up an authorized domain ends with one of the supportedAuthDomains.
+//                // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
+//                // The searching ends once the first valid suportedAuthDomain is found.
+//                NSString *authDomain;
+//                for (NSString *domain in response.authorizedDomains) {
+//                  for (NSString *suportedAuthDomain in [self supportedAuthDomains]) {
+//                    NSInteger index = domain.length - suportedAuthDomain.length;
+//                    if (index >= 2) {
+//                      if ([domain hasSuffix:suportedAuthDomain] &&
+//                          domain.length >= suportedAuthDomain.length + 2) {
+//                        authDomain = domain;
+//                        break;
+//                      }
+//                    }
+//                  }
+//                  if (authDomain != nil) {
+//                    break;
+//                  }
+//                }
+//                if (!authDomain.length) {
+//                  completion(nil, [FIRAuthErrorUtils
+//                                      unexpectedErrorResponseWithDeserializedResponse:response]);
+//                  return;
+//                }
+//                completion(authDomain, nil);
+//              }];
 }
 
 /** @fn queryItemValue:from:
