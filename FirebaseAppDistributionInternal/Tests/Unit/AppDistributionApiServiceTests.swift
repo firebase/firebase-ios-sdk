@@ -61,5 +61,22 @@ class AppDistributionApiServiceTests: XCTestCase {
     
     wait(for: [expectation], timeout: 5)
   }
+  
+  func testFetchReleasesWithCompletionUnauthenticatedFailure() {
+    let installations = FakeInstallations.installations()
+    let urlSession = URLSessionMock(testCase: .unauthenticatedFailure)
+    
+    let expectation = XCTestExpectation(description: "Fetch releases fails with unauthenticated error.")
+    
+    AppDistributionApiService.fetchReleases(installations: installations, urlSession: urlSession, completion: { releases, error in
+      let nserror = error as? NSError
+      XCTAssertNil(releases)
+      XCTAssertNotNil(nserror)
+      XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnauthenticated.rawValue)
+      expectation.fulfill()
+    })
+    
+    wait(for: [expectation], timeout: 5)
+  }
 
 }

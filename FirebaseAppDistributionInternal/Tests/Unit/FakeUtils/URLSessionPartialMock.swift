@@ -30,6 +30,7 @@ class URLSessionDataTaskMock: URLSessionDataTask {
 class URLSessionMock: URLSession {
   enum MockCase {
     case success
+    case unauthenticatedFailure
     case unknownFailure
   }
   var testCase: MockCase
@@ -68,7 +69,6 @@ class URLSessionMock: URLSession {
         ]
       ]
     ];
-    
     let fakeErrorDomain = "test.failure.domain"
     
     switch(testCase) {
@@ -78,6 +78,13 @@ class URLSessionMock: URLSession {
                                      statusCode: 200,
                                      httpVersion: nil,
                                      headerFields: nil)
+    case .unauthenticatedFailure:
+      data = nil
+      response = HTTPURLResponse(url: request.url!,
+                                statusCode: 401,
+                                httpVersion: nil,
+                                headerFields: nil)
+      error = nil
     case .unknownFailure:
       data = nil
       response = HTTPURLResponse(url: request.url!,
