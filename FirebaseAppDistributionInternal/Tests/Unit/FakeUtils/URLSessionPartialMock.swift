@@ -28,39 +28,41 @@ class URLSessionDataTaskMock: URLSessionDataTask {
 }
 
 class URLSessionMock: URLSession {
-  typealias CompletionHandler = (Data?, URLResponse?, Error?) -> Void
-  
-  private let mockReleases = [
-    "releases" : [
-      [
-        "displayVersion" : "1.0.0",
-        "buildVersion" : "111",
-        "releaseNotes" : "This is a release",
-        "downloadURL" : "http://faketyfakefake.download"
-      ],
-      [
-        "latest" : true,
-        "displayVersion" : "1.0.1",
-        "buildVersion" : "112",
-        "releaseNotes" : "This is a release too",
-        "downloadURL" : "http://faketyfakefake.download"
-      ]
-    ]
-  ];
-
   // Properties to control what gets returned to the URLSession callback.
-  // error could also be added here.
   var data: Data?
   var response: URLResponse?
+  var error: Error?
 
   override func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-    let data = try! JSONSerialization.data(withJSONObject: mockReleases)
-    let response = HTTPURLResponse(url: request.url!,
+    
+    return URLSessionDataTaskMock {
+      completionHandler(self.data, self.response, self.error)
+    }
+  }
+  
+  private func createResponse(request: URLRequest) {
+    let mockReleases = [
+      "releases" : [
+        [
+          "displayVersion" : "1.0.0",
+          "buildVersion" : "111",
+          "releaseNotes" : "This is a release",
+          "downloadURL" : "http://faketyfakefake.download"
+        ],
+        [
+          "latest" : true,
+          "displayVersion" : "1.0.1",
+          "buildVersion" : "112",
+          "releaseNotes" : "This is a release too",
+          "downloadURL" : "http://faketyfakefake.download"
+        ]
+      ]
+    ];
+    
+    data = try! JSONSerialization.data(withJSONObject: mockReleases)
+    response = HTTPURLResponse(url: request.url!,
                                    statusCode: 200,
                                    httpVersion: nil,
                                    headerFields: nil)
-    return URLSessionDataTaskMock {
-      completionHandler(data, response, nil)
-    }
   }
 }
