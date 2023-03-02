@@ -15,8 +15,8 @@
 import XCTest
 import FirebaseCore
 
-@testable import FirebaseAppDistributionInternal
 @testable import FirebaseInstallations
+@testable import FirebaseAppDistributionInternal
 
 class AppDistributionApiServiceTests: XCTestCase {
   
@@ -30,7 +30,7 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
   
   func testFetchReleasesWithCompletionSuccess() {
-    let firInstallation = FakeInstallations.installations()
+    let firInstallation = Installations.installations()
     let urlSession = URLSessionMock()
     
     let expectation = XCTestExpectation(description: "testFetchReleasesWithCompletionSuccess")

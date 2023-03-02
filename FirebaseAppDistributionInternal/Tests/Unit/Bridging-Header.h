@@ -12,5 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FirebaseInstallations/Source/Library/Public/FirebaseInstallations/FIRInstallations.h"
-#import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
+git status#import "FirebaseInstallations/Source/Library/FIRInstallationsAuthTokenResultInternal.h"
