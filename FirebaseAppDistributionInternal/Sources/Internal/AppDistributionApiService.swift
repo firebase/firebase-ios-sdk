@@ -126,14 +126,14 @@ struct FindReleaseResponse: Codable {
         format: "Url: %@ Auth token: %@ Api Key: %@",
         urlString,
         authTokenResult?.authToken ?? "",
-        FirebaseApp.app()?.options.apiKey ?? "unknown"
+        FirebaseApp.app()?.options.apiKey ?? ""
       ))
 
       let listReleaseDataTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
           let releases = self.handleReleaseResponse(
-            data: data! as NSData,
+            data: data as? NSData,
             response: response,
             error: &fadError
           )

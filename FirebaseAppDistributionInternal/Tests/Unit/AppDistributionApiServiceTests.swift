@@ -31,9 +31,9 @@ class AppDistributionApiServiceTests: XCTestCase {
   
   func testFetchReleasesWithCompletionSuccess() {
     let installations = FakeInstallations.installations()
-    let urlSession = URLSessionMock()
+    let urlSession = URLSessionMock(testCase: .success)
     
-    let expectation = XCTestExpectation(description: "testFetchReleasesWithCompletionSuccess")
+    let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
     
     AppDistributionApiService.fetchReleases(installations: installations, urlSession: urlSession, completion: { releases,error in
       XCTAssertNotNil(releases)
@@ -44,4 +44,22 @@ class AppDistributionApiServiceTests: XCTestCase {
     
     wait(for: [expectation], timeout: 5)
   }
+  
+  func testFetchReleasesWithCompletionUnknownFailure() {
+    let installations = FakeInstallations.installations()
+    let urlSession = URLSessionMock(testCase: .unknownFailure)
+    
+    let expectation = XCTestExpectation(description: "Fetch releases fails with unknown error.")
+    
+    AppDistributionApiService.fetchReleases(installations: installations, urlSession: urlSession, completion: { releases, error in
+      let nserror = error as? NSError
+      XCTAssertNil(releases)
+      XCTAssertNotNil(nserror)
+      XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnknownFailure.rawValue)
+      expectation.fulfill()
+    })
+    
+    wait(for: [expectation], timeout: 5)
+  }
+
 }

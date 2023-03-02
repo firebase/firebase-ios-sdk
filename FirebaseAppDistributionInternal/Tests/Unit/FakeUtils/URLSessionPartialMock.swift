@@ -28,11 +28,21 @@ class URLSessionDataTaskMock: URLSessionDataTask {
 }
 
 class URLSessionMock: URLSession {
+  enum MockCase {
+    case success
+    case unknownFailure
+  }
+  var testCase: MockCase
+  
   // Properties to control what gets returned to the URLSession callback.
   var data: Data?
   var response: URLResponse?
   var error: Error?
-
+  
+  required init(testCase: MockCase) {
+    self.testCase = testCase
+  }
+  
   override func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
     createResponse(request: request)
     return URLSessionDataTaskMock {
@@ -59,10 +69,24 @@ class URLSessionMock: URLSession {
       ]
     ];
     
-    data = try! JSONSerialization.data(withJSONObject: mockReleases)
-    response = HTTPURLResponse(url: request.url!,
-                                   statusCode: 200,
-                                   httpVersion: nil,
-                                   headerFields: nil)
+    let fakeErrorDomain = "test.failure.domain"
+    
+    switch(testCase) {
+    case .success:
+      data = try! JSONSerialization.data(withJSONObject: mockReleases)
+      response = HTTPURLResponse(url: request.url!,
+                                     statusCode: 200,
+                                     httpVersion: nil,
+                                     headerFields: nil)
+    case .unknownFailure:
+      data = nil
+      response = HTTPURLResponse(url: request.url!,
+                                statusCode: 500,
+                                httpVersion: nil,
+                                headerFields: nil)
+      error = NSError(domain: fakeErrorDomain, code: 1)
+    }
+    
+    
   }
 }
