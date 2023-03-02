@@ -381,9 +381,8 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                                tokenResult.error);
                                                          }
                                                          NSString *appCheckTokenFragments =
-                                                             [kAppCheckURLFragmentKey
-                                                                 stringByAppendingString:
-                                                                     tokenResult.token];
+                                                             [@"#fac=" stringByAppendingString:
+                                                                           tokenResult.token];
                                                          NSString *URLStringWithAppCheckToken =
                                                              [URLString stringByAppendingString:
                                                                             appCheckTokenFragments];
