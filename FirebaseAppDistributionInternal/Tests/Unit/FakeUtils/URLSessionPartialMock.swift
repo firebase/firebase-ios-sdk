@@ -28,19 +28,19 @@ class URLSessionDataTaskMock: URLSessionDataTask {
 }
 
 class URLSessionMock: URLSession {
-  enum MockCase {
+  enum TestCase {
     case success
     case unauthenticatedFailure
     case unknownFailure
   }
-  var testCase: MockCase
+  var testCase: TestCase
   
   // Properties to control what gets returned to the URLSession callback.
   var data: Data?
   var response: URLResponse?
   var error: Error?
   
-  required init(testCase: MockCase) {
+  required init(testCase: TestCase) {
     self.testCase = testCase
   }
   
