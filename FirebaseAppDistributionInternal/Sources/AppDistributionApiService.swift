@@ -63,7 +63,7 @@ struct FindReleaseResponse: Codable {
   var release: String
 }
 
-@objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
+@objc(FIRFADApiServiceSwift) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     generateAuthToken(installations: Installations.installations(), completion: completion)
   }

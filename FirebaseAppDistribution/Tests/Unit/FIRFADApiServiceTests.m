@@ -213,7 +213,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Generate auth token succeeds."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       generateAuthTokenWithCompletion:^(NSString *_Nullable identifier,
                                         FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
                                         NSError *_Nullable error) {
@@ -239,7 +239,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Generate auth token fails to generate auth token."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       generateAuthTokenWithCompletion:^(NSString *_Nullable identifier,
                                         FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
                                         NSError *_Nullable error) {
@@ -265,7 +265,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Generate auth token fails to find ID."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       generateAuthTokenWithCompletion:^(NSString *_Nullable identifier,
                                         FIRInstallationsAuthTokenResult *_Nullable authTokenResult,
                                         NSError *_Nullable error) {
@@ -291,7 +291,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases succeeds with two releases."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(error);
         XCTAssertNotNil(releases);
@@ -317,7 +317,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases fails with unknown error."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -340,7 +340,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases fails with unknown error."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -364,7 +364,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with a 400."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -388,7 +388,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with a 403."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -412,7 +412,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with a 404."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -436,7 +436,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with 408."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -460,7 +460,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with a 504."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -484,7 +484,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with a 500."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
@@ -508,7 +508,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with a not found exception."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNotNil(releases);
         XCTAssertNil(error);
@@ -535,7 +535,7 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
   XCTestExpectation *expectation =
       [self expectationWithDescription:@"Fetch releases rejects with a parsing failure."];
 
-  [FIRFADSwiftApiService
+  [FIRFADApiServiceSwift
       fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
         XCTAssertNil(releases);
         XCTAssertNotNil(error);
