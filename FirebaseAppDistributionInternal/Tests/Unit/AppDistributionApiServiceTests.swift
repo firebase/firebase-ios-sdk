@@ -23,11 +23,30 @@ class AppDistributionApiServiceTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000", gcmSenderID: "00000000000000000-00000000000-000000000")
     options.projectID = "myProjectID"
-    options.apiKey = "AIzaSyByd9FGaZjtoILTq6Ff--zm8EyIoJsu3bg"
+    options.apiKey = "api-key"
     FirebaseApp.configure(name: "__FIRAPP_DEFAULT", options: options)
     let _ = FirebaseApp.app()
     
   }
+  
+  // MARK:- Test testGenerateAuthToken
+  
+  func testGenerateAuthTokenWithCompletionSuccess() {
+    let installations = FakeInstallations.installations()
+    
+    let expectation = XCTestExpectation(description: "Generate Auth token succeeds")
+    
+    AppDistributionApiService.generateAuthToken(installations: installations, completion: { identifier,authTokenResult,error in
+      XCTAssertNotNil(identifier)
+      XCTAssertNotNil(authTokenResult)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    })
+    
+    wait(for: [expectation], timeout: 5)
+  }
+  
+  // MARK:- Test testFetchReleases
   
   func testFetchReleasesWithCompletionSuccess() {
     let installations = FakeInstallations.installations()
@@ -78,5 +97,6 @@ class AppDistributionApiServiceTests: XCTestCase {
     
     wait(for: [expectation], timeout: 5)
   }
-
+  
+  // TODO: Add more cases for testFetchReleases
 }
