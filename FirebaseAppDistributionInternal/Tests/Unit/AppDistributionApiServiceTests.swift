@@ -29,7 +29,7 @@ class AppDistributionApiServiceTests: XCTestCase {
     
   }
   
-  // MARK: - Test testGenerateAuthToken
+  // MARK: - Test generateAuthToken
   
   func testGenerateAuthTokenWithCompletionSuccess() {
     let installations = FakeInstallations.installations()
@@ -46,7 +46,7 @@ class AppDistributionApiServiceTests: XCTestCase {
     wait(for: [expectation], timeout: 5)
   }
   
-  // MARK: - Test testFetchReleases
+  // MARK: - Test fetchReleases
   
   func testFetchReleasesWithCompletionSuccess() {
     let installations = FakeInstallations.installations()
