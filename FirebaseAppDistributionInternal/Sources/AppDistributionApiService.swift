@@ -63,13 +63,6 @@ struct FindReleaseResponse: Codable {
   var release: String
 }
 
-internal protocol InstallationsProtocol {
-  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
-  func installationID(completion: @escaping (String?, Error?) -> Void)
-}
-
-extension Installations: InstallationsProtocol {}
-
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     generateAuthToken(firInstallation: Installations.installations(), completion: completion)

@@ -18,33 +18,7 @@ import FirebaseCore
 @testable import FirebaseAppDistributionInternal
 @testable import FirebaseInstallations
 
-//protocol AppDistributionInstallationsProtocol {
-//  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
-//  func installationID(completion: @escaping (String?, Error?) -> Void)
-//}
-//
-//extension Installations: AppDistributionInstallationsProtocol {}
-
 class AppDistributionApiServiceTests: XCTestCase {
-  
-  static let mockReleases = [
-    "releases" : [
-      [
-        "displayVersion" : "1.0.0",
-        "buildVersion" : "111",
-        "releaseNotes" : "This is a release",
-        "downloadURL" : "http://faketyfakefake.download"
-      ],
-      [
-        "latest" : true,
-        "displayVersion" : "1.0.1",
-        "buildVersion" : "112",
-        "releaseNotes" : "This is a release too",
-        "downloadURL" : "http://faketyfakefake.download"
-      ]
-    ]
-  ];
-  
   
   override class func setUp() {
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000", gcmSenderID: "00000000000000000-00000000000-000000000")
@@ -55,45 +29,9 @@ class AppDistributionApiServiceTests: XCTestCase {
     
   }
   
-  func generateFakeFIRInstallation() -> InstallationsProtocol {
-        
-    class FakeFIRInstallation: InstallationsProtocol {
-      func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
-        let authToken = InstallationsAuthTokenResult(token: "abcde", expirationDate: Date())
-        completion(authToken, nil)
-      }
-
-      func installationID(completion: @escaping (String?, Error?) -> Void) {
-        let installationID = "abcde"
-
-        completion(installationID, nil)
-      }
-    }
-    
-    return FakeFIRInstallation()
-  }
-  
-  func generateFakeURLSession() -> URLSession {
-    class FakeURLSession: URLSession {
-      override func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-        // TODO input
-        let data = try! JSONSerialization.data(withJSONObject: AppDistributionApiServiceTests.mockReleases)
-        
-        // TODO input.
-        let urlResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)
-        DispatchQueue.main.async {
-          completionHandler(data, urlResponse, nil)
-        }
-        return URLSessionDataTask()
-      }
-    }
-    
-    return FakeURLSession()
-  }
-  
   func testFetchReleasesWithCompletionSuccess() {
-    let firInstallation = generateFakeFIRInstallation()
-    let urlSession = generateFakeURLSession()
+    let firInstallation = FakeInstallations.installations()
+    let urlSession = URLSessionMock()
     
     let expectation = XCTestExpectation(description: "testFetchReleasesWithCompletionSuccess")
     
