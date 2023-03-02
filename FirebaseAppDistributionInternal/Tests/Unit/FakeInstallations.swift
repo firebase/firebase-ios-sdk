@@ -20,7 +20,7 @@ class FakeInstallations: InstallationsProtocol {
 
     completion(installationID, nil)
   }
-  
+
   static func installations() -> InstallationsProtocol {
     return FakeInstallations()
   }
