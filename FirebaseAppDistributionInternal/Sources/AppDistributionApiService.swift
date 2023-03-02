@@ -70,19 +70,6 @@ internal protocol InstallationsProtocol {
 
 extension Installations: InstallationsProtocol {}
 
-class FakeFIRInstallation: InstallationsProtocol  {
-  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
-    let authToken = InstallationsAuthTokenResult()
-    completion(authToken, nil)
-  }
-  
-  func installationID(completion: @escaping (String?, Error?) -> Void) {
-    let installationID = "abcde"
-    
-    completion(installationID, nil)
-  }
-}
-
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     generateAuthToken(firInstallation: Installations.installations(), completion: completion)
@@ -90,7 +77,7 @@ class FakeFIRInstallation: InstallationsProtocol  {
   
   static func generateAuthToken(firInstallation: InstallationsProtocol, completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     firInstallation.authToken(completion: { authTokenResult, error in
-      var fadError = error
+      var fadError: Error? = error
       if self.handleError(
         error: &fadError,
         description: "Failed to generate Firebase installation auth token",
@@ -104,7 +91,7 @@ class FakeFIRInstallation: InstallationsProtocol  {
       }
 
       firInstallation.installationID(completion: { identifier, error in
-        var fadError = error
+        var fadError: Error? = error
         if self.handleError(
           error: &fadError,
           description: "Failed to generate Firebase installation id",

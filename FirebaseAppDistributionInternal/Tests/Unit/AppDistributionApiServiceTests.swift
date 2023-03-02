@@ -18,6 +18,13 @@ import FirebaseCore
 @testable import FirebaseAppDistributionInternal
 @testable import FirebaseInstallations
 
+//protocol AppDistributionInstallationsProtocol {
+//  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
+//  func installationID(completion: @escaping (String?, Error?) -> Void)
+//}
+//
+//extension Installations: AppDistributionInstallationsProtocol {}
+
 class AppDistributionApiServiceTests: XCTestCase {
   
   static let mockReleases = [
@@ -49,6 +56,7 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
   
   func generateFakeFIRInstallation() -> InstallationsProtocol {
+        
     class FakeFIRInstallation: InstallationsProtocol {
       func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
         let authToken = InstallationsAuthTokenResult(token: "abcde", expirationDate: Date())
@@ -67,13 +75,15 @@ class AppDistributionApiServiceTests: XCTestCase {
   
   func generateFakeURLSession() -> URLSession {
     class FakeURLSession: URLSession {
-      override func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+      override func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         // TODO input
         let data = try! JSONSerialization.data(withJSONObject: AppDistributionApiServiceTests.mockReleases)
         
         // TODO input.
-        let urlResponse = HTTPURLResponse(url: URL(string: "https://google.com")!, statusCode: 200, httpVersion: nil, headerFields: nil)
-        completionHandler(data, urlResponse, nil)
+        let urlResponse = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)
+        DispatchQueue.main.async {
+          completionHandler(data, urlResponse, nil)
+        }
         return URLSessionDataTask()
       }
     }
