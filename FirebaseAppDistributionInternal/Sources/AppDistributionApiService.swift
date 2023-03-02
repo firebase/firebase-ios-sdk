@@ -63,12 +63,32 @@ struct FindReleaseResponse: Codable {
   var release: String
 }
 
+internal protocol InstallationsProtocol {
+  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
+  func installationID(completion: @escaping (String?, Error?) -> Void)
+}
+
+extension Installations: InstallationsProtocol {}
+
+class FakeFIRInstallation: InstallationsProtocol  {
+  func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
+    let authToken = InstallationsAuthTokenResult()
+    completion(authToken, nil)
+  }
+  
+  func installationID(completion: @escaping (String?, Error?) -> Void) {
+    let installationID = "abcde"
+    
+    completion(installationID, nil)
+  }
+}
+
 @objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     generateAuthToken(firInstallation: Installations.installations(), completion: completion)
   }
   
-  static func generateAuthToken(firInstallation: Installations, completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+  static func generateAuthToken(firInstallation: InstallationsProtocol, completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     firInstallation.authToken(completion: { authTokenResult, error in
       var fadError = error
       if self.handleError(
@@ -106,7 +126,7 @@ struct FindReleaseResponse: Codable {
     fetchReleases(firInstallation: Installations.installations(), urlSession: URLSession.shared, completion: completion)
   }
   
-  public static func fetchReleases(firInstallation: Installations, urlSession: URLSession, completion: @escaping AppDistributionFetchReleasesCompletion) {
+  static func fetchReleases(firInstallation: InstallationsProtocol, urlSession: URLSession, completion: @escaping AppDistributionFetchReleasesCompletion) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
       FirebaseApp.app()?.options.googleAppID ?? "unknown"
@@ -129,7 +149,7 @@ struct FindReleaseResponse: Codable {
         FirebaseApp.app()?.options.apiKey ?? "unknown"
       ))
 
-      let listReleaseDataTask = URLSession.shared
+      let listReleaseDataTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
           let releases = self.handleReleaseResponse(
