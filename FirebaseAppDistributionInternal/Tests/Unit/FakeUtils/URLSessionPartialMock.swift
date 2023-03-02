@@ -34,7 +34,7 @@ class URLSessionMock: URLSession {
   var error: Error?
 
   override func dataTask(with request: URLRequest, completionHandler: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
-    
+    createResponse(request: request)
     return URLSessionDataTaskMock {
       completionHandler(self.data, self.response, self.error)
     }
