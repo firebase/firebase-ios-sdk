@@ -146,30 +146,8 @@ TEST(BloomFilterUnitTest,
 class BloomFilterGoldenTest : public ::testing::Test {
  public:
   void RunGoldenTest(const std::string& test_file) {
-    const std::string substring = "bloom_filter_proto";
-    size_t start_pos = test_file.find(substring);
-    HARD_ASSERT(start_pos != std::string::npos,
-                "Test file name is not valid, expected to include "
-                "\"bloom_filter_proto\".");
-
-    std::string result_file = test_file;
-    result_file.replace(start_pos, substring.size(), "membership_test_result");
-
-    json test_file_json = ReadFile(test_file);
-    json result_file_json = ReadFile(result_file);
-
-    JsonReader reader;
-    nlohmann::json bits = reader.OptionalObject("bits", test_file_json, {});
-    std::string bitmap = reader.OptionalString("bitmap", bits, "");
-    int padding = reader.OptionalInt("padding", bits, 0);
-    int hash_count = reader.OptionalInt("hashCount", test_file_json, 0);
-    std::string decoded;
-    absl::Base64Unescape(bitmap, &decoded);
-    std::vector<uint8_t> decoded_map(decoded.begin(), decoded.end());
-    BloomFilter bloom_filter(decoded_map, padding, hash_count);
-
-    std::string membership_result = reader.OptionalString(
-        "membershipTestResults", result_file_json, "[invalid]");
+    BloomFilter bloom_filter = GetBloomFilter(test_file);
+    std::string membership_result = GetMembershipResult(test_file);
 
     for (size_t i = 0; i < membership_result.length(); i++) {
       bool expectedResult = membership_result[i] == '1';
@@ -182,17 +160,61 @@ class BloomFilterGoldenTest : public ::testing::Test {
 
  private:
   static const char* kGoldenDocumentPrefix;
-  
+  JsonReader reader;
+
   static Path GetGoldenTestFolder() {
-    return (Path::FromUtf8(__FILE__).Dirname())
-        .AppendUtf8("bloom_filter_golden_test_data/");
-  };
+    return Path::FromUtf8(__FILE__).Dirname().AppendUtf8(
+        "bloom_filter_golden_test_data/");
+  }
 
   json ReadFile(const std::string& file_name) {
     Path file_path = GetGoldenTestFolder().AppendUtf8(file_name);
     std::ifstream stream(file_path.native_value());
     HARD_ASSERT(stream.good());
     return nlohmann::json::parse(stream);
+  }
+
+  BloomFilter GetBloomFilter(const std::string& file_name) {
+    json test_file = ReadFile(file_name);
+    nlohmann::json bits = reader.OptionalObject("bits", test_file, {});
+    std::string bitmap = reader.OptionalString("bitmap", bits, "");
+    int padding = reader.OptionalInt("padding", bits, 0);
+    int hash_count = reader.OptionalInt("hashCount", test_file, 0);
+    std::string decoded;
+    absl::Base64Unescape(bitmap, &decoded);
+    std::vector<uint8_t> decoded_map(decoded.begin(), decoded.end());
+
+    StatusOr<BloomFilter> maybe_bloom_filter =
+        BloomFilter::Create(std::move(decoded_map), padding, hash_count);
+    HARD_ASSERT(maybe_bloom_filter.ok(),
+                "Bloom filter input file %s has invalid values.", file_name);
+    BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
+
+    return bloom_filter;
+  }
+
+  std::string LocateResultFile(std::string file_name) {
+    const std::string substring = "bloom_filter_proto";
+    size_t start_pos = file_name.find(substring);
+    HARD_ASSERT(start_pos != std::string::npos,
+                "Test file name %s is not valid, expected to include "
+                "\"bloom_filter_proto\".",
+                file_name);
+
+    return file_name.replace(start_pos, substring.size(),
+                             "membership_test_result");
+  }
+
+  std::string GetMembershipResult(const std::string& file_name) {
+    std::string result_file_name = LocateResultFile(file_name);
+    json result_file = ReadFile(result_file_name);
+    std::string membership_result = reader.OptionalString(
+        "membershipTestResults", result_file, "[invalid]");
+    HARD_ASSERT(
+        membership_result != "[invalid]",
+        "Membership result file %s doesn't contain \"membershipTestResults\".",
+        result_file_name);
+    return membership_result;
   }
 };
 
