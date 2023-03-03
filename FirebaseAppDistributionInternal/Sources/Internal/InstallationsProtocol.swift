@@ -15,6 +15,8 @@
 import Foundation
 import FirebaseInstallations
 
+// Wraps around the use of FIRInstallations in a protocol to be able to inject a fake one for
+// unit testing.
 internal protocol InstallationsProtocol {
   func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
   func installationID(completion: @escaping (String?, Error?) -> Void)
