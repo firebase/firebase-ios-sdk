@@ -486,16 +486,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   gBackendImplementation = defaultImplementation;
 }
 
-+ (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
-             callback:(FIRSignupNewUserCallback)callback {
-  [[self implementation] signUpNewUser:request callback:callback];
-}
-
-+ (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
-                    callback:(FIRSignInWithGameCenterResponseCallback)callback {
-  [[self implementation] signInWithGameCenter:request callback:callback];
-}
-
 #if TARGET_OS_IOS
 + (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback {
@@ -622,20 +612,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   return self;
 }
 
-- (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
-             callback:(FIRSignupNewUserCallback)callback {
-  FIRSignUpNewUserResponse *response = [[FIRSignUpNewUserResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
-}
-
 #if TARGET_OS_IOS
 - (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
                     callback:(FIRSendVerificationCodeResponseCallback)callback {
@@ -692,24 +668,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 }
 
 #endif
-
-- (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
-                    callback:(FIRSignInWithGameCenterResponseCallback)callback {
-  FIRSignInWithGameCenterResponse *response = [[FIRSignInWithGameCenterResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   if (callback) {
-                     callback(nil, error);
-                   }
-                 } else {
-                   if (callback) {
-                     callback(response, nil);
-                   }
-                 }
-               }];
-}
 
 #pragma mark - Generic RPC handling methods
 
