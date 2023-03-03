@@ -90,12 +90,12 @@ import Foundation
    */
   @objc public var displayName: String?
 
-  /** @property IDToken
+  /** @property idToken
    @brief Either an authorization code suitable for performing an STS token exchange, or the
    access token from Secure Token Service, depending on whether @c returnSecureToken is set
    on the request.
    */
-  @objc public var IDToken: String?
+  @objc public var idToken: String?
 
   /** @property approximateExpirationDate
    @brief The approximate expiration date of the access token.
@@ -219,7 +219,7 @@ import Foundation
     fullName = dictionary["fullName"] as? String
     nickName = dictionary["nickName"] as? String
     displayName = dictionary["displayName"] as? String
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     if let expiresIn = dictionary["expiresIn"] as? String {
       approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
         .doubleValue)

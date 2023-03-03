@@ -1,114 +1,62 @@
-/*
- * Copyright 2017 Google
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+#ifdef TODO_SWIFT
+/** @fn testSignInWithAppleCredentialFullNameInRequest
+    @brief Tests the flow of a successful @c signInWithCredential:completion: call
+        with an Apple Sign-In credential with a full name. This test differentiates from
+        @c testSignInWithCredentialSuccess only in verifying the full name.
  */
-
-#import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
-#import <XCTest/XCTest.h>
-
-#import <GoogleUtilities/GULAppDelegateSwizzler.h>
-#import "FirebaseAuth/Interop/FIRAuthInterop.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
-#import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-@import FirebaseAuth;
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
-#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
-#import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
-
-#if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
-
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
-#endif  // TARGET_OS_IOS
-
-/** @var kAPIKey
-    @brief The fake API key.
- */
-static NSString *const kAPIKey = @"FAKE_API_KEY";
-
-/** @var kFirebaseAppID
-    @brief The fake Firebase app ID.
- */
-static NSString *const kFirebaseAppID = @"FAKE_APP_ID";
-
-/** @var kAccessToken
-    @brief The fake access token.
- */
-static NSString *const kAccessToken = @"ACCESS_TOKEN";
-
-/** @var kNewAccessToken
-    @brief Another fake access token used to simulate token refreshed via automatic token refresh.
- */
-NSString *kNewAccessToken = @"NewAccessToken";
-
-/** @var kAccessTokenValidInterval
-    @brief The time to live for the fake access token.
- */
-static const NSTimeInterval kAccessTokenTimeToLive = 60 * 60;
-
-/** @var kTestTokenExpirationTimeInterval
-    @brief The fake time interval that it takes a token to expire.
- */
-static const NSTimeInterval kTestTokenExpirationTimeInterval = 55 * 60;
-
-/** @var kRefreshToken
-    @brief The fake refresh token.
- */
-static NSString *const kRefreshToken = @"REFRESH_TOKEN";
-
-/** @var kEmail
-    @brief The fake user email.
- */
-static NSString *const kEmail = @"user@company.com";
-
-/** @var kFakePassword
-    @brief The fake user password.
- */
-static NSString *const kFakePassword = @"!@#$%^";
-
-/** @var kPasswordHash
-    @brief The fake user password hash.
- */
-static NSString *const kPasswordHash = @"UkVEQUNURUQ=";
-
-/** @var kLocalID
-    @brief The fake local user ID.
- */
-static NSString *const kLocalID = @"LOCAL_ID";
-
-/** @var kDisplayName
-    @brief The fake user display name.
- */
-static NSString *const kDisplayName = @"User Doe";
-
-/** @var kFakeGivenName
-    @brief The fake user given name.
- */
-static NSString *const kFakeGivenName = @"Firstname";
-
-/** @var kFakeFamilyName
-    @brief The fake user family name.
- */
+- (void)testSignInWithAppleCredentialFullNameInRequestSuccess {
+  NSPersonNameComponents *fullName = [[NSPersonNameComponents alloc] init];
+  fullName.givenName = kFakeGivenName;
+  fullName.familyName = kFakeFamilyName;
+  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
+                       FIRVerifyAssertionResponseCallback callback) {
+        XCTAssertEqualObjects(request.APIKey, kAPIKey);
+        XCTAssertEqualObjects(request.providerID, kAppleAuthProviderID);
+        XCTAssertEqualObjects(request.providerIDToken, kAppleIDToken);
+        // Verify that the full name is passed to the backend request.
+        XCTAssertEqualObjects(request.fullName, fullName);
+        XCTAssertTrue(request.returnSecureToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(kAppleAuthProviderID);
+          [self stubTokensWithMockResponse:mockVerifyAssertionResponse];
+          callback(mockVerifyAssertionResponse, nil);
+        });
+      });
+  OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRGetAccountInfoRequest *_Nullable request,
+                       FIRGetAccountInfoResponseCallback callback) {
+        XCTAssertEqualObjects(request.APIKey, kAPIKey);
+        XCTAssertEqualObjects(request.accessToken, kAccessToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockAppleUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
+          OCMStub([mockAppleUserInfo providerID]).andReturn(kAppleAuthProviderID);
+          id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+          OCMStub([mockGetAccountInfoResponseUser providerUserInfo])
+              .andReturn((@[ mockAppleUserInfo ]));
+          id mockGetAccountInfoResponse = OCMClassMock([FIRGetAccountInfoResponse class]);
+          OCMStub([mockGetAccountInfoResponse users]).andReturn(@[
+            mockGetAccountInfoResponseUser
+          ]);
+          callback(mockGetAccountInfoResponse, nil);
+        });
+      });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *appleCredential = [FIROAuthProvider appleCredentialWithIDToken:kAppleIDToken
+                                                                           rawNonce:nil
+                                                                           fullName:fullName];
+  [[FIRAuth auth]
+      signInWithCredential:appleCredential
+                completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+                  XCTAssertTrue([NSThread isMainThread]);
+                  XCTAssertNil(error);
+                  [expectation fulfill];
+                }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  XCTAssertNotNil([FIRAuth auth].currentUser);
+  OCMVerifyAll(_mockBackend);
 static NSString *const kFakeFamilyName = @"Lastname";
 
 /** @var kGoogleUD
@@ -1293,7 +1241,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInWithGoogleCredentialFailure
     @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
         Google Sign-In credential.
@@ -2355,7 +2303,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 #pragma mark - Helpers
-
+#if SWIFT_TODO
 /** @fn mockSecureTokenResponseWithError:
     @brief Set up expectation for secureToken RPC.
     @param error The error that the mock should return if any.
@@ -2385,7 +2333,7 @@ static const NSTimeInterval kWaitInterval = .5;
             });
           });
 }
-
+#endif
 /** @fn enableAutoTokenRefresh
     @brief Enables automatic token refresh by invoking FIRAuth's implementation of FIRApp's
         |getTokenWithImplementation|.

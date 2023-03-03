@@ -993,8 +993,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                        requestConfiguration:_requestConfiguration];
   request.autoCreate = !isReauthentication;
   [credential prepareVerifyAssertionRequest:request];
-  [FIRAuthBackend
-      verifyAssertion:request
+  [FIRAuthBackend2
+      postWithRequest:request
              callback:^(FIRVerifyAssertionResponse *response, NSError *error) {
                if (error) {
                  if (callback) {
@@ -1024,7 +1024,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                  return;
                }
                [self
-                   completeSignInWithAccessToken:response.IDToken
+                   completeSignInWithAccessToken:response.idToken
                        accessTokenExpirationDate:response.approximateExpirationDate
                                     refreshToken:response.refreshToken
                                        anonymous:NO
