@@ -109,7 +109,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
 
   @objc public static func error(code: AuthErrorCode, message: String?) -> Error {
     let userInfo: [String: Any]?
-    if let message, !message.isEmpty {
+    if let message {
       userInfo = [NSLocalizedDescriptionKey: message]
     } else {
       userInfo = nil
@@ -133,7 +133,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
     error(code: .invalidCustomToken, message: message)
   }
 
-  @objc public static func customTokenMistmatchError(message: String?) -> Error {
+  @objc public static func customTokenMismatchError(message: String?) -> Error {
     error(code: .customTokenMismatch, message: message)
   }
 
