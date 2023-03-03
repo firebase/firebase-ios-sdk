@@ -252,6 +252,7 @@ struct FindReleaseResponse: Codable {
                       httpResponse))
 
     if handleError(httpResponse: httpResponse, error: &error) {
+      // TODO: Consider adding logging equivalent to [FIRFADApiService tryParseGoogleAPIErrorFromResponse].
       Logger
         .logError(String(format: "App tester API service error: %@",
                          error?.localizedDescription ?? ""))
