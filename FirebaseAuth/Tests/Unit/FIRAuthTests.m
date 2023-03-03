@@ -1273,7 +1273,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserGoogle:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInWithGoogleCredentialFailure
     @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
         Google Sign-In credential.
@@ -1298,7 +1298,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInAnonymouslySuccess
     @brief Tests the flow of a successful @c signInAnonymouslyWithCompletion: call.
  */
@@ -2275,7 +2275,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 #pragma mark - Helpers
-
+#if SWIFT_TODO
 /** @fn mockSecureTokenResponseWithError:
     @brief Set up expectation for secureToken RPC.
     @param error The error that the mock should return if any.
@@ -2305,7 +2305,7 @@ static const NSTimeInterval kWaitInterval = .5;
             });
           });
 }
-
+#endif
 /** @fn enableAutoTokenRefresh
     @brief Enables automatic token refresh by invoking FIRAuth's implementation of FIRApp's
         |getTokenWithImplementation|.
