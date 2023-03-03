@@ -430,6 +430,10 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .invalidCredentialError(message: serverDetailErrorMessage)
     case "INVALID_PENDING_TOKEN": return AuthErrorUtils
       .invalidCredentialError(message: serverDetailErrorMessage)
+    case "INVALID_CUSTOM_TOKEN": return AuthErrorUtils
+      .invalidCustomTokenError(message: serverDetailErrorMessage)
+    case "CREDENTIAL_MISMATCH": return AuthErrorUtils
+      .customTokenMismatchError(message: serverDetailErrorMessage)
     case "FEDERATED_USER_ID_ALREADY_LINKED":
       guard let verifyAssertion = response as? VerifyAssertionResponse else {
         return AuthErrorUtils.credentialAlreadyInUseError(
