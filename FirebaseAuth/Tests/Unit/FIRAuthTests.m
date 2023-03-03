@@ -2275,7 +2275,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 #pragma mark - Helpers
-
+#if SWIFT_TODO
 /** @fn mockSecureTokenResponseWithError:
     @brief Set up expectation for secureToken RPC.
     @param error The error that the mock should return if any.
@@ -2305,7 +2305,7 @@ static const NSTimeInterval kWaitInterval = .5;
             });
           });
 }
-
+#endif
 /** @fn enableAutoTokenRefresh
     @brief Enables automatic token refresh by invoking FIRAuth's implementation of FIRApp's
         |getTokenWithImplementation|.

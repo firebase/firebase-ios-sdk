@@ -163,41 +163,43 @@ static const NSTimeInterval kFiveMinutes = 5 * 60;
   FIRSecureTokenRequest *request =
       [FIRSecureTokenRequest refreshRequestWithRefreshToken:_refreshToken
                                        requestConfiguration:_requestConfiguration];
-  [FIRAuthBackend
-      secureToken:request
-         callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {
-           BOOL tokenUpdated = NO;
-           NSString *newAccessToken = response.accessToken;
-           if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
-             FIRAuthTokenResult *tokenResult =
-                 [FIRAuthTokenResult tokenResultWithToken:newAccessToken];
-             // There is an edge case where the request for a new access token may be made right
-             // before the app goes inactive, resulting in the callback being invoked much later
-             // with an expired access token. This does not fully solve the issue, as if the
-             // callback is invoked less than an hour after the request is made, a token is not
-             // re-requested here but the approximateExpirationDate will still be off since that is
-             // computed at the time the token is received.
-             if (retryIfExpired &&
-                 [tokenResult.expirationDate timeIntervalSinceNow] <= kFiveMinutes) {
-               // We only retry once, to avoid an infinite loop in the case that an end-user has
-               // their local time skewed by over an hour.
-               [self requestAccessToken:NO callback:callback];
-               return;
-             }
-             self->_accessToken = [newAccessToken copy];
-             self->_accessTokenExpirationDate = response.approximateExpirationDate;
-             tokenUpdated = YES;
-             FIRLogDebug(kFIRLoggerAuth, @"I-AUT000017",
-                         @"Updated access token. Estimated expiration date: %@, current date: %@",
-                         self->_accessTokenExpirationDate, [NSDate date]);
-           }
-           NSString *newRefreshToken = response.refreshToken;
-           if (newRefreshToken.length && ![newRefreshToken isEqualToString:self->_refreshToken]) {
-             self->_refreshToken = [newRefreshToken copy];
-             tokenUpdated = YES;
-           }
-           callback(newAccessToken, error, tokenUpdated);
-         }];
+  [FIRAuthBackend2
+      postWithRequest:request
+             callback:^(FIRSecureTokenResponse *_Nullable response, NSError *_Nullable error) {
+               BOOL tokenUpdated = NO;
+               NSString *newAccessToken = response.accessToken;
+               if (newAccessToken.length && ![newAccessToken isEqualToString:self->_accessToken]) {
+                 FIRAuthTokenResult *tokenResult =
+                     [FIRAuthTokenResult tokenResultWithToken:newAccessToken];
+                 // There is an edge case where the request for a new access token may be made right
+                 // before the app goes inactive, resulting in the callback being invoked much later
+                 // with an expired access token. This does not fully solve the issue, as if the
+                 // callback is invoked less than an hour after the request is made, a token is not
+                 // re-requested here but the approximateExpirationDate will still be off since that
+                 // is computed at the time the token is received.
+                 if (retryIfExpired &&
+                     [tokenResult.expirationDate timeIntervalSinceNow] <= kFiveMinutes) {
+                   // We only retry once, to avoid an infinite loop in the case that an end-user has
+                   // their local time skewed by over an hour.
+                   [self requestAccessToken:NO callback:callback];
+                   return;
+                 }
+                 self->_accessToken = [newAccessToken copy];
+                 self->_accessTokenExpirationDate = response.approximateExpirationDate;
+                 tokenUpdated = YES;
+                 FIRLogDebug(
+                     kFIRLoggerAuth, @"I-AUT000017",
+                     @"Updated access token. Estimated expiration date: %@, current date: %@",
+                     self->_accessTokenExpirationDate, [NSDate date]);
+               }
+               NSString *newRefreshToken = response.refreshToken;
+               if (newRefreshToken.length &&
+                   ![newRefreshToken isEqualToString:self->_refreshToken]) {
+                 self->_refreshToken = [newRefreshToken copy];
+                 tokenUpdated = YES;
+               }
+               callback(newAccessToken, error, tokenUpdated);
+             }];
 }
 
 - (BOOL)hasValidAccessToken {

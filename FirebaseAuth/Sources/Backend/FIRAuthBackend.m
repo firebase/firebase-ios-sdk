@@ -489,11 +489,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyCustomToken:request callback:callback];
 }
 
-+ (void)secureToken:(FIRSecureTokenRequest *)request
-           callback:(FIRSecureTokenResponseCallback)callback {
-  [[self implementation] secureToken:request callback:callback];
-}
-
 + (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback {
   [[self implementation] signUpNewUser:request callback:callback];
@@ -613,20 +608,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 - (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback {
   FIRVerifyCustomTokenResponse *response = [[FIRVerifyCustomTokenResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
-}
-
-- (void)secureToken:(FIRSecureTokenRequest *)request
-           callback:(FIRSecureTokenResponseCallback)callback {
-  FIRSecureTokenResponse *response = [[FIRSecureTokenResponse alloc] init];
   [self postWithRequest:request
                response:response
                callback:^(NSError *error) {
