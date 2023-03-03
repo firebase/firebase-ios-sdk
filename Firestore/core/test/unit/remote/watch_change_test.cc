@@ -41,7 +41,7 @@ TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
 }
 
 TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
-  ExistenceFilter filter{7, absl::nullopt};
+  ExistenceFilter filter{7, /*unchangedNames=*/absl::nullopt};
   ExistenceFilterWatchChange change{filter, 5};
   EXPECT_EQ(change.filter().count(), 7);
   EXPECT_EQ(change.target_id(), 5);

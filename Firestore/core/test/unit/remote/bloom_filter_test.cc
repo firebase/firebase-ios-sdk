@@ -107,6 +107,19 @@ TEST(BloomFilterTest, CreateShouldReturnNotOKStatusIfPaddingIsTooLarge) {
   EXPECT_EQ(maybe_bloom_filter.status().error_message(), "Invalid padding: 8");
 }
 
+TEST(BloomFilterTest, CanCheckBloomFiltersEquality) {
+  {
+    BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
+    BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 1, 1);
+    EXPECT_TRUE(bloom_filter1 == bloom_filter2);
+  }
+  {
+    BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
+    BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 2, 1);
+    EXPECT_FALSE(bloom_filter1 == bloom_filter2);
+  }
+}
+
 TEST(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
   // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
   BloomFilter bloom_filter(std::vector<uint8_t>{237, 5}, 5, 8);

@@ -146,7 +146,8 @@ RemoteEvent ExistenceFilterEvent(TargetId target_id,
   remote::FakeTargetMetadataProvider metadata_provider;
   metadata_provider.SetSyncedKeys(synced_keys, target_data);
 
-  ExistenceFilter existence_filter{remote_count, absl::nullopt};
+  ExistenceFilter existence_filter{remote_count,
+                                   /*unchangedNames=*/absl::nullopt};
   WatchChangeAggregator aggregator{&metadata_provider};
   ExistenceFilterWatchChange existence_filter_watch_change{existence_filter,
                                                            target_id};

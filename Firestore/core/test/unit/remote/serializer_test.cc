@@ -1680,7 +1680,8 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
 }
 
 TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
-  ExistenceFilterWatchChange model(ExistenceFilter(2, absl::nullopt), 100);
+  ExistenceFilterWatchChange model(
+      ExistenceFilter(2, /*unchangedNames=*/absl::nullopt), 100);
 
   v1::ListenResponse proto;
 

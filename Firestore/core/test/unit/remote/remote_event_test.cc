@@ -547,7 +547,8 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchClearsTarget) {
 
   // The existence filter mismatch will remove the document from target 1,
   // but not synthesize a document delete.
-  ExistenceFilterWatchChange change4{ExistenceFilter{1, absl::nullopt}, 1};
+  ExistenceFilterWatchChange change4{
+      ExistenceFilter{1, /*unchangedNames=*/absl::nullopt}, 1};
   aggregator.HandleExistenceFilter(change4);
 
   event = aggregator.CreateRemoteEvent(testutil::Version(4));
@@ -578,8 +579,8 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchRemovesCurrentChanges) {
 
   // The existence filter mismatch will remove the document from target 1, but
   // not synthesize a document delete.
-  ExistenceFilterWatchChange existence_filter{ExistenceFilter{0, absl::nullopt},
-                                              1};
+  ExistenceFilterWatchChange existence_filter{
+      ExistenceFilter{0, /*unchangedNames=*/absl::nullopt}, 1};
   aggregator.HandleExistenceFilter(existence_filter);
 
   RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
