@@ -78,7 +78,8 @@ class RPCBaseTests: XCTestCase {
                          json: [String: AnyHashable]? = nil,
                          errorCode: AuthErrorCode,
                          errorReason: String? = nil,
-                         underlyingErrorKey: String? = nil) throws {
+                         underlyingErrorKey: String? = nil,
+                         checkLocalizedDescription: String? = nil) throws {
     var callbackInvoked = false
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
@@ -101,12 +102,16 @@ class RPCBaseTests: XCTestCase {
     XCTAssertNil(rpcResponse)
     XCTAssertEqual(rpcError?.code, errorCode.rawValue)
     if errorCode == .internalError {
-      let underlyingError = try XCTUnwrap(rpcError?
-        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertNotNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
     }
-    if let errorReason = errorReason {
+    if let errorReason {
       XCTAssertEqual(errorReason, rpcError?.userInfo[NSLocalizedFailureReasonErrorKey] as? String)
+    }
+    if let checkLocalizedDescription {
+      let localizedDescription = try XCTUnwrap(rpcError?
+        .userInfo[NSLocalizedDescriptionKey] as? String)
+      XCTAssertEqual(checkLocalizedDescription, localizedDescription)
     }
   }
 
