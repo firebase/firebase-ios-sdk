@@ -50,10 +50,11 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     wait(for: [expectation], timeout: 5)
   }
-  
+
   func testGenerateAuthTokenAuthTokenFailure() {
     let installations = FakeInstallations(testCase: .authTokenFailure)
-    let expectation = XCTestExpectation(description: "Generate auth token fails to generate auth token.")
+    let expectation =
+      XCTestExpectation(description: "Generate auth token fails to generate auth token.")
 
     AppDistributionApiService.generateAuthToken(
       installations: installations,
@@ -69,7 +70,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     wait(for: [expectation], timeout: 5)
   }
-  
+
   func testGenerateAuthTokenInstallationIDFailure() {
     let installations = FakeInstallations(testCase: .installationIDFailure)
     let expectation = XCTestExpectation(description: "Generate auth token fails to find ID.")
@@ -81,7 +82,10 @@ class AppDistributionApiServiceTests: XCTestCase {
         XCTAssertNil(identifier)
         XCTAssertNil(authTokenResult)
         XCTAssertNotNil(error)
-        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiInstallationIdentifierError.rawValue)
+        XCTAssertEqual(
+          nserror?.code,
+          AppDistributionApiError.ApiInstallationIdentifierError.rawValue
+        )
         expectation.fulfill()
       }
     )

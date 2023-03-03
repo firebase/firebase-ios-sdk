@@ -26,23 +26,22 @@ extension InstallationsAuthTokenResult {
 }
 
 class FakeInstallations: InstallationsProtocol {
-
   let fakeErrorDomain = "test.failure.domain"
   let fakeInstallationID = "this-id-is-fake"
   let fakeAuthToken = "this-is-a-fake-auth-token"
-  
+
   enum TestCase {
     case success
     case authTokenFailure
     case installationIDFailure
   }
-  
+
   var testCase: TestCase
-  
+
   required init(testCase: TestCase) {
     self.testCase = testCase
   }
-  
+
   func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
     switch testCase {
     case .success:
@@ -54,8 +53,6 @@ class FakeInstallations: InstallationsProtocol {
     default:
       completion(nil, nil)
     }
-    
-    
   }
 
   func installationID(completion: @escaping (String?, Error?) -> Void) {
