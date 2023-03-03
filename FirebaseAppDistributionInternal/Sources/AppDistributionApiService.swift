@@ -105,25 +105,28 @@ struct FindReleaseResponse: Codable {
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
     fetchReleases(
+      app: FirebaseApp.app()!,
       installations: Installations.installations(),
       urlSession: URLSession.shared,
       completion: completion
     )
   }
 
-  static func fetchReleases(installations: InstallationsProtocol, urlSession: URLSession,
+  static func fetchReleases(app: FirebaseApp, installations: InstallationsProtocol,
+                            urlSession: URLSession,
                             completion: @escaping AppDistributionFetchReleasesCompletion) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
-      FirebaseApp.app()?.options.googleAppID ?? ""
+      app.options.googleAppID
     ))
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.releaseEndpointUrlTemplate,
-        FirebaseApp.app()!.options.googleAppID,
+        app.options.googleAppID,
         identifier!
       )
       let request = self.createHttpRequest(
+        app: app,
         method: Strings.httpGet,
         url: urlString,
         authTokenResult: authTokenResult!
@@ -132,7 +135,7 @@ struct FindReleaseResponse: Codable {
         format: "Url: %@ Auth token: %@ Api Key: %@",
         urlString,
         authTokenResult?.authToken ?? "",
-        FirebaseApp.app()?.options.apiKey ?? ""
+        app.options.apiKey!
       ))
 
       let listReleaseDataTask = urlSession
@@ -199,17 +202,18 @@ struct FindReleaseResponse: Codable {
     return createError(description: description, code: .ApiErrorUnknownFailure)
   }
 
-  static func createHttpRequest(method: String, url: String,
+  static func createHttpRequest(app: FirebaseApp, method: String, url: String,
                                 authTokenResult: InstallationsAuthTokenResult)
     -> NSMutableURLRequest {
     return createHttpRequest(
+      app: app,
       method: method,
       url: URL(string: url),
       authTokenResult: authTokenResult
     )
   }
 
-  static func createHttpRequest(method: String, url: URL?,
+  static func createHttpRequest(app: FirebaseApp, method: String, url: URL?,
                                 authTokenResult: InstallationsAuthTokenResult)
     -> NSMutableURLRequest {
     let request = NSMutableURLRequest()
@@ -217,7 +221,7 @@ struct FindReleaseResponse: Codable {
     request.httpMethod = method
     request.setValue(authTokenResult.authToken, forHTTPHeaderField: Strings.installationsAuthHeader)
     request.setValue(
-      FirebaseApp.app()?.options.apiKey,
+      app.options.apiKey,
       forHTTPHeaderField: Strings.installationsAuthHeader
     )
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: Strings.apiBundleKey)

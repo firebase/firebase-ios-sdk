@@ -27,8 +27,8 @@ class AppDistributionApiServiceTests: XCTestCase {
     options.projectID = "myProjectID"
     // Randomly generated, this needs to start with A, and be 39 characters long.
     options.apiKey = "A7a8Ff2UsWT3r5lOg22fFFkVwZClxc2MsvfPPFS"
-    FirebaseApp.configure(name: "__FIRAPP_DEFAULT", options: options)
-    _ = FirebaseApp.app()
+    FirebaseApp.configure(name: "app-distribution-test-app", options: options)
+    _ = FirebaseApp.app(name: "app-distribution-test-app")
   }
 
   // MARK: - Test generateAuthToken
@@ -96,12 +96,14 @@ class AppDistributionApiServiceTests: XCTestCase {
   // MARK: - Test fetchReleases
 
   func testFetchReleasesSuccess() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
     let urlSession = URLSessionMock(testCase: .success)
 
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
 
     AppDistributionApiService.fetchReleases(
+      app: app,
       installations: installations,
       urlSession: urlSession,
       completion: { releases, error in
@@ -116,12 +118,14 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
 
   func testFetchReleasesUnknownFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
     let urlSession = URLSessionMock(testCase: .unknownFailure)
 
     let expectation = XCTestExpectation(description: "Fetch releases fails with unknown error.")
 
     AppDistributionApiService.fetchReleases(
+      app: app,
       installations: installations,
       urlSession: urlSession,
       completion: { releases, error in
@@ -137,6 +141,7 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
 
   func testFetchReleasesUnauthenticatedFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
     let urlSession = URLSessionMock(testCase: .unauthenticatedFailure)
 
@@ -144,6 +149,7 @@ class AppDistributionApiServiceTests: XCTestCase {
       XCTestExpectation(description: "Fetch releases fails with unauthenticated error.")
 
     AppDistributionApiService.fetchReleases(
+      app: app,
       installations: installations,
       urlSession: urlSession,
       completion: { releases, error in
