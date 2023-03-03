@@ -487,11 +487,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 }
 
 #if TARGET_OS_IOS
-+ (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
-                    callback:(FIRSendVerificationCodeResponseCallback)callback {
-  [[self implementation] sendVerificationCode:request callback:callback];
-}
-
 + (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   [[self implementation] verifyPhoneNumber:request callback:callback];
@@ -612,20 +607,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 }
 
 #if TARGET_OS_IOS
-- (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
-                    callback:(FIRSendVerificationCodeResponseCallback)callback {
-  FIRSendVerificationCodeResponse *response = [[FIRSendVerificationCodeResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, error);
-                 }
-               }];
-}
-
 - (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   FIRVerifyPhoneNumberResponse *response = [[FIRVerifyPhoneNumberResponse alloc] init];
