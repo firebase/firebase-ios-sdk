@@ -180,9 +180,7 @@ static NSString *const kTenantIDKey = @"tenantId";
       nameDict[kLastNameKey] = _fullName.familyName;
     }
     NSDictionary *userDict = [NSDictionary dictionaryWithObject:nameDict forKey:kNameKey];
-    NSData *userJson = [NSJSONSerialization dataWithJSONObject:userDict
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:error];
+    NSData *userJson = [NSJSONSerialization dataWithJSONObject:userDict options:0 error:error];
     [queryItems
         addObject:[NSURLQueryItem
                       queryItemWithName:kUserKey
