@@ -22,6 +22,7 @@
 # that is the case.
 google.firestore.v1.TargetChange.cause proto3:false
 
-# Expected count is set only if there is a resume token presented in the
-# Target.
+# expected_count is set only if there is a resume token present in the
+# Target. The backend may differentiate between an expected_count of 0 and
+# expected_count being omitted.
 google.firestore.v1.Target.expected_count proto3:false

@@ -67,8 +67,8 @@ class TargetData {
    *     target to be resumed after disconnecting without retransmitting all the
    *     data that matches the query. The resume token essentially identifies a
    *     point in time from which the server should resume sending results.
-   * @param expectedCount The number of documents that last matched the query at
-   * the resume token or read time. Documents are counted only when making a
+   * @param expected_count The number of documents that last matched the query
+   * at the resume token or read time. Documents are counted only when making a
    * listen request with resume token or read time, otherwise, keep it null.
    */
   TargetData(core::Target target,

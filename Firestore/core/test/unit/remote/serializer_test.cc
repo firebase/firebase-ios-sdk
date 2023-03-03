@@ -1517,7 +1517,7 @@ TEST_F(SerializerTest, EncodesExpectedCount) {
   core::Query q = Query("docs");
   TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
                    SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}), /*expected_count=*/2);
+                   Bytes({1, 2, 3}), /*expected_count=*/1234);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1536,9 +1536,10 @@ TEST_F(SerializerTest, EncodesExpectedCount) {
 
   proto.set_resume_token("\001\002\003");
 
-  google::protobuf::Int32Value* expectedCount = new Int32Value();
-  expectedCount->set_value(2);
-  proto.set_allocated_expected_count(expectedCount);
+  google::protobuf::Int32Value int32_value;
+  google::protobuf::Int32Value* expected_count = int32_value.New();
+  expected_count->set_value(1234);
+  proto.set_allocated_expected_count(expected_count);
 
   EXPECT_TRUE(proto.has_expected_count());
   ExpectRoundTrip(model, proto);
@@ -1548,7 +1549,7 @@ TEST_F(SerializerTest, EncodeExpectedCountSkippedWithoutResumeToken) {
   core::Query q = Query("docs");
   TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
                    SnapshotVersion::None(), SnapshotVersion::None(),
-                   ByteString(), /*expected_count=*/2);
+                   ByteString(), /*expected_count=*/1234);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
