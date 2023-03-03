@@ -67,8 +67,9 @@ struct FindReleaseResponse: Codable {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     generateAuthToken(installations: Installations.installations(), completion: completion)
   }
-  
-  static func generateAuthToken(installations: InstallationsProtocol, completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+
+  static func generateAuthToken(installations: InstallationsProtocol,
+                                completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     installations.authToken(completion: { authTokenResult, error in
       var fadError: Error? = error
       if self.handleError(
@@ -103,10 +104,15 @@ struct FindReleaseResponse: Codable {
   }
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
-    fetchReleases(installations: Installations.installations(), urlSession: URLSession.shared, completion: completion)
+    fetchReleases(
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      completion: completion
+    )
   }
-  
-  static func fetchReleases(installations: InstallationsProtocol, urlSession: URLSession, completion: @escaping AppDistributionFetchReleasesCompletion) {
+
+  static func fetchReleases(installations: InstallationsProtocol, urlSession: URLSession,
+                            completion: @escaping AppDistributionFetchReleasesCompletion) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
       FirebaseApp.app()?.options.googleAppID ?? "unknown"

@@ -23,4 +23,3 @@ internal protocol InstallationsProtocol {
 }
 
 extension Installations: InstallationsProtocol {}
-
