@@ -23,8 +23,6 @@
 
 @import FirebaseAppDistributionInternal;
 
-@import FirebaseAppDistributionInternal;
-
 NSString *const kFakeErrorDomain = @"test.failure.domain";
 
 @interface FIRFADApiServiceTests : XCTestCase
@@ -100,12 +98,6 @@ NSString *const kFakeErrorDomain = @"test.failure.domain";
 
 - (void)tearDown {
   [super tearDown];
-  // These methods fail when using FIRFADSwiftApi.
-  // Commenting these out doesn't affect the tests.
-  //  [_mockFIRAppClass stopMocking];
-  //  [_mockInstallationToken stopMocking];
-  //  [_mockURLSession stopMocking];
-  //  [_mockFIRInstallations stopMocking];
   // These methods fail when using FIRFADSwiftApi.
   // Commenting these out doesn't affect the tests.
   //  [_mockFIRAppClass stopMocking];
