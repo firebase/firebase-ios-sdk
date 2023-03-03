@@ -20,7 +20,6 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
@@ -55,40 +54,38 @@ static NSString *kUserCodingKey = @"user";
                                                    displayName:displayName
                                               verificationInfo:finalizeMFAPhoneRequestInfo
                                           requestConfiguration:self.user.requestConfiguration];
-  [FIRAuthBackend
-      finalizeMultiFactorEnrollment:request
-                           callback:^(FIRFinalizeMFAEnrollmentResponse *_Nullable response,
-                                      NSError *_Nullable error) {
-                             if (error) {
-                               if (completion) {
-                                 completion(error);
-                               }
-                             } else {
-                               [FIRAuth.auth
-                                   completeSignInWithAccessToken:response.IDToken
-                                       accessTokenExpirationDate:nil
-                                                    refreshToken:response.refreshToken
-                                                       anonymous:NO
-                                                        callback:^(FIRUser *_Nullable user,
-                                                                   NSError *_Nullable error) {
-                                                          FIRAuthDataResult *result =
-                                                              [[FIRAuthDataResult alloc]
-                                                                        initWithUser:user
-                                                                  additionalUserInfo:nil];
-                                                          FIRAuthDataResultCallback
-                                                              decoratedCallback = [FIRAuth.auth
-                                                                  signInFlowAuthDataResultCallbackByDecoratingCallback:
-                                                                      ^(FIRAuthDataResult
-                                                                            *_Nullable authResult,
-                                                                        NSError *_Nullable error) {
-                                                                        if (completion) {
-                                                                          completion(error);
-                                                                        }
-                                                                      }];
-                                                          decoratedCallback(result, error);
-                                                        }];
-                             }
-                           }];
+  [FIRAuthBackend2
+      postWithRequest:request
+             callback:^(FIRFinalizeMFAEnrollmentResponse *_Nullable response,
+                        NSError *_Nullable error) {
+               if (error) {
+                 if (completion) {
+                   completion(error);
+                 }
+               } else {
+                 [FIRAuth.auth
+                     completeSignInWithAccessToken:response.IDToken
+                         accessTokenExpirationDate:nil
+                                      refreshToken:response.refreshToken
+                                         anonymous:NO
+                                          callback:^(FIRUser *_Nullable user,
+                                                     NSError *_Nullable error) {
+                                            FIRAuthDataResult *result =
+                                                [[FIRAuthDataResult alloc] initWithUser:user
+                                                                     additionalUserInfo:nil];
+                                            FIRAuthDataResultCallback decoratedCallback = [FIRAuth
+                                                                                               .auth
+                                                signInFlowAuthDataResultCallbackByDecoratingCallback:
+                                                    ^(FIRAuthDataResult *_Nullable authResult,
+                                                      NSError *_Nullable error) {
+                                                      if (completion) {
+                                                        completion(error);
+                                                      }
+                                                    }];
+                                            decoratedCallback(result, error);
+                                          }];
+               }
+             }];
 #endif
 }
 
@@ -103,40 +100,40 @@ static NSString *kUserCodingKey = @"user";
       [[FIRWithdrawMFARequest alloc] initWithIDToken:self.user.rawAccessToken
                                      MFAEnrollmentID:factorUID
                                 requestConfiguration:self.user.requestConfiguration];
-  [FIRAuthBackend
-      withdrawMultiFactor:request
-                 callback:^(FIRWithdrawMFAResponse *_Nullable response, NSError *_Nullable error) {
-                   if (error) {
-                     if (completion) {
-                       completion(error);
-                     }
-                   } else {
-                     [FIRAuth.auth
-                         completeSignInWithAccessToken:response.IDToken
-                             accessTokenExpirationDate:nil
-                                          refreshToken:response.refreshToken
-                                             anonymous:NO
-                                              callback:^(FIRUser *_Nullable user,
-                                                         NSError *_Nullable error) {
-                                                FIRAuthDataResult *result =
-                                                    [[FIRAuthDataResult alloc] initWithUser:user
-                                                                         additionalUserInfo:nil];
-                                                FIRAuthDataResultCallback decoratedCallback = [FIRAuth
-                                                                                                   .auth
-                                                    signInFlowAuthDataResultCallbackByDecoratingCallback:
-                                                        ^(FIRAuthDataResult *_Nullable authResult,
-                                                          NSError *_Nullable error) {
-                                                          if (error) {
-                                                            [[FIRAuth auth] signOut:NULL];
-                                                          }
-                                                          if (completion) {
-                                                            completion(error);
-                                                          }
-                                                        }];
-                                                decoratedCallback(result, error);
-                                              }];
-                   }
-                 }];
+  [FIRAuthBackend2
+      postWithRequest:request
+             callback:^(FIRWithdrawMFAResponse *_Nullable response, NSError *_Nullable error) {
+               if (error) {
+                 if (completion) {
+                   completion(error);
+                 }
+               } else {
+                 [FIRAuth.auth
+                     completeSignInWithAccessToken:response.IDToken
+                         accessTokenExpirationDate:nil
+                                      refreshToken:response.refreshToken
+                                         anonymous:NO
+                                          callback:^(FIRUser *_Nullable user,
+                                                     NSError *_Nullable error) {
+                                            FIRAuthDataResult *result =
+                                                [[FIRAuthDataResult alloc] initWithUser:user
+                                                                     additionalUserInfo:nil];
+                                            FIRAuthDataResultCallback decoratedCallback = [FIRAuth
+                                                                                               .auth
+                                                signInFlowAuthDataResultCallbackByDecoratingCallback:
+                                                    ^(FIRAuthDataResult *_Nullable authResult,
+                                                      NSError *_Nullable error) {
+                                                      if (error) {
+                                                        [[FIRAuth auth] signOut:NULL];
+                                                      }
+                                                      if (completion) {
+                                                        completion(error);
+                                                      }
+                                                    }];
+                                            decoratedCallback(result, error);
+                                          }];
+               }
+             }];
 }
 
 #pragma mark - Internal
