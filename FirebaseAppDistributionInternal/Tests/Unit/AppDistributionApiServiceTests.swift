@@ -25,7 +25,8 @@ class AppDistributionApiServiceTests: XCTestCase {
       gcmSenderID: "00000000000000000-00000000000-000000000"
     )
     options.projectID = "myProjectID"
-    options.apiKey = "api-key"
+    // Randomly generated, this needs to start with A, and be 39 characters long.
+    options.apiKey = "A7a8Ff2UsWT3r5lOg22fFFkVwZClxc2MsvfPPFS"
     FirebaseApp.configure(name: "__FIRAPP_DEFAULT", options: options)
     _ = FirebaseApp.app()
   }
