@@ -23,10 +23,8 @@
 @class FIRVerifyClientResponse;
 @class FIRVerifyPhoneNumberRequest;
 @class FIRVerifyPhoneNumberResponse;
-@class FIRSendVerificationCodeResponse;
 // TODO: FIRSignUpNewUserResponse Used in extra internal functions in FIRAuth.m
 @class FIRSignUpNewUserResponse;
-@class FIRSendVerificationCodeRequest;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
@@ -56,16 +54,6 @@ typedef void (^FIRDeleteCallBack)(NSError *_Nullable error);
  */
 typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable response,
                                          NSError *_Nullable error);
-
-/** @typedef FIRSendVerificationCodeResponseCallback
-    @brief The type of block used to return the result of a call to the sendVerificationCode
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRSendVerificationCodeResponseCallback)(
-    FIRSendVerificationCodeResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRVerifyPhoneNumberResponseCallback
     @brief The type of block used to return the result of a call to the verifyPhoneNumber endpoint.
@@ -120,15 +108,6 @@ typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullab
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
 
 #if TARGET_OS_IOS
-/** @fn sendVerificationCode:callback:
-    @brief Calls the sendVerificationCode endpoint, which is responsible for sending the
-        verification code to a phone number specified in the request parameters.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
-                    callback:(FIRSendVerificationCodeResponseCallback)callback;
-
 /** @fn verifyPhoneNumber:callback:
     @brief Calls the verifyPhoneNumber endpoint, which is responsible for sending the verification
         code to a phone number specified in the request parameters.
@@ -179,15 +158,6 @@ typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullab
 @protocol FIRAuthBackendImplementation <NSObject>
 
 #if TARGET_OS_IOS
-/** @fn sendVerificationCode:callback:
-    @brief Calls the sendVerificationCode endpoint, which is responsible for sending the
-        verification code to a phone number specified in the request parameters.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)sendVerificationCode:(FIRSendVerificationCodeRequest *)request
-                    callback:(FIRSendVerificationCodeResponseCallback)callback;
-
 /** @fn verifyPhoneNumber:callback:
     @brief Calls the verifyPhoneNumber endpoint, which is responsible for sending the verification
         code to a phone number specified in the request parameters.
