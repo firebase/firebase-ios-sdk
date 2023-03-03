@@ -1136,7 +1136,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       }
       return;
     }
-
+#if !TARGET_OS_WATCH
     if ([credential isKindOfClass:[FIRGameCenterAuthCredential class]]) {
       FIRGameCenterAuthCredential *gameCenterCredential = (FIRGameCenterAuthCredential *)credential;
       [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
@@ -1204,7 +1204,7 @@ static void callInMainThreadWithAuthDataResultAndError(
       }];
       return;
     }
-
+#endif
 #if TARGET_OS_IOS
     if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
       FIRPhoneAuthCredential *phoneAuthCredential = (FIRPhoneAuthCredential *)credential;
