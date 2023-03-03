@@ -180,10 +180,10 @@ struct CreateFeedbackReportRequest: Codable {
   public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
                                  completion: @escaping (_ releaseName: String?, _ error: Error?)
                                  -> Void) {
-    findRelease(app: FirebaseApp.app()!,  urlSession:URLSession.shared,  installations: Installations.installations(), displayVersion: displayVersion, buildVersion: buildVersion, codeHash: codeHash, completion: completion)
+    findRelease(app: FirebaseApp.app()!, installations: Installations.installations(),  urlSession:URLSession.shared, displayVersion: displayVersion, buildVersion: buildVersion, codeHash: codeHash, completion: completion)
   }
   
-  static func findRelease(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol, displayVersion: String,
+  static func findRelease(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession, displayVersion: String,
                                  buildVersion: String, codeHash: String,
                                  completion: @escaping (_ releaseName: String?, _ error: Error?)
                                    -> Void) {
@@ -245,10 +245,10 @@ struct CreateFeedbackReportRequest: Codable {
                                     feedbackText: String,
                                     completion: @escaping (_ releaseName: String?, _ error: Error?)
                                     -> Void) {
-    createFeedback(app: FirebaseApp.app()!, urlSession: URLSession.shared, installations: Installations.installations(), releaseName: releaseName, feedbackText: feedbackText, completion: completion)
+    createFeedback(app: FirebaseApp.app()!, installations: Installations.installations(), urlSession: URLSession.shared, releaseName: releaseName, feedbackText: feedbackText, completion: completion)
   }
   
-  static func createFeedback(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol, releaseName: String,
+  static func createFeedback(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession, releaseName: String,
                                     feedbackText: String,
                                     completion: @escaping (_ releaseName: String?, _ error: Error?)
                                       -> Void) {
@@ -293,10 +293,10 @@ struct CreateFeedbackReportRequest: Codable {
                                  image: UIImage,
                                  completion: @escaping (_ error: Error?)
                                  -> Void) {
-    uploadImage(app: FirebaseApp.app()!, urlSession: URLSession.shared, installations: Installations.installations(), feedbackName: feedbackName, image: image, completion: completion)
+    uploadImage(app: FirebaseApp.app()!, installations: Installations.installations(), urlSession: URLSession.shared, feedbackName: feedbackName, image: image, completion: completion)
   }
   
-  static func uploadImage(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol, feedbackName: String,
+  static func uploadImage(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession, feedbackName: String,
                                  image: UIImage,
                                  completion: @escaping (_ error: Error?)
                                    -> Void) {

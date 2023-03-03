@@ -165,4 +165,57 @@ class AppDistributionApiServiceTests: XCTestCase {
   }
 
   // TODO: Add more cases for testFetchReleases
+  
+  
+  func testCreateFeedbackWithCompletionSuccess() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .success)
+    
+    let expectation = XCTestExpectation(description: "Create feedback succeeds")
+    
+    AppDistributionApiService.createFeedback(app: app, installations: installations, urlSession: urlSession, releaseName: "release/name", feedbackText: "feedback text", completion: { releaseName, error in
+      XCTAssertNotNil(releaseName)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    })
+    
+    wait(for: [expectation], timeout: 5)
+  }
+  
+  func testCreateFeedbackWithCompletionUnauthenticatedFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .unauthenticatedFailure)
+    
+    let expectation = XCTestExpectation(description: "Create feedback fails")
+    
+    AppDistributionApiService.createFeedback(app: app, installations: installations, urlSession: urlSession, releaseName: "release/name", feedbackText: "feedback text", completion: { releaseName, error in
+      XCTAssertNil(releaseName)
+      let nserror = error as? NSError
+      XCTAssertNotNil(nserror)
+      XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnauthenticated.rawValue)
+      expectation.fulfill()
+    })
+    
+    wait(for: [expectation], timeout: 5)
+  }
+  
+  func testCreateFeedbackWithCompletionUnknownFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .unknownFailure)
+    
+    let expectation = XCTestExpectation(description: "Create feedback fails")
+    
+    AppDistributionApiService.createFeedback(app: app, installations: installations, urlSession: urlSession, releaseName: "release/name", feedbackText: "feedback text", completion: { releaseName, error in
+      XCTAssertNil(releaseName)
+      let nserror = error as? NSError
+      XCTAssertNotNil(nserror)
+      XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnknownFailure.rawValue)
+      expectation.fulfill()
+    })
+    
+    wait(for: [expectation], timeout: 5)
+  }
 }
