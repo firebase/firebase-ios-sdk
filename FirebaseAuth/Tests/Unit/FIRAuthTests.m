@@ -1442,7 +1442,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInWithCustomTokenFailure
     @brief Tests the flow of a failed @c signInWithCustomToken:completion: call.
  */
@@ -1464,7 +1464,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInAndRetrieveDataWithCustomTokenSuccess
     @brief Tests the flow of a successful @c signInAndRetrieveDataWithCustomToken:completion: call.
  */
@@ -1497,7 +1497,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInAndRetrieveDataWithCustomTokenFailure
     @brief Tests the flow of a failed @c signInAndRetrieveDataWithCustomToken:completion: call.
  */
@@ -1519,7 +1519,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testCreateUserWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c createUserWithEmail:password:completion: call.
  */

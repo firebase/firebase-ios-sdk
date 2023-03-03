@@ -19,12 +19,12 @@ import Foundation
  */
 @objc(FIRVerifyCustomTokenResponse) public class VerifyCustomTokenResponse: NSObject,
   AuthRPCResponse {
-  /** @property IDToken
+  /** @property idToken
    @brief Either an authorization code suitable for performing an STS token exchange, or the
    access token from Secure Token Service, depending on whether @c returnSecureToken is set
    on the request.
    */
-  @objc public var IDToken: String?
+  @objc public var idToken: String?
 
   /** @property approximateExpirationDate
    @brief The approximate expiration date of the access token.
@@ -42,7 +42,7 @@ import Foundation
   @objc public var isNewUser: Bool = false
 
   public func setFields(dictionary: [String: Any]) throws {
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     if let dateString = dictionary["expiresIn"] as? NSString {
       approximateExpirationDate = Date(timeIntervalSinceNow: dateString.doubleValue)
     }
