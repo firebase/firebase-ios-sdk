@@ -173,7 +173,7 @@ private let kTenantIDKey = "tenantId"
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = VerifyClientResponse()
+  @objc public var response: AuthRPCResponse = VerifyAssertionResponse()
 
   @objc public init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
     self.providerID = providerID
