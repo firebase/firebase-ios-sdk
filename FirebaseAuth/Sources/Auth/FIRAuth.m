@@ -1679,42 +1679,42 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   FIRVerifyCustomTokenRequest *request =
       [[FIRVerifyCustomTokenRequest alloc] initWithToken:token
                                     requestConfiguration:_requestConfiguration];
-  [FIRAuthBackend
-      verifyCustomToken:request
-               callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
-                          NSError *_Nullable error) {
-                 if (error) {
-                   if (completion) {
-                     completion(nil, error);
-                     return;
-                   }
+  [FIRAuthBackend2
+      postWithRequest:request
+             callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
+                        NSError *_Nullable error) {
+               if (error) {
+                 if (completion) {
+                   completion(nil, error);
+                   return;
                  }
-                 [self completeSignInWithAccessToken:response.IDToken
-                           accessTokenExpirationDate:response.approximateExpirationDate
-                                        refreshToken:response.refreshToken
-                                           anonymous:NO
-                                            callback:^(FIRUser *_Nullable user,
-                                                       NSError *_Nullable error) {
-                                              if (error && completion) {
-                                                completion(nil, error);
-                                                return;
-                                              }
-                                              FIRAdditionalUserInfo *additonalUserInfo =
-                                                  [[FIRAdditionalUserInfo alloc]
-                                                      initWithProviderID:nil
-                                                                 profile:nil
-                                                                username:nil
-                                                               isNewUser:response.isNewUser];
-                                              FIRAuthDataResult *result =
-                                                  user ? [[FIRAuthDataResult alloc]
-                                                                   initWithUser:user
-                                                             additionalUserInfo:additonalUserInfo]
-                                                       : nil;
-                                              if (completion) {
-                                                completion(result, error);
-                                              }
-                                            }];
-               }];
+               }
+               [self completeSignInWithAccessToken:response.idToken
+                         accessTokenExpirationDate:response.approximateExpirationDate
+                                      refreshToken:response.refreshToken
+                                         anonymous:NO
+                                          callback:^(FIRUser *_Nullable user,
+                                                     NSError *_Nullable error) {
+                                            if (error && completion) {
+                                              completion(nil, error);
+                                              return;
+                                            }
+                                            FIRAdditionalUserInfo *additonalUserInfo =
+                                                [[FIRAdditionalUserInfo alloc]
+                                                    initWithProviderID:nil
+                                                               profile:nil
+                                                              username:nil
+                                                             isNewUser:response.isNewUser];
+                                            FIRAuthDataResult *result =
+                                                user ? [[FIRAuthDataResult alloc]
+                                                                 initWithUser:user
+                                                           additionalUserInfo:additonalUserInfo]
+                                                     : nil;
+                                            if (completion) {
+                                              completion(result, error);
+                                            }
+                                          }];
+             }];
 }
 
 /** @fn internalCreateUserWithEmail:password:completion:
