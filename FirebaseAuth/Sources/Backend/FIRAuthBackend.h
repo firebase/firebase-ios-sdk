@@ -24,9 +24,7 @@
 @class FIRVerifyPhoneNumberRequest;
 @class FIRVerifyPhoneNumberResponse;
 @class FIRSendVerificationCodeResponse;
-@class FIRSignInWithGameCenterRequest;
-@class FIRSignInWithGameCenterResponse;
-@class FIRSignUpNewUserRequest;
+// TODO: FIRSignUpNewUserResponse Used in extra internal functions in FIRAuth.m
 @class FIRSignUpNewUserResponse;
 @class FIRSendVerificationCodeRequest;
 
@@ -87,16 +85,6 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
 typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullable response,
                                                 NSError *_Nullable error);
 
-/** @typedef FIRSignInWithGameCenterResponseCallback
-    @brief The type of block used to return the result of a call to the SignInWithGameCenter
-   endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRSignInWithGameCenterResponseCallback)(
-    FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
-
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
     @remarks All callback blocks passed as method parameters are invoked asynchronously on the
@@ -130,24 +118,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
-
-/** @fn signUpNewUser:
-    @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
-        or signing in a user anonymously.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
-             callback:(FIRSignupNewUserCallback)callback;
-
-/** @fn SignInWithGameCenter:callback:
-    @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
-      who has Game Center credentials.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
-                    callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:
@@ -207,14 +177,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
         or a mock backend.
  */
 @protocol FIRAuthBackendImplementation <NSObject>
-/** @fn signUpNewUser:
-    @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
-        or signing in a user anonymously.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
-             callback:(FIRSignupNewUserCallback)callback;
 
 #if TARGET_OS_IOS
 /** @fn sendVerificationCode:callback:
@@ -244,15 +206,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 - (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
 #endif
-
-/** @fn SignInWithGameCenter:callback:
-    @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user
-      who has Game Center credentials.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)signInWithGameCenter:(FIRSignInWithGameCenterRequest *)request
-                    callback:(FIRSignInWithGameCenterResponseCallback)callback;
 
 /** @fn postWithRequest:response:callback:
     @brief Calls the RPC using HTTP POST.
