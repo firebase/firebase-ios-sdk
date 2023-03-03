@@ -86,13 +86,6 @@ class VerifyCustomTokenTests: RPCBaseTests {
     )
   }
 
-  private let profile = [
-    "iss": "https://accounts.google.com\\",
-    "email": "test@email.com",
-    "given_name": "User",
-    "family_name": "Doe",
-  ]
-
   /** @fn testSuccessfulVerifyCustomTokenResponse
       @brief This test simulates a successful verify CustomToken flow.
    */
