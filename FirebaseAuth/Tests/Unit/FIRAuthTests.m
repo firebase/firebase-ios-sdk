@@ -1336,7 +1336,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserAnonymous:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInAnonymouslyFailure
     @brief Tests the flow of a failed @c signInAnonymouslyWithCompletion: call.
  */
@@ -1357,7 +1357,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInAnonymouslyAndRetrieveDataSuccess
     @brief Tests the flow of a successful @c signInAnonymouslyAndRetrieveDataWithCompletion: call.
  */
@@ -1389,7 +1389,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUserAnonymous:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testSignInAnonymouslyAndRetrieveDataFailure
     @brief Tests the flow of a failed @c signInAnonymouslyAndRetrieveDataWithCompletion: call.
  */
@@ -1410,7 +1410,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testSignInWithCustomTokenSuccess
     @brief Tests the flow of a successful @c signInWithCustomToken:completion: call.
  */
@@ -1553,7 +1553,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testCreateUserWithEmailPasswordFailure
     @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call.
  */
@@ -1578,7 +1578,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testCreateUserAndRetrieveDataWithEmailPasswordSuccess
     @brief Tests the flow of a successful @c createUserAndRetrieveDataWithEmail:password:completion:
         call.
@@ -1614,7 +1614,7 @@ static const NSTimeInterval kWaitInterval = .5;
   [self assertUser:[FIRAuth auth].currentUser];
   OCMVerifyAll(_mockBackend);
 }
-#endif
+
 /** @fn testCreateUserAndRetrieveDataWithEmailPasswordFailure
     @brief Tests the flow of a failed @c createUserAndRetrieveDataWithEmail:password:completion:
         call.
@@ -1640,7 +1640,7 @@ static const NSTimeInterval kWaitInterval = .5;
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
-
+#endif
 /** @fn testCreateUserEmptyPasswordFailure
     @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call due to an
         empty password. This error occurs on the client side, so there is no need to fake an RPC
