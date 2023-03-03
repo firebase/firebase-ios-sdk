@@ -19,10 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRSecureTokenRequest;
-@class FIRSecureTokenResponse;
-@class FIRVerifyAssertionRequest;
-@class FIRVerifyAssertionResponse;
 @class FIRVerifyClientRequest;
 @class FIRVerifyClientResponse;
 @class FIRVerifyCustomTokenRequest;
@@ -49,25 +45,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
                                                          NSError *_Nullable error);
-
-/** @typedef FIRSecureTokenResponseCallback
-    @brief The type of block used to return the result of a call to the token endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRSecureTokenResponseCallback)(FIRSecureTokenResponse *_Nullable response,
-                                               NSError *_Nullable error);
-
-/** @typedef FIRVerifyAssertionResponseCallback
-    @brief The type of block used to return the result of a call to the verifyAssertion
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRVerifyAssertionResponseCallback)(FIRVerifyAssertionResponse *_Nullable response,
-                                                   NSError *_Nullable error);
 
 /** @typedef FIRVerifyCustomTokenResponseCallback
     @brief The type of block used to return the result of a call to the verifyCustomToken
@@ -175,15 +152,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
 
-/** @fn verifyAssertion:callback:
-    @brief Calls the verifyAssertion endpoint, which is responsible for authenticating a
-        user who has IDP-related credentials (an ID Token, an Access Token, etc.)
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)verifyAssertion:(FIRVerifyAssertionRequest *)request
-               callback:(FIRVerifyAssertionResponseCallback)callback;
-
 /** @fn verifyCustomToken:callback:
     @brief Calls the verifyCustomToken endpoint, which is responsible for authenticating a
         user who has BYOAuth credentials (a self-signed token using their BYOAuth private key.)
@@ -192,15 +160,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback;
-
-/** @fn secureToken:callback:
-    @brief Calls the token endpoint, which is responsible for performing STS token exchanges and
-        token refreshes.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)secureToken:(FIRSecureTokenRequest *)request
-           callback:(FIRSecureTokenResponseCallback)callback;
 
 /** @fn signUpNewUser:
     @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
@@ -289,15 +248,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 @protocol FIRAuthBackendImplementation <NSObject>
 
-/** @fn verifyAssertion:callback:
-    @brief Calls the verifyAssertion endpoint, which is responsible for authenticating a
-        user who has IDP-related credentials (an ID Token, an Access Token, etc.)
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)verifyAssertion:(FIRVerifyAssertionRequest *)request
-               callback:(FIRVerifyAssertionResponseCallback)callback;
-
 /** @fn verifyCustomToken:callback:
     @brief Calls the verifyCustomToken endpoint, which is responsible for authenticating a
         user who has BYOAuth credentials (a self-signed token using their BYOAuth private key.)
@@ -306,15 +256,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback;
-
-/** @fn secureToken:callback:
-    @brief Calls the token endpoint, which is responsible for performing STS token exchanges and
-        token refreshes.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)secureToken:(FIRSecureTokenRequest *)request
-           callback:(FIRSecureTokenResponseCallback)callback;
 
 /** @fn signUpNewUser:
     @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
