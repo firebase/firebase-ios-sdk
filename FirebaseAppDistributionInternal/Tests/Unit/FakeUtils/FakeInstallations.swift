@@ -26,18 +26,47 @@ extension InstallationsAuthTokenResult {
 }
 
 class FakeInstallations: InstallationsProtocol {
+
+  let fakeErrorDomain = "test.failure.domain"
+  let fakeInstallationID = "this-id-is-fake"
+  let fakeAuthToken = "this-is-a-fake-auth-token"
+  
+  enum TestCase {
+    case success
+    case authTokenFailure
+    case installationIDFailure
+  }
+  
+  var testCase: TestCase
+  
+  required init(testCase: TestCase) {
+    self.testCase = testCase
+  }
+  
   func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void) {
-    let authToken = InstallationsAuthTokenResult(token: "", expirationDate: Date())
-    completion(authToken, nil)
+    switch testCase {
+    case .success:
+      let authToken = InstallationsAuthTokenResult(token: fakeAuthToken, expirationDate: Date())
+      completion(authToken, nil)
+    case .authTokenFailure:
+      let error = NSError(domain: fakeErrorDomain, code: 1)
+      completion(nil, error)
+    default:
+      completion(nil, nil)
+    }
+    
+    
   }
 
   func installationID(completion: @escaping (String?, Error?) -> Void) {
-    let installationID = "abcde"
-
-    completion(installationID, nil)
-  }
-
-  static func installations() -> InstallationsProtocol {
-    return FakeInstallations()
+    switch testCase {
+    case .success:
+      completion(fakeInstallationID, nil)
+    case .installationIDFailure:
+      let error = NSError(domain: fakeErrorDomain, code: 1)
+      completion(nil, error)
+    default:
+      completion(nil, nil)
+    }
   }
 }

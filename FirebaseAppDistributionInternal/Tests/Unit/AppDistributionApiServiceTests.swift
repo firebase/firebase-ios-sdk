@@ -32,8 +32,8 @@ class AppDistributionApiServiceTests: XCTestCase {
 
   // MARK: - Test generateAuthToken
 
-  func testGenerateAuthTokenWithCompletionSuccess() {
-    let installations = FakeInstallations.installations()
+  func testGenerateAuthTokenSuccess() {
+    let installations = FakeInstallations(testCase: .success)
 
     let expectation = XCTestExpectation(description: "Generate auth token succeeds")
 
@@ -49,11 +49,49 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     wait(for: [expectation], timeout: 5)
   }
+  
+  func testGenerateAuthTokenAuthTokenFailure() {
+    let installations = FakeInstallations(testCase: .authTokenFailure)
+    let expectation = XCTestExpectation(description: "Generate auth token fails to generate auth token.")
+
+    AppDistributionApiService.generateAuthToken(
+      installations: installations,
+      completion: { identifier, authTokenResult, error in
+        let nserror = error as? NSError
+        XCTAssertNil(identifier)
+        XCTAssertNil(authTokenResult)
+        XCTAssertNotNil(error)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiTokenGenerationFailure.rawValue)
+        expectation.fulfill()
+      }
+    )
+
+    wait(for: [expectation], timeout: 5)
+  }
+  
+  func testGenerateAuthTokenInstallationIDFailure() {
+    let installations = FakeInstallations(testCase: .installationIDFailure)
+    let expectation = XCTestExpectation(description: "Generate auth token fails to find ID.")
+
+    AppDistributionApiService.generateAuthToken(
+      installations: installations,
+      completion: { identifier, authTokenResult, error in
+        let nserror = error as? NSError
+        XCTAssertNil(identifier)
+        XCTAssertNil(authTokenResult)
+        XCTAssertNotNil(error)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiInstallationIdentifierError.rawValue)
+        expectation.fulfill()
+      }
+    )
+
+    wait(for: [expectation], timeout: 5)
+  }
 
   // MARK: - Test fetchReleases
 
-  func testFetchReleasesWithCompletionSuccess() {
-    let installations = FakeInstallations.installations()
+  func testFetchReleasesSuccess() {
+    let installations = FakeInstallations(testCase: .success)
     let urlSession = URLSessionMock(testCase: .success)
 
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
@@ -72,8 +110,8 @@ class AppDistributionApiServiceTests: XCTestCase {
     wait(for: [expectation], timeout: 5)
   }
 
-  func testFetchReleasesWithCompletionUnknownFailure() {
-    let installations = FakeInstallations.installations()
+  func testFetchReleasesUnknownFailure() {
+    let installations = FakeInstallations(testCase: .success)
     let urlSession = URLSessionMock(testCase: .unknownFailure)
 
     let expectation = XCTestExpectation(description: "Fetch releases fails with unknown error.")
@@ -93,8 +131,8 @@ class AppDistributionApiServiceTests: XCTestCase {
     wait(for: [expectation], timeout: 5)
   }
 
-  func testFetchReleasesWithCompletionUnauthenticatedFailure() {
-    let installations = FakeInstallations.installations()
+  func testFetchReleasesUnauthenticatedFailure() {
+    let installations = FakeInstallations(testCase: .success)
     let urlSession = URLSessionMock(testCase: .unauthenticatedFailure)
 
     let expectation =
