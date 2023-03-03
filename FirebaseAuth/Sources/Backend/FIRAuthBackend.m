@@ -486,19 +486,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   gBackendImplementation = defaultImplementation;
 }
 
-+ (void)verifyAssertion:(FIRVerifyAssertionRequest *)request
-               callback:(FIRVerifyAssertionResponseCallback)callback {
-  [[self implementation] verifyAssertion:request callback:callback];
-}
-
 + (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback {
   [[self implementation] verifyCustomToken:request callback:callback];
-}
-
-+ (void)secureToken:(FIRSecureTokenRequest *)request
-           callback:(FIRSecureTokenResponseCallback)callback {
-  [[self implementation] secureToken:request callback:callback];
 }
 
 + (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
@@ -637,65 +627,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   return self;
 }
 
-- (void)verifyAssertion:(FIRVerifyAssertionRequest *)request
-               callback:(FIRVerifyAssertionResponseCallback)callback {
-  FIRVerifyAssertionResponse *response = [[FIRVerifyAssertionResponse alloc] init];
-  [self
-      postWithRequest:request
-             response:response
-             callback:^(NSError *error) {
-               if (error) {
-                 callback(nil, error);
-               } else {
-                 if (!response.IDToken && response.MFAInfo) {
-#if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray =
-                       [[NSMutableArray alloc] init];
-                   for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     if (MFAEnrollment.phoneInfo) {
-                       FIRMultiFactorInfo *multiFactorInfo =
-                           [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfoArray addObject:multiFactorInfo];
-                     } else if (MFAEnrollment.TOTPInfo) {
-                       FIRMultiFactorInfo *multiFactorInfo =
-                           [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfoArray addObject:multiFactorInfo];
-                     } else {
-                       FIRLogError(kFIRLoggerAuth, @"I-AUT000020",
-                                   @"Multifactor type is not supported");
-                     }
-                   }
-                   NSError *multiFactorRequiredError = [FIRAuthErrorUtils
-                       secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfoArray
-                                                                 auth:request.requestConfiguration
-                                                                          .auth];
-                   callback(nil, multiFactorRequiredError);
-#endif
-                 } else {
-                   callback(response, nil);
-                 }
-               }
-             }];
-}
-
 - (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
                  callback:(FIRVerifyCustomTokenResponseCallback)callback {
   FIRVerifyCustomTokenResponse *response = [[FIRVerifyCustomTokenResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
-}
-
-- (void)secureToken:(FIRSecureTokenRequest *)request
-           callback:(FIRSecureTokenResponseCallback)callback {
-  FIRSecureTokenResponse *response = [[FIRSecureTokenResponse alloc] init];
   [self postWithRequest:request
                response:response
                callback:^(NSError *error) {
