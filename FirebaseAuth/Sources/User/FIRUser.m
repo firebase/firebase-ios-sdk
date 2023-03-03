@@ -1155,53 +1155,53 @@ static void callInMainThreadWithAuthDataResultAndError(
             requestConfiguration:requestConfiguration];
         gameCenterRequest.accessToken = accessToken;
 
-        [FIRAuthBackend
-            signInWithGameCenter:gameCenterRequest
-                        callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
-                                   NSError *_Nullable error) {
-                          if (error) {
-                            callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-                          } else {
-                            // Update the new token and refresh user info again.
-                            self->_tokenService = [[FIRSecureTokenService alloc]
-                                initWithRequestConfiguration:requestConfiguration
-                                                 accessToken:response.IDToken
-                                   accessTokenExpirationDate:response.approximateExpirationDate
-                                                refreshToken:response.refreshToken];
-                            [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
-                                                                 NSError *_Nullable error) {
-                              if (error) {
-                                callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-                                return;
-                              }
+        [FIRAuthBackend2
+            postWithRequest:gameCenterRequest
+                   callback:^(FIRSignInWithGameCenterResponse *_Nullable response,
+                              NSError *_Nullable error) {
+                     if (error) {
+                       callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                     } else {
+                       // Update the new token and refresh user info again.
+                       self->_tokenService = [[FIRSecureTokenService alloc]
+                           initWithRequestConfiguration:requestConfiguration
+                                            accessToken:response.IDToken
+                              accessTokenExpirationDate:response.approximateExpirationDate
+                                           refreshToken:response.refreshToken];
+                       [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
+                                                            NSError *_Nullable error) {
+                         if (error) {
+                           callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                           return;
+                         }
 
-                              FIRGetAccountInfoRequest *getAccountInfoRequest =
-                                  [[FIRGetAccountInfoRequest alloc]
-                                       initWithAccessToken:accessToken
-                                      requestConfiguration:requestConfiguration];
-                              [FIRAuthBackend2
-                                  postWithRequest:getAccountInfoRequest
-                                         callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                                                    NSError *_Nullable error) {
-                                           if (error) {
-                                             [self signOutIfTokenIsInvalidWithError:error];
-                                             callInMainThreadWithAuthDataResultAndError(completion,
-                                                                                        nil, error);
-                                             return;
-                                           }
-                                           self.anonymous = NO;
-                                           [self updateWithGetAccountInfoResponse:response];
-                                           if (![self updateKeychain:&error]) {
-                                             callInMainThreadWithAuthDataResultAndError(completion,
-                                                                                        nil, error);
-                                             return;
-                                           }
-                                           callInMainThreadWithAuthDataResultAndError(completion,
-                                                                                      result, nil);
-                                         }];
-                            }];
-                          }
-                        }];
+                         FIRGetAccountInfoRequest *getAccountInfoRequest =
+                             [[FIRGetAccountInfoRequest alloc]
+                                  initWithAccessToken:accessToken
+                                 requestConfiguration:requestConfiguration];
+                         [FIRAuthBackend2
+                             postWithRequest:getAccountInfoRequest
+                                    callback:^(FIRGetAccountInfoResponse *_Nullable response,
+                                               NSError *_Nullable error) {
+                                      if (error) {
+                                        [self signOutIfTokenIsInvalidWithError:error];
+                                        callInMainThreadWithAuthDataResultAndError(completion, nil,
+                                                                                   error);
+                                        return;
+                                      }
+                                      self.anonymous = NO;
+                                      [self updateWithGetAccountInfoResponse:response];
+                                      if (![self updateKeychain:&error]) {
+                                        callInMainThreadWithAuthDataResultAndError(completion, nil,
+                                                                                   error);
+                                        return;
+                                      }
+                                      callInMainThreadWithAuthDataResultAndError(completion, result,
+                                                                                 nil);
+                                    }];
+                       }];
+                     }
+                   }];
       }];
       return;
     }
