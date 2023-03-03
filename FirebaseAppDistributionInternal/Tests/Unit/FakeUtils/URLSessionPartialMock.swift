@@ -93,7 +93,5 @@ class URLSessionMock: URLSession {
                                 headerFields: nil)
       error = NSError(domain: fakeErrorDomain, code: 1)
     }
-    
-    
   }
 }
