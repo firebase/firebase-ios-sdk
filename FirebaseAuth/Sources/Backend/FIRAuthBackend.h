@@ -21,8 +21,6 @@
 @class FIRAuthRequestConfiguration;
 @class FIRVerifyClientRequest;
 @class FIRVerifyClientResponse;
-@class FIRVerifyCustomTokenRequest;
-@class FIRVerifyCustomTokenResponse;
 @class FIRVerifyPhoneNumberRequest;
 @class FIRVerifyPhoneNumberResponse;
 @class FIRSendVerificationCodeResponse;
@@ -45,16 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
                                                          NSError *_Nullable error);
-
-/** @typedef FIRVerifyCustomTokenResponseCallback
-    @brief The type of block used to return the result of a call to the verifyCustomToken
-        endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRVerifyCustomTokenResponseCallback)(
-    FIRVerifyCustomTokenResponse *_Nullable response, NSError *_Nullable error);
 
 /** @typedef FIRDeleteCallBack
     @brief The type of block called when a request delete account has finished.
@@ -143,15 +131,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
 
-/** @fn verifyCustomToken:callback:
-    @brief Calls the verifyCustomToken endpoint, which is responsible for authenticating a
-        user who has BYOAuth credentials (a self-signed token using their BYOAuth private key.)
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
-                 callback:(FIRVerifyCustomTokenResponseCallback)callback;
-
 /** @fn signUpNewUser:
     @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
         or signing in a user anonymously.
@@ -228,16 +207,6 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
         or a mock backend.
  */
 @protocol FIRAuthBackendImplementation <NSObject>
-
-/** @fn verifyCustomToken:callback:
-    @brief Calls the verifyCustomToken endpoint, which is responsible for authenticating a
-        user who has BYOAuth credentials (a self-signed token using their BYOAuth private key.)
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
-                 callback:(FIRVerifyCustomTokenResponseCallback)callback;
-
 /** @fn signUpNewUser:
     @brief Calls the signUpNewUser endpoint, which is responsible anonymously signing up a user
         or signing in a user anonymously.
