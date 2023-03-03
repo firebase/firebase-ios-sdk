@@ -744,6 +744,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                            callback:completion];
 }
 
+#if !TARGET_OS_WATCH
 /** @fn signInAndRetrieveDataWithGameCenterCredential:callback:
     @brief Signs in using a game center credential.
     @param credential The Game Center Auth Credential used to sign in.
@@ -800,6 +801,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                           }];
              }];
 }
+#endif
 
 /** @fn internalSignInAndRetrieveDataWithEmail:link:completion:
     @brief Signs in using an email and email sign-in link.
@@ -928,12 +930,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
 
+#if !TARGET_OS_WATCH
   if ([credential isKindOfClass:[FIRGameCenterAuthCredential class]]) {
     // Special case for Game Center credentials.
     [self signInAndRetrieveDataWithGameCenterCredential:(FIRGameCenterAuthCredential *)credential
                                                callback:callback];
     return;
   }
+#endif
 
 #if TARGET_OS_IOS
   if ([credential isKindOfClass:[FIRPhoneAuthCredential class]]) {
