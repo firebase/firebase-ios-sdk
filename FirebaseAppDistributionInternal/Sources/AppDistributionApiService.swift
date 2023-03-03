@@ -218,28 +218,6 @@ struct FindReleaseResponse: Codable {
     return request
   }
 
-  static func handleResponse<T: Codable>(data: Data?, response: URLResponse?, error: inout Error?,
-                                         returnType: T.Type) -> T? {
-    guard let response = response else {
-      return nil
-    }
-
-    let httpResponse = response as! HTTPURLResponse
-    if handleError(httpResponse: httpResponse, error: &error) {
-      return nil
-    }
-
-    guard let data = data else {
-      return nil
-    }
-
-    guard let mappedResponse = try? JSONDecoder().decode(T.self, from: data) else {
-      return nil
-    }
-
-    return mappedResponse
-  }
-
   static func handleReleaseResponse(data: NSData?, response: URLResponse?,
                                     error: inout Error?) -> [Any]? {
     guard let response = response else {
