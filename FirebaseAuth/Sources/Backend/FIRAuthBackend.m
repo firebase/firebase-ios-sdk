@@ -484,11 +484,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   gBackendImplementation = defaultImplementation;
 }
 
-+ (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
-                 callback:(FIRVerifyCustomTokenResponseCallback)callback {
-  [[self implementation] verifyCustomToken:request callback:callback];
-}
-
 + (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
              callback:(FIRSignupNewUserCallback)callback {
   [[self implementation] signUpNewUser:request callback:callback];
@@ -603,20 +598,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
     _RPCIssuer = [[FIRAuthBackendRPCIssuerImplementation alloc] init];
   }
   return self;
-}
-
-- (void)verifyCustomToken:(FIRVerifyCustomTokenRequest *)request
-                 callback:(FIRVerifyCustomTokenResponseCallback)callback {
-  FIRVerifyCustomTokenResponse *response = [[FIRVerifyCustomTokenResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                 } else {
-                   callback(response, nil);
-                 }
-               }];
 }
 
 - (void)signUpNewUser:(FIRSignUpNewUserRequest *)request
@@ -942,7 +923,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kCustomTokenMismatch]) {
-    return [FIRAuthErrorUtils customTokenMistmatchErrorWithMessage:serverDetailErrorMessage];
+    return [FIRAuthErrorUtils customTokenMismatchErrorWithMessage:serverDetailErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidCredentialErrorMessage] ||
