@@ -115,7 +115,7 @@ struct FindReleaseResponse: Codable {
                             completion: @escaping AppDistributionFetchReleasesCompletion) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
-      FirebaseApp.app()?.options.googleAppID ?? "unknown"
+      FirebaseApp.app()?.options.googleAppID ?? ""
     ))
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       let urlString = String(
