@@ -426,6 +426,21 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .invalidContinueURIError(message: serverDetailErrorMessage)
     case "INVALID_PASSWORD": return AuthErrorUtils
       .wrongPasswordError(message: serverDetailErrorMessage)
+    case "INVALID_IDP_RESPONSE": return AuthErrorUtils
+      .invalidCredentialError(message: serverDetailErrorMessage)
+    case "INVALID_PENDING_TOKEN": return AuthErrorUtils
+      .invalidCredentialError(message: serverDetailErrorMessage)
+    case "FEDERATED_USER_ID_ALREADY_LINKED":
+      guard let verifyAssertion = response as? VerifyAssertionResponse else {
+        return AuthErrorUtils.credentialAlreadyInUseError(
+          message: serverDetailErrorMessage, credential: nil, email: nil
+        )
+      }
+      let credential = OAuthCredential(withVerifyAssertionResponse: verifyAssertion)
+      let email = verifyAssertion.email
+      return AuthErrorUtils.credentialAlreadyInUseError(
+        message: serverDetailErrorMessage, credential: credential, email: email
+      )
 
     // TODO: MISSING_API_KEY should go away and its code should be generated in the "keyInvalid".
     case "MISSING_API_KEY": return AuthErrorUtils.unexpectedResponse(

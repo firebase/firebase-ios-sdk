@@ -1242,8 +1242,8 @@ static void callInMainThreadWithAuthDataResultAndError(
                                              requestConfiguration:requestConfiguration];
         [credential prepareVerifyAssertionRequest:request];
         request.accessToken = accessToken;
-        [FIRAuthBackend
-            verifyAssertion:request
+        [FIRAuthBackend2
+            postWithRequest:request
                    callback:^(FIRVerifyAssertionResponse *response, NSError *error) {
                      if (error) {
                        [self signOutIfTokenIsInvalidWithError:error];
@@ -1261,7 +1261,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                      // Update the new token and refresh user info again.
                      self->_tokenService = [[FIRSecureTokenService alloc]
                          initWithRequestConfiguration:requestConfiguration
-                                          accessToken:response.IDToken
+                                          accessToken:response.idToken
                             accessTokenExpirationDate:response.approximateExpirationDate
                                          refreshToken:response.refreshToken];
                      [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
