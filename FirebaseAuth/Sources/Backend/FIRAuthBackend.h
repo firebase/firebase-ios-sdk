@@ -19,7 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRVerifyPhoneNumberRequest;
 @class FIRVerifyPhoneNumberResponse;
 // TODO: FIRSignUpNewUserResponse Used in extra internal functions in FIRAuth.m
 @class FIRSignUpNewUserResponse;
@@ -37,12 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 typedef void (^FIRAuthBackendRPCIssuerCompletionHandler)(NSData *_Nullable data,
                                                          NSError *_Nullable error);
-
-/** @typedef FIRDeleteCallBack
-    @brief The type of block called when a request delete account has finished.
-    @param error The error which occurred, or nil if the request was successful.
- */
-typedef void (^FIRDeleteCallBack)(NSError *_Nullable error);
 
 /** @typedef FIRSignupNewUserCallback
     @brief The type of block used to return the result of a call to the signupNewUser endpoint.
@@ -96,17 +89,6 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
 + (void)setDefaultBackendImplementationWithRPCIssuer:
     (nullable id<FIRAuthBackendRPCIssuer>)RPCIssuer;
 
-#if TARGET_OS_IOS
-/** @fn verifyPhoneNumber:callback:
-    @brief Calls the verifyPhoneNumber endpoint, which is responsible for sending the verification
-        code to a phone number specified in the request parameters.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
-                 callback:(FIRVerifyPhoneNumberResponseCallback)callback;
-#endif
-
 @end
 
 /** @protocol FIRAuthBackendRPCIssuer
@@ -136,17 +118,6 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
         or a mock backend.
  */
 @protocol FIRAuthBackendImplementation <NSObject>
-
-#if TARGET_OS_IOS
-/** @fn verifyPhoneNumber:callback:
-    @brief Calls the verifyPhoneNumber endpoint, which is responsible for sending the verification
-        code to a phone number specified in the request parameters.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
-                 callback:(FIRVerifyPhoneNumberResponseCallback)callback;
-#endif
 
 /** @fn postWithRequest:response:callback:
     @brief Calls the RPC using HTTP POST.
