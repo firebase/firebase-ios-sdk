@@ -21,7 +21,7 @@ import Foundation
    access token from Secure Token Service, depending on whether @c returnSecureToken is set
    on the request.
    */
-  @objc public var IDToken: String?
+  @objc public var idToken: String?
 
   /** @property refreshToken
    @brief The refresh token from Secure Token Service.
@@ -60,7 +60,7 @@ import Foundation
   }
 
   public func setFields(dictionary: [String: Any]) throws {
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
     isNewUser = (dictionary["isNewUser"] as? Bool) ?? false
     localID = dictionary["localId"] as? String
