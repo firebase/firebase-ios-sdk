@@ -687,39 +687,39 @@ static void callInMainThreadWithAuthDataResultAndError(
                      operation:operation
           requestConfiguration:self->_auth.requestConfiguration];
     request.accessToken = accessToken;
-    [FIRAuthBackend verifyPhoneNumber:request
-                             callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
-                                        NSError *_Nullable error) {
-                               if (error) {
-                                 [self signOutIfTokenIsInvalidWithError:error];
-                                 completion(error);
-                                 return;
-                               }
-                               FIRAuthRequestConfiguration *requestConfiguration =
-                                   self.auth.requestConfiguration;
-                               // Update the new token and refresh user info again.
-                               self->_tokenService = [[FIRSecureTokenService alloc]
-                                   initWithRequestConfiguration:requestConfiguration
-                                                    accessToken:response.IDToken
-                                      accessTokenExpirationDate:response.approximateExpirationDate
-                                                   refreshToken:response.refreshToken];
-                               // Get account info to update cached user info.
-                               [self getAccountInfoRefreshingCache:^(
-                                         FIRGetAccountInfoResponseUser *_Nullable user,
-                                         NSError *_Nullable error) {
-                                 if (error) {
-                                   [self signOutIfTokenIsInvalidWithError:error];
-                                   completion(error);
-                                   return;
-                                 }
-                                 self.anonymous = NO;
-                                 if (![self updateKeychain:&error]) {
-                                   completion(error);
-                                   return;
-                                 }
-                                 completion(nil);
-                               }];
-                             }];
+    [FIRAuthBackend2
+        postWithRequest:request
+               callback:^(FIRVerifyPhoneNumberResponse *_Nullable response,
+                          NSError *_Nullable error) {
+                 if (error) {
+                   [self signOutIfTokenIsInvalidWithError:error];
+                   completion(error);
+                   return;
+                 }
+                 FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
+                 // Update the new token and refresh user info again.
+                 self->_tokenService = [[FIRSecureTokenService alloc]
+                     initWithRequestConfiguration:requestConfiguration
+                                      accessToken:response.idToken
+                        accessTokenExpirationDate:response.approximateExpirationDate
+                                     refreshToken:response.refreshToken];
+                 // Get account info to update cached user info.
+                 [self
+                     getAccountInfoRefreshingCache:^(FIRGetAccountInfoResponseUser *_Nullable user,
+                                                     NSError *_Nullable error) {
+                       if (error) {
+                         [self signOutIfTokenIsInvalidWithError:error];
+                         completion(error);
+                         return;
+                       }
+                       self.anonymous = NO;
+                       if (![self updateKeychain:&error]) {
+                         completion(error);
+                         return;
+                       }
+                       completion(nil);
+                     }];
+               }];
   }];
 }
 
