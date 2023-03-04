@@ -442,6 +442,10 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .appNotVerifiedError(message: serverDetailErrorMessage)
     case "CAPTCHA_CHECK_FAILED": return AuthErrorUtils
       .captchaCheckFailedError(message: serverDetailErrorMessage)
+    case "INVALID_APP_CREDENTIAL": return AuthErrorUtils
+      .invalidAppCredential(message: serverDetailErrorMessage)
+    case "MISSING_APP_CREDENTIAL": return AuthErrorUtils
+      .missingAppCredential(message: serverDetailErrorMessage)
     case "FEDERATED_USER_ID_ALREADY_LINKED":
       guard let verifyAssertion = response as? VerifyAssertionResponse else {
         return AuthErrorUtils.credentialAlreadyInUseError(
