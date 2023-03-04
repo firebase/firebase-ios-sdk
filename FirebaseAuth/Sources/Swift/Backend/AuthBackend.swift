@@ -175,6 +175,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         .generateMFAError(response: response,
                           auth: request.requestConfiguration().auth) {
         callback(nil, mfaError)
+      } else if let error = AuthBackendRPCImplementation.phoneCredentialInUse(response: response) {
+        callback(nil, error)
       } else {
         callback(response, nil)
       }
@@ -201,6 +203,31 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     }
   #else
     private class func generateMFAError(response: AuthRPCResponse, auth: Auth?) -> Error? {
+      return nil
+    }
+  #endif
+
+  #if os(iOS)
+    // Check whether or not the successful response is actually the special case phone
+    // auth flow that returns a temporary proof and phone number.
+    private class func phoneCredentialInUse(response: AuthRPCResponse) -> Error? {
+      if let phoneAuthResponse = response as? VerifyPhoneNumberResponse,
+         let phoneNumber = phoneAuthResponse.phoneNumber,
+         phoneNumber.count > 0,
+         let temporaryProof = phoneAuthResponse.temporaryProof,
+         temporaryProof.count > 0 {
+        let credential = PhoneAuthCredential(withTemporaryProof: temporaryProof,
+                                             phoneNumber: phoneNumber,
+                                             providerID: PhoneAuthProvider.id)
+        return AuthErrorUtils.credentialAlreadyInUseError(message: nil,
+                                                          credential: credential,
+                                                          email: nil)
+      } else {
+        return nil
+      }
+    }
+  #else
+    private class func phoneCredentialInUse(response: AuthRPCResponse) -> Error? {
       return nil
     }
   #endif
@@ -446,6 +473,12 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .invalidAppCredential(message: serverDetailErrorMessage)
     case "MISSING_APP_CREDENTIAL": return AuthErrorUtils
       .missingAppCredential(message: serverDetailErrorMessage)
+    case "INVALID_CODE": return AuthErrorUtils
+      .invalidVerificationCodeError(message: serverDetailErrorMessage)
+    case "INVALID_SESSION_INFO": return AuthErrorUtils
+      .invalidVerificationIDError(message: serverDetailErrorMessage)
+    case "SESSION_EXPIRED": return AuthErrorUtils
+      .sessionExpiredError(message: serverDetailErrorMessage)
     case "FEDERATED_USER_ID_ALREADY_LINKED":
       guard let verifyAssertion = response as? VerifyAssertionResponse else {
         return AuthErrorUtils.credentialAlreadyInUseError(

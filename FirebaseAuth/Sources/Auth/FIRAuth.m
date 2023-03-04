@@ -970,7 +970,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                              }
 
                              [self
-                                 completeSignInWithAccessToken:response.IDToken
+                                 completeSignInWithAccessToken:response.idToken
                                      accessTokenExpirationDate:response.approximateExpirationDate
                                                   refreshToken:response.refreshToken
                                                      anonymous:NO
@@ -1661,7 +1661,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                         phoneNumber:credential.phoneNumber
                                                           operation:operation
                                                requestConfiguration:_requestConfiguration];
-    [FIRAuthBackend verifyPhoneNumber:request callback:callback];
+    [FIRAuthBackend2 postWithRequest:request callback:callback];
     return;
   }
 
@@ -1678,7 +1678,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                  verificationCode:credential.verificationCode
                                                         operation:operation
                                              requestConfiguration:_requestConfiguration];
-  [FIRAuthBackend verifyPhoneNumber:request callback:callback];
+  [FIRAuthBackend2 postWithRequest:request callback:callback];
 }
 
 #endif
