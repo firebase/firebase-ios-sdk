@@ -484,13 +484,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   gBackendImplementation = defaultImplementation;
 }
 
-#if TARGET_OS_IOS
-+ (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
-                 callback:(FIRVerifyPhoneNumberResponseCallback)callback {
-  [[self implementation] verifyPhoneNumber:request callback:callback];
-}
-#endif
-
 + (NSString *)authUserAgent {
   return [NSString stringWithFormat:@"FirebaseAuth.iOS/%@ %@", FIRFirebaseVersion(),
                                     GTMFetcherStandardUserAgentString(nil)];
@@ -580,35 +573,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
   return self;
 }
-
-#if TARGET_OS_IOS
-- (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
-                 callback:(FIRVerifyPhoneNumberResponseCallback)callback {
-  FIRVerifyPhoneNumberResponse *response = [[FIRVerifyPhoneNumberResponse alloc] init];
-  [self
-      postWithRequest:request
-             response:response
-             callback:^(NSError *error) {
-               if (error) {
-                 callback(nil, error);
-                 return;
-               }
-               // Check whether or not the successful response is actually the special case phone
-               // auth flow that returns a temporary proof and phone number.
-               if (response.phoneNumber.length && response.temporaryProof.length) {
-                 FIRPhoneAuthCredential *credential = [[FIRPhoneAuthCredential alloc]
-                     initWithTemporaryProof:response.temporaryProof
-                                phoneNumber:response.phoneNumber
-                                 providerID:FIRPhoneAuthProvider.id];
-                 callback(nil, [FIRAuthErrorUtils credentialAlreadyInUseErrorWithMessage:nil
-                                                                              credential:credential
-                                                                                   email:nil]);
-                 return;
-               }
-               callback(response, nil);
-             }];
-}
-#endif
 
 #pragma mark - Generic RPC handling methods
 
