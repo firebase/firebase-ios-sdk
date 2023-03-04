@@ -489,10 +489,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback {
   [[self implementation] verifyPhoneNumber:request callback:callback];
 }
-
-+ (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
-  [[self implementation] verifyClient:request callback:callback];
-}
 #endif
 
 + (NSString *)authUserAgent {
@@ -611,19 +607,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                }
                callback(response, nil);
              }];
-}
-
-- (void)verifyClient:(id)request callback:(FIRVerifyClientResponseCallback)callback {
-  FIRVerifyClientResponse *response = [[FIRVerifyClientResponse alloc] init];
-  [self postWithRequest:request
-               response:response
-               callback:^(NSError *error) {
-                 if (error) {
-                   callback(nil, error);
-                   return;
-                 }
-                 callback(response, nil);
-               }];
 }
 #endif
 
