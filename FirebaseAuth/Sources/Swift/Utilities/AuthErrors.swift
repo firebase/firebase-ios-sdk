@@ -47,7 +47,7 @@ import Foundation
    exists.
    */
   @objc(FIRAuthErrorUserInfoEmailKey)
-  public static var AuthErrorUserInfoEmailKey: String =
+  public static let AuthErrorUserInfoEmailKey: String =
     "FIRAuthErrorUserInfoEmailKey"
 
   /**
@@ -56,7 +56,7 @@ import Foundation
    recovery if applicable.
    */
   @objc(FIRAuthErrorUserInfoUpdatedCredentialKey)
-  public static var AuthErrorUserInfoUpdatedCredentialKey: String =
+  public static let AuthErrorUserInfoUpdatedCredentialKey: String =
     "FIRAuthErrorUserInfoUpdatedCredentialKey"
 
   /**
@@ -64,7 +64,7 @@ import Foundation
    returned when 2FA is required for sign-incompletion.
    */
   @objc(FIRAuthErrorUserInfoMultiFactorResolverKey)
-  static var AuthErrorUserInfoMultiFactorResolverKey: String =
+  static let AuthErrorUserInfoMultiFactorResolverKey: String =
     "FIRAuthErrorUserInfoMultiFactorResolverKey"
 }
 
