@@ -19,8 +19,6 @@
 @protocol FIRAuthRPCRequest;
 @protocol FIRAuthRPCResponse;
 @class FIRAuthRequestConfiguration;
-@class FIRVerifyClientRequest;
-@class FIRVerifyClientResponse;
 @class FIRVerifyPhoneNumberRequest;
 @class FIRVerifyPhoneNumberResponse;
 // TODO: FIRSignUpNewUserResponse Used in extra internal functions in FIRAuth.m
@@ -63,15 +61,6 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
  */
 typedef void (^FIRVerifyPhoneNumberResponseCallback)(
     FIRVerifyPhoneNumberResponse *_Nullable response, NSError *_Nullable error);
-
-/** @typedef FIRVerifyClientResponseCallback
-    @brief The type of block used to return the result of a call to the verifyClient endpoint.
-    @param response The received response, if any.
-    @param error The error which occurred, if any.
-    @remarks One of response or error will be non-nil.
- */
-typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullable response,
-                                                NSError *_Nullable error);
 
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
@@ -116,15 +105,6 @@ typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullab
  */
 + (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback;
-
-/** @fn verifyClient:callback:
-    @brief Calls the verifyClient endpoint, which is responsible for sending the silent push
-        notification used for app validation to the device provided in the request parameters.
-    @param request The request parameters.
-    @param callback The callback.
- */
-+ (void)verifyClient:(FIRVerifyClientRequest *)request
-            callback:(FIRVerifyClientResponseCallback)callback;
 #endif
 
 @end
@@ -166,15 +146,6 @@ typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullab
  */
 - (void)verifyPhoneNumber:(FIRVerifyPhoneNumberRequest *)request
                  callback:(FIRVerifyPhoneNumberResponseCallback)callback;
-
-/** @fn verifyClient:callback:
-    @brief Calls the verifyClient endpoint, which is responsible for sending the silent push
-        notification used for app validation to the device provided in the request parameters.
-    @param request The request parameters.
-    @param callback The callback.
- */
-- (void)verifyClient:(FIRVerifyClientRequest *)request
-            callback:(FIRVerifyClientResponseCallback)callback;
 #endif
 
 /** @fn postWithRequest:response:callback:
