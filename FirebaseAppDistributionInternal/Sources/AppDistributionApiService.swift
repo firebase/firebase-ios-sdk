@@ -123,19 +123,21 @@ struct CreateFeedbackReportRequest: Codable {
     })
   }
 
-    @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping (_ releases: [Any]?,
-                                                                       _ error: Error?) -> Void) {
-      fetchReleases(
-        app: FirebaseApp.app()!,
-        installations: Installations.installations(),
-        urlSession: URLSession.shared,
-        completion: completion
-      )
+  @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping (_ releases: [Any]?,
+                                                                                              _ error: Error?)
+      -> Void) {
+    fetchReleases(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      completion: completion
+    )
   }
-  
-    static func fetchReleases(app: FirebaseApp, installations: InstallationsProtocol,
-                              urlSession: URLSession, completion: @escaping (_ releases: [Any]?,
-                                                                                                                 _ error: Error?) -> Void) {
+
+  static func fetchReleases(app: FirebaseApp, installations: InstallationsProtocol,
+                            urlSession: URLSession, completion: @escaping (_ releases: [Any]?,
+                                                                           _ error: Error?)
+                              -> Void) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
       app.options.googleAppID
@@ -179,14 +181,23 @@ struct CreateFeedbackReportRequest: Codable {
   @objc(findReleaseWithDisplayVersion:buildVersion:codeHash:completion:)
   public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
                                  completion: @escaping (_ releaseName: String?, _ error: Error?)
-                                 -> Void) {
-    findRelease(app: FirebaseApp.app()!, installations: Installations.installations(),  urlSession:URLSession.shared, displayVersion: displayVersion, buildVersion: buildVersion, codeHash: codeHash, completion: completion)
-  }
-  
-  static func findRelease(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession, displayVersion: String,
-                                 buildVersion: String, codeHash: String,
-                                 completion: @escaping (_ releaseName: String?, _ error: Error?)
                                    -> Void) {
+    findRelease(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      displayVersion: displayVersion,
+      buildVersion: buildVersion,
+      codeHash: codeHash,
+      completion: completion
+    )
+  }
+
+  static func findRelease(app: FirebaseApp, installations: InstallationsProtocol,
+                          urlSession: URLSession, displayVersion: String,
+                          buildVersion: String, codeHash: String,
+                          completion: @escaping (_ releaseName: String?, _ error: Error?)
+                            -> Void) {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       // TODO(tundeagboola) The backend may not accept project ID here in which case
       // we'll have to figure out a way to get the project number
@@ -244,14 +255,22 @@ struct CreateFeedbackReportRequest: Codable {
   public static func createFeedback(releaseName: String,
                                     feedbackText: String,
                                     completion: @escaping (_ releaseName: String?, _ error: Error?)
-                                    -> Void) {
-    createFeedback(app: FirebaseApp.app()!, installations: Installations.installations(), urlSession: URLSession.shared, releaseName: releaseName, feedbackText: feedbackText, completion: completion)
-  }
-  
-  static func createFeedback(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession, releaseName: String,
-                                    feedbackText: String,
-                                    completion: @escaping (_ releaseName: String?, _ error: Error?)
                                       -> Void) {
+    createFeedback(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      releaseName: releaseName,
+      feedbackText: feedbackText,
+      completion: completion
+    )
+  }
+
+  static func createFeedback(app: FirebaseApp, installations: InstallationsProtocol,
+                             urlSession: URLSession, releaseName: String,
+                             feedbackText: String,
+                             completion: @escaping (_ releaseName: String?, _ error: Error?)
+                               -> Void) {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       guard let authTokenResult = authTokenResult else {
         completion(nil, error)
@@ -292,14 +311,22 @@ struct CreateFeedbackReportRequest: Codable {
   public static func uploadImage(feedbackName: String,
                                  image: UIImage,
                                  completion: @escaping (_ error: Error?)
-                                 -> Void) {
-    uploadImage(app: FirebaseApp.app()!, installations: Installations.installations(), urlSession: URLSession.shared, feedbackName: feedbackName, image: image, completion: completion)
-  }
-  
-  static func uploadImage(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession, feedbackName: String,
-                                 image: UIImage,
-                                 completion: @escaping (_ error: Error?)
                                    -> Void) {
+    uploadImage(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      feedbackName: feedbackName,
+      image: image,
+      completion: completion
+    )
+  }
+
+  static func uploadImage(app: FirebaseApp, installations: InstallationsProtocol,
+                          urlSession: URLSession, feedbackName: String,
+                          image: UIImage,
+                          completion: @escaping (_ error: Error?)
+                            -> Void) {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       guard let authTokenResult = authTokenResult else {
         completion(error)
@@ -350,14 +377,21 @@ struct CreateFeedbackReportRequest: Codable {
   @objc(commitFeedbackWithFeedbackName:completion:)
   public static func commitFeedback(feedbackName: String,
                                     completion: @escaping (_ error: Error?)
-                                    -> Void) {
-    commitFeedback(app: FirebaseApp.app()!, installations: Installations.installations(), urlSession: URLSession.shared, feedbackName: feedbackName, completion: completion)
-  }
-  
-  static func commitFeedback(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession,
-                                    feedbackName: String,
-                                    completion: @escaping (_ error: Error?)
                                       -> Void) {
+    commitFeedback(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      feedbackName: feedbackName,
+      completion: completion
+    )
+  }
+
+  static func commitFeedback(app: FirebaseApp, installations: InstallationsProtocol,
+                             urlSession: URLSession,
+                             feedbackName: String,
+                             completion: @escaping (_ error: Error?)
+                               -> Void) {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       guard let authTokenResult = authTokenResult else {
         completion(error)

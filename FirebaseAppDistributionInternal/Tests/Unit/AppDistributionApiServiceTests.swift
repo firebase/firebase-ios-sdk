@@ -215,7 +215,6 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Create feedback fails")
 
-
     AppDistributionApiService.createFeedback(
       app: app,
       installations: installations,
