@@ -159,6 +159,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///     filter for the fetched results.
   ///   - decodingFailureStrategy: The strategy to use when there is a failure
   ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  ///   - animation: The optional animation to apply to the transaction.
   public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
                             decodingFailureStrategy: DecodingFailureStrategy = .raise,
                             animation: Animation? = nil)
@@ -181,6 +182,7 @@ public struct FirestoreQuery<T>: DynamicProperty {
   ///     filter for the fetched results.
   ///   - decodingFailureStrategy: The strategy to use when there is a failure
   ///     during the decoding phase. Defaults to `DecodingFailureStrategy.raise`.
+  ///   - animation: The optional animation to apply to the transaction.
   public init<U: Decodable>(collectionPath: String, predicates: [QueryPredicate] = [],
                             decodingFailureStrategy: DecodingFailureStrategy = .raise,
                             animation: Animation? = nil)

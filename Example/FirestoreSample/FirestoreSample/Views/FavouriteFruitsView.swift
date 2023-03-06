@@ -21,6 +21,7 @@ private struct Fruit: Codable, Identifiable, Equatable {
   var isFavourite: Bool
 }
 
+/// This view demonstrates how to use the `FirestoreQuery` property wrapper.
 struct FavouriteFruitsView: View {
   @FirestoreQuery(
     collectionPath: "fruits",
