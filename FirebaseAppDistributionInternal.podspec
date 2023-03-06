@@ -58,8 +58,7 @@ Pod::Spec.new do |s|
     s.test_spec 'unit' do |unit_tests|
       unit_tests.scheme = { :code_coverage => true }
       unit_tests.source_files = [
-        'FirebaseAppDistributionInternal/Tests/Unit/*.swift',
+        'FirebaseAppDistributionInternal/Tests/Unit/**/*.swift',
       ]
-      unit_tests.dependency 'OCMock'
      end
   end

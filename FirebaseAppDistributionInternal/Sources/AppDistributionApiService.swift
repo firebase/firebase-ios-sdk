@@ -21,6 +21,8 @@ import FirebaseCore
 
 public typealias AppDistributionFetchReleasesCompletion = (_ releases: [Any]?, _ error: Error?)
   -> Void
+public typealias AppDistributionFindReleaseCompletion = (_ releaseName: String?, _ error: Error?)
+  -> Void
 public typealias AppDistributionGenerateAuthTokenCompletion = (_ identifier: String?,
                                                                _ authTokenResult: InstallationsAuthTokenResult?,
                                                                _ error: Error?) -> Void
@@ -31,10 +33,13 @@ enum Strings {
   static let httpGet = "GET"
   static let releaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases"
+  static let findReleaseEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find"
   static let installationsAuthHeader = "X-Goog-Firebase-Installations-Auth"
   static let apiHeaderKey = "X-Goog-Api-Key"
   static let apiBundleKey = "X-Ios-Bundle-Identifier"
   static let responseReleaseKey = "releases"
+  static let compositeBinaryIdQueryParamName = "compositeBinaryId"
 }
 
 enum AppDistributionApiError: NSInteger {
@@ -48,12 +53,25 @@ enum AppDistributionApiError: NSInteger {
   case ApiErrorParseFailure = 7
 }
 
-@objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
-  @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
-    let installations = Installations.installations()
+struct CompositeBinaryId: Codable {
+  var displayVersion: String
+  var buildVersion: String
+  var codeHash: String
+}
 
+struct FindReleaseResponse: Codable {
+  var release: String
+}
+
+@objc(FIRFADApiServiceSwift) open class AppDistributionApiService: NSObject {
+  @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+    generateAuthToken(installations: Installations.installations(), completion: completion)
+  }
+
+  static func generateAuthToken(installations: InstallationsProtocol,
+                                completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
     installations.authToken(completion: { authTokenResult, error in
-      var fadError = error
+      var fadError: Error? = error
       if self.handleError(
         error: &fadError,
         description: "Failed to generate Firebase installation auth token",
@@ -67,7 +85,7 @@ enum AppDistributionApiError: NSInteger {
       }
 
       installations.installationID(completion: { identifier, error in
-        var fadError = error
+        var fadError: Error? = error
         if self.handleError(
           error: &fadError,
           description: "Failed to generate Firebase installation id",
@@ -86,17 +104,33 @@ enum AppDistributionApiError: NSInteger {
   }
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+
+    fetchReleases(
+      app: app,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      completion: completion
+    )
+  }
+
+  static func fetchReleases(app: FirebaseApp, installations: InstallationsProtocol,
+                            urlSession: URLSession,
+                            completion: @escaping AppDistributionFetchReleasesCompletion) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
-      FirebaseApp.app()?.options.googleAppID ?? "unknown"
+      app.options.googleAppID
     ))
-    generateAuthToken { identifier, authTokenResult, error in
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.releaseEndpointUrlTemplate,
-        FirebaseApp.app()!.options.googleAppID,
+        app.options.googleAppID,
         identifier!
       )
       let request = self.createHttpRequest(
+        app: app,
         method: Strings.httpGet,
         url: urlString,
         authTokenResult: authTokenResult!
@@ -105,14 +139,14 @@ enum AppDistributionApiError: NSInteger {
         format: "Url: %@ Auth token: %@ Api Key: %@",
         urlString,
         authTokenResult?.authToken ?? "",
-        FirebaseApp.app()?.options.apiKey ?? "unknown"
+        app.options.apiKey ?? ""
       ))
 
-      let listReleaseDataTask = URLSession.shared
+      let listReleaseDataTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
           let releases = self.handleReleaseResponse(
-            data: data! as NSData,
+            data: data as? NSData,
             response: response,
             error: &fadError
           )
@@ -172,15 +206,26 @@ enum AppDistributionApiError: NSInteger {
     return createError(description: description, code: .ApiErrorUnknownFailure)
   }
 
-  static func createHttpRequest(method: String, url: String,
+  static func createHttpRequest(app: FirebaseApp, method: String, url: String,
+                                authTokenResult: InstallationsAuthTokenResult)
+    -> NSMutableURLRequest {
+    return createHttpRequest(
+      app: app,
+      method: method,
+      url: URL(string: url),
+      authTokenResult: authTokenResult
+    )
+  }
+
+  static func createHttpRequest(app: FirebaseApp, method: String, url: URL?,
                                 authTokenResult: InstallationsAuthTokenResult)
     -> NSMutableURLRequest {
     let request = NSMutableURLRequest()
-    request.url = URL(string: url)
+    request.url = url
     request.httpMethod = method
     request.setValue(authTokenResult.authToken, forHTTPHeaderField: Strings.installationsAuthHeader)
     request.setValue(
-      FirebaseApp.app()?.options.apiKey,
+      app.options.apiKey,
       forHTTPHeaderField: Strings.installationsAuthHeader
     )
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: Strings.apiBundleKey)
@@ -199,6 +244,7 @@ enum AppDistributionApiError: NSInteger {
                       httpResponse))
 
     if handleError(httpResponse: httpResponse, error: &error) {
+      // TODO: Consider adding logging equivalent to [FIRFADApiService tryParseGoogleAPIErrorFromResponse].
       Logger
         .logError(String(format: "App tester API service error: %@",
                          error?.localizedDescription ?? ""))
