@@ -1,0 +1,5 @@
+version: 1
+external_links:
+  documentation: "https://firebase.google.com/docs/ios/setup"
+metadata:
+  authors: "Google"
