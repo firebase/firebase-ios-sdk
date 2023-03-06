@@ -1612,6 +1612,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - Internal Methods
 
 #if TARGET_OS_IOS
+typedef void (^FIRVerifyPhoneNumberResponseCallback)(
+    FIRVerifyPhoneNumberResponse *_Nullable response, NSError *_Nullable error);
+
 /** @fn signInWithPhoneCredential:callback:
     @brief Signs in using a phone credential.
     @param credential The Phone Auth credential used to sign in.
@@ -1619,9 +1622,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
         asynchronously on the global auth work queue in the future.
  */
-typedef void (^FIRVerifyPhoneNumberResponseCallback)(
-    FIRVerifyPhoneNumberResponse *_Nullable response, NSError *_Nullable error);
-
 - (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
                         operation:(FIRAuthOperationType)operation
                          callback:(FIRVerifyPhoneNumberResponseCallback)callback {
@@ -1702,6 +1702,8 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
              }];
 }
 
+typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable response,
+                                         NSError *_Nullable error);
 /** @fn internalCreateUserWithEmail:password:completion:
     @brief Makes a backend request attempting to create a new Firebase user given an email address
         and password.
@@ -1709,8 +1711,6 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
     @param password The password used to create the new Firebase user.
     @param completion Optionally; a block which is invoked when the request finishes.
  */
-typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable response,
-                                         NSError *_Nullable error);
 - (void)internalCreateUserWithEmail:(NSString *)email
                            password:(NSString *)password
                          completion:(nullable FIRSignupNewUserCallback)completion {

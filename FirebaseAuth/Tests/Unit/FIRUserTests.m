@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
+#ifdef TODO_SWIFT
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#ifdef TODO_SWIFT
+
 // Migrate the mocks!
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUserMetadata.h"

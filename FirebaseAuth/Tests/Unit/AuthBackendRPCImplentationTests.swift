@@ -16,73 +16,15 @@ import Foundation
 import XCTest
 
 @testable import FirebaseAuth
+import FirebaseCoreExtension
+import HeartbeatLoggingTestUtils
 
-private class FakeRequest : NSObject, AuthRPCRequest {
-  let kFakeRequestURL = "https://www.google.com/"
-  func requestURL() -> URL {
-    return try! XCTUnwrap(URL(string:kFakeRequestURL))
-  }
-
-  func unencodedHTTPRequestBody() throws -> Any {
-    if let encodingError {
-      throw encodingError
-    }
-    return requestBody
-  }
-
-  func requestConfiguration() -> FirebaseAuth.AuthRequestConfiguration {
-    return AuthRequestConfiguration(
-      APIKey: "kTestAPIKey",
-      appID: "kTestFirebaseAppID"
-    )
-  }
-
-  func containsPostBody() -> Bool {
-    return true
-  }
-
-  var response: FirebaseAuth.AuthRPCResponse
-
-  let encodingError:NSError?
-  let requestBody: [String: AnyHashable]
-
-  init(withEncodingError error: NSError) {
-    encodingError = error
-    requestBody = [:]
-    response = FakeResponse()
-  }
-
-  init(withDecodingError error: NSError) {
-    encodingError = nil
-    requestBody = [:]
-    response = FakeResponse(withDecodingError: error)
-  }
-
-  init(withRequestBody body: [String: AnyHashable]) {
-    encodingError = nil
-    requestBody = body
-    response = FakeResponse()
-  }
-}
-
-private class FakeResponse: NSObject, AuthRPCResponse {
-  let decodingError: NSError?
-  var receivedDictionary : [String : Any] = [:]
-  init(withDecodingError error: NSError? = nil) {
-    decodingError = error
-  }
-  func setFields(dictionary: [String : Any]) throws {
-    if let decodingError {
-      throw decodingError
-    }
-    receivedDictionary = dictionary
-  }
-}
+private let kFakeAPIKey = "kTestAPIKey"
+private let kFakeAppID = "kTestFirebaseAppID"
 
 class AuthBackendRPCImplementationTests: RPCBaseTests {
   let kFakeErrorDomain = "fakeDomain"
   let kFakeErrorCode = -1
-
 
   /** @fn testRequestEncodingError
       @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
@@ -111,7 +53,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCRequestEncodingError.rawValue)
 
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
     XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
@@ -213,7 +156,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
 
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
     XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
@@ -252,7 +196,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
 
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, NSCocoaErrorDomain)
 
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
@@ -296,12 +241,14 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
 
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
     XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
     XCTAssertNotNil(try XCTUnwrap(
-      underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]) as? [Int])
+      underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]
+    ) as? [Int])
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
 
@@ -342,7 +289,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
 
     XCTAssertNotNil(try XCTUnwrap(
-      underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]) as? [Int])
+      underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]
+    ) as? [Int])
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
 
@@ -377,11 +325,13 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
     XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let dictionary = try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+    let dictionary = try XCTUnwrap(underlyingError
+      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
     XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequired)
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
@@ -407,7 +357,10 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(serverErrorMessage: kErrorMessageCaptchaCheckFailed, error: responseError)
+    try RPCIssuer?.respond(
+      serverErrorMessage: kErrorMessageCaptchaCheckFailed,
+      error: responseError
+    )
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -448,11 +401,13 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
     XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let dictionary = try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+    let dictionary = try XCTUnwrap(underlyingError
+      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
     XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequiredInvalidPassword)
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
@@ -491,11 +446,13 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
     XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let dictionary = try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+    let dictionary = try XCTUnwrap(underlyingError
+      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
     XCTAssertEqual(dictionary["message"], kUnknownServerErrorMessage)
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
@@ -531,11 +488,13 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError.userInfo[NSUnderlyingErrorKey] as? NSError)
+    let underlyingUnderlying = try XCTUnwrap(underlyingError
+      .userInfo[NSUnderlyingErrorKey] as? NSError)
     XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
     XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let dictionary = try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+    let dictionary = try XCTUnwrap(underlyingError
+      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
     XCTAssertEqual(dictionary, [:])
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
@@ -580,7 +539,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           as the value of the underlyingError.
    */
   func testUndecodableSuccessResponse() throws {
-    let request = FakeRequest(withDecodingError: NSError(domain: kFakeErrorDomain, code: kFakeErrorCode))
+    let request =
+      FakeRequest(withDecodingError: NSError(domain: kFakeErrorDomain, code: kFakeErrorCode))
     var callbackInvoked = false
     var rpcResponse: FakeResponse?
     var rpcError: NSError?
@@ -590,9 +550,6 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcResponse = response as? FakeResponse
       rpcError = error as? NSError
     }
-    // It doesn't matter what we respond with here, as long as it's not an error response. The fake
-    // response will deterministicly simulate a decoding error regardless of the response value it was
-    // given.
     try RPCIssuer?.respond(withJSON: [:])
 
     XCTAssert(callbackInvoked)
@@ -605,7 +562,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
     XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCResponseDecodingError.rawValue)
 
-    let dictionary = try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+    let dictionary = try XCTUnwrap(underlyingError
+      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
     XCTAssertEqual(dictionary, [:])
     XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
@@ -629,10 +587,166 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     // It doesn't matter what we respond with here, as long as it's not an error response. The fake
     // response will deterministicly simulate a decoding error regardless of the response value it was
     // given.
-    try RPCIssuer?.respond(withJSON: [kTestKey : kTestValue])
+    try RPCIssuer?.respond(withJSON: [kTestKey: kTestValue])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)
-    XCTAssertEqual(try  XCTUnwrap(rpcResponse?.receivedDictionary[kTestKey] as? String), kTestValue)
+    XCTAssertEqual(try XCTUnwrap(rpcResponse?.receivedDictionary[kTestKey] as? String), kTestValue)
+  }
+
+  private class FakeHeartbeatLogger: NSObject, FIRHeartbeatLoggerProtocol {
+    var onFlushHeartbeatsIntoPayloadHandler: (() -> _ObjC_HeartbeatsPayload)?
+
+    func log() {
+      // This API should not be used by the below tests because the Auth
+      // SDK does not log heartbeats in it's networking context.
+      fatalError("FakeHeartbeatLogger log should not be used in tests.")
+    }
+
+    func flushHeartbeatsIntoPayload() -> FirebaseCoreInternal._ObjC_HeartbeatsPayload {
+      guard let handler = onFlushHeartbeatsIntoPayloadHandler else {
+        fatalError("Missing Handler")
+      }
+      return handler()
+    }
+
+    func heartbeatCodeForToday() -> FIRDailyHeartbeatCode {
+      // This API should not be used by the below tests because the Auth
+      // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
+      // getting heartbeats.
+      return FIRDailyHeartbeatCode.none
+    }
+  }
+
+  /** @fn testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending
+      @brief This test checks the behavior of @c postWithRequest:response:callback:
+          to verify that a heartbeats payload is attached as a header to an
+          outgoing request when there are stored heartbeats that need sending.
+   */
+  func testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending() throws {
+    // Given
+    let fakeHeartbeatLogger = FakeHeartbeatLogger()
+    let requestConfiguration = AuthRequestConfiguration(APIKey: kFakeAPIKey,
+                                                        appID: kFakeAppID,
+                                                        heartbeatLogger: fakeHeartbeatLogger)
+
+    let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
+
+    // When
+    let nonEmptyHeartbeatsPayload = HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
+    fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
+      nonEmptyHeartbeatsPayload
+    }
+    rpcImplementation?.post(withRequest: request) { response, error in
+      // The callback never happens and it's fine since we only need to verify the request.
+    }
+
+    // Then
+    let expectedHeader = FIRHeaderValueFromHeartbeatsPayload(
+      HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
+    )
+    let completeRequest = try XCTUnwrap(RPCIssuer?.completeRequest)
+    let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
+    XCTAssertEqual(headerValue, expectedHeader)
+  }
+
+  /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
+      @brief This test checks the behavior of @c postWithRequest:response:callback:
+          to verify that a request header does not contain heartbeat data in the
+          case that there are no stored heartbeats that need sending.
+   */
+  func testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending() throws {
+    // Given
+    let fakeHeartbeatLogger = FakeHeartbeatLogger()
+    let requestConfiguration = AuthRequestConfiguration(APIKey: kFakeAPIKey,
+                                                        appID: kFakeAppID,
+                                                        heartbeatLogger: fakeHeartbeatLogger)
+
+    let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
+
+    // When
+    let emptyHeartbeatsPayload = HeartbeatLoggingTestUtils.emptyHeartbeatsPayload
+    fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
+      emptyHeartbeatsPayload
+    }
+    rpcImplementation?.post(withRequest: request) { response, error in
+      // The callback never happens and it's fine since we only need to verify the request.
+    }
+
+    // Then
+    let completeRequest = try XCTUnwrap(RPCIssuer?.completeRequest)
+    XCTAssertNil(completeRequest.value(forHTTPHeaderField: "X-Firebase-Client"))
+  }
+
+  private class FakeRequest: NSObject, AuthRPCRequest {
+    func requestConfiguration() -> AuthRequestConfiguration {
+      return configuration
+    }
+
+    let kFakeRequestURL = "https://www.google.com/"
+    func requestURL() -> URL {
+      return try! XCTUnwrap(URL(string: kFakeRequestURL))
+    }
+
+    func unencodedHTTPRequestBody() throws -> Any {
+      if let encodingError {
+        throw encodingError
+      }
+      return requestBody
+    }
+
+    static func makeRequestConfiguration() -> AuthRequestConfiguration {
+      return AuthRequestConfiguration(
+        APIKey: kFakeAPIKey,
+        appID: kFakeAppID
+      )
+    }
+
+    func containsPostBody() -> Bool {
+      return true
+    }
+
+    var response: AuthRPCResponse
+    private let configuration: AuthRequestConfiguration
+
+    let encodingError: NSError?
+    let requestBody: [String: AnyHashable]
+
+    init(withEncodingError error: NSError) {
+      encodingError = error
+      requestBody = [:]
+      response = FakeResponse()
+      configuration = FakeRequest.makeRequestConfiguration()
+    }
+
+    init(withDecodingError error: NSError) {
+      encodingError = nil
+      requestBody = [:]
+      response = FakeResponse(withDecodingError: error)
+      configuration = FakeRequest.makeRequestConfiguration()
+    }
+
+    init(withRequestBody body: [String: AnyHashable],
+         requestConfiguration: AuthRequestConfiguration = FakeRequest.makeRequestConfiguration()) {
+      encodingError = nil
+      requestBody = body
+      response = FakeResponse()
+      configuration = requestConfiguration
+    }
+  }
+
+  private class FakeResponse: NSObject, AuthRPCResponse {
+    let decodingError: NSError?
+    var receivedDictionary: [String: Any] = [:]
+    init(withDecodingError error: NSError? = nil) {
+      decodingError = error
+    }
+
+    func setFields(dictionary: [String: Any]) throws {
+      if let decodingError {
+        throw decodingError
+      }
+      receivedDictionary = dictionary
+    }
   }
 }

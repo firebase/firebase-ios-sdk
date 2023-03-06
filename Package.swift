@@ -460,6 +460,7 @@ let package = Package(
       name: "AuthUnit",
       dependencies: [
         "FirebaseAuth",
+        .product(name: "OCMock", package: "OCMock"),
         "HeartbeatLoggingTestUtils",
       ],
       path: "FirebaseAuth/Tests/Unit",

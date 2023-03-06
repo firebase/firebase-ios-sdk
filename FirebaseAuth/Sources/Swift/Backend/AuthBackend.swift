@@ -309,7 +309,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         guard let decodedDictionary = rawDecode as? [String: Any] else {
           if error != nil {
             callback(AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: rawDecode,
-                                                       underlyingError: error))
+                                                            underlyingError: error))
           } else {
             callback(AuthErrorUtils.unexpectedResponse(deserializedResponse: rawDecode))
           }
@@ -344,7 +344,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
               withServerErrorMessage: errorMessage,
               errorDictionary: errorDictionary,
               response: response,
-              error: error) {
+              error: error
+            ) {
               callback(clientError)
               return
             }
@@ -479,41 +480,44 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     case "SESSION_EXPIRED": return AuthErrorUtils
       .sessionExpiredError(message: serverDetailErrorMessage)
     case "ADMIN_ONLY_OPERATION": return AuthErrorUtils
-        .error(code: AuthErrorCode.adminRestrictedOperation, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.adminRestrictedOperation, message: serverDetailErrorMessage)
     case "BLOCKING_FUNCTION_ERROR_RESPONSE": return AuthErrorUtils
-        .blockingCloudFunctionServerResponse(message: serverDetailErrorMessage)
+      .blockingCloudFunctionServerResponse(message: serverDetailErrorMessage)
     case "EMAIL_CHANGE_NEEDS_VERIFICATION": return AuthErrorUtils
-        .error(code: AuthErrorCode.emailChangeNeedsVerification, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.emailChangeNeedsVerification, message: serverDetailErrorMessage)
     case "INVALID_MFA_PENDING_CREDENTIAL": return AuthErrorUtils
-        .error(code: AuthErrorCode.invalidMultiFactorSession, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.invalidMultiFactorSession, message: serverDetailErrorMessage)
     case "INVALID_PROVIDER_ID": return AuthErrorUtils
-        .invalidProviderIDError(message: serverDetailErrorMessage)
+      .invalidProviderIDError(message: serverDetailErrorMessage)
     case "MFA_ENROLLMENT_NOT_FOUND": return AuthErrorUtils
-        .error(code: AuthErrorCode.multiFactorInfoNotFound, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.multiFactorInfoNotFound, message: serverDetailErrorMessage)
     case "MISSING_CLIENT_IDENTIFIER": return AuthErrorUtils
-        .missingClientIdentifierError(message: serverDetailErrorMessage)
+      .missingClientIdentifierError(message: serverDetailErrorMessage)
     case "MISSING_IOS_APP_TOKEN": return AuthErrorUtils
-        .missingAppTokenError(underlyingError: nil)
+      .missingAppTokenError(underlyingError: nil)
     case "MISSING_MFA_ENROLLMENT_ID": return AuthErrorUtils
-        .error(code: AuthErrorCode.missingMultiFactorInfo, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.missingMultiFactorInfo, message: serverDetailErrorMessage)
     case "MISSING_MFA_PENDING_CREDENTIAL": return AuthErrorUtils
-        .error(code: AuthErrorCode.missingMultiFactorSession, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.missingMultiFactorSession, message: serverDetailErrorMessage)
     case "MISSING_OR_INVALID_NONCE": return AuthErrorUtils
-        .missingOrInvalidNonceError(message: serverDetailErrorMessage)
+      .missingOrInvalidNonceError(message: serverDetailErrorMessage)
     case "SECOND_FACTOR_EXISTS": return AuthErrorUtils
-        .error(code: AuthErrorCode.secondFactorAlreadyEnrolled, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.secondFactorAlreadyEnrolled, message: serverDetailErrorMessage)
     case "SECOND_FACTOR_LIMIT_EXCEEDED": return AuthErrorUtils
-        .error(code: AuthErrorCode.maximumSecondFactorCountExceeded, message: serverDetailErrorMessage)
+      .error(
+        code: AuthErrorCode.maximumSecondFactorCountExceeded,
+        message: serverDetailErrorMessage
+      )
     case "TENANT_ID_MISMATCH": return AuthErrorUtils
-        .tenantIDMismatchError()
+      .tenantIDMismatchError()
     case "TOKEN_EXPIRED": return AuthErrorUtils
-        .userTokenExpiredError(message: serverDetailErrorMessage)
+      .userTokenExpiredError(message: serverDetailErrorMessage)
     case "UNSUPPORTED_FIRST_FACTOR": return AuthErrorUtils
-        .error(code: AuthErrorCode.unsupportedFirstFactor, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.unsupportedFirstFactor, message: serverDetailErrorMessage)
     case "UNSUPPORTED_TENANT_OPERATION": return AuthErrorUtils
-        .unsupportedTenantOperationError()
+      .unsupportedTenantOperationError()
     case "UNVERIFIED_EMAIL": return AuthErrorUtils
-        .error(code: AuthErrorCode.unverifiedEmail, message: serverDetailErrorMessage)
+      .error(code: AuthErrorCode.unverifiedEmail, message: serverDetailErrorMessage)
     case "FEDERATED_USER_ID_ALREADY_LINKED":
       guard let verifyAssertion = response as? VerifyAssertionResponse else {
         return AuthErrorUtils.credentialAlreadyInUseError(
