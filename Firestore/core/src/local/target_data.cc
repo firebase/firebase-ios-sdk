@@ -114,7 +114,7 @@ TargetData TargetData::WithExpectedCount(
     absl::optional<int32_t> expected_count) const {
   return TargetData(target_, target_id_, sequence_number_, purpose_,
                     snapshot_version_, last_limbo_free_snapshot_version_,
-                    resume_token_, expected_count);
+                    resume_token_, std::move(expected_count));
 }
 
 TargetData TargetData::WithLastLimboFreeSnapshotVersion(

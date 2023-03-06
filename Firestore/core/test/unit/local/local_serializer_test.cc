@@ -286,6 +286,9 @@ class LocalSerializerTest : public ::testing::Test {
         serializer.DecodeTargetData(&reader, *message);
 
     EXPECT_OK(reader.status());
+    // Set the expected_count in expected TargetData to null,  as serializing
+    // a TargetData into local Target proto will drop the expected_count and
+    // the deserialized actual TargetData will not include expected_count.
     EXPECT_EQ(target_data.WithExpectedCount(absl::nullopt), actual_target_data);
   }
 
