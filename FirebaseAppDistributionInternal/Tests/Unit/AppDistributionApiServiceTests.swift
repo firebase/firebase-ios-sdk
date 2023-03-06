@@ -183,6 +183,76 @@ class AppDistributionApiServiceTests: XCTestCase {
 
   // TODO: Add more cases for testFetchReleases
 
+  func testFindReleaseSuccess() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .success, mockResponse: ["release": "release/name"])
+
+    let expectation = XCTestExpectation(description: "Find release succeeds")
+
+    AppDistributionApiService.findRelease(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      displayVersion: "display-version",
+      buildVersion: "build-version",
+      codeHash: "codeHash",
+      completion: { releaseName, error in
+        XCTAssertEqual(releaseName, "release/name")
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+    )
+  }
+
+  func testFindReleaseUnauthenticatedFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .unauthenticatedFailure)
+
+    let expectation = XCTestExpectation(description: "Find release fails")
+
+    AppDistributionApiService.findRelease(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      displayVersion: "display-version",
+      buildVersion: "build-version",
+      codeHash: "codeHash",
+      completion: { releaseName, error in
+        XCTAssertNil(releaseName)
+        let nserror = error as? NSError
+        XCTAssertNotNil(nserror)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnauthenticated.rawValue)
+        expectation.fulfill()
+      }
+    )
+  }
+
+  func testFindReleaseUnknownFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .unknownFailure)
+
+    let expectation = XCTestExpectation(description: "Find release fails")
+
+    AppDistributionApiService.findRelease(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      displayVersion: "display-version",
+      buildVersion: "build-version",
+      codeHash: "codeHash",
+      completion: { releaseName, error in
+        XCTAssertNil(releaseName)
+        let nserror = error as? NSError
+        XCTAssertNotNil(nserror)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnknownFailure.rawValue)
+        expectation.fulfill()
+      }
+    )
+  }
+
   func testCreateFeedbackSuccess() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
