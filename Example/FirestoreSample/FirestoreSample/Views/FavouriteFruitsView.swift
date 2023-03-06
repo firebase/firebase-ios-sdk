@@ -27,8 +27,7 @@ struct FavouriteFruitsView: View {
     collectionPath: "fruits",
     predicates: [
       .where("isFavourite", isEqualTo: true),
-    ],
-    animation: .default
+    ]
   ) fileprivate var fruitResults: Result<[Fruit], Error>
 
   @State var showOnlyFavourites = true
