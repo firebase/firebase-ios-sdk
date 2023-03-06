@@ -1355,3 +1355,15 @@ if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREME
     )
   }
 }
+
+// This is set when running `scripts/check_firestore_symbols.sh`.
+if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
+  if let firestoreIndex = package.targets
+    .firstIndex(where: { $0.name == "FirebaseFirestore" }) {
+    package.targets[firestoreIndex] = .binaryTarget(
+      name: "FirebaseFirestore",
+      // The `xcframework` should be moved to the root of the repo.
+      path: "FirebaseFirestore.xcframework"
+    )
+  }
+}
