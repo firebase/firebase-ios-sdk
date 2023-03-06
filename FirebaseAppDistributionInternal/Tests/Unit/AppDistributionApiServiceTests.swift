@@ -30,7 +30,7 @@ class AppDistributionApiServiceTests: XCTestCase {
     FirebaseApp.configure(name: "app-distribution-test-app", options: options)
     _ = FirebaseApp.app(name: "app-distribution-test-app")
   }
-  
+
   // MARK: - Test generateAuthToken
 
   func testGenerateAuthTokenSuccess() {
@@ -258,7 +258,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     wait(for: [expectation], timeout: 5)
   }
-  
+
   func testCommitFeedbackSuccess() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)

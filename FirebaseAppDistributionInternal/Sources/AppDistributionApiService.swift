@@ -463,7 +463,7 @@ struct CreateFeedbackReportRequest: Codable {
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: Strings.apiBundleKey)
     return request
   }
-  
+
   static func handleResponse<T: Codable>(data: Data?, response: URLResponse?, error: inout Error?,
                                          returnType: T.Type) -> T? {
     guard let response = response else {
