@@ -210,7 +210,8 @@ struct CreateFeedbackReportRequest: Codable {
         identifier!
       )
       guard var urlComponents = URLComponents(string: urlString) else {
-        // TODO(tundeagboola) Should I throw an exception here?
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for findRelease request")
         return
       }
       let compositeBinaryId = CompositeBinaryId(
@@ -219,7 +220,8 @@ struct CreateFeedbackReportRequest: Codable {
         codeHash: codeHash
       )
       guard let compositeBinaryIdData = try? JSONEncoder().encode(compositeBinaryId) else {
-        // TODO(tundeagboola) Should I throw an exception here?
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for findRelease request")
         return
       }
       urlComponents.queryItems = [URLQueryItem(
@@ -227,7 +229,8 @@ struct CreateFeedbackReportRequest: Codable {
         value: String(data: compositeBinaryIdData, encoding: .utf8)
       )]
       guard let url = urlComponents.url else {
-        // TODO(tundeagboola) Should I throw an exception here?
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for findRelease request")
         return
       }
       let request = self.createHttpRequest(
@@ -340,7 +343,8 @@ struct CreateFeedbackReportRequest: Codable {
         feedbackName
       )
       guard var urlComponents = URLComponents(string: urlString) else {
-        // TODO(tundeagboola) Should I throw an exception here?
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for uploadArtifact request")
         return
       }
       urlComponents.queryItems = [URLQueryItem(
@@ -348,7 +352,8 @@ struct CreateFeedbackReportRequest: Codable {
         value: Strings.uploadArtifactScreenshotType
       )]
       guard let url = urlComponents.url else {
-        // TODO(tundeagboola) Should I throw an exception here?
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for uploadArtifact request")
         return
       }
       let request = createHttpRequest(
@@ -520,6 +525,7 @@ struct CreateFeedbackReportRequest: Codable {
     return mappedResponse
   }
 
+  // TODO(tundeagboola) refactor this method and parseApiResponseWithData into a single handleResponse method
   static func handleReleaseResponse(data: NSData?, response: URLResponse?,
                                     error: inout Error?) -> [Any]? {
     guard let response = response else {
