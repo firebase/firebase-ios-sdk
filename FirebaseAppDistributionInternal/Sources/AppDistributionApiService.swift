@@ -104,8 +104,12 @@ struct FindReleaseResponse: Codable {
   }
 
   @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
+    guard let app = FirebaseApp.app() else {
+      return
+    }
+    
     fetchReleases(
-      app: FirebaseApp.app()!,
+      app: app,
       installations: Installations.installations(),
       urlSession: URLSession.shared,
       completion: completion
@@ -135,7 +139,7 @@ struct FindReleaseResponse: Codable {
         format: "Url: %@ Auth token: %@ Api Key: %@",
         urlString,
         authTokenResult?.authToken ?? "",
-        app.options.apiKey!
+        app.options.apiKey ?? ""
       ))
 
       let listReleaseDataTask = urlSession
