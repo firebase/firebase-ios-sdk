@@ -258,6 +258,76 @@ class AppDistributionApiServiceTests: XCTestCase {
     wait(for: [expectation], timeout: 5)
   }
 
+  func testUploadImageSuccess() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .success)
+
+    let expectation = XCTestExpectation(description: "Upload image succeeds")
+
+    AppDistributionApiService.uploadImage(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      feedbackName: "feedback/name",
+      image: UIImage(),
+      completion: { error in
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+    )
+
+    wait(for: [expectation], timeout: 5)
+  }
+
+  func testUploadImageUnauthenticatedFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .unauthenticatedFailure)
+
+    let expectation = XCTestExpectation(description: "Upload image fails")
+
+    AppDistributionApiService.uploadImage(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      feedbackName: "feedback/name",
+      image: UIImage(),
+      completion: { error in
+        let nserror = error as? NSError
+        XCTAssertNotNil(nserror)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnauthenticated.rawValue)
+        expectation.fulfill()
+      }
+    )
+
+    wait(for: [expectation], timeout: 5)
+  }
+
+  func testUploadImageWithCompletionUnknownFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(testCase: .unknownFailure)
+
+    let expectation = XCTestExpectation(description: "Upload image fails")
+
+    AppDistributionApiService.uploadImage(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      feedbackName: "feedback/name",
+      image: UIImage(),
+      completion: { error in
+        let nserror = error as? NSError
+        XCTAssertNotNil(nserror)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnknownFailure.rawValue)
+        expectation.fulfill()
+      }
+    )
+
+    wait(for: [expectation], timeout: 5)
+  }
+
   func testCommitFeedbackSuccess() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)

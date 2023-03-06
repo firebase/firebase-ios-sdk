@@ -364,7 +364,8 @@ struct CreateFeedbackReportRequest: Codable {
       )
       let uploadImageTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
-          let fadError = error
+          var fadError = error
+          self.handleError(httpResponse: response as! HTTPURLResponse, error: &fadError)
           DispatchQueue.main.async {
             completion(fadError)
           }
