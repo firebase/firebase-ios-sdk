@@ -107,7 +107,7 @@ struct FindReleaseResponse: Codable {
     guard let app = FirebaseApp.app() else {
       return
     }
-    
+
     fetchReleases(
       app: app,
       installations: Installations.installations(),
