@@ -98,25 +98,23 @@ class AppDistributionApiServiceTests: XCTestCase {
   func testFetchReleasesSuccess() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
-
-    let urlSession = URLSessionMock(testCase: .success, mockResponse: [
-      "releases": [
-        [
-          "displayVersion": "1.0.0",
-          "buildVersion": "111",
-          "releaseNotes": "This is a release",
-          "downloadURL": "http://faketyfakefake.download",
-        ],
-        [
-          "latest": true,
-          "displayVersion": "1.0.1",
-          "buildVersion": "112",
-          "releaseNotes": "This is a release too",
-          "downloadURL": "http://faketyfakefake.download",
-        ],
+    let expectedReleases: [[String: AnyHashable]] = [
+      [
+        "displayVersion": "1.0.0",
+        "buildVersion": "111",
+        "releaseNotes": "This is a release",
+        "downloadURL": "http://faketyfakefake.download",
       ],
-    ])
-
+      [
+        "latest": true,
+        "displayVersion": "1.0.1",
+        "buildVersion": "112",
+        "releaseNotes": "This is a release too",
+        "downloadURL": "http://faketyfakefake.download",
+      ],
+    ]
+    let urlSession = URLSessionMock(testCase: .success, mockResponse: expectedReleases)
+    
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
 
     AppDistributionApiService.fetchReleases(
@@ -127,6 +125,7 @@ class AppDistributionApiServiceTests: XCTestCase {
         XCTAssertNotNil(releases)
         XCTAssertNil(error)
         XCTAssertEqual(releases?.count, 2)
+        XCTAssertEqual(releases as? [[String: AnyHashable]?], expectedReleases)
         expectation.fulfill()
       }
     )
@@ -137,7 +136,6 @@ class AppDistributionApiServiceTests: XCTestCase {
   func testFetchReleasesUnknownFailure() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
-
     let urlSession = URLSessionMock(testCase: .unknownFailure)
 
     let expectation = XCTestExpectation(description: "Fetch releases fails with unknown error.")
@@ -161,7 +159,6 @@ class AppDistributionApiServiceTests: XCTestCase {
   func testFetchReleasesUnauthenticatedFailure() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
-
     let urlSession = URLSessionMock(testCase: .unauthenticatedFailure)
 
     let expectation =

@@ -54,7 +54,16 @@ NS_ASSUME_NONNULL_BEGIN
     }
     return;
   }
-  if (@available(iOS 13.5, macOS 10.15.5, macCatalyst 13.5, tvOS 13.4.8, *)) {
+  if (@available(iOS 13.5, macOS 10.15.5, macCatalyst 13.5,
+  // Availability of fetchItemsForIdentityVerificationSignature was extended to tvOS 13.4.8 in
+  // Xcode 14 (from tvOS 13.5 in Xcode 13).
+  // TODO: Remove this check when we no longer support Xcode 13.
+#if defined(__TVOS_16_0)
+                 tvOS 13.4.8,
+#else
+                 tvOS 13.5,
+#endif
+                     *)) {
     [localPlayer fetchItemsForIdentityVerificationSignature:^(
                      NSURL *_Nullable publicKeyURL, NSData *_Nullable signature,
                      NSData *_Nullable salt, uint64_t timestamp, NSError *_Nullable error) {

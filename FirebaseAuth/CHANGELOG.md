@@ -1,3 +1,7 @@
+# 10.6.0
+- [fixed] Fixed a bug where user is created in a specific tenant although tenantID was not specified. (#10748)
+- [fixed] Fixed a bug where the resolver exposed in MFA is not associated to the correct app. (#10690)
+
 # 10.5.0
 - [fixed] Use team player ID, game player ID and fetchItems for signature verification. (#10441)
 - [fixed] Prevent keychain pop-up when accessing Auth keychain in a Mac

@@ -39,12 +39,13 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRMultiFactorResolver
 
 - (instancetype)initWithMFAPendingCredential:(NSString *_Nullable)MFAPendingCredential
-                                       hints:(NSArray<FIRMultiFactorInfo *> *)hints {
+                                       hints:(NSArray<FIRMultiFactorInfo *> *)hints
+                                        auth:(FIRAuth *)auth {
   self = [super init];
   if (self) {
     _MFAPendingCredential = MFAPendingCredential;
     _hints = hints;
-    _auth = [FIRAuth auth];
+    _auth = auth;
     _session = [[FIRMultiFactorSession alloc] init];
     _session.MFAPendingCredential = MFAPendingCredential;
   }

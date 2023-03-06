@@ -18,9 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFilter+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -1018,6 +1015,186 @@
   ]];
   [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
                      matchesResult:@[ @"doc1", @"doc4", @"doc6" ]];
+}
+
+- (void)testMultipleInOps {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @0},
+    @"doc2" : @{@"b" : @1},
+    @"doc3" : @{@"a" : @3, @"b" : @2},
+    @"doc4" : @{@"a" : @1, @"b" : @3},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2}
+  }];
+
+  // Two IN operations on different fields with disjunction.
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                               in:@[ @0, @2 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter1] queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc1", @"doc6", @"doc3" ]];
+
+  // Two IN operations on different fields with conjunction.
+  FIRFilter *filter2 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                               in:@[ @0, @2 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter2] queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc3" ]];
+
+  // Two IN operations on the same field.
+  // a IN [1,2,3] && a IN [0,1,4] should result in "a==1".
+  FIRFilter *filter3 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @1, @2, @3 ]],
+    [FIRFilter filterWhereField:@"a" in:@[ @0, @1, @4 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
+                     matchesResult:@[ @"doc1", @"doc4", @"doc5" ]];
+
+  // a IN [2,3] && a IN [0,1,4] is never true and so the result should be an empty set.
+  FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"a"
+                                                                               in:@[ @0, @1, @4 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4] matchesResult:@[]];
+
+  // a IN [0,3] || a IN [0,2] should union them (similar to: a IN [0,2,3]).
+  FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @0, @3 ]], [FIRFilter filterWhereField:@"a"
+                                                                               in:@[ @0, @2 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter5]
+                     matchesResult:@[ @"doc3", @"doc6" ]];
+
+  // Nested composite filter on the same field.
+  FIRFilter *filter6 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @1, @3 ]], [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" in:@[ @0, @2 ]], [FIRFilter andFilterWithFilters:@[
+        [FIRFilter filterWhereField:@"b" isGreaterThanOrEqualTo:@1],
+        [FIRFilter filterWhereField:@"a" in:@[ @1, @3 ]]
+      ]]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter6]
+                     matchesResult:@[ @"doc3", @"doc4" ]];
+
+  // Nested composite filter on different fields.
+  FIRFilter *filter7 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"b" in:@[ @0, @3 ]], [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"b" in:@[ @1 ]], [FIRFilter andFilterWithFilters:@[
+        [FIRFilter filterWhereField:@"b" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"a"
+                                                                                   in:@[ @1, @3 ]]
+      ]]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter7] matchesResult:@[ @"doc4" ]];
+}
+
+- (void)testUseInWithArrayContainsAny {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
+    @"doc2" : @{@"b" : @[ @1 ]},
+    @"doc3" : @{@"a" : @3, @"b" : @[ @2, @7 ], @"c" : @10},
+    @"doc4" : @{@"a" : @1, @"b" : @[ @3, @7 ]},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2, @"c" : @20}
+  }];
+
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                 arrayContainsAny:@[ @0, @7 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc1", @"doc3", @"doc4", @"doc6" ]];
+
+  FIRFilter *filter2 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                 arrayContainsAny:@[ @0, @7 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2] matchesResult:@[ @"doc3" ]];
+
+  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"c"
+                                                                          isEqualTo:@10]
+    ]],
+    [FIRFilter filterWhereField:@"b" arrayContainsAny:@[ @0, @7 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
+                     matchesResult:@[ @"doc1", @"doc3", @"doc4" ]];
+
+  FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"b" arrayContainsAny:@[ @0, @7 ]],
+      [FIRFilter filterWhereField:@"c" isEqualTo:@20]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4]
+                     matchesResult:@[ @"doc3", @"doc6" ]];
+}
+
+- (void)testUseInWithArrayContains {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
+    @"doc2" : @{@"b" : @[ @1 ]},
+    @"doc3" : @{@"a" : @3, @"b" : @[ @2, @7 ]},
+    @"doc4" : @{@"a" : @1, @"b" : @[ @3, @7 ]},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2}
+  }];
+
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                 arrayContainsAny:@[ @3 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+
+  FIRFilter *filter2 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                    arrayContains:@7]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2] matchesResult:@[ @"doc3" ]];
+
+  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"b" arrayContains:@3], [FIRFilter filterWhereField:@"a"
+                                                                            isEqualTo:@1]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
+                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+
+  FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"b" arrayContains:@7], [FIRFilter filterWhereField:@"a"
+                                                                            isEqualTo:@1]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4] matchesResult:@[ @"doc3" ]];
+}
+
+- (void)testOrderByEquality {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
+    @"doc2" : @{@"b" : @[ @1 ]},
+    @"doc3" : @{@"a" : @3, @"b" : @[ @2, @7 ], @"c" : @10},
+    @"doc4" : @{@"a" : @1, @"b" : @[ @3, @7 ]},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2, @"c" : @20}
+  }];
+
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:[FIRFilter filterWhereField:@"a"
+                                                                                isEqualTo:@1]]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc1", @"doc4", @"doc5" ]];
+
+  [self checkOnlineAndOfflineQuery:[[collRef
+                                       queryWhereFilter:[FIRFilter filterWhereField:@"a"
+                                                                                 in:@[ @2, @3 ]]]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc6", @"doc3" ]];
 }
 
 @end
