@@ -1,3 +1,5 @@
+# Unreleased
+- [feature] Add support for disjunctions in queries (`OR` queries).
 
 # 10.6.0
 - [fixed] Fix a potential high memory usage issue.

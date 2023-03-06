@@ -638,6 +638,9 @@
 		61D35E0DE04E70D3BC243A65 /* FIRGeoPointTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E048202154AA00B64F25 /* FIRGeoPointTests.mm */; };
 		61ECC7CE18700CBD73D0D810 /* leveldb_migrations_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = EF83ACD5E1E9F25845A9ACED /* leveldb_migrations_test.cc */; };
 		61F72C5620BC48FD001A68CB /* serializer_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 61F72C5520BC48FD001A68CB /* serializer_test.cc */; };
+		621D620A28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */; };
+		621D620B28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */; };
+		621D620C28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */; };
 		623AA12C3481646B0715006D /* string_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0EE5300F8233D14025EF0456 /* string_apple_test.mm */; };
 		627253FDEC6BB5549FE77F4E /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
 		62B1C1100A8C68D94565916C /* document_overlay_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = FFCA39825D9678A03D1845D0 /* document_overlay_cache_test.cc */; };
@@ -1457,7 +1460,7 @@
 		2220F583583EFC28DE792ABE /* Pods_Firestore_IntegrationTests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2286F308EFB0534B1BDE05B9 /* memory_target_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_target_cache_test.cc; sourceTree = "<group>"; };
 		277EAACC4DD7C21332E8496A /* lru_garbage_collector_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = lru_garbage_collector_test.cc; sourceTree = "<group>"; };
-		28B45B2104E2DAFBBF86DBB7 /* logic_utils_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = logic_utils_test.cc; sourceTree = "<group>"; };
+		28B45B2104E2DAFBBF86DBB7 /* logic_utils_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = logic_utils_test.cc; sourceTree = "<group>"; };
 		29D9C76922DAC6F710BC1EF4 /* memory_document_overlay_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_document_overlay_cache_test.cc; sourceTree = "<group>"; };
 		2A0CF41BA5AED6049B0BEB2C /* objc_type_traits_apple_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; path = objc_type_traits_apple_test.mm; sourceTree = "<group>"; };
 		2B50B3A0DF77100EEE887891 /* Pods_Firestore_Tests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Tests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1636,6 +1639,7 @@
 		618BBE9A20B89AAC00B5BCE7 /* status.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = status.pb.h; sourceTree = "<group>"; };
 		61F72C5520BC48FD001A68CB /* serializer_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = serializer_test.cc; sourceTree = "<group>"; };
 		620C1427763BA5D3CCFB5A1F /* BridgingHeader.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryIntegrationTests.swift; sourceTree = "<group>"; };
 		62E103B28B48A81D682A0DE9 /* Pods_Firestore_Example_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_Example_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_index_matcher_test.cc; sourceTree = "<group>"; };
 		64AA92CFA356A2360F3C5646 /* filesystem_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = filesystem_testing.h; sourceTree = "<group>"; };
@@ -1937,6 +1941,7 @@
 			children = (
 				062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */,
 				124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */,
+				621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */,
 			);
 			path = Integration;
 			sourceTree = "<group>";
@@ -4057,6 +4062,7 @@
 				D77941FD93DBE862AEF1F623 /* FSTTransactionTests.mm in Sources */,
 				432056C4D1259F76C80FC2A8 /* FSTUserDataReaderTests.mm in Sources */,
 				3B1E27D951407FD237E64D07 /* FirestoreEncoderTests.swift in Sources */,
+				621D620C28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				4D42E5C756229C08560DD731 /* XCTestCase+Await.mm in Sources */,
 				0EC3921AE220410F7394729B /* aggregation_result.pb.cc in Sources */,
 				276A563D546698B6AAC20164 /* annotations.pb.cc in Sources */,
@@ -4280,6 +4286,7 @@
 				5E5B3B8B3A41C8EB70035A6B /* FSTTransactionTests.mm in Sources */,
 				75A176239B37354588769206 /* FSTUserDataReaderTests.mm in Sources */,
 				5E89B1A5A5430713C79C4854 /* FirestoreEncoderTests.swift in Sources */,
+				621D620B28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				736C4E82689F1CA1859C4A3F /* XCTestCase+Await.mm in Sources */,
 				DF983A9C1FBF758AF3AF110D /* aggregation_result.pb.cc in Sources */,
 				EA46611779C3EEF12822508C /* annotations.pb.cc in Sources */,
@@ -4739,6 +4746,7 @@
 				5492E07F202154EC00B64F25 /* FSTTransactionTests.mm in Sources */,
 				F5BDECEB3B43BD1591EEADBD /* FSTUserDataReaderTests.mm in Sources */,
 				6F45846C159D3C063DBD3CBE /* FirestoreEncoderTests.swift in Sources */,
+				621D620A28F9CE7400D2FA26 /* QueryIntegrationTests.swift in Sources */,
 				5492E0442021457E00B64F25 /* XCTestCase+Await.mm in Sources */,
 				1A3D8028303B45FCBB21CAD3 /* aggregation_result.pb.cc in Sources */,
 				02EB33CC2590E1484D462912 /* annotations.pb.cc in Sources */,
