@@ -113,8 +113,9 @@ class AppDistributionApiServiceTests: XCTestCase {
         "downloadURL": "http://faketyfakefake.download",
       ],
     ]
-    let urlSession = URLSessionMock(testCase: .success, mockResponse: expectedReleases)
-    
+    let response = ["releases": expectedReleases]
+    let urlSession = URLSessionMock(testCase: .success, mockResponse: response)
+
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
 
     AppDistributionApiService.fetchReleases(
