@@ -167,7 +167,7 @@ class TargetData {
                              model::SnapshotVersion snapshot_version) const;
 
   /** Creates a new target data instance with an updated expected count. */
-  TargetData WithExpectedCount(int32_t expected_count) const;
+  TargetData WithExpectedCount(absl::optional<int32_t> expected_count) const;
 
   /**
    * Creates a new target data instance with an updated last limbo free snapshot
