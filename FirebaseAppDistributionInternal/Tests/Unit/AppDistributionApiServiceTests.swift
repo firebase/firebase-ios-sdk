@@ -19,6 +19,7 @@ import FirebaseCore
 @testable import FirebaseAppDistributionInternal
 
 class AppDistributionApiServiceTests: XCTestCase {
+  
   override class func setUp() {
     let options = FirebaseOptions(
       googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -101,6 +102,22 @@ class AppDistributionApiServiceTests: XCTestCase {
     let urlSession = URLSessionMock(testCase: .success)
 
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
+    
+    let expectedReleases: Array<Dictionary<String, AnyHashable>> = [
+      [
+      "displayVersion": "1.0.0",
+      "buildVersion": "111",
+      "releaseNotes": "This is a release",
+      "downloadURL": "http://faketyfakefake.download",
+      ],
+      [
+        "latest": true,
+        "displayVersion": "1.0.1",
+        "buildVersion": "112",
+        "releaseNotes": "This is a release too",
+        "downloadURL": "http://faketyfakefake.download",
+      ]
+    ]
 
     AppDistributionApiService.fetchReleases(
       app: app,
@@ -110,6 +127,7 @@ class AppDistributionApiServiceTests: XCTestCase {
         XCTAssertNotNil(releases)
         XCTAssertNil(error)
         XCTAssertEqual(releases?.count, 2)
+        XCTAssertEqual((releases as? Array<Optional<Dictionary<String, AnyHashable>>>), expectedReleases)
         expectation.fulfill()
       }
     )
