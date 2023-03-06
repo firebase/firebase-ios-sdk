@@ -70,7 +70,7 @@ struct FindReleaseResponse: Codable {
 
 struct FeedbackReport: Codable {
   var name: String?
-  var text: String
+  var text: String?
 }
 
 struct CreateFeedbackReportRequest: Codable {
@@ -84,11 +84,12 @@ struct CreateFeedbackReportRequest: Codable {
       -> Void) {
     generateAuthToken(installations: Installations.installations(), completion: completion)
   }
-  
-  static func generateAuthToken(installations: InstallationsProtocol, completion: @escaping (_ identifier: String?,
-                                                                                             _ authTokenResult: InstallationsAuthTokenResult?,
-                                                                                             _ error: Error?)
--> Void) {
+
+  static func generateAuthToken(installations: InstallationsProtocol,
+                                completion: @escaping (_ identifier: String?,
+                                                       _ authTokenResult: InstallationsAuthTokenResult?,
+                                                       _ error: Error?)
+                                  -> Void) {
     installations.authToken(completion: { authTokenResult, error in
       var fadError: Error? = error
       if self.handleError(
@@ -175,7 +176,6 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
-
   @objc(findReleaseWithDisplayVersion:buildVersion:codeHash:completion:)
   public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
                                  completion: @escaping (_ releaseName: String?, _ error: Error?)
@@ -222,7 +222,7 @@ struct CreateFeedbackReportRequest: Codable {
         url: url,
         authTokenResult: authTokenResult!
       )
-      let findReleaseDataTask = URLSession.shared
+      let findReleaseDataTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
           let findReleaseResponse = self.handleResponse(
@@ -270,7 +270,7 @@ struct CreateFeedbackReportRequest: Codable {
       let createFeedbackRequest =
         CreateFeedbackReportRequest(feedbackReport: FeedbackReport(text: feedbackText))
       request.httpBody = try? JSONEncoder().encode(createFeedbackRequest)
-      let createFeedbackTask = URLSession.shared
+      let createFeedbackTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
           let feedback = self.handleResponse(
@@ -335,9 +335,9 @@ struct CreateFeedbackReportRequest: Codable {
         Strings.GoogleUploadFileNameHeader,
         forHTTPHeaderField: Strings.GoogleUploadFileName
       )
-      let uploadImageTask = URLSession.shared
+      let uploadImageTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
-          var fadError = error
+          let fadError = error
           DispatchQueue.main.async {
             completion(fadError)
           }
@@ -351,10 +351,10 @@ struct CreateFeedbackReportRequest: Codable {
   public static func commitFeedback(feedbackName: String,
                                     completion: @escaping (_ error: Error?)
                                     -> Void) {
-    commitFeedback(app: FirebaseApp.app()!, urlSession: URLSession.shared, installations: Installations.installations(), feedbackName: feedbackName, completion: completion)
+    commitFeedback(app: FirebaseApp.app()!, installations: Installations.installations(), urlSession: URLSession.shared, feedbackName: feedbackName, completion: completion)
   }
   
-  static func commitFeedback(app: FirebaseApp, urlSession: URLSession, installations: InstallationsProtocol,
+  static func commitFeedback(app: FirebaseApp, installations: InstallationsProtocol, urlSession: URLSession,
                                     feedbackName: String,
                                     completion: @escaping (_ error: Error?)
                                       -> Void) {
@@ -373,9 +373,15 @@ struct CreateFeedbackReportRequest: Codable {
         url: urlString,
         authTokenResult: authTokenResult
       )
-      let commitFeedbackTask = URLSession.shared
+      let commitFeedbackTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
-          let fadError = error
+          var fadError = error
+          let feedback = self.handleResponse(
+            data: data,
+            response: response,
+            error: &fadError,
+            returnType: FeedbackReport.self
+          )
           DispatchQueue.main.async {
             completion(fadError)
           }

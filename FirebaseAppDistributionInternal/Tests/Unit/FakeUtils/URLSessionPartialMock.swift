@@ -40,9 +40,11 @@ class URLSessionMock: URLSession {
   var data: Data?
   var response: URLResponse?
   var error: Error?
+  var mockResponse: Any
 
-  required init(testCase: TestCase) {
+  required init(testCase: TestCase, mockResponse: Any = [:]) {
     self.testCase = testCase
+    self.mockResponse = mockResponse
   }
 
   override func dataTask(with request: URLRequest,
@@ -55,28 +57,11 @@ class URLSessionMock: URLSession {
   }
 
   private func createResponse(request: URLRequest) {
-    let mockReleases = [
-      "releases": [
-        [
-          "displayVersion": "1.0.0",
-          "buildVersion": "111",
-          "releaseNotes": "This is a release",
-          "downloadURL": "http://faketyfakefake.download",
-        ],
-        [
-          "latest": true,
-          "displayVersion": "1.0.1",
-          "buildVersion": "112",
-          "releaseNotes": "This is a release too",
-          "downloadURL": "http://faketyfakefake.download",
-        ],
-      ],
-    ]
     let fakeErrorDomain = "test.failure.domain"
 
     switch testCase {
     case .success:
-      data = try! JSONSerialization.data(withJSONObject: mockReleases)
+      data = try! JSONSerialization.data(withJSONObject: mockResponse)
       response = HTTPURLResponse(url: request.url!,
                                  statusCode: 200,
                                  httpVersion: nil,
