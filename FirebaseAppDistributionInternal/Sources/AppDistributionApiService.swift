@@ -15,6 +15,7 @@
 import Foundation
 import FirebaseInstallations
 import FirebaseCore
+import UIKit
 
 // Avoids exposing internal APIs to Swift users
 @_implementationOnly import FirebaseCoreInternal
@@ -77,7 +78,7 @@ struct CreateFeedbackReportRequest: Codable {
   var feedbackReport: FeedbackReport
 }
 
-@objc(FIRFADSwiftApiService) open class AppDistributionApiService: NSObject {
+@objc(FIRFADApiServiceSwift) open class AppDistributionApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping (_ identifier: String?,
                                                                                                       _ authTokenResult: InstallationsAuthTokenResult?,
                                                                                                       _ error: Error?)
