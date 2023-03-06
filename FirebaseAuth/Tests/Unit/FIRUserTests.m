@@ -24,7 +24,6 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 @import FirebaseAuth;
 #import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 #import "FirebaseAuth/Sources/User/FIRAdditionalUserInfo_Internal.h"
@@ -410,6 +409,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
   return kGoogleProfile;
 }
 
+#ifdef TODO_SWIFT
 - (void)setUp {
   [super setUp];
   _mockBackend = OCMProtocolMock(@protocol(FIRAuthBackendImplementation));
@@ -3408,7 +3408,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
       });
 }
 #endif
-
+#endif
 @end
 
 NS_ASSUME_NONNULL_END

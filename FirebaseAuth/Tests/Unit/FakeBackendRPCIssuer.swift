@@ -91,6 +91,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
     return try respond(serverErrorMessage: errorMessage, error: error)
   }
 
+  @discardableResult
   func respond(serverErrorMessage errorMessage: String, error: NSError) throws -> Data {
     return try respond(withJSON: ["error": ["message": errorMessage]], error: error)
   }
@@ -102,7 +103,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
                                             "errors": [["reason": errorMessage]]]], error: error)
   }
 
-  func respond(withJSON json: [String: Any], error: NSError? = nil) throws -> Data {
+  @discardableResult func respond(withJSON json: [String: Any], error: NSError? = nil) throws -> Data {
     let data = try JSONSerialization.data(withJSONObject: json,
                                           options: JSONSerialization.WritingOptions.prettyPrinted)
     try respond(withData: data, error: error)

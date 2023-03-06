@@ -32,7 +32,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
@@ -1620,6 +1619,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
         asynchronously on the global auth work queue in the future.
  */
+typedef void (^FIRVerifyPhoneNumberResponseCallback)(
+    FIRVerifyPhoneNumberResponse *_Nullable response, NSError *_Nullable error);
+
 - (void)signInWithPhoneCredential:(FIRPhoneAuthCredential *)credential
                         operation:(FIRAuthOperationType)operation
                          callback:(FIRVerifyPhoneNumberResponseCallback)callback {
@@ -1707,6 +1709,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @param password The password used to create the new Firebase user.
     @param completion Optionally; a block which is invoked when the request finishes.
  */
+typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable response,
+                                         NSError *_Nullable error);
 - (void)internalCreateUserWithEmail:(NSString *)email
                            password:(NSString *)password
                          completion:(nullable FIRSignupNewUserCallback)completion {

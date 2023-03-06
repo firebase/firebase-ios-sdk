@@ -113,29 +113,4 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
 
 @end
 
-/** @protocol FIRAuthBackendImplementation
-    @brief Used to make FIRAuthBackend provide a layer of indirection to an actual RPC-based backend
-        or a mock backend.
- */
-@protocol FIRAuthBackendImplementation <NSObject>
-
-/** @fn postWithRequest:response:callback:
-    @brief Calls the RPC using HTTP POST.
-    @remarks Possible error responses:
-        @see FIRAuthInternalErrorCodeRPCRequestEncodingError
-        @see FIRAuthInternalErrorCodeJSONSerializationError
-        @see FIRAuthInternalErrorCodeNetworkError
-        @see FIRAuthInternalErrorCodeUnexpectedErrorResponse
-        @see FIRAuthInternalErrorCodeUnexpectedResponse
-        @see FIRAuthInternalErrorCodeRPCResponseDecodingError
-    @param request The request.
-    @param response The empty response to be filled.
-    @param callback The callback for both success and failure.
-*/
-- (void)postWithRequest:(id<FIRAuthRPCRequest>)request
-               response:(id<FIRAuthRPCResponse>)response
-               callback:(void (^)(NSError *_Nullable error))callback;
-
-@end
-
 NS_ASSUME_NONNULL_END
