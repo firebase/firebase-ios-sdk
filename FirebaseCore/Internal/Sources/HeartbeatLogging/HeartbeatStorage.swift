@@ -166,6 +166,7 @@ private extension Data {
   func decoded<T>(using decoder: JSONDecoder = .init()) throws -> T where T: Decodable {
     try decoder.decode(T.self, from: self)
   }
+}
 
 private extension Encodable {
   /// Returns the `Data` encoding of this value using the given encoder.
