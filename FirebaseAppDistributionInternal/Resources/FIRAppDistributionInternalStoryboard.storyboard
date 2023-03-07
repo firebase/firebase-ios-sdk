@@ -26,8 +26,8 @@
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dia-oO-Nu0">
                                 <rect key="frame" x="0.0" y="47" width="390" height="44"/>
                                 <items>
-                                    <navigationItem title="Title" id="JNd-eF-IDH">
-                                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="OJS-4m-F97">
+                                    <navigationItem title="Feedback" id="JNd-eF-IDH">
+                                        <barButtonItem key="leftBarButtonItem" title="Back" id="OJS-4m-F97">
                                             <connections>
                                                 <action selector="tappedCancel:" destination="BYZ-38-t0r" id="hdo-oe-Rpf"/>
                                             </connections>
