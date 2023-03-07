@@ -1371,20 +1371,20 @@ if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != 
   // FirebaseFirestoreTarget definition matches below definition.
   if let firestoreTargetIndex = package.targets
     .firstIndex(where: { $0.name == "FirebaseFirestoreTarget" }) {
-      package.targets[firestoreTargetIndex] = .target(
-        name: "FirebaseFirestoreTarget",
-        dependencies: [
-          .target(
-              name: "FirebaseFirestore",
-              condition: .when(platforms: [.iOS, .tvOS, .macOS])
-          ),
-          .product(name: "abseil", package: "abseil"),
-          .product(name: "gRPC-cpp", package: "gRPC"),
-          .product(name: "nanopb", package: "nanopb"),
-          "FirebaseCore",
-          "leveldb"
-        ],
-        path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
-      )
-    }
+    package.targets[firestoreTargetIndex] = .target(
+      name: "FirebaseFirestoreTarget",
+      dependencies: [
+        .target(
+          name: "FirebaseFirestore",
+          condition: .when(platforms: [.iOS, .tvOS, .macOS])
+        ),
+        .product(name: "abseil", package: "abseil"),
+        .product(name: "gRPC-cpp", package: "gRPC"),
+        .product(name: "nanopb", package: "nanopb"),
+        "FirebaseCore",
+        "leveldb",
+      ],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
+    )
+  }
 }
