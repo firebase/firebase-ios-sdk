@@ -74,7 +74,7 @@ class Settings {
   bool gc_enabled() const {
     return cache_size_bytes_ != CacheSizeUnlimited;
   }
-  void set_lru_gc_enabled(bool value) {
+  void set_memory_lru_gc_enabled(bool value) {
     lru_gc_enabled_ = value;
   }
   bool lru_gc_enabled() const {

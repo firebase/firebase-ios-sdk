@@ -48,6 +48,8 @@ NS_SWIFT_NAME(FirestoreSettings)
 /** Set to false to disable local persistent storage. */
 @property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled;
 
+@property(nonatomic, getter=isMemoryLruGCEnabled) BOOL memoryLruGCEnabled;
+
 /**
  * Sets the cache size threshold above which the SDK will attempt to collect least-recently-used
  * documents. The size is not a guarantee that the cache will stay below that size, only that if
