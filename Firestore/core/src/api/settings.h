@@ -37,6 +37,7 @@ class Settings {
   static constexpr const char* DefaultHost = "firestore.googleapis.com";
   static constexpr bool DefaultSslEnabled = true;
   static constexpr bool DefaultPersistenceEnabled = true;
+  static constexpr bool DefaultLruGcEnabled = true;
   static constexpr int64_t DefaultCacheSizeBytes = 100 * 1024 * 1024;
   static constexpr int64_t MinimumCacheSizeBytes = 1 * 1024 * 1024;
   static constexpr int64_t CacheSizeUnlimited = -1;
@@ -73,6 +74,12 @@ class Settings {
   bool gc_enabled() const {
     return cache_size_bytes_ != CacheSizeUnlimited;
   }
+  void set_lru_gc_enabled(bool value) {
+    lru_gc_enabled_ = value;
+  }
+  bool lru_gc_enabled() const {
+    return lru_gc_enabled_;
+  }
 
   friend bool operator==(const Settings& lhs, const Settings& rhs);
 
@@ -82,6 +89,7 @@ class Settings {
   std::string host_ = DefaultHost;
   bool ssl_enabled_ = DefaultSslEnabled;
   bool persistence_enabled_ = DefaultPersistenceEnabled;
+  bool lru_gc_enabled_ = DefaultLruGcEnabled;
   int64_t cache_size_bytes_ = DefaultCacheSizeBytes;
 };
 

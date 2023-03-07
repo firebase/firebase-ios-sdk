@@ -25,6 +25,7 @@ namespace api {
 constexpr const char* Settings::DefaultHost;
 constexpr bool Settings::DefaultSslEnabled;
 constexpr bool Settings::DefaultPersistenceEnabled;
+constexpr bool Settings::DefaultLruGcEnabled;
 constexpr int64_t Settings::DefaultCacheSizeBytes;
 constexpr int64_t Settings::MinimumCacheSizeBytes;
 
@@ -36,6 +37,7 @@ size_t Settings::Hash() const {
 bool operator==(const Settings& lhs, const Settings& rhs) {
   return lhs.host_ == rhs.host_ && lhs.ssl_enabled_ == rhs.ssl_enabled_ &&
          lhs.persistence_enabled_ == rhs.persistence_enabled_ &&
+         lhs.lru_gc_enabled_ == rhs.lru_gc_enabled_ &&
          lhs.cache_size_bytes_ == rhs.cache_size_bytes_;
 }
 

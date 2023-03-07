@@ -40,6 +40,7 @@
 #include "Firestore/core/src/local/local_serializer.h"
 #include "Firestore/core/src/local/local_store.h"
 #include "Firestore/core/src/local/memory_persistence.h"
+#include "Firestore/core/src/local/proto_sizer.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
 #include "Firestore/core/src/model/database_id.h"
@@ -218,6 +219,14 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     if (settings.gc_enabled()) {
       ScheduleLruGarbageCollection();
     }
+  } else if (settings.lru_gc_enabled()) {
+    local::LocalSerializer local_serializer(
+        Serializer(database_info_.database_id()));
+    auto sizer =
+        absl::make_unique<local::ProtoSizer>(std::move(local_serializer));
+    persistence_ = MemoryPersistence::WithLruGarbageCollector(
+        LruParams::WithCacheSize(settings.cache_size_bytes()),
+        std::move(sizer));
   } else {
     persistence_ = MemoryPersistence::WithEagerGarbageCollector();
   }
