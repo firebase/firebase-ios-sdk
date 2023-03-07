@@ -42,10 +42,6 @@ NSString *const FIRAppDistributionErrorDetailsKey = @"details";
 
 @implementation FIRAppDistribution
 
-// The App Distribution Tester API endpoint used to retrieve releases
-NSString *const kReleasesEndpointURL = @"https://firebaseapptesters.googleapis.com/v1alpha/devices/"
-                                       @"-/testerApps/%@/installations/%@/releases";
-
 NSString *const kAppDistroLibraryName = @"fire-fad";
 
 NSString *const kReleasesKey = @"releases";
@@ -314,7 +310,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       }
     };
 
-    [[self uiService] showUIAlertWithCompletion:actionCompletion];
+    [[self uiService] showCheckForUpdatesUIAlertWithCompletion:actionCompletion];
   }
 }
 
@@ -339,11 +335,29 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
-  // TODO: Implement it.
+  if ([self isTesterSignedIn]) {
+    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:nil];
+  } else {
+    [self signInTesterWithCompletion:^(NSError *_Nullable error) {
+      if (error) {
+        return;
+      }
+      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:nil];
+    }];
+  }
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
-  // TODO: Implement it.
+  if ([self isTesterSignedIn]) {
+    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
+  } else {
+    [self signInTesterWithCompletion:^(NSError *_Nullable error) {
+      if (error) {
+        return;
+      }
+      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
+    }];
+  }
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText

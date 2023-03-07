@@ -19,4 +19,8 @@ class FeedbackViewController: UIViewController {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
   }
+  
+  override func viewDidDisappear(_ animated: Bool) {
+    self.dismiss(animated: true)
+  }
 }

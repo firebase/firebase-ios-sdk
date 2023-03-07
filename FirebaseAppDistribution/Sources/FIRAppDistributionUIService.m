@@ -21,6 +21,8 @@
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
 
+@import FirebaseAppDistributionInternal;
+
 @implementation FIRAppDistributionUIService
 
 API_AVAILABLE(ios(9.0))
@@ -35,7 +37,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (instancetype)init {
   self = [super init];
 
-  self.safariHostingViewController = [[UIViewController alloc] init];
+  self.hostingViewController = [[UIViewController alloc] init];
 
   return self;
 }
@@ -83,6 +85,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
   return [self getAppDistributionError:FIRAppDistributionErrorAuthenticationFailure];
 }
 
+// MARK: - Authentication
+
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
   NSString *callbackURL =
@@ -128,7 +132,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
     safariVC.delegate = self;
     _safariVC = safariVC;
-    [self->_safariHostingViewController presentViewController:safariVC animated:YES completion:nil];
+    [self->_hostingViewController presentViewController:safariVC animated:YES completion:nil];
     self.registrationFlowCompletion = completion;
   }
 }
@@ -140,7 +144,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                              completion:nil];
 }
 
-- (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
+// MARK: - Check for updates
+
+- (void)showCheckForUpdatesUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
   UIAlertController *alert = [UIAlertController
       alertControllerWithTitle:NSLocalizedString(
                                    @"Enable new build alerts",
@@ -195,6 +201,16 @@ SFAuthenticationSession *_safariAuthenticationVC;
   }
 }
 
+// MARK: - In App Feedback
+
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
+  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
+  [self initializeUIState];
+  [self.hostingViewController presentViewController:feedbackViewController animated:YES completion:nil];
+}
+
+// MARK: - App Distribution UI State
+
 - (void)initializeUIState {
   if (self.window) {
     return;
@@ -226,7 +242,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
   } else {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   }
-  self.window.rootViewController = self.safariHostingViewController;
+  self.window.rootViewController = self.hostingViewController;
 
   // Place it at the highest level within the stack.
   self.window.windowLevel = +CGFLOAT_MAX;
@@ -266,7 +282,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:
     (ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0)) {
-  return self.safariHostingViewController.view.window;
+  return self.hostingViewController.view.window;
 }
 
 @end

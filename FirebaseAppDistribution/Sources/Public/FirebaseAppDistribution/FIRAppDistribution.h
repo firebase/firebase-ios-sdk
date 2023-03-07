@@ -79,7 +79,7 @@ NS_SWIFT_NAME(AppDistribution)
  * @param image UIImage to attach to the feedback. No image if nil is passed.
  */
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
-                                      image:(UIImage *)image
+                                      image:(UIImage * _Nullable)image
     NS_SWIFT_NAME(startFeedback(additionalFormText:image:));
 
 /**
