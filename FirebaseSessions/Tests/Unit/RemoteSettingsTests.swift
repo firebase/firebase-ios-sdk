@@ -61,7 +61,6 @@ class RemoteSettingsTests: XCTestCase {
   }
 
   func test_successfulFetch_returnsCachedSettings() {
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.updateSettings(currentTime: date)
 
@@ -73,7 +72,6 @@ class RemoteSettingsTests: XCTestCase {
 
   func test_cacheKeyIsNotExpired_stopsFetchFromProceeding() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.updateSettings(currentTime: date)
     XCTAssertFalse(settings.sessionsEnabled!)
@@ -96,7 +94,6 @@ class RemoteSettingsTests: XCTestCase {
 
   func test_cacheKeyExpiredFromAppVersion_fetchNewSettingsOrContinueOldSettings() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.updateSettings(currentTime: date)
 
@@ -129,7 +126,6 @@ class RemoteSettingsTests: XCTestCase {
 
   func test_cacheKeyExpiredFromTTL_fetchNewSettingsOrContinueOldSettings() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.updateSettings(currentTime: date)
 
@@ -160,7 +156,6 @@ class RemoteSettingsTests: XCTestCase {
 
   func test_cacheKeyGoogleAppIDChanged_fetchNewSettingsOrReturnDefaults() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.updateSettings(currentTime: date)
 
@@ -193,7 +188,6 @@ class RemoteSettingsTests: XCTestCase {
 
   func test_corruptedCache_fetchNewSettingsOrReturnDefaults() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.updateSettings(currentTime: date)
     XCTAssertFalse(settings.sessionsEnabled!)
@@ -223,7 +217,6 @@ class RemoteSettingsTests: XCTestCase {
 
   func test_corruptedCacheKey_fetchNewSettingsOrReturnDefaults() {
     // Given
-    appInfo.mockAllInfo()
     downloader.shouldSucceed = true
     settings.updateSettings(currentTime: date)
     XCTAssertFalse(settings.sessionsEnabled!)

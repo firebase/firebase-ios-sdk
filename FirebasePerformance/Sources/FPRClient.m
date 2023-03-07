@@ -35,7 +35,9 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@interface FPRClient () <FIRLibrary, FIRPerformanceProvider>
+@import FirebaseSessions;
+
+@interface FPRClient () <FIRLibrary, FIRPerformanceProvider, FIRSessionsSubscriber>
 
 /** The original configuration object used to initialize the client. */
 @property(nonatomic, strong) FPRConfiguration *config;
@@ -51,16 +53,22 @@
   [FIRApp registerInternalLibrary:[FPRClient class]
                          withName:@"fire-perf"
                       withVersion:[NSString stringWithUTF8String:kFPRSDKVersion]];
+  [FIRSessionsDependencies addDependencyWithName:FIRSessionsSubscriberNamePerformance];
 }
 
 #pragma mark - Component registration system
 
 + (nonnull NSArray<FIRComponent *> *)componentsToRegister {
+  FIRDependency *sessionsDep =
+      [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider)];
+
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
       return nil;
     }
+
+    id<FIRSessionsProvider> sessions = FIR_COMPONENT(FIRSessionsProvider, container);
 
     NSString *appName = container.app.name;
     FIRApp *app = [FIRApp appNamed:appName];
@@ -83,6 +91,15 @@
       FPRLogError(kFPRClientInitialize, @"Failed to initialize the client with error:  %@.", error);
     }
 
+    if (sessions) {
+      FPRLogDebug(kFPRClientInitialize, @"Registering Sessions SDK subscription for session data");
+
+      // Subscription should be made after the first call to [FPRClient sharedInstance] where
+      // _configuration is initialized so that the sessions SDK can immediately get the data
+      // collection state.
+      [sessions registerWithSubscriber:[self sharedInstance]];
+    }
+
     *isCacheable = YES;
 
     return [self sharedInstance];
@@ -91,7 +108,7 @@
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRPerformanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[]
+                             dependencies:@[ sessionsDep ]
                             creationBlock:creationBlock];
 
   return @[ component ];
@@ -251,7 +268,7 @@
   });
 
   // Check and update the sessionID if the session is running for too long.
-  [[FPRSessionManager sharedInstance] renewSessionIdIfRunningTooLong];
+  [[FPRSessionManager sharedInstance] stopGaugesIfRunningTooLong];
 }
 
 - (void)processAndLogEvent:(firebase_perf_v1_PerfMetric)event {
@@ -338,6 +355,20 @@
   [self.instrumentation deregisterInstrumentGroup:kFPRInstrumentationGroupUIKitKey];
   self.swizzled = NO;
   [self.configuration setInstrumentationEnabled:NO];
+}
+
+#pragma mark - FIRSessionsSubscriber
+
+- (void)onSessionChanged:(FIRSessionDetails *_Nonnull)session {
+  [[FPRSessionManager sharedInstance] updateSessionId:session.sessionId];
+}
+
+- (BOOL)isDataCollectionEnabled {
+  return self.configuration.isDataCollectionEnabled;
+}
+
+- (FIRSessionsSubscriberName)sessionsSubscriberName {
+  return FIRSessionsSubscriberNamePerformance;
 }
 
 @end

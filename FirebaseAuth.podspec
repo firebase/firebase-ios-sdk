@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '10.5.0'
+  s.version          = '10.7.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -81,6 +81,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
         'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
         'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
         'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+        'FirebaseAuth/Tests/Unit/FIRMultiFactorResolverTests.m',
       ]
       unit_tests.tvos.exclude_files = [
         'FirebaseAuth/Tests/Unit/FIRAuthAPNSTokenManagerTests.m',
@@ -93,11 +94,19 @@ supports email and password accounts, as well as several 3rd party authenticatio
         'FirebaseAuth/Tests/Unit/FIRVerifyClient*',
         'FirebaseAuth/Tests/Unit/FIRVerifyPhoneNumber*',
         'FirebaseAuth/Tests/Unit/FIROAuthProviderTests.m',
+        'FirebaseAuth/Tests/Unit/FIRMultiFactorResolverTests.m',
       ]
       # app_host is needed for tests with keychain
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
       unit_tests.dependency 'HeartbeatLoggingTestUtils'
+
+      # This pre-processor directive is used to selectively disable keychain
+      # related code that blocks unit testing on macOS.
+      s.osx.pod_target_xcconfig = {
+        'GCC_PREPROCESSOR_DEFINITIONS' => 'FIREBASE_AUTH_MACOS_TESTING=1'
+      }
+
     end
   end
 end

@@ -776,7 +776,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo];
+                                                                hints:multiFactorInfo
+                                                                 auth:request.requestConfiguration
+                                                                          .auth];
                    callback(nil, multiFactorRequiredError);
 #endif
                  } else {
@@ -820,7 +822,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo];
+                                                                hints:multiFactorInfo
+                                                                 auth:request.requestConfiguration
+                                                                          .auth];
                    callback(nil, multiFactorRequiredError);
 #endif
                  } else {
@@ -850,7 +854,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo];
+                                                                hints:multiFactorInfo
+                                                                 auth:request.requestConfiguration
+                                                                          .auth];
                    callback(nil, multiFactorRequiredError);
 #endif
                  } else {

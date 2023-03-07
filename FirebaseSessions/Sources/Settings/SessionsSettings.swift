@@ -16,7 +16,7 @@
 import Foundation
 
 /// Class that manages the configs related to the settings library
-class SessionsSettings {
+class SessionsSettings: SettingsProtocol {
   private let appInfo: ApplicationInfoProtocol
   private let installations: InstallationsProtocol
   private let sdkDefaults: SDKDefaultSettings

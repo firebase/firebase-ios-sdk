@@ -1036,10 +1036,10 @@ TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
   AcknowledgeMutationWithVersion(10);
   AcknowledgeMutationWithVersion(10);
 
-  // Execute the query, but note that we read all existing documents from the
+  // Execute the query, but note that we read matching documents from the
   // RemoteDocumentCache since we do not yet have target mapping.
   ExecuteQuery(query);
-  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 3);
+  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 2);
 
   // Issue a RemoteEvent to persist the target mapping.
   ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),

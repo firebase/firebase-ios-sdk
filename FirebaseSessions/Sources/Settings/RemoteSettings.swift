@@ -20,7 +20,7 @@ extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }
 
-class RemoteSettings: SettingsProvider, SettingsProtocol {
+class RemoteSettings: SettingsProvider {
   private static let cacheDurationSecondsDefault: TimeInterval = 60 * 60
   private static let flagSessionsEnabled = "sessions_enabled"
   private static let flagSamplingRate = "sampling_rate"

@@ -32,11 +32,11 @@ private enum GoogleDataTransportConfig {
   private let appID: String
 
   /// Top-level Classes in the Sessions SDK
-  private let coordinator: SessionCoordinator
+  private let coordinator: SessionCoordinatorProtocol
   private let initiator: SessionInitiator
   private let sessionGenerator: SessionGenerator
-  private let appInfo: ApplicationInfo
-  private let settings: SessionsSettings
+  private let appInfo: ApplicationInfoProtocol
+  private let settings: SettingsProtocol
 
   /// Subscribers
   /// `subscribers` are used to determine the Data Collection state of the Sessions SDK.
@@ -69,7 +69,8 @@ private enum GoogleDataTransportConfig {
       installations: installations
     )
 
-    let sessionGenerator = SessionGenerator(settings: settings)
+    let sessionGenerator = SessionGenerator(collectEvents: Sessions
+      .shouldCollectEvents(settings: settings))
     let coordinator = SessionCoordinator(
       installations: installations,
       fireLogger: fireLogger
@@ -82,12 +83,50 @@ private enum GoogleDataTransportConfig {
               coordinator: coordinator,
               initiator: initiator,
               appInfo: appInfo,
-              settings: settings)
+              settings: settings) { result in
+      switch result {
+      case .success(()):
+        Logger.logInfo("Successfully logged Session Start event")
+      case let .failure(sessionsError):
+        switch sessionsError {
+        case let .SessionInstallationsError(error):
+          Logger.logError(
+            "Error getting Firebase Installation ID: \(error). Skipping this Session Event"
+          )
+        case let .DataTransportError(error):
+          Logger
+            .logError(
+              "Error logging Session Start event to GoogleDataTransport: \(error)."
+            )
+        case .NoDependenciesError:
+          Logger
+            .logError(
+              "Sessions SDK did not have any dependent SDKs register as dependencies. Events will not be sent."
+            )
+        case .SessionSamplingError:
+          Logger
+            .logDebug(
+              "Sessions SDK has sampled this session"
+            )
+        case .DisabledViaSettingsError:
+          Logger
+            .logDebug(
+              "Sessions SDK is disabled via Settings"
+            )
+        case .DataCollectionError:
+          Logger
+            .logDebug(
+              "Data Collection is disabled for all subscribers. Skipping this Session Event"
+            )
+        }
+      }
+    }
   }
 
   // Initializes the SDK and begines the process of listening for lifecycle events and logging events
-  init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinator,
-       initiator: SessionInitiator, appInfo: ApplicationInfo, settings: SessionsSettings) {
+  init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
+       initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
+       loggedEventCallback: @escaping (Result<Void, FirebaseSessionsError>) -> Void) {
     self.appID = appID
 
     self.sessionGenerator = sessionGenerator
@@ -102,7 +141,10 @@ private enum GoogleDataTransportConfig {
       self.subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
-    Logger.logDebug("Expecting subscriptions from: \(SessionsDependencies.dependencies)")
+    Logger
+      .logDebug(
+        "Version \(FirebaseVersion()). Expecting subscriptions from: \(SessionsDependencies.dependencies)"
+      )
 
     self.initiator.beginListening {
       // Generating a Session ID early is important as Subscriber
@@ -115,14 +157,18 @@ private enum GoogleDataTransportConfig {
 
       let event = SessionStartEvent(sessionInfo: sessionInfo, appInfo: self.appInfo)
 
+      // If there are no Dependencies, then the Sessions SDK can't acknowledge
+      // any products data collection state, so the Sessions SDK won't send events.
+      guard !self.subscriberPromises.isEmpty else {
+        loggedEventCallback(.failure(.NoDependenciesError))
+        return
+      }
+
       // Wait until all subscriber promises have been fulfilled before
       // doing any data collection.
       all(self.subscriberPromises.values).then(on: .global(qos: .background)) { _ in
         guard self.isAnyDataCollectionEnabled else {
-          Logger
-            .logDebug(
-              "Data Collection is disabled for all subscribers. Skipping this Session Event"
-            )
+          loggedEventCallback(.failure(.DataCollectionError))
           return
         }
 
@@ -134,20 +180,33 @@ private enum GoogleDataTransportConfig {
         // turn off the Sessions SDK when we disabled it.
         self.settings.updateSettings()
 
-        self.addEventDataCollectionState(event: event)
+        self.addSubscriberFields(event: event)
+        event.setSamplingRate(samplingRate: self.settings.samplingRate)
 
-        if !(self.settings.sessionsEnabled && sessionInfo.shouldDispatchEvents) {
-          Logger
-            .logDebug(
-              "Session Event logging is disabled sessionsEnabled: \(self.settings.sessionsEnabled), shouldDispatchEvents: \(sessionInfo.shouldDispatchEvents)"
-            )
+        guard sessionInfo.shouldDispatchEvents else {
+          loggedEventCallback(.failure(.SessionSamplingError))
+          return
+        }
+
+        guard self.settings.sessionsEnabled else {
+          loggedEventCallback(.failure(.DisabledViaSettingsError))
           return
         }
 
         self.coordinator.attemptLoggingSessionStart(event: event) { result in
+          loggedEventCallback(result)
         }
       }
     }
+  }
+
+  // MARK: - Sampling
+
+  static func shouldCollectEvents(settings: SettingsProtocol) -> Bool {
+    // Calculate whether we should sample events using settings data
+    // Sampling rate of 1 means we do not sample.
+    let randomValue = Double.random(in: 0 ... 1)
+    return randomValue <= settings.samplingRate
   }
 
   // MARK: - Data Collection
@@ -161,10 +220,11 @@ private enum GoogleDataTransportConfig {
     return false
   }
 
-  func addEventDataCollectionState(event: SessionStartEvent) {
+  func addSubscriberFields(event: SessionStartEvent) {
     subscribers.forEach { subscriber in
       event.set(subscriber: subscriber.sessionsSubscriberName,
-                isDataCollectionEnabled: subscriber.isDataCollectionEnabled)
+                isDataCollectionEnabled: subscriber.isDataCollectionEnabled,
+                appInfo: self.appInfo)
     }
   }
 

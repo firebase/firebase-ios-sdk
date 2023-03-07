@@ -194,7 +194,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
 
 - (void)start {
   if (!self.traceCompleted) {
-    [[FPRGaugeManager sharedInstance] collectAllGauges];
+    [[FPRSessionManager sharedInstance] collectAllGaugesOnce];
     self.traceStarted = YES;
     self.backgroundActivityTracker = [[FPRTraceBackgroundActivityTracker alloc] init];
     [self checkpointState:FPRNetworkTraceCheckpointStateInitiated];
@@ -254,7 +254,7 @@ NSString *const kFPRNetworkTracePropertyName = @"fpr_networkTrace";
     [self checkpointState:FPRNetworkTraceCheckpointStateResponseCompleted];
 
     // Send the network trace for logging.
-    [[FPRGaugeManager sharedInstance] collectAllGauges];
+    [[FPRSessionManager sharedInstance] collectAllGaugesOnce];
     [[FPRClient sharedInstance] logNetworkTrace:self];
 
     self.traceCompleted = YES;

@@ -19,13 +19,15 @@ import Foundation
 
 struct SessionInfo {
   let sessionId: String
-  let previousSessionId: String?
+  let firstSessionId: String
   let shouldDispatchEvents: Bool
+  let sessionIndex: Int32
 
-  init(sessionId: String, previousSessionId: String?, dispatchEvents: Bool) {
+  init(sessionId: String, firstSessionId: String, dispatchEvents: Bool, sessionIndex: Int32) {
     self.sessionId = sessionId
-    self.previousSessionId = previousSessionId
+    self.firstSessionId = firstSessionId
     shouldDispatchEvents = dispatchEvents
+    self.sessionIndex = sessionIndex
   }
 }
 
@@ -37,10 +39,16 @@ struct SessionInfo {
 ///
 class SessionGenerator {
   private var thisSession: SessionInfo?
-  private var settings: SessionsSettings
 
-  init(settings: SessionsSettings) {
-    self.settings = settings
+  private var firstSessionId = ""
+  private var sessionIndex: Int32
+  private var collectEvents: Bool
+
+  init(collectEvents: Bool) {
+    // This will be incremented to 0 on the first generation
+    sessionIndex = -1
+
+    self.collectEvents = collectEvents
   }
 
   // Generates a new Session ID. If there was already a generated Session ID
@@ -48,16 +56,16 @@ class SessionGenerator {
   func generateNewSession() -> SessionInfo {
     let newSessionId = UUID().uuidString.replacingOccurrences(of: "-", with: "").lowercased()
 
-    var collectEvents = true
-    let randomValue = Double.random(in: 0 ... 1)
+    // If firstSessionId is set, use it. Otherwise set it to the
+    // first generated Session ID
+    firstSessionId = firstSessionId.isEmpty ? newSessionId : firstSessionId
 
-    if randomValue > settings.samplingRate {
-      collectEvents = false
-    }
+    sessionIndex += 1
 
     let newSession = SessionInfo(sessionId: newSessionId,
-                                 previousSessionId: thisSession?.sessionId,
-                                 dispatchEvents: collectEvents)
+                                 firstSessionId: firstSessionId,
+                                 dispatchEvents: collectEvents,
+                                 sessionIndex: sessionIndex)
     thisSession = newSession
     return newSession
   }

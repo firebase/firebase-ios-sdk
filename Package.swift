@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.5.0"
+let firebaseVersion = "10.7.0"
 
 let package = Package(
   name: "Firebase",
@@ -150,7 +150,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("10.4.0")
+      .exact("10.6.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -328,8 +328,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.4.0/FirebaseAnalytics.zip",
-      checksum: "d5098cd2d731104dddb11c39b2cbbd3aab11a604c528706a16ff0114abd8d53a"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.6.0/FirebaseAnalytics.zip",
+      checksum: "a893066f524130a007ee255d9e535879b96a3fa0add139a8245edaf1c2f310f6"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -490,7 +490,7 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations",
+      dependencies: ["FirebaseCore", "FirebaseInstallations", "FirebaseSessions",
                      .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
                      .product(name: "GULEnvironment", package: "GoogleUtilities"),
                      .product(name: "FBLPromises", package: "Promises"),
@@ -948,6 +948,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseInstallations",
         "FirebaseRemoteConfig",
+        "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GULISASwizzler", package: "GoogleUtilities"),

@@ -155,6 +155,7 @@
   report.platform = [self protoPlatformFromString:self.host.platform];
   report.installation_uuid = FIRCLSEncodeString(self.installIDModel.installID);
   report.firebase_installation_id = FIRCLSEncodeString(self.fiid);
+  report.app_quality_session_id = FIRCLSEncodeString(self.identity.app_quality_session_id);
   report.build_version = FIRCLSEncodeString(self.application.build_version);
   report.display_version = FIRCLSEncodeString(self.application.display_version);
   report.apple_payload = [self protoFilesPayload];

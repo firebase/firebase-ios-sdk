@@ -53,7 +53,8 @@ class SessionGeneratorTests: XCTestCase {
       localOverrides: localOverrideSettings,
       remoteSettings: remoteSettings
     )
-    generator = SessionGenerator(settings: sessionSettings)
+    generator = SessionGenerator(collectEvents: Sessions
+      .shouldCollectEvents(settings: sessionSettings))
   }
 
   func isValidSessionID(_ sessionID: String) -> Bool {
@@ -82,24 +83,38 @@ class SessionGeneratorTests: XCTestCase {
   func test_generateNewSessionID_generatesValidID() throws {
     let sessionInfo = generator.generateNewSession()
     XCTAssert(isValidSessionID(sessionInfo.sessionId))
-    XCTAssertNil(sessionInfo.previousSessionId)
+    XCTAssert(isValidSessionID(sessionInfo.firstSessionId))
+    XCTAssertEqual(sessionInfo.firstSessionId, sessionInfo.sessionId)
   }
 
-  /// Ensures that generating a Session ID multiple times results in the last Session ID being set in the previousSessionID field
+  /// Ensures that generating a Session ID multiple times results in the fist Session ID being set
+  /// in the firstSessionId field
   func test_generateNewSessionID_rotatesPreviousID() throws {
     let firstSessionInfo = generator.generateNewSession()
 
-    let firstSessionID = firstSessionInfo.sessionId
     XCTAssert(isValidSessionID(firstSessionInfo.sessionId))
-    XCTAssertNil(firstSessionInfo.previousSessionId)
+    XCTAssert(isValidSessionID(firstSessionInfo.firstSessionId))
+    XCTAssertEqual(firstSessionInfo.firstSessionId, firstSessionInfo.sessionId)
+    XCTAssertEqual(firstSessionInfo.sessionIndex, 0)
 
     let secondSessionInfo = generator.generateNewSession()
 
     XCTAssert(isValidSessionID(secondSessionInfo.sessionId))
-    XCTAssert(isValidSessionID(secondSessionInfo.previousSessionId!))
+    XCTAssert(isValidSessionID(secondSessionInfo.firstSessionId))
+    // Ensure the new firstSessionId is equal to the first Session ID from earlier
+    XCTAssertEqual(secondSessionInfo.firstSessionId, firstSessionInfo.sessionId)
+    // Session Index should increase
+    XCTAssertEqual(secondSessionInfo.sessionIndex, 1)
 
-    // Ensure the new lastSessionID is equal to the sessionID from earlier
-    XCTAssertEqual(secondSessionInfo.previousSessionId, firstSessionID)
+    // Do a third round just in case
+    let thirdSessionInfo = generator.generateNewSession()
+
+    XCTAssert(isValidSessionID(thirdSessionInfo.sessionId))
+    XCTAssert(isValidSessionID(thirdSessionInfo.firstSessionId))
+    // Ensure the new firstSessionId is equal to the first Session ID from earlier
+    XCTAssertEqual(thirdSessionInfo.firstSessionId, firstSessionInfo.sessionId)
+    // Session Index should increase
+    XCTAssertEqual(thirdSessionInfo.sessionIndex, 2)
   }
 
   func test_sessionsNotSampled_AllEventsAllowed() throws {
@@ -124,6 +139,10 @@ class SessionGeneratorTests: XCTestCase {
       remoteSettings: remoteSettings
     )
 
+    // Rebuild the SessionGenerator with the new settings
+    generator = SessionGenerator(collectEvents: Sessions
+      .shouldCollectEvents(settings: sessionSettings))
+
     let sessionInfo = generator.generateNewSession()
     XCTAssertTrue(sessionInfo.shouldDispatchEvents)
   }
@@ -136,7 +155,6 @@ class SessionGeneratorTests: XCTestCase {
         "session_timeout_seconds": 50,
       ],
     ]
-
     cache.removeCache()
     downloader = MockSettingsDownloader(successResponse: someSettings)
     remoteSettings = RemoteSettings(appInfo: appInfo, downloader: downloader, cache: cache)
@@ -150,7 +168,36 @@ class SessionGeneratorTests: XCTestCase {
       remoteSettings: remoteSettings
     )
 
+    // Rebuild the SessionGenerator with the new settings
+    generator = SessionGenerator(collectEvents: Sessions
+      .shouldCollectEvents(settings: sessionSettings))
+
     let sessionInfo = generator.generateNewSession()
     XCTAssertFalse(sessionInfo.shouldDispatchEvents)
+  }
+
+  func test_sessionsSampling_persistsPerRun() throws {
+    let mockSettings = MockSettingsProtocol()
+    mockSettings.samplingRate = 0
+
+    // Rebuild the SessionGenerator with the new settings
+    generator = SessionGenerator(collectEvents: Sessions
+      .shouldCollectEvents(settings: mockSettings))
+
+    let sessionInfo = generator.generateNewSession()
+    XCTAssertFalse(sessionInfo.shouldDispatchEvents)
+
+    // Try again
+    let sessionInfo2 = generator.generateNewSession()
+    XCTAssertFalse(sessionInfo2.shouldDispatchEvents)
+
+    // Start returning true from the calculator
+    mockSettings.samplingRate = 1
+
+    // Try again after the calculator starts returning true.
+    // It should still be false in the sessionInfo because the
+    // sampling rate is calculated per-run
+    let sessionInfo3 = generator.generateNewSession()
+    XCTAssertFalse(sessionInfo3.shouldDispatchEvents)
   }
 }
