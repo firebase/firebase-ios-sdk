@@ -20,6 +20,18 @@
 # function without clients needing to pass the `-ObjC`, this script catches
 # potential regressions that break that requirement.
 #
+# DEPENDENCIES: This script depends on the given Firebase repo's `Package.swift`
+# using the `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP` env var to swap the Firestore
+# target definition out to instead reference a *local* binary using the
+# `.binaryTarget(path:)` API.
+#
+# DESIGN: This script creates an executable package that depends on Firestore
+# via a local binary SPM target. The package is built twice, once with the
+# -ObjC flag and once without. The linked Objective-C symbols are then
+# stripped from each build's resulting executable. The symbols are then diffed
+# to determine if there exists symbols that were only linked due to the -ObjC
+# flag.
+#
 # USAGE: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>
 
 if [ $# -ne 2 ]; then
