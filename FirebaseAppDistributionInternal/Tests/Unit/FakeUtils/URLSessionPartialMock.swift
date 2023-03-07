@@ -40,11 +40,11 @@ class URLSessionMock: URLSession {
   var data: Data?
   var response: URLResponse?
   var error: Error?
-  var mockResponse: Any
+  var responseData: Data?
 
-  required init(testCase: TestCase, mockResponse: Any = [:]) {
+  required init(testCase: TestCase, responseData: Data? = nil) {
     self.testCase = testCase
-    self.mockResponse = mockResponse
+    self.responseData = responseData
   }
 
   override func dataTask(with request: URLRequest,
@@ -61,7 +61,7 @@ class URLSessionMock: URLSession {
 
     switch testCase {
     case .success:
-      data = try! JSONSerialization.data(withJSONObject: mockResponse)
+      data = responseData
       response = HTTPURLResponse(url: request.url!,
                                  statusCode: 200,
                                  httpVersion: nil,

@@ -168,13 +168,12 @@ struct CreateFeedbackReportRequest: Codable {
       let listReleaseDataTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          let releases = self.handleReleaseResponse(
-            data: data as? NSData,
-            response: response,
-            error: &fadError
-          )
+          let releasesResponse = self.handleResponse(data: data,
+                                                     response: response,
+                                                     error: &fadError,
+                                                     returnType: [String: [Any]].self)
           DispatchQueue.main.async {
-            completion(releases, fadError)
+            completion(releasesResponse?[Strings.responseReleaseKey], fadError)
           }
         }
 
@@ -243,7 +242,7 @@ struct CreateFeedbackReportRequest: Codable {
       let findReleaseDataTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          let findReleaseResponse = self.handleResponse(
+          let findReleaseResponse = self.handleCodableResponse(
             data: data,
             response: response,
             error: &fadError,
@@ -299,7 +298,7 @@ struct CreateFeedbackReportRequest: Codable {
       let createFeedbackTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          let feedback = self.handleResponse(
+          let feedback = self.handleCodableResponse(
             data: data,
             response: response,
             error: &fadError,
@@ -374,7 +373,7 @@ struct CreateFeedbackReportRequest: Codable {
       let uploadImageTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          self.handleError(httpResponse: response as! HTTPURLResponse, error: &fadError)
+          _ = self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
           DispatchQueue.main.async {
             completion(fadError)
           }
@@ -420,12 +419,7 @@ struct CreateFeedbackReportRequest: Codable {
       let commitFeedbackTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          let feedback = self.handleResponse(
-            data: data,
-            response: response,
-            error: &fadError,
-            returnType: FeedbackReport.self
-          )
+          _ = self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
           DispatchQueue.main.async {
             completion(fadError)
           }
@@ -508,64 +502,75 @@ struct CreateFeedbackReportRequest: Codable {
     return request
   }
 
-  static func handleResponse<T: Codable>(data: Data?, response: URLResponse?, error: inout Error?,
-                                         returnType: T.Type) -> T? {
+  static func validateResponse(response: URLResponse?, error: inout Error?) -> Bool {
     guard let response = response else {
-      return nil
-    }
-    let httpResponse = response as! HTTPURLResponse
-    if handleError(httpResponse: httpResponse, error: &error) {
-      return nil
-    }
-    guard let data = data else {
-      return nil
-    }
-    guard let mappedResponse = try? JSONDecoder().decode(T.self, from: data) else {
-      return nil
-    }
-    return mappedResponse
-  }
-
-  // TODO(tundeagboola) refactor this method and parseApiResponseWithData into a single handleResponse method
-  static func handleReleaseResponse(data: NSData?, response: URLResponse?,
-                                    error: inout Error?) -> [Any]? {
-    guard let response = response else {
-      return nil
+      _ = handleError(
+        error: &error,
+        description: "URLResponse is nil",
+        code: .ApiErrorUnknownFailure
+      )
+      return false
     }
 
     let httpResponse = response as! HTTPURLResponse
     Logger
       .logInfo(String(format: "HTTPResponse status code %ld, response %@", httpResponse.statusCode,
                       httpResponse))
-
     if handleError(httpResponse: httpResponse, error: &error) {
-      // TODO: Consider adding logging equivalent to [FIRFADApiService tryParseGoogleAPIErrorFromResponse].
       Logger
         .logError(String(format: "App tester API service error: %@",
                          error?.localizedDescription ?? ""))
-      return nil
+      return false
     }
-    return parseApiResponseWithData(data: data, error: &error)
+
+    return true
   }
 
-  static func parseApiResponseWithData(data: NSData?, error: inout Error?) -> [Any]? {
+  static func handleCodableResponse<T: Codable>(data: Data?, response: URLResponse?,
+                                                error: inout Error?,
+                                                returnType: T.Type) -> T? {
+    if !validateResponse(response: response, error: &error) {
+      return nil
+    }
+
     guard let data = data else {
       return nil
     }
 
     do {
-      let serializedResponse = try JSONSerialization.jsonObject(
-        with: data as Data,
-        options: JSONSerialization.ReadingOptions(rawValue: 0)
-      ) as? [String: Any]
-      return serializedResponse![Strings.responseReleaseKey] as? [Any]
+      return try JSONDecoder().decode(T.self, from: data)
     } catch let thrownError {
-      let description: String = (thrownError as NSError)
-        .userInfo[NSLocalizedDescriptionKey] as? String ?? "Failed to parse response"
-      error = thrownError
-      _ = self.handleError(error: &error, description: description, code: .ApiErrorParseFailure)
-      Logger.logError("Tester API - Error deserializing json response")
+      handleApiParserErorr(thrownError, &error)
       return nil
     }
+  }
+
+  static func handleResponse<T>(data: Data?, response: URLResponse?,
+                                error: inout Error?, returnType: T.Type) -> T? {
+    if !validateResponse(response: response, error: &error) {
+      return nil
+    }
+
+    guard let data = data else {
+      return nil
+    }
+
+    do {
+      return try JSONSerialization.jsonObject(
+        with: data,
+        options: JSONSerialization.ReadingOptions(rawValue: 0)
+      ) as? T
+    } catch let thrownError {
+      handleApiParserErorr(thrownError, &error)
+      return nil
+    }
+  }
+
+  static func handleApiParserErorr(_ thrownError: Error, _ error: inout Error?) {
+    let description: String = (thrownError as NSError)
+      .userInfo[NSLocalizedDescriptionKey] as? String ?? "Failed to parse response"
+    error = thrownError
+    _ = handleError(error: &error, description: description, code: .ApiErrorParseFailure)
+    Logger.logError("Tester API - Error deserializing json response")
   }
 }
