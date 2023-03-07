@@ -425,44 +425,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 #endif
 
-/** @fn testSignInWithEmailLinkSuccess
-    @brief Tests the flow of a successful @c signInWithEmail:link:completion: call.
- */
 #ifdef TODO_SWIFT
-- (void)testSignInWithEmailLinkSuccess {
-  NSString *fakeCode = @"testoobcode";
-  OCMExpect([_mockBackend emailLinkSignin:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(^(FIREmailLinkSignInRequest *_Nullable request,
-                       FIREmailLinkSigninResponseCallback callback) {
-        XCTAssertEqualObjects(request.email, kEmail);
-        XCTAssertEqualObjects(request.oobCode, fakeCode);
-        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          id mockEmailLinkSignInResponse = OCMClassMock([FIREmailLinkSignInResponse class]);
-          [self stubTokensWithMockResponse:mockEmailLinkSignInResponse];
-          callback(mockEmailLinkSignInResponse, nil);
-          OCMStub([mockEmailLinkSignInResponse refreshToken]).andReturn(kRefreshToken);
-        });
-      });
-  [self expectGetAccountInfo];
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [[FIRAuth auth] signOut:NULL];
-  [[FIRAuth auth]
-      signInWithEmail:kEmail
-                 link:kFakeEmailSignInlink
-           completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
-             XCTAssertTrue([NSThread isMainThread]);
-             XCTAssertNotNil(authResult.user);
-             XCTAssertEqualObjects(authResult.user.refreshToken, kRefreshToken);
-             XCTAssertFalse(authResult.user.anonymous);
-             XCTAssertEqualObjects(authResult.user.email, kEmail);
-             XCTAssertNil(error);
-             [expectation fulfill];
-           }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  [self assertUser:[FIRAuth auth].currentUser];
-  OCMVerifyAll(_mockBackend);
-}
-
 /** @fn testSignInWithEmailLinkSuccessDeeplink
     @brief Tests the flow of a successful @c signInWithEmail:link:completion: call using a deep
         link.
