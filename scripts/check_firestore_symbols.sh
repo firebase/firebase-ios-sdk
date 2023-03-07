@@ -114,7 +114,8 @@ cd $TEST_PKG_ROOT
 echo "Building test package without -ObjC linker flag..."
 FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
 xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
-      -derivedDataPath '~/Library/Developer/Xcode/DerivedData/TestPkg'
+      -derivedDataPath '~/Library/Developer/Xcode/DerivedData/TestPkg' \
+      || exit 1
 
 nm ~/Library/Developer/Xcode/DerivedData/TestPkg/Build/Products/Debug/TestPkg \
       | grep -o "[-+]\[.*\]" > objc_symbols_without_linker_flag.txt
@@ -125,7 +126,8 @@ echo "Building test package with -ObjC linker flag..."
 FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
 xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
       -derivedDataPath '~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC' \
-      OTHER_LDFLAGS='-ObjC'
+      OTHER_LDFLAGS='-ObjC' \
+      || exit 1
 
 nm ~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC/Build/Products/Debug/TestPkg \
       | grep -o "[-+]\[.*\]" > objc_symbols_with_linker_flag.txt
