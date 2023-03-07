@@ -57,17 +57,24 @@ class BloomFilter final {
    */
   bool MightContain(absl::string_view value) const;
 
-  /** Get the `bit_count_` field.  */
+  /**
+   * The number of bits in the bloom filter. Guaranteed to be non-negative, and
+   * less than the max number of bits `bitmap_` can represent, i.e.,
+   * bitmap_.size() * 8.
+   */
   int32_t bit_count() const {
     return bit_count_;
   }
 
-  /** Get the `hash_count_` field.  */
+  /**
+   * The number of hash functions used to construct the filter. Guaranteed to
+   * be non-negative.
+   */
   int32_t hash_count() const {
     return hash_count_;
   }
 
-  /** Get the `bitmap_` field. */
+  /** Bloom filter's bitmap. */
   const std::vector<uint8_t>& bitmap() const {
     return bitmap_;
   }
@@ -97,20 +104,10 @@ class BloomFilter final {
   /** Return whether the bit at the given index in the bitmap is set to 1. */
   bool IsBitSet(int32_t index) const;
 
-  /**
-   * The number of bits in the bloom filter. Guaranteed to be non-negative, and
-   * less than the max number of bits `bitmap_` can represent, i.e.,
-   * bitmap_.size() * 8.
-   */
   int32_t bit_count_ = 0;
 
-  /**
-   * The number of hash functions used to construct the filter. Guaranteed to
-   * be non-negative.
-   */
   int32_t hash_count_ = 0;
 
-  /** Bloom filter's bitmap. */
   std::vector<uint8_t> bitmap_;
 };
 
