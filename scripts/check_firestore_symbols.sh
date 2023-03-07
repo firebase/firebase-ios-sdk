@@ -34,6 +34,8 @@
 #
 # USAGE: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>
 
+set -euo pipefail
+
 if [[ $# -ne 2 ]]; then
     echo "Usage: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>"
     exit 1
@@ -127,7 +129,7 @@ echo "Building test package without -ObjC linker flag..."
 FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
 xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
       -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg" \
-      || exit 1
+      | xcpretty
 
 nm ~/Library/Developer/Xcode/DerivedData/TestPkg/Build/Products/Debug/TestPkg \
       | grep -o "[-+]\[.*\]" > objc_symbols_without_linker_flag.txt
@@ -139,7 +141,7 @@ FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
 xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
       -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg-ObjC" \
       OTHER_LDFLAGS='-ObjC' \
-      || exit 1
+      | xcpretty
 
 nm ~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC/Build/Products/Debug/TestPkg \
       | grep -o "[-+]\[.*\]" > objc_symbols_with_linker_flag.txt
