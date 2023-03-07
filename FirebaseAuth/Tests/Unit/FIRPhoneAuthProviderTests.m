@@ -27,7 +27,6 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 @import FirebaseAuth;
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
@@ -262,7 +261,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
    */
   id _mockRequestConfiguration;
 }
-
+#ifdef TODO_SWIFT
 - (void)setUp {
   [super setUp];
   _mockBackend = OCMProtocolMock(@protocol(FIRAuthBackendImplementation));
@@ -311,7 +310,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   XCTAssertNil(credential.temporaryProof);
   XCTAssertNil(credential.phoneNumber);
 }
-#ifdef TODO_SWIFT
+
 /** @fn testVerifyEmptyPhoneNumber
     @brief Tests a failed invocation @c verifyPhoneNumber:completion: because an empty phone
         number was provided.

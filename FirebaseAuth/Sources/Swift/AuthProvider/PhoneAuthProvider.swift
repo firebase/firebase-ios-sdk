@@ -381,7 +381,7 @@ import Foundation
             var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
                               URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
                               URLQueryItem(name: "ibi", value: bundleID ?? ""),
-                              URLQueryItem(name: "v", value: FIRAuthBackend.authUserAgent()),
+                              URLQueryItem(name: "v", value: AuthBackend.authUserAgent()),
                               URLQueryItem(name: "eventID", value: eventID)]
             if self.usingClientIDScheme {
               queryItems.append(URLQueryItem(name: "clientID", value: clientID))
