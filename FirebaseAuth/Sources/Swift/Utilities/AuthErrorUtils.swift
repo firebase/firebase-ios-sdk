@@ -41,24 +41,14 @@ private let kFIRAuthErrorMessageMalformedJWT =
   "Failed to parse JWT. Check the userInfo dictionary for the full token."
 
 @objc(FIRAuthErrorUtils) public class AuthErrorUtils: NSObject {
-  private static let errorDomain = "FIRAuthErrorDomain"
-
-  private static let internalErrorDomain = "FIRAuthInternalErrorDomain"
-
-  static let userInfoDeserializedResponseKey =
-    "FIRAuthErrorUserInfoDeserializedResponseKey"
-
-  private static let userInfoDataKey = "FIRAuthErrorUserInfoDataKey"
-
-  private static let userInfoEmailKey = "FIRAuthErrorUserInfoEmailKey"
-
-  private static let userInfoUpdatedCredentialKey =
-    "FIRAuthErrorUserInfoUpdatedCredentialKey"
-
-  private static let userInfoNameKey = "FIRAuthErrorUserInfoNameKey"
-
-  private static let userInfoMultiFactorResolverKey =
-    "FIRAuthErrorUserInfoMultiFactorResolverKey"
+  static let errorDomain = "FIRAuthErrorDomain"
+  static let internalErrorDomain = "FIRAuthInternalErrorDomain"
+  static let userInfoDeserializedResponseKey = "FIRAuthErrorUserInfoDeserializedResponseKey"
+  static let userInfoDataKey = "FIRAuthErrorUserInfoDataKey"
+  static let userInfoEmailKey = "FIRAuthErrorUserInfoEmailKey"
+  static let userInfoUpdatedCredentialKey = "FIRAuthErrorUserInfoUpdatedCredentialKey"
+  static let userInfoNameKey = "FIRAuthErrorUserInfoNameKey"
+  static let userInfoMultiFactorResolverKey = "FIRAuthErrorUserInfoMultiFactorResolverKey"
 
   /** @var kServerErrorDetailMarker
       @brief This marker indicates that the server error message contains a detail error message which

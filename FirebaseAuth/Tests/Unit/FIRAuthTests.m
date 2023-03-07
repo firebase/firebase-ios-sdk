@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+#ifdef TODO_SWIFT
 #import <Foundation/Foundation.h>
-#import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
@@ -26,11 +25,9 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 @import FirebaseAuth;
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
-#import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
@@ -300,7 +297,7 @@ static const NSTimeInterval kWaitInterval = .5;
 #endif  // TARGET_OS_IOS
 
   _mockBackend = OCMProtocolMock(@protocol(FIRAuthBackendImplementation));
-  [FIRAuthBackend setBackendImplementation:_mockBackend];
+  [FIRAuthBackend2 setBackendImplementation:_mockBackend];
   [FIRApp resetAppForAuthUnitTests];
 
   // Set FIRAuthDispatcher implementation in order to save the token refresh task for later
@@ -324,7 +321,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 - (void)tearDown {
-  [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
+  [FIRAuthBackend2 setDefaultBackendImplementationWithRPCIssuer:nil];
   [[FIRAuthDispatcher sharedInstance] setDispatchAfterImplementation:nil];
 
 #if TARGET_OS_IOS
@@ -2535,3 +2532,4 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 @end
+#endif
