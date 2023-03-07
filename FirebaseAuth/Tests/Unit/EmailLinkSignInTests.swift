@@ -114,11 +114,11 @@ class EmailLinkSignInTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: ["idToken": kTestIDTokenResponse,
-                                          "email": kTestEmailResponse,
-                                          "isNewUser": true,
-                                          "expiresIn": "\(kTestTokenExpirationTimeInterval)",
-                                          "refreshToken": kTestRefreshToken])
+    try RPCIssuer?.respond(withJSON: ["idToken": kTestIDTokenResponse,
+                                      "email": kTestEmailResponse,
+                                      "isNewUser": true,
+                                      "expiresIn": "\(kTestTokenExpirationTimeInterval)",
+                                      "refreshToken": kTestRefreshToken])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)
