@@ -14,6 +14,7 @@
 
 import Foundation
 import UIKit
+import Photos
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(feedbackViewControllerWithImage:onDismiss:) public static func feedbackViewController(image: UIImage, onDismiss: @escaping () -> Void) -> UIViewController {
@@ -35,5 +36,17 @@ import UIKit
     vc.image = image
     
     return vc
+  }
+  
+  public static func enableFeedbackOnScreenshot(onScreenshot: @escaping () -> Void) {
+    // TODO: Implement it.
+  }
+  
+  public static func getScreenshotFromCameraRoll() -> UIImage {
+    PHPhotoLibrary.requestAuthorization { status in
+            guard status == .authorized else { return }
+      print("Access granted")
+    }
+    return UIImage()
   }
 }
