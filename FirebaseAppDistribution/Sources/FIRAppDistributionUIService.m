@@ -204,7 +204,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
 // MARK: - In App Feedback
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
-  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewController];
+  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewControllerOnDismiss:^() {
+    [self resetUIState];
+  }];
   [self initializeUIState];
   [self.hostingViewController presentViewController:feedbackViewController animated:YES completion:nil];
 }
