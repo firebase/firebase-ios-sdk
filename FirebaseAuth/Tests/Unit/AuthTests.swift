@@ -20,6 +20,14 @@ import FirebaseCore
 
 class AuthTests: RPCBaseTests {
   private let kEmail = "user@company.com"
+  private let kDisplayName = "DisplayName"
+  private let kLocalID = "testLocalId"
+  private let kAccessToken = "TEST_ACCESS_TOKEN"
+  private let kFakeEmailSignInLink = "https://test.app.goo.gl/?link=https://test.firebase" +
+    "app.com/__/auth/action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueU" +
+    "rl%3Dhttps://test.apps.com&ibi=com.test.com&ifl=https://test.firebaseapp.com/__/auth/" +
+    "action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueUrl%3Dhttps://" +
+    "test.apps.com"
   private let kContinueURL = "continueURL"
   static let kFakeAPIKey = "FAKE_API_KEY"
   static var auth: Auth?
@@ -31,6 +39,31 @@ class AuthTests: RPCBaseTests {
     options.projectID = "myProjectID"
     FirebaseApp.configure(name: "test-AuthTests", options: options)
     auth = Auth.auth(app: FirebaseApp.app(name: "test-AuthTests")!)
+  }
+
+  override func setUp() {
+    super.setUp()
+    // Set FIRAuthDispatcher implementation in order to save the token refresh task for later
+    // execution.
+    AuthDispatcher.shared.dispatchAfterImplementation = { delay, queue, task in
+      XCTAssertNotNil(task)
+      XCTAssertGreaterThan(delay, 0)
+      // TODO:
+      XCTFail("implement this")
+      // XCTAssertEqual(FIRAuthGlobalWorkQueue(), queue)
+      //          XCTAssertEqualObjects(FIRAuthGlobalWorkQueue(), queue);
+      //          self->_FIRAuthDispatcherCallback = task;
+    }
+    // Wait until Auth initialization completes
+    waitForAuthGlobalWorkQueueDrain()
+  }
+
+  private func waitForAuthGlobalWorkQueueDrain() {
+    let workerSemaphore = DispatchSemaphore(value: 0)
+    kAuthGlobalWorkQueue.async {
+      workerSemaphore.signal()
+    }
+    _ = workerSemaphore.wait(timeout: DispatchTime.distantFuture)
   }
 
   /** @fn testFetchSignInMethodsForEmailSuccess
@@ -61,7 +94,7 @@ class AuthTests: RPCBaseTests {
     XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
-    _ = try RPCIssuer?.respond(withJSON: ["signinMethods": allSignInMethods])
+    try RPCIssuer?.respond(withJSON: ["signinMethods": allSignInMethods])
 
     waitForExpectations(timeout: 5)
   }
@@ -88,6 +121,56 @@ class AuthTests: RPCBaseTests {
     try RPCIssuer?.respond(serverErrorMessage: message)
 
     waitForExpectations(timeout: 5)
+  }
+
+  // TODO: Three PhoneAuth tests here.
+
+  /** @fn testSignInWithEmailLinkSuccess
+      @brief Tests the flow of a successful @c signInWithEmail:link:completion: call.
+   */
+  func testSignInWithEmailLinkSuccess() throws {
+    let fakeCode = "testoobcode"
+    let kRefreshToken = "fakeRefreshToken"
+    let expectation = self.expectation(description: #function)
+    setFakeGetAccountProvider()
+    setFakeSecureTokenService()
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
+    let group = DispatchGroup()
+    RPCIssuer?.group = group
+    group.enter()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.signIn(withEmail: kEmail, link: kFakeEmailSignInLink) { authResult, error in
+      // 4. After the response triggers the callback, verify the returned signInMethods.
+      XCTAssertTrue(Thread.isMainThread)
+      guard let user = authResult?.user else {
+        XCTFail("authResult.user is missing")
+        return
+      }
+      XCTAssertEqual(user.refreshToken, kRefreshToken)
+      XCTAssertFalse(user.isAnonymous)
+      XCTAssertEqual(user.email, self.kEmail)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(RPCIssuer?.request as? EmailLinkSignInRequest)
+    XCTAssertEqual(request.email, kEmail)
+    XCTAssertEqual(request.oobCode, fakeCode)
+    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+
+    // 3. Send the response from the fake backend.
+    try RPCIssuer?.respond(withJSON: ["idToken": kAccessToken,
+                                      "email": kEmail,
+                                      "isNewUser": true,
+                                      "expiresIn": "kTestTokenExpirationTimeInterval",
+                                      "refreshToken": kRefreshToken])
+
+    waitForExpectations(timeout: 10)
+    assertUser(try XCTUnwrap(AuthTests.auth?.currentUser))
   }
 
   /** @fn testSendPasswordResetEmailSuccess
@@ -205,5 +288,51 @@ class AuthTests: RPCBaseTests {
     try RPCIssuer?.respond(underlyingErrorMessage: "ipRefererBlocked")
 
     waitForExpectations(timeout: 5)
+  }
+
+  // MARK: Helper Functions
+
+  private func assertUser(_ user: User) {
+    XCTAssertEqual(user.uid, kLocalID)
+    XCTAssertEqual(user.displayName, kDisplayName)
+    XCTAssertEqual(user.email, kEmail)
+    XCTAssertFalse(user.isAnonymous)
+    XCTAssertEqual(user.providerData.count, 1)
+  }
+
+  private func setFakeSecureTokenService() {
+    RPCIssuer?.fakeSecureTokenServiceJSON = ["access_token": kAccessToken]
+  }
+
+  private func setFakeGetAccountProvider() {
+    let kProviderUserInfoKey = "providerUserInfo"
+    let kPhotoUrlKey = "photoUrl"
+    let kTestPhotoURL = "testPhotoURL"
+    let kProviderIDkey = "providerId"
+    let kDisplayNameKey = "displayName"
+    let kFederatedIDKey = "federatedId"
+    let kTestFederatedID = "testFederatedId"
+    let kEmailKey = "email"
+    let kPasswordHashKey = "passwordHash"
+    let kTestPasswordHash = "testPasswordHash"
+    let kTestProviderID = "testProviderID"
+    let kEmailVerifiedKey = "emailVerified"
+    let kLocalIDKey = "localId"
+
+    RPCIssuer?.fakeGetAccountProviderJSON = [[
+      kProviderUserInfoKey: [[
+        kProviderIDkey: kTestProviderID,
+        kDisplayNameKey: kDisplayName,
+        kPhotoUrlKey: kTestPhotoURL,
+        kFederatedIDKey: kTestFederatedID,
+        kEmailKey: kEmail,
+      ]],
+      kLocalIDKey: kLocalID,
+      kDisplayNameKey: kDisplayName,
+      kEmailKey: kEmail,
+      kPhotoUrlKey: kTestPhotoURL,
+      kEmailVerifiedKey: true,
+      kPasswordHashKey: kTestPasswordHash,
+    ]]
   }
 }
