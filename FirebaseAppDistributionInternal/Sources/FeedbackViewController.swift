@@ -17,10 +17,15 @@ import UIKit
 class FeedbackViewController: UIViewController {
   
   var viewDidDisappearCallback: () -> Void = {}
+  @IBOutlet weak var navigationBar: UINavigationBar!
   
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
+  }
+  
+  @IBAction func tappedCancel(_ sender: Any) {
+    self.dismiss(animated: true)
   }
   
   override func viewDidDisappear(_ animated: Bool) {

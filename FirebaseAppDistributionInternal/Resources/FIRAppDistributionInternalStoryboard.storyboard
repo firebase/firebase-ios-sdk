@@ -16,9 +16,40 @@
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Feedback View Controller" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W0X-zt-uEG">
+                                <rect key="frame" x="97" y="418" width="196" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dia-oO-Nu0">
+                                <rect key="frame" x="0.0" y="47" width="390" height="44"/>
+                                <items>
+                                    <navigationItem title="Title" id="JNd-eF-IDH">
+                                        <barButtonItem key="leftBarButtonItem" systemItem="cancel" id="OJS-4m-F97">
+                                            <connections>
+                                                <action selector="tappedCancel:" destination="BYZ-38-t0r" id="hdo-oe-Rpf"/>
+                                            </connections>
+                                        </barButtonItem>
+                                        <barButtonItem key="rightBarButtonItem" title="Send" style="done" id="jcN-Fa-ZwH"/>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Dia-oO-Nu0" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="7XR-Cu-c7J"/>
+                            <constraint firstItem="W0X-zt-uEG" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Jvv-bL-zyF"/>
+                            <constraint firstItem="Dia-oO-Nu0" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="UDB-uL-1PW"/>
+                            <constraint firstItem="Dia-oO-Nu0" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="wg8-jh-o4A"/>
+                            <constraint firstItem="W0X-zt-uEG" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="zZh-sJ-7Gx"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="navigationBar" destination="Dia-oO-Nu0" id="g43-Rv-zW3"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
