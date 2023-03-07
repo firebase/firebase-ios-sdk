@@ -17,6 +17,8 @@ import UIKit
 class FeedbackViewController: UIViewController {
   
   var viewDidDisappearCallback: () -> Void = {}
+  var image: UIImage? = nil
+  
   @IBOutlet weak var navigationBar: UINavigationBar!
   
   override func viewDidLoad() {

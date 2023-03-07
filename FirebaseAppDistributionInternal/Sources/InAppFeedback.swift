@@ -16,7 +16,7 @@ import Foundation
 import UIKit
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
-  @objc(feedbackViewControllerOnDismiss:) public static func feedbackViewController(onDismiss: @escaping () -> Void) -> UIViewController {
+  @objc(feedbackViewControllerWithImage:onDismiss:) public static func feedbackViewController(image: UIImage, onDismiss: @escaping () -> Void) -> UIViewController {
     let frameworkBundle = Bundle(for: self)
 
     let resourceBundleURL = frameworkBundle.url(
@@ -26,11 +26,14 @@ import UIKit
     let resourceBundle = Bundle(url: resourceBundleURL!)
 
     let storyboard = UIStoryboard(
-      name: "FIRAppDistributionInternalStoryboard",
+      name: "AppDistributionInternalStoryboard",
       bundle: resourceBundle
     )
     let vc: FeedbackViewController = storyboard.instantiateViewController(withIdentifier: "fir-ad-iaf") as! FeedbackViewController
+    
     vc.viewDidDisappearCallback = onDismiss
+    vc.image = image
+    
     return vc
   }
 }
