@@ -84,7 +84,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     gBackendImplementation = defaultImplementation
   }
 
-  private class func implementation() -> AuthBackendImplementation {
+  class func implementation() -> AuthBackendImplementation {
     if gBackendImplementation == nil {
       gBackendImplementation = AuthBackendRPCImplementation()
     }
@@ -255,7 +255,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         // TODO: Can unencodedHTTPRequestBody ever throw?
         // They don't today, but there are a few fatalErrors that might better be implemented as
         // thrown errors.. Although perhaps the case of 'containsPostBody' returning false could
-        // perhaps be modelled differently so that the failing unencodedHTTPRequestBody could only
+        // perhaps be modeled differently so that the failing unencodedHTTPRequestBody could only
         // be called when a body exists...
         let postBody = try request.unencodedHTTPRequestBody()
         var JSONWritingOptions: JSONSerialization.WritingOptions = .init(rawValue: 0)
@@ -308,8 +308,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
                                                            .mutableLeaves)
         guard let decodedDictionary = rawDecode as? [String: Any] else {
           if error != nil {
-            callback(AuthErrorUtils.unexpectedResponse(deserializedResponse: rawDecode,
-                                                       underlyingError: error))
+            callback(AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: rawDecode,
+                                                            underlyingError: error))
           } else {
             callback(AuthErrorUtils.unexpectedResponse(deserializedResponse: rawDecode))
           }
@@ -322,7 +322,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
           // additional information other than the raw response and the
           // original NSError (the jsonError is inferred by the error code
           // (AuthErrorCodeUnexpectedHTTPResponse, and is irrelevant.)
-          callback(AuthErrorUtils.unexpectedResponse(data: data, underlyingError: error))
+          callback(AuthErrorUtils.unexpectedErrorResponse(data: data, underlyingError: error))
           return
         } else {
           // This is supposed to be a "successful" response, but we couldn't
@@ -340,14 +340,15 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       if error != nil {
         if let errorDictionary = dictionary["error"] as? [String: Any] {
           if let errorMessage = errorDictionary["message"] as? String {
-            let clientError = AuthBackendRPCImplementation.clientError(
+            if let clientError = AuthBackendRPCImplementation.clientError(
               withServerErrorMessage: errorMessage,
               errorDictionary: errorDictionary,
               response: response,
               error: error
-            )
-            callback(clientError)
-            return
+            ) {
+              callback(clientError)
+              return
+            }
           }
           // Not a message we know, return the message directly.
           callback(AuthErrorUtils.unexpectedErrorResponse(
@@ -395,7 +396,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
   private class func clientError(withServerErrorMessage serverErrorMessage: String,
                                  errorDictionary: [String: Any],
                                  response: AuthRPCResponse,
-                                 error: Error?) -> Error {
+                                 error: Error?) -> Error? {
     let split = serverErrorMessage.split(separator: ":")
     let shortErrorMessage = split.first?.trimmingCharacters(in: .whitespacesAndNewlines)
     let serverDetailErrorMessage = String(split.count > 1 ? split[1] : "")
@@ -414,7 +415,6 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .invalidUserTokenError(message: serverDetailErrorMessage)
     case "CREDENTIAL_TOO_OLD_LOGIN_AGAIN": return AuthErrorUtils
       .requiresRecentLoginError(message: serverDetailErrorMessage)
-
     case "EMAIL_EXISTS": return AuthErrorUtils
       .emailAlreadyInUseError(email: nil)
     case "OPERATION_NOT_ALLOWED": return AuthErrorUtils
@@ -479,6 +479,45 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .invalidVerificationIDError(message: serverDetailErrorMessage)
     case "SESSION_EXPIRED": return AuthErrorUtils
       .sessionExpiredError(message: serverDetailErrorMessage)
+    case "ADMIN_ONLY_OPERATION": return AuthErrorUtils
+      .error(code: AuthErrorCode.adminRestrictedOperation, message: serverDetailErrorMessage)
+    case "BLOCKING_FUNCTION_ERROR_RESPONSE": return AuthErrorUtils
+      .blockingCloudFunctionServerResponse(message: serverDetailErrorMessage)
+    case "EMAIL_CHANGE_NEEDS_VERIFICATION": return AuthErrorUtils
+      .error(code: AuthErrorCode.emailChangeNeedsVerification, message: serverDetailErrorMessage)
+    case "INVALID_MFA_PENDING_CREDENTIAL": return AuthErrorUtils
+      .error(code: AuthErrorCode.invalidMultiFactorSession, message: serverDetailErrorMessage)
+    case "INVALID_PROVIDER_ID": return AuthErrorUtils
+      .invalidProviderIDError(message: serverDetailErrorMessage)
+    case "MFA_ENROLLMENT_NOT_FOUND": return AuthErrorUtils
+      .error(code: AuthErrorCode.multiFactorInfoNotFound, message: serverDetailErrorMessage)
+    case "MISSING_CLIENT_IDENTIFIER": return AuthErrorUtils
+      .missingClientIdentifierError(message: serverDetailErrorMessage)
+    case "MISSING_IOS_APP_TOKEN": return AuthErrorUtils
+      .missingAppTokenError(underlyingError: nil)
+    case "MISSING_MFA_ENROLLMENT_ID": return AuthErrorUtils
+      .error(code: AuthErrorCode.missingMultiFactorInfo, message: serverDetailErrorMessage)
+    case "MISSING_MFA_PENDING_CREDENTIAL": return AuthErrorUtils
+      .error(code: AuthErrorCode.missingMultiFactorSession, message: serverDetailErrorMessage)
+    case "MISSING_OR_INVALID_NONCE": return AuthErrorUtils
+      .missingOrInvalidNonceError(message: serverDetailErrorMessage)
+    case "SECOND_FACTOR_EXISTS": return AuthErrorUtils
+      .error(code: AuthErrorCode.secondFactorAlreadyEnrolled, message: serverDetailErrorMessage)
+    case "SECOND_FACTOR_LIMIT_EXCEEDED": return AuthErrorUtils
+      .error(
+        code: AuthErrorCode.maximumSecondFactorCountExceeded,
+        message: serverDetailErrorMessage
+      )
+    case "TENANT_ID_MISMATCH": return AuthErrorUtils
+      .tenantIDMismatchError()
+    case "TOKEN_EXPIRED": return AuthErrorUtils
+      .userTokenExpiredError(message: serverDetailErrorMessage)
+    case "UNSUPPORTED_FIRST_FACTOR": return AuthErrorUtils
+      .error(code: AuthErrorCode.unsupportedFirstFactor, message: serverDetailErrorMessage)
+    case "UNSUPPORTED_TENANT_OPERATION": return AuthErrorUtils
+      .unsupportedTenantOperationError()
+    case "UNVERIFIED_EMAIL": return AuthErrorUtils
+      .error(code: AuthErrorCode.unverifiedEmail, message: serverDetailErrorMessage)
     case "FEDERATED_USER_ID_ALREADY_LINKED":
       guard let verifyAssertion = response as? VerifyAssertionResponse else {
         return AuthErrorUtils.credentialAlreadyInUseError(
@@ -491,11 +530,6 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         message: serverDetailErrorMessage, credential: credential, email: email
       )
 
-    // TODO: MISSING_API_KEY should go away and its code should be generated in the "keyInvalid".
-    case "MISSING_API_KEY": return AuthErrorUtils.unexpectedResponse(
-        deserializedResponse: errorDictionary,
-        underlyingError: error
-      )
     default:
       if let underlyingErrors = errorDictionary["errors"] as? [[String: String]] {
         for underlyingError in underlyingErrors {
@@ -510,7 +544,6 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         }
       }
     }
-    // TODO: Old code returns nil on fall through.
-    fatalError("Implement missing message for: \(shortErrorMessage ?? "missing value")")
+    return nil
   }
 }
