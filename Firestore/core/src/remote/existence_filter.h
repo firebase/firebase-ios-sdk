@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_EXISTENCE_FILTER_H_
 #define FIRESTORE_CORE_SRC_REMOTE_EXISTENCE_FILTER_H_
 
-#include "Firestore/core/src/remote/bloom_filter.h"
-
 #include <utility>
+
+#include "Firestore/core/src/remote/bloom_filter.h"
 
 namespace firebase {
 namespace firestore {

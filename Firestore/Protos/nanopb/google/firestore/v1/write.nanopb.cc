@@ -95,7 +95,7 @@ const pb_field_t google_firestore_v1_DocumentRemove_fields[4] = {
 const pb_field_t google_firestore_v1_ExistenceFilter_fields[4] = {
     PB_FIELD(  1, INT32   , SINGULAR, STATIC  , FIRST, google_firestore_v1_ExistenceFilter, target_id, target_id, 0),
     PB_FIELD(  2, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1_ExistenceFilter, count, target_id, 0),
-    PB_FIELD(  3, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_ExistenceFilter, unchanged_names, count, &google_firestore_v1_BloomFilter_fields),
+    PB_FIELD(  3, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_ExistenceFilter, unchanged_names, count, &google_firestore_v1_BloomFilter_fields),
     PB_LAST_FIELD
 };
 
@@ -317,8 +317,10 @@ std::string google_firestore_v1_ExistenceFilter::ToString(int indent) const {
         target_id, indent + 1, false);
     tostring_result += PrintPrimitiveField("count: ",
         count, indent + 1, false);
-    tostring_result += PrintMessageField("unchanged_names ",
-        unchanged_names, indent + 1, false);
+    if (has_unchanged_names) {
+        tostring_result += PrintMessageField("unchanged_names ",
+            unchanged_names, indent + 1, true);
+    }
 
     std::string tostring_tail = PrintTail(indent);
     return tostring_header + tostring_result + tostring_tail;

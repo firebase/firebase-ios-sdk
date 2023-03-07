@@ -1426,14 +1426,16 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
     ReadContext*, const google_firestore_v1_ExistenceFilter& filter) const {
+  absl::optional<BloomFilter> bloom_filter = absl::nullopt;
+  if (filter.has_unchanged_names) {
+    ByteString bitmap_string(filter.unchanged_names.bits.bitmap);
+    std::vector<uint8_t> bitmap = MakeVector(bitmap_string);
 
-  // TODO(Mila): convert pb_bytes_array_t into std::vector<uint8_t>
-  ByteString bitmap_string(filter.unchanged_names.bits.bitmap);
-  std::vector<uint8_t> bitmap = MakeVector(bitmap_string);
+    bloom_filter = BloomFilter(bitmap, filter.unchanged_names.bits.padding,
+                               filter.unchanged_names.hash_count);
+  }
 
-  BloomFilter bloomFilter(bitmap, filter.unchanged_names.bits.padding,
-                          filter.unchanged_names.hash_count);
-  ExistenceFilter existence_filter{filter.count, absl::nullopt};
+  ExistenceFilter existence_filter{filter.count, bloom_filter};
   return absl::make_unique<ExistenceFilterWatchChange>(
       std::move(existence_filter), filter.target_id);
 }
