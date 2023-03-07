@@ -3,8 +3,7 @@
     "describeName": "Bundles:",
     "itName": "Bundles query can be loaded and resumed from different tabs",
     "tags": [
-      "multi-client",
-      "no-ios"
+      "multi-client"
     ],
     "config": {
       "numClients": 2,
@@ -226,7 +225,6 @@
     "describeName": "Bundles:",
     "itName": "Bundles query can be resumed from same query.",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -299,8 +297,7 @@
     "describeName": "Bundles:",
     "itName": "Load and observe from same secondary client",
     "tags": [
-      "multi-client",
-      "no-ios"
+      "multi-client"
     ],
     "config": {
       "numClients": 2,
@@ -512,8 +509,7 @@
     "describeName": "Bundles:",
     "itName": "Load from primary client and observe from secondary",
     "tags": [
-      "multi-client",
-      "no-ios"
+      "multi-client"
     ],
     "config": {
       "numClients": 2,
@@ -761,8 +757,7 @@
     "describeName": "Bundles:",
     "itName": "Load from secondary clients and observe from primary",
     "tags": [
-      "multi-client",
-      "no-ios"
+      "multi-client"
     ],
     "config": {
       "numClients": 2,
@@ -921,7 +916,6 @@
     "describeName": "Bundles:",
     "itName": "Newer deleted docs from bundles should delete cached docs",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -1062,7 +1056,6 @@
     "describeName": "Bundles:",
     "itName": "Newer docs from bundles might lead to limbo doc",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -1283,7 +1276,6 @@
     "describeName": "Bundles:",
     "itName": "Newer docs from bundles should keep not raise snapshot if there are unacknowledged writes",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -1432,7 +1424,6 @@
     "describeName": "Bundles:",
     "itName": "Newer docs from bundles should overwrite cache",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -1573,7 +1564,6 @@
     "describeName": "Bundles:",
     "itName": "Newer docs from bundles should raise snapshot only when Watch catches up with acknowledged writes",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -1767,7 +1757,6 @@
     "describeName": "Bundles:",
     "itName": "Older deleted docs from bundles should do nothing",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,

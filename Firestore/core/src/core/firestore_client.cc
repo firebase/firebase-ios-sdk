@@ -39,6 +39,7 @@
 #include "Firestore/core/src/local/local_documents_view.h"
 #include "Firestore/core/src/local/local_serializer.h"
 #include "Firestore/core/src/local/local_store.h"
+#include "Firestore/core/src/local/memory_lru_reference_delegate.h"
 #include "Firestore/core/src/local/memory_persistence.h"
 #include "Firestore/core/src/local/proto_sizer.h"
 #include "Firestore/core/src/local/query_engine.h"
@@ -227,6 +228,12 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     persistence_ = MemoryPersistence::WithLruGarbageCollector(
         LruParams::WithCacheSize(settings.cache_size_bytes()),
         std::move(sizer));
+    lru_delegate_ = static_cast<local::MemoryLruReferenceDelegate*>(
+        persistence_->reference_delegate());
+
+    if (settings.gc_enabled()) {
+      ScheduleLruGarbageCollection();
+    }
   } else {
     persistence_ = MemoryPersistence::WithEagerGarbageCollector();
   }
