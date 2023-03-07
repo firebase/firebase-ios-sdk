@@ -244,12 +244,12 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
 - (void)updateRealtimeExponentialBackoffTime {
   // If there was only one stream attempt before, reset the retry interval.
   if (_realtimeRetryCount == 0) {
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000057",
-                @"Throttling: Entering exponential backoff mode.");
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000058",
+                @"Throttling: Entering exponential Realtime backoff mode.");
     _realtimeExponentialBackoffRetryInterval = kRCNExponentialBackoffMinimumInterval;
   } else {
-    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000057",
-                @"Throttling: Updating throttling interval.");
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000058",
+                @"Throttling: Updating Realtime throttling interval.");
     // Double the retry interval until we hit the truncated exponential backoff. More info here:
     // https://cloud.google.com/storage/docs/exponential-backoff
     _realtimeExponentialBackoffRetryInterval =

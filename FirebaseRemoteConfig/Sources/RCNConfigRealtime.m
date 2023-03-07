@@ -417,6 +417,7 @@ static NSInteger const gMaxRetries = 7;
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
+    [strongSelf pauseRealtimeStream];
     strongSelf->_isInBackground = true;
   });
 }
@@ -628,7 +629,9 @@ static NSInteger const gMaxRetries = 7;
                     task:(NSURLSessionTask *)task
     didCompleteWithError:(NSError *)error {
   _isRequestInProgress = false;
-  [self->_settings updateRealtimeExponentialBackoffTime];
+  if (error != nil && [error code] != NSURLErrorCancelled) {
+    [self->_settings updateRealtimeExponentialBackoffTime];
+  }
   [self pauseRealtimeStream];
   [self retryHTTPConnection];
 }
@@ -636,7 +639,9 @@ static NSInteger const gMaxRetries = 7;
 /// Delegate to handle session invalidation
 - (void)URLSession:(NSURLSession *)session didBecomeInvalidWithError:(NSError *)error {
   if (!_isRequestInProgress) {
-    [self->_settings updateRealtimeExponentialBackoffTime];
+    if (error != nil) {
+      [self->_settings updateRealtimeExponentialBackoffTime];
+    }
     [self pauseRealtimeStream];
     [self retryHTTPConnection];
   }
