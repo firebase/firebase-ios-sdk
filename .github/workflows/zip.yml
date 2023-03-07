@@ -461,7 +461,7 @@ jobs:
           mkdir -p "${HOME}"/ios_frameworks/
           find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
       - uses: actions/checkout@v3
-      - name: Setup quickstart
+      - name: Check linked Firestore.xcframework for unlinked symbols.
         run: |
           scripts/check_firestore_symbols.sh \
             $(pwd) \
