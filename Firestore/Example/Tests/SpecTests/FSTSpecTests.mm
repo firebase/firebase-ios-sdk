@@ -902,9 +902,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
     if (targetData.expected_count().has_value()) {
       if (!actual.expected_count().has_value()) {
-        XCTFail("");
+        XCTFail("Actual target data doesn't have an expected_count.");
       } else {
-        XCTAssertTrue(actual.expected_count().has_value());
         XCTAssertEqual(actual.expected_count().value(), targetData.expected_count().value());
       }
     }

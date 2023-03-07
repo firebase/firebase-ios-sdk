@@ -286,7 +286,7 @@ class LocalSerializerTest : public ::testing::Test {
         serializer.DecodeTargetData(&reader, *message);
 
     EXPECT_OK(reader.status());
-    // Set the expected_count in expected TargetData to null,  as serializing
+    // Set the expected_count in expected TargetData to null, as serializing
     // a TargetData into local Target proto will drop the expected_count and
     // the deserialized actual TargetData will not include expected_count.
     EXPECT_EQ(target_data.WithExpectedCount(absl::nullopt), actual_target_data);
@@ -508,7 +508,7 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWillDropExpectedCount) {
   TargetData target_data(query.ToTarget(), target_id, sequence_number,
                          QueryPurpose::Listen, SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token), 1234);
+                         ByteString(resume_token), /*expected_count=*/1234);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -598,7 +598,7 @@ TEST_F(LocalSerializerTest,
   TargetData target_data(query.ToTarget(), target_id, sequence_number,
                          QueryPurpose::Listen, SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token), 1234);
+                         ByteString(resume_token), /*expected_count=*/1234);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
