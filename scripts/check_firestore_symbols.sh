@@ -17,8 +17,8 @@
 # DESCRIPTION: This script identifies Objective-C symbols within the
 # `FirebaseFirestore.xcframework` that are not automatically linked when used
 # in a client target. Because the `FirebaseFirestore.xcframework` should
-# function without clients needing to pass the `-ObjC`, this script catches
-# potential regressions that break that requirement.
+# function without clients needing to pass the `-ObjC` flag, this script
+# catches potential regressions that break that requirement.
 #
 # DEPENDENCIES: This script depends on the given Firebase repo's `Package.swift`
 # using the `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP` env var to swap the Firestore
@@ -34,7 +34,7 @@
 #
 # USAGE: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>
 
-if [ $# -ne 2 ]; then
+if [[ $# -ne 2 ]]; then
     echo "Usage: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>"
     exit 1
 fi
@@ -47,7 +47,7 @@ if [[ "$FIREBASE_REPO_PATH" != /* ]]; then
    exit 1
 fi
 
-if [ ! -d $FIREBASE_REPO_PATH ]; then
+if [[ ! -d "$FIREBASE_REPO_PATH" ]]; then
     echo "The given repo does not exist: $FIREBASE_REPO_PATH"
     exit 1
 fi
@@ -60,7 +60,7 @@ if [ "$(basename $FIRESTORE_XCFRAMEWORK_PATH)" != 'FirebaseFirestore.xcframework
   exit 1
 fi
 
-if [ ! -d $FIRESTORE_XCFRAMEWORK_PATH ]; then
+if [[ ! -d "$FIRESTORE_XCFRAMEWORK_PATH" ]]; then
     echo "The given xcframework does not exist: $FIRESTORE_XCFRAMEWORK_PATH"
     exit 1
 fi
@@ -69,7 +69,7 @@ fi
 # This script uses an env var that will alter the repo's `Package.swift` to
 # pick up the copied Firestore framework. See
 # `FIREBASECI_USE_LOCAL_FIRESTORE_ZIP` in Firebase's `Package.swift` for more.
-cp -r $FIRESTORE_XCFRAMEWORK_PATH $FIREBASE_REPO_PATH
+cp -r "$FIRESTORE_XCFRAMEWORK_PATH" "$FIREBASE_REPO_PATH"
 
 # Create a temporary directory for the test package. The test package defines an
 # executable and has the following directory structure:
@@ -83,11 +83,11 @@ TEST_PKG_ROOT=$(mktemp -d -t TestPkg)
 echo "Test package root: $TEST_PKG_ROOT"
 
 # Create the package's subdirectories.
-mkdir -p $TEST_PKG_ROOT/Sources/TestPkg
+mkdir -p "$TEST_PKG_ROOT/Sources/TestPkg"
 
 # Generate the package's `Package.swift`.
 # TODO(ncooke3): Make package path an argument.
-cat > $TEST_PKG_ROOT/Package.swift <<- EOM
+cat > "$TEST_PKG_ROOT/Package.swift" <<- EOM
 // swift-tools-version: 5.6
 import PackageDescription
 
@@ -112,21 +112,21 @@ let package = Package(
 EOM
 
 # Generate the package's `main.swift`.
-cat > $TEST_PKG_ROOT/Sources/TestPkg/main.swift <<- EOM
+cat > "$TEST_PKG_ROOT/Sources/TestPkg/main.swift" <<- EOM
 import FirebaseFirestore
 
 let db = Firestore.firestore()
 EOM
 
 # Change to the test package's root directory in order to build the package.
-cd $TEST_PKG_ROOT
+cd "$TEST_PKG_ROOT"
 
 # Build the test package *without* the `-ObjC` linker flag, and dump the
 # resulting executable file's Objective-C symbols into a text file.
 echo "Building test package without -ObjC linker flag..."
 FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
 xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
-      -derivedDataPath '~/Library/Developer/Xcode/DerivedData/TestPkg' \
+      -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg" \
       || exit 1
 
 nm ~/Library/Developer/Xcode/DerivedData/TestPkg/Build/Products/Debug/TestPkg \
@@ -137,7 +137,7 @@ nm ~/Library/Developer/Xcode/DerivedData/TestPkg/Build/Products/Debug/TestPkg \
 echo "Building test package with -ObjC linker flag..."
 FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
 xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
-      -derivedDataPath '~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC' \
+      -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg-ObjC" \
       OTHER_LDFLAGS='-ObjC' \
       || exit 1
 
@@ -146,7 +146,7 @@ nm ~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC/Build/Products/Debug/TestP
 
 # Compare the two text files to see if the -ObjC linker flag has any effect.
 DIFF=$(diff objc_symbols_without_linker_flag.txt objc_symbols_with_linker_flag.txt)
-if [ "$DIFF" != "" ]; then
+if [[ "$DIFF" != "" ]]; then
     echo "Failure: Unlinked Objective-C symbols have been detected:"
     echo "$DIFF"
     exit 1
