@@ -33,7 +33,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
@@ -1617,6 +1616,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #pragma mark - Internal Methods
 
 #if TARGET_OS_IOS
+typedef void (^FIRVerifyPhoneNumberResponseCallback)(
+    FIRVerifyPhoneNumberResponse *_Nullable response, NSError *_Nullable error);
+
 /** @fn signInWithPhoneCredential:callback:
     @brief Signs in using a phone credential.
     @param credential The Phone Auth credential used to sign in.
@@ -1704,6 +1706,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
              }];
 }
 
+typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable response,
+                                         NSError *_Nullable error);
 /** @fn internalCreateUserWithEmail:password:completion:
     @brief Makes a backend request attempting to create a new Firebase user given an email address
         and password.
