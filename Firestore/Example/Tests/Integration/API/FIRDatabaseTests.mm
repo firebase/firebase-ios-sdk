@@ -1786,4 +1786,63 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotIdentical(db2, db3);
 }
 
+- (void)testCanGetDocumentWithMemoryLruGCEnabled {
+  FIRFirestoreSettings *settings = self.db.settings;
+  settings.persistenceEnabled = FALSE;
+  settings.memoryLruGCEnabled = TRUE;
+  self.db.settings = settings;
+
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"abc"] documentWithAutoID];
+  XCTestExpectation *setComplete =
+      [self expectationWithDescription:@"testCanGetDocumentWithMemoryLruGCEnabled"];
+
+  [doc setData:@{@"key" : @"value"}
+      completion:^(NSError *error) {
+        XCTAssertNil(error);
+        [setComplete fulfill];
+      }];
+
+  [self awaitExpectations];
+
+  XCTestExpectation *getComplete =
+      [self expectationWithDescription:@"testCanGetDocumentWithMemoryLruGCEnabled_Get"];
+  [doc getDocumentWithSource:FIRFirestoreSourceCache
+                  completion:^(FIRDocumentSnapshot *result, NSError *_Nullable error) {
+                    XCTAssertNil(error);
+                    XCTAssertEqualObjects(result.data, @{@ "key" : @ "value"});
+                    [getComplete fulfill];
+                  }];
+  [self awaitExpectations];
+}
+
+- (void)testCannotGetDocumentWithMemoryEagerGCEnabled {
+  FIRFirestoreSettings *settings = self.db.settings;
+  settings.persistenceEnabled = FALSE;
+  settings.memoryLruGCEnabled = FALSE;
+  self.db.settings = settings;
+
+  FIRDocumentReference *doc = [[self.db collectionWithPath:@"abc"] documentWithAutoID];
+  XCTestExpectation *setComplete =
+      [self expectationWithDescription:@"testCanGetDocumentWithMemoryLruGCEnabled"];
+
+  [doc setData:@{@"key" : @"value"}
+      completion:^(NSError *error) {
+        XCTAssertNil(error);
+        [setComplete fulfill];
+      }];
+
+  [self awaitExpectations];
+
+  XCTestExpectation *getComplete =
+      [self expectationWithDescription:@"testCanGetDocumentWithMemoryLruGCEnabled_Get"];
+  [doc getDocumentWithSource:FIRFirestoreSourceCache
+                  completion:^(FIRDocumentSnapshot *result, NSError *_Nullable error) {
+                    XCTAssertNotNil(error);
+                    XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
+                    XCTAssertEqual(error.code, FIRFirestoreErrorCodeUnavailable);
+                    [getComplete fulfill];
+                  }];
+  [self awaitExpectations];
+}
+
 @end

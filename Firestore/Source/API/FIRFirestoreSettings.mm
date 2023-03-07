@@ -39,6 +39,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
     _dispatchQueue = dispatch_get_main_queue();
     _persistenceEnabled = Settings::DefaultPersistenceEnabled;
     _cacheSizeBytes = Settings::DefaultCacheSizeBytes;
+    _memoryLruGCEnabled = FALSE;
   }
   return self;
 }
@@ -55,6 +56,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
          self.isSSLEnabled == otherSettings.isSSLEnabled &&
          self.dispatchQueue == otherSettings.dispatchQueue &&
          self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
+         self.memoryLruGCEnabled == otherSettings.memoryLruGCEnabled &&
          self.cacheSizeBytes == otherSettings.cacheSizeBytes;
 }
 
@@ -63,6 +65,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   result = 31 * result + (self.isSSLEnabled ? 1231 : 1237);
   // Ignore the dispatchQueue to avoid having to deal with sizeof(dispatch_queue_t).
   result = 31 * result + (self.isPersistenceEnabled ? 1231 : 1237);
+  result = 31 * result + (self.isMemoryLruGCEnabled ? 1231 : 1237);
   result = 31 * result + (NSUInteger)self.cacheSizeBytes;
   return result;
 }
@@ -73,6 +76,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   copy.sslEnabled = _sslEnabled;
   copy.dispatchQueue = _dispatchQueue;
   copy.persistenceEnabled = _persistenceEnabled;
+  copy.memoryLruGCEnabled = _memoryLruGCEnabled;
   copy.cacheSizeBytes = _cacheSizeBytes;
   return copy;
 }
@@ -116,6 +120,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   settings.set_ssl_enabled(_sslEnabled);
   settings.set_persistence_enabled(_persistenceEnabled);
   settings.set_cache_size_bytes(_cacheSizeBytes);
+  settings.set_memory_lru_gc_enabled(_memoryLruGCEnabled);
   return settings;
 }
 
