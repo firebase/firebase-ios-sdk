@@ -119,6 +119,7 @@ using firebase::firestore::util::MakeString;
 using firebase::firestore::util::MakeStringPtr;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ToString;
 using firebase::firestore::util::WrapCompare;
@@ -329,20 +330,28 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
-- (BloomFilter)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
+- (absl::optional<BloomFilter>)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
+  if (bloomFilterProto == nil) {
+    return absl::nullopt;
+  }
   NSDictionary *bitsData = bloomFilterProto[@"bits"];
 
-  NSString *bitmapData = bitsData[@"bitmap"];
-  // Decode base64 json string: bitmap
-  std::string bitmap;
-  absl::Base64Unescape([bitmapData UTF8String], &bitmap);
-  std::vector<uint8_t> bitmapVector(bitmap.begin(), bitmap.end());
+  // Decode base64 string into uint8_t vector. If not specified, will default bitmap to empty
+  // vector.
+  NSString *bitmapEncoded = bitsData[@"bitmap"];
+  std::string bitmapDecoded;
+  absl::Base64Unescape([bitmapEncoded UTF8String], &bitmapDecoded);
+  std::vector<uint8_t> bitmap(bitmapDecoded.begin(), bitmapDecoded.end());
 
+  // If not specified, will default padding and hashCount to 0.
   int32_t padding = [bitsData[@"padding"] intValue];
   int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
+  StatusOr<BloomFilter> maybeBloomFilter = BloomFilter::Create(bitmap, padding, hashCount);
+  if (maybeBloomFilter.ok()) {
+    return maybeBloomFilter.ValueOrDie();
+  }
 
-  BloomFilter filter(bitmapVector, padding, hashCount);
-  return filter;
+  return absl::nullopt;
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
@@ -488,9 +497,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
   NSArray<NSNumber *> *keys = watchFilter[@"keys"];
-  int keyCount = keys ? keys.count : 0;
+  int keyCount = keys ? (int)keys.count : 0;
 
-  BloomFilter bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+  absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
 
   ExistenceFilter filter{keyCount, bloomFilter};
   ExistenceFilterWatchChange change{filter, targets[0].intValue};

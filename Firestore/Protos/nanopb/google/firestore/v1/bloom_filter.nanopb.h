@@ -42,6 +42,7 @@ typedef struct _google_firestore_v1_BitSequence {
 } google_firestore_v1_BitSequence;
 
 typedef struct _google_firestore_v1_BloomFilter {
+    bool has_bits;
     google_firestore_v1_BitSequence bits;
     int32_t hash_count;
 
@@ -53,9 +54,9 @@ typedef struct _google_firestore_v1_BloomFilter {
 
 /* Initializer values for message structs */
 #define google_firestore_v1_BitSequence_init_default {NULL, 0}
-#define google_firestore_v1_BloomFilter_init_default {google_firestore_v1_BitSequence_init_default, 0}
+#define google_firestore_v1_BloomFilter_init_default {false, google_firestore_v1_BitSequence_init_default, 0}
 #define google_firestore_v1_BitSequence_init_zero {NULL, 0}
-#define google_firestore_v1_BloomFilter_init_zero {google_firestore_v1_BitSequence_init_zero, 0}
+#define google_firestore_v1_BloomFilter_init_zero {false, google_firestore_v1_BitSequence_init_zero, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_firestore_v1_BitSequence_bitmap_tag 1

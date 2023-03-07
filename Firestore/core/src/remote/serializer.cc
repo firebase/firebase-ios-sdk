@@ -1426,18 +1426,31 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
     ReadContext*, const google_firestore_v1_ExistenceFilter& filter) const {
-  absl::optional<BloomFilter> bloom_filter = absl::nullopt;
-  if (filter.has_unchanged_names) {
-    ByteString bitmap_string(filter.unchanged_names.bits.bitmap);
-    std::vector<uint8_t> bitmap = MakeVector(bitmap_string);
-
-    bloom_filter = BloomFilter(bitmap, filter.unchanged_names.bits.padding,
-                               filter.unchanged_names.hash_count);
-  }
-
-  ExistenceFilter existence_filter{filter.count, bloom_filter};
+  ExistenceFilter existence_filter = DecodeExistenceFilter(filter);
   return absl::make_unique<ExistenceFilterWatchChange>(
       std::move(existence_filter), filter.target_id);
+}
+
+ExistenceFilter Serializer::DecodeExistenceFilter(
+    const google_firestore_v1_ExistenceFilter& filter) const {
+  // Create bloom filter if there is an unchanged_names present in the filter
+  // and inputs are valid, otherwise keep it null.
+  absl::optional<BloomFilter> bloom_filter = absl::nullopt;
+  if (filter.has_unchanged_names && filter.unchanged_names.has_bits) {
+    // TODO(Mila): Ensure bloom filter with invalid inputs are handled correctly
+    // in next PR.
+    ByteString bitmap_string(filter.unchanged_names.bits.bitmap);
+    std::vector<uint8_t> bitmap = MakeVector(bitmap_string);
+    int32_t padding = filter.unchanged_names.bits.padding;
+    int32_t hash_count = filter.unchanged_names.hash_count;
+    StatusOr<BloomFilter> maybe_bloom_filter =
+        BloomFilter::Create(bitmap, padding, hash_count);
+    if (maybe_bloom_filter.ok()) {
+      bloom_filter = maybe_bloom_filter.ValueOrDie();
+    }
+  }
+
+  return {filter.count, bloom_filter};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
