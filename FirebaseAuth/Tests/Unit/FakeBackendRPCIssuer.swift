@@ -62,14 +62,31 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
    */
   var group: DispatchGroup?
 
-  func asyncPostToURLWithRequestConfiguration(request: AuthRPCRequest,
-                                              body: Data?,
-                                              contentType: String,
-                                              completionHandler: @escaping (
-                                                (Data?, Error?) -> Void
-                                              )) {
+  var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
+  var fakeSecureTokenServiceJSON: [String: AnyHashable]?
+
+  func asyncPostToURL(withRequest request: AuthRPCRequest,
+                      body: Data?,
+                      contentType: String,
+                      completionHandler: @escaping ((Data?, Error?) -> Void)) {
+    self.contentType = contentType
+    handler = completionHandler
     self.request = request
     requestURL = request.requestURL()
+
+    if let _ = request as? GetAccountInfoRequest,
+       let json = fakeGetAccountProviderJSON {
+      guard let _ = try? respond(withJSON: ["users": json]) else {
+        fatalError("fakeGetAccountProviderJSON respond failed")
+      }
+      return
+    } else if let _ = request as? SecureTokenRequest,
+              let json = fakeSecureTokenServiceJSON {
+      guard let _ = try? respond(withJSON: json) else {
+        fatalError("fakeGetAccountProviderJSON respond failed")
+      }
+      return
+    }
     if let body = body {
       requestData = body
       // Use the real implementation so that the complete request can
@@ -79,8 +96,6 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
                                             requestConfiguration: request.requestConfiguration())
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
-    self.contentType = contentType
-    handler = completionHandler
     if let group {
       group.leave()
     }
