@@ -373,7 +373,7 @@ struct CreateFeedbackReportRequest: Codable {
       let uploadImageTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          _ = self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
+          self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
           DispatchQueue.main.async {
             completion(fadError)
           }
@@ -419,7 +419,7 @@ struct CreateFeedbackReportRequest: Codable {
       let commitFeedbackTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          _ = self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
+          self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
           DispatchQueue.main.async {
             completion(fadError)
           }
@@ -429,7 +429,9 @@ struct CreateFeedbackReportRequest: Codable {
     }
   }
 
+  @discardableResult
   static func handleError(httpResponse: HTTPURLResponse?, error: inout Error?) -> Bool {
+    // TODO(tundeagboola) We should be throwing errors instead of piping the error object through
     if error != nil || httpResponse == nil {
       return handleError(
         error: &error,
@@ -444,8 +446,10 @@ struct CreateFeedbackReportRequest: Codable {
     return false
   }
 
+  @discardableResult
   static func handleError(error: inout Error?, description: String?,
                           code: AppDistributionApiError) -> Bool {
+    // TODO(tundeagboola) We should be throwing errors instead of piping the error object through
     if error != nil {
       error = createError(description: description!, code: code)
       return true
@@ -504,7 +508,7 @@ struct CreateFeedbackReportRequest: Codable {
 
   static func validateResponse(response: URLResponse?, error: inout Error?) -> Bool {
     guard let response = response else {
-      _ = handleError(
+      handleError(
         error: &error,
         description: "URLResponse is nil",
         code: .ApiErrorUnknownFailure
@@ -570,7 +574,7 @@ struct CreateFeedbackReportRequest: Codable {
     let description: String = (thrownError as NSError)
       .userInfo[NSLocalizedDescriptionKey] as? String ?? "Failed to parse response"
     error = thrownError
-    _ = handleError(error: &error, description: description, code: .ApiErrorParseFailure)
+    handleError(error: &error, description: description, code: .ApiErrorParseFailure)
     Logger.logError("Tester API - Error deserializing json response")
   }
 }
