@@ -36,7 +36,7 @@ import Foundation
   @objc public var verifiedEmail: String?
 
   /** @property requestType
-   @brief The tpye of request as returned by the backend.
+   @brief The type of request as returned by the backend.
    */
   @objc public var requestType: String?
 
