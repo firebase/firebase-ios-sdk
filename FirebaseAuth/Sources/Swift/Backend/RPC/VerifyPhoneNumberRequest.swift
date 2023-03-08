@@ -146,8 +146,8 @@ extension AuthOperationType {
     super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [:]
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [:]
     if let verificationID {
       postBody[kVerificationIDKey] = verificationID
     }

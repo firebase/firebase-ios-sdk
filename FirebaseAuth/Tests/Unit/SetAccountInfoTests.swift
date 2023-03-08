@@ -214,7 +214,7 @@ class SetAccountInfoTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
+    _ = try rpcIssuer?.respond(withJSON: [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
                                           kIDTokenKey: kTestIDToken,
                                           kExpiresInKey: kTestExpiresIn,
                                           kRefreshTokenKey: kTestRefreshToken])
