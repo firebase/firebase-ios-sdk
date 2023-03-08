@@ -456,6 +456,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
       - name: Setup Bundler
         run: ./scripts/setup_bundler.sh
+      - name: Install xcpretty
+        run: gem install xcpretty
       # - name: Move frameworks
       #   run: |
       #     mkdir -p "${HOME}"/ios_frameworks/
