@@ -1,5 +1,6 @@
 # Unreleased
 - [feature] Add support for disjunctions in queries (`OR` queries).
+- [fixed] Fixed stack overflow caused by deeply nested server timestamps.
 
 # 10.6.0
 - [fixed] Fix a potential high memory usage issue.
