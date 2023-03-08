@@ -54,7 +54,7 @@ import Foundation
    */
   @objc public var MFAInfo: [AuthProtoMFAEnrollment]?
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     IDToken = dictionary["idToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
@@ -64,7 +64,7 @@ import Foundation
       .flatMap { Date(timeIntervalSinceNow: ($0 as NSString).doubleValue)
       }
 
-    if let mfaInfoArray = dictionary["mfaInfo"] as? [[String: Any]] {
+    if let mfaInfoArray = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
       var mfaInfo: [AuthProtoMFAEnrollment] = []
       for entry in mfaInfoArray {
         let enrollment = AuthProtoMFAEnrollment(dictionary: entry)

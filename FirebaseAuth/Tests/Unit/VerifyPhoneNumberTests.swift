@@ -115,7 +115,7 @@ import XCTest
         rpcError = error as? NSError
       }
 
-      _ = try RPCIssuer?.respond(withJSON: [
+      _ = try rpcIssuer?.respond(withJSON: [
         "idToken": kTestIDToken,
         "refreshToken": kTestRefreshToken,
         "localId": kTestLocalID,
@@ -147,7 +147,7 @@ import XCTest
           rpcError = error as? NSError
         }
 
-      _ = try RPCIssuer?.respond(withJSON: [
+      _ = try rpcIssuer?.respond(withJSON: [
         "temporaryProof": kTemporaryProof,
         "phoneNumber": kPhoneNumber,
       ])

@@ -17,7 +17,7 @@ import Foundation
 @objc(FIRAuthProtoFinalizeMFAPhoneRequestInfo)
 public class AuthProtoFinalizeMFAPhoneRequestInfo: NSObject,
   AuthProto {
-  public required init(dictionary: [String: Any]) {
+  public required init(dictionary: [String: AnyHashable]) {
     fatalError()
   }
 
@@ -28,8 +28,8 @@ public class AuthProtoFinalizeMFAPhoneRequestInfo: NSObject,
     code = verificationCode
   }
 
-  public var dictionary: [String: Any] {
-    var dict: [String: Any] = [:]
+  public var dictionary: [String: AnyHashable] {
+    var dict: [String: AnyHashable] = [:]
     if let sessionInfo = sessionInfo {
       dict["sessionInfo"] = sessionInfo
     }
