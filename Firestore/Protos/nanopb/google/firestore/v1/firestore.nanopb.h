@@ -375,6 +375,7 @@ typedef struct _google_firestore_v1_Target {
     } resume_type;
     int32_t target_id;
     bool once;
+    bool has_expected_count;
     google_protobuf_Int32Value expected_count;
 
     std::string ToString(int indent = 0) const;
@@ -421,7 +422,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_ListenRequest_init_default {NULL, 0, {google_firestore_v1_Target_init_default}, 0, NULL}
 #define google_firestore_v1_ListenRequest_LabelsEntry_init_default {NULL, NULL}
 #define google_firestore_v1_ListenResponse_init_default {0, {google_firestore_v1_TargetChange_init_default}}
-#define google_firestore_v1_Target_init_default  {0, {google_firestore_v1_Target_QueryTarget_init_default}, 0, {NULL}, 0, 0, google_protobuf_Int32Value_init_default}
+#define google_firestore_v1_Target_init_default  {0, {google_firestore_v1_Target_QueryTarget_init_default}, 0, {NULL}, 0, 0, false, google_protobuf_Int32Value_init_default}
 #define google_firestore_v1_Target_DocumentsTarget_init_default {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_default {NULL, 0, {google_firestore_v1_StructuredQuery_init_default}}
 #define google_firestore_v1_TargetChange_init_default {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_default, NULL, google_protobuf_Timestamp_init_default}
@@ -450,7 +451,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_ListenRequest_init_zero {NULL, 0, {google_firestore_v1_Target_init_zero}, 0, NULL}
 #define google_firestore_v1_ListenRequest_LabelsEntry_init_zero {NULL, NULL}
 #define google_firestore_v1_ListenResponse_init_zero {0, {google_firestore_v1_TargetChange_init_zero}}
-#define google_firestore_v1_Target_init_zero     {0, {google_firestore_v1_Target_QueryTarget_init_zero}, 0, {NULL}, 0, 0, google_protobuf_Int32Value_init_zero}
+#define google_firestore_v1_Target_init_zero     {0, {google_firestore_v1_Target_QueryTarget_init_zero}, 0, {NULL}, 0, 0, false, google_protobuf_Int32Value_init_zero}
 #define google_firestore_v1_Target_DocumentsTarget_init_zero {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_zero {NULL, 0, {google_firestore_v1_StructuredQuery_init_zero}}
 #define google_firestore_v1_TargetChange_init_zero {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_zero, NULL, google_protobuf_Timestamp_init_zero}

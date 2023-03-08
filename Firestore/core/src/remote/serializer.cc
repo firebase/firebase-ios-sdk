@@ -635,6 +635,12 @@ google_firestore_v1_Target Serializer::EncodeTarget(
     result.which_resume_type = google_firestore_v1_Target_resume_token_tag;
     result.resume_type.resume_token =
         nanopb::CopyBytesArray(target_data.resume_token().get());
+
+    if (target_data.expected_count().has_value()) {
+      result.has_expected_count = true;
+      int32_t expected_count = target_data.expected_count().value();
+      result.expected_count.value = expected_count;
+    }
   }
 
   return result;
