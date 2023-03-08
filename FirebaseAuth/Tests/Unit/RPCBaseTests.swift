@@ -33,17 +33,17 @@ class RPCBaseTests: XCTestCase {
    */
   let kTestIdentifier = "Identifier"
 
-  var RPCIssuer: FakeBackendRPCIssuer?
+  var rpcIssuer: FakeBackendrpcIssuer?
   var rpcImplementation: AuthBackendImplementation?
 
   override func setUp() {
-    RPCIssuer = FakeBackendRPCIssuer()
-    AuthBackend.setDefaultBackendImplementationWithRPCIssuer(issuer: RPCIssuer)
+    rpcIssuer = FakeBackendrpcIssuer()
+    AuthBackend.setDefaultBackendImplementationWithRPCIssuer(issuer: rpcIssuer)
     rpcImplementation = AuthBackend.implementation()
   }
 
   override func tearDown() {
-    RPCIssuer = nil
+    rpcIssuer = nil
     AuthBackend.setDefaultBackendImplementationWithRPCIssuer(issuer: nil)
   }
 
@@ -54,11 +54,11 @@ class RPCBaseTests: XCTestCase {
                                        expected: String,
                                        key: String,
                                        value: String?,
-                                       checkPostBody: Bool = false) throws -> FakeBackendRPCIssuer {
+                                       checkPostBody: Bool = false) throws -> FakeBackendrpcIssuer {
     AuthBackend.post(withRequest: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
-    let rpcIssuer = try XCTUnwrap(RPCIssuer)
+    let rpcIssuer = try XCTUnwrap(rpcIssuer)
     XCTAssertEqual(rpcIssuer.requestURL?.absoluteString, expected)
     if checkPostBody,
        let containsPostBody = request.containsPostBody?() {
@@ -93,11 +93,11 @@ class RPCBaseTests: XCTestCase {
     }
 
     if let json = json {
-      _ = try RPCIssuer?.respond(withJSON: json)
+      _ = try rpcIssuer?.respond(withJSON: json)
     } else if let reason = reason {
-      _ = try RPCIssuer?.respond(underlyingErrorMessage: reason, message: message)
+      _ = try rpcIssuer?.respond(underlyingErrorMessage: reason, message: message)
     } else {
-      _ = try RPCIssuer?.respond(serverErrorMessage: message)
+      _ = try rpcIssuer?.respond(serverErrorMessage: message)
     }
 
     XCTAssert(callbackInvoked)

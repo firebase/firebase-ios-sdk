@@ -109,7 +109,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(withData: nil, error: responseError)
+    try rpcIssuer?.respond(withData: nil, error: responseError)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -145,7 +145,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     }
     let data = "<html><body>An error occurred.</body></html>".data(using: .utf8)
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(withData: data, error: responseError)
+    try rpcIssuer?.respond(withData: data, error: responseError)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -185,7 +185,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     let data = "<xml>Some non-JSON value.</xml>".data(using: .utf8)
-    try RPCIssuer?.respond(withData: data, error: nil)
+    try rpcIssuer?.respond(withData: data, error: nil)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -230,7 +230,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     // this array later in the test.
     let data = "[]".data(using: .utf8)
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(withData: data, error: responseError)
+    try rpcIssuer?.respond(withData: data, error: responseError)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -276,7 +276,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     // successfully decode this value, however, we do return it in the error results. We check for
     // this array later in the test.
     let data = "[]".data(using: .utf8)
-    try RPCIssuer?.respond(withData: data, error: nil)
+    try rpcIssuer?.respond(withData: data, error: nil)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -315,7 +315,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(serverErrorMessage: kErrorMessageCaptchaRequired, error: responseError)
+    try rpcIssuer?.respond(serverErrorMessage: kErrorMessageCaptchaRequired, error: responseError)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -357,7 +357,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(
+    try rpcIssuer?.respond(
       serverErrorMessage: kErrorMessageCaptchaCheckFailed,
       error: responseError
     )
@@ -390,7 +390,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(serverErrorMessage: kErrorMessageCaptchaRequiredInvalidPassword,
+    try rpcIssuer?.respond(serverErrorMessage: kErrorMessageCaptchaRequiredInvalidPassword,
                            error: responseError)
 
     XCTAssert(callbackInvoked)
@@ -436,7 +436,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     // We need to return a valid "error" response here, but we are going to intentionally use a bogus
     // error message.
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(serverErrorMessage: kUnknownServerErrorMessage, error: responseError)
+    try rpcIssuer?.respond(serverErrorMessage: kUnknownServerErrorMessage, error: responseError)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -478,7 +478,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try RPCIssuer?.respond(withJSON: [:], error: responseError)
+    try rpcIssuer?.respond(withJSON: [:], error: responseError)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -520,7 +520,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let kFakeUserDisabledCustomErrorMessage = "The user has been disabled."
     let customErrorMessage = "\(kUserDisabledErrorMessage)" +
       "\(kServerErrorDetailMarker)\(kFakeUserDisabledCustomErrorMessage)"
-    try RPCIssuer?.respond(serverErrorMessage: customErrorMessage, error: responseError)
+    try rpcIssuer?.respond(serverErrorMessage: customErrorMessage, error: responseError)
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -550,7 +550,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcResponse = response as? FakeResponse
       rpcError = error as? NSError
     }
-    try RPCIssuer?.respond(withJSON: [:])
+    try rpcIssuer?.respond(withJSON: [:])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcResponse)
@@ -587,7 +587,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     // It doesn't matter what we respond with here, as long as it's not an error response. The fake
     // response will deterministicly simulate a decoding error regardless of the response value it was
     // given.
-    try RPCIssuer?.respond(withJSON: [kTestKey: kTestValue])
+    try rpcIssuer?.respond(withJSON: [kTestKey: kTestValue])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)
@@ -645,7 +645,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let expectedHeader = FIRHeaderValueFromHeartbeatsPayload(
       HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
     )
-    let completeRequest = try XCTUnwrap(RPCIssuer?.completeRequest)
+    let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
     let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
     XCTAssertEqual(headerValue, expectedHeader)
   }
@@ -674,7 +674,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     }
 
     // Then
-    let completeRequest = try XCTUnwrap(RPCIssuer?.completeRequest)
+    let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
     XCTAssertNil(completeRequest.value(forHTTPHeaderField: "X-Firebase-Client"))
   }
 
@@ -688,7 +688,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       return try! XCTUnwrap(URL(string: kFakeRequestURL))
     }
 
-    func unencodedHTTPRequestBody() throws -> Any {
+    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
       if let encodingError {
         throw encodingError
       }
@@ -737,12 +737,12 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
   private class FakeResponse: NSObject, AuthRPCResponse {
     let decodingError: NSError?
-    var receivedDictionary: [String: Any] = [:]
+    var receivedDictionary: [String: AnyHashable] = [:]
     init(withDecodingError error: NSError? = nil) {
       decodingError = error
     }
 
-    func setFields(dictionary: [String: Any]) throws {
+    func setFields(dictionary: [String: AnyHashable]) throws {
       if let decodingError {
         throw decodingError
       }

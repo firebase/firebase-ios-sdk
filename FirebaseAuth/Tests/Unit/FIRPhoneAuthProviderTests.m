@@ -286,7 +286,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 - (void)tearDown {
-  [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
+  [FIRAuthBackend setDefaultBackendImplementationWithrpcIssuer:nil];
   [super tearDown];
 }
 
