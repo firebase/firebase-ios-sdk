@@ -30,8 +30,8 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
    */
   @objc public var response: AuthRPCResponse = VerifyClientResponse()
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody = [String: Any]()
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody = [String: AnyHashable]()
     if let appToken = appToken {
       postBody[Self.appTokenKey] = appToken
     }

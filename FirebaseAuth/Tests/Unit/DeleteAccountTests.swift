@@ -73,7 +73,7 @@ class DeleteAccountTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [:])
+    _ = try rpcIssuer?.respond(withJSON: [:])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)

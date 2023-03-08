@@ -24,7 +24,7 @@ import Foundation
       @param error An out field for an error which occurred constructing the request.
       @return Whether the operation was successful or not.
    */
-  @objc(setWithDictionary:error:) func setFields(dictionary: [String: Any]) throws
+  @objc(setWithDictionary:error:) func setFields(dictionary: [String: AnyHashable]) throws
 
   /** @fn clientErrorWithshortErrorMessage:detailErrorMessage
       @brief This optional method allows response classes to create client errors given a short error

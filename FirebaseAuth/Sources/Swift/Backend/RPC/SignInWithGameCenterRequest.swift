@@ -102,8 +102,8 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest,
     )
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [
       "playerId": playerID,
       "publicKeyUrl": publicKeyURL.absoluteString,
       "signature": signature.base64URLEncodedString(),
