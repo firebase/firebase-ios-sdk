@@ -39,7 +39,7 @@ private let kIDTokenKey = "id_token"
 
   var expectedKind: String? { nil }
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     refreshToken = dictionary[kRefreshTokenKey] as? String
     self.accessToken = dictionary[kAccessTokenKey] as? String
     IDToken = dictionary[kIDTokenKey] as? String

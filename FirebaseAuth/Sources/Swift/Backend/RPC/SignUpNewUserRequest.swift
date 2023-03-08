@@ -90,8 +90,8 @@ private let kTenantIDKey = "tenantId"
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [:]
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [:]
     if let email {
       postBody[kEmailKey] = email
     }

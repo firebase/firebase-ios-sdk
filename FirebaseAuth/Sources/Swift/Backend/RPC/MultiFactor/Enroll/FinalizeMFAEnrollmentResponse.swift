@@ -19,7 +19,7 @@ import Foundation
   @objc public var IDToken: String?
   @objc public var refreshToken: String?
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     IDToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
   }
