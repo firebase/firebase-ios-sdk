@@ -137,8 +137,11 @@ import XCTest
       do {
         _ = try await ref.putFileAsync(from: fileURL)
         XCTFail("Unexpected success from putFile of a directory")
-      } catch StorageError.unknown {
-        XCTAssertTrue(true)
+      } catch let StorageError.unknown(reason) {
+        XCTAssertTrue(reason.starts(with: "File at URL:"))
+        XCTAssertTrue(reason.hasSuffix(
+          "is not reachable. Ensure file URL is not a directory, symbolic link, or invalid url."
+        ))
       } catch {
         XCTFail("error failed to convert to StorageError.unknown")
       }
