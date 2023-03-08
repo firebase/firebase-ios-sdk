@@ -95,7 +95,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [
+    _ = try rpcIssuer?.respond(withJSON: [
       "idToken": kIDToken,
       "refreshToken": kRefreshToken,
       "localId": kLocalID,

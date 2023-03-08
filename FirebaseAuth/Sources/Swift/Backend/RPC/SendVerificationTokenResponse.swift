@@ -18,7 +18,7 @@ import Foundation
   AuthRPCResponse {
   @objc public var verificationID: String?
 
-  @objc public func setFields(dictionary: [String: Any]) throws {
+  @objc public func setFields(dictionary: [String: AnyHashable]) throws {
     verificationID = dictionary["sessionInfo"] as? String
   }
 }

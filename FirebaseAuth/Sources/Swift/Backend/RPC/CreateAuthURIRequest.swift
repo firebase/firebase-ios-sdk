@@ -115,8 +115,8 @@ private let kTenantIDKey = "tenantId"
     super.init(endpoint: kCreateAuthURIEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [
       kIdentifierKey: identifier,
       kContinueURIKey: continueURI,
     ]

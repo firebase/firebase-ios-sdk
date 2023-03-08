@@ -184,7 +184,7 @@ private let kTenantIDKey = "tenantId"
     super.init(endpoint: kVerifyAssertionEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var components = URLComponents()
     var queryItems: [URLQueryItem] = [URLQueryItem(name: kProviderIDKey, value: providerID)]
     if let providerIDToken = providerIDToken {
@@ -212,7 +212,7 @@ private let kTenantIDKey = "tenantId"
 
     components.queryItems = queryItems
 
-    var body: [String: Any] = [
+    var body: [String: AnyHashable] = [
       kRequestURIKey: requestURI ?? "http://localhost", // Unused by server, but required
     ]
 
