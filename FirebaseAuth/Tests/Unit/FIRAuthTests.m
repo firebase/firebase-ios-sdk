@@ -384,7 +384,7 @@ static const NSTimeInterval kWaitInterval = .5;
 }
 
 - (void)tearDown {
-  [FIRAuthBackend2 setDefaultBackendImplementationWithRPCIssuer:nil];
+  [FIRAuthBackend2 setDefaultBackendImplementationWithrpcIssuer:nil];
   [[FIRAuthDispatcher sharedInstance] setDispatchAfterImplementation:nil];
 
 #if TARGET_OS_IOS

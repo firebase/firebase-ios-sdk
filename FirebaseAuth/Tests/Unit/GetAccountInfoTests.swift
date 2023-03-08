@@ -101,7 +101,7 @@ class GetAccountInfoTests: RPCBaseTests {
       kPasswordHashKey: kTestPasswordHash,
     ]]
 
-    _ = try RPCIssuer?.respond(withJSON: ["users": usersIn])
+    _ = try rpcIssuer?.respond(withJSON: ["users": usersIn])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)

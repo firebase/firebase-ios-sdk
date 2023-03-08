@@ -225,10 +225,10 @@ import FirebaseCore
       // Use fake authURLPresenter so we can test the parameters that get sent to it.
       OAuthProviderTests.auth?.authURLPresenter = FakePresenter()
 
-      // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
+      // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
       let group = DispatchGroup()
       if !OAuthProviderTests.testEmulator {
-        RPCIssuer?.group = group
+        rpcIssuer?.group = group
         group.enter()
       }
 
@@ -382,16 +382,16 @@ import FirebaseCore
         expectation.fulfill()
       }
       if !OAuthProviderTests.testEmulator {
-        // 3. Wait for fake RPCIssuer to leave the group.
+        // 3. Wait for fake rpcIssuer to leave the group.
         group.wait()
 
-        // 4. After the fake RPCIssuer leaves the group, validate the created Request instance.
-        let request = try XCTUnwrap(RPCIssuer?.request as? GetProjectConfigRequest)
+        // 4. After the fake rpcIssuer leaves the group, validate the created Request instance.
+        let request = try XCTUnwrap(rpcIssuer?.request as? GetProjectConfigRequest)
         XCTAssertEqual(request.endpoint, "getProjectConfig")
         XCTAssertEqual(request.APIKey, OAuthProviderTests.kFakeAPIKey)
 
         // 5. Send the response from the fake backend.
-        _ = try RPCIssuer?
+        _ = try rpcIssuer?
           .respond(withJSON: ["authorizedDomains": [OAuthProviderTests.kFakeAuthorizedDomain]])
       }
       waitForExpectations(timeout: 105)

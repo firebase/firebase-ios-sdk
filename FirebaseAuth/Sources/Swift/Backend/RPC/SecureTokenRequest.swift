@@ -161,8 +161,8 @@ private var gAPIHost = "securetoken.googleapis.com"
 
   var containsPostBody: Bool { true }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [
       kGrantTypeKey: grantType.value,
     ]
     if let scope = scope {

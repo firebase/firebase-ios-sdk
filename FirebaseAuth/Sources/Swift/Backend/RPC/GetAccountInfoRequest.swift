@@ -51,7 +51,7 @@ private let kIDTokenKey = "idToken"
     super.init(endpoint: kGetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     return [kIDTokenKey: accessToken]
   }
 }

@@ -93,7 +93,7 @@ class SendVerificationCodeTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
+    _ = try rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)
