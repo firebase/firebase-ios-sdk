@@ -204,8 +204,8 @@ private let kTenantIDKey = "tenantId"
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [:]
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [:]
     if let accessToken {
       postBody[kIDTokenKey] = accessToken
     }

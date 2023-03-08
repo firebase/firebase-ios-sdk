@@ -83,7 +83,7 @@ class SignUpNewUserTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [
+    _ = try rpcIssuer?.respond(withJSON: [
       kIDTokenKey: kTestIDToken,
       kExpiresInKey: kTestExpiresIn,
       kRefreshTokenKey: kTestRefreshToken,

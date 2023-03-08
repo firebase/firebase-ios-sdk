@@ -19,5 +19,5 @@ import Foundation
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/deleteAccount
  */
 @objc(FIRDeleteAccountResponse) public class DeleteAccountResponse: NSObject, AuthRPCResponse {
-  public func setFields(dictionary: [String: Any]) throws {}
+  public func setFields(dictionary: [String: AnyHashable]) throws {}
 }

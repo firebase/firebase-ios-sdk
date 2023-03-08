@@ -284,8 +284,8 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
          requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var body: [String: Any] = [
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var body: [String: AnyHashable] = [
       kRequestTypeKey: requestType.value,
     ]
 

@@ -20,7 +20,7 @@ private let kOOBCodeKey = "oobCode"
   AuthRPCResponse {
   @objc public var OOBCode: String?
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     OOBCode = dictionary[kOOBCodeKey] as? String
   }
 }

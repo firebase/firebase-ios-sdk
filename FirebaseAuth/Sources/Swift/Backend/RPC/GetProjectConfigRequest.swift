@@ -30,7 +30,7 @@ private let kGetProjectConfigEndPoint = "getProjectConfig"
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     // XXX TODO: Probably nicer to throw, but what should we throw?
     fatalError()
   }
