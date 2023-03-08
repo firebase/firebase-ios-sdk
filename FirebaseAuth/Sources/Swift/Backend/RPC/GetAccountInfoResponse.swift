@@ -171,7 +171,7 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
     emailVerified = dictionary["emailVerified"] as? Bool ?? false
     passwordHash = dictionary["passwordHash"] as? String
     phoneNumber = dictionary["phoneNumber"] as? String
-    if let MFAEnrollmentData = dictionary["mfaInfo"] as? [[String: Any]] {
+    if let MFAEnrollmentData = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
       MFAEnrollments = MFAEnrollmentData.map { AuthProtoMFAEnrollment(dictionary: $0)
       }
     } else {
@@ -189,8 +189,8 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
    @brief The requested users' profiles.
    */
   @objc public var users: [GetAccountInfoResponseUser]?
-  public func setFields(dictionary: [String: Any]) throws {
-    guard let usersData = dictionary["users"] as? [[String: Any]] else {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
+    guard let usersData = dictionary["users"] as? [[String: AnyHashable]] else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
     guard usersData.count == 1 else {

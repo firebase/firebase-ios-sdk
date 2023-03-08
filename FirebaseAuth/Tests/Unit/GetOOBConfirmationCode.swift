@@ -165,7 +165,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
         rpcError = error as? NSError
       }
 
-      _ = try RPCIssuer?.respond(withJSON: [kOOBCodeKey: kTestOOBCode])
+      _ = try rpcIssuer?.respond(withJSON: [kOOBCodeKey: kTestOOBCode])
 
       XCTAssert(callbackInvoked)
       XCTAssertNil(rpcError)
@@ -195,7 +195,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
         rpcError = error as? NSError
       }
 
-      _ = try RPCIssuer?.respond(withJSON: [:])
+      _ = try rpcIssuer?.respond(withJSON: [:])
 
       XCTAssert(callbackInvoked)
       XCTAssertNil(rpcError)

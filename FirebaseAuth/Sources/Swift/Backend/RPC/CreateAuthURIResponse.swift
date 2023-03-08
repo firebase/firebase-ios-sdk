@@ -50,7 +50,7 @@ import Foundation
    */
   @objc public var signinMethods: [String]?
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     providerID = dictionary["providerId"] as? String
     authURI = dictionary["authUri"] as? String
     registered = dictionary["registered"] as? Bool ?? false

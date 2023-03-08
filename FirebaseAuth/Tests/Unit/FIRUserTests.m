@@ -419,7 +419,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
 }
 
 - (void)tearDown {
-  [FIRAuthBackend setDefaultBackendImplementationWithRPCIssuer:nil];
+  [FIRAuthBackend setDefaultBackendImplementationWithrpcIssuer:nil];
   [super tearDown];
 }
 
