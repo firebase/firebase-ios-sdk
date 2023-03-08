@@ -40,7 +40,8 @@ import Foundation
       @param error An out field for an error which occurred constructing the request.
       @return The HTTP body data representing the request before any encoding, or nil for error.
    */
-  @objc(unencodedHTTPRequestBodyWithError:) func unencodedHTTPRequestBody() throws -> Any
+  @objc(unencodedHTTPRequestBodyWithError:)
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable]
 
   /** @fn requestConfiguration
       @brief Obtains the request configurations if available.

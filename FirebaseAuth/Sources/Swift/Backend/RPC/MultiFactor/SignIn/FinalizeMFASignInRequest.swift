@@ -42,8 +42,8 @@ private let kTenantIDKey = "tenantId"
                useStaging: false)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var body: [String: Any] = [:]
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var body: [String: AnyHashable] = [:]
     if let MFAPendingCredential = MFAPendingCredential {
       body["mfaPendingCredential"] = MFAPendingCredential
     }

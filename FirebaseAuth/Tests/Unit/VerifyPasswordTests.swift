@@ -160,7 +160,7 @@ class VerifyPasswordTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [
+    _ = try rpcIssuer?.respond(withJSON: [
       kLocalIDKey: kTestLocalID,
       kEmailKey: kTestEmail,
       kDisplayNameKey: kTestDisplayName,

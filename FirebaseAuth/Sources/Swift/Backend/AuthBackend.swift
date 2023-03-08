@@ -77,7 +77,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
   class func setDefaultBackendImplementationWithRPCIssuer(issuer: AuthBackendRPCIssuer?) {
     let defaultImplementation = AuthBackendRPCImplementation()
     if let issuer = issuer {
-      defaultImplementation.RPCIssuer = issuer
+      defaultImplementation.rpcIssuer = issuer
     }
     gBackendImplementation = defaultImplementation
   }
@@ -145,9 +145,9 @@ protocol AuthBackendImplementation {
 }
 
 private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
-  var RPCIssuer: AuthBackendRPCIssuer
+  var rpcIssuer: AuthBackendRPCIssuer
   override init() {
-    RPCIssuer = AuthBackendRPCIssuerImplementation()
+    rpcIssuer = AuthBackendRPCIssuerImplementation()
   }
 
   /** @fn postWithRequest:response:callback:
@@ -281,7 +281,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         return
       }
     }
-    RPCIssuer
+    rpcIssuer
       .asyncPostToURL(withRequest: request, body: bodyData, contentType: "application/json") {
         data, error in
         // If there is an error with no body data at all, then this must be a
@@ -297,12 +297,12 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         }
         // Try to decode the HTTP response data which may contain either a
         // successful response or error message.
-        var dictionary: [String: Any]
+        var dictionary: [String: AnyHashable]
         do {
           let rawDecode = try JSONSerialization.jsonObject(with: data,
                                                            options: JSONSerialization.ReadingOptions
                                                              .mutableLeaves)
-          guard let decodedDictionary = rawDecode as? [String: Any] else {
+          guard let decodedDictionary = rawDecode as? [String: AnyHashable] else {
             if error != nil {
               callback(AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: rawDecode,
                                                               underlyingError: error))
@@ -334,7 +334,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         // case where we have an error with successfully decoded error details
         // first:
         if error != nil {
-          if let errorDictionary = dictionary["error"] as? [String: Any] {
+          if let errorDictionary = dictionary["error"] as? [String: AnyHashable] {
             if let errorMessage = errorDictionary["message"] as? String {
               if let clientError = AuthBackendRPCImplementation.clientError(
                 withServerErrorMessage: errorMessage,
