@@ -164,7 +164,7 @@ class VerifyAssertionTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [
+    _ = try rpcIssuer?.respond(withJSON: [
       kProviderIDKey: kTestProviderID,
       kIDTokenKey: kTestIDToken,
       kExpiresInKey: kTestExpiresIn,
@@ -205,7 +205,7 @@ class VerifyAssertionTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [
+    _ = try rpcIssuer?.respond(withJSON: [
       kProviderIDKey: kTestProviderID,
       kIDTokenKey: kTestIDToken,
       kExpiresInKey: kTestExpiresIn,

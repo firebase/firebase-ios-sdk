@@ -71,8 +71,8 @@ private let kTenantIDKey = "tenantId"
     super.init(endpoint: kEmailLinkSigninEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [
       kEmailKey: email,
       kOOBCodeKey: oobCode,
     ]

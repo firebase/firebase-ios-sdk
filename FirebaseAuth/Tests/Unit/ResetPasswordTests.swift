@@ -86,7 +86,7 @@ class ResetPasswordTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: ["email": kTestEmail,
+    _ = try rpcIssuer?.respond(withJSON: ["email": kTestEmail,
                                           "requestType": kExpectedResetPasswordRequestType])
 
     XCTAssert(callbackInvoked)

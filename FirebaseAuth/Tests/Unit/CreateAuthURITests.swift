@@ -80,7 +80,7 @@ class CreateAuthURITests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
+    _ = try rpcIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)
@@ -101,11 +101,11 @@ class CreateAuthURITests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    XCTAssertEqual(RPCIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
-    XCTAssertEqual(RPCIssuer?.decodedRequest?["identifier"] as? String, kTestIdentifier)
-    XCTAssertEqual(RPCIssuer?.decodedRequest?["continueUri"] as? String, kTestContinueURI)
+    XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
+    XCTAssertEqual(rpcIssuer?.decodedRequest?["identifier"] as? String, kTestIdentifier)
+    XCTAssertEqual(rpcIssuer?.decodedRequest?["continueUri"] as? String, kTestContinueURI)
 
-    _ = try RPCIssuer?
+    _ = try rpcIssuer?
       .respond(withJSON: ["kind": kTestExpectedKind,
                           "allProviders": [kTestProviderID1, kTestProviderID2]])
 
