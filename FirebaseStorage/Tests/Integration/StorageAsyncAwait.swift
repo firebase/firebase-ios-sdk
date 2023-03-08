@@ -55,7 +55,12 @@ import XCTest
         _ = try await ref.delete()
       } catch {
         caughtError = true
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.objectNotFound.rawValue)
+        let nsError = error as NSError
+        XCTAssertEqual(nsError.code, StorageErrorCode.objectNotFound.rawValue)
+        XCTAssertEqual(nsError.userInfo["ResponseErrorCode"] as? Int, 404)
+        let underlyingError = try XCTUnwrap(nsError.userInfo[NSUnderlyingErrorKey] as? NSError)
+        XCTAssertEqual(underlyingError.code, 404)
+        XCTAssertEqual(underlyingError.domain, "com.google.HTTPStatus")
       }
       XCTAssertTrue(caughtError)
     }
