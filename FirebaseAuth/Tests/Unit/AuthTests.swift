@@ -25,6 +25,8 @@ class AuthTests: RPCBaseTests {
   private let kLocalID = "testLocalId"
   private let kAccessToken = "TEST_ACCESS_TOKEN"
   private let kFakeOobCode = "fakeOobCode"
+  private let kRefreshToken = "fakeRefreshToken"
+  private let kCustomToken = "CUSTOM_TOKEN"
   private let kFakeEmailSignInLink = "https://test.app.goo.gl/?link=https://test.firebase" +
     "app.com/__/auth/action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueU" +
     "rl%3Dhttps://test.apps.com&ibi=com.test.com&ifl=https://test.firebaseapp.com/__/auth/" +
@@ -78,9 +80,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     AuthTests.auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
       // 4. After the response triggers the callback, verify the returned signInMethods.
@@ -108,9 +108,7 @@ class AuthTests: RPCBaseTests {
    */
   func testFetchSignInMethodsForEmailFailure() throws {
     let expectation = self.expectation(description: #function)
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     AuthTests.auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
       XCTAssertTrue(Thread.isMainThread)
@@ -145,15 +143,12 @@ class AuthTests: RPCBaseTests {
 
   private func signInWithEmailLinkSuccessWithLinkOrDeeplink(link: String) throws {
     let fakeCode = "testoobcode"
-    let kRefreshToken = "fakeRefreshToken"
     let expectation = self.expectation(description: #function)
     setFakeGetAccountProvider()
     setFakeSecureTokenService()
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.signIn(withEmail: kEmail, link: link) { authResult, error in
@@ -163,7 +158,7 @@ class AuthTests: RPCBaseTests {
         XCTFail("authResult.user is missing")
         return
       }
-      XCTAssertEqual(user.refreshToken, kRefreshToken)
+      XCTAssertEqual(user.refreshToken, self.kRefreshToken)
       XCTAssertFalse(user.isAnonymous)
       XCTAssertEqual(user.email, self.kEmail)
       XCTAssertNil(error)
@@ -181,11 +176,10 @@ class AuthTests: RPCBaseTests {
     try RPCIssuer?.respond(withJSON: ["idToken": kAccessToken,
                                       "email": kEmail,
                                       "isNewUser": true,
-                                      "expiresIn": "kTestTokenExpirationTimeInterval",
                                       "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 10)
-    assertUser(try XCTUnwrap(AuthTests.auth?.currentUser))
+    assertUser(AuthTests.auth?.currentUser)
   }
 
   /** @fn testSignInWithEmailLinkFailure
@@ -195,9 +189,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.signIn(withEmail: kEmail, link: kFakeEmailSignInLink) { authResult, error in
@@ -212,6 +204,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try RPCIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
   }
 
   /** @fn testSignInAndRetrieveDataWithEmailPasswordSuccess
@@ -225,9 +218,7 @@ class AuthTests: RPCBaseTests {
     setFakeSecureTokenService()
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
@@ -262,11 +253,10 @@ class AuthTests: RPCBaseTests {
     try RPCIssuer?.respond(withJSON: ["idToken": kAccessToken,
                                       "email": kEmail,
                                       "isNewUser": true,
-                                      "expiresIn": "kTestTokenExpirationTimeInterval",
                                       "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 10)
-    assertUser(try XCTUnwrap(AuthTests.auth?.currentUser))
+    assertUser(AuthTests.auth?.currentUser)
   }
 
   /** @fn testSignInWithEmailPasswordFailure
@@ -276,9 +266,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
@@ -294,6 +282,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try RPCIssuer?.respond(serverErrorMessage: "INVALID_PASSWORD")
     waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
   }
 
   /** @fn testResetPasswordSuccess
@@ -304,9 +293,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?
@@ -338,9 +325,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?
@@ -356,6 +341,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try RPCIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
   }
 
   /** @fn testCheckActionCodeSuccess
@@ -367,9 +353,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.checkActionCode(kFakeOobCode) { info, error in
@@ -401,9 +385,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.checkActionCode(kFakeOobCode) { info, error in
@@ -418,20 +400,17 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try RPCIssuer?.respond(serverErrorMessage: "EXPIRED_OOB_CODE")
     waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
   }
 
   /** @fn testApplyActionCodeSuccess
       @brief Tests the flow of a successful @c applyActionCode:completion call.
    */
   func testApplyActionCodeSuccess() throws {
-    let kNewEmail = "newEmail@example.com"
-    let verifyEmailRequestType = "VERIFY_EMAIL"
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.applyActionCode(kFakeOobCode) { error in
@@ -458,9 +437,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     try AuthTests.auth?.signOut()
     AuthTests.auth?.applyActionCode(kFakeOobCode) { error in
@@ -475,6 +452,311 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try RPCIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
+  }
+
+  /** @fn testVerifyPasswordResetCodeSuccess
+      @brief Tests the flow of a successful @c verifyPasswordResetCode:completion call.
+   */
+  func testVerifyPasswordResetCodeSuccess() throws {
+    let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
+      // 4. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertEqual(email, self.kEmail)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(RPCIssuer?.request as? ResetPasswordRequest)
+    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.oobCode, kFakeOobCode)
+
+    // 3. Send the response from the fake backend.
+    try RPCIssuer?.respond(withJSON: ["email": kEmail])
+    waitForExpectations(timeout: 10)
+  }
+
+  /** @fn testVerifyPasswordResetCodeFailure
+      @brief Tests the flow of a failed @c verifyPasswordResetCode:completion call.
+   */
+  func testVerifyPasswordResetCodeFailure() throws {
+    let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
+      // 3. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(email)
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.invalidActionCode.rawValue)
+      XCTAssertNotNil((error as? NSError)?.userInfo[NSLocalizedDescriptionKey])
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. Send the response from the fake backend.
+    try RPCIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
+    waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
+  }
+
+  // TODO: 12 tests signIn(withCredential ...) not visible in swift
+
+  /** @fn testSignInAnonymouslySuccess
+      @brief Tests the flow of a successful @c signInAnonymouslyWithCompletion: call.
+   */
+  func testSignInAnonymouslySuccess() throws {
+    let expectation = self.expectation(description: #function)
+    setFakeSecureTokenService()
+    setFakeGetAccountProviderAnonymous()
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.signInAnonymously { authResult, error in
+      // 4. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      self.assertUserAnonymous(authResult?.user)
+      guard let userInfo = authResult?.additionalUserInfo else {
+        XCTFail("authResult.additionalUserInfo is missing")
+        return
+      }
+      XCTAssertTrue(userInfo.isNewUser)
+      XCTAssertNil(userInfo.username)
+      XCTAssertNil(userInfo.profile)
+      XCTAssertNil(userInfo.providerID)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(RPCIssuer?.request as? SignUpNewUserRequest)
+    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertNil(request.email)
+    XCTAssertNil(request.password)
+    XCTAssertTrue(request.returnSecureToken)
+
+    // 3. Send the response from the fake backend.
+    try RPCIssuer?.respond(withJSON: ["idToken": kAccessToken,
+                                      "email": kEmail,
+                                      "isNewUser": true,
+                                      "refreshToken": kRefreshToken])
+    waitForExpectations(timeout: 10)
+    assertUserAnonymous(try XCTUnwrap(AuthTests.auth?.currentUser))
+  }
+
+  /** @fn testSignInAnonymouslyFailure
+      @brief Tests the flow of a failed @c signInAnonymouslyWithCompletion: call.
+   */
+  func testSignInAnonymouslyFailure() throws {
+    let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
+      // 3. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(email)
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.operationNotAllowed.rawValue)
+      XCTAssertNotNil((error as? NSError)?.userInfo[NSLocalizedDescriptionKey])
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. Send the response from the fake backend.
+    try RPCIssuer?.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+    waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
+  }
+
+  /** @fn testSignInWithCustomTokenSuccess
+      @brief Tests the flow of a successful @c signInWithCustomToken:completion: call.
+   */
+  func testSignInWithCustomTokenSuccess() throws {
+    let expectation = self.expectation(description: #function)
+    setFakeSecureTokenService()
+    setFakeGetAccountProvider()
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.signIn(withCustomToken: kCustomToken) { authResult, error in
+      // 4. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      self.assertUser(authResult?.user)
+      guard let userInfo = authResult?.additionalUserInfo else {
+        XCTFail("authResult.additionalUserInfo is missing")
+        return
+      }
+      XCTAssertFalse(userInfo.isNewUser)
+      XCTAssertNil(userInfo.username)
+      XCTAssertNil(userInfo.profile)
+      XCTAssertNil(userInfo.providerID)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(RPCIssuer?.request as? VerifyCustomTokenRequest)
+    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.token, kCustomToken)
+    XCTAssertTrue(request.returnSecureToken)
+
+    // 3. Send the response from the fake backend.
+    try RPCIssuer?.respond(withJSON: ["idToken": kAccessToken,
+                                      "email": kEmail,
+                                      "isNewUser": false,
+                                      "refreshToken": kRefreshToken])
+    waitForExpectations(timeout: 10)
+    assertUser(AuthTests.auth?.currentUser)
+  }
+
+  /** @fn testSignInWithCustomTokenFailure
+      @brief Tests the flow of a failed @c signInWithCustomToken:completion: call.
+   */
+  func testSignInWithCustomTokenFailure() throws {
+    let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.signIn(withCustomToken: kCustomToken) { authResult, error in
+      // 3. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(authResult?.user)
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.invalidCustomToken.rawValue)
+      XCTAssertNotNil((error as? NSError)?.userInfo[NSLocalizedDescriptionKey])
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. Send the response from the fake backend.
+    try RPCIssuer?.respond(serverErrorMessage: "INVALID_CUSTOM_TOKEN")
+    waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
+  }
+
+  /** @fn testCreateUserWithEmailPasswordSuccess
+      @brief Tests the flow of a successful @c createUserWithEmail:password:completion: call.
+   */
+  func testCreateUserWithEmailPasswordSuccess() throws {
+    let expectation = self.expectation(description: #function)
+    setFakeSecureTokenService()
+    setFakeGetAccountProvider()
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
+      // 4. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      self.assertUser(authResult?.user)
+      guard let userInfo = authResult?.additionalUserInfo else {
+        XCTFail("authResult.additionalUserInfo is missing")
+        return
+      }
+      XCTAssertTrue(userInfo.isNewUser)
+      XCTAssertNil(userInfo.username)
+      XCTAssertNil(userInfo.profile)
+      XCTAssertEqual(userInfo.providerID, EmailAuthProvider.id)
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake RPCIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(RPCIssuer?.request as? SignUpNewUserRequest)
+    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.email, kEmail)
+    XCTAssertEqual(request.password, kFakePassword)
+    XCTAssertTrue(request.returnSecureToken)
+
+    // 3. Send the response from the fake backend.
+    try RPCIssuer?.respond(withJSON: ["idToken": kAccessToken,
+                                      "email": kEmail,
+                                      "isNewUser": true,
+                                      "refreshToken": kRefreshToken])
+    waitForExpectations(timeout: 10)
+    assertUser(AuthTests.auth?.currentUser)
+  }
+
+  /** @fn testCreateUserWithEmailPasswordFailure
+      @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call.
+   */
+  func testCreateUserWithEmailPasswordFailure() throws {
+    let expectation = self.expectation(description: #function)
+    let reason = "The password must be 6 characters long or more."
+
+    // 1. Create a group to synchronize request creation by the fake RPCIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
+      // 3. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(authResult?.user)
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.weakPassword.rawValue)
+      XCTAssertEqual((error as? NSError)?.userInfo[NSLocalizedDescriptionKey] as? String, reason)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. Send the response from the fake backend.
+    try RPCIssuer?.respond(serverErrorMessage: "WEAK_PASSWORD")
+    waitForExpectations(timeout: 10)
+    XCTAssertNil(AuthTests.auth?.currentUser)
+  }
+
+  /** @fn testCreateUserEmptyPasswordFailure
+      @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call due to an
+          empty password. This error occurs on the client side, so there is no need to fake an RPC
+          response.
+   */
+  func testCreateUserEmptyPasswordFailure() throws {
+    let expectation = self.expectation(description: #function)
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.createUser(withEmail: kEmail, password: "") { authResult, error in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(authResult?.user)
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.weakPassword.rawValue)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 10)
+  }
+
+  /** @fn testCreateUserEmptyEmailFailure
+      @brief Tests the flow of a failed @c createUserWithEmail:password:completion: call due to an
+          empty email adress. This error occurs on the client side, so there is no need to fake an RPC
+          response.
+   */
+  func testCreateUserEmptyEmailFailure() throws {
+    let expectation = self.expectation(description: #function)
+    try AuthTests.auth?.signOut()
+    AuthTests.auth?.createUser(withEmail: "", password: kFakePassword) { authResult, error in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(authResult?.user)
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingEmail.rawValue)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 10)
   }
 
   /** @fn testSendPasswordResetEmailSuccess
@@ -484,9 +766,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     AuthTests.auth?.sendPasswordReset(withEmail: kEmail) { error in
       // 4. After the response triggers the callback, verify success.
@@ -512,9 +792,7 @@ class AuthTests: RPCBaseTests {
    */
   func testSendPasswordResetEmailFailure() throws {
     let expectation = self.expectation(description: #function)
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     AuthTests.auth?.sendPasswordReset(withEmail: kEmail) { error in
       XCTAssertTrue(Thread.isMainThread)
@@ -537,9 +815,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     // 1. Create a group to synchronize request creation by the fake RPCIssuer in `fetchSignInMethods`.
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     AuthTests.auth?.sendSignInLink(toEmail: kEmail,
                                    actionCodeSettings: fakeActionCodeSettings()) { error in
@@ -563,21 +839,12 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  private func fakeActionCodeSettings() -> ActionCodeSettings {
-    let settings = ActionCodeSettings()
-    settings.handleCodeInApp = true
-    settings.url = URL(string: kContinueURL)
-    return settings
-  }
-
   /** @fn testSendSignInLinkToEmailFailure
       @brief Tests the flow of a failed @c sendSignInLink call.
    */
   func testSendSignInLinkToEmailFailure() throws {
     let expectation = self.expectation(description: #function)
-    let group = DispatchGroup()
-    RPCIssuer?.group = group
-    group.enter()
+    let group = createGroup()
 
     AuthTests.auth?.sendSignInLink(toEmail: kEmail,
                                    actionCodeSettings: fakeActionCodeSettings()) { error in
@@ -590,18 +857,78 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     try RPCIssuer?.respond(underlyingErrorMessage: "ipRefererBlocked")
-
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testUpdateCurrentUserFailure
+      @brief Tests the flow of a failed @c updateCurrentUser:completion:
+          call.
+   */
+//  func testUpdateCurrentUserFailure() throws {
+//    let kTestAccessToken = "fakeAccessToken"
+//    let kTestAPIKey = "fakeAPIKey"
+//    let expectation = self.expectation(description: #function)
+//    let group = createGroup()
+
+  // TODO: Implement waitForSignInWithAccessToken
+
+//    AuthTests.auth?.sendSignInLink(toEmail: kEmail,
+//                                   actionCodeSettings: fakeActionCodeSettings()) { error in
+//      XCTAssertTrue(Thread.isMainThread)
+//      let rpcError = (error as? NSError)!
+//      XCTAssertEqual(rpcError.code, AuthErrorCode.appNotAuthorized.rawValue)
+//      XCTAssertNotNil(rpcError.userInfo[NSLocalizedDescriptionKey])
+//      expectation.fulfill()
+//    }
+//    group.wait()
+//
+//    try RPCIssuer?.respond(underlyingErrorMessage: "ipRefererBlocked")
+//    waitForExpectations(timeout: 5)
+//  }
+//  - (void)testUpdateCurrentUserFailure {
+//    NSString *kTestAccessToken = @"fakeAccessToken";
+//    NSString *kTestAPIKey = @"fakeAPIKey";
+//    [self waitForSignInWithAccessToken:kTestAccessToken APIKey:kTestAPIKey completion:nil];
+//    NSString *kTestAPIKey2 = @"fakeAPIKey2";
+//    FIRUser *user2 = [FIRAuth auth].currentUser;
+//    user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey2
+//                                                                               appID:kFirebaseAppID];
+//    OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
+//        .andDispatchError2([FIRAuthErrorUtils invalidAPIKeyError]);
+//    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+//    [[FIRAuth auth] updateCurrentUser:user2
+//                           completion:^(NSError *_Nullable error) {
+//                             XCTAssertEqual(error.code, FIRAuthErrorCodeInvalidAPIKey);
+//                             [expectation fulfill];
+//                           }];
+//    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+//    OCMVerifyAll(_mockBackend);
+//  }
+
   // MARK: Helper Functions
 
-  private func assertUser(_ user: User) {
+  private func assertUser(_ user: User?) {
+    guard let user = user else {
+      XCTFail("authResult.additionalUserInfo is missing")
+      return
+    }
     XCTAssertEqual(user.uid, kLocalID)
     XCTAssertEqual(user.displayName, kDisplayName)
     XCTAssertEqual(user.email, kEmail)
     XCTAssertFalse(user.isAnonymous)
     XCTAssertEqual(user.providerData.count, 1)
+  }
+
+  private func assertUserAnonymous(_ user: User?) {
+    guard let user = user else {
+      XCTFail("authResult.additionalUserInfo is missing")
+      return
+    }
+    XCTAssertEqual(user.uid, kLocalID)
+    XCTAssertNil(user.email)
+    XCTAssertNil(user.displayName)
+    XCTAssertTrue(user.isAnonymous)
+    XCTAssertEqual(user.providerData.count, 0)
   }
 
   private func setFakeSecureTokenService() {
@@ -638,5 +965,30 @@ class AuthTests: RPCBaseTests {
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,
     ]]
+  }
+
+  private func setFakeGetAccountProviderAnonymous() {
+    let kPasswordHashKey = "passwordHash"
+    let kTestPasswordHash = "testPasswordHash"
+    let kLocalIDKey = "localId"
+
+    RPCIssuer?.fakeGetAccountProviderJSON = [[
+      kLocalIDKey: kLocalID,
+      kPasswordHashKey: kTestPasswordHash,
+    ]]
+  }
+
+  private func createGroup() -> DispatchGroup {
+    let group = DispatchGroup()
+    RPCIssuer?.group = group
+    group.enter()
+    return group
+  }
+
+  private func fakeActionCodeSettings() -> ActionCodeSettings {
+    let settings = ActionCodeSettings()
+    settings.handleCodeInApp = true
+    settings.url = URL(string: kContinueURL)
+    return settings
   }
 }
