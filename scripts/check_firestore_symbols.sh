@@ -36,6 +36,12 @@
 
 set -euo pipefail
 
+echo "About to call xcpretty"
+xcpretty --help
+echo "Called xcpretty"
+
+exit 1
+
 if [[ $# -ne 2 ]]; then
     echo "Usage: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>"
     exit 1
