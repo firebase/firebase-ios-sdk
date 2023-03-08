@@ -42,7 +42,7 @@ Pod::Spec.new do |s|
 
     s.ios.resource_bundles = {
         'AppDistributionInternalResources' => [
-           base_dir + 'Resources/FIRAppDistributionInternalStoryboard.storyboard',
+           base_dir + 'Resources/AppDistributionInternalStoryboard.storyboard',
          ]
       }
 
