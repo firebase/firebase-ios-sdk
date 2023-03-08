@@ -114,7 +114,10 @@ class AppDistributionApiServiceTests: XCTestCase {
       ],
     ]
     let response = ["releases": expectedReleases]
-    let urlSession = URLSessionMock(testCase: .success, mockResponse: response)
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: try! JSONSerialization.data(withJSONObject: response)
+    )
 
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
 
@@ -127,6 +130,58 @@ class AppDistributionApiServiceTests: XCTestCase {
         XCTAssertNil(error)
         XCTAssertEqual(releases?.count, 2)
         XCTAssertEqual(releases as? [[String: AnyHashable]?], expectedReleases)
+        expectation.fulfill()
+      }
+    )
+
+    wait(for: [expectation], timeout: 5)
+  }
+
+  func testFetchReleasesWithEmptyArraySuccess() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: try! JSONSerialization.data(withJSONObject: ["releases": []])
+    )
+
+    let expectation = XCTestExpectation(description: "Fetch releases succeeds with 0 releases.")
+
+    AppDistributionApiService.fetchReleases(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      completion: { releases, error in
+        XCTAssertNotNil(releases)
+        XCTAssertNil(error)
+        XCTAssertEqual(releases?.count, 0)
+        XCTAssertEqual(releases as? [[String: AnyHashable]?], [])
+        expectation.fulfill()
+      }
+    )
+
+    wait(for: [expectation], timeout: 5)
+  }
+
+  func testFetchReleasesWithInvalidJsonFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: "invalid-string".data(using: .utf8)
+    )
+
+    let expectation = XCTestExpectation(description: "Fetch releases fails")
+
+    AppDistributionApiService.fetchReleases(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      completion: { releases, error in
+        let nserror = error as? NSError
+        XCTAssertNil(releases)
+        XCTAssertNotNil(nserror)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorParseFailure.rawValue)
         expectation.fulfill()
       }
     )
@@ -186,7 +241,10 @@ class AppDistributionApiServiceTests: XCTestCase {
   func testFindReleaseSuccess() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
-    let urlSession = URLSessionMock(testCase: .success, mockResponse: ["release": "release/name"])
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: try! JSONSerialization.data(withJSONObject: ["release": "release/name"])
+    )
 
     let expectation = XCTestExpectation(description: "Find release succeeds")
 
@@ -200,6 +258,33 @@ class AppDistributionApiServiceTests: XCTestCase {
       completion: { releaseName, error in
         XCTAssertEqual(releaseName, "release/name")
         XCTAssertNil(error)
+        expectation.fulfill()
+      }
+    )
+  }
+
+  func testFindReleaseWithInvalidJsonFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: "invalid-json".data(using: .utf8)
+    )
+
+    let expectation = XCTestExpectation(description: "Find release fails")
+
+    AppDistributionApiService.findRelease(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      displayVersion: "display-version",
+      buildVersion: "build-version",
+      codeHash: "codeHash",
+      completion: { releaseName, error in
+        XCTAssertNil(releaseName)
+        let nserror = error as? NSError
+        XCTAssertNotNil(nserror)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorParseFailure.rawValue)
         expectation.fulfill()
       }
     )
@@ -256,7 +341,10 @@ class AppDistributionApiServiceTests: XCTestCase {
   func testCreateFeedbackSuccess() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
-    let urlSession = URLSessionMock(testCase: .success, mockResponse: ["name": "feedback/name"])
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: try! JSONSerialization.data(withJSONObject: ["name": "feedback/name"])
+    )
 
     let expectation = XCTestExpectation(description: "Create feedback succeeds")
 
@@ -274,6 +362,32 @@ class AppDistributionApiServiceTests: XCTestCase {
     )
 
     wait(for: [expectation], timeout: 5)
+  }
+
+  func testCreateFeedbackWithInvalidJsonFailure() {
+    let app = FirebaseApp.app(name: "app-distribution-test-app")!
+    let installations = FakeInstallations(testCase: .success)
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: "invalid-json".data(using: .utf8)
+    )
+
+    let expectation = XCTestExpectation(description: "Create feedback fails")
+
+    AppDistributionApiService.createFeedback(
+      app: app,
+      installations: installations,
+      urlSession: urlSession,
+      releaseName: "release/name",
+      feedbackText: "feedback text",
+      completion: { releaseName, error in
+        XCTAssertNil(releaseName)
+        let nserror = error as? NSError
+        XCTAssertNotNil(nserror)
+        XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorParseFailure.rawValue)
+        expectation.fulfill()
+      }
+    )
   }
 
   func testCreateFeedbackUnauthenticatedFailure() {
@@ -399,7 +513,10 @@ class AppDistributionApiServiceTests: XCTestCase {
   func testCommitFeedbackSuccess() {
     let app = FirebaseApp.app(name: "app-distribution-test-app")!
     let installations = FakeInstallations(testCase: .success)
-    let urlSession = URLSessionMock(testCase: .success, mockResponse: ["name": "feedback/name"])
+    let urlSession = URLSessionMock(
+      testCase: .success,
+      responseData: try! JSONSerialization.data(withJSONObject: ["name": "feedback/name"])
+    )
 
     let expectation = XCTestExpectation(description: "Commit feedback succeeds")
 
