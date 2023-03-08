@@ -59,7 +59,7 @@ import Foundation
     nil
   }
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
     isNewUser = (dictionary["isNewUser"] as? Bool) ?? false

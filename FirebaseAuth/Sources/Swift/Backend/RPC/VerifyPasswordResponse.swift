@@ -64,7 +64,7 @@ import Foundation
 
   @objc public var MFAInfo: [AuthProtoMFAEnrollment]?
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     localID = dictionary["localId"] as? String
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String
@@ -76,7 +76,7 @@ import Foundation
     refreshToken = dictionary["refreshToken"] as? String
     photoURL = (dictionary["photoUrl"] as? String).flatMap { URL(string: $0) }
 
-    if let mfaInfo = dictionary["mfaInfo"] as? [[String: Any]] {
+    if let mfaInfo = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
       MFAInfo = mfaInfo.map { AuthProtoMFAEnrollment(dictionary: $0) }
     }
     MFAPendingCredential = dictionary["mfaPendingCredential"] as? String

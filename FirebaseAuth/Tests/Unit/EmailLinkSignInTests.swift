@@ -56,8 +56,8 @@ class EmailLinkSignInTests: RPCBaseTests {
     AuthBackend.post(withRequest: makeEmailLinkSignInRequest()) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
-    XCTAssertEqual(RPCIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
-    guard let requestDictionary = RPCIssuer?.decodedRequest as? [AnyHashable: String] else {
+    XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
+    guard let requestDictionary = rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
       XCTFail("decodedRequest is not a dictionary")
       return
     }
@@ -76,8 +76,8 @@ class EmailLinkSignInTests: RPCBaseTests {
     AuthBackend.post(withRequest: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
-    XCTAssertEqual(RPCIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
-    guard let requestDictionary = RPCIssuer?.decodedRequest as? [AnyHashable: String] else {
+    XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
+    guard let requestDictionary = rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
       XCTFail("decodedRequest is not a dictionary")
       return
     }
@@ -114,7 +114,7 @@ class EmailLinkSignInTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    try RPCIssuer?.respond(withJSON: ["idToken": kTestIDTokenResponse,
+    try rpcIssuer?.respond(withJSON: ["idToken": kTestIDTokenResponse,
                                       "email": kTestEmailResponse,
                                       "isNewUser": true,
                                       "expiresIn": "\(kTestTokenExpirationTimeInterval)",

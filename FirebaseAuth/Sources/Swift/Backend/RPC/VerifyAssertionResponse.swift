@@ -203,7 +203,7 @@ import Foundation
 
   @objc public var MFAInfo: [AuthProtoMFAEnrollment]?
 
-  public func setFields(dictionary: [String: Any]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     federatedID = dictionary["federatedId"] as? String
     providerID = dictionary["providerId"] as? String
     localID = dictionary["localId"] as? String
@@ -264,7 +264,7 @@ import Foundation
     oauthSecretToken = dictionary["oauthTokenSecret"] as? String
     pendingToken = dictionary["pendingToken"] as? String
 
-    if let mfaInfoDicts = dictionary["mfaInfo"] as? [[String: Any]] {
+    if let mfaInfoDicts = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
       MFAInfo = mfaInfoDicts.map {
         AuthProtoMFAEnrollment(dictionary: $0)
       }
