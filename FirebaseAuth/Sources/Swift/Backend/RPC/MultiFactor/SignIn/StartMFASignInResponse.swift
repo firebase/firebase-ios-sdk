@@ -17,8 +17,8 @@ import Foundation
 @objc(FIRStartMFASignInResponse) public class StartMFASignInResponse: NSObject, AuthRPCResponse {
   var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
 
-  public func setFields(dictionary: [String: Any]) throws {
-    if let data = dictionary["phoneResponseInfo"] as? [String: Any] {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
+    if let data = dictionary["phoneResponseInfo"] as? [String: AnyHashable] {
       responseInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
     } else {
       fatalError()

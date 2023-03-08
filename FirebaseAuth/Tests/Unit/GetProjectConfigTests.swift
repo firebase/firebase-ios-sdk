@@ -64,7 +64,7 @@ class GetProjectConfigTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try RPCIssuer?.respond(withJSON: ["projectId": kTestProjectID,
+    _ = try rpcIssuer?.respond(withJSON: ["projectId": kTestProjectID,
                                           "authorizedDomains": [kTestDomain1, kTestDomain2]])
 
     XCTAssert(callbackInvoked)

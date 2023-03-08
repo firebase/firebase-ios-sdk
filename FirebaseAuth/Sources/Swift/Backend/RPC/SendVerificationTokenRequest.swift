@@ -79,8 +79,8 @@ public class SendVerificationCodeRequest: IdentityToolkitRequest,
     )
   }
 
-  @objc public func unencodedHTTPRequestBody() throws -> Any {
-    var postBody: [String: Any] = [:]
+  @objc public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var postBody: [String: AnyHashable] = [:]
     postBody[kPhoneNumberKey] = phoneNumber
     if let receipt = appCredential?.receipt {
       postBody[kReceiptKey] = receipt
