@@ -86,7 +86,6 @@ echo "Test package root: $TEST_PKG_ROOT"
 mkdir -p "$TEST_PKG_ROOT/Sources/TestPkg"
 
 # Generate the package's `Package.swift`.
-# TODO(ncooke3): Make package path an argument.
 cat > "$TEST_PKG_ROOT/Package.swift" <<- EOM
 // swift-tools-version: 5.6
 import PackageDescription
