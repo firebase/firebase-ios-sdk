@@ -21,7 +21,6 @@ import Photos
                                                                                               onDismiss: @escaping ()
                                                                                                 -> Void)
     -> UIViewController {
-      
     // TODO: Add the additionalInfoText parameter.
     let frameworkBundle = Bundle(for: self)
 

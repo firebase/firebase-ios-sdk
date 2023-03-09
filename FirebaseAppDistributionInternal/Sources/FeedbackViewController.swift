@@ -15,7 +15,6 @@
 import UIKit
 
 class FeedbackViewController: UIViewController {
-  
   // TODO: Consider the situations where this instance is initiated once, and used
   // multiple times.
   var viewDidDisappearCallback: () -> Void = {}
