@@ -205,6 +205,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
   UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewControllerWithImage:image onDismiss:^() {
+    // TODO: Consider using a notification instead of passing this closure.
+    // TODO: Consider migrating the UIService to Swift.
     [self resetUIState];
   }];
   [self initializeUIState];
