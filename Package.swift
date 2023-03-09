@@ -1355,3 +1355,36 @@ if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREME
     )
   }
 }
+
+// This is set when running `scripts/check_firestore_symbols.sh`.
+if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
+  if let firestoreIndex = package.targets
+    .firstIndex(where: { $0.name == "FirebaseFirestore" }) {
+    package.targets[firestoreIndex] = .binaryTarget(
+      name: "FirebaseFirestore",
+      // The `xcframework` should be moved to the root of the repo.
+      path: "FirebaseFirestore.xcframework"
+    )
+  }
+
+  // TODO(ncooke3): Below re-defining is not needed when original
+  // FirebaseFirestoreTarget definition matches below definition.
+  if let firestoreTargetIndex = package.targets
+    .firstIndex(where: { $0.name == "FirebaseFirestoreTarget" }) {
+    package.targets[firestoreTargetIndex] = .target(
+      name: "FirebaseFirestoreTarget",
+      dependencies: [
+        .target(
+          name: "FirebaseFirestore",
+          condition: .when(platforms: [.iOS, .tvOS, .macOS])
+        ),
+        .product(name: "abseil", package: "abseil"),
+        .product(name: "gRPC-cpp", package: "gRPC"),
+        .product(name: "nanopb", package: "nanopb"),
+        "FirebaseCore",
+        "leveldb",
+      ],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
+    )
+  }
+}
