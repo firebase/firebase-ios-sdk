@@ -214,6 +214,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
 // MARK: - In App Feedback
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
+  // TODO: Pass the additionalFormText to the view controller.
+  // TODO: Verify what happens when the string is empty.
   UIViewController *feedbackViewController =
       [FIRFADInAppFeedback feedbackViewControllerWithImage:image
                                                  onDismiss:^() {
