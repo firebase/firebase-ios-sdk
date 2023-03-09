@@ -18,12 +18,24 @@ class FeedbackViewController: UIViewController {
   
   var viewDidDisappearCallback: () -> Void = {}
   var image: UIImage? = nil
+  var additionalInfo: String? = nil
+  
+  @IBOutlet weak var screenshotUIImageView: UIImageView!
+  @IBOutlet weak var additionalInfoLabel: UILabel!
+  @IBOutlet weak var feedbackTextView: UITextView!
   
   @IBOutlet weak var navigationBar: UINavigationBar!
   
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
+  }
+  
+  override func viewWillAppear(_ animated: Bool) {
+    screenshotUIImageView.image = image
+  }
+  
+  @IBAction func tappedSend(_ sender: Any) {
   }
   
   @IBAction func tappedCancel(_ sender: Any) {
