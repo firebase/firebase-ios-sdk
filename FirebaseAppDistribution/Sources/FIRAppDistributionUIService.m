@@ -23,14 +23,13 @@
 
 @import FirebaseAppDistributionInternal;
 
-@interface FIRAppDistributionUIService()
+@interface FIRAppDistributionUIService ()
 
-@property (nonatomic, assign, getter=isListeningToScreenshot) BOOL listeningToScreenshot;
+@property(nonatomic, assign, getter=isListeningToScreenshot) BOOL listeningToScreenshot;
 
 @end
 
 @implementation FIRAppDistributionUIService
-
 
 API_AVAILABLE(ios(9.0))
 SFSafariViewController *_safariVC;
@@ -211,13 +210,19 @@ SFAuthenticationSession *_safariAuthenticationVC;
 // MARK: - In App Feedback
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
-  UIViewController *feedbackViewController = [FIRFADInAppFeedback feedbackViewControllerWithImage:image onDismiss:^() {
-    // TODO: Consider using a notification instead of passing this closure.
-    // TODO: Consider migrating the UIService to Swift.
-    [self resetUIState];
-  }];
+  UIViewController *feedbackViewController =
+      [FIRFADInAppFeedback feedbackViewControllerWithImage:image
+                                                 onDismiss:^() {
+                                                   // TODO: Consider using a notification instead of
+                                                   // passing this closure.
+                                                   // TODO: Consider migrating the UIService to
+                                                   // Swift.
+                                                   [self resetUIState];
+                                                 }];
   [self initializeUIState];
-  [self.hostingViewController presentViewController:feedbackViewController animated:YES completion:nil];
+  [self.hostingViewController presentViewController:feedbackViewController
+                                           animated:YES
+                                         completion:nil];
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
@@ -234,7 +239,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)screenshotDetected:(NSNotification *)notification {
   // TODO: Check NSUserDefault for alert info and show alert if needed.
-  [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage * screenshot){
+  [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
     [self startFeedbackWithAdditionalFormText:@"" image:screenshot];
   }];
 }
