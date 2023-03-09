@@ -42,11 +42,18 @@ import Photos
     // TODO: Implement it.
   }
   
-  public static func getScreenshotFromCameraRoll() -> UIImage {
-    PHPhotoLibrary.requestAuthorization { status in
-            guard status == .authorized else { return }
-      print("Access granted")
+  public static func captureProgrammaticScreenshot() -> UIImage? {
+    let layer = UIApplication.shared.keyWindow?.layer
+    
+    if let layer {
+      let renderer = UIGraphicsImageRenderer(size: layer.bounds.size)
+      let image = renderer.image { ctx in
+        layer.render(in: ctx.cgContext)
+      }
+      
+      return image
     }
-    return UIImage()
+    
+    return nil
   }
 }
