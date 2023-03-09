@@ -21,7 +21,8 @@
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
 
-NSString *const kFIRFADScreenshotFeedbackUserDefault = @"com.firebase.appdistribution.feedback.userdefault";
+NSString *const kFIRFADScreenshotFeedbackUserDefault =
+    @"com.firebase.appdistribution.feedback.userdefault";
 
 @import FirebaseAppDistributionInternal;
 
@@ -238,10 +239,10 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:[UIApplication sharedApplication]];
     self.additionalFormText = additionalFormText;
-    
+
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL dontShowAlert = [defaults boolForKey:kFIRFADScreenshotFeedbackUserDefault];
-    
+
     if (showAlertInfo && !dontShowAlert) {
       [self showScreenshotFeedbackUIAlert];
     }
@@ -265,15 +266,15 @@ SFAuthenticationSession *_safariAuthenticationVC;
                 [self resetUIState];
               }];
 
-  UIAlertAction *dontShowAgainButton = [UIAlertAction
-      actionWithTitle:NSLocalizedString(@"Don't show again",
-                                        @"Button for not showing the alert again.")
-                style:UIAlertActionStyleCancel
-              handler:^(UIAlertAction *action) {
-                [self resetUIState];
-                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-                [defaults setBool:YES forKey:kFIRFADScreenshotFeedbackUserDefault];
-              }];
+  UIAlertAction *dontShowAgainButton =
+      [UIAlertAction actionWithTitle:NSLocalizedString(@"Don't show again",
+                                                       @"Button for not showing the alert again.")
+                               style:UIAlertActionStyleCancel
+                             handler:^(UIAlertAction *action) {
+                               [self resetUIState];
+                               NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                               [defaults setBool:YES forKey:kFIRFADScreenshotFeedbackUserDefault];
+                             }];
 
   [alert addAction:okButton];
   [alert addAction:dontShowAgainButton];

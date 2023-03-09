@@ -380,8 +380,8 @@ class AppDistributionApiServiceTests: XCTestCase {
       urlSession: urlSession,
       releaseName: "release/name",
       feedbackText: "feedback text",
-      completion: { releaseName, error in
-        XCTAssertNil(releaseName)
+      completion: { feedbackName, error in
+        XCTAssertNil(feedbackName)
         let nserror = error as? NSError
         XCTAssertNotNil(nserror)
         XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorParseFailure.rawValue)
@@ -403,8 +403,8 @@ class AppDistributionApiServiceTests: XCTestCase {
       urlSession: urlSession,
       releaseName: "release/name",
       feedbackText: "feedback text",
-      completion: { releaseName, error in
-        XCTAssertNil(releaseName)
+      completion: { feedbackName, error in
+        XCTAssertNil(feedbackName)
         let nserror = error as? NSError
         XCTAssertNotNil(nserror)
         XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnauthenticated.rawValue)
@@ -428,8 +428,8 @@ class AppDistributionApiServiceTests: XCTestCase {
       urlSession: urlSession,
       releaseName: "release/name",
       feedbackText: "feedback text",
-      completion: { releaseName, error in
-        XCTAssertNil(releaseName)
+      completion: { feedbackName, error in
+        XCTAssertNil(feedbackName)
         let nserror = error as? NSError
         XCTAssertNotNil(nserror)
         XCTAssertEqual(nserror?.code, AppDistributionApiError.ApiErrorUnknownFailure.rawValue)

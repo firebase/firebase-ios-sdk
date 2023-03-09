@@ -85,7 +85,7 @@ import Photos
         completionHandler(true)
         return
       }
-      
+
       PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
         completionHandler(status != .denied)
       }

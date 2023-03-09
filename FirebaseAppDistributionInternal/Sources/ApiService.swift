@@ -260,7 +260,7 @@ struct CreateFeedbackReportRequest: Codable {
   @objc(createFeedbackWithReleaseName:feedbackText:completion:)
   public static func createFeedback(releaseName: String,
                                     feedbackText: String,
-                                    completion: @escaping (_ releaseName: String?, _ error: Error?)
+                                    completion: @escaping (_ feedbackName: String?, _ error: Error?)
                                       -> Void) {
     createFeedback(
       app: FirebaseApp.app()!,
@@ -275,7 +275,7 @@ struct CreateFeedbackReportRequest: Codable {
   static func createFeedback(app: FirebaseApp, installations: InstallationsProtocol,
                              urlSession: URLSession, releaseName: String,
                              feedbackText: String,
-                             completion: @escaping (_ releaseName: String?, _ error: Error?)
+                             completion: @escaping (_ feedbackName: String?, _ error: Error?)
                                -> Void) {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       guard let authTokenResult = authTokenResult else {
