@@ -230,6 +230,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
+  // TODO: Consider adding showActionSheetBeforeFeedback parameter.
   if (!self.isListeningToScreenshot) {
     self.listeningToScreenshot = YES;
     [[NSNotificationCenter defaultCenter] addObserver:self
