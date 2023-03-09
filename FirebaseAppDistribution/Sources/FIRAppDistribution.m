@@ -336,31 +336,48 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
 
+- (NSString *)getCodeHash {
+  NSString *executablePath = [[NSBundle mainBundle] executablePath];
+  FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+  return [machO codeHash];
+}
+
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
-  UIImage *screenshot = [FIRFADInAppFeedback captureProgrammaticScreenshot];
+  [self startFeedbackWithAdditionalFormText:additionalFormText image:nil];
+}
+
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+                                      image:(UIImage *_Nullable)image {
   if ([self isTesterSignedIn]) {
-    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
+    [self findReleaseAndStartFeedbackWithAdditionalFormText:additionalFormText image:image];
   } else {
     [self signInTesterWithCompletion:^(NSError *_Nullable error) {
       if (error) {
         return;
       }
-      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
+      [self findReleaseAndStartFeedbackWithAdditionalFormText:additionalFormText image:image];
     }];
   }
 }
 
-- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
-  if ([self isTesterSignedIn]) {
-    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
-  } else {
-    [self signInTesterWithCompletion:^(NSError *_Nullable error) {
-      if (error) {
-        return;
-      }
-      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
-    }];
-  }
+- (void)findReleaseAndStartFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+                                                    image:(UIImage *_Nullable)image {
+  [FIRFADApiServiceSwift
+      findReleaseWithDisplayVersion:[self getAppVersion]
+                       buildVersion:[self getAppBuild]
+                           codeHash:[self getCodeHash]
+                         completion:^(NSString *__nullable feedbackName,
+                                      NSError *__nullable error) {
+                           if (feedbackName == nil) {
+                             // TODO(tundeagboola) handle nil feedback
+                           }
+                           if (error) {
+                             // TODO(tundeagoola) handle network error
+                           }
+                           [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
+                                                                  feedbackName:feedbackName
+                                                                         image:image];
+                         }];
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText

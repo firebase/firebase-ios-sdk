@@ -213,18 +213,22 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 // MARK: - In App Feedback
 
-- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
-  // TODO: Pass the additionalFormText to the view controller.
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+                               feedbackName:(NSString *)feedbackName
+                                      image:(UIImage *__nullable)image {
   // TODO: Verify what happens when the string is empty.
   UIViewController *feedbackViewController =
-      [FIRFADInAppFeedback feedbackViewControllerWithImage:image
-                                                 onDismiss:^() {
-                                                   // TODO: Consider using a notification instead of
-                                                   // passing this closure.
-                                                   // TODO: Consider migrating the UIService to
-                                                   // Swift.
-                                                   [self resetUIState];
-                                                 }];
+      [FIRFADInAppFeedback feedbackViewControllerWithAdditionalFormText:additionalFormText
+                                                           feedbackName:feedbackName
+                                                                  image:image
+                                                              onDismiss:^() {
+                                                                // TODO: Consider using a
+                                                                // notification instead of passing
+                                                                // this closure.
+                                                                // TODO: Consider migrating the
+                                                                // UIService to Swift.
+                                                                [self resetUIState];
+                                                              }];
   [self initializeUIState];
   [self.hostingViewController presentViewController:feedbackViewController
                                            animated:YES
