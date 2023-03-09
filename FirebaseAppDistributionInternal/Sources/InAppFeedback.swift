@@ -69,6 +69,7 @@ import Photos
 
       manager.requestImage(
         for: fetchResult.object(at: 0),
+        // TODO: Identify the correct size.
         targetSize: CGSize(width: 358, height: 442),
         contentMode: .aspectFill,
         options: requestOptions
