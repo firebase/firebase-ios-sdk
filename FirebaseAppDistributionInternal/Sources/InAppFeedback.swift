@@ -78,15 +78,26 @@ import Photos
 
   static func getPhotoPermissionIfNecessary(completionHandler: @escaping (_ authorized: Bool)
     -> Void) {
-    // TODO: Add different cases for iOS 14+
+    if #available(iOS 14, *) {
+      // The iOS 14 API is used to prompt users for permission if they previously provided limited access,
+      // but have now taken an additional screenshot.
+      guard PHPhotoLibrary.authorizationStatus(for: .readWrite) != .authorized else {
+        completionHandler(true)
+        return
+      }
+      
+      PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+        completionHandler(status != .denied)
+      }
+    } else {
+      guard PHPhotoLibrary.authorizationStatus() != .authorized else {
+        completionHandler(true)
+        return
+      }
 
-    guard PHPhotoLibrary.authorizationStatus() != .authorized else {
-      completionHandler(true)
-      return
-    }
-
-    PHPhotoLibrary.requestAuthorization { status in
-      completionHandler(status != .denied)
+      PHPhotoLibrary.requestAuthorization { status in
+        completionHandler(status != .denied)
+      }
     }
   }
 
