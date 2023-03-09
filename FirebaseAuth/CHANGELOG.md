@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added an API for developers to pass the fullName from the Sign in with Apple credential to Firebase. (#10068)
+
 # 10.6.0
 - [fixed] Fixed a bug where user is created in a specific tenant although tenantID was not specified. (#10748)
 - [fixed] Fixed a bug where the resolver exposed in MFA is not associated to the correct app. (#10690)

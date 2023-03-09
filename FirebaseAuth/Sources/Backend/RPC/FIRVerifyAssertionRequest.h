@@ -96,6 +96,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, assign) BOOL autoCreate;
 
+/** @property fullName
+    @brief A full name from the IdP.
+ */
+@property(nonatomic, copy, nullable) NSPersonNameComponents *fullName;
+
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithProviderID:requestConfifuration instead.
  */
