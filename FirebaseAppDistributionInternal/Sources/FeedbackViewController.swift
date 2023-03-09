@@ -15,6 +15,9 @@
 import UIKit
 
 class FeedbackViewController: UIViewController {
+  
+  // TODO: Consider the situations where this instance is initiated once, and used
+  // multiple times.
   var viewDidDisappearCallback: () -> Void = {}
   var image: UIImage?
   var additionalInfo: String?
@@ -32,6 +35,7 @@ class FeedbackViewController: UIViewController {
 
   override func viewWillAppear(_ animated: Bool) {
     screenshotUIImageView.image = image
+    image = nil
   }
 
   @IBAction func tappedSend(_ sender: Any) {}
