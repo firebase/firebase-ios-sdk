@@ -42,6 +42,7 @@ import Photos
     // TODO: Implement it.
   }
   
+  @objc(captureProgrammaticScreenshot)
   public static func captureProgrammaticScreenshot() -> UIImage? {
     let layer = UIApplication.shared.keyWindow?.layer
     
