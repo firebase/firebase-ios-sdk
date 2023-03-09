@@ -21,11 +21,14 @@
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
 
+NSString *const kFIRFADScreenshotFeedbackUserDefault = @"com.firebase.appdistribution.feedback.userdefault";
+
 @import FirebaseAppDistributionInternal;
 
 @interface FIRAppDistributionUIService ()
 
 @property(nonatomic, assign, getter=isListeningToScreenshot) BOOL listeningToScreenshot;
+@property(nonatomic) NSString *additionalFormText;
 
 @end
 
@@ -233,16 +236,54 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                              selector:@selector(screenshotDetected:)
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:[UIApplication sharedApplication]];
-    // TODO: Add NSUserDefault about alert info.
+    self.additionalFormText = additionalFormText;
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL dontShowAlert = [defaults boolForKey:kFIRFADScreenshotFeedbackUserDefault];
+    
+    if (showAlertInfo && !dontShowAlert) {
+      [self showScreenshotFeedbackUIAlert];
+    }
   }
 }
 
+- (void)showScreenshotFeedbackUIAlert {
+  UIAlertController *alert = [UIAlertController
+      alertControllerWithTitle:NSLocalizedString(
+                                   @"Send feedback",
+                                   @"Title for App Distribution Feedback on Screenshot")
+                       message:NSLocalizedString(
+                                   @"Take a screenshot to send feedback",
+                                   @"Description for sending feedback when a screenshot is taken.")
+                preferredStyle:UIAlertControllerStyleAlert];
+
+  UIAlertAction *okButton = [UIAlertAction
+      actionWithTitle:NSLocalizedString(@"OK", @"Button for dismissing the feedback alert.")
+                style:UIAlertActionStyleDefault
+              handler:^(UIAlertAction *action) {
+                [self resetUIState];
+              }];
+
+  UIAlertAction *dontShowAgainButton = [UIAlertAction
+      actionWithTitle:NSLocalizedString(@"Don't show again",
+                                        @"Button for not showing the alert again.")
+                style:UIAlertActionStyleCancel
+              handler:^(UIAlertAction *action) {
+                [self resetUIState];
+                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                [defaults setBool:YES forKey:kFIRFADScreenshotFeedbackUserDefault];
+              }];
+
+  [alert addAction:okButton];
+  [alert addAction:dontShowAgainButton];
+  [self showUIAlert:alert];
+}
+
 - (void)screenshotDetected:(NSNotification *)notification {
-  // TODO: Check NSUserDefault for alert info and show alert if needed.
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul), ^{
     [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        [self startFeedbackWithAdditionalFormText:@"" image:screenshot];
+        [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
       });
     }];
   });
