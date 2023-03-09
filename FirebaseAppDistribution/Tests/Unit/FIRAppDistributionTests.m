@@ -673,4 +673,8 @@
   XCTAssertEqual([handledError domain], FIRAppDistributionErrorDomain);
 }
 
+// TODO(tundeagboola) Add tests for startFeedbackWithAdditionalFormText
+// TODO(tundeagboola) Add tests for startFeedbackWithAdditionalFormText:image
+// TODO(tundeagboola) Add tests for enableFeedbackOnScreenshotWithAdditionalFormText
+
 @end
