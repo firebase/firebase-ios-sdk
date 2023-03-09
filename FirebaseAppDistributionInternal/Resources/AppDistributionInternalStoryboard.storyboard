@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,12 +17,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Feedback View Controller" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W0X-zt-uEG">
-                                <rect key="frame" x="97" y="418" width="196" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dia-oO-Nu0">
                                 <rect key="frame" x="0.0" y="47" width="390" height="44"/>
                                 <items>
@@ -39,7 +33,7 @@
                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="iNL-09-ZI6">
                                 <rect key="frame" x="0.0" y="175" width="390" height="158"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <mutableString key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</mutableString>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
                                 <color key="textColor" systemColor="labelColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
@@ -74,13 +68,11 @@
                             <constraint firstItem="iNL-09-ZI6" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="1PC-Dd-vBO"/>
                             <constraint firstItem="Dia-oO-Nu0" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="7XR-Cu-c7J"/>
                             <constraint firstItem="B8f-p9-FeY" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="91" id="EFg-iZ-Jzz"/>
-                            <constraint firstItem="W0X-zt-uEG" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Jvv-bL-zyF"/>
                             <constraint firstItem="Dia-oO-Nu0" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="UDB-uL-1PW"/>
                             <constraint firstItem="B8f-p9-FeY" firstAttribute="trailing" secondItem="Dia-oO-Nu0" secondAttribute="trailing" id="b1e-eB-0Fc"/>
                             <constraint firstAttribute="bottom" secondItem="B8f-p9-FeY" secondAttribute="bottom" constant="669" id="gbS-Iu-ikS"/>
                             <constraint firstItem="B8f-p9-FeY" firstAttribute="leading" secondItem="Dia-oO-Nu0" secondAttribute="leading" id="waP-fr-WQe"/>
                             <constraint firstItem="Dia-oO-Nu0" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="wg8-jh-o4A"/>
-                            <constraint firstItem="W0X-zt-uEG" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="zZh-sJ-7Gx"/>
                         </constraints>
                     </view>
                 </viewController>
