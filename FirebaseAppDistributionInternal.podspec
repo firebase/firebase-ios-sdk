@@ -5,7 +5,7 @@
 
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAppDistributionInternal'
-    s.version          = '10.5.0-beta'
+    s.version          = '10.7.0-beta'
     s.summary          = 'Firebase App Distribution Internal for Swift implementations'
 
     s.description      = <<-DESC
@@ -19,7 +19,8 @@ Pod::Spec.new do |s|
 
     s.source           = {
       :git => 'https://github.com/firebase/firebase-ios-sdk.git',
-      :tag => 'CocoaPods-' + s.version.to_s
+      # :tag => 'CocoaPods-' + s.version.to_s
+      :commit => '0b504d4320653576365e66c50a647295e61a8301'
     }
     s.social_media_url = 'https://twitter.com/Firebase'
 
