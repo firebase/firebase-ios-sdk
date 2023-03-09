@@ -17,7 +17,7 @@ import UIKit
 import Photos
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
-  @objc(feedbackViewControllerWithImage:onDismiss:) public static func feedbackViewController(image: UIImage,
+  @objc(feedbackViewControllerWithImage:onDismiss:) public static func feedbackViewController(image: UIImage?,
                                                                                               onDismiss: @escaping ()
                                                                                                 -> Void)
     -> UIViewController {
