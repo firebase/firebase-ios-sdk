@@ -50,14 +50,15 @@ import Photos
       
       let fetchOptions = PHFetchOptions()
       fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+      fetchOptions.predicate = NSPredicate(format: "(mediaSubtype & %d) != 0", PHAssetMediaSubtype.photoScreenshot.rawValue)
       
       let requestOptions = PHImageRequestOptions()
       requestOptions.deliveryMode = .highQualityFormat
       
       let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
 
-      manager.requestImage(for: fetchResult.object(at: 0), targetSize: CGSize(width: 647, height: 375), contentMode: .aspectFill, options: requestOptions) { img, err  in
-        completion(img)
+      manager.requestImage(for: fetchResult.object(at: 0), targetSize: CGSize(width: 647, height: 375), contentMode: .aspectFill, options: requestOptions) { image, err  in
+        completion(image)
       }
     })
   }
