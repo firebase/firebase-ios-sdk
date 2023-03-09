@@ -38,15 +38,57 @@ import Photos
     return vc
   }
   
-  public static func enableFeedbackOnScreenshot(onScreenshot: @escaping () -> Void) {
-    // TODO: Implement it.
+  @objc(getManuallyCapturedScreenshotWithCompletion:)
+  public static func getManuallyCapturedScreenshot(completion: @escaping (_ screenshot: UIImage?) -> Void) {
+    getPhotoPermissionIfNecessary(completionHandler: { authorized in
+      guard authorized else {
+        completion(nil)
+        return
+      }
+      
+      let manager = PHImageManager.default()
+      
+      let fetchOptions = PHFetchOptions()
+      fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+      
+      let requestOptions = PHImageRequestOptions()
+      requestOptions.deliveryMode = .highQualityFormat
+      
+      let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+
+      manager.requestImage(for: fetchResult.object(at: 0), targetSize: CGSize(width: 647, height: 375), contentMode: .aspectFill, options: requestOptions) { img, err  in
+        completion(img)
+      }
+    })
   }
   
-  public static func getScreenshotFromCameraRoll() -> UIImage {
-    PHPhotoLibrary.requestAuthorization { status in
-            guard status == .authorized else { return }
-      print("Access granted")
+  static func getPhotoPermissionIfNecessary(completionHandler: @escaping (_ authorized: Bool) -> Void) {
+    // TODO: Add different cases for iOS 14+
+    
+    guard PHPhotoLibrary.authorizationStatus() != .authorized else {
+      completionHandler(true)
+      return
     }
-    return UIImage()
+    
+    PHPhotoLibrary.requestAuthorization { status in
+      completionHandler(status != .denied)
+    }
+  }
+  
+  @objc(captureProgrammaticScreenshot)
+  public static func captureProgrammaticScreenshot() -> UIImage? {
+    // TODO: Explore options besides keyWindow as keyWindow is deprecated.
+    let layer = UIApplication.shared.keyWindow?.layer
+    
+    if let layer {
+      let renderer = UIGraphicsImageRenderer(size: layer.bounds.size)
+      let image = renderer.image { ctx in
+        layer.render(in: ctx.cgContext)
+      }
+      
+      return image
+    }
+    
+    return nil
   }
 }

@@ -26,6 +26,8 @@
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
 
+@import FirebaseAppDistributionInternal;
+
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
@@ -335,14 +337,15 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
+  UIImage *screenshot = [FIRFADInAppFeedback captureProgrammaticScreenshot];
   if ([self isTesterSignedIn]) {
-    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:nil];
+    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
   } else {
     [self signInTesterWithCompletion:^(NSError *_Nullable error) {
       if (error) {
         return;
       }
-      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:nil];
+      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
     }];
   }
 }
@@ -362,7 +365,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  // TODO: Implement it.
+  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText showAlertInfo:showAlertInfo];
 }
 
 #pragma mark - Swizzling disabled
