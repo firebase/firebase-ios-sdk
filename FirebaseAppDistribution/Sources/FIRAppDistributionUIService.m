@@ -239,9 +239,13 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (void)screenshotDetected:(NSNotification *)notification {
   // TODO: Check NSUserDefault for alert info and show alert if needed.
-  [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
-    [self startFeedbackWithAdditionalFormText:@"" image:screenshot];
-  }];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul), ^{
+    [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [self startFeedbackWithAdditionalFormText:@"" image:screenshot];
+      });
+    }];
+  });
 }
 
 // MARK: - App Distribution UI State

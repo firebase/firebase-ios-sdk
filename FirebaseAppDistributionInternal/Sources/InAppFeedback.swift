@@ -61,7 +61,7 @@ import Photos
       )
 
       let requestOptions = PHImageRequestOptions()
-      requestOptions.deliveryMode = .highQualityFormat
+      requestOptions.isSynchronous = true
 
       let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
 
