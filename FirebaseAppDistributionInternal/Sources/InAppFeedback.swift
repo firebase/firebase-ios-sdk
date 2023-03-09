@@ -65,7 +65,7 @@ import Photos
       let requestOptions = PHImageRequestOptions()
       requestOptions.isSynchronous = true
 
-      let fetchResult: PHFetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+      let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
 
       manager.requestImage(
         for: fetchResult.object(at: 0),
