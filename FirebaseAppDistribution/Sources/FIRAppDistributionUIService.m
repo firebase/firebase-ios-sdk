@@ -274,8 +274,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
   [alert addAction:okButton];
   [alert addAction:dontShowAgainButton];
-
-  // Create an empty window + viewController to host the Safari UI.
   [self showUIAlert:alert];
 }
 
