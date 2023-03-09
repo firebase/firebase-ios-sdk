@@ -15,31 +15,37 @@
 import Foundation
 import FirebaseInstallations
 import FirebaseCore
+import UIKit
 
 // Avoids exposing internal APIs to Swift users
 @_implementationOnly import FirebaseCoreInternal
-
-public typealias AppDistributionFetchReleasesCompletion = (_ releases: [Any]?, _ error: Error?)
-  -> Void
-public typealias AppDistributionFindReleaseCompletion = (_ releaseName: String?, _ error: Error?)
-  -> Void
-public typealias AppDistributionGenerateAuthTokenCompletion = (_ identifier: String?,
-                                                               _ authTokenResult: InstallationsAuthTokenResult?,
-                                                               _ error: Error?) -> Void
 
 enum Strings {
   static let errorDomain = "com.firebase.appdistribution.api"
   static let errorDetailsKey = "details"
   static let httpGet = "GET"
+  static let httpPost = "POST"
   static let releaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases"
   static let findReleaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find"
+  static let createFeedbackEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/%@/feedbackReports"
+  static let uploadImageEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/%@/feedbackReports"
+  static let commitFeedbackEndpointUrlTemplate =
+    "https://firebaseapptesters.googleapis.com/v1alpha/%@:commit"
   static let installationsAuthHeader = "X-Goog-Firebase-Installations-Auth"
   static let apiHeaderKey = "X-Goog-Api-Key"
   static let apiBundleKey = "X-Ios-Bundle-Identifier"
   static let responseReleaseKey = "releases"
   static let compositeBinaryIdQueryParamName = "compositeBinaryId"
+  static let uploadArtifactTypeQueryParamName = "type"
+  static let uploadArtifactScreenshotType = "SCREENSHOT"
+  static let GoogleUploadProtocolHeader = "X-Goog-Upload-Protocol"
+  static let GoogleUploadProtocolRaw = "raw"
+  static let GoogleUploadFileNameHeader = "X-Goog-Upload-File-Name"
+  static let GoogleUploadFileName = "screenshot.png"
 }
 
 enum AppDistributionApiError: NSInteger {
@@ -63,13 +69,28 @@ struct FindReleaseResponse: Codable {
   var release: String
 }
 
+struct FeedbackReport: Codable {
+  var name: String?
+  var text: String?
+}
+
+struct CreateFeedbackReportRequest: Codable {
+  var feedbackReport: FeedbackReport
+}
+
 @objc(FIRFADApiServiceSwift) open class ApiService: NSObject {
-  @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+  @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping (_ identifier: String?,
+                                                                                                      _ authTokenResult: InstallationsAuthTokenResult?,
+                                                                                                      _ error: Error?)
+      -> Void) {
     generateAuthToken(installations: Installations.installations(), completion: completion)
   }
 
   static func generateAuthToken(installations: InstallationsProtocol,
-                                completion: @escaping AppDistributionGenerateAuthTokenCompletion) {
+                                completion: @escaping (_ identifier: String?,
+                                                       _ authTokenResult: InstallationsAuthTokenResult?,
+                                                       _ error: Error?)
+                                  -> Void) {
     installations.authToken(completion: { authTokenResult, error in
       var fadError: Error? = error
       if self.handleError(
@@ -103,11 +124,12 @@ struct FindReleaseResponse: Codable {
     })
   }
 
-  @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping AppDistributionFetchReleasesCompletion) {
+  @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping (_ releases: [Any]?,
+                                                                                              _ error: Error?)
+      -> Void) {
     guard let app = FirebaseApp.app() else {
       return
     }
-
     fetchReleases(
       app: app,
       installations: Installations.installations(),
@@ -117,8 +139,9 @@ struct FindReleaseResponse: Codable {
   }
 
   static func fetchReleases(app: FirebaseApp, installations: InstallationsProtocol,
-                            urlSession: URLSession,
-                            completion: @escaping AppDistributionFetchReleasesCompletion) {
+                            urlSession: URLSession, completion: @escaping (_ releases: [Any]?,
+                                                                           _ error: Error?)
+                              -> Void) {
     Logger.logInfo(String(
       format: "Requesting release for app id - %@",
       app.options.googleAppID
@@ -145,13 +168,12 @@ struct FindReleaseResponse: Codable {
       let listReleaseDataTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
-          let releases = self.handleReleaseResponse(
-            data: data as? NSData,
-            response: response,
-            error: &fadError
-          )
+          let releasesResponse = self.handleResponse(data: data,
+                                                     response: response,
+                                                     error: &fadError,
+                                                     returnType: [String: [Any]].self)
           DispatchQueue.main.async {
-            completion(releases, fadError)
+            completion(releasesResponse?[Strings.responseReleaseKey], fadError)
           }
         }
 
@@ -159,7 +181,257 @@ struct FindReleaseResponse: Codable {
     }
   }
 
+  @objc(findReleaseWithDisplayVersion:buildVersion:codeHash:completion:)
+  public static func findRelease(displayVersion: String, buildVersion: String, codeHash: String,
+                                 completion: @escaping (_ releaseName: String?, _ error: Error?)
+                                   -> Void) {
+    findRelease(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      displayVersion: displayVersion,
+      buildVersion: buildVersion,
+      codeHash: codeHash,
+      completion: completion
+    )
+  }
+
+  static func findRelease(app: FirebaseApp, installations: InstallationsProtocol,
+                          urlSession: URLSession, displayVersion: String,
+                          buildVersion: String, codeHash: String,
+                          completion: @escaping (_ releaseName: String?, _ error: Error?)
+                            -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
+      // TODO(tundeagboola) The backend may not accept project ID here in which case
+      // we'll have to figure out a way to get the project number
+      let urlString = String(
+        format: Strings.findReleaseEndpointUrlTemplate,
+        app,
+        identifier!
+      )
+      guard var urlComponents = URLComponents(string: urlString) else {
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for findRelease request")
+        return
+      }
+      let compositeBinaryId = CompositeBinaryId(
+        displayVersion: displayVersion,
+        buildVersion: buildVersion,
+        codeHash: codeHash
+      )
+      guard let compositeBinaryIdData = try? JSONEncoder().encode(compositeBinaryId) else {
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for findRelease request")
+        return
+      }
+      urlComponents.queryItems = [URLQueryItem(
+        name: Strings.compositeBinaryIdQueryParamName,
+        value: String(data: compositeBinaryIdData, encoding: .utf8)
+      )]
+      guard let url = urlComponents.url else {
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for findRelease request")
+        return
+      }
+      let request = self.createHttpRequest(
+        app: app,
+        method: Strings.httpGet,
+        url: url,
+        authTokenResult: authTokenResult!
+      )
+      let findReleaseDataTask = urlSession
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          let findReleaseResponse = self.handleCodableResponse(
+            data: data,
+            response: response,
+            error: &fadError,
+            returnType: FindReleaseResponse.self
+          )
+          DispatchQueue.main.async {
+            completion(findReleaseResponse?.release, fadError)
+          }
+        }
+
+      findReleaseDataTask.resume()
+    }
+  }
+
+  @objc(createFeedbackWithReleaseName:feedbackText:completion:)
+  public static func createFeedback(releaseName: String,
+                                    feedbackText: String,
+                                    completion: @escaping (_ releaseName: String?, _ error: Error?)
+                                      -> Void) {
+    createFeedback(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      releaseName: releaseName,
+      feedbackText: feedbackText,
+      completion: completion
+    )
+  }
+
+  static func createFeedback(app: FirebaseApp, installations: InstallationsProtocol,
+                             urlSession: URLSession, releaseName: String,
+                             feedbackText: String,
+                             completion: @escaping (_ releaseName: String?, _ error: Error?)
+                               -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
+      guard let authTokenResult = authTokenResult else {
+        completion(nil, error)
+        return
+      }
+      let urlString = String(
+        format: Strings.createFeedbackEndpointUrlTemplate,
+        releaseName
+      )
+      let request = createHttpRequest(
+        app: app,
+        method: Strings.httpPost,
+        url: urlString,
+        authTokenResult: authTokenResult
+      )
+      let createFeedbackRequest =
+        CreateFeedbackReportRequest(feedbackReport: FeedbackReport(text: feedbackText))
+      request.httpBody = try? JSONEncoder().encode(createFeedbackRequest)
+      let createFeedbackTask = urlSession
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          let feedback = self.handleCodableResponse(
+            data: data,
+            response: response,
+            error: &fadError,
+            returnType: FeedbackReport.self
+          )
+          DispatchQueue.main.async {
+            completion(feedback?.name, fadError)
+          }
+        }
+
+      createFeedbackTask.resume()
+    }
+  }
+
+  @objc(uploadImageWithFeedbackName:image:completion:)
+  public static func uploadImage(feedbackName: String,
+                                 image: UIImage,
+                                 completion: @escaping (_ error: Error?)
+                                   -> Void) {
+    uploadImage(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      feedbackName: feedbackName,
+      image: image,
+      completion: completion
+    )
+  }
+
+  static func uploadImage(app: FirebaseApp, installations: InstallationsProtocol,
+                          urlSession: URLSession, feedbackName: String,
+                          image: UIImage,
+                          completion: @escaping (_ error: Error?)
+                            -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
+      guard let authTokenResult = authTokenResult else {
+        completion(error)
+        return
+      }
+      let urlString = String(
+        format: Strings.uploadImageEndpointUrlTemplate,
+        feedbackName
+      )
+      guard var urlComponents = URLComponents(string: urlString) else {
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for uploadArtifact request")
+        return
+      }
+      urlComponents.queryItems = [URLQueryItem(
+        name: Strings.uploadArtifactTypeQueryParamName,
+        value: Strings.uploadArtifactScreenshotType
+      )]
+      guard let url = urlComponents.url else {
+        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
+        Logger.logError("Unable to build URL for uploadArtifact request")
+        return
+      }
+      let request = createHttpRequest(
+        app: app,
+        method: Strings.httpPost,
+        url: url,
+        authTokenResult: authTokenResult
+      )
+      request.setValue(
+        Strings.GoogleUploadProtocolHeader,
+        forHTTPHeaderField: Strings.GoogleUploadProtocolRaw
+      )
+      request.setValue(
+        Strings.GoogleUploadFileNameHeader,
+        forHTTPHeaderField: Strings.GoogleUploadFileName
+      )
+      let uploadImageTask = urlSession
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
+          DispatchQueue.main.async {
+            completion(fadError)
+          }
+        }
+
+      uploadImageTask.resume()
+    }
+  }
+
+  @objc(commitFeedbackWithFeedbackName:completion:)
+  public static func commitFeedback(feedbackName: String,
+                                    completion: @escaping (_ error: Error?)
+                                      -> Void) {
+    commitFeedback(
+      app: FirebaseApp.app()!,
+      installations: Installations.installations(),
+      urlSession: URLSession.shared,
+      feedbackName: feedbackName,
+      completion: completion
+    )
+  }
+
+  static func commitFeedback(app: FirebaseApp, installations: InstallationsProtocol,
+                             urlSession: URLSession,
+                             feedbackName: String,
+                             completion: @escaping (_ error: Error?)
+                               -> Void) {
+    generateAuthToken(installations: installations) { identifier, authTokenResult, error in
+      guard let authTokenResult = authTokenResult else {
+        completion(error)
+        return
+      }
+      let urlString = String(
+        format: Strings.commitFeedbackEndpointUrlTemplate,
+        feedbackName
+      )
+      let request = createHttpRequest(
+        app: app,
+        method: Strings.httpPost,
+        url: urlString,
+        authTokenResult: authTokenResult
+      )
+      let commitFeedbackTask = urlSession
+        .dataTask(with: request as URLRequest) { data, response, error in
+          var fadError = error
+          self.handleError(httpResponse: response as? HTTPURLResponse, error: &fadError)
+          DispatchQueue.main.async {
+            completion(fadError)
+          }
+        }
+
+      commitFeedbackTask.resume()
+    }
+  }
+
+  @discardableResult
   static func handleError(httpResponse: HTTPURLResponse?, error: inout Error?) -> Bool {
+    // TODO(tundeagboola) We should be throwing errors instead of piping the error object through
     if error != nil || httpResponse == nil {
       return handleError(
         error: &error,
@@ -174,8 +446,10 @@ struct FindReleaseResponse: Codable {
     return false
   }
 
+  @discardableResult
   static func handleError(error: inout Error?, description: String?,
                           code: AppDistributionApiError) -> Bool {
+    // TODO(tundeagboola) We should be throwing errors instead of piping the error object through
     if error != nil {
       error = createError(description: description!, code: code)
       return true
@@ -232,45 +506,75 @@ struct FindReleaseResponse: Codable {
     return request
   }
 
-  static func handleReleaseResponse(data: NSData?, response: URLResponse?,
-                                    error: inout Error?) -> [Any]? {
+  static func validateResponse(response: URLResponse?, error: inout Error?) -> Bool {
     guard let response = response else {
-      return nil
+      handleError(
+        error: &error,
+        description: "URLResponse is nil",
+        code: .ApiErrorUnknownFailure
+      )
+      return false
     }
 
     let httpResponse = response as! HTTPURLResponse
     Logger
       .logInfo(String(format: "HTTPResponse status code %ld, response %@", httpResponse.statusCode,
                       httpResponse))
-
     if handleError(httpResponse: httpResponse, error: &error) {
-      // TODO: Consider adding logging equivalent to [FIRFADApiService tryParseGoogleAPIErrorFromResponse].
       Logger
         .logError(String(format: "App tester API service error: %@",
                          error?.localizedDescription ?? ""))
-      return nil
+      return false
     }
-    return parseApiResponseWithData(data: data, error: &error)
+
+    return true
   }
 
-  static func parseApiResponseWithData(data: NSData?, error: inout Error?) -> [Any]? {
+  static func handleCodableResponse<T: Codable>(data: Data?, response: URLResponse?,
+                                                error: inout Error?,
+                                                returnType: T.Type) -> T? {
+    if !validateResponse(response: response, error: &error) {
+      return nil
+    }
+
     guard let data = data else {
       return nil
     }
 
     do {
-      let serializedResponse = try JSONSerialization.jsonObject(
-        with: data as Data,
-        options: JSONSerialization.ReadingOptions(rawValue: 0)
-      ) as? [String: Any]
-      return serializedResponse![Strings.responseReleaseKey] as? [Any]
+      return try JSONDecoder().decode(T.self, from: data)
     } catch let thrownError {
-      let description: String = (thrownError as NSError)
-        .userInfo[NSLocalizedDescriptionKey] as? String ?? "Failed to parse response"
-      error = thrownError
-      _ = self.handleError(error: &error, description: description, code: .ApiErrorParseFailure)
-      Logger.logError("Tester API - Error deserializing json response")
+      handleApiParserErorr(thrownError, &error)
       return nil
     }
+  }
+
+  static func handleResponse<T>(data: Data?, response: URLResponse?,
+                                error: inout Error?, returnType: T.Type) -> T? {
+    if !validateResponse(response: response, error: &error) {
+      return nil
+    }
+
+    guard let data = data else {
+      return nil
+    }
+
+    do {
+      return try JSONSerialization.jsonObject(
+        with: data,
+        options: JSONSerialization.ReadingOptions(rawValue: 0)
+      ) as? T
+    } catch let thrownError {
+      handleApiParserErorr(thrownError, &error)
+      return nil
+    }
+  }
+
+  static func handleApiParserErorr(_ thrownError: Error, _ error: inout Error?) {
+    let description: String = (thrownError as NSError)
+      .userInfo[NSLocalizedDescriptionKey] as? String ?? "Failed to parse response"
+    error = thrownError
+    handleError(error: &error, description: description, code: .ApiErrorParseFailure)
+    Logger.logError("Tester API - Error deserializing json response")
   }
 }

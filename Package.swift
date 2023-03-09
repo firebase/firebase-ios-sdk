@@ -414,7 +414,7 @@ let package = Package(
         "FirebaseCoreExtension",
         "FirebaseInstallations",
       ],
-      path: "FirebaseAppDistributionInternal/Sources",
+      path: "FirebaseAppDistributionInternal/Sources"
     ),
     .testTarget(
       name: "AppDistributionUnit",
