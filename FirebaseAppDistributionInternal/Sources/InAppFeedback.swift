@@ -74,6 +74,7 @@ import Photos
         contentMode: .aspectFill,
         options: requestOptions
       ) { image, err in
+        // TODO: Add logic to respond correctly if there's an error.
         completion(image)
       }
     })
