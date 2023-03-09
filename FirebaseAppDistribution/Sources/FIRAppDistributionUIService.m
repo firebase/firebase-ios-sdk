@@ -23,7 +23,14 @@
 
 @import FirebaseAppDistributionInternal;
 
+@interface FIRAppDistributionUIService()
+
+@property (nonatomic, assign, getter=isListeningToScreenshot) BOOL listeningToScreenshot;
+
+@end
+
 @implementation FIRAppDistributionUIService
+
 
 API_AVAILABLE(ios(9.0))
 SFSafariViewController *_safariVC;
@@ -211,6 +218,25 @@ SFAuthenticationSession *_safariAuthenticationVC;
   }];
   [self initializeUIState];
   [self.hostingViewController presentViewController:feedbackViewController animated:YES completion:nil];
+}
+
+- (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                           showAlertInfo:(BOOL)showAlertInfo {
+  if (!self.isListeningToScreenshot) {
+    self.listeningToScreenshot = YES;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(screenshotDetected:)
+                                                 name:UIApplicationUserDidTakeScreenshotNotification
+                                               object:[UIApplication sharedApplication]];
+    // TODO: Add NSUserDefault about alert info.
+  }
+}
+
+- (void)screenshotDetected:(NSNotification *)notification {
+  // TODO: Check NSUserDefault for alert info and show alert if needed.
+  [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage * screenshot){
+    [self startFeedbackWithAdditionalFormText:@"" image:screenshot];
+  }];
 }
 
 // MARK: - App Distribution UI State

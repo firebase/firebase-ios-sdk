@@ -365,7 +365,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  // TODO: Implement it.
+  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText showAlertInfo:showAlertInfo];
 }
 
 #pragma mark - Swizzling disabled
