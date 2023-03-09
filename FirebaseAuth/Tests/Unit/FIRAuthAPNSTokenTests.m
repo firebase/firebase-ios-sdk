@@ -19,7 +19,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
+@import FirebaseAuth;
 
 NS_ASSUME_NONNULL_BEGIN
 
