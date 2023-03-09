@@ -22,7 +22,7 @@
 #import <UIKit/UIKit.h>
 
 NSString *const kFIRFADScreenshotFeedbackUserDefault =
-    @"com.firebase.appdistribution.feedback.userdefault";
+    @"com.firebase.appdistribution.dontShowFeedbackAlert";
 
 @import FirebaseAppDistributionInternal;
 
