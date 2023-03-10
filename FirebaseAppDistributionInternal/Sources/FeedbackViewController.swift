@@ -49,7 +49,6 @@ class FeedbackViewController: UIViewController {
   }
 
   @IBAction func tappedSend(_ sender: Any) {
-    ApiService.creat
   }
 
   @IBAction func tappedCancel(_ sender: Any) {
