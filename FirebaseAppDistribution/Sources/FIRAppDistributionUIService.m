@@ -21,6 +21,18 @@
 #import <SafariServices/SafariServices.h>
 #import <UIKit/UIKit.h>
 
+NSString *const kFIRFADScreenshotFeedbackUserDefault =
+    @"com.firebase.appdistribution.dontShowFeedbackAlert";
+
+@import FirebaseAppDistributionInternal;
+
+@interface FIRAppDistributionUIService ()
+
+@property(nonatomic, assign, getter=isListeningToScreenshot) BOOL listeningToScreenshot;
+@property(nonatomic) NSString *additionalFormText;
+
+@end
+
 @implementation FIRAppDistributionUIService
 
 API_AVAILABLE(ios(9.0))
@@ -35,7 +47,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (instancetype)init {
   self = [super init];
 
-  self.safariHostingViewController = [[UIViewController alloc] init];
+  self.hostingViewController = [[UIViewController alloc] init];
 
   return self;
 }
@@ -83,6 +95,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
   return [self getAppDistributionError:FIRAppDistributionErrorAuthenticationFailure];
 }
 
+// MARK: - Authentication
+
 - (void)appDistributionRegistrationFlow:(NSURL *)URL
                          withCompletion:(void (^)(NSError *_Nullable error))completion {
   NSString *callbackURL =
@@ -128,7 +142,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
     safariVC.delegate = self;
     _safariVC = safariVC;
-    [self->_safariHostingViewController presentViewController:safariVC animated:YES completion:nil];
+    [self->_hostingViewController presentViewController:safariVC animated:YES completion:nil];
     self.registrationFlowCompletion = completion;
   }
 }
@@ -140,7 +154,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                              completion:nil];
 }
 
-- (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
+// MARK: - Check for updates
+
+- (void)showCheckForUpdatesUIAlertWithCompletion:(FIRFADUIActionCompletion)completion {
   UIAlertController *alert = [UIAlertController
       alertControllerWithTitle:NSLocalizedString(
                                    @"Enable new build alerts",
@@ -195,6 +211,90 @@ SFAuthenticationSession *_safariAuthenticationVC;
   }
 }
 
+// MARK: - In App Feedback
+
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
+  // TODO: Pass the additionalFormText to the view controller.
+  // TODO: Verify what happens when the string is empty.
+  UIViewController *feedbackViewController =
+      [FIRFADInAppFeedback feedbackViewControllerWithImage:image
+                                                 onDismiss:^() {
+                                                   // TODO: Consider using a notification instead of
+                                                   // passing this closure.
+                                                   // TODO: Consider migrating the UIService to
+                                                   // Swift.
+                                                   [self resetUIState];
+                                                 }];
+  [self initializeUIState];
+  [self.hostingViewController presentViewController:feedbackViewController
+                                           animated:YES
+                                         completion:nil];
+}
+
+- (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                           showAlertInfo:(BOOL)showAlertInfo {
+  // TODO: Consider adding showActionSheetBeforeFeedback parameter.
+  if (!self.isListeningToScreenshot) {
+    self.listeningToScreenshot = YES;
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(screenshotDetected:)
+                                                 name:UIApplicationUserDidTakeScreenshotNotification
+                                               object:[UIApplication sharedApplication]];
+    self.additionalFormText = additionalFormText;
+
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    BOOL dontShowAlert = [defaults boolForKey:kFIRFADScreenshotFeedbackUserDefault];
+
+    if (showAlertInfo && !dontShowAlert) {
+      [self showScreenshotFeedbackUIAlert];
+    }
+  }
+}
+
+- (void)showScreenshotFeedbackUIAlert {
+  UIAlertController *alert = [UIAlertController
+      alertControllerWithTitle:NSLocalizedString(
+                                   @"Send feedback",
+                                   @"Title for App Distribution Feedback on Screenshot")
+                       message:NSLocalizedString(
+                                   @"Take a screenshot to send feedback",
+                                   @"Description for sending feedback when a screenshot is taken.")
+                preferredStyle:UIAlertControllerStyleAlert];
+
+  UIAlertAction *okButton = [UIAlertAction
+      actionWithTitle:NSLocalizedString(@"OK", @"Button for dismissing the feedback alert.")
+                style:UIAlertActionStyleDefault
+              handler:^(UIAlertAction *action) {
+                [self resetUIState];
+              }];
+
+  UIAlertAction *dontShowAgainButton =
+      [UIAlertAction actionWithTitle:NSLocalizedString(@"Don't show again",
+                                                       @"Button for not showing the alert again.")
+                               style:UIAlertActionStyleCancel
+                             handler:^(UIAlertAction *action) {
+                               [self resetUIState];
+                               NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                               [defaults setBool:YES forKey:kFIRFADScreenshotFeedbackUserDefault];
+                             }];
+
+  [alert addAction:okButton];
+  [alert addAction:dontShowAgainButton];
+  [self showUIAlert:alert];
+}
+
+- (void)screenshotDetected:(NSNotification *)notification {
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul), ^{
+    [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+      });
+    }];
+  });
+}
+
+// MARK: - App Distribution UI State
+
 - (void)initializeUIState {
   if (self.window) {
     return;
@@ -226,7 +326,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
   } else {
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
   }
-  self.window.rootViewController = self.safariHostingViewController;
+  self.window.rootViewController = self.hostingViewController;
 
   // Place it at the highest level within the stack.
   self.window.windowLevel = +CGFLOAT_MAX;
@@ -266,7 +366,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 
 - (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:
     (ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0)) {
-  return self.safariHostingViewController.view.window;
+  return self.hostingViewController.view.window;
 }
 
 @end

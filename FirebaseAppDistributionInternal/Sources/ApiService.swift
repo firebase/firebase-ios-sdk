@@ -78,7 +78,7 @@ struct CreateFeedbackReportRequest: Codable {
   var feedbackReport: FeedbackReport
 }
 
-@objc(FIRFADApiServiceSwift) open class AppDistributionApiService: NSObject {
+@objc(FIRFADApiServiceSwift) open class ApiService: NSObject {
   @objc(generateAuthTokenWithCompletion:) public static func generateAuthToken(completion: @escaping (_ identifier: String?,
                                                                                                       _ authTokenResult: InstallationsAuthTokenResult?,
                                                                                                       _ error: Error?)

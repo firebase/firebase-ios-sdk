@@ -26,6 +26,8 @@
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistribution.h"
 #import "FirebaseAppDistribution/Sources/Private/FIRAppDistributionRelease.h"
 
+@import FirebaseAppDistributionInternal;
+
 /// Empty protocol to register with FirebaseCore's component system.
 @protocol FIRAppDistributionInstanceProvider <NSObject>
 @end
@@ -41,10 +43,6 @@ NSString *const FIRAppDistributionErrorDomain = @"com.firebase.appdistribution";
 NSString *const FIRAppDistributionErrorDetailsKey = @"details";
 
 @implementation FIRAppDistribution
-
-// The App Distribution Tester API endpoint used to retrieve releases
-NSString *const kReleasesEndpointURL = @"https://firebaseapptesters.googleapis.com/v1alpha/devices/"
-                                       @"-/testerApps/%@/installations/%@/releases";
 
 NSString *const kAppDistroLibraryName = @"fire-fad";
 
@@ -314,7 +312,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       }
     };
 
-    [[self uiService] showUIAlertWithCompletion:actionCompletion];
+    [[self uiService] showCheckForUpdatesUIAlertWithCompletion:actionCompletion];
   }
 }
 
@@ -339,16 +337,36 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
-  // TODO: Implement it.
+  UIImage *screenshot = [FIRFADInAppFeedback captureProgrammaticScreenshot];
+  if ([self isTesterSignedIn]) {
+    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
+  } else {
+    [self signInTesterWithCompletion:^(NSError *_Nullable error) {
+      if (error) {
+        return;
+      }
+      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
+    }];
+  }
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
-  // TODO: Implement it.
+  if ([self isTesterSignedIn]) {
+    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
+  } else {
+    [self signInTesterWithCompletion:^(NSError *_Nullable error) {
+      if (error) {
+        return;
+      }
+      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
+    }];
+  }
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  // TODO: Implement it.
+  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
+                                                     showAlertInfo:showAlertInfo];
 }
 
 #pragma mark - Swizzling disabled

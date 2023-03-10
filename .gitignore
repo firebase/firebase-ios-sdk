@@ -61,6 +61,7 @@ profile
 DerivedData
 *.hmap
 *.ipa
+*.log
 
 # Swift Package Manager
 Package.resolved

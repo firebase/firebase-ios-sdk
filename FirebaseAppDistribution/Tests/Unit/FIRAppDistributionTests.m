@@ -156,7 +156,7 @@
 }
 
 - (void)mockUIServiceShowUICompletion:(BOOL)continued {
-  [OCMStub([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY])
+  [OCMStub([_mockFIRAppDistributionUIService showCheckForUpdatesUIAlertWithCompletion:OCMOCK_ANY])
       andDo:^(NSInvocation *invocation) {
         __unsafe_unretained void (^handler)(BOOL continued);
         [invocation getArgument:&handler atIndex:2];
@@ -165,11 +165,11 @@
 }
 
 - (void)verifyShowUICompletion {
-  OCMVerify([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY]);
+  OCMVerify([_mockFIRAppDistributionUIService showCheckForUpdatesUIAlertWithCompletion:OCMOCK_ANY]);
 }
 
 - (void)rejectShowUICompletion {
-  OCMReject([_mockFIRAppDistributionUIService showUIAlertWithCompletion:OCMOCK_ANY]);
+  OCMReject([_mockFIRAppDistributionUIService showCheckForUpdatesUIAlertWithCompletion:OCMOCK_ANY]);
 }
 
 - (void)mockFetchReleasesCompletion:(NSArray *)releases error:(NSError *)error {

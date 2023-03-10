@@ -43,7 +43,7 @@ NS_EXTENSION_UNAVAILABLE_IOS("Firebase App Distribution is not supported for iOS
 
 typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable error);
 
-@property(nullable, nonatomic) UIViewController *safariHostingViewController;
+@property(nullable, nonatomic) UIViewController *hostingViewController;
 
 @property(nullable, nonatomic) UIWindow *window;
 
@@ -54,7 +54,13 @@ typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable err
 
 - (void)showUIAlert:(UIAlertController *)alertController;
 
-- (void)showUIAlertWithCompletion:(FIRFADUIActionCompletion)completion;
+- (void)showCheckForUpdatesUIAlertWithCompletion:(FIRFADUIActionCompletion)completion;
+
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+                                      image:(UIImage *_Nullable)image;
+
+- (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                           showAlertInfo:(BOOL)showAlertInfo;
 
 - (void)initializeUIState;
 
