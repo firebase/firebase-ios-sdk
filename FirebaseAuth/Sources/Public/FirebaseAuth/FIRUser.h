@@ -17,7 +17,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuth.h"
-#import "FIRAuthDataResult.h"
 #import "FIRMultiFactor.h"
 #import "FIRUserInfo.h"
 
