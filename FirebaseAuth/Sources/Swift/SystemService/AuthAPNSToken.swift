@@ -22,11 +22,20 @@
     @objc public let data: Data
     @objc public let type: AuthAPNSTokenType
 
+    /** @fn initWithData:type:
+        @brief Initializes the instance.
+        @param data The APNs token data.
+        @param type The APNs token type.
+        @return The initialized instance.
+     */
     @objc public init(withData data: Data, type: AuthAPNSTokenType) {
       self.data = data
       self.type = type
     }
 
+    /** @property string
+        @brief The uppercase hexadecimal string form of the APNs token data.
+     */
     @objc public lazy var string: String = {
       let byteArray = [UInt8](data)
       var s = ""
