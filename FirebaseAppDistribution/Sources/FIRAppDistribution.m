@@ -343,7 +343,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
-  [self startFeedbackWithAdditionalFormText:additionalFormText image:nil];
+  UIImage *screenshot = [FIRFADInAppFeedback captureProgrammaticScreenshot];
+  [self startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
 }
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
@@ -362,6 +363,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 - (void)findReleaseAndStartFeedbackWithAdditionalFormText:(NSString *)additionalFormText
                                                     image:(UIImage *_Nullable)image {
+  // TODO(tundeagboola) Because network requests can be slow, consider doing this check during app start
   [FIRFADApiServiceSwift
       findReleaseWithDisplayVersion:[self getAppVersion]
                        buildVersion:[self getAppBuild]
