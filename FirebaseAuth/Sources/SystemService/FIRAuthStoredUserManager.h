@@ -15,8 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRUser.h"
 
+@class FIRUser;
 @class FIRAuthUserDefaults;
 @class FIRAuthKeychainServices;
 
