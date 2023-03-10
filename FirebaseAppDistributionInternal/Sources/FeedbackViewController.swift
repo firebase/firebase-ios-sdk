@@ -48,8 +48,7 @@ class FeedbackViewController: UIViewController {
     image = nil
   }
 
-  @IBAction func tappedSend(_ sender: Any) {
-  }
+  @IBAction func tappedSend(_ sender: Any) {}
 
   @IBAction func tappedCancel(_ sender: Any) {
     dismiss(animated: true)
