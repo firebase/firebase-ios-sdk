@@ -18,7 +18,6 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactor.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
@@ -72,7 +71,8 @@ static NSString *kUserCodingKey = @"user";
                                                      NSError *_Nullable error) {
                                             FIRAuthDataResult *result =
                                                 [[FIRAuthDataResult alloc] initWithUser:user
-                                                                     additionalUserInfo:nil];
+                                                                     additionalUserInfo:nil
+                                                                             credential:nil];
                                             FIRAuthDataResultCallback decoratedCallback = [FIRAuth
                                                                                                .auth
                                                 signInFlowAuthDataResultCallbackByDecoratingCallback:
@@ -117,7 +117,8 @@ static NSString *kUserCodingKey = @"user";
                                                      NSError *_Nullable error) {
                                             FIRAuthDataResult *result =
                                                 [[FIRAuthDataResult alloc] initWithUser:user
-                                                                     additionalUserInfo:nil];
+                                                                     additionalUserInfo:nil
+                                                                             credential:nil];
                                             FIRAuthDataResultCallback decoratedCallback = [FIRAuth
                                                                                                .auth
                                                 signInFlowAuthDataResultCallbackByDecoratingCallback:
