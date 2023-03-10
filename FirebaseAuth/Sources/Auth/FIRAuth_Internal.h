@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#import <FirebaseAuth/FIRAuth.h>
 #import <Foundation/Foundation.h>
+
+#import <FirebaseAuth/FIRAuth.h>
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
 @import FirebaseCoreExtension;
 
