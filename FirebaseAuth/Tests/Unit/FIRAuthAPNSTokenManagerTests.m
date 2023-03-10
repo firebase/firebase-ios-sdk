@@ -21,7 +21,6 @@
 #import <XCTest/XCTest.h>
 
 @import FirebaseAuth;
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -40,19 +39,18 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief A fake legacy (< iOS 7) UIApplication class.
     @remarks A custom class is needed because `respondsToSelector:` itself cannot be mocked.
  */
-@interface FIRAuthLegacyUIApplication : NSObject
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)registerForRemoteNotificationTypes:(UIRemoteNotificationType)types;
-#pragma clang diagnostic pop
-
+@interface FakeApplication : NSObject <AuthAPNSTokenApplication>
+- (void)registerForRemoteNotifications;
 @end
-@implementation FIRAuthLegacyUIApplication
+@implementation FakeApplication
+BOOL registerCalled;
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)registerForRemoteNotificationTypes:(UIRemoteNotificationType)types {
+- (void)registerForRemoteNotifications {
+  registerCalled = YES;
+}
+
+- (BOOL)registerCalled {
+  return registerCalled;
 }
 #pragma clang diagnostic pop
 
@@ -67,7 +65,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   /** @var _mockApplication
       @brief The mock application for testing.
    */
-  id _mockApplication;
+  id _fakeApplication;
 
   /** @var _manager
       @brief The @c FIRAuthAPNSTokenManager instance under tests.
@@ -79,11 +77,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
    */
   NSData *_data;
 
-  /** @var _otherData
-      @brief Another piece of data used for testing.
-   */
-  NSData *_otherData;
-
   /** @var _error
       @brief The fake error used for testing.
    */
@@ -91,10 +84,9 @@ static const NSTimeInterval kExpectationTimeout = 2;
 }
 
 - (void)setUp {
-  _mockApplication = OCMClassMock([UIApplication class]);
-  _manager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:_mockApplication];
+  _fakeApplication = [[FakeApplication alloc] init];
+  _manager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:_fakeApplication];
   _data = [@"qwerty" dataUsingEncoding:NSUTF8StringEncoding];
-  _otherData = [@"!@#$" dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 /** @fn testSetToken
@@ -123,14 +115,12 @@ static const NSTimeInterval kExpectationTimeout = 2;
     @brief Tests callbacks are called.
  */
 - (void)testCallback {
-  // Add first callback, which is yet to be called.
-  OCMExpect([_mockApplication registerForRemoteNotifications]);
   __block BOOL firstCallbackCalled = NO;
   [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
+    firstCallbackCalled = YES;
     XCTAssertEqualObjects(token.data, self->_data);
     XCTAssertEqual(token.type, FIRAuthAPNSTokenTypeSandbox);
     XCTAssertNil(error);
-    firstCallbackCalled = YES;
   }];
   XCTAssertFalse(firstCallbackCalled);
 
@@ -167,13 +157,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
   }];
   XCTAssertTrue(thirdCallbackCalled);
 
-  // Verify the mock in the main thread.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"verify mock"];
+  // In the main thread, Verify the that the fake `registerForRemoteNotifications` was called.
   dispatch_async(dispatch_get_main_queue(), ^{
-    OCMVerifyAll(self->_mockApplication);
-    [expectation fulfill];
+    XCTAssertTrue([self->_fakeApplication registerCalled]);
   });
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
 /** @fn testTimeout
@@ -185,7 +172,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
   _manager.timeout = kRegistrationTimeout;
 
   // Add callback to time out.
-  OCMExpect([_mockApplication registerForRemoteNotifications]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
   [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertNil(token);
@@ -195,7 +181,11 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
   // Time out.
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockApplication);
+
+  // In the main thread, Verify the that the fake `registerForRemoteNotifications` was called.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    XCTAssertTrue([self->_fakeApplication registerCalled]);
+  });
 
   // Calling cancel afterwards should have no effect.
   [_manager cancelWithError:_error];
@@ -210,7 +200,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
   _manager.timeout = kRegistrationTimeout;
 
   // Add callback to cancel.
-  OCMExpect([_mockApplication registerForRemoteNotifications]);
   __block BOOL callbackCalled = NO;
   [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
     XCTAssertNil(token);
@@ -222,7 +211,11 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
   // Call cancel.
   [_manager cancelWithError:_error];
-  XCTAssertTrue(callbackCalled);
+
+  // In the main thread, Verify the that the fake `registerForRemoteNotifications` was called.
+  dispatch_async(dispatch_get_main_queue(), ^{
+    XCTAssertTrue([self->_fakeApplication registerCalled]);
+  });
 
   // Add callback to timeout.
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
@@ -234,42 +227,11 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
   // Time out.
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockApplication);
-}
 
-/** @fn testLegacyRegistration
-    @brief Tests remote notification registration on legacy systems.
- */
-- (void)testLegacyRegistration {
-  // Use a custom class for `respondsToSelector:` to work.
-  _mockApplication = OCMClassMock([FIRAuthLegacyUIApplication class]);
-  _manager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:_mockApplication];
-
-  // Add callback.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [[[_mockApplication expect] ignoringNonObjectArgs] registerForRemoteNotificationTypes:0];
-#pragma clang diagnostic pop
-  __block BOOL callbackCalled = NO;
-  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
-    XCTAssertEqualObjects(token.data, self->_data);
-    XCTAssertNotEqual(token.type, FIRAuthAPNSTokenTypeUnknown);
-    XCTAssertNil(error);
-    callbackCalled = YES;
-  }];
-  XCTAssertFalse(callbackCalled);
-
-  // Set the token.
-  _manager.token = [[FIRAuthAPNSToken alloc] initWithData:_data type:FIRAuthAPNSTokenTypeUnknown];
-  XCTAssertTrue(callbackCalled);
-
-  // Verify the mock in the main thread.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"verify mock"];
+  // In the main thread, Verify the that the fake `registerForRemoteNotifications` was called.
   dispatch_async(dispatch_get_main_queue(), ^{
-    OCMVerifyAll(self->_mockApplication);
-    [expectation fulfill];
+    XCTAssertTrue([self->_fakeApplication registerCalled]);
   });
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
 @end
