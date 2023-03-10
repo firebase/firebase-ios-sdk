@@ -18,7 +18,6 @@
 
 #import "FIRAuth.h"
 #import "FIRAuthAPNSTokenType.h"
-#import "FIRAuthDataResult.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
 #import "FIRMultiFactor.h"
