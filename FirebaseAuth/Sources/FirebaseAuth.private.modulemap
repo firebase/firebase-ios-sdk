@@ -1,0 +1,18 @@
+framework module FirebaseAuth_Private {
+  header "FIRAuthGlobalWorkQueue.h"
+  header "FIRAuthSerialTaskQueue.h"
+  header "FIRSecureTokenService.h"
+  header "FIRAuthNotificationManager.h"
+  header "FIRAuthStoredUserManager.h"
+  header "FIRAuthAppCredentialManager.h"
+  header "FIRMultiFactorResolver+Internal.h"
+  header "FIRMultiFactor+Internal.h"
+  header "FIRPhoneMultiFactorAssertion+Internal.h"
+  header "FIRUser_Internal.h"
+  header "FIRUserMetadata_Internal.h"
+  header "FIRAuthWebView.h"
+  header "FIRAuthExceptionUtils.h"
+  header "FIRAuthDefaultUIDelegate.h"
+  header "FIRAuthURLPresenter.h"
+  header "FIRAuthInterop.h"
+}
