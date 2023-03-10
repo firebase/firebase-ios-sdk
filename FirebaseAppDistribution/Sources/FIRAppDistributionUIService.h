@@ -61,6 +61,7 @@ typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable err
                                       image:(UIImage *_Nullable)image;
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                            feedbackName:(NSString *)feedbackName
                                            showAlertInfo:(BOOL)showAlertInfo;
 
 - (void)initializeUIState;
