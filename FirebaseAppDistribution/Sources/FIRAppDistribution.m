@@ -363,7 +363,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 - (void)findReleaseAndStartFeedbackWithAdditionalFormText:(NSString *)additionalFormText
                                                     image:(UIImage *_Nullable)image {
-  // TODO(tundeagboola) Because network requests can be slow, consider doing this check during app start
+  // TODO(tundeagboola) Because network requests can be slow, consider doing this check during app
+  // start
   [FIRFADApiServiceSwift
       findReleaseWithDisplayVersion:[self getAppVersion]
                        buildVersion:[self getAppBuild]
@@ -384,8 +385,23 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
-                                                     showAlertInfo:showAlertInfo];
+  [FIRFADApiServiceSwift
+      findReleaseWithDisplayVersion:[self getAppVersion]
+                       buildVersion:[self getAppBuild]
+                           codeHash:[self getCodeHash]
+                         completion:^(NSString *__nullable feedbackName,
+                                      NSError *__nullable error) {
+                           if (feedbackName == nil) {
+                             // TODO(tundeagboola) handle nil feedback
+                           }
+                           if (error) {
+                             // TODO(tundeagoola) handle network error
+                           }
+                           [self.uiService
+                               enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
+                                                                   feedbackName:feedbackName
+                                                                  showAlertInfo:showAlertInfo];
+                         }];
 }
 
 #pragma mark - Swizzling disabled

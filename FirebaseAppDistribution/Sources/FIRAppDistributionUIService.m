@@ -30,6 +30,7 @@ NSString *const kFIRFADScreenshotFeedbackUserDefault =
 
 @property(nonatomic, assign, getter=isListeningToScreenshot) BOOL listeningToScreenshot;
 @property(nonatomic) NSString *additionalFormText;
+@property(nonatomic) NSString *feedbackName;
 
 @end
 
@@ -236,6 +237,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
+                                            feedbackName:(NSString *)feedbackName
                                            showAlertInfo:(BOOL)showAlertInfo {
   // TODO: Consider adding showActionSheetBeforeFeedback parameter.
   if (!self.isListeningToScreenshot) {
@@ -245,6 +247,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:[UIApplication sharedApplication]];
     self.additionalFormText = additionalFormText;
+    self.feedbackName = feedbackName;
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL dontShowAlert = [defaults boolForKey:kFIRFADScreenshotFeedbackUserDefault];
@@ -291,7 +294,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul), ^{
     [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+        [self startFeedbackWithAdditionalFormText:self.additionalFormText
+                                     feedbackName:self.feedbackName
+                                            image:screenshot];
       });
     }];
   });
