@@ -468,6 +468,7 @@ let package = Package(
         "AuthKeychainServicesTests.swift", // TODO: figure out SPM keychain testing
         "FIRAuthTests.m",
         "FIRUserTests.m",
+        "AuthTests.swift",
       ],
       cSettings: [
         .headerSearchPath("../../.."),
