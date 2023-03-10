@@ -157,5 +157,4 @@ FirebaseAppCheck/Apps/AppCheckCustomProvideApp/AppCheckCustomProvideApp/GoogleSe
 /Example/FirestoreSample/firestore-debug.log
 
 # Private module map generation
-# Reenable if the issue from #10928 is resolved
-#FirebaseAuth/Sources/FirebaseAuth.private.modulemap
+FirebaseAuth/Sources/FirebaseAuth.private.modulemap
