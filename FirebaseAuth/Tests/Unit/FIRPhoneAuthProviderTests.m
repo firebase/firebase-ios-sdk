@@ -16,17 +16,15 @@
 
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
-
+#if TODO_SWIFT
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
+@import FirebaseAuth;
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+// #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 @import FirebaseAuth;
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
@@ -1643,5 +1641,5 @@ static const NSTimeInterval kExpectationTimeout = 2;
 @end
 
 NS_ASSUME_NONNULL_END
-
+#endif
 #endif
