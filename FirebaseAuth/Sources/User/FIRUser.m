@@ -22,7 +22,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
-#import "FirebaseAuth/Sources/SystemService/FIRSecureTokenService.h"
 #import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
 #import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
@@ -525,20 +524,20 @@ static void callInMainThreadWithAuthDataResultAndError(
  */
 - (void)setTokenService:(FIRSecureTokenService *)tokenService
                callback:(nonnull CallbackWithError)callback {
-  [tokenService fetchAccessTokenForcingRefresh:NO
-                                      callback:^(NSString *_Nullable token,
-                                                 NSError *_Nullable error, BOOL tokenUpdated) {
-                                        if (error) {
-                                          callback(error);
-                                          return;
-                                        }
-                                        self->_tokenService = tokenService;
-                                        if (![self updateKeychain:&error]) {
-                                          callback(error);
-                                          return;
-                                        }
-                                        callback(nil);
-                                      }];
+  [tokenService fetchAccessTokenWithForcingRefresh:NO
+                                          callback:^(NSString *_Nullable token,
+                                                     NSError *_Nullable error, BOOL tokenUpdated) {
+                                            if (error) {
+                                              callback(error);
+                                              return;
+                                            }
+                                            self->_tokenService = tokenService;
+                                            if (![self updateKeychain:&error]) {
+                                              callback(error);
+                                              return;
+                                            }
+                                            callback(nil);
+                                          }];
 }
 
 #pragma mark -
@@ -747,10 +746,6 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)setPhotoURL:(NSURL *)photoURL {
   _photoURL = [photoURL copy];
-}
-
-- (NSString *)rawAccessToken {
-  return _tokenService.rawAccessToken;
 }
 
 - (NSDate *)accessTokenExpirationDate {
@@ -978,22 +973,22 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 - (void)internalGetTokenForcingRefresh:(BOOL)forceRefresh
                               callback:(nonnull FIRAuthTokenCallback)callback {
-  [_tokenService fetchAccessTokenForcingRefresh:forceRefresh
-                                       callback:^(NSString *_Nullable token,
-                                                  NSError *_Nullable error, BOOL tokenUpdated) {
-                                         if (error) {
-                                           [self signOutIfTokenIsInvalidWithError:error];
-                                           callback(nil, error);
-                                           return;
-                                         }
-                                         if (tokenUpdated) {
-                                           if (![self updateKeychain:&error]) {
-                                             callback(nil, error);
-                                             return;
-                                           }
-                                         }
-                                         callback(token, nil);
-                                       }];
+  [_tokenService fetchAccessTokenWithForcingRefresh:forceRefresh
+                                           callback:^(NSString *_Nullable token,
+                                                      NSError *_Nullable error, BOOL tokenUpdated) {
+                                             if (error) {
+                                               [self signOutIfTokenIsInvalidWithError:error];
+                                               callback(nil, error);
+                                               return;
+                                             }
+                                             if (tokenUpdated) {
+                                               if (![self updateKeychain:&error]) {
+                                                 callback(nil, error);
+                                                 return;
+                                               }
+                                             }
+                                             callback(token, nil);
+                                           }];
 }
 
 - (void)sendEmailVerificationBeforeUpdatingEmail:(nonnull NSString *)email
