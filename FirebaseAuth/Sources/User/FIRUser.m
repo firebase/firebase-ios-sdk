@@ -18,7 +18,6 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
@@ -1048,7 +1047,8 @@ static void callInMainThreadWithAuthDataResultAndError(
       return;
     }
     FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:self
-                                                     additionalUserInfo:nil];
+                                                     additionalUserInfo:nil
+                                                             credential:nil];
     if ([credential isKindOfClass:[FIREmailPasswordAuthCredential class]]) {
       if (self->_hasEmailPasswordCredential) {
         callInMainThreadWithAuthDataResultAndError(completion, nil,

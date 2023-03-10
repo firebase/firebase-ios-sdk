@@ -29,7 +29,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth-Swift.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
@@ -798,7 +797,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                             FIRAuthDataResult *result =
                                                 user ? [[FIRAuthDataResult alloc]
                                                                  initWithUser:user
-                                                           additionalUserInfo:additionalUserInfo]
+                                                           additionalUserInfo:additionalUserInfo
+                                                                   credential:nil]
                                                      : nil;
                                             if (callback) {
                                               callback(result, error);
@@ -863,7 +863,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                             FIRAuthDataResult *result =
                                                 user ? [[FIRAuthDataResult alloc]
                                                                  initWithUser:user
-                                                           additionalUserInfo:additionalUserInfo]
+                                                           additionalUserInfo:additionalUserInfo
+                                                                   credential:nil]
                                                      : nil;
                                             if (callback) {
                                               callback(result, error);
@@ -922,7 +923,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                           isNewUser:NO];
               FIRAuthDataResult *result =
                   user ? [[FIRAuthDataResult alloc] initWithUser:user
-                                              additionalUserInfo:additionalUserInfo]
+                                              additionalUserInfo:additionalUserInfo
+                                                      credential:nil]
                        : nil;
               callback(result, error);
             }
@@ -984,7 +986,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                             user ? [[FIRAuthDataResult alloc]
                                                                              initWithUser:user
                                                                        additionalUserInfo:
-                                                                           additionalUserInfo]
+                                                                           additionalUserInfo
+                                                                               credential:nil]
                                                                  : nil;
                                                         if (callback) {
                                                           callback(result, error);
@@ -1067,7 +1070,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
     if (self->_currentUser.anonymous) {
       FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:self->_currentUser
-                                                       additionalUserInfo:nil];
+                                                       additionalUserInfo:nil
+                                                               credential:nil];
       decoratedCallback(result, nil);
       return;
     }
@@ -1094,7 +1098,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                    FIRAuthDataResult *authDataResult =
                                        user ? [[FIRAuthDataResult alloc]
                                                         initWithUser:user
-                                                  additionalUserInfo:additionalUserInfo]
+                                                  additionalUserInfo:additionalUserInfo
+                                                          credential:nil]
                                             : nil;
                                    decoratedCallback(authDataResult, error);
                                  }];
@@ -1151,7 +1156,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                             user ? [[FIRAuthDataResult alloc]
                                                                              initWithUser:user
                                                                        additionalUserInfo:
-                                                                           additionalUserInfo]
+                                                                           additionalUserInfo
+                                                                               credential:nil]
                                                                  : nil;
                                                         decoratedCallback(authDataResult, error);
                                                       }];
@@ -1690,7 +1696,8 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
                                             FIRAuthDataResult *result =
                                                 user ? [[FIRAuthDataResult alloc]
                                                                  initWithUser:user
-                                                           additionalUserInfo:additonalUserInfo]
+                                                           additionalUserInfo:additonalUserInfo
+                                                                   credential:nil]
                                                      : nil;
                                             if (completion) {
                                               completion(result, error);
