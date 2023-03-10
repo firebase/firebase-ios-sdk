@@ -336,37 +336,70 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
   return codeHash && [codeHash isEqualToString:[machO codeHash]];
 }
 
+- (NSString *)getCodeHash {
+  NSString *executablePath = [[NSBundle mainBundle] executablePath];
+  FIRAppDistributionMachO *machO = [[FIRAppDistributionMachO alloc] initWithPath:executablePath];
+  return [machO codeHash];
+}
+
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText {
   UIImage *screenshot = [FIRFADInAppFeedback captureProgrammaticScreenshot];
+  [self startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
+}
+
+- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+                                      image:(UIImage *_Nullable)image {
   if ([self isTesterSignedIn]) {
-    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
+    [self findReleaseAndStartFeedbackWithAdditionalFormText:additionalFormText image:image];
   } else {
     [self signInTesterWithCompletion:^(NSError *_Nullable error) {
       if (error) {
         return;
       }
-      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:screenshot];
+      [self findReleaseAndStartFeedbackWithAdditionalFormText:additionalFormText image:image];
     }];
   }
 }
 
-- (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText image:(UIImage *)image {
-  if ([self isTesterSignedIn]) {
-    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
-  } else {
-    [self signInTesterWithCompletion:^(NSError *_Nullable error) {
-      if (error) {
-        return;
-      }
-      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
-    }];
-  }
+- (void)findReleaseAndStartFeedbackWithAdditionalFormText:(NSString *)additionalFormText
+                                                    image:(UIImage *_Nullable)image {
+  // TODO(tundeagboola) Because network requests can be slow, consider doing this check during app
+  // start
+  [FIRFADApiServiceSwift
+      findReleaseWithDisplayVersion:[self getAppVersion]
+                       buildVersion:[self getAppBuild]
+                           codeHash:[self getCodeHash]
+                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+                           if (releaseName == nil) {
+                             // TODO(tundeagboola) handle nil feedback
+                           }
+                           if (error) {
+                             // TODO(tundeagoola) handle network error
+                           }
+                           [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
+                                                                   releaseName:releaseName
+                                                                         image:image];
+                         }];
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
-                                                     showAlertInfo:showAlertInfo];
+  [FIRFADApiServiceSwift
+      findReleaseWithDisplayVersion:[self getAppVersion]
+                       buildVersion:[self getAppBuild]
+                           codeHash:[self getCodeHash]
+                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+                           if (releaseName == nil) {
+                             // TODO(tundeagboola) handle nil feedback
+                           }
+                           if (error) {
+                             // TODO(tundeagoola) handle network error
+                           }
+                           [self.uiService
+                               enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
+                                                                    releaseName:releaseName
+                                                                  showAlertInfo:showAlertInfo];
+                         }];
 }
 
 #pragma mark - Swizzling disabled
