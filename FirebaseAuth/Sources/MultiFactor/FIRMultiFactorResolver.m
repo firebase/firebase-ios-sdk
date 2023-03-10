@@ -18,7 +18,6 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorResolver.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 
@@ -72,7 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                      NSError *_Nullable error) {
                                             FIRAuthDataResult *result =
                                                 [[FIRAuthDataResult alloc] initWithUser:user
-                                                                     additionalUserInfo:nil];
+                                                                     additionalUserInfo:nil
+                                                                             credential:nil];
                                             FIRAuthDataResultCallback decoratedCallback = [FIRAuth
                                                                                                .auth
                                                 signInFlowAuthDataResultCallbackByDecoratingCallback:
