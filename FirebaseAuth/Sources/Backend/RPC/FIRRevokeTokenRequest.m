@@ -22,12 +22,12 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The endpoint for the revokeToken request.
  */
 static NSString *const kRevokeTokenEndpoint =
-    @"revokeToken";  // TODO: Double check the endpoint when backend is ready
+    @"accounts:revokeToken";
 
 /** @var kProviderIDKey
     @brief The key for the provider that issued the token to revoke.
  */
-static NSString *const kProviderIDKey = @"providerID";
+static NSString *const kProviderIDKey = @"providerId";
 
 /** @var kTokenTypeKey
     @brief The key for the type of the token to revoke.
@@ -67,12 +67,12 @@ typedef NS_ENUM(NSInteger, FIRTokenType) {
 - (nullable instancetype)initWithToken:(NSString *)token
                                idToken:(NSString *)idToken
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kRevokeTokenEndpoint requestConfiguration:requestConfiguration];
+  self = [super initWithEndpoint:kRevokeTokenEndpoint requestConfiguration:requestConfiguration useIdentityPlatform:YES useStaging:YES];
   if (self) {
-    // Apple and Authorization code are the only provider and token type we support for now.
+    // Apple and refresh token are the only provider and token type we support for now.
     // Generalize this initializer to accept other providers and token types once supported.
     _providerID = @"apple.com";
-    _tokenType = FIRTokenTypeAuthorizationCode;
+    _tokenType = FIRTokenTypeRefreshToken;
     _token = token;
     _idToken = idToken;
   }

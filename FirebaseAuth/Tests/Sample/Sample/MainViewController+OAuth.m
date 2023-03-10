@@ -49,6 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf unlinkFromProvider:@"apple.com" completion:nil]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate with Apple"
                                        action:^{ [weakSelf reauthenticateWithApple]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Revoke Apple Token and Delete User"
+                                       action:^{ [weakSelf revokeAppleTokenAndDeleteUser]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign in with Twitter"
                                        action:^{ [weakSelf signInTwitterHeadfulLite]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign in with GitHub"
@@ -407,6 +409,30 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+- (void)revokeAppleTokenAndDeleteUser {
+    FIRUser *user = [FIRAuth auth].currentUser;
+
+    // Optionally revoke Apple token before account deletion
+    BOOL isAppleProviderLinked = false;
+    for (id<FIRUserInfo> provider in user.providerData) {
+        if ([[provider providerID]  isEqual: @"apple.com"]) {
+            isAppleProviderLinked = true;
+        }
+    }
+    if (isAppleProviderLinked) {
+        if (@available(iOS 13, *)) {
+          ASAuthorizationAppleIDRequest* request = [self appleIDRequestWithState:@"revokeAppleTokenAndDeleteUser"];
+          ASAuthorizationController* controller = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
+          controller.delegate = self;
+          controller.presentationContextProvider = self;
+          [controller performRequests];
+            
+        } else {
+        // Usual user deletion
+    }
+      }
+}
+
 - (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization API_AVAILABLE(ios(13.0)) {
   ASAuthorizationAppleIDCredential* appleIDCredential = authorization.credential;
   NSString *IDToken = [NSString stringWithUTF8String:[appleIDCredential.identityToken bytes]];
@@ -439,7 +465,22 @@ NS_ASSUME_NONNULL_BEGIN
         NSLog(@"%@", error.description);
       }
     }];
-  }
+  } else if ([appleIDCredential.state isEqualToString:@"revokeAppleTokenAndDeleteUser"]) {
+      FIRUser *user = FIRAuth.auth.currentUser;
+      [FIRAuth.auth revokeToken:FIRAuth.auth.currentUser.refreshToken completion:^(NSError * _Nullable error) {
+          if (!error) {
+              // Token revocation succeeded then delete user again.
+              [user deleteWithCompletion:^(NSError *_Nullable error) {
+                if (error) {
+                  [self logFailure:@"delete account failed" error:error];
+                }
+                [self showTypicalUIForUserUpdateResultsWithTitle:@"Delete User" error:error];
+              }];
+          } else {
+            NSLog(@"%@", error.description);
+          }
+      }];
+    }
 }
 
 - (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error API_AVAILABLE(ios(13.0)) {
