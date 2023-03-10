@@ -125,6 +125,21 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
  */
 static NSString *const kAutoCreateKey = @"autoCreate";
 
+/** @var kUserKey
+    @brief The key for the "user" value in the request.
+ */
+static NSString *const kUserKey = @"user";
+
+/** @var kFakeGivenName
+    @brief Fake given name used for testing the request.
+ */
+static NSString *const kFakeGivenName = @"Firstname";
+
+/** @var kFakeFamilyName
+    @brief Fake family name used for testing the request.
+ */
+static NSString *const kFakeFamilyName = @"Lastname";
+
 /** @class FIRVerifyAssertionRequestTests
     @brief Tests for @c FIRVerifyAssertionReuqest
  */
@@ -225,6 +240,14 @@ static NSString *const kAutoCreateKey = @"autoCreate";
   request.pendingToken = kTestPendingToken;
   request.providerOAuthTokenSecret = kTestProviderOAuthTokenSecret;
   request.autoCreate = NO;
+  NSPersonNameComponents *fullName = [[NSPersonNameComponents alloc] init];
+  fullName.givenName = kFakeGivenName;
+  fullName.familyName = kFakeFamilyName;
+  request.fullName = fullName;
+
+  NSString *userJSON =
+      [NSString stringWithFormat:@"{\"name\":{\"firstName\":\"%@\",\"lastName\":\"%@\"}}",
+                                 kFakeGivenName, kFakeFamilyName];
 
   [FIRAuthBackend
       verifyAssertion:request
@@ -238,6 +261,7 @@ static NSString *const kAutoCreateKey = @"autoCreate";
     [NSURLQueryItem queryItemWithName:kProviderOAuthTokenSecretKey
                                 value:kTestProviderOAuthTokenSecret],
     [NSURLQueryItem queryItemWithName:kInputEmailKey value:kTestInputEmail],
+    [NSURLQueryItem queryItemWithName:kUserKey value:userJSON],
   ];
   NSURLComponents *components = [[NSURLComponents alloc] init];
   [components setQueryItems:queryItems];
