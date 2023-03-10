@@ -20,7 +20,7 @@ import Photos
   @objc(
     feedbackViewControllerWithAdditionalFormText:feedbackName:image:onDismiss:
   ) public static func feedbackViewController(additionalFormText: String,
-                                              feedbackName: String,
+                                              releaseName: String,
                                               image: UIImage?,
                                               onDismiss: @escaping ()
                                                 -> Void)
@@ -42,7 +42,7 @@ import Photos
       .instantiateViewController(withIdentifier: "fir-ad-iaf") as! FeedbackViewController
 
     vc.additionalFormText = additionalFormText
-    vc.feedbackName = feedbackName
+    vc.releaseName = releaseName
     vc.image = image
     vc.viewDidDisappearCallback = onDismiss
 

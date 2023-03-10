@@ -19,7 +19,7 @@ class FeedbackViewController: UIViewController {
   // multiple times.
   var viewDidDisappearCallback: () -> Void = {}
   // (TODO) Can we make feedbackName and additionalFormText non-null?
-  var feedbackName: String?
+  var releaseName: String?
   var additionalFormText: String?
   var image: UIImage?
 
@@ -48,7 +48,9 @@ class FeedbackViewController: UIViewController {
     image = nil
   }
 
-  @IBAction func tappedSend(_ sender: Any) {}
+  @IBAction func tappedSend(_ sender: Any) {
+    ApiService.creat
+  }
 
   @IBAction func tappedCancel(_ sender: Any) {
     dismiss(animated: true)

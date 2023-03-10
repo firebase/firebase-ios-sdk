@@ -369,16 +369,15 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       findReleaseWithDisplayVersion:[self getAppVersion]
                        buildVersion:[self getAppBuild]
                            codeHash:[self getCodeHash]
-                         completion:^(NSString *__nullable feedbackName,
-                                      NSError *__nullable error) {
-                           if (feedbackName == nil) {
+                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+                           if (releaseName == nil) {
                              // TODO(tundeagboola) handle nil feedback
                            }
                            if (error) {
                              // TODO(tundeagoola) handle network error
                            }
                            [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
-                                                                  feedbackName:feedbackName
+                                                                   releaseName:releaseName
                                                                          image:image];
                          }];
 }
@@ -389,9 +388,8 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       findReleaseWithDisplayVersion:[self getAppVersion]
                        buildVersion:[self getAppBuild]
                            codeHash:[self getCodeHash]
-                         completion:^(NSString *__nullable feedbackName,
-                                      NSError *__nullable error) {
-                           if (feedbackName == nil) {
+                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+                           if (releaseName == nil) {
                              // TODO(tundeagboola) handle nil feedback
                            }
                            if (error) {
@@ -399,7 +397,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                            }
                            [self.uiService
                                enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
-                                                                   feedbackName:feedbackName
+                                                                    releaseName:releaseName
                                                                   showAlertInfo:showAlertInfo];
                          }];
 }
