@@ -36,7 +36,7 @@ iOS SDK for App Distribution for Firebase.
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleDataTransport', '~> 9.2'
   # TODO: Revert to ~> 10.0
-  s.dependency 'FirebaseAppDistributionInternal', '~> 10.7.0-beta'
+  s.dependency 'FirebaseAppDistributionInternal', '~> 10.5.0-beta'
 
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
