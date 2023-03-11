@@ -128,14 +128,10 @@
       }
     }
 
-    private func log(code: String, message: String) {
-      FirebaseLogger.log(level: .info, service: "[FirebaseAuth]", code: code, message: message)
-    }
-
     private func isProductionApp() -> Bool {
       let defaultAppTypeProd = true
       if GULAppEnvironmentUtil.isSimulator() {
-        log(code: "I-AUT000006", message: "Assuming prod APNs token type on simulator.")
+        AuthLog.logInfo(code: "I-AUT000006", message: "Assuming prod APNs token type on simulator.")
         return defaultAppTypeProd
       }
       // Apps distributed via AppStore or TestFlight use the Production APNS certificates.
@@ -151,7 +147,7 @@
 
       let path = Bundle.main.bundlePath + "embedded.mobileprovision"
       guard let url = URL(string: path) else {
-        log(code: "I-AUT000007", message: "\(path) does not exist")
+        AuthLog.logInfo(code: "I-AUT000007", message: "\(path) does not exist")
         return defaultAppTypeProd
       }
       do {
@@ -170,8 +166,8 @@
           }
         }
         guard let embeddedProfile = String(bytes: outBytes, encoding: .utf8) else {
-          log(code: "I-AUT000008",
-              message: "Error while reading embedded mobileprovision. Failed to convert to String")
+          AuthLog.logInfo(code: "I-AUT000008",
+                          message: "Error while reading embedded mobileprovision. Failed to convert to String")
           return defaultAppTypeProd
         }
 
@@ -182,7 +178,8 @@
 //        }
 
       } catch {
-        log(code: "I-AUT000008", message: "Error while reading embedded mobileprovision \(error)")
+        AuthLog.logInfo(code: "I-AUT000008",
+                        message: "Error while reading embedded mobileprovision \(error)")
         return defaultAppTypeProd
       }
 
