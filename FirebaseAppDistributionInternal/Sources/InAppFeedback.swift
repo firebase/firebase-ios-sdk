@@ -18,7 +18,7 @@ import Photos
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(
-    feedbackViewControllerWithAdditionalFormText:feedbackName:image:onDismiss:
+    feedbackViewControllerWithAdditionalFormText:releaseName:image:onDismiss:
   ) public static func feedbackViewController(additionalFormText: String,
                                               releaseName: String,
                                               image: UIImage?,
