@@ -30,7 +30,7 @@ NSString *const kFIRFADScreenshotFeedbackUserDefault =
 
 @property(nonatomic, assign, getter=isListeningToScreenshot) BOOL listeningToScreenshot;
 @property(nonatomic) NSString *additionalFormText;
-@property(nonatomic) NSString *feedbackName;
+@property(nonatomic) NSString *releaseName;
 
 @end
 
@@ -215,12 +215,12 @@ SFAuthenticationSession *_safariAuthenticationVC;
 // MARK: - In App Feedback
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
-                               feedbackName:(NSString *)feedbackName
+                                releaseName:(NSString *)releaseName
                                       image:(UIImage *__nullable)image {
   // TODO: Verify what happens when the string is empty.
   UIViewController *feedbackViewController =
       [FIRFADInAppFeedback feedbackViewControllerWithAdditionalFormText:additionalFormText
-                                                           feedbackName:feedbackName
+                                                           feedbackName:releaseName
                                                                   image:image
                                                               onDismiss:^() {
                                                                 // TODO: Consider using a
@@ -237,7 +237,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
-                                            feedbackName:(NSString *)feedbackName
+                                             releaseName:(NSString *)releaseName
                                            showAlertInfo:(BOOL)showAlertInfo {
   // TODO: Consider adding showActionSheetBeforeFeedback parameter.
   if (!self.isListeningToScreenshot) {
@@ -247,7 +247,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:[UIApplication sharedApplication]];
     self.additionalFormText = additionalFormText;
-    self.feedbackName = feedbackName;
+    self.releaseName = feedbackName;
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL dontShowAlert = [defaults boolForKey:kFIRFADScreenshotFeedbackUserDefault];
@@ -295,7 +295,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
     [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
       dispatch_async(dispatch_get_main_queue(), ^{
         [self startFeedbackWithAdditionalFormText:self.additionalFormText
-                                     feedbackName:self.feedbackName
+                                      releaseName:self.releaseName
                                             image:screenshot];
       });
     }];
