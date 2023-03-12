@@ -30,7 +30,7 @@ class GoogleTests: TestsBase {
     let expectation = self.expectation(description: "Signing in with Google finished.")
     auth.signIn(with: credential) { result, error in
       if let error = error {
-        print("Signing in with Google had error: \(error)")
+        XCTFail("Signing in with Google had error: \(error)")
       }
       expectation.fulfill()
     }

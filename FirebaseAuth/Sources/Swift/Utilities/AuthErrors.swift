@@ -31,11 +31,12 @@ import Foundation
  + `FIRAuthErrorCodeInvalidUserToken`
  + `FIRAuthErrorCodeUserDisabled`
  */
-@objc(FIRAuthErrors) public class AuthErrors: NSObject {
-  @objc(FIRAuthErrorDomain) public static var AuthErrorDomain: String = "FIRAuthErrorDomain"
 
-  @objc(FIRAuthErrorUserInfoNameKey) static var AuthErrorUserInfoNameKey: String =
-    "FIRAuthErrorUserInfoNameKey"
+// TODO: Keep the original global strings as deprecated, at least for CocoaPods, like we do in Storage.
+@objc(FIRAuthErrors) public class AuthErrors: NSObject {
+  @objc public static let domain: String = "FIRAuthErrorDomain"
+
+  @objc public static let userInfoNameKey: String = "FIRAuthErrorUserInfoNameKey"
 
   /**
    @brief Errors with one of the following three codes:
@@ -46,26 +47,21 @@ import Foundation
    associated with this key is an NSString of the email address of the account that already
    exists.
    */
-  @objc(FIRAuthErrorUserInfoEmailKey)
-  public static let AuthErrorUserInfoEmailKey: String =
-    "FIRAuthErrorUserInfoEmailKey"
+  @objc public static let userInfoEmailKey: String = "FIRAuthErrorUserInfoEmailKey"
 
   /**
    @brief The key used to read the updated Auth credential from the userInfo dictionary of the
    NSError object returned. This is the updated auth credential the developer should use for
    recovery if applicable.
    */
-  @objc(FIRAuthErrorUserInfoUpdatedCredentialKey)
-  public static let AuthErrorUserInfoUpdatedCredentialKey: String =
-    "FIRAuthErrorUserInfoUpdatedCredentialKey"
+  @objc public static let userInfoUpdatedCredentialKey: String = "FIRAuthErrorUserInfoUpdatedCredentialKey"
 
   /**
    @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
    returned when 2FA is required for sign-incompletion.
    */
   @objc(FIRAuthErrorUserInfoMultiFactorResolverKey)
-  static let AuthErrorUserInfoMultiFactorResolverKey: String =
-    "FIRAuthErrorUserInfoMultiFactorResolverKey"
+  public static let userInfoMultiFactorResolverKey: String = "FIRAuthErrorUserInfoMultiFactorResolverKey"
 }
 
 @objc(FIRAuthErrorCode) public enum AuthErrorCode: Int {
