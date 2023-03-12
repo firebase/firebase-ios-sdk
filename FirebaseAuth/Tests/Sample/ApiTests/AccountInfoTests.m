@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
+
 #import "FIRAuthApiTestsBase.h"
 
 /** The testing email address for testCreateAccountWithEmailAndPassword. */

@@ -54,14 +54,16 @@ import Foundation
    NSError object returned. This is the updated auth credential the developer should use for
    recovery if applicable.
    */
-  @objc public static let userInfoUpdatedCredentialKey: String = "FIRAuthErrorUserInfoUpdatedCredentialKey"
+  @objc public static let userInfoUpdatedCredentialKey: String =
+    "FIRAuthErrorUserInfoUpdatedCredentialKey"
 
   /**
    @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
    returned when 2FA is required for sign-incompletion.
    */
   @objc(FIRAuthErrorUserInfoMultiFactorResolverKey)
-  public static let userInfoMultiFactorResolverKey: String = "FIRAuthErrorUserInfoMultiFactorResolverKey"
+  public static let userInfoMultiFactorResolverKey: String =
+    "FIRAuthErrorUserInfoMultiFactorResolverKey"
 }
 
 @objc(FIRAuthErrorCode) public enum AuthErrorCode: Int {
