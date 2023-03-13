@@ -1165,7 +1165,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "2": {
               "queries": [

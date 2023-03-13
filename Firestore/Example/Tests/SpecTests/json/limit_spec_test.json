@@ -213,7 +213,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "2": {
               "queries": [
@@ -4332,7 +4333,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "2": {
               "queries": [
@@ -4358,7 +4360,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "4": {
               "queries": [
@@ -4491,7 +4494,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "4": {
               "queries": [
@@ -4515,7 +4519,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             }
           }
         }
@@ -4655,7 +4660,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "7": {
               "queries": [
@@ -4667,7 +4673,8 @@
                   "path": "collection/d"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             }
           }
         }
@@ -4806,7 +4813,8 @@
                   "path": "collection/d"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             }
           }
         }
@@ -5295,7 +5303,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "4": {
               "queries": [
@@ -5488,7 +5497,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -5554,7 +5564,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 3
             },
             "2": {
               "queries": [
@@ -5572,7 +5583,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -5662,7 +5674,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
