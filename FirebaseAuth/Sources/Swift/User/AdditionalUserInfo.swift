@@ -23,7 +23,10 @@ import Foundation
   @objc public var providerID: String?
   @objc public var profile: [String: Any]?
   @objc public var username: String?
-  @objc public var isNewUser: Bool = false
+  @objc public var newUser: Bool
+  @objc public var isNewUser: Bool {
+    return newUser
+  }
 
   @objc public static func userInfo(verifyAssertionResponse: VerifyAssertionResponse)
     -> AdditionalUserInfo {
@@ -33,12 +36,13 @@ import Foundation
                               isNewUser: verifyAssertionResponse.isNewUser)
   }
 
+  // TODO: this init should not be public
   @objc public init(providerID: String?, profile: [String: Any]?, username: String?,
                     isNewUser: Bool) {
     self.providerID = providerID
     self.profile = profile
     self.username = username
-    self.isNewUser = isNewUser
+    newUser = isNewUser
   }
 
   public static var supportsSecureCoding: Bool {
@@ -62,9 +66,9 @@ import Foundation
       of: NSNumber.self,
       forKey: AdditionalUserInfo.newUserKey
     ) {
-      isNewUser = newUser.boolValue
+      self.newUser = newUser.boolValue
     } else {
-      isNewUser = false
+      newUser = false
     }
   }
 

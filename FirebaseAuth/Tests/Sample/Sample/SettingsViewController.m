@@ -20,8 +20,7 @@
 
 #import "AppManager.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
+@import FirebaseAuth;
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
@@ -33,12 +32,12 @@
 /** @var kIdentityToolkitRequestClassName
     @brief The class name of Identity Toolkit requests.
  */
-static NSString *const kIdentityToolkitRequestClassName = @"FIRIdentityToolkitRequest";
+static NSString *const kIdentityToolkitRequestClassName = @"IdentityToolkitRequest";
 
 /** @var kSecureTokenRequestClassName
     @brief The class name of Secure Token Service requests.
  */
-static NSString *const kSecureTokenRequestClassName = @"FIRSecureTokenRequest";
+static NSString *const kSecureTokenRequestClassName = @"SecureTokenRequest";
 
 /** @var kIdentityToolkitSandboxHost
     @brief The host of Identity Toolkit sandbox server.
@@ -117,6 +116,8 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
 - (IBAction)done:(id)sender {
   [self dismissViewControllerAnimated:YES completion:nil];
 }
+
+// TODO: This reliance on `NSClassFromString` crashes with the Swift implementation.
 
 - (void)setUpAPIHosts {
   if (gAPIHosts) {
