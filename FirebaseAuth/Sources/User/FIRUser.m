@@ -22,8 +22,6 @@
 #import "FirebaseAuth/Sources/Auth/FIRAuthSerialTaskQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
-#import "FirebaseAuth/Sources/User/FIRUserInfoImpl.h"
-#import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
