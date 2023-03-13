@@ -34,13 +34,13 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
  * Listener registration returned by `addOnConfigUpdateListener`. Calling its method `remove` stops
  * the listener from receiving config updates and unregisters itself.
  *
- * If remove is called and no other listener registrations remain, the connection to the Realtime RC
+ * If remove is called and no other listener registrations remain, the connection to the real-time RC
  * backend is closed. Subsequently calling `addOnConfigUpdateListener` will re-open the connection.
  */
 NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
 @interface FIRConfigUpdateListenerRegistration : NSObject
 /**
- * Removes the listener being tracked by this 'ConfigUpdateListenerRegistration`. After the initial
+ * Removes the listener being tracked by this `ConfigUpdateListenerRegistration`. After the initial
  * call, subsequent calls have no effect.
  */
 - (void)remove;
@@ -81,9 +81,9 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
     FIRRemoteConfigErrorInternalError = 8003,
 } NS_SWIFT_NAME(RemoteConfigError);
 
-/// Remote Config error domain that handles errors for Realtime.
+/// Remote Config error domain that handles errors for the real-time service.
 extern NSString *const _Nonnull FIRRemoteConfigUpdateErrorDomain NS_SWIFT_NAME(RemoteConfigUpdateErrorDomain);
-/// Firebase Remote Config service Realtime error.
+/// Firebase Remote Config service real-time error.
 typedef NS_ERROR_ENUM(FIRRemoteConfigUpdateErrorDomain, FIRRemoteConfigUpdateError){
     /// Unable to make a connection to the backend.
     FIRRemoteConfigUpdateErrorStreamError = 8001,
@@ -91,7 +91,7 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigUpdateErrorDomain, FIRRemoteConfigUpdateErr
     FIRRemoteConfigUpdateErrorNotFetched = 8002,
     /// The ConfigUpdate message was unparsable.
     FIRRemoteConfigUpdateErrorMessageInvalid = 8003,
-    /// The Realtime service is unavailable.
+    /// The real-time Remote Config service is unavailable.
     FIRRemoteConfigUpdateErrorUnavailable = 8004,
 } NS_SWIFT_NAME(RemoteConfigUpdateError);
 
@@ -326,7 +326,8 @@ NS_SWIFT_NAME(RemoteConfig)
 
 #pragma mark - Realtime
 
-/// Completion handler invoked by addOnConfigUpdateListener when it gets an update from the backend.
+/// Completion handler invoked by `addOnConfigUpdateListener` when there is an update to
+/// the config from the backend.
 ///
 /// @param configUpdate Information on which key's values have changed
 /// @param error  Error message on failure.
@@ -335,8 +336,12 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Start listening for config updates and automatically fetch them when they're available. If a
-/// connection to the Realtime RC backend is not already open, calling this method will open it.
+/// connection to the real-time Remote Config backend is not already open, calling this method will open it.
 /// Subsequent calls re-use the same connection.
+///
+/// Note: Real-time Remote Config requires the Firebase Remote Config Realtime API. See Get started with
+/// Firebase Remote Config at https://firebase.google.com/docs/remote-config/get-started
+/// for more information.
 ///
 /// @param listener              The configured listener that is called for every config update.
 /// @return              Returns a registration representing the listener. The registration contains
