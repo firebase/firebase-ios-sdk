@@ -26,7 +26,7 @@
     /** @fn
         @brief Creates an `AuthCredential` for a Game Center sign in.
      */
-    open class func getCredential(completion: @escaping (AuthCredential?, Error?) -> Void) {
+    @objc public class func getCredential(completion: @escaping (AuthCredential?, Error?) -> Void) {
       /**
        Linking GameKit.framework without using it on macOS results in App Store rejection.
        Thus we don't link GameKit.framework to our SDK directly. `optionalLocalPlayer` is used for

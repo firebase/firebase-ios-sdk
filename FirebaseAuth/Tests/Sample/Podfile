@@ -12,6 +12,7 @@ target 'AuthSample' do
   platform :ios, '11.0'
   pod 'FirebaseCore', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
   pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FBSDKLoginKit', '< 13'

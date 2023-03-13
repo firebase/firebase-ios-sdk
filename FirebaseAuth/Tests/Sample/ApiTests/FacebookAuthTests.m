@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
+
 #import "FIRAuthApiTestsBase.h"
 
 /** Facebook app access token that will be used for Facebook Graph API, which is different from

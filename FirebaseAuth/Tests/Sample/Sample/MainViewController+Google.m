@@ -19,13 +19,10 @@
 #import "AppManager.h"
 #import "AuthProviders.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
 #import "MainViewController+Internal.h"
 @import FirebaseAuth;
 
 NS_ASSUME_NONNULL_BEGIN
-
-extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
 
 @implementation MainViewController (Google)
 
@@ -37,7 +34,7 @@ extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
     [StaticContentTableViewCell cellWithTitle:@"Link with Google"
                                       action:^{ [weakSelf linkWithGoogle]; }],
     [StaticContentTableViewCell cellWithTitle:@"Unlink from Google"
-                                      action:^{ [weakSelf unlinkFromProvider:FIRGoogleAuthProvider.string completion:nil]; }],
+                                      action:^{ [weakSelf unlinkFromProvider:FIRGoogleAuthProvider.id completion:nil]; }],
     [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Google"
                                       action:^{ [weakSelf reauthenticateGoogle]; }],
     ]];
@@ -56,7 +53,45 @@ extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
                                               NSError *_Nullable error) {
        if (error) {
          if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
-           [self authenticateWithSecondFactorError:error workflow:@"sign in"];
+           FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrors.FIRAuthErrorUserInfoMultiFactorResolverKey];
+           NSMutableString *displayNameString = [NSMutableString string];
+           for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+             [displayNameString appendString:tmpFactorInfo.displayName];
+             [displayNameString appendString:@" "];
+           }
+           [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to sign in\n%@", displayNameString]
+                                completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+                                  FIRPhoneMultiFactorInfo* selectedHint;
+                                  for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                                    if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                                      selectedHint = (FIRPhoneMultiFactorInfo *)tmpFactorInfo;
+                                    }
+                                  }
+                                  [FIRPhoneAuthProvider.provider
+                                   verifyPhoneNumberWithMultiFactorInfo:selectedHint
+                                   UIDelegate:nil
+                                   multiFactorSession:resolver.session
+                                   completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
+                                                   if (error) {
+                                                     [self logFailure:@"Multi factor start sign in failed." error:error];
+                                                   } else {
+                                                     [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
+                                                                          completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
+                                                                            FIRPhoneAuthCredential *credential =
+                                                                            [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                                                                                         verificationCode:verificationCode];
+                                                                            FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+                                                                            [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+                                                                              if (error) {
+                                                                                [self logFailure:@"Multi factor finalize sign in failed." error:error];
+                                                                              } else {
+                                                                                [self logSuccess:@"Multi factor finalize sign in succeeded."];
+                                                                              }
+                                                                            }];
+                                                                          }];
+                                                   }
+                                                 }];
+                                }];
          } else {
            [self logFailure:@"sign-in with provider failed" error:error];
          }
