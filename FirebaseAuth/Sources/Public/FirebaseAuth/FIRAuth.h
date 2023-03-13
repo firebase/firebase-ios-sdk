@@ -305,8 +305,7 @@ NS_SWIFT_NAME(Auth)
 /** @property mainBundle
     @brief Allow tests to swap in an alternate mainBundle.
  */
-@property(nonatomic, strong)
-    NSArray<NSDictionary<NSString *, NSArray<NSString *> *> *> *mainBundleUrlTypes;
+@property(nonatomic, strong) NSArray<NSDictionary<NSString *, id> *> *mainBundleUrlTypes;
 
 /** @property notificationManager
     @brief The manager for remote notifications used by phone number auth.
