@@ -26,7 +26,6 @@
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "FirebaseAuth-Swift.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"

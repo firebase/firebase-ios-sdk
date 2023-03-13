@@ -17,12 +17,10 @@
 #import "MainViewController+Email.h"
 
 #import "AppManager.h"
-#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
+@import FirebaseAuth;
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
 
 typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
 
@@ -125,7 +123,7 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
             [self hideSpinner:^{
               if (error) {
                 if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
-                  FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+                  FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrors.FIRAuthErrorUserInfoMultiFactorResolverKey];
                   NSMutableString *displayNameString = [NSMutableString string];
                   for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
                     [displayNameString appendString:tmpFactorInfo.displayName];
