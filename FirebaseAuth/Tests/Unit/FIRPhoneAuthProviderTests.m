@@ -26,6 +26,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
