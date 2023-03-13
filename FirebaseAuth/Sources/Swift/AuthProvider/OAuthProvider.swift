@@ -24,12 +24,12 @@ import CommonCrypto
   /** @property scopes
       @brief Array used to configure the OAuth scopes.
    */
-  @objc public let scopes: [String]
+  @objc public var scopes: [String]
 
   /** @property customParameters
       @brief Dictionary used to configure the OAuth custom parameters.
    */
-  @objc public let customParameters: [String: String]
+  @objc public var customParameters: [String: String]
 
   /** @property providerID
       @brief The provider ID indicating the specific OAuth provider this OAuthProvider instance

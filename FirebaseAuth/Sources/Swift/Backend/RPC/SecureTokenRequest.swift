@@ -159,7 +159,7 @@ private var gAPIHost = "securetoken.googleapis.com"
     return URL(string: urlString)!
   }
 
-  var containsPostBody: Bool { true }
+  public func containsPostBody() -> Bool { true }
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [
