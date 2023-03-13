@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
+
 #import "FIRAuthApiTestsBase.h"
 
 static NSString *kGoogleClientID = KGOOGLE_CLIENT_ID;

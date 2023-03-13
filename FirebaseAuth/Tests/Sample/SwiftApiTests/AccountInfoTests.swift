@@ -79,7 +79,7 @@ class AccountInfoTests: TestsBase {
   func testUpdatingUsersEmailAsync() async throws {
     let auth = Auth.auth()
     do {
-      let user = try await auth.createUser(withEmail: kOldUserEmail, password: "password")
+      _ = try await auth.createUser(withEmail: kOldUserEmail, password: "password")
 
       XCTFail("Did not get error for recreating a user")
     } catch {

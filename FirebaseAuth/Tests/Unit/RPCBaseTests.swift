@@ -33,11 +33,11 @@ class RPCBaseTests: XCTestCase {
    */
   let kTestIdentifier = "Identifier"
 
-  var rpcIssuer: FakeBackendrpcIssuer?
+  var rpcIssuer: FakeBackendRPCIssuer?
   var rpcImplementation: AuthBackendImplementation?
 
   override func setUp() {
-    rpcIssuer = FakeBackendrpcIssuer()
+    rpcIssuer = FakeBackendRPCIssuer()
     AuthBackend.setDefaultBackendImplementationWithRPCIssuer(issuer: rpcIssuer)
     rpcImplementation = AuthBackend.implementation()
   }
@@ -54,7 +54,7 @@ class RPCBaseTests: XCTestCase {
                                        expected: String,
                                        key: String,
                                        value: String?,
-                                       checkPostBody: Bool = false) throws -> FakeBackendrpcIssuer {
+                                       checkPostBody: Bool = false) throws -> FakeBackendRPCIssuer {
     AuthBackend.post(withRequest: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }

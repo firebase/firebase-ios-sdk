@@ -52,8 +52,6 @@ static NSString *const kSwitchToInMemoryUserTitle = @"Switch to in memory user";
 
 static NSString *const kNewOrExistingUserToggleTitle = @"New or Existing User Toggle";
 
-extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
-
 typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable error);
 
 @implementation MainViewController {
@@ -82,7 +80,7 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
     _actionCodeContinueURL = [NSURL URLWithString:KCONTINUE_URL];
     _authStateDidChangeListeners = [NSMutableArray array];
     _IDTokenDidChangeListeners = [NSMutableArray array];
-    _googleOAuthProvider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProvider.string];
+    _googleOAuthProvider = [FIROAuthProvider providerWithProviderID:FIRGoogleAuthProvider.id];
     _microsoftOAuthProvider = [FIROAuthProvider providerWithProviderID:@"microsoft.com"];
     _twitterOAuthProvider = [FIROAuthProvider providerWithProviderID:@"twitter.com"];
     _linkedinOAuthProvider = [FIROAuthProvider providerWithProviderID:@"linkedin.com"];
@@ -319,7 +317,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                                NSError *_Nullable error) {
         if (error) {
           if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
-            FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+            FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrors.FIRAuthErrorUserInfoMultiFactorResolverKey];
             NSMutableString *displayNameString = [NSMutableString string];
             for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
               [displayNameString appendString:tmpFactorInfo.displayName];
@@ -420,7 +418,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                                NSError *_Nullable error) {
         if (error) {
           if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
-            FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+            FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrors.FIRAuthErrorUserInfoMultiFactorResolverKey];
             NSMutableString *displayNameString = [NSMutableString string];
             for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
               [displayNameString appendString:tmpFactorInfo.displayName];
@@ -552,7 +550,7 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
                                                    (long)error.code,
                                                    error.localizedDescription];
     if (error.code == FIRAuthErrorCodeAccountExistsWithDifferentCredential) {
-      NSString *errorEmail = error.userInfo[FIRAuthErrorUserInfoEmailKey];
+      NSString *errorEmail = error.userInfo[FIRAuthErrors.userInfoEmailKey];
       resultsTitle = [NSString stringWithFormat:@"Existing email : %@", errorEmail];
     }
     [self showMessagePromptWithTitle:resultsTitle
