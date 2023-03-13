@@ -17,9 +17,13 @@ import UIKit
 import Photos
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
-  @objc(feedbackViewControllerWithImage:onDismiss:) public static func feedbackViewController(image: UIImage?,
-                                                                                              onDismiss: @escaping ()
-                                                                                                -> Void)
+  @objc(
+    feedbackViewControllerWithAdditionalFormText:releaseName:image:onDismiss:
+  ) public static func feedbackViewController(additionalFormText: String,
+                                              releaseName: String,
+                                              image: UIImage?,
+                                              onDismiss: @escaping ()
+                                                -> Void)
     -> UIViewController {
     // TODO: Add the additionalInfoText parameter.
     let frameworkBundle = Bundle(for: self)
@@ -37,8 +41,10 @@ import Photos
     let vc: FeedbackViewController = storyboard
       .instantiateViewController(withIdentifier: "fir-ad-iaf") as! FeedbackViewController
 
-    vc.viewDidDisappearCallback = onDismiss
+    vc.additionalFormText = additionalFormText
+    vc.releaseName = releaseName
     vc.image = image
+    vc.viewDidDisappearCallback = onDismiss
 
     return vc
   }
