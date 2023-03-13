@@ -84,7 +84,7 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
 
 /// Remote Config error domain that handles errors for the real-time service.
 extern NSString *const _Nonnull FIRRemoteConfigUpdateErrorDomain NS_SWIFT_NAME(RemoteConfigUpdateErrorDomain);
-/// Firebase Remote Config service real-time error.
+/// Firebase Remote Config real-time service error.
 typedef NS_ERROR_ENUM(FIRRemoteConfigUpdateErrorDomain, FIRRemoteConfigUpdateError){
     /// Unable to make a connection to the backend.
     FIRRemoteConfigUpdateErrorStreamError = 8001,
@@ -336,9 +336,12 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
                                                 NSError *_Nullable error)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
-/// Start listening for config updates and automatically fetch them when they're available. If a
-/// connection to the real-time Remote Config backend is not already open, calling this method will
-/// open it. Subsequent calls re-use the same connection.
+/// Start listening for real-time config updates from the Remote Config backend and automatically
+/// fetch updates when they're available.
+///
+/// If a connection to the Remote Config backend is not already open, calling this method will
+/// open it. Multiple listeners can be added by calling this method again, but subsequent calls
+/// re-use the same connection to the backend.
 ///
 /// Note: Real-time Remote Config requires the Firebase Remote Config Realtime API. See Get started
 /// with Firebase Remote Config at https://firebase.google.com/docs/remote-config/get-started for
