@@ -34,8 +34,9 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
  * Listener registration returned by `addOnConfigUpdateListener`. Calling its method `remove` stops
  * the listener from receiving config updates and unregisters itself.
  *
- * If remove is called and no other listener registrations remain, the connection to the real-time RC
- * backend is closed. Subsequently calling `addOnConfigUpdateListener` will re-open the connection.
+ * If remove is called and no other listener registrations remain, the connection to the real-time
+ * RC backend is closed. Subsequently calling `addOnConfigUpdateListener` will re-open the
+ * connection.
  */
 NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
 @interface FIRConfigUpdateListenerRegistration : NSObject
@@ -336,12 +337,12 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
 
 /// Start listening for config updates and automatically fetch them when they're available. If a
-/// connection to the real-time Remote Config backend is not already open, calling this method will open it.
-/// Subsequent calls re-use the same connection.
+/// connection to the real-time Remote Config backend is not already open, calling this method will
+/// open it. Subsequent calls re-use the same connection.
 ///
-/// Note: Real-time Remote Config requires the Firebase Remote Config Realtime API. See Get started with
-/// Firebase Remote Config at https://firebase.google.com/docs/remote-config/get-started
-/// for more information.
+/// Note: Real-time Remote Config requires the Firebase Remote Config Realtime API. See Get started
+/// with Firebase Remote Config at https://firebase.google.com/docs/remote-config/get-started for
+/// more information.
 ///
 /// @param listener              The configured listener that is called for every config update.
 /// @return              Returns a registration representing the listener. The registration contains
