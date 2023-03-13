@@ -59,7 +59,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
         podspec: [FirebaseRemoteConfig.podspec, FirebaseRemoteConfigSwift.podspec --skip-tests]
     steps:
     - uses: actions/checkout@v3

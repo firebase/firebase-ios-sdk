@@ -23,6 +23,7 @@
 #import "FIRDocumentSnapshot.h"
 #import "FIRFieldPath.h"
 #import "FIRFieldValue.h"
+#import "FIRFilter.h"
 #import "FIRFirestore.h"
 #import "FIRFirestoreErrors.h"
 #import "FIRFirestoreSettings.h"

@@ -75,6 +75,7 @@ namespace {
 
 namespace v1 = google::firestore::v1;
 using core::Bound;
+using google::protobuf::Int32Value;
 using google::protobuf::util::MessageDifferencer;
 using local::QueryPurpose;
 using local::TargetData;
@@ -1489,7 +1490,7 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
   TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
                    SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}));
+                   Bytes({1, 2, 3}), /*expected_count=*/absl::nullopt);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1509,6 +1510,63 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
   proto.set_resume_token("\001\002\003");
 
   SCOPED_TRACE("EncodesResumeTokens");
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesExpectedCount) {
+  core::Query q = Query("docs");
+  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
+                   SnapshotVersion::None(), SnapshotVersion::None(),
+                   Bytes({1, 2, 3}), /*expected_count=*/1234);
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(ResourceName(""));
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  proto.set_resume_token("\001\002\003");
+
+  google::protobuf::Int32Value int32_value;
+  google::protobuf::Int32Value* expected_count = int32_value.New();
+  expected_count->set_value(1234);
+  proto.set_allocated_expected_count(expected_count);
+
+  EXPECT_TRUE(proto.has_expected_count());
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodeExpectedCountSkippedWithoutResumeToken) {
+  core::Query q = Query("docs");
+  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
+                   SnapshotVersion::None(), SnapshotVersion::None(),
+                   ByteString(), /*expected_count=*/1234);
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(ResourceName(""));
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  EXPECT_FALSE(proto.has_expected_count());
   ExpectRoundTrip(model, proto);
 }
 

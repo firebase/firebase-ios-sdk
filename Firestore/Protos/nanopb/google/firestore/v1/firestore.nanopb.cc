@@ -221,7 +221,7 @@ const pb_field_t google_firestore_v1_Target_fields[8] = {
     PB_ONEOF_FIELD(resume_type,  11, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_Target, read_time, target_type.documents, &google_protobuf_Timestamp_fields),
     PB_FIELD(  5, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1_Target, target_id, resume_type.read_time, 0),
     PB_FIELD(  6, BOOL    , SINGULAR, STATIC  , OTHER, google_firestore_v1_Target, once, target_id, 0),
-    PB_FIELD( 12, MESSAGE , SINGULAR, STATIC  , OTHER, google_firestore_v1_Target, expected_count, once, &google_protobuf_Int32Value_fields),
+    PB_FIELD( 12, MESSAGE , OPTIONAL, STATIC  , OTHER, google_firestore_v1_Target, expected_count, once, &google_protobuf_Int32Value_fields),
     PB_LAST_FIELD
 };
 
@@ -834,8 +834,10 @@ std::string google_firestore_v1_Target::ToString(int indent) const {
     tostring_result += PrintPrimitiveField("target_id: ",
         target_id, indent + 1, false);
     tostring_result += PrintPrimitiveField("once: ", once, indent + 1, false);
-    tostring_result += PrintMessageField("expected_count ",
-        expected_count, indent + 1, false);
+    if (has_expected_count) {
+        tostring_result += PrintMessageField("expected_count ",
+            expected_count, indent + 1, true);
+    }
 
     std::string tostring_tail = PrintTail(indent);
     return tostring_header + tostring_result + tostring_tail;

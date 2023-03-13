@@ -812,6 +812,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                 target_data = target_data.WithResumeToken(
                     ByteString(), [self parseVersion:queryData[@"readTime"]]);
               }
+
+              if ([queryData objectForKey:@"expectedCount"] != nil) {
+                target_data = target_data.WithExpectedCount([queryData[@"expectedCount"] intValue]);
+              }
               queries.push_back(std::move(target_data));
             }
             expectedActiveTargets[targetID] = std::move(queries);
@@ -928,7 +932,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertEqual(actual.target_id(), targetData.target_id());
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
-
+    if (targetData.expected_count().has_value()) {
+      if (!actual.expected_count().has_value()) {
+        XCTFail("Actual target data doesn't have an expected_count.");
+      } else {
+        XCTAssertEqual(actual.expected_count().value(), targetData.expected_count().value());
+      }
+    }
     actualTargets.erase(targetID);
   }
 
