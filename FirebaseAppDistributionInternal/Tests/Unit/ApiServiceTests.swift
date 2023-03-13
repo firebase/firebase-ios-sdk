@@ -18,7 +18,7 @@ import FirebaseCore
 @testable import FirebaseInstallations
 @testable import FirebaseAppDistributionInternal
 
-class AppDistributionApiServiceTests: XCTestCase {
+class ApiServiceTests: XCTestCase {
   override class func setUp() {
     let options = FirebaseOptions(
       googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -38,7 +38,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Generate auth token succeeds")
 
-    AppDistributionApiService.generateAuthToken(
+    ApiService.generateAuthToken(
       installations: installations,
       completion: { identifier, authTokenResult, error in
         XCTAssertNotNil(identifier)
@@ -56,7 +56,7 @@ class AppDistributionApiServiceTests: XCTestCase {
     let expectation =
       XCTestExpectation(description: "Generate auth token fails to generate auth token.")
 
-    AppDistributionApiService.generateAuthToken(
+    ApiService.generateAuthToken(
       installations: installations,
       completion: { identifier, authTokenResult, error in
         let nserror = error as? NSError
@@ -75,7 +75,7 @@ class AppDistributionApiServiceTests: XCTestCase {
     let installations = FakeInstallations(testCase: .installationIDFailure)
     let expectation = XCTestExpectation(description: "Generate auth token fails to find ID.")
 
-    AppDistributionApiService.generateAuthToken(
+    ApiService.generateAuthToken(
       installations: installations,
       completion: { identifier, authTokenResult, error in
         let nserror = error as? NSError
@@ -121,7 +121,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with two releases.")
 
-    AppDistributionApiService.fetchReleases(
+    ApiService.fetchReleases(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -147,7 +147,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Fetch releases succeeds with 0 releases.")
 
-    AppDistributionApiService.fetchReleases(
+    ApiService.fetchReleases(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -173,7 +173,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Fetch releases fails")
 
-    AppDistributionApiService.fetchReleases(
+    ApiService.fetchReleases(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -196,7 +196,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Fetch releases fails with unknown error.")
 
-    AppDistributionApiService.fetchReleases(
+    ApiService.fetchReleases(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -220,7 +220,7 @@ class AppDistributionApiServiceTests: XCTestCase {
     let expectation =
       XCTestExpectation(description: "Fetch releases fails with unauthenticated error.")
 
-    AppDistributionApiService.fetchReleases(
+    ApiService.fetchReleases(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -248,7 +248,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Find release succeeds")
 
-    AppDistributionApiService.findRelease(
+    ApiService.findRelease(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -273,7 +273,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Find release fails")
 
-    AppDistributionApiService.findRelease(
+    ApiService.findRelease(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -297,7 +297,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Find release fails")
 
-    AppDistributionApiService.findRelease(
+    ApiService.findRelease(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -321,7 +321,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Find release fails")
 
-    AppDistributionApiService.findRelease(
+    ApiService.findRelease(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -348,7 +348,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Create feedback succeeds")
 
-    AppDistributionApiService.createFeedback(
+    ApiService.createFeedback(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -374,7 +374,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Create feedback fails")
 
-    AppDistributionApiService.createFeedback(
+    ApiService.createFeedback(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -397,7 +397,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Create feedback fails")
 
-    AppDistributionApiService.createFeedback(
+    ApiService.createFeedback(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -422,7 +422,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Create feedback fails")
 
-    AppDistributionApiService.createFeedback(
+    ApiService.createFeedback(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -447,7 +447,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Upload image succeeds")
 
-    AppDistributionApiService.uploadImage(
+    ApiService.uploadImage(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -469,7 +469,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Upload image fails")
 
-    AppDistributionApiService.uploadImage(
+    ApiService.uploadImage(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -493,7 +493,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Upload image fails")
 
-    AppDistributionApiService.uploadImage(
+    ApiService.uploadImage(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -520,7 +520,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Commit feedback succeeds")
 
-    AppDistributionApiService.commitFeedback(
+    ApiService.commitFeedback(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -541,7 +541,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Commit feedback fails")
 
-    AppDistributionApiService.commitFeedback(
+    ApiService.commitFeedback(
       app: app,
       installations: installations,
       urlSession: urlSession,
@@ -564,7 +564,7 @@ class AppDistributionApiServiceTests: XCTestCase {
 
     let expectation = XCTestExpectation(description: "Commit feedback fails")
 
-    AppDistributionApiService.commitFeedback(
+    ApiService.commitFeedback(
       app: app,
       installations: installations,
       urlSession: urlSession,
