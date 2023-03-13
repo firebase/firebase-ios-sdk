@@ -157,7 +157,7 @@ NS_ASSUME_NONNULL_BEGIN
                       // provided credential.
                       [self showSpinner:^{
                         FIRPhoneAuthCredential *credential =
-                        error.userInfo[FIRAuthErrorUserInfoUpdatedCredentialKey];
+                        error.userInfo[FIRAuthErrors.userInfoUpdatedCredentialKey];
                         [[AppManager auth] signInWithCredential:credential
                                                     completion:^(FIRAuthDataResult *_Nullable result,
                                                                  NSError *_Nullable error) {
