@@ -17,8 +17,8 @@ import XCTest
 
 @testable import FirebaseAuth
 
-/** @class FIRFakeBackendRPCIssuer
-    @brief An implementation of @c FIRAuthBackendrpcIssuer which is used to test backend request,
+/** @class FakeBackendRPCIssuer
+    @brief An implementation of @c AuthBackendRPCIssuer which is used to test backend request,
         response, and glue logic.
  */
 class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
