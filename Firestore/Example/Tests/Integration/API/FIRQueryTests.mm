@@ -1051,8 +1051,7 @@
 - (void)testMultipleInOps {
   // TODO(orquery): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because order-by-equality is not "
-            "supported yet.");
+            "Skip this test if running against production because it's not yet supported.");
 
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
