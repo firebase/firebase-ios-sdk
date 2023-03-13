@@ -45,7 +45,7 @@ import Foundation
 
   @objc override func prepare(_ request: VerifyAssertionRequest) {
     request.providerIDToken = IDToken
-    request.accessToken = accessToken
+    request.providerAccessToken = accessToken
   }
 
   static var supportsSecureCoding = true

@@ -35,7 +35,6 @@ jobs:
     - name: Build and test
       run: |
          scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }} --allow-warnings
-
 #TODO: Restore warnings check
 #        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseAuth.podspec --platforms=${{ matrix.target }}
 
