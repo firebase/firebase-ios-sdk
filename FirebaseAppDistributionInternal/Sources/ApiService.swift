@@ -149,7 +149,7 @@ struct CreateFeedbackReportRequest: Codable {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       let urlString = String(
         format: Strings.releaseEndpointUrlTemplate,
-        app.options.projectID,
+        app.options.googleAppID,
         identifier!
       )
       let request = self.createHttpRequest(
@@ -206,7 +206,7 @@ struct CreateFeedbackReportRequest: Codable {
       // we'll have to figure out a way to get the project number
       let urlString = String(
         format: Strings.findReleaseEndpointUrlTemplate,
-        "-",
+        app.options.projectID,
         identifier!
       )
       guard var urlComponents = URLComponents(string: urlString) else {
