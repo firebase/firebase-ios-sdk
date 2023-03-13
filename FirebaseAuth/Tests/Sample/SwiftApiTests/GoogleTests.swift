@@ -37,18 +37,18 @@ class GoogleTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func testSignInWithGoogleAsync() async throws {
-      let auth = Auth.auth()
-      let userInfoDict = try await getGoogleAccessTokenAsync()
-      let googleAccessToken: String = try XCTUnwrap(userInfoDict["access_token"] as? String)
-      let googleIDToken: String = try XCTUnwrap(userInfoDict["id_token"] as? String)
-      let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
-                                                     accessToken: googleAccessToken)
-      _ = try await auth.signIn(with: credential)
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func testSignInWithGoogleAsync() async throws {
+    let auth = Auth.auth()
+    let userInfoDict = try await getGoogleAccessTokenAsync()
+    let googleAccessToken: String = try XCTUnwrap(userInfoDict["access_token"] as? String)
+    let googleIDToken: String = try XCTUnwrap(userInfoDict["id_token"] as? String)
+    let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
+                                                   accessToken: googleAccessToken)
+    _ = try await auth.signIn(with: credential)
+    let displayName = try XCTUnwrap(auth.currentUser?.displayName)
+    XCTAssertEqual(displayName, "apitests ios");
+  }
 
   /// ** Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
   // * access token. Returns a dictionary that constains "access_token", "token_type", "expires_in" and
