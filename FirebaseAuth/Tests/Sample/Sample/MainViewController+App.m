@@ -17,12 +17,10 @@
 #import "MainViewController+App.h"
 
 #import "AppManager.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
+@import FirebaseAuth;
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "MainViewController+Internal.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthBackend.h"
 #import <FirebaseCore/FIRApp.h>
 
 static NSString *const kTokenRefreshErrorAlertTitle = @"Get Token Error";
@@ -145,7 +143,7 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
     [[FIRVerifyClientRequest alloc] initWithAppToken:token.string
                                            isSandbox:token.type == FIRAuthAPNSTokenTypeSandbox
                                 requestConfiguration:[AppManager auth].requestConfiguration];
-    [FIRAuthBackend verifyClient:request callback:^(FIRVerifyClientResponse *_Nullable response,
+    [FIRAuthBackend2 postWithRequest:request callback:^(FIRVerifyClientResponse *_Nullable response,
                                                     NSError *_Nullable error) {
       if (error) {
         [self logFailure:@"Verify iOS client failed." error:error];
@@ -168,7 +166,7 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
                                                       reCAPTCHAToken:nil
                                                 requestConfiguration:
          [AppManager auth].requestConfiguration];
-         [FIRAuthBackend sendVerificationCode:request
+         [FIRAuthBackend2 postWithRequest:request
                                      callback:^(FIRSendVerificationCodeResponse *_Nullable response,
                                                 NSError *_Nullable error) {
            if (error) {
