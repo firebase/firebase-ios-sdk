@@ -29,26 +29,25 @@ class ExistenceFilter {
  public:
   ExistenceFilter() = default;
 
-  ExistenceFilter(int count, absl::optional<BloomFilter> unchangedNames)
-      : count_{count}, unchanged_names_{std::move(unchangedNames)} {
+  ExistenceFilter(int count, absl::optional<BloomFilter> bloom_filter)
+      : count_{count}, bloom_filter_{std::move(bloom_filter)} {
   }
 
   int count() const {
     return count_;
   }
 
-  const absl::optional<BloomFilter>& unchanged_names() const {
-    return unchanged_names_;
+  const absl::optional<BloomFilter>& bloom_filter() const {
+    return bloom_filter_;
   }
 
  private:
   int count_ = 0;
-  absl::optional<BloomFilter> unchanged_names_;
+  absl::optional<BloomFilter> bloom_filter_;
 };
 
 inline bool operator==(const ExistenceFilter& lhs, const ExistenceFilter& rhs) {
-  return lhs.count() == rhs.count() &&
-         lhs.unchanged_names() == rhs.unchanged_names();
+  return lhs.count() == rhs.count() && lhs.bloom_filter() == rhs.bloom_filter();
 }
 
 }  // namespace remote
