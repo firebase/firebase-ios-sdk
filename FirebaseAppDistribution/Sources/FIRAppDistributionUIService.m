@@ -220,7 +220,7 @@ SFAuthenticationSession *_safariAuthenticationVC;
   // TODO: Verify what happens when the string is empty.
   UIViewController *feedbackViewController =
       [FIRFADInAppFeedback feedbackViewControllerWithAdditionalFormText:additionalFormText
-                                                           releaseName:releaseName
+                                                            releaseName:releaseName
                                                                   image:image
                                                               onDismiss:^() {
                                                                 // TODO: Consider using a
