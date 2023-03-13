@@ -365,40 +365,63 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
                                                     image:(UIImage *_Nullable)image {
   // TODO(tundeagboola) Because network requests can be slow, consider doing this check during app
   // start
-  [FIRFADApiServiceSwift
-      findReleaseWithDisplayVersion:[self getAppVersion]
-                       buildVersion:[self getAppBuild]
-                           codeHash:[self getCodeHash]
-                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-                           if (releaseName == nil) {
-                             // TODO(tundeagboola) handle nil feedback
-                           }
-                           if (error) {
-                             // TODO(tundeagoola) handle network error
-                           }
-                           [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
-                                                                   releaseName:releaseName
-                                                                         image:image];
-                         }];
+  [self findReleaseWithCompletion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+    if (error) {
+      //      TODO(tundeagboola) Show toast if 403 is returned which means tester doesn't have
+      //      access, or if a different network error occurs
+      return;
+    }
+    if (releaseName) {
+      // TODO(tundeagboola) we need to handle this scenario even though releaseName should never be
+      // null if error is non-null
+      return;
+    }
+    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
+                                            releaseName:releaseName
+                                                  image:image];
+    // TODO(tundeagboola) Remove this before merging to master
+    // Comment out the above completion code and uncomment the following to get feedback to work
+    // without having to upload the current version of the app
+    //    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
+    //                                            releaseName:@"projects/427193721242/installations/dyQizuMulUr8g0SfDZmDNb/releases/0nqe8cv4c5mq0"
+    //                                                  image:image];
+  }];
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
+  [self findReleaseWithCompletion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+    if (error) {
+      //      TODO(tundeagboola) Show toast if 403 is returned which means tester doesn't have
+      //      access, or if a different network error occurs
+      return;
+    }
+    if (releaseName) {
+      // TODO(tundeagboola) we need to handle this scenario even though releaseName should never be
+      // null if error is non-null
+      return;
+    }
+    [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
+                                                         releaseName:releaseName
+                                                       showAlertInfo:showAlertInfo];
+  }];
+}
+
+- (void)findReleaseWithCompletion:(void (^)(NSString *_Nullable releaseName,
+                                            NSError *_Nullable error))findReleaseCompletion {
   [FIRFADApiServiceSwift
       findReleaseWithDisplayVersion:[self getAppVersion]
                        buildVersion:[self getAppBuild]
                            codeHash:[self getCodeHash]
                          completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-                           if (releaseName == nil) {
-                             // TODO(tundeagboola) handle nil feedback
-                           }
                            if (error) {
-                             // TODO(tundeagoola) handle network error
+                             FIRFADErrorLog(@"Failed to identify release: Could not fetch %ld - %@",
+                                            [error code], [error localizedDescription]);
                            }
-                           [self.uiService
-                               enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
-                                                                    releaseName:releaseName
-                                                                  showAlertInfo:showAlertInfo];
+                           if (releaseName == nil) {
+                             FIRFADErrorLog(@"Failed to identify release: Release not returned");
+                           }
+                           findReleaseCompletion(releaseName, error);
                          }];
 }
 
