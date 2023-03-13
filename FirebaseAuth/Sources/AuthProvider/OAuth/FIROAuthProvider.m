@@ -362,6 +362,13 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                            [NSString stringWithFormat:kHeadfulLiteURLStringFormat,
                                                                       authDomain, argumentsString];
                                      }
+                                     NSCharacterSet *set =
+                                         [NSCharacterSet URLFragmentAllowedCharacterSet];
+                                     NSURLComponents *components = [[NSURLComponents alloc]
+                                         initWithString:
+                                             [URLString
+                                                 stringByAddingPercentEncodingWithAllowedCharacters:
+                                                     set]];
                                      if (appCheck) {
                                        [appCheck
                                            getTokenForcingRefresh:false
@@ -375,36 +382,20 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                                @"instead. Error: %@",
                                                                tokenResult.error);
                                                          }
-                                                         NSString *appCheckTokenFragments =
-                                                             [@"#fac=" stringByAppendingString:
-                                                                           tokenResult.token];
-                                                         NSString *URLStringWithAppCheckToken =
-                                                             [URLString stringByAppendingString:
-                                                                            appCheckTokenFragments];
+                                                         NSString *appCheckTokenFragments = [@"fac="
+                                                             stringByAppendingString:tokenResult
+                                                                                         .token];
+                                                         [components
+                                                             setFragment:appCheckTokenFragments];
+
                                                          if (completion) {
-                                                           NSCharacterSet *set = [NSCharacterSet
-                                                               URLFragmentAllowedCharacterSet];
-                                                           completion(
-                                                               [NSURL
-                                                                   URLWithString:
-                                                                       [URLStringWithAppCheckToken
-                                                                           stringByAddingPercentEncodingWithAllowedCharacters:
-                                                                               set]],
-                                                               nil);
+                                                           completion([components URL], nil);
                                                          }
                                                        }];
 
                                      } else {
                                        if (completion) {
-                                         NSCharacterSet *set =
-                                             [NSCharacterSet URLFragmentAllowedCharacterSet];
-                                         completion(
-                                             [NSURL
-                                                 URLWithString:
-                                                     [URLString
-                                                         stringByAddingPercentEncodingWithAllowedCharacters:
-                                                             set]],
-                                             nil);
+                                         completion([components URL], nil);
                                        }
                                      }
                                    }];

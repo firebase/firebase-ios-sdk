@@ -25,6 +25,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
@@ -107,6 +108,11 @@ static NSString *const kFakeEncodedFirebaseAppID = @"app-1-123456789-ios-123abc4
  */
 static NSString *const kFakeTenantID = @"tenantID";
 
+/** @var kFakeAppCheckToken
+    @brief A fake tenant ID.
+ */
+static NSString *const kFakeAppCheckToken = @"appCheckToken";
+
 /** @var kFakeOAuthResponseURL
     @brief A fake OAuth response URL used in test.
  */
@@ -171,6 +177,38 @@ static NSString *const kUnknownErrorString =
 
 @end
 
+#pragma mark - FIRKFakeAppCheckResult
+
+/// A fake appCheckResult used for dependency injection during testing.
+@interface FIRKFakeAppCheckResult : NSObject <FIRAppCheckTokenResultInterop>
+@property(nonatomic) NSString *token;
+@property(nonatomic, nullable) NSError *error;
+@end
+
+@implementation FIRKFakeAppCheckResult
+
+@end
+
+#pragma mark - FIRFakeAppCheck
+
+/// A fake appCheck used for dependency injection during testing.
+@interface FIRKFakeAppCheck : NSObject <FIRAppCheckInterop>
+@property(nonatomic, nonnull, readwrite, copy) NSString *tokenDidChangeNotificationName;
+@property(nonatomic, nonnull, readwrite, copy) NSString *notificationAppNameKey;
+@property(nonatomic, nonnull, readwrite, copy) NSString *notificationTokenKey;
+@end
+
+@implementation FIRKFakeAppCheck
+
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
+                    completion:(nonnull FIRAppCheckTokenHandlerInterop)completion {
+  FIRKFakeAppCheckResult *fakeAppCheckResult = [[FIRKFakeAppCheckResult alloc] init];
+  fakeAppCheckResult.token = kFakeAppCheckToken;
+  completion(fakeAppCheckResult);
+}
+
+@end
+
 @implementation FIROAuthProviderTests {
   /** @var _mockBackend
       @brief The mock @c FIRAuthBackendImplementation.
@@ -223,6 +261,8 @@ static NSString *const kUnknownErrorString =
   _mockRequestConfiguration = OCMClassMock([FIRAuthRequestConfiguration class]);
   OCMStub([_mockAuth requestConfiguration]).andReturn(_mockRequestConfiguration);
   OCMStub([_mockRequestConfiguration APIKey]).andReturn(kFakeAPIKey);
+  FIRKFakeAppCheck *fakeAppCheck = [[FIRKFakeAppCheck alloc] init];
+  OCMStub([_mockRequestConfiguration appCheck]).andReturn(fakeAppCheck);
 }
 
 /** @fn testObtainingOAuthCredentialNoIDToken
@@ -1226,6 +1266,113 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
         XCTAssertNotNil(params[@"v"]);
         XCTAssertNil(params[@"tid"]);
+        // `callbackMatcher` is at index 4
+        [invocation getArgument:&unretainedArgument atIndex:4];
+        FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
+        NSMutableString *redirectURL = [NSMutableString
+            stringWithString:[kFakeReverseClientID
+                                 stringByAppendingString:kFakeRedirectURLResponseURL]];
+        // Add fake OAuthResponse to callback.
+        [redirectURL appendString:kFakeOAuthResponseURL];
+        // Verify that the URL is rejected by the callback matcher without the event ID.
+        XCTAssertFalse(callbackMatcher([NSURL URLWithString:redirectURL]));
+        [redirectURL appendString:@"%26eventId%3D"];
+        [redirectURL appendString:params[@"eventId"]];
+        NSURLComponents *originalComponents = [[NSURLComponents alloc] initWithString:redirectURL];
+        // Verify that the URL is accepted by the callback matcher with the matching event ID.
+        XCTAssertTrue(callbackMatcher([originalComponents URL]));
+        NSURLComponents *components = [originalComponents copy];
+        components.query = @"https";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.host = @"badhost";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.path = @"badpath";
+        XCTAssertFalse(callbackMatcher([components URL]));
+        components = [originalComponents copy];
+        components.query = @"badquery";
+        XCTAssertFalse(callbackMatcher([components URL]));
+
+        // `completion` is at index 5
+        [invocation getArgument:&unretainedArgument atIndex:5];
+        FIRAuthURLPresentationCompletion completion = unretainedArgument;
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          completion(originalComponents.URL, nil);
+        });
+      });
+
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [_provider
+      getCredentialWithUIDelegate:mockUIDelegate
+                       completion:^(FIRAuthCredential *_Nullable credential,
+                                    NSError *_Nullable error) {
+                         XCTAssertTrue([NSThread isMainThread]);
+                         XCTAssertNil(error);
+                         XCTAssertTrue([credential isKindOfClass:[FIROAuthCredential class]]);
+                         FIROAuthCredential *OAuthCredential = (FIROAuthCredential *)credential;
+                         XCTAssertEqualObjects(kFakeOAuthResponseURL,
+                                               OAuthCredential.OAuthResponseURLString);
+                         [expectation fulfill];
+                       }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testGetCredentialWithUIDelegateWithAppCheckToken
+    @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion:
+ */
+- (void)testGetCredentialWithUIDelegateWithAppCheckToken {
+  id mockBundle = OCMClassMock([NSBundle class]);
+  OCMStub(ClassMethod([mockBundle mainBundle])).andReturn(mockBundle);
+  OCMStub([mockBundle objectForInfoDictionaryKey:@"CFBundleURLTypes"]).andReturn(@[
+    @{@"CFBundleURLSchemes" : @[ kFakeReverseClientID ]}
+  ]);
+  OCMStub([mockBundle bundleIdentifier]).andReturn(kFakeBundleID);
+  OCMStub([_mockAuth tenantID]).andReturn(kFakeTenantID);
+
+  OCMStub([_mockOptions clientID]).andReturn(kFakeClientID);
+  _provider = [FIROAuthProvider providerWithProviderID:kFakeProviderID auth:_mockAuth];
+
+  OCMExpect([_mockBackend getProjectConfig:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(
+          ^(FIRGetProjectConfigRequest *request, FIRGetProjectConfigResponseCallback callback) {
+            XCTAssertNotNil(request);
+            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+              id mockGetProjectConfigResponse = OCMClassMock([FIRGetProjectConfigResponse class]);
+              OCMStub([mockGetProjectConfigResponse authorizedDomains]).andReturn(@[
+                kFakeAuthorizedDomain
+              ]);
+              callback(mockGetProjectConfigResponse, nil);
+            });
+          });
+
+  id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
+
+  // Expect view controller presentation by UIDelegate.
+  OCMExpect([_mockURLPresenter presentURL:OCMOCK_ANY
+                               UIDelegate:mockUIDelegate
+                          callbackMatcher:OCMOCK_ANY
+                               completion:OCMOCK_ANY])
+      .andDo(^(NSInvocation *invocation) {
+        __unsafe_unretained id unretainedArgument;
+        // Indices 0 and 1 indicate the hidden arguments self and _cmd.
+        // `presentURL` is at index 2.
+        [invocation getArgument:&unretainedArgument atIndex:2];
+        NSURL *presentURL = unretainedArgument;
+        XCTAssertEqualObjects(presentURL.scheme, @"https");
+        XCTAssertEqualObjects(presentURL.host, kFakeAuthorizedDomain);
+        XCTAssertEqualObjects(presentURL.path, @"/__/auth/handler");
+        NSDictionary *params = [FIRAuthWebUtils dictionaryWithHttpArgumentsString:presentURL.query];
+        XCTAssertEqualObjects(params[@"ibi"], kFakeBundleID);
+        XCTAssertEqualObjects(params[@"clientId"], kFakeClientID);
+        XCTAssertEqualObjects(params[@"apiKey"], kFakeAPIKey);
+        XCTAssertEqualObjects(params[@"authType"], @"signInWithRedirect");
+        XCTAssertEqualObjects(params[@"tid"], kFakeTenantID);
+        XCTAssertNotNil(params[@"v"]);
+        NSString *appCheckToken = presentURL.fragment;
+        XCTAssertEqualObjects(appCheckToken, @"fac=appCheckToken");
+
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
         FIRAuthURLCallbackMatcher callbackMatcher = unretainedArgument;
