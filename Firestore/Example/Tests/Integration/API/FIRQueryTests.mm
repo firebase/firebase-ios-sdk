@@ -913,49 +913,16 @@
   ]];
   [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4] matchesResult:@[ @"doc3" ]];
 
-  // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
-  FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
-                                                                  isGreaterThan:@0]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter5] queryLimitedTo:2]
-                     matchesResult:@[ @"doc1", @"doc2" ]];
-
-  // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
-  // Note: The public query API does not allow implicit ordering when limitToLast is used.
-  FIRFilter *filter6 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
-                                                                  isGreaterThan:@0]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter6] queryLimitedToLast:2]
-                                       queryOrderedByField:@"b"]
-                     matchesResult:@[ @"doc3", @"doc4" ]];
-
-  // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
-  FIRFilter *filter7 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter7] queryLimitedTo:1]
-                                       queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc5" ]];
-
-  // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
-  FIRFilter *filter8 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter8] queryLimitedToLast:1]
-                                       queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc2" ]];
-
   // Test with limits without orderBy (the __name__ ordering is the tie breaker).
-  FIRFilter *filter9 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
   ]];
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter9] queryLimitedTo:1]
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter5] queryLimitedTo:1]
                      matchesResult:@[ @"doc2" ]];
 }
 
 - (void)testOrQueriesWithCompositeIndexes {
+  // TODO(orquery): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
             "Skip this test if running against production because order-by-equality is not "
             "supported yet.");
@@ -969,12 +936,46 @@
   }];
 
   // with one inequality: a>2 || b==1.
-  FIRFilter *filter = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
                                                                           isEqualTo:@1]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter]
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
                      matchesResult:@[ @"doc5", @"doc2", @"doc3" ]];
+
+  // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
+                                                                  isGreaterThan:@0]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter2] queryLimitedTo:2]
+                     matchesResult:@[ @"doc1", @"doc2" ]];
+
+  // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
+  // Note: The public query API does not allow implicit ordering when limitToLast is used.
+  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
+                                                                  isGreaterThan:@0]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter3] queryLimitedToLast:2]
+                                       queryOrderedByField:@"b"]
+                     matchesResult:@[ @"doc3", @"doc4" ]];
+
+  // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
+  FIRFilter *filter4 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter4] queryLimitedTo:1]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc5" ]];
+
+  // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
+  FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter5] queryLimitedToLast:1]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc2" ]];
 }
 
 - (void)testOrQueriesWithIn {
@@ -996,9 +997,10 @@
 }
 
 - (void)testOrQueriesWithNotIn {
+  // TODO(orquery): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because order-by-equality is not "
-            "supported yet.");
+            "Skip this test if running against production because it results in a 'missing index' "
+            "error. The Firestore Emulator, however, does serve these queries");
 
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
@@ -1047,6 +1049,7 @@
 }
 
 - (void)testMultipleInOps {
+  // TODO(orquery): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
             "Skip this test if running against production because order-by-equality is not "
             "supported yet.");
@@ -1065,8 +1068,8 @@
     [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
                                                                                in:@[ @0, @2 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter1] queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc1", @"doc6", @"doc3" ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc1", @"doc3", @"doc6" ]];
 
   // Two IN operations on the same field with disjunction.
   // a IN [0,3] || a IN [0,2] should union them (similar to: a IN [0,2,3]).
@@ -1079,6 +1082,7 @@
 }
 
 - (void)testUsingInWithArrayContainsAny {
+  // TODO(orquery): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
             "Skip this test if running against production because it's not yet supported.");
 
@@ -1151,6 +1155,7 @@
 }
 
 - (void)testOrderByEquality {
+  // TODO(orquery): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
             "Skip this test if running against production because order-by-equality is not "
             "supported yet.");

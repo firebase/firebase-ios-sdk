@@ -97,55 +97,20 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
     checkOnlineAndOfflineQuery(collRef.whereFilter(filter4),
                                matchesResult: ["doc3"])
 
-    // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
-    let filter5 = Filter.orFilter(
-      [Filter.whereField("a", isEqualTo: 1),
-       Filter.whereField("b", isGreaterThan: 0)]
-    )
-    checkOnlineAndOfflineQuery(collRef.whereFilter(filter5).limit(to: 2),
-                               matchesResult: ["doc1", "doc2"])
-
-    // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
-    // Note: The public query API does not allow implicit ordering when limitToLast is used.
-    let filter6 = Filter.orFilter(
-      [Filter.whereField("a", isEqualTo: 1),
-       Filter.whereField("b", isGreaterThan: 0)]
-    )
-    checkOnlineAndOfflineQuery(collRef.whereFilter(filter6)
-      .limit(toLast: 2)
-      .order(by: "b"),
-      matchesResult: ["doc3", "doc4"])
-
-    // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
-    let filter7 = Filter.orFilter(
-      [Filter.whereField("a", isEqualTo: 2),
-       Filter.whereField("b", isEqualTo: 1)]
-    )
-    checkOnlineAndOfflineQuery(collRef.whereFilter(filter7).limit(to: 1)
-      .order(by: "a"),
-      matchesResult: ["doc5"])
-
-    // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
-    let filter8 = Filter.orFilter(
-      [Filter.whereField("a", isEqualTo: 2),
-       Filter.whereField("b", isEqualTo: 1)]
-    )
-    checkOnlineAndOfflineQuery(collRef.whereFilter(filter8).limit(toLast: 1)
-      .order(by: "a"),
-      matchesResult: ["doc2"])
-
     // Test with limits without orderBy (the __name__ ordering is the tie breaker).
-    let filter9 = Filter.orFilter(
+    let filter5 = Filter.orFilter(
       [Filter.whereField("a", isEqualTo: 2),
        Filter.whereField("b", isEqualTo: 1)]
     )
-    checkOnlineAndOfflineQuery(collRef.whereFilter(filter9).limit(to: 1),
+    checkOnlineAndOfflineQuery(collRef.whereFilter(filter5).limit(to: 1),
                                matchesResult: ["doc2"])
   }
 
   func testOrQueriesWithCompositeIndexes() throws {
+    // TODO(orquery): Enable this test against production when possible.
     try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
-                  "Skip this test if running against production because it results in a 'missing index' error. The Firestore Emulator, however, does serve these queries.")
+                  "Skip this test if running against production because it results in" +
+                    "a 'missing index' error. The Firestore Emulator, however, does serve these queries.")
 
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": 0],
@@ -156,12 +121,49 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
     )
 
     // with one inequality: a>2 || b==1.
-    let filter = Filter.orFilter(
+    let filter1 = Filter.orFilter(
       [Filter.whereField("a", isGreaterThan: 2),
        Filter.whereField("b", isEqualTo: 1)]
     )
-    checkOnlineAndOfflineQuery(collRef.whereFilter(filter),
+    checkOnlineAndOfflineQuery(collRef.whereFilter(filter1),
                                matchesResult: ["doc5", "doc2", "doc3"])
+
+    // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
+    let filter2 = Filter.orFilter(
+      [Filter.whereField("a", isEqualTo: 1),
+       Filter.whereField("b", isGreaterThan: 0)]
+    )
+    checkOnlineAndOfflineQuery(collRef.whereFilter(filter2).limit(to: 2),
+                               matchesResult: ["doc1", "doc2"])
+
+    // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
+    // Note: The public query API does not allow implicit ordering when limitToLast is used.
+    let filter3 = Filter.orFilter(
+      [Filter.whereField("a", isEqualTo: 1),
+       Filter.whereField("b", isGreaterThan: 0)]
+    )
+    checkOnlineAndOfflineQuery(collRef.whereFilter(filter3)
+      .limit(toLast: 2)
+      .order(by: "b"),
+      matchesResult: ["doc3", "doc4"])
+
+    // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
+    let filter4 = Filter.orFilter(
+      [Filter.whereField("a", isEqualTo: 2),
+       Filter.whereField("b", isEqualTo: 1)]
+    )
+    checkOnlineAndOfflineQuery(collRef.whereFilter(filter4).limit(to: 1)
+      .order(by: "a"),
+      matchesResult: ["doc5"])
+
+    // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
+    let filter5 = Filter.orFilter(
+      [Filter.whereField("a", isEqualTo: 2),
+       Filter.whereField("b", isEqualTo: 1)]
+    )
+    checkOnlineAndOfflineQuery(collRef.whereFilter(filter5).limit(toLast: 1)
+      .order(by: "a"),
+      matchesResult: ["doc2"])
   }
 
   func testOrQueriesWithIn() throws {
@@ -184,8 +186,10 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testOrQueriesWithNotIn() throws {
+    // TODO(orquery): Enable this test against production when possible.
     try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
-                  "Skip this test if running against production because it results in a 'missing index' error. The Firestore Emulator, however, does serve these queries")
+                  "Skip this test if running against production because it results in " +
+                    "a 'missing index' error. The Firestore Emulator, however, does serve these queries")
 
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": 0],
@@ -234,6 +238,7 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMultipleInOps() throws {
+    // TODO(orquery): Enable this test against production when possible.
     try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
                   "Skip this test if running against production because it's not yet supported.")
 
@@ -265,6 +270,7 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testUsingInWithArrayContainsAny() throws {
+    // TODO(orquery): Enable this test against production when possible.
     try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
                   "Skip this test if running against production because it's not yet supported.")
 
@@ -341,6 +347,7 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testOrderByEquality() throws {
+    // TODO(orquery): Enable this test against production when possible.
     try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
                   "Skip this test if running against production because order-by-equality is not supported yet.")
 
