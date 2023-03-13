@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/User/FIRUserMetadata_Internal.h"
+@import FirebaseAuth;
 
 /** @var kCreationDateInSeconds
     @brief The fake creation date.
