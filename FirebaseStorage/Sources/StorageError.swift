@@ -58,6 +58,7 @@ public let StorageErrorDomain: String = "FIRStorageErrorDomain"
     errorDictionary["ResponseErrorDomain"] = serverError.domain
     errorDictionary["ResponseErrorCode"] = serverError.code
     errorDictionary["bucket"] = ref.path.bucket
+    errorDictionary[NSUnderlyingErrorKey] = serverError
 
     if let object = ref.path.object {
       errorDictionary["object"] = object

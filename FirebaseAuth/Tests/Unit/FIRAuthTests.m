@@ -135,6 +135,16 @@ static NSString *const kLocalID = @"LOCAL_ID";
  */
 static NSString *const kDisplayName = @"User Doe";
 
+/** @var kFakeGivenName
+    @brief The fake user given name.
+ */
+static NSString *const kFakeGivenName = @"Firstname";
+
+/** @var kFakeFamilyName
+    @brief The fake user family name.
+ */
+static NSString *const kFakeFamilyName = @"Lastname";
+
 /** @var kGoogleUD
     @brief The fake user ID under Google Sign-In.
  */
@@ -159,6 +169,16 @@ static NSString *const kGoogleAccessToken = @"GOOGLE_ACCESS_TOKEN";
     @brief The fake ID token from Google Sign-In.
  */
 static NSString *const kGoogleIDToken = @"GOOGLE_ID_TOKEN";
+
+/** @var kAppleAuthProviderID
+    @brief The provider ID for Apple Sign-In.
+ */
+static NSString *const kAppleAuthProviderID = @"apple.com";
+
+/** @var kAppleIDToken
+    @brief The fake ID token from Apple Sign-In.
+ */
+static NSString *const kAppleIDToken = @"APPLE_ID_TOKEN";
 
 /** @var kCustomToken
     @brief The fake custom token to sign in.
@@ -1371,6 +1391,66 @@ static const NSTimeInterval kWaitInterval = .5;
                 }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   XCTAssertNil([FIRAuth auth].currentUser);
+  OCMVerifyAll(_mockBackend);
+}
+
+/** @fn testSignInWithAppleCredentialFullNameInRequest
+    @brief Tests the flow of a successful @c signInWithCredential:completion: call
+        with an Apple Sign-In credential with a full name. This test differentiates from
+        @c testSignInWithCredentialSuccess only in verifying the full name.
+ */
+- (void)testSignInWithAppleCredentialFullNameInRequestSuccess {
+  NSPersonNameComponents *fullName = [[NSPersonNameComponents alloc] init];
+  fullName.givenName = kFakeGivenName;
+  fullName.familyName = kFakeFamilyName;
+  OCMExpect([_mockBackend verifyAssertion:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRVerifyAssertionRequest *_Nullable request,
+                       FIRVerifyAssertionResponseCallback callback) {
+        XCTAssertEqualObjects(request.APIKey, kAPIKey);
+        XCTAssertEqualObjects(request.providerID, kAppleAuthProviderID);
+        XCTAssertEqualObjects(request.providerIDToken, kAppleIDToken);
+        // Verify that the full name is passed to the backend request.
+        XCTAssertEqualObjects(request.fullName, fullName);
+        XCTAssertTrue(request.returnSecureToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockVerifyAssertionResponse = OCMClassMock([FIRVerifyAssertionResponse class]);
+          OCMStub([mockVerifyAssertionResponse providerID]).andReturn(kAppleAuthProviderID);
+          [self stubTokensWithMockResponse:mockVerifyAssertionResponse];
+          callback(mockVerifyAssertionResponse, nil);
+        });
+      });
+  OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRGetAccountInfoRequest *_Nullable request,
+                       FIRGetAccountInfoResponseCallback callback) {
+        XCTAssertEqualObjects(request.APIKey, kAPIKey);
+        XCTAssertEqualObjects(request.accessToken, kAccessToken);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockAppleUserInfo = OCMClassMock([FIRGetAccountInfoResponseProviderUserInfo class]);
+          OCMStub([mockAppleUserInfo providerID]).andReturn(kAppleAuthProviderID);
+          id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+          OCMStub([mockGetAccountInfoResponseUser providerUserInfo])
+              .andReturn((@[ mockAppleUserInfo ]));
+          id mockGetAccountInfoResponse = OCMClassMock([FIRGetAccountInfoResponse class]);
+          OCMStub([mockGetAccountInfoResponse users]).andReturn(@[
+            mockGetAccountInfoResponseUser
+          ]);
+          callback(mockGetAccountInfoResponse, nil);
+        });
+      });
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  [[FIRAuth auth] signOut:NULL];
+  FIRAuthCredential *appleCredential = [FIROAuthProvider appleCredentialWithIDToken:kAppleIDToken
+                                                                           rawNonce:nil
+                                                                           fullName:fullName];
+  [[FIRAuth auth]
+      signInWithCredential:appleCredential
+                completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {
+                  XCTAssertTrue([NSThread isMainThread]);
+                  XCTAssertNil(error);
+                  [expectation fulfill];
+                }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  XCTAssertNotNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
 

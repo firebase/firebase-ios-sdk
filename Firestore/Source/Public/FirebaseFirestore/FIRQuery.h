@@ -22,6 +22,7 @@
 @class FIRAggregateQuery;
 @class FIRFieldPath;
 @class FIRFirestore;
+@class FIRFilter;
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
 
@@ -103,6 +104,14 @@ NS_SWIFT_NAME(Query)
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
 
 #pragma mark - Filtering Data
+/**
+ * Creates and returns a new Query with the additional filter.
+ *
+ * @param filter The new filter to apply to the existing query.
+ * @return The newly created Query.
+ */
+- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter NS_SWIFT_NAME(whereFilter(_:));
+
 /**
  * Creates and returns a new `Query` with the additional filter that documents must
  * contain the specified field and the value must be equal to the specified value.

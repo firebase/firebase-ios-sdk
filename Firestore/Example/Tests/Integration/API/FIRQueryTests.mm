@@ -18,9 +18,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFilter+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"

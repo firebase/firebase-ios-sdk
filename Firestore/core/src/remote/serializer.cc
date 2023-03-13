@@ -819,8 +819,6 @@ std::vector<Filter> Serializer::DecodeFilters(
 
   // Instead of a singletonList containing AND(F1, F2, ...), we can return
   // a list containing F1, F2, ...
-  // TODO(orquery): Once proper support for composite filters has been
-  // completed, we can remove this flattening from here.
   if (decoded_filter.IsACompositeFilter()) {
     CompositeFilter composite_filter(decoded_filter);
     if (composite_filter.IsFlatConjunction()) {
