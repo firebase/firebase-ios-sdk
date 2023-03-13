@@ -24,4 +24,3 @@
 #import "FIRMultiFactorResolver.h"
 #import "FIRPhoneMultiFactorGenerator.h"
 #import "FIRUser.h"
-#import "FIRUserMetadata.h"
