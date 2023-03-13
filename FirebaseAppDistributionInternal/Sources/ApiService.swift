@@ -206,7 +206,7 @@ struct CreateFeedbackReportRequest: Codable {
       // we'll have to figure out a way to get the project number
       let urlString = String(
         format: Strings.findReleaseEndpointUrlTemplate,
-        app,
+        "-",
         identifier!
       )
       guard var urlComponents = URLComponents(string: urlString) else {
@@ -500,7 +500,7 @@ struct CreateFeedbackReportRequest: Codable {
     request.setValue(authTokenResult.authToken, forHTTPHeaderField: Strings.installationsAuthHeader)
     request.setValue(
       app.options.apiKey,
-      forHTTPHeaderField: Strings.installationsAuthHeader
+      forHTTPHeaderField: Strings.apiHeaderKey
     )
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: Strings.apiBundleKey)
     return request
