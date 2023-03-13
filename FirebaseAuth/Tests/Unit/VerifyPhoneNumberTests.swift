@@ -155,8 +155,7 @@ import XCTest
       XCTAssert(callbackInvoked)
       XCTAssertNil(rpcResponse)
       let credential = try XCTUnwrap(rpcError?
-        .userInfo[AuthErrors.AuthErrorUserInfoUpdatedCredentialKey]
-        as? PhoneAuthCredential)
+        .userInfo[AuthErrors.userInfoUpdatedCredentialKey] as? PhoneAuthCredential)
       XCTAssertEqual(credential.temporaryProof, kTemporaryProof)
       XCTAssertEqual(credential.phoneNumber, kPhoneNumber)
     }
