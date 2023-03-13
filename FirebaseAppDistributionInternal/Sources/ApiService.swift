@@ -206,7 +206,7 @@ struct CreateFeedbackReportRequest: Codable {
       // we'll have to figure out a way to get the project number
       let urlString = String(
         format: Strings.findReleaseEndpointUrlTemplate,
-        app.options.projectID,
+        app,
         identifier!
       )
       guard var urlComponents = URLComponents(string: urlString) else {
