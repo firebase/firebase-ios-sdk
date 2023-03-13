@@ -16,6 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
+@import FirebaseAuth;
+
 #import "FIRAuthApiTestsBase.h"
 
 /** The user name string for Custom Auth testing account. */

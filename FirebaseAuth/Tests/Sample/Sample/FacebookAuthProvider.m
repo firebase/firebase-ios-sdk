@@ -19,7 +19,7 @@
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <FBSDKLoginKit/FBSDKLoginKit.h>
 
-#import <FirebaseAuth/FIRFacebookAuthProvider.h>
+@import FirebaseAuth;
 #import "ApplicationDelegate.h"
 #import "AuthCredentials.h"
 
