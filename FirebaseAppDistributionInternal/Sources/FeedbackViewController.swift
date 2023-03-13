@@ -18,18 +18,29 @@ class FeedbackViewController: UIViewController {
   // TODO: Consider the situations where this instance is initiated once, and used
   // multiple times.
   var viewDidDisappearCallback: () -> Void = {}
+  // (TODO) Can we make feedbackName and additionalFormText non-null?
+  var releaseName: String?
+  var additionalFormText: String?
   var image: UIImage?
-  var additionalInfo: String?
 
   @IBOutlet var screenshotUIImageView: UIImageView!
-  @IBOutlet var additionalInfoLabel: UILabel!
+  @IBOutlet var additionalFormTextLabel: UILabel!
   @IBOutlet var feedbackTextView: UITextView!
-
   @IBOutlet var navigationBar: UINavigationBar!
 
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
+
+    let additionalFormText = additionalFormText
+    if additionalFormText != nil {
+      additionalFormTextLabel.text = additionalFormText
+    }
+
+    let image = image
+    if image != nil {
+      screenshotUIImageView.image = image
+    }
   }
 
   override func viewWillAppear(_ animated: Bool) {
