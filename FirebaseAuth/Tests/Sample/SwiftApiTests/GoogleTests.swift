@@ -47,7 +47,7 @@ class GoogleTests: TestsBase {
                                                    accessToken: googleAccessToken)
     _ = try await auth.signIn(with: credential)
     let displayName = try XCTUnwrap(auth.currentUser?.displayName)
-    XCTAssertEqual(displayName, "apitests ios");
+    XCTAssertEqual(displayName, "apitests ios")
   }
 
   /// ** Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
