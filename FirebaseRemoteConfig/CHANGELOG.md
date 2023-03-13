@@ -1,3 +1,6 @@
+# 10.7.0
+- [feature] Added support for real time config updates. To learn more, see [Get started with Firebase Remote Config](https://firebase.google.com/docs/remote-config/get-started?platform=ios).
+
 # 9.3.0
 - [changed] Arrays and Dictionaries are now supported when initializing defaults from a
   plist. (#8306)
