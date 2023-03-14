@@ -1,4 +1,4 @@
-# Unreleased
+# 10.7.0
 - [feature] Add support for disjunctions in queries (`OR` queries).
 
 # 10.6.0
