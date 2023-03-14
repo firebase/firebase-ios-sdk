@@ -56,11 +56,10 @@ NS_ASSUME_NONNULL_BEGIN
 /** @fn updateKeychainWithUser:error:
     @brief Updates the keychain for the given user.
     @param user The user to be updated.
-    @param error The error caused the method to fail if the method returns NO.
-    @return Whether updating keychain has succeeded or not.
+    @return  error if the method fails.
     @remarks Called by @c FIRUser when user info or token changes occur.
  */
-- (BOOL)updateKeychainWithUser:(FIRUser *)user error:(NSError *_Nullable *_Nullable)error;
+- (NSError *)updateKeychainWithUser:(FIRUser *)user;
 
 /** @fn internalSignInWithCredential:callback:
     @brief Convenience method for @c internalSignInAndRetrieveDataWithCredential:callback:
