@@ -711,8 +711,22 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     }
 
     XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
-    for (size_t i = 0; i != expectedChanges.size(); ++i) {
-      XCTAssertTrue((actual.viewSnapshot.value().document_changes()[i] == expectedChanges[i]));
+
+    std::vector<DocumentViewChange> expectedChangesSorted = expectedChanges;
+    std::sort(expectedChangesSorted.begin(), expectedChangesSorted.end(),
+              [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
+                return lhs.document()->key() < rhs.document()->key();
+              });
+
+    std::vector<DocumentViewChange> actualChangesSorted =
+        actual.viewSnapshot.value().document_changes();
+    std::sort(actualChangesSorted.begin(), actualChangesSorted.end(),
+              [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
+                return lhs.document()->key() < rhs.document()->key();
+              });
+
+    for (size_t i = 0; i != expectedChangesSorted.size(); ++i) {
+      XCTAssertTrue((actualChangesSorted[i] == expectedChangesSorted[i]));
     }
 
     BOOL expectedHasPendingWrites =

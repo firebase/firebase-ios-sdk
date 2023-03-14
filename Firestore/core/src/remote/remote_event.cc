@@ -16,6 +16,7 @@
 
 #include "Firestore/core/src/remote/remote_event.h"
 
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/local/target_data.h"
