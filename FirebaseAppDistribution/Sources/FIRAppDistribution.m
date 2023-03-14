@@ -379,12 +379,6 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
     [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
                                             releaseName:releaseName
                                                   image:image];
-    // TODO(tundeagboola) Remove this before merging to master
-    // Comment out the above completion code and uncomment the following to get feedback to work
-    // without having to upload the current version of the app
-    //    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
-    //                                            releaseName:@"projects/427193721242/installations/dyQizuMulUr8g0SfDZmDNb/releases/0nqe8cv4c5mq0"
-    //                                                  image:image];
   }];
 }
 
