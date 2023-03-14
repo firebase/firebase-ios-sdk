@@ -28,6 +28,7 @@ using core::DocumentViewChange;
 using core::Target;
 using local::QueryPurpose;
 using local::TargetData;
+using model::DatabaseId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::MutableDocument;
@@ -235,13 +236,61 @@ void WatchChangeAggregator::HandleExistenceFilter(
     } else {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
-        // Existence filter mismatch: We reset the mapping and raise a new
-        // snapshot with `isFromCache:true`.
-        ResetTarget(target_id);
-        pending_target_resets_.insert(target_id);
+        // Apply bloom filter to identify and mark removed documents.
+        bool bloomFilterApplied =
+            ApplyBloomFilter(existence_filter, current_size);
+
+        if (!bloomFilterApplied) {
+          // If bloom filter application fails, we reset the mapping and
+          // trigger re-run of the query.
+          ResetTarget(target_id);
+          pending_target_resets_.insert(target_id);
+        }
       }
     }
   }
+}
+
+/** Returns whether a bloom filter removed the deleted documents successfully.
+ */
+bool WatchChangeAggregator::ApplyBloomFilter(
+    ExistenceFilterWatchChange existence_filter, int current_count) {
+  int expected_count = existence_filter.filter().count();
+  absl::optional<BloomFilter> bloom_filter =
+      existence_filter.filter().bloom_filter();
+
+  if (!bloom_filter.has_value()) {
+    return false;
+  }
+
+  int removed_document_count = FilterRemovedDocuments(
+      bloom_filter.value(), existence_filter.target_id());
+
+  return expected_count == (current_count - removed_document_count);
+}
+
+/**
+ * Filter out removed documents based on bloom filter membership result and
+ * return number of documents removed.
+ */
+int WatchChangeAggregator::FilterRemovedDocuments(BloomFilter bloom_filter,
+                                                  int target_id) {
+  const DocumentKeySet& existing_keys =
+      target_metadata_provider_->GetRemoteKeysForTarget(target_id);
+  int removalCount = 0;
+  for (DocumentKey key : existing_keys) {
+    DatabaseId database_id = target_metadata_provider_->GetDatabaseId();
+    std::string documentPath = util::StringFormat(
+        "projects/%s/databases/%s/documents/%s", database_id.project_id(),
+        database_id.database_id(), key.ToString());
+
+    if (!bloom_filter.MightContain(documentPath)) {
+      RemoveDocumentFromTarget(target_id, key,
+                               /*updatedDocument=*/absl::nullopt);
+      removalCount++;
+    }
+  }
+  return removalCount;
 }
 
 RemoteEvent WatchChangeAggregator::CreateRemoteEvent(

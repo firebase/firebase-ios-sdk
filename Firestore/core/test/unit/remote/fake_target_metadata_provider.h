@@ -73,6 +73,7 @@ class FakeTargetMetadataProvider : public TargetMetadataProvider {
       model::TargetId target_id) const override;
   absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const override;
+  model::DatabaseId GetDatabaseId() const override;
 
  private:
   std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;

@@ -139,6 +139,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   static std::string GetAllowlistedHeadersAsString(
       const GrpcCall::Metadata& headers);
 
+  const core::DatabaseInfo& database_info() const {
+    return database_info_;
+  }
+
   Datastore(const Datastore& other) = delete;
   Datastore(Datastore&& other) = delete;
   Datastore& operator=(const Datastore& other) = delete;
@@ -212,6 +216,7 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   GrpcConnection grpc_connection_;
 
   std::vector<std::unique_ptr<GrpcCall>> active_calls_;
+  core::DatabaseInfo database_info_;
   DatastoreSerializer datastore_serializer_;
 };
 

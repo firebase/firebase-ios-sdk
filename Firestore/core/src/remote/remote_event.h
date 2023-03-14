@@ -62,6 +62,9 @@ class TargetMetadataProvider {
    */
   virtual absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const = 0;
+
+  /** Returns the database ID of the Firestore instance. */
+  virtual model::DatabaseId GetDatabaseId() const = 0;
 };
 
 /**
@@ -409,6 +412,18 @@ class WatchChangeAggregator {
    * specified target. */
   bool TargetContainsDocument(model::TargetId target_id,
                               const model::DocumentKey& key);
+
+  // TODO(Mila)
+  /** Returns whether a bloom filter removed the deleted documents successfully.
+   */
+  bool ApplyBloomFilter(ExistenceFilterWatchChange existence_filter,
+                        int current_count);
+
+  /**
+   * Filter out removed documents based on bloom filter membership result and
+   * return number of documents removed.
+   */
+  int FilterRemovedDocuments(BloomFilter bloom_filter, int target_id);
 
   /** The internal state of all tracked targets. */
   std::unordered_map<model::TargetId, TargetState> target_states_;

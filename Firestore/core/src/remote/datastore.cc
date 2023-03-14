@@ -108,6 +108,7 @@ Datastore::Datastore(
       connectivity_monitor_{connectivity_monitor},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_, firebase_metadata_provider},
+      database_info_{database_info},
       datastore_serializer_{database_info} {
   if (!database_info.ssl_enabled()) {
     GrpcConnection::UseInsecureChannel(database_info.host());
