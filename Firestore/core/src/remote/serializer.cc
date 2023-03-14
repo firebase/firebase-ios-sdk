@@ -1441,14 +1441,12 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
   // and inputs are valid, otherwise keep it null.
   absl::optional<BloomFilter> bloom_filter = absl::nullopt;
   if (filter.has_unchanged_names && filter.unchanged_names.has_bits) {
-    // TODO(Mila): Ensure bloom filter with invalid inputs are handled correctly
-    // in next PR.
-    ByteString bitmap_string(filter.unchanged_names.bits.bitmap);
-    std::vector<uint8_t> bitmap = MakeVector(bitmap_string);
-    int32_t padding = filter.unchanged_names.bits.padding;
-    int32_t hash_count = filter.unchanged_names.hash_count;
+    // TODO(Mila): None of the ported spec tests here actually has the bloom
+    // filter json string, so hard code an empty bloom filter for now. The
+    // actual parsing code will be written in the next PR, where we can validate
+    // the parsing result.
     StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(bitmap, padding, hash_count);
+        BloomFilter::Create(std::vector<uint8_t>{}, 0, 0);
     if (maybe_bloom_filter.ok()) {
       bloom_filter = maybe_bloom_filter.ValueOrDie();
     }
