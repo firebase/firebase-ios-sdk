@@ -26,6 +26,23 @@ static NSString *const kFakeAppCheckToken = @"appCheckToken";
 
 @interface FIRFakeAppCheck : NSObject <FIRAppCheckInterop>
 
+/** @property tokenDidChangeNotificationName
+    @brief A notification with the specified name is sent to the default notification center
+   (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
+ */
+@property(nonatomic, nonnull, readwrite, copy) NSString *tokenDidChangeNotificationName;
+
+/** @property notificationAppNameKey
+    @brief `userInfo` key for the FAC token in a notification for `tokenDidChangeNotificationName`.
+ */
+@property(nonatomic, nonnull, readwrite, copy) NSString *notificationAppNameKey;
+
+/** @property notificationAppNameKey
+    @brief `userInfo` key for the `FirebaseApp.name` in a notification for
+   `tokenDidChangeNotificationName`.
+ */
+@property(nonatomic, nonnull, readwrite, copy) NSString *notificationTokenKey;
+
 /** @fn getTokenForcingRefresh:completion:
     @brief A fake appCheck used for dependency injection during testing.
     @param forcingRefresh dtermines if a new token is generated.
