@@ -382,11 +382,11 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                                                                @"instead. Error: %@",
                                                                tokenResult.error);
                                                          }
-                                                         NSString *appCheckTokenFragments = [@"fac="
+                                                         NSString *appCheckTokenFragment = [@"fac="
                                                              stringByAppendingString:tokenResult
                                                                                          .token];
                                                          [components
-                                                             setFragment:appCheckTokenFragments];
+                                                             setFragment:appCheckTokenFragment];
 
                                                          if (completion) {
                                                            completion([components URL], nil);

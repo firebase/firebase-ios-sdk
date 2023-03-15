@@ -18,13 +18,13 @@
 
 @import HeartbeatLoggingTestUtils;
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeAppCheck.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
@@ -43,7 +43,7 @@ static NSString *const kFakeAPIkey = @"FAKE_API_KEY";
 /** @var kFakeAppCheckToken
     @brief Used as a fakeappCheck token for a fake RPC request.
  */
-static NSString *const kFakeAppCheckToken = @"FAKE_APP_CHECK_TOKEN";
+static NSString *const kFakeAppCheckToken = @"appCheckToken";
 
 /** @var kFakeFirebaseAppID
     @brief Used as a fake Firebase app ID for a fake RPC request. We don't test this here.
@@ -178,38 +178,6 @@ static NSString *const kTestValue = @"TestValue";
   // This API should not be used by the below tests because the Auth
   // SDK does not log heartbeats in it's networking context.
   [self doesNotRecognizeSelector:_cmd];
-}
-
-@end
-
-#pragma mark - FIRFakeAppCheckResult
-
-/// A fake appCheckResult used for dependency injection during testing.
-@interface FIRFakeAppCheckResult : NSObject <FIRAppCheckTokenResultInterop>
-@property(nonatomic) NSString *token;
-@property(nonatomic, nullable) NSError *error;
-@end
-
-@implementation FIRFakeAppCheckResult
-
-@end
-
-#pragma mark - FIRFakeAppCheck
-
-/// A fake appCheck used for dependency injection during testing.
-@interface FIRFakeAppCheck : NSObject <FIRAppCheckInterop>
-@property(nonatomic, nonnull, readwrite, copy) NSString *tokenDidChangeNotificationName;
-@property(nonatomic, nonnull, readwrite, copy) NSString *notificationAppNameKey;
-@property(nonatomic, nonnull, readwrite, copy) NSString *notificationTokenKey;
-@end
-
-@implementation FIRFakeAppCheck
-
-- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(nonnull FIRAppCheckTokenHandlerInterop)completion {
-  FIRFakeAppCheckResult *fakeAppCheckResult = [[FIRFakeAppCheckResult alloc] init];
-  fakeAppCheckResult.token = kFakeAppCheckToken;
-  completion(fakeAppCheckResult);
 }
 
 @end

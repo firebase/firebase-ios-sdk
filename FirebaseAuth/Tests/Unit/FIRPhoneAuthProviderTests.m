@@ -26,7 +26,6 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
@@ -47,6 +46,7 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeAppCheck.h"
 #import "FirebaseAuth/Tests/Unit/OCMStubRecorder+FIRAuthUnitTests.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -120,11 +120,6 @@ static NSString *const kFakeBundleID = @"com.firebaseapp.example";
     @brief A fake API key.
  */
 static NSString *const kFakeAPIKey = @"asdfghjkl";
-
-/** @var kFakeAppCheckToken
-    @brief A fake AppCheck Token
- */
-static NSString *const kFakeAppCheckToken = @"appCheckToken";
 
 /** @var kFakeAuthorizedDomain
     @brief A fake authorized domain for the app.
@@ -229,38 +224,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
 @interface FIRPhoneAuthProviderTests : XCTestCase
 @end
 
-#pragma mark - FIRKFakeAppCheckResult
-
-/// A fake appCheckResult used for dependency injection during testing.
-@interface FIRPFakeAppCheckResult : NSObject <FIRAppCheckTokenResultInterop>
-@property(nonatomic) NSString *token;
-@property(nonatomic, nullable) NSError *error;
-@end
-
-@implementation FIRPFakeAppCheckResult
-
-@end
-
-#pragma mark - FIRFakeAppCheck
-
-/// A fake appCheck used for dependency injection during testing.
-@interface FIRPFakeAppCheck : NSObject <FIRAppCheckInterop>
-@property(nonatomic, nonnull, readwrite, copy) NSString *tokenDidChangeNotificationName;
-@property(nonatomic, nonnull, readwrite, copy) NSString *notificationAppNameKey;
-@property(nonatomic, nonnull, readwrite, copy) NSString *notificationTokenKey;
-@end
-
-@implementation FIRPFakeAppCheck
-
-- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(nonnull FIRAppCheckTokenHandlerInterop)completion {
-  FIRPFakeAppCheckResult *fakeAppCheckResult = [[FIRPFakeAppCheckResult alloc] init];
-  fakeAppCheckResult.token = kFakeAppCheckToken;
-  completion(fakeAppCheckResult);
-}
-
-@end
-
 @implementation FIRPhoneAuthProviderTests {
   /** @var _mockBackend
       @brief The mock @c FIRAuthBackendImplementation .
@@ -329,7 +292,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   id mockRequestConfiguration = OCMClassMock([FIRAuthRequestConfiguration class]);
   OCMStub([_mockAuth requestConfiguration]).andReturn(mockRequestConfiguration);
   OCMStub([mockRequestConfiguration APIKey]).andReturn(kFakeAPIKey);
-  FIRPFakeAppCheck *fakeAppCheck = [[FIRPFakeAppCheck alloc] init];
+  FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
   OCMStub([mockRequestConfiguration appCheck]).andReturn(fakeAppCheck);
 }
 
