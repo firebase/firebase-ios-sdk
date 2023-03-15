@@ -101,8 +101,14 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
 - (BOOL)regenerateInstallIDIfNeededWithBlock:(void (^)(NSString *fiid))block {
   BOOL __block didRotate = false;
 
-  dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+  dispatch_semaphore_t semaphore = nil;
 
+  bool isMainThread = NSThread.isMainThread;
+  if (!isMainThread) {
+    semaphore = dispatch_semaphore_create(0);
+  }
+
+  __block bool completed = false;
   // This runs Completion async, so wait a reasonable amount of time for it to finish.
   [self.installations
       installationIDWithCompletion:^(NSString *_Nullable currentIID, NSError *_Nullable error) {
@@ -116,11 +122,32 @@ static unsigned long long FIRCLSInstallationsWaitTime = 10 * NSEC_PER_SEC;
         if (didRotate) {
           FIRCLSInfoLog(@"Rotated Crashlytics Install UUID because Firebase Install ID changed");
         }
-        dispatch_semaphore_signal(semaphore);
+        NSAssert(NSThread.isMainThread, @"We expect to get a completion on the main thread");
+        completed = true;
+        if (!isMainThread) {
+          dispatch_semaphore_signal(semaphore);
+        }
       }];
 
-  intptr_t result = dispatch_semaphore_wait(
-      semaphore, dispatch_time(DISPATCH_TIME_NOW, FIRCLSInstallationsWaitTime));
+  intptr_t result = 0;
+  if (isMainThread) {
+    NSDate *deadline =
+        [NSDate dateWithTimeIntervalSinceNow:FIRCLSInstallationsWaitTime / NSEC_PER_SEC];
+    while (!completed) {
+      NSDate *now = [[NSDate alloc] init];
+      if ([now timeIntervalSinceDate:deadline] > 0) {
+        break;
+      }
+      [[NSRunLoop mainRunLoop] runMode:NSDefaultRunLoopMode beforeDate:deadline];
+    }
+    if (!completed) {
+      result = -1;
+    }
+  } else {  // isMainThread
+    result = dispatch_semaphore_wait(semaphore,
+                                     dispatch_time(DISPATCH_TIME_NOW, FIRCLSInstallationsWaitTime));
+  }
+
   if (result != 0) {
     FIRCLSErrorLog(@"Crashlytics timed out while checking for Firebase Installation ID");
   }
