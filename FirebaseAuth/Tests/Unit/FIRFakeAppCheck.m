@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2023 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,6 @@
 #import "FirebaseAuth/Tests/Unit/FIRFakeAppCheck.h"
 #import <Foundation/Foundation.h>
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
-
-/** @var kFakeAppCheckToken
-    @brief A fake App Check token.
- */
-static NSString *const kFakeAppCheckToken = @"appCheckToken";
 
 #pragma mark - FIRFakeAppCheckResult
 

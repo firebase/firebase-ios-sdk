@@ -40,11 +40,6 @@ static NSString *const kFakeRequestURL = @"https://www.google.com/";
  */
 static NSString *const kFakeAPIkey = @"FAKE_API_KEY";
 
-/** @var kFakeAppCheckToken
-    @brief Used as a fakeappCheck token for a fake RPC request.
- */
-static NSString *const kFakeAppCheckToken = @"appCheckToken";
-
 /** @var kFakeFirebaseAppID
     @brief Used as a fake Firebase app ID for a fake RPC request. We don't test this here.
  */
