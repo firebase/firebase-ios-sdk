@@ -371,7 +371,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       //      access, or if a different network error occurs
       return;
     }
-    if (releaseName) {
+    if (releaseName == nil) {
       // TODO(tundeagboola) we need to handle this scenario even though releaseName should never be
       // null if error is non-null
       return;
@@ -390,7 +390,7 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
       //      access, or if a different network error occurs
       return;
     }
-    if (releaseName) {
+    if (releaseName == nil) {
       // TODO(tundeagboola) we need to handle this scenario even though releaseName should never be
       // null if error is non-null
       return;
