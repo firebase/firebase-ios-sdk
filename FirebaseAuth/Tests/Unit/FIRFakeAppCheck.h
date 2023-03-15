@@ -18,13 +18,8 @@
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
-@interface FIRFakeAppCheck : NSObject <FIRAppCheckInterop>
 
-/** @typedef FIRAppCheckTokenHandlerInterop
-    @brief The type of block used to return the result of a call to an endpoint.
-    @param tokenResult App Check Token That will be returned in the block
- */
-typedef void (^FIRAppCheckTokenHandlerInterop)(id<FIRAppCheckTokenResultInterop> tokenResult);
+@interface FIRFakeAppCheck : NSObject <FIRAppCheckInterop>
 
 /** @property tokenDidChangeNotificationName
     @brief A notification with the specified name is sent to the default notification center
@@ -46,7 +41,7 @@ typedef void (^FIRAppCheckTokenHandlerInterop)(id<FIRAppCheckTokenResultInterop>
 /** @fn getTokenForcingRefresh:completion:
     @brief A fake appCheck used for dependency injection during testing.
     @param forcingRefresh dtermines if a new token is generated.
-    @param completion handler to update the cache.
+    @param handler to update the cache.
  */
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(nonnull FIRAppCheckTokenHandlerInterop)handler;
