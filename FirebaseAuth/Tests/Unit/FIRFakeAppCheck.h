@@ -26,6 +26,14 @@ static NSString *const kFakeAppCheckToken = @"appCheckToken";
 
 @interface FIRFakeAppCheck : NSObject <FIRAppCheckInterop>
 
+/** @fn getTokenForcingRefresh:completion:
+    @brief A fake appCheck used for dependency injection during testing.
+    @param forcingRefresh dtermines if a new token is generated.
+    @param handler to update the cache.
+ */
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
+                    completion:(nonnull FIRAppCheckTokenHandlerInterop)handler;
+
 @end
 
 NS_ASSUME_NONNULL_END
