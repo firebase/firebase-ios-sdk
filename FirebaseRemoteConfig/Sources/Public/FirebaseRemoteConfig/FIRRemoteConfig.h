@@ -41,8 +41,8 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
 NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
 @interface FIRConfigUpdateListenerRegistration : NSObject
 /**
- * Removes the listener being tracked by this `ConfigUpdateListenerRegistration`. After the initial
- * call, subsequent calls have no effect.
+ * Removes the listener being associated with this `ConfigUpdateListenerRegistration`. After the
+ * initial call, subsequent calls have no effect.
  */
 - (void)remove;
 @end
@@ -82,13 +82,13 @@ typedef NS_ERROR_ENUM(FIRRemoteConfigErrorDomain, FIRRemoteConfigError){
     FIRRemoteConfigErrorInternalError = 8003,
 } NS_SWIFT_NAME(RemoteConfigError);
 
-/// Remote Config error domain that handles errors for the real-time service.
+/// Remote Config error domain that handles errors for the config update listener service.
 extern NSString *const _Nonnull FIRRemoteConfigUpdateErrorDomain NS_SWIFT_NAME(RemoteConfigUpdateErrorDomain);
 /// Firebase Remote Config real-time service error.
 typedef NS_ERROR_ENUM(FIRRemoteConfigUpdateErrorDomain, FIRRemoteConfigUpdateError){
     /// Unable to make a connection to the backend.
     FIRRemoteConfigUpdateErrorStreamError = 8001,
-    /// Unable to fetch the latest config.
+    /// Unable to fetch the latest version of the config.
     FIRRemoteConfigUpdateErrorNotFetched = 8002,
     /// The ConfigUpdate message was unparsable.
     FIRRemoteConfigUpdateErrorMessageInvalid = 8003,
@@ -171,7 +171,10 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 @end
 
 #pragma mark - FIRRemoteConfigUpdate
-/// Firebase Remote Config update
+/// Used by real-time Remote Config, this class represents changes between the newly fetched config
+/// and the current one. An instance of this class is passed to `FIRRemoteConfigUpdateCompletion`
+/// anytime there has been a successful auto-fetch and their is a least one difference between
+/// configs.
 NS_SWIFT_NAME(RemoteConfigUpdate)
 @interface FIRRemoteConfigUpdate : NSObject
 
@@ -325,7 +328,7 @@ NS_SWIFT_NAME(RemoteConfig)
 ///                         nil if the key doesn't exist in the default config.
 - (nullable FIRRemoteConfigValue *)defaultValueForKey:(nullable NSString *)key;
 
-#pragma mark - Realtime
+#pragma mark - Real-time Config Updates
 
 /// Completion handler invoked by `addOnConfigUpdateListener` when there is an update to
 /// the config from the backend.
