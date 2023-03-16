@@ -890,9 +890,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
                       targetData.ToString().c_str());
 
-    // TODO: Replace the XCTAssertEqual() checks on the individual properties of TargetData below
-    // with the single assertEquals on the TargetData objects themselves if the sequenceNumber is
-    // ever made to be consistent.
+    // TODO(Mila): Replace the XCTAssertEqual() checks on the individual properties of TargetData
+    // below with the single assertEquals on the TargetData objects themselves if the sequenceNumber
+    // is ever made to be consistent.
     // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
     const TargetData &actual = found->second;
 
