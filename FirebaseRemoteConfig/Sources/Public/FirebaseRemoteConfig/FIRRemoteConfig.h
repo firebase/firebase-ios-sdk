@@ -173,8 +173,8 @@ NS_SWIFT_NAME(RemoteConfigSettings)
 #pragma mark - FIRRemoteConfigUpdate
 /// Used by Remote Config real-time config update service, this class represents changes between the
 /// newly fetched config and the current one. An instance of this class is passed to
-/// `FIRRemoteConfigUpdateCompletion` anytime there has been a successful auto-fetch and their is at
-/// least one difference between configs.
+/// `FIRRemoteConfigUpdateCompletion` whenever there has been a successful auto-fetch and there is
+/// at least one difference between configs.
 NS_SWIFT_NAME(RemoteConfigUpdate)
 @interface FIRRemoteConfigUpdate : NSObject
 
@@ -358,4 +358,3 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
 @end
-
