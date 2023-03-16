@@ -1605,7 +1605,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
                               @"verifyApp");
         XCTAssertNotNil([FIRAuthWebUtils queryItemValue:@"v" from:queryItems]);
         NSString *appCheckToken = presentURL.fragment;
-        XCTAssertEqualObjects(appCheckToken, @"fac=appCheckToken");
+        XCTAssertEqualObjects(appCheckToken, [@"fac=" stringByAppendingString:kFakeAppCheckToken]);
 
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];

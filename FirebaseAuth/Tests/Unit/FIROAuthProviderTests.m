@@ -1355,7 +1355,7 @@ static NSString *const kUnknownErrorString =
         XCTAssertEqualObjects(params[@"tid"], kFakeTenantID);
         XCTAssertNotNil(params[@"v"]);
         NSString *appCheckToken = presentURL.fragment;
-        XCTAssertEqualObjects(appCheckToken, @"fac=appCheckToken");
+        XCTAssertEqualObjects(appCheckToken, [@"fac=" stringByAppendingString:kFakeAppCheckToken]);
 
         // `callbackMatcher` is at index 4
         [invocation getArgument:&unretainedArgument atIndex:4];
