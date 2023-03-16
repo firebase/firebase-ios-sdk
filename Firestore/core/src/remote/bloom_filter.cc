@@ -123,6 +123,10 @@ bool operator!=(const BloomFilter& lhs, const BloomFilter& rhs) {
 }
 
 bool CompareBits(const BloomFilter& lhs, const BloomFilter& rhs) {
+  if (lhs.bit_count() != rhs.bit_count()) {
+    return false;
+  }
+
   for (int32_t i = 0; i < lhs.bit_count(); ++i) {
     int32_t offset = i % 8;
     const uint8_t& lhs_byte = lhs.bitmap()[i / 8];

@@ -71,7 +71,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
-
 #include "absl/memory/memory.h"
 #include "absl/strings/escaping.h"
 #include "absl/types/optional.h"
