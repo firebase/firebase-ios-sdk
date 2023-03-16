@@ -118,17 +118,44 @@ TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusIfPaddingIsTooLarge) {
   EXPECT_EQ(maybe_bloom_filter.status().error_message(), "Invalid padding: 8");
 }
 
-TEST(BloomFilterTest, CanCheckBloomFiltersEquality) {
-  {
-    BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
-    BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 1, 1);
-    EXPECT_TRUE(bloom_filter1 == bloom_filter2);
-  }
-  {
-    BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
-    BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 2, 1);
-    EXPECT_FALSE(bloom_filter1 == bloom_filter2);
-  }
+TEST(BloomFilterTest, CheckBloomFiltersEqualityWithSameInput) {
+  BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
+  BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 1, 1);
+  EXPECT_TRUE(bloom_filter1 == bloom_filter2);
+  EXPECT_FALSE(bloom_filter1 != bloom_filter2);
+}
+
+TEST(BloomFilterTest, CheckBloomFiltersEqualityWithDifferentBitmap) {
+  BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
+  BloomFilter bloom_filter2(std::vector<uint8_t>{2}, 1, 1);
+  EXPECT_FALSE(bloom_filter1 == bloom_filter2);
+  EXPECT_TRUE(bloom_filter1 != bloom_filter2);
+}
+
+TEST(BloomFilterTest, CheckBloomFiltersEqualityWithDifferentPadding) {
+  BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
+  BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 2, 1);
+  EXPECT_FALSE(bloom_filter1 == bloom_filter2);
+  EXPECT_TRUE(bloom_filter1 != bloom_filter2);
+}
+
+TEST(BloomFilterTest, CheckBloomFiltersEqualityWithDifferentHashCount) {
+  BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
+  BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 1, 2);
+  EXPECT_FALSE(bloom_filter1 == bloom_filter2);
+  EXPECT_TRUE(bloom_filter1 != bloom_filter2);
+}
+
+TEST(BloomFilterTest,
+     BloomFiltersEqualityCheckShouldIgnoreBitsInPaddingIndexes) {
+  // In BloomFilter bitmap, padding is guaranteed to be less than 8, and
+  // starts counting from the leftmost indexes of the last byte.
+  BloomFilter bloom_filter1(std::vector<uint8_t>{255, 127}, 1,
+                            1);  // bitmap -> 11111111 01111111
+  BloomFilter bloom_filter2(std::vector<uint8_t>{255, 255}, 1,
+                            1);  // bitmap -> 11111111 11111111
+  EXPECT_TRUE(bloom_filter1 == bloom_filter2);
+  EXPECT_FALSE(bloom_filter1 != bloom_filter2);
 }
 
 TEST(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {

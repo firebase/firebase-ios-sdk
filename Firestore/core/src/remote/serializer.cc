@@ -1439,20 +1439,21 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
     const google_firestore_v1_ExistenceFilter& filter) const {
   // Create bloom filter if there is an unchanged_names present in the filter
   // and inputs are valid, otherwise keep it null.
-  absl::optional<BloomFilter> bloom_filter = absl::nullopt;
+  absl::optional<BloomFilter> bloom_filter;
   if (filter.has_unchanged_names && filter.unchanged_names.has_bits) {
     // TODO(Mila): None of the ported spec tests here actually has the bloom
     // filter json string, so hard code an empty bloom filter for now. The
     // actual parsing code will be written in the next PR, where we can validate
     // the parsing result.
+    // TODO(Mila): handle bloom filter creation failure.
     StatusOr<BloomFilter> maybe_bloom_filter =
         BloomFilter::Create(std::vector<uint8_t>{}, 0, 0);
     if (maybe_bloom_filter.ok()) {
-      bloom_filter = maybe_bloom_filter.ValueOrDie();
+      bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
     }
   }
 
-  return {filter.count, bloom_filter};
+  return {filter.count, std::move(bloom_filter)};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {

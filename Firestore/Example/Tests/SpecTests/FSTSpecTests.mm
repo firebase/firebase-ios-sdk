@@ -485,8 +485,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
   absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
 
-  ExistenceFilter filter{keyCount, bloomFilter};
-  ExistenceFilterWatchChange change{filter, targets[0].intValue};
+  ExistenceFilter filter{keyCount, std::move(bloomFilter)};
+  ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
