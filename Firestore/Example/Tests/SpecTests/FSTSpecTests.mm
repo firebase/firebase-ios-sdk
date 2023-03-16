@@ -71,7 +71,6 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/src/util/to_string.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
-
 #include "absl/memory/memory.h"
 #include "absl/strings/escaping.h"
 #include "absl/types/optional.h"
@@ -501,8 +500,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
   absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
 
-  ExistenceFilter filter{keyCount, bloomFilter};
-  ExistenceFilterWatchChange change{filter, targets[0].intValue};
+  ExistenceFilter filter{keyCount, std::move(bloomFilter)};
+  ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 

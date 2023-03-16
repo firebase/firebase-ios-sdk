@@ -59,8 +59,8 @@ class BloomFilter final {
 
   /**
    * The number of bits in the bloom filter. Guaranteed to be non-negative, and
-   * less than the max number of bits `bitmap_` can represent, i.e.,
-   * bitmap_.size() * 8.
+   * less than the max number of bits the bitmap can represent, i.e.,
+   * bitmap().size() * 8.
    */
   int32_t bit_count() const {
     return bit_count_;
@@ -112,6 +112,10 @@ class BloomFilter final {
 };
 
 bool operator==(const BloomFilter& lhs, const BloomFilter& rhs);
+
+bool operator!=(const BloomFilter& lhs, const BloomFilter& rhs);
+
+bool CompareBits(const BloomFilter& lhs, const BloomFilter& rhs);
 
 }  // namespace remote
 }  // namespace firestore

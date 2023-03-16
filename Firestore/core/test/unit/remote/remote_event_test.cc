@@ -512,6 +512,7 @@ TEST_F(RemoteEventTest, NoChangeWillStillMarkTheAffectedTargets) {
   ASSERT_TRUE(event.target_changes().at(1) == target_change);
 }
 
+// TODO(Mila): Add test coverage for when the bloom filter is not null
 TEST_F(RemoteEventTest, ExistenceFilterMismatchClearsTarget) {
   std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
 

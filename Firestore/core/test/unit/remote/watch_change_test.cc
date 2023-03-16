@@ -40,6 +40,7 @@ TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
   EXPECT_EQ(change.new_document(), doc);
 }
 
+// TODO(Mila): Add test coverage for when the bloom filter is not null
 TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
   ExistenceFilter filter{7, /*bloom_filter=*/absl::nullopt};
   ExistenceFilterWatchChange change{filter, 5};

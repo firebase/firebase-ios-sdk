@@ -115,8 +115,26 @@ bool BloomFilter::MightContain(absl::string_view value) const {
 
 bool operator==(const BloomFilter& lhs, const BloomFilter& rhs) {
   return lhs.bit_count() == rhs.bit_count() &&
-         lhs.hash_count() == rhs.hash_count() &&
-         equal(lhs.bitmap().begin(), lhs.bitmap().end(), rhs.bitmap().begin());
+         lhs.hash_count() == rhs.hash_count() && CompareBits(lhs, rhs);
+}
+
+bool operator!=(const BloomFilter& lhs, const BloomFilter& rhs) {
+  return !(lhs == rhs);
+}
+
+bool CompareBits(const BloomFilter& lhs, const BloomFilter& rhs) {
+  for (int32_t i = 0; i < lhs.bit_count(); ++i) {
+    int32_t offset = i % 8;
+    const uint8_t& lhs_byte = lhs.bitmap()[i / 8];
+    const uint8_t& rhs_byte = rhs.bitmap()[i / 8];
+    const bool bit1 = (lhs_byte & (static_cast<uint8_t>(0x01) << offset));
+    const bool bit2 = (rhs_byte & (static_cast<uint8_t>(0x01) << offset));
+    if (bit1 != bit2) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 }  // namespace remote
