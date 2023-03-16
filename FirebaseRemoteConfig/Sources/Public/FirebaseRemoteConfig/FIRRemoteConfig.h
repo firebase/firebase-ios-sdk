@@ -41,7 +41,7 @@ extern NSString *const _Nonnull FIRRemoteConfigThrottledEndTimeInSecondsKey NS_S
 NS_SWIFT_NAME(ConfigUpdateListenerRegistration)
 @interface FIRConfigUpdateListenerRegistration : NSObject
 /**
- * Removes the listener being associated with this `ConfigUpdateListenerRegistration`. After the
+ * Removes the listener associated with this `ConfigUpdateListenerRegistration`. After the
  * initial call, subsequent calls have no effect.
  */
 - (void)remove;
@@ -358,3 +358,4 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
 @end
+
