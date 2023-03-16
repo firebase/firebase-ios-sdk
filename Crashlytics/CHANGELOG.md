@@ -1,4 +1,4 @@
-# Unreleased
+# 10.7.0
 - [fixed] Updated upload-symbols to 3.14 with an improvement to upload all dSYM files for Flutter apps
 
 # 10.6.0

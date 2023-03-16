@@ -156,7 +156,24 @@
               "path": "collection"
             }
           }
-        ]
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": "",
+              "targetPurpose": 1
+            }
+          }
+        }
       },
       {
         "restart": true,
@@ -418,7 +435,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -918,7 +936,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -984,7 +1003,8 @@
                   "path": "collection/2"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 2
             },
             "2": {
               "queries": [
@@ -996,7 +1016,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -1051,7 +1072,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -1489,7 +1511,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -1555,7 +1578,8 @@
                   "path": "collection/2"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 2
             },
             "2": {
               "queries": [
@@ -1567,7 +1591,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -1632,7 +1657,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -1838,7 +1864,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -1904,7 +1931,8 @@
                   "path": "collection/2"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 2
             },
             "2": {
               "queries": [
@@ -1916,7 +1944,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -1981,7 +2010,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 1
             }
           }
         }
@@ -2239,7 +2269,24 @@
               "path": "collection"
             }
           }
-        ]
+        ],
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": "",
+              "targetPurpose": 1
+            }
+          }
+        }
       }
     ]
   }
