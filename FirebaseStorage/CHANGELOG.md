@@ -1,4 +1,4 @@
-# Unreleased
+# 10.7.0
 - [added] Provide server errors via the `NSUnderlyingErrorKey`.
 
 # 10.5.0

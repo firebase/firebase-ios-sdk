@@ -16,6 +16,7 @@
 
 #import "FirebaseRemoteConfig/Sources/RCNConfigContent.h"
 
+#import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigConstants.h"
 #import "FirebaseRemoteConfig/Sources/RCNConfigDBManager.h"
@@ -363,6 +364,11 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return _defaultConfig;
 }
 
+- (NSDictionary *)activePersonalization {
+  [self checkAndWaitForInitialDatabaseLoad];
+  return _activePersonalization;
+}
+
 - (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace {
   /// If this is the first time reading the active metadata, we might still be reading it from the
   /// database.
@@ -390,6 +396,51 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     _isConfigLoadFromDBCompleted = true;
   }
   return true;
+}
+
+// Compare fetched config with active config and output what has changed
+- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
+  // TODO: handle diff in experiment metadata
+
+  FIRRemoteConfigUpdate *configUpdate;
+  NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
+
+  NSDictionary *fetchedConfig =
+      _fetchedConfig[FIRNamespace] ? _fetchedConfig[FIRNamespace] : [[NSDictionary alloc] init];
+  NSDictionary *activeConfig =
+      _activeConfig[FIRNamespace] ? _activeConfig[FIRNamespace] : [[NSDictionary alloc] init];
+  NSDictionary *fetchedP13n = _fetchedPersonalization;
+  NSDictionary *activeP13n = _activePersonalization;
+
+  // add new/updated params
+  for (NSString *key in [fetchedConfig allKeys]) {
+    if (activeConfig[key] == nil ||
+        ![[activeConfig[key] stringValue] isEqualToString:[fetchedConfig[key] stringValue]]) {
+      [updatedKeys addObject:key];
+    }
+  }
+  // add deleted params
+  for (NSString *key in [activeConfig allKeys]) {
+    if (fetchedConfig[key] == nil) {
+      [updatedKeys addObject:key];
+    }
+  }
+
+  // add params with new/updated p13n metadata
+  for (NSString *key in [fetchedP13n allKeys]) {
+    if (activeP13n[key] == nil || ![activeP13n[key] isEqualToDictionary:fetchedP13n[key]]) {
+      [updatedKeys addObject:key];
+    }
+  }
+  // add params with deleted p13n metadata
+  for (NSString *key in [activeP13n allKeys]) {
+    if (fetchedP13n[key] == nil) {
+      [updatedKeys addObject:key];
+    }
+  }
+
+  configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:updatedKeys];
+  return configUpdate;
 }
 
 @end

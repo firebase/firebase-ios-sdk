@@ -18,9 +18,12 @@
 #import "FirebaseRemoteConfigSwift/Tests/ObjC/FetchMocks.h"
 
 @interface RCNConfigFetch (ExposedForTest)
-- (void)refreshInstallationsTokenWithCompletionHandler:
-    (FIRRemoteConfigFetchCompletion)completionHandler;
-- (void)doFetchCall:(FIRRemoteConfigFetchCompletion)completionHandler;
+- (void)refreshInstallationsTokenWithFetchHeader:(NSString *)fetchTypeHeader
+                               completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+                         updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler;
+- (void)doFetchCall:(NSString *)fetchTypeHeader
+          completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler
+    updateCompletionHandler:(RCNConfigFetchCompletion)updateCompletionHandler;
 @end
 
 @implementation FetchMocks
@@ -28,8 +31,10 @@
 + (RCNConfigFetch *)mockFetch:(RCNConfigFetch *)fetch {
   RCNConfigFetch *mock = OCMPartialMock(fetch);
   OCMStub([mock recreateNetworkSession]).andDo(nil);
-  OCMStub([mock refreshInstallationsTokenWithCompletionHandler:[OCMArg any]])
-      .andCall(mock, @selector(doFetchCall:));
+  OCMStub([mock refreshInstallationsTokenWithFetchHeader:[OCMArg any]
+                                       completionHandler:[OCMArg any]
+                                 updateCompletionHandler:[OCMArg any]])
+      .andCall(mock, @selector(doFetchCall:completionHandler:updateCompletionHandler:));
   return mock;
 }
 
