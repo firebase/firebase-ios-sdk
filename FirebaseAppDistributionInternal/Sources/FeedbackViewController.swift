@@ -48,12 +48,8 @@ class FeedbackViewController: UIViewController {
     let image = image
     if image != nil {
       screenshotUIImageView.image = image
+      self.image = nil
     }
-  }
-
-  override func viewWillAppear(_ animated: Bool) {
-    screenshotUIImageView.image = image
-    image = nil
   }
 
   @IBAction func tappedSend(_ sender: Any) {
