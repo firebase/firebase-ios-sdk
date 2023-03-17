@@ -143,6 +143,42 @@ class APITests: APITestBase {
     waitForExpectations()
   }
 
+  // MARK: - RemoteConfigRealtime Tests
+
+  func testRealtimeRemoteConfigFakeConsole() {
+    guard APITests.useFakeConfig == true else { return }
+
+    let expectation = self.expectation(description: #function)
+
+    let registration = config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
+      XCTAssertNil(Error, "Realtime error \(Error!)")
+      XCTAssertNotNil(RemoteConfigUpdate)
+
+      expectation.fulfill()
+    }
+
+    waitForExpectations()
+    registration.remove()
+  }
+
+  func testRealtimeRemoteConfigRealConsole() {
+    guard APITests.useFakeConfig == false else { return }
+
+    let expectation = self.expectation(description: #function)
+
+    let registration = config.addOnConfigUpdateListener { RemoteConfigUpdate, Error in
+      XCTAssertNil(Error, "Realtime error \(Error!)")
+      XCTAssertNotNil(RemoteConfigUpdate)
+      XCTAssertNotNil(RemoteConfigUpdate?.updatedKeys.contains(Constants.jedi))
+      expectation.fulfill()
+    }
+
+    console.updateRemoteConfigValue(Constants.yoda, forKey: Constants.jedi)
+
+    waitForExpectations()
+    registration.remove()
+  }
+
   // MARK: - RemoteConfigConsole Tests
 
   func testFetchConfigThenUpdateConsoleThenFetchAgain() {

@@ -4961,7 +4961,7 @@
                 }
               ],
               "resumeToken": "",
-              "targetPurpose": 3
+              "targetPurpose": 2
             },
             "2": {
               "queries": [
@@ -5536,7 +5536,7 @@
                 }
               ],
               "resumeToken": "",
-              "targetPurpose": 3
+              "targetPurpose": 2
             },
             "2": {
               "queries": [
@@ -5889,7 +5889,7 @@
                 }
               ],
               "resumeToken": "",
-              "targetPurpose": 3
+              "targetPurpose": 2
             },
             "2": {
               "queries": [
