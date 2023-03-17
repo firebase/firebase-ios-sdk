@@ -3481,7 +3481,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": "resume-token-1000"
+              "resumeToken": "resume-token-1000",
+              "expectedCount": 1
             }
           }
         }
@@ -12750,7 +12751,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": "resume-token-1000"
+              "resumeToken": "resume-token-1000",
+              "expectedCount": 1
             }
           }
         }
@@ -12898,7 +12900,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": "resume-token-1000"
+              "resumeToken": "resume-token-1000",
+              "expectedCount": 0
             }
           }
         }
@@ -13069,7 +13072,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": "resume-token-2000"
+              "resumeToken": "resume-token-2000",
+              "expectedCount": 2
             }
           }
         }
