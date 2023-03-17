@@ -141,7 +141,7 @@ bool CompareBits(const BloomFilter& lhs, const BloomFilter& rhs) {
     }
   }
 
-  // Compare the last bytes, ignoring the padding.
+  // Compare the last byte, ignoring the padding.
   const int32_t padding = (byte_count * 8) - lhs.bit_count();
   const uint8_t last_byte1 = bitmap1[byte_count - 1] << padding;
   const uint8_t last_byte2 = bitmap2[byte_count - 1] << padding;
