@@ -115,7 +115,7 @@ bool operator==(const BloomFilter& lhs, const BloomFilter& rhs);
 
 inline bool operator!=(const BloomFilter& lhs, const BloomFilter& rhs) {
   return !(lhs == rhs);
-};
+}
 
 }  // namespace remote
 }  // namespace firestore

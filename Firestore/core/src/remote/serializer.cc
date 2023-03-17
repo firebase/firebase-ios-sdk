@@ -1430,9 +1430,8 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
     ReadContext*, const google_firestore_v1_ExistenceFilter& filter) const {
-  ExistenceFilter existence_filter = DecodeExistenceFilter(filter);
   return absl::make_unique<ExistenceFilterWatchChange>(
-      std::move(existence_filter), filter.target_id);
+      DecodeExistenceFilter(filter), filter.target_id);
 }
 
 ExistenceFilter Serializer::DecodeExistenceFilter(
@@ -1440,7 +1439,7 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
   // Create bloom filter if there is an unchanged_names present in the filter
   // and inputs are valid, otherwise keep it null.
   absl::optional<BloomFilter> bloom_filter;
-  if (filter.has_unchanged_names && filter.unchanged_names.has_bits) {
+  if (filter.has_unchanged_names) {
     // TODO(Mila): None of the ported spec tests here actually has the bloom
     // filter json string, so hard code an empty bloom filter for now. The
     // actual parsing code will be written in the next PR, where we can validate

@@ -334,7 +334,6 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   // code a null value for now. Actual parsing code will be written in the next PR, where we can
   // validate the parsing result.
   return absl::nullopt;
-  ;
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
