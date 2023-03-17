@@ -1737,7 +1737,6 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
   ExpectDeserializationRoundTrip(model, proto);
 }
 
-// TODO(Mila): Add test coverage for when the bloom filter is not null
 TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
   ExistenceFilterWatchChange model(
       ExistenceFilter(2, /*bloom_filter=*/absl::nullopt), 100);
@@ -1751,23 +1750,20 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
   ExpectDeserializationRoundTrip(model, proto);
 }
 
-TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
+TEST_F(SerializerTest,
+       DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
   ExistenceFilterWatchChange model(
-      ExistenceFilter(2, BloomFilter(std::vector<uint8_t>{1}, 2, 3)), 100);
+      ExistenceFilter(555, BloomFilter({0x42, 0xFE}, 7, 33)), 999);
 
   v1::ListenResponse proto;
+  proto.mutable_filter()->set_count(555);
+  proto.mutable_filter()->set_target_id(999);
 
-  v1::BitSequence* bits = new v1::BitSequence;
-  std::vector<uint8_t> vector{1};
-  bits->set_bitmap(reinterpret_cast<const char*>(vector.data()), vector.size());
-  bits->set_padding(2);
-  v1::BloomFilter* bloom_filter = new v1::BloomFilter;
-  bloom_filter->set_hash_count(3);
-  bloom_filter->set_allocated_bits(bits);
-
-  proto.mutable_filter()->set_count(2);
-  proto.mutable_filter()->set_allocated_unchanged_names(bloom_filter);
-  proto.mutable_filter()->set_target_id(100);
+  v1::BloomFilter* bloom_filter =
+      proto.mutable_filter()->mutable_unchanged_names();
+  bloom_filter->set_hash_count(33);
+  bloom_filter->mutable_bits()->set_padding(7);
+  bloom_filter->mutable_bits()->set_bitmap("\x42\xFE");
 
   SCOPED_TRACE("DecodesListenResponseWithExistenceFilter");
   ExpectDeserializationRoundTrip(model, proto);

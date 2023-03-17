@@ -238,10 +238,11 @@ void WatchChangeAggregator::HandleExistenceFilter(
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
         // Apply bloom filter to identify and mark removed documents.
-        bool bloomFilterApplied =
+        bool bloom_filter_applied =
             ApplyBloomFilter(existence_filter, current_size);
-
-        if (!bloomFilterApplied) {
+        std::cout << "bloom_filter_applied" << bloom_filter_applied
+                  << std::endl;
+        if (!bloom_filter_applied) {
           // If bloom filter application fails, we reset the mapping and
           // trigger re-run of the query.
           ResetTarget(target_id);
@@ -266,6 +267,7 @@ bool WatchChangeAggregator::ApplyBloomFilter(
 
   int removed_document_count = FilterRemovedDocuments(
       bloom_filter.value(), existence_filter.target_id());
+  std::cout << "removed_document_count" << removed_document_count << std::endl;
 
   return expected_count == (current_count - removed_document_count);
 }
@@ -278,14 +280,17 @@ int WatchChangeAggregator::FilterRemovedDocuments(BloomFilter bloom_filter,
                                                   int target_id) {
   const DocumentKeySet& existing_keys =
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
+  std::cout << "existing_keys" << existing_keys.size() << std::endl;
+
   int removalCount = 0;
-  for (DocumentKey key : existing_keys) {
+  for (const DocumentKey& key : existing_keys) {
     DatabaseId database_id = target_metadata_provider_->GetDatabaseId();
-    std::string documentPath = util::StringFormat(
+    std::string document_path = util::StringFormat(
         "projects/%s/databases/%s/documents/%s", database_id.project_id(),
         database_id.database_id(), key.ToString());
+    std::cout << "documentPath" << document_path << std::endl;
 
-    if (!bloom_filter.MightContain(documentPath)) {
+    if (!bloom_filter.MightContain(document_path)) {
       RemoveDocumentFromTarget(target_id, key,
                                /*updatedDocument=*/absl::nullopt);
       removalCount++;

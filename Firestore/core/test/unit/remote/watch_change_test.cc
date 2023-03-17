@@ -40,12 +40,20 @@ TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
   EXPECT_EQ(change.new_document(), doc);
 }
 
-// TODO(Mila): Add test coverage for when the bloom filter is not null
 TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
-  ExistenceFilter filter{7, /*bloom_filter=*/absl::nullopt};
-  ExistenceFilterWatchChange change{filter, 5};
-  EXPECT_EQ(change.filter().count(), 7);
-  EXPECT_EQ(change.target_id(), 5);
+  {
+    ExistenceFilter filter{7, /*bloom_filter=*/absl::nullopt};
+    ExistenceFilterWatchChange change{filter, 5};
+    EXPECT_EQ(change.filter().count(), 7);
+    EXPECT_EQ(change.target_id(), 5);
+  }
+  {
+    ExistenceFilter filter{7, BloomFilter({0x42, 0xFE}, 7, 33)};
+    ExistenceFilterWatchChange change{std::move(filter), 5};
+    EXPECT_EQ(change.filter().count(), 7);
+    EXPECT_EQ(change.filter().bloom_filter(), BloomFilter({0x42, 0xFE}, 7, 33));
+    EXPECT_EQ(change.target_id(), 5);
+  }
 }
 
 TEST(WatchChangeTest, CanCreateWatchTargetChange) {

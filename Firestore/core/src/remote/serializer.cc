@@ -1437,7 +1437,6 @@ std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
 
 ExistenceFilter Serializer::DecodeExistenceFilter(
     const google_firestore_v1_ExistenceFilter& filter) const {
-
   absl::optional<BloomFilter> bloom_filter;
   // Create bloom filter if there is an unchanged_names present in the filter
   // and inputs are valid, otherwise keep it null.
