@@ -143,8 +143,7 @@ bool BloomFilter::MightContain(absl::string_view value) const {
 }
 
 bool operator==(const BloomFilter& lhs, const BloomFilter& rhs) {
-  return lhs.bit_count() == rhs.bit_count() &&
-         lhs.hash_count() == rhs.hash_count() && HasSameBits(lhs, rhs);
+  return lhs.hash_count() == rhs.hash_count() && HasSameBits(lhs, rhs);
 }
 
 }  // namespace remote
