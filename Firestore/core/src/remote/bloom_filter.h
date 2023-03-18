@@ -57,9 +57,26 @@ class BloomFilter final {
    */
   bool MightContain(absl::string_view value) const;
 
-  /** Get the `bit_count_` field. Used for testing purpose. */
+  /**
+   * The number of bits in the bloom filter. Guaranteed to be non-negative, and
+   * less than the max number of bits the bitmap can represent, i.e.,
+   * bitmap().size() * 8.
+   */
   int32_t bit_count() const {
     return bit_count_;
+  }
+
+  /**
+   * The number of hash functions used to construct the filter. Guaranteed to
+   * be non-negative.
+   */
+  int32_t hash_count() const {
+    return hash_count_;
+  }
+
+  /** Bloom filter's bitmap. */
+  const std::vector<uint8_t>& bitmap() const {
+    return bitmap_;
   }
 
  private:
@@ -87,22 +104,18 @@ class BloomFilter final {
   /** Return whether the bit at the given index in the bitmap is set to 1. */
   bool IsBitSet(int32_t index) const;
 
-  /**
-   * The number of bits in the bloom filter. Guaranteed to be non-negative, and
-   * less than the max number of bits `bitmap_` can represent, i.e.,
-   * bitmap_.size() * 8.
-   */
   int32_t bit_count_ = 0;
 
-  /**
-   * The number of hash functions used to construct the filter. Guaranteed to
-   * be non-negative.
-   */
   int32_t hash_count_ = 0;
 
-  /** Bloom filter's bitmap. */
   std::vector<uint8_t> bitmap_;
 };
+
+bool operator==(const BloomFilter& lhs, const BloomFilter& rhs);
+
+inline bool operator!=(const BloomFilter& lhs, const BloomFilter& rhs) {
+  return !(lhs == rhs);
+}
 
 }  // namespace remote
 }  // namespace firestore

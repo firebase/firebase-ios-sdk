@@ -110,6 +110,7 @@ typedef struct _google_firestore_v1_DocumentTransform_FieldTransform {
 typedef struct _google_firestore_v1_ExistenceFilter {
     int32_t target_id;
     int32_t count;
+    bool has_unchanged_names;
     google_firestore_v1_BloomFilter unchanged_names;
 
     std::string ToString(int indent = 0) const;
@@ -155,7 +156,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_DocumentChange_init_default {google_firestore_v1_Document_init_default, 0, NULL, 0, NULL}
 #define google_firestore_v1_DocumentDelete_init_default {NULL, false, google_protobuf_Timestamp_init_default, 0, NULL}
 #define google_firestore_v1_DocumentRemove_init_default {NULL, 0, NULL, google_protobuf_Timestamp_init_default}
-#define google_firestore_v1_ExistenceFilter_init_default {0, 0, google_firestore_v1_BloomFilter_init_default}
+#define google_firestore_v1_ExistenceFilter_init_default {0, 0, false, google_firestore_v1_BloomFilter_init_default}
 #define google_firestore_v1_Write_init_zero      {0, {google_firestore_v1_Document_init_zero}, false, google_firestore_v1_DocumentMask_init_zero, false, google_firestore_v1_Precondition_init_zero, 0, NULL}
 #define google_firestore_v1_DocumentTransform_init_zero {NULL, 0, NULL}
 #define google_firestore_v1_DocumentTransform_FieldTransform_init_zero {NULL, 0, {_google_firestore_v1_DocumentTransform_FieldTransform_ServerValue_MIN}}
@@ -163,7 +164,7 @@ typedef struct _google_firestore_v1_WriteResult {
 #define google_firestore_v1_DocumentChange_init_zero {google_firestore_v1_Document_init_zero, 0, NULL, 0, NULL}
 #define google_firestore_v1_DocumentDelete_init_zero {NULL, false, google_protobuf_Timestamp_init_zero, 0, NULL}
 #define google_firestore_v1_DocumentRemove_init_zero {NULL, 0, NULL, google_protobuf_Timestamp_init_zero}
-#define google_firestore_v1_ExistenceFilter_init_zero {0, 0, google_firestore_v1_BloomFilter_init_zero}
+#define google_firestore_v1_ExistenceFilter_init_zero {0, 0, false, google_firestore_v1_BloomFilter_init_zero}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define google_firestore_v1_DocumentTransform_document_tag 1

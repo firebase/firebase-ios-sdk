@@ -17,6 +17,10 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_EXISTENCE_FILTER_H_
 #define FIRESTORE_CORE_SRC_REMOTE_EXISTENCE_FILTER_H_
 
+#include <utility>
+
+#include "Firestore/core/src/remote/bloom_filter.h"
+
 namespace firebase {
 namespace firestore {
 namespace remote {
@@ -24,19 +28,26 @@ namespace remote {
 class ExistenceFilter {
  public:
   ExistenceFilter() = default;
-  explicit ExistenceFilter(int count) : count_{count} {
+
+  ExistenceFilter(int count, absl::optional<BloomFilter> bloom_filter)
+      : count_{count}, bloom_filter_{std::move(bloom_filter)} {
   }
 
   int count() const {
     return count_;
   }
 
+  const absl::optional<BloomFilter>& bloom_filter() const {
+    return bloom_filter_;
+  }
+
  private:
   int count_ = 0;
+  absl::optional<BloomFilter> bloom_filter_;
 };
 
 inline bool operator==(const ExistenceFilter& lhs, const ExistenceFilter& rhs) {
-  return lhs.count() == rhs.count();
+  return lhs.count() == rhs.count() && lhs.bloom_filter() == rhs.bloom_filter();
 }
 
 }  // namespace remote

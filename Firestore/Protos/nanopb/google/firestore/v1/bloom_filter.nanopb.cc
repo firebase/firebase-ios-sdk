@@ -44,7 +44,7 @@ const pb_field_t google_firestore_v1_BitSequence_fields[3] = {
 };
 
 const pb_field_t google_firestore_v1_BloomFilter_fields[3] = {
-    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_firestore_v1_BloomFilter, bits, bits, &google_firestore_v1_BitSequence_fields),
+    PB_FIELD(  1, MESSAGE , OPTIONAL, STATIC  , FIRST, google_firestore_v1_BloomFilter, bits, bits, &google_firestore_v1_BitSequence_fields),
     PB_FIELD(  2, INT32   , SINGULAR, STATIC  , OTHER, google_firestore_v1_BloomFilter, hash_count, bits, 0),
     PB_LAST_FIELD
 };
@@ -96,7 +96,9 @@ std::string google_firestore_v1_BloomFilter::ToString(int indent) const {
     std::string tostring_header = PrintHeader(indent, "BloomFilter", this);
     std::string tostring_result;
 
-    tostring_result += PrintMessageField("bits ", bits, indent + 1, false);
+    if (has_bits) {
+        tostring_result += PrintMessageField("bits ", bits, indent + 1, true);
+    }
     tostring_result += PrintPrimitiveField("hash_count: ",
         hash_count, indent + 1, false);
 

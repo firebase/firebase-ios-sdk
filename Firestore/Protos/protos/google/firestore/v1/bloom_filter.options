@@ -1,4 +1,4 @@
-# Copyright 2019 Google
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,19 +17,5 @@
 # workaround suggested in
 # https://github.com/nanopb/nanopb/issues/255#issuecomment-291842903
 
-# read_time might not be set for deletes.
-google.firestore.v1.DocumentDelete.read_time proto3:false
-
-# `current_document` is an optional precondition.
-google.firestore.v1.Write.current_document proto3:false
-
-# Whether `update_mask` field is set is crucial for the backend to distinguish
-# between "set" and "patch" mutations.
-google.firestore.v1.Write.update_mask proto3:false
-
-# update_time should not be set for deletes.
-google.firestore.v1.WriteResult.update_time proto3:false
-
-# `unchanged_names` field might not be set if ListenRequest doesn't have
-# `expected_count` field.
-google.firestore.v1.ExistenceFilter.unchanged_names proto3:false
+# `bits` might not be set if the BloomFilter is empty.
+google.firestore.v1.BloomFilter.bits proto3:false

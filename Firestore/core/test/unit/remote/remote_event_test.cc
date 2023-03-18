@@ -512,6 +512,7 @@ TEST_F(RemoteEventTest, NoChangeWillStillMarkTheAffectedTargets) {
   ASSERT_TRUE(event.target_changes().at(1) == target_change);
 }
 
+// TODO(Mila): Add test coverage for when the bloom filter is not null
 TEST_F(RemoteEventTest, ExistenceFilterMismatchClearsTarget) {
   std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
 
@@ -547,7 +548,8 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchClearsTarget) {
 
   // The existence filter mismatch will remove the document from target 1,
   // but not synthesize a document delete.
-  ExistenceFilterWatchChange change4{ExistenceFilter{1}, 1};
+  ExistenceFilterWatchChange change4{
+      ExistenceFilter{1, /*bloom_filter=*/absl::nullopt}, 1};
   aggregator.HandleExistenceFilter(change4);
 
   event = aggregator.CreateRemoteEvent(testutil::Version(4));
@@ -578,7 +580,8 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchRemovesCurrentChanges) {
 
   // The existence filter mismatch will remove the document from target 1, but
   // not synthesize a document delete.
-  ExistenceFilterWatchChange existence_filter{ExistenceFilter{0}, 1};
+  ExistenceFilterWatchChange existence_filter{
+      ExistenceFilter{0, /*bloom_filter=*/absl::nullopt}, 1};
   aggregator.HandleExistenceFilter(existence_filter);
 
   RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));

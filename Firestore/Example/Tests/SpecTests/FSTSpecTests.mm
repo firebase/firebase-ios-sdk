@@ -56,6 +56,7 @@
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/bloom_filter.h"
 #include "Firestore/core/src/remote/existence_filter.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/remote/watch_change.h"
@@ -71,6 +72,7 @@
 #include "Firestore/core/src/util/to_string.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/escaping.h"
 #include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
@@ -98,6 +100,7 @@ using firebase::firestore::model::TargetId;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::Message;
+using firebase::firestore::remote::BloomFilter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -115,6 +118,7 @@ using firebase::firestore::util::MakeString;
 using firebase::firestore::util::MakeStringPtr;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ToString;
 using firebase::firestore::util::WrapCompare;
@@ -325,6 +329,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
+- (absl::optional<BloomFilter>)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
+  // TODO(Mila): None of the ported spec tests actually has the bloom filter json string, so hard
+  // code a null value for now. Actual parsing code will be written in the next PR, where we can
+  // validate the parsing result.
+  return absl::nullopt;
+}
+
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
@@ -463,14 +474,17 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
-- (void)doWatchFilter:(NSArray *)watchFilter {
-  NSArray<NSNumber *> *targets = watchFilter[0];
+- (void)doWatchFilter:(NSDictionary *)watchFilter {
+  NSArray<NSNumber *> *targets = watchFilter[@"targetIds"];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
-  int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
+  NSArray<NSNumber *> *keys = watchFilter[@"keys"];
+  int keyCount = keys ? (int)keys.count : 0;
 
-  ExistenceFilter filter{keyCount};
-  ExistenceFilterWatchChange change{filter, targets[0].intValue};
+  absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+
+  ExistenceFilter filter{keyCount, std::move(bloomFilter)};
+  ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 

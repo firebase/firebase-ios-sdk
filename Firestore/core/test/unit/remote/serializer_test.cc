@@ -1737,8 +1737,10 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
   ExpectDeserializationRoundTrip(model, proto);
 }
 
+// TODO(Mila): Add test coverage for when the bloom filter is not null
 TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
-  ExistenceFilterWatchChange model(ExistenceFilter(2), 100);
+  ExistenceFilterWatchChange model(
+      ExistenceFilter(2, /*bloom_filter=*/absl::nullopt), 100);
 
   v1::ListenResponse proto;
 

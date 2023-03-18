@@ -29,6 +29,35 @@ namespace remote {
 using util::Status;
 using util::StatusOr;
 
+namespace {
+bool HasSameBits(const BloomFilter& lhs, const BloomFilter& rhs) {
+  if (lhs.bit_count() != rhs.bit_count()) {
+    return false;
+  }
+  if (lhs.bit_count() == 0) {
+    return true;
+  }
+
+  const std::vector<uint8_t>& bitmap1 = lhs.bitmap();
+  const std::vector<uint8_t>& bitmap2 = rhs.bitmap();
+  const auto byte_count = static_cast<int32_t>(bitmap1.size());
+
+  // Compare all bytes from the bitmap, except for the last byte.
+  for (int32_t i = 0; i < byte_count - 1; ++i) {
+    if (bitmap1[i] != bitmap2[i]) {
+      return false;
+    }
+  }
+
+  // Compare the last byte, ignoring the padding.
+  const int32_t padding = (byte_count * 8) - lhs.bit_count();
+  const uint8_t last_byte1 = bitmap1[byte_count - 1] << padding;
+  const uint8_t last_byte2 = bitmap2[byte_count - 1] << padding;
+
+  return (last_byte1 == last_byte2);
+}
+}  // namespace
+
 BloomFilter::Hash BloomFilter::Md5HashDigest(absl::string_view key) const {
   std::array<uint8_t, 16> md5_digest{util::CalculateMd5Digest(key)};
 
@@ -111,6 +140,10 @@ bool BloomFilter::MightContain(absl::string_view value) const {
     }
   }
   return true;
+}
+
+bool operator==(const BloomFilter& lhs, const BloomFilter& rhs) {
+  return lhs.hash_count() == rhs.hash_count() && HasSameBits(lhs, rhs);
 }
 
 }  // namespace remote
