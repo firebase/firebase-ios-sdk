@@ -1124,6 +1124,42 @@ TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
   ExpectRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, EncodesTargetDataWithExpectedResumeType) {
+  TargetData target = CreateTargetData("docs/1");
+
+  {
+    SCOPED_TRACE("EncodesTargetDataWithoutResumeType");
+    v1::Target proto;
+    proto.mutable_documents()->add_documents(ResourceName("docs/1"));
+    proto.set_target_id(1);
+    ExpectRoundTrip(target, proto);
+  }
+
+  {
+    SCOPED_TRACE("EncodesTargetDataWithResumeToken");
+    v1::Target proto;
+    proto.mutable_documents()->add_documents(ResourceName("docs/1"));
+    proto.set_target_id(1);
+    proto.set_resume_token("resume_token");
+    ExpectRoundTrip(target.WithResumeToken(nanopb::ByteString{"resume_token"},
+                                           model::SnapshotVersion::None()),
+                    proto);
+  }
+
+  {
+    SCOPED_TRACE("EncodesTargetDataWithResumeByReadTime");
+    v1::Target proto;
+    proto.mutable_documents()->add_documents(ResourceName("docs/1"));
+    proto.set_target_id(1);
+    proto.mutable_read_time()->set_seconds(1000);
+    proto.mutable_read_time()->set_nanos(1000);
+    ExpectRoundTrip(
+        target.WithResumeToken(nanopb::ByteString{""},
+                               model::SnapshotVersion(Timestamp(1000, 1000))),
+        proto);
+  }
+}
+
 TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
   TargetData model = CreateTargetData("messages");
 
