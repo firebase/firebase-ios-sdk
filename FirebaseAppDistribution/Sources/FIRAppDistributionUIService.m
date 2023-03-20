@@ -228,10 +228,12 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                                 // UIService to Swift.
                                                                 [self resetUIState];
                                                               }];
-  [self initializeUIState];
-  [self.hostingViewController presentViewController:feedbackViewController
-                                           animated:YES
-                                         completion:nil];
+  if (feedbackViewController != nil) {
+    [self initializeUIState];
+    [self.hostingViewController presentViewController:feedbackViewController
+                                             animated:YES
+                                           completion:nil];
+  }
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
