@@ -35,6 +35,17 @@ const char kServerTimestampSentinel[] = "server_timestamp";
 Message<google_firestore_v1_Value> EncodeServerTimestamp(
     const Timestamp& local_write_time,
     absl::optional<google_firestore_v1_Value> previous_value) {
+  // We should avoid storing deeply nested server timestamp map values
+  // because we never use the intermediate "previous values".
+  // For example:
+  // previous: 42L, add: t1, result: t1 -> 42L
+  // previous: t1,  add: t2, result: t2 -> 42L (NOT t2 -> t1 -> 42L)
+  // previous: t2,  add: t3, result: t3 -> 42L (NOT t3 -> t2 -> t1 -> 42L)
+  // `getPreviousValue` recursively traverses server timestamps to find the
+  // least recent Value.
+  if (previous_value.has_value() && IsServerTimestamp(*previous_value)) {
+    previous_value = GetPreviousValue(*previous_value);
+  }
   pb_size_t count = previous_value ? 3 : 2;
 
   Message<google_firestore_v1_Value> result;
