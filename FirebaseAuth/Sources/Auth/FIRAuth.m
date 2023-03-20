@@ -127,14 +127,6 @@ static NSString *const kRevertSecondFactorAdditionRequestType = @"REVERT_SECOND_
  */
 static NSString *const kMissingPasswordReason = @"Missing Password";
 
-/** @var gKeychainServiceNameForAppName
-    @brief A map from Firebase app name to keychain service names.
-    @remarks This map is needed for looking up the keychain service name after the FIRApp instance
-        is deleted, to remove the associated keychain item. Accessing should occur within a
-        @syncronized([FIRAuth class]) context.
- */
-static NSMutableDictionary *gKeychainServiceNameForAppName;
-
 #pragma mark - FIRActionCodeInfo
 
 @interface FIRActionCodeInfo ()
@@ -392,10 +384,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-auth"];
 }
 
-+ (void)initialize {
-  gKeychainServiceNameForAppName = [[NSMutableDictionary alloc] init];
-}
-
 // TODO: Temporary bridge from Swift until completely ported.
 + (dispatch_queue_t)globalWorkQueue {
   return FIRAuthGlobalWorkQueue();
@@ -423,7 +411,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  [FIRAuth setKeychainServiceNameForApp:app];
   self = [self initWithAPIKey:app.options.APIKey
                       appName:app.name
                         appID:app.options.googleAppID
@@ -436,12 +423,6 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #endif
   }
   return self;
-}
-
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                appName:(NSString *)appName
-                                  appID:(NSString *)appID {
-  return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil];
 }
 
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
@@ -477,8 +458,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     if (!strongSelf) {
       return;
     }
-    NSString *keychainServiceName =
-        [FIRAuth keychainServiceNameForAppName:strongSelf->_firebaseAppName];
+    NSString *keychainServiceName = [[self class] keychainServiceNameForApp:self.app];
     if (keychainServiceName) {
       strongSelf->_keychainServices =
           [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
@@ -1788,35 +1768,8 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
   return NO;
 }
 
-/** @fn setKeychainServiceNameForApp
-    @brief Sets the keychain service name global data for the particular app.
-    @param app The Firebase app to set keychain service name for.
- */
-+ (void)setKeychainServiceNameForApp:(FIRApp *)app {
-  @synchronized(self) {
-    gKeychainServiceNameForAppName[app.name] =
-        [@"firebase_auth_" stringByAppendingString:app.options.googleAppID];
-  }
-}
-
-/** @fn keychainServiceNameForAppName:
-    @brief Gets the keychain service name global data for the particular app by name.
-    @param appName The name of the Firebase app to get keychain service name for.
- */
-+ (NSString *)keychainServiceNameForAppName:(NSString *)appName {
-  @synchronized(self) {
-    return gKeychainServiceNameForAppName[appName];
-  }
-}
-
-/** @fn deleteKeychainServiceNameForAppName:
-    @brief Deletes the keychain service name global data for the particular app by name.
-    @param appName The name of the Firebase app to delete keychain service name for.
- */
-+ (void)deleteKeychainServiceNameForAppName:(NSString *)appName {
-  @synchronized(self) {
-    [gKeychainServiceNameForAppName removeObjectForKey:appName];
-  }
++ (NSString *)keychainServiceNameForApp:(FIRApp *)app {
+  return [@"firebase_auth_" stringByAppendingString:app.options.googleAppID];;
 }
 
 /** @fn scheduleAutoTokenRefreshWithDelay:
@@ -2174,9 +2127,8 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
 - (void)appWillBeDeleted:(nonnull FIRApp *)app {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     // This doesn't stop any request already issued, see b/27704535 .
-    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppName:app.name];
+    NSString *keychainServiceName = [[self class] keychainServiceNameForApp:app];
     if (keychainServiceName) {
-      [[self class] deleteKeychainServiceNameForAppName:app.name];
       FIRAuthKeychainServices *keychain =
           [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
       NSString *userKey = [NSString stringWithFormat:kUserKey, app.name];
