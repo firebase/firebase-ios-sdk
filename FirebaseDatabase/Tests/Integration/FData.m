@@ -328,7 +328,8 @@ This test flakes frequently on the emulator on travis and almost always on GHA w
                        "already finished." /
                   Users / runner / runners / 2.262.1 / work / firebase -
               ios - sdk / firebase - ios -
-              sdk / Example / Database / Tests / Helpers / FEventTester.m : 123
+              sdk / Example / Database / Tests / Helpers / FEventTester.m:
+123
 ``` FTupleEventTypeString *recvd = [self.actualPathsAndEvents objectAtIndex:i];
 XCTAssertTrue([target isEqualTo:recvd], @"Expected %@ to match %@", target, recvd);
 

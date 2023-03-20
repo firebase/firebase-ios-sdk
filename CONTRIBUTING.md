@@ -132,7 +132,7 @@ To develop Firebase software, **install**:
    To install [clang-format] and [mint] using [Homebrew]:
 
     ```console
-    brew install clang-format@15
+    brew install clang-format@16
     brew install mint
     ```
 
