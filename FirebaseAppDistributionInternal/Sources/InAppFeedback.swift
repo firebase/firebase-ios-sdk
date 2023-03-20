@@ -15,12 +15,12 @@
 import Foundation
 import UIKit
 import Photos
+import GoogleUtilities
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(
-    feedbackViewControllerWithAdditionalFormText:releaseName:image:onDismiss:
+    feedbackViewControllerWithAdditionalFormText:image:onDismiss:
   ) public static func feedbackViewController(additionalFormText: String,
-                                              releaseName: String,
                                               image: UIImage?,
                                               onDismiss: @escaping ()
                                                 -> Void)
@@ -33,6 +33,9 @@ import Photos
       withExtension: "bundle"
     )
     let resourceBundle = Bundle(url: resourceBundleURL!)
+      
+    // TODO: Check for debug mode, and if it is, ignore.
+    let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
 
     let storyboard = UIStoryboard(
       name: "AppDistributionInternalStoryboard",

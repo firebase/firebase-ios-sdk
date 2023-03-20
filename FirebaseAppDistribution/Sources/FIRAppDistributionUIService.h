@@ -57,11 +57,9 @@ typedef void (^AppDistributionRegistrationFlowCompletion)(NSError *_Nullable err
 - (void)showCheckForUpdatesUIAlertWithCompletion:(FIRFADUIActionCompletion)completion;
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
-                                releaseName:(NSString *)releaseName
                                       image:(UIImage *_Nullable)image;
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
-                                             releaseName:(NSString *)releaseName
                                            showAlertInfo:(BOOL)showAlertInfo;
 
 - (void)initializeUIState;

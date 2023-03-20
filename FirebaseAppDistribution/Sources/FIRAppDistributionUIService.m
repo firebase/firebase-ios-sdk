@@ -220,7 +220,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
   // TODO: Verify what happens when the string is empty.
   UIViewController *feedbackViewController =
       [FIRFADInAppFeedback feedbackViewControllerWithAdditionalFormText:additionalFormText
-                                                            releaseName:releaseName
                                                                   image:image
                                                               onDismiss:^() {
                                                                 // TODO: Consider using a
@@ -237,7 +236,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
-                                             releaseName:(NSString *)releaseName
                                            showAlertInfo:(BOOL)showAlertInfo {
   // TODO: Consider adding showActionSheetBeforeFeedback parameter.
   if (!self.isListeningToScreenshot) {
@@ -247,7 +245,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:[UIApplication sharedApplication]];
     self.additionalFormText = additionalFormText;
-    self.releaseName = releaseName;
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL dontShowAlert = [defaults boolForKey:kFIRFADScreenshotFeedbackUserDefault];
