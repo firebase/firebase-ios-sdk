@@ -210,7 +210,8 @@ private let kAccountPrefix = "firebase_auth_1_"
 
   // TODO(ncooke3): The following APIs are essentially duplicates of the API
   // defined by the `AuthStorage` protocol. It'd be nice to consolidate the
-  // two sets into a single API surface.
+  // two sets into a single API surface. They were added in
+  // https://github.com/firebase/firebase-ios-sdk/pull/2684
 
   /** @fn getItemWithQuery:error:
    @brief Get the item from keychain by given query.
