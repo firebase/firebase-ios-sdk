@@ -345,15 +345,14 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   // If not specified in proto, default padding and hashCount to 0.
   int32_t padding = [bitsData[@"padding"] intValue];
   int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
-
   StatusOr<BloomFilter> maybeBloomFilter = BloomFilter::Create(bitmap, padding, hashCount);
+
   if (maybeBloomFilter.ok()) {
-    return maybeBloomFilter.ValueOrDie();
+    return std::move(maybeBloomFilter).ValueOrDie();
   } else {
     LOG_WARN("Parsing BloomFilterProto failed: %s", maybeBloomFilter.status().error_message());
+    return absl::nullopt;
   }
-
-  return absl::nullopt;
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
