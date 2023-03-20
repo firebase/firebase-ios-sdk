@@ -215,7 +215,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
 // MARK: - In App Feedback
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
-                                releaseName:(NSString *)releaseName
                                       image:(UIImage *__nullable)image {
   // TODO: Verify what happens when the string is empty.
   UIViewController *feedbackViewController =
@@ -291,9 +290,16 @@ SFAuthenticationSession *_safariAuthenticationVC;
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul), ^{
     [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
       dispatch_async(dispatch_get_main_queue(), ^{
-        [self startFeedbackWithAdditionalFormText:self.additionalFormText
-                                      releaseName:self.releaseName
-                                            image:screenshot];
+        if ([[FIRAppDistribution appDistribution] isTesterSignedIn]) {
+          [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+        } else {
+          [[FIRAppDistribution appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
+            if (error) {
+              return;
+            }
+            [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+          }];
+        }
       });
     }];
   });
