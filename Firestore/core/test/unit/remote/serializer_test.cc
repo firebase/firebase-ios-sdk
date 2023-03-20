@@ -1152,10 +1152,10 @@ TEST_F(SerializerTest, EncodesTargetDataWithExpectedResumeType) {
     proto.mutable_documents()->add_documents(ResourceName("docs/1"));
     proto.set_target_id(1);
     proto.mutable_read_time()->set_seconds(1000);
-    proto.mutable_read_time()->set_nanos(1000);
+    proto.mutable_read_time()->set_nanos(42);
     ExpectRoundTrip(
         target.WithResumeToken(nanopb::ByteString{""},
-                               model::SnapshotVersion(Timestamp(1000, 1000))),
+                               model::SnapshotVersion(Timestamp(1000, 42))),
         proto);
   }
 }
