@@ -208,7 +208,9 @@ private let kAccountPrefix = "firebase_auth_1_"
 
   // MARK: - Private methods for shared keychain operations
 
-  // TODO(ncooke3):
+  // TODO(ncooke3): The following APIs are essentially duplicates of the API
+  // defined by the `AuthStorage` protocol. It'd be nice to consolidate the
+  // two sets into a single API surface.
 
   /** @fn getItemWithQuery:error:
    @brief Get the item from keychain by given query.
