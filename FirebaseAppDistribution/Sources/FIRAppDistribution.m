@@ -178,18 +178,22 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
                              FIRFADErrorLog(@"Failed to identify release: Could not fetch %ld - %@",
                                             [error code], [error localizedDescription]);
                              
-                             [FIRFADApiService
-                                   fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-                                     if (error) {
-                                       FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
-                                                      [error code], [error localizedDescription]);
-                                       completion([self mapFetchReleasesError:error]);
-                                       return;
-                                     }
+                             if ([error code] == FIRFADApiErrorUnauthorized) {
+                               [FIRFADApiService
+                                     fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+                                       if (error) {
+                                         FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
+                                                        [error code], [error localizedDescription]);
+                                         completion([self mapFetchReleasesError:error]);
+                                         return;
+                                       }
 
-                                     [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
-                                     completion(nil);
-                                   }];
+                                       [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+                                       completion(nil);
+                                     }];
+                             } else {
+                               completion([self mapFetchReleasesError:error]);
+                             }
                              return;
                            }
     
