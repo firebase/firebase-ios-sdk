@@ -89,7 +89,7 @@ private let kAccountPrefix = "firebase_auth_1_"
 
   // MARK: - Private methods for non-sharing keychain operations
 
-  func item(query: [String: Any]) throws -> DataWrapper {
+  private func item(query: [String: Any]) throws -> DataWrapper {
     var returningQuery = query
     returningQuery[kSecReturnData as String] = true
     returningQuery[kSecReturnAttributes as String] = true
@@ -207,6 +207,8 @@ private let kAccountPrefix = "firebase_auth_1_"
   }
 
   // MARK: - Private methods for shared keychain operations
+
+  // TODO(ncooke3):
 
   /** @fn getItemWithQuery:error:
    @brief Get the item from keychain by given query.
