@@ -28,7 +28,7 @@ enum Strings {
   static let releaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases"
   static let findReleaseEndpointUrlTemplate =
-    "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find?compositeBinaryId.buildVersion=%@&compositeBinaryId.displayVersion=%@&compositeBinaryId.codeHash=%@"
+    "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find?compositeBinaryId.displayVersion=%@&compositeBinaryId.buildVersion=%@&compositeBinaryId.codeHash=%@"
   static let createFeedbackEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/%@/feedbackReports"
   static let uploadImageEndpointUrlTemplate =
@@ -195,6 +195,19 @@ struct FeedbackReport: Codable {
     )
   }
 
+  private static func buildFindReleaseUrl(projectNumber: String, identifier: String,
+                                          displayVersion: String, buildVersion: String,
+                                          codeHash: String) -> String {
+    return String(
+      format: Strings.findReleaseEndpointUrlTemplate,
+      projectNumber,
+      identifier,
+      displayVersion,
+      buildVersion,
+      codeHash
+    )
+  }
+
   static func findRelease(app: FirebaseApp, installations: InstallationsProtocol,
                           urlSession: URLSession, displayVersion: String,
                           buildVersion: String, codeHash: String,
@@ -203,13 +216,12 @@ struct FeedbackReport: Codable {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       // TODO(tundeagboola) The backend may not accept project ID here in which case
       // we'll have to figure out a way to get the project number
-      let urlString = String(
-        format: Strings.findReleaseEndpointUrlTemplate,
-        app.options.gcmSenderID,
-        identifier!,
-        displayVersion,
-        buildVersion,
-        codeHash
+      let urlString = buildFindReleaseUrl(
+        projectNumber: app.options.gcmSenderID,
+        identifier: identifier!,
+        displayVersion: displayVersion,
+        buildVersion: buildVersion,
+        codeHash: codeHash
       )
       let request = self.createHttpRequest(
         app: app,

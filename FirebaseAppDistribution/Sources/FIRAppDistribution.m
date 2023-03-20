@@ -374,8 +374,21 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
-                                                     showAlertInfo:showAlertInfo];
+  [self findReleaseWithCompletion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+    if (error) {
+      //      TODO(tundeagboola) Show toast if 403 is returned which means tester doesn't have
+      //      access, or if a different network error occurs
+      return;
+    }
+    if (releaseName == nil) {
+      // TODO(tundeagboola) we need to handle this scenario even though releaseName should never be
+      // null if error is non-null
+      return;
+    }
+    [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
+                                                         releaseName:releaseName
+                                                       showAlertInfo:showAlertInfo];
+  }];
 }
 
 - (void)findReleaseWithCompletion:(void (^)(NSString *_Nullable releaseName,
