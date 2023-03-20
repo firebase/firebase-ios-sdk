@@ -19,10 +19,10 @@
 @interface XCTest (FWaiter)
 
 - (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate;
-- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate description:(NSString*)desc;
+- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate description:(NSString *)desc;
 - (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate timeout:(NSTimeInterval)seconds;
 - (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate
                     timeout:(NSTimeInterval)seconds
-                description:(NSString*)desc;
+                description:(NSString *)desc;
 
 @end
