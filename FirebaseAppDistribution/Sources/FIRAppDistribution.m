@@ -377,24 +377,6 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
   [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText                                                     showAlertInfo:showAlertInfo];
 }
 
-- (void)findReleaseWithCompletion:(void (^)(NSString *_Nullable releaseName,
-                                            NSError *_Nullable error))findReleaseCompletion {
-  [FIRFADApiServiceSwift
-      findReleaseWithDisplayVersion:[self getAppVersion]
-                       buildVersion:[self getAppBuild]
-                           codeHash:[self getCodeHash]
-                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-                           if (error) {
-                             FIRFADErrorLog(@"Failed to identify release: Could not fetch %ld - %@",
-                                            [error code], [error localizedDescription]);
-                           }
-                           if (releaseName == nil) {
-                             FIRFADErrorLog(@"Failed to identify release: Release not returned");
-                           }
-                           findReleaseCompletion(releaseName, error);
-                         }];
-}
-
 #pragma mark - Swizzling disabled
 
 - (BOOL)application:(UIApplication *)application
