@@ -1454,8 +1454,6 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
     } else {
       LOG_WARN("Creating BloomFilter failed: %s",
                maybe_bloom_filter.status().error_message());
-    }
-  }
 
   return {filter.count, std::move(bloom_filter)};
 }
