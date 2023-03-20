@@ -43,6 +43,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/set_mutation.h"
+#include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -50,6 +51,7 @@
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/timestamp_internal.h"
+#include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
@@ -112,6 +114,7 @@ using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
 using nanopb::Writer;
 using remote::WatchChange;
+using util::ComparisonResult;
 using util::ReadContext;
 using util::Status;
 using util::StatusOr;
@@ -638,8 +641,19 @@ google_firestore_v1_Target Serializer::EncodeTarget(
         nanopb::CopyBytesArray(target_data.resume_token().get());
 
     if (target_data.expected_count().has_value()) {
-      result.has_expected_count = true;
       int32_t expected_count = target_data.expected_count().value();
+      result.has_expected_count = true;
+      result.expected_count.value = expected_count;
+    }
+  } else if (target_data.snapshot_version().CompareTo(
+                 SnapshotVersion::None()) == ComparisonResult::Descending) {
+    result.which_resume_type = google_firestore_v1_Target_read_time_tag;
+    result.resume_type.read_time =
+        EncodeVersion(target_data.snapshot_version());
+
+    if (target_data.expected_count().has_value()) {
+      int32_t expected_count = target_data.expected_count().value();
+      result.has_expected_count = true;
       result.expected_count.value = expected_count;
     }
   }
