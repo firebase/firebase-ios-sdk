@@ -89,8 +89,7 @@ private let kAccountPrefix = "firebase_auth_1_"
 
   // MARK: - Private methods for non-sharing keychain operations
 
-  // TODO(ncooke3): Mark internal after converting corresponding test file to Swift.
-  @objc public func item(query: [String: Any]) throws -> DataWrapper {
+  func item(query: [String: Any]) throws -> DataWrapper {
     var returningQuery = query
     returningQuery[kSecReturnData as String] = true
     returningQuery[kSecReturnAttributes as String] = true
