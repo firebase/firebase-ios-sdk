@@ -1437,25 +1437,29 @@ std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
 
 ExistenceFilter Serializer::DecodeExistenceFilter(
     const google_firestore_v1_ExistenceFilter& filter) const {
-  absl::optional<BloomFilter> bloom_filter;
-  // Create bloom filter if there is an unchanged_names present in the filter
-  // and inputs are valid, otherwise keep it null.
   if (filter.has_unchanged_names) {
-    pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.bits.bitmap;
+    pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.has_bits
+                                       ? filter.unchanged_names.bits.bitmap
+                                       : nullptr;
     std::vector<uint8_t> bitmap(bitmap_ptr->bytes,
                                 bitmap_ptr->bytes + bitmap_ptr->size);
-    int32_t padding = filter.unchanged_names.bits.padding;
+
+    int32_t padding = filter.unchanged_names.has_bits
+                          ? filter.unchanged_names.bits.padding
+                          : 0;
     int32_t hash_count = filter.unchanged_names.hash_count;
 
     StatusOr<BloomFilter> maybe_bloom_filter =
         BloomFilter::Create(bitmap, padding, hash_count);
+
     if (maybe_bloom_filter.ok()) {
-      bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
+      return {filter.count, std::move(maybe_bloom_filter).ValueOrDie()};
     } else {
       LOG_WARN("Creating BloomFilter failed: %s",
                maybe_bloom_filter.status().error_message());
-
-  return {filter.count, std::move(bloom_filter)};
+    }
+  }
+  return {filter.count, absl::nullopt};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {

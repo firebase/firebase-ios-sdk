@@ -213,10 +213,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   std::unique_ptr<util::Executor> rpc_executor_;
   grpc::CompletionQueue grpc_queue_;
   ConnectivityMonitor* connectivity_monitor_ = nullptr;
+  core::DatabaseInfo database_info_;
   GrpcConnection grpc_connection_;
 
   std::vector<std::unique_ptr<GrpcCall>> active_calls_;
-  core::DatabaseInfo database_info_;
   DatastoreSerializer datastore_serializer_;
 };
 

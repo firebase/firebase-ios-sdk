@@ -335,19 +335,22 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
   NSDictionary *bitsData = bloomFilterProto[@"bits"];
 
-  // Decode base64 string into uint8_t vector. If not specified, will default bitmap to empty
-  // vector.
+  // Decode base64 string into uint8_t vector. If bitmap is not specified in proto, use default
+  // empty string.
   NSString *bitmapEncoded = bitsData[@"bitmap"];
   std::string bitmapDecoded;
-  absl::Base64Unescape([bitmapEncoded UTF8String], &bitmapDecoded);
+  absl::Base64Unescape([bitmapEncoded cStringUsingEncoding:NSASCIIStringEncoding], &bitmapDecoded);
   std::vector<uint8_t> bitmap(bitmapDecoded.begin(), bitmapDecoded.end());
 
-  // If not specified, will default padding and hashCount to 0.
+  // If not specified in proto, default padding and hashCount to 0.
   int32_t padding = [bitsData[@"padding"] intValue];
   int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
+
   StatusOr<BloomFilter> maybeBloomFilter = BloomFilter::Create(bitmap, padding, hashCount);
   if (maybeBloomFilter.ok()) {
     return maybeBloomFilter.ValueOrDie();
+  } else {
+    LOG_WARN("Parsing BloomFilterProto failed: %s", maybeBloomFilter.status().error_message());
   }
 
   return absl::nullopt;

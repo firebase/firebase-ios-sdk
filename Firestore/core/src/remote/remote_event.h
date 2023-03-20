@@ -413,17 +413,16 @@ class WatchChangeAggregator {
   bool TargetContainsDocument(model::TargetId target_id,
                               const model::DocumentKey& key);
 
-  // TODO(Mila)
   /** Returns whether a bloom filter removed the deleted documents successfully.
    */
-  bool ApplyBloomFilter(ExistenceFilterWatchChange existence_filter,
+  bool ApplyBloomFilter(const ExistenceFilterWatchChange& existence_filter,
                         int current_count);
 
   /**
    * Filter out removed documents based on bloom filter membership result and
    * return number of documents removed.
    */
-  int FilterRemovedDocuments(BloomFilter bloom_filter, int target_id);
+  int FilterRemovedDocuments(const BloomFilter& bloom_filter, int target_id);
 
   /** The internal state of all tracked targets. */
   std::unordered_map<model::TargetId, TargetState> target_states_;

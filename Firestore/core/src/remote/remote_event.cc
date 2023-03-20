@@ -237,11 +237,10 @@ void WatchChangeAggregator::HandleExistenceFilter(
     } else {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
+        // TODO(Mila): Use application status instead of a boolean in next PR.
         // Apply bloom filter to identify and mark removed documents.
         bool bloom_filter_applied =
             ApplyBloomFilter(existence_filter, current_size);
-        std::cout << "bloom_filter_applied" << bloom_filter_applied
-                  << std::endl;
         if (!bloom_filter_applied) {
           // If bloom filter application fails, we reset the mapping and
           // trigger re-run of the query.
@@ -253,12 +252,10 @@ void WatchChangeAggregator::HandleExistenceFilter(
   }
 }
 
-/** Returns whether a bloom filter removed the deleted documents successfully.
- */
 bool WatchChangeAggregator::ApplyBloomFilter(
-    ExistenceFilterWatchChange existence_filter, int current_count) {
+    const ExistenceFilterWatchChange& existence_filter, int current_count) {
   int expected_count = existence_filter.filter().count();
-  absl::optional<BloomFilter> bloom_filter =
+  const absl::optional<BloomFilter>& bloom_filter =
       existence_filter.filter().bloom_filter();
 
   if (!bloom_filter.has_value()) {
@@ -267,28 +264,20 @@ bool WatchChangeAggregator::ApplyBloomFilter(
 
   int removed_document_count = FilterRemovedDocuments(
       bloom_filter.value(), existence_filter.target_id());
-  std::cout << "removed_document_count" << removed_document_count << std::endl;
 
   return expected_count == (current_count - removed_document_count);
 }
 
-/**
- * Filter out removed documents based on bloom filter membership result and
- * return number of documents removed.
- */
-int WatchChangeAggregator::FilterRemovedDocuments(BloomFilter bloom_filter,
-                                                  int target_id) {
+int WatchChangeAggregator::FilterRemovedDocuments(
+    const BloomFilter& bloom_filter, int target_id) {
   const DocumentKeySet& existing_keys =
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
-  std::cout << "existing_keys" << existing_keys.size() << std::endl;
-
   int removalCount = 0;
   for (const DocumentKey& key : existing_keys) {
-    DatabaseId database_id = target_metadata_provider_->GetDatabaseId();
+    const DatabaseId& database_id = target_metadata_provider_->GetDatabaseId();
     std::string document_path = util::StringFormat(
         "projects/%s/databases/%s/documents/%s", database_id.project_id(),
         database_id.database_id(), key.ToString());
-    std::cout << "documentPath" << document_path << std::endl;
 
     if (!bloom_filter.MightContain(document_path)) {
       RemoveDocumentFromTarget(target_id, key,
