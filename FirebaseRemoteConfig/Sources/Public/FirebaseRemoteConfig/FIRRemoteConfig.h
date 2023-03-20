@@ -332,7 +332,8 @@ NS_SWIFT_NAME(RemoteConfig)
 /// Completion handler invoked by `addOnConfigUpdateListener` when there is an update to
 /// the config from the backend.
 ///
-/// @param configUpdate (``FIRRemoteConfigUpdate``) Information on which key's values have changed.
+/// @param configUpdate An instance of `FIRRemoteConfigUpdate` that contains information on which
+/// key's values have changed.
 /// @param error  Error message on failure.
 typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable configUpdate,
                                                 NSError *_Nullable error)
