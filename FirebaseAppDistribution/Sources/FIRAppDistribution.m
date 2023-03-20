@@ -386,7 +386,6 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
       return;
     }
     [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
-                                                         releaseName:releaseName
                                                        showAlertInfo:showAlertInfo];
   }];
 }
