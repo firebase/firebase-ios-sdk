@@ -27,7 +27,7 @@ import GoogleUtilities
     -> UIViewController? {
     // TODO: Check for debug mode, and if it is, proceed even if it's not available, otherwise return nil
     let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
-
+      
     // TODO: Add the additionalInfoText parameter.
     let frameworkBundle = Bundle(for: self)
 
@@ -36,6 +36,8 @@ import GoogleUtilities
       withExtension: "bundle"
     )
     let resourceBundle = Bundle(url: resourceBundleURL!)
+      
+    
 
     let storyboard = UIStoryboard(
       name: "AppDistributionInternalStoryboard",
