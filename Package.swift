@@ -435,6 +435,16 @@ let package = Package(
         .headerSearchPath("../../../.."),
       ]
     ),
+    .testTarget(
+      name: "AppDistributionInternalUnit",
+      dependencies: ["FirebaseAppDistributionInternal"],
+      path: "FirebaseAppDistributionInternal/Tests/Unit",
+      exclude: ["Swift/"],
+      resources: [.process("Resources")],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
 
     .target(
       name: "FirebaseAuth",
