@@ -169,29 +169,31 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
 
 - (void)persistTesterSignInStateAndHandleCompletion:(void (^)(NSError *_Nullable error))completion {
   [FIRFADApiService
-        fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-          if (error) {
-            FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
-                           [error code], [error localizedDescription]);
-            completion([self mapFetchReleasesError:error]);
-            return;
-          }
-    
-          // TODO: Move this to the singleton initialization of InAppFeedback.Swift
-          [FIRFADApiServiceSwift
-              findReleaseWithDisplayVersion:[self getAppVersion]
-                               buildVersion:[self getAppBuild]
-                                   codeHash:[self getCodeHash]
-                                 completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-                                   if (error || releaseName == nil) {
-                                     return;
-                                   }
-                                   [[GULUserDefaults standardUserDefaults] setObject:releaseName forKey:kFIRFADReleaseNameKey];
-          }];
+      fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+        if (error) {
+          FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
+                         [error code], [error localizedDescription]);
+          completion([self mapFetchReleasesError:error]);
+          return;
+        }
 
-          [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
-          completion(nil);
-        }];
+        // TODO: Move this to the singleton initialization of InAppFeedback.Swift
+        [FIRFADApiServiceSwift findReleaseWithDisplayVersion:[self getAppVersion]
+                                                buildVersion:[self getAppBuild]
+                                                    codeHash:[self getCodeHash]
+                                                  completion:^(NSString *__nullable releaseName,
+                                                               NSError *__nullable error) {
+                                                    if (error || releaseName == nil) {
+                                                      return;
+                                                    }
+                                                    [[GULUserDefaults standardUserDefaults]
+                                                        setObject:releaseName
+                                                           forKey:kFIRFADReleaseNameKey];
+                                                  }];
+
+        [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+        completion(nil);
+      }];
 }
 
 - (NSString *)getAppName {
@@ -376,7 +378,8 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText                                                     showAlertInfo:showAlertInfo];
+  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
+                                                     showAlertInfo:showAlertInfo];
 }
 
 #pragma mark - Swizzling disabled
