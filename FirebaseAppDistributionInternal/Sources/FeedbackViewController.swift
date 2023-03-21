@@ -14,7 +14,7 @@
 
 import UIKit
 
-class FeedbackViewController: UIViewController {
+class FeedbackViewController: UIViewController, UITextViewDelegate {
   // TODO: Consider the situations where this instance is initiated once, and used
   // multiple times.
   var viewDidDisappearCallback: () -> Void = {}
@@ -43,7 +43,9 @@ class FeedbackViewController: UIViewController {
     if additionalFormText != nil {
       additionalFormTextLabel.text = additionalFormText
     }
-    // TODO: Consider default text.
+    
+    feedbackTextView.delegate = self
+    resetFeedbackTextViewWithPlaceholderText()
 
     let image = image
     if image != nil {
@@ -51,7 +53,7 @@ class FeedbackViewController: UIViewController {
       self.image = nil
     }
   }
-
+  
   @IBAction func tappedSend(_ sender: Any) {
     guard let releaseName = releaseName else {
       // TODO(tundeagboola) throw error or
@@ -124,7 +126,7 @@ class FeedbackViewController: UIViewController {
     additionalFormTextLabel.numberOfLines = 0
     
     let topConstraint = NSLayoutConstraint(item: additionalFormTextLabel!, attribute: .top, relatedBy: .equal, toItem: scrollView, attribute: .top, multiplier: 1, constant: 0)
-    let bottomConstraint = NSLayoutConstraint(item: additionalFormTextLabel!, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: scrollView, attribute: .top, multiplier: 1, constant: 80)
+    let bottomConstraint = NSLayoutConstraint(item: additionalFormTextLabel!, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: scrollView, attribute: .top, multiplier: 1, constant: 40)
     let leftConstraint = NSLayoutConstraint(item: additionalFormTextLabel!, attribute: .left, relatedBy: .equal, toItem: scrollView, attribute: .left, multiplier: 1, constant: 0)
     let rightConstraint = NSLayoutConstraint(item: additionalFormTextLabel!, attribute: .right, relatedBy: .equal, toItem: scrollView, attribute: .right, multiplier: 1, constant: 0)
     scrollView.addConstraints([topConstraint, bottomConstraint, leftConstraint, rightConstraint])
@@ -134,7 +136,7 @@ class FeedbackViewController: UIViewController {
     
     additionalFormTextLabel.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
     // TODO: Better color
-    additionalFormTextLabel.backgroundColor = .lightGray
+    additionalFormTextLabel.backgroundColor = .darkGray
   }
   
   func setFeedbackInputConstraints() {
@@ -146,7 +148,7 @@ class FeedbackViewController: UIViewController {
     let widthConstraint = NSLayoutConstraint(item: feedbackTextView!, attribute: .width, relatedBy: .equal, toItem: navigationBar, attribute: .width, multiplier: 1, constant: 0)
     self.view.addConstraints([topConstraint, bottomConstraint, leftConstraint, rightConstraint, widthConstraint])
     
-    feedbackTextView.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+    feedbackTextView.textContainerInset = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
   }
   
   func setScreenshotImageConstrains() {
@@ -159,4 +161,21 @@ class FeedbackViewController: UIViewController {
     scrollView.addConstraints([topConstraint, bottomConstraint, leftConstraint, rightConstraint, widthConstraint])
   }
   
+  // MARK: - UITextViewDelegate
+  
+  func textViewDidBeginEditing(_ textView: UITextView) {
+    textView.text = nil
+    textView.textColor = .black
+  }
+  
+  func textViewDidEndEditing(_ textView: UITextView) {
+    if textView.text.isEmpty {
+      resetFeedbackTextViewWithPlaceholderText()
+    }
+  }
+  
+  func resetFeedbackTextViewWithPlaceholderText() {
+    feedbackTextView.text = "Do you have any feedback?"
+    feedbackTextView.textColor = .lightGray
+  }
 }
