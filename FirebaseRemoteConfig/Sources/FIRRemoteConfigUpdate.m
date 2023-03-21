@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-#import <XCTest/XCTest.h>
+#import <Foundation/Foundation.h>
 
-@interface XCTest (FWaiter)
+#import "FirebaseRemoteConfig/Sources/Public/FirebaseRemoteConfig/FIRRemoteConfig.h"
 
-- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate;
-- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate description:(NSString *)desc;
-- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate timeout:(NSTimeInterval)seconds;
-- (NSTimeInterval)waitUntil:(BOOL (^)(void))predicate
-                    timeout:(NSTimeInterval)seconds
-                description:(NSString *)desc;
+@implementation FIRRemoteConfigUpdate {
+  NSSet<NSString *> *_updatedKeys;
+}
+
+- (instancetype)initWithUpdatedKeys:(NSSet<NSString *> *)updatedKeys {
+  self = [super init];
+  if (self) {
+    _updatedKeys = [updatedKeys copy];
+  }
+  return self;
+}
 
 @end
