@@ -413,6 +413,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseInstallations",
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseAppDistributionInternal/Sources"
     ),
