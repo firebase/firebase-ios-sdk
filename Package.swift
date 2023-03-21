@@ -439,8 +439,6 @@ let package = Package(
       name: "AppDistributionInternalUnit",
       dependencies: ["FirebaseAppDistributionInternal"],
       path: "FirebaseAppDistributionInternal/Tests/Unit",
-      exclude: ["Swift/"],
-      resources: [.process("Resources")],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
