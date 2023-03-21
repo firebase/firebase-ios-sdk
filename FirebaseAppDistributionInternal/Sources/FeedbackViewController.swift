@@ -152,7 +152,7 @@ class FeedbackViewController: UIViewController {
   func setScreenshotImageConstrains() {
     screenshotUIImageView.translatesAutoresizingMaskIntoConstraints = false
     let topConstraint = NSLayoutConstraint(item: screenshotUIImageView!, attribute: .top, relatedBy: .equal, toItem: feedbackTextView, attribute: .bottom, multiplier: 1, constant: 0)
-    let bottomConstraint = NSLayoutConstraint(item: screenshotUIImageView!, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: feedbackTextView, attribute: .top, multiplier: 1, constant: 40)
+    let bottomConstraint = NSLayoutConstraint(item: screenshotUIImageView!, attribute: .bottom, relatedBy: .greaterThanOrEqual, toItem: scrollView, attribute: .bottom, multiplier: 1, constant: 10)
     let leftConstraint = NSLayoutConstraint(item: screenshotUIImageView!, attribute: .left, relatedBy: .equal, toItem: scrollView, attribute: .left, multiplier: 1, constant: 0)
     let rightConstraint = NSLayoutConstraint(item: screenshotUIImageView!, attribute: .right, relatedBy: .equal, toItem: scrollView, attribute: .right, multiplier: 1, constant: 0)
     let widthConstraint = NSLayoutConstraint(item: screenshotUIImageView!, attribute: .width, relatedBy: .equal, toItem: feedbackTextView, attribute: .width, multiplier: 1, constant: 0)
