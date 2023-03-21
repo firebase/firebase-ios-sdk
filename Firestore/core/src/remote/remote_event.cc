@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -254,14 +255,24 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
 bool WatchChangeAggregator::ApplyBloomFilter(
     const ExistenceFilterWatchChange& existence_filter, int current_count) {
-  const absl::optional<BloomFilter>& bloom_filter =
-      existence_filter.filter().bloom_filter();
-  if (!bloom_filter.has_value()) {
+  const absl::optional<BloomFilterParameter>& bloom_filter_parameter =
+      existence_filter.filter().bloom_filter_parameter();
+  if (!bloom_filter_parameter.has_value()) {
+    return false;
+  }
+
+  util::StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(bloom_filter_parameter.value().bitmap,
+                          bloom_filter_parameter.value().padding,
+                          bloom_filter_parameter.value().hash_count);
+  if (!maybe_bloom_filter.ok()) {
+    LOG_WARN("Creating BloomFilter failed: %s",
+             maybe_bloom_filter.status().error_message());
     return false;
   }
 
   int removed_document_count = FilterRemovedDocuments(
-      bloom_filter.value(), existence_filter.target_id());
+      std::move(maybe_bloom_filter).ValueOrDie(), existence_filter.target_id());
 
   int expected_count = existence_filter.filter().count();
   return expected_count == (current_count - removed_document_count);

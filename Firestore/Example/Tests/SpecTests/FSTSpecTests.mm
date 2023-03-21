@@ -101,6 +101,7 @@ using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::remote::BloomFilter;
+using firebase::firestore::remote::BloomFilterParameter;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -329,7 +330,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
-- (absl::optional<BloomFilter>)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
+- (absl::optional<BloomFilterParameter>)parseBloomFilterParameter:
+    (NSDictionary *_Nullable)bloomFilterProto {
   if (bloomFilterProto == nil) {
     return absl::nullopt;
   }
@@ -345,14 +347,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   // If not specified in proto, default padding and hashCount to 0.
   int32_t padding = [bitsData[@"padding"] intValue];
   int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
-  StatusOr<BloomFilter> maybeBloomFilter = BloomFilter::Create(bitmap, padding, hashCount);
-
-  if (maybeBloomFilter.ok()) {
-    return std::move(maybeBloomFilter).ValueOrDie();
-  } else {
-    LOG_WARN("Parsing BloomFilterProto failed: %s", maybeBloomFilter.status().error_message());
-    return absl::nullopt;
-  }
+  return BloomFilterParameter{bitmap, padding, hashCount};
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
@@ -500,9 +495,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSArray<NSNumber *> *keys = watchFilter[@"keys"];
   int keyCount = keys ? (int)keys.count : 0;
 
-  absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+  absl::optional<BloomFilterParameter> bloomFilterParameter =
+      [self parseBloomFilterParameter:watchFilter[@"bloomFilter"]];
 
-  ExistenceFilter filter{keyCount, std::move(bloomFilter)};
+  ExistenceFilter filter{keyCount, std::move(bloomFilterParameter)};
   ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }

@@ -599,7 +599,7 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchWithBloomFilterSuccess) {
   // The given BloomFilter will return false on MightContain(doc1) and true on
   // MightContain(doc2).
   ExistenceFilterWatchChange change4{
-      ExistenceFilter{1, BloomFilter({0x0E, 0x0F}, 1, 7)}, 1};
+      ExistenceFilter{1, BloomFilterParameter{{0x0E, 0x0F}, 1, 7}}, 1};
   // The existence filter identifies that doc1 is deleted, and skips the full
   // re-query.
   aggregator.HandleExistenceFilter(change4);
@@ -648,7 +648,7 @@ TEST_F(RemoteEventTest,
   // The given BloomFilter will return true on both MightContain(doc1) and
   // MightContain(doc2).
   ExistenceFilterWatchChange change4{
-      ExistenceFilter{1, BloomFilter({0x42, 0xFE}, 2, 7)}, 1};
+      ExistenceFilter{1, BloomFilterParameter{{0x42, 0xFE}, 2, 7}}, 1};
   // The existence filter cannot identify which doc is deleted. It will remove
   // the document from target 1, but not synthesize a document delete.
   aggregator.HandleExistenceFilter(change4);

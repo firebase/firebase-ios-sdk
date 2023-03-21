@@ -1456,24 +1456,16 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
   }
 
   int32_t hash_count = filter.unchanged_names.hash_count;
-  std::vector<uint8_t> bitmap;
   int32_t padding = 0;
+  std::vector<uint8_t> bitmap;
   if (filter.unchanged_names.has_bits) {
+    padding = filter.unchanged_names.bits.padding;
+
     pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.bits.bitmap;
     bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
                                   bitmap_ptr->bytes + bitmap_ptr->size);
-    padding = filter.unchanged_names.bits.padding;
   }
-
-  StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(bitmap, padding, hash_count);
-  if (maybe_bloom_filter.ok()) {
-    return {filter.count, std::move(maybe_bloom_filter).ValueOrDie()};
-  } else {
-    LOG_WARN("Creating BloomFilter failed: %s",
-             maybe_bloom_filter.status().error_message());
-    return {filter.count, absl::nullopt};
-  }
+  return {filter.count, BloomFilterParameter{bitmap, padding, hash_count}};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
