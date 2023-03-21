@@ -177,7 +177,8 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
           return;
         }
 
-        // TODO: Move this to the singleton initialization of InAppFeedback.Swift
+        // TODO: This will need to be updated everytime the app starts, if the user is signed in,
+        // as the release can change on updates, but the sign in state is peristent.
         [FIRFADApiServiceSwift findReleaseWithDisplayVersion:[self getAppVersion]
                                                 buildVersion:[self getAppBuild]
                                                     codeHash:[self getCodeHash]
