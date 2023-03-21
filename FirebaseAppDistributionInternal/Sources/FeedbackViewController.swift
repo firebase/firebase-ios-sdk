@@ -132,11 +132,9 @@ class FeedbackViewController: UIViewController, UITextViewDelegate {
     scrollView.addConstraints([topConstraint, bottomConstraint, leftConstraint, rightConstraint])
     let widthConstraint = NSLayoutConstraint(item: additionalFormTextLabel!, attribute: .width, relatedBy: .equal, toItem: navigationBar, attribute: .width, multiplier: 1, constant: 0)
     self.view.addConstraints([topConstraint, bottomConstraint, leftConstraint, rightConstraint, widthConstraint])
-    
-    
-    additionalFormTextLabel.layoutMargins = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12)
+        
     // TODO: Better color
-    additionalFormTextLabel.backgroundColor = .darkGray
+    additionalFormTextLabel.backgroundColor = .lightGray
   }
   
   func setFeedbackInputConstraints() {
