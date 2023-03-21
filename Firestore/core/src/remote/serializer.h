@@ -210,7 +210,7 @@ class Serializer {
    */
   std::unique_ptr<remote::WatchChange> DecodeWatchChange(
       util::ReadContext* context,
-      google_firestore_v1_ListenResponse& watch_change) const;
+      nanopb::Message<google_firestore_v1_ListenResponse>&& watch_change) const;
 
   model::SnapshotVersion DecodeVersionFromListenResponse(
       util::ReadContext* context,
@@ -339,10 +339,10 @@ class Serializer {
       const google_firestore_v1_DocumentRemove& change) const;
   std::unique_ptr<remote::WatchChange> DecodeExistenceFilterWatchChange(
       util::ReadContext* context,
-      const google_firestore_v1_ExistenceFilter& filter) const;
+      nanopb::Message<google_firestore_v1_ExistenceFilter>&& filter) const;
 
   ExistenceFilter DecodeExistenceFilter(
-      const google_firestore_v1_ExistenceFilter& filter) const;
+      nanopb::Message<google_firestore_v1_ExistenceFilter>&& filter) const;
 
   model::DatabaseId database_id_;
   // TODO(varconst): Android caches the result of calling `EncodeDatabaseName`

@@ -80,7 +80,7 @@ class WatchStreamSerializer {
    */
   std::unique_ptr<WatchChange> DecodeWatchChange(
       nanopb::Reader* reader,
-      google_firestore_v1_ListenResponse& response) const;
+      nanopb::Message<google_firestore_v1_ListenResponse>&& response) const;
   model::SnapshotVersion DecodeSnapshotVersion(
       nanopb::Reader* reader,
       const google_firestore_v1_ListenResponse& response) const;

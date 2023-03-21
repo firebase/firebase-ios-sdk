@@ -104,8 +104,9 @@ Status WatchStream::NotifyStreamResponse(const grpc::ByteBuffer& message) {
   // A successful response means the stream is healthy.
   backoff_.Reset();
 
-  auto watch_change = watch_serializer_.DecodeWatchChange(&reader, *response);
   auto version = watch_serializer_.DecodeSnapshotVersion(&reader, *response);
+  auto watch_change =
+      watch_serializer_.DecodeWatchChange(&reader, std::move(response));
   if (!reader.ok()) {
     return reader.status();
   }

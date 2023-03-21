@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -254,14 +255,33 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
 bool WatchChangeAggregator::ApplyBloomFilter(
     const ExistenceFilterWatchChange& existence_filter, int current_count) {
-  const absl::optional<BloomFilter>& bloom_filter =
-      existence_filter.filter().bloom_filter();
-  if (!bloom_filter.has_value()) {
+  const absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>&
+      bloom_filter_proto = existence_filter.filter().bloom_filter();
+  if (!bloom_filter_proto.has_value()) {
+    return false;
+  }
+
+  std::vector<uint8_t> bitmap;
+  if (bloom_filter_proto.value()->has_bits) {
+    google_firestore_v1_BitSequence bits = bloom_filter_proto.value()->bits;
+    if (bits.bitmap && bits.bitmap->size > 0) {
+      bitmap = std::vector<uint8_t>(bits.bitmap->bytes,
+                                    bits.bitmap->bytes + bits.bitmap->size);
+    }
+  }
+  int32_t padding = 0;
+  if (bloom_filter_proto.value()->has_bits) {
+    padding = bloom_filter_proto.value()->bits.padding;
+  }
+  util::StatusOr<BloomFilter> bloom_filter = BloomFilter::Create(
+      std::move(bitmap), padding, bloom_filter_proto.value()->hash_count);
+  if (!bloom_filter.ok()) {
+    LOG_WARN("BloomFilter error: %s", bloom_filter.status().error_message());
     return false;
   }
 
   int removed_document_count = FilterRemovedDocuments(
-      bloom_filter.value(), existence_filter.target_id());
+      bloom_filter.ValueOrDie(), existence_filter.target_id());
 
   int expected_count = existence_filter.filter().count();
   return expected_count == (current_count - removed_document_count);

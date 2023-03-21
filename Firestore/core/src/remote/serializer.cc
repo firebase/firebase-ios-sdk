@@ -1299,22 +1299,26 @@ std::string Serializer::EncodeLabel(QueryPurpose purpose) const {
 
 std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
     ReadContext* context,
-    google_firestore_v1_ListenResponse& watch_change) const {
-  switch (watch_change.which_response_type) {
+    nanopb::Message<google_firestore_v1_ListenResponse>&& watch_change) const {
+  switch (watch_change->which_response_type) {
     case google_firestore_v1_ListenResponse_target_change_tag:
-      return DecodeTargetChange(context, watch_change.target_change);
+      return DecodeTargetChange(context, watch_change->target_change);
 
     case google_firestore_v1_ListenResponse_document_change_tag:
-      return DecodeDocumentChange(context, watch_change.document_change);
+      return DecodeDocumentChange(context, watch_change->document_change);
 
     case google_firestore_v1_ListenResponse_document_delete_tag:
-      return DecodeDocumentDelete(context, watch_change.document_delete);
+      return DecodeDocumentDelete(context, watch_change->document_delete);
 
     case google_firestore_v1_ListenResponse_document_remove_tag:
-      return DecodeDocumentRemove(context, watch_change.document_remove);
+      return DecodeDocumentRemove(context, watch_change->document_remove);
 
     case google_firestore_v1_ListenResponse_filter_tag:
-      return DecodeExistenceFilterWatchChange(context, watch_change.filter);
+      auto existence_filter = watch_change->filter;
+      watch_change->filter = google_firestore_v1_ExistenceFilter_init_zero;
+      return DecodeExistenceFilterWatchChange(
+          context, nanopb::Message<google_firestore_v1_ExistenceFilter>(
+                       existence_filter));
   }
 
   // Occasionally Watch will send response_type == 0 (which isn't a valid tag in
@@ -1322,7 +1326,7 @@ std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
   // emulator on Forge. Failing here causes the stream to restart with no ill
   // effects.
   context->Fail(StringFormat("Unknown WatchChange.response_type: %s",
-                             watch_change.which_response_type));
+                             watch_change->which_response_type));
   return {};
 }
 
@@ -1444,36 +1448,22 @@ std::unique_ptr<WatchChange> Serializer::DecodeDocumentRemove(
 }
 
 std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
-    ReadContext*, const google_firestore_v1_ExistenceFilter& filter) const {
+    ReadContext*,
+    nanopb::Message<google_firestore_v1_ExistenceFilter>&& filter) const {
+  int32_t target_id{filter->target_id};
   return absl::make_unique<ExistenceFilterWatchChange>(
-      DecodeExistenceFilter(filter), filter.target_id);
+      DecodeExistenceFilter(std::move(filter)), target_id);
 }
 
 ExistenceFilter Serializer::DecodeExistenceFilter(
-    const google_firestore_v1_ExistenceFilter& filter) const {
-  if (!filter.has_unchanged_names) {
-    return {filter.count, absl::nullopt};
+    nanopb::Message<google_firestore_v1_ExistenceFilter>&& filter) const {
+  absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>
+      unchanged_names;
+  if (!filter->has_unchanged_names) {
+    unchanged_names.emplace(filter->unchanged_names);
+    filter->unchanged_names = google_firestore_v1_BloomFilter_init_default;
   }
-
-  int32_t hash_count = filter.unchanged_names.hash_count;
-  std::vector<uint8_t> bitmap;
-  int32_t padding = 0;
-  if (filter.unchanged_names.has_bits) {
-    pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.bits.bitmap;
-    bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
-                                  bitmap_ptr->bytes + bitmap_ptr->size);
-    padding = filter.unchanged_names.bits.padding;
-  }
-
-  StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(bitmap, padding, hash_count);
-  if (maybe_bloom_filter.ok()) {
-    return {filter.count, std::move(maybe_bloom_filter).ValueOrDie()};
-  } else {
-    LOG_WARN("Creating BloomFilter failed: %s",
-             maybe_bloom_filter.status().error_message());
-    return {filter.count, absl::nullopt};
-  }
+  return {filter->count, std::move(unchanged_names)};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {

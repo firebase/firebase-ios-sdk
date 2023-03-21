@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/remote/bloom_filter.h"
+#include "absl/strings/string_view.h"
 
 namespace firebase {
 namespace firestore {
@@ -29,7 +30,10 @@ class ExistenceFilter {
  public:
   ExistenceFilter() = default;
 
-  ExistenceFilter(int count, absl::optional<BloomFilter> bloom_filter)
+  ExistenceFilter(
+      int count,
+      absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>
+          bloom_filter)
       : count_{count}, bloom_filter_{std::move(bloom_filter)} {
   }
 
@@ -37,17 +41,59 @@ class ExistenceFilter {
     return count_;
   }
 
-  const absl::optional<BloomFilter>& bloom_filter() const {
+  const absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>&
+  bloom_filter() const {
     return bloom_filter_;
   }
 
  private:
   int count_ = 0;
-  absl::optional<BloomFilter> bloom_filter_;
+  absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>
+      bloom_filter_;
 };
 
 inline bool operator==(const ExistenceFilter& lhs, const ExistenceFilter& rhs) {
-  return lhs.count() == rhs.count() && lhs.bloom_filter() == rhs.bloom_filter();
+  if (lhs.count() != rhs.count()) {
+    return false;
+  }
+  if (lhs.bloom_filter().has_value() != rhs.bloom_filter().has_value()) {
+    return false;
+  }
+
+  if (lhs.bloom_filter().has_value()) {
+    const google_firestore_v1_BloomFilter* lhs_bloom_filter =
+        lhs.bloom_filter().value().get();
+    const google_firestore_v1_BloomFilter* rhs_bloom_filter =
+        rhs.bloom_filter().value().get();
+    if (lhs_bloom_filter->hash_count != rhs_bloom_filter->hash_count) {
+      return false;
+    }
+    if (lhs_bloom_filter->has_bits != rhs_bloom_filter->has_bits) {
+      return false;
+    }
+    if (lhs_bloom_filter->has_bits) {
+      if (lhs_bloom_filter->bits.padding != rhs_bloom_filter->bits.padding) {
+        return false;
+      }
+      if ((lhs_bloom_filter->bits.bitmap == nullptr) !=
+          (rhs_bloom_filter->bits.bitmap == nullptr)) {
+        return false;
+      }
+      if (lhs_bloom_filter->bits.bitmap != nullptr) {
+        const absl::string_view lhs_bitmap(
+            reinterpret_cast<const char*>(lhs_bloom_filter->bits.bitmap->bytes),
+            lhs_bloom_filter->bits.bitmap->size);
+        const absl::string_view rhs_bitmap(
+            reinterpret_cast<const char*>(rhs_bloom_filter->bits.bitmap->bytes),
+            rhs_bloom_filter->bits.bitmap->size);
+        if (lhs_bitmap != rhs_bitmap) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
 }
 
 }  // namespace remote

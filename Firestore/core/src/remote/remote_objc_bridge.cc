@@ -105,8 +105,8 @@ WatchStreamSerializer::ParseResponse(Reader* reader) const {
 
 std::unique_ptr<WatchChange> WatchStreamSerializer::DecodeWatchChange(
     nanopb::Reader* reader,
-    google_firestore_v1_ListenResponse& response) const {
-  return serializer_.DecodeWatchChange(reader->context(), response);
+    nanopb::Message<google_firestore_v1_ListenResponse>&& response) const {
+  return serializer_.DecodeWatchChange(reader->context(), std::move(response));
 }
 
 SnapshotVersion WatchStreamSerializer::DecodeSnapshotVersion(
