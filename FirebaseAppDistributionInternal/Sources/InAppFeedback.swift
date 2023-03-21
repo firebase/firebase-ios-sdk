@@ -29,9 +29,9 @@ import Photos
                                                 -> Void)
     -> UIViewController? {
     // TODO: Check for debug mode, and if it is, proceed even if it's not available, otherwise return nil
-      // Uncomment this to get access to the release name.
+    // Uncomment this to get access to the release name.
 //    let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
-      let releaseName = ""
+    let releaseName = ""
 
     // TODO: Add the additionalInfoText parameter.
     let frameworkBundle = Bundle(for: self)
