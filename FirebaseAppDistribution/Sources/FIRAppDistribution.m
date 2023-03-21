@@ -168,39 +168,30 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
 }
 
 - (void)persistTesterSignInStateAndHandleCompletion:(void (^)(NSError *_Nullable error))completion {
-  
-  [FIRFADApiServiceSwift
-      findReleaseWithDisplayVersion:[self getAppVersion]
-                       buildVersion:[self getAppBuild]
-                           codeHash:[self getCodeHash]
-                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-                           if (error || releaseName == nil) {
-                             FIRFADErrorLog(@"Failed to identify release: Could not fetch %ld - %@",
-                                            [error code], [error localizedDescription]);
-                             
-                             if ([error code] == FIRFADApiErrorUnauthorized) {
-                               [FIRFADApiService
-                                     fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
-                                       if (error) {
-                                         FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
-                                                        [error code], [error localizedDescription]);
-                                         completion([self mapFetchReleasesError:error]);
-                                         return;
-                                       }
+  [FIRFADApiService
+        fetchReleasesWithCompletion:^(NSArray *_Nullable releases, NSError *_Nullable error) {
+          if (error) {
+            FIRFADErrorLog(@"Tester Sign in persistence. Could not fetch releases with code %ld - %@",
+                           [error code], [error localizedDescription]);
+            completion([self mapFetchReleasesError:error]);
+            return;
+          }
 
-                                       [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
-                                       completion(nil);
-                                     }];
-                             } else {
-                               completion([self mapFetchReleasesError:error]);
-                             }
-                             return;
-                           }
+          [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+          completion(nil);
     
-                           [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
-                           [[GULUserDefaults standardUserDefaults] setObject:releaseName forKey:kFIRFADReleaseNameKey];
-                           completion(nil);
-    }];
+          // TODO: Move this to the singleton initialization of InAppFeedback.Swift
+          [FIRFADApiServiceSwift
+              findReleaseWithDisplayVersion:[self getAppVersion]
+                               buildVersion:[self getAppBuild]
+                                   codeHash:[self getCodeHash]
+                                 completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
+                                   if (error || releaseName == nil) {
+                                     return;
+                                   }
+                                   [[GULUserDefaults standardUserDefaults] setObject:releaseName forKey:kFIRFADReleaseNameKey];
+          }];
+        }];
 }
 
 - (NSString *)getAppName {
