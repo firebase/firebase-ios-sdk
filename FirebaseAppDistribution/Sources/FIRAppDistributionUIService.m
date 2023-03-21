@@ -228,6 +228,8 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                                 // UIService to Swift.
                                                                 [self resetUIState];
                                                               }];
+  
+  // TODO: Potentially move the check for the release version here.
   if (feedbackViewController != nil) {
     [self initializeUIState];
     [self.hostingViewController presentViewController:feedbackViewController
