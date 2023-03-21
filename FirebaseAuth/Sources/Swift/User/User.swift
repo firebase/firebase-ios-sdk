@@ -554,7 +554,29 @@ import Foundation
    */
   @objc public func link(withCredential credential: AuthCredential,
                          completion: ((AuthDataResult?, Error?) -> Void)?) {
-
+    kAuthGlobalWorkQueue.async {
+      if self.providerData[credential.provider] != nil {
+        User.callInMainThreadWithAuthDataResultAndError(
+          callback: completion,
+                                              result: nil,
+                                    error: AuthErrorUtils.providerAlreadyLinkedError())
+        return
+      }
+      if let emailCredential = credential as? EmailAuthCredential {
+        self.link(withEmailCredential: emailCredential, completion: completion)
+        return
+      }
+      if let gameCenterCredential = credential as? GameCenterAuthCredential {
+        self.link(withGameCenterCredential: gameCenterCredential, completion: completion)
+        return
+      }
+      #if os(iOS)
+      if let phoneCredential = credential as? PhoneAuthCredential {
+        self.link(withPhoneCredential: phoneCredential, completion: completion)
+        return
+      }
+      #endif
+    }
   }
 
   /** @fn linkWithCredential:
@@ -1109,6 +1131,155 @@ public func link(withProvider provider: FederatedAuthProvider,
     }
   }
   #endif
+
+  private func link(withEmailCredential emailCredential: EmailAuthCredential,
+                         completion: ((AuthDataResult?, Error?) -> Void)?) {
+    if let password = emailCredential.password {
+      self.updateEmail(email: emailCredential.email, password: password) { error in
+        if let error {
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                          result: nil,
+                                                          error: error)
+        } else {
+          let result = AuthDataResult(withUser: self, additionalUserInfo: nil)
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                          result: result,
+                                                          error: nil)
+        }
+      }
+    } else {
+      self.internalGetToken() { accessToken, error in
+        guard let link = emailCredential.link else {
+          fatalError("Internal Auth Error: link is not an email Credential as expected.")
+        }
+        var queryItems = AuthWebUtils.parseURL(link)
+        if link.count == 0 {
+          if let urlComponents = URLComponents.init(string: link),
+             let query = urlComponents.query {
+            queryItems = AuthWebUtils.parseURL(query)
+          }
+        }
+        guard let actionCode = queryItems["oobCode"],
+              let requestConfiguration = self.auth?.requestConfiguration else {
+          fatalError("Internal Auth Error: Missing oobCode or requestConfiguration")
+        }
+        let request = EmailLinkSignInRequest(email: emailCredential.email,
+                                             oobCode: actionCode,
+                                             requestConfiguration: requestConfiguration)
+        request.idToken = accessToken
+        AuthBackend.post(withRequest: request) { rawResponse, error in
+          if let error {
+            User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                            result: nil,
+                                                            error: error)
+            return
+          }
+          guard let response = rawResponse as? EmailLinkSignInResponse else {
+            fatalError("Internal Auth Error: response type is not an EmailLinkSignInResponse")
+          }
+          guard let idToken = response.idToken,
+                let refreshToken = response.refreshToken else {
+            fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+          }
+          self.updateTokenAndRefreshUser(idToken: idToken,
+                                         refreshToken: refreshToken,
+                                         accessToken: accessToken,
+                                         expirationDate: response.approximateExpirationDate,
+                                         requestConfiguration: requestConfiguration,
+                                         completion: completion)
+        }
+      }
+    }
+  }
+
+  private func link(withGameCenterCredential gameCenterCredential: GameCenterAuthCredential,
+                    completion: ((AuthDataResult?, Error?) -> Void)?) {
+    self.internalGetToken() { accessToken, error in
+      guard let requestConfiguration = self.auth?.requestConfiguration,
+      let publicKeyURL = gameCenterCredential.publicKeyURL,
+      let signature = gameCenterCredential.signature,
+      let salt = gameCenterCredential.salt else {
+        fatalError("Internal Auth Error: Nil value field for SignInWithGameCenterRequest")
+      }
+      let request = SignInWithGameCenterRequest(playerID: gameCenterCredential.playerID,
+                                                teamPlayerID: gameCenterCredential.teamPlayerID,
+                                                gamePlayerID: gameCenterCredential.gamePlayerID,
+                                                publicKeyURL: publicKeyURL,
+                                                signature: signature,
+                                                salt: salt,
+                                                timestamp: gameCenterCredential.timestamp,
+                                                displayName: gameCenterCredential.displayName,
+                                                requestConfiguration: requestConfiguration)
+      request.accessToken = accessToken
+      AuthBackend.post(withRequest: request) { rawResponse, error in
+        if let error {
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                          result: nil,
+                                                          error: error)
+          return
+        }
+        guard let response = rawResponse as? SignInWithGameCenterResponse else {
+          fatalError("Internal Auth Error: response type is not an SignInWithGameCenterResponse")
+        }
+        guard let idToken = response.idToken,
+              let refreshToken = response.refreshToken else {
+          fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+        }
+        self.updateTokenAndRefreshUser(idToken: idToken,
+                                       refreshToken: refreshToken,
+                                       accessToken: accessToken,
+                                       expirationDate: response.approximateExpirationDate,
+                                       requestConfiguration: requestConfiguration,
+                                       completion: completion)
+      }
+    }
+  }
+
+  // Update the new token and refresh user info again.
+  private func updateTokenAndRefreshUser(idToken: String, refreshToken: String, accessToken: String?,
+                                         expirationDate: Date?,
+                                         requestConfiguration: AuthRequestConfiguration,
+                                         completion: ((AuthDataResult?, Error?) -> Void)?) {
+    self.tokenService = SecureTokenService(
+      withRequestConfiguration: requestConfiguration,
+      accessToken: idToken,
+      accessTokenExpirationDate: expirationDate,
+      refreshToken: refreshToken)
+    self.internalGetToken() { response, error in
+      if let error {
+        User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: nil,
+                                                        error: error)
+        return
+      }
+      guard let accessToken else {
+        fatalError("Internal Auth Error: nil access Token")
+      }
+      let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
+                                                        requestConfiguration: requestConfiguration)
+      AuthBackend.post(withRequest: getAccountInfoRequest) { rawResponse, error in
+        if let error {
+          self.signOutIfTokenIsInvalid(withError: error)
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                          result: nil, error: error)
+          return
+        }
+        guard let response = rawResponse as? GetAccountInfoResponse else {
+          fatalError("Internal Auth Error: response is not a GetAccountInfoResponse")
+        }
+        self.isAnonymous = false
+        self.update(withGetAccountInfoResponse: response)
+        if let error = self.updateKeychain() {
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: nil,
+                                                          error: error)
+          return
+        }
+        let result = AuthDataResult(withUser: self, additionalUserInfo: nil)
+        User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result,
+                                                        error: nil)
+      }
+    }
+  }
+
 
   /** @fn signOutIfTokenIsInvalidWithError:
       @brief Signs out this user if the user or the token is invalid.
