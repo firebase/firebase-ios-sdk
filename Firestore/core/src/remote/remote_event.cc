@@ -239,32 +239,43 @@ void WatchChangeAggregator::HandleExistenceFilter(
       if (current_size != expected_count) {
         // TODO(Mila): Use application status instead of a boolean in next PR.
         // Apply bloom filter to identify and mark removed documents.
-        bool bloom_filter_applied =
+        local::BloomFilterApplicationStatus status =
             ApplyBloomFilter(existence_filter, current_size);
-        if (!bloom_filter_applied) {
+        if (status != local::BloomFilterApplicationStatus::Success) {
           // If bloom filter application fails, we reset the mapping and
           // trigger re-run of the query.
           ResetTarget(target_id);
-          pending_target_resets_.insert(target_id);
+          const local::QueryPurpose purpose =
+              status == local::BloomFilterApplicationStatus::FalsePositive
+                  ? local::QueryPurpose::ExistenceFilterMismatchBloom
+                  : local::QueryPurpose::ExistenceFilterMismatch;
+          pending_target_resets_.insert({target_id, purpose});
         }
       }
     }
   }
 }
 
-bool WatchChangeAggregator::ApplyBloomFilter(
+local::BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
     const ExistenceFilterWatchChange& existence_filter, int current_count) {
   const absl::optional<BloomFilter>& bloom_filter =
       existence_filter.filter().bloom_filter();
   if (!bloom_filter.has_value()) {
-    return false;
+    return local::BloomFilterApplicationStatus::Skipped;
+  }
+
+  if (bloom_filter.value().bit_count() == 0) {
+    return local::BloomFilterApplicationStatus::Skipped;
   }
 
   int removed_document_count = FilterRemovedDocuments(
       bloom_filter.value(), existence_filter.target_id());
 
   int expected_count = existence_filter.filter().count();
-  return expected_count == (current_count - removed_document_count);
+  if (expected_count != (current_count - removed_document_count)) {
+    return local::BloomFilterApplicationStatus::FalsePositive;
+  }
+  return local::BloomFilterApplicationStatus::Success;
 }
 
 int WatchChangeAggregator::FilterRemovedDocuments(

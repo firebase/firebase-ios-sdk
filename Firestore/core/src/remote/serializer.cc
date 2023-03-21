@@ -1277,6 +1277,8 @@ std::string Serializer::EncodeLabel(QueryPurpose purpose) const {
       return "";
     case QueryPurpose::ExistenceFilterMismatch:
       return "existence-filter-mismatch";
+    case QueryPurpose::ExistenceFilterMismatchBloom:
+      return "existence-filter-mismatch-bloom";
     case QueryPurpose::LimboResolution:
       return "limbo-document";
   }
