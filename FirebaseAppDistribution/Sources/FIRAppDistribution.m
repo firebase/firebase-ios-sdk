@@ -176,9 +176,6 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
             completion([self mapFetchReleasesError:error]);
             return;
           }
-
-          [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
-          completion(nil);
     
           // TODO: Move this to the singleton initialization of InAppFeedback.Swift
           [FIRFADApiServiceSwift
@@ -191,6 +188,9 @@ NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
                                    }
                                    [[GULUserDefaults standardUserDefaults] setObject:releaseName forKey:kFIRFADReleaseNameKey];
           }];
+
+          [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
+          completion(nil);
         }];
 }
 
