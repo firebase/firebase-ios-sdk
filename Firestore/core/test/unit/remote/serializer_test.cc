@@ -1801,7 +1801,8 @@ TEST_F(SerializerTest,
   bloom_filter->mutable_bits()->set_padding(7);
   bloom_filter->mutable_bits()->set_bitmap("\x42\xFE");
 
-  SCOPED_TRACE("DecodesListenResponseWithExistenceFilter");
+  SCOPED_TRACE(
+      "DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull");
   ExpectDeserializationRoundTrip(model, proto);
 }
 

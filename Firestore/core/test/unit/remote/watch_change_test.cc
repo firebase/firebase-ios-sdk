@@ -45,6 +45,7 @@ TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
     ExistenceFilter filter{7, /*bloom_filter=*/absl::nullopt};
     ExistenceFilterWatchChange change{filter, 5};
     EXPECT_EQ(change.filter().count(), 7);
+    EXPECT_EQ(change.filter().bloom_filter(), absl::nullopt);
     EXPECT_EQ(change.target_id(), 5);
   }
   {

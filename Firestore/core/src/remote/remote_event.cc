@@ -269,7 +269,7 @@ bool WatchChangeAggregator::ApplyBloomFilter(
 
 int WatchChangeAggregator::FilterRemovedDocuments(
     const BloomFilter& bloom_filter, int target_id) {
-  const DocumentKeySet& existing_keys =
+  const DocumentKeySet existing_keys =
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
   int removalCount = 0;
   for (const DocumentKey& key : existing_keys) {

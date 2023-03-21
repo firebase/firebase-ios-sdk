@@ -682,6 +682,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
+auto sortDocumentViewChange = [](std::vector<DocumentViewChange> &changes) {
+  std::sort(changes.begin(), changes.end(),
+            [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
+              return lhs.document()->key() < rhs.document()->key();
+            });
+};
+
 - (void)validateEvent:(FSTQueryEvent *)actual matches:(NSDictionary *)expected {
   Query expectedQuery = [self parseQuery:expected[@"query"]];
   XCTAssertEqual(actual.query, expectedQuery);
@@ -714,17 +721,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
 
     std::vector<DocumentViewChange> expectedChangesSorted = expectedChanges;
-    std::sort(expectedChangesSorted.begin(), expectedChangesSorted.end(),
-              [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
-                return lhs.document()->key() < rhs.document()->key();
-              });
+    sortDocumentViewChange(expectedChangesSorted);
 
     std::vector<DocumentViewChange> actualChangesSorted =
         actual.viewSnapshot.value().document_changes();
-    std::sort(actualChangesSorted.begin(), actualChangesSorted.end(),
-              [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
-                return lhs.document()->key() < rhs.document()->key();
-              });
+    sortDocumentViewChange(actualChangesSorted);
 
     for (size_t i = 0; i != expectedChangesSorted.size(); ++i) {
       XCTAssertTrue((actualChangesSorted[i] == expectedChangesSorted[i]));
@@ -954,7 +955,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
     if (targetData.expected_count().has_value()) {
       if (!actual.expected_count().has_value()) {
-        XCTFail("Actual target data doesn't have an expected_count.");
+        XCTFail(@"Actual target data doesn't have an expected_count.");
       } else {
         XCTAssertEqual(actual.expected_count().value(), targetData.expected_count().value());
       }
