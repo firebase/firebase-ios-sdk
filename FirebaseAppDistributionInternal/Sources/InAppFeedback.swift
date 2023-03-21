@@ -15,7 +15,8 @@
 import Foundation
 import UIKit
 import Photos
-import GoogleUtilities
+
+import GoogleUtilities.GULUserDefaults
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(
