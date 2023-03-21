@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoTOTPInfo.h"
-
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoMFAEnrollment : NSObject <FIRAuthProto>
+@implementation FIRAuthProtoStartMFATOTPEnrollmentResponseInfo
 
-@property(nonatomic, copy, readonly, nullable) NSString *phoneInfo;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoTOTPInfo  *TOPTPInfo;
-@property(nonatomic, copy, readonly, nullable) id MFAValue;
-
-@property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
-
-@property(nonatomic, copy, readonly, nullable) NSString *displayName;
-
-@property(nonatomic, copy, readonly, nullable) NSDate *enrolledAt;
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+  self = [super init];
+  if (self) {
+    _sharedSecretKey = [dictionary[@"sharedSecretKey"] copy];
+    _verificationCodeLength = [dictionary[@"verificationCodeLength"] copy];
+    _hashingAlgorithm = [dictionary[@"hashingAlgorithm"] copy];
+    _periodSec = [dictionary[@"periodSec"] copy];
+    _sessionInfo = [dictionary[@"sessionInfo"] copy];
+  }
+  return self;
+}
 
 @end
 

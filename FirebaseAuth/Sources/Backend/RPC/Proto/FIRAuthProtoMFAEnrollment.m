@@ -24,7 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     if (dictionary[@"phoneInfo"]) {
-      _phoneInfo = dictionary[@"phoneInfo"];
+      _MFAValue = dictionary[@"phoneInfo"];
+    } else if ([dictionary[@"TOTPInfo"] isKindOfClass:[FIRAuthProtoTOTPInfo class]]) {
+      _MFAValue = dictionary[@"TOTPInfo"];
     }
     _MFAEnrollmentID = dictionary[@"mfaEnrollmentId"];
     _displayName = dictionary[@"displayName"];

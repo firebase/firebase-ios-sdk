@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,13 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
 @property(nonatomic, copy, readonly, nullable) NSString *displayName;
-
-@property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoFinalizeMFAPhoneRequestInfo *verificationInfo;
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoFinalizeMFAPhoneRequestInfo *phoneVerificationInfo;
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *TOTPVerificationInfo;
+@property(nonatomic, copy, readonly, nullable) id verificationInfo;
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
-                        verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
+                   phoneVerificationInfo: (FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
+                    TOTPVerificationInfo: (FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)TOTPVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end

@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRFinalizeMFAEnrollmentResponse.h"
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoFinalizeMFAPhoneResponseInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo.h"
 
 @implementation FIRFinalizeMFAEnrollmentResponse
 
@@ -24,6 +25,13 @@
                     error:(NSError *__autoreleasing _Nullable *_Nullable)error {
   _IDToken = [dictionary[@"idToken"] copy];
   _refreshToken = [dictionary[@"refreshToken"] copy];
+  if(dictionary[@"phoneAuthInfo"] != nil) {
+    NSDictionary* data = dictionary[@"phoneAuthInfo"];
+    _auxiliaryAuthInfo = [[FIRAuthProtoFinalizeMFAPhoneResponseInfo alloc] initWithDictionary:data];
+  } else if(dictionary[@"TOTPAuthInfo"] != nil) {
+    NSDictionary* data = dictionary[@"TOTPAuthInfo"];
+    _auxiliaryAuthInfo = [[FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
+  }
   return YES;
 }
 

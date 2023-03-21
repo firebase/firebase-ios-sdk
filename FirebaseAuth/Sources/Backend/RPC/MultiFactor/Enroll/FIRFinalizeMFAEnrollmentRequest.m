@@ -27,7 +27,8 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
-                        verificationInfo:(FIRAuthProtoFinalizeMFAPhoneRequestInfo *)verificationInfo
+                     phoneVerificationInfo:(nonnull FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
+                      TOTPVerificationInfo:(nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)TOTPVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -36,7 +37,12 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (self) {
     _IDToken = IDToken;
     _displayName = displayName;
-    _verificationInfo = verificationInfo;
+      if (phoneVerificationInfo) {
+          _verificationInfo = phoneVerificationInfo;
+      }
+      if (TOTPVerificationInfo) {
+          _verificationInfo = TOTPVerificationInfo;
+      }
   }
   return self;
 }
@@ -51,7 +57,10 @@ static NSString *const kTenantIDKey = @"tenantId";
   }
   if (_verificationInfo) {
     if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFAPhoneRequestInfo class]]) {
-      postBody[@"phoneVerificationInfo"] = [_verificationInfo dictionary];
+      postBody[@"phoneVerificationInfo"] = [_phoneVerificationInfo dictionary];
+    }
+    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo class]]) {
+      postBody[@"TOTPVerificationInfo"] = [_TOTPVerificationInfo dictionary];
     }
   }
   if (self.tenantID) {
