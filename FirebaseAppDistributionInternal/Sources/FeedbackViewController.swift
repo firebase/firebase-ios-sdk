@@ -28,7 +28,7 @@ class FeedbackViewController: UIViewController, UITextViewDelegate {
   @IBOutlet var feedbackTextView: UITextView!
   @IBOutlet var navigationBar: UINavigationBar!
   @IBOutlet var scrollView: UIScrollView!
-  
+
   // MARK: - UIViewController
 
   override func viewDidLoad() {
@@ -55,11 +55,11 @@ class FeedbackViewController: UIViewController, UITextViewDelegate {
       self.image = nil
     }
   }
-  
+
   override func viewDidDisappear(_ animated: Bool) {
     viewDidDisappearCallback()
   }
-  
+
   // MARK: - Actions
 
   @IBAction func tappedSend(_ sender: Any) {
@@ -99,9 +99,9 @@ class FeedbackViewController: UIViewController, UITextViewDelegate {
   @IBAction func tappedCancel(_ sender: Any) {
     dismiss(animated: true)
   }
-  
+
   // MARK: - Utilties
-  
+
   private func commitFeedback(feedbackName: String) {
     ApiService.commitFeedback(feedbackName: feedbackName) { error in
       if error != nil {
