@@ -295,12 +295,13 @@ SFAuthenticationSession *_safariAuthenticationVC;
         if ([[FIRAppDistribution appDistribution] isTesterSignedIn]) {
           [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
         } else {
-          [[FIRAppDistribution appDistribution] signInTesterWithCompletion:^(NSError *_Nullable error) {
-            if (error) {
-              return;
-            }
-            [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
-          }];
+          [[FIRAppDistribution appDistribution]
+              signInTesterWithCompletion:^(NSError *_Nullable error) {
+                if (error) {
+                  return;
+                }
+                [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+              }];
         }
       });
     }];
