@@ -1,15 +1,12 @@
-## Steps to test with Firebase App Distribution Internal
+This library currently contains upcoming changes, and isn't meant to be used in production.
 
-In your test app, add the following dependencies.
+It exists in `master` for CI purposes.
 
-```
-  pod 'FirebaseAppDistribution', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'fad/in-app-feedback'
-  pod 'FirebaseAppDistributionInternal', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'fad/in-app-feedback'
-```
+## Steps to copy over changes in FirebaseAppDistributionInternal to master
 
-For local testing, you can use a local path:
+For CI builds, this pod needs to be in master. To copy over changes, do the following:
 
-```
-  pod 'FirebaseAppDistribution', :path => 'libraries/LocalPod/'
-  pod 'FirebaseAppDistributionInternal', :path => 'libraries/LocalPod/'
-```
+1. `git checkout -b fad/appdistributioninternal`
+1. `git checkout fad/in-app-feedback FirebaseAppDistributionInternal/`
+
+Then open a PR to merge these changes to master. This won't affect the public version of `FirebaseAppDistribution`.

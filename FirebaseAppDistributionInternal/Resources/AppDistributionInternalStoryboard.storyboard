@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_0" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -87,7 +87,7 @@
                             <constraint firstItem="B8f-p9-FeY" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="91" id="EFg-iZ-Jzz"/>
                             <constraint firstItem="5dc-R4-ELB" firstAttribute="trailing" secondItem="B8f-p9-FeY" secondAttribute="trailing" id="EwK-Jx-Hes"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dsI-rN-5aL" secondAttribute="trailing" constant="16" id="I52-Pj-PSq"/>
-                            <constraint firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Jvv-bL-zyF"/>
+                            <constraint firstItem="W0X-zt-uEG" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Jvv-bL-zyF"/>
                             <constraint firstAttribute="bottom" secondItem="5dc-R4-ELB" secondAttribute="bottom" constant="583" id="OBu-rX-tfb"/>
                             <constraint firstItem="Dia-oO-Nu0" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="UDB-uL-1PW"/>
                             <constraint firstItem="5dc-R4-ELB" firstAttribute="centerX" secondItem="dsI-rN-5aL" secondAttribute="centerX" id="Z7g-ss-vlW"/>
@@ -99,13 +99,12 @@
                             <constraint firstItem="dsI-rN-5aL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="vfI-nc-TeW"/>
                             <constraint firstItem="B8f-p9-FeY" firstAttribute="leading" secondItem="Dia-oO-Nu0" secondAttribute="leading" id="waP-fr-WQe"/>
                             <constraint firstItem="Dia-oO-Nu0" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="wg8-jh-o4A"/>
-                            <constraint firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="zZh-sJ-7Gx"/>
+                            <constraint firstItem="W0X-zt-uEG" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="zZh-sJ-7Gx"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="additionalFormTextLabel" destination="dmh-tx-P50" id="heh-EK-oEt"/>
+                        <outlet property="additionalInfoLabel" destination="dmh-tx-P50" id="AYi-ue-FXB"/>
                         <outlet property="feedbackTextView" destination="iNL-09-ZI6" id="Ur9-nn-jm4"/>
-                        <outlet property="navigationBar" destination="Dia-oO-Nu0" id="eVF-OS-PgH"/>
                         <outlet property="screenshotUIImageView" destination="dsI-rN-5aL" id="bRf-CH-E8Y"/>
                     </connections>
                 </viewController>
