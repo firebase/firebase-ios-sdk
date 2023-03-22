@@ -1213,7 +1213,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
     }
     createdDocuments = [createdDocumentsAccumulator copy];
   }
-  XCTAssertEqual(createdDocuments.count, 100, @"createdDocuments has the wrong size");
+  XCTAssertEqual(createdDocuments.count, 100u, @"createdDocuments has the wrong size");
 
   // Delete 50 of the 100 documents. Do this in a transaction, rather than
   // [FIRDocumentReference deleteDocument], to avoid affecting the local cache.
@@ -1237,7 +1237,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
     [self awaitExpectation:expectation];
     deletedDocumentIds = [NSSet setWithArray:deletedDocumentIdsAccumulator];
   }
-  XCTAssertEqual(deletedDocumentIds.count, 50, @"deletedDocumentIds has the wrong size");
+  XCTAssertEqual(deletedDocumentIds.count, 50u, @"deletedDocumentIds has the wrong size");
 
   // Wait for 10 seconds, during which Watch will stop tracking the query and will send an existence
   // filter rather than "delete" events when the query is resumed.
@@ -1277,10 +1277,11 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
           SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
       NSArray<NSString *> *missingDocumentIds =
           SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
-      XCTFail(@"The snapshot contained %@ documents (expected %@): %@ unexpected and %@ missing; "
+      XCTFail(@"The snapshot contained %lu documents (expected %lu): "
+              @"%lu unexpected and %lu missing; "
               @"unexpected documents: %@; missing documents: %@",
-              @(actualDocumentIds.count), @(expectedDocumentIds.count),
-              @(unexpectedDocumentIds.count), @(missingDocumentIds.count),
+              (unsigned long)actualDocumentIds.count, (unsigned long)expectedDocumentIds.count,
+              (unsigned long)unexpectedDocumentIds.count, (unsigned long)missingDocumentIds.count,
               [unexpectedDocumentIds componentsJoinedByString:@", "],
               [missingDocumentIds componentsJoinedByString:@", "]);
     }
