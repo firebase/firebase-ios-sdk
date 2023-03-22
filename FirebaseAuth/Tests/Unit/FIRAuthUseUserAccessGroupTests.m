@@ -24,7 +24,6 @@
 
 @interface FIRAuth (Test)
 @property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
-+ (NSString *)keychainServiceNameForAppName:(NSString *)appName;
 @end
 
 @interface UseUserAccessGroupTests : XCTestCase
@@ -39,7 +38,6 @@
 
 - (void)testUseUserAccessGroup {
   id classMock = OCMClassMock([FIRAuth class]);
-  OCMStub([classMock keychainServiceNameForAppName:OCMOCK_ANY]).andReturn(nil);
   FIRAuthStoredUserManager *myManager =
       [[FIRAuthStoredUserManager alloc] initWithServiceName:@"MyService"];
   [myManager setStoredUserAccessGroup:@"MyGroup" error:nil];
