@@ -105,6 +105,10 @@ class RemoteEventTest : public testing::Test {
       DocumentKeySet existing_keys,
       const std::vector<std::unique_ptr<WatchChange>>& watch_changes);
 
+  void OverrideDefaultDatabaseId(model::DatabaseId database_id) {
+    target_metadata_provider_.SetDatabaseId(database_id);
+  }
+
   ByteString resume_token1_;
   FakeTargetMetadataProvider target_metadata_provider_;
   std::unordered_map<TargetId, int> no_outstanding_responses_;
@@ -577,6 +581,7 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchWithBloomFilterSuccess) {
       target_map, no_outstanding_responses_,
       DocumentKeySet{doc1.key(), doc2.key()},
       Changes(std::move(change1), std::move(change2), std::move(change3)));
+  OverrideDefaultDatabaseId(model::DatabaseId("test-project", "test-database"));
 
   RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
 

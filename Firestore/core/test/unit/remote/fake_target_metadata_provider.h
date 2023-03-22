@@ -75,9 +75,18 @@ class FakeTargetMetadataProvider : public TargetMetadataProvider {
       model::TargetId target_id) const override;
   model::DatabaseId GetDatabaseId() const override;
 
+  /**
+   * Sets the database_id to a custom value, used for getting Document's full
+   * path.
+   */
+  void SetDatabaseId(model::DatabaseId database_id) {
+    database_id_ = database_id;
+  }
+
  private:
   std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;
   std::unordered_map<model::TargetId, local::TargetData> target_data_;
+  model::DatabaseId database_id_ = model::DatabaseId("p", "d");
 };
 
 }  // namespace remote
