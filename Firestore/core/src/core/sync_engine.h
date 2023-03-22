@@ -33,6 +33,7 @@
 #include "Firestore/core/src/core/target_id_generator.h"
 #include "Firestore/core/src/core/view.h"
 #include "Firestore/core/src/local/reference_set.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/random_access_queue.h"
@@ -143,6 +144,12 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
    */
   void RunCountQuery(const core::Query& query,
                      api::CountQueryCallback&& result_callback);
+
+  /**
+   * Executes an aggregation query.
+   */
+  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+                         api::AggregateQueryCallback&& result_callback);
 
   void HandleCredentialChange(const credentials::User& user);
 

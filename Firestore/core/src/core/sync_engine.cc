@@ -255,6 +255,11 @@ void SyncEngine::RunCountQuery(const core::Query& query,
   remote_store_->RunCountQuery(query, std::move(result_callback));
 }
 
+void SyncEngine::RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+                               api::AggregateQueryCallback&& result_callback) {
+  remote_store_->RunAggregateQuery(query, aggregates, std::move(result_callback));
+}
+
 void SyncEngine::HandleCredentialChange(const credentials::User& user) {
   bool user_changed = (current_user_ != user);
   current_user_ = user;

@@ -24,6 +24,7 @@
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/nanopb/message.h"
 
 namespace firebase {
@@ -195,7 +196,7 @@ class Query {
   /**
    * Creates a new `AggregateQuery` that performs the specified aggregates.
    */
-  AggregateQuery Aggregate() const;
+  AggregateQuery Aggregate(std::vector<model::AggregateField *> &&) const;
 
  private:
   void ValidateNewFilter(const core::Filter& filter) const;

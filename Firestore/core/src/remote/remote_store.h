@@ -23,6 +23,7 @@
 
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/types.h"
@@ -196,6 +197,9 @@ class RemoteStore : public TargetMetadataProvider,
 
   void RunCountQuery(const core::Query& query,
                      api::CountQueryCallback&& result_callback);
+
+  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+                     api::AggregateQueryCallback&& result_callback);
 
   void OnWatchStreamOpen() override;
   void OnWatchStreamChange(

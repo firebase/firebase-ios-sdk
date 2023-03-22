@@ -30,6 +30,7 @@ namespace api {
 class AggregateQuery {
  public:
   explicit AggregateQuery(Query query);
+  explicit AggregateQuery(Query query, std::vector<model::AggregateField *> &&aggregates);
 
   const Query& query() const {
     return query_;
@@ -37,8 +38,11 @@ class AggregateQuery {
 
   void Get(CountQueryCallback&& callback);
 
+  void Get(AggregateQueryCallback&& callback);
+
  private:
   Query query_;
+  std::vector<model::AggregateField *> aggregates_;
 };
 
 }  // namespace api

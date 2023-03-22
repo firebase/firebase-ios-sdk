@@ -28,6 +28,7 @@
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/model/database_id.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/byte_stream.h"
 #include "Firestore/core/src/util/delayed_constructor.h"
@@ -156,6 +157,12 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
    */
   void RunCountQuery(const Query& query,
                      api::CountQueryCallback&& result_callback);
+
+  /**
+   * Executes a count query using the given query as the base.
+   */
+  void RunAggregateQuery(const Query& query, const std::vector<model::AggregateField *> &aggregates,
+                         api::AggregateQueryCallback&& result_callback);
 
   /**
    * Adds a listener to be called when a snapshots-in-sync event fires.

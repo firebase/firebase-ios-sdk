@@ -477,12 +477,10 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (FIRAggregateQuery *)count {
   FIRAggregateField *countAF = [FIRAggregateField aggregateFieldForCount];
-  NSArray<FIRAggregateField *> *aggregations = @[ countAF ];
-  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:aggregations];
+  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:@[ countAF ]];
 }
 
 - (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations {
-  // TODO(sumavg) implement this method
   return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:aggregations];
 }
 

@@ -15,16 +15,29 @@
  */
 
 #import "FIRAggregateQuerySnapshot.h"
+#import "FIRDocumentSnapshot.h"
+
+#include "Firestore/core/src/api/api_fwd.h"
 
 @class FIRAggregateQuery;
+
+namespace api = firebase::firestore::api;
+namespace model = firebase::firestore::model;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAggregateQuerySnapshot (/* init */)
 
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithCount:(int64_t)result
+- (instancetype)initWithSnapshot:(api::DocumentSnapshot &&)snapshot
                         query:(FIRAggregateQuery *)query NS_DESIGNATED_INITIALIZER;
+
+@end
+
+/** Internal FIRDocumentSnapshot API we don't want exposed in our public header files. */
+@interface FIRAggregateQuerySnapshot (Internal)
+
+- (nullable id)valueForField:(id)field
+     serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 

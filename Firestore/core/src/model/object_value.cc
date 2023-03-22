@@ -221,6 +221,22 @@ ObjectValue ObjectValue::FromFieldsEntry(
   return ObjectValue{std::move(value)};
 }
 
+ObjectValue ObjectValue::FromAggregateFieldsEntry(
+    google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry, pb_size_t count) {
+  Message<google_firestore_v1_Value> value;
+  value->which_value_type = google_firestore_v1_Value_map_value_tag;
+  SetRepeatedField(
+      &value->map_value.fields, &value->map_value.fields_count,
+      absl::Span<google_firestore_v1_AggregationResult_AggregateFieldsEntry>(fields_entry, count),
+      [](const google_firestore_v1_AggregationResult_AggregateFieldsEntry& entry) {
+        return google_firestore_v1_MapValue_FieldsEntry{entry.key, entry.value};
+      });
+  // Prevent double-freeing of the document's fields. The fields are now owned
+  // by ObjectValue.
+  ReleaseFieldOwnership(fields_entry, count);
+  return ObjectValue{std::move(value)};
+}
+
 FieldMask ObjectValue::ToFieldMask() const {
   return ExtractFieldMask(value_->map_value);
 }

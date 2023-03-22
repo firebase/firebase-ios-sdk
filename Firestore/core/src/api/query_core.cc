@@ -33,6 +33,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/operator.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -57,6 +58,7 @@ using core::IsDisjunctiveOperator;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
+using model::AggregateField;
 using model::DocumentKey;
 using model::FieldPath;
 using model::GetTypeOrder;
@@ -486,7 +488,12 @@ std::string Query::Describe(Operator op) const {
 }
 
 AggregateQuery Query::Count() const {
+  // TODO(sum/avg) create aggregates array containing only count
   return AggregateQuery(*this);
+}
+
+AggregateQuery Query::Aggregate(std::vector<AggregateField *> && aggregates) const {
+  return AggregateQuery(*this, std::move(aggregates));
 }
 
 }  // namespace api

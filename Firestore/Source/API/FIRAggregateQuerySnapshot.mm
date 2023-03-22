@@ -17,17 +17,26 @@
 #import "FIRAggregateQuerySnapshot+Internal.h"
 
 #import "FIRAggregateQuery.h"
+#import "Firestore/Source/API/FSTUserDataWriter.h"
+
+#include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/api/document_snapshot.h"
+#include "Firestore/core/src/model/field_path.h"
+
+using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::api::DocumentSnapshot;
+using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAggregateQuerySnapshot {
-  int64_t _result;
+  DocumentSnapshot _snapshot;
   FIRAggregateQuery* _query;
 }
 
-- (instancetype)initWithCount:(int64_t)count query:(FIRAggregateQuery*)query {
+- (instancetype)initWithSnapshot:(api::DocumentSnapshot &&)snapshot query:(FIRAggregateQuery*)query {
   if (self = [super init]) {
-    _result = count;
+    _snapshot = std::move(snapshot);
     _query = query;
   }
   return self;
@@ -59,9 +68,26 @@ NS_ASSUME_NONNULL_BEGIN
   return _query;
 }
 
-- (nullable id)valueForAggregation:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:)) {
+- (nullable id)valueForAggregationX:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:)) {
   // TODO(sumavg) implement this method
-  return [NSNumber numberWithDouble:100.5];
+  aggregation.
+        return [NSNumber numberWithDouble:100.5];
+}
+
+
+- (nullable id)valueForAggregation:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:)) {
+  return [self valueForAggregation:aggregation serverTimestampBehavior:FIRServerTimestampBehaviorNone];
+}
+
+- (nullable id)valueForAggregation:(FIRAggregateField*)aggregation
+           serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
+
+  absl::optional<google_firestore_v1_Value> fieldValue = _snapshot.GetValue(aggregation);
+  if (!fieldValue) return nil;
+  FSTUserDataWriter *dataWriter =
+      [[FSTUserDataWriter alloc] initWithFirestore:_snapshot.firestore()
+                           serverTimestampBehavior:serverTimestampBehavior];
+  return [dataWriter convertedValue:*fieldValue];
 }
 
 @end

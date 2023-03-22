@@ -67,7 +67,10 @@ class ObjectValue {
   static ObjectValue FromFieldsEntry(
       google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count);
 
-  /** Recursively extracts the FieldPaths that are set in this ObjectValue. */
+  static ObjectValue FromAggregateFieldsEntry(
+      google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry, pb_size_t count);
+
+      /** Recursively extracts the FieldPaths that are set in this ObjectValue. */
   FieldMask ToFieldMask() const;
 
   /**

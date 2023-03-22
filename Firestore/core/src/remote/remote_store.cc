@@ -375,6 +375,16 @@ void RemoteStore::RunCountQuery(const core::Query& query,
   }
 }
 
+void RemoteStore::RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+                                api::AggregateQueryCallback&& result_callback) {
+  if (CanUseNetwork()) {
+    datastore_->RunAggregateQuery(query, aggregates, std::move(result_callback));
+  } else {
+    result_callback(Status::FromErrno(Error::kErrorUnavailable,
+                                      "Failed to get result from server."));
+  }
+}
+
 // Write Stream
 
 void RemoteStore::FillWritePipeline() {

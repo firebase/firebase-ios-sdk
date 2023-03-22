@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
  * Specifies the field that is aggregated.
  */
 @property(nonatomic, strong, readonly) FIRFieldPath *fieldPath;
+
 @end
 
 /**

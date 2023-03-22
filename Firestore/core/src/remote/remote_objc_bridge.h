@@ -24,6 +24,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -136,7 +137,13 @@ class DatastoreSerializer {
   nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
   EncodeCountQueryRequest(const core::Query& query) const;
 
+  nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
+  EncodeAggregateQueryRequest(const core::Query& query, const std::vector<model::AggregateField *> &aggregates) const;
+
   util::StatusOr<int64_t> DecodeCountQueryResponse(
+      const grpc::ByteBuffer& response) const;
+
+  util::StatusOr<model::ObjectValue> DecodeAggregateQueryResponse(
       const grpc::ByteBuffer& response) const;
 
   const Serializer& serializer() const {

@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
+#import <string>
+
 #import "FIRAggregateQuery+Internal.h"
 
 #import "FIRAggregateField+Internal.h"
 #import "FIRAggregateQuerySnapshot+Internal.h"
 #import "FIRQuery+Internal.h"
+#import "FIRFieldPath+Internal.h"
 
 #include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAggregateQuery {
   FIRQuery *_query;
+  NSArray<FIRAggregateField *> *_aggregations;
+  std::vector<model::AggregateField *> _aggregateFields;
   std::unique_ptr<api::AggregateQuery> _aggregation;
 }
 
@@ -38,6 +44,21 @@ NS_ASSUME_NONNULL_BEGIN
                                 aggregations:(NSArray<FIRAggregateField *> *)aggregations {
   if (self = [super init]) {
     _query = query;
+
+    for (FIRAggregateField *firField in aggregations) {
+      if ([firField isKindOfClass:[FSTSumAggregateField class]]) {
+        auto fieldPath = firField.fieldPath.internalValue;
+        _aggregateFields.push_back(std::unique_ptr<model::SumAggregateField>(model::AggregateAlias(std::string{"TODO"s}), fieldPath));
+      } else if ([firField isKindOfClass:[FSTAverageAggregateField class]]) {
+        auto fieldPath = firField.fieldPath.internalValue;
+        _aggregateFields.push_back(std::unique_ptr<model::AverageAggregateField>(model::AggregateAlias(std::string{"TODO"s}), fieldPath));
+      } else if ([firField isKindOfClass:[FSTCountAggregateField class]]) {
+        _aggregateFields.push_back(std::unique_ptr<model::CountAggregateField>(model::AggregateAlias(std::string{"TODO"s})));
+      } else {
+        // todo fail
+      }
+    }
+
     _aggregation = absl::make_unique<api::AggregateQuery>(query.apiQuery.Count());
   }
   return self;
@@ -66,6 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)aggregationWithSource:(FIRAggregateSource)source
                    completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                         NSError *_Nullable error))completion {
+
   _aggregation->Get([self, completion](const firebase::firestore::util::StatusOr<int64_t> &result) {
     if (result.ok()) {
       completion([[FIRAggregateQuerySnapshot alloc] initWithCount:result.ValueOrDie() query:self],

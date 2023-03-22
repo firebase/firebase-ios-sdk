@@ -27,8 +27,7 @@ public extension AggregateQuerySnapshot {
     /// - Returns: Returns the aggregation result coerced to a `Double`.
     /// - Throws: 'Error' if the value is non-numeric and cannot be coerced to a `Double`.
     /// - Throws: InvalidArgument exception if the aggregation was not requested in the `AggregateQuery`. This is unrecoverable.
-    func getDouble(_ aggregation: AggregateField) throws -> Double {
-        // TODO(sumavg) implement
+    func getDouble(aggregation: AggregateField) throws -> Double {
         guard let number = self.get(aggregation) as? NSNumber else {
             throw FirestoreError.incompatibleType("Unable to represent the result as a Double.")
         }
@@ -45,8 +44,7 @@ public extension AggregateQuerySnapshot {
     /// - Returns: Returns the aggregation result coerced to an `Int64`.
     /// - Throws: 'Error' if the value is non-numeric and cannot be coerced to an `Int64`.
     /// - Throws: InvalidArgument exception if the aggregation was not requested in the `AggregateQuery`. This is unrecoverable.
-    func getLong(_ aggregation: AggregateField) throws -> Int64 {
-        // TODO(sumavg) implement
+    func getLong(aggregation: AggregateField) throws -> Int64 {
         guard let number = self.get(aggregation) as? NSNumber else {
             throw FirestoreError.incompatibleType("Unable to represent the result as an Int64.")
         }

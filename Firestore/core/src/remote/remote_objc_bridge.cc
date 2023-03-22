@@ -20,6 +20,7 @@
 
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
@@ -34,6 +35,8 @@
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "grpcpp/support/status.h"
+
+#include "absl/container/flat_hash_map.h"
 
 namespace firebase {
 namespace firestore {
@@ -308,6 +311,81 @@ util::StatusOr<int64_t> DatastoreSerializer::DecodeCountQueryResponse(
   HARD_ASSERT(message->result.aggregate_fields[0].value.which_value_type ==
               google_firestore_v1_Value_integer_value_tag);
   return message->result.aggregate_fields[0].value.integer_value;
+}
+
+// TODO(sum/avg) implement
+nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
+DatastoreSerializer::EncodeAggregateQueryRequest(const core::Query& query, const std::vector<model::AggregateField *> &aggregates) const {
+  Message<google_firestore_v1_RunAggregationQueryRequest> result;
+  auto encodedTarget = serializer_.EncodeQueryTarget(query.ToTarget());
+  result->parent = encodedTarget.parent;
+  result->which_query_type =
+      google_firestore_v1_RunAggregationQueryRequest_structured_aggregation_query_tag;  // NOLINT
+
+  result->query_type.structured_aggregation_query.which_query_type =
+      google_firestore_v1_StructuredAggregationQuery_structured_query_tag;
+  result->query_type.structured_aggregation_query.structured_query =
+      encodedTarget.structured_query;
+
+  absl::flat_hash_map<std::string, model::AggregateField *> uniqueAggregates;
+  for (auto aggregate : aggregates) {
+    auto pair = std::pair<std::string, model::AggregateField *>(aggregate->alias.CanonicalString(), aggregate);
+    uniqueAggregates.insert(pair);
+  }
+
+  auto count = uniqueAggregates.size();
+  result->query_type.structured_aggregation_query.aggregations_count = count;
+  result->query_type.structured_aggregation_query.aggregations =
+      MakeArray<_google_firestore_v1_StructuredAggregationQuery_Aggregation>(count);
+
+  size_t i = 0;
+  for (auto aggregatePair : uniqueAggregates) {
+    result->query_type.structured_aggregation_query.aggregations[i].alias =
+        nanopb::MakeBytesArray(aggregatePair.first);
+
+    if (typeid(aggregatePair.second) == typeid(model::CountAggregateField)) {
+      result->query_type.structured_aggregation_query.aggregations[i]
+          .which_operator =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
+      result->query_type.structured_aggregation_query.aggregations[i].count =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
+    } else if (typeid(aggregatePair.second) == typeid(model::SumAggregateField)) {
+      // TODO(sum/avg) implement with protos
+      result->query_type.structured_aggregation_query.aggregations[i]
+          .which_operator =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
+      result->query_type.structured_aggregation_query.aggregations[i].count =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
+    } else if (typeid(aggregatePair.second) == typeid(model::SumAggregateField)) {
+      // TODO(sum/avg) implement with protos
+      result->query_type.structured_aggregation_query.aggregations[i]
+          .which_operator =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
+      result->query_type.structured_aggregation_query.aggregations[i].count =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
+    }
+
+    ++i;
+  }
+
+
+  return result;
+}
+
+util::StatusOr<model::ObjectValue> DatastoreSerializer::DecodeAggregateQueryResponse(
+    const grpc::ByteBuffer& response) const {
+  ByteBufferReader reader{response};
+  auto message =
+      Message<google_firestore_v1_RunAggregationQueryResponse>::TryParse(
+          &reader);
+  if (!reader.ok()) {
+    return reader.status();
+  }
+
+  // TODO(sum/avg) what happens if a caller requests 0 aggregate fields, this should not crash
+  HARD_ASSERT(!!message->result.aggregate_fields);
+
+  return model::ObjectValue::FromAggregateFieldsEntry(message->result.aggregate_fields, message->result.aggregate_fields_count);
 }
 
 }  // namespace remote

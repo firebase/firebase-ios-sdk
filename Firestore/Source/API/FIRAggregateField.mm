@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRAggregateField.h"
 #import "FIRAggregateField+Internal.h"
 #import "FIRFieldPath+Internal.h"
 
@@ -23,9 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAggregateField
 
-- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPathx {
+- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath{
   if (self = [super init]) {
-    _fieldPath = fieldPathx;
+    _fieldPath = fieldPath;
   }
   return self;
 }
@@ -40,7 +41,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)aggregateFieldForSumOfField:(NSString *)field NS_SWIFT_NAME(sum(_:)) {
   FIRFieldPath *fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
-  return [[FSTSumAggregateField alloc] initWithFieldPath:fieldPath];
+  FSTSumAggregateField *af = [[FSTSumAggregateField alloc] initWithFieldPath:fieldPath];
+  //af.fieldNam = field;
+  return af;
 }
 
 + (instancetype)aggregateFieldForSumOfFieldPath:(FIRFieldPath *)fieldPath NS_SWIFT_NAME(sum(_:)) {
@@ -49,7 +52,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)aggregateFieldForAverageOfField:(NSString *)field NS_SWIFT_NAME(average(_:)) {
   FIRFieldPath *fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
-  return [[FSTAverageAggregateField alloc] initWithFieldPath:fieldPath];
+  FSTAverageAggregateField *af = [[FSTAverageAggregateField alloc] initWithFieldPath:fieldPath];
+  //af.fieldNam = field;
+  return af;
 }
 
 + (instancetype)aggregateFieldForAverageOfFieldPath:(FIRFieldPath *)fieldPath
