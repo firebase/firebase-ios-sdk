@@ -106,7 +106,7 @@ class RemoteEventTest : public testing::Test {
       const std::vector<std::unique_ptr<WatchChange>>& watch_changes);
 
   void OverrideDefaultDatabaseId(model::DatabaseId database_id) {
-    target_metadata_provider_.SetDatabaseId(database_id);
+    target_metadata_provider_.SetDatabaseId(std::move(database_id));
   }
 
   ByteString resume_token1_;
@@ -581,6 +581,12 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchWithBloomFilterSuccess) {
       target_map, no_outstanding_responses_,
       DocumentKeySet{doc1.key(), doc2.key()},
       Changes(std::move(change1), std::move(change2), std::move(change3)));
+
+  // The BloomFilterParameters value below is created based on the document
+  // paths that are constructed using the following pattern:
+  // "projects/test-project/databases/test-database/documents/"+document_key.
+  // Override the database ID to ensure that the document path matches the
+  // pattern above.
   OverrideDefaultDatabaseId(model::DatabaseId("test-project", "test-database"));
 
   RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
@@ -604,7 +610,7 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchWithBloomFilterSuccess) {
   // The given BloomFilter will return false on MightContain(doc1) and true on
   // MightContain(doc2).
   ExistenceFilterWatchChange change4{
-      ExistenceFilter{1, BloomFilterParameter{{0x0E, 0x0F}, 1, 7}}, 1};
+      ExistenceFilter{1, BloomFilterParameters{{0x0E, 0x0F}, 1, 7}}, 1};
   // The existence filter identifies that doc1 is deleted, and skips the full
   // re-query.
   aggregator.HandleExistenceFilter(change4);
@@ -653,7 +659,7 @@ TEST_F(RemoteEventTest,
   // The given BloomFilter will return true on both MightContain(doc1) and
   // MightContain(doc2).
   ExistenceFilterWatchChange change4{
-      ExistenceFilter{1, BloomFilterParameter{{0x42, 0xFE}, 2, 7}}, 1};
+      ExistenceFilter{1, BloomFilterParameters{{0x42, 0xFE}, 2, 7}}, 1};
   // The existence filter cannot identify which doc is deleted. It will remove
   // the document from target 1, but not synthesize a document delete.
   aggregator.HandleExistenceFilter(change4);

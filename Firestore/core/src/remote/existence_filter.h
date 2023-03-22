@@ -26,16 +26,16 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
-struct BloomFilterParameter {
+struct BloomFilterParameters {
   std::vector<uint8_t> bitmap;
   int32_t padding;
   int32_t hash_count;
 };
 
-inline bool operator==(const BloomFilterParameter& lhs,
-                       const BloomFilterParameter& rhs) {
+inline bool operator==(const BloomFilterParameters& lhs,
+                       const BloomFilterParameters& rhs) {
   return lhs.padding == rhs.padding && lhs.hash_count == rhs.hash_count &&
-         std::equal(lhs.bitmap.begin(), lhs.bitmap.end(), rhs.bitmap.begin());
+         lhs.bitmap == rhs.bitmap;
 }
 
 class ExistenceFilter {
@@ -43,7 +43,7 @@ class ExistenceFilter {
   ExistenceFilter() = default;
 
   ExistenceFilter(int count,
-                  absl::optional<BloomFilterParameter> bloom_filter_parameter)
+                  absl::optional<BloomFilterParameters> bloom_filter_parameter)
       : count_{count},
         bloom_filter_parameter_{std::move(bloom_filter_parameter)} {
   }
@@ -52,13 +52,13 @@ class ExistenceFilter {
     return count_;
   }
 
-  const absl::optional<BloomFilterParameter>& bloom_filter_parameter() const {
+  const absl::optional<BloomFilterParameters>& bloom_filter_parameter() const {
     return bloom_filter_parameter_;
   }
 
  private:
   int count_ = 0;
-  absl::optional<BloomFilterParameter> bloom_filter_parameter_;
+  absl::optional<BloomFilterParameters> bloom_filter_parameter_;
 };
 
 inline bool operator==(const ExistenceFilter& lhs, const ExistenceFilter& rhs) {

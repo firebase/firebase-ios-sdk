@@ -49,11 +49,12 @@ TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
     EXPECT_EQ(change.target_id(), 5);
   }
   {
-    BloomFilterParameter bloom_filter_parameter{{0x42, 0xFE}, 7, 33};
-    ExistenceFilter filter{7, bloom_filter_parameter};
+    BloomFilterParameters bloom_filter_parameters{{0x42, 0xFE}, 7, 33};
+    ExistenceFilter filter{7, bloom_filter_parameters};
     ExistenceFilterWatchChange change{std::move(filter), 5};
     EXPECT_EQ(change.filter().count(), 7);
-    EXPECT_EQ(change.filter().bloom_filter_parameter(), bloom_filter_parameter);
+    EXPECT_EQ(change.filter().bloom_filter_parameter(),
+              bloom_filter_parameters);
     EXPECT_EQ(change.target_id(), 5);
   }
 }

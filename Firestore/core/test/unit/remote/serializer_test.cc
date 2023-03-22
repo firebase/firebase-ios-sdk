@@ -1789,7 +1789,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
 TEST_F(SerializerTest,
        DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
   ExistenceFilterWatchChange model(
-      ExistenceFilter(555, BloomFilterParameter{{0x42, 0xFE}, 7, 33}), 999);
+      ExistenceFilter(555, BloomFilterParameters{{0x42, 0xFE}, 7, 33}), 999);
 
   v1::ListenResponse proto;
   proto.mutable_filter()->set_count(555);

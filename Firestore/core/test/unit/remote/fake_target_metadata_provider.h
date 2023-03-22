@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_TEST_UNIT_REMOTE_FAKE_TARGET_METADATA_PROVIDER_H_
 
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "Firestore/core/src/local/target_data.h"
@@ -80,13 +81,14 @@ class FakeTargetMetadataProvider : public TargetMetadataProvider {
    * path.
    */
   void SetDatabaseId(model::DatabaseId database_id) {
-    database_id_ = database_id;
+    database_id_ = std::move(database_id);
   }
 
  private:
   std::unordered_map<model::TargetId, model::DocumentKeySet> synced_keys_;
   std::unordered_map<model::TargetId, local::TargetData> target_data_;
-  model::DatabaseId database_id_ = model::DatabaseId("p", "d");
+  model::DatabaseId database_id_ =
+      model::DatabaseId("test-project", "(default)");
 };
 
 }  // namespace remote

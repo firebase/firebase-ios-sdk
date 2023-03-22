@@ -255,7 +255,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
 bool WatchChangeAggregator::ApplyBloomFilter(
     const ExistenceFilterWatchChange& existence_filter, int current_count) {
-  const absl::optional<BloomFilterParameter>& bloom_filter_parameter =
+  const absl::optional<BloomFilterParameters>& bloom_filter_parameter =
       existence_filter.filter().bloom_filter_parameter();
   if (!bloom_filter_parameter.has_value()) {
     return false;
@@ -272,7 +272,7 @@ bool WatchChangeAggregator::ApplyBloomFilter(
   }
 
   int removed_document_count = FilterRemovedDocuments(
-      std::move(maybe_bloom_filter).ValueOrDie(), existence_filter.target_id());
+      maybe_bloom_filter.ValueOrDie(), existence_filter.target_id());
 
   int expected_count = existence_filter.filter().count();
   return expected_count == (current_count - removed_document_count);

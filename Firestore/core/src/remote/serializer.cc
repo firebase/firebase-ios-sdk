@@ -1462,10 +1462,13 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
     padding = filter.unchanged_names.bits.padding;
 
     pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.bits.bitmap;
-    bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
-                                  bitmap_ptr->bytes + bitmap_ptr->size);
+    if (bitmap_ptr != nullptr) {
+      bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
+                                    bitmap_ptr->bytes + bitmap_ptr->size);
+    }
   }
-  return {filter.count, BloomFilterParameter{bitmap, padding, hash_count}};
+  return {filter.count,
+          BloomFilterParameters{std::move(bitmap), padding, hash_count}};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {
