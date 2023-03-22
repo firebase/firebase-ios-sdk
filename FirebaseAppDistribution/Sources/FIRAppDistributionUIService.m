@@ -306,9 +306,9 @@ SFAuthenticationSession *_safariAuthenticationVC;
             dispatch_async(dispatch_get_main_queue(), ^{
               [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
             });
-              }];
+          }];
         }
-    }];
+      }];
   });
 }
 
