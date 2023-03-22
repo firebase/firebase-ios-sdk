@@ -22,6 +22,16 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+namespace {
+
+NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *> *remove) {
+  NSMutableSet<NSString *> *mutableSet = [NSMutableSet setWithSet:set];
+  [mutableSet minusSet:remove];
+  return [mutableSet.allObjects sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+}
+
+}  // namespace
+
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
 
@@ -1178,6 +1188,103 @@
                                                                                  in:@[ @2, @3 ]]]
                                        queryOrderedByField:@"a"]
                      matchesResult:@[ @"doc6", @"doc3" ]];
+}
+
+- (void)testResumingAQueryShouldUseExistenceFilterToDetectDeletes {
+  // Prepare the names and contents of the 100 documents to create.
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testData =
+      [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < 100; i++) {
+    [testData setValue:@{@"key" : @42} forKey:[NSString stringWithFormat:@"doc%@", @(i)]];
+  }
+
+  // Create 100 documents in a new collection.
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:testData];
+
+  // Run a query to populate the local cache with the 100 documents and a resume token.
+  NSArray<FIRDocumentReference *> *createdDocuments;
+  {
+    FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
+                                                            source:FIRFirestoreSourceDefault];
+    NSMutableArray<FIRDocumentReference *> *createdDocumentsAccumulator =
+        [[NSMutableArray alloc] init];
+    for (FIRDocumentSnapshot *documentSnapshot in querySnapshot1.documents) {
+      [createdDocumentsAccumulator addObject:documentSnapshot.reference];
+    }
+    createdDocuments = [createdDocumentsAccumulator copy];
+  }
+  XCTAssertEqual(createdDocuments.count, 100, @"createdDocuments has the wrong size");
+
+  // Delete 50 of the 100 documents. Do this in a transaction, rather than
+  // [FIRDocumentReference deleteDocument], to avoid affecting the local cache.
+  NSSet<NSString *> *deletedDocumentIds;
+  {
+    NSMutableArray<NSString *> *deletedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+    deletedDocumentIds = [deletedDocumentIdsAccumulator copy];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"DeleteTransaction"];
+    [collRef.firestore
+        runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+          for (NSUInteger i = 0; i < createdDocuments.count; i += 2) {
+            FIRDocumentReference *documentToDelete = createdDocuments[i];
+            [transaction deleteDocument:documentToDelete];
+            [deletedDocumentIdsAccumulator addObject:documentToDelete.documentID];
+          }
+          return @"document deletion successful";
+        }
+        completion:^(id, NSError *) {
+          [expectation fulfill];
+        }];
+    [self awaitExpectation:expectation];
+    deletedDocumentIds = [NSSet setWithArray:deletedDocumentIdsAccumulator];
+  }
+  XCTAssertEqual(deletedDocumentIds.count, 50, @"deletedDocumentIds has the wrong size");
+
+  // Wait for 10 seconds, during which Watch will stop tracking the query and will send an existence
+  // filter rather than "delete" events when the query is resumed.
+  [NSThread sleepForTimeInterval:10.0f];
+
+  // Resume the query and save the resulting snapshot for verification.
+  FIRQuerySnapshot *querySnapshot2 = [self readDocumentSetForRef:collRef
+                                                          source:FIRFirestoreSourceDefault];
+
+  // Verify that the snapshot from the resumed query contains the expected documents; that is,
+  // that it contains the 50 documents that were _not_ deleted.
+  // TODO(b/270731363): Remove the "if" condition below once the Firestore Emulator is fixed to
+  // send an existence filter. At the time of writing, the Firestore emulator fails to send an
+  // existence filter, resulting in the client including the deleted documents in the snapshot
+  // of the resumed query.
+  if (!([FSTIntegrationTestCase isRunningAgainstEmulator] && querySnapshot2.count == 100)) {
+    NSSet<NSString *> *actualDocumentIds;
+    {
+      NSMutableArray<NSString *> *actualDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (FIRDocumentSnapshot *documentSnapshot in querySnapshot2.documents) {
+        [actualDocumentIdsAccumulator addObject:documentSnapshot.documentID];
+      }
+      actualDocumentIds = [NSSet setWithArray:actualDocumentIdsAccumulator];
+    }
+    NSSet<NSString *> *expectedDocumentIds;
+    {
+      NSMutableArray<NSString *> *expectedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (FIRDocumentReference *documentRef in createdDocuments) {
+        if (![deletedDocumentIds containsObject:documentRef.documentID]) {
+          [expectedDocumentIdsAccumulator addObject:documentRef.documentID];
+        }
+      }
+      expectedDocumentIds = [NSSet setWithArray:expectedDocumentIdsAccumulator];
+    }
+    if (![actualDocumentIds isEqualToSet:expectedDocumentIds]) {
+      NSArray<NSString *> *unexpectedDocumentIds =
+          SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
+      NSArray<NSString *> *missingDocumentIds =
+          SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
+      XCTFail(@"The snapshot contained %@ documents (expected %@): %@ unexpected and %@ missing; "
+              @"unexpected documents: %@; missing documents: %@",
+              @(actualDocumentIds.count), @(expectedDocumentIds.count),
+              @(unexpectedDocumentIds.count), @(missingDocumentIds.count),
+              [unexpectedDocumentIds componentsJoinedByString:@", "],
+              [missingDocumentIds componentsJoinedByString:@", "]);
+    }
+  }
 }
 
 @end
