@@ -47,16 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif  // TARGET_OS_IOS
 
-/** @fn initWithAPIKey:appName:
-    @brief Designated initializer.
-    @param APIKey The Google Developers Console API key for making requests from your app.
-    @param appName The name property of the previously created @c FIRApp instance.
-    @param appID The app ID of the Firebase application.
- */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                appName:(NSString *)appName
-                                  appID:(NSString *)appID;
-
 /** @fn getUserID
     @brief Gets the identifier of the current user, if any.
     @return The identifier of the current user, or nil if there is no current user.
