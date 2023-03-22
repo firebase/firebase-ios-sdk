@@ -89,8 +89,7 @@ private let kAccountPrefix = "firebase_auth_1_"
 
   // MARK: - Private methods for non-sharing keychain operations
 
-  // TODO(ncooke3): Mark internal after converting corresponding test file to Swift.
-  @objc public func item(query: [String: Any]) throws -> DataWrapper {
+  private func item(query: [String: Any]) throws -> DataWrapper {
     var returningQuery = query
     returningQuery[kSecReturnData as String] = true
     returningQuery[kSecReturnAttributes as String] = true
@@ -208,6 +207,11 @@ private let kAccountPrefix = "firebase_auth_1_"
   }
 
   // MARK: - Private methods for shared keychain operations
+
+  // TODO(ncooke3): The following APIs are essentially duplicates of the API
+  // defined by the `AuthStorage` protocol. It'd be nice to consolidate the
+  // two sets into a single API surface. They were added in
+  // https://github.com/firebase/firebase-ios-sdk/pull/2684
 
   /** @fn getItemWithQuery:error:
    @brief Get the item from keychain by given query.
