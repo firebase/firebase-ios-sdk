@@ -75,23 +75,43 @@ let emptyBundle = """
       XCTAssertNil(value, "value should be nil on success")
     }
 
-      func testCount() async throws {
+    func testCount() async throws {
+      let collection = collectionRef()
+      try await collection.addDocument(data: [:])
+      let snapshot = try await collection.count.getAggregation(source: .server)
+      XCTAssertEqual(snapshot.count, 1)
+    }
+
+    func testSum() async throws {
         let collection = collectionRef()
+        let sumOfFoo = AggregateField.sum("foo");
+
         try await collection.addDocument(data: [:])
-        let snapshot = try await collection.count.getAggregation(source: .server)
-        XCTAssertEqual(snapshot.count, 1)
-      }
+        let snapshot = try await collection.aggregate([sumOfFoo]).getAggregation(source: .server)
 
-      func testSum() async throws {
-          let collection = collectionRef()
-          let sumOfFoo = AggregateField.sum("foo");
+        XCTAssertEqual(try snapshot.getDouble(sumOfFoo), 100.5)
+        XCTAssertEqual(try snapshot.getLong(sumOfFoo), 100)
+        XCTAssertEqual(try snapshot.get(sumOfFoo) as? Int64, 100)
+    }
 
-          try await collection.addDocument(data: [:])
-          let snapshot = try await collection.aggregate([sumOfFoo]).getAggregation(source: .server)
+    func testQuery() async throws {
+      let collRef = collectionRef(
+        withDocuments: ["doc1": ["a": 1, "b": 0],
+                        "doc2": ["a": 2, "b": 1],
+                        "doc3": ["a": 3, "b": 2],
+                        "doc4": ["a": 1, "b": 3],
+                        "doc5": ["a": 1, "b": 1]]
+      )
 
-          XCTAssertEqual(try snapshot.getDouble(sumOfFoo), 100.5)
-          XCTAssertEqual(try snapshot.getLong(sumOfFoo), 100)
-          XCTAssertEqual(try snapshot.get(sumOfFoo) as? Int64, 100)
-      }
+      // Two equalities: a==1 || b==1.
+      let filter = Filter.orFilter(
+        [Filter.whereField("a", isEqualTo: 1),
+         Filter.whereField("b", isEqualTo: 1)]
+      )
+      let query = collRef.whereFilter(filter)
+      let snapshot = try await query.getDocuments(source: FirestoreSource.server)
+      XCTAssertEqual(FIRQuerySnapshotGetIDs(snapshot),
+                     ["doc1", "doc2", "doc4", "doc5"])
+    }
   }
 #endif

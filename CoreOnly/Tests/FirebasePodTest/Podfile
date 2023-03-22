@@ -35,6 +35,7 @@ target 'FirebasePodTest' do
   pod 'FirebaseMessagingInterop', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseSessions', :path => '../../../'
   pod 'FirebaseSharedSwift', :path => '../../../'
 
   pod 'FirebaseAnalytics' # Analytics is not open source

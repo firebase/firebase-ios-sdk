@@ -33,14 +33,14 @@ class SessionCoordinator: SessionCoordinatorProtocol {
     self.fireLogger = fireLogger
   }
 
-  // Begins the process of logging a SessionStartEvent to FireLog, while taking into account Data Collection, Sampling, and fetching Settings
+  /// Begins the process of logging a SessionStartEvent to FireLog after
+  /// it has been approved for sending
   func attemptLoggingSessionStart(event: SessionStartEvent,
                                   callback: @escaping (Result<Void, FirebaseSessionsError>)
                                     -> Void) {
     /// Order of execution
-    /// 1. Check if the session can be sent. If yes, move to 2. Else, drop the event.
-    /// 2. Fetch the installations Id. If successful, move to 3. Else, drop sending the event.
-    /// 3. Log the event. If successful, all is good. Else, log the message with error.
+    /// 1. Fetch the installations Id. If successful, move to 3. Else, drop sending the event.
+    /// 2. Log the event. If successful, all is good. Else, log the message with error.
     installations.installationID { result in
       switch result {
       case let .success(fiid):
@@ -48,6 +48,7 @@ class SessionCoordinator: SessionCoordinatorProtocol {
         self.fireLogger.logEvent(event: event) { logResult in
           switch logResult {
           case .success():
+            Logger.logDebug("Successfully logged Session Start event to GoogleDataTransport")
             callback(.success(()))
           case let .failure(error):
             callback(.failure(FirebaseSessionsError.DataTransportError(error)))

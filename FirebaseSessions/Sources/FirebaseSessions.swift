@@ -69,7 +69,8 @@ private enum GoogleDataTransportConfig {
       installations: installations
     )
 
-    let sessionGenerator = SessionGenerator(settings: settings)
+    let sessionGenerator = SessionGenerator(collectEvents: Sessions
+      .shouldCollectEvents(settings: settings))
     let coordinator = SessionCoordinator(
       installations: installations,
       fireLogger: fireLogger
@@ -140,7 +141,10 @@ private enum GoogleDataTransportConfig {
       self.subscriberPromises[subscriberName] = Promise<Void>.pending()
     }
 
-    Logger.logDebug("Expecting subscriptions from: \(SessionsDependencies.dependencies)")
+    Logger
+      .logDebug(
+        "Version \(FirebaseVersion()). Expecting subscriptions from: \(SessionsDependencies.dependencies)"
+      )
 
     self.initiator.beginListening {
       // Generating a Session ID early is important as Subscriber
@@ -177,6 +181,7 @@ private enum GoogleDataTransportConfig {
         self.settings.updateSettings()
 
         self.addSubscriberFields(event: event)
+        event.setSamplingRate(samplingRate: self.settings.samplingRate)
 
         guard sessionInfo.shouldDispatchEvents else {
           loggedEventCallback(.failure(.SessionSamplingError))
@@ -193,6 +198,15 @@ private enum GoogleDataTransportConfig {
         }
       }
     }
+  }
+
+  // MARK: - Sampling
+
+  static func shouldCollectEvents(settings: SettingsProtocol) -> Bool {
+    // Calculate whether we should sample events using settings data
+    // Sampling rate of 1 means we do not sample.
+    let randomValue = Double.random(in: 0 ... 1)
+    return randomValue <= settings.samplingRate
   }
 
   // MARK: - Data Collection

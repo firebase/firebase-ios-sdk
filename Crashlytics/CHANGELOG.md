@@ -1,3 +1,9 @@
+# 10.7.0
+- [fixed] Updated upload-symbols to 3.14 with an improvement to upload all dSYM files for Flutter apps
+
+# 10.6.0
+- [added] Integrated with Firebase sessions library to enable upcoming features related to session-based crash metrics. If your app uses the Crashlytics SDK, review Firebase's [data disclosure page](https://firebase.google.com/docs/ios/app-store-data-collection) to make sure that your app's privacy details in the App Store are accurate and complete.
+
 # 10.4.0
 - [added] Updated Crashlytics to include the Firebase Installation ID for consistency with other products (#10645).
 

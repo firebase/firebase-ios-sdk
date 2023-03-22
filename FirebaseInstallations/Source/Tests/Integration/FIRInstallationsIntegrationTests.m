@@ -15,7 +15,7 @@
  */
 
 // Uncomment or set the flag in GCC_PREPROCESSOR_DEFINITIONS to enable integration tests.
-//#define FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED 1
+// #define FIR_INSTALLATIONS_INTEGRATION_TESTS_REQUIRED 1
 
 // macOS requests a user password when accessing the Keychain for the first time,
 // so the tests may fail. Disable integration tests on macOS so far.

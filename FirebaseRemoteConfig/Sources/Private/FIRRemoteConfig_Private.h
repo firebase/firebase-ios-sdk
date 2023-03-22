@@ -21,11 +21,18 @@
 @class RCNConfigContent;
 @class RCNConfigDBManager;
 @class RCNConfigFetch;
+@class RCNConfigRealtime;
 @protocol FIRAnalyticsInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @class RCNConfigSettings;
+
+@interface FIRRemoteConfigUpdate ()
+
+/// Designated initializer.
+- (instancetype)initWithUpdatedKeys:(NSSet<NSString *> *)updatedKeys;
+@end
 
 @interface FIRRemoteConfig () {
   NSString *_FIRNamespace;
@@ -36,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Config settings are custom settings.
 @property(nonatomic, readwrite, strong, nonnull) RCNConfigFetch *configFetch;
+
+@property(nonatomic, readwrite, strong, nonnull) RCNConfigRealtime *configRealtime;
 
 /// Returns the FIRRemoteConfig instance for your namespace and for the default Firebase App.
 /// This singleton object contains the complete set of Remote Config parameter values available to

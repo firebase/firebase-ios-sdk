@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// Completion handler invoked by NSSessionFetcher.
 typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response, NSError *error);
 
+/// Completion handler invoked after a fetch that contains the updated keys
+typedef void (^RCNConfigFetchCompletion)(FIRRemoteConfigFetchStatus status,
+                                         FIRRemoteConfigUpdate *update,
+                                         NSError *error);
+
 @interface RCNConfigFetch : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
@@ -50,11 +55,21 @@ typedef void (^RCNConfigFetcherCompletion)(NSData *data, NSURLResponse *response
 - (void)fetchConfigWithExpirationDuration:(NSTimeInterval)expirationDuration
                         completionHandler:(FIRRemoteConfigFetchCompletion)completionHandler;
 
+/// Fetches config data immediately, keyed by namespace. Completion block will be called on the main
+/// queue.
+/// @param fetchAttemptNumber The number of the fetch attempt.
+/// @param completionHandler   Callback handler.
+- (void)realtimeFetchConfigWithNoExpirationDuration:(NSInteger)fetchAttemptNumber
+                                  completionHandler:(RCNConfigFetchCompletion)completionHandler;
+
 /// Add the ability to update NSURLSession's timeout after a session has already been created.
 - (void)recreateNetworkSession;
 
 /// Provide fetchSession for tests to override.
 @property(nonatomic, readwrite, strong, nonnull) NSURLSession *fetchSession;
+
+/// Provide config template version number for Realtime config client.
+@property(nonatomic, copy, nonnull) NSString *templateVersionNumber;
 
 NS_ASSUME_NONNULL_END
 

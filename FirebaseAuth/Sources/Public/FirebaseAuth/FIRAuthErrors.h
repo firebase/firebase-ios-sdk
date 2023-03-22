@@ -413,7 +413,7 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeMissingOrInvalidNonce = 17094,
 
-    /** Raised when an Cloud Function returns a blocking error. Will include a message returned from
+    /** Raised when a Cloud Function returns a blocking error. Will include a message returned from
      * the function.
      */
     FIRAuthErrorCodeBlockingCloudFunctionError = 17105,

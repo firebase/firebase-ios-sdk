@@ -158,4 +158,26 @@ final class FirebaseSessionsTestsBase_DataCollection: FirebaseSessionsTestsBase 
       }
     )
   }
+
+  func test_defaultSamplingRate_isSetInProto() {
+    runSessionsSDK(
+      subscriberSDKs: [
+        mockCrashlyticsSubscriber,
+
+      ], preSessionsInit: { _ in
+        // Nothing
+      }, postSessionsInit: {
+        sessions.register(subscriber: self.mockCrashlyticsSubscriber)
+        // Nothing
+
+      }, postLogEvent: { result, subscriberSDKs in
+        // Make sure we set the sampling rate in the proto
+        XCTAssertEqual(
+          self.mockCoordinator.loggedEvent?.proto.session_data.data_collection_status
+            .session_sampling_rate,
+          1.0
+        )
+      }
+    )
+  }
 }

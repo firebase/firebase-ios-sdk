@@ -41,6 +41,7 @@
 #import "Crashlytics/Crashlytics/Components/FIRCLSApplication.h"
 #import "Crashlytics/Crashlytics/Components/FIRCLSUserLogging.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSAnalyticsManager.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSContextManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSExistingReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSManagerData.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSMetricKitManager.h"
@@ -135,6 +136,8 @@ typedef NSNumber FIRCLSWrappedReportAction;
 @property(nonatomic, strong) FIRCLSAnalyticsManager *analyticsManager;
 @property(nonatomic, strong) FIRCLSExistingReportManager *existingReportManager;
 
+@property(nonatomic, strong) FIRCLSContextManager *contextManager;
+
 // Internal Managers
 @property(nonatomic, strong) FIRCLSSettingsManager *settingsManager;
 @property(nonatomic, strong) FIRCLSNotificationManager *notificationManager;
@@ -165,6 +168,7 @@ typedef NSNumber FIRCLSWrappedReportAction;
   _installIDModel = managerData.installIDModel;
   _settings = managerData.settings;
   _executionIDModel = managerData.executionIDModel;
+  _contextManager = managerData.contextManager;
 
   _existingReportManager = existingReportManager;
   _analyticsManager = analyticsManager;
@@ -416,7 +420,9 @@ typedef NSNumber FIRCLSWrappedReportAction;
     return NO;
   }
 
-  if (!FIRCLSContextInitialize(report, self.settings, _fileManager)) {
+  if (![self.contextManager setupContextWithReport:report
+                                          settings:self.settings
+                                       fileManager:_fileManager]) {
     return NO;
   }
 

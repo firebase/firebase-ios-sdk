@@ -103,10 +103,44 @@ static NSString *const FIRSecondFIRAppName = @"secondFIRApp";
       }
       FIRRemoteConfigSettings *settings = [[FIRRemoteConfigSettings alloc] init];
       settings.fetchTimeout = 300;
-      settings.minimumFetchInterval = 0;
+      settings.minimumFetchInterval = 300;
       ((FIRRemoteConfig *)(self.RCInstances[namespaceString][appString])).configSettings = settings;
     }
   }
+
+  /// UI popup for Realtime that shows if realtime_test_key was included in update.
+  UIAlertController *alert = [UIAlertController
+      alertControllerWithTitle:@"Alert"
+                       message:@"The value for realtime_test_key has been updated!"
+                preferredStyle:UIAlertControllerStyleAlert];
+  UIAlertAction *defaultAction = [UIAlertAction actionWithTitle:@"OK"
+                                                          style:UIAlertActionStyleDefault
+                                                        handler:^(UIAlertAction *action){
+                                                        }];
+  [alert addAction:defaultAction];
+
+  // Add realtime listener for firebase namespace
+  [self.RCInstances[FIRNamespaceGoogleMobilePlatform][FIRDefaultFIRAppName]
+      addOnConfigUpdateListener:^(FIRRemoteConfigUpdate *_Nullable update,
+                                  NSError *_Nullable error) {
+        if (error != nil) {
+          [[FRCLog sharedInstance]
+              logToConsole:[NSString
+                               stringWithFormat:@"Realtime Error: %@", error.localizedDescription]];
+        } else {
+          [[FRCLog sharedInstance] logToConsole:[NSString stringWithFormat:@"Config updated!"]];
+          if (update != nil) {
+            /// UI popup that lets user know that fetch included realtime_test_key in updatedKeys.
+            if ([[update updatedKeys] containsObject:@"realtime_test_key"]) {
+              [self presentViewController:alert animated:YES completion:nil];
+            }
+            NSString *updatedParams = [update updatedKeys];
+            [[FRCLog sharedInstance]
+                logToConsole:[NSString stringWithFormat:[updatedParams description]]];
+            [self apply];
+          }
+        }
+      }];
   [[FRCLog sharedInstance] logToConsole:@"RC instances inited"];
 
   self.namespacePicker.dataSource = self;

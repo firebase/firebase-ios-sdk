@@ -150,7 +150,7 @@ static NSString *const kRecoverEmailRequestType = @"RECOVER_EMAIL";
 static NSString *const kEmailLinkSignInRequestType = @"EMAIL_SIGNIN";
 
 /** @var kVerifyAndChangeEmailRequestType
-    @brief The action code type value for verifing and changing email in the check action code
+    @brief The action code type value for verifying and changing email in the check action code
            response.
  */
 static NSString *const kVerifyAndChangeEmailRequestType = @"VERIFY_AND_CHANGE_EMAIL";
@@ -487,6 +487,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
                                                                           appID:appID
+                                                                           auth:self
                                                                 heartbeatLogger:heartbeatLogger];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS

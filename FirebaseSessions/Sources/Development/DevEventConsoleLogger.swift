@@ -33,7 +33,7 @@ class DevEventConsoleLogger: EventGDTLoggerProtocol {
 
   func prettyPrint(proto: firebase_appquality_sessions_SessionEvent) {
     let logOutput = """
-    Logging Session Event due to \"\(commandLineArgument)\" command line argument
+    Printing Session Event due to \"\(commandLineArgument)\" command line argument
     Session Event:
       event_type: \(proto.event_type)
       session_data
