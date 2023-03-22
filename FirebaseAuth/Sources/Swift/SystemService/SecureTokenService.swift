@@ -35,7 +35,7 @@ private let kFiveMinutes = 5 * 60.0
    */
   @objc public var requestConfiguration: AuthRequestConfiguration?
 
-  /** @property rawAccessToken
+  /** @property accessToken
       @brief The cached access token.
       @remarks This method is specifically for providing the access token to internal clients during
           deserialization and sign-in events, and should not be used to retrieve the access token by

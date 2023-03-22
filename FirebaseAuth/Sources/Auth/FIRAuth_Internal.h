@@ -53,14 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NSString *)getUserID;
 
-/** @fn updateKeychainWithUser:error:
-    @brief Updates the keychain for the given user.
-    @param user The user to be updated.
-    @return  error if the method fails.
-    @remarks Called by @c FIRUser when user info or token changes occur.
- */
-- (NSError *)updateKeychainWithUser:(FIRUser *)user;
-
 /** @fn internalSignInWithCredential:callback:
     @brief Convenience method for @c internalSignInAndRetrieveDataWithCredential:callback:
         This method doesn't return additional identity provider data.

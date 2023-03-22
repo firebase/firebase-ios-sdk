@@ -30,6 +30,8 @@
 @class FIRUser;
 @class FIRAuthNotificationManager;
 @class FIRAuthURLPresenter;
+@class FIRAuthKeychainServices;
+@class FIRAuthStoredUserManager;
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 
@@ -311,6 +313,10 @@ NS_SWIFT_NAME(Auth)
     @brief The manager for remote notifications used by phone number auth.
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
+
+@property(nonatomic, strong) NSString *firebaseAppName;
+@property(nonatomic) FIRAuthKeychainServices *keychainServices;
+@property(nonatomic) FIRAuthStoredUserManager *storedUserManager;
 
 // TODO: Temporary bridge from Swift until completely ported.
 + (dispatch_queue_t)globalWorkQueue;
