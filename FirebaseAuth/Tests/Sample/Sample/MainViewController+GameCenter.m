@@ -16,8 +16,8 @@
 
 #import "MainViewController+GameCenter.h"
 
-#import "AppManager.h"
 #import <FirebaseAuth/FirebaseAuth.h>
+#import "AppManager.h"
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -26,96 +26,115 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (StaticContentTableViewSection *)gameCenterAuthSection {
   __weak typeof(self) weakSelf = self;
-  return [StaticContentTableViewSection sectionWithTitle:@"Game Center Auth" cells:@[
-    [StaticContentTableViewCell cellWithTitle:@"Log in System Game Center"
-                                      action:^{ [weakSelf logInWithSystemGameCenter]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign in Game Center"
-                                      action:^{ [weakSelf signInWithGameCenter]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Link Game Center"
-                                      action:^{ [weakSelf linkWithGameCenter]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Unlink Game Center"
-                                      action:^{ [weakSelf unlinkFromProvider:FIRGameCenterAuthProvider.id completion:nil]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Game Center"
-                                      action:^{ [weakSelf reauthenticateWithGameCenter]; }],
-    ]];
+  return [StaticContentTableViewSection
+      sectionWithTitle:@"Game Center Auth"
+                 cells:@[
+                   [StaticContentTableViewCell cellWithTitle:@"Log in System Game Center"
+                                                      action:^{
+                                                        [weakSelf logInWithSystemGameCenter];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Sign in Game Center"
+                                                      action:^{
+                                                        [weakSelf signInWithGameCenter];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Link Game Center"
+                                                      action:^{
+                                                        [weakSelf linkWithGameCenter];
+                                                      }],
+                   [StaticContentTableViewCell
+                       cellWithTitle:@"Unlink Game Center"
+                              action:^{
+                                [weakSelf unlinkFromProvider:FIRGameCenterAuthProvider.id
+                                                  completion:nil];
+                              }],
+                   [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Game Center"
+                                                      action:^{
+                                                        [weakSelf reauthenticateWithGameCenter];
+                                                      }],
+                 ]];
 }
 
 - (void)logInWithSystemGameCenter {
   GKLocalPlayer *localPlayer = [GKLocalPlayer localPlayer];
-  localPlayer.authenticateHandler = ^(UIViewController * _Nullable viewController,
-                                      NSError * _Nullable error) {
-    if (error) {
-      [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
-    } else if (viewController != nil) {
-      [self presentViewController:viewController animated:YES completion:nil];
-    }
-  };
+  localPlayer.authenticateHandler =
+      ^(UIViewController *_Nullable viewController, NSError *_Nullable error) {
+        if (error) {
+          [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+        } else if (viewController != nil) {
+          [self presentViewController:viewController animated:YES completion:nil];
+        }
+      };
 }
 
 - (void)signInWithGameCenter {
-  [FIRGameCenterAuthProvider getCredentialWithCompletion:
-   ^(FIRAuthCredential * _Nullable credential, NSError * _Nullable error) {
-     if (error) {
-       [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
-     } else {
-       [[AppManager auth] signInWithCredential:credential
-                                    completion:^(FIRAuthDataResult * _Nullable result,
-                                                 NSError * _Nullable error) {
-        [self hideSpinner:^{
-          if (error) {
-            [self logFailure:@"Sign in with Game Center failed" error:error];
-          } else {
-            [self logSuccess:@"Sign in with Game Center succeeded."];
-          }
-          [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign In Error" error:error];
-        }];
-      }];
-     }
-   }];
+  [FIRGameCenterAuthProvider getCredentialWithCompletion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+    if (error) {
+      [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+    } else {
+      [[AppManager auth]
+          signInWithCredential:credential
+                    completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+                      [self hideSpinner:^{
+                        if (error) {
+                          [self logFailure:@"Sign in with Game Center failed" error:error];
+                        } else {
+                          [self logSuccess:@"Sign in with Game Center succeeded."];
+                        }
+                        [self showTypicalUIForUserUpdateResultsWithTitle:@"Sign In Error"
+                                                                   error:error];
+                      }];
+                    }];
+    }
+  }];
 }
 
 - (void)linkWithGameCenter {
-  [FIRGameCenterAuthProvider getCredentialWithCompletion:
-   ^(FIRAuthCredential * _Nullable credential, NSError * _Nullable error) {
-     if (error) {
-       [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
-     } else {
-       [[self user] linkWithCredential:credential
-                            completion:^(FIRAuthDataResult * _Nullable result,
-                                         NSError * _Nullable error) {
-        [self hideSpinner:^{
-          if (error) {
-            [self logFailure:@"Link with Game Center failed" error:error];
-          } else {
-            [self logSuccess:@"Link with Game Center succeeded."];
-          }
-          [self showTypicalUIForUserUpdateResultsWithTitle:@"Link Error" error:error];
-        }];
-      }];
-     }
-   }];
+  [FIRGameCenterAuthProvider getCredentialWithCompletion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+    if (error) {
+      [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+    } else {
+      [[self user]
+          linkWithCredential:credential
+                  completion:^(FIRAuthDataResult *_Nullable result, NSError *_Nullable error) {
+                    [self hideSpinner:^{
+                      if (error) {
+                        [self logFailure:@"Link with Game Center failed" error:error];
+                      } else {
+                        [self logSuccess:@"Link with Game Center succeeded."];
+                      }
+                      [self showTypicalUIForUserUpdateResultsWithTitle:@"Link Error" error:error];
+                    }];
+                  }];
+    }
+  }];
 }
 
 - (void)reauthenticateWithGameCenter {
-  [FIRGameCenterAuthProvider getCredentialWithCompletion:
-   ^(FIRAuthCredential * _Nullable credential, NSError * _Nullable error) {
-     if (error) {
-       [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
-     } else {
-       [[self user] reauthenticateWithCredential:credential
-                                      completion:^(FIRAuthDataResult * _Nullable result,
-                                                   NSError * _Nullable error) {
-        [self hideSpinner:^{
-          if (error) {
-            [self logFailure:@"Reauthenticate with Game Center failed" error:error];
-          } else {
-            [self logSuccess:@"Reauthenticate with Game Center succeeded."];
-          }
-          [self showTypicalUIForUserUpdateResultsWithTitle:@"Reauthenticate Error" error:error];
-        }];
-      }];
-     }
-   }];
+  [FIRGameCenterAuthProvider getCredentialWithCompletion:^(FIRAuthCredential *_Nullable credential,
+                                                           NSError *_Nullable error) {
+    if (error) {
+      [self showTypicalUIForUserUpdateResultsWithTitle:@"Game Center Error" error:error];
+    } else {
+      [[self user]
+          reauthenticateWithCredential:credential
+                            completion:^(FIRAuthDataResult *_Nullable result,
+                                         NSError *_Nullable error) {
+                              [self hideSpinner:^{
+                                if (error) {
+                                  [self logFailure:@"Reauthenticate with Game Center failed"
+                                             error:error];
+                                } else {
+                                  [self logSuccess:@"Reauthenticate with Game Center succeeded."];
+                                }
+                                [self showTypicalUIForUserUpdateResultsWithTitle:
+                                          @"Reauthenticate Error"
+                                                                           error:error];
+                              }];
+                            }];
+    }
+  }];
 }
 
 @end

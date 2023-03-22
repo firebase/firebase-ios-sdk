@@ -78,13 +78,13 @@ typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullab
     @brief Shows the please wait spinner.
     @param completion Called after the spinner has been hidden.
  */
-- (void)showSpinner:(nullable void(^)(void))completion;
+- (void)showSpinner:(nullable void (^)(void))completion;
 
 /*! @fn hideSpinner
     @brief Hides the please wait spinner.
     @param completion Called after the spinner has been hidden.
  */
-- (void)hideSpinner:(nullable void(^)(void))completion;
+- (void)hideSpinner:(nullable void (^)(void))completion;
 
 @end
 

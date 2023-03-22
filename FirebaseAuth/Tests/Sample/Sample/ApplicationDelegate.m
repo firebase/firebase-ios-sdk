@@ -16,12 +16,12 @@
 
 #import "ApplicationDelegate.h"
 
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIRConfiguration.h>
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
 
-#import "AuthProviders.h"
 #import <FirebaseAuth/FirebaseAuth.h>
+#import "AuthProviders.h"
 #import "GTMSessionFetcherLogging.h"
 #import "MainViewController.h"
 
@@ -41,7 +41,7 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-  [GTMSessionFetcher  setLoggingEnabled:YES];
+  [GTMSessionFetcher setLoggingEnabled:YES];
   [[FIRConfiguration sharedInstance] setLoggerLevel:FIRLoggerLevelInfo];
 
   // Configure the default Firebase application:
@@ -56,8 +56,8 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
       [[MainViewController alloc] initWithNibName:NSStringFromClass([MainViewController class])
                                            bundle:nil];
   _sampleAppMainViewController.navigationItem.title = @"Firebase Auth";
-  window.rootViewController = [[UINavigationController alloc]
-                               initWithRootViewController:_sampleAppMainViewController];
+  window.rootViewController =
+      [[UINavigationController alloc] initWithRootViewController:_sampleAppMainViewController];
   self.window = window;
   [self.window makeKeyAndVisible];
 
@@ -67,9 +67,7 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 - (BOOL)application:(nonnull UIApplication *)application
             openURL:(nonnull NSURL *)url
             options:(nonnull NSDictionary<NSString *, id> *)options {
-  [[FBSDKApplicationDelegate sharedInstance] application:application
-                                                 openURL:url
-                                                 options:options];
+  [[FBSDKApplicationDelegate sharedInstance] application:application openURL:url options:options];
 
   return [self application:application
                    openURL:url
@@ -91,8 +89,9 @@ static __weak id<OpenURLDelegate> gOpenURLDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application
-continueUserActivity:(NSUserActivity *)userActivity
- restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
+    continueUserActivity:(NSUserActivity *)userActivity
+      restorationHandler:
+          (void (^)(NSArray<id<UIUserActivityRestoring>> *_Nullable))restorationHandler {
   if (userActivity.webpageURL) {
     return [_sampleAppMainViewController handleIncomingLinkWithURL:userActivity.webpageURL];
   }

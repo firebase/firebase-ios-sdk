@@ -25,18 +25,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (StaticContentTableViewSection *)facebookAuthSection {
   __weak typeof(self) weakSelf = self;
-  return [StaticContentTableViewSection sectionWithTitle:@"Facebook Auth" cells:@[
-    [StaticContentTableViewCell cellWithTitle:@"Sign in with Facebook"
-                                      action:^{ [weakSelf signInFacebook]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Link with Facebook"
-                                      action:^{ [weakSelf linkWithFacebook]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Unlink from Facebook"
-                                      action:^{
-                                        [weakSelf unlinkFromProvider:FIRFacebookAuthProvider.id completion:nil];
-                                      }],
-    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Facebook"
-                                      action:^{ [weakSelf reauthenticateFacebook]; }],
-    ]];
+  return [StaticContentTableViewSection
+      sectionWithTitle:@"Facebook Auth"
+                 cells:@[
+                   [StaticContentTableViewCell cellWithTitle:@"Sign in with Facebook"
+                                                      action:^{
+                                                        [weakSelf signInFacebook];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Link with Facebook"
+                                                      action:^{
+                                                        [weakSelf linkWithFacebook];
+                                                      }],
+                   [StaticContentTableViewCell
+                       cellWithTitle:@"Unlink from Facebook"
+                              action:^{
+                                [weakSelf unlinkFromProvider:FIRFacebookAuthProvider.id
+                                                  completion:nil];
+                              }],
+                   [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Facebook"
+                                                      action:^{
+                                                        [weakSelf reauthenticateFacebook];
+                                                      }],
+                 ]];
 }
 
 - (void)signInFacebook {

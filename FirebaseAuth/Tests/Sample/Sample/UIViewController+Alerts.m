@@ -62,10 +62,8 @@ static NSString *const kCancel = @"Cancel";
 @implementation UIViewController (Alerts)
 
 - (void)setUseStatusBarSpinner:(BOOL)useStatusBarSpinner {
-  objc_setAssociatedObject(self,
-                           &kUseStatusBarSpinnerAssociatedObjectKey,
-                           useStatusBarSpinner ? @(YES) : nil,
-                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, &kUseStatusBarSpinnerAssociatedObjectKey,
+                           useStatusBarSpinner ? @(YES) : nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (BOOL)useStatusBarSpinner {
@@ -96,30 +94,30 @@ static NSString *const kCancel = @"Cancel";
         [UIAlertController alertControllerWithTitle:title
                                             message:message
                                      preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *okAction =
-        [UIAlertAction actionWithTitle:kOK
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * _Nonnull action) {
-          if (completion) {
-            completion(YES, nil);
-          }
-        }];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:kOK
+                                                       style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction *_Nonnull action) {
+                                                       if (completion) {
+                                                         completion(YES, nil);
+                                                       }
+                                                     }];
     [alert addAction:okAction];
 
     if (showCancelButton) {
       UIAlertAction *cancelAction =
           [UIAlertAction actionWithTitle:kCancel
                                    style:UIAlertActionStyleCancel
-                                 handler:^(UIAlertAction * _Nonnull action) {
-            completion(NO, nil);
-          }];
+                                 handler:^(UIAlertAction *_Nonnull action) {
+                                   completion(NO, nil);
+                                 }];
       [alert addAction:cancelAction];
     }
     [self presentViewController:alert animated:YES completion:nil];
   } else {
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
-                                                                   message:message
-                                                            preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *alert =
+        [UIAlertController alertControllerWithTitle:title
+                                            message:message
+                                     preferredStyle:UIAlertControllerStyleAlert];
     [self presentViewController:alert animated:YES completion:nil];
   }
 }
@@ -135,29 +133,29 @@ static NSString *const kCancel = @"Cancel";
                           keyboardType:(UIKeyboardType)keyboardType
                        completionBlock:(nonnull AlertPromptCompletionBlock)completion {
   if ([self supportsAlertController]) {
-      UIAlertController *prompt =
-          [UIAlertController alertControllerWithTitle:nil
-                                              message:message
-                                       preferredStyle:UIAlertControllerStyleAlert];
-      __weak UIAlertController *weakPrompt = prompt;
-      UIAlertAction *cancelAction =
-          [UIAlertAction actionWithTitle:kCancel
-                                   style:UIAlertActionStyleCancel
-                                 handler:^(UIAlertAction * _Nonnull action) {
-            completion(NO, nil);
-          }];
-      UIAlertAction *okAction = [UIAlertAction actionWithTitle:kOK
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^(UIAlertAction * _Nonnull action) {
-            UIAlertController *strongPrompt = weakPrompt;
-            completion(YES, strongPrompt.textFields[0].text);
-      }];
-      [prompt addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
-        textField.keyboardType = keyboardType;
-      }];
-      [prompt addAction:cancelAction];
-      [prompt addAction:okAction];
-      [self presentViewController:prompt animated:YES completion:nil];
+    UIAlertController *prompt =
+        [UIAlertController alertControllerWithTitle:nil
+                                            message:message
+                                     preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakPrompt = prompt;
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:kCancel
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction *_Nonnull action) {
+                                                           completion(NO, nil);
+                                                         }];
+    UIAlertAction *okAction =
+        [UIAlertAction actionWithTitle:kOK
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction *_Nonnull action) {
+                                 UIAlertController *strongPrompt = weakPrompt;
+                                 completion(YES, strongPrompt.textFields[0].text);
+                               }];
+    [prompt addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
+      textField.keyboardType = keyboardType;
+    }];
+    [prompt addAction:cancelAction];
+    [prompt addAction:okAction];
+    [self presentViewController:prompt animated:YES completion:nil];
   } else {
     SimpleTextPromptDelegate *prompt =
         [[SimpleTextPromptDelegate alloc] initWithCompletionHandler:completion];
@@ -171,7 +169,7 @@ static NSString *const kCancel = @"Cancel";
   }
 }
 
-- (void)showSpinner:(nullable void(^)(void))completion {
+- (void)showSpinner:(nullable void (^)(void))completion {
   if (self.useStatusBarSpinner) {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     completion();
@@ -186,8 +184,7 @@ static NSString *const kCancel = @"Cancel";
 
 - (void)showModernSpinner:(nullable void (^)(void))completion {
   UIAlertController *pleaseWaitAlert =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
   if (pleaseWaitAlert) {
     if (completion) {
       completion();
@@ -198,30 +195,25 @@ static NSString *const kCancel = @"Cancel";
                                                         message:@"Please Wait...\n\n\n\n"
                                                  preferredStyle:UIAlertControllerStyleAlert];
 
-  UIActivityIndicatorView *spinner =
-      [[UIActivityIndicatorView alloc]
-          initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+  UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc]
+      initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
   spinner.color = [UIColor blackColor];
   spinner.center = CGPointMake(pleaseWaitAlert.view.bounds.size.width / 2,
-      pleaseWaitAlert.view.bounds.size.height / 2);
-  spinner.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin |
-      UIViewAutoresizingFlexibleTopMargin |
-      UIViewAutoresizingFlexibleLeftMargin |
-      UIViewAutoresizingFlexibleRightMargin;
+                               pleaseWaitAlert.view.bounds.size.height / 2);
+  spinner.autoresizingMask =
+      UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin |
+      UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
   [spinner startAnimating];
   [pleaseWaitAlert.view addSubview:spinner];
 
-  objc_setAssociatedObject(self,
-      (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-      pleaseWaitAlert,
-      OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
+                           pleaseWaitAlert, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   [self presentViewController:pleaseWaitAlert animated:YES completion:completion];
 }
 
 - (void)showIOS7Spinner:(nullable void (^)(void))completion {
   UIWindow *pleaseWaitWindow =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
 
   if (pleaseWaitWindow) {
     if (completion) {
@@ -235,12 +227,11 @@ static NSString *const kCancel = @"Cancel";
   pleaseWaitWindow.windowLevel = UIWindowLevelStatusBar - 1;
 
   UIView *pleaseWaitView = [[UIView alloc] initWithFrame:pleaseWaitWindow.bounds];
-  pleaseWaitView.autoresizingMask = UIViewAutoresizingFlexibleWidth |
-      UIViewAutoresizingFlexibleHeight;
+  pleaseWaitView.autoresizingMask =
+      UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   pleaseWaitView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
-  UIActivityIndicatorView *spinner =
-      [[UIActivityIndicatorView alloc]
-          initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+  UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc]
+      initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
   spinner.center = pleaseWaitView.center;
   [pleaseWaitView addSubview:spinner];
   [spinner startAnimating];
@@ -252,21 +243,21 @@ static NSString *const kCancel = @"Cancel";
 
   [pleaseWaitWindow makeKeyAndVisible];
 
-  objc_setAssociatedObject(self,
-      (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-      pleaseWaitWindow,
-      OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
+                           pleaseWaitWindow, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-  [UIView animateWithDuration:0.5f animations:^{
-    pleaseWaitView.layer.opacity = 1.0f;
-  } completion:^(BOOL finished) {
-    if (completion) {
-      completion();
-    }
-  }];
+  [UIView animateWithDuration:0.5f
+      animations:^{
+        pleaseWaitView.layer.opacity = 1.0f;
+      }
+      completion:^(BOOL finished) {
+        if (completion) {
+          completion();
+        }
+      }];
 }
 
-- (void)hideSpinner:(nullable void(^)(void))completion {
+- (void)hideSpinner:(nullable void (^)(void))completion {
   if (self.useStatusBarSpinner) {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     completion();
@@ -279,39 +270,35 @@ static NSString *const kCancel = @"Cancel";
   }
 }
 
-- (void)hideModernSpinner:(nullable void(^)(void))completion {
+- (void)hideModernSpinner:(nullable void (^)(void))completion {
   UIAlertController *pleaseWaitAlert =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
 
   [pleaseWaitAlert dismissViewControllerAnimated:YES completion:completion];
 
-  objc_setAssociatedObject(self,
-      (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-      nil,
-      OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey), nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void)hideIOS7Spinner:(nullable void(^)(void))completion {
+- (void)hideIOS7Spinner:(nullable void (^)(void))completion {
   UIWindow *pleaseWaitWindow =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
 
   UIView *pleaseWaitView;
   pleaseWaitView = pleaseWaitWindow.subviews.firstObject;
 
-  [UIView animateWithDuration:0.5f animations:^{
-    pleaseWaitView.layer.opacity = 0.0f;
-  } completion:^(BOOL finished) {
-    [pleaseWaitWindow resignKeyWindow];
-    objc_setAssociatedObject(self,
-        (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-        nil,
-        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    if (completion) {
-      completion();
-    }
-  }];
+  [UIView animateWithDuration:0.5f
+      animations:^{
+        pleaseWaitView.layer.opacity = 0.0f;
+      }
+      completion:^(BOOL finished) {
+        [pleaseWaitWindow resignKeyWindow];
+        objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey), nil,
+                                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        if (completion) {
+          completion();
+        }
+      }];
 }
 
 @end

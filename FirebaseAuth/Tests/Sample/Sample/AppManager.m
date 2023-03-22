@@ -51,30 +51,31 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)recreateAppAtIndex:(int)index
                withOptions:(nullable FIROptions *)options
                 completion:(void (^)(void))completion {
-  [self deleteAppAtIndex:index completion:^() {
-    if (index == 0) {
-      if (options) {
-        [FIRApp configureWithOptions:options];
-      }
-    } else {
-      NSString *name = [self appNameWithIndex:index];
-      if (options) {
-        [FIRApp configureWithName:name options:options];
-        [self->_liveAppNames addObject:name];
-      } else {
-        [self->_liveAppNames removeObject:name];
-      }
-    }
-    completion();
-  }];
+  [self deleteAppAtIndex:index
+              completion:^() {
+                if (index == 0) {
+                  if (options) {
+                    [FIRApp configureWithOptions:options];
+                  }
+                } else {
+                  NSString *name = [self appNameWithIndex:index];
+                  if (options) {
+                    [FIRApp configureWithName:name options:options];
+                    [self->_liveAppNames addObject:name];
+                  } else {
+                    [self->_liveAppNames removeObject:name];
+                  }
+                }
+                completion();
+              }];
 }
 
 + (instancetype)sharedInstance {
   static dispatch_once_t onceToken;
   static AppManager *sharedInstance;
-   dispatch_once(&onceToken, ^{
-     sharedInstance = [[self alloc] init];
-   });
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[self alloc] init];
+  });
   return sharedInstance;
 }
 
@@ -107,8 +108,7 @@ NS_ASSUME_NONNULL_BEGIN
     @param index The index of the app to be deleted, 0 being the default app.
     @param completion The block to call when completes.
  */
-- (void)deleteAppAtIndex:(int)index
-              completion:(void (^)(void))completion {
+- (void)deleteAppAtIndex:(int)index completion:(void (^)(void))completion {
   FIRApp *app = [self appAtIndex:index];
   if (app) {
     [app deleteApp:^(BOOL success) {
