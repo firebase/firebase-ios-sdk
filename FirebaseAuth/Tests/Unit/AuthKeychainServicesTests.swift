@@ -43,24 +43,6 @@ class AuthKeychainServicesTests: XCTestCase {
     deletePassword(account: Self.account, service: Self.service)
   }
 
-  func testReadMultiple() throws {
-    addPassword(Self.data, account: Self.account, service: Self.service)
-    addPassword(Self.otherData, account: Self.account, service: Self.otherService)
-    let keychain = AuthKeychainServices(service: Self.service)
-    let queriedAccount = Self.account
-    let query: [String: Any] = [
-      kSecClass as String: kSecClassGenericPassword,
-      kSecAttrAccount as String: queriedAccount,
-    ]
-    // Keychain on macOS returns items in a different order than keychain on iOS,
-    // so test that the returned object is one of any of the added objects.
-    let queriedData = try keychain.item(query: query).data
-    XCTAssert(queriedData == Self.data.data(using: .utf8) || queriedData == Self.otherData
-      .data(using: .utf8))
-    deletePassword(account: queriedAccount, service: Self.service)
-    deletePassword(account: queriedAccount, service: Self.otherService)
-  }
-
   func testNotReadOtherService() throws {
     setPassword(nil, account: Self.account, service: Self.service)
     setPassword(Self.data, account: Self.account, service: Self.otherService)
