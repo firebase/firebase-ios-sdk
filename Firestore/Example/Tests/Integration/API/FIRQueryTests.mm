@@ -1223,7 +1223,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
     deletedDocumentIds = [deletedDocumentIdsAccumulator copy];
     XCTestExpectation *expectation = [self expectationWithDescription:@"DeleteTransaction"];
     [collRef.firestore
-        runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **error) {
+        runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
           for (NSUInteger i = 0; i < createdDocuments.count; i += 2) {
             FIRDocumentReference *documentToDelete = createdDocuments[i];
             [transaction deleteDocument:documentToDelete];
