@@ -437,6 +437,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
                                                                            auth:self
                                                                 heartbeatLogger:heartbeatLogger];
     _firebaseAppName = [appName copy];
+    _firebaseAppId = [appID copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
 
@@ -458,7 +459,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
     if (!strongSelf) {
       return;
     }
-    NSString *keychainServiceName = [[self class] keychainServiceNameForApp:self.app];
+    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppID:strongSelf.firebaseAppId];
     if (keychainServiceName) {
       strongSelf->_keychainServices =
           [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
@@ -1768,8 +1769,8 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
   return NO;
 }
 
-+ (NSString *)keychainServiceNameForApp:(FIRApp *)app {
-  return [@"firebase_auth_" stringByAppendingString:app.options.googleAppID];;
++ (NSString *)keychainServiceNameForAppID:(NSString *)appID {
+  return [@"firebase_auth_" stringByAppendingString:appID];
 }
 
 /** @fn scheduleAutoTokenRefreshWithDelay:
@@ -2127,7 +2128,7 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
 - (void)appWillBeDeleted:(nonnull FIRApp *)app {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     // This doesn't stop any request already issued, see b/27704535 .
-    NSString *keychainServiceName = [[self class] keychainServiceNameForApp:app];
+    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppID:app.options.googleAppID];
     if (keychainServiceName) {
       FIRAuthKeychainServices *keychain =
           [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
