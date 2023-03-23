@@ -54,6 +54,7 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/message.h"
+#include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/timestamp_internal.h"
@@ -197,8 +198,18 @@ class SerializerTest : public ::testing::Test {
 
   void ExpectDeserializationRoundTrip(const WatchChange& model,
                                       const v1::ListenResponse& proto) {
-    auto actual_model = Decode<google_firestore_v1_ListenResponse>(
-        std::mem_fn(&Serializer::DecodeWatchChange), proto);
+    // This block is basically an inlining of Decode(), which doesn't work for
+    // `DecodeWatchChange()` because `DecodeWatchChange()` takes an rvalue
+    // reference to a nanopb::Message object, whereas the other `DecodeXXX()`
+    // methods take a const reference to a raw proto. It _should_ be possible to
+    // write a specialization for `Decode()` using SFINAE, but I couldn't figure
+    // it out.
+    StringReader reader(ProtobufSerialize(proto));
+    auto message =
+        Message<google_firestore_v1_ListenResponse>::TryParse(&reader);
+    auto actual_model =
+        serializer.DecodeWatchChange(reader.context(), std::move(message));
+    EXPECT_OK(reader.status());
 
     EXPECT_EQ(model, *actual_model);
   }
@@ -1788,8 +1799,12 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
 
 TEST_F(SerializerTest,
        DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
-  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter{};
-//  BloomFilter({0x42, 0xFE}, 7, 33)
+  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter;
+  bloom_filter->hash_count = 33;
+  bloom_filter->has_bits = true;
+  bloom_filter->bits.padding = 7;
+  bloom_filter->bits.bitmap =
+      nanopb::MakeBytesArray(std::vector<uint8_t>{0x42, 0xFE});
   ExistenceFilterWatchChange model(
       ExistenceFilter(555, std::move(bloom_filter)), 999);
 
