@@ -346,6 +346,9 @@ NS_SWIFT_NAME(Auth)
  */
 @property(nonatomic, strong, readonly, nullable) FIRUser *currentUser;
 
+// TODO: temporary for updateKeychain check. Revisit with Auth.swift. Should not be public.
+@property(nonatomic, strong, readonly, nullable) FIRUser *rawCurrentUser;
+
 /** @property languageCode
     @brief The current user language code. This property can be set to the app's current language by
         calling `useAppLanguage()`.

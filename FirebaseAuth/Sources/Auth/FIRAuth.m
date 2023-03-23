@@ -597,6 +597,10 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
   return result;
 }
 
+- (nullable FIRUser *)rawCurrentUser {
+  return self->_currentUser;
+}
+
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                 completion:(nullable FIRAuthDataResultCallback)completion {
