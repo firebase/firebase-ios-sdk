@@ -337,7 +337,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
   /** @var _keychainServices
       @brief The keychain service.
    */
-  FIRAuthKeychainServices *_keychainServices;
+  id<FIRAuthStorage> _keychainServices;
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.
