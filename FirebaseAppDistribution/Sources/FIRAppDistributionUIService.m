@@ -293,22 +293,22 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (void)screenshotDetected:(NSNotification *)notification {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul), ^{
     [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
-        if ([[FIRAppDistribution appDistribution] isTesterSignedIn]) {
-          dispatch_async(dispatch_get_main_queue(), ^{
-            [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
-          });
-        } else {
-          [[FIRAppDistribution appDistribution]
-              signInTesterWithCompletion:^(NSError *_Nullable error) {
-                if (error) {
-                  return;
-                }
-            dispatch_async(dispatch_get_main_queue(), ^{
-              [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
-            });
-          }];
-        }
-      }];
+      if ([[FIRAppDistribution appDistribution] isTesterSignedIn]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+        });
+      } else {
+        [[FIRAppDistribution appDistribution]
+            signInTesterWithCompletion:^(NSError *_Nullable error) {
+              if (error) {
+                return;
+              }
+              dispatch_async(dispatch_get_main_queue(), ^{
+                [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+              });
+            }];
+      }
+    }];
   });
 }
 
