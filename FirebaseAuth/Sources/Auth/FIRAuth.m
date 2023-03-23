@@ -447,10 +447,9 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
 
     NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppID:_firebaseAppId];
     if (keychainServiceName) {
-        _keychainServices =
-            [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
-        _storedUserManager =
-            [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
+      _keychainServices = [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
+      _storedUserManager =
+          [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
     }
     [self protectedDataInitialization];
   }
