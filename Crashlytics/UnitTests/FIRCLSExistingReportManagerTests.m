@@ -149,7 +149,6 @@
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
 }
-#endif
 
 - (void)testReportNoEvents {
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:NO];
@@ -165,6 +164,7 @@
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
 }
+#endif
 
 - (void)testUnsentReportsUnderLimit {
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:YES];
