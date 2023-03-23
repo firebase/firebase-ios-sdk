@@ -47,7 +47,7 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
   /** @var _keychainServices
       @brief The keychain for app credentials to load from and to save to.
    */
-  FIRAuthKeychainServices *_keychainServices;
+  id<FIRAuthStorage> _keychainServices;
 
   /** @var _pendingReceipts
       @brief A list of pending receipts sorted in the order they were recorded.
@@ -60,7 +60,7 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
   NSMutableDictionary<NSString *, FIRAuthAppCredentialCallback> *_callbacksByReceipt;
 }
 
-- (instancetype)initWithKeychain:(FIRAuthKeychainServices *)keychain {
+- (instancetype)initWithKeychain:(id<FIRAuthStorage>)keychain {
   self = [super init];
   if (self) {
     _keychainServices = keychain;
