@@ -1450,23 +1450,24 @@ std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
 
 ExistenceFilter Serializer::DecodeExistenceFilter(
     const google_firestore_v1_ExistenceFilter& filter) const {
-  // Create bloom filter if there is an unchanged_names present in the filter
-  // and inputs are valid, otherwise keep it null.
-  absl::optional<BloomFilter> bloom_filter;
-  if (filter.has_unchanged_names) {
-    // TODO(Mila): None of the ported spec tests here actually has the bloom
-    // filter json string, so hard code an empty bloom filter for now. The
-    // actual parsing code will be written in the next PR, where we can validate
-    // the parsing result.
-    // TODO(Mila): handle bloom filter creation failure.
-    StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{}, 0, 0);
-    if (maybe_bloom_filter.ok()) {
-      bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
-    }
+  if (!filter.has_unchanged_names) {
+    return {filter.count, absl::nullopt};
   }
 
-  return {filter.count, std::move(bloom_filter)};
+  int32_t hash_count = filter.unchanged_names.hash_count;
+  int32_t padding = 0;
+  std::vector<uint8_t> bitmap;
+  if (filter.unchanged_names.has_bits) {
+    padding = filter.unchanged_names.bits.padding;
+
+    pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.bits.bitmap;
+    if (bitmap_ptr != nullptr) {
+      bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
+                                    bitmap_ptr->bytes + bitmap_ptr->size);
+    }
+  }
+  return {filter.count,
+          BloomFilterParameters{std::move(bitmap), padding, hash_count}};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {

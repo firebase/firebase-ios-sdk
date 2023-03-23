@@ -16,9 +16,11 @@
 
 #include "Firestore/core/src/remote/remote_event.h"
 
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -28,6 +30,7 @@ using core::DocumentViewChange;
 using core::Target;
 using local::QueryPurpose;
 using local::TargetData;
+using model::DatabaseId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::MutableDocument;
@@ -235,13 +238,64 @@ void WatchChangeAggregator::HandleExistenceFilter(
     } else {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
-        // Existence filter mismatch: We reset the mapping and raise a new
-        // snapshot with `isFromCache:true`.
-        ResetTarget(target_id);
-        pending_target_resets_.insert(target_id);
+        // TODO(Mila): Use application status instead of a boolean in next PR.
+        // Apply bloom filter to identify and mark removed documents.
+        bool bloom_filter_applied =
+            ApplyBloomFilter(existence_filter, current_size);
+        if (!bloom_filter_applied) {
+          // If bloom filter application fails, we reset the mapping and
+          // trigger re-run of the query.
+          ResetTarget(target_id);
+          pending_target_resets_.insert(target_id);
+        }
       }
     }
   }
+}
+
+bool WatchChangeAggregator::ApplyBloomFilter(
+    const ExistenceFilterWatchChange& existence_filter, int current_count) {
+  const absl::optional<BloomFilterParameters>& bloom_filter_parameters =
+      existence_filter.filter().bloom_filter_parameters();
+  if (!bloom_filter_parameters.has_value()) {
+    return false;
+  }
+
+  util::StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(bloom_filter_parameters.value().bitmap,
+                          bloom_filter_parameters.value().padding,
+                          bloom_filter_parameters.value().hash_count);
+  if (!maybe_bloom_filter.ok()) {
+    LOG_WARN("Creating BloomFilter failed: %s",
+             maybe_bloom_filter.status().error_message());
+    return false;
+  }
+
+  int removed_document_count = FilterRemovedDocuments(
+      maybe_bloom_filter.ValueOrDie(), existence_filter.target_id());
+
+  int expected_count = existence_filter.filter().count();
+  return expected_count == (current_count - removed_document_count);
+}
+
+int WatchChangeAggregator::FilterRemovedDocuments(
+    const BloomFilter& bloom_filter, int target_id) {
+  const DocumentKeySet existing_keys =
+      target_metadata_provider_->GetRemoteKeysForTarget(target_id);
+  int removalCount = 0;
+  for (const DocumentKey& key : existing_keys) {
+    const DatabaseId& database_id = target_metadata_provider_->GetDatabaseId();
+    std::string document_path = util::StringFormat(
+        "projects/%s/databases/%s/documents/%s", database_id.project_id(),
+        database_id.database_id(), key.ToString());
+
+    if (!bloom_filter.MightContain(document_path)) {
+      RemoveDocumentFromTarget(target_id, key,
+                               /*updatedDocument=*/absl::nullopt);
+      removalCount++;
+    }
+  }
+  return removalCount;
 }
 
 RemoteEvent WatchChangeAggregator::CreateRemoteEvent(

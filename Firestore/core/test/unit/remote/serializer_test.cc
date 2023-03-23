@@ -1773,7 +1773,6 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
   ExpectDeserializationRoundTrip(model, proto);
 }
 
-// TODO(Mila): Add test coverage for when the bloom filter is not null
 TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
   ExistenceFilterWatchChange model(
       ExistenceFilter(2, /*bloom_filter=*/absl::nullopt), 100);
@@ -1784,6 +1783,26 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
   proto.mutable_filter()->set_target_id(100);
 
   SCOPED_TRACE("DecodesListenResponseWithExistenceFilter");
+  ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest,
+       DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
+  ExistenceFilterWatchChange model(
+      ExistenceFilter(555, BloomFilterParameters{{0x42, 0xFE}, 7, 33}), 999);
+
+  v1::ListenResponse proto;
+  proto.mutable_filter()->set_count(555);
+  proto.mutable_filter()->set_target_id(999);
+
+  v1::BloomFilter* bloom_filter =
+      proto.mutable_filter()->mutable_unchanged_names();
+  bloom_filter->set_hash_count(33);
+  bloom_filter->mutable_bits()->set_padding(7);
+  bloom_filter->mutable_bits()->set_bitmap("\x42\xFE");
+
+  SCOPED_TRACE(
+      "DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull");
   ExpectDeserializationRoundTrip(model, proto);
 }
 

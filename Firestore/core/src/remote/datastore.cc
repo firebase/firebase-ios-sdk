@@ -106,6 +106,7 @@ Datastore::Datastore(
       auth_credentials_{std::move(auth_credentials)},
       rpc_executor_{CreateExecutor()},
       connectivity_monitor_{connectivity_monitor},
+      database_info_{database_info},
       grpc_connection_{database_info, worker_queue, &grpc_queue_,
                        connectivity_monitor_, firebase_metadata_provider},
       datastore_serializer_{database_info} {

@@ -566,6 +566,10 @@ absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
                                         : absl::optional<TargetData>{};
 }
 
+const model::DatabaseId& RemoteStore::GetDatabaseId() const {
+  return datastore_->database_info().database_id();
+}
+
 void RemoteStore::RestartNetwork() {
   is_network_enabled_ = false;
   DisableNetworkInternal();

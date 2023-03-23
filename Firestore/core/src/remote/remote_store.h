@@ -193,6 +193,7 @@ class RemoteStore : public TargetMetadataProvider,
       model::TargetId target_id) const override;
   absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const override;
+  const model::DatabaseId& GetDatabaseId() const override;
 
   void RunCountQuery(const core::Query& query,
                      api::CountQueryCallback&& result_callback);
