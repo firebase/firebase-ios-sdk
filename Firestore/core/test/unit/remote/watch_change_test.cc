@@ -43,16 +43,18 @@ TEST(WatchChangeTest, CanCreateDocumentWatchChange) {
 TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
   {
     ExistenceFilter filter{7, /*bloom_filter=*/absl::nullopt};
-    ExistenceFilterWatchChange change{filter, 5};
+    ExistenceFilterWatchChange change{std::move(filter), 5};
     EXPECT_EQ(change.filter().count(), 7);
     EXPECT_EQ(change.filter().bloom_filter(), absl::nullopt);
     EXPECT_EQ(change.target_id(), 5);
   }
   {
-    ExistenceFilter filter{7, BloomFilter({0x42, 0xFE}, 7, 33)};
+    nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter{};
+//    BloomFilter({0x42, 0xFE}, 7, 33)
+    ExistenceFilter filter{7, std::move(bloom_filter)};
     ExistenceFilterWatchChange change{std::move(filter), 5};
     EXPECT_EQ(change.filter().count(), 7);
-    EXPECT_EQ(change.filter().bloom_filter(), BloomFilter({0x42, 0xFE}, 7, 33));
+    EXPECT_EQ(change.filter().bloom_filter(), /*bloom_filter=*/absl::nullopt);
     EXPECT_EQ(change.target_id(), 5);
   }
 }

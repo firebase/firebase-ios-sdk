@@ -500,9 +500,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSArray<NSNumber *> *keys = watchFilter[@"keys"];
   int keyCount = keys ? (int)keys.count : 0;
 
-  absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+//  absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+  nanopb::Message<firebase::firestore::google_firestore_v1_BloomFilter> bloom_filter{};
 
-  ExistenceFilter filter{keyCount, std::move(bloomFilter)};
+  ExistenceFilter filter{keyCount, std::move(bloom_filter)};
   ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }

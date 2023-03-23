@@ -30,6 +30,8 @@
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
 #include "gtest/gtest.h"
+#include "Firestore/core/src/nanopb/message.h"
+
 
 namespace firebase {
 namespace firestore {
@@ -596,10 +598,12 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchWithBloomFilterSuccess) {
                               DocumentKeySet{}, DocumentKeySet{}};
   ASSERT_TRUE(event.target_changes().at(2) == target_change2);
 
+  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter{};
+
   // The given BloomFilter will return false on MightContain(doc1) and true on
   // MightContain(doc2).
   ExistenceFilterWatchChange change4{
-      ExistenceFilter{1, BloomFilter({0x0E, 0x0F}, 1, 7)}, 1};
+      ExistenceFilter{1,std::move(bloom_filter)}, 1};
   // The existence filter identifies that doc1 is deleted, and skips the full
   // re-query.
   aggregator.HandleExistenceFilter(change4);
@@ -647,8 +651,10 @@ TEST_F(RemoteEventTest,
 
   // The given BloomFilter will return true on both MightContain(doc1) and
   // MightContain(doc2).
+  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter{};
+//  BloomFilter({0x42, 0xFE}, 2, 7)
   ExistenceFilterWatchChange change4{
-      ExistenceFilter{1, BloomFilter({0x42, 0xFE}, 2, 7)}, 1};
+      ExistenceFilter{1,std::move(bloom_filter)}, 1};
   // The existence filter cannot identify which doc is deleted. It will remove
   // the document from target 1, but not synthesize a document delete.
   aggregator.HandleExistenceFilter(change4);

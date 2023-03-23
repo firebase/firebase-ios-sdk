@@ -155,7 +155,7 @@ RemoteEvent ExistenceFilterEvent(TargetId target_id,
   ExistenceFilter existence_filter{remote_count,
                                    /*bloom_filter=*/absl::nullopt};
   WatchChangeAggregator aggregator{&metadata_provider};
-  ExistenceFilterWatchChange existence_filter_watch_change{existence_filter,
+  ExistenceFilterWatchChange existence_filter_watch_change{std::move(existence_filter),
                                                            target_id};
   aggregator.HandleExistenceFilter(existence_filter_watch_change);
   return aggregator.CreateRemoteEvent(testutil::Version(version));

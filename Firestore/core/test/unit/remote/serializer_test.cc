@@ -1788,18 +1788,20 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
 
 TEST_F(SerializerTest,
        DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
+  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter{};
+//  BloomFilter({0x42, 0xFE}, 7, 33)
   ExistenceFilterWatchChange model(
-      ExistenceFilter(555, BloomFilter({0x42, 0xFE}, 7, 33)), 999);
+      ExistenceFilter(555, std::move(bloom_filter)), 999);
 
   v1::ListenResponse proto;
   proto.mutable_filter()->set_count(555);
   proto.mutable_filter()->set_target_id(999);
 
-  v1::BloomFilter* bloom_filter =
+  v1::BloomFilter* bloom_filter2 =
       proto.mutable_filter()->mutable_unchanged_names();
-  bloom_filter->set_hash_count(33);
-  bloom_filter->mutable_bits()->set_padding(7);
-  bloom_filter->mutable_bits()->set_bitmap("\x42\xFE");
+  bloom_filter2->set_hash_count(33);
+  bloom_filter2->mutable_bits()->set_padding(7);
+  bloom_filter2->mutable_bits()->set_bitmap("\x42\xFE");
 
   SCOPED_TRACE(
       "DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull");
