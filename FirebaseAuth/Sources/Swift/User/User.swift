@@ -26,12 +26,12 @@ import Foundation
   /** @property anonymous
       @brief Indicates the user represents an anonymous user.
    */
-  @objc private(set) public var isAnonymous: Bool
+  @objc public private(set) var isAnonymous: Bool
 
   /** @property emailVerified
       @brief Indicates the email address associated with this user has been verified.
    */
-  @objc private(set) public var isEmailVerified: Bool
+  @objc public private(set) var isEmailVerified: Bool
 
   /** @property refreshToken
       @brief A refresh token; useful for obtaining new access tokens independently.
@@ -44,24 +44,24 @@ import Foundation
       @brief Profile data for each identity provider, if any.
       @remarks This data is cached on sign-in and updated when linking or unlinking.
    */
-  @objc private(set) public var providerData :  [String: UserInfoImpl]
+  @objc public private(set) var providerData: [String: UserInfoImpl]
 
   /** @property metadata
       @brief Metadata associated with the Firebase user in question.
    */
-  @objc private(set) public var metadata: UserMetadata
+  @objc public private(set) var metadata: UserMetadata
 
   /** @property tenantID
       @brief The tenant ID of the current user. nil if none is available.
    */
-  @objc private(set) public var tenantID: String?
+  @objc public private(set) var tenantID: String?
 
   #if os(iOS)
-  /** @property multiFactor
-      @brief Multi factor object associated with the user.
-          This property is available on iOS only.
-  */
-  @objc private(set) public var multiFactor: MultiFactor
+    /** @property multiFactor
+         @brief Multi factor object associated with the user.
+             This property is available on iOS only.
+     */
+    @objc public private(set) var multiFactor: MultiFactor
   #endif
 
   /** @fn updateEmail:completion:
@@ -129,8 +129,8 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func updateEmail(to email: String) async throws -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
+  public func updateEmail(to email: String) async throws {
+    return try await withCheckedThrowingContinuation { continuation in
       self.updateEmail(to: email) { error in
         if let error {
           continuation.resume(throwing: error)
@@ -198,8 +198,8 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func updatePassword(to password: String) async throws -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
+  public func updatePassword(to password: String) async throws {
+    return try await withCheckedThrowingContinuation { continuation in
       self.updatePassword(to: password) { error in
         if let error {
           continuation.resume(throwing: error)
@@ -211,68 +211,68 @@ import Foundation
   }
 
   #if os(iOS)
-  /** @fn updatePhoneNumberCredential:completion:
-      @brief Updates the phone number for the user. On success, the cached user profile data is
-          updated.
-          This method is available on iOS only.
+    /** @fn updatePhoneNumberCredential:completion:
+        @brief Updates the phone number for the user. On success, the cached user profile data is
+            updated.
+            This method is available on iOS only.
 
-      @param phoneNumberCredential The new phone number credential corresponding to the phone number
-          to be added to the Firebase account, if a phone number is already linked to the account this
-          new phone number will replace it.
-      @param completion Optionally; the block invoked when the user profile change has finished.
-          Invoked asynchronously on the main thread in the future.
+        @param phoneNumberCredential The new phone number credential corresponding to the phone number
+            to be added to the Firebase account, if a phone number is already linked to the account this
+            new phone number will replace it.
+        @param completion Optionally; the block invoked when the user profile change has finished.
+            Invoked asynchronously on the main thread in the future.
 
-      @remarks Possible error codes:
+        @remarks Possible error codes:
 
-          + `AuthErrorCodeRequiresRecentLogin` - Updating a user’s phone number is a security
-              sensitive operation that requires a recent login from the user. This error indicates
-              the user has not signed in recently enough. To resolve, reauthenticate the user by
-              calling `reauthenticate(with:)`.
+            + `AuthErrorCodeRequiresRecentLogin` - Updating a user’s phone number is a security
+                sensitive operation that requires a recent login from the user. This error indicates
+                the user has not signed in recently enough. To resolve, reauthenticate the user by
+                calling `reauthenticate(with:)`.
 
-      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
-   */
-  @objc(updatePhoneNumberCredential:completion:)
-  public func updatePhoneNumber(_ credential: PhoneAuthCredential,
-                                          completion: ((Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      self.internalUpdateOrLinkPhoneNumber(credential: credential,
-                                           isLinkOperation: false) { error in
-        User.callInMainThreadWithError(callback: completion, error: error)
-      }
-    }
-  }
-
-  /** @fn updatePhoneNumberCredential
-      @brief Updates the phone number for the user. On success, the cached user profile data is
-          updated.
-          This method is available on iOS only.
-
-      @param phoneNumberCredential The new phone number credential corresponding to the phone number
-          to be added to the Firebase account, if a phone number is already linked to the account this
-          new phone number will replace it.
-      @throws an error.
-
-      @remarks Possible error codes:
-
-          + `AuthErrorCodeRequiresRecentLogin` - Updating a user’s phone number is a security
-              sensitive operation that requires a recent login from the user. This error indicates
-              the user has not signed in recently enough. To resolve, reauthenticate the user by
-              calling `reauthenticate(with:)`.
-
-      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.updatePhoneNumber(credential) { error in
-        if let error {
-          continuation.resume(throwing: error)
-        } else {
-          continuation.resume()
+        @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+     */
+    @objc(updatePhoneNumberCredential:completion:)
+    public func updatePhoneNumber(_ credential: PhoneAuthCredential,
+                                  completion: ((Error?) -> Void)? = nil) {
+      kAuthGlobalWorkQueue.async {
+        self.internalUpdateOrLinkPhoneNumber(credential: credential,
+                                             isLinkOperation: false) { error in
+          User.callInMainThreadWithError(callback: completion, error: error)
         }
       }
     }
-  }
+
+    /** @fn updatePhoneNumberCredential
+        @brief Updates the phone number for the user. On success, the cached user profile data is
+            updated.
+            This method is available on iOS only.
+
+        @param phoneNumberCredential The new phone number credential corresponding to the phone number
+            to be added to the Firebase account, if a phone number is already linked to the account this
+            new phone number will replace it.
+        @throws an error.
+
+        @remarks Possible error codes:
+
+            + `AuthErrorCodeRequiresRecentLogin` - Updating a user’s phone number is a security
+                sensitive operation that requires a recent login from the user. This error indicates
+                the user has not signed in recently enough. To resolve, reauthenticate the user by
+                calling `reauthenticate(with:)`.
+
+        @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+     */
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    public func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.updatePhoneNumber(credential) { error in
+          if let error {
+            continuation.resume(throwing: error)
+          } else {
+            continuation.resume()
+          }
+        }
+      }
+    }
   #endif
 
   /** @fn profileChangeRequest
@@ -315,7 +315,7 @@ import Foundation
    */
   @objc public func reload(withCompletion completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      self.getAccountInfoRefreshingCache() { user, error in
+      self.getAccountInfoRefreshingCache { user, error in
         User.callInMainThreadWithError(callback: completion, error: error)
       }
     }
@@ -334,9 +334,9 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func reload() async throws -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.reload() { error in
+  public func reload() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.reload { error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -396,16 +396,17 @@ import Foundation
             reportError = AuthErrorUtils.userMismatchError()
           }
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                            result: authResult,
-                                                            error: reportError)
+                                                          result: authResult,
+                                                          error: reportError)
           return
         }
         guard let user = authResult?.user,
               user.uid == self.auth?.getUserID() else {
           User.callInMainThreadWithAuthDataResultAndError(
             callback: completion,
-                                                    result: authResult,
-                                                    error: AuthErrorUtils.userMismatchError())
+            result: authResult,
+            error: AuthErrorUtils.userMismatchError()
+          )
           return
         }
         // Successful reauthenticate
@@ -456,7 +457,7 @@ import Foundation
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
   public func reauthenticate(with credential: AuthCredential) async throws -> AuthDataResult {
-    return try await withCheckedThrowingContinuation() { continuation in
+    return try await withCheckedThrowingContinuation { continuation in
       self.reauthenticate(with: credential) { result, error in
         if let result {
           continuation.resume(returning: result)
@@ -468,174 +469,141 @@ import Foundation
   }
 
   #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-  /** @fn reauthenticateWithProvider:UIDelegate:completion:
-      @brief Renews the user's authentication using the provided auth provider instance.
-          This method is available on iOS only.
+    /** @fn reauthenticateWithProvider:UIDelegate:completion:
+        @brief Renews the user's authentication using the provided auth provider instance.
+            This method is available on iOS only.
 
-      @param provider An instance of an auth provider used to initiate the reauthenticate flow.
-      @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
-          protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
-          will be used.
-      @param completion Optionally; a block which is invoked when the reauthenticate flow finishes, or
-          is canceled. Invoked asynchronously on the main thread in the future.
-   */
-  @objc(reauthenticateWithProvider:UIDelegate:completion:)
-  public func reauthenticate(with provider: FederatedAuthProvider,
-                                   uiDelegate: AuthUIDelegate?,
-                                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-    // TODO: Why isn't the `#if` around the function?
-    #if os(iOS)
-    kAuthGlobalWorkQueue.async {
-      provider.getCredentialWith(uiDelegate) { credential, error in
-        if let error {
-          if let completion {
-            completion(nil, error)
+        @param provider An instance of an auth provider used to initiate the reauthenticate flow.
+        @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
+            protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
+            will be used.
+        @param completion Optionally; a block which is invoked when the reauthenticate flow finishes, or
+            is canceled. Invoked asynchronously on the main thread in the future.
+     */
+    @objc(reauthenticateWithProvider:UIDelegate:completion:)
+    public func reauthenticate(with provider: FederatedAuthProvider,
+                               uiDelegate: AuthUIDelegate?,
+                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+      // TODO: Why isn't the `#if` around the function?
+      #if os(iOS)
+        kAuthGlobalWorkQueue.async {
+          provider.getCredentialWith(uiDelegate) { credential, error in
+            if let error {
+              if let completion {
+                completion(nil, error)
+              }
+              return
+            }
+            if let credential {
+              self.reauthenticate(with: credential, completion: completion)
+            }
           }
-          return
         }
-        if let credential {
-          self.reauthenticate(with: credential, completion: completion)
+      #endif
+    }
+
+    #if os(iOS)
+      /** @fn reauthenticateWithProvider:UIDelegate
+          @brief Renews the user's authentication using the provided auth provider instance.
+              This method is available on iOS only.
+
+          @param provider An instance of an auth provider used to initiate the reauthenticate flow.
+          @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
+              protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
+              will be used.
+          @returns An AuthDataResult.
+       */
+      @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+      @discardableResult
+      public func reauthenticate(with provider: FederatedAuthProvider,
+                                 uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+        return try await withCheckedThrowingContinuation { continuation in
+          self.reauthenticate(with: provider, uiDelegate: uiDelegate) { result, error in
+            if let result {
+              continuation.resume(returning: result)
+            } else if let error {
+              continuation.resume(throwing: error)
+            }
+          }
         }
       }
-    }
     #endif
-  }
 
-  #if os(iOS)
-  /** @fn reauthenticateWithProvider:UIDelegate
-      @brief Renews the user's authentication using the provided auth provider instance.
-          This method is available on iOS only.
+    /** @fn getIDTokenWithCompletion:
+        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
-      @param provider An instance of an auth provider used to initiate the reauthenticate flow.
-      @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
-          protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
-          will be used.
-      @returns An AuthDataResult.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @discardableResult
-  public func reauthenticate(with provider: FederatedAuthProvider,
-                              uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.reauthenticate(with: provider, uiDelegate: uiDelegate) { result, error in
-        if let result {
-          continuation.resume(returning: result)
-        } else if let error {
-          continuation.resume(throwing: error)
+        @param completion Optionally; the block invoked when the token is available. Invoked
+            asynchronously on the main thread in the future.
+
+        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+     */
+    @objc(getIDTokenWithCompletion:)
+    public func getIDToken(completion: ((String?, Error?) -> Void)?) {
+      // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
+      // global work queue here.
+      getIDTokenForcingRefresh(false, completion: completion)
+    }
+
+    /** @fn getIDTokenForcingRefresh:completion:
+        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+            other than an expiration.
+        @param completion Optionally; the block invoked when the token is available. Invoked
+            asynchronously on the main thread in the future.
+
+        @remarks The authentication token will be refreshed (by making a network request) if it has
+            expired, or if `forceRefresh` is true.
+
+        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+     */
+    public func getIDTokenForcingRefresh(_ forceRefresh: Bool,
+                                         completion: ((String?, Error?) -> Void)?) {
+      getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
+        if let completion {
+          DispatchQueue.main.async {
+            completion(tokenResult?.token, error)
+          }
         }
       }
     }
-  }
-  #endif
 
-  /** @fn getIDTokenWithCompletion:
-      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+    /** @fn getIDTokenForcingRefresh:completion:
+        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
-      @param completion Optionally; the block invoked when the token is available. Invoked
-          asynchronously on the main thread in the future.
+        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+            other than an expiration.
+        @returns The Token.
 
-      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
-  @objc(getIDTokenWithCompletion:)
-  public func getIDToken(completion: ((String?, Error?) -> Void)?) {
-    // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
-    // global work queue here.
-    self.getIDTokenForcingRefresh(false, completion: completion)
-  }
+        @remarks The authentication token will be refreshed (by making a network request) if it has
+            expired, or if `forceRefresh` is true.
 
-  /** @fn getIDTokenForcingRefresh:completion:
-      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-          other than an expiration.
-      @param completion Optionally; the block invoked when the token is available. Invoked
-          asynchronously on the main thread in the future.
-
-      @remarks The authentication token will be refreshed (by making a network request) if it has
-          expired, or if `forceRefresh` is true.
-
-      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
-  public func getIDTokenForcingRefresh(_ forceRefresh: Bool,
-                         completion: ((String?, Error?) -> Void)?) {
-    self.getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
-      if let completion {
-        DispatchQueue.main.async {
-          completion(tokenResult?.token, error)
+        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+     */
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    public func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
+          if let tokenResult {
+            continuation.resume(returning: tokenResult)
+          } else if let error {
+            continuation.resume(throwing: error)
+          }
         }
       }
     }
-  }
 
-  /** @fn getIDTokenForcingRefresh:completion:
-      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+    /** @fn getIDTokenResultWithCompletion:
+        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
-      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-          other than an expiration.
-      @returns The Token.
+        @param completion Optionally; the block invoked when the token is available. Invoked
+            asynchronously on the main thread in the future.
 
-      @remarks The authentication token will be refreshed (by making a network request) if it has
-          expired, or if `forceRefresh` is true.
-
-      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
-        if let tokenResult {
-          continuation.resume(returning: tokenResult)
-        } else if let error {
-          continuation.resume(throwing: error)
-        }
-      }
-    }
-  }
-
-  /** @fn getIDTokenResultWithCompletion:
-      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-      @param completion Optionally; the block invoked when the token is available. Invoked
-          asynchronously on the main thread in the future.
-
-      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
-  @objc(getIDTokenResultWithCompletion:)
-  public func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
-    self.getIDTokenResult(forcingRefresh: false) { tokenResult, error in
-      if let completion {
-        DispatchQueue.main.async {
-          completion(tokenResult, error)
-        }
-      }
-    }
-  }
-
-  /** @fn getIDTokenResultForcingRefresh:completion:
-      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-          other than an expiration.
-      @param completion Optionally; the block invoked when the token is available. Invoked
-          asynchronously on the main thread in the future.
-
-      @remarks The authentication token will be refreshed (by making a network request) if it has
-          expired, or if `forceRefresh` is YES.
-
-      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
-  @objc(getIDTokenResultForcingRefresh:completion:)
-  public func getIDTokenResult(forcingRefresh: Bool,
-                               completion: ((AuthTokenResult?, Error?) -> Void)?) {
-    kAuthGlobalWorkQueue.async {
-      self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
-        var tokenResult: AuthTokenResult?
-        if let token {
-          tokenResult = AuthTokenResult.tokenResult(token: token)
-          AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
-                           "\(String(describing: tokenResult?.expirationDate))," +
-                           "current date: \(Date())")
-        }
+        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+     */
+    @objc(getIDTokenResultWithCompletion:)
+    public func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
+      getIDTokenResult(forcingRefresh: false) { tokenResult, error in
         if let completion {
           DispatchQueue.main.async {
             completion(tokenResult, error)
@@ -643,230 +611,264 @@ import Foundation
         }
       }
     }
-  }
 
-  /** @fn getIDTokenResultForcingRefresh
-      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+    /** @fn getIDTokenResultForcingRefresh:completion:
+        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
-      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-          other than an expiration.
-      @returns The token.
+        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+            other than an expiration.
+        @param completion Optionally; the block invoked when the token is available. Invoked
+            asynchronously on the main thread in the future.
 
-      @remarks The authentication token will be refreshed (by making a network request) if it has
-          expired, or if `forceRefresh` is YES.
+        @remarks The authentication token will be refreshed (by making a network request) if it has
+            expired, or if `forceRefresh` is YES.
 
-      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
-  -> AuthTokenResult {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.getIDTokenResult(forcingRefresh:forceRefresh) { tokenResult, error in
-        if let tokenResult {
-          continuation.resume(returning: tokenResult)
-        } else if let error {
-          continuation.resume(throwing: error)
+        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+     */
+    @objc(getIDTokenResultForcingRefresh:completion:)
+    public func getIDTokenResult(forcingRefresh: Bool,
+                                 completion: ((AuthTokenResult?, Error?) -> Void)?) {
+      kAuthGlobalWorkQueue.async {
+        self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
+          var tokenResult: AuthTokenResult?
+          if let token {
+            tokenResult = AuthTokenResult.tokenResult(token: token)
+            AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
+              "\(String(describing: tokenResult?.expirationDate))," +
+              "current date: \(Date())")
+          }
+          if let completion {
+            DispatchQueue.main.async {
+              completion(tokenResult, error)
+            }
+          }
         }
       }
     }
-  }
 
-  /** @fn linkWithCredential:completion:
-      @brief Associates a user account from a third-party identity provider with this user and
-          returns additional identity provider data.
+    /** @fn getIDTokenResultForcingRefresh
+        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
-      @param credential The credential for the identity provider.
-      @param completion Optionally; the block invoked when the unlinking is complete, or fails.
-          Invoked asynchronously on the main thread in the future.
+        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+            other than an expiration.
+        @returns The token.
 
-      @remarks Possible error codes:
+        @remarks The authentication token will be refreshed (by making a network request) if it has
+            expired, or if `forceRefresh` is YES.
 
-          + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
-              type already linked to this account.
-          + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
-              credential that has already been linked with a different Firebase account.
-          + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
-              provider represented by the credential are not enabled. Enable them in the Auth section
-              of the Firebase console.
-
-      @remarks This method may also return error codes associated with `updateEmail(to:)` and
-          `updatePassword(to:)` on `User`.
-
-      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
-   */
-  @objc(linkWithCredential:completion:)
-  public func link(with credential: AuthCredential,
-                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      if self.providerData[credential.provider] != nil {
-        User.callInMainThreadWithAuthDataResultAndError(
-          callback: completion,
-                                              result: nil,
-                                    error: AuthErrorUtils.providerAlreadyLinkedError())
-        return
-      }
-      if let emailCredential = credential as? EmailAuthCredential {
-        self.link(withEmailCredential: emailCredential, completion: completion)
-        return
-      }
-      if let gameCenterCredential = credential as? GameCenterAuthCredential {
-        self.link(withGameCenterCredential: gameCenterCredential, completion: completion)
-        return
-      }
-      #if os(iOS)
-      if let phoneCredential = credential as? PhoneAuthCredential {
-        self.link(withPhoneCredential: phoneCredential, completion: completion)
-        return
-      }
-      #endif
-
-      self.taskQueue.enqueueTask() { complete in
-        let completeWithError = { result, error in
-          complete()
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result,
-                                                          error: error)
+        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+     */
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    public func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
+      -> AuthTokenResult {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
+          if let tokenResult {
+            continuation.resume(returning: tokenResult)
+          } else if let error {
+            continuation.resume(throwing: error)
+          }
         }
-        self.internalGetToken() { accessToken, error in
-          if let error {
-            completeWithError(nil, error)
+      }
+    }
+
+    /** @fn linkWithCredential:completion:
+        @brief Associates a user account from a third-party identity provider with this user and
+            returns additional identity provider data.
+
+        @param credential The credential for the identity provider.
+        @param completion Optionally; the block invoked when the unlinking is complete, or fails.
+            Invoked asynchronously on the main thread in the future.
+
+        @remarks Possible error codes:
+
+            + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
+                type already linked to this account.
+            + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
+                credential that has already been linked with a different Firebase account.
+            + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
+                provider represented by the credential are not enabled. Enable them in the Auth section
+                of the Firebase console.
+
+        @remarks This method may also return error codes associated with `updateEmail(to:)` and
+            `updatePassword(to:)` on `User`.
+
+        @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+     */
+    @objc(linkWithCredential:completion:)
+    public func link(with credential: AuthCredential,
+                     completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+      kAuthGlobalWorkQueue.async {
+        if self.providerData[credential.provider] != nil {
+          User.callInMainThreadWithAuthDataResultAndError(
+            callback: completion,
+            result: nil,
+            error: AuthErrorUtils.providerAlreadyLinkedError()
+          )
+          return
+        }
+        if let emailCredential = credential as? EmailAuthCredential {
+          self.link(withEmailCredential: emailCredential, completion: completion)
+          return
+        }
+        if let gameCenterCredential = credential as? GameCenterAuthCredential {
+          self.link(withGameCenterCredential: gameCenterCredential, completion: completion)
+          return
+        }
+        #if os(iOS)
+          if let phoneCredential = credential as? PhoneAuthCredential {
+            self.link(withPhoneCredential: phoneCredential, completion: completion)
             return
           }
-          guard let requestConfiguration = self.auth?.requestConfiguration else {
-            fatalError("Internal Error: Unexpected nil requestConfiguration.")
+        #endif
+
+        self.taskQueue.enqueueTask { complete in
+          let completeWithError = { result, error in
+            complete()
+            User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result,
+                                                            error: error)
           }
-          let request = VerifyAssertionRequest(providerID: credential.provider,
-                                               requestConfiguration: requestConfiguration)
-          credential.prepare(request)
-          request.accessToken = accessToken
-          AuthBackend.post(withRequest: request) { rawResponse, error in
+          self.internalGetToken { accessToken, error in
             if let error {
-              self.signOutIfTokenIsInvalid(withError: error)
               completeWithError(nil, error)
               return
             }
-            guard let response = rawResponse as? VerifyAssertionResponse else {
-              fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
+            guard let requestConfiguration = self.auth?.requestConfiguration else {
+              fatalError("Internal Error: Unexpected nil requestConfiguration.")
             }
-            let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
-            let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
-            let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
-                                        credential: updatedOAuthCredential)
-            guard let idToken = response.idToken,
-                  let refreshToken = response.refreshToken else {
-              fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+            let request = VerifyAssertionRequest(providerID: credential.provider,
+                                                 requestConfiguration: requestConfiguration)
+            credential.prepare(request)
+            request.accessToken = accessToken
+            AuthBackend.post(withRequest: request) { rawResponse, error in
+              if let error {
+                self.signOutIfTokenIsInvalid(withError: error)
+                completeWithError(nil, error)
+                return
+              }
+              guard let response = rawResponse as? VerifyAssertionResponse else {
+                fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
+              }
+              let additionalUserInfo = AdditionalUserInfo
+                .userInfo(verifyAssertionResponse: response)
+              let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
+              let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
+                                          credential: updatedOAuthCredential)
+              guard let idToken = response.idToken,
+                    let refreshToken = response.refreshToken else {
+                fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+              }
+              self.updateTokenAndRefreshUser(idToken: idToken,
+                                             refreshToken: refreshToken,
+                                             accessToken: accessToken,
+                                             expirationDate: response.approximateExpirationDate,
+                                             result: result,
+                                             requestConfiguration: requestConfiguration,
+                                             completion: completion)
             }
-            self.updateTokenAndRefreshUser(idToken: idToken,
-                                           refreshToken: refreshToken,
-                                           accessToken: accessToken,
-                                           expirationDate: response.approximateExpirationDate,
-                                           result: result,
-                                           requestConfiguration: requestConfiguration,
-                                           completion: completion)
           }
         }
       }
     }
-  }
 
-  /** @fn linkWithCredential:
-      @brief Associates a user account from a third-party identity provider with this user and
-          returns additional identity provider data.
+    /** @fn linkWithCredential:
+        @brief Associates a user account from a third-party identity provider with this user and
+            returns additional identity provider data.
 
-      @param credential The credential for the identity provider.
-      @returns The AuthDataResult.
+        @param credential The credential for the identity provider.
+        @returns The AuthDataResult.
 
-      @remarks Possible error codes:
+        @remarks Possible error codes:
 
-          + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
-              type already linked to this account.
-          + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
-              credential that has already been linked with a different Firebase account.
-          + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
-              provider represented by the credential are not enabled. Enable them in the Auth section
-              of the Firebase console.
+            + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
+                type already linked to this account.
+            + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
+                credential that has already been linked with a different Firebase account.
+            + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
+                provider represented by the credential are not enabled. Enable them in the Auth section
+                of the Firebase console.
 
-      @remarks This method may also return error codes associated with `updateEmail(to:)` and
-          `updatePassword(to:)` on `User`.
+        @remarks This method may also return error codes associated with `updateEmail(to:)` and
+            `updatePassword(to:)` on `User`.
 
-      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @discardableResult
-  public func link(with credential: AuthCredential) async throws -> AuthDataResult {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.link(with: credential) { result, error in
-        if let result {
-          continuation.resume(returning: result)
-        } else if let error {
-          continuation.resume(throwing: error)
+        @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+     */
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    @discardableResult
+    public func link(with credential: AuthCredential) async throws -> AuthDataResult {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.link(with: credential) { result, error in
+          if let result {
+            continuation.resume(returning: result)
+          } else if let error {
+            continuation.resume(throwing: error)
+          }
         }
       }
     }
-  }
 
+    #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+      /** @fn linkWithProvider:UIDelegate:completion:
+          @brief link the user with the provided auth provider instance.
+              This method is available on iOS, macOS Catalyst, and tvOS only.
 
-#if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-  /** @fn linkWithProvider:UIDelegate:completion:
-      @brief link the user with the provided auth provider instance.
-          This method is available on iOS, macOS Catalyst, and tvOS only.
-
-      @param provider An instance of an auth provider used to initiate the link flow.
-      @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
-          protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
-          will be used.
-      @param completion Optionally; a block which is invoked when the link flow finishes, or
-          is canceled. Invoked asynchronously on the main thread in the future.
-   */
-@objc(linkWithProvider:UIDelegate:completion:)
-public func link(with provider: FederatedAuthProvider,
-                                 uiDelegate: AuthUIDelegate?,
-                 completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-#if os(iOS)
-    kAuthGlobalWorkQueue.async {
-      provider.getCredentialWith(uiDelegate) { credential, error in
-        if let error {
-          if let completion {
-            completion(nil, error)
+          @param provider An instance of an auth provider used to initiate the link flow.
+          @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
+              protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
+              will be used.
+          @param completion Optionally; a block which is invoked when the link flow finishes, or
+              is canceled. Invoked asynchronously on the main thread in the future.
+       */
+      @objc(linkWithProvider:UIDelegate:completion:)
+      public func link(with provider: FederatedAuthProvider,
+                       uiDelegate: AuthUIDelegate?,
+                       completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+        #if os(iOS)
+          kAuthGlobalWorkQueue.async {
+            provider.getCredentialWith(uiDelegate) { credential, error in
+              if let error {
+                if let completion {
+                  completion(nil, error)
+                }
+              } else {
+                guard let credential else {
+                  fatalError("Failed to get credential for link withProvider")
+                }
+                self.link(with: credential, completion: completion)
+              }
+            }
           }
-        } else {
-          guard let credential else {
-            fatalError("Failed to get credential for link withProvider")
-          }
-          self.link(with: credential, completion: completion)
-        }
+        #endif
       }
+    #endif
+
+    /** @fn linkWithProvider:UIDelegate:
+        @brief link the user with the provided auth provider instance.
+            This method is available on iOS, macOS Catalyst, and tvOS only.
+
+        @param provider An instance of an auth provider used to initiate the link flow.
+        @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
+            protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
+            will be used.
+        @returns An AuthDataResult.
+     */
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    @discardableResult
+    public func link(with provider: FederatedAuthProvider,
+                     uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+      #if os(iOS)
+        return try await withCheckedThrowingContinuation { continuation in
+          self.link(with: provider, uiDelegate: uiDelegate) { result, error in
+            if let result {
+              continuation.resume(returning: result)
+            } else if let error {
+              continuation.resume(throwing: error)
+            }
+          }
+        }
+      #endif
     }
-#endif
-  }
   #endif
-
-  /** @fn linkWithProvider:UIDelegate:
-      @brief link the user with the provided auth provider instance.
-          This method is available on iOS, macOS Catalyst, and tvOS only.
-
-      @param provider An instance of an auth provider used to initiate the link flow.
-      @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
-          protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
-          will be used.
-      @returns An AuthDataResult.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @discardableResult
-  public func link(with provider: FederatedAuthProvider,
-                              uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
-#if os(iOS)
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.link(with: provider, uiDelegate: uiDelegate) { result, error in
-        if let result {
-          continuation.resume(returning: result)
-        } else if let error {
-          continuation.resume(throwing: error)
-        }
-      }
-    }
-#endif
-  }
-#endif
 
   /** @fn unlinkFromProvider:completion:
       @brief Disassociates a user account from a third-party identity provider with this user.
@@ -888,13 +890,13 @@ public func link(with provider: FederatedAuthProvider,
    */
   @objc public func unlink(fromProvider provider: String,
                            completion: ((User?, Error?) -> Void)? = nil) {
-    self.taskQueue.enqueueTask() { complete in
-      let completeAndCallbackWithError = { error  in
+    taskQueue.enqueueTask { complete in
+      let completeAndCallbackWithError = { error in
         complete()
         User.callInMainThreadWithUserAndError(callback: completion, user: self,
                                               error: error)
       }
-      self.internalGetToken() { accessToken, error in
+      self.internalGetToken { accessToken, error in
         if let error {
           completeAndCallbackWithError(error)
           return
@@ -909,7 +911,7 @@ public func link(with provider: FederatedAuthProvider,
           completeAndCallbackWithError(AuthErrorUtils.noSuchProviderError())
           return
         }
-        request.deleteProviders = [ provider ]
+        request.deleteProviders = [provider]
         AuthBackend.post(withRequest: request) { rawResponse, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
@@ -924,18 +926,19 @@ public func link(with provider: FederatedAuthProvider,
             self.hasEmailPasswordCredential = false
           }
           #if os(iOS)
-          // After successfully unlinking a phone auth provider, remove the phone number
-          // from the cached user info.
-          if provider == PhoneAuthProvider.id {
-            self.phoneNumber = nil
-          }
+            // After successfully unlinking a phone auth provider, remove the phone number
+            // from the cached user info.
+            if provider == PhoneAuthProvider.id {
+              self.phoneNumber = nil
+            }
           #endif
           if let response = rawResponse as? SetAccountInfoResponse,
-            let idToken = response.idToken,
-          let refreshToken = response.refreshToken {
+             let idToken = response.idToken,
+             let refreshToken = response.refreshToken {
             let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
                                                   accessToken: idToken,
-                                                  accessTokenExpirationDate: response.approximateExpirationDate,
+                                                  accessTokenExpirationDate: response
+                                                    .approximateExpirationDate,
                                                   refreshToken: refreshToken)
             self.setTokenService(tokenService: tokenService) { error in
               completeAndCallbackWithError(error)
@@ -971,7 +974,7 @@ public func link(with provider: FederatedAuthProvider,
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func unlink(fromProvider provider: String) async throws -> User {
-    return try await withCheckedThrowingContinuation() { continuation in
+    return try await withCheckedThrowingContinuation { continuation in
       self.unlink(fromProvider: provider) { result, error in
         if let result {
           continuation.resume(returning: result)
@@ -981,7 +984,6 @@ public func link(with provider: FederatedAuthProvider,
       }
     }
   }
-
 
   /** @fn sendEmailVerificationWithCompletion:
       @brief Initiates email verification for the user.
@@ -1003,7 +1005,7 @@ public func link(with provider: FederatedAuthProvider,
    */
   @objc(sendEmailVerificationWithActionCodeSettings:)
   public func __sendEmailVerification(withCompletion completion: ((Error?) -> Void)?) {
-    self.sendEmailVerification(withCompletion: completion)
+    sendEmailVerification(withCompletion: completion)
   }
 
   /** @fn sendEmailVerificationWithActionCodeSettings:completion:
@@ -1032,9 +1034,9 @@ public func link(with provider: FederatedAuthProvider,
    */
   @objc(sendEmailVerificationWithActionCodeSettings:completion:)
   public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil,
-                                          withCompletion completion: ((Error?) -> Void)? = nil) {
+                                    withCompletion completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      self.internalGetToken() { accessToken, error in
+      self.internalGetToken { accessToken, error in
         if let error {
           User.callInMainThreadWithError(callback: completion, error: error)
           return
@@ -1047,8 +1049,9 @@ public func link(with provider: FederatedAuthProvider,
         }
         let request = GetOOBConfirmationCodeRequest.verifyEmailRequest(
           accessToken: accessToken,
-                                          actionCodeSettings: actionCodeSettings,
-                                              requestConfiguration: requestConfiguration)
+          actionCodeSettings: actionCodeSettings,
+          requestConfiguration: requestConfiguration
+        )
         AuthBackend.post(withRequest: request) { response, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
@@ -1085,8 +1088,8 @@ public func link(with provider: FederatedAuthProvider,
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil) async throws
-      -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
+  {
+    return try await withCheckedThrowingContinuation { continuation in
       self.sendEmailVerification(with: actionCodeSettings) { error in
         if let error {
           continuation.resume(throwing: error)
@@ -1114,7 +1117,7 @@ public func link(with provider: FederatedAuthProvider,
    */
   @objc public func delete(withCompletion completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      self.internalGetToken() { accessToken, error in
+      self.internalGetToken { accessToken, error in
         if let error {
           User.callInMainThreadWithError(callback: completion, error: error)
           return
@@ -1134,7 +1137,7 @@ public func link(with provider: FederatedAuthProvider,
           }
           do {
             try self.auth?.signOutByForce(withUserID: self.uid)
-          } catch (let error) {
+          } catch {
             User.callInMainThreadWithError(callback: completion, error: error)
             return
           }
@@ -1160,9 +1163,9 @@ public func link(with provider: FederatedAuthProvider,
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func delete() async throws -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.delete() { error in
+  public func delete() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.delete { error in
         if let error {
           continuation.resume(throwing: error)
         } else {
@@ -1173,29 +1176,31 @@ public func link(with provider: FederatedAuthProvider,
   }
 
   /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
-      @brief Send an email to verify the ownership of the account then update to the new email.
-      @param email The email to be updated to.
-      @param completion Optionally; the block invoked when the request to send the verification
-          email is complete, or fails.
-  */
+       @brief Send an email to verify the ownership of the account then update to the new email.
+       @param email The email to be updated to.
+       @param completion Optionally; the block invoked when the request to send the verification
+           email is complete, or fails.
+   */
   @objc(sendEmailVerificationBeforeUpdatingEmail:completion:)
-  public func __sendEmailVerificationBeforeUpdating(email: String, completion: ((Error?) -> Void)?) {
-    self.sendEmailVerification(beforeUpdatingEmail: email, completion: completion)
+  public func __sendEmailVerificationBeforeUpdating(email: String,
+                                                    completion: ((Error?) -> Void)?) {
+    sendEmailVerification(beforeUpdatingEmail: email, completion: completion)
   }
 
   /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
-      @brief Send an email to verify the ownership of the account then update to the new email.
-      @param email The email to be updated to.
-      @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
-          handling action codes.
-      @param completion Optionally; the block invoked when the request to send the verification
-          email is complete, or fails.
-  */
+       @brief Send an email to verify the ownership of the account then update to the new email.
+       @param email The email to be updated to.
+       @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
+           handling action codes.
+       @param completion Optionally; the block invoked when the request to send the verification
+           email is complete, or fails.
+   */
   @objc public func sendEmailVerification(beforeUpdatingEmail email: String,
-                                                        actionCodeSettings: ActionCodeSettings? = nil,
-                                                        completion: ((Error?) -> Void)? = nil) {
+                                          actionCodeSettings: ActionCodeSettings? =
+                                            nil,
+                                          completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      self.internalGetToken() { accessToken, error in
+      self.internalGetToken { accessToken, error in
         if let error {
           User.callInMainThreadWithError(callback: completion, error: error)
           return
@@ -1210,7 +1215,8 @@ public func link(with provider: FederatedAuthProvider,
           accessToken: accessToken,
           newEmail: email,
           actionCodeSettings: actionCodeSettings,
-          requestConfiguration: requestConfiguration)
+          requestConfiguration: requestConfiguration
+        )
         AuthBackend.post(withRequest: request) { response, error in
           User.callInMainThreadWithError(callback: completion, error: error)
         }
@@ -1219,16 +1225,16 @@ public func link(with provider: FederatedAuthProvider,
   }
 
   /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
-      @brief Send an email to verify the ownership of the account then update to the new email.
-      @param email The email to be updated to.
-      @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
-          handling action codes.
-      @throws on failure.
-  */
+       @brief Send an email to verify the ownership of the account then update to the new email.
+       @param email The email to be updated to.
+       @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
+           handling action codes.
+       @throws on failure.
+   */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func sendEmailVerification(beforeUpdatingEmail newEmail: String,
-                      actionCodeSettings: ActionCodeSettings? = nil) async throws -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
+                                    actionCodeSettings: ActionCodeSettings? = nil) async throws {
+    return try await withCheckedThrowingContinuation { continuation in
       self.sendEmailVerification(beforeUpdatingEmail: newEmail,
                                  actionCodeSettings: actionCodeSettings) { error in
         if let error {
@@ -1240,39 +1246,39 @@ public func link(with provider: FederatedAuthProvider,
     }
   }
 
-
   @objc public func rawAccessToken() -> String {
-    return self.tokenService.accessToken
+    return tokenService.accessToken
   }
 
   @objc public func accessTokenExpirationDate() -> Date? {
-    return self.tokenService.accessTokenExpirationDate
+    return tokenService.accessTokenExpirationDate
   }
 
   // MARK: Internal implementations below
+
   init(withTokenService tokenService: SecureTokenService) {
     providerData = [:]
     taskQueue = AuthSerialTaskQueue()
     self.tokenService = tokenService
-    self.isAnonymous = false
-    self.isEmailVerified = false
-    self.rawRefreshToken = nil
-    self.metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
-    self.tenantID = nil
-    self.multiFactor = MultiFactor(mfaEnrollments: [])
-    self.providerID = ""
-    self.uid = ""
-    self.hasEmailPasswordCredential = false
-    self.requestConfiguration = AuthRequestConfiguration(APIKey: "", appID: "")
+    isAnonymous = false
+    isEmailVerified = false
+    rawRefreshToken = nil
+    metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
+    tenantID = nil
+    multiFactor = MultiFactor(mfaEnrollments: [])
+    providerID = ""
+    uid = ""
+    hasEmailPasswordCredential = false
+    requestConfiguration = AuthRequestConfiguration(APIKey: "", appID: "")
   }
 
   // TODO: internal Swift
   @objc public class func retrieveUser(withAuth auth: Auth,
-                                accessToken: String?,
-                                accessTokenExpirationDate: Date?,
-                                refreshToken: String?,
-                                anonymous: Bool,
-                                callback:@escaping (User?, Error?) -> Void) {
+                                       accessToken: String?,
+                                       accessTokenExpirationDate: Date?,
+                                       refreshToken: String?,
+                                       anonymous: Bool,
+                                       callback: @escaping (User?, Error?) -> Void) {
     guard let accessToken = accessToken,
           let refreshToken = refreshToken else {
       fatalError("Internal FirebaseAuth Error: nil token")
@@ -1285,7 +1291,7 @@ public func link(with provider: FederatedAuthProvider,
     user.auth = auth
     user.tenantID = auth.tenantID
     user.requestConfiguration = auth.requestConfiguration
-    user.internalGetToken() { accessToken, error in
+    user.internalGetToken { accessToken, error in
       if let error {
         callback(nil, error)
         return
@@ -1294,7 +1300,8 @@ public func link(with provider: FederatedAuthProvider,
         fatalError("Internal FirebaseAuthError: Both error and accessToken are nil")
       }
       let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                        requestConfiguration: user.requestConfiguration)
+                                                        requestConfiguration: user
+                                                          .requestConfiguration)
       AuthBackend.post(withRequest: getAccountInfoRequest) { rawResponse, error in
         if let error {
           // No need to sign out user here for errors because the user hasn't been signed in yet.
@@ -1340,8 +1347,8 @@ public func link(with provider: FederatedAuthProvider,
   public var phoneNumber: String?
 
   /** @var hasEmailPasswordCredential
-                 @brief Whether or not the user can be authenticated by using Firebase email and password.
-              */
+      @brief Whether or not the user can be authenticated by using Firebase email and password.
+   */
   private var hasEmailPasswordCredential: Bool
 
   /** @var _taskQueue
@@ -1370,9 +1377,10 @@ public func link(with provider: FederatedAuthProvider,
 
   // MARK: Private functions
 
-  private func updateEmail(email: String?, password: String?, callback: @escaping (Error?) -> Void) {
-    let hadEmailPasswordCredential = self.hasEmailPasswordCredential
-    self.executeUserUpdateWithChanges(changeBlock: { user, request in
+  private func updateEmail(email: String?, password: String?,
+                           callback: @escaping (Error?) -> Void) {
+    let hadEmailPasswordCredential = hasEmailPasswordCredential
+    executeUserUpdateWithChanges(changeBlock: { user, request in
       if let email {
         request.email = email
       }
@@ -1390,7 +1398,7 @@ public func link(with provider: FederatedAuthProvider,
       if self.email != nil {
         if !hadEmailPasswordCredential {
           // The list of providers need to be updated for the newly added email-password provider.
-          self.internalGetToken() { accessToken, error in
+          self.internalGetToken { accessToken, error in
             if let error {
               callback(error)
               return
@@ -1455,10 +1463,10 @@ public func link(with provider: FederatedAuthProvider,
           auth global work queue in the future.
    */
   private func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
-                                                          SetAccountInfoRequest) -> Void,
+                                                                    SetAccountInfoRequest) -> Void,
                                             callback: @escaping (Error?) -> Void) {
-    taskQueue.enqueueTask() { complete in
-      self.getAccountInfoRefreshingCache() { user, error in
+    taskQueue.enqueueTask { complete in
+      self.getAccountInfoRefreshingCache { user, error in
         if let error {
           complete()
           callback(error)
@@ -1467,7 +1475,7 @@ public func link(with provider: FederatedAuthProvider,
         guard let user else {
           fatalError("Internal error: Both user and error are nil")
         }
-        self.internalGetToken() { accessToken, error in
+        self.internalGetToken { accessToken, error in
           if let error {
             complete()
             callback(error)
@@ -1492,11 +1500,11 @@ public func link(with provider: FederatedAuthProvider,
                     withRequestConfiguration: configuration,
                     accessToken: idToken,
                     accessTokenExpirationDate: accountInfoResponse.approximateExpirationDate,
-                    refreshToken: refreshToken)
+                    refreshToken: refreshToken
+                  )
                   self.setTokenService(tokenService: tokenService) { error in
                     complete()
                     callback(error)
-                    return
                   }
                 }
               }
@@ -1516,7 +1524,8 @@ public func link(with provider: FederatedAuthProvider,
       @remarks The method makes sure the token service has access and refresh token and the new tokens
           are saved in the keychain before calling back.
    */
-  private func setTokenService(tokenService: SecureTokenService, callback: @escaping (Error?) -> Void) {
+  private func setTokenService(tokenService: SecureTokenService,
+                               callback: @escaping (Error?) -> Void) {
     tokenService.fetchAccessToken(forcingRefresh: false) { token, error, tokenUpdated in
       if let error {
         callback(error)
@@ -1536,9 +1545,9 @@ public func link(with provider: FederatedAuthProvider,
       @param callback Invoked when the request to getAccountInfo has completed, or when an error has
           been detected. Invoked asynchronously on the auth global work queue in the future.
    */
-  private func getAccountInfoRefreshingCache(
-    callback: @escaping (GetAccountInfoResponseUser?, Error?) -> Void) {
-    self.internalGetToken() { token, error in
+  private func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponseUser?,
+                                                                  Error?) -> Void) {
+    internalGetToken { token, error in
       if let error {
         callback(nil, error)
         return
@@ -1583,12 +1592,12 @@ public func link(with provider: FederatedAuthProvider,
     phoneNumber = user.phoneNumber
     hasEmailPasswordCredential = user.passwordHash != nil && user.passwordHash!.count > 0
     metadata = UserMetadata(withCreationDate: user.creationDate,
-                                              lastSignInDate: user.lastLoginDate)
+                            lastSignInDate: user.lastLoginDate)
     var providerData: [String: UserInfoImpl] = [:]
     if let providerUserInfos = user.providerUserInfo {
       for providerUserInfo in providerUserInfos {
         let userInfo = UserInfoImpl.userInfo(withGetAccountInfoResponseProviderUserInfo:
-                                              providerUserInfo)
+          providerUserInfo)
         if let providerID = providerUserInfo.providerID {
           providerData[providerID] = userInfo
         }
@@ -1596,88 +1605,89 @@ public func link(with provider: FederatedAuthProvider,
     }
     self.providerData = providerData
     #if os(iOS)
-    if let enrollments = user.MFAEnrollments {
-      self.multiFactor = MultiFactor(mfaEnrollments: enrollments)
-    }
-    // TODO: Revisit after port of Multifactor_internal.h
-    // self.multiFactor.user = self
+      if let enrollments = user.MFAEnrollments {
+        multiFactor = MultiFactor(mfaEnrollments: enrollments)
+      }
+      // TODO: Revisit after port of Multifactor_internal.h
+      // self.multiFactor.user = self
     #endif
   }
 
   #if os(iOS)
-  /** @fn internalUpdateOrLinkPhoneNumber
-      @brief Updates the phone number for the user. On success, the cached user profile data is
-          updated.
+    /** @fn internalUpdateOrLinkPhoneNumber
+        @brief Updates the phone number for the user. On success, the cached user profile data is
+            updated.
 
-      @param phoneAuthCredential The new phone number credential corresponding to the phone number
-          to be added to the Firebase account, if a phone number is already linked to the account this
-          new phone number will replace it.
-      @param isLinkOperation Boolean value indicating whether or not this is a link operation.
-      @param completion Optionally; the block invoked when the user profile change has finished.
-          Invoked asynchronously on the global work queue in the future.
-   */
-  private func internalUpdateOrLinkPhoneNumber(credential: PhoneAuthCredential,
-                                               isLinkOperation: Bool,
-                                               completion: @escaping (Error?) -> Void) {
-    self.internalGetToken() { accessToken, error in
-      if let error {
-        completion(error)
-        return
-      }
-      guard let accessToken = accessToken else {
-        fatalError("Auth Internal Error: Both accessToken and error are nil")
-      }
-      guard let configuration = self.auth?.requestConfiguration,
-      let verificationID = credential.verificationID,
-      let verificationCode = credential.verificationCode else {
-        fatalError("Auth Internal Error: nil value for VerifyPhoneNumberRequest initializer")
-      }
-      let operation = isLinkOperation ? AuthOperationType.link : AuthOperationType.update
-      let request = VerifyPhoneNumberRequest(verificationID: verificationID,
-                                             verificationCode: verificationCode,
-                                             operation: operation,
-                                             requestConfiguration: configuration)
-      request.accessToken = accessToken
-      AuthBackend.post(withRequest: request) { response, error in
+        @param phoneAuthCredential The new phone number credential corresponding to the phone number
+            to be added to the Firebase account, if a phone number is already linked to the account this
+            new phone number will replace it.
+        @param isLinkOperation Boolean value indicating whether or not this is a link operation.
+        @param completion Optionally; the block invoked when the user profile change has finished.
+            Invoked asynchronously on the global work queue in the future.
+     */
+    private func internalUpdateOrLinkPhoneNumber(credential: PhoneAuthCredential,
+                                                 isLinkOperation: Bool,
+                                                 completion: @escaping (Error?) -> Void) {
+      internalGetToken { accessToken, error in
         if let error {
-          self.signOutIfTokenIsInvalid(withError: error)
           completion(error)
           return
         }
-        // Update the new token and refresh user info again.
-        if let verifyResponse = response as? VerifyPhoneNumberResponse {
-          if let idToken = verifyResponse.idToken,
-             let refreshToken = verifyResponse.refreshToken {
-            self.tokenService = SecureTokenService(
-              withRequestConfiguration: configuration,
-              accessToken: idToken,
-              accessTokenExpirationDate: verifyResponse.approximateExpirationDate,
-              refreshToken: refreshToken)
-          }
+        guard let accessToken = accessToken else {
+          fatalError("Auth Internal Error: Both accessToken and error are nil")
         }
-        // Get account info to update cached user info.
-        self.getAccountInfoRefreshingCache() { user, error in
+        guard let configuration = self.auth?.requestConfiguration,
+              let verificationID = credential.verificationID,
+              let verificationCode = credential.verificationCode else {
+          fatalError("Auth Internal Error: nil value for VerifyPhoneNumberRequest initializer")
+        }
+        let operation = isLinkOperation ? AuthOperationType.link : AuthOperationType.update
+        let request = VerifyPhoneNumberRequest(verificationID: verificationID,
+                                               verificationCode: verificationCode,
+                                               operation: operation,
+                                               requestConfiguration: configuration)
+        request.accessToken = accessToken
+        AuthBackend.post(withRequest: request) { response, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
             completion(error)
             return
           }
-          self.isAnonymous = false
-          if let error = self.updateKeychain() {
-            completion(error)
-            return
+          // Update the new token and refresh user info again.
+          if let verifyResponse = response as? VerifyPhoneNumberResponse {
+            if let idToken = verifyResponse.idToken,
+               let refreshToken = verifyResponse.refreshToken {
+              self.tokenService = SecureTokenService(
+                withRequestConfiguration: configuration,
+                accessToken: idToken,
+                accessTokenExpirationDate: verifyResponse.approximateExpirationDate,
+                refreshToken: refreshToken
+              )
+            }
           }
-          completion(nil)
+          // Get account info to update cached user info.
+          self.getAccountInfoRefreshingCache { user, error in
+            if let error {
+              self.signOutIfTokenIsInvalid(withError: error)
+              completion(error)
+              return
+            }
+            self.isAnonymous = false
+            if let error = self.updateKeychain() {
+              completion(error)
+              return
+            }
+            completion(nil)
+          }
         }
       }
     }
-  }
   #endif
 
   private func link(withEmailCredential emailCredential: EmailAuthCredential,
-                         completion: ((AuthDataResult?, Error?) -> Void)?) {
+                    completion: ((AuthDataResult?, Error?) -> Void)?) {
     if let password = emailCredential.password {
-      self.updateEmail(email: emailCredential.email, password: password) { error in
+      updateEmail(email: emailCredential.email, password: password) { error in
         if let error {
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                           result: nil,
@@ -1690,13 +1700,13 @@ public func link(with provider: FederatedAuthProvider,
         }
       }
     } else {
-      self.internalGetToken() { accessToken, error in
+      internalGetToken { accessToken, error in
         guard let link = emailCredential.link else {
           fatalError("Internal Auth Error: link is not an email Credential as expected.")
         }
         var queryItems = AuthWebUtils.parseURL(link)
         if link.count == 0 {
-          if let urlComponents = URLComponents.init(string: link),
+          if let urlComponents = URLComponents(string: link),
              let query = urlComponents.query {
             queryItems = AuthWebUtils.parseURL(query)
           }
@@ -1727,7 +1737,10 @@ public func link(with provider: FederatedAuthProvider,
                                          refreshToken: refreshToken,
                                          accessToken: accessToken,
                                          expirationDate: response.approximateExpirationDate,
-                                         result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+                                         result: AuthDataResult(
+                                           withUser: self,
+                                           additionalUserInfo: nil
+                                         ),
                                          requestConfiguration: requestConfiguration,
                                          completion: completion)
         }
@@ -1737,11 +1750,11 @@ public func link(with provider: FederatedAuthProvider,
 
   private func link(withGameCenterCredential gameCenterCredential: GameCenterAuthCredential,
                     completion: ((AuthDataResult?, Error?) -> Void)?) {
-    self.internalGetToken() { accessToken, error in
+    internalGetToken { accessToken, error in
       guard let requestConfiguration = self.auth?.requestConfiguration,
-      let publicKeyURL = gameCenterCredential.publicKeyURL,
-      let signature = gameCenterCredential.signature,
-      let salt = gameCenterCredential.salt else {
+            let publicKeyURL = gameCenterCredential.publicKeyURL,
+            let signature = gameCenterCredential.signature,
+            let salt = gameCenterCredential.salt else {
         fatalError("Internal Auth Error: Nil value field for SignInWithGameCenterRequest")
       }
       let request = SignInWithGameCenterRequest(playerID: gameCenterCredential.playerID,
@@ -1772,7 +1785,10 @@ public func link(with provider: FederatedAuthProvider,
                                        refreshToken: refreshToken,
                                        accessToken: accessToken,
                                        expirationDate: response.approximateExpirationDate,
-                                       result: AuthDataResult(withUser: self, additionalUserInfo: nil),
+                                       result: AuthDataResult(
+                                         withUser: self,
+                                         additionalUserInfo: nil
+                                       ),
                                        requestConfiguration: requestConfiguration,
                                        completion: completion)
       }
@@ -1780,32 +1796,42 @@ public func link(with provider: FederatedAuthProvider,
   }
 
   #if os(iOS)
-  private func link(withPhoneCredential phoneCredential: PhoneAuthCredential,
-                    completion: ((AuthDataResult?, Error?) -> Void)?) {
-    self.internalUpdateOrLinkPhoneNumber(credential: phoneCredential,
-                                         isLinkOperation: true) { error in
-      if let error {
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: nil, error: error)
-      } else {
-        let result = AuthDataResult(withUser: self, additionalUserInfo: nil)
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result, error: nil)
+    private func link(withPhoneCredential phoneCredential: PhoneAuthCredential,
+                      completion: ((AuthDataResult?, Error?) -> Void)?) {
+      internalUpdateOrLinkPhoneNumber(credential: phoneCredential,
+                                      isLinkOperation: true) { error in
+        if let error {
+          User.callInMainThreadWithAuthDataResultAndError(
+            callback: completion,
+            result: nil,
+            error: error
+          )
+        } else {
+          let result = AuthDataResult(withUser: self, additionalUserInfo: nil)
+          User.callInMainThreadWithAuthDataResultAndError(
+            callback: completion,
+            result: result,
+            error: nil
+          )
+        }
       }
     }
-  }
   #endif
 
   // Update the new token and refresh user info again.
-  private func updateTokenAndRefreshUser(idToken: String, refreshToken: String, accessToken: String?,
+  private func updateTokenAndRefreshUser(idToken: String, refreshToken: String,
+                                         accessToken: String?,
                                          expirationDate: Date?,
                                          result: AuthDataResult,
                                          requestConfiguration: AuthRequestConfiguration,
                                          completion: ((AuthDataResult?, Error?) -> Void)?) {
-    self.tokenService = SecureTokenService(
+    tokenService = SecureTokenService(
       withRequestConfiguration: requestConfiguration,
       accessToken: idToken,
       accessTokenExpirationDate: expirationDate,
-      refreshToken: refreshToken)
-    self.internalGetToken() { response, error in
+      refreshToken: refreshToken
+    )
+    internalGetToken { response, error in
       if let error {
         User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: nil,
                                                         error: error)
@@ -1839,7 +1865,6 @@ public func link(with provider: FederatedAuthProvider,
     }
   }
 
-
   /** @fn signOutIfTokenIsInvalidWithError:
       @brief Signs out this user if the user or the token is invalid.
       @param error The error from the server.
@@ -1847,16 +1872,16 @@ public func link(with provider: FederatedAuthProvider,
   private func signOutIfTokenIsInvalid(withError error: Error) {
     let code = (error as NSError).code
     if code == AuthErrorCode.userNotFound.rawValue ||
-        code == AuthErrorCode.userDisabled.rawValue ||
-        code == AuthErrorCode.invalidUserToken.rawValue ||
-        code == AuthErrorCode.userTokenExpired.rawValue {
+      code == AuthErrorCode.userDisabled.rawValue ||
+      code == AuthErrorCode.invalidUserToken.rawValue ||
+      code == AuthErrorCode.userTokenExpired.rawValue {
       AuthLog.logNotice(code: "I-AUT000016",
                         message: "Invalid user token detected, user is automatically signed out.")
       try? auth?.signOutByForce(withUserID: uid)
     } else {
       // This case was ignored in the ObjC implementation.
       AuthLog.logWarning(code: "I-AUT000016",
-                        message: "Unexpected error code after GetAccountInfoRequest")
+                         message: "Unexpected error code after GetAccountInfoRequest")
     }
   }
 
@@ -1868,7 +1893,7 @@ public func link(with provider: FederatedAuthProvider,
   // TODO: internal
   @objc(internalGetTokenForcingRefresh:callback:)
   public func internalGetToken(forceRefresh: Bool = false,
-                                              callback: @escaping (String?, Error?) -> Void) {
+                               callback: @escaping (String?, Error?) -> Void) {
     tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
       if let error {
         callback(nil, error)
@@ -1897,29 +1922,29 @@ public func link(with provider: FederatedAuthProvider,
     }
     do {
       try saveUser()
-    } catch (let error) {
+    } catch {
       return error
     }
     return nil
   }
 
   private func saveUser() throws {
-    guard let auth = self.auth else {
+    guard let auth = auth else {
       return
     }
     if auth.userAccessGroup == nil {
       let userKey = "\(auth.firebaseAppName)_firebase_user"
-#if os(watchOS)
-      let archiver = NSKeyedArchiver(requiringSecureCoding: false)
-#else
-      // Encode the user object.
-      let archiveData = NSMutableData()
-      let archiver = NSKeyedArchiver(forWritingWith: archiveData)
-#endif
+      #if os(watchOS)
+        let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+      #else
+        // Encode the user object.
+        let archiveData = NSMutableData()
+        let archiver = NSKeyedArchiver(forWritingWith: archiveData)
+      #endif
       archiver.encode(self, forKey: userKey)
       archiver.finishEncoding()
       #if os(watchOS)
-      let archiveData = archiver.encodedData
+        let archiveData = archiver.encodedData
       #endif
 
       // Save the user object's encoded value.
@@ -1970,10 +1995,10 @@ public func link(with provider: FederatedAuthProvider,
       @param result The result to pass to callback if there is no error.
       @param error The error to pass to callback.
    */
-  private class func callInMainThreadWithAuthDataResultAndError(
-    callback: ((AuthDataResult?, Error?) -> Void)?,
-                                                                result: AuthDataResult?,
-                                                                error: Error?) {
+  private class func callInMainThreadWithAuthDataResultAndError(callback: ((AuthDataResult?,
+                                                                            Error?) -> Void)?,
+  result: AuthDataResult?,
+  error: Error?) {
     if let callback {
       DispatchQueue.main.async {
         callback(result, error)
@@ -1982,6 +2007,7 @@ public func link(with provider: FederatedAuthProvider,
   }
 
   // MARK: NSSecureCoding
+
   private let kUserIDCodingKey = "userID"
   private let kHasEmailPasswordCredentialCodingKey = "hasEmailPassword"
   private let kAnonymousCodingKey = "anonymous"
@@ -2001,24 +2027,24 @@ public func link(with provider: FederatedAuthProvider,
   public static var supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
-    coder.encode(uid, forKey:kUserIDCodingKey)
-    coder.encode(isAnonymous, forKey:kAnonymousCodingKey)
-    coder.encode(hasEmailPasswordCredential, forKey:kHasEmailPasswordCredentialCodingKey)
-    coder.encode(providerData, forKey:kProviderDataKey)
-    coder.encode(email, forKey:kEmailCodingKey)
-    coder.encode(phoneNumber, forKey:kPhoneNumberCodingKey)
-    coder.encode(isEmailVerified, forKey:kEmailVerifiedCodingKey)
-    coder.encode(photoURL, forKey:kPhotoURLCodingKey)
-    coder.encode(displayName, forKey:kDisplayNameCodingKey)
-    coder.encode(metadata, forKey:kMetadataCodingKey)
-    coder.encode(tenantID, forKey:kTenantIDCodingKey)
+    coder.encode(uid, forKey: kUserIDCodingKey)
+    coder.encode(isAnonymous, forKey: kAnonymousCodingKey)
+    coder.encode(hasEmailPasswordCredential, forKey: kHasEmailPasswordCredentialCodingKey)
+    coder.encode(providerData, forKey: kProviderDataKey)
+    coder.encode(email, forKey: kEmailCodingKey)
+    coder.encode(phoneNumber, forKey: kPhoneNumberCodingKey)
+    coder.encode(isEmailVerified, forKey: kEmailVerifiedCodingKey)
+    coder.encode(photoURL, forKey: kPhotoURLCodingKey)
+    coder.encode(displayName, forKey: kDisplayNameCodingKey)
+    coder.encode(metadata, forKey: kMetadataCodingKey)
+    coder.encode(tenantID, forKey: kTenantIDCodingKey)
     if let auth {
-      coder.encode(auth.requestConfiguration.APIKey, forKey:kAPIKeyCodingKey)
-      coder.encode(auth.requestConfiguration.appID, forKey:kFirebaseAppIDCodingKey)
+      coder.encode(auth.requestConfiguration.APIKey, forKey: kAPIKeyCodingKey)
+      coder.encode(auth.requestConfiguration.appID, forKey: kFirebaseAppIDCodingKey)
     }
-    coder.encode(tokenService, forKey:kTokenServiceCodingKey)
+    coder.encode(tokenService, forKey: kTokenServiceCodingKey)
     #if os(iOS)
-    coder.encode(multiFactor, forKey:kMultiFactorCodingKey)
+      coder.encode(multiFactor, forKey: kMultiFactorCodingKey)
     #endif
   }
 
@@ -2030,13 +2056,13 @@ public func link(with provider: FederatedAuthProvider,
     let anonymous = coder.decodeBool(forKey: kAnonymousCodingKey)
     let hasEmailPasswordCredential = coder.decodeBool(forKey: kHasEmailPasswordCredentialCodingKey)
     let displayName = coder.decodeObject(forKey: kDisplayNameCodingKey) as? String
-    let photoURL = coder.decodeObject(forKey:kPhotoURLCodingKey) as? URL
-    let email = coder.decodeObject(forKey:kEmailCodingKey) as? String
+    let photoURL = coder.decodeObject(forKey: kPhotoURLCodingKey) as? URL
+    let email = coder.decodeObject(forKey: kEmailCodingKey) as? String
     let phoneNumber = coder.decodeObject(forKey: kPhoneNumberCodingKey) as? String
     let emailVerified = coder.decodeBool(forKey: kEmailVerifiedCodingKey)
-    let providerDataClasses = NSSet(objects: [Dictionary<String, Any>.self, String.self,
+    let providerDataClasses = NSSet(objects: [[String: Any].self, String.self,
                                               UserInfoImpl.self])
-    let providerData = coder.decodeObject( forKey: kProviderDataKey) as? [String: UserInfoImpl]
+    let providerData = coder.decodeObject(forKey: kProviderDataKey) as? [String: UserInfoImpl]
     fatalError("debug me")
 //    Set(arrayLiteral: [ Dictionary.class, String.class, UserInfoImpl.class])
 //    let t setWithArray coder.decodeObject(:@[ [NSDictionary class], [NSString class], [FIRUserInfoImpl class] ])

@@ -23,7 +23,7 @@ import Foundation
   /** @property displayName
    @brief The name of the user.
    */
-  @objc public var displayName:String?
+  @objc public var displayName: String?
 
   /** @property photoURL
    @brief The URL of the user's profile photo.
@@ -50,9 +50,9 @@ import Foundation
    @throws on error.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func commitChanges() async throws -> Void {
-    return try await withCheckedThrowingContinuation() { continuation in
-      self.commitChanges() { error in
+  public func commitChanges() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.commitChanges { error in
         if let error {
           continuation.resume(throwing: error)
         } else {

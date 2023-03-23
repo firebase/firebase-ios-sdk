@@ -866,7 +866,7 @@ class AuthTests: RPCBaseTests {
    */
   func testUpdateCurrentUserFailure() throws {
     let kTestAccessToken = "fakeAccessToken"
-    //try waitForSignInWithAccessToken(fakeAccessToken: kTestAccessToken)
+    // try waitForSignInWithAccessToken(fakeAccessToken: kTestAccessToken)
     let kTestAPIKey2 = "fakeAPIKey2"
     // TODO: next line deadlocks
     let user2 = AuthTests.auth?.currentUser

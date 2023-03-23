@@ -87,7 +87,6 @@ NS_SWIFT_NAME(MultiFactor) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRM
 - (void)unenrollWithFactorUID:(NSString *)factorUID
                    completion:(nullable void (^)(NSError *_Nullable error))completion;
 
-
 // TODO: revisit User.swift usage of internal User property after this is in Swift.
 
 @end

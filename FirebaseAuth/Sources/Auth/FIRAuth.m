@@ -321,7 +321,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
       @brief The Firebase app name.
    */
   // TODO: temporary in FIRAuth.h
-  //NSString *_firebaseAppName;
+  // NSString *_firebaseAppName;
 
   /** @var _listenerHandles
       @brief Handles returned from @c NSNotificationCenter for blocks which are "auth state did
@@ -334,7 +334,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
       @brief The keychain service.
    */
   // TODO: temporary in FIRAuth.h
-  //FIRAuthKeychainServices *_keychainServices;
+  // FIRAuthKeychainServices *_keychainServices;
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.
