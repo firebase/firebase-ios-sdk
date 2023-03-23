@@ -60,6 +60,8 @@ import Photos
   @objc(getManuallyCapturedScreenshotWithCompletion:)
   public static func getManuallyCapturedScreenshot(completion: @escaping (_ screenshot: UIImage?)
     -> Void) {
+    // TODO: There's a bug where the screenshot returned isn't the current screenshot
+    // but the previous screenshot.
     getPhotoPermissionIfNecessary(completionHandler: { authorized in
       guard authorized else {
         completion(nil)
@@ -79,11 +81,11 @@ import Photos
       requestOptions.isSynchronous = true
 
       let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+      let asset = fetchResult.object(at: 0)
 
       manager.requestImage(
-        for: fetchResult.object(at: 0),
-        // TODO: Identify the correct size.
-        targetSize: CGSize(width: 358, height: 442),
+        for: asset,
+        targetSize: CGSize(width: asset.pixelWidth / 3, height: asset.pixelHeight / 3),
         contentMode: .aspectFill,
         options: requestOptions
       ) { image, err in

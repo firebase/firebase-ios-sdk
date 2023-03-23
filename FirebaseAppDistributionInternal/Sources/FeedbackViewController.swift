@@ -49,8 +49,7 @@ class FeedbackViewController: UIViewController, UITextViewDelegate {
     feedbackTextView.delegate = self
     resetFeedbackTextViewWithPlaceholderText()
 
-    let image = image
-    if image != nil {
+    if let image = image {
       screenshotUIImageView.image = image
       self.image = nil
     }
@@ -227,7 +226,7 @@ class FeedbackViewController: UIViewController, UITextViewDelegate {
       toItem: additionalFormTextLabel,
       attribute: .top,
       multiplier: 1,
-      constant: 160
+      constant: 100
     )
     let leftConstraint = NSLayoutConstraint(
       item: feedbackTextView!,
