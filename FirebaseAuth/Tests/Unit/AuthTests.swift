@@ -954,7 +954,7 @@ class AuthTests: RPCBaseTests {
     XCTAssertEqual(user.displayName, kDisplayName)
     XCTAssertEqual(user.email, kEmail)
     XCTAssertFalse(user.isAnonymous)
-    XCTAssertEqual(user.providerData.count, 1)
+    XCTAssertEqual(user.providerData().count, 1)
   }
 
   private func assertUserAnonymous(_ user: User?) {
@@ -966,7 +966,7 @@ class AuthTests: RPCBaseTests {
     XCTAssertNil(user.email)
     XCTAssertNil(user.displayName)
     XCTAssertTrue(user.isAnonymous)
-    XCTAssertEqual(user.providerData.count, 0)
+    XCTAssertEqual(user.providerData().count, 0)
   }
 
   private func setFakeSecureTokenService() {
