@@ -88,7 +88,7 @@ static NSString *const kExpectedAPIURL =
 }
 
 /** @fn testRevokeTokenRequest
-    @brief Tests the verify client request.
+    @brief Tests the token revocation request.
  */
 - (void)testRevokeTokenRequest {
   FIRAuthRequestConfiguration *requestConfiguration =
