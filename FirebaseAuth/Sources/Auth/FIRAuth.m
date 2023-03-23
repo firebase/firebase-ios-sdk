@@ -449,6 +449,12 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
     [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
 #endif  // TARGET_OS_IOS
 
+    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppID:_firebaseAppId];
+    if (keychainServiceName) {
+      _keychainServices = [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
+      _storedUserManager =
+          [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
+    }
     [self protectedDataInitialization];
   }
   return self;
@@ -462,13 +468,6 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
     FIRAuth *strongSelf = weakSelf;
     if (!strongSelf) {
       return;
-    }
-    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppID:strongSelf.firebaseAppId];
-    if (keychainServiceName) {
-      strongSelf->_keychainServices =
-          [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
-      strongSelf.storedUserManager =
-          [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
     }
 
     NSError *error;
