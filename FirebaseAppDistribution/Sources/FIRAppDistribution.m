@@ -55,6 +55,7 @@ NSString *const kDisplayVersionKey = @"displayVersion";
 NSString *const kAuthErrorMessage = @"Unable to authenticate the tester";
 NSString *const kAuthCancelledErrorMessage = @"Tester cancelled sign-in";
 NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
+NSString *const kFIRFADReleaseNameKey = @"FIRFADReleaseName";
 
 @synthesize isTesterSignedIn = _isTesterSignedIn;
 
@@ -175,6 +176,21 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
           completion([self mapFetchReleasesError:error]);
           return;
         }
+
+        // TODO: This will need to be updated everytime the app starts, if the user is signed in,
+        // as the release can change on updates, but the sign in state is peristent.
+        [FIRFADApiServiceSwift findReleaseWithDisplayVersion:[self getAppVersion]
+                                                buildVersion:[self getAppBuild]
+                                                    codeHash:[self getCodeHash]
+                                                  completion:^(NSString *__nullable releaseName,
+                                                               NSError *__nullable error) {
+                                                    if (error || releaseName == nil) {
+                                                      return;
+                                                    }
+                                                    [[GULUserDefaults standardUserDefaults]
+                                                        setObject:releaseName
+                                                           forKey:kFIRFADReleaseNameKey];
+                                                  }];
 
         [[GULUserDefaults standardUserDefaults] setBool:YES forKey:kFIRFADSignInStateKey];
         completion(nil);
@@ -350,73 +366,21 @@ NSString *const kFIRFADSignInStateKey = @"FIRFADSignInState";
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
                                       image:(UIImage *_Nullable)image {
   if ([self isTesterSignedIn]) {
-    [self findReleaseAndStartFeedbackWithAdditionalFormText:additionalFormText image:image];
+    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
   } else {
     [self signInTesterWithCompletion:^(NSError *_Nullable error) {
       if (error) {
         return;
       }
-      [self findReleaseAndStartFeedbackWithAdditionalFormText:additionalFormText image:image];
+      [self.uiService startFeedbackWithAdditionalFormText:additionalFormText image:image];
     }];
   }
 }
 
-- (void)findReleaseAndStartFeedbackWithAdditionalFormText:(NSString *)additionalFormText
-                                                    image:(UIImage *_Nullable)image {
-  // TODO(tundeagboola) Because network requests can be slow, consider doing this check during app
-  // start
-  [self findReleaseWithCompletion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-    if (error) {
-      //      TODO(tundeagboola) Show toast if 403 is returned which means tester doesn't have
-      //      access, or if a different network error occurs
-      return;
-    }
-    if (releaseName == nil) {
-      // TODO(tundeagboola) we need to handle this scenario even though releaseName should never be
-      // null if error is non-null
-      return;
-    }
-    [self.uiService startFeedbackWithAdditionalFormText:additionalFormText
-                                            releaseName:releaseName
-                                                  image:image];
-  }];
-}
-
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
                                            showAlertInfo:(BOOL)showAlertInfo {
-  [self findReleaseWithCompletion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-    if (error) {
-      //      TODO(tundeagboola) Show toast if 403 is returned which means tester doesn't have
-      //      access, or if a different network error occurs
-      return;
-    }
-    if (releaseName == nil) {
-      // TODO(tundeagboola) we need to handle this scenario even though releaseName should never be
-      // null if error is non-null
-      return;
-    }
-    [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
-                                                         releaseName:releaseName
-                                                       showAlertInfo:showAlertInfo];
-  }];
-}
-
-- (void)findReleaseWithCompletion:(void (^)(NSString *_Nullable releaseName,
-                                            NSError *_Nullable error))findReleaseCompletion {
-  [FIRFADApiServiceSwift
-      findReleaseWithDisplayVersion:[self getAppVersion]
-                       buildVersion:[self getAppBuild]
-                           codeHash:[self getCodeHash]
-                         completion:^(NSString *__nullable releaseName, NSError *__nullable error) {
-                           if (error) {
-                             FIRFADErrorLog(@"Failed to identify release: Could not fetch %ld - %@",
-                                            [error code], [error localizedDescription]);
-                           }
-                           if (releaseName == nil) {
-                             FIRFADErrorLog(@"Failed to identify release: Release not returned");
-                           }
-                           findReleaseCompletion(releaseName, error);
-                         }];
+  [self.uiService enableFeedbackOnScreenshotWithAdditionalFormText:additionalFormText
+                                                     showAlertInfo:showAlertInfo];
 }
 
 #pragma mark - Swizzling disabled

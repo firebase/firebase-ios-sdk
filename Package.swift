@@ -413,6 +413,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseCoreExtension",
         "FirebaseInstallations",
+        .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseAppDistributionInternal/Sources"
     ),
@@ -432,6 +433,14 @@ let package = Package(
       path: "FirebaseAppDistribution/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppDistributionInternalUnit",
+      dependencies: ["FirebaseAppDistributionInternal"],
+      path: "FirebaseAppDistributionInternal/Tests/Unit",
+      cSettings: [
+        .headerSearchPath("../../.."),
       ]
     ),
 

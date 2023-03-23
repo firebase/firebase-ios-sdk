@@ -16,15 +16,23 @@ import Foundation
 import UIKit
 import Photos
 
+// TODO: Fix spm to allow using this.
+// TODO: This is needed to send actual feedback.
+// import GoogleUtilities.GULUserDefaults
+
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(
-    feedbackViewControllerWithAdditionalFormText:releaseName:image:onDismiss:
+    feedbackViewControllerWithAdditionalFormText:image:onDismiss:
   ) public static func feedbackViewController(additionalFormText: String,
-                                              releaseName: String,
                                               image: UIImage?,
                                               onDismiss: @escaping ()
                                                 -> Void)
-    -> UIViewController {
+    -> UIViewController? {
+    // TODO: Check for debug mode, and if it is, proceed even if it's not available, otherwise return nil
+    // Uncomment this to get access to the release name.
+//    let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
+    let releaseName = ""
+
     // TODO: Add the additionalInfoText parameter.
     let frameworkBundle = Bundle(for: self)
 
@@ -52,6 +60,8 @@ import Photos
   @objc(getManuallyCapturedScreenshotWithCompletion:)
   public static func getManuallyCapturedScreenshot(completion: @escaping (_ screenshot: UIImage?)
     -> Void) {
+    // TODO: There's a bug where the screenshot returned isn't the current screenshot
+    // but the previous screenshot.
     getPhotoPermissionIfNecessary(completionHandler: { authorized in
       guard authorized else {
         completion(nil)
@@ -71,11 +81,11 @@ import Photos
       requestOptions.isSynchronous = true
 
       let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+      let asset = fetchResult.object(at: 0)
 
       manager.requestImage(
-        for: fetchResult.object(at: 0),
-        // TODO: Identify the correct size.
-        targetSize: CGSize(width: 358, height: 442),
+        for: asset,
+        targetSize: CGSize(width: asset.pixelWidth / 3, height: asset.pixelHeight / 3),
         contentMode: .aspectFill,
         options: requestOptions
       ) { image, err in

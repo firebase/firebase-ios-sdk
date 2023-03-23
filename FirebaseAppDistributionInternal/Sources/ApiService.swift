@@ -48,6 +48,7 @@ enum Strings {
   static let GoogleUploadFileName = "screenshot.png"
   static let contentTypeHeader = "Content-Type"
   static let jsonContentType = "application/json"
+  static let releaseNameKey = "FIRFADReleaseName"
 }
 
 enum AppDistributionApiError: NSInteger {

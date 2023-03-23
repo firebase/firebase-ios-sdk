@@ -25,6 +25,8 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseInstallations/Source/Library/Private/FirebaseInstallationsInternal.h"
 
+@import FirebaseAppDistributionInternal;
+
 @interface FIRAppDistributionTests : XCTestCase
 
 @property(nonatomic, strong) FIRAppDistribution *appDistribution;
@@ -47,6 +49,7 @@
 @implementation FIRAppDistributionTests {
   id _mockFIRAppClass;
   id _mockFIRFADApiService;
+  id _mockFIRFADApiServiceSwift;
   id _mockFIRAppDistributionUIService;
   id _mockFIRInstallations;
   id _mockInstallationToken;
@@ -67,6 +70,7 @@
   _mockBuildVersion = @"mock-build-version";
   _mockFIRAppClass = OCMClassMock([FIRApp class]);
   _mockFIRFADApiService = OCMClassMock([FIRFADApiService class]);
+  _mockFIRFADApiServiceSwift = OCMClassMock([FIRFADApiServiceSwift class]);
   _mockFIRAppDistributionUIService = OCMPartialMock([FIRAppDistributionUIService sharedInstance]);
   _mockFIRInstallations = OCMClassMock([FIRInstallations class]);
   _mockInstallationToken = OCMClassMock([FIRInstallationsAuthTokenResult class]);
@@ -478,7 +482,7 @@
   [self mockUIServiceShowUICompletion:YES];
   OCMStub([[self appDistribution] getAppVersion]).andReturn(@"different-version");
   OCMStub([[self appDistribution] getAppBuild]).andReturn(@"different-build");
-  OCMReject([_mockMachO codeHash]);
+  OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
 
   XCTestExpectation *checkForUpdateExpectation =
       [self expectationWithDescription:@"Check for update does prompt user"];
@@ -501,7 +505,7 @@
   [self mockUIServiceShowUICompletion:YES];
   OCMStub([[self appDistribution] getAppVersion]).andReturn(@"different-version");
   OCMStub([[self appDistribution] getAppBuild]).andReturn(_mockBuildVersion);
-  OCMReject([_mockMachO codeHash]);
+  OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
 
   XCTestExpectation *checkForUpdateExpectation =
       [self expectationWithDescription:@"Check for update does prompt user"];
@@ -524,7 +528,7 @@
   [self mockUIServiceShowUICompletion:YES];
   OCMStub([[self appDistribution] getAppVersion]).andReturn(_mockDisplayVersion);
   OCMStub([[self appDistribution] getAppBuild]).andReturn(@"different-build");
-  OCMReject([_mockMachO codeHash]);
+  OCMStub([_mockMachO codeHash]).andReturn(@"this-is-old");
 
   XCTestExpectation *checkForUpdateExpectation =
       [self expectationWithDescription:@"Check for update does prompt user"];

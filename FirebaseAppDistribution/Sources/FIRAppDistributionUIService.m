@@ -215,12 +215,10 @@ SFAuthenticationSession *_safariAuthenticationVC;
 // MARK: - In App Feedback
 
 - (void)startFeedbackWithAdditionalFormText:(NSString *)additionalFormText
-                                releaseName:(NSString *)releaseName
                                       image:(UIImage *__nullable)image {
   // TODO: Verify what happens when the string is empty.
   UIViewController *feedbackViewController =
       [FIRFADInAppFeedback feedbackViewControllerWithAdditionalFormText:additionalFormText
-                                                            releaseName:releaseName
                                                                   image:image
                                                               onDismiss:^() {
                                                                 // TODO: Consider using a
@@ -230,14 +228,17 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                                 // UIService to Swift.
                                                                 [self resetUIState];
                                                               }];
-  [self initializeUIState];
-  [self.hostingViewController presentViewController:feedbackViewController
-                                           animated:YES
-                                         completion:nil];
+
+  // TODO: Potentially move the check for the release version here.
+  if (feedbackViewController != nil) {
+    [self initializeUIState];
+    [self.hostingViewController presentViewController:feedbackViewController
+                                             animated:YES
+                                           completion:nil];
+  }
 }
 
 - (void)enableFeedbackOnScreenshotWithAdditionalFormText:(NSString *)additionalFormText
-                                             releaseName:(NSString *)releaseName
                                            showAlertInfo:(BOOL)showAlertInfo {
   // TODO: Consider adding showActionSheetBeforeFeedback parameter.
   if (!self.isListeningToScreenshot) {
@@ -247,7 +248,6 @@ SFAuthenticationSession *_safariAuthenticationVC;
                                                  name:UIApplicationUserDidTakeScreenshotNotification
                                                object:[UIApplication sharedApplication]];
     self.additionalFormText = additionalFormText;
-    self.releaseName = releaseName;
 
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     BOOL dontShowAlert = [defaults boolForKey:kFIRFADScreenshotFeedbackUserDefault];
@@ -293,11 +293,21 @@ SFAuthenticationSession *_safariAuthenticationVC;
 - (void)screenshotDetected:(NSNotification *)notification {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0ul), ^{
     [FIRFADInAppFeedback getManuallyCapturedScreenshotWithCompletion:^(UIImage *screenshot) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        [self startFeedbackWithAdditionalFormText:self.additionalFormText
-                                      releaseName:self.releaseName
-                                            image:screenshot];
-      });
+      if ([[FIRAppDistribution appDistribution] isTesterSignedIn]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+        });
+      } else {
+        [[FIRAppDistribution appDistribution]
+            signInTesterWithCompletion:^(NSError *_Nullable error) {
+              if (error) {
+                return;
+              }
+              dispatch_async(dispatch_get_main_queue(), ^{
+                [self startFeedbackWithAdditionalFormText:self.additionalFormText image:screenshot];
+              });
+            }];
+      }
     }];
   });
 }
