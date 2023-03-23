@@ -53,7 +53,6 @@
 #include "Firestore/core/src/timestamp_internal.h"
 #include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
-#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_format.h"

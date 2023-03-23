@@ -678,10 +678,6 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
-auto comparator = [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
-  return lhs.document()->key() < rhs.document()->key();
-};
-
 - (void)validateEvent:(FSTQueryEvent *)actual matches:(NSDictionary *)expected {
   Query expectedQuery = [self parseQuery:expected[@"query"]];
   XCTAssertEqual(actual.query, expectedQuery);
@@ -712,6 +708,10 @@ auto comparator = [](const DocumentViewChange &lhs, const DocumentViewChange &rh
     }
 
     XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
+
+    auto comparator = [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
+      return lhs.document()->key() < rhs.document()->key();
+    };
 
     std::vector<DocumentViewChange> expectedChangesSorted = expectedChanges;
     std::sort(expectedChangesSorted.begin(), expectedChangesSorted.end(), comparator);

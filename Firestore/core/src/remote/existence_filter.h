@@ -43,27 +43,27 @@ class ExistenceFilter {
   ExistenceFilter() = default;
 
   ExistenceFilter(int count,
-                  absl::optional<BloomFilterParameters> bloom_filter_parameter)
+                  absl::optional<BloomFilterParameters> bloom_filter_parameters)
       : count_{count},
-        bloom_filter_parameter_{std::move(bloom_filter_parameter)} {
+        bloom_filter_parameters_{std::move(bloom_filter_parameters)} {
   }
 
   int count() const {
     return count_;
   }
 
-  const absl::optional<BloomFilterParameters>& bloom_filter_parameter() const {
-    return bloom_filter_parameter_;
+  const absl::optional<BloomFilterParameters>& bloom_filter_parameters() const {
+    return bloom_filter_parameters_;
   }
 
  private:
   int count_ = 0;
-  absl::optional<BloomFilterParameters> bloom_filter_parameter_;
+  absl::optional<BloomFilterParameters> bloom_filter_parameters_;
 };
 
 inline bool operator==(const ExistenceFilter& lhs, const ExistenceFilter& rhs) {
   return lhs.count() == rhs.count() &&
-         lhs.bloom_filter_parameter() == rhs.bloom_filter_parameter();
+         lhs.bloom_filter_parameters() == rhs.bloom_filter_parameters();
 }
 
 }  // namespace remote

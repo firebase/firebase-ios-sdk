@@ -102,7 +102,7 @@ absl::optional<TargetData> FakeTargetMetadataProvider::GetTargetDataForTarget(
   return it->second;
 }
 
-model::DatabaseId FakeTargetMetadataProvider::GetDatabaseId() const {
+const model::DatabaseId& FakeTargetMetadataProvider::GetDatabaseId() const {
   return database_id_;
 }
 

@@ -74,7 +74,7 @@ class FakeTargetMetadataProvider : public TargetMetadataProvider {
       model::TargetId target_id) const override;
   absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const override;
-  model::DatabaseId GetDatabaseId() const override;
+  const model::DatabaseId& GetDatabaseId() const override;
 
   /**
    * Sets the database_id to a custom value, used for getting Document's full
