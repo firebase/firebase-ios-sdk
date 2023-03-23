@@ -18,7 +18,7 @@
 
 @class FIRUser;
 @class FIRAuthUserDefaults;
-@class FIRAuthKeychainServices;
+@class FIRAuthSharedKeychainServices;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @property keychain
     @brief The mediator object to access to the system Keychain services.
  */
-@property(readonly, nonatomic, strong) FIRAuthKeychainServices *keychainServices;
+@property(readonly, nonatomic, strong) FIRAuthSharedKeychainServices *keychainServices;
 
 /** @property userDefaults
     @brief The mediator object to access to the system User Defaults services.
