@@ -186,9 +186,11 @@ private let kFiveMinutes = 5 * 60.0
           self.accessToken = newAccessToken
           self.accessTokenExpirationDate = response.approximateExpirationDate
           tokenUpdated = true
-          AuthLog.logDebug(code: "I-AUT000017",
-                           message: "Updated access token. Estimated expiration date: " +
-                             "\(self.accessTokenExpirationDate), current date: \(Date())")
+          AuthLog.logDebug(
+            code: "I-AUT000017",
+            message: "Updated access token. Estimated expiration date: " +
+              "\(String(describing: self.accessTokenExpirationDate)), current date: \(Date())"
+          )
         }
         if let newRefreshToken = response.refreshToken,
            newRefreshToken != self.refreshToken {

@@ -1758,20 +1758,6 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
   });
 }
 
-- (NSError *)updateKeychainWithUser:(FIRUser *)user {
-  if (user != _currentUser) {
-    // No-op if the user is no longer signed in. This is not considered an error as we don't check
-    // whether the user is still current on other callbacks of user operations either.
-    return nil;
-  }
-  NSError *error;
-  if ([self saveUser:user error:&error]) {
-    [self possiblyPostAuthStateChangeNotification];
-    return nil;
-  }
-  return error;
-}
-
 + (NSString *)keychainServiceNameForAppID:(NSString *)appID {
   return [@"firebase_auth_" stringByAppendingString:appID];
 }
