@@ -42,7 +42,7 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 - (instancetype)initWithServiceName:(NSString *)serviceName {
   self = [super init];
   if (self) {
-    _keychainServices = [[FIRAuthKeychainServices alloc] initWithService:serviceName];
+    _keychainServices = [[FIRAuthSharedKeychainServices alloc] init];
     _userDefaults = [[FIRAuthUserDefaults alloc] initWithService:serviceName];
   }
   return self;
