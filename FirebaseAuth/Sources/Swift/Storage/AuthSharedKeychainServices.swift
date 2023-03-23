@@ -21,12 +21,14 @@ import Foundation
   /** @fn getItemWithQuery:error:
    @brief Get the item from keychain by given query.
    @param query The query to query the keychain.
-   @return The item of the given query. nil if not exsit.
+   @return The item of the given query. `nil`` if not exist.
    */
   @objc public func getItem(query: [String: Any]) throws -> DataWrapper {
     var mutableQuery = query
     mutableQuery[kSecReturnData as String] = true
     mutableQuery[kSecReturnAttributes as String] = true
+    // Using a match limit of 2 means that we can check whether more than one
+    // item is returned by the query.
     mutableQuery[kSecMatchLimit as String] = 2
 
     var result: AnyObject?
