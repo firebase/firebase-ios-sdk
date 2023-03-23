@@ -27,22 +27,32 @@
 /** @var kFakeToken
     @brief The fake token to use in the test request.
  */
+static NSString *const kFakeTokenKey = @"token";
+
+/** @var kFakeToken
+    @brief The fake token to use in the test request.
+ */
 static NSString *const kFakeToken = @"fakeToken";
+
+/** @var kFakeIDToken
+    @brief The fake ID token to use in the test request.
+ */
+static NSString *const kFakeIDTokenKey = @"idToken";
 
 /** @var kFakeIDToken
     @brief The fake ID token to use in the test request.
  */
 static NSString *const kFakeIDToken = @"fakeIDToken";
 
-/** @var kFakeToken
-    @brief The fake token to use in the test request.
+/** @var kFakeProviderIDKey
+    @brief The fake provider id key to use in the test request.
  */
-static NSString *const kFakeTokenKey = @"token";
+static NSString *const kFakeProviderIDKey = @"providerId";
 
-/** @var kFakeIDToken
+/** @var kFakeTokenTypeKey
     @brief The fake ID token to use in the test request.
  */
-static NSString *const kFakeIDTokenKey = @"idToken";
+static NSString *const kFakeTokenTypeKey = @"tokenType";
 
 /** @var kFakeAPIKey
     @brief The fake API key to use in the test request.
@@ -58,7 +68,7 @@ static NSString *const kFakeFirebaseAppID = @"appID";
     @brief The expected URL for the test calls.
  */
 static NSString *const kExpectedAPIURL =
-    @"https://www.googleapis.com/identitytoolkit/v3/relyingparty/revokeToken?key=APIKey";
+    @"https://identitytoolkit.googleapis.com/v2/accounts:revokeToken?key=APIKey";
 
 /** @class FIRRevokeTokenRequestTest
     @brief Tests for @c FIRRevokeTokenRequests.
@@ -105,8 +115,8 @@ static NSString *const kExpectedAPIURL =
   XCTAssertNotNil(_RPCIssuer.decodedRequest);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeTokenKey], kFakeToken);
-  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[@"providerID"], @"apple.com");
-  XCTAssertEqual([_RPCIssuer.decodedRequest[@"tokenType"] intValue], 3);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeProviderIDKey], @"apple.com");
+  XCTAssertEqual([_RPCIssuer.decodedRequest[kFakeTokenTypeKey] intValue], 1);
 }
 
 @end

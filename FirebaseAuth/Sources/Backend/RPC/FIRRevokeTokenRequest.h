@@ -56,8 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithToken:(NSString *)token
                                idToken:(NSString *)idToken
-                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-    NS_DESIGNATED_INITIALIZER;
+                  requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
 
