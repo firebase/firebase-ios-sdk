@@ -72,7 +72,7 @@ class EmailLinkSignInTests: RPCBaseTests {
   func testEmailLinkRequestCreationOptional() {
     let kTestIDToken = "testIDToken"
     let request = makeEmailLinkSignInRequest()
-    request.IDToken = kTestIDToken
+    request.idToken = kTestIDToken
     AuthBackend.post(withRequest: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
@@ -123,11 +123,11 @@ class EmailLinkSignInTests: RPCBaseTests {
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)
     let response = try XCTUnwrap(rpcResponse)
-    XCTAssertEqual(response.IDToken, kTestIDTokenResponse)
+    XCTAssertEqual(response.idToken, kTestIDTokenResponse)
     XCTAssertEqual(response.email, kTestEmailResponse)
     XCTAssertEqual(response.refreshToken, kTestRefreshToken)
     XCTAssertTrue(response.isNewUser)
-    XCTAssertEqual(response.IDToken, kTestIDTokenResponse)
+    XCTAssertEqual(response.idToken, kTestIDTokenResponse)
     let expirationTimeInterval = try XCTUnwrap(response.approximateExpirationDate)
       .timeIntervalSinceNow
     let testTimeInterval = Date(timeIntervalSinceNow: kTestTokenExpirationTimeInterval)

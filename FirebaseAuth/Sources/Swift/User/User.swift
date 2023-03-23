@@ -22,7 +22,7 @@ import Foundation
         ID token is automatically refreshed.
     @remarks This class is thread-safe.
  */
-@objc(FIRUser) public class User: NSObject, UserInfo {
+@objc(FIRUser) public class User: NSObject, UserInfo, NSSecureCoding {
   /** @property anonymous
       @brief Indicates the user represents an anonymous user.
    */
@@ -37,7 +37,8 @@ import Foundation
       @brief A refresh token; useful for obtaining new access tokens independently.
       @remarks This property should only be used for advanced scenarios, and is not typically needed.
    */
-  @objc public let refreshToken: String
+  // TODO: is a refreshToken property and method needed?
+  @objc public let rawRefreshToken: String?
 
   /** @property providerData
       @brief Profile data for each identity provider, if any.
@@ -53,7 +54,7 @@ import Foundation
   /** @property tenantID
       @brief The tenant ID of the current user. nil if none is available.
    */
-  @objc private(set) public var tenantID: String
+  @objc private(set) public var tenantID: String?
 
   #if os(iOS)
   /** @property multiFactor
@@ -92,10 +93,50 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @objc(updateEmail:completion:)
-  public func updateEmail(to email: String, completion: ((Error?) -> Void)?) {
+  public func updateEmail(to email: String, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.updateEmail(email: email, password: nil) { error in
         User.callInMainThreadWithError(callback: completion, error: error)
+      }
+    }
+  }
+
+  /** @fn updateEmail
+      @brief Updates the email address for the user. On success, the cached user profile data is
+          updated.
+      @remarks May fail if there is already an account with this email address that was created using
+          email and password authentication.
+
+      @param email The email address for the user.
+      @throws Error on failure.
+
+      @remarks Possible error codes:
+
+          + `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
+              sent in the request.
+          + `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
+              the console for this action.
+          + `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
+              sending update email.
+          + `AuthErrorCodeEmailAlreadyInUse` - Indicates the email is already in use by another
+              account.
+          + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+          + `AuthErrorCodeRequiresRecentLogin` - Updating a user’s email is a security
+              sensitive operation that requires a recent login from the user. This error indicates
+              the user has not signed in recently enough. To resolve, reauthenticate the user by
+              calling `reauthenticate(with:)`.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func updateEmail(to email: String) async throws -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.updateEmail(to: email) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
       }
     }
   }
@@ -122,7 +163,7 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @objc(updatePassword:completion:)
-  public func updatePassword(to password: String, completion: ((Error?) -> Void)?) {
+  public func updatePassword(to password: String, completion: ((Error?) -> Void)? = nil) {
     guard password.count > 0 else {
       if let completion {
         completion(AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing Password"))
@@ -132,6 +173,39 @@ import Foundation
     kAuthGlobalWorkQueue.async {
       self.updateEmail(email: nil, password: password) { error in
         User.callInMainThreadWithError(callback: completion, error: error)
+      }
+    }
+  }
+
+  /** @fn updatePassword
+      @brief Updates the password for the user. On success, the cached user profile data is updated.
+
+      @param password The new password for the user.
+      @throws Error on failure.
+
+      @remarks Possible error codes:
+
+          + `AuthErrorCodeOperationNotAllowed` - Indicates the administrator disabled
+              sign in with the specified identity provider.
+          + `AuthErrorCodeRequiresRecentLogin` - Updating a user’s password is a security
+              sensitive operation that requires a recent login from the user. This error indicates
+              the user has not signed in recently enough. To resolve, reauthenticate the user by
+              calling `reauthenticate(with:)`.
+          + `AuthErrorCodeWeakPassword` - Indicates an attempt to set a password that is
+              considered too weak. The `NSLocalizedFailureReasonErrorKey` field in the `userInfo`
+              dictionary object will contain more detailed explanation that can be shown to the user.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func updatePassword(to password: String) async throws -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.updatePassword(to: password) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
       }
     }
   }
@@ -157,13 +231,45 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
-  @objc
-  public func updatePhoneNumberCredential(credential: PhoneAuthCredential,
-                                          completion: ((Error?) -> Void)?) {
+  @objc(updatePhoneNumberCredential:completion:)
+  public func updatePhoneNumber(_ credential: PhoneAuthCredential,
+                                          completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalUpdateOrLinkPhoneNumber(credential: credential,
                                            isLinkOperation: false) { error in
         User.callInMainThreadWithError(callback: completion, error: error)
+      }
+    }
+  }
+
+  /** @fn updatePhoneNumberCredential
+      @brief Updates the phone number for the user. On success, the cached user profile data is
+          updated.
+          This method is available on iOS only.
+
+      @param phoneNumberCredential The new phone number credential corresponding to the phone number
+          to be added to the Firebase account, if a phone number is already linked to the account this
+          new phone number will replace it.
+      @throws an error.
+
+      @remarks Possible error codes:
+
+          + `AuthErrorCodeRequiresRecentLogin` - Updating a user’s phone number is a security
+              sensitive operation that requires a recent login from the user. This error indicates
+              the user has not signed in recently enough. To resolve, reauthenticate the user by
+              calling `reauthenticate(with:)`.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.updatePhoneNumber(credential) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
       }
     }
   }
@@ -187,6 +293,14 @@ import Foundation
     return result!
   }
 
+  @objc public func refreshToken() -> String? {
+    var result: String?
+    kAuthGlobalWorkQueue.sync {
+      result = self.tokenService.refreshToken
+    }
+    return result
+  }
+
   /** @fn reloadWithCompletion:
       @brief Reloads the user's profile data from the server.
 
@@ -199,10 +313,35 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func reload(withCompletion completion: ((Error?) -> Void)?) {
+  @objc public func reload(withCompletion completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.getAccountInfoRefreshingCache() { user, error in
         User.callInMainThreadWithError(callback: completion, error: error)
+      }
+    }
+  }
+
+  /** @fn reload
+      @brief Reloads the user's profile data from the server.
+
+      @param completion Optionally; the block invoked when the reload has finished. Invoked
+          asynchronously on the main thread in the future.
+
+      @remarks May fail with a `AuthErrorCodeRequiresRecentLogin` error code. In this case
+          you should call `reauthenticate(with:)` before re-invoking
+          `updateEmail(to:)`.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func reload() async throws -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.reload() { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
       }
     }
   }
@@ -243,9 +382,8 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func reauthenticate(withCredential credential: AuthCredential,
-
-                                   completion: ((AuthDataResult?, Error?) -> Void)?) {
+  @objc public func reauthenticate(with credential: AuthCredential,
+                                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.auth?.internalSignInAndRetrieveData(with: credential, isReauthentication: true) {
         authResult, error in
@@ -280,7 +418,7 @@ import Foundation
     }
   }
 
-  /** @fn reauthenticateWithCredential:
+  /** @fn reauthenticateWithCredential
       @brief Renews the user's authentication tokens by validating a fresh set of credentials supplied
           by the user  and returns additional identity provider data.
 
@@ -316,9 +454,10 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func reauthenticate(withCredential credential: AuthCredential) async throws -> AuthDataResult {
+  @discardableResult
+  public func reauthenticate(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation() { continuation in
-      self.reauthenticate(withCredential: credential) { result, error in
+      self.reauthenticate(with: credential) { result, error in
         if let result {
           continuation.resume(returning: result)
         } else if let error {
@@ -331,7 +470,7 @@ import Foundation
   #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
   /** @fn reauthenticateWithProvider:UIDelegate:completion:
       @brief Renews the user's authentication using the provided auth provider instance.
-          This method is available on iOS, macOS Catalyst, and tvOS only.
+          This method is available on iOS only.
 
       @param provider An instance of an auth provider used to initiate the reauthenticate flow.
       @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
@@ -341,9 +480,9 @@ import Foundation
           is canceled. Invoked asynchronously on the main thread in the future.
    */
   @objc(reauthenticateWithProvider:UIDelegate:completion:)
-  public func reauthenticate(withProvider provider: FederatedAuthProvider,
+  public func reauthenticate(with provider: FederatedAuthProvider,
                                    uiDelegate: AuthUIDelegate?,
-                                   completion: ((AuthDataResult?, Error?) -> Void)?) {
+                                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     // TODO: Why isn't the `#if` around the function?
     #if os(iOS)
     kAuthGlobalWorkQueue.async {
@@ -355,16 +494,17 @@ import Foundation
           return
         }
         if let credential {
-          self.reauthenticate(withCredential: credential, completion: completion)
+          self.reauthenticate(with: credential, completion: completion)
         }
       }
     }
     #endif
   }
 
-  /** @fn reauthenticateWithProvider:UIDelegate:
+  #if os(iOS)
+  /** @fn reauthenticateWithProvider:UIDelegate
       @brief Renews the user's authentication using the provided auth provider instance.
-          This method is available on iOS, macOS Catalyst, and tvOS only.
+          This method is available on iOS only.
 
       @param provider An instance of an auth provider used to initiate the reauthenticate flow.
       @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
@@ -373,10 +513,11 @@ import Foundation
       @returns An AuthDataResult.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func reauthenticate(withProvider provider: FederatedAuthProvider,
-                                   uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+  @discardableResult
+  public func reauthenticate(with provider: FederatedAuthProvider,
+                              uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation() { continuation in
-      self.reauthenticate(withProvider: provider, uiDelegate: uiDelegate) { result, error in
+      self.reauthenticate(with: provider, uiDelegate: uiDelegate) { result, error in
         if let result {
           continuation.resume(returning: result)
         } else if let error {
@@ -399,7 +540,7 @@ import Foundation
   public func getIDToken(completion: ((String?, Error?) -> Void)?) {
     // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
     // global work queue here.
-    self.getIDToken(forcingRefresh:false, completion: completion)
+    self.getIDTokenForcingRefresh(false, completion: completion)
   }
 
   /** @fn getIDTokenForcingRefresh:completion:
@@ -415,7 +556,7 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  public func getIDToken(forcingRefresh forceRefresh: Bool,
+  public func getIDTokenForcingRefresh(_ forceRefresh: Bool,
                          completion: ((String?, Error?) -> Void)?) {
     self.getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
       if let completion {
@@ -441,9 +582,9 @@ import Foundation
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
     return try await withCheckedThrowingContinuation() { continuation in
-      self.getIDTokenResult(forcingRefresh:forceRefresh) { tokenResult, error in
+      self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
         if let tokenResult {
-          continuation.resume(returning: tokenResult.token)
+          continuation.resume(returning: tokenResult)
         } else if let error {
           continuation.resume(throwing: error)
         }
@@ -484,10 +625,10 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc(getIDTokenResultForcingRefresh:completion:)
-  public func getIDTokenResult(forcingRefresh forceRefresh: Bool,
+  public func getIDTokenResult(forcingRefresh: Bool,
                                completion: ((AuthTokenResult?, Error?) -> Void)?) {
     kAuthGlobalWorkQueue.async {
-      self.internalGetToken(forceRefresh: forceRefresh) { token, error in
+      self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
         var tokenResult: AuthTokenResult?
         if let token {
           tokenResult = AuthTokenResult.tokenResult(token: token)
@@ -517,7 +658,8 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func getIDTokenResult(forcingRefresh forceRefresh: Bool) async throws -> AuthTokenResult {
+  public func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
+  -> AuthTokenResult {
     return try await withCheckedThrowingContinuation() { continuation in
       self.getIDTokenResult(forcingRefresh:forceRefresh) { tokenResult, error in
         if let tokenResult {
@@ -552,8 +694,9 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
-  @objc public func link(withCredential credential: AuthCredential,
-                         completion: ((AuthDataResult?, Error?) -> Void)?) {
+  @objc(linkWithCredential:completion:)
+  public func link(with credential: AuthCredential,
+                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       if self.providerData[credential.provider] != nil {
         User.callInMainThreadWithAuthDataResultAndError(
@@ -648,9 +791,10 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func link(withCredential credential: AuthCredential) async throws -> AuthDataResult {
+  @discardableResult
+  public func link(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation() { continuation in
-      self.link(withCredential: credential) { result, error in
+      self.link(with: credential) { result, error in
         if let result {
           continuation.resume(returning: result)
         } else if let error {
@@ -659,6 +803,7 @@ import Foundation
       }
     }
   }
+
 
 #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
   /** @fn linkWithProvider:UIDelegate:completion:
@@ -673,26 +818,28 @@ import Foundation
           is canceled. Invoked asynchronously on the main thread in the future.
    */
 @objc(linkWithProvider:UIDelegate:completion:)
-public func link(withProvider provider: FederatedAuthProvider,
+public func link(with provider: FederatedAuthProvider,
                                  uiDelegate: AuthUIDelegate?,
-                                 completion: ((AuthDataResult?, Error?) -> Void)?) {
-  #if os(iOS)
-  kAuthGlobalWorkQueue.async {
-    provider.getCredentialWith(uiDelegate) { credential, error in
-      if let error {
-        if let completion {
-          completion(nil, error)
+                 completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+#if os(iOS)
+    kAuthGlobalWorkQueue.async {
+      provider.getCredentialWith(uiDelegate) { credential, error in
+        if let error {
+          if let completion {
+            completion(nil, error)
+          }
+        } else {
+          guard let credential else {
+            fatalError("Failed to get credential for link withProvider")
+          }
+          self.link(with: credential, completion: completion)
         }
-      } else {
-        guard let credential else {
-          fatalError("Failed to get credential for link withProvider")
-        }
-        self.link(withCredential: credential, completion: completion)
       }
     }
+#endif
   }
   #endif
-}
+
   /** @fn linkWithProvider:UIDelegate:
       @brief link the user with the provided auth provider instance.
           This method is available on iOS, macOS Catalyst, and tvOS only.
@@ -703,21 +850,22 @@ public func link(withProvider provider: FederatedAuthProvider,
           will be used.
       @returns An AuthDataResult.
    */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public func link(withProvider provider: FederatedAuthProvider,
-                                 uiDelegate: AuthUIDelegate) async throws -> AuthDataResult {
-
-  return try await withCheckedThrowingContinuation() { continuation in
-    self.link(withProvider: provider, uiDelegate: uiDelegate) { result, error in
-      if let result {
-        continuation.resume(returning: result)
-      } else if let error {
-        continuation.resume(throwing: error)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
+  public func link(with provider: FederatedAuthProvider,
+                              uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+#if os(iOS)
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.link(with: provider, uiDelegate: uiDelegate) { result, error in
+        if let result {
+          continuation.resume(returning: result)
+        } else if let error {
+          continuation.resume(throwing: error)
+        }
       }
     }
+#endif
   }
-}
-
 #endif
 
   /** @fn unlinkFromProvider:completion:
@@ -739,7 +887,7 @@ public func link(withProvider provider: FederatedAuthProvider,
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @objc public func unlink(fromProvider provider: String,
-                           completion: ((User?, Error?) -> Void)?) {
+                           completion: ((User?, Error?) -> Void)? = nil) {
     self.taskQueue.enqueueTask() { complete in
       let completeAndCallbackWithError = { error  in
         complete()
@@ -882,8 +1030,9 @@ public func link(withProvider provider: FederatedAuthProvider,
           + `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
               continue URL is not valid.
    */
-  @objc public func sendEmailVerification(actionCodeSettings: ActionCodeSettings? = nil,
-                                          withCompletion completion: ((Error?) -> Void)?) {
+  @objc(sendEmailVerificationWithActionCodeSettings:completion:)
+  public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil,
+                                          withCompletion completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken() { accessToken, error in
         if let error {
@@ -910,6 +1059,44 @@ public func link(withProvider provider: FederatedAuthProvider,
     }
   }
 
+  /** @fn sendEmailVerificationWithActionCodeSettings:
+      @brief Initiates email verification for the user.
+
+      @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
+          handling action codes.
+
+      @remarks Possible error codes:
+
+          + `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
+              sent in the request.
+          + `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
+              the console for this action.
+          + `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
+              sending update email.
+          + `AuthErrorCodeUserNotFound` - Indicates the user account was not found.
+          + `AuthErrorCodeMissingIosBundleID` - Indicates that the iOS bundle ID is missing when
+              a iOS App Store ID is provided.
+          + `AuthErrorCodeMissingAndroidPackageName` - Indicates that the android package name
+              is missing when the `androidInstallApp` flag is set to true.
+          + `AuthErrorCodeUnauthorizedDomain` - Indicates that the domain specified in the
+              continue URL is not allowlisted in the Firebase console.
+          + `AuthErrorCodeInvalidContinueURI` - Indicates that the domain specified in the
+              continue URL is not valid.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil) async throws
+      -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.sendEmailVerification(with: actionCodeSettings) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+
   /** @fn deleteWithCompletion:
       @brief Deletes the user account (also signs out the user, if this was the current user).
 
@@ -925,7 +1112,7 @@ public func link(withProvider provider: FederatedAuthProvider,
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
-  @objc public func delete(withCompletion completion: ((Error?) -> Void)?) {
+  @objc public func delete(withCompletion completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken() { accessToken, error in
         if let error {
@@ -957,6 +1144,34 @@ public func link(withProvider provider: FederatedAuthProvider,
     }
   }
 
+  /** @fn delete
+      @brief Deletes the user account (also signs out the user, if this was the current user).
+
+      @param completion Optionally; the block invoked when the request to delete the account is
+          complete, or fails. Invoked asynchronously on the main thread in the future.
+
+      @remarks Possible error codes:
+
+          + `AuthErrorCodeRequiresRecentLogin` - Updating email is a security sensitive
+              operation that requires a recent login from the user. This error indicates the user
+              has not signed in recently enough. To resolve, reauthenticate the user by calling
+              `reauthenticate(with:)`.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func delete() async throws -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.delete() { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+
   /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
       @brief Send an email to verify the ownership of the account then update to the new email.
       @param email The email to be updated to.
@@ -965,7 +1180,7 @@ public func link(withProvider provider: FederatedAuthProvider,
   */
   @objc(sendEmailVerificationBeforeUpdatingEmail:completion:)
   public func __sendEmailVerificationBeforeUpdating(email: String, completion: ((Error?) -> Void)?) {
-    self.sendEmailVerificationBeforeUpdating(email: email, completion: completion)
+    self.sendEmailVerification(beforeUpdatingEmail: email, completion: completion)
   }
 
   /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
@@ -976,9 +1191,9 @@ public func link(withProvider provider: FederatedAuthProvider,
       @param completion Optionally; the block invoked when the request to send the verification
           email is complete, or fails.
   */
-  @objc public func sendEmailVerificationBeforeUpdating(email newEmail: String,
+  @objc public func sendEmailVerification(beforeUpdatingEmail email: String,
                                                         actionCodeSettings: ActionCodeSettings? = nil,
-                                                        completion: ((Error?) -> Void)?) {
+                                                        completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken() { accessToken, error in
         if let error {
@@ -993,7 +1208,7 @@ public func link(withProvider provider: FederatedAuthProvider,
         }
         let request = GetOOBConfirmationCodeRequest.verifyBeforeUpdateEmail(
           accessToken: accessToken,
-          newEmail: newEmail,
+          newEmail: email,
           actionCodeSettings: actionCodeSettings,
           requestConfiguration: requestConfiguration)
         AuthBackend.post(withRequest: request) { response, error in
@@ -1003,6 +1218,37 @@ public func link(withProvider provider: FederatedAuthProvider,
     }
   }
 
+  /** @fn sendEmailVerificationBeforeUpdatingEmail:completion:
+      @brief Send an email to verify the ownership of the account then update to the new email.
+      @param email The email to be updated to.
+      @param actionCodeSettings An `ActionCodeSettings` object containing settings related to
+          handling action codes.
+      @throws on failure.
+  */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func sendEmailVerification(beforeUpdatingEmail newEmail: String,
+                      actionCodeSettings: ActionCodeSettings? = nil) async throws -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.sendEmailVerification(beforeUpdatingEmail: newEmail,
+                                 actionCodeSettings: actionCodeSettings) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
+  }
+
+
+  @objc public func rawAccessToken() -> String {
+    return self.tokenService.accessToken
+  }
+
+  @objc public func accessTokenExpirationDate() -> Date? {
+    return self.tokenService.accessTokenExpirationDate
+  }
+
   // MARK: Internal implementations below
   init(withTokenService tokenService: SecureTokenService) {
     providerData = [:]
@@ -1010,9 +1256,9 @@ public func link(withProvider provider: FederatedAuthProvider,
     self.tokenService = tokenService
     self.isAnonymous = false
     self.isEmailVerified = false
-    self.refreshToken = ""
+    self.rawRefreshToken = nil
     self.metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
-    self.tenantID = ""
+    self.tenantID = nil
     self.multiFactor = MultiFactor(mfaEnrollments: [])
     self.providerID = ""
     self.uid = ""
@@ -1037,7 +1283,7 @@ public func link(withProvider provider: FederatedAuthProvider,
                                           refreshToken: refreshToken)
     let user = User(withTokenService: tokenService)
     user.auth = auth
-    user.tenantID = auth.tenantID ?? ""
+    user.tenantID = auth.tenantID
     user.requestConfiguration = auth.requestConfiguration
     user.internalGetToken() { accessToken, error in
       if let error {
@@ -1735,4 +1981,73 @@ public func link(withProvider provider: FederatedAuthProvider,
     }
   }
 
+  // MARK: NSSecureCoding
+  private let kUserIDCodingKey = "userID"
+  private let kHasEmailPasswordCredentialCodingKey = "hasEmailPassword"
+  private let kAnonymousCodingKey = "anonymous"
+  private let kEmailCodingKey = "email"
+  private let kPhoneNumberCodingKey = "phoneNumber"
+  private let kEmailVerifiedCodingKey = "emailVerified"
+  private let kDisplayNameCodingKey = "displayName"
+  private let kPhotoURLCodingKey = "photoURL"
+  private let kProviderDataKey = "providerData"
+  private let kAPIKeyCodingKey = "APIKey"
+  private let kFirebaseAppIDCodingKey = "firebaseAppID"
+  private let kTokenServiceCodingKey = "tokenService"
+  private let kMetadataCodingKey = "metadata"
+  private let kMultiFactorCodingKey = "multiFactor"
+  private let kTenantIDCodingKey = "tenantID"
+
+  public static var supportsSecureCoding = true
+
+  public func encode(with coder: NSCoder) {
+    coder.encode(uid, forKey:kUserIDCodingKey)
+    coder.encode(isAnonymous, forKey:kAnonymousCodingKey)
+    coder.encode(hasEmailPasswordCredential, forKey:kHasEmailPasswordCredentialCodingKey)
+    coder.encode(providerData, forKey:kProviderDataKey)
+    coder.encode(email, forKey:kEmailCodingKey)
+    coder.encode(phoneNumber, forKey:kPhoneNumberCodingKey)
+    coder.encode(isEmailVerified, forKey:kEmailVerifiedCodingKey)
+    coder.encode(photoURL, forKey:kPhotoURLCodingKey)
+    coder.encode(displayName, forKey:kDisplayNameCodingKey)
+    coder.encode(metadata, forKey:kMetadataCodingKey)
+    coder.encode(tenantID, forKey:kTenantIDCodingKey)
+    if let auth {
+      coder.encode(auth.requestConfiguration.APIKey, forKey:kAPIKeyCodingKey)
+      coder.encode(auth.requestConfiguration.appID, forKey:kFirebaseAppIDCodingKey)
+    }
+    coder.encode(tokenService, forKey:kTokenServiceCodingKey)
+    #if os(iOS)
+    coder.encode(multiFactor, forKey:kMultiFactorCodingKey)
+    #endif
+  }
+
+  public required init?(coder: NSCoder) {
+    guard let userID = coder.decodeObject(forKey: kUserIDCodingKey) as? String,
+          let tokenService = coder.decodeObject(forKey: kTokenServiceCodingKey) as? String else {
+      return nil
+    }
+    let anonymous = coder.decodeBool(forKey: kAnonymousCodingKey)
+    let hasEmailPasswordCredential = coder.decodeBool(forKey: kHasEmailPasswordCredentialCodingKey)
+    let displayName = coder.decodeObject(forKey: kDisplayNameCodingKey) as? String
+    let photoURL = coder.decodeObject(forKey:kPhotoURLCodingKey) as? URL
+    let email = coder.decodeObject(forKey:kEmailCodingKey) as? String
+    let phoneNumber = coder.decodeObject(forKey: kPhoneNumberCodingKey) as? String
+    let emailVerified = coder.decodeBool(forKey: kEmailVerifiedCodingKey)
+    let providerDataClasses = NSSet(objects: [Dictionary<String, Any>.self, String.self,
+                                              UserInfoImpl.self])
+    let providerData = coder.decodeObject( forKey: kProviderDataKey) as? [String: UserInfoImpl]
+    fatalError("debug me")
+//    Set(arrayLiteral: [ Dictionary.class, String.class, UserInfoImpl.class])
+//    let t setWithArray coder.decodeObject(:@[ [NSDictionary class], [NSString class], [FIRUserInfoImpl class] ])
+//    let SString * coder.decodeObject(, FIRUserInfoImpl *> *providerData)
+//    let coder decodeObjectOfClasses coder.decodeObject(:providerDataClasses forKey:kProviderDataKey)
+//    let kenService *tokenService coder.decodeObject( = [aDecoder decodeObjectOfClass:[FIRSecureTokenService clas)
+//    let TokenServiceCodingKey] coder.decodeObject)
+//    let tadata *metadata coder.decodeObject( = [aDecoder decodeObjectOfClass:[FIRUserMetadata clas)
+//    let MetadataCodingKey] coder.decodeObject)
+//    let tenantID = coder.decodeObject( [aDecoder decodeObjectOfClass:[NSString class] forKey:kTenantIDCodingKey)
+//    let APIKey = coder.decodeObject( [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey)
+//    let appID = coder.decodeObject( [aDecoder decodeObjectOfClass:[NSString class] forKey:kFirebaseAppIDCodingKey)
+  }
 }

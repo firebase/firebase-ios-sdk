@@ -38,8 +38,28 @@ import Foundation
    @param completion Optionally; the block invoked when the user profile change has been applied.
    Invoked asynchronously on the main thread in the future.
    */
-  @objc public func commitChanges(withCompletion completion: ((Error?) -> Void)?) {
+  @objc public func commitChanges(withCompletion completion: ((Error?) -> Void)? = nil) {
+    fatalError("implement me")
+  }
 
+  /** @fn commitChanges
+   @brief Commits any pending changes.
+   @remarks This method should only be called once. Once called, property values should not be
+   changed.
+
+   @throws on error.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func commitChanges() async throws -> Void {
+    return try await withCheckedThrowingContinuation() { continuation in
+      self.commitChanges() { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
   }
 
   init(_ user: User) {
