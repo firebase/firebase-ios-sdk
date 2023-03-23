@@ -294,11 +294,6 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
 @interface FIRAuth () <FIRLibrary, FIRComponentLifecycleMaintainer>
 #endif
 
-/** @property firebaseAppId
-    @brief The Firebase app ID.
- */
-@property(nonatomic, copy, readonly) NSString *firebaseAppId;
-
 /** @property additionalFrameworkMarker
     @brief Additional framework marker that will be added as part of the header of every request.
  */
@@ -412,11 +407,16 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  self = [self initWithAPIKey:app.options.APIKey
-                      appName:app.name
-                        appID:app.options.googleAppID
-              heartbeatLogger:app.heartbeatLogger
-                     appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
+  NSString *keychainServiceName =
+      [[self class] keychainServiceNameForAppID:app.options.googleAppID];
+  self = [self
+         initWithAPIKey:app.options.APIKey
+                appName:app.name
+                  appID:app.options.googleAppID
+        heartbeatLogger:app.heartbeatLogger
+          appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)]
+       keychainServices:[[FIRAuthKeychainServices alloc] initWithService:keychainServiceName]
+      storedUserManager:[[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName]];
   if (self) {
     _app = app;
     _mainBundleUrlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
@@ -431,7 +431,9 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
-                               appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
+                        appCheck:(nullable id<FIRAppCheckInterop>)appCheck
+                       keychainServices:(id<FIRAuthStorage>)keychainServices
+                      storedUserManager:(FIRAuthStoredUserManager *)storedUserManager {
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];
@@ -441,20 +443,15 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
                                                                 heartbeatLogger:heartbeatLogger
                                                                        appCheck:appCheck];
     _firebaseAppName = [appName copy];
-    _firebaseAppId = [appID copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
 
     [GULAppDelegateSwizzler proxyOriginalDelegateIncludingAPNSMethods];
     [GULSceneDelegateSwizzler proxyOriginalSceneDelegate];
 #endif  // TARGET_OS_IOS
+    _keychainServices = keychainServices;
+    _storedUserManager = storedUserManager;
 
-    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppID:_firebaseAppId];
-    if (keychainServiceName) {
-      _keychainServices = [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
-      _storedUserManager =
-          [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
-    }
     [self protectedDataInitialization];
   }
   return self;
@@ -2069,7 +2066,7 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
     @param outUser An out parameter which is populated with the saved user, if one exists.
     @param error Return value for any error which occurs.
     @return YES if the operation was a success (irrespective of whether or not a saved user existed
-        for the given @c firebaseAppId,) NO if an error occurred.
+        for the given @c firebaseAppName,) NO if an error occurred.
  */
 - (BOOL)getUser:(FIRUser *_Nullable *)outUser error:(NSError *_Nullable *_Nullable)error {
   if (!self.userAccessGroup) {
