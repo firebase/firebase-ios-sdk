@@ -25,7 +25,7 @@ static NSString *const kHttpProtocol = @"http:";
 
 static NSString *const kFirebaseAuthAPIURLFormat =
     @"%@//%@/identitytoolkit/v3/relyingparty/%@?key=%@";
-static NSString *const kIdentityPlatformAPIURLFormat = @"%@//%@/v1/%@?key=%@";
+static NSString *const kIdentityPlatformAPIURLFormat = @"%@//%@/v2/%@?key=%@";
 static NSString *const kEmulatorHostAndPrefixFormat = @"%@/%@";
 
 static NSString *gAPIHost = @"www.googleapis.com";
