@@ -426,7 +426,7 @@ NS_ASSUME_NONNULL_BEGIN
           controller.delegate = self;
           controller.presentationContextProvider = self;
           [controller performRequests];
-            
+
         } else {
         // Usual user deletion
     }
