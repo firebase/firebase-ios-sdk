@@ -27,11 +27,13 @@ import Foundation
       @brief Indicates the user represents an anonymous user.
    */
   @objc public private(set) var isAnonymous: Bool
+  @objc public func anonymous() -> Bool { return isAnonymous }
 
   /** @property emailVerified
       @brief Indicates the email address associated with this user has been verified.
    */
   @objc public private(set) var isEmailVerified: Bool
+  @objc public func emailVerified() -> Bool { return isEmailVerified }
 
   /** @property refreshToken
       @brief A refresh token; useful for obtaining new access tokens independently.
@@ -382,8 +384,9 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func reauthenticate(with credential: AuthCredential,
-                                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc(reauthenticateWithCredential:completion:)
+  public func reauthenticate(with credential: AuthCredential,
+                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.auth?.internalSignInAndRetrieveData(with: credential, isReauthentication: true) {
         authResult, error in
@@ -468,7 +471,7 @@ import Foundation
     }
   }
 
-  #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
+  #if os(iOS)
     /** @fn reauthenticateWithProvider:UIDelegate:completion:
         @brief Renews the user's authentication using the provided auth provider instance.
             This method is available on iOS only.
@@ -484,320 +487,37 @@ import Foundation
     public func reauthenticate(with provider: FederatedAuthProvider,
                                uiDelegate: AuthUIDelegate?,
                                completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-      // TODO: Why isn't the `#if` around the function?
-      #if os(iOS)
-        kAuthGlobalWorkQueue.async {
-          provider.getCredentialWith(uiDelegate) { credential, error in
-            if let error {
-              if let completion {
-                completion(nil, error)
-              }
-              return
-            }
-            if let credential {
-              self.reauthenticate(with: credential, completion: completion)
-            }
-          }
-        }
-      #endif
-    }
-
-    #if os(iOS)
-      /** @fn reauthenticateWithProvider:UIDelegate
-          @brief Renews the user's authentication using the provided auth provider instance.
-              This method is available on iOS only.
-
-          @param provider An instance of an auth provider used to initiate the reauthenticate flow.
-          @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
-              protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
-              will be used.
-          @returns An AuthDataResult.
-       */
-      @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-      @discardableResult
-      public func reauthenticate(with provider: FederatedAuthProvider,
-                                 uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
-        return try await withCheckedThrowingContinuation { continuation in
-          self.reauthenticate(with: provider, uiDelegate: uiDelegate) { result, error in
-            if let result {
-              continuation.resume(returning: result)
-            } else if let error {
-              continuation.resume(throwing: error)
-            }
-          }
-        }
-      }
-    #endif
-
-    /** @fn getIDTokenWithCompletion:
-        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-        @param completion Optionally; the block invoked when the token is available. Invoked
-            asynchronously on the main thread in the future.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-     */
-    @objc(getIDTokenWithCompletion:)
-    public func getIDToken(completion: ((String?, Error?) -> Void)?) {
-      // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
-      // global work queue here.
-      getIDTokenForcingRefresh(false, completion: completion)
-    }
-
-    /** @fn getIDTokenForcingRefresh:completion:
-        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-            other than an expiration.
-        @param completion Optionally; the block invoked when the token is available. Invoked
-            asynchronously on the main thread in the future.
-
-        @remarks The authentication token will be refreshed (by making a network request) if it has
-            expired, or if `forceRefresh` is true.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-     */
-    public func getIDTokenForcingRefresh(_ forceRefresh: Bool,
-                                         completion: ((String?, Error?) -> Void)?) {
-      getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
-        if let completion {
-          DispatchQueue.main.async {
-            completion(tokenResult?.token, error)
-          }
-        }
-      }
-    }
-
-    /** @fn getIDTokenForcingRefresh:completion:
-        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-            other than an expiration.
-        @returns The Token.
-
-        @remarks The authentication token will be refreshed (by making a network request) if it has
-            expired, or if `forceRefresh` is true.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
-          if let tokenResult {
-            continuation.resume(returning: tokenResult)
-          } else if let error {
-            continuation.resume(throwing: error)
-          }
-        }
-      }
-    }
-
-    /** @fn getIDTokenResultWithCompletion:
-        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-        @param completion Optionally; the block invoked when the token is available. Invoked
-            asynchronously on the main thread in the future.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-     */
-    @objc(getIDTokenResultWithCompletion:)
-    public func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
-      getIDTokenResult(forcingRefresh: false) { tokenResult, error in
-        if let completion {
-          DispatchQueue.main.async {
-            completion(tokenResult, error)
-          }
-        }
-      }
-    }
-
-    /** @fn getIDTokenResultForcingRefresh:completion:
-        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-            other than an expiration.
-        @param completion Optionally; the block invoked when the token is available. Invoked
-            asynchronously on the main thread in the future.
-
-        @remarks The authentication token will be refreshed (by making a network request) if it has
-            expired, or if `forceRefresh` is YES.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-     */
-    @objc(getIDTokenResultForcingRefresh:completion:)
-    public func getIDTokenResult(forcingRefresh: Bool,
-                                 completion: ((AuthTokenResult?, Error?) -> Void)?) {
       kAuthGlobalWorkQueue.async {
-        self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
-          var tokenResult: AuthTokenResult?
-          if let token {
-            tokenResult = AuthTokenResult.tokenResult(token: token)
-            AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
-              "\(String(describing: tokenResult?.expirationDate))," +
-              "current date: \(Date())")
-          }
-          if let completion {
-            DispatchQueue.main.async {
-              completion(tokenResult, error)
+        provider.getCredentialWith(uiDelegate) { credential, error in
+          if let error {
+            if let completion {
+              completion(nil, error)
             }
-          }
-        }
-      }
-    }
-
-    /** @fn getIDTokenResultForcingRefresh
-        @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
-
-        @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
-            other than an expiration.
-        @returns The token.
-
-        @remarks The authentication token will be refreshed (by making a network request) if it has
-            expired, or if `forceRefresh` is YES.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
-      -> AuthTokenResult {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
-          if let tokenResult {
-            continuation.resume(returning: tokenResult)
-          } else if let error {
-            continuation.resume(throwing: error)
-          }
-        }
-      }
-    }
-
-    /** @fn linkWithCredential:completion:
-        @brief Associates a user account from a third-party identity provider with this user and
-            returns additional identity provider data.
-
-        @param credential The credential for the identity provider.
-        @param completion Optionally; the block invoked when the unlinking is complete, or fails.
-            Invoked asynchronously on the main thread in the future.
-
-        @remarks Possible error codes:
-
-            + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
-                type already linked to this account.
-            + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
-                credential that has already been linked with a different Firebase account.
-            + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
-                provider represented by the credential are not enabled. Enable them in the Auth section
-                of the Firebase console.
-
-        @remarks This method may also return error codes associated with `updateEmail(to:)` and
-            `updatePassword(to:)` on `User`.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
-     */
-    @objc(linkWithCredential:completion:)
-    public func link(with credential: AuthCredential,
-                     completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-      kAuthGlobalWorkQueue.async {
-        if self.providerData[credential.provider] != nil {
-          User.callInMainThreadWithAuthDataResultAndError(
-            callback: completion,
-            result: nil,
-            error: AuthErrorUtils.providerAlreadyLinkedError()
-          )
-          return
-        }
-        if let emailCredential = credential as? EmailAuthCredential {
-          self.link(withEmailCredential: emailCredential, completion: completion)
-          return
-        }
-        if let gameCenterCredential = credential as? GameCenterAuthCredential {
-          self.link(withGameCenterCredential: gameCenterCredential, completion: completion)
-          return
-        }
-        #if os(iOS)
-          if let phoneCredential = credential as? PhoneAuthCredential {
-            self.link(withPhoneCredential: phoneCredential, completion: completion)
             return
           }
-        #endif
-
-        self.taskQueue.enqueueTask { complete in
-          let completeWithError = { result, error in
-            complete()
-            User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result,
-                                                            error: error)
-          }
-          self.internalGetToken { accessToken, error in
-            if let error {
-              completeWithError(nil, error)
-              return
-            }
-            guard let requestConfiguration = self.auth?.requestConfiguration else {
-              fatalError("Internal Error: Unexpected nil requestConfiguration.")
-            }
-            let request = VerifyAssertionRequest(providerID: credential.provider,
-                                                 requestConfiguration: requestConfiguration)
-            credential.prepare(request)
-            request.accessToken = accessToken
-            AuthBackend.post(withRequest: request) { rawResponse, error in
-              if let error {
-                self.signOutIfTokenIsInvalid(withError: error)
-                completeWithError(nil, error)
-                return
-              }
-              guard let response = rawResponse as? VerifyAssertionResponse else {
-                fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
-              }
-              let additionalUserInfo = AdditionalUserInfo
-                .userInfo(verifyAssertionResponse: response)
-              let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
-              let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
-                                          credential: updatedOAuthCredential)
-              guard let idToken = response.idToken,
-                    let refreshToken = response.refreshToken else {
-                fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
-              }
-              self.updateTokenAndRefreshUser(idToken: idToken,
-                                             refreshToken: refreshToken,
-                                             accessToken: accessToken,
-                                             expirationDate: response.approximateExpirationDate,
-                                             result: result,
-                                             requestConfiguration: requestConfiguration,
-                                             completion: completion)
-            }
+          if let credential {
+            self.reauthenticate(with: credential, completion: completion)
           }
         }
       }
     }
 
-    /** @fn linkWithCredential:
-        @brief Associates a user account from a third-party identity provider with this user and
-            returns additional identity provider data.
+    /** @fn reauthenticateWithProvider:UIDelegate
+        @brief Renews the user's authentication using the provided auth provider instance.
+            This method is available on iOS only.
 
-        @param credential The credential for the identity provider.
-        @returns The AuthDataResult.
-
-        @remarks Possible error codes:
-
-            + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
-                type already linked to this account.
-            + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
-                credential that has already been linked with a different Firebase account.
-            + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
-                provider represented by the credential are not enabled. Enable them in the Auth section
-                of the Firebase console.
-
-        @remarks This method may also return error codes associated with `updateEmail(to:)` and
-            `updatePassword(to:)` on `User`.
-
-        @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+        @param provider An instance of an auth provider used to initiate the reauthenticate flow.
+        @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
+            protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
+            will be used.
+        @returns An AuthDataResult.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @discardableResult
-    public func link(with credential: AuthCredential) async throws -> AuthDataResult {
+    public func reauthenticate(with provider: FederatedAuthProvider,
+                               uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
-        self.link(with: credential) { result, error in
+        self.reauthenticate(with: provider, uiDelegate: uiDelegate) { result, error in
           if let result {
             continuation.resume(returning: result)
           } else if let error {
@@ -806,41 +526,318 @@ import Foundation
         }
       }
     }
+  #endif
 
-    #if os(iOS) || targetEnvironment(macCatalyst) || os(tvOS)
-      /** @fn linkWithProvider:UIDelegate:completion:
-          @brief link the user with the provided auth provider instance.
-              This method is available on iOS, macOS Catalyst, and tvOS only.
+  /** @fn getIDTokenWithCompletion:
+      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
 
-          @param provider An instance of an auth provider used to initiate the link flow.
-          @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
-              protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
-              will be used.
-          @param completion Optionally; a block which is invoked when the link flow finishes, or
-              is canceled. Invoked asynchronously on the main thread in the future.
-       */
-      @objc(linkWithProvider:UIDelegate:completion:)
-      public func link(with provider: FederatedAuthProvider,
-                       uiDelegate: AuthUIDelegate?,
-                       completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-        #if os(iOS)
-          kAuthGlobalWorkQueue.async {
-            provider.getCredentialWith(uiDelegate) { credential, error in
-              if let error {
-                if let completion {
-                  completion(nil, error)
-                }
-              } else {
-                guard let credential else {
-                  fatalError("Failed to get credential for link withProvider")
-                }
-                self.link(with: credential, completion: completion)
-              }
-            }
-          }
-        #endif
+      @param completion Optionally; the block invoked when the token is available. Invoked
+          asynchronously on the main thread in the future.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+   */
+  @objc(getIDTokenWithCompletion:)
+  public func getIDToken(completion: ((String?, Error?) -> Void)?) {
+    // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
+    // global work queue here.
+    getIDTokenForcingRefresh(false, completion: completion)
+  }
+
+  /** @fn getIDTokenForcingRefresh:completion:
+      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+          other than an expiration.
+      @param completion Optionally; the block invoked when the token is available. Invoked
+          asynchronously on the main thread in the future.
+
+      @remarks The authentication token will be refreshed (by making a network request) if it has
+          expired, or if `forceRefresh` is true.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+   */
+  @objc(getIDTokenForcingRefresh:completion:)
+  public func getIDTokenForcingRefresh(_ forceRefresh: Bool,
+                                       completion: ((String?, Error?) -> Void)?) {
+    getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
+      if let completion {
+        DispatchQueue.main.async {
+          completion(tokenResult?.token, error)
+        }
       }
-    #endif
+    }
+  }
+
+  /** @fn getIDTokenForcingRefresh:completion:
+      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+          other than an expiration.
+      @returns The Token.
+
+      @remarks The authentication token will be refreshed (by making a network request) if it has
+          expired, or if `forceRefresh` is true.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
+        if let tokenResult {
+          continuation.resume(returning: tokenResult)
+        } else if let error {
+          continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
+
+  /** @fn getIDTokenResultWithCompletion:
+      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+      @param completion Optionally; the block invoked when the token is available. Invoked
+          asynchronously on the main thread in the future.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+   */
+  @objc(getIDTokenResultWithCompletion:)
+  public func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
+    getIDTokenResult(forcingRefresh: false) { tokenResult, error in
+      if let completion {
+        DispatchQueue.main.async {
+          completion(tokenResult, error)
+        }
+      }
+    }
+  }
+
+  /** @fn getIDTokenResultForcingRefresh:completion:
+      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+          other than an expiration.
+      @param completion Optionally; the block invoked when the token is available. Invoked
+          asynchronously on the main thread in the future.
+
+      @remarks The authentication token will be refreshed (by making a network request) if it has
+          expired, or if `forceRefresh` is YES.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+   */
+  @objc(getIDTokenResultForcingRefresh:completion:)
+  public func getIDTokenResult(forcingRefresh: Bool,
+                               completion: ((AuthTokenResult?, Error?) -> Void)?) {
+    kAuthGlobalWorkQueue.async {
+      self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
+        var tokenResult: AuthTokenResult?
+        if let token {
+          tokenResult = AuthTokenResult.tokenResult(token: token)
+          AuthLog.logDebug(code: "I-AUT000017", message: "Actual token expiration date: " +
+            "\(String(describing: tokenResult?.expirationDate))," +
+            "current date: \(Date())")
+        }
+        if let completion {
+          DispatchQueue.main.async {
+            completion(tokenResult, error)
+          }
+        }
+      }
+    }
+  }
+
+  /** @fn getIDTokenResultForcingRefresh
+      @brief Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+
+      @param forceRefresh Forces a token refresh. Useful if the token becomes invalid for some reason
+          other than an expiration.
+      @returns The token.
+
+      @remarks The authentication token will be refreshed (by making a network request) if it has
+          expired, or if `forceRefresh` is YES.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
+    -> AuthTokenResult {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
+        if let tokenResult {
+          continuation.resume(returning: tokenResult)
+        } else if let error {
+          continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
+
+  /** @fn linkWithCredential:completion:
+      @brief Associates a user account from a third-party identity provider with this user and
+          returns additional identity provider data.
+
+      @param credential The credential for the identity provider.
+      @param completion Optionally; the block invoked when the unlinking is complete, or fails.
+          Invoked asynchronously on the main thread in the future.
+
+      @remarks Possible error codes:
+
+          + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
+              type already linked to this account.
+          + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
+              credential that has already been linked with a different Firebase account.
+          + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
+              provider represented by the credential are not enabled. Enable them in the Auth section
+              of the Firebase console.
+
+      @remarks This method may also return error codes associated with `updateEmail(to:)` and
+          `updatePassword(to:)` on `User`.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+   */
+  @objc(linkWithCredential:completion:)
+  public func link(with credential: AuthCredential,
+                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+    kAuthGlobalWorkQueue.async {
+      if self.providerData[credential.provider] != nil {
+        User.callInMainThreadWithAuthDataResultAndError(
+          callback: completion,
+          result: nil,
+          error: AuthErrorUtils.providerAlreadyLinkedError()
+        )
+        return
+      }
+      if let emailCredential = credential as? EmailAuthCredential {
+        self.link(withEmailCredential: emailCredential, completion: completion)
+        return
+      }
+      if let gameCenterCredential = credential as? GameCenterAuthCredential {
+        self.link(withGameCenterCredential: gameCenterCredential, completion: completion)
+        return
+      }
+      #if os(iOS)
+        if let phoneCredential = credential as? PhoneAuthCredential {
+          self.link(withPhoneCredential: phoneCredential, completion: completion)
+          return
+        }
+      #endif
+
+      self.taskQueue.enqueueTask { complete in
+        let completeWithError = { result, error in
+          complete()
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result,
+                                                          error: error)
+        }
+        self.internalGetToken { accessToken, error in
+          if let error {
+            completeWithError(nil, error)
+            return
+          }
+          guard let requestConfiguration = self.auth?.requestConfiguration else {
+            fatalError("Internal Error: Unexpected nil requestConfiguration.")
+          }
+          let request = VerifyAssertionRequest(providerID: credential.provider,
+                                               requestConfiguration: requestConfiguration)
+          credential.prepare(request)
+          request.accessToken = accessToken
+          AuthBackend.post(withRequest: request) { rawResponse, error in
+            if let error {
+              self.signOutIfTokenIsInvalid(withError: error)
+              completeWithError(nil, error)
+              return
+            }
+            guard let response = rawResponse as? VerifyAssertionResponse else {
+              fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
+            }
+            let additionalUserInfo = AdditionalUserInfo
+              .userInfo(verifyAssertionResponse: response)
+            let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
+            let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
+                                        credential: updatedOAuthCredential)
+            guard let idToken = response.idToken,
+                  let refreshToken = response.refreshToken else {
+              fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+            }
+            self.updateTokenAndRefreshUser(idToken: idToken,
+                                           refreshToken: refreshToken,
+                                           accessToken: accessToken,
+                                           expirationDate: response.approximateExpirationDate,
+                                           result: result,
+                                           requestConfiguration: requestConfiguration,
+                                           completion: completion)
+          }
+        }
+      }
+    }
+  }
+
+  /** @fn linkWithCredential:
+      @brief Associates a user account from a third-party identity provider with this user and
+          returns additional identity provider data.
+
+      @param credential The credential for the identity provider.
+      @returns The AuthDataResult.
+
+      @remarks Possible error codes:
+
+          + `AuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
+              type already linked to this account.
+          + `AuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
+              credential that has already been linked with a different Firebase account.
+          + `AuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
+              provider represented by the credential are not enabled. Enable them in the Auth section
+              of the Firebase console.
+
+      @remarks This method may also return error codes associated with `updateEmail(to:)` and
+          `updatePassword(to:)` on `User`.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
+  public func link(with credential: AuthCredential) async throws -> AuthDataResult {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.link(with: credential) { result, error in
+        if let result {
+          continuation.resume(returning: result)
+        } else if let error {
+          continuation.resume(throwing: error)
+        }
+      }
+    }
+  }
+
+  #if os(iOS)
+    /** @fn linkWithProvider:UIDelegate:completion:
+        @brief link the user with the provided auth provider instance.
+            This method is available on iOSonly.
+
+        @param provider An instance of an auth provider used to initiate the link flow.
+        @param UIDelegate Optionally an instance of a class conforming to the `AuthUIDelegate`
+            protocol used for presenting the web context. If nil, a default `AuthUIDelegate`
+            will be used.
+        @param completion Optionally; a block which is invoked when the link flow finishes, or
+            is canceled. Invoked asynchronously on the main thread in the future.
+     */
+    @objc(linkWithProvider:UIDelegate:completion:)
+    public func link(with provider: FederatedAuthProvider,
+                     uiDelegate: AuthUIDelegate?,
+                     completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+      kAuthGlobalWorkQueue.async {
+        provider.getCredentialWith(uiDelegate) { credential, error in
+          if let error {
+            if let completion {
+              completion(nil, error)
+            }
+          } else {
+            guard let credential else {
+              fatalError("Failed to get credential for link withProvider")
+            }
+            self.link(with: credential, completion: completion)
+          }
+        }
+      }
+    }
 
     /** @fn linkWithProvider:UIDelegate:
         @brief link the user with the provided auth provider instance.
@@ -856,17 +853,15 @@ import Foundation
     @discardableResult
     public func link(with provider: FederatedAuthProvider,
                      uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
-      #if os(iOS)
-        return try await withCheckedThrowingContinuation { continuation in
-          self.link(with: provider, uiDelegate: uiDelegate) { result, error in
-            if let result {
-              continuation.resume(returning: result)
-            } else if let error {
-              continuation.resume(throwing: error)
-            }
+      return try await withCheckedThrowingContinuation { continuation in
+        self.link(with: provider, uiDelegate: uiDelegate) { result, error in
+          if let result {
+            continuation.resume(returning: result)
+          } else if let error {
+            continuation.resume(throwing: error)
           }
         }
-      #endif
+      }
     }
   #endif
 
@@ -1003,7 +998,7 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
-  @objc(sendEmailVerificationWithActionCodeSettings:)
+  @objc(sendEmailVerificationWithCompletion:)
   public func __sendEmailVerification(withCompletion completion: ((Error?) -> Void)?) {
     sendEmailVerification(withCompletion: completion)
   }
@@ -1265,7 +1260,9 @@ import Foundation
     rawRefreshToken = nil
     metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     tenantID = nil
-    multiFactor = MultiFactor(mfaEnrollments: [])
+    #if os(iOS)
+      multiFactor = MultiFactor(mfaEnrollments: [])
+    #endif
     providerID = ""
     uid = ""
     hasEmailPasswordCredential = false
