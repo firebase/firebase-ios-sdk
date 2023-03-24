@@ -34,7 +34,8 @@ target 'SymbolCollisionTest' do
     # Google Pods depending on a Firebase or GDT major version
 
     # TODO(v10): Uncomment when MLKit updates to Firebase 10 and GTMSessionFetcher 2.x
-#    pod 'GoogleMLKit'
+    pod 'GoogleMLKit'
+    pod 'GoogleMLKit/TextRecognition'
 
   # Other Google Pods
     pod 'ARCore'
