@@ -20,7 +20,6 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 #import "FirebaseAuth-Swift.h"
 
@@ -49,7 +48,7 @@ static NSString *kUserCodingKey = @"user";
           initWithSessionInfo:phoneAssertion.authCredential.verificationID
              verificationCode:phoneAssertion.authCredential.verificationCode];
   FIRFinalizeMFAEnrollmentRequest *request =
-      [[FIRFinalizeMFAEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
+      [[FIRFinalizeMFAEnrollmentRequest alloc] initWithIDToken:self.user.tokenService.accessToken
                                                    displayName:displayName
                                               verificationInfo:finalizeMFAPhoneRequestInfo
                                           requestConfiguration:self.user.requestConfiguration];
@@ -97,7 +96,7 @@ static NSString *kUserCodingKey = @"user";
 - (void)unenrollWithFactorUID:(NSString *)factorUID
                    completion:(nullable FIRAuthVoidErrorCallback)completion {
   FIRWithdrawMFARequest *request =
-      [[FIRWithdrawMFARequest alloc] initWithIDToken:self.user.rawAccessToken
+      [[FIRWithdrawMFARequest alloc] initWithIDToken:self.user.tokenService.accessToken
                                      MFAEnrollmentID:factorUID
                                 requestConfiguration:self.user.requestConfiguration];
   [FIRAuthBackend2

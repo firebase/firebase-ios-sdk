@@ -57,7 +57,7 @@ private let kTenantIDKey = "tenantId"
       @brief The ID Token code potentially used to complete the email link sign-in flow.
    */
 
-  @objc public var IDToken: String?
+  @objc(IDToken) public var idToken: String?
 
   /** @var response
       @brief The corresponding response for this request
@@ -76,8 +76,8 @@ private let kTenantIDKey = "tenantId"
       kEmailKey: email,
       kOOBCodeKey: oobCode,
     ]
-    if let IDToken = IDToken {
-      postBody[kIDTokenKey] = IDToken
+    if let idToken = idToken {
+      postBody[kIDTokenKey] = idToken
     }
     if let tenantID = tenantID {
       postBody[kTenantIDKey] = tenantID

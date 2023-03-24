@@ -16,7 +16,7 @@ import Foundation
 
 @objc(FIRSignInWithGameCenterResponse) public class SignInWithGameCenterResponse: NSObject,
   AuthRPCResponse {
-  @objc public var IDToken: String?
+  @objc(IDToken) public var idToken: String?
   @objc public var refreshToken: String?
   @objc public var localID: String?
   @objc public var playerID: String?
@@ -27,7 +27,7 @@ import Foundation
   @objc public var displayName: String?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
     localID = dictionary["localId"] as? String
     if let approximateExpirationDate = dictionary["expiresIn"] as? String {

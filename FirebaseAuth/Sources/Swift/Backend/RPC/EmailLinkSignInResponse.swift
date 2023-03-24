@@ -21,7 +21,7 @@ import Foundation
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */
-  @objc public var IDToken: String?
+  @objc(IDToken) public var idToken: String?
 
   /** @property email
    @brief The email returned by the IdP.
@@ -56,7 +56,7 @@ import Foundation
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
     refreshToken = dictionary["refreshToken"] as? String
 

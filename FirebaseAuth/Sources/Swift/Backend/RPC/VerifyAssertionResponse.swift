@@ -95,7 +95,7 @@ import Foundation
    access token from Secure Token Service, depending on whether @c returnSecureToken is set
    on the request.
    */
-  @objc public var idToken: String?
+  @objc(IDToken) public var idToken: String?
 
   /** @property approximateExpirationDate
    @brief The approximate expiration date of the access token.

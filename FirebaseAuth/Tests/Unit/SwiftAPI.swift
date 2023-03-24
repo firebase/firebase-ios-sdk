@@ -477,7 +477,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     user.getIDTokenResult(forcingRefresh: true) { _, _ in
     }
-    user.getIDTokenResult { _, _ in
+    user.getIDToken { _, _ in
     }
     user.getIDTokenForcingRefresh(true) { _, _ in
     }
@@ -520,11 +520,12 @@ class AuthAPI_hOnlyTests: XCTestCase {
       try await user.reauthenticate(with: provider as! FederatedAuthProvider, uiDelegate: nil)
       try await user.link(with: provider as! FederatedAuthProvider, uiDelegate: nil)
     #endif
-    try await user.getIDTokenResult()
-    try await user.getIDTokenResult(forcingRefresh: true)
-    try await user.getIDTokenResult()
-    try await user.link(with: credential)
-    try await user.unlink(fromProvider: "abc")
+    _ = try await user.getIDTokenResult()
+    _ = try await user.getIDTokenResult(forcingRefresh: true)
+    _ = try await user.getIDToken()
+    _ = try await user.getIDToken(forcingRefresh: false)
+    _ = try await user.link(with: credential)
+    _ = try await user.unlink(fromProvider: "abc")
     try await user.sendEmailVerification()
     try await user.sendEmailVerification(with: ActionCodeSettings())
     try await user.delete()

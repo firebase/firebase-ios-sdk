@@ -17,7 +17,6 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 
 #import "FirebaseAuth-Swift.h"
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 /** @var kUserAccessGroupKey
     @brief Key of user access group stored in user defaults. Used for retrieve the user access

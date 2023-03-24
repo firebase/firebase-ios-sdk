@@ -32,7 +32,7 @@ static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
 
 @implementation AccountInfoTests
 
-- (void)testUpdatingUsersEmail {
+- (void)testUpdatingUsersEmailAlreadyInUse {
   SKIP_IF_ON_MOBILE_HARNESS
   FIRAuth *auth = [FIRAuth auth];
   if (!auth) {
@@ -51,8 +51,17 @@ static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
                    [expectation fulfill];
                  }];
   [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
+}
 
-  expectation = [self expectationWithDescription:@"Sign in with email and password."];
+- (void)testUpdatingUsersEmail {
+  SKIP_IF_ON_MOBILE_HARNESS
+  FIRAuth *auth = [FIRAuth auth];
+  if (!auth) {
+    XCTFail(@"Could not obtain auth object.");
+  }
+
+  __block NSError *apiError;
+  XCTestExpectation *expectation = [self expectationWithDescription:@"Updating email"];
   [auth signInWithEmail:kOldUserEmail
                password:@"password"
              completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error) {

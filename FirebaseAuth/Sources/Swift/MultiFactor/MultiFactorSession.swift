@@ -35,7 +35,7 @@ import Foundation
 
     @objc public static var sessionForCurrentUser: MultiFactorSession {
       let currentUser = Auth.auth().currentUser
-      let idToken = currentUser?.rawAccessToken
+      let idToken = currentUser?.tokenService.accessToken
       return .init(IDToken: idToken)
     }
 

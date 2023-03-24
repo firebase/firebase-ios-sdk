@@ -250,7 +250,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
   @objc public static func verifyEmailRequest(accessToken: String,
                                               actionCodeSettings: ActionCodeSettings?,
                                               requestConfiguration: AuthRequestConfiguration) ->
-    GetOOBConfirmationCodeRequest? {
+    GetOOBConfirmationCodeRequest {
     Self(requestType: .verifyEmail,
          email: nil,
          newEmail: nil,
@@ -275,7 +275,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
                                                    newEmail: String,
                                                    actionCodeSettings: ActionCodeSettings?,
                                                    requestConfiguration: AuthRequestConfiguration)
-    -> Self? {
+    -> Self {
     Self(requestType: .verifyBeforeUpdateEmail,
          email: nil,
          newEmail: newEmail,

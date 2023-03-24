@@ -109,7 +109,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
 
     XCTAssert(callbackInvoked)
     XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.IDToken, kIDToken)
+    XCTAssertEqual(rpcResponse?.idToken, kIDToken)
     XCTAssertEqual(rpcResponse?.refreshToken, kRefreshToken)
     XCTAssertEqual(rpcResponse?.localID, kLocalID)
     XCTAssertEqual(rpcResponse?.playerID, kPlayerID)

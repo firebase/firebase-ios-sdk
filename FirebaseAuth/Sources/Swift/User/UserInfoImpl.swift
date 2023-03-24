@@ -14,10 +14,6 @@
 
 import Foundation
 
-/** @class UserMetadata
-    @brief A data class representing the metadata corresponding to a Firebase user.
- */
-
 @objc(FIRUserInfoImpl) public class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
   /** @fn userInfoWithGetAccountInfoResponseProviderUserInfo:
       @brief A convenience factory method for constructing a @c FIRUserInfo instance from data

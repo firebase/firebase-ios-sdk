@@ -34,33 +34,33 @@ import Foundation
 }
 
 @objc(FIRGoogleAuthCredential) private class GoogleAuthCredential: AuthCredential, NSSecureCoding {
-  private let IDToken: String
+  private let idToken: String
   private let accessToken: String
 
   init(withIDToken idToken: String, accessToken: String) {
-    IDToken = idToken
+    self.idToken = idToken
     self.accessToken = accessToken
     super.init(provider: GoogleAuthProvider.id)
   }
 
   @objc override func prepare(_ request: VerifyAssertionRequest) {
-    request.providerIDToken = IDToken
+    request.providerIDToken = idToken
     request.providerAccessToken = accessToken
   }
 
   static var supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
-    coder.encode(IDToken)
+    coder.encode(idToken)
     coder.encode(accessToken)
   }
 
   required init?(coder: NSCoder) {
-    guard let IDToken = coder.decodeObject(forKey: "IDToken") as? String,
+    guard let idToken = coder.decodeObject(forKey: "idToken") as? String,
           let accessToken = coder.decodeObject(forKey: "accessToken") as? String else {
       return nil
     }
-    self.IDToken = IDToken
+    self.idToken = idToken
     self.accessToken = accessToken
     super.init(provider: GoogleAuthProvider.id)
   }
