@@ -377,7 +377,7 @@ import Foundation
             let bundleID = Bundle.main.bundleIdentifier
             let clientID = self.auth.app?.options.clientID
             let appID = self.auth.app?.options.googleAppID
-            let apiKey = self.auth.requestConfiguration.APIKey
+            let apiKey = self.auth.requestConfiguration.apiKey
             var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
                               URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
                               URLQueryItem(name: "ibi", value: bundleID ?? ""),
