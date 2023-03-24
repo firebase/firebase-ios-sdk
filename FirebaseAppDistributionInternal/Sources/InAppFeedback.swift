@@ -65,7 +65,7 @@ import Photos
         completion(nil)
         return
       }
-      
+
       let manager = PHImageManager.default()
 
       let fetchOptions = PHFetchOptions()
@@ -77,11 +77,11 @@ import Photos
 
       let requestOptions = PHImageRequestOptions()
       requestOptions.isSynchronous = true
-      
+
       // There's a bug where the screenshot immediately taken isn't saved to disk
       // This waits for 2 seconds before reading it.
       let seconds = 2.0
-      DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + seconds, execute: {
+      DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + seconds) {
         let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
         let asset = fetchResult.object(at: 0)
 
@@ -94,7 +94,7 @@ import Photos
           // TODO: Add logic to respond correctly if there's an error.
           completion(image)
         }
-      })
+      }
     })
   }
 
