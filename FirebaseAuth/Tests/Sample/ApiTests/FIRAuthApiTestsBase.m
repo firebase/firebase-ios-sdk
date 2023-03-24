@@ -15,6 +15,7 @@
  */
 
 #import "FIRAuthApiTestsBase.h"
+#import "FirebaseAuth-Swift.h"
 
 @implementation FIRAuthApiTestsBase
 
