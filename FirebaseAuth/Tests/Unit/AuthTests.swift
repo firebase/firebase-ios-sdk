@@ -16,6 +16,11 @@ import Foundation
 import XCTest
 
 @testable import FirebaseAuth
+// TODO(ncooke3): Remove below import after `FIRAuth.[hm]` has been ported.
+// Note– This will break building with SPM. There is a way to achieve the same
+// thing with SPM mixed targets–– I'm just going to port `FIRAuth` next.
+import FirebaseAuth_Private
+
 import FirebaseCore
 
 class AuthTests: RPCBaseTests {
@@ -29,7 +34,11 @@ class AuthTests: RPCBaseTests {
     options.apiKey = kFakeAPIKey
     options.projectID = "myProjectID"
     FirebaseApp.configure(name: "test-AuthTests", options: options)
-    auth = Auth.auth(app: FirebaseApp.app(name: "test-AuthTests")!)
+    auth = Auth(
+      app: FirebaseApp.app(name: "test-AuthTests")!,
+      // TODO(ncooke3): Update AuthStorage protocol to reduce API complexity.
+      keychainServicesProvider: AuthKeychainServices.init(service:)
+    )
   }
 
   override func setUp() {
