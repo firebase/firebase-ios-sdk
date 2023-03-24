@@ -95,6 +95,28 @@ private let kSessionIDKey = "sessionId"
  */
 private let kTenantIDKey = "tenantId"
 
+/** @var kUserKey
+    @brief The key for the "user" value in the request. The value is a JSON object that contains the
+   name of the user.
+ */
+private let kUserKey = "user"
+
+/** @var kNameKey
+    @brief The key for the "name" value in the request. The value is a JSON object that contains the
+   first and/or last name of the user.
+ */
+private let kNameKey = "name"
+
+/** @var kFirstNameKey
+    @brief The key for the "firstName" value in the request.
+ */
+private let kFirstNameKey = "firstName"
+
+/** @var kLastNameKey
+    @brief The key for the "lastName" value in the request.
+ */
+private let kLastNameKey = "lastName"
+
 /** @class FIRVerifyAssertionRequest
     @brief Represents the parameters for the verifyAssertion endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
@@ -170,6 +192,11 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public var autoCreate: Bool = false
 
+  /** @property fullName
+      @brief A full name from the IdP.
+   */
+  @objc public var fullName: PersonNameComponents?
+
   /** @var response
       @brief The corresponding response for this request
    */
@@ -208,6 +235,24 @@ private let kTenantIDKey = "tenantId"
     }
     if let inputEmail = inputEmail {
       queryItems.append(URLQueryItem(name: kIdentifierKey, value: inputEmail))
+    }
+
+    if fullName?.givenName != nil || fullName?.familyName != nil {
+      var nameDict = [String: String]()
+      if let given = fullName?.givenName {
+        nameDict[kFirstNameKey] = given
+      }
+      if let lastName = fullName?.familyName {
+        nameDict[kLastNameKey] = lastName
+      }
+      let userDict = [kNameKey: nameDict]
+      do {
+        let userJson = try JSONSerialization.data(withJSONObject: userDict)
+        let jsonString = String(data: userJson, encoding: .utf8)
+        queryItems.append(URLQueryItem(name: kUserKey, value: jsonString))
+      } catch {
+        fatalError("Auth Internal error: failed to serialize dictionary to json: \(error)")
+      }
     }
 
     components.queryItems = queryItems
