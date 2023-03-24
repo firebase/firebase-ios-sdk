@@ -17,6 +17,7 @@
 #import <XCTest/XCTest.h>
 
 #import "FIRAuthApiTestsBase.h"
+#import "FirebaseAuth-Swift.h"
 
 @interface AnonymousAuthTests : FIRAuthApiTestsBase
 
