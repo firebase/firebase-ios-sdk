@@ -417,7 +417,9 @@ class WatchChangeAggregator {
   bool TargetContainsDocument(model::TargetId target_id,
                               const model::DocumentKey& key);
 
-  /** Returns whether a bloom filter removed the deleted documents successfully.
+  /**
+   * Apply bloom filter to remove the deleted documents, and return the
+   * application status.
    */
   BloomFilterApplicationStatus ApplyBloomFilter(
       const ExistenceFilterWatchChange& existence_filter, int current_count);
