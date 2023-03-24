@@ -61,6 +61,24 @@ import FirebaseCore
       XCTAssertNil(credential.idToken)
     }
 
+    /** @fn testObtainingOAuthCredentialWithFullName
+        @brief Tests the correct creation of an OAuthCredential with a fullName.
+     */
+    func testObtainingOAuthCredentialWithFullName() throws {
+      let kFakeGivenName = "Paul"
+      let kFakeFamilyName = "B"
+      var fullName = PersonNameComponents()
+      fullName.givenName = kFakeGivenName
+      fullName.familyName = kFakeFamilyName
+      initApp(#function)
+      let credential = OAuthProvider.appleCredential(withIDToken: kFakeIDToken, rawNonce: nil,
+                                                     fullName: fullName)
+      XCTAssertEqual(credential.fullName, fullName)
+      XCTAssertEqual(credential.provider, "apple.com")
+      XCTAssertEqual(credential.idToken, kFakeIDToken)
+      XCTAssertNil(credential.accessToken)
+    }
+
     /** @fn testObtainingOAuthCredentialWithIDToken
         @brief Tests the correct creation of an OAuthCredential with an IDToken
      */
