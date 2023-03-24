@@ -35,7 +35,7 @@ private let kFiveMinutes = 5 * 60.0
    */
   @objc public var requestConfiguration: AuthRequestConfiguration?
 
-  /** @property rawAccessToken
+  /** @property accessToken
       @brief The cached access token.
       @remarks This method is specifically for providing the access token to internal clients during
           deserialization and sign-in events, and should not be used to retrieve the access token by
@@ -186,9 +186,11 @@ private let kFiveMinutes = 5 * 60.0
           self.accessToken = newAccessToken
           self.accessTokenExpirationDate = response.approximateExpirationDate
           tokenUpdated = true
-          AuthLog.logDebug(code: "I-AUT000017",
-                           message: "Updated access token. Estimated expiration date: " +
-                             "\(self.accessTokenExpirationDate), current date: \(Date())")
+          AuthLog.logDebug(
+            code: "I-AUT000017",
+            message: "Updated access token. Estimated expiration date: " +
+              "\(String(describing: self.accessTokenExpirationDate)), current date: \(Date())"
+          )
         }
         if let newRefreshToken = response.refreshToken,
            newRefreshToken != self.refreshToken {
