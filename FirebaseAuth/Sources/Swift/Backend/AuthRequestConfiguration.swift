@@ -24,7 +24,7 @@ import FirebaseCoreExtension
   /** @property APIKey
    @brief The Firebase Auth API key used in the request.
    */
-  @objc public let APIKey: String
+  @objc(APIKey) public let apiKey: String
 
   /** @property LanguageCode
    @brief The language code used in the request.
@@ -56,19 +56,21 @@ import FirebaseCoreExtension
 
   /** @fn initWithRequestClass:APIKey:authLanguage:
    @brief Designated initializer.
-   @param APIKey The API key to be used in the request.
+   @param apiKey The API key to be used in the request.
    */
-  @objc public init(APIKey: String, appID: String, auth: Auth? = nil) {
-    self.APIKey = APIKey
+  @objc(initWithAPIKey:appID:auth:)
+  public init(apiKey: String, appID: String, auth: Auth? = nil) {
+    self.apiKey = apiKey
     self.appID = appID
     self.auth = auth
   }
 
-  @objc public init(APIKey: String,
-                    appID: String,
-                    auth: Auth? = nil,
-                    heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil) {
-    self.APIKey = APIKey
+  @objc(initWithAPIKey:appID:auth:heartbeatLogger:)
+  public init(apiKey: String,
+              appID: String,
+              auth: Auth? = nil,
+              heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil) {
+    self.apiKey = apiKey
     self.appID = appID
     self.auth = auth
     self.heartbeatLogger = heartbeatLogger

@@ -56,7 +56,7 @@ private let kIdentityPlatformStagingAPIHost =
   @objc public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
                     useIdentityPlatform: Bool = false, useStaging: Bool = false) {
     self.endpoint = endpoint
-    APIKey = requestConfiguration.APIKey
+    APIKey = requestConfiguration.apiKey
     _requestConfiguration = requestConfiguration
     _useIdentityPlatform = useIdentityPlatform
     _useStaging = useStaging

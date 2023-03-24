@@ -329,7 +329,7 @@ import CommonCrypto
           let bundleID = Bundle.main.bundleIdentifier
           let clientID = strongSelf?.auth.app?.options.clientID
           let appID = strongSelf?.auth.app?.options.googleAppID
-          let apiKey = strongSelf?.auth.requestConfiguration.APIKey
+          let apiKey = strongSelf?.auth.requestConfiguration.apiKey
           let tenantID = strongSelf?.auth.tenantID
 
           // TODO: Should we fail if these strings are empty? Only ibi was explicit in ObjC.

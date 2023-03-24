@@ -103,7 +103,7 @@ private var gAPIHost = "securetoken.googleapis.com"
   /** @property APIKey
       @brief The client's API Key.
    */
-  @objc public let APIKey: String
+  @objc public let apiKey: String
 
   /** @var response
       @brief The corresponding response for this request
@@ -145,16 +145,16 @@ private var gAPIHost = "securetoken.googleapis.com"
     self.scope = scope
     self.refreshToken = refreshToken
     self.code = code
-    APIKey = requestConfiguration.APIKey
+    apiKey = requestConfiguration.apiKey
     _requestConfiguration = requestConfiguration
   }
 
   public func requestURL() -> URL {
     let urlString: String
     if let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort {
-      urlString = "http://\(emulatorHostAndPort)/\(gAPIHost)/v1/token?key=\(APIKey)"
+      urlString = "http://\(emulatorHostAndPort)/\(gAPIHost)/v1/token?key=\(apiKey)"
     } else {
-      urlString = "https://\(gAPIHost)/v1/token?key=\(APIKey)"
+      urlString = "https://\(gAPIHost)/v1/token?key=\(apiKey)"
     }
     return URL(string: urlString)!
   }

@@ -119,7 +119,7 @@ class RPCBaseTests: XCTestCase {
 
   func makeRequestConfiguration() -> AuthRequestConfiguration {
     return AuthRequestConfiguration(
-      APIKey: kTestAPIKey,
+      apiKey: kTestAPIKey,
       appID: kTestFirebaseAppID
     )
   }
