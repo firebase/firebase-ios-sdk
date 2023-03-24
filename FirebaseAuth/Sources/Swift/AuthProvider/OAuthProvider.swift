@@ -240,6 +240,28 @@ import CommonCrypto
       }
     }
 
+    /** @fn appleCredentialWithIDToken:rawNonce:fullName:
+     *  @brief Creates an `AuthCredential` for the Sign in with Apple OAuth 2 provider identified by ID
+     * token, raw nonce, and full name. This method is specific to the Sign in with Apple OAuth 2
+     * provider as this provider requires the full name to be passed explicitly.
+     *
+     *  @param idToken The IDToken associated with the Sign in with Apple Auth credential being created.
+     *  @param rawNonce The raw nonce associated with the Sign in with Apple Auth credential being
+     * created.
+     *  @param fullName The full name associated with the Sign in with Apple Auth credential being
+     * created.
+     *  @return An `AuthCredential`.
+     */
+    @objc(appleCredentialWithIDToken:rawNonce:fullName:)
+    public static func appleCredential(withIDToken idToken: String,
+                                       rawNonce: String?,
+                                       fullName: PersonNameComponents?) -> OAuthCredential {
+      return OAuthCredential(withProviderID: AuthProviderString.apple.rawValue,
+                             idToken: idToken,
+                             rawNonce: rawNonce,
+                             fullName: fullName)
+    }
+
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     public func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
