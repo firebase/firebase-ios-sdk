@@ -223,7 +223,7 @@ class SetAccountInfoTests: RPCBaseTests {
     XCTAssertNil(rpcError)
     let response = try XCTUnwrap(rpcResponse)
     XCTAssertEqual(response.providerUserInfo?.first?.photoURL?.absoluteString, kTestPhotoURL)
-    XCTAssertEqual(response.IDToken, kTestIDToken)
+    XCTAssertEqual(response.idToken, kTestIDToken)
     XCTAssertEqual(response.refreshToken, kTestRefreshToken)
     let expiresIn = try XCTUnwrap(response.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
