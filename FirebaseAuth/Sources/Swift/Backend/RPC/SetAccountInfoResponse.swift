@@ -68,12 +68,12 @@ public class SetAccountInfoResponseProviderUserInfo: NSObject {
    */
   @objc public var providerUserInfo: [SetAccountInfoResponseProviderUserInfo]?
 
-  /** @property IDToken
+  /** @property idToken
       @brief Either an authorization code suitable for performing an STS token exchange, or the
           access token from Secure Token Service, depending on whether @c returnSecureToken is set
           on the request.
    */
-  @objc public var IDToken: String?
+  @objc(IDToken) public var idToken: String?
 
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
@@ -88,7 +88,7 @@ public class SetAccountInfoResponseProviderUserInfo: NSObject {
   public func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     if let expiresIn = dictionary["expiresIn"] as? String {
       approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
         .doubleValue)
