@@ -60,8 +60,6 @@ import Photos
   @objc(getManuallyCapturedScreenshotWithCompletion:)
   public static func getManuallyCapturedScreenshot(completion: @escaping (_ screenshot: UIImage?)
     -> Void) {
-    // TODO: There's a bug where the screenshot returned isn't the current screenshot
-    // but the previous screenshot.
     getPhotoPermissionIfNecessary(completionHandler: { authorized in
       guard authorized else {
         completion(nil)
@@ -80,17 +78,22 @@ import Photos
       let requestOptions = PHImageRequestOptions()
       requestOptions.isSynchronous = true
 
-      let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-      let asset = fetchResult.object(at: 0)
+      // There's a bug where the screenshot immediately taken isn't saved to disk
+      // This waits for 2 seconds before reading it.
+      let seconds = 2.0
+      DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + seconds) {
+        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        let asset = fetchResult.object(at: 0)
 
-      manager.requestImage(
-        for: asset,
-        targetSize: CGSize(width: asset.pixelWidth / 3, height: asset.pixelHeight / 3),
-        contentMode: .aspectFill,
-        options: requestOptions
-      ) { image, err in
-        // TODO: Add logic to respond correctly if there's an error.
-        completion(image)
+        manager.requestImage(
+          for: asset,
+          targetSize: CGSize(width: asset.pixelWidth / 3, height: asset.pixelHeight / 3),
+          contentMode: .aspectFill,
+          options: requestOptions
+        ) { image, err in
+          // TODO: Add logic to respond correctly if there's an error.
+          completion(image)
+        }
       }
     })
   }
