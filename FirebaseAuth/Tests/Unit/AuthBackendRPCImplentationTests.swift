@@ -626,7 +626,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
   func testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending() throws {
     // Given
     let fakeHeartbeatLogger = FakeHeartbeatLogger()
-    let requestConfiguration = AuthRequestConfiguration(APIKey: kFakeAPIKey,
+    let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
                                                         appID: kFakeAppID,
                                                         heartbeatLogger: fakeHeartbeatLogger)
 
@@ -658,7 +658,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
   func testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending() throws {
     // Given
     let fakeHeartbeatLogger = FakeHeartbeatLogger()
-    let requestConfiguration = AuthRequestConfiguration(APIKey: kFakeAPIKey,
+    let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
                                                         appID: kFakeAppID,
                                                         heartbeatLogger: fakeHeartbeatLogger)
 
@@ -697,7 +697,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
     static func makeRequestConfiguration() -> AuthRequestConfiguration {
       return AuthRequestConfiguration(
-        APIKey: kFakeAPIKey,
+        apiKey: kFakeAPIKey,
         appID: kFakeAppID
       )
     }
