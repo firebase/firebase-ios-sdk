@@ -158,7 +158,7 @@ class AuthTests: RPCBaseTests {
         XCTFail("authResult.user is missing")
         return
       }
-      XCTAssertEqual(user.refreshToken(), self.kRefreshToken)
+      XCTAssertEqual(user.refreshToken, self.kRefreshToken)
       XCTAssertFalse(user.isAnonymous)
       XCTAssertEqual(user.email, self.kEmail)
       XCTAssertNil(error)
@@ -228,7 +228,7 @@ class AuthTests: RPCBaseTests {
         XCTFail("authResult.user is missing")
         return
       }
-      XCTAssertEqual(user.refreshToken(), kRefreshToken)
+      XCTAssertEqual(user.refreshToken, kRefreshToken)
       XCTAssertFalse(user.isAnonymous)
       XCTAssertEqual(user.email, self.kEmail)
       guard let additionalUserInfo = authResult?.additionalUserInfo else {
@@ -914,7 +914,7 @@ class AuthTests: RPCBaseTests {
         XCTFail("authResult.user is missing")
         return
       }
-      XCTAssertEqual(user.refreshToken(), kRefreshToken)
+      XCTAssertEqual(user.refreshToken, kRefreshToken)
       XCTAssertFalse(user.isAnonymous)
       XCTAssertEqual(user.email, self.kEmail)
       guard let additionalUserInfo = authResult?.additionalUserInfo else {
@@ -954,7 +954,7 @@ class AuthTests: RPCBaseTests {
     XCTAssertEqual(user.displayName, kDisplayName)
     XCTAssertEqual(user.email, kEmail)
     XCTAssertFalse(user.isAnonymous)
-    XCTAssertEqual(user.providerData().count, 1)
+    XCTAssertEqual(user.providerData.count, 1)
   }
 
   private func assertUserAnonymous(_ user: User?) {
@@ -966,7 +966,7 @@ class AuthTests: RPCBaseTests {
     XCTAssertNil(user.email)
     XCTAssertNil(user.displayName)
     XCTAssertTrue(user.isAnonymous)
-    XCTAssertEqual(user.providerData().count, 0)
+    XCTAssertEqual(user.providerData.count, 0)
   }
 
   private func setFakeSecureTokenService() {
