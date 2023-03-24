@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_REMOTE_REMOTE_EVENT_H_
 #define FIRESTORE_CORE_SRC_REMOTE_REMOTE_EVENT_H_
 
-#include <map>
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
@@ -42,7 +41,7 @@ class TargetData;
 
 namespace remote {
 
-enum class BloomFilterApplicationStatus { Success, Skipped, FalsePositive };
+enum class BloomFilterApplicationStatus { kSuccess, kSkipped, kFalsePositive };
 
 /**
  * Interface implemented by `RemoteStore` to expose target metadata to the
@@ -249,7 +248,8 @@ class TargetState {
 class RemoteEvent {
  public:
   using TargetChangeMap = std::unordered_map<model::TargetId, TargetChange>;
-  using TargetMismatchMap = std::map<model::TargetId, local::QueryPurpose>;
+  using TargetMismatchMap =
+      std::unordered_map<model::TargetId, local::QueryPurpose>;
 
   RemoteEvent(model::SnapshotVersion snapshot_version,
               TargetChangeMap target_changes,

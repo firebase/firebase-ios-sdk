@@ -241,12 +241,12 @@ void WatchChangeAggregator::HandleExistenceFilter(
         // Apply bloom filter to identify and mark removed documents.
         BloomFilterApplicationStatus status =
             ApplyBloomFilter(existence_filter, current_size);
-        if (status != BloomFilterApplicationStatus::Success) {
+        if (status != BloomFilterApplicationStatus::kSuccess) {
           // If bloom filter application fails, we reset the mapping and
           // trigger re-run of the query.
           ResetTarget(target_id);
           const QueryPurpose purpose =
-              status == BloomFilterApplicationStatus::FalsePositive
+              status == BloomFilterApplicationStatus::kFalsePositive
                   ? QueryPurpose::ExistenceFilterMismatchBloom
                   : QueryPurpose::ExistenceFilterMismatch;
           pending_target_resets_.insert({target_id, purpose});
@@ -261,7 +261,7 @@ BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
   const absl::optional<BloomFilterParameters>& bloom_filter_parameters =
       existence_filter.filter().bloom_filter_parameters();
   if (!bloom_filter_parameters.has_value()) {
-    return BloomFilterApplicationStatus::Skipped;
+    return BloomFilterApplicationStatus::kSkipped;
   }
 
   util::StatusOr<BloomFilter> maybe_bloom_filter =
@@ -271,13 +271,13 @@ BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
   if (!maybe_bloom_filter.ok()) {
     LOG_WARN("Creating BloomFilter failed: %s",
              maybe_bloom_filter.status().error_message());
-    return BloomFilterApplicationStatus::Skipped;
+    return BloomFilterApplicationStatus::kSkipped;
   }
 
   BloomFilter bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
 
   if (bloom_filter.bit_count() == 0) {
-    return BloomFilterApplicationStatus::Skipped;
+    return BloomFilterApplicationStatus::kSkipped;
   }
 
   int removed_document_count =
@@ -285,9 +285,9 @@ BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
 
   int expected_count = existence_filter.filter().count();
   if (expected_count != (current_count - removed_document_count)) {
-    return BloomFilterApplicationStatus::FalsePositive;
+    return BloomFilterApplicationStatus::kFalsePositive;
   }
-  return BloomFilterApplicationStatus::Success;
+  return BloomFilterApplicationStatus::kSuccess;
 }
 
 int WatchChangeAggregator::FilterRemovedDocuments(
