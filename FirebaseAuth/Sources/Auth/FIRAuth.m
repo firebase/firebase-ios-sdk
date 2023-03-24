@@ -2117,7 +2117,7 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
 - (void)appWillBeDeleted:(nonnull FIRApp *)app {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     NSString *userKey = [NSString stringWithFormat:kUserKey, app.name];
-    [_keychainServices removeDataForKey:userKey error:NULL];
+    [self->_keychainServices removeDataForKey:userKey error:NULL];
     dispatch_async(dispatch_get_main_queue(), ^{
       // TODO: Move over to fire an event instead, once ready.
       [[NSNotificationCenter defaultCenter] postNotificationName:FIRAuthStateDidChangeNotification
