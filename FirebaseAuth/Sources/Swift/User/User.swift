@@ -35,13 +35,6 @@ import Foundation
   @objc public private(set) var isEmailVerified: Bool
   @objc public func emailVerified() -> Bool { return isEmailVerified }
 
-  /** @property refreshToken
-      @brief A refresh token; useful for obtaining new access tokens independently.
-      @remarks This property should only be used for advanced scenarios, and is not typically needed.
-   */
-  // TODO: is a refreshToken property and method needed?
-  @objc public let rawRefreshToken: String?
-
   /** @property providerData
       @brief Profile data for each identity provider, if any.
       @remarks This data is cached on sign-in and updated when linking or unlinking.
@@ -1267,16 +1260,14 @@ import Foundation
     self.tokenService = tokenService
     isAnonymous = false
     isEmailVerified = false
-    rawRefreshToken = nil
     metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     tenantID = nil
     #if os(iOS)
       multiFactor = MultiFactor(mfaEnrollments: [])
     #endif
-    providerID = ""
     uid = ""
     hasEmailPasswordCredential = false
-    requestConfiguration = AuthRequestConfiguration(APIKey: "", appID: "")
+    requestConfiguration = AuthRequestConfiguration(apiKey: "", appID: "")
   }
 
   // TODO: internal Swift
@@ -1325,33 +1316,35 @@ import Foundation
     }
   }
 
-  public var providerID: String
+  @objc public var providerID: String {
+    return "Firebase"
+  }
 
   /** @property uid
       @brief The provider's user ID for the user.
    */
-  public var uid: String
+  @objc public var uid: String
 
   /** @property displayName
       @brief The name of the user.
    */
-  public var displayName: String?
+  @objc public var displayName: String?
 
   /** @property photoURL
       @brief The URL of the user's profile photo.
    */
-  public var photoURL: URL?
+  @objc public var photoURL: URL?
 
   /** @property email
       @brief The user's email address.
    */
-  public var email: String?
+  @objc public var email: String?
 
   /** @property phoneNumber
       @brief A phone number associated with the user.
       @remarks This property is only available for users authenticated via phone number auth.
    */
-  public var phoneNumber: String?
+  @objc public var phoneNumber: String?
 
   /** @var hasEmailPasswordCredential
       @brief Whether or not the user can be authenticated by using Firebase email and password.
@@ -2049,7 +2042,7 @@ import Foundation
     coder.encode(metadata, forKey: kMetadataCodingKey)
     coder.encode(tenantID, forKey: kTenantIDCodingKey)
     if let auth {
-      coder.encode(auth.requestConfiguration.APIKey, forKey: kAPIKeyCodingKey)
+      coder.encode(auth.requestConfiguration.apiKey, forKey: kAPIKeyCodingKey)
       coder.encode(auth.requestConfiguration.appID, forKey: kFirebaseAppIDCodingKey)
     }
     coder.encode(tokenService, forKey: kTokenServiceCodingKey)
@@ -2060,7 +2053,10 @@ import Foundation
 
   public required init?(coder: NSCoder) {
     guard let userID = coder.decodeObject(forKey: kUserIDCodingKey) as? String,
-          let tokenService = coder.decodeObject(forKey: kTokenServiceCodingKey) as? String else {
+          let apiKey = coder.decodeObject(forKey: kAPIKeyCodingKey) as? String,
+          let appID = coder.decodeObject(forKey: kFirebaseAppIDCodingKey) as? String,
+          let tokenService = coder.decodeObject(forKey: kTokenServiceCodingKey)
+          as? SecureTokenService else {
       return nil
     }
     let anonymous = coder.decodeBool(forKey: kAnonymousCodingKey)
@@ -2073,17 +2069,30 @@ import Foundation
     let providerDataClasses = NSSet(objects: [[String: Any].self, String.self,
                                               UserInfoImpl.self])
     let providerData = coder.decodeObject(forKey: kProviderDataKey) as? [String: UserInfoImpl]
-    fatalError("debug me")
-//    Set(arrayLiteral: [ Dictionary.class, String.class, UserInfoImpl.class])
-//    let t setWithArray coder.decodeObject(:@[ [NSDictionary class], [NSString class], [FIRUserInfoImpl class] ])
-//    let SString * coder.decodeObject(, FIRUserInfoImpl *> *providerData)
-//    let coder decodeObjectOfClasses coder.decodeObject(:providerDataClasses forKey:kProviderDataKey)
-//    let kenService *tokenService coder.decodeObject( = [aDecoder decodeObjectOfClass:[FIRSecureTokenService clas)
-//    let TokenServiceCodingKey] coder.decodeObject)
-//    let tadata *metadata coder.decodeObject( = [aDecoder decodeObjectOfClass:[FIRUserMetadata clas)
-//    let MetadataCodingKey] coder.decodeObject)
-//    let tenantID = coder.decodeObject( [aDecoder decodeObjectOfClass:[NSString class] forKey:kTenantIDCodingKey)
-//    let APIKey = coder.decodeObject( [aDecoder decodeObjectOfClass:[NSString class] forKey:kAPIKeyCodingKey)
-//    let appID = coder.decodeObject( [aDecoder decodeObjectOfClass:[NSString class] forKey:kFirebaseAppIDCodingKey)
+    let metadata = coder.decodeObject(forKey: kMetadataCodingKey) as? UserMetadata
+    let tenantID = coder.decodeObject(forKey: kTenantIDCodingKey) as? String
+    #if os(iOS)
+      let multiFactor = coder.decodeObject(forKey: kMultiFactorCodingKey) as? MultiFactor
+    #endif
+    self.tokenService = tokenService
+    uid = userID
+    isAnonymous = anonymous
+    self.hasEmailPasswordCredential = hasEmailPasswordCredential
+    self.email = email
+    isEmailVerified = emailVerified
+    self.displayName = displayName
+    self.photoURL = photoURL
+    providerDataRaw = providerData ?? [:]
+    self.phoneNumber = phoneNumber
+    self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
+    self.tenantID = tenantID
+    // The `heartbeatLogger` will be set later via a property update.
+    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey, appID: appID)
+    taskQueue = AuthSerialTaskQueue()
+    #if os(iOS)
+      self.multiFactor = multiFactor ?? MultiFactor()
+      // TODO: figure out next line.
+      // multiFactor?.user = self
+    #endif
   }
 }
