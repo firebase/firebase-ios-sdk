@@ -329,6 +329,8 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   // existence filter mismatches.
   for (const auto& entry : remote_event.target_mismatches()) {
     const TargetId& target_id = entry.first;
+    const QueryPurpose& purpose = entry.second;
+
     auto found = listen_targets_.find(target_id);
     if (found == listen_targets_.end()) {
       // A watched target might have been removed already.
@@ -347,7 +349,6 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // deliberately don't send a resume token so that we get a full update.
     SendUnwatchRequest(target_id);
 
-    const QueryPurpose& purpose = entry.second;
     // Mark the query we send as being on behalf of an existence filter
     // mismatch, but don't actually retain that in listen_targets_. This ensures
     // that we flag the first re-listen this way without impacting future
