@@ -18,7 +18,7 @@ import Photos
 
 // TODO: Fix spm to allow using this.
 // TODO: This is needed to send actual feedback.
-// import GoogleUtilities.GULUserDefaults
+ import GoogleUtilities.GULUserDefaults
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(
@@ -30,8 +30,8 @@ import Photos
     -> UIViewController? {
     // TODO: Check for debug mode, and if it is, proceed even if it's not available, otherwise return nil
     // Uncomment this to get access to the release name.
-//    let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
-    let releaseName = ""
+    let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
+//    let releaseName = "projects/427193721242/installations/d0gQGqCoRUo5tSs95svxc8/releases/2p7ibmijdhgug"
 
     // TODO: Add the additionalInfoText parameter.
     let frameworkBundle = Bundle(for: self)
@@ -60,14 +60,12 @@ import Photos
   @objc(getManuallyCapturedScreenshotWithCompletion:)
   public static func getManuallyCapturedScreenshot(completion: @escaping (_ screenshot: UIImage?)
     -> Void) {
-    // TODO: There's a bug where the screenshot returned isn't the current screenshot
-    // but the previous screenshot.
     getPhotoPermissionIfNecessary(completionHandler: { authorized in
       guard authorized else {
         completion(nil)
         return
       }
-
+      
       let manager = PHImageManager.default()
 
       let fetchOptions = PHFetchOptions()
@@ -79,19 +77,24 @@ import Photos
 
       let requestOptions = PHImageRequestOptions()
       requestOptions.isSynchronous = true
+      
+      // There's a bug where the screenshot immediately taken isn't saved to disk
+      // This waits for 2 seconds before reading it.
+      let seconds = 2.0
+      DispatchQueue.global(qos: .userInitiated).asyncAfter(deadline: .now() + seconds, execute: {
+        let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
+        let asset = fetchResult.object(at: 0)
 
-      let fetchResult = PHAsset.fetchAssets(with: .image, options: fetchOptions)
-      let asset = fetchResult.object(at: 0)
-
-      manager.requestImage(
-        for: asset,
-        targetSize: CGSize(width: asset.pixelWidth / 3, height: asset.pixelHeight / 3),
-        contentMode: .aspectFill,
-        options: requestOptions
-      ) { image, err in
-        // TODO: Add logic to respond correctly if there's an error.
-        completion(image)
-      }
+        manager.requestImage(
+          for: asset,
+          targetSize: CGSize(width: asset.pixelWidth / 3, height: asset.pixelHeight / 3),
+          contentMode: .aspectFill,
+          options: requestOptions
+        ) { image, err in
+          // TODO: Add logic to respond correctly if there's an error.
+          completion(image)
+        }
+      })
     })
   }
 
