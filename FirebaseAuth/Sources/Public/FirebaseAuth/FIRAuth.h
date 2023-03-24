@@ -30,6 +30,8 @@
 @class FIRUser;
 @class FIRAuthNotificationManager;
 @class FIRAuthURLPresenter;
+@class FIRAuthKeychainServices;
+@class FIRAuthStoredUserManager;
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 
@@ -312,6 +314,10 @@ NS_SWIFT_NAME(Auth)
  */
 @property(nonatomic, strong, readonly) FIRAuthNotificationManager *notificationManager;
 
+@property(nonatomic, strong) NSString *firebaseAppName;
+@property(nonatomic) FIRAuthKeychainServices *keychainServices;
+@property(nonatomic) FIRAuthStoredUserManager *storedUserManager;
+
 // TODO: Temporary bridge from Swift until completely ported.
 + (dispatch_queue_t)globalWorkQueue;
 
@@ -339,6 +345,9 @@ NS_SWIFT_NAME(Auth)
     @brief Synchronously gets the cached current user, or null if there is none.
  */
 @property(nonatomic, strong, readonly, nullable) FIRUser *currentUser;
+
+// TODO: temporary for updateKeychain check. Revisit with Auth.swift. Should not be public.
+@property(nonatomic, strong, readonly, nullable) FIRUser *rawCurrentUser;
 
 /** @property languageCode
     @brief The current user language code. This property can be set to the app's current language by
