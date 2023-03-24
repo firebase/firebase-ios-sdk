@@ -1,5 +1,9 @@
 # 10.7.0
-- [feature] Added support for real-time config updates. To learn more, see [Get started with Firebase Remote Config](https://firebase.google.com/docs/remote-config/get-started?platform=ios).
+- [feature] Added support for real-time config updates. Use the new `addOnConfigUpdateListener` API to get
+  real-time updates. Existing [`fetch`](https://firebase.google.com/docs/reference/swift/firebaseremoteconfig/api/reference/Classes/RemoteConfig#fetch)
+  and [`activate`](https://firebase.google.com/docs/reference/swift/firebaseremoteconfig/api/reference/Classes/RemoteConfig#activate)
+  APIs aren't affected by this change. To learn more, see
+  [Get started with Firebase Remote Config](https://firebase.google.com/docs/remote-config/get-started?platform=ios#add-real-time-listener).
 
 # 9.3.0
 - [changed] Arrays and Dictionaries are now supported when initializing defaults from a
