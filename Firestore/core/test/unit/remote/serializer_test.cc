@@ -1125,6 +1125,42 @@ TEST_F(SerializerTest, EncodesFirstLevelKeyQueries) {
   ExpectRoundTrip(model, proto);
 }
 
+TEST_F(SerializerTest, EncodesTargetDataWithExpectedResumeType) {
+  TargetData target = CreateTargetData("docs/1");
+
+  {
+    SCOPED_TRACE("EncodesTargetDataWithoutResumeType");
+    v1::Target proto;
+    proto.mutable_documents()->add_documents(ResourceName("docs/1"));
+    proto.set_target_id(1);
+    ExpectRoundTrip(target, proto);
+  }
+
+  {
+    SCOPED_TRACE("EncodesTargetDataWithResumeToken");
+    v1::Target proto;
+    proto.mutable_documents()->add_documents(ResourceName("docs/1"));
+    proto.set_target_id(1);
+    proto.set_resume_token("resume_token");
+    ExpectRoundTrip(target.WithResumeToken(nanopb::ByteString{"resume_token"},
+                                           model::SnapshotVersion::None()),
+                    proto);
+  }
+
+  {
+    SCOPED_TRACE("EncodesTargetDataWithResumeByReadTime");
+    v1::Target proto;
+    proto.mutable_documents()->add_documents(ResourceName("docs/1"));
+    proto.set_target_id(1);
+    proto.mutable_read_time()->set_seconds(1000);
+    proto.mutable_read_time()->set_nanos(42);
+    ExpectRoundTrip(
+        target.WithResumeToken(nanopb::ByteString{""},
+                               model::SnapshotVersion(Timestamp(1000, 42))),
+        proto);
+  }
+}
+
 TEST_F(SerializerTest, EncodesFirstLevelAncestorQueries) {
   TargetData model = CreateTargetData("messages");
 
@@ -1753,7 +1789,7 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
 TEST_F(SerializerTest,
        DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
   ExistenceFilterWatchChange model(
-      ExistenceFilter(555, BloomFilter({0x42, 0xFE}, 7, 33)), 999);
+      ExistenceFilter(555, BloomFilterParameters{{0x42, 0xFE}, 7, 33}), 999);
 
   v1::ListenResponse proto;
   proto.mutable_filter()->set_count(555);
@@ -1765,7 +1801,8 @@ TEST_F(SerializerTest,
   bloom_filter->mutable_bits()->set_padding(7);
   bloom_filter->mutable_bits()->set_bitmap("\x42\xFE");
 
-  SCOPED_TRACE("DecodesListenResponseWithExistenceFilter");
+  SCOPED_TRACE(
+      "DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull");
   ExpectDeserializationRoundTrip(model, proto);
 }
 

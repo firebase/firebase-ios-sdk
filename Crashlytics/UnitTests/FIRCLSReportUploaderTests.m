@@ -98,8 +98,7 @@ NSString *const TestFIID = @"TestFIID";
 #pragma mark - Tests
 
 - (void)testPrepareReport {
-  NSString *path = [self.fileManager.activePath stringByAppendingPathComponent:@"pkg_uuid"];
-  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
+  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:[self packagePath]];
   self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
 
   XCTAssertNil(self.uploader.fiid);
@@ -117,8 +116,7 @@ NSString *const TestFIID = @"TestFIID";
 }
 
 - (void)test_NilFIID_DoesNotCrash {
-  NSString *path = [self.fileManager.activePath stringByAppendingPathComponent:@"pkg_uuid"];
-  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
+  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:[self packagePath]];
   self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
 
   self.mockInstallations = [[FIRMockInstallations alloc]

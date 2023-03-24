@@ -43,6 +43,7 @@
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/set_mutation.h"
+#include "Firestore/core/src/model/snapshot_version.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/model/verify_mutation.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -50,6 +51,7 @@
 #include "Firestore/core/src/nanopb/reader.h"
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/timestamp_internal.h"
+#include "Firestore/core/src/util/comparison.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/status.h"
@@ -113,6 +115,7 @@ using nanopb::SetRepeatedField;
 using nanopb::SharedMessage;
 using nanopb::Writer;
 using remote::WatchChange;
+using util::ComparisonResult;
 using util::ReadContext;
 using util::Status;
 using util::StatusOr;
@@ -639,8 +642,19 @@ google_firestore_v1_Target Serializer::EncodeTarget(
         nanopb::CopyBytesArray(target_data.resume_token().get());
 
     if (target_data.expected_count().has_value()) {
-      result.has_expected_count = true;
       int32_t expected_count = target_data.expected_count().value();
+      result.has_expected_count = true;
+      result.expected_count.value = expected_count;
+    }
+  } else if (target_data.snapshot_version().CompareTo(
+                 SnapshotVersion::None()) == ComparisonResult::Descending) {
+    result.which_resume_type = google_firestore_v1_Target_read_time_tag;
+    result.resume_type.read_time =
+        EncodeVersion(target_data.snapshot_version());
+
+    if (target_data.expected_count().has_value()) {
+      int32_t expected_count = target_data.expected_count().value();
+      result.has_expected_count = true;
       result.expected_count.value = expected_count;
     }
   }
@@ -1439,29 +1453,24 @@ std::unique_ptr<WatchChange> Serializer::DecodeExistenceFilterWatchChange(
 
 ExistenceFilter Serializer::DecodeExistenceFilter(
     const google_firestore_v1_ExistenceFilter& filter) const {
-  if (filter.has_unchanged_names) {
-    pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.has_bits
-                                       ? filter.unchanged_names.bits.bitmap
-                                       : nullptr;
-    std::vector<uint8_t> bitmap(bitmap_ptr->bytes,
-                                bitmap_ptr->bytes + bitmap_ptr->size);
+  if (!filter.has_unchanged_names) {
+    return {filter.count, absl::nullopt};
+  }
 
-    int32_t padding = filter.unchanged_names.has_bits
-                          ? filter.unchanged_names.bits.padding
-                          : 0;
-    int32_t hash_count = filter.unchanged_names.hash_count;
+  int32_t hash_count = filter.unchanged_names.hash_count;
+  int32_t padding = 0;
+  std::vector<uint8_t> bitmap;
+  if (filter.unchanged_names.has_bits) {
+    padding = filter.unchanged_names.bits.padding;
 
-    StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(bitmap, padding, hash_count);
-
-    if (maybe_bloom_filter.ok()) {
-      return {filter.count, std::move(maybe_bloom_filter).ValueOrDie()};
-    } else {
-      LOG_WARN("Creating BloomFilter failed: %s",
-               maybe_bloom_filter.status().error_message());
+    pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.bits.bitmap;
+    if (bitmap_ptr != nullptr) {
+      bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
+                                    bitmap_ptr->bytes + bitmap_ptr->size);
     }
   }
-  return {filter.count, absl::nullopt};
+  return {filter.count,
+          BloomFilterParameters{std::move(bitmap), padding, hash_count}};
 }
 
 bool Serializer::IsLocalResourceName(const ResourcePath& path) const {

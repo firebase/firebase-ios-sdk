@@ -102,8 +102,8 @@ absl::optional<TargetData> FakeTargetMetadataProvider::GetTargetDataForTarget(
   return it->second;
 }
 
-model::DatabaseId FakeTargetMetadataProvider::GetDatabaseId() const {
-  return model::DatabaseId("test-project", "test-database");
+const model::DatabaseId& FakeTargetMetadataProvider::GetDatabaseId() const {
+  return database_id_;
 }
 
 }  // namespace remote

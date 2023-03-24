@@ -227,6 +227,21 @@ inline const pb_field_t* FieldsArray<
   return google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_fields;
 }
 
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_ExistenceFilter>() {
+  return google_firestore_v1_ExistenceFilter_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_BloomFilter>() {
+  return google_firestore_v1_BloomFilter_fields;
+}
+
+template <>
+inline const pb_field_t* FieldsArray<google_firestore_v1_BitSequence>() {
+  return google_firestore_v1_BitSequence_fields;
+}
+
 }  // namespace nanopb
 }  // namespace firestore
 }  // namespace firebase

@@ -566,7 +566,7 @@ absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
                                         : absl::optional<TargetData>{};
 }
 
-model::DatabaseId RemoteStore::GetDatabaseId() const {
+const model::DatabaseId& RemoteStore::GetDatabaseId() const {
   return datastore_->database_info().database_id();
 }
 

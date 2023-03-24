@@ -20,6 +20,7 @@
 #include <utility>
 
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/util/log.h"
 
 namespace firebase {
 namespace firestore {
@@ -258,18 +259,25 @@ void WatchChangeAggregator::HandleExistenceFilter(
 
 local::BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
     const ExistenceFilterWatchChange& existence_filter, int current_count) {
-  const absl::optional<BloomFilter>& bloom_filter =
-      existence_filter.filter().bloom_filter();
-  if (!bloom_filter.has_value()) {
+  const absl::optional<BloomFilterParameters>& bloom_filter_parameters =
+      existence_filter.filter().bloom_filter_parameters();
+
+  if (!bloom_filter_parameters.has_value()) {
     return local::BloomFilterApplicationStatus::Skipped;
   }
 
-  if (bloom_filter.value().bit_count() == 0) {
+  util::StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(bloom_filter_parameters.value().bitmap,
+                          bloom_filter_parameters.value().padding,
+                          bloom_filter_parameters.value().hash_count);
+  if (!maybe_bloom_filter.ok()) {
+    LOG_WARN("Creating BloomFilter failed: %s",
+             maybe_bloom_filter.status().error_message());
     return local::BloomFilterApplicationStatus::Skipped;
   }
 
   int removed_document_count = FilterRemovedDocuments(
-      bloom_filter.value(), existence_filter.target_id());
+      maybe_bloom_filter.ValueOrDie(), existence_filter.target_id());
 
   int expected_count = existence_filter.filter().count();
   if (expected_count != (current_count - removed_document_count)) {
@@ -280,7 +288,7 @@ local::BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
 
 int WatchChangeAggregator::FilterRemovedDocuments(
     const BloomFilter& bloom_filter, int target_id) {
-  const DocumentKeySet& existing_keys =
+  const DocumentKeySet existing_keys =
       target_metadata_provider_->GetRemoteKeysForTarget(target_id);
   int removalCount = 0;
   for (const DocumentKey& key : existing_keys) {

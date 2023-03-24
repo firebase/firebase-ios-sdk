@@ -66,7 +66,7 @@ class TargetMetadataProvider {
       model::TargetId target_id) const = 0;
 
   /** Returns the database ID of the Firestore instance. */
-  virtual model::DatabaseId GetDatabaseId() const = 0;
+  virtual const model::DatabaseId& GetDatabaseId() const = 0;
 };
 
 /**

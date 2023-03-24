@@ -45,13 +45,16 @@ TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
     ExistenceFilter filter{7, /*bloom_filter=*/absl::nullopt};
     ExistenceFilterWatchChange change{filter, 5};
     EXPECT_EQ(change.filter().count(), 7);
+    EXPECT_EQ(change.filter().bloom_filter_parameters(), absl::nullopt);
     EXPECT_EQ(change.target_id(), 5);
   }
   {
-    ExistenceFilter filter{7, BloomFilter({0x42, 0xFE}, 7, 33)};
+    BloomFilterParameters bloom_filter_parameters{{0x42, 0xFE}, 7, 33};
+    ExistenceFilter filter{7, bloom_filter_parameters};
     ExistenceFilterWatchChange change{std::move(filter), 5};
     EXPECT_EQ(change.filter().count(), 7);
-    EXPECT_EQ(change.filter().bloom_filter(), BloomFilter({0x42, 0xFE}, 7, 33));
+    EXPECT_EQ(change.filter().bloom_filter_parameters(),
+              bloom_filter_parameters);
     EXPECT_EQ(change.target_id(), 5);
   }
 }
