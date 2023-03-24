@@ -37,6 +37,7 @@ import Foundation
   @objc public let OAuthResponseURLString: String?
   @objc public let sessionID: String?
   @objc public let pendingToken: String?
+  let fullName: PersonNameComponents?
   // private
   @objc public let rawNonce: String?
 
@@ -46,12 +47,14 @@ import Foundation
                     rawNonce: String? = nil,
                     accessToken: String? = nil,
                     secret: String? = nil,
+                    fullName: PersonNameComponents? = nil,
                     pendingToken: String? = nil) {
     self.idToken = idToken
     self.rawNonce = rawNonce
     self.accessToken = accessToken
     self.pendingToken = pendingToken
     self.secret = secret
+    self.fullName = fullName
     OAuthResponseURLString = nil
     sessionID = nil
     super.init(provider: providerID)
@@ -67,6 +70,7 @@ import Foundation
     secret = nil
     idToken = nil
     rawNonce = nil
+    fullName = nil
     super.init(provider: providerID)
   }
 
@@ -99,19 +103,21 @@ import Foundation
   public static var supportsSecureCoding: Bool = true
 
   public func encode(with coder: NSCoder) {
-    coder.encode(idToken)
-    coder.encode(rawNonce)
-    coder.encode(accessToken)
-    coder.encode(pendingToken)
-    coder.encode(secret)
+    coder.encode(idToken, forKey: "IDToken")
+    coder.encode(rawNonce, forKey: "rawNonce")
+    coder.encode(accessToken, forKey: "accessToken")
+    coder.encode(pendingToken, forKey: "pendingToken")
+    coder.encode(secret, forKey: "secret")
+    coder.encode(fullName, forKey: "fullName")
   }
 
   public required init?(coder: NSCoder) {
-    idToken = coder.decodeObject(forKey: "idToken") as? String
+    idToken = coder.decodeObject(forKey: "IDToken") as? String
     rawNonce = coder.decodeObject(forKey: "rawNonce") as? String
     accessToken = coder.decodeObject(forKey: "accessToken") as? String
     pendingToken = coder.decodeObject(forKey: "pendingToken") as? String
     secret = coder.decodeObject(forKey: "secret") as? String
+    fullName = coder.decodeObject(forKey: "fullName") as? PersonNameComponents
     OAuthResponseURLString = nil
     sessionID = nil
     super.init(provider: OAuthProvider.id)

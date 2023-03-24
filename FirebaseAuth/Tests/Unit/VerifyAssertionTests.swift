@@ -88,6 +88,15 @@ class VerifyAssertionTests: RPCBaseTests {
     request.pendingToken = kTestPendingToken
     request.providerOAuthTokenSecret = kTestProviderOAuthTokenSecret
     request.autoCreate = false
+    let kFakeGivenName = "Paul"
+    let kFakeFamilyName = "B"
+    var fullName = PersonNameComponents()
+    fullName.givenName = kFakeGivenName
+    fullName.familyName = kFakeFamilyName
+    request.fullName = fullName
+    let userJSON = "{\"name\":{\"firstName\":\"\(kFakeGivenName)\"," +
+      "\"lastName\":\"\(kFakeFamilyName)\"}}"
+
     let issuer = try checkRequest(
       request: request,
       expected: kExpectedAPIURL,
@@ -101,6 +110,7 @@ class VerifyAssertionTests: RPCBaseTests {
       URLQueryItem(name: kProviderAccessTokenKey, value: kTestProviderAccessToken),
       URLQueryItem(name: kProviderOAuthTokenSecretKey, value: kTestProviderOAuthTokenSecret),
       URLQueryItem(name: kInputEmailKey, value: kTestInputEmail),
+      URLQueryItem(name: "user", value: userJSON),
     ]
 
     let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
