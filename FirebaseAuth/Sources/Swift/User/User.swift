@@ -46,7 +46,7 @@ import Foundation
       @brief Profile data for each identity provider, if any.
       @remarks This data is cached on sign-in and updated when linking or unlinking.
    */
-  @objc public func providerData() -> [UserInfoImpl] {
+  @objc public var providerData: [UserInfoImpl] {
     return Array(providerDataRaw.values)
   }
 
@@ -299,7 +299,11 @@ import Foundation
     return result!
   }
 
-  @objc public func refreshToken() -> String? {
+  /** @property refreshToken
+      @brief A refresh token; useful for obtaining new access tokens independently.
+      @remarks This property should only be used for advanced scenarios, and is not typically needed.
+   */
+  @objc public var refreshToken: String? {
     var result: String?
     kAuthGlobalWorkQueue.sync {
       result = self.tokenService.refreshToken
