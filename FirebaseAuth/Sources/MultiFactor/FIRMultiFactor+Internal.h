@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMultiFactor () <NSSecureCoding>
 
+// TODO: revisit User.swift usage of this property after this is in Swift.
+
 @property(nonatomic, weak) FIRUser *user;
 
 /** @fn initWithMFAEnrollments:

@@ -31,7 +31,6 @@
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 #if TARGET_OS_IOS
@@ -302,7 +301,8 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
 /** @property storedUserManager
     @brief The stored user manager.
  */
-@property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
+// TODO: temporary in FIRAuth.h
+//@property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
 
 /** @fn initWithApp:
     @brief Creates a @c FIRAuth instance associated with the provided @c FIRApp instance.
@@ -321,7 +321,8 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
   /** @var _firebaseAppName
       @brief The Firebase app name.
    */
-  NSString *_firebaseAppName;
+  // TODO: temporary in FIRAuth.h
+  // NSString *_firebaseAppName;
 
   /** @var _listenerHandles
       @brief Handles returned from @c NSNotificationCenter for blocks which are "auth state did
@@ -333,7 +334,8 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
   /** @var _keychainServices
       @brief The keychain service.
    */
-  id<FIRAuthStorage> _keychainServices;
+  // TODO: temporary in FIRAuth.h
+  // FIRAuthKeychainServices *_keychainServices;
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.
@@ -584,6 +586,10 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
     result = self->_currentUser;
   });
   return result;
+}
+
+- (nullable FIRUser *)rawCurrentUser {
+  return self->_currentUser;
 }
 
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
@@ -931,7 +937,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
                              }
 
                              [self
-                                 completeSignInWithAccessToken:response.idToken
+                                 completeSignInWithAccessToken:response.IDToken
                                      accessTokenExpirationDate:response.approximateExpirationDate
                                                   refreshToken:response.refreshToken
                                                      anonymous:NO
@@ -1001,7 +1007,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
                  return;
                }
                [self
-                   completeSignInWithAccessToken:response.idToken
+                   completeSignInWithAccessToken:response.IDToken
                        accessTokenExpirationDate:response.approximateExpirationDate
                                     refreshToken:response.refreshToken
                                        anonymous:NO
@@ -1035,7 +1041,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback decoratedCallback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
-    if (self->_currentUser.anonymous) {
+    if (self->_currentUser.isAnonymous) {
       FIRAuthDataResult *result = [[FIRAuthDataResult alloc] initWithUser:self->_currentUser
                                                        additionalUserInfo:nil
                                                                credential:nil];
@@ -1672,7 +1678,7 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
                    return;
                  }
                }
-               [self completeSignInWithAccessToken:response.idToken
+               [self completeSignInWithAccessToken:response.IDToken
                          accessTokenExpirationDate:response.approximateExpirationDate
                                       refreshToken:response.refreshToken
                                          anonymous:NO
@@ -1769,19 +1775,6 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
                                userInfo:internalNotificationParameters];
     [notifications postNotificationName:FIRAuthStateDidChangeNotification object:self];
   });
-}
-
-- (BOOL)updateKeychainWithUser:(FIRUser *)user error:(NSError *_Nullable *_Nullable)error {
-  if (user != _currentUser) {
-    // No-op if the user is no longer signed in. This is not considered an error as we don't check
-    // whether the user is still current on other callbacks of user operations either.
-    return YES;
-  }
-  if ([self saveUser:user error:error]) {
-    [self possiblyPostAuthStateChangeNotification];
-    return YES;
-  }
-  return NO;
 }
 
 + (NSString *)keychainServiceNameForAppID:(NSString *)appID {
