@@ -303,7 +303,7 @@ import Foundation
       @brief A refresh token; useful for obtaining new access tokens independently.
       @remarks This property should only be used for advanced scenarios, and is not typically needed.
    */
-  @objc public var refreshToken : String? {
+  @objc public var refreshToken: String? {
     var result: String?
     kAuthGlobalWorkQueue.sync {
       result = self.tokenService.refreshToken
