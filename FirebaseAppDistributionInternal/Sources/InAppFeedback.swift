@@ -18,7 +18,7 @@ import Photos
 
 // TODO: Fix spm to allow using this.
 // TODO: This is needed to send actual feedback.
- import GoogleUtilities.GULUserDefaults
+// import GoogleUtilities.GULUserDefaults
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(
@@ -30,8 +30,8 @@ import Photos
     -> UIViewController? {
     // TODO: Check for debug mode, and if it is, proceed even if it's not available, otherwise return nil
     // Uncomment this to get access to the release name.
-    let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
-//    let releaseName = "projects/427193721242/installations/d0gQGqCoRUo5tSs95svxc8/releases/2p7ibmijdhgug"
+//    let releaseName = GULUserDefaults.standard().string(forKey: Strings.releaseNameKey)
+    let releaseName = ""
 
     // TODO: Add the additionalInfoText parameter.
     let frameworkBundle = Bundle(for: self)
