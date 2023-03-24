@@ -42,8 +42,8 @@ enum class QueryPurpose {
   ExistenceFilterMismatch,
 
   /**
-   * The query target was used if the query is the result of a false positive
-   * in the bloom filter.
+   * The query was used refill a query if there is an existence filter mismatch
+   * and the bloom filter application returned a false positive result.
    */
   ExistenceFilterMismatchBloom,
 

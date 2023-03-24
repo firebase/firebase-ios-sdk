@@ -38,10 +38,11 @@ namespace firestore {
 
 namespace local {
 class TargetData;
-enum class BloomFilterApplicationStatus { Success, Skipped, FalsePositive };
 }  // namespace local
 
 namespace remote {
+
+enum class BloomFilterApplicationStatus { Success, Skipped, FalsePositive };
 
 /**
  * Interface implemented by `RemoteStore` to expose target metadata to the
@@ -418,7 +419,7 @@ class WatchChangeAggregator {
 
   /** Returns whether a bloom filter removed the deleted documents successfully.
    */
-  local::BloomFilterApplicationStatus ApplyBloomFilter(
+  BloomFilterApplicationStatus ApplyBloomFilter(
       const ExistenceFilterWatchChange& existence_filter, int current_count);
 
   /**
@@ -440,7 +441,7 @@ class WatchChangeAggregator {
       pending_document_target_mappings_;
 
   /**
-   * A list of targets with existence filter mismatches. These targets are known
+   * A map of targets with existence filter mismatches. These targets are known
    * to be inconsistent and their listens needs to be re-established by
    * `RemoteStore`.
    */

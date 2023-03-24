@@ -328,7 +328,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
   // Re-establish listens for the targets that have been invalidated by
   // existence filter mismatches.
   for (const auto& entry : remote_event.target_mismatches()) {
-    const auto target_id = entry.first;
+    const TargetId& target_id = entry.first;
     auto found = listen_targets_.find(target_id);
     if (found == listen_targets_.end()) {
       // A watched target might have been removed already.

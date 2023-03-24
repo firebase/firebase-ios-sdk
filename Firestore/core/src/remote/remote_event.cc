@@ -238,18 +238,17 @@ void WatchChangeAggregator::HandleExistenceFilter(
     } else {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
-        // TODO(Mila): Use application status instead of a boolean in next PR.
         // Apply bloom filter to identify and mark removed documents.
-        local::BloomFilterApplicationStatus status =
+        BloomFilterApplicationStatus status =
             ApplyBloomFilter(existence_filter, current_size);
-        if (status != local::BloomFilterApplicationStatus::Success) {
+        if (status != BloomFilterApplicationStatus::Success) {
           // If bloom filter application fails, we reset the mapping and
           // trigger re-run of the query.
           ResetTarget(target_id);
-          const local::QueryPurpose purpose =
-              status == local::BloomFilterApplicationStatus::FalsePositive
-                  ? local::QueryPurpose::ExistenceFilterMismatchBloom
-                  : local::QueryPurpose::ExistenceFilterMismatch;
+          const QueryPurpose purpose =
+              status == BloomFilterApplicationStatus::FalsePositive
+                  ? QueryPurpose::ExistenceFilterMismatchBloom
+                  : QueryPurpose::ExistenceFilterMismatch;
           pending_target_resets_.insert({target_id, purpose});
         }
       }
@@ -257,13 +256,12 @@ void WatchChangeAggregator::HandleExistenceFilter(
   }
 }
 
-local::BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
+BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
     const ExistenceFilterWatchChange& existence_filter, int current_count) {
   const absl::optional<BloomFilterParameters>& bloom_filter_parameters =
       existence_filter.filter().bloom_filter_parameters();
-
   if (!bloom_filter_parameters.has_value()) {
-    return local::BloomFilterApplicationStatus::Skipped;
+    return BloomFilterApplicationStatus::Skipped;
   }
 
   util::StatusOr<BloomFilter> maybe_bloom_filter =
@@ -273,17 +271,23 @@ local::BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
   if (!maybe_bloom_filter.ok()) {
     LOG_WARN("Creating BloomFilter failed: %s",
              maybe_bloom_filter.status().error_message());
-    return local::BloomFilterApplicationStatus::Skipped;
+    return BloomFilterApplicationStatus::Skipped;
   }
 
-  int removed_document_count = FilterRemovedDocuments(
-      maybe_bloom_filter.ValueOrDie(), existence_filter.target_id());
+  BloomFilter bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
+
+  if (bloom_filter.bit_count() == 0) {
+    return BloomFilterApplicationStatus::Skipped;
+  }
+
+  int removed_document_count =
+      FilterRemovedDocuments(bloom_filter, existence_filter.target_id());
 
   int expected_count = existence_filter.filter().count();
   if (expected_count != (current_count - removed_document_count)) {
-    return local::BloomFilterApplicationStatus::FalsePositive;
+    return BloomFilterApplicationStatus::FalsePositive;
   }
-  return local::BloomFilterApplicationStatus::Success;
+  return BloomFilterApplicationStatus::Success;
 }
 
 int WatchChangeAggregator::FilterRemovedDocuments(
