@@ -39,6 +39,8 @@ const char* ToString(QueryPurpose purpose) {
       return "Listen";
     case QueryPurpose::ExistenceFilterMismatch:
       return "ExistenceFilterMismatch";
+    case QueryPurpose::ExistenceFilterMismatchBloom:
+      return "ExistenceFilterMismatchBloom";
     case QueryPurpose::LimboResolution:
       return "LimboResolution";
   }
