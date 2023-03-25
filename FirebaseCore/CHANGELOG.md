@@ -1,3 +1,6 @@
+# Firebase 10.8.0
+- [changed] Firebase now requires at least Xcode 14.1.
+
 # Firebase 10.4.0
 - Deprecate `androidClientID` and `trackingID` from FirebaseOptions. (#10520)
 

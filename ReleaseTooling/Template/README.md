@@ -10,7 +10,7 @@ Each Firebase component requires several xcframeworks in order to function
 properly. Each section below lists the xcframeworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
 
-Xcode 13.3.1 or newer is required.
+Xcode 14.1 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
