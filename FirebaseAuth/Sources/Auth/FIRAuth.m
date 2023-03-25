@@ -2116,14 +2116,8 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
 
 - (void)appWillBeDeleted:(nonnull FIRApp *)app {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
-    // This doesn't stop any request already issued, see b/27704535 .
-    NSString *keychainServiceName = [FIRAuth keychainServiceNameForAppID:app.options.googleAppID];
-    if (keychainServiceName) {
-      FIRAuthKeychainServices *keychain =
-          [[FIRAuthKeychainServices alloc] initWithService:keychainServiceName];
-      NSString *userKey = [NSString stringWithFormat:kUserKey, app.name];
-      [keychain removeDataForKey:userKey error:NULL];
-    }
+    NSString *userKey = [NSString stringWithFormat:kUserKey, app.name];
+    [self->_keychainServices removeDataForKey:userKey error:NULL];
     dispatch_async(dispatch_get_main_queue(), ^{
       // TODO: Move over to fire an event instead, once ready.
       [[NSNotificationCenter defaultCenter] postNotificationName:FIRAuthStateDidChangeNotification
