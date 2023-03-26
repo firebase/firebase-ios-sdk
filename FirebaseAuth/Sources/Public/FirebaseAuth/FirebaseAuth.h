@@ -23,3 +23,4 @@
 #import "FIRMultiFactor.h"
 #import "FIRMultiFactorResolver.h"
 #import "FIRPhoneMultiFactorGenerator.h"
+#import "FIRAuthWebViewController.h"
