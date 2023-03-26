@@ -26,10 +26,6 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
   private let kTestEmail = "testgmail.com"
   private let kAccessTokenKey = "idToken"
   private let kTestAccessToken = "ACCESS_TOKEN"
-  private let kIosBundleID = "testBundleID"
-  private let kAndroidPackageName = "adroidpackagename"
-  private let kContinueURL = "continueURL"
-  private let kAndroidMinimumVersion = "3.0"
   private let kContinueURLKey = "continueUrl"
   private let kIosBundleIDKey = "iOSBundleId"
   private let kAndroidPackageNameKey = "androidPackageName"
@@ -37,7 +33,6 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
   private let kAndroidMinimumVersionKey = "androidMinimumVersion"
   private let kCanHandleCodeInAppKey = "canHandleCodeInApp"
   private let kDynamicLinkDomainKey = "dynamicLinkDomain"
-  private let kDynamicLinkDomain = "test.page.link"
   private let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getOobConfirmationCode?key=APIKey"
   private let kOOBCodeKey = "oobCode"
@@ -227,15 +222,4 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
                           requestConfiguration: makeRequestConfiguration()))
   }
 
-  private func fakeActionCodeSettings() -> ActionCodeSettings {
-    let settings = ActionCodeSettings()
-    settings.iOSBundleID = kIosBundleID
-    settings.setAndroidPackageName(kAndroidPackageName,
-                                   installIfNotAvailable: true,
-                                   minimumVersion: kAndroidMinimumVersion)
-    settings.handleCodeInApp = true
-    settings.url = URL(string: kContinueURL)
-    settings.dynamicLinkDomain = kDynamicLinkDomain
-    return settings
-  }
 }

@@ -153,17 +153,17 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
     } else {
       photoURL = nil
     }
-    if let createdAt = dictionary["createdAt"] as? String {
-      // Divide by 1000 in order to convert miliseconds to seconds.
-      let timeInterval = (createdAt as NSString).doubleValue / 1000
-      creationDate = Date(timeIntervalSince1970: timeInterval)
+    if let createdAt = dictionary["createdAt"] as? String,
+       let timeInterval = Double(createdAt) {
+      // Divide by 1000 in order to convert milliseconds to seconds.
+      creationDate = Date(timeIntervalSince1970: timeInterval / 1000)
     } else {
       creationDate = nil
     }
-    if let lastLoginAt = dictionary["lastLoginAt"] as? String {
-      // Divide by 1000 in order to convert miliseconds to seconds.
-      let timeInterval = (lastLoginAt as NSString).doubleValue / 1000
-      lastLoginDate = Date(timeIntervalSince1970: timeInterval)
+    if let lastLoginAt = dictionary["lastLoginAt"] as? String,
+      let timeInterval = Double(lastLoginAt) {
+      // Divide by 1000 in order to convert milliseconds to seconds.
+      lastLoginDate = Date(timeIntervalSince1970: timeInterval / 1000)
     } else {
       lastLoginDate = nil
     }

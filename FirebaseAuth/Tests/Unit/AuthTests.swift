@@ -19,22 +19,7 @@ import XCTest
 import FirebaseCore
 
 class AuthTests: RPCBaseTests {
-  private let kEmail = "user@company.com"
-  private let kFakePassword = "!@#$%^"
-  private let kDisplayName = "DisplayName"
-  private let kLocalID = "testLocalId"
   static let kAccessToken = "TEST_ACCESS_TOKEN"
-  private let kFakeOobCode = "fakeOobCode"
-  private let kRefreshToken = "fakeRefreshToken"
-  private let kCustomToken = "CUSTOM_TOKEN"
-  private let kFakeEmailSignInLink = "https://test.app.goo.gl/?link=https://test.firebase" +
-    "app.com/__/auth/action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueU" +
-    "rl%3Dhttps://test.apps.com&ibi=com.test.com&ifl=https://test.firebaseapp.com/__/auth/" +
-    "action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueUrl%3Dhttps://" +
-    "test.apps.com"
-  private let kFakeEmailSignInDeeplink =
-    "https://example.domain.com/?apiKey=testAPIKey&oobCode=testoobcode&mode=signIn"
-  private let kContinueURL = "continueURL"
   static let kFakeAPIKey = "FAKE_API_KEY"
   static var auth: Auth?
 
@@ -969,64 +954,4 @@ class AuthTests: RPCBaseTests {
     XCTAssertEqual(user.providerData.count, 0)
   }
 
-  private func setFakeSecureTokenService() {
-    rpcIssuer?.fakeSecureTokenServiceJSON = ["access_token": AuthTests.kAccessToken]
-  }
-
-  private func setFakeGetAccountProvider() {
-    let kProviderUserInfoKey = "providerUserInfo"
-    let kPhotoUrlKey = "photoUrl"
-    let kTestPhotoURL = "testPhotoURL"
-    let kProviderIDkey = "providerId"
-    let kDisplayNameKey = "displayName"
-    let kFederatedIDKey = "federatedId"
-    let kTestFederatedID = "testFederatedId"
-    let kEmailKey = "email"
-    let kPasswordHashKey = "passwordHash"
-    let kTestPasswordHash = "testPasswordHash"
-    let kTestProviderID = "testProviderID"
-    let kEmailVerifiedKey = "emailVerified"
-    let kLocalIDKey = "localId"
-
-    rpcIssuer?.fakeGetAccountProviderJSON = [[
-      kProviderUserInfoKey: [[
-        kProviderIDkey: kTestProviderID,
-        kDisplayNameKey: kDisplayName,
-        kPhotoUrlKey: kTestPhotoURL,
-        kFederatedIDKey: kTestFederatedID,
-        kEmailKey: kEmail,
-      ]],
-      kLocalIDKey: kLocalID,
-      kDisplayNameKey: kDisplayName,
-      kEmailKey: kEmail,
-      kPhotoUrlKey: kTestPhotoURL,
-      kEmailVerifiedKey: true,
-      kPasswordHashKey: kTestPasswordHash,
-    ]]
-  }
-
-  private func setFakeGetAccountProviderAnonymous() {
-    let kPasswordHashKey = "passwordHash"
-    let kTestPasswordHash = "testPasswordHash"
-    let kLocalIDKey = "localId"
-
-    rpcIssuer?.fakeGetAccountProviderJSON = [[
-      kLocalIDKey: kLocalID,
-      kPasswordHashKey: kTestPasswordHash,
-    ]]
-  }
-
-  private func createGroup() -> DispatchGroup {
-    let group = DispatchGroup()
-    rpcIssuer?.group = group
-    group.enter()
-    return group
-  }
-
-  private func fakeActionCodeSettings() -> ActionCodeSettings {
-    let settings = ActionCodeSettings()
-    settings.handleCodeInApp = true
-    settings.url = URL(string: kContinueURL)
-    return settings
-  }
 }
