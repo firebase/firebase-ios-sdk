@@ -19,9 +19,27 @@
   import WebKit
 
   // TODO: Uncomment after FIRAuth.m is gone.
+
+  /** @protocol AuthWebViewControllerDelegate
+      @brief Defines a delegate for FIRAuthWebViewController
+   */
   // public protocol AuthWebViewControllerDelegate: AnyObject {
+  /** @fn webViewControllerDidCancel:
+      @brief Notifies the delegate that the web view controller is being cancelled by the user.
+      @param webViewController The web view controller in question.
+   */
 //  func webViewControllerDidCancel(_ controller: AuthWebViewController)
+  /** @fn webViewController:canHandleURL:
+      @brief Determines if a URL should be handled by the delegate.
+      @param URL The URL to handle.
+      @return Whether the URL could be handled or not.
+   */
 //  func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
+  /** @fn webViewController:didFailWithError:
+      @brief Notifies the delegate that the web view controller failed to load a page.
+      @param webViewController The web view controller in question.
+      @param error The error that has occurred.
+   */
 //  func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
   // }
 
