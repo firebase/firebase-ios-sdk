@@ -38,8 +38,8 @@ class RPCBaseTests: XCTestCase {
   let kAndroidMinimumVersion = "3.0"
   let kDynamicLinkDomain = "test.page.link"
   let kTestPhotoURL = "https://host.domain/image"
-  let kCreationDateTimeIntervalInSeconds = 1505858500.0
-  let kLastSignInDateTimeIntervalInSeconds = 1505858583.0
+  let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
+  let kLastSignInDateTimeIntervalInSeconds = 1_505_858_583.0
 
   /** @var kTestAPIKey
       @brief Fake API key used for testing.

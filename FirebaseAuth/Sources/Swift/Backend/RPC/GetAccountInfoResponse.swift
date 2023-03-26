@@ -161,7 +161,7 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
       creationDate = nil
     }
     if let lastLoginAt = dictionary["lastLoginAt"] as? String,
-      let timeInterval = Double(lastLoginAt) {
+       let timeInterval = Double(lastLoginAt) {
       // Divide by 1000 in order to convert milliseconds to seconds.
       lastLoginDate = Date(timeIntervalSince1970: timeInterval / 1000)
     } else {

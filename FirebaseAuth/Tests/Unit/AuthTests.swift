@@ -953,5 +953,4 @@ class AuthTests: RPCBaseTests {
     XCTAssertTrue(user.isAnonymous)
     XCTAssertEqual(user.providerData.count, 0)
   }
-
 }

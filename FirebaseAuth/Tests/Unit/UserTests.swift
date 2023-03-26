@@ -66,24 +66,24 @@ class UserTests: RPCBaseTests {
       kEmailKey: kEmail,
     ],
     [
-     kProviderIDkey: GoogleAuthProvider.id,
-     kDisplayNameKey: kGoogleDisplayName,
-     kPhotoUrlKey: kGooglePhotoURL,
-     kFederatedIDKey: kGoogleID,
-     kEmailKey: kGoogleEmail,
+      kProviderIDkey: GoogleAuthProvider.id,
+      kDisplayNameKey: kGoogleDisplayName,
+      kPhotoUrlKey: kGooglePhotoURL,
+      kFederatedIDKey: kGoogleID,
+      kEmailKey: kGoogleEmail,
     ],
-   [
-    kProviderIDkey: FacebookAuthProvider.id,
-    kFederatedIDKey: kFacebookID,
-    kEmailKey: kFacebookEmail,
-   ]]
+    [
+      kProviderIDkey: FacebookAuthProvider.id,
+      kFederatedIDKey: kFacebookID,
+      kEmailKey: kFacebookEmail,
+    ]]
 
     #if os(iOS)
-    providerUserInfos.append([
-      kProviderIDkey: PhoneAuthProvider.id,
-      kFederatedIDKey: kPhoneNumber,
-      "phoneNumber": kPhoneNumber,
-     ])
+      providerUserInfos.append([
+        kProviderIDkey: PhoneAuthProvider.id,
+        kFederatedIDKey: kPhoneNumber,
+        "phoneNumber": kPhoneNumber,
+      ])
     #endif
 
     rpcIssuer?.fakeGetAccountProviderJSON = [[
@@ -95,21 +95,21 @@ class UserTests: RPCBaseTests {
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,
       "createdAt": String(Int(kCreationDateTimeIntervalInSeconds) * 1000), // to nanoseconds
-      "lastLoginAt":String(Int(kLastSignInDateTimeIntervalInSeconds) * 1000)
+      "lastLoginAt": String(Int(kLastSignInDateTimeIntervalInSeconds) * 1000),
     ]]
 
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       do {
-        XCTAssertEqual(user.providerID, "Firebase");
-        XCTAssertEqual(user.uid, self.kLocalID);
-        XCTAssertEqual(user.displayName, self.kDisplayName);
+        XCTAssertEqual(user.providerID, "Firebase")
+        XCTAssertEqual(user.uid, self.kLocalID)
+        XCTAssertEqual(user.displayName, self.kDisplayName)
         XCTAssertEqual(user.photoURL, URL(string: self.kTestPhotoURL))
         XCTAssertEqual(user.email, self.kEmail)
         XCTAssertEqual(user.metadata.creationDate, Date(timeIntervalSince1970:
-                                                          self.kCreationDateTimeIntervalInSeconds))
+          self.kCreationDateTimeIntervalInSeconds))
         XCTAssertEqual(user.metadata.lastSignInDate,
-                       Date(timeIntervalSince1970:self.kLastSignInDateTimeIntervalInSeconds))
+                       Date(timeIntervalSince1970: self.kLastSignInDateTimeIntervalInSeconds))
 
         // Verify FIRUser properties besides providerData contents.
         XCTAssertFalse(user.isAnonymous)
@@ -142,11 +142,11 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(facebookUserInfo.photoURL)
         XCTAssertEqual(facebookUserInfo.email, kFacebookEmail)
 
-#if os(iOS)
-        // Verify FIRUserInfo properties from the phone auth provider.
-        let phoneUserInfo = try XCTUnwrap(providerMap[PhoneAuthProvider.id])
-        XCTAssertEqual(phoneUserInfo.phoneNumber, kPhoneNumber)
-#endif
+        #if os(iOS)
+          // Verify FIRUserInfo properties from the phone auth provider.
+          let phoneUserInfo = try XCTUnwrap(providerMap[PhoneAuthProvider.id])
+          XCTAssertEqual(phoneUserInfo.phoneNumber, kPhoneNumber)
+        #endif
 
         // Test NSSecureCoding
         XCTAssertTrue(User.supportsSecureCoding)
@@ -160,7 +160,8 @@ class UserTests: RPCBaseTests {
         // TODO: The unarchive will fail without this, because of FIRUser not being in the allowed classes.
         // Meanwhile the unarchive in FIRAuth.m getUser method.
         unarchiver.requiresSecureCoding = false
-        let unarchivedUser = try XCTUnwrap(unarchiver.decodeObject(forKey: kUserArchiverKey) as? User)
+        let unarchivedUser = try XCTUnwrap(unarchiver
+          .decodeObject(forKey: kUserArchiverKey) as? User)
 
         // Verify NSSecureCoding for FIRUser
         XCTAssertEqual(unarchivedUser.providerID, user.providerID)
@@ -192,23 +193,23 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(unarchivedGoogleUserInfo.uid, googleUserInfo.uid)
         XCTAssertEqual(unarchivedGoogleUserInfo.displayName, googleUserInfo.displayName)
         XCTAssertEqual(unarchivedGoogleUserInfo.photoURL, googleUserInfo.photoURL)
-        XCTAssertEqual(unarchivedGoogleUserInfo.email, googleUserInfo.email);
+        XCTAssertEqual(unarchivedGoogleUserInfo.email, googleUserInfo.email)
 
         // Verify NSSecureCoding properties from the Facebook auth provider.
         let unarchivedFacebookUserInfo =
-         try XCTUnwrap(unarchivedProviderMap[FacebookAuthProvider.id])
+          try XCTUnwrap(unarchivedProviderMap[FacebookAuthProvider.id])
         XCTAssertEqual(unarchivedFacebookUserInfo.uid, facebookUserInfo.uid)
         XCTAssertEqual(unarchivedFacebookUserInfo.displayName, facebookUserInfo.displayName)
         XCTAssertEqual(unarchivedFacebookUserInfo.photoURL, facebookUserInfo.photoURL)
         XCTAssertEqual(unarchivedFacebookUserInfo.email, facebookUserInfo.email)
 
-  #if os(iOS)
-        // Verify FIRUserInfo properties from the phone auth provider.
-        let unarchivedPhoneUserInfo = try XCTUnwrap(unarchivedProviderMap[PhoneAuthProvider.id])
-        XCTAssertEqual(unarchivedPhoneUserInfo.phoneNumber, phoneUserInfo.phoneNumber)
+        #if os(iOS)
+          // Verify FIRUserInfo properties from the phone auth provider.
+          let unarchivedPhoneUserInfo = try XCTUnwrap(unarchivedProviderMap[PhoneAuthProvider.id])
+          XCTAssertEqual(unarchivedPhoneUserInfo.phoneNumber, phoneUserInfo.phoneNumber)
 
-        // TODO: Finish multifactor
-        // Verify FIRMultiFactorInfo properties.
+          // TODO: Finish multifactor
+          // Verify FIRMultiFactorInfo properties.
 //        XCTAssertEqual(user.multiFactor.enrolledFactors[0].factorID, PhoneMultiFactorID)
 //        XCTAssertEqual(user.multiFactor.enrolledFactors[0].UID, kEnrollmentID)
 //        XCTAssertEqual(user.multiFactor.enrolledFactors[0].displayName, self.kDisplayName)
@@ -221,7 +222,7 @@ class UserTests: RPCBaseTests {
 //        XCTAssertEqual(
 //            user.multiFactor.enrolledFactors[0].enrollmentDate,
 //            date);
-  #endif
+        #endif
       } catch {
         XCTFail("Caught an error in \(#function): \(error)")
       }
@@ -236,7 +237,7 @@ class UserTests: RPCBaseTests {
   func testUpdateEmailSuccess() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       self.changeUserEmail(user: user, expectation: expectation)
     }
     waitForExpectations(timeout: 5)
@@ -261,7 +262,7 @@ class UserTests: RPCBaseTests {
   func testUpdateEmailFailure() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
 
@@ -270,7 +271,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidEmail.rawValue)
           // Email should not have changed on the client side.
-          XCTAssertEqual(user.email, self.kEmail);
+          XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
@@ -292,7 +293,7 @@ class UserTests: RPCBaseTests {
   func testUpdateEmailAutoSignOut() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
 
@@ -301,7 +302,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidUserToken.rawValue)
           // Email should not have changed on the client side.
-          XCTAssertEqual(user.email, self.kEmail);
+          XCTAssertEqual(user.email, self.kEmail)
           // User is no longer signed in..
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
@@ -325,7 +326,7 @@ class UserTests: RPCBaseTests {
   func testUpdatePasswordSuccess() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       self.changeUserEmail(user: user, changePassword: true, expectation: expectation)
     }
     waitForExpectations(timeout: 5)
@@ -337,7 +338,7 @@ class UserTests: RPCBaseTests {
   func testUpdatePasswordFailure() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
 
@@ -346,7 +347,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.requiresRecentLogin.rawValue)
           // Email should not have changed on the client side.
-          XCTAssertEqual(user.email, self.kEmail);
+          XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
@@ -368,7 +369,7 @@ class UserTests: RPCBaseTests {
   func testUpdateEmptyPasswordFailure() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
 
@@ -377,7 +378,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.weakPassword.rawValue)
           // Email should not have changed on the client side.
-          XCTAssertEqual(user.email, self.kEmail);
+          XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
@@ -400,7 +401,7 @@ class UserTests: RPCBaseTests {
   func testUpdatePasswordFailureAutoSignOut() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    self.signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
 
@@ -409,7 +410,7 @@ class UserTests: RPCBaseTests {
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userDisabled.rawValue)
           // Email should not have changed on the client side.
-          XCTAssertEqual(user.email, self.kEmail);
+          XCTAssertEqual(user.email, self.kEmail)
           // User is signed out.
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
@@ -425,27 +426,28 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  private func changeUserEmail(user: User, changePassword: Bool = false, expectation: XCTestExpectation) {
+  private func changeUserEmail(user: User, changePassword: Bool = false,
+                               expectation: XCTestExpectation) {
     do {
-      XCTAssertEqual(user.providerID, "Firebase");
-      XCTAssertEqual(user.uid, self.kLocalID);
-      XCTAssertEqual(user.displayName, self.kDisplayName);
-      XCTAssertEqual(user.photoURL, URL(string: self.kTestPhotoURL))
-      XCTAssertEqual(user.email, self.kEmail)
+      XCTAssertEqual(user.providerID, "Firebase")
+      XCTAssertEqual(user.uid, kLocalID)
+      XCTAssertEqual(user.displayName, kDisplayName)
+      XCTAssertEqual(user.photoURL, URL(string: kTestPhotoURL))
+      XCTAssertEqual(user.email, kEmail)
 
       // Pretend that the display name on the server has been changed since the original signin.
-      self.setFakeGetAccountProvider(withNewDisplayName: self.kNewDisplayName)
+      setFakeGetAccountProvider(withNewDisplayName: kNewDisplayName)
 
-      let group = self.createGroup()
+      let group = createGroup()
       if changePassword {
-        user.updatePassword(to: self.kNewPassword) { error in
+        user.updatePassword(to: kNewPassword) { error in
           XCTAssertNil(error)
           XCTAssertEqual(user.displayName, self.kNewDisplayName)
           XCTAssertFalse(user.isAnonymous)
           expectation.fulfill()
         }
       } else {
-        user.updateEmail(to: self.kNewEmail) { error in
+        user.updateEmail(to: kNewEmail) { error in
           XCTAssertNil(error)
           XCTAssertEqual(user.email, self.kNewEmail)
           XCTAssertEqual(user.displayName, self.kNewDisplayName)
@@ -455,14 +457,14 @@ class UserTests: RPCBaseTests {
       }
       group.wait()
 
-      let request = try XCTUnwrap(self.rpcIssuer?.request as? SetAccountInfoRequest)
+      let request = try XCTUnwrap(rpcIssuer?.request as? SetAccountInfoRequest)
       XCTAssertEqual(request.APIKey, UserTests.kFakeAPIKey)
       XCTAssertEqual(request.accessToken, AuthTests.kAccessToken)
       if changePassword {
-        XCTAssertEqual(request.password, self.kNewPassword)
+        XCTAssertEqual(request.password, kNewPassword)
         XCTAssertNil(request.email)
       } else {
-        XCTAssertEqual(request.email, self.kNewEmail)
+        XCTAssertEqual(request.email, kNewEmail)
         XCTAssertNil(request.password)
       }
       XCTAssertNil(request.localID)
@@ -472,9 +474,9 @@ class UserTests: RPCBaseTests {
       XCTAssertNil(request.deleteAttributes)
       XCTAssertNil(request.deleteProviders)
 
-      try self.rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                             "email": self.kNewEmail,
-                                             "refreshToken": self.kRefreshToken])
+      try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                        "email": kNewEmail,
+                                        "refreshToken": kRefreshToken])
 
     } catch {
       XCTFail("Caught an error in \(#function): \(error)")
@@ -528,8 +530,8 @@ class UserTests: RPCBaseTests {
     }
   }
 
-// TODO: For testUpdateEmailWithAuthLinkAccountSuccess. Revisit after auth.swift. Should be able to
-// TODO: parameterize with signInWithEmailPasswordReturnFakeUser
+  // TODO: For testUpdateEmailWithAuthLinkAccountSuccess. Revisit after auth.swift. Should be able to
+  // TODO: parameterize with signInWithEmailPasswordReturnFakeUser
 //  private func signInWithEmailPasswordReturnFakeUserLink(completion: @escaping (User) -> Void) {
 //    let kRefreshToken = "fakeRefreshToken"
 //    setFakeSecureTokenService()
@@ -561,16 +563,16 @@ class UserTests: RPCBaseTests {
 //      group.wait()
 //
 //      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-////      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
-////      XCTAssertEqual(request.email, kEmail)
-////      XCTAssertEqual(request.password, kFakePassword)
-////      XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
-////      XCTAssertTrue(request.returnSecureToken)
-////
-////      // 3. Send the response from the fake backend.
-////      try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-////                                        "isNewUser": true,
-////                                        "refreshToken": kRefreshToken])
+  ////      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
+  ////      XCTAssertEqual(request.email, kEmail)
+  ////      XCTAssertEqual(request.password, kFakePassword)
+  ////      XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+  ////      XCTAssertTrue(request.returnSecureToken)
+  ////
+  ////      // 3. Send the response from the fake backend.
+  ////      try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+  ////                                        "isNewUser": true,
+  ////                                        "refreshToken": kRefreshToken])
 //
 //      // waitForExpectations(timeout: 10)
 //      // assertUser(AuthTests.auth?.currentUser)
@@ -578,5 +580,4 @@ class UserTests: RPCBaseTests {
 //      XCTFail("Throw in \(#function): \(error)")
 //    }
 //  }
-
 }

@@ -221,5 +221,4 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
                           actionCodeSettings: fakeActionCodeSettings(),
                           requestConfiguration: makeRequestConfiguration()))
   }
-
 }

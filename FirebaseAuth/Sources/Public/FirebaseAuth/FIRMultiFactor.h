@@ -49,7 +49,7 @@ extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFa
         This class is available on iOS only.
 */
 NS_SWIFT_NAME(MultiFactor) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRMultiFactor
-    : NSObject <NSSecureCoding>
+    : NSObject<NSSecureCoding>
 
 @property(nonatomic, readonly) NSArray<FIRMultiFactorInfo *> *enrolledFactors;
 
