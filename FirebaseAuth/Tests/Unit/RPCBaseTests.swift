@@ -18,6 +18,29 @@ import XCTest
 @testable import FirebaseAuth
 
 class RPCBaseTests: XCTestCase {
+  let kEmail = "user@company.com"
+  let kFakePassword = "!@#$%^"
+  let kDisplayName = "Google Doe"
+  let kLocalID = "testLocalId"
+  let kFakeOobCode = "fakeOobCode"
+  let kRefreshToken = "fakeRefreshToken"
+  let kCustomToken = "CUSTOM_TOKEN"
+  let kFakeEmailSignInLink = "https://test.app.goo.gl/?link=https://test.firebase" +
+    "app.com/__/auth/action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueU" +
+    "rl%3Dhttps://test.apps.com&ibi=com.test.com&ifl=https://test.firebaseapp.com/__/auth/" +
+    "action?apiKey%3DtestAPIKey%26mode%3DsignIn%26oobCode%3Dtestoobcode%26continueUrl%3Dhttps://" +
+    "test.apps.com"
+  let kFakeEmailSignInDeeplink =
+    "https://example.domain.com/?apiKey=testAPIKey&oobCode=testoobcode&mode=signIn"
+  let kContinueURL = "continueURL"
+  let kIosBundleID = "testBundleID"
+  let kAndroidPackageName = "adroidpackagename"
+  let kAndroidMinimumVersion = "3.0"
+  let kDynamicLinkDomain = "test.page.link"
+  let kTestPhotoURL = "https://host.domain/image"
+  let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
+  let kLastSignInDateTimeIntervalInSeconds = 1_505_858_583.0
+
   /** @var kTestAPIKey
       @brief Fake API key used for testing.
    */
@@ -122,5 +145,70 @@ class RPCBaseTests: XCTestCase {
       apiKey: kTestAPIKey,
       appID: kTestFirebaseAppID
     )
+  }
+
+  func setFakeSecureTokenService() {
+    rpcIssuer?.fakeSecureTokenServiceJSON = ["access_token": AuthTests.kAccessToken]
+  }
+
+  func setFakeGetAccountProvider(withNewDisplayName displayName: String = "Google Doe") {
+    let kProviderUserInfoKey = "providerUserInfo"
+    let kPhotoUrlKey = "photoUrl"
+    let kProviderIDkey = "providerId"
+    let kDisplayNameKey = "displayName"
+    let kFederatedIDKey = "federatedId"
+    let kTestFederatedID = "testFederatedId"
+    let kEmailKey = "email"
+    let kPasswordHashKey = "passwordHash"
+    let kTestPasswordHash = "testPasswordHash"
+    let kTestProviderID = "testProviderID"
+    let kEmailVerifiedKey = "emailVerified"
+    let kLocalIDKey = "localId"
+
+    rpcIssuer?.fakeGetAccountProviderJSON = [[
+      kProviderUserInfoKey: [[
+        kProviderIDkey: kTestProviderID,
+        kDisplayNameKey: kDisplayName,
+        kPhotoUrlKey: kTestPhotoURL,
+        kFederatedIDKey: kTestFederatedID,
+        kEmailKey: kEmail,
+      ]],
+      kLocalIDKey: kLocalID,
+      kDisplayNameKey: displayName,
+      kEmailKey: kEmail,
+      kPhotoUrlKey: kTestPhotoURL,
+      kEmailVerifiedKey: true,
+      kPasswordHashKey: kTestPasswordHash,
+    ]]
+  }
+
+  func setFakeGetAccountProviderAnonymous() {
+    let kPasswordHashKey = "passwordHash"
+    let kTestPasswordHash = "testPasswordHash"
+    let kLocalIDKey = "localId"
+
+    rpcIssuer?.fakeGetAccountProviderJSON = [[
+      kLocalIDKey: kLocalID,
+      kPasswordHashKey: kTestPasswordHash,
+    ]]
+  }
+
+  func createGroup() -> DispatchGroup {
+    let group = DispatchGroup()
+    rpcIssuer?.group = group
+    group.enter()
+    return group
+  }
+
+  func fakeActionCodeSettings() -> ActionCodeSettings {
+    let settings = ActionCodeSettings()
+    settings.iOSBundleID = kIosBundleID
+    settings.setAndroidPackageName(kAndroidPackageName,
+                                   installIfNotAvailable: true,
+                                   minimumVersion: kAndroidMinimumVersion)
+    settings.handleCodeInApp = true
+    settings.url = URL(string: kContinueURL)
+    settings.dynamicLinkDomain = kDynamicLinkDomain
+    return settings
   }
 }

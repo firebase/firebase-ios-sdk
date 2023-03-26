@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 
 class SecureTokenTests: RPCBaseTests {
-  private let kRefreshToken = "refreshToken"
   private let kEmulatorHostAndPort = "emulatorhost:12345"
 
   /** @fn testRequestURL

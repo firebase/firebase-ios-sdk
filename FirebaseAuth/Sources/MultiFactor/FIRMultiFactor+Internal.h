@@ -21,7 +21,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRMultiFactor () <NSSecureCoding>
+@interface FIRMultiFactor ()
 
 // TODO: revisit User.swift usage of this property after this is in Swift.
 
