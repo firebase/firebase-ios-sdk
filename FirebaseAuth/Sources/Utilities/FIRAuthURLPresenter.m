@@ -22,7 +22,6 @@
 
 #import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebViewController.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthDefaultUIDelegate.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 

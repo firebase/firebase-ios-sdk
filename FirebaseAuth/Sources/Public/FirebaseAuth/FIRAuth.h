@@ -18,7 +18,6 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthAPNSTokenType.h"
-#import "FIRAuthWebViewController.h"
 
 @class FIRActionCodeSettings;
 @class FIRApp;

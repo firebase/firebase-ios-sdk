@@ -19,11 +19,12 @@
 
 #import <Foundation/Foundation.h>
 #import <SafariServices/SafariServices.h>
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthWebViewController.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol FIRAuthUIDelegate;
+@protocol FIRAuthWebViewControllerDelegate;
 
 /** @class FIRAuthURLPresenter
     @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
