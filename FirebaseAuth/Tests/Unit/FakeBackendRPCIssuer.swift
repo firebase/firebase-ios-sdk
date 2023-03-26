@@ -97,6 +97,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
     if let group {
+      self.group = nil
       group.leave()
     }
   }

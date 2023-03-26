@@ -1377,7 +1377,8 @@ import Foundation
 
   // MARK: Private functions
 
-  private func updateEmail(email: String?, password: String?,
+  private func updateEmail(email: String?,
+                           password: String?,
                            callback: @escaping (Error?) -> Void) {
     let hadEmailPasswordCredential = hasEmailPasswordCredential
     executeUserUpdateWithChanges(changeBlock: { user, request in
@@ -1491,6 +1492,7 @@ import Foundation
               if let error {
                 self.signOutIfTokenIsInvalid(withError: error)
                 complete()
+                callback(error)
                 return
               }
               if let accountInfoResponse = response as? SetAccountInfoResponse {
@@ -2066,8 +2068,6 @@ import Foundation
     let email = coder.decodeObject(forKey: kEmailCodingKey) as? String
     let phoneNumber = coder.decodeObject(forKey: kPhoneNumberCodingKey) as? String
     let emailVerified = coder.decodeBool(forKey: kEmailVerifiedCodingKey)
-    let providerDataClasses = NSSet(objects: [[String: Any].self, String.self,
-                                              UserInfoImpl.self])
     let providerData = coder.decodeObject(forKey: kProviderDataKey) as? [String: UserInfoImpl]
     let metadata = coder.decodeObject(forKey: kMetadataCodingKey) as? UserMetadata
     let tenantID = coder.decodeObject(forKey: kTenantIDCodingKey) as? String
