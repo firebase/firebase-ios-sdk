@@ -20,7 +20,6 @@
 #import <Foundation/Foundation.h>
 #import <SafariServices/SafariServices.h>
 
-
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol FIRAuthUIDelegate;
