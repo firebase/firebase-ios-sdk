@@ -426,6 +426,106 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testChangeProfileSuccess
+      @brief Tests a successful user profile change flow.
+   */
+  func testChangeProfileSuccess() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        let group = self.createGroup()
+
+        let profileChange = user.createProfileChangeRequest()
+        profileChange.photoURL = URL(string: self.kTestPhotoURL)
+        profileChange.displayName = self.kNewDisplayName
+        profileChange.commitChanges { error in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(error)
+          XCTAssertEqual(user.displayName, self.kNewDisplayName)
+          XCTAssertEqual(user.photoURL, URL(string: self.kTestPhotoURL))
+          expectation.fulfill()
+        }
+        group.wait()
+
+        try self.rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                               "refreshToken": self.kRefreshToken])
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testChangeProfileFailure
+      @brief Tests a failed user profile change flow.
+   */
+  func testChangeProfileFailure() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        let group = self.createGroup()
+
+        let profileChange = user.createProfileChangeRequest()
+        profileChange.displayName = self.kNewDisplayName
+        profileChange.commitChanges { rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.tooManyRequests.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kEmail)
+          XCTAssertEqual(user.displayName, self.kDisplayName)
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+        group.wait()
+
+        try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testChangeProfileFailureAutoSignOut
+      @brief Tests a failed user profile change flow that automatically signs out.
+   */
+  func testChangeProfileFailureAutoSignOut() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        let group = self.createGroup()
+
+        let profileChange = user.createProfileChangeRequest()
+        profileChange.displayName = self.kNewDisplayName
+        profileChange.commitChanges { rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.userNotFound.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kEmail)
+          // User is signed out.
+          XCTAssertNil(UserTests.auth?.currentUser)
+          expectation.fulfill()
+        }
+        group.wait()
+
+        try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
+
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  // MARK: Private helper functions
+
   private func changeUserEmail(user: User, changePassword: Bool = false,
                                expectation: XCTestExpectation) {
     do {
