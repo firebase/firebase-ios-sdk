@@ -2054,6 +2054,9 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
   return success;
 }
 
+// TODO: make sure this still works without allowedClasses failures once it is in Swift
+// And revisit the secureCoding disable in first User.swift test.
+
 /** @fn getUser:error:
     @brief Retrieves the saved user associated, if one exists, from the keychain.
     @param outUser An out parameter which is populated with the saved user, if one exists.
