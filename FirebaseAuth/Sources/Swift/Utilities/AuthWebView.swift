@@ -18,37 +18,6 @@
 import UIKit
 import WebKit
 
-private func createWebView() -> WKWebView {
-    let webView = WKWebView(frame: .zero)
-    // Trickery to make the web view not do weird things (like showing a black background when
-    // the prompt in the navigation bar animates changes.)
-    webView.isOpaque = false
-    webView.backgroundColor = .clear
-    webView.scrollView.isOpaque = false
-    webView.scrollView.backgroundColor = .clear
-    webView.scrollView.bounces = false
-    webView.scrollView.alwaysBounceVertical = false
-    webView.scrollView.alwaysBounceHorizontal = false
-    return webView
-}
-
-private func createSpinner() -> UIActivityIndicatorView {
-    var spinnerStyle: UIActivityIndicatorView.Style = .gray
-    #if targetEnvironment(macCatalyst)
-    if #available(iOS 13.0, *) {
-        spinnerStyle = .medium
-    } else {
-        // iOS 13 deprecation
-//            #pragma clang diagnostic push
-//            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        spinnerStyle = .gray
-//            #pragma clang diagnostic pop
-    }
-    #endif
-    let spinner = UIActivityIndicatorView(style: spinnerStyle)
-    return spinner
-}
-
 @objc(FIRAuthWebView) public class AuthWebView: UIView {
 
     public lazy var webView: WKWebView = createWebView()
@@ -77,13 +46,46 @@ private func createSpinner() -> UIActivityIndicatorView {
         self.spinner = spinner
     }
 
-    override func layoutSubviews() {
+  // TODO: Should not be public
+
+  public override func layoutSubviews() {
         super.layoutSubviews()
         let height = self.bounds.size.height
         let width = self.bounds.size.width
         self.webView.frame = CGRect(x: 0, y: 0, width: width, height: height)
         self.spinner.center = self.webView.center
     }
+
+  private func createWebView() -> WKWebView {
+      let webView = WKWebView(frame: .zero)
+      // Trickery to make the web view not do weird things (like showing a black background when
+      // the prompt in the navigation bar animates changes.)
+      webView.isOpaque = false
+      webView.backgroundColor = .clear
+      webView.scrollView.isOpaque = false
+      webView.scrollView.backgroundColor = .clear
+      webView.scrollView.bounces = false
+      webView.scrollView.alwaysBounceVertical = false
+      webView.scrollView.alwaysBounceHorizontal = false
+      return webView
+  }
+
+  private func createSpinner() -> UIActivityIndicatorView {
+      var spinnerStyle: UIActivityIndicatorView.Style = .gray
+      #if targetEnvironment(macCatalyst)
+      if #available(iOS 13.0, *) {
+          spinnerStyle = .medium
+      } else {
+          // iOS 13 deprecation
+  //            #pragma clang diagnostic push
+  //            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+          spinnerStyle = .gray
+  //            #pragma clang diagnostic pop
+      }
+      #endif
+      let spinner = UIActivityIndicatorView(style: spinnerStyle)
+      return spinner
+  }
 }
 
 #endif

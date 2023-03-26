@@ -32,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthURLPresenter
     : NSObject <SFSafariViewControllerDelegate, FIRAuthWebViewControllerDelegate>
 
+typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL *_Nullable callbackURL);
+typedef void (^FIRAuthURLPresentationCompletion)(NSURL *_Nullable callbackURL,
+                                                 NSError *_Nullable error);
 /** @fn presentURL:UIDelegate:callbackMatcher:completion:
     @brief Presents an URL to interact with user.
     @param URL The URL to present.

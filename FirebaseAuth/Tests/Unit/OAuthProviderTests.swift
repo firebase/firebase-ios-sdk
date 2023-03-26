@@ -251,17 +251,17 @@ import FirebaseCore
       }
 
       class FakePresenter: NSObject, FIRAuthWebViewControllerDelegate {
-        func webViewController(_ webViewController: FIRAuthWebViewController,
+        func webViewController(_ webViewController: AuthWebViewController,
                                canHandle URL: URL) -> Bool {
           XCTFail("Do not call")
           return false
         }
 
-        func webViewControllerDidCancel(_ webViewController: FIRAuthWebViewController) {
+        func webViewControllerDidCancel(_ webViewController: AuthWebViewController) {
           XCTFail("Do not call")
         }
 
-        func webViewController(_ webViewController: FIRAuthWebViewController,
+        func webViewController(_ webViewController: AuthWebViewController,
                                didFailWithError error: Error) {
           XCTFail("Do not call")
         }
@@ -412,7 +412,7 @@ import FirebaseCore
         _ = try rpcIssuer?
           .respond(withJSON: ["authorizedDomains": [OAuthProviderTests.kFakeAuthorizedDomain]])
       }
-      waitForExpectations(timeout: 105)
+      waitForExpectations(timeout: 5)
     }
   }
 #endif

@@ -19,23 +19,24 @@ import Foundation
 import UIKit
 import WebKit
 
-@objc(FIRAuthWebViewControllerDelegate) protocol AuthWebViewControllerDelegate: AnyObject {
-  func webViewControllerDidCancel(_ controller: AuthWebViewController)
-  func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
-  func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
-}
+// TODO: Uncomment after FIRAuth.m is gone.
+//public protocol AuthWebViewControllerDelegate: AnyObject {
+//  func webViewControllerDidCancel(_ controller: AuthWebViewController)
+//  func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
+//  func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
+//}
 
-@objc(FIRAuthWebViewController) class AuthWebViewController: UIViewController {
+@objc(FIRAuthWebViewController) public class AuthWebViewController: UIViewController, WKNavigationDelegate {
 
   // MARK: - Properties
 
   private var url: URL
-  private weak var delegate: AuthWebViewControllerDelegate?
+  private weak var delegate: FIRAuthWebViewControllerDelegate?
   private weak var webView: AuthWebView?
 
   // MARK: - Initialization
 
-  init(url: URL, delegate: AuthWebViewControllerDelegate) {
+  @objc(initWithURL:delegate:) public init(url: URL, delegate: FIRAuthWebViewControllerDelegate) {
     self.url = url
     self.delegate = delegate
     super.init(nibName: nil, bundle: nil)
@@ -47,7 +48,7 @@ import WebKit
 
   // MARK: - View Lifecycle
 
-  override func loadView() {
+  public override func loadView() {
     let webView = AuthWebView(frame: UIScreen.main.bounds)
     webView.webView.navigationDelegate = self
     self.view = webView
@@ -55,7 +56,7 @@ import WebKit
     self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancel))
   }
 
-  override func viewDidAppear(_ animated: Bool) {
+  public override func viewDidAppear(_ animated: Bool) {
     super.viewDidAppear(animated)
     webView?.webView.load(URLRequest(url: url))
   }
@@ -65,13 +66,10 @@ import WebKit
   @objc private func cancel() {
     delegate?.webViewControllerDidCancel(self)
   }
-}
-
-extension FIRAuthWebViewController: WKNavigationDelegate {
 
     // MARK: - WKNavigationDelegate
 
-    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+  public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         let canHandleURL = delegate?.webViewController(self, canHandle: navigationAction.request.url ?? url) ?? false
         if canHandleURL {
             decisionHandler(.allow)
@@ -80,23 +78,23 @@ extension FIRAuthWebViewController: WKNavigationDelegate {
         }
     }
 
-    func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+  public func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         self.webView?.spinner.isHidden = false
         self.webView?.spinner.startAnimating()
     }
 
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+  public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         self.webView?.spinner.isHidden = true
         self.webView?.spinner.stopAnimating()
     }
 
-    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+  public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
         if (error as NSError).domain == NSURLErrorDomain && (error as NSError).code == NSURLErrorCancelled {
             // It's okay for the page to be redirected before it is completely loaded.  See b/32028062 .
             return
         }
         // Forward notification to our delegate.
-        webView(webView, didFinish: navigation)
+    self.webView(webView, didFinish: navigation)
         delegate?.webViewController(self, didFailWithError: error)
     }
 }

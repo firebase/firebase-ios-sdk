@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+// TODO: Should not be public after Auth.swift.
+
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
@@ -76,28 +78,6 @@ NS_ASSUME_NONNULL_BEGIN
          UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
     callbackMatcher:(FIRAuthURLCallbackMatcher)callbackMatcher
          completion:(FIRAuthURLPresentationCompletion)completion;
-
-@end
-
-/** @class FIRAuthWebViewController
-    @brief Reponsible for creating a UIViewController for presenting a FIRAutWebView.
- */
-@interface FIRAuthWebViewController : UIViewController
-
-/** @fn initWithNibName:bundle:
- *  @brief Please call initWithURL:delegate:
- */
-- (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil
-                         bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
-
-/** @fn initWithCoder:
- *  @brief Please call initWithURL:delegate:
- */
-- (instancetype)initWithCoder:(NSCoder *)aDecoder NS_UNAVAILABLE;
-
-- (instancetype)initWithURL:(NSURL *)URL
-                   delegate:(__weak id<FIRAuthWebViewControllerDelegate>)delegate
-    NS_DESIGNATED_INITIALIZER;
 
 @end
 
