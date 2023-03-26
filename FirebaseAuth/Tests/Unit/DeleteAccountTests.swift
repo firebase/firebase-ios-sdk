@@ -18,11 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 
 class DeleteAccountTests: RPCBaseTests {
-  /** @var kLocalID
-      @brief Fake LocalID used for testing.
-   */
-  let kLocalID = "LocalID"
-
   /** @var kLocalIDKey
       @brief The name of the "localID" property in the request.
    */
