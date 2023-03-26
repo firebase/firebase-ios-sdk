@@ -22,8 +22,7 @@
 #import <SafariServices/SafariServices.h>
 #import <XCTest/XCTest.h>
 
-// #import "FirebaseAuth-Swift.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthUIDelegate.h"
+@import FirebaseAuth;
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 
 /** @var kExpectationTimeout
@@ -31,13 +30,13 @@
  */
 static NSTimeInterval kExpectationTimeout = 2;
 
-@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
-/** @fn defaultUIDelegate
-    @brief Returns a default FIRAuthUIDelegate object.
-    @return The default FIRAuthUIDelegate object.
- */
-+ (id<FIRAuthUIDelegate>)defaultUIDelegate;
-@end
+//@interface FIRAuthDefaultUIDelegate : NSObject <FIRAuthUIDelegate>
+///** @fn defaultUIDelegate
+//    @brief Returns a default FIRAuthUIDelegate object.
+//    @return The default FIRAuthUIDelegate object.
+// */
+//+ (id<FIRAuthUIDelegate>)defaultUIDelegate;
+//@end
 
 @interface FIRAuthURLPresenterTests : XCTestCase
 
