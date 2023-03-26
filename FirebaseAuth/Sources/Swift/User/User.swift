@@ -1463,9 +1463,9 @@ import Foundation
       @param callback A block to invoke when the change is complete. Invoked asynchronously on the
           auth global work queue in the future.
    */
-  private func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
-                                                                    SetAccountInfoRequest) -> Void,
-                                            callback: @escaping (Error?) -> Void) {
+  func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
+                                                            SetAccountInfoRequest) -> Void,
+                                    callback: @escaping (Error?) -> Void) {
     taskQueue.enqueueTask { complete in
       self.getAccountInfoRefreshingCache { user, error in
         if let error {
@@ -1919,7 +1919,7 @@ import Foundation
       @param error The error if NO is returned.
       @return Whether the operation is successful.
    */
-  private func updateKeychain() -> Error? {
+  func updateKeychain() -> Error? {
     if self != auth?.rawCurrentUser {
       // No-op if the user is no longer signed in. This is not considered an error as we don't check
       // whether the user is still current on other callbacks of user operations either.
@@ -1970,7 +1970,7 @@ import Foundation
       @param callback The callback to be called in main thread.
       @param error The error to pass to callback.
    */
-  private class func callInMainThreadWithError(callback: ((Error?) -> Void)?, error: Error?) {
+  internal class func callInMainThreadWithError(callback: ((Error?) -> Void)?, error: Error?) {
     if let callback {
       DispatchQueue.main.async {
         callback(error)
