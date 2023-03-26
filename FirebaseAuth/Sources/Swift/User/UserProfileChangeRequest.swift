@@ -23,12 +23,38 @@ import Foundation
   /** @property displayName
    @brief The name of the user.
    */
-  @objc public var displayName: String?
+  @objc public var displayName: String? {
+    get { return _displayName }
+    set(newDisplayName) {
+      kAuthGlobalWorkQueue.async {
+        if self.consumed {
+          fatalError("Internal Auth Error: Invalid call to setDisplayName after commitChanges.")
+        }
+        self.displayNameWasSet = true
+        self._displayName = newDisplayName
+      }
+    }
+  }
+
+  private var _displayName: String?
 
   /** @property photoURL
    @brief The URL of the user's profile photo.
    */
-  @objc public var photoURL: URL?
+  @objc public var photoURL: URL? {
+    get { return _photoURL }
+    set(newPhotoURL) {
+      kAuthGlobalWorkQueue.async {
+        if self.consumed {
+          fatalError("Internal Auth Error: Invalid call to setPhotoURL after commitChanges.")
+        }
+        self.photoURLWasSet = true
+        self._photoURL = newPhotoURL
+      }
+    }
+  }
+
+  private var _photoURL: URL?
 
   /** @fn commitChangesWithCompletion:
    @brief Commits any pending changes.
@@ -39,7 +65,45 @@ import Foundation
    Invoked asynchronously on the main thread in the future.
    */
   @objc public func commitChanges(withCompletion completion: ((Error?) -> Void)? = nil) {
-    fatalError("implement me")
+    kAuthGlobalWorkQueue.async {
+      if self.consumed {
+        fatalError("Internal Auth Error: commitChanges should only be called once.")
+      }
+      self.consumed = true
+      // Return fast if there is nothing to update:
+      if !self.photoURLWasSet, !self.displayNameWasSet {
+        User.callInMainThreadWithError(callback: completion, error: nil)
+        return
+      }
+      let displayName = self.displayName
+      let displayNameWasSet = self.displayNameWasSet
+      let photoURL = self.photoURL
+      let photoURLWasSet = self.photoURLWasSet
+
+      self.user.executeUserUpdateWithChanges(changeBlock: { user, request in
+        if photoURLWasSet {
+          request.photoURL = photoURL
+        }
+        if displayNameWasSet {
+          request.displayName = displayName
+        }
+      }) { error in
+        if let error {
+          User.callInMainThreadWithError(callback: completion, error: error)
+          return
+        }
+        if displayNameWasSet {
+          self.user.displayName = displayName
+        }
+        if photoURLWasSet {
+          self.user.photoURL = photoURL
+        }
+        if let error = self.user.updateKeychain() {
+          User.callInMainThreadWithError(callback: completion, error: error)
+        }
+        User.callInMainThreadWithError(callback: completion, error: nil)
+      }
+    }
   }
 
   /** @fn commitChanges
@@ -67,4 +131,7 @@ import Foundation
   }
 
   private let user: User
+  private var consumed = false
+  private var displayNameWasSet = false
+  private var photoURLWasSet = false
 }
