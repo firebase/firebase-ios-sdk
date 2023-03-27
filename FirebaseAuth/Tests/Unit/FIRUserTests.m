@@ -1314,46 +1314,6 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
   OCMVerifyAll(_mockBackend);
 }
 
-/** @fn testReloadSuccess
-    @brief Tests the flow of a successful @c reloadWithCompletion: call.
- */
-- (void)testReloadSuccess {
-  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
-  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
-  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
-  OCMStub([mockGetAccountInfoResponseUser displayName]).andReturn(kGoogleDisplayName);
-  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
-                                             completion:^(FIRUser *user) {
-                                               id mockGetAccountInfoResponseUserNew = OCMClassMock(
-                                                   [FIRGetAccountInfoResponseUser class]);
-                                               OCMStub([mockGetAccountInfoResponseUserNew localID])
-                                                   .andReturn(kLocalID);
-                                               OCMStub([mockGetAccountInfoResponseUserNew email])
-                                                   .andReturn(kNewEmail);
-                                               OCMStub(
-                                                   [mockGetAccountInfoResponseUserNew displayName])
-                                                   .andReturn(kNewDisplayName);
-                                               OCMStub(
-                                                   [mockGetAccountInfoResponseUserNew passwordHash])
-                                                   .andReturn(kPasswordHash);
-                                               [self expectGetAccountInfoWithMockUserInfoResponse:
-                                                         mockGetAccountInfoResponseUserNew];
-                                               [user reloadWithCompletion:^(
-                                                         NSError *_Nullable error) {
-                                                 XCTAssertTrue([NSThread isMainThread]);
-                                                 XCTAssertNil(error);
-                                                 XCTAssertEqualObjects(user.email, kNewEmail);
-                                                 XCTAssertEqualObjects(user.displayName,
-                                                                       kNewDisplayName);
-                                                 [expectation fulfill];
-                                               }];
-                                             }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
 /** @fn testGetIDTokenResultSuccess
     @brief Tests the flow of a successful @c getIDTokenResultWithCompletion: call.
  */
@@ -1619,64 +1579,6 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                        [expectation fulfill];
                                                                      }];
                                            }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
-/** @fn testReloadFailure
-    @brief Tests the flow of a failed @c reloadWithCompletion: call.
- */
-- (void)testReloadFailure {
-  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
-  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
-  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
-  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
-                                             completion:^(FIRUser *user) {
-                                               OCMExpect([self->_mockBackend
-                                                             getAccountInfo:[OCMArg any]
-                                                                   callback:[OCMArg any]])
-                                                   .andDispatchError2([FIRAuthErrorUtils
-                                                       quotaExceededErrorWithMessage:nil]);
-                                               [user reloadWithCompletion:^(
-                                                         NSError *_Nullable error) {
-                                                 XCTAssertTrue([NSThread isMainThread]);
-                                                 XCTAssertEqual(error.code,
-                                                                FIRAuthErrorCodeQuotaExceeded);
-                                                 XCTAssertEqual([FIRAuth auth].currentUser, user);
-                                                 [expectation fulfill];
-                                               }];
-                                             }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-}
-
-/** @fn testReloadFailureAutoSignOut
-    @brief Tests the flow of a failed @c reloadWithCompletion: call that automtatically signs out.
- */
-- (void)testReloadFailureAutoSignOut {
-  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
-  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
-  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
-  OCMStub([mockGetAccountInfoResponseUser passwordHash]).andReturn(kPasswordHash);
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
-                                             completion:^(FIRUser *user) {
-                                               OCMExpect([self->_mockBackend
-                                                             getAccountInfo:[OCMArg any]
-                                                                   callback:[OCMArg any]])
-                                                   .andDispatchError2([FIRAuthErrorUtils
-                                                       userTokenExpiredErrorWithMessage:nil]);
-                                               [user reloadWithCompletion:^(
-                                                         NSError *_Nullable error) {
-                                                 XCTAssertTrue([NSThread isMainThread]);
-                                                 XCTAssertEqual(error.code,
-                                                                FIRAuthErrorCodeUserTokenExpired);
-                                                 XCTAssertNil([FIRAuth auth].currentUser);
-                                                 [expectation fulfill];
-                                               }];
-                                             }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }

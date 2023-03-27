@@ -1567,6 +1567,7 @@ import Foundation
         if let error {
           self.signOutIfTokenIsInvalid(withError: error)
           callback(nil, error)
+          return
         }
         guard let accountInfoResponse = response as? GetAccountInfoResponse else {
           fatalError("Internal Error: wrong response type")
