@@ -1459,7 +1459,7 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
     nanopb::Message<google_firestore_v1_ExistenceFilter>&& filter) const {
   absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>
       unchanged_names;
-  if (!filter->has_unchanged_names) {
+  if (filter->has_unchanged_names) {
     unchanged_names.emplace(filter->unchanged_names);
     filter->unchanged_names = google_firestore_v1_BloomFilter_init_default;
   }
