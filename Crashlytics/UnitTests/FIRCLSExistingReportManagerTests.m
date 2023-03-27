@@ -141,8 +141,6 @@
 
 #pragma mark - Tests
 
-// This test has been disabled due to a flake
-#if FIRCLS_FLAKY_TESTS_ENABLED
 - (void)testNoReports {
   [self.existingReportManager collectExistingReports];
 
@@ -169,7 +167,6 @@
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
 }
-#endif
 
 - (void)testUnsentReportsUnderLimit {
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:YES];
