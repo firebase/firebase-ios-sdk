@@ -141,15 +141,14 @@
 
 #pragma mark - Tests
 
-// This test has been disabled due to a flake
-#if FIRCLS_FLAKY_TESTS_ENABLED
 - (void)testNoReports {
   [self.existingReportManager collectExistingReports];
 
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports without events should be deleted
-  XCTAssertEqual([[self contentsOfActivePath] count], 0);
+  XCTAssertEqual([[self contentsOfActivePath] count], 0, @"Contents of active path: %@",
+                 [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, 0);
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
@@ -164,12 +163,12 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports without events should be deleted
-  XCTAssertEqual([[self contentsOfActivePath] count], 0);
+  XCTAssertEqual([[self contentsOfActivePath] count], 0, @"Contents of active path: %@",
+                 [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, 0);
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
 }
-#endif
 
 - (void)testUnsentReportsUnderLimit {
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:YES];
