@@ -214,7 +214,6 @@ class SerializerTest : public ::testing::Test {
     std::unique_ptr<WatchChange> actual_model =
         serializer.DecodeWatchChange(reader.context(), std::move(message));
     ASSERT_OK(reader.status()) << "serializer.DecodeWatchChange failed";
-
     EXPECT_EQ(model, *actual_model);
   }
 
@@ -1816,11 +1815,11 @@ TEST_F(SerializerTest,
   proto.mutable_filter()->set_count(555);
   proto.mutable_filter()->set_target_id(999);
 
-  v1::BloomFilter* bloom_filter2 =
+  v1::BloomFilter* unchanged_names =
       proto.mutable_filter()->mutable_unchanged_names();
-  bloom_filter2->set_hash_count(33);
-  bloom_filter2->mutable_bits()->set_padding(7);
-  bloom_filter2->mutable_bits()->set_bitmap("\x42\xFE");
+  unchanged_names->set_hash_count(33);
+  unchanged_names->mutable_bits()->set_padding(7);
+  unchanged_names->mutable_bits()->set_bitmap("\x42\xFE");
 
   SCOPED_TRACE(
       "DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull");

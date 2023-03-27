@@ -78,8 +78,8 @@
 namespace objc = firebase::firestore::objc;
 using firebase::firestore::Error;
 using firebase::firestore::google_firestore_v1_ArrayValue;
-using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::google_firestore_v1_BloomFilter;
+using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::bundle::BundleSerializer;
@@ -102,7 +102,6 @@ using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::remote::BloomFilter;
-using firebase::firestore::remote::BloomFilterParameters;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -496,7 +495,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSArray<NSNumber *> *keys = watchFilter[@"keys"];
   int keyCount = keys ? (int)keys.count : 0;
 
- absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
+  absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>> bloomFilter =
+      [self parseBloomFilter:watchFilter[@"bloomFilter"]];
 
   ExistenceFilter filter{keyCount, std::move(bloomFilter)};
   ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};

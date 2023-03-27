@@ -268,7 +268,7 @@ BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
   int32_t padding = 0;
   std::vector<uint8_t> bitmap;
   if (bloom_filter_proto.value()->has_bits) {
-    padding =bloom_filter_proto.value()->bits.padding;
+    padding = bloom_filter_proto.value()->bits.padding;
 
     pb_bytes_array_t* bitmap_ptr = bloom_filter_proto.value()->bits.bitmap;
     if (bitmap_ptr != nullptr) {
@@ -278,9 +278,7 @@ BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
   }
 
   util::StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(bitmap,
-                          padding,
-                          hash_count);
+      BloomFilter::Create(bitmap, padding, hash_count);
   if (!maybe_bloom_filter.ok()) {
     LOG_WARN("Creating BloomFilter failed: %s",
              maybe_bloom_filter.status().error_message());
