@@ -41,6 +41,12 @@ enum class QueryPurpose {
    */
   ExistenceFilterMismatch,
 
+  /**
+   * The query was used refill a query if there is an existence filter mismatch
+   * and the bloom filter application returned a false positive result.
+   */
+  ExistenceFilterMismatchBloom,
+
   /** The query was used to resolve a limbo document. */
   LimboResolution,
 };

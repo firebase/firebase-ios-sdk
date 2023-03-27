@@ -79,6 +79,7 @@ namespace objc = firebase::firestore::objc;
 using firebase::firestore::Error;
 using firebase::firestore::google_firestore_v1_ArrayValue;
 using firebase::firestore::google_firestore_v1_Value;
+using firebase::firestore::google_firestore_v1_BloomFilter;
 using firebase::firestore::api::LoadBundleTask;
 using firebase::firestore::bundle::BundleReader;
 using firebase::firestore::bundle::BundleSerializer;
@@ -101,6 +102,7 @@ using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::Message;
 using firebase::firestore::remote::BloomFilter;
+using firebase::firestore::remote::BloomFilterParameters;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -329,30 +331,24 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
-- (absl::optional<BloomFilter>)parseBloomFilter:(NSDictionary *_Nullable)bloomFilterProto {
+- (absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>)parseBloomFilter:
+    (NSDictionary *_Nullable)bloomFilterProto {
   if (bloomFilterProto == nil) {
     return absl::nullopt;
   }
   NSDictionary *bitsData = bloomFilterProto[@"bits"];
 
-  // Decode base64 string into uint8_t vector. If bitmap is not specified in proto, use default
-  // empty string.
   NSString *bitmapEncoded = bitsData[@"bitmap"];
   std::string bitmapDecoded;
   absl::Base64Unescape([bitmapEncoded cStringUsingEncoding:NSASCIIStringEncoding], &bitmapDecoded);
-  std::vector<uint8_t> bitmap(bitmapDecoded.begin(), bitmapDecoded.end());
 
-  // If not specified in proto, default padding and hashCount to 0.
-  int32_t padding = [bitsData[@"padding"] intValue];
-  int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
-  StatusOr<BloomFilter> maybeBloomFilter = BloomFilter::Create(bitmap, padding, hashCount);
+  nanopb::Message<google_firestore_v1_BloomFilter> bloomFilter;
+  bloomFilter->has_bits = true;
+  bloomFilter->hash_count = [bloomFilterProto[@"hashCount"] intValue];
+  bloomFilter->bits.padding = [bitsData[@"padding"] intValue];
+  bloomFilter->bits.bitmap = nanopb::MakeBytesArray(bitmapDecoded);
 
-  if (maybeBloomFilter.ok()) {
-    return std::move(maybeBloomFilter).ValueOrDie();
-  } else {
-    LOG_WARN("Parsing BloomFilterProto failed: %s", maybeBloomFilter.status().error_message());
-    return absl::nullopt;
-  }
+  return bloomFilter;
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
@@ -500,10 +496,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSArray<NSNumber *> *keys = watchFilter[@"keys"];
   int keyCount = keys ? (int)keys.count : 0;
 
-//  absl::optional<BloomFilter> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
-  nanopb::Message<firebase::firestore::google_firestore_v1_BloomFilter> bloom_filter{};
+ absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>> bloomFilter = [self parseBloomFilter:watchFilter[@"bloomFilter"]];
 
-  ExistenceFilter filter{keyCount, std::move(bloom_filter)};
+  ExistenceFilter filter{keyCount, std::move(bloomFilter)};
   ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
@@ -683,13 +678,6 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
-auto sortDocumentViewChange = [](std::vector<DocumentViewChange> &changes) {
-  std::sort(changes.begin(), changes.end(),
-            [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
-              return lhs.document()->key() < rhs.document()->key();
-            });
-};
-
 - (void)validateEvent:(FSTQueryEvent *)actual matches:(NSDictionary *)expected {
   Query expectedQuery = [self parseQuery:expected[@"query"]];
   XCTAssertEqual(actual.query, expectedQuery);
@@ -721,13 +709,15 @@ auto sortDocumentViewChange = [](std::vector<DocumentViewChange> &changes) {
 
     XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
 
-    std::vector<DocumentViewChange> expectedChangesSorted = expectedChanges;
-    sortDocumentViewChange(expectedChangesSorted);
+    auto comparator = [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
+      return lhs.document()->key() < rhs.document()->key();
+    };
 
+    std::vector<DocumentViewChange> expectedChangesSorted = expectedChanges;
+    std::sort(expectedChangesSorted.begin(), expectedChangesSorted.end(), comparator);
     std::vector<DocumentViewChange> actualChangesSorted =
         actual.viewSnapshot.value().document_changes();
-    sortDocumentViewChange(actualChangesSorted);
-
+    std::sort(actualChangesSorted.begin(), actualChangesSorted.end(), comparator);
     for (size_t i = 0; i != expectedChangesSorted.size(); ++i) {
       XCTAssertTrue((actualChangesSorted[i] == expectedChangesSorted[i]));
     }

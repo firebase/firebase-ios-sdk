@@ -18,6 +18,7 @@
 #define FIRESTORE_CORE_SRC_REMOTE_EXISTENCE_FILTER_H_
 
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/remote/bloom_filter.h"
 #include "absl/strings/string_view.h"
@@ -25,6 +26,18 @@
 namespace firebase {
 namespace firestore {
 namespace remote {
+
+struct BloomFilterParameters {
+  std::vector<uint8_t> bitmap;
+  int32_t padding;
+  int32_t hash_count;
+};
+
+inline bool operator==(const BloomFilterParameters& lhs,
+                       const BloomFilterParameters& rhs) {
+  return lhs.padding == rhs.padding && lhs.hash_count == rhs.hash_count &&
+         lhs.bitmap == rhs.bitmap;
+}
 
 class ExistenceFilter {
  public:

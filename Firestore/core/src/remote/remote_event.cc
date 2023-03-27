@@ -238,53 +238,69 @@ void WatchChangeAggregator::HandleExistenceFilter(
     } else {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
-        // TODO(Mila): Use application status instead of a boolean in next PR.
         // Apply bloom filter to identify and mark removed documents.
-        bool bloom_filter_applied =
+        BloomFilterApplicationStatus status =
             ApplyBloomFilter(existence_filter, current_size);
-        if (!bloom_filter_applied) {
+        if (status != BloomFilterApplicationStatus::kSuccess) {
           // If bloom filter application fails, we reset the mapping and
           // trigger re-run of the query.
           ResetTarget(target_id);
-          pending_target_resets_.insert(target_id);
+          const QueryPurpose purpose =
+              status == BloomFilterApplicationStatus::kFalsePositive
+                  ? QueryPurpose::ExistenceFilterMismatchBloom
+                  : QueryPurpose::ExistenceFilterMismatch;
+          pending_target_resets_.insert({target_id, purpose});
         }
       }
     }
   }
 }
 
-bool WatchChangeAggregator::ApplyBloomFilter(
+BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
     const ExistenceFilterWatchChange& existence_filter, int current_count) {
   const absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>&
       bloom_filter_proto = existence_filter.filter().bloom_filter();
   if (!bloom_filter_proto.has_value()) {
-    return false;
+    return BloomFilterApplicationStatus::kSkipped;
   }
 
+  int32_t hash_count = bloom_filter_proto.value()->hash_count;
+  int32_t padding = 0;
   std::vector<uint8_t> bitmap;
   if (bloom_filter_proto.value()->has_bits) {
-    google_firestore_v1_BitSequence bits = bloom_filter_proto.value()->bits;
-    if (bits.bitmap && bits.bitmap->size > 0) {
-      bitmap = std::vector<uint8_t>(bits.bitmap->bytes,
-                                    bits.bitmap->bytes + bits.bitmap->size);
+    padding =bloom_filter_proto.value()->bits.padding;
+
+    pb_bytes_array_t* bitmap_ptr = bloom_filter_proto.value()->bits.bitmap;
+    if (bitmap_ptr != nullptr) {
+      bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
+                                    bitmap_ptr->bytes + bitmap_ptr->size);
     }
   }
-  int32_t padding = 0;
-  if (bloom_filter_proto.value()->has_bits) {
-    padding = bloom_filter_proto.value()->bits.padding;
-  }
-  util::StatusOr<BloomFilter> bloom_filter = BloomFilter::Create(
-      std::move(bitmap), padding, bloom_filter_proto.value()->hash_count);
-  if (!bloom_filter.ok()) {
-    LOG_WARN("BloomFilter error: %s", bloom_filter.status().error_message());
-    return false;
+
+  util::StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(bitmap,
+                          padding,
+                          hash_count);
+  if (!maybe_bloom_filter.ok()) {
+    LOG_WARN("Creating BloomFilter failed: %s",
+             maybe_bloom_filter.status().error_message());
+    return BloomFilterApplicationStatus::kSkipped;
   }
 
-  int removed_document_count = FilterRemovedDocuments(
-      bloom_filter.ValueOrDie(), existence_filter.target_id());
+  BloomFilter bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
+
+  if (bloom_filter.bit_count() == 0) {
+    return BloomFilterApplicationStatus::kSkipped;
+  }
+
+  int removed_document_count =
+      FilterRemovedDocuments(bloom_filter, existence_filter.target_id());
 
   int expected_count = existence_filter.filter().count();
-  return expected_count == (current_count - removed_document_count);
+  if (expected_count != (current_count - removed_document_count)) {
+    return BloomFilterApplicationStatus::kFalsePositive;
+  }
+  return BloomFilterApplicationStatus::kSuccess;
 }
 
 int WatchChangeAggregator::FilterRemovedDocuments(

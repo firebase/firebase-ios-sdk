@@ -327,7 +327,10 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
 
   // Re-establish listens for the targets that have been invalidated by
   // existence filter mismatches.
-  for (TargetId target_id : remote_event.target_mismatches()) {
+  for (const auto& entry : remote_event.target_mismatches()) {
+    const TargetId& target_id = entry.first;
+    const QueryPurpose& purpose = entry.second;
+
     auto found = listen_targets_.find(target_id);
     if (found == listen_targets_.end()) {
       // A watched target might have been removed already.
@@ -351,8 +354,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
     TargetData request_target_data(target_data.target(), target_id,
-                                   target_data.sequence_number(),
-                                   QueryPurpose::ExistenceFilterMismatch);
+                                   target_data.sequence_number(), purpose);
     SendWatchRequest(request_target_data);
   }
 
@@ -566,7 +568,7 @@ absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
                                         : absl::optional<TargetData>{};
 }
 
-model::DatabaseId RemoteStore::GetDatabaseId() const {
+const model::DatabaseId& RemoteStore::GetDatabaseId() const {
   return datastore_->database_info().database_id();
 }
 
