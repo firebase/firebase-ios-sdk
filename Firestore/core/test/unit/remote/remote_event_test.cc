@@ -608,10 +608,9 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchWithBloomFilterSuccess) {
                               DocumentKeySet{}, DocumentKeySet{}};
   ASSERT_TRUE(event.target_changes().at(2) == target_change2);
 
-  // The given BloomFilter will return false on MightContain(doc1) and true on
+  // This BloomFilter will return false on MightContain(doc1) and true on
   // MightContain(doc2).
-  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter(
-      google_firestore_v1_BloomFilter_init_default);
+  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter;
   bloom_filter->hash_count = 7;
   bloom_filter->has_bits = true;
   bloom_filter->bits.padding = 1;
@@ -665,9 +664,9 @@ TEST_F(RemoteEventTest,
                               DocumentKeySet{}, DocumentKeySet{}};
   ASSERT_TRUE(event.target_changes().at(2) == target_change2);
 
-  // The given BloomFilter will return true on both MightContain(doc1) and
+  // This BloomFilter will return true on both MightContain(doc1) and
   // MightContain(doc2).
-  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter{};
+  nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter;
   bloom_filter->hash_count = 33;
   bloom_filter->has_bits = true;
   bloom_filter->bits.padding = 7;

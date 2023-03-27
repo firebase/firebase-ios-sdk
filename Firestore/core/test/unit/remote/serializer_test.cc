@@ -214,6 +214,7 @@ class SerializerTest : public ::testing::Test {
     std::unique_ptr<WatchChange> actual_model =
         serializer.DecodeWatchChange(reader.context(), std::move(message));
     ASSERT_OK(reader.status()) << "serializer.DecodeWatchChange failed";
+
     EXPECT_EQ(model, *actual_model);
   }
 

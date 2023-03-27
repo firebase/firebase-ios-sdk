@@ -269,7 +269,6 @@ BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
   std::vector<uint8_t> bitmap;
   if (bloom_filter_proto.value()->has_bits) {
     padding = bloom_filter_proto.value()->bits.padding;
-
     pb_bytes_array_t* bitmap_ptr = bloom_filter_proto.value()->bits.bitmap;
     if (bitmap_ptr != nullptr) {
       bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,

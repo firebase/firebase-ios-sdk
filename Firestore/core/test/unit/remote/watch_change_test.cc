@@ -44,9 +44,9 @@ TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
   {
     ExistenceFilter filter{7, /*bloom_filter=*/absl::nullopt};
     ExistenceFilterWatchChange change{std::move(filter), 5};
+    EXPECT_EQ(change.target_id(), 5);
     EXPECT_EQ(change.filter().count(), 7);
     EXPECT_EQ(change.filter().bloom_filter(), absl::nullopt);
-    EXPECT_EQ(change.target_id(), 5);
   }
   {
     nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter;
@@ -55,11 +55,11 @@ TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
     bloom_filter->bits.padding = 7;
     bloom_filter->bits.bitmap =
         nanopb::MakeBytesArray(std::vector<uint8_t>{0x42, 0xFE});
-
     ExistenceFilter filter{7, std::move(bloom_filter)};
     ExistenceFilterWatchChange change{std::move(filter), 5};
-    EXPECT_EQ(change.filter().count(), 7);
+
     EXPECT_EQ(change.target_id(), 5);
+    EXPECT_EQ(change.filter().count(), 7);
 
     nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter_copy;
     bloom_filter_copy->hash_count = 33;
