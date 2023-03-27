@@ -177,7 +177,8 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports with events should be kept if there's less than MAX_UNSENT_REPORTS reports
-  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports);
+  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports,
+                 @"Contents of active path: %@", [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, FIRCLSMaxUnsentReports);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count,
                  FIRCLSMaxUnsentReports);
@@ -208,7 +209,8 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Remove any reports over the limit, starting with the oldest
-  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports);
+  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports,
+                 @"Contents of active path: %@", [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, FIRCLSMaxUnsentReports);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count,
                  FIRCLSMaxUnsentReports);
