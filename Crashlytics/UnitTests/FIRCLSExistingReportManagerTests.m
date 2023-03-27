@@ -54,6 +54,11 @@
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
+  // Cleanup potential artifacts from other test files.
+  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
+    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  }
+
   // Allow nil values only in tests
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
