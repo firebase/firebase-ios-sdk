@@ -497,7 +497,7 @@ class UserTests: RPCBaseTests {
   func testChangeProfileFailureAutoSignOut() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
-    signInWithEmailPasswordReturnFakeUser() { user in
+    signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
 
@@ -528,7 +528,7 @@ class UserTests: RPCBaseTests {
       @brief Tests the flow of a successful @c getIDTokenResultWithCompletion: call.
    */
   func testGetIDTokenResultSuccess() {
-    self.internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessToken, forceRefresh: false)
+    internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessToken, forceRefresh: false)
   }
 
   /** @fn testGetIDTokenResultForcingRefreshSameAccessTokenSuccess
@@ -536,17 +536,17 @@ class UserTests: RPCBaseTests {
           the returned access token is the same as the stored access token.
    */
   func testGetIDTokenResultForcingRefreshSameAccessTokenSuccess() {
-    self.internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessToken)
+    internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessToken)
   }
 
   /** @fn testGetIDTokenResultForcingRefreshSuccess
       @brief Tests the flow successful @c getIDTokenResultForcingRefresh:completion: calls.
    */
   func testGetIDTokenResultForcingRefreshSuccess() {
-    self.internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenLength415)
-    self.internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenLength416)
-    self.internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenLength523,
-                                  emailMatch: "aunitestuser4@gmail.com")
+    internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenLength415)
+    internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenLength416)
+    internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenLength523,
+                             emailMatch: "aunitestuser4@gmail.com")
   }
 
   /** @fn testGetIDTokenResultSuccessWithBase64EncodedURL
@@ -554,9 +554,9 @@ class UserTests: RPCBaseTests {
           encoded string.
    */
   func testGetIDTokenResultSuccessWithBase64EncodedURL() {
-    self.internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenWithBase64,
-                                  emailMatch: ">>>>>>>>????????@gmail.com",
-                                  audMatch: "??????????>>>>>>>>>>")
+    internalGetIDTokenResult(token: RPCBaseTests.kFakeAccessTokenWithBase64,
+                             emailMatch: ">>>>>>>>????????@gmail.com",
+                             audMatch: "??????????>>>>>>>>>>")
   }
 
   /** @fn testGetIDTokenResultForcingRefreshFailure
@@ -567,7 +567,7 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser(fakeAccessToken: RPCBaseTests.kFakeAccessToken) { user in
       self.rpcIssuer?.secureTokenNetworkError = true
-      user.getIDTokenResult(forcingRefresh:true) { tokenResult, rawError in
+      user.getIDTokenResult(forcingRefresh: true) { tokenResult, rawError in
         do {
           XCTAssertTrue(Thread.isMainThread)
           XCTAssertNil(tokenResult)
@@ -599,7 +599,7 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(user.email, self.kEmail)
           expectation.fulfill()
         }
-       group.wait()
+        group.wait()
 
         try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                                "refreshToken": self.kRefreshToken])
@@ -618,7 +618,7 @@ class UserTests: RPCBaseTests {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser(fakeAccessToken: token) { user in
-      user.getIDTokenResult(forcingRefresh:forceRefresh) { rawTokenResult, error in
+      user.getIDTokenResult(forcingRefresh: forceRefresh) { rawTokenResult, error in
         XCTAssertTrue(Thread.isMainThread)
         XCTAssertNil(error)
         XCTAssertEqual(user.displayName, self.kDisplayName)
@@ -700,10 +700,9 @@ class UserTests: RPCBaseTests {
     }
   }
 
-  private func signInWithEmailPasswordReturnFakeUser(
-    fakeAccessToken: String = RPCBaseTests.kFakeAccessToken,
+  private func signInWithEmailPasswordReturnFakeUser(fakeAccessToken: String = RPCBaseTests
+    .kFakeAccessToken,
     completion: @escaping (User) -> Void) {
-
     let kRefreshToken = "fakeRefreshToken"
     setFakeSecureTokenService(fakeAccessToken: fakeAccessToken)
 
