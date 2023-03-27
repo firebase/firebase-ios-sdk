@@ -1314,6 +1314,9 @@ std::unique_ptr<WatchChange> Serializer::DecodeWatchChange(
       return DecodeDocumentRemove(context, watch_change->document_remove);
 
     case google_firestore_v1_ListenResponse_filter_tag:
+      // "Steal" the ExistenceFilter proto object from the given Message; set it
+      // to the "zero" value in the given Message to avoid double-freeing its
+      // dynamically-allocated memory.
       auto existence_filter = watch_change->filter;
       watch_change->filter = google_firestore_v1_ExistenceFilter_init_zero;
       return DecodeExistenceFilterWatchChange(
@@ -1460,6 +1463,9 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
   absl::optional<nanopb::Message<google_firestore_v1_BloomFilter>>
       unchanged_names;
   if (filter->has_unchanged_names) {
+    // "Steal" the BloomFilter proto object from the given Message; set it to
+    // the "zero" value in the given Message to avoid double-freeing its
+    // dynamically-allocated memory.
     unchanged_names.emplace(filter->unchanged_names);
     filter->unchanged_names = google_firestore_v1_BloomFilter_init_zero;
   }
