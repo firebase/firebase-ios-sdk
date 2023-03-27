@@ -147,8 +147,92 @@ class RPCBaseTests: XCTestCase {
     )
   }
 
-  func setFakeSecureTokenService() {
-    rpcIssuer?.fakeSecureTokenServiceJSON = ["access_token": AuthTests.kAccessToken]
+  static let kFakeAccessToken =
+    "eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZDBhODBiYzh" +
+    "jM2U5NDM0OTc0ZDFmMWRiNTEifQ." +
+    "eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vZmItc2EtdXBncm" +
+    "FkZWQiLCJhdWQiOiJ0ZXN0X2F1ZCIsImF1dGhfdGltZSI6MTUyMjM2MDU0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZCIs" +
+    "InN1YiI6InRlc3Rfc3ViIiwiaWF0IjoxNTIyMzYwNTU3LCJleHAiOjE1MjIzNjQxNTcsImVtYWlsIjoiYXVuaXRlc3R1c2" +
+    "VyQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6" +
+    "WyJhdW5pdGVzdHVzZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0=." +
+    "WFQqSrpVnxx7m" +
+    "UrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_" +
+    "BKkcbZuq8O7iDVpOvqKC" +
+    "3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-" +
+    "XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjN" +
+    "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-" +
+    "dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW" +
+    "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA"
+
+  static let kFakeAccessTokenLength415 =
+    "eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZD" +
+    "BhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ." +
+    "eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGVzd" +
+    "CIsImF1ZCI6InRlc3RfYXVkIiwiYXV0aF90aW1lIjoxNTIyMzYwNTQ5LCJ1c2VyX2lkIjoidGVzdF91c2VyX2lkIiwic3V" +
+    "iIjoidGVzdF9zdWIiLCJpYXQiOjE1MjIzNjA1NTcsImV4cCI6MTUyMjM2NDE1NywiZW1haWwiOiJhdW5pdGVzdHVzZXJAZ" +
+    "21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImF" +
+    "1bml0ZXN0dXNlckBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ=.WFQqSrpVnxx7m" +
+    "UrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_" +
+    "BKkcbZuq8O7iDVpOvqKC" +
+    "3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-" +
+    "XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjN" +
+    "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-" +
+    "dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW" +
+    "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA"
+
+  static let kFakeAccessTokenLength416 =
+    "eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZD" +
+    "BhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ." +
+    "eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGVzd" +
+    "DIiLCJhdWQiOiJ0ZXN0X2F1ZCIsImF1dGhfdGltZSI6MTUyMjM2MDU0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZCIsInN" +
+    "1YiI6InRlc3Rfc3ViIiwiaWF0IjoxNTIyMzYwNTU3LCJleHAiOjE1MjIzNjQxNTcsImVtYWlsIjoiYXVuaXRlc3R1c2VyQ" +
+    "GdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJ" +
+    "hdW5pdGVzdHVzZXJAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0=.WFQqSrpVnxx7m" +
+    "UrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_" +
+    "BKkcbZuq8O7iDVpOvqKC" +
+    "3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-" +
+    "XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjN" +
+    "hHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-" +
+    "dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbW" +
+    "lddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA"
+
+  static let kFakeAccessTokenLength523 =
+    "eyJhbGciOimnuzI1NiIsImtpZCI6ImY1YjE4Mjc2YTQ4NjYxZD" +
+    "BhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ." +
+    "eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vdGVzd" +
+    "DQiLCJhdWQiOiJ0ZXN0X2F1ZCIsImF1dGhfdGltZSI6MTUyMjM2MDU0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZF81NDM" +
+    "yIiwic3ViIjoidGVzdF9zdWIiLCJpYXQiOjE1MjIzNjA1NTcsImV4cCI6MTUyMjM2NDE1OSwiZW1haWwiOiJhdW5pdGVzd" +
+    "HVzZXI0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWl" +
+    "sIjpbImF1bml0ZXN0dXNlckBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ=." +
+    "WFQqSrpVn" +
+    "xx7mUrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-aTYMvND3-4aS3qRnN2kvk9KJAaF3eI_" +
+    "BKkcbZuq8O7iDVpO" +
+    "vqKC3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-" +
+    "XtBt1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH" +
+    "7jjNhHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-" +
+    "dDV7jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqV" +
+    "kPbWlddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA"
+
+  static let kFakeAccessTokenWithBase64 =
+    "ey?hbGciOimnuzI1NiIsImtpZCI6ImY1YjE4M" +
+    "jc2YTQ4NjYxZDBhODBiYzhjM2U5NDM0OTc0ZDFmMWRiNTEifQ." +
+    "eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2ds" +
+    "ZS5jb20vZmItc2EtdXBncmFkZWQiLCJhdWQiOiI_Pz8_Pz8_Pz8_Pj4-Pj4-Pj4-" +
+    "PiIsImF1dGhfdGltZSI6MTUyMjM2MD" +
+    "U0OSwidXNlcl9pZCI6InRlc3RfdXNlcl9pZCIsInN1YiI6InRlc3Rfc3ViIiwiaWF0IjoxNTIyMzYwNTU3LCJleHAiOjE1" +
+    "MjIzNjQxNTcsImVtYWlsIjoiPj4-Pj4-Pj4_Pz8_Pz8_" +
+    "P0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsIm" +
+    "ZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiYXVuaXRlc3R1c2VyQGdtYWlsLmNvbSJdfSwic2lnbl9pbl9w" +
+    "cm92aWRlciI6IlBhc3N3b3JkIn19.WFQqSrpVnxx7mUrdKZA517Sp4ZBt-l2xQzGKNMVE90JB3vuNa-NyWZC-" +
+    "aTYMvND3-" +
+    "4aS3qRnN2kvk9KJAaF3eI_BKkcbZuq8O7iDVpOvqKC3QcW0PnwqSPChL3XqoDF322FcBEgemwwgaEVZMuo7GhJvHw-" +
+    "XtBt" +
+    "1KRXOoGHcr3P6RsvoulUouKQmqt6TP27eZtrgH7jjNhHm7gjX_WaRmgTOvYsuDbBBGdE15yIVZ3acI4cFUgwMRhaW-" +
+    "dDV7" +
+    "jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbWlddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA"
+
+  func setFakeSecureTokenService(fakeAccessToken: String = RPCBaseTests.kFakeAccessToken) {
+    rpcIssuer?.fakeSecureTokenServiceJSON = ["access_token": fakeAccessToken]
   }
 
   func setFakeGetAccountProvider(withNewDisplayName displayName: String = "Google Doe") {
