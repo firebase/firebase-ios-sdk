@@ -1461,7 +1461,7 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
       unchanged_names;
   if (filter->has_unchanged_names) {
     unchanged_names.emplace(filter->unchanged_names);
-    filter->unchanged_names = google_firestore_v1_BloomFilter_init_default;
+    filter->unchanged_names = google_firestore_v1_BloomFilter_init_zero;
   }
   return {filter->count, std::move(unchanged_names)};
 }
