@@ -383,8 +383,11 @@ BundledQuery BundleSerializer::DecodeBundledQuery(
 
   return BundledQuery(
       Query(std::move(parent), std::move(collection_group), std::move(filters),
-            std::move(order_bys), limit, LimitType::None, std::move(start_at),
-            std::move(end_at))
+            std::move(order_bys), limit,
+            // Not using `limit_type` because bundled queries are what the
+            // backend sees, and there is no limit_to_last for the backend.
+            // Limit type is applied when the query is read back instead.
+            LimitType::None, std::move(start_at), std::move(end_at))
           .ToTarget(),
       limit_type);
 }

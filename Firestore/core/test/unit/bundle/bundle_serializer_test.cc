@@ -1163,17 +1163,34 @@ TEST_F(BundleSerializerTest, DecodeInvalidBundledDocumentMetadataFails) {
 
 TEST_F(BundleSerializerTest, DecodeTargetWithoutImplicitOrderByOnName) {
   std::string json(
-      R"({"name":"myNamedQuery","bundledQuery":{"parent":"projects/p/databases
-/default/documents","structuredQuery":{"from":[{"collectionId":"foo"}],
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":[{"collectionId":"foo"}],
 "limit":{"value":10}},"limitType":"FIRST"},
 "readTime":{"seconds":"1679674432","nanos":579934000}})");
   JsonReader reader;
   auto named_query = bundle_serializer.DecodeNamedQuery(reader, Parse(json));
   EXPECT_OK(reader.status());
-  core::Query original = testutil::CollectionGroupQuery("bundles/docs/colls");
   EXPECT_EQ(testutil::Query("foo").WithLimitToFirst(10).ToTarget(),
             named_query.bundled_query().target());
   EXPECT_EQ(core::LimitType::First, named_query.bundled_query().limit_type());
+}
+
+TEST_F(BundleSerializerTest,
+       DecodeLimitToLastTargetWithoutImplicitOrderByOnName) {
+  std::string json(
+      R"({"name":"myNamedQuery",
+"bundledQuery":{"parent":"projects/p/databases/default/documents",
+"structuredQuery":{"from":[{"collectionId":"foo"}],
+"limit":{"value":10}},"limitType":"LAST"},
+"readTime":{"seconds":"1679674432","nanos":579934000}})");
+  JsonReader reader;
+  auto named_query = bundle_serializer.DecodeNamedQuery(reader, Parse(json));
+  EXPECT_OK(reader.status());
+  // Note `WithLimitToFirst(10)` is expected.
+  EXPECT_EQ(testutil::Query("foo").WithLimitToFirst(10).ToTarget(),
+            named_query.bundled_query().target());
+  EXPECT_EQ(core::LimitType::Last, named_query.bundled_query().limit_type());
 }
 
 }  //  namespace
