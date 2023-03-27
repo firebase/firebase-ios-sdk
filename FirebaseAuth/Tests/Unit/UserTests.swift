@@ -284,7 +284,7 @@ class UserTests: RPCBaseTests {
         XCTFail("Caught an error in \(#function): \(error)")
       }
     }
-    waitForExpectations(timeout: 225)
+    waitForExpectations(timeout: 5)
   }
 
   /** @fn testUpdateEmailAutoSignOut
@@ -315,7 +315,7 @@ class UserTests: RPCBaseTests {
         XCTFail("Caught an error in \(#function): \(error)")
       }
     }
-    waitForExpectations(timeout: 225)
+    waitForExpectations(timeout: 5)
   }
 
   // TODO: Three phone number tests for iOS go here.
@@ -579,30 +579,88 @@ class UserTests: RPCBaseTests {
         expectation.fulfill()
       }
     }
-    waitForExpectations(timeout: 555)
+    waitForExpectations(timeout: 5)
   }
 
   /** @fn testReloadSuccess
       @brief Tests the flow of a successful @c reloadWithCompletion: call.
    */
-  func SKIPtestReloadSuccess() {
+  func testReloadSuccess() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      user.reload { error in
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(error)
+        XCTAssertEqual(user.displayName, self.kDisplayName)
+        XCTAssertEqual(user.email, self.kEmail)
+        expectation.fulfill()
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReloadFailure
+      @brief Tests the flow of a failed @c reloadWithCompletion: call.
+   */
+  func testReloadFailure() {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
 
-        user.reload { error in
+        // Clear fake so we can inject error
+        self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+        user.reload { rawError in
           XCTAssertTrue(Thread.isMainThread)
-          XCTAssertNil(error)
-          XCTAssertEqual(user.displayName, self.kNewDisplayName)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.quotaExceeded.rawValue)
+          // Email should not have changed on the client side.
           XCTAssertEqual(user.email, self.kEmail)
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
         group.wait()
 
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken])
+        try self.rpcIssuer?.respond(serverErrorMessage: "QUOTA_EXCEEDED")
+
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReloadFailureAutoSignOut
+      @brief Tests the flow of a failed @c reloadWithCompletion: call that automtatically signs out.
+   */
+  func testReloadFailureAutoSignOut() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        let group = self.createGroup()
+
+        // Clear fake so we can inject error
+        self.rpcIssuer?.fakeGetAccountProviderJSON = nil
+
+        user.reload { rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kEmail)
+          // User is no longer signed in..
+          XCTAssertNil(UserTests.auth?.currentUser)
+          expectation.fulfill()
+        }
+        group.wait()
+
+        try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+
       } catch {
         XCTFail("Caught an error in \(#function): \(error)")
       }
