@@ -86,7 +86,7 @@ private let kClaimsKey = "claims"
   /** @property signInSecondFactor
       @brief Stores sign-in second factor through which the token was obtained.
    */
-  @objc public var signInSecondFactor: String
+  @objc public var signInSecondFactor: String?
 
   /** @property claims
       @brief Stores the entire payload of claims found on the ID token. This includes the standard
@@ -158,7 +158,7 @@ private let kClaimsKey = "claims"
        authDate: Date,
        issuedAtDate: Date,
        signInProvider: String,
-       signInSecondFactor: String,
+       signInSecondFactor: String?,
        claims: [String: Any]) {
     self.token = token
     self.expirationDate = expirationDate
@@ -173,7 +173,7 @@ private let kClaimsKey = "claims"
 struct JWT: Decodable {
   struct FirebasePayload: Decodable {
     let signInProvider: String
-    let signInSecondFactor: String
+    let signInSecondFactor: String?
   }
 
   let exp: Date
