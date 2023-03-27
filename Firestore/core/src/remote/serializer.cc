@@ -641,9 +641,8 @@ google_firestore_v1_Target Serializer::EncodeTarget(
         nanopb::CopyBytesArray(target_data.resume_token().get());
 
     if (target_data.expected_count().has_value()) {
-      int32_t expected_count = target_data.expected_count().value();
       result.has_expected_count = true;
-      result.expected_count.value = expected_count;
+      result.expected_count.value = target_data.expected_count().value();
     }
   } else if (target_data.snapshot_version().CompareTo(
                  SnapshotVersion::None()) == ComparisonResult::Descending) {
@@ -652,9 +651,8 @@ google_firestore_v1_Target Serializer::EncodeTarget(
         EncodeVersion(target_data.snapshot_version());
 
     if (target_data.expected_count().has_value()) {
-      int32_t expected_count = target_data.expected_count().value();
       result.has_expected_count = true;
-      result.expected_count.value = expected_count;
+      result.expected_count.value = target_data.expected_count().value();
     }
   }
 
