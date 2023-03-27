@@ -408,14 +408,11 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
 }
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  return [self initWithApp:app
-      keychainServicesProvider:^id<FIRAuthStorage>(NSString *serviceName) {
-        return [[FIRAuthKeychainServices alloc] initWithService:serviceName];
-      }];
+  return [self initWithApp:app keychainStorageProvider:FIRAuthKeychainServices.class];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app
-    keychainServicesProvider:(id<FIRAuthStorage> (^)(NSString *storageID))keychainServicesProvider {
+    keychainStorageProvider:(Class<FIRAuthStorage>)keychainStorageProvider {
   self = [super init];
   if (self) {
     _app = app;
@@ -427,9 +424,16 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
                                                        auth:self
                                             heartbeatLogger:app.heartbeatLogger];
     _firebaseAppName = [app.name copy];
+
+    if (![(Class)keychainStorageProvider conformsToProtocol:@protocol(FIRAuthStorage)] ||
+        ![(Class)keychainStorageProvider respondsToSelector:@selector(storageWithIdentifier:)]) {
+      [NSException raise:NSInvalidArgumentException
+                  format:@"Class %@ attempted to act as a keychain storage provider.",
+                         keychainStorageProvider];
+    }
     NSString *keychainServiceName =
         [[self class] keychainServiceNameForAppID:app.options.googleAppID];
-    _keychainServices = keychainServicesProvider(keychainServiceName);
+    _keychainServices = [keychainStorageProvider storageWithIdentifier:keychainServiceName];
     _storedUserManager = [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
 #if TARGET_OS_IOS
     _authURLPresenter = [[FIRAuthURLPresenter alloc] init];

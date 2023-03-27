@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 #endif  // TARGET_OS_IOS
 
 - (instancetype)initWithApp:(FIRApp *)app
-    keychainServicesProvider:(id<FIRAuthStorage> (^)(NSString *storageID))keychainServicesProvider
+    keychainStorageProvider:(Class<FIRAuthStorage>)keychainStorageProvider
     NS_DESIGNATED_INITIALIZER;
 
 /** @fn getUserID

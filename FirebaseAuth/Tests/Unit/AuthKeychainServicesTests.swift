@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // TODO(ncooke3): Add documentation for manually configuring tests on macOS.
-#if !os(macOS)
+#if !os(macOS) || (os(macOS) && FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN)
 
   import Foundation
   import XCTest
@@ -193,4 +193,4 @@
     }
   }
 
-#endif // !os(macOS)
+#endif // !os(macOS) || (os(macOS) && FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN)
