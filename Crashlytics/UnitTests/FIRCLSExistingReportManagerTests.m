@@ -147,7 +147,8 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports without events should be deleted
-  XCTAssertEqual([[self contentsOfActivePath] count], 0);
+  XCTAssertEqual([[self contentsOfActivePath] count], 0, @"Contents of active path: %@",
+                 [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, 0);
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
@@ -162,7 +163,8 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports without events should be deleted
-  XCTAssertEqual([[self contentsOfActivePath] count], 0);
+  XCTAssertEqual([[self contentsOfActivePath] count], 0, @"Contents of active path: %@",
+                 [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, 0);
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
