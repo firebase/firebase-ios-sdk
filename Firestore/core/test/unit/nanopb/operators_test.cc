@@ -29,6 +29,7 @@ using nanopb::Message;
 
 TEST(
     OperatorsTest,
+    // NOLINTNEXTLINE(whitespace/line_length)
     BitSequenceOperatorEqualsShouldReturnTrueIfBothArgsHaveSamePaddingAndNullBitmap) {
   Message<google_firestore_v1_BitSequence> bit_sequence1;
   Message<google_firestore_v1_BitSequence> bit_sequence2;
@@ -45,6 +46,7 @@ TEST(
 
 TEST(
     OperatorsTest,
+    // NOLINTNEXTLINE(whitespace/line_length)
     BitSequenceOperatorEqualsShouldReturnTrueIfBothArgsHaveSamePaddingAndBitmap) {
   Message<google_firestore_v1_BitSequence> bit_sequence1;
   Message<google_firestore_v1_BitSequence> bit_sequence2;
@@ -91,6 +93,7 @@ TEST(OperatorsTest,
 
 TEST(
     OperatorsTest,
+    // NOLINTNEXTLINE(whitespace/line_length)
     BitSequenceOperatorEqualsShouldReturnFalseIfSameBitmapLengthButDifferentValues) {
   Message<google_firestore_v1_BitSequence> bit_sequence1;
   Message<google_firestore_v1_BitSequence> bit_sequence2;
@@ -107,6 +110,7 @@ TEST(
 
 TEST(
     OperatorsTest,
+    // NOLINTNEXTLINE(whitespace/line_length)
     BitSequenceOperatorEqualsShouldReturnFalseIfArg1HasNullBitmapAndArg2HasNonNullBitmap) {
   Message<google_firestore_v1_BitSequence> bit_sequence1;
   Message<google_firestore_v1_BitSequence> bit_sequence2;
@@ -123,6 +127,7 @@ TEST(
 
 TEST(
     OperatorsTest,
+    // NOLINTNEXTLINE(whitespace/line_length)
     BitSequenceOperatorEqualsShouldReturnFalseIfArg1HasNonNullBitmapAndArg2HasNullBitmap) {
   Message<google_firestore_v1_BitSequence> bit_sequence1;
   Message<google_firestore_v1_BitSequence> bit_sequence2;
