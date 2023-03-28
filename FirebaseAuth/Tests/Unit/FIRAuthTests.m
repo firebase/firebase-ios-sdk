@@ -2470,7 +2470,7 @@ static const NSTimeInterval kWaitInterval = .5;
     // 'application:openURL:options:' is only available on iOS 9.0 or newer.
     NSURL *url = [NSURL URLWithString:@"https://localhost"];
 
-    [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
+    OCMExpect([self.mockAuthURLPresenter canHandleURL:url]).andReturn(YES);
 
     XCTAssertTrue([self.fakeApplicationDelegate
         application:[GULAppDelegateSwizzler sharedApplication]
@@ -2484,7 +2484,7 @@ static const NSTimeInterval kWaitInterval = .5;
 - (void)testAppOpenURLWithSourceApplication_AuthPresenterCanHandleURL {
   NSURL *url = [NSURL URLWithString:@"https://localhost"];
 
-  [OCMExpect([self.mockAuthURLPresenter canHandleURL:url]) andReturnValue:@(YES)];
+  OCMExpect([self.mockAuthURLPresenter canHandleURL:url]).andReturn(YES);
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
