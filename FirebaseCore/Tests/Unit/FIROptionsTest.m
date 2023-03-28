@@ -57,19 +57,19 @@ extern NSString *const kFIRLibraryVersionID;
 
 - (void)testDefaultOptionsDictionaryWithNilFilePath {
   id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
-  [OCMStub([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
-                                                     andFileType:kServiceInfoFileType
-                                                       inBundles:[FIRBundleUtil relevantBundles]])
-      andReturn:nil];
+  OCMStub([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                    andFileType:kServiceInfoFileType
+                                                      inBundles:[FIRBundleUtil relevantBundles]])
+      .andReturn(nil);
   XCTAssertNil([FIROptions defaultOptionsDictionary]);
 }
 
 - (void)testDefaultOptionsDictionaryWithInvalidSourceFile {
   id mockBundleUtil = OCMClassMock([FIRBundleUtil class]);
-  [OCMStub([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
-                                                     andFileType:kServiceInfoFileType
-                                                       inBundles:[FIRBundleUtil relevantBundles]])
-      andReturn:@"invalid.plist"];
+  OCMStub([mockBundleUtil optionsDictionaryPathWithResourceName:kServiceInfoFileName
+                                                    andFileType:kServiceInfoFileType
+                                                      inBundles:[FIRBundleUtil relevantBundles]])
+      .andReturn(@"invalid.plist");
   XCTAssertNil([FIROptions defaultOptionsDictionary]);
 }
 
