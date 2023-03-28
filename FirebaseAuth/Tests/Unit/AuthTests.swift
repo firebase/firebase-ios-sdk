@@ -92,7 +92,7 @@ class AuthTests: RPCBaseTests {
       let keychainStorageProvider = FakeAuthKeychainServices.self
     #else
       let keychainStorageProvider = AuthKeychainServices.self
-    #endif // os(macOS)
+    #endif // os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
     auth = Auth(
       app: FirebaseApp.app(name: "test-AuthTests")!,
       keychainStorageProvider: keychainStorageProvider
