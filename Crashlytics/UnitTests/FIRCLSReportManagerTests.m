@@ -78,6 +78,11 @@
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
+  // Cleanup potential artifacts from other test files.
+  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
+    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  }
+
   // Delete cached settings
   [self.fileManager removeItemAtPath:_fileManager.settingsFilePath];
 
