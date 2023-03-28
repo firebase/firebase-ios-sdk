@@ -20,6 +20,7 @@
 #include <utility>
 #include <vector>
 
+#include "Firestore/core/src/nanopb/operators.h"
 #include "Firestore/core/src/remote/bloom_filter.h"
 #include "absl/strings/string_view.h"
 
@@ -52,40 +53,6 @@ class ExistenceFilter {
       bloom_filter_;
 };
 
-inline bool operator==(
-    const nanopb::Message<google_firestore_v1_BloomFilter>& lhs,
-    const nanopb::Message<google_firestore_v1_BloomFilter>& rhs) {
-  const google_firestore_v1_BloomFilter* lhs_bloom_filter = lhs.get();
-  const google_firestore_v1_BloomFilter* rhs_bloom_filter = rhs.get();
-  if (lhs_bloom_filter->hash_count != rhs_bloom_filter->hash_count) {
-    return false;
-  }
-  if (lhs_bloom_filter->has_bits != rhs_bloom_filter->has_bits) {
-    return false;
-  }
-  if (lhs_bloom_filter->has_bits) {
-    if (lhs_bloom_filter->bits.padding != rhs_bloom_filter->bits.padding) {
-      return false;
-    }
-    if ((lhs_bloom_filter->bits.bitmap == nullptr) !=
-        (rhs_bloom_filter->bits.bitmap == nullptr)) {
-      return false;
-    }
-    if (lhs_bloom_filter->bits.bitmap != nullptr) {
-      const absl::string_view lhs_bitmap(
-          reinterpret_cast<const char*>(lhs_bloom_filter->bits.bitmap->bytes),
-          lhs_bloom_filter->bits.bitmap->size);
-      const absl::string_view rhs_bitmap(
-          reinterpret_cast<const char*>(rhs_bloom_filter->bits.bitmap->bytes),
-          rhs_bloom_filter->bits.bitmap->size);
-      if (lhs_bitmap != rhs_bitmap) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
 inline bool operator==(const ExistenceFilter& lhs, const ExistenceFilter& rhs) {
   if (lhs.count() != rhs.count()) {
     return false;
@@ -93,11 +60,11 @@ inline bool operator==(const ExistenceFilter& lhs, const ExistenceFilter& rhs) {
   if (lhs.bloom_filter().has_value() != rhs.bloom_filter().has_value()) {
     return false;
   }
-
   if (lhs.bloom_filter().has_value()) {
-    return lhs.bloom_filter().value() == rhs.bloom_filter().value();
+    if (lhs.bloom_filter().value() != rhs.bloom_filter().value()) {
+      return false;
+    }
   }
-
   return true;
 }
 

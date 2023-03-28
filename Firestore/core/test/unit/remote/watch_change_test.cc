@@ -60,14 +60,15 @@ TEST(WatchChangeTest, CanCreateExistenceFilterWatchChange) {
 
     EXPECT_EQ(change.target_id(), 5);
     EXPECT_EQ(change.filter().count(), 7);
+    ASSERT_TRUE(change.filter().bloom_filter().has_value());
 
-    nanopb::Message<google_firestore_v1_BloomFilter> bloom_filter_copy;
-    bloom_filter_copy->hash_count = 33;
-    bloom_filter_copy->has_bits = true;
-    bloom_filter_copy->bits.padding = 7;
-    bloom_filter_copy->bits.bitmap =
+    nanopb::Message<google_firestore_v1_BloomFilter> expected_bloom_filter;
+    expected_bloom_filter->hash_count = 33;
+    expected_bloom_filter->has_bits = true;
+    expected_bloom_filter->bits.padding = 7;
+    expected_bloom_filter->bits.bitmap =
         nanopb::MakeBytesArray(std::vector<uint8_t>{0x42, 0xFE});
-    EXPECT_TRUE(change.filter().bloom_filter().value() == bloom_filter_copy);
+    EXPECT_EQ(change.filter().bloom_filter().value(), expected_bloom_filter);
   }
 }
 

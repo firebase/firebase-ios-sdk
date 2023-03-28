@@ -195,6 +195,28 @@ class Message {
   T proto_{};
 };
 
+// Note that operator== for a Message object relies on operator== for its
+// underlying proto to be defined. These implementations of operator== for
+// specific protos are out of scope for this file, and must be defined
+// elsewhere. Some are defined in operators.h in this file's directory.
+template <typename T>
+inline bool operator==(const Message<T>& lhs, const Message<T>& rhs) {
+  const T* lhs_proto = lhs.get();
+  const T* rhs_proto = rhs.get();
+  if (lhs_proto == rhs_proto) {
+    return true;
+  }
+  if (lhs_proto == nullptr || rhs_proto == nullptr) {
+    return false;
+  }
+  return (*lhs_proto) == (*rhs_proto);
+}
+
+template <typename T>
+inline bool operator!=(const Message<T>& lhs, const Message<T>& rhs) {
+  return !(lhs == rhs);
+}
+
 template <typename T>
 Message<T> MakeMessage(const T& proto) {
   return Message<T>(proto);

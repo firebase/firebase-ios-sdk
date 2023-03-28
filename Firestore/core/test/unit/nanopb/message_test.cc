@@ -22,6 +22,7 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/nanopb/operators.h"
 #include "Firestore/core/src/nanopb/writer.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
 #include "Firestore/core/test/unit/testutil/status_testing.h"
@@ -61,6 +62,15 @@ class MessageTest : public testing::Test {
     return {};
   }
 
+  // Convenience function that calls `release()` on the given `Message` object
+  // and also frees the dynamic memory from the proto, as the destructor of
+  // the `Message` object would.
+  template <typename T>
+  Message<T>& ReleaseAndFree(Message<T>& message) {
+    FreeNanopbMessage(Message<T>::fields(), message.release());
+    return message;
+  }
+
  private:
   // Note: gRPC slice will crash upon destruction if gRPC library hasn't been
   // initialized, which is normally done by inheriting from this class (which
@@ -85,6 +95,66 @@ TEST_F(MessageTest, ParseFailure) {
   ByteBufferReader reader{BadProto()};
   auto message = TestMessage::TryParse(&reader);
   EXPECT_NOT_OK(reader.status());
+}
+
+TEST_F(MessageTest, OperatorEqualsShouldReturnTrueForDefaultConstructed) {
+  Message<google_firestore_v1_BitSequence> message1;
+  Message<google_firestore_v1_BitSequence> message2;
+
+  EXPECT_TRUE(message1 == message2);
+  EXPECT_FALSE(message1 != message2);
+}
+
+TEST_F(MessageTest,
+       OperatorEqualsShouldReturnFalseIfArg1OwnsProtoButArg2DoesNot) {
+  Message<google_firestore_v1_BitSequence> message1;
+  Message<google_firestore_v1_BitSequence> message2;
+  ReleaseAndFree(message2);
+
+  EXPECT_FALSE(message1 == message2);
+  EXPECT_TRUE(message1 != message2);
+}
+
+TEST_F(MessageTest,
+       OperatorEqualsShouldReturnFalseIfArg1DoesNotOwnProtoButArg2Does) {
+  Message<google_firestore_v1_BitSequence> message1;
+  Message<google_firestore_v1_BitSequence> message2;
+  ReleaseAndFree(message1);
+
+  EXPECT_FALSE(message1 == message2);
+  EXPECT_TRUE(message1 != message2);
+}
+
+TEST_F(MessageTest, OperatorEqualsShouldReturnTrueIfNeitherArgsOwnTheirProto) {
+  Message<google_firestore_v1_BitSequence> message1;
+  Message<google_firestore_v1_BitSequence> message2;
+  ReleaseAndFree(message1);
+  ReleaseAndFree(message2);
+
+  EXPECT_TRUE(message1 == message2);
+  EXPECT_FALSE(message1 != message2);
+}
+
+TEST_F(MessageTest,
+       OperatorEqualsShouldReturnTrueIfTheUnderlyingProtosCompareEqual) {
+  Message<google_firestore_v1_BitSequence> message1;
+  Message<google_firestore_v1_BitSequence> message2;
+  message1->padding = 1234;
+  message2->padding = 1234;
+
+  EXPECT_TRUE(message1 == message2);
+  EXPECT_FALSE(message1 != message2);
+}
+
+TEST_F(MessageTest,
+       OperatorEqualsShouldReturnFalseIfTheUnderlyingProtosCompareUnequal) {
+  Message<google_firestore_v1_BitSequence> message1;
+  Message<google_firestore_v1_BitSequence> message2;
+  message1->padding = 1234;
+  message2->padding = 4321;
+
+  EXPECT_FALSE(message1 == message2);
+  EXPECT_TRUE(message1 != message2);
 }
 
 }  //  namespace
