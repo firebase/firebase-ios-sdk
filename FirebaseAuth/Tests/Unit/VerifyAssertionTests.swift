@@ -98,8 +98,6 @@ class VerifyAssertionTests: RPCBaseTests {
     // The name fields may be sorted either way.
     let userJSON = "{\"name\":{\"firstName\":\"\(kFakeGivenName)\"," +
       "\"lastName\":\"\(kFakeFamilyName)\"}}"
-    let userJSONAlt = "{\"name\":{\"lastName\":\"\(kFakeFamilyName)\"," +
-      "\"firstName\":\"\(kFakeGivenName)\"}}"
 
     let issuer = try checkRequest(
       request: request,
@@ -117,19 +115,8 @@ class VerifyAssertionTests: RPCBaseTests {
       URLQueryItem(name: "user", value: userJSON),
     ]
 
-    var componentsAlt = URLComponents()
-    componentsAlt.queryItems = [
-      URLQueryItem(name: kProviderIDKey, value: kTestProviderID),
-      URLQueryItem(name: kProviderIDTokenKey, value: kTestProviderIDToken),
-      URLQueryItem(name: kProviderAccessTokenKey, value: kTestProviderAccessToken),
-      URLQueryItem(name: kProviderOAuthTokenSecretKey, value: kTestProviderOAuthTokenSecret),
-      URLQueryItem(name: kInputEmailKey, value: kTestInputEmail),
-      URLQueryItem(name: "user", value: userJSONAlt),
-    ]
-
     let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
-    let postBody = try XCTUnwrap(requestDictionary[kPostBodyKey] as? String)
-    XCTAssertTrue(postBody == components.query || postBody == componentsAlt.query)
+    XCTAssertEqual(requestDictionary[kPostBodyKey], components.query)
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kReturnSecureTokenKey] as? Bool))
     XCTAssertFalse(try XCTUnwrap(requestDictionary[kAutoCreateKey] as? Bool))
   }

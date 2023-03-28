@@ -247,7 +247,7 @@ private let kLastNameKey = "lastName"
       }
       let userDict = [kNameKey: nameDict]
       do {
-        let userJson = try JSONSerialization.data(withJSONObject: userDict)
+        let userJson = try JSONEncoder().encode(userDict)
         let jsonString = String(data: userJson, encoding: .utf8)
         queryItems.append(URLQueryItem(name: kUserKey, value: jsonString))
       } catch {
