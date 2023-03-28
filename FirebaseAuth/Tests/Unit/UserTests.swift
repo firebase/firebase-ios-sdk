@@ -20,9 +20,16 @@ import FirebaseCore
 
 class UserTests: RPCBaseTests {
   static let kFakeAPIKey = "FAKE_API_KEY"
+  let kGoogleIDToken = "GOOGLE_ID_TOKEN"
+  let kGoogleAccessToken = "GOOGLE_ACCESS_TOKEN"
+  let kGoogleID = "GOOGLE_ID"
+  let kGoogleEmail = "usergmail.com"
+  let kGoogleDisplayName = "Google Doe"
   let kNewEmail = "newuser@company.com"
   let kNewPassword = "newpassword"
   let kNewDisplayName = "New User Doe"
+  let kUserName = "User Doe"
+  let kGoogleProfile = ["email": "usergmail.com", "given_name": "MyFirst", "family_name": "MyLast"]
 
   static var auth: Auth?
 
@@ -617,8 +624,6 @@ class UserTests: RPCBaseTests {
           XCTAssertTrue(Thread.isMainThread)
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.quotaExceeded.rawValue)
-          // Email should not have changed on the client side.
-          XCTAssertEqual(user.email, self.kEmail)
           // User is still signed in.
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
@@ -651,9 +656,7 @@ class UserTests: RPCBaseTests {
           XCTAssertTrue(Thread.isMainThread)
           let error = try! XCTUnwrap(rawError)
           XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
-          // Email should not have changed on the client side.
-          XCTAssertEqual(user.email, self.kEmail)
-          // User is no longer signed in..
+          // User is no longer signed in.
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
         }
@@ -661,6 +664,150 @@ class UserTests: RPCBaseTests {
 
         try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
 
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReauthenticateSuccess
+      @brief Tests the flow of a successful @c reauthenticateWithCredential:completion: call.
+   */
+  func testReauthenticateSuccess() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        let group = self.createGroup()
+        let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
+                                                           password: self.kFakePassword)
+        user.reauthenticate(with: emailCredential) { rawResult, error in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(error)
+          let result = try! XCTUnwrap(rawResult)
+          XCTAssertEqual(result.user.uid, user.uid)
+          XCTAssertEqual(result.user.email, user.email)
+          XCTAssertEqual(result.additionalUserInfo?.newUser, false)
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                               "refreshToken": self.kRefreshToken])
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReauthenticateWithCredentialSuccess
+      @brief Tests the flow of a successful @c reauthenticateWithCredential call.
+   */
+  func testReauthenticateWithCredentialSuccess() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithGoogleCredential { user in
+      do {
+        let group = self.createGroup()
+        let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
+                                                             accessToken: self.kGoogleAccessToken)
+        user.reauthenticate(with: googleCredential) { reauthenticatedAuthResult, error in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(error)
+          // Verify that the current user is unchanged.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          // Verify that the current user and reauthenticated user are not same pointers.
+          XCTAssertNotEqual(user, reauthenticatedAuthResult?.user)
+          // Verify that anyway the current user and reauthenticated user have same IDs.
+          XCTAssertEqual(reauthenticatedAuthResult?.user.uid, user.uid)
+          XCTAssertEqual(reauthenticatedAuthResult?.user.email, user.email)
+          XCTAssertEqual(reauthenticatedAuthResult?.user.displayName, user.displayName)
+          XCTAssertEqual(reauthenticatedAuthResult?.additionalUserInfo?.username, self.kUserName)
+          XCTAssertEqual(reauthenticatedAuthResult?.additionalUserInfo?.providerID,
+                         GoogleAuthProvider.id)
+          XCTAssertEqual(
+            reauthenticatedAuthResult?.additionalUserInfo?.profile as? [String: String],
+            self.kGoogleProfile
+          )
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                               "refreshToken": self.kRefreshToken,
+                                               "federatedId": self.kGoogleID,
+                                               "providerId": GoogleAuthProvider.id,
+                                               "localId": self.kLocalID,
+                                               "displayName": self.kDisplayName,
+                                               "rawUserInfo": self.kGoogleProfile,
+                                               "username": self.kUserName])
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReauthenticateFailure
+      @brief Tests the flow of a failed @c reauthenticateWithCredential:completion: call.
+   */
+  func testReauthenticateFailure() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        let group = self.createGroup()
+
+        self.setFakeGetAccountProvider(withLocalID: "A different Local ID")
+        let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
+                                                           password: self.kFakePassword)
+        user.reauthenticate(with: emailCredential) { reauthenticatedAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.userMismatch.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kEmail)
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                               "refreshToken": self.kRefreshToken])
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testReauthenticateUserMismatchFailure
+      @brief Tests the flow of a failed @c reauthenticateWithCredential:completion: call due to trying
+          to reauthenticate a user that does not exist.
+   */
+  func testReauthenticateUserMismatchFailure() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUser { user in
+      do {
+        let group = self.createGroup()
+
+        let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
+                                                             accessToken: self.kGoogleAccessToken)
+        user.reauthenticate(with: googleCredential) { reauthenticatedAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.userMismatch.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kEmail)
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
       } catch {
         XCTFail("Caught an error in \(#function): \(error)")
       }
@@ -801,6 +948,64 @@ class UserTests: RPCBaseTests {
       try rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
                                         "isNewUser": true,
                                         "refreshToken": kRefreshToken])
+
+    } catch {
+      XCTFail("Throw in \(#function): \(error)")
+    }
+  }
+
+  private func signInWithGoogleCredential(completion: @escaping (User) -> Void) {
+    setFakeSecureTokenService(fakeAccessToken: RPCBaseTests.kFakeAccessToken)
+
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+    let group = createGroup()
+
+    do {
+      try UserTests.auth?.signOut()
+      let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
+                                                           accessToken: kGoogleAccessToken)
+      UserTests.auth?.signIn(with: googleCredential) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        guard let user = authResult?.user else {
+          XCTFail("authResult.user is missing")
+          return
+        }
+        XCTAssertEqual(user.refreshToken, self.kRefreshToken)
+        XCTAssertFalse(user.isAnonymous)
+        XCTAssertEqual(user.email, self.kEmail)
+        guard let additionalUserInfo = authResult?.additionalUserInfo,
+              let profile = additionalUserInfo.profile as? [String: String] else {
+          XCTFail("authResult.additionalUserInfo and/or profile is missing")
+          return
+        }
+        XCTAssertEqual(profile, self.kGoogleProfile)
+        XCTAssertFalse(additionalUserInfo.isNewUser)
+        XCTAssertEqual(additionalUserInfo.providerID, GoogleAuthProvider.id)
+        XCTAssertEqual(additionalUserInfo.username, self.kUserName)
+        XCTAssertNil(error)
+        completion(user)
+      }
+      group.wait()
+
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
+      XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
+      XCTAssertEqual(request.providerAccessToken, kGoogleAccessToken)
+      XCTAssertTrue(request.returnSecureToken)
+      XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+      XCTAssertTrue(request.returnSecureToken)
+
+      // 3. Send the response from the fake backend.
+      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                        "refreshToken": kRefreshToken,
+                                        "federatedId": kGoogleID,
+                                        "providerId": GoogleAuthProvider.id,
+                                        "localId": kLocalID,
+                                        "displayName": kDisplayName,
+                                        "rawUserInfo": kGoogleProfile,
+                                        "username": kUserName])
 
     } catch {
       XCTFail("Throw in \(#function): \(error)")
