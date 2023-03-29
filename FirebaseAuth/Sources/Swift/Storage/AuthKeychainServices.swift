@@ -24,7 +24,7 @@ private let kAccountPrefix = "firebase_auth_1_"
 /** @class FIRAuthKeychain
     @brief The utility class to manipulate data in iOS Keychain.
  */
-@objc(FIRAuthKeychainServices) public class AuthKeychainServices: NSObject, AuthStorage {
+@objc(FIRAuthKeychainServices) public final class AuthKeychainServices: NSObject, AuthStorage {
   /** @var _service
       @brief The name of the keychain service.
    */
@@ -37,6 +37,10 @@ private let kAccountPrefix = "firebase_auth_1_"
    */
 
   private var legacyEntryDeletedForKey: Set<String> = []
+
+  @objc public static func storage(identifier: String) -> Self {
+    return Self(service: identifier)
+  }
 
   @objc public init(service: String) {
     self.service = service
@@ -185,11 +189,9 @@ private let kAccountPrefix = "firebase_auth_1_"
       kSecAttrService as String: service,
     ]
 
-    #if !FIREBASE_AUTH_MACOS_TESTING
-      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
-        query[kSecUseDataProtectionKeychain as String] = true
-      }
-    #endif // !FIREBASE_AUTH_MACOS_TESTING
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
+      query[kSecUseDataProtectionKeychain as String] = true
+    }
 
     return query
   }
