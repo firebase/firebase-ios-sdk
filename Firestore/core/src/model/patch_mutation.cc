@@ -29,8 +29,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-using nanopb::Message;
-
 static_assert(
     sizeof(Mutation) == sizeof(PatchMutation),
     "PatchMutation may not have additional members (everything goes in Rep)");

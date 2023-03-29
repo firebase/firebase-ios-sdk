@@ -592,10 +592,7 @@ FieldTransform Serializer::DecodeFieldTransform(
       FieldTransform field_transform(
           std::move(field),
           ArrayTransform(TransformOperation::Type::ArrayUnion,
-                         MakeMessage(proto.append_missing_elements)));
-      // Release field ownership to prevent double-freeing. The values are now
-      // owned by the FieldTransform.
-      proto.append_missing_elements = {};
+                         MakeMessage(std::move(proto.append_missing_elements))));
       return field_transform;
     }
 
@@ -603,10 +600,7 @@ FieldTransform Serializer::DecodeFieldTransform(
       FieldTransform field_transform(
           std::move(field),
           ArrayTransform(TransformOperation::Type::ArrayRemove,
-                         MakeMessage(proto.remove_all_from_array)));
-      // Release field ownership to prevent double-freeing. The values are now
-      // owned by the FieldTransform.
-      proto.append_missing_elements = {};
+                         MakeMessage(std::move(proto.remove_all_from_array))));
       return field_transform;
     }
 

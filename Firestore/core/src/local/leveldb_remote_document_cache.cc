@@ -271,11 +271,15 @@ MutableDocument LevelDbRemoteDocumentCache::DecodeMaybeDocument(
   StringReader reader{encoded};
 
   auto message = Message<firestore_client_MaybeDocument>::TryParse(&reader);
+  if (!reader.ok()) {
+    HARD_FAIL("MaybeDocument proto failed to parse: %s",
+              reader.status().ToString());
+  }
   MutableDocument maybe_document =
       serializer_->DecodeMaybeDocument(&reader, *message);
 
   if (!reader.ok()) {
-    HARD_FAIL("MaybeDocument proto failed to parse: %s",
+    HARD_FAIL("MaybeDocument proto failed to decode: %s",
               reader.status().ToString());
   }
   HARD_ASSERT(maybe_document.key() == key,

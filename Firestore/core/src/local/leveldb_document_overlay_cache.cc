@@ -159,9 +159,12 @@ Overlay LevelDbDocumentOverlayCache::ParseOverlay(
     absl::string_view encoded_mutation) const {
   StringReader reader{encoded_mutation};
   auto maybe_message = Message<google_firestore_v1_Write>::TryParse(&reader);
-  Mutation mutation = serializer_->DecodeMutation(&reader, *maybe_message);
   if (!reader.ok()) {
     HARD_FAIL("Mutation proto failed to parse: %s", reader.status().ToString());
+  }
+  Mutation mutation = serializer_->DecodeMutation(&reader, *maybe_message);
+  if (!reader.ok()) {
+    HARD_FAIL("Mutation proto failed to decode: %s", reader.status().ToString());
   }
   return Overlay(key.largest_batch_id(), std::move(mutation));
 }

@@ -79,7 +79,6 @@ using nanopb::ByteStringWriter;
 using nanopb::FreeNanopbMessage;
 using nanopb::MakeArray;
 using nanopb::MakeBytesArray;
-using nanopb::MakeMessage;
 using nanopb::MakeStdString;
 using nanopb::Message;
 using nanopb::ProtobufParse;

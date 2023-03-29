@@ -489,9 +489,13 @@ MutationBatch LevelDbMutationQueue::ParseMutationBatch(
     absl::string_view encoded) {
   StringReader reader{encoded};
   auto maybe_message = Message<firestore_client_WriteBatch>::TryParse(&reader);
-  auto result = serializer_->DecodeMutationBatch(&reader, *maybe_message);
   if (!reader.ok()) {
     HARD_FAIL("MutationBatch proto failed to parse: %s",
+              reader.status().ToString());
+  }
+  auto result = serializer_->DecodeMutationBatch(&reader, *maybe_message);
+  if (!reader.ok()) {
+    HARD_FAIL("MutationBatch proto failed to decode: %s",
               reader.status().ToString());
   }
 
