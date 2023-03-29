@@ -22,6 +22,7 @@
 
 @class FIRAuthRequestConfiguration;
 @class FIRAuthURLPresenter;
+@protocol FIRAuthStorage;
 
 #if TARGET_OS_IOS
 @class FIRAuthAPNSTokenManager;
@@ -46,6 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, strong, readonly) FIRAuthAppCredentialManager *appCredentialManager;
 
 #endif  // TARGET_OS_IOS
+
+- (instancetype)initWithApp:(FIRApp *)app
+    keychainStorageProvider:(Class<FIRAuthStorage>)keychainStorageProvider
+    NS_DESIGNATED_INITIALIZER;
 
 /** @fn getUserID
     @brief Gets the identifier of the current user, if any.
