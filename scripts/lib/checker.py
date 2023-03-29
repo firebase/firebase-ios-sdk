@@ -55,9 +55,8 @@ class Result(object):
   def __init__(self, num_errors, output):
     self.errors = num_errors
     self.output = (output
-      if isinstance(output, str)
-      else output.decode('utf8', errors='replace')
-    )
+                   if isinstance(output, str)
+                   else output.decode('utf8', errors='replace'))
 
   @staticmethod
   def from_list(errors):

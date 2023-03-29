@@ -76,11 +76,8 @@ def main():
 
 
 def find_local_repo():
-  url = subprocess.check_output(
-    ['git', 'config', '--get', 'remote.origin.url'],
-    text=True,
-    errors='replace',
-  )
+  url = subprocess.check_output(['git', 'config', '--get', 'remote.origin.url'],
+                                text=True, errors='replace')
 
   # ssh or https style URL
   m = re.match(r'^(?:git@github\.com:|https://github\.com/)(.*)\.git$', url)
