@@ -18,7 +18,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <vector>
 
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/json_reader.h"
@@ -31,6 +30,7 @@ namespace firestore {
 namespace remote {
 namespace {
 
+using nanopb::ByteString;
 using nlohmann::json;
 using util::JsonReader;
 using util::Path;
@@ -38,24 +38,24 @@ using util::Status;
 using util::StatusOr;
 
 TEST(BloomFilterUnitTest, CanInstantiateEmptyBloomFilter) {
-  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
+  BloomFilter bloom_filter(ByteString{}, 0, 0);
   EXPECT_EQ(bloom_filter.bit_count(), 0);
 }
 
 TEST(BloomFilterUnitTest, CanInstantiateNonEmptyBloomFilter) {
   {
-    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 0, 1);
+    BloomFilter bloom_filter(ByteString{1}, 0, 1);
     EXPECT_EQ(bloom_filter.bit_count(), 8);
   }
   {
-    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 7, 1);
+    BloomFilter bloom_filter(ByteString{1}, 7, 1);
     EXPECT_EQ(bloom_filter.bit_count(), 1);
   }
 }
 
 TEST(BloomFilterUnitTest, CreateShouldReturnBloomFilterOnValidInputs) {
   StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{1}, 1, 1);
+      BloomFilter::Create(ByteString{1}, 1, 1);
   ASSERT_TRUE(maybe_bloom_filter.ok());
   BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
   EXPECT_EQ(bloom_filter.bit_count(), 7);
@@ -63,7 +63,7 @@ TEST(BloomFilterUnitTest, CreateShouldReturnBloomFilterOnValidInputs) {
 
 TEST(BloomFilterUnitTest, CreateShouldBeAbleToCreatEmptyBloomFilter) {
   StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{}, 0, 0);
+      BloomFilter::Create(ByteString{}, 0, 0);
   ASSERT_TRUE(maybe_bloom_filter.ok());
   BloomFilter bloom_filter = maybe_bloom_filter.ValueOrDie();
   EXPECT_EQ(bloom_filter.bit_count(), 0);
@@ -72,14 +72,14 @@ TEST(BloomFilterUnitTest, CreateShouldBeAbleToCreatEmptyBloomFilter) {
 TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnNegativePadding) {
   {
     StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{}, -1, 0);
+        BloomFilter::Create(ByteString{}, -1, 0);
     ASSERT_FALSE(maybe_bloom_filter.ok());
     EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid padding: -1");
   }
   {
     StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{1}, -1, 1);
+        BloomFilter::Create(ByteString{1}, -1, 1);
     ASSERT_FALSE(maybe_bloom_filter.ok());
     EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid padding: -1");
@@ -89,14 +89,14 @@ TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnNegativePadding) {
 TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnNegativeHashCount) {
   {
     StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{}, 0, -1);
+        BloomFilter::Create(ByteString{}, 0, -1);
     ASSERT_FALSE(maybe_bloom_filter.ok());
     EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid hash count: -1");
   }
   {
     StatusOr<BloomFilter> maybe_bloom_filter =
-        BloomFilter::Create(std::vector<uint8_t>{1}, 1, -1);
+        BloomFilter::Create(ByteString{1}, 1, -1);
     ASSERT_FALSE(maybe_bloom_filter.ok());
     EXPECT_EQ(maybe_bloom_filter.status().error_message(),
               "Invalid hash count: -1");
@@ -105,7 +105,7 @@ TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnNegativeHashCount) {
 
 TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnZeroHashCount) {
   StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{1}, 1, 0);
+      BloomFilter::Create(ByteString{1}, 1, 0);
   ASSERT_FALSE(maybe_bloom_filter.ok());
   EXPECT_EQ(maybe_bloom_filter.status().error_message(),
             "Invalid hash count: 0");
@@ -113,43 +113,43 @@ TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusOnZeroHashCount) {
 
 TEST(BloomFilterUnitTest, CreateShouldReturnNotOKStatusIfPaddingIsTooLarge) {
   StatusOr<BloomFilter> maybe_bloom_filter =
-      BloomFilter::Create(std::vector<uint8_t>{1}, 8, 1);
+      BloomFilter::Create(ByteString{1}, 8, 1);
   ASSERT_FALSE(maybe_bloom_filter.ok());
   EXPECT_EQ(maybe_bloom_filter.status().error_message(), "Invalid padding: 8");
 }
 
 TEST(BloomFilterTest, CheckBloomFiltersEqualityWithSameInput) {
-  BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
-  BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 1, 1);
+  BloomFilter bloom_filter1(ByteString{1}, 1, 1);
+  BloomFilter bloom_filter2(ByteString{1}, 1, 1);
   EXPECT_TRUE(bloom_filter1 == bloom_filter2);
   EXPECT_FALSE(bloom_filter1 != bloom_filter2);
 }
 
 TEST(BloomFilterTest, CheckBloomFiltersEqualityWithDifferentBitmap) {
   {
-    BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
-    BloomFilter bloom_filter2(std::vector<uint8_t>{2}, 1, 1);
+    BloomFilter bloom_filter1(ByteString{1}, 1, 1);
+    BloomFilter bloom_filter2(ByteString{2}, 1, 1);
     EXPECT_FALSE(bloom_filter1 == bloom_filter2);
     EXPECT_TRUE(bloom_filter1 != bloom_filter2);
   }
   {
-    BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
-    BloomFilter bloom_filter2(std::vector<uint8_t>{1, 1}, 1, 1);
+    BloomFilter bloom_filter1(ByteString{1}, 1, 1);
+    BloomFilter bloom_filter2(ByteString{1, 1}, 1, 1);
     EXPECT_FALSE(bloom_filter1 == bloom_filter2);
     EXPECT_TRUE(bloom_filter1 != bloom_filter2);
   }
 }
 
 TEST(BloomFilterTest, CheckBloomFiltersEqualityWithDifferentPadding) {
-  BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
-  BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 2, 1);
+  BloomFilter bloom_filter1(ByteString{1}, 1, 1);
+  BloomFilter bloom_filter2(ByteString{1}, 2, 1);
   EXPECT_FALSE(bloom_filter1 == bloom_filter2);
   EXPECT_TRUE(bloom_filter1 != bloom_filter2);
 }
 
 TEST(BloomFilterTest, CheckBloomFiltersEqualityWithDifferentHashCount) {
-  BloomFilter bloom_filter1(std::vector<uint8_t>{1}, 1, 1);
-  BloomFilter bloom_filter2(std::vector<uint8_t>{1}, 1, 2);
+  BloomFilter bloom_filter1(ByteString{1}, 1, 1);
+  BloomFilter bloom_filter2(ByteString{1}, 1, 2);
   EXPECT_FALSE(bloom_filter1 == bloom_filter2);
   EXPECT_TRUE(bloom_filter1 != bloom_filter2);
 }
@@ -159,17 +159,17 @@ TEST(BloomFilterTest,
   // In BloomFilter bitmap, padding is guaranteed to be less than 8, and
   // starts counting from the leftmost indexes of the last byte.
   {
-    BloomFilter bloom_filter1(std::vector<uint8_t>{255, 127}, 1,
+    BloomFilter bloom_filter1(ByteString{255, 127}, 1,
                               1);  // bitmap -> 11111111 01111111
-    BloomFilter bloom_filter2(std::vector<uint8_t>{255, 255}, 1,
+    BloomFilter bloom_filter2(ByteString{255, 255}, 1,
                               1);  // bitmap -> 11111111 11111111
     EXPECT_TRUE(bloom_filter1 == bloom_filter2);
     EXPECT_FALSE(bloom_filter1 != bloom_filter2);
   }
   {
-    BloomFilter bloom_filter1(std::vector<uint8_t>{255, 207}, 4,
+    BloomFilter bloom_filter1(ByteString{255, 207}, 4,
                               1);  // bitmap -> 11111111 11001111
-    BloomFilter bloom_filter2(std::vector<uint8_t>{255, 255}, 4,
+    BloomFilter bloom_filter2(ByteString{255, 255}, 4,
                               1);  // bitmap -> 11111111 11111111
     EXPECT_TRUE(bloom_filter1 == bloom_filter2);
     EXPECT_FALSE(bloom_filter1 != bloom_filter2);
@@ -178,13 +178,13 @@ TEST(BloomFilterTest,
 
 TEST(BloomFilterTest, MightContainCanProcessNonStandardCharacters) {
   // A non-empty BloomFilter object with 1 insertion : "ÀÒ∑"
-  BloomFilter bloom_filter(std::vector<uint8_t>{237, 5}, 5, 8);
+  BloomFilter bloom_filter(ByteString{237, 5}, 5, 8);
   EXPECT_TRUE(bloom_filter.MightContain("ÀÒ∑"));
   EXPECT_FALSE(bloom_filter.MightContain("Ò∑À"));
 }
 
 TEST(BloomFilterUnitTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
-  BloomFilter bloom_filter(std::vector<uint8_t>{}, 0, 0);
+  BloomFilter bloom_filter(ByteString{}, 0, 0);
   EXPECT_FALSE(bloom_filter.MightContain(""));
   EXPECT_FALSE(bloom_filter.MightContain("a"));
 }
@@ -192,11 +192,11 @@ TEST(BloomFilterUnitTest, MightContainOnEmptyBloomFilterShouldReturnFalse) {
 TEST(BloomFilterUnitTest,
      MightContainWithEmptyStringMightReturnFalsePositiveResult) {
   {
-    BloomFilter bloom_filter(std::vector<uint8_t>{1}, 1, 1);
+    BloomFilter bloom_filter(ByteString{1}, 1, 1);
     EXPECT_FALSE(bloom_filter.MightContain(""));
   }
   {
-    BloomFilter bloom_filter(std::vector<uint8_t>{255}, 0, 16);
+    BloomFilter bloom_filter(ByteString{255}, 0, 16);
     EXPECT_TRUE(bloom_filter.MightContain(""));
   }
 }
@@ -241,7 +241,7 @@ class BloomFilterGoldenTest : public ::testing::Test {
     int hash_count = reader.OptionalInt("hashCount", test_file, 0);
     std::string decoded;
     absl::Base64Unescape(bitmap, &decoded);
-    std::vector<uint8_t> decoded_map(decoded.begin(), decoded.end());
+    ByteString decoded_map(decoded);
 
     StatusOr<BloomFilter> maybe_bloom_filter =
         BloomFilter::Create(std::move(decoded_map), padding, hash_count);
