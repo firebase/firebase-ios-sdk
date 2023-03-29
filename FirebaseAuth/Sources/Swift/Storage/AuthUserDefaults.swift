@@ -41,6 +41,10 @@ private let kPersistentDomainNamePrefix = "com.google.Firebase.Auth."
    */
   private let storage: UserDefaults
 
+  @objc public static func storage(identifier: String) -> Self {
+    return Self(service: identifier)
+  }
+
   @objc public required init(service: String) {
     persistentDomainName = kPersistentDomainNamePrefix + service
     storage = UserDefaults()
