@@ -876,6 +876,9 @@ static FIRApp *sDefaultApp;
 
 - (void)appDidBecomeActive:(NSNotification *)notification {
   if ([self isDataCollectionDefaultEnabled]) {
+    // If changing the below line, consult with the Games team to ensure they
+    // are not negatively impacted. For more details, see
+    // go/firebase-game-sdk-user-agent-register-timing.
     [self.heartbeatLogger log];
   }
 }
