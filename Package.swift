@@ -161,8 +161,8 @@ let package = Package(
       "2.30909.0" ..< "2.30910.0"
     ),
     .package(
-      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20220203.1" ..< "0.20220204.0"
+      url: "https://github.com/google/abseil-cpp-binary.git",
+      "1.2021110200.0" ..< "1.2021110300.0"
     ),
     .package(
       url: "https://github.com/grpc/grpc-ios.git",
