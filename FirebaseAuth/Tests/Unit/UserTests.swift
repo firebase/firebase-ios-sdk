@@ -55,6 +55,11 @@ class UserTests: RPCBaseTests {
     )
   }
 
+  override func tearDown() {
+    // Verifies that no tasks are left suspended on the AuthSerialTaskQueue.
+    try? UserTests.auth?.signOut()
+  }
+
   /** @fn testUserPropertiesAndNSSecureCoding
       @brief Tests properties of the @c User instance before and after being
           serialized/deserialized.
@@ -839,12 +844,13 @@ class UserTests: RPCBaseTests {
   func testLinkAndRetrieveDataSuccess() throws {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
+    let auth = try XCTUnwrap(UserTests.auth)
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
         self.setFakeGetAccountProvider(withProviderID: GoogleAuthProvider.id,
-                                  withFederatedID: self.kGoogleID,
-                                  withEmail: self.kGoogleEmail)
+                                       withFederatedID: self.kGoogleID,
+                                       withEmail: self.kGoogleEmail)
         let group = self.createGroup()
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -852,7 +858,7 @@ class UserTests: RPCBaseTests {
           XCTAssertTrue(Thread.isMainThread)
           XCTAssertNil(error)
           // Verify that the current user is unchanged.
-          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          XCTAssertEqual(auth.currentUser, user)
           // Verify that the current user and reauthenticated user are the same pointers.
           XCTAssertEqual(user, linkAuthResult?.user)
           // Verify that anyway the current user and reauthenticated user have same IDs.
@@ -882,9 +888,7 @@ class UserTests: RPCBaseTests {
       }
     }
     waitForExpectations(timeout: 5)
-    let auth = try XCTUnwrap(UserTests.auth)
     try assertUserGoogle(auth.currentUser)
-    try auth.signOut()
   }
 
   // MARK: Private helper functions
@@ -1028,9 +1032,9 @@ class UserTests: RPCBaseTests {
 
   private func signInWithGoogleCredential(completion: @escaping (User) -> Void) {
     setFakeSecureTokenService(fakeAccessToken: RPCBaseTests.kFakeAccessToken)
-    self.setFakeGetAccountProvider(withProviderID: GoogleAuthProvider.id,
-                              withFederatedID: self.kGoogleID,
-                              withEmail: self.kGoogleEmail)
+    setFakeGetAccountProvider(withProviderID: GoogleAuthProvider.id,
+                              withFederatedID: kGoogleID,
+                              withEmail: kGoogleEmail)
 
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
@@ -1097,7 +1101,8 @@ class UserTests: RPCBaseTests {
 
     do {
       try UserTests.auth?.signOut()
-      let facebookCredential = FacebookAuthProvider.credential(withAccessToken: kFacebookAccessToken)
+      let facebookCredential = FacebookAuthProvider
+        .credential(withAccessToken: kFacebookAccessToken)
       UserTests.auth?.signIn(with: facebookCredential) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
@@ -1156,7 +1161,6 @@ class UserTests: RPCBaseTests {
     XCTAssertEqual(googleUserInfo.uid, kGoogleID)
     XCTAssertEqual(googleUserInfo.displayName, kGoogleDisplayName)
     XCTAssertEqual(googleUserInfo.email, kGoogleEmail)
-
   }
 
   // TODO: For testUpdateEmailWithAuthLinkAccountSuccess. Revisit after auth.swift. Should be able to

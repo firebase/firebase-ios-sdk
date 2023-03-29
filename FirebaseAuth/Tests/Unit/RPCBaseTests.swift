@@ -237,8 +237,8 @@ class RPCBaseTests: XCTestCase {
 
   func setFakeGetAccountProvider(withNewDisplayName displayName: String = "Google Doe",
                                  withLocalID localID: String = "testLocalId",
-  withProviderID providerID : String = "testProviderID",
-  withFederatedID federatedID: String = "testFederatedId",
+                                 withProviderID providerID: String = "testProviderID",
+                                 withFederatedID federatedID: String = "testFederatedId",
                                  withEmail email: String = "user@company.com") {
     let kProviderUserInfoKey = "providerUserInfo"
     let kPhotoUrlKey = "photoUrl"

@@ -766,7 +766,8 @@ import Foundation
                                            expirationDate: response.approximateExpirationDate,
                                            result: result,
                                            requestConfiguration: requestConfiguration,
-                                           completion: completion)
+                                           completion: completion,
+                                           withTaskComplete: complete)
           }
         }
       }
@@ -1829,7 +1830,9 @@ import Foundation
                                          expirationDate: Date?,
                                          result: AuthDataResult,
                                          requestConfiguration: AuthRequestConfiguration,
-                                         completion: ((AuthDataResult?, Error?) -> Void)?) {
+                                         completion: ((AuthDataResult?, Error?) -> Void)?,
+                                         withTaskComplete complete: FIRAuthSerialTaskCompletionBlock? =
+                                           nil) {
     tokenService = SecureTokenService(
       withRequestConfiguration: requestConfiguration,
       accessToken: idToken,
@@ -1838,7 +1841,9 @@ import Foundation
     )
     internalGetToken { response, error in
       if let error {
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
+        User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                        complete: complete,
+                                                        error: error)
         return
       }
       guard let accessToken else {
@@ -1858,10 +1863,12 @@ import Foundation
         self.isAnonymous = false
         self.update(withGetAccountInfoResponse: response)
         if let error = self.updateKeychain() {
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
+                                                          error: error)
           return
         }
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result)
+        User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
+                                                        result: result)
       }
     }
   }
@@ -1996,12 +2003,17 @@ import Foundation
       @param result The result to pass to callback if there is no error.
       @param error The error to pass to callback.
    */
-  private class func callInMainThreadWithAuthDataResultAndError(
-    callback: ((AuthDataResult?, Error?) -> Void)?,
-    result: AuthDataResult? = nil,
-    error: Error? = nil) {
+  private class func callInMainThreadWithAuthDataResultAndError(callback: ((AuthDataResult?,
+                                                                            Error?) -> Void)?,
+  complete: FIRAuthSerialTaskCompletionBlock? =
+    nil,
+  result: AuthDataResult? = nil,
+  error: Error? = nil) {
     if let callback {
       DispatchQueue.main.async {
+        if let complete {
+          complete()
+        }
         callback(result, error)
       }
     }
