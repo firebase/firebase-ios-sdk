@@ -342,7 +342,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSString *bitmapEncoded = bitsData[@"bitmap"];
   std::string bitmapDecoded;
   absl::Base64Unescape([bitmapEncoded cStringUsingEncoding:NSASCIIStringEncoding], &bitmapDecoded);
-  std::vector<uint8_t> bitmap(bitmapDecoded.begin(), bitmapDecoded.end());
+  ByteString bitmap(bitmapDecoded);
 
   // If not specified in proto, default padding and hashCount to 0.
   int32_t padding = [bitsData[@"padding"] intValue];
