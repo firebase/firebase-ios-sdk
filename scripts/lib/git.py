@@ -13,7 +13,6 @@
 # limitations under the License.
 
 import os
-import six
 import subprocess
 
 from lib import command_trace
@@ -105,7 +104,7 @@ def find_lines_matching(pattern, sources=None):
     proc.terminate()
     proc.wait()
 
-  return six.ensure_text(b''.join(result))
+  return b''.join(result).decode('utf8', errors='replace')
 
 
 def make_patterns(dirs):
@@ -135,11 +134,11 @@ def is_within_repo():
 def get_repo_root():
   """Returns the absolute path to the root of the current git repo."""
   command = ['git', 'rev-parse', '--show-toplevel']
-  return six.ensure_text(subprocess.check_output(command).rstrip())
+  return subprocess.check_output(command, text=True, errors='replace').rstrip())
 
 
 def _null_split_output(command):
   """Runs the given command and splits its output on the null byte."""
   command_trace.log(command)
-  result = six.ensure_text(subprocess.check_output(command))
+  result = subprocess.check_output(command, text=True, errors='replace')
   return [name for name in result.rstrip().split('\0') if name]
