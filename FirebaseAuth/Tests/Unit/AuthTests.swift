@@ -23,60 +23,6 @@ import FirebaseAuth_Private
 
 import FirebaseCore
 
-/// A fake storage instance that imitates the system keychain while storing data in-memory.
-final class FakeAuthKeychainServices: NSObject, AuthStorage {
-  private static var keychainServices: [String: FakeAuthKeychainServices] = [:]
-
-  private var fakeKeychain: [String: Any] = [:]
-
-  static func storage(identifier: String) -> Self {
-    if let existingInstance = keychainServices[identifier] as? Self {
-      return existingInstance
-    } else {
-      let newInstance = Self()
-      keychainServices[identifier] = newInstance
-      return newInstance
-    }
-  }
-
-  func data(forKey key: String) throws -> FirebaseAuth.DataWrapper {
-    if key.isEmpty {
-      fatalError("The key cannot be empty.")
-    }
-
-    if let data = fakeKeychain[key] as? Data {
-      return DataWrapper(data: data)
-    } else {
-      throw AuthErrorUtils.keychainError(
-        function: "SecItemCopyMatching",
-        status: errSecItemNotFound
-      )
-    }
-  }
-
-  func setData(_ data: Data, forKey key: String) throws {
-    if key.isEmpty {
-      fatalError("The key cannot be empty.")
-    }
-    fakeKeychain[key] = data
-  }
-
-  func removeData(forKey key: String) throws {
-    if key.isEmpty {
-      fatalError("The key cannot be empty.")
-    }
-
-    guard fakeKeychain[key] != nil else {
-      throw AuthErrorUtils.keychainError(
-        function: "SecItemDelete",
-        status: errSecItemNotFound
-      )
-    }
-
-    _ = fakeKeychain.removeValue(forKey: key)
-  }
-}
-
 class AuthTests: RPCBaseTests {
   static let kAccessToken = "TEST_ACCESS_TOKEN"
   static let kFakeAPIKey = "FAKE_API_KEY"
