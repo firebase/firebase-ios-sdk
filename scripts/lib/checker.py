@@ -57,6 +57,7 @@ class Result(object):
     self.output = (output
       if isinstance(output, str)
       else output.decode('utf8', errors='replace')
+    )
 
   @staticmethod
   def from_list(errors):
