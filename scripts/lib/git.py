@@ -134,7 +134,7 @@ def is_within_repo():
 def get_repo_root():
   """Returns the absolute path to the root of the current git repo."""
   command = ['git', 'rev-parse', '--show-toplevel']
-  return subprocess.check_output(command, text=True, errors='replace').rstrip())
+  return subprocess.check_output(command, text=True, errors='replace').rstrip()
 
 
 def _null_split_output(command):
