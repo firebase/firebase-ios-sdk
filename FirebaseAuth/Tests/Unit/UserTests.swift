@@ -39,7 +39,15 @@ class UserTests: RPCBaseTests {
     options.apiKey = kFakeAPIKey
     options.projectID = "myUserProjectID"
     FirebaseApp.configure(name: "test-UserTests", options: options)
-    auth = Auth.auth(app: FirebaseApp.app(name: "test-UserTests")!)
+    #if os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+      let keychainStorageProvider = FakeAuthKeychainServices.self
+    #else
+      let keychainStorageProvider = AuthKeychainServices.self
+    #endif // os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+    auth = Auth(
+      app: FirebaseApp.app(name: "test-UserTests")!,
+      keychainStorageProvider: keychainStorageProvider
+    )
   }
 
   /** @fn testUserPropertiesAndNSSecureCoding
