@@ -87,6 +87,64 @@ TEST_F(MessageTest, ParseFailure) {
   EXPECT_NOT_OK(reader.status());
 }
 
+TEST_F(MessageTest, MakeMessageWithLvalue) {
+  Proto proto{};
+  proto.commit_time.nanos = 123;
+  proto.commit_time.seconds = 456;
+  proto.stream_id = MakeBytesArray("stream_id");
+  proto.stream_token = MakeBytesArray("stream_token");
+
+  auto message = MakeMessage(proto);
+
+  EXPECT_EQ(message->commit_time.nanos, 123);
+  EXPECT_EQ(proto.commit_time.nanos, 123);
+  EXPECT_EQ(message->commit_time.seconds, 456);
+  EXPECT_EQ(proto.commit_time.seconds, 456);
+  EXPECT_EQ(MakeString(message->stream_id), "stream_id");
+  EXPECT_EQ(MakeString(proto.stream_id), "stream_id");
+  EXPECT_EQ(MakeString(message->stream_token), "stream_token");
+  EXPECT_EQ(MakeString(proto.stream_token), "stream_token");
+}
+
+TEST_F(MessageTest, MakeMessageWithConstLvalue) {
+  Proto proto{};
+  proto.commit_time.nanos = 123;
+  proto.commit_time.seconds = 456;
+  proto.stream_id = MakeBytesArray("stream_id");
+  proto.stream_token = MakeBytesArray("stream_token");
+  const Proto& const_proto_ref = proto;
+
+  auto message = MakeMessage(const_proto_ref);
+
+  EXPECT_EQ(message->commit_time.nanos, 123);
+  EXPECT_EQ(proto.commit_time.nanos, 123);
+  EXPECT_EQ(message->commit_time.seconds, 456);
+  EXPECT_EQ(proto.commit_time.seconds, 456);
+  EXPECT_EQ(MakeString(message->stream_id), "stream_id");
+  EXPECT_EQ(MakeString(proto.stream_id), "stream_id");
+  EXPECT_EQ(MakeString(message->stream_token), "stream_token");
+  EXPECT_EQ(MakeString(proto.stream_token), "stream_token");
+}
+
+TEST_F(MessageTest, MakeMessageWithRvalue) {
+  Proto proto{};
+  proto.commit_time.nanos = 123;
+  proto.commit_time.seconds = 456;
+  proto.stream_id = MakeBytesArray("stream_id");
+  proto.stream_token = MakeBytesArray("stream_token");
+
+  auto message = MakeMessage(std::move(proto));
+
+  EXPECT_EQ(message->commit_time.nanos, 123);
+  EXPECT_EQ(proto.commit_time.nanos, 0);
+  EXPECT_EQ(message->commit_time.seconds, 456);
+  EXPECT_EQ(proto.commit_time.seconds, 0);
+  EXPECT_EQ(MakeString(message->stream_id), "stream_id");
+  EXPECT_EQ(proto.stream_id, nullptr);
+  EXPECT_EQ(MakeString(message->stream_token), "stream_token");
+  EXPECT_EQ(proto.stream_token, nullptr);
+}
+
 }  //  namespace
 }  //  namespace nanopb
 }  //  namespace firestore

@@ -19,6 +19,7 @@
 
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <utility>
 
 #include "Firestore/core/src/nanopb/byte_string.h"
@@ -70,6 +71,18 @@ class Message {
    * Creates a `Message` object that wraps `proto`. Takes ownership of `proto`.
    */
   explicit Message(const T& proto) : owns_proto_(true), proto_(proto) {
+  }
+
+  /**
+   * Creates a `Message` object that "moves" `proto`, taking ownership of it.
+   *
+   * A side effect of this constructor is setting the given proto to a default
+   * state. That way, this new `Message` object "steals" any dynamic memory
+   * referenced from the given proto and takes the responsibility of cleaning it
+   * up.
+   */
+  explicit Message(T&& proto) : Message(proto) {
+    proto = {};
   }
 
   /**
@@ -196,8 +209,11 @@ class Message {
 };
 
 template <typename T>
-Message<T> MakeMessage(const T& proto) {
-  return Message<T>(proto);
+Message<typename std::remove_cv<typename std::remove_reference<T>::type>::type>
+MakeMessage(T&& proto) {
+  return Message<
+      typename std::remove_cv<typename std::remove_reference<T>::type>::type>(
+      std::forward<T>(proto));
 }
 
 /**
