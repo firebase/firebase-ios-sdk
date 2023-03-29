@@ -78,6 +78,11 @@
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
+  // Cleanup potential artifacts from other test files.
+  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
+    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  }
+
   // Delete cached settings
   [self.fileManager removeItemAtPath:_fileManager.settingsFilePath];
 
@@ -307,8 +312,6 @@
   [self waitForPromise:[self startReportManagerWithDataCollectionEnabled:YES] withTimeout:4];
 }
 
-// This test has been disabled due to a flake
-#if FIRCLS_FLAKY_TESTS_ENABLED
 - (void)testExistingUnimportantReportOnStartWithDataCollectionDisabled {
   // create a report and put it in place
   [self createActiveReport];
@@ -321,7 +324,6 @@
   XCTAssertEqual([self.prepareAndSubmitReportArray count], 0);
   XCTAssertEqual([self.uploadReportArray count], 0);
 }
-#endif
 
 - (void)testExistingReportOnStart {
   // create a report and put it in place

@@ -54,6 +54,11 @@
 
   self.fileManager = [[FIRCLSTempMockFileManager alloc] init];
 
+  // Cleanup potential artifacts from other test files.
+  if ([[NSFileManager defaultManager] fileExistsAtPath:[self.fileManager rootPath]]) {
+    assert([self.fileManager removeItemAtPath:[self.fileManager rootPath]]);
+  }
+
   // Allow nil values only in tests
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -136,15 +141,14 @@
 
 #pragma mark - Tests
 
-// This test has been disabled due to a flake
-#if FIRCLS_FLAKY_TESTS_ENABLED
 - (void)testNoReports {
   [self.existingReportManager collectExistingReports];
 
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports without events should be deleted
-  XCTAssertEqual([[self contentsOfActivePath] count], 0);
+  XCTAssertEqual([[self contentsOfActivePath] count], 0, @"Contents of active path: %@",
+                 [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, 0);
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
@@ -159,12 +163,12 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports without events should be deleted
-  XCTAssertEqual([[self contentsOfActivePath] count], 0);
+  XCTAssertEqual([[self contentsOfActivePath] count], 0, @"Contents of active path: %@",
+                 [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, 0);
   XCTAssertEqual(self.existingReportManager.newestUnsentReport, nil);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count, 0);
 }
-#endif
 
 - (void)testUnsentReportsUnderLimit {
   [self createActiveReportWithID:@"report_A" time:12312 withEvents:YES];
@@ -177,7 +181,8 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Reports with events should be kept if there's less than MAX_UNSENT_REPORTS reports
-  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports);
+  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports,
+                 @"Contents of active path: %@", [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, FIRCLSMaxUnsentReports);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count,
                  FIRCLSMaxUnsentReports);
@@ -208,7 +213,8 @@
   [self.existingReportManager.operationQueue waitUntilAllOperationsAreFinished];
 
   // Remove any reports over the limit, starting with the oldest
-  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports);
+  XCTAssertEqual([[self contentsOfActivePath] count], FIRCLSMaxUnsentReports,
+                 @"Contents of active path: %@", [self contentsOfActivePath]);
   XCTAssertEqual(self.existingReportManager.unsentReportsCount, FIRCLSMaxUnsentReports);
   XCTAssertEqual(self.existingReportManager.existingUnemptyActiveReportPaths.count,
                  FIRCLSMaxUnsentReports);
