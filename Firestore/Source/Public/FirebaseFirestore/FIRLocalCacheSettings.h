@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2023 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,36 +18,24 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class FIRDiskCache;
-@class FIRMemoryCache;
+NS_SWIFT_NAME(LocalCacheSettings)
+@interface FIRLocalCacheSettings : NSObject
+@end
 
-NS_SWIFT_NAME(LocalCache)
-@interface FIRLocalCache : NSObject <NSCopying>
+NS_SWIFT_NAME(PersistentCacheSettings)
+@interface FIRPersistentCacheSettings : FIRLocalCacheSettings <NSCopying>
 
-/** :nodoc: */
-- (instancetype)init NS_UNAVAILABLE;
-
-+ (FIRDiskCache*)disk;
-+ (FIRDiskCache*)diskWithSizeBytes:(long)size;
-+ (FIRMemoryCache*)memory;
+// Default settings, with default cache size set to 100MB.
+- (instancetype)init;
+- (instancetype)initWithSizeBytes:(NSNumber *)size;
 
 @end
 
-NS_SWIFT_NAME(DiskCache)
-@interface FIRDiskCache : FIRLocalCache <NSCopying>
+NS_SWIFT_NAME(MemoryCacheSettings)
+@interface FIRMemoryCacheSettings : FIRLocalCacheSettings <NSCopying>
 
-/** :nodoc: */
-- (instancetype)init NS_UNAVAILABLE;
-
-@property(nonatomic, readonly) long size;
+- (instancetype)init;
 
 @end
 
-NS_SWIFT_NAME(MemoryCache)
-@interface FIRMemoryCache : FIRLocalCache <NSCopying>
-
-/** :nodoc: */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
 NS_ASSUME_NONNULL_END

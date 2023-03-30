@@ -15,6 +15,7 @@
  */
 
 #import "FIRFirestoreSettings.h"
+#import "FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/util/exception.h"
@@ -74,6 +75,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   copy.dispatchQueue = _dispatchQueue;
   copy.persistenceEnabled = _persistenceEnabled;
   copy.cacheSizeBytes = _cacheSizeBytes;
+  copy.cacheSettings = _cacheSettings;
   return copy;
 }
 
@@ -116,6 +118,9 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   settings.set_ssl_enabled(_sslEnabled);
   settings.set_persistence_enabled(_persistenceEnabled);
   settings.set_cache_size_bytes(_cacheSizeBytes);
+  if (_cacheSettings != nil) {
+    settings.set_local_cache_settings(_cacheSettings.internalSettings);
+  }
   return settings;
 }
 

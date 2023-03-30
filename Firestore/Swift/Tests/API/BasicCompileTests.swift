@@ -73,7 +73,7 @@ func initializeDb() -> Firestore {
   settings.host = "localhost"
   settings.isPersistenceEnabled = true
   settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
-    settings.localCache = LocalCache.disk(withSizeBytes: 1000)
+    // settings.localCache = LocalCache.disk(withSizeBytes: 1000)
   firestore.settings = settings
 
   return firestore

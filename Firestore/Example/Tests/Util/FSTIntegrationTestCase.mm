@@ -22,10 +22,10 @@
 #import <FirebaseFirestore/FIRDocumentSnapshot.h>
 #import <FirebaseFirestore/FIRFirestore.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
+#import <FirebaseFirestore/FIRLocalCacheSettings.h>
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
-#import <FirebaseFirestore/FIRLocalCache.h>
 
 #include <memory>
 #include <string>
@@ -184,7 +184,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   if (defaultSettings) return;
 
   defaultSettings = [[FIRFirestoreSettings alloc] init];
-  defaultSettings.persistenceEnabled = YES;
+  defaultSettings.cacheSettings = [[FIRPersistentCacheSettings alloc] init];
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
@@ -266,9 +266,9 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
                               instanceRegistry:nil];
 
   firestore.settings = [FSTIntegrationTestCase settings];
-    firestore.settings.localCache = [FIRLocalCache disk];
-    firestore.settings.localCache = [FIRLocalCache diskWithSizeBytes:1000L];
-    firestore.settings.localCache = [FIRLocalCache memory];
+  firestore.settings.cacheSettings = [[FIRPersistentCacheSettings alloc] init];
+  // firestore.settings.cacheSettings = [[FIRLocalCacheSettings alloc] init];
+  //  firestore.settings.cacheSettings = [FIRLocalCache memory];
   [_firestores addObject:firestore];
   return firestore;
 }

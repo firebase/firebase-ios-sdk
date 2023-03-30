@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRLocalCache;
+@class FIRLocalCacheSettings;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +36,7 @@ NS_SWIFT_NAME(FirestoreSettings)
 - (instancetype)init NS_DESIGNATED_INITIALIZER;
 
 /** The hostname to connect to. */
-@property(nonatomic, copy) NSString *host;
+@property(nonatomic, copy) NSString* host;
 
 /** Whether to use SSL when connecting. */
 @property(nonatomic, getter=isSSLEnabled) BOOL sslEnabled;
@@ -59,7 +59,7 @@ NS_SWIFT_NAME(FirestoreSettings)
  */
 @property(nonatomic, assign) int64_t cacheSizeBytes;
 
-@property(nonatomic, assign) FIRLocalCache* localCache;
+@property(nonatomic, copy) FIRLocalCacheSettings* cacheSettings;
 
 @end
 
