@@ -1132,6 +1132,118 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  private class FakeOAuthProvider: OAuthProvider {
+    static let kOAuthSessionID = "sessionID"
+    static let kOAuthRequestURI = "requestURI"
+    override func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
+                                    completion: ((AuthCredential?, Error?) -> Void)? = nil) {
+      if let completion {
+        completion(OAuthCredential(
+          withProviderID: GoogleAuthProvider.id,
+          sessionID: UserTests.FakeOAuthProvider.kOAuthSessionID,
+          OAuthResponseURLString: UserTests.FakeOAuthProvider.kOAuthRequestURI
+        ), nil)
+      }
+    }
+  }
+
+  #if os(iOS)
+    /** @fn tesLlinkProviderFailure
+        @brief Tests the flow of a failed @c linkWithProvider:completion:
+            call.
+     */
+    func testLinkProviderFailure() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithFacebookCredential { user in
+        XCTAssertNotNil(user)
+        do {
+          self.setFakeGetAccountProvider()
+          let group = self.createGroup()
+          user.link(with: FakeOAuthProvider(providerID: "foo", auth: auth),
+                    uiDelegate: nil) { linkAuthResult, rawError in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertNil(linkAuthResult)
+            let error = try! XCTUnwrap(rawError)
+            XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+            // User is signed out.
+            XCTAssertNil(UserTests.auth?.currentUser)
+            expectation.fulfill()
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 555)
+    }
+
+    /** @fn testReauthenticateWithProviderFailure
+        @brief Tests the flow of a failed @c reauthenticateWithProvider:completion: call.
+     */
+    func testReauthenticateWithProviderFailure() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithFacebookCredential { user in
+        XCTAssertNotNil(user)
+        do {
+          self.setFakeGetAccountProvider()
+          let group = self.createGroup()
+          user.reauthenticate(with: FakeOAuthProvider(providerID: "foo", auth: auth),
+                              uiDelegate: nil) { linkAuthResult, rawError in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertNil(linkAuthResult)
+            let error = try! XCTUnwrap(rawError)
+            XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+            // User is still signed in.
+            XCTAssertEqual(UserTests.auth?.currentUser, user)
+            expectation.fulfill()
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    // TODO: The Remaining FOUR tests rely on Phone Auth. Implement those after completing Phone Auth.
+    /** @fn testLinkPhoneAuthCredentialSuccess
+        @brief Tests the flow of a successful @c linkWithCredential call using a phoneAuthCredential.
+     */
+//  func testLinkPhoneAuthCredentialSuccess() throws {
+//    setFakeGetAccountProvider()
+//    let expectation = self.expectation(description: #function)
+//    let auth = try XCTUnwrap(UserTests.auth)
+//    signInWithEmailPasswordReturnFakeUser() { user in
+//      XCTAssertNotNil(user)
+//      do {
+//        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+//        let group = self.createGroup()
+//        user.reauthenticate(with: FakeOAuthProvider(providerID: "foo", auth: auth),
+//                  uiDelegate: nil) { linkAuthResult, rawError in
+//          XCTAssertTrue(Thread.isMainThread)
+//          XCTAssertNil(linkAuthResult)
+//          let error = try! XCTUnwrap(rawError)
+//          XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+//          // User is still signed in.
+//          XCTAssertEqual(UserTests.auth?.currentUser, user)
+//          expectation.fulfill()
+//        }
+//        group.wait()
+//        try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+//      } catch {
+//        XCTFail("Caught an error in \(#function): \(error)")
+//      }
+//    }
+//    waitForExpectations(timeout: 5)
+//  }
+  #endif
+
   // MARK: Private helper functions
 
   private func internalGetIDTokenResult(token: String, forceRefresh: Bool = true,
@@ -1157,7 +1269,8 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(tokenResult.claims["email"] as! String, emailMatch)
         XCTAssertEqual(tokenResult.claims["aud"] as! String, audMatch)
 
-        // TODO: is this right? The ObjC implementation was non-nil, but the test token is nil:
+        // TODO: is this right? The ObjC signInSecondFactor property was non-nil,
+        // but the test token is nil:
         XCTAssertNil(tokenResult.signInSecondFactor)
         expectation.fulfill()
       }
