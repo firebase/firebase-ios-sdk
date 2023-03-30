@@ -18,8 +18,8 @@
 #define FIRESTORE_CORE_SRC_REMOTE_EXISTENCE_FILTER_H_
 
 #include <utility>
-#include <vector>
 
+#include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/remote/bloom_filter.h"
 
 namespace firebase {
@@ -27,7 +27,7 @@ namespace firestore {
 namespace remote {
 
 struct BloomFilterParameters {
-  std::vector<uint8_t> bitmap;
+  nanopb::ByteString bitmap;
   int32_t padding;
   int32_t hash_count;
 };

@@ -18,7 +18,7 @@
 #define FIRESTORE_CORE_SRC_REMOTE_BLOOM_FILTER_H_
 
 #include <string>
-#include <vector>
+#include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/strings/string_view.h"
 
@@ -28,7 +28,7 @@ namespace remote {
 
 class BloomFilter final {
  public:
-  BloomFilter(std::vector<uint8_t> bitmap, int32_t padding, int32_t hash_count);
+  BloomFilter(nanopb::ByteString bitmap, int32_t padding, int32_t hash_count);
 
   // Copyable & movable.
   BloomFilter(const BloomFilter&) = default;
@@ -42,7 +42,7 @@ class BloomFilter final {
    * @return a new BloomFilter if the inputs are valid, otherwise returns a not
    * `ok()` status.
    */
-  static util::StatusOr<BloomFilter> Create(std::vector<uint8_t> bitmap,
+  static util::StatusOr<BloomFilter> Create(nanopb::ByteString bitmap,
                                             int32_t padding,
                                             int32_t hash_count);
 
@@ -75,7 +75,7 @@ class BloomFilter final {
   }
 
   /** Bloom filter's bitmap. */
-  const std::vector<uint8_t>& bitmap() const {
+  const nanopb::ByteString& bitmap() const {
     return bitmap_;
   }
 
@@ -108,7 +108,7 @@ class BloomFilter final {
 
   int32_t hash_count_ = 0;
 
-  std::vector<uint8_t> bitmap_;
+  nanopb::ByteString bitmap_;
 };
 
 bool operator==(const BloomFilter& lhs, const BloomFilter& rhs);

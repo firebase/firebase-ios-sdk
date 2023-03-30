@@ -26,6 +26,7 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using nanopb::ByteString;
 using util::Status;
 using util::StatusOr;
 
@@ -38,9 +39,9 @@ bool HasSameBits(const BloomFilter& lhs, const BloomFilter& rhs) {
     return true;
   }
 
-  const std::vector<uint8_t>& bitmap1 = lhs.bitmap();
-  const std::vector<uint8_t>& bitmap2 = rhs.bitmap();
-  const auto byte_count = static_cast<int32_t>(bitmap1.size());
+  const auto byte_count = static_cast<int32_t>(lhs.bitmap().size());
+  const uint8_t* bitmap1 = lhs.bitmap().data();
+  const uint8_t* bitmap2 = rhs.bitmap().data();
 
   // Compare all bytes from the bitmap, except for the last byte.
   for (int32_t i = 0; i < byte_count - 1; ++i) {
@@ -81,14 +82,12 @@ int32_t BloomFilter::GetBitIndex(const Hash& hash, int32_t hash_index) const {
 }
 
 bool BloomFilter::IsBitSet(int32_t index) const {
-  uint8_t byte_at_index = bitmap_[index / 8];
+  uint8_t byte_at_index = bitmap_.data()[index / 8];
   int32_t offset = index % 8;
   return (byte_at_index & (static_cast<uint8_t>(0x01) << offset)) != 0;
 }
 
-BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
-                         int32_t padding,
-                         int32_t hash_count)
+BloomFilter::BloomFilter(ByteString bitmap, int32_t padding, int32_t hash_count)
     : bit_count_(static_cast<int32_t>(bitmap.size()) * 8 - padding),
       hash_count_(hash_count),
       bitmap_(std::move(bitmap)) {
@@ -101,7 +100,7 @@ BloomFilter::BloomFilter(std::vector<uint8_t> bitmap,
   HARD_ASSERT(bit_count_ >= 0);
 }
 
-StatusOr<BloomFilter> BloomFilter::Create(std::vector<uint8_t> bitmap,
+StatusOr<BloomFilter> BloomFilter::Create(ByteString bitmap,
                                           int32_t padding,
                                           int32_t hash_count) {
   if (padding < 0 || padding >= 8) {

@@ -1456,15 +1456,13 @@ ExistenceFilter Serializer::DecodeExistenceFilter(
 
   int32_t hash_count = filter.unchanged_names.hash_count;
   int32_t padding = 0;
-  std::vector<uint8_t> bitmap;
+  ByteString bitmap;
   if (filter.unchanged_names.has_bits) {
     padding = filter.unchanged_names.bits.padding;
-
-    pb_bytes_array_t* bitmap_ptr = filter.unchanged_names.bits.bitmap;
-    if (bitmap_ptr != nullptr) {
-      bitmap = std::vector<uint8_t>(bitmap_ptr->bytes,
-                                    bitmap_ptr->bytes + bitmap_ptr->size);
-    }
+    // TODO(b/274668697) Steal the bytes using ByteString::Take() instead of
+    //  copying them. To do this, the `filter` argument will need to be
+    //  non-const, which will affect the caller(s), and their caller(s), etc.
+    bitmap = ByteString(filter.unchanged_names.bits.bitmap);
   }
   return {filter.count,
           BloomFilterParameters{std::move(bitmap), padding, hash_count}};
