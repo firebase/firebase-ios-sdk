@@ -106,7 +106,7 @@ class ApplicationInfoTests: XCTestCase {
   }
 
   func test_bundleVersions_correspondToVersion() {
-    var appInfo = ApplicationInfo(
+    let appInfo = ApplicationInfo(
       appID: "testAppID",
       networkInfo: mockNetworkInfo,
       envParams: [:],
