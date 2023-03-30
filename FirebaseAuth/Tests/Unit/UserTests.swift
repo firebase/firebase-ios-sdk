@@ -1132,22 +1132,23 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  private class FakeOAuthProvider: OAuthProvider {
-    static let kOAuthSessionID = "sessionID"
-    static let kOAuthRequestURI = "requestURI"
-    override func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
-                                    completion: ((AuthCredential?, Error?) -> Void)? = nil) {
-      if let completion {
-        completion(OAuthCredential(
-          withProviderID: GoogleAuthProvider.id,
-          sessionID: UserTests.FakeOAuthProvider.kOAuthSessionID,
-          OAuthResponseURLString: UserTests.FakeOAuthProvider.kOAuthRequestURI
-        ), nil)
+  #if os(iOS)
+    private class FakeOAuthProvider: OAuthProvider {
+      static let kOAuthSessionID = "sessionID"
+      static let kOAuthRequestURI = "requestURI"
+      override func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
+                                      completion: ((AuthCredential?, Error?) -> Void)? = nil) {
+        if let completion {
+          let credential = OAuthCredential(
+            withProviderID: GoogleAuthProvider.id,
+            sessionID: UserTests.FakeOAuthProvider.kOAuthSessionID,
+            OAuthResponseURLString: UserTests.FakeOAuthProvider.kOAuthRequestURI
+          )
+          completion(credential, nil)
+        }
       }
     }
-  }
 
-  #if os(iOS)
     /** @fn tesLlinkProviderFailure
         @brief Tests the flow of a failed @c linkWithProvider:completion:
             call.
