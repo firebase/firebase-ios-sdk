@@ -107,11 +107,11 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var appBuildVersion: String {
-    return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+    return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
   }
 
   var appDisplayVersion: String {
-    return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+    return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
   }
 
   var osBuildVersion: String {
