@@ -838,7 +838,7 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  /** @fn testLinkAndRetrieveDataSuccess
+  /** @fn testLinkAndRetrieveDataSuccess (and old testLinkCredentialSuccess)
       @brief Tests the flow of a successful @c linkWithCredential call.
    */
   func testLinkAndRetrieveDataSuccess() throws {
@@ -872,6 +872,7 @@ class UserTests: RPCBaseTests {
             linkAuthResult?.additionalUserInfo?.profile as? [String: String],
             self.kGoogleProfile
           )
+          XCTAssertEqual(linkAuthResult?.user.providerData.first?.providerID, GoogleAuthProvider.id)
           expectation.fulfill()
         }
         group.wait()
@@ -889,6 +890,246 @@ class UserTests: RPCBaseTests {
     }
     waitForExpectations(timeout: 5)
     try assertUserGoogle(auth.currentUser)
+  }
+
+  /** @fn testLinkAndRetrieveDataError
+      @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
+          call with an error from the backend.
+   */
+  func testLinkAndRetrieveDataError() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithFacebookCredential { user in
+      XCTAssertNotNil(user)
+      do {
+        self.setFakeGetAccountProvider()
+        let group = self.createGroup()
+        let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
+                                                             accessToken: self.kGoogleAccessToken)
+        user.link(with: googleCredential) { linkAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(linkAuthResult)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.requiresRecentLogin.rawValue)
+          // Email should not have changed on the client side.
+          XCTAssertEqual(user.email, self.kFacebookEmail)
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testLinkAndRetrieveDataProviderAlreadyLinked and old testLinkCredentialProviderAlreadyLinkedError
+      @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
+          call with FIRAuthErrorCodeProviderAlreadyLinked, which is a client side error.
+   */
+  func testLinkAndRetrieveDataProviderAlreadyLinked() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithFacebookCredential { user in
+      XCTAssertNotNil(user)
+      do {
+        self.setFakeGetAccountProvider()
+        let facebookCredential =
+          FacebookAuthProvider.credential(withAccessToken: self.kFacebookAccessToken)
+        user.link(with: facebookCredential) { linkAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(linkAuthResult)
+          do {
+            let error = try XCTUnwrap(rawError)
+            XCTAssertEqual((error as NSError).code, AuthErrorCode.providerAlreadyLinked.rawValue)
+          } catch {
+            XCTFail("Expected to throw providerAlreadyLinked error.")
+          }
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testLinkAndRetrieveDataErrorAutoSignOut (and old testLinkCredentialError)
+      @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
+          call that automatically signs out.
+   */
+  func testLinkAndRetrieveDataErrorAutoSignOut() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithFacebookCredential { user in
+      XCTAssertNotNil(user)
+      do {
+        self.setFakeGetAccountProvider()
+        let group = self.createGroup()
+        let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
+                                                             accessToken: self.kGoogleAccessToken)
+        user.link(with: googleCredential) { linkAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(linkAuthResult)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.userDisabled.rawValue)
+          // User is signed out.
+          XCTAssertNil(UserTests.auth?.currentUser)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testLinkEmailAndRetrieveDataSuccess
+      @brief Tests the flow of a successful @c linkWithCredential:completion:
+          invocation for email credential.
+   */
+  func testLinkEmailAndRetrieveDataSuccess() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    let auth = try XCTUnwrap(UserTests.auth)
+    signInWithFacebookCredential { user in
+      XCTAssertNotNil(user)
+      do {
+        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+        let group = self.createGroup()
+        let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
+                                                           password: self.kFakePassword)
+        user.link(with: emailCredential) { linkAuthResult, error in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(error)
+          // Verify that the current user is unchanged.
+          XCTAssertEqual(auth.currentUser, user)
+          // Verify that the current user and reauthenticated user are the same pointers.
+          XCTAssertEqual(user, linkAuthResult?.user)
+          // Verify that anyway the current user and reauthenticated user have same IDs.
+          XCTAssertEqual(linkAuthResult?.user.uid, user.uid)
+          XCTAssertEqual(linkAuthResult?.user.email, user.email)
+          XCTAssertEqual(linkAuthResult?.user.displayName, user.displayName)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                               "refreshToken": self.kRefreshToken])
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn tesLlinkEmailProviderAlreadyLinkedError
+      @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
+          invocation for email credential and FIRAuthErrorCodeProviderAlreadyLinked which is a client
+          side error.
+   */
+  func testLinkEmailProviderAlreadyLinkedError() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithFacebookCredential { user in
+      XCTAssertNotNil(user)
+      do {
+        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+        let group = self.createGroup()
+        let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
+                                                           password: self.kFakePassword)
+        user.link(with: emailCredential) { linkAuthResult, error in
+          XCTAssertEqual(user, linkAuthResult?.user)
+          linkAuthResult?.user.link(with: emailCredential) { linkLinkAuthResult, rawError in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertNil(linkLinkAuthResult)
+            do {
+              let error = try XCTUnwrap(rawError)
+              XCTAssertEqual((error as NSError).code, AuthErrorCode.providerAlreadyLinked.rawValue)
+            } catch {
+              XCTFail("Expected to throw providerAlreadyLinked error.")
+            }
+            // User is still signed in.
+            XCTAssertEqual(UserTests.auth?.currentUser, user)
+            expectation.fulfill()
+          }
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                               "refreshToken": self.kRefreshToken])
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testLinkEmailAndRetrieveDataError
+      @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
+          invocation for email credential and an error from the backend.
+   */
+  func testLinkEmailAndRetrieveDataError() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithFacebookCredential { user in
+      XCTAssertNotNil(user)
+      do {
+        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+        let group = self.createGroup()
+        let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
+                                                           password: self.kFakePassword)
+        user.link(with: emailCredential) { linkAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(linkAuthResult)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.tooManyRequests.rawValue)
+          // User is still signed in.
+          XCTAssertEqual(UserTests.auth?.currentUser, user)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testLinkEmailAndRetrieveDataErrorAutoSignOut
+      @brief Tests the flow of an unsuccessful @c linkWithCredential:completion:
+          invocation that automatically signs out.
+   */
+  func testLinkEmailAndRetrieveDataErrorAutoSignOut() throws {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithFacebookCredential { user in
+      XCTAssertNotNil(user)
+      do {
+        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
+        let group = self.createGroup()
+        let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
+                                                           password: self.kFakePassword)
+        user.link(with: emailCredential) { linkAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(linkAuthResult)
+          let error = try! XCTUnwrap(rawError)
+          XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+          // User is signed out.
+          XCTAssertNil(UserTests.auth?.currentUser)
+          expectation.fulfill()
+        }
+        group.wait()
+        try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+      } catch {
+        XCTFail("Caught an error in \(#function): \(error)")
+      }
+    }
+    waitForExpectations(timeout: 5)
   }
 
   // MARK: Private helper functions
@@ -1095,6 +1336,10 @@ class UserTests: RPCBaseTests {
 
   private func signInWithFacebookCredential(completion: @escaping (User) -> Void) {
     setFakeSecureTokenService(fakeAccessToken: RPCBaseTests.kFakeAccessToken)
+    setFakeGetAccountProvider(withNewDisplayName: kFacebookDisplayName,
+                              withProviderID: FacebookAuthProvider.id,
+                              withFederatedID: kFacebookID,
+                              withEmail: kFacebookEmail)
 
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
@@ -1112,12 +1357,19 @@ class UserTests: RPCBaseTests {
         }
         XCTAssertEqual(user.refreshToken, self.kRefreshToken)
         XCTAssertFalse(user.isAnonymous)
-        XCTAssertEqual(user.email, self.kEmail)
+        XCTAssertEqual(user.email, self.kFacebookEmail)
+        XCTAssertEqual(user.displayName, self.kFacebookDisplayName)
+        XCTAssertEqual(user.providerData.count, 1)
         guard let additionalUserInfo = authResult?.additionalUserInfo,
+              let facebookUserInfo = user.providerData.first,
               let profile = additionalUserInfo.profile as? [String: String] else {
           XCTFail("authResult.additionalUserInfo and/or profile is missing")
           return
         }
+        XCTAssertEqual(facebookUserInfo.providerID, FacebookAuthProvider.id)
+        XCTAssertEqual(facebookUserInfo.uid, self.kFacebookID)
+        XCTAssertEqual(facebookUserInfo.displayName, self.kFacebookDisplayName)
+        XCTAssertEqual(facebookUserInfo.email, self.kFacebookEmail)
         XCTAssertEqual(profile, self.kGoogleProfile)
         XCTAssertFalse(additionalUserInfo.isNewUser)
         XCTAssertEqual(additionalUserInfo.providerID, FacebookAuthProvider.id)

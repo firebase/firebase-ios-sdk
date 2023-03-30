@@ -254,7 +254,7 @@ class RPCBaseTests: XCTestCase {
     rpcIssuer?.fakeGetAccountProviderJSON = [[
       kProviderUserInfoKey: [[
         kProviderIDkey: providerID,
-        kDisplayNameKey: kDisplayName,
+        kDisplayNameKey: displayName,
         kPhotoUrlKey: kTestPhotoURL,
         kFederatedIDKey: federatedID,
         kEmailKey: email,
