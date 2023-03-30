@@ -236,31 +236,32 @@ class RPCBaseTests: XCTestCase {
   }
 
   func setFakeGetAccountProvider(withNewDisplayName displayName: String = "Google Doe",
-                                 withLocalID localID: String = "testLocalId") {
+                                 withLocalID localID: String = "testLocalId",
+                                 withProviderID providerID: String = "testProviderID",
+                                 withFederatedID federatedID: String = "testFederatedId",
+                                 withEmail email: String = "user@company.com") {
     let kProviderUserInfoKey = "providerUserInfo"
     let kPhotoUrlKey = "photoUrl"
     let kProviderIDkey = "providerId"
     let kDisplayNameKey = "displayName"
     let kFederatedIDKey = "federatedId"
-    let kTestFederatedID = "testFederatedId"
     let kEmailKey = "email"
     let kPasswordHashKey = "passwordHash"
     let kTestPasswordHash = "testPasswordHash"
-    let kTestProviderID = "testProviderID"
     let kEmailVerifiedKey = "emailVerified"
     let kLocalIDKey = "localId"
 
     rpcIssuer?.fakeGetAccountProviderJSON = [[
       kProviderUserInfoKey: [[
-        kProviderIDkey: kTestProviderID,
+        kProviderIDkey: providerID,
         kDisplayNameKey: kDisplayName,
         kPhotoUrlKey: kTestPhotoURL,
-        kFederatedIDKey: kTestFederatedID,
-        kEmailKey: kEmail,
+        kFederatedIDKey: federatedID,
+        kEmailKey: email,
       ]],
       kLocalIDKey: localID,
       kDisplayNameKey: displayName,
-      kEmailKey: kEmail,
+      kEmailKey: email,
       kPhotoUrlKey: kTestPhotoURL,
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,

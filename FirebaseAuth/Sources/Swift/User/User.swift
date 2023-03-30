@@ -752,8 +752,7 @@ import Foundation
             guard let response = rawResponse as? VerifyAssertionResponse else {
               fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
             }
-            let additionalUserInfo = AdditionalUserInfo
-              .userInfo(verifyAssertionResponse: response)
+            let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
             let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
             let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
                                         credential: updatedOAuthCredential)
@@ -767,7 +766,8 @@ import Foundation
                                            expirationDate: response.approximateExpirationDate,
                                            result: result,
                                            requestConfiguration: requestConfiguration,
-                                           completion: completion)
+                                           completion: completion,
+                                           withTaskComplete: complete)
           }
         }
       }
@@ -1830,7 +1830,9 @@ import Foundation
                                          expirationDate: Date?,
                                          result: AuthDataResult,
                                          requestConfiguration: AuthRequestConfiguration,
-                                         completion: ((AuthDataResult?, Error?) -> Void)?) {
+                                         completion: ((AuthDataResult?, Error?) -> Void)?,
+                                         withTaskComplete complete: FIRAuthSerialTaskCompletionBlock? =
+                                           nil) {
     tokenService = SecureTokenService(
       withRequestConfiguration: requestConfiguration,
       accessToken: idToken,
@@ -1839,7 +1841,8 @@ import Foundation
     )
     internalGetToken { response, error in
       if let error {
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: nil,
+        User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                        complete: complete,
                                                         error: error)
         return
       }
@@ -1851,8 +1854,7 @@ import Foundation
       AuthBackend.post(withRequest: getAccountInfoRequest) { rawResponse, error in
         if let error {
           self.signOutIfTokenIsInvalid(withError: error)
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          result: nil, error: error)
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
           return
         }
         guard let response = rawResponse as? GetAccountInfoResponse else {
@@ -1861,12 +1863,12 @@ import Foundation
         self.isAnonymous = false
         self.update(withGetAccountInfoResponse: response)
         if let error = self.updateKeychain() {
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: nil,
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
                                                           error: error)
           return
         }
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion, result: result,
-                                                        error: nil)
+        User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
+                                                        result: result)
       }
     }
   }
@@ -2003,10 +2005,15 @@ import Foundation
    */
   private class func callInMainThreadWithAuthDataResultAndError(callback: ((AuthDataResult?,
                                                                             Error?) -> Void)?,
-  result: AuthDataResult?,
-  error: Error?) {
+  complete: FIRAuthSerialTaskCompletionBlock? =
+    nil,
+  result: AuthDataResult? = nil,
+  error: Error? = nil) {
     if let callback {
       DispatchQueue.main.async {
+        if let complete {
+          complete()
+        }
         callback(result, error)
       }
     }
