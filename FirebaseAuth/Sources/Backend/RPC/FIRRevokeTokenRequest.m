@@ -71,10 +71,10 @@ typedef NS_ENUM(NSInteger, FIRTokenType) {
              useIdentityPlatform:YES
                       useStaging:NO];
   if (self) {
-    // Apple and refresh token are the only provider and token type we support for now.
+    // Apple and authorization code are the only provider and token type we support for now.
     // Generalize this initializer to accept other providers and token types once supported.
     _providerID = @"apple.com";
-    _tokenType = FIRTokenTypeRefreshToken;
+    _tokenType = FIRTokenTypeAuthorizationCode;
     _token = token;
     _idToken = idToken;
   }
