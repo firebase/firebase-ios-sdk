@@ -104,4 +104,18 @@ class ApplicationInfoTests: XCTestCase {
     appInfo = ApplicationInfo(appID: "testAppID", envParams: envValues)
     XCTAssertEqual(appInfo.environment, .prod)
   }
+
+  func test_bundleVersions_correspondToVersion() {
+    var appInfo = ApplicationInfo(
+      appID: "testAppID",
+      networkInfo: mockNetworkInfo,
+      envParams: [:],
+      infoDict: [
+        "CFBundleVersion": "54321", // Build Version
+        "CFBundleShortVersionString": "12.34.5", // Display Version
+      ]
+    )
+    XCTAssertEqual(appInfo.appBuildVersion, "54321")
+    XCTAssertEqual(appInfo.appDisplayVersion, "12.34.5")
+  }
 }
