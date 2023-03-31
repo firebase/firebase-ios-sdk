@@ -25,10 +25,10 @@ import Foundation
 
   @objc(FIRMultiFactorSession) public class MultiFactorSession: NSObject {
     // XXX TODO SHOULD BE INTERNAL
-    @objc public var IDToken: String?
+    @objc(IDToken) public var idToken: String?
 
     // XXX TODO SHOULD BE INTERNAL
-    @objc public var MFAPendingCredential: String?
+    @objc(MFAPendingCredential) public var mfaPendingCredential: String?
 
     // XXX TODO SHOULD BE INTERNAL
     @objc public var multiFactorInfo: MultiFactorInfo?
@@ -36,12 +36,12 @@ import Foundation
     @objc public static var sessionForCurrentUser: MultiFactorSession {
       let currentUser = Auth.auth().currentUser
       let idToken = currentUser?.tokenService.accessToken
-      return .init(IDToken: idToken)
+      return .init(idToken: idToken)
     }
 
-    @objc public convenience init(IDToken: String?) {
+    @objc public convenience init(idToken: String?) {
       self.init()
-      self.IDToken = IDToken
+      self.idToken = idToken
     }
   }
 
