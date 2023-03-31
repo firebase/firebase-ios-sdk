@@ -24,6 +24,7 @@ import XCTest
 class APITestBase: XCTestCase {
   static var useFakeConfig: Bool!
   static var mockedFetch: Bool!
+  static var mockedRealtime: Bool!
   var app: FirebaseApp!
   var config: RemoteConfig!
   var console: RemoteConfigConsole!
@@ -42,6 +43,7 @@ class APITestBase: XCTestCase {
         options.projectID = "Fake Project"
         FirebaseApp.configure(options: options)
         APITests.mockedFetch = false
+        APITests.mockedRealtime = false
       #endif
     }
   }
@@ -77,6 +79,10 @@ class APITestBase: XCTestCase {
       if !APITests.mockedFetch {
         APITests.mockedFetch = true
         config.configFetch = FetchMocks.mockFetch(config.configFetch)
+      }
+      if !APITests.mockedRealtime {
+        APITests.mockedRealtime = true
+        config.configRealtime = RealtimeMocks.mockRealtime(config.configRealtime)
       }
       fakeConsole = FakeConsole()
       config.configFetch.fetchSession = URLSessionMock(with: fakeConsole)

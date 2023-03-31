@@ -114,6 +114,22 @@ NS_SWIFT_NAME(OAuthProvider)
                                          IDToken:(NSString *)IDToken
                                         rawNonce:(nullable NSString *)rawNonce;
 
+/** @fn appleCredentialWithIDToken:rawNonce:fullName:
+ *  @brief Creates an `AuthCredential` for the Sign in with Apple OAuth 2 provider identified by ID
+ * token, raw nonce, and full name. This method is specific to the Sign in with Apple OAuth 2
+ * provider as this provider requires the full name to be passed explicitly.
+ *
+ *  @param IDToken The IDToken associated with the Sign in with Apple Auth credential being created.
+ *  @param rawNonce The raw nonce associated with the Sign in with Apple Auth credential being
+ * created.
+ *  @param fullName The full name associated with the Sign in with Apple Auth credential being
+ * created.
+ *  @return An `AuthCredential`.
+ */
++ (FIROAuthCredential *)appleCredentialWithIDToken:(NSString *)IDToken
+                                          rawNonce:(nullable NSString *)rawNonce
+                                          fullName:(nullable NSPersonNameComponents *)fullName;
+
 /** @fn init
     @brief This class is not meant to be initialized.
  */

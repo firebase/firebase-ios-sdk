@@ -176,4 +176,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// This function forces the linker to include `FSTFirestoreComponent`. See `+[FIRFirestore
+/// notCalled]`.
+void FSTIncludeFSTFirestoreComponent(void) {
+}
+
 NS_ASSUME_NONNULL_END
