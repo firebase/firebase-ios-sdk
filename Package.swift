@@ -1017,6 +1017,7 @@ let package = Package(
         "FirebaseABTesting",
         "FirebaseInstallations",
         .product(name: "GULNSData", package: "GoogleUtilities"),
+        "FirebaseSessions"
       ],
       path: "FirebaseRemoteConfig/Sources",
       publicHeadersPath: "Public",
