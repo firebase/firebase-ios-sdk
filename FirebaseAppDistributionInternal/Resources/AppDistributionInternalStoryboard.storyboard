@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_0" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Feedback View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController storyboardIdentifier="fir-ad-iaf" id="BYZ-38-t0r" customClass="FeedbackViewController" customModule="AppDistributionInternalResources" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <navigationBar contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dia-oO-Nu0">
+                                <rect key="frame" x="0.0" y="47" width="390" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="ifE-ZP-DGh"/>
+                                </constraints>
+                                <items>
+                                    <navigationItem title="Feedback" id="JNd-eF-IDH">
+                                        <barButtonItem key="leftBarButtonItem" title="Back" id="OJS-4m-F97">
+                                            <connections>
+                                                <action selector="tappedCancel:" destination="BYZ-38-t0r" id="hdo-oe-Rpf"/>
+                                            </connections>
+                                        </barButtonItem>
+                                        <barButtonItem key="rightBarButtonItem" title="Send" style="done" id="jcN-Fa-ZwH">
+                                            <connections>
+                                                <action selector="tappedSend:" destination="BYZ-38-t0r" id="2o9-hS-7N7"/>
+                                            </connections>
+                                        </barButtonItem>
+                                    </navigationItem>
+                                </items>
+                            </navigationBar>
+                            <view contentMode="scaleToFill" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="B8f-p9-FeY">
+                                <rect key="frame" x="0.0" y="92" width="390" height="84"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="TopLeft" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dmh-tx-P50">
+                                        <rect key="frame" x="12" y="8" width="366" height="52"/>
+                                        <string key="text">[This is placeholder text from the developer that is show to the tester before they provide feedback. It can contain links to more information.]</string>
+                                        <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="13"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="dmh-tx-P50" secondAttribute="bottom" constant="24" id="4bb-g4-c6l"/>
+                                    <constraint firstItem="dmh-tx-P50" firstAttribute="trailing" secondItem="B8f-p9-FeY" secondAttribute="trailing" constant="-12" id="4iq-ek-mx8"/>
+                                    <constraint firstItem="dmh-tx-P50" firstAttribute="top" secondItem="B8f-p9-FeY" secondAttribute="topMargin" id="bQc-lM-lBQ"/>
+                                    <constraint firstItem="dmh-tx-P50" firstAttribute="leading" secondItem="B8f-p9-FeY" secondAttribute="leading" constant="12" id="va6-fC-hjm"/>
+                                </constraints>
+                            </view>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dsI-rN-5aL">
+                                <rect key="frame" x="16" y="302" width="358" height="442"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5dc-R4-ELB">
+                                <rect key="frame" x="0.0" y="175" width="390" height="86"/>
+                                <subviews>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" misplaced="YES" text="Have feedback? Let us know how we can make this app better?." textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="iNL-09-ZI6">
+                                        <rect key="frame" x="19" y="17" width="351" height="50"/>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <color key="textColor" systemColor="labelColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    </textView>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstItem="iNL-09-ZI6" firstAttribute="centerX" secondItem="5dc-R4-ELB" secondAttribute="centerX" id="6mW-Zs-1zw"/>
+                                    <constraint firstItem="iNL-09-ZI6" firstAttribute="leading" secondItem="5dc-R4-ELB" secondAttribute="leading" constant="16" id="GJF-wf-ZNr"/>
+                                    <constraint firstAttribute="bottom" secondItem="iNL-09-ZI6" secondAttribute="bottom" constant="16" id="GwE-1C-l0F"/>
+                                    <constraint firstItem="iNL-09-ZI6" firstAttribute="top" secondItem="5dc-R4-ELB" secondAttribute="top" constant="16" id="vDu-hu-JbG"/>
+                                    <constraint firstAttribute="trailing" secondItem="iNL-09-ZI6" secondAttribute="trailing" constant="16" id="ysz-oV-pEc"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Dia-oO-Nu0" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="7XR-Cu-c7J"/>
+                            <constraint firstItem="B8f-p9-FeY" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="91" id="EFg-iZ-Jzz"/>
+                            <constraint firstItem="5dc-R4-ELB" firstAttribute="trailing" secondItem="B8f-p9-FeY" secondAttribute="trailing" id="EwK-Jx-Hes"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="dsI-rN-5aL" secondAttribute="trailing" constant="16" id="I52-Pj-PSq"/>
+                            <constraint firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="Jvv-bL-zyF"/>
+                            <constraint firstAttribute="bottom" secondItem="5dc-R4-ELB" secondAttribute="bottom" constant="583" id="OBu-rX-tfb"/>
+                            <constraint firstItem="Dia-oO-Nu0" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="UDB-uL-1PW"/>
+                            <constraint firstItem="5dc-R4-ELB" firstAttribute="centerX" secondItem="dsI-rN-5aL" secondAttribute="centerX" id="Z7g-ss-vlW"/>
+                            <constraint firstItem="B8f-p9-FeY" firstAttribute="trailing" secondItem="Dia-oO-Nu0" secondAttribute="trailing" id="b1e-eB-0Fc"/>
+                            <constraint firstAttribute="bottom" secondItem="B8f-p9-FeY" secondAttribute="bottom" constant="669" id="gbS-Iu-ikS"/>
+                            <constraint firstItem="5dc-R4-ELB" firstAttribute="leading" secondItem="B8f-p9-FeY" secondAttribute="leading" id="gwL-YB-JX5"/>
+                            <constraint firstItem="dsI-rN-5aL" firstAttribute="top" secondItem="5dc-R4-ELB" secondAttribute="bottom" constant="41" id="kP6-6f-o6b"/>
+                            <constraint firstItem="5dc-R4-ELB" firstAttribute="top" secondItem="Dia-oO-Nu0" secondAttribute="bottom" constant="84" id="ol5-x8-ptW"/>
+                            <constraint firstItem="dsI-rN-5aL" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="vfI-nc-TeW"/>
+                            <constraint firstItem="B8f-p9-FeY" firstAttribute="leading" secondItem="Dia-oO-Nu0" secondAttribute="leading" id="waP-fr-WQe"/>
+                            <constraint firstItem="Dia-oO-Nu0" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="wg8-jh-o4A"/>
+                            <constraint firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" id="zZh-sJ-7Gx"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="additionalFormTextLabel" destination="dmh-tx-P50" id="heh-EK-oEt"/>
+                        <outlet property="feedbackTextView" destination="iNL-09-ZI6" id="Ur9-nn-jm4"/>
+                        <outlet property="navigationBar" destination="Dia-oO-Nu0" id="eVF-OS-PgH"/>
+                        <outlet property="screenshotUIImageView" destination="dsI-rN-5aL" id="bRf-CH-E8Y"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="130.76923076923077" y="-34.123222748815166"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="labelColor">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

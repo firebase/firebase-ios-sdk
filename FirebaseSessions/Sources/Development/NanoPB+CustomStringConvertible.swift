@@ -103,7 +103,10 @@ extension firebase_appquality_sessions_LogEnvironment: CustomStringConvertible {
   }
 }
 
-extension UnsafeMutablePointer<pb_bytes_array_t>: CustomStringConvertible {
+// This is written like this for Swift backwards-compatibility.
+// Once we upgrade to Xcode 14, this can be written as
+// UnsafeMutablePointer<pb_bytes_array_t>
+extension UnsafeMutablePointer: CustomStringConvertible where Pointee == pb_bytes_array_t {
   public var description: String {
     let decoded = FIRSESDecodeString(self)
     if decoded.count == 0 {
@@ -114,7 +117,11 @@ extension UnsafeMutablePointer<pb_bytes_array_t>: CustomStringConvertible {
 }
 
 // For an optional field
-extension UnsafeMutablePointer<pb_bytes_array_t>?: CustomStringConvertible {
+// This is written like this for Swift backwards-compatibility.
+// Once we upgrade to Xcode 14, this can be written as
+// UnsafeMutablePointer<pb_bytes_array_t>?
+extension Optional: CustomStringConvertible
+  where Wrapped == UnsafeMutablePointer<pb_bytes_array_t> {
   public var description: String {
     guard let this = self else {
       return "<NULL>"

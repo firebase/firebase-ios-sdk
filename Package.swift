@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.5.0"
+let firebaseVersion = "10.8.0"
 
 let package = Package(
   name: "Firebase",
@@ -150,7 +150,7 @@ let package = Package(
       url: "https://github.com/google/GoogleAppMeasurement.git",
       // Note that CI changes the version to the head of main for CI.
       // See scripts/setup_spm_tests.sh.
-      .exact("10.4.0")
+      .exact("10.6.0")
     ),
     .package(
       name: "GoogleDataTransport",
@@ -328,8 +328,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.4.0/FirebaseAnalytics.zip",
-      checksum: "d5098cd2d731104dddb11c39b2cbbd3aab11a604c528706a16ff0114abd8d53a"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.6.0/FirebaseAnalytics.zip",
+      checksum: "a893066f524130a007ee255d9e535879b96a3fa0add139a8245edaf1c2f310f6"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -1352,6 +1352,39 @@ if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREME
       name: "GoogleAppMeasurement",
       url: "https://github.com/google/GoogleAppMeasurement.git",
       .branch("main")
+    )
+  }
+}
+
+// This is set when running `scripts/check_firestore_symbols.sh`.
+if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
+  if let firestoreIndex = package.targets
+    .firstIndex(where: { $0.name == "FirebaseFirestore" }) {
+    package.targets[firestoreIndex] = .binaryTarget(
+      name: "FirebaseFirestore",
+      // The `xcframework` should be moved to the root of the repo.
+      path: "FirebaseFirestore.xcframework"
+    )
+  }
+
+  // TODO(ncooke3): Below re-defining is not needed when original
+  // FirebaseFirestoreTarget definition matches below definition.
+  if let firestoreTargetIndex = package.targets
+    .firstIndex(where: { $0.name == "FirebaseFirestoreTarget" }) {
+    package.targets[firestoreTargetIndex] = .target(
+      name: "FirebaseFirestoreTarget",
+      dependencies: [
+        .target(
+          name: "FirebaseFirestore",
+          condition: .when(platforms: [.iOS, .tvOS, .macOS])
+        ),
+        .product(name: "abseil", package: "abseil"),
+        .product(name: "gRPC-cpp", package: "gRPC"),
+        .product(name: "nanopb", package: "nanopb"),
+        "FirebaseCore",
+        "leveldb",
+      ],
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
 }

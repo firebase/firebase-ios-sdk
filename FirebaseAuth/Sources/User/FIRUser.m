@@ -377,6 +377,7 @@ static void callInMainThreadWithAuthDataResultAndError(
     // The `heartbeatLogger` and `appCheck` will be set later via a property update.
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
                                                                           appID:appID
+                                                                           auth:_auth
                                                                 heartbeatLogger:nil
                                                                        appCheck:nil];
 #if TARGET_OS_IOS

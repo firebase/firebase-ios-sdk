@@ -1,3 +1,6 @@
+# 10.7.0
+- [added] Provide server errors via the `NSUnderlyingErrorKey`.
+
 # 10.5.0
 - [added] Added Storage API to limit upload chunk size. (#10137)
 - [fixed] Run `pod update` or `File -> Packages -> Update to latest Packages` to update the `GTMSessionFetcher` dependency to at least version `3.1.0`.

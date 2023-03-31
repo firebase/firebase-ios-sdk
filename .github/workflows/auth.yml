@@ -27,7 +27,7 @@ jobs:
       POD_LIB_LINT_ONLY: 1
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
@@ -166,8 +166,8 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        # The macos and tvos tests can hang.
-        target: [ios, tvos --skip-tests, macos --skip-tests]
+        # The macos and tvos tests can hang, and watchOS doesn't have tests.
+        target: [ios, tvos --skip-tests, macos --skip-tests, watchos --skip-tests]
         flags: [
           '--use-static-frameworks'
         ]

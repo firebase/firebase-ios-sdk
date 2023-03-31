@@ -18,6 +18,7 @@
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
 @protocol FIRHeartbeatLoggerProtocol;
 
@@ -37,6 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The Firebase appID used in the request.
  */
 @property(nonatomic, copy, readonly) NSString *appID;
+
+/** @property auth
+    @brief The FIRAuth instance used in the request.
+ */
+@property(nonatomic, weak, readonly, nullable) FIRAuth *auth;
 
 /** @property heartbeatLogger
     @brief The heartbeat logger used to add heartbeats to the corresponding request's header.
@@ -71,15 +77,27 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey appID:(NSString *)appID;
 
-/** @fn initWithAPIKey:appID:heartbeatLogger:appCheck:
+/** @fn initWithAPIKey:appID:auth:
+    @brief Convenience initializer.
+    @param APIKey The API key to be used in the request.
+    @param appID The Firebase app ID to be passed in the request header.
+    @param auth The FIRAuth instance used in the request.
+ */
+- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
+                                  appID:(NSString *)appID
+                                   auth:(nullable FIRAuth *)auth;
+
+/** @fn initWithAPIKey:appID:auth:heartbeatLogger:appCheck:
     @brief Designated initializer.
     @param APIKey The API key to be used in the request.
     @param appID The Firebase app ID to be passed in the request header.
+    @param auth The FIRAuth instance used in the request.
     @param heartbeatLogger The heartbeat logger used to add heartbeats to the request header.
     @param appCheck The appCheck interop is a library to generate app check token.
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
+                                   auth:(nullable FIRAuth *)auth
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
                                appCheck:(nullable id<FIRAppCheckInterop>)appCheck
     NS_DESIGNATED_INITIALIZER;
