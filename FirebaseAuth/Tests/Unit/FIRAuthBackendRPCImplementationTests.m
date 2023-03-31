@@ -24,6 +24,7 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
+#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeAppCheck.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
@@ -426,9 +427,12 @@ static NSString *const kTestValue = @"TestValue";
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
   FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
+  FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"app"];
+  FIRAuth *auth = [FIRAuth authWithApp:app];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
                                                     appID:kFakeFirebaseAppID
+                                                     auth:auth
                                           heartbeatLogger:fakeHeartbeatLogger
                                                  appCheck:fakeAppCheck];
   FIRFakeRequest *request =
@@ -467,9 +471,12 @@ static NSString *const kTestValue = @"TestValue";
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
   FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
+  FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"app"];
+  FIRAuth *auth = [FIRAuth authWithApp:app];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
                                                     appID:kFakeFirebaseAppID
+                                                     auth:auth
                                           heartbeatLogger:fakeHeartbeatLogger
                                                  appCheck:fakeAppCheck];
   FIRFakeRequest *request =
@@ -499,9 +506,12 @@ static NSString *const kTestValue = @"TestValue";
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
   FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
+  FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"app"];
+  FIRAuth *auth = [FIRAuth authWithApp:app];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
                                                     appID:kFakeFirebaseAppID
+                                                     auth:auth
                                           heartbeatLogger:fakeHeartbeatLogger
                                                  appCheck:fakeAppCheck];
   FIRFakeRequest *request =
