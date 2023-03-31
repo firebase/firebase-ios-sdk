@@ -34,6 +34,7 @@
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 @protocol FIRAuthStorage;
+@class FIRAuthAPNSTokenManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -301,6 +302,13 @@ NS_SWIFT_NAME(Auth)
     @brief An object that takes care of presenting URLs via the auth instance.
  */
 @property(nonatomic, strong) id<FIRAuthWebViewControllerDelegate> authURLPresenter;
+
+// TODO: Should be internal
+/** @property tokenManager
+    @brief The manager for APNs tokens used by phone number auth.
+ */
+@property(nonatomic, strong, readonly) FIRAuthAPNSTokenManager *tokenManager;
+
 #endif
 
 // TODO: mainBundle is internal, with a setter only used for tests.

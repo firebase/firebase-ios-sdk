@@ -45,8 +45,7 @@ private let kreCAPTCHATokenKey = "recaptchaToken"
 private let kTenantIDKey = "tenantId"
 
 @objc(FIRSendVerificationCodeRequest)
-public class SendVerificationCodeRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property phoneNumber
       @brief The phone number to which the verification code should be sent.
    */

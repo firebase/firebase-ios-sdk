@@ -36,11 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if TARGET_OS_IOS
 
-/** @property tokenManager
-    @brief The manager for APNs tokens used by phone number auth.
- */
-@property(nonatomic, strong, readonly) FIRAuthAPNSTokenManager *tokenManager;
-
 /** @property appCredentailManager
     @brief The manager for app credentials used by phone number auth.
  */
