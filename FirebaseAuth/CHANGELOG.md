@@ -1,4 +1,4 @@
-#10.8.0
+#Unrealeased
 - [feature] Added Firebase App Check support to Firebase Auth.
 
 # 10.7.0
