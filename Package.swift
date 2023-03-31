@@ -655,7 +655,7 @@ let package = Package(
     .binaryTarget(
         name: "FirebaseFirestore",
         // TODO(ncooke3): Host elsewhere.
-        url: "https://github.com/ncooke3/binary-firestore/releases/download/10.8.0-rc.0/FirebaseFirestore.zip",
+        url: "https://dl.google.com/firebase/ios/bin/firestore/10.8.0/FirebaseFirestore.zip",
         // TODO(ncooke3): Compute new checksum.
         checksum: "b3efd6e6c362b1f2cd21875bef151706da6016bfd8839fac4fff8a55de354c3e"
     ),
