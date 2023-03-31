@@ -19,9 +19,7 @@
 # so that the release process can defer publish the GoogleAppMeasurement tag
 # until after testing.
 
-# For example: Change `.exact("8.3.1")` to `.branch("main")`
-
-sed -i '' 's#exact("[0-9.]*#branch("main#' Package.swift
+export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
 
 
 # Move schemes into place to run Swift Package Manager tests
