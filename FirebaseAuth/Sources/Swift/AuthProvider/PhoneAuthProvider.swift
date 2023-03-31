@@ -74,7 +74,21 @@ import Foundation
         )
       }
       Auth.globalWorkQueue().async {
-        let callbackOnMainThread = {}
+        let callbackOnMainThread : (String?, Error?) -> Void = { verificationID, error in
+          if let completion {
+            DispatchQueue.main.async {
+              completion(verificationID, error)
+            }
+          }
+        }
+        self.internalVerify(phoneNumber: phoneNumber,
+                            uiDelegate: uiDelegate) { verificationID, error in
+          if let error {
+            callbackOnMainThread(nil, error)
+          } else {
+            callbackOnMainThread(verificationID, nil)
+          }
+        }
       }
     }
 
@@ -92,70 +106,251 @@ import Foundation
       }
     }
 
-    private func internalVerify(phoneNumber: String,
-                                UIDelegate: AuthUIDelegate,
-                                completion: ((String?, Error?) -> Void)?) {
-      guard phoneNumber.count > 0 else {
-        if let completion = completion {
-          completion(nil, AuthErrorUtils.missingPhoneNumberError(message: nil))
-        }
-        return
-      }
-      auth.notificationManager.checkNotificationForwarding { isNotificationBeingForwarded in
-        guard isNotificationBeingForwarded else {
-          if let completion = completion {
-            completion(nil, AuthErrorUtils.notificationNotForwardedError())
-          }
-          return
-        }
-        self.verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
-                                             retryOnInvalidAppCredential: true,
-                                             UIDelegate: UIDelegate) { verificationID, error in
-          if let completion = completion {
+  /**
+   @brief Verify ownership of the second factor phone number by the current user.
+   @param phoneNumber The phone number to be verified.
+   @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+   by this method until the completion block is executed.
+   @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
+   trying to enroll. For sign-in, this identifies that the user already passed the first
+   factor challenge.
+   @param completion The callback to be invoked when the verification flow is finished.
+   */
+
+  @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
+  public func verifyPhoneNumber(_ phoneNumber: String,
+                                uiDelegate: AuthUIDelegate?,
+                                multiFactorSession session: MultiFactorSession?,
+                                completion: ((_: String?, _: Error?) -> Void)?) {
+    guard let session else {
+      verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate, completion: completion)
+      return
+    }
+    guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+                                                  urlTypes: auth.mainBundleUrlTypes) else {
+      fatalError(
+        "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
+      )
+    }
+    Auth.globalWorkQueue().async {
+      let callbackOnMainThread : (String?, Error?) -> Void = { verificationID, error in
+        if let completion {
+          DispatchQueue.main.async {
             completion(verificationID, error)
           }
         }
       }
+      self.internalVerify(phoneNumber: phoneNumber,
+                          uiDelegate: uiDelegate,
+                          multiFactorSession: session) { verificationID, error in
+        if let error {
+          callbackOnMainThread(nil, error)
+        } else {
+          callbackOnMainThread(verificationID, nil)
+        }
+      }
     }
+  }
+
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  public func verifyPhoneNumber(_ phoneNumber: String,
+                                uiDelegate: AuthUIDelegate?,
+                                multiFactorSession: MultiFactorSession?) async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.verifyPhoneNumber(phoneNumber,
+                             uiDelegate: uiDelegate,
+                             multiFactorSession: multiFactorSession) { result, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else if let result {
+          continuation.resume(returning: result)
+        }
+      }
+    }
+  }
+
+  /**
+       @brief Verify ownership of the second factor phone number by the current user.
+       @param multiFactorInfo The phone multi factor whose number need to be verified.
+       @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+           by this method until the completion block is executed.
+       @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
+           trying to enroll. For sign-in, this identifies that the user already passed the first
+           factor challenge.
+       @param completion The callback to be invoked when the verification flow is finished.
+   */
+  @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
+  public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
+                                uiDelegate: AuthUIDelegate?,
+                                multiFactorSession session: MultiFactorSession?,
+                                completion: ((_: String?, _: Error?) -> Void)?) {
+    session?.multiFactorInfo = multiFactorInfo
+    verifyPhoneNumber(multiFactorInfo.phoneNumber,
+                      uiDelegate: uiDelegate,
+                      multiFactorSession: session,
+                      completion: completion)
+  }
+
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
+                                uiDelegate: AuthUIDelegate?,
+                                multiFactorSession: MultiFactorSession?) async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.verifyPhoneNumber(with: multiFactorInfo,
+                             uiDelegate: uiDelegate,
+                             multiFactorSession: multiFactorSession) { result, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else if let result {
+          continuation.resume(returning: result)
+        }
+      }
+    }
+  }
+
+  /**
+      @brief Creates an `AuthCredential` for the phone number provider identified by the
+          verification ID and verification code.
+
+      @param verificationID The verification ID obtained from invoking
+          verifyPhoneNumber:completion:
+      @param verificationCode The verification code obtained from the user.
+      @return The corresponding phone auth credential for the verification ID and verification code
+          provided.
+   */
+  @objc(credentialWithVerificationID:verificationCode:)
+  public func credential(withVerificationID verificationID: String,
+                         verificationCode: String) -> PhoneAuthCredential {
+    return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
+                               verificationID: verificationID,
+                               verificationCode: verificationCode)
+  }
+
+  private func internalVerify(phoneNumber: String,
+                              uiDelegate: AuthUIDelegate?,
+                              multiFactorSession session: MultiFactorSession?,
+                              completion: ((String?, Error?) -> Void)) {
+    guard phoneNumber.count > 0 else {
+      completion(nil, AuthErrorUtils.missingPhoneNumberError(message: nil))
+      return
+    }
+    auth.notificationManager.checkNotificationForwarding { isNotificationBeingForwarded in
+      guard isNotificationBeingForwarded else {
+        completion(nil, AuthErrorUtils.notificationNotForwardedError())
+        return
+      }
+      self.verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
+                                           retryOnInvalidAppCredential: true,
+                                           multiFactorSession: session,
+                                           uiDelegate: uiDelegate) { verificationID, error in
+        completion(verificationID, error)
+      }
+    }
+  }
+
+  /** @fn
+   @brief Starts the flow to verify the client via silent push notification.
+   @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
+     AuthErrorCodeInvalidAppCredential error is returned from the backend.
+   @param phoneNumber The phone number to be verified.
+   @param callback The callback to be invoked on the global work queue when the flow is
+   finished.
+   */
+  private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
+                                               retryOnInvalidAppCredential: Bool,
+                                               uiDelegate: AuthUIDelegate?,
+                                               callback: @escaping (String?, Error?) -> Void) {
+    self.verifyClient(withUIDelegate: uiDelegate) { appCredential, reCAPTCHAToken, error in
+      if let error {
+        callback(nil, error)
+        return
+      }
+      var request: SendVerificationCodeRequest?
+      if let appCredential {
+        request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
+                                              appCredential: appCredential,
+                                              reCAPTCHAToken: nil,
+                                              requestConfiguration: self.auth.requestConfiguration)
+      } else if let reCAPTCHAToken {
+        request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
+                                              appCredential: nil,
+                                              reCAPTCHAToken: reCAPTCHAToken,
+                                              requestConfiguration: self.auth.requestConfiguration)
+      } else {
+        fatalError("Internal Phone Auth Error:Both reCAPTCHA token and app credential are nil")
+      }
+      if let request {
+        AuthBackend.post(withRequest: request) { response, error in
+          if let error {
+            if (error as NSError).code == AuthErrorCode.invalidAppCredential.rawValue {
+              if retryOnInvalidAppCredential {
+                self.auth.appCredentialManager.clearCredential()
+                self.verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
+                                                     retryOnInvalidAppCredential: false,
+                                                     uiDelegate: uiDelegate,
+                                                     callback: callback)
+                return
+              }
+              callback(nil, AuthErrorUtils.unexpectedResponse(deserializedResponse: nil,
+                                                              underlyingError: error))
+              return
+            }
+            callback(nil, error)
+            return
+          }
+          callback((response as? SendVerificationCodeResponse)?.verificationID, nil)
+        }
+      }
+    }
+  }
 
     /** @fn
      @brief Starts the flow to verify the client via silent push notification.
      @param retryOnInvalidAppCredential Whether of not the flow should be retried if an
-     FIRAuthErrorCodeInvalidAppCredential error is returned from the backend.
+       AuthErrorCodeInvalidAppCredential error is returned from the backend.
      @param phoneNumber The phone number to be verified.
      @param callback The callback to be invoked on the global work queue when the flow is
      finished.
      */
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
-                                                 UIDelegate: AuthUIDelegate,
+                                                 multiFactorSession session: MultiFactorSession?,
+                                                 uiDelegate: AuthUIDelegate?,
                                                  callback: @escaping (String?, Error?) -> Void) {
-      // TODO(ncooke3): Uncomment below lines when `FIRAuthBackend` is
-      // written in Swift.
-      //      if let settings = auth.settings,
-      //         settings.isAppVerificationDisabledForTesting {
-      //        let request = SendVerificationCodeRequest(
-      //          phoneNumber: phoneNumber,
-      //          appCredential: nil,
-      //          reCAPTCHAToken: nil,
-      //          requestConfiguration: auth.requestConfiguration
-      //        )
-      //
-      //        FIRAuthBackend.sendVerificationCode(request) { response, error in
-      //          callback(response?.verificationID, error)
-      //        }
-      //        return
-      //      }
-      // self.verifyClient(withUIDelegate ...
+      if let settings = auth.settings,
+         settings.isAppVerificationDisabledForTesting {
+        let request = SendVerificationCodeRequest(
+          phoneNumber: phoneNumber,
+          appCredential: nil,
+          reCAPTCHAToken: nil,
+          requestConfiguration: auth.requestConfiguration
+        )
+
+        AuthBackend.post(withRequest: request) { response, error in
+          callback((response as? SendVerificationCodeResponse)?.verificationID, error)
+        }
+        return
+      }
+      guard let session else {
+        self.verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
+                                             retryOnInvalidAppCredential: true,
+                                             multiFactorSession: session,
+                                             uiDelegate: uiDelegate,
+                                             callback: callback)
+        }
+
+      self.verifyClient(withUIDelegate: uiDelegate) { appCredential, reCAPTCHAToken, error in
+        // TODO:
+      }
     }
 
     //  - (void)verifyClientAndSendVerificationCodeToPhoneNumber:(NSString *)phoneNumber
     //                               retryOnInvalidAppCredential:(BOOL)retryOnInvalidAppCredential
-    //                                                UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+    //                                                uiDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
     //                                                  callback:(FIRVerificationResultCallback)callback {
 
     //    [self
-    //        verifyClientWithUIDelegate:UIDelegate
+    //        verifyClientWithuiDelegate:UIDelegate
     //                        completion:^(FIRAuthAppCredential *_Nullable appCredential,
     //                                     NSString *_Nullable reCAPTCHAToken, NSError *_Nullable error) {
     //                          if (error) {
@@ -193,7 +388,7 @@ import Foundation
     //                                                            phoneNumber
     //                                                                             retryOnInvalidAppCredential:
     //                                                                                 NO
-    //                                                                                              UIDelegate:
+    //                                                                                              uiDelegate:
     //                                                                                                  UIDelegate
     //                                                                                                callback:
     //                                                                                                    callback];
@@ -221,8 +416,8 @@ import Foundation
      @brief Continues the flow to verify the client via silent push notification.
      @param completion The callback to be invoked when the client verification flow is finished.
      */
-    private func verifyClient(withUIDelegate UIDelegate: AuthUIDelegate,
-                              completion: (AuthAppCredential?, Error?)) {
+    private func verifyClient(withUIDelegate uiDelegate: AuthUIDelegate?,
+                              completion: (AuthAppCredential?, String?, Error?) -> Void) {
       // Remove the simulator check below after FCM supports APNs in simulators
       #if targetEnvironment(simulator)
         let environment = ProcessInfo().environment
@@ -236,7 +431,7 @@ import Foundation
      @brief Continues the flow to verify the client via silent push notification.
      @param completion The callback to be invoked when the client verification flow is finished.
      */
-    private func reCAPTCHAFlowWithUIDelegate(withUIDelegate UIDelegate: AuthUIDelegate,
+    private func reCAPTCHAFlowWithUIDelegate(withUIDelegate uiDelegate: AuthUIDelegate,
                                              completion: @escaping (AuthAppCredential?, String?,
                                                                     Error?) -> Void) {
       let eventID = AuthWebUtils.randomString(withLength: 10)
@@ -259,7 +454,7 @@ import Foundation
           )
         }
         self.auth.authURLPresenter.present(reCAPTCHAURL,
-                                           uiDelegate: UIDelegate,
+                                           uiDelegate: uiDelegate,
                                            callbackMatcher: callbackMatcher) { callbackURL, error in
           if let error = error {
             completion(nil, nil, error)
@@ -400,14 +595,14 @@ import Foundation
         }
     }
 
-    //  - (void)verifyClientWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
+    //  - (void)verifyClientWithuiDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
     //                          completion:(FIRVerifyClientCallback)completion {
     //  // Remove the simulator check below after FCM supports APNs in simulators
     //  #if TARGET_OS_SIMULATOR
     //    if (@available(iOS 16, *)) {
     //      NSDictionary *environment = [[NSProcessInfo processInfo] environment];
     //      if ((environment[@"XCTestConfigurationFilePath"] == nil)) {
-    //        [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
+    //        [self reCAPTCHAFlowWithuiDelegate:UIDelegate completion:completion];
     //        return;
     //      }
     //    }
@@ -420,7 +615,7 @@ import Foundation
     //    [_auth.tokenManager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token,
     //                                               NSError *_Nullable error) {
     //      if (!token) {
-    //        [self reCAPTCHAFlowWithUIDelegate:UIDelegate completion:completion];
+    //        [self reCAPTCHAFlowWithuiDelegate:UIDelegate completion:completion];
     //        return;
     //      }
     //      FIRVerifyClientRequest *request =
@@ -465,94 +660,6 @@ import Foundation
     //    }];
     //  }
 
-    /**
-     @brief Verify ownership of the second factor phone number by the current user.
-     @param phoneNumber The phone number to be verified.
-     @param uiDelegate An object used to present the SFSafariViewController. The object is retained
-     by this method until the completion block is executed.
-     @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
-     trying to enroll. For sign-in, this identifies that the user already passed the first
-     factor challenge.
-     @param completion The callback to be invoked when the verification flow is finished.
-     */
-
-    @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
-    public func verifyPhoneNumber(_ phoneNumber: String, uiDelegate: AuthUIDelegate?,
-                                  multiFactorSession: MultiFactorSession?,
-                                  completion: ((_: String?, _: Error?) -> Void)?) {
-      // TODO:
-    }
-
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    public func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate?,
-                                  multiFactorSession: MultiFactorSession?) async throws -> String {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.verifyPhoneNumber(phoneNumber,
-                               uiDelegate: uiDelegate,
-                               multiFactorSession: multiFactorSession) { result, error in
-          if let error {
-            continuation.resume(throwing: error)
-          } else if let result {
-            continuation.resume(returning: result)
-          }
-        }
-      }
-    }
-
-    /**
-         @brief Verify ownership of the second factor phone number by the current user.
-         @param multiFactorInfo The phone multi factor whose number need to be verified.
-         @param uiDelegate An object used to present the SFSafariViewController. The object is retained
-             by this method until the completion block is executed.
-         @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
-             trying to enroll. For sign-in, this identifies that the user already passed the first
-             factor challenge.
-         @param completion The callback to be invoked when the verification flow is finished.
-     */
-    @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
-    public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate?,
-                                  multiFactorSession: MultiFactorSession?,
-                                  completion: ((_: String?, _: Error?) -> Void)?) {
-      // TODO:
-    }
-
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate?,
-                                  multiFactorSession: MultiFactorSession?) async throws -> String {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.verifyPhoneNumber(with: multiFactorInfo,
-                               uiDelegate: uiDelegate,
-                               multiFactorSession: multiFactorSession) { result, error in
-          if let error {
-            continuation.resume(throwing: error)
-          } else if let result {
-            continuation.resume(returning: result)
-          }
-        }
-      }
-    }
-
-    /**
-        @brief Creates an `AuthCredential` for the phone number provider identified by the
-            verification ID and verification code.
-
-        @param verificationID The verification ID obtained from invoking
-            verifyPhoneNumber:completion:
-        @param verificationCode The verification code obtained from the user.
-        @return The corresponding phone auth credential for the verification ID and verification code
-            provided.
-     */
-    @objc(credentialWithVerificationID:verificationCode:)
-    public func credential(withVerificationID verificationID: String,
-                           verificationCode: String) -> PhoneAuthCredential {
-      return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
-                                 verificationID: verificationID,
-                                 verificationCode: verificationCode)
-    }
-
     private let auth: Auth
     private let callbackScheme: String
     private let usingClientIDScheme: Bool
@@ -576,64 +683,3 @@ import Foundation
     private let kAuthTypeVerifyApp = "verifyApp"
   #endif
 }
-
-#if os(iOS)
-  @objc(FIRPhoneAuthCredential) public class PhoneAuthCredential: AuthCredential, NSSecureCoding {
-    // TODO: delete objc's and public's below
-    @objc public let temporaryProof: String?
-    @objc public let phoneNumber: String?
-    @objc public let verificationID: String?
-    @objc public let verificationCode: String?
-
-    // TODO: Remove public objc
-    @objc public init(withTemporaryProof temporaryProof: String, phoneNumber: String,
-                      providerID: String) {
-      self.temporaryProof = temporaryProof
-      self.phoneNumber = phoneNumber
-      verificationID = nil
-      verificationCode = nil
-      super.init(provider: providerID)
-    }
-
-    init(withProviderID providerID: String, verificationID: String, verificationCode: String) {
-      self.verificationID = verificationID
-      self.verificationCode = verificationCode
-      temporaryProof = nil
-      phoneNumber = nil
-      super.init(provider: providerID)
-    }
-
-    public static var supportsSecureCoding = true
-
-    public func encode(with coder: NSCoder) {
-      coder.encode(verificationID)
-      coder.encode(verificationCode)
-      coder.encode(temporaryProof)
-      coder.encode(phoneNumber)
-    }
-
-    public required init?(coder: NSCoder) {
-      let verificationID = coder.decodeObject(forKey: "verificationID") as? String
-      let verificationCode = coder.decodeObject(forKey: "verificationCode") as? String
-      let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String
-      let phoneNumber = coder.decodeObject(forKey: "phoneNumber") as? String
-      if let temporaryProof = temporaryProof,
-         let phoneNumber = phoneNumber {
-        self.temporaryProof = temporaryProof
-        self.phoneNumber = phoneNumber
-        self.verificationID = nil
-        self.verificationCode = nil
-        super.init(provider: PhoneAuthProvider.id)
-      } else if let verificationID = verificationID,
-                let verificationCode = verificationCode {
-        self.verificationID = verificationID
-        self.verificationCode = verificationCode
-        self.temporaryProof = nil
-        self.phoneNumber = nil
-        super.init(provider: PhoneAuthProvider.id)
-      } else {
-        return nil
-      }
-    }
-  }
-#endif // iOS
