@@ -24,7 +24,7 @@ import Foundation
   private let kFactorIDCodingKey = "factorID"
 
   @objc(FIRMultiFactorInfo) public class MultiFactorInfo: NSObject, NSSecureCoding {
-    @objc public var UID: String?
+    @objc(UID) public var uid: String?
 
     /**
         @brief The user friendly name of the current second factor.
@@ -42,7 +42,7 @@ import Foundation
     @objc public var factorID: String?
 
     @objc public init(proto: AuthProtoMFAEnrollment) {
-      UID = proto.MFAEnrollmentID
+      uid = proto.MFAEnrollmentID
       displayName = proto.displayName
       enrollmentDate = proto.enrolledAt
     }
@@ -54,7 +54,7 @@ import Foundation
     }
 
     public required init?(coder: NSCoder) {
-      UID = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String
+      uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String
       displayName = coder.decodeObject(
         of: [NSString.self],
         forKey: kDisplayNameCodingKey
@@ -67,7 +67,7 @@ import Foundation
     }
 
     public func encode(with coder: NSCoder) {
-      coder.encode(UID, forKey: kUIDCodingKey)
+      coder.encode(uid, forKey: kUIDCodingKey)
       coder.encode(displayName, forKey: kDisplayNameCodingKey)
       coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
       coder.encode(factorID, forKey: kFactorIDCodingKey)

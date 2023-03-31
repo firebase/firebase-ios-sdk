@@ -23,7 +23,7 @@ private let kTenantIDKey = "tenantId"
 
 @objc(FIRStartMFAEnrollmentRequest) public class StartMFAEnrollmentRequest: IdentityToolkitRequest,
   AuthRPCRequest {
-  private(set) var IDToken: String?
+  private(set) var idToken: String?
   private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
 
   /** @var response
@@ -31,10 +31,10 @@ private let kTenantIDKey = "tenantId"
    */
   @objc public var response: AuthRPCResponse = StartMFAEnrollmentResponse()
 
-  init(IDToken: String?,
+  init(idToken: String?,
        enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
        requestConfiguration: AuthRequestConfiguration) {
-    self.IDToken = IDToken
+    self.idToken = idToken
     self.enrollmentInfo = enrollmentInfo
     super.init(
       endpoint: kStartMFAEnrollmentEndPoint,
@@ -46,8 +46,8 @@ private let kTenantIDKey = "tenantId"
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var body: [String: AnyHashable] = [:]
-    if let IDToken = IDToken {
-      body["idToken"] = IDToken
+    if let idToken = idToken {
+      body["idToken"] = idToken
     }
     if let enrollmentInfo = enrollmentInfo {
       body["phoneEnrollmentInfo"] = enrollmentInfo.dictionary
