@@ -19,11 +19,14 @@ import Foundation
   @objc(FIRPhoneMultiFactorInfo) public class PhoneMultiFactorInfo: MultiFactorInfo {
     @objc public static let FIRPhoneMultiFactorID = "FIRPhoneMultiFactorID"
 
-    @objc public var phoneNumber: String?
+    @objc public var phoneNumber: String
     @objc override public init(proto: AuthProtoMFAEnrollment) {
+      guard let phoneInfo = proto.phoneInfo else {
+        fatalError("Internal Auth Error: Missing phone number in Multi Factor Enrollment")
+      }
+      phoneNumber = phoneInfo
       super.init(proto: proto)
       factorID = Self.FIRPhoneMultiFactorID
-      phoneNumber = proto.phoneInfo
     }
 
     @available(*, unavailable)
