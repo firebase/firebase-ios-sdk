@@ -156,3 +156,29 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests
+  
+  doc-diff:
+    # Run on PRs only.
+    if: github.event_name == 'pull_request'
+    runs-on: macos-12
+    steps:
+    - name: Checkout main
+      uses: actions/checkout@v3
+      with:
+        ref: master
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: scripts/setup_bundler.sh
+    - name: Generate workspace
+      run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
+    - name: Build documentation
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath build/main/
+    - name: Checkout changes
+      uses: actions/checkout@v3
+    - name: Generate workspace
+      run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
+    - name: Build documentation
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath build/changes/
+    - name: Run docdiff
+      run: ./scripts/docdiff.sh build/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive build/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
+
