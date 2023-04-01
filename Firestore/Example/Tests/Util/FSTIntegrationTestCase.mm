@@ -25,6 +25,7 @@
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
+#import <FirebaseFirestore/FIRLocalCache.h>
 
 #include <memory>
 #include <string>
@@ -265,6 +266,9 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
                               instanceRegistry:nil];
 
   firestore.settings = [FSTIntegrationTestCase settings];
+    firestore.settings.localCache = [FIRLocalCache disk];
+    firestore.settings.localCache = [FIRLocalCache diskWithSizeBytes:1000L];
+    firestore.settings.localCache = [FIRLocalCache memory];
   [_firestores addObject:firestore];
   return firestore;
 }

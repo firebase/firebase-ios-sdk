@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class FIRLocalCache;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** Used to set on-disk cache size to unlimited. Garbage collection will not run. */
@@ -56,6 +58,8 @@ NS_SWIFT_NAME(FirestoreSettings)
  * Set to `FirestoreCacheSizeUnlimited` to disable garbage collection entirely.
  */
 @property(nonatomic, assign) int64_t cacheSizeBytes;
+
+@property(nonatomic, assign) FIRLocalCache* localCache;
 
 @end
 
