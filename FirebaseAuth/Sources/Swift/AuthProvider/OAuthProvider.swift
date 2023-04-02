@@ -375,7 +375,8 @@ import CommonCrypto
             urlString = "https://\(authDomain ?? "")/__/auth/handler?\(argumentsString)"
           }
           guard let percentEncoded = urlString.addingPercentEncoding(
-            withAllowedCharacters: CharacterSet.urlFragmentAllowed) else {
+            withAllowedCharacters: CharacterSet.urlFragmentAllowed
+          ) else {
             fatalError("Internal Auth Error: failed to percent encode a string")
           }
           var components = URLComponents(string: percentEncoded)
@@ -384,7 +385,7 @@ import CommonCrypto
               if let error = tokenResult.error {
                 AuthLog.logWarning(code: "I-AUT000018",
                                    message: "Error getting App Check token; using placeholder " +
-                                   "token instead. Error: \(error)")
+                                     "token instead. Error: \(error)")
               }
               let appCheckTokenFragment = "fac=\(tokenResult.token)"
               components?.fragment = appCheckTokenFragment

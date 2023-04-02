@@ -112,7 +112,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
   public class func request(withURL url: URL,
                             contentType: String,
                             requestConfiguration: AuthRequestConfiguration,
-                            completion: @escaping (URLRequest) -> Void) -> Void {
+                            completion: @escaping (URLRequest) -> Void) {
     var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration
@@ -140,7 +140,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
         if let error = tokenResult.error {
           AuthLog.logWarning(code: "I-AUT000018",
                              message: "Error getting App Check token; using placeholder " +
-                             "token instead. Error: \(error)")
+                               "token instead. Error: \(error)")
         }
         request.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
         completion(request)
@@ -150,7 +150,6 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     }
   }
 }
-
 
 protocol AuthBackendImplementation {
   func post(withRequest request: AuthRPCRequest,

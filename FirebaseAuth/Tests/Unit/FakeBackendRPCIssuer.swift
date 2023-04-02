@@ -102,7 +102,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       // Use the real implementation so that the complete request can
       // be verified during testing.
       AuthBackend.request(withURL: requestURL!,
-                                            contentType: contentType,
+                          contentType: contentType,
                           requestConfiguration: request.requestConfiguration()) { request in
         self.completeRequest = request
       }
