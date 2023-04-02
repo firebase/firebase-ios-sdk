@@ -52,7 +52,8 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testRequestURL {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID auth:nil];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID auth:nil
+                                          heartbeatLogger:nil appCheck:nil];
   FIRSecureTokenRequest *request =
       [FIRSecureTokenRequest refreshRequestWithRefreshToken:kRefreshToken
                                        requestConfiguration:requestConfiguration];
@@ -69,7 +70,8 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
  */
 - (void)testRequestURLUseEmulator {
   FIRAuthRequestConfiguration *requestConfiguration =
-      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID auth:nil];
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID auth:nil
+                                          heartbeatLogger:nil appCheck:nil];
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRSecureTokenRequest *request =
       [FIRSecureTokenRequest refreshRequestWithRefreshToken:kRefreshToken

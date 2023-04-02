@@ -567,6 +567,7 @@ import Foundation
             let clientID = self.auth.app?.options.clientID
             let appID = self.auth.app?.options.googleAppID
             let apiKey = self.auth.requestConfiguration.apiKey
+            let appCheck = self.auth.requestConfiguration.appCheck
             var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
                               URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
                               URLQueryItem(name: "ibi", value: bundleID ?? ""),
@@ -582,8 +583,20 @@ import Foundation
             }
             var components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
             components?.queryItems = queryItems
-            if let url = components?.url {
-              completion(url, nil)
+
+            if let appCheck {
+              appCheck.getToken(forcingRefresh: false) { tokenResult in
+                if let error = tokenResult.error {
+                  AuthLog.logWarning(code: "I-AUT000018",
+                                     message: "Error getting App Check token; using placeholder " +
+                                     "token instead. Error: \(error)")
+                  let appCheckTokenFragment = "fac=\(tokenResult.token)"
+                  components?.fragment = appCheckTokenFragment
+                  completion(components?.url, nil)
+                }
+              }
+            } else {
+              completion(components?.url, nil)
             }
           }
         }

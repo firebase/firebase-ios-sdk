@@ -331,6 +331,7 @@ import CommonCrypto
           let appID = strongSelf?.auth.app?.options.googleAppID
           let apiKey = strongSelf?.auth.requestConfiguration.apiKey
           let tenantID = strongSelf?.auth.tenantID
+          let appCheck = strongSelf?.auth.requestConfiguration.appCheck
 
           // TODO: Should we fail if these strings are empty? Only ibi was explicit in ObjC.
           var urlArguments = ["apiKey": apiKey ?? "",
@@ -373,9 +374,25 @@ import CommonCrypto
           } else {
             urlString = "https://\(authDomain ?? "")/__/auth/handler?\(argumentsString)"
           }
-          completion(URL(string: urlString.addingPercentEncoding(
-            withAllowedCharacters: CharacterSet.urlFragmentAllowed
-          ) ?? ""), nil)
+          guard let percentEncoded = urlString.addingPercentEncoding(
+            withAllowedCharacters: CharacterSet.urlFragmentAllowed) else {
+            fatalError("Internal Auth Error: failed to percent encode a string")
+          }
+          var components = URLComponents(string: percentEncoded)
+          if let appCheck {
+            appCheck.getToken(forcingRefresh: false) { tokenResult in
+              if let error = tokenResult.error {
+                AuthLog.logWarning(code: "I-AUT000018",
+                                   message: "Error getting App Check token; using placeholder " +
+                                   "token instead. Error: \(error)")
+                let appCheckTokenFragment = "fac=\(tokenResult.token)"
+                components?.fragment = appCheckTokenFragment
+                completion(components?.url, nil)
+              }
+            }
+          } else {
+            completion(components?.url, nil)
+          }
         }
     }
 

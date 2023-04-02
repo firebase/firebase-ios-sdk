@@ -423,7 +423,8 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
         [[FIRAuthRequestConfiguration alloc] initWithAPIKey:app.options.APIKey
                                                       appID:app.options.googleAppID
                                                        auth:self
-                                            heartbeatLogger:app.heartbeatLogger];
+                                            heartbeatLogger:app.heartbeatLogger
+                                        appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
     _firebaseAppName = [app.name copy];
 
     if (![(Class)keychainStorageProvider conformsToProtocol:@protocol(FIRAuthStorage)] ||
