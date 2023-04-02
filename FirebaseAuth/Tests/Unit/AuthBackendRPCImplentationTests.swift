@@ -639,6 +639,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     }
     rpcImplementation?.post(withRequest: request) { response, error in
       // The callback never happens and it's fine since we only need to verify the request.
+      XCTFail("Should not be a callback")
     }
 
     // Then
@@ -648,6 +649,29 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
     let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
     XCTAssertEqual(headerValue, expectedHeader)
+  }
+
+  /** @fn testRequest_IncludesAppCheckHeader
+      @brief This test checks the behavior of @c postWithRequest:response:callback:
+          to verify that a appCheck token is attached as a header to an
+          outgoing request.
+   */
+  func testRequest_IncludesAppCheckHeader() throws {
+    // Given
+    let fakeAppCheck = FakeAppCheck()
+    let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
+                                                        appID: kFakeAppID,
+                                                        appCheck: fakeAppCheck)
+
+    let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
+
+    rpcImplementation?.post(withRequest: request) { response, error in
+      // The callback never happens and it's fine since we only need to verify the request.
+      XCTFail("Should not be a callback")
+    }
+    let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
+    let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-AppCheck")
+    XCTAssertEqual(headerValue, fakeAppCheck.fakeAppCheckToken)
   }
 
   /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending

@@ -27,8 +27,8 @@
 #import <GoogleUtilities/GULSceneDelegateSwizzler.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
-#import "FirebaseAuth-Swift.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
@@ -419,11 +419,12 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
     _app = app;
     _mainBundleUrlTypes = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
     _listenerHandles = [NSMutableArray array];
-    _requestConfiguration =
-        [[FIRAuthRequestConfiguration alloc] initWithAPIKey:app.options.APIKey
-                                                      appID:app.options.googleAppID
-                                                       auth:self
-                                            heartbeatLogger:app.heartbeatLogger];
+    _requestConfiguration = [[FIRAuthRequestConfiguration alloc]
+         initWithAPIKey:app.options.APIKey
+                  appID:app.options.googleAppID
+                   auth:self
+        heartbeatLogger:app.heartbeatLogger
+               appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
     _firebaseAppName = [app.name copy];
 
     if (![(Class)keychainStorageProvider conformsToProtocol:@protocol(FIRAuthStorage)] ||

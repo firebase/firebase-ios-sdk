@@ -46,6 +46,7 @@ import FirebaseCore
     static var testUnknownError = false
     static var testAppID = false
     static var testEmulator = false
+    static var testAppCheck = false
 
     static var auth: Auth?
 
@@ -215,6 +216,18 @@ import FirebaseCore
       OAuthProviderTests.testEmulator = false
     }
 
+    /** @fn testGetCredentialWithUIDelegateWithAppCheckToken
+        @brief Tests a successful invocation of @c getCredentialWithUIDelegate
+     */
+    func testGetCredentialWithUIDelegateWithAppCheckToken() throws {
+      let fakeAppCheck = FakeAppCheck()
+      initApp(#function, useAppID: true)
+      OAuthProviderTests.auth?.requestConfiguration.appCheck = fakeAppCheck
+      OAuthProviderTests.testAppCheck = true
+      try testOAuthFlow(description: #function)
+      OAuthProviderTests.testAppCheck = false
+    }
+
     private func initApp(_ functionName: String, useAppID: Bool = false, omitClientID: Bool = false,
                          scheme: String = OAuthProviderTests.kFakeReverseClientID) {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -236,7 +249,8 @@ import FirebaseCore
         [["CFBundleURLSchemes": [scheme]]]
     }
 
-    private func testOAuthFlow(description: String) throws {
+    private func testOAuthFlow(description: String,
+                               with fakeAppCheck: FakeAppCheck? = nil) throws {
       let expectation = self.expectation(description: description)
       let provider = OAuthProvider(providerID: kFakeProviderID, auth: OAuthProviderTests.auth!)
 
@@ -295,6 +309,9 @@ import FirebaseCore
           } else {
             XCTAssertNil(params["tid"])
           }
+          let appCheckToken = presentURL.fragment
+          let verifyAppCheckToken = OAuthProviderTests.testAppCheck ? "fac=fakeAppCheckToken" : nil
+          XCTAssertEqual(appCheckToken, verifyAppCheckToken)
 
           // 7. Test callbackMatcher
           let kFakeRedirectStart = OAuthProviderTests

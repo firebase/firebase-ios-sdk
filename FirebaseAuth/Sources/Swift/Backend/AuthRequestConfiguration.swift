@@ -16,6 +16,7 @@ import Foundation
 
 // TODO: Prefix with `@_implementationOnly` after port.
 import FirebaseCoreExtension
+import FirebaseAppCheckInterop
 
 /** @class FIRAuthRequestConfiguration
    @brief Defines configurations to be added to a request to Firebase Auth's backend.
@@ -44,6 +45,11 @@ import FirebaseCoreExtension
   /// The heartbeat logger used to add heartbeats to the corresponding request's header.
   @objc public var heartbeatLogger: FIRHeartbeatLoggerProtocol?
 
+  /** @property appCheck
+      @brief The appCheck is used to generate a token.
+   */
+  @objc public var appCheck: AppCheckInterop?
+
   /** @property additionalFrameworkMarker
    @brief Additional framework marker that will be added as part of the header of every request.
    */
@@ -54,25 +60,16 @@ import FirebaseCoreExtension
    */
   @objc public var emulatorHostAndPort: String?
 
-  /** @fn initWithRequestClass:APIKey:authLanguage:
-   @brief Designated initializer.
-   @param apiKey The API key to be used in the request.
-   */
-  @objc(initWithAPIKey:appID:auth:)
-  public init(apiKey: String, appID: String, auth: Auth? = nil) {
-    self.apiKey = apiKey
-    self.appID = appID
-    self.auth = auth
-  }
-
-  @objc(initWithAPIKey:appID:auth:heartbeatLogger:)
+  @objc(initWithAPIKey:appID:auth:heartbeatLogger:appCheck:)
   public init(apiKey: String,
               appID: String,
               auth: Auth? = nil,
-              heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil) {
+              heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
+              appCheck: AppCheckInterop? = nil) {
     self.apiKey = apiKey
     self.appID = appID
     self.auth = auth
     self.heartbeatLogger = heartbeatLogger
+    self.appCheck = appCheck
   }
 }

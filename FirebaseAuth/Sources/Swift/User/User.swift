@@ -2094,7 +2094,7 @@ import Foundation
     self.phoneNumber = phoneNumber
     self.metadata = metadata ?? UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     self.tenantID = tenantID
-    // The `heartbeatLogger` will be set later via a property update.
+    // The `heartbeatLogger` and `appCheck` will be set later via a property update.
     requestConfiguration = AuthRequestConfiguration(apiKey: apiKey, appID: appID)
     taskQueue = AuthSerialTaskQueue()
     #if os(iOS)
