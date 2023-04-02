@@ -55,15 +55,17 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
                              contentType: String,
                              completionHandler: @escaping ((Data?, Error?) -> Void)) {
     let requestConfiguration = request.requestConfiguration()
-    let urlRequest = AuthBackend.request(withURL: request.requestURL(), contentType: contentType,
-                                         requestConfiguration: requestConfiguration)
-    let fetcher = fetcherService.fetcher(with: urlRequest)
-    if let _ = requestConfiguration.emulatorHostAndPort {
-      fetcher.allowLocalhostRequest = true
-      fetcher.allowedInsecureSchemes = ["http"]
+    AuthBackend.request(withURL: request.requestURL(),
+                        contentType: contentType,
+                        requestConfiguration: requestConfiguration) { request in
+      let fetcher = self.fetcherService.fetcher(with: request)
+      if let _ = requestConfiguration.emulatorHostAndPort {
+        fetcher.allowLocalhostRequest = true
+        fetcher.allowedInsecureSchemes = ["http"]
+      }
+      fetcher.bodyData = body
+      fetcher.beginFetch(completionHandler: completionHandler)
     }
-    fetcher.bodyData = body
-    fetcher.beginFetch(completionHandler: completionHandler)
   }
 }
 
@@ -109,7 +111,8 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
   // TODO: Why does this need to be public to be visible by unit tests?
   public class func request(withURL url: URL,
                             contentType: String,
-                            requestConfiguration: AuthRequestConfiguration) -> URLRequest {
+                            requestConfiguration: AuthRequestConfiguration,
+                            completion: @escaping (URLRequest) -> Void) -> Void {
     var request = URLRequest(url: url)
     request.setValue(contentType, forHTTPHeaderField: "Content-Type")
     let additionalFrameworkMarker = requestConfiguration
@@ -132,9 +135,22 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
        languageCode.count > 0 {
       request.setValue(languageCode, forHTTPHeaderField: "X-Firebase-Locale")
     }
-    return request
+    if let appCheck = requestConfiguration.appCheck {
+      appCheck.getToken(forcingRefresh: false) { tokenResult in
+        if let error = tokenResult.error {
+          AuthLog.logWarning(code: "I-AUT000018",
+                             message: "Error getting App Check token; using placeholder " +
+                             "token instead. Error: \(error)")
+        }
+        request.setValue(tokenResult.token, forHTTPHeaderField: "X-Firebase-AppCheck")
+        completion(request)
+      }
+    } else {
+      completion(request)
+    }
   }
 }
+
 
 protocol AuthBackendImplementation {
   func post(withRequest request: AuthRPCRequest,

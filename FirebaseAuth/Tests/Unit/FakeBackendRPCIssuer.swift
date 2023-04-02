@@ -101,9 +101,11 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       requestData = body
       // Use the real implementation so that the complete request can
       // be verified during testing.
-      completeRequest = AuthBackend.request(withURL: requestURL!,
+      AuthBackend.request(withURL: requestURL!,
                                             contentType: contentType,
-                                            requestConfiguration: request.requestConfiguration())
+                          requestConfiguration: request.requestConfiguration()) { request in
+        self.completeRequest = request
+      }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
     if let group {

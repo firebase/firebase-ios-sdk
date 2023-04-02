@@ -385,10 +385,10 @@ import CommonCrypto
                 AuthLog.logWarning(code: "I-AUT000018",
                                    message: "Error getting App Check token; using placeholder " +
                                    "token instead. Error: \(error)")
-                let appCheckTokenFragment = "fac=\(tokenResult.token)"
-                components?.fragment = appCheckTokenFragment
-                completion(components?.url, nil)
               }
+              let appCheckTokenFragment = "fac=\(tokenResult.token)"
+              components?.fragment = appCheckTokenFragment
+              completion(components?.url, nil)
             }
           } else {
             completion(components?.url, nil)
