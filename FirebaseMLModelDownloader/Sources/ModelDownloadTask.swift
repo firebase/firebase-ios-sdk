@@ -15,7 +15,7 @@
 import Foundation
 
 /// Task to download model file to device.
-final class ModelDownloadTask {
+class ModelDownloadTask {
   /// Name of the app associated with this instance of ModelDownloadTask.
   private let appName: String
 

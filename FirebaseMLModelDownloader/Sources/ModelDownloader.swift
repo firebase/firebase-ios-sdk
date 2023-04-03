@@ -27,7 +27,7 @@ public enum ModelDownloadType {
 }
 
 /// Downloader to manage custom model downloads.
-public struct ModelDownloader {
+public class ModelDownloader {
   /// Name of the app associated with this instance of ModelDownloader.
   private let appName: String
 
@@ -96,19 +96,11 @@ public struct ModelDownloader {
   }
 
   /// Model downloader with default app.
-  public static func modelDownloader() -> ModelDownloader? {
+  public static func modelDownloader() -> ModelDownloader {
     guard let defaultApp = FirebaseApp.app() else {
       fatalError(ModelDownloader.ErrorDescription.defaultAppNotConfigured)
     }
     return modelDownloader(app: defaultApp)
-  }
-
-  /// Model downloader with default app.
-  public static func modelDownloaderNullable() -> ModelDownloader? {
-    guard let defaultApp = FirebaseApp.app() else {
-      fatalError(ModelDownloader.ErrorDescription.defaultAppNotConfigured)
-    }
-    return nil
   }
 
   /// Model Downloader with custom app.
