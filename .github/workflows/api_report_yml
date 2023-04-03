@@ -1,0 +1,25 @@
+name: API Diff Report
+
+on: [pull_request]
+
+jobs:
+  diff_report:
+    runs-on: macos-latest
+
+    steps:
+      - name: Install Sourcekitten
+        run:  brew install sourcekitten
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+
+      - name: Make diff directory
+        run: mkdir ~/diff
+
+      - name: List changed files
+        run: git diff --name-only ${{ github.base_ref }})
+
+      - name: Checkout master
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.base_ref }}
