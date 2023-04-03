@@ -116,7 +116,7 @@ static NSString *const kExpectedAPIURL =
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeIDTokenKey], kFakeIDToken);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeTokenKey], kFakeToken);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kFakeProviderIDKey], @"apple.com");
-  XCTAssertEqual([_RPCIssuer.decodedRequest[kFakeTokenTypeKey] intValue], 1);
+  XCTAssertEqual([_RPCIssuer.decodedRequest[kFakeTokenTypeKey] intValue], 3);
 }
 
 @end

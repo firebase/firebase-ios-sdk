@@ -2822,12 +2822,12 @@ static const NSTimeInterval kWaitInterval = .5;
             });
           });
   XCTestExpectation *revokeExpectation = [self expectationWithDescription:@"callback"];
-  NSString *token = @"token";
-  [[FIRAuth auth] revokeToken:token
-                   completion:^(NSError *_Nullable error) {
-                     XCTAssertNil(error);
-                     [revokeExpectation fulfill];
-                   }];
+  NSString *code = @"code";
+  [[FIRAuth auth] revokeTokenWithAuthorizationCode:code
+                                        completion:^(NSError *_Nullable error) {
+                                          XCTAssertNil(error);
+                                          [revokeExpectation fulfill];
+                                        }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
@@ -2879,8 +2879,8 @@ static const NSTimeInterval kWaitInterval = .5;
               [revokeExpectation fulfill];
             });
           });
-  NSString *token = @"token";
-  [[FIRAuth auth] revokeToken:token completion:nil];
+  NSString *code = @"code";
+  [[FIRAuth auth] revokeTokenWithAuthorizationCode:code completion:nil];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
