@@ -1395,7 +1395,7 @@ func runningInGitHubAction() -> Bool {
   if let gitHubAction = ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] {
     return gitHubAction == "true"
   }
-  
+
   return false
 }
 
