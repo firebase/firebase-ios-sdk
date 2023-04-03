@@ -20,7 +20,8 @@
 @interface FIRAuthBackend (Internal)
 + (NSMutableURLRequest *)requestWithURL:(NSURL *)URL
                             contentType:(NSString *)contentType
-                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                      completionHandler:(void (^)(NSMutableURLRequest *_Nullable))completionHandler;
 @end
 
 /** @var kFakeErrorDomain
@@ -45,9 +46,13 @@ static NSString *const kFakeErrorDomain = @"fake domain";
     _requestData = body;
     // Use the real implementation so that the complete request can
     // be verified during testing.
-    _completeRequest = [FIRAuthBackend requestWithURL:URL
-                                          contentType:contentType
-                                 requestConfiguration:requestConfiguration];
+    [FIRAuthBackend requestWithURL:URL
+                       contentType:contentType
+              requestConfiguration:requestConfiguration
+                 completionHandler:^(NSMutableURLRequest *request) {
+                   self->_completeRequest = request;
+                 }];
+
     NSDictionary *JSON = [NSJSONSerialization JSONObjectWithData:body options:0 error:nil];
     _decodedRequest = JSON;
   }

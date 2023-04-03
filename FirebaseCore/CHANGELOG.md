@@ -1,4 +1,5 @@
 # Firebase 10.8.0
+- Fix new build warnings introduced by Xcode 14.3. (#11059)
 - [changed] The Firebase Swift package now requires the Swift 5.6 toolchain (Xcode 13.3) to build.
 
 # Firebase 10.4.0
