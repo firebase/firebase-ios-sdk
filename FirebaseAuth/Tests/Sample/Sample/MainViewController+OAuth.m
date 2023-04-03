@@ -468,7 +468,7 @@ NS_ASSUME_NONNULL_BEGIN
   } else if ([appleIDCredential.state isEqualToString:@"revokeAppleTokenAndDeleteUser"]) {
       NSString *code = [[NSString alloc] initWithData:appleIDCredential.authorizationCode encoding:NSUTF8StringEncoding];
       FIRUser *user = FIRAuth.auth.currentUser;
-      [FIRAuth.auth revokeToken:code completion:^(NSError * _Nullable error) {
+      [FIRAuth.auth revokeTokenWithAuthorizationCode:code completion:^(NSError * _Nullable error) {
           if (!error) {
               // Token revocation succeeded then delete user again.
               [user deleteWithCompletion:^(NSError *_Nullable error) {
