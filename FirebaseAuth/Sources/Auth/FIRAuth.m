@@ -1542,7 +1542,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   });
 }
 
-- (void)revokeToken:(NSString *)token
+- (void)revokeTokenWithAuthorizationCode:(NSString *)authorizationCode
          completion:(nullable void (^)(NSError *_Nullable error))completion {
   [self.currentUser
       getIDTokenWithCompletion:^(NSString *_Nullable idToken, NSError *_Nullable error) {
@@ -1553,7 +1553,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           }
         }
         FIRRevokeTokenRequest *request =
-            [[FIRRevokeTokenRequest alloc] initWithToken:token
+            [[FIRRevokeTokenRequest alloc] initWithToken:authorizationCode
                                                  idToken:idToken
                                     requestConfiguration:self->_requestConfiguration];
         [FIRAuthBackend
