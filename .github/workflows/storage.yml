@@ -170,7 +170,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Generate workspace (changes)
-      run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
+      run: git checkout "${{ github.ref_name }}" && bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath build/changes/
     - name: Generate workspace (main)
@@ -178,6 +178,5 @@ jobs:
     - name: Build documentation
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath build/main/
     - name: Run docdiff
-      run: ls
-      # run: ./scripts/docdiff.sh build/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive build/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
+      run: ./scripts/docdiff.sh build/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive build/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
 
