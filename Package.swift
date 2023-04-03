@@ -640,24 +640,24 @@ let package = Package(
       name: "FirebaseFirestoreTarget",
       dependencies: [
         .target(
-            name: "FirebaseFirestore",
-            condition: .when(platforms: [.iOS, .tvOS, .macOS])
+          name: "FirebaseFirestore",
+          condition: .when(platforms: [.iOS, .tvOS, .macOS])
         ),
         .product(name: "abseil", package: "abseil"),
         .product(name: "gRPC-C++", package: "gRPC"),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseCore",
-        "leveldb"
+        "leveldb",
       ],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     ),
 
     .binaryTarget(
-        name: "FirebaseFirestore",
-        // TODO(ncooke3): Host elsewhere.
-        url: "https://dl.google.com/firebase/ios/bin/firestore/10.8.0/FirebaseFirestore.zip",
-        // TODO(ncooke3): Compute new checksum.
-        checksum: "b3efd6e6c362b1f2cd21875bef151706da6016bfd8839fac4fff8a55de354c3e"
+      name: "FirebaseFirestore",
+      // TODO(ncooke3): Host elsewhere.
+      url: "https://dl.google.com/firebase/ios/bin/firestore/10.8.0/FirebaseFirestore.zip",
+      // TODO(ncooke3): Compute new checksum.
+      checksum: "b3efd6e6c362b1f2cd21875bef151706da6016bfd8839fac4fff8a55de354c3e"
     ),
 
     .target(
