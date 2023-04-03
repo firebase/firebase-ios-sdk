@@ -672,7 +672,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "FirebaseFirestore",
+        "FirebaseFirestoreTarget",
         "FirebaseSharedSwift",
       ],
       path: "Firestore",
@@ -1161,7 +1161,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
-        "FirebaseFirestore",
+        "FirebaseFirestoreTarget",
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
