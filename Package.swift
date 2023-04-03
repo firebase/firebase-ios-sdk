@@ -1390,13 +1390,23 @@ if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != 
 
 // MARK: - Helper Functions
 
-func googleAppMeasurementDependency() -> Package.Dependency {
-  let gitURL = "https://github.com/google/GoogleAppMeasurement.git"
+/// Returns  `true` if running in a GitHub Action (Continous Integration).
+func runningInGitHubAction() -> Bool {
+  if let gitHubAction = ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] {
+    return gitHubAction == "true"
+  }
+  
+  return false
+}
 
-  // Use head of main for CI; see scripts/setup_spm_tests.sh.
-  if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
-    return .package(url: gitURL, branch: "main")
+func googleAppMeasurementDependency() -> Package.Dependency {
+  let appMeasurementURL = "https://github.com/google/GoogleAppMeasurement.git"
+
+  // Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement so that the
+  // release process can defer publish the GoogleAppMeasurement tag until after testing.
+  if runningInGitHubAction() {
+    return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: gitURL, exact: "10.8.0")
+  return .package(url: appMeasurementURL, exact: "10.8.0")
 }
