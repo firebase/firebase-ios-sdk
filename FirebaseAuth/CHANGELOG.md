@@ -1,3 +1,21 @@
+# 10.7.0
+- [added] Added an API for developers to pass the fullName from the Sign in with Apple credential to Firebase. (#10068)
+
+# 10.6.0
+- [fixed] Fixed a bug where user is created in a specific tenant although tenantID was not specified. (#10748)
+- [fixed] Fixed a bug where the resolver exposed in MFA is not associated to the correct app. (#10690)
+
+# 10.5.0
+- [fixed] Use team player ID, game player ID and fetchItems for signature verification. (#10441)
+- [fixed] Prevent keychain pop-up when accessing Auth keychain in a Mac
+   app. Note that using Firebase Auth in a Mac app requires that the app
+   is signed with a provisioning profile that has the Keychain Sharing
+   capability enabled (see Firebase 9.6.0 release notes). (#10582)
+
+# 10.4.0
+- [fixed] Fix secure coding bugs in MFA. (#10632)
+- [fixed] Added handling of error returned from a blocking cloud function. (#10628)
+
 # 10.2.0
 - [fixed] Fix a bug where the linking/reauth flows errors are not caught. (#10267)
 - [fixed] Force to recaptcha verification flow for phone auth in simulators. (#10426)

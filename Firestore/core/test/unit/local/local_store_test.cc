@@ -16,6 +16,7 @@
 
 #include "Firestore/core/test/unit/local/local_store_test.h"
 
+#include <thread>  // NOLINT(build/c++11)
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -34,10 +35,14 @@
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_index.h"
+#include "Firestore/core/src/model/field_mask.h"
+#include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/model/field_transform.h"
 #include "Firestore/core/src/model/mutable_document.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/model/mutation_batch_result.h"
 #include "Firestore/core/src/model/patch_mutation.h"
+#include "Firestore/core/src/model/server_timestamp_util.h"
 #include "Firestore/core/src/model/set_mutation.h"
 #include "Firestore/core/src/model/transform_operation.h"
 #include "Firestore/core/src/remote/existence_filter.h"
@@ -92,6 +97,7 @@ using testutil::Key;
 using testutil::Map;
 using testutil::OverlayTypeMap;
 using testutil::Query;
+using testutil::ServerTimestamp;
 using testutil::UnknownDoc;
 using testutil::UpdateRemoteEvent;
 using testutil::UpdateRemoteEventWithLimboTargets;
@@ -1036,10 +1042,10 @@ TEST_P(LocalStoreTest, UsesTargetMappingToExecuteQueries) {
   AcknowledgeMutationWithVersion(10);
   AcknowledgeMutationWithVersion(10);
 
-  // Execute the query, but note that we read all existing documents from the
+  // Execute the query, but note that we read matching documents from the
   // RemoteDocumentCache since we do not yet have target mapping.
   ExecuteQuery(query);
-  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 3);
+  FSTAssertRemoteDocumentsRead(/* by_key */ 0, /* by_query= */ 2);
 
   // Issue a RemoteEvent to persist the target mapping.
   ApplyRemoteEvent(AddedRemoteEvent({Doc("foo/a", 10, Map("matches", true)),
@@ -1682,6 +1688,24 @@ TEST_P(LocalStoreTest, PatchMutationLeadsToPatchOverlay) {
   FSTAssertOverlaysRead(0, 1);
   FSTAssertOverlayTypes(
       OverlayTypeMap({{Key("foo/baz"), model::Mutation::Type::Patch}}));
+}
+
+TEST_P(LocalStoreTest, DeeplyNestedTimestampDoesNotCauseStackOverflow) {
+  Timestamp timestamp = Timestamp::Now();
+  Message<_google_firestore_v1_Value> initialServerTimestamp =
+      model::EncodeServerTimestamp(timestamp, absl::nullopt);
+  model::FieldPath path = model::FieldPath::FromDotSeparatedString("timestamp");
+  auto makeDeeplyNestedTimestamp = [&]() {
+    for (int i = 0; i < 1000; ++i) {
+      WriteMutation(testutil::MergeMutation(
+          "foo/bar",
+          Map("timestamp",
+              model::EncodeServerTimestamp(timestamp, *initialServerTimestamp)),
+          {path}, {ServerTimestamp("timestamp")}));
+    }
+  };
+  std::thread t(makeDeeplyNestedTimestamp);
+  EXPECT_NO_FATAL_FAILURE(t.join());
 }
 
 }  // namespace local

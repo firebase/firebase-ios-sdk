@@ -44,9 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const api::Query &)apiQuery;
 
-// TODO(orquery): This method will become public API. Change visibility and add documentation.
-- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter;
-
 @end
 
 NS_ASSUME_NONNULL_END

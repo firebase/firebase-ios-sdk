@@ -31,11 +31,22 @@
 @property(nonatomic, strong) FIRCLSInstallIdentifierModel *installIDModel;
 @end
 
+static NSString *const TestFIID = @"TEST_FIID";
+
 @implementation FIRCLSReportAdapterTests
 
 - (void)setUp {
   FIRMockInstallations *iid = [[FIRMockInstallations alloc] initWithFID:@"test_token"];
   self.installIDModel = [[FIRCLSInstallIdentifierModel alloc] initWithInstallations:iid];
+}
+
+- (FIRCLSReportAdapter *)constructAdapterWithPath:(NSString *)path
+                                      googleAppId:(NSString *)googleAppID
+                                   installIDModel:(FIRCLSInstallIdentifierModel *)installIDModel {
+  return [[FIRCLSReportAdapter alloc] initWithPath:path
+                                       googleAppId:googleAppID
+                                    installIDModel:installIDModel
+                                              fiid:TestFIID];
 }
 
 /// Attempt sending a proto report to the reporting endpoint
@@ -44,9 +55,9 @@
       [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
   FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
-                                 installIDModel:self.installIDModel];
+      [self constructAdapterWithPath:minCrash
+                         googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                      installIDModel:self.installIDModel];
 
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1206"
                                                              transformers:nil
@@ -63,9 +74,9 @@
       [[FIRCLSReportAdapterTests resourcePath] stringByAppendingPathComponent:@"bare_min_crash"];
 
   FIRCLSReportAdapter *adapter =
-      [[FIRCLSReportAdapter alloc] initWithPath:minCrash
-                                    googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
-                                 installIDModel:self.installIDModel];
+      [self constructAdapterWithPath:minCrash
+                         googleAppId:@"1:17586535263:ios:83778f4dc7e8a26ef794ea"
+                      installIDModel:self.installIDModel];
 
   NSData *data = adapter.transportBytes;
 
@@ -85,9 +96,9 @@
 /// It is important that a crash does not occur when reading persisted crash files
 /// Verify various invalid input cases.
 - (void)testInvalidRecordCases {
-  id adapter __unused = [[FIRCLSReportAdapter alloc] initWithPath:@"nonExistentPath"
-                                                      googleAppId:@"appID"
-                                                   installIDModel:self.installIDModel];
+  id adapter __unused = [self constructAdapterWithPath:@"nonExistentPath"
+                                           googleAppId:@"appID"
+                                        installIDModel:self.installIDModel];
 
   id application __unused = [[FIRCLSRecordApplication alloc] initWithDict:nil];
   id host __unused = [[FIRCLSRecordHost alloc] initWithDict:nil];
@@ -125,6 +136,7 @@
   XCTAssertEqual(report.platform, google_crashlytics_Platforms_IOS);
   XCTAssertTrue([self isPBData:report.installation_uuid
                  equalToString:self.installIDModel.installID]);
+  XCTAssertTrue([self isPBData:report.firebase_installation_id equalToString:TestFIID]);
   XCTAssertTrue([self isPBData:report.display_version
                  equalToString:adapter.application.display_version]);
 
@@ -144,27 +156,24 @@
 #pragma mark - Helper Functions
 
 - (FIRCLSReportAdapter *)adapterForAllCrashes {
-  return [[FIRCLSReportAdapter alloc]
-        initWithPath:[[FIRCLSReportAdapterTests resourcePath]
-                         stringByAppendingPathComponent:@"ios_all_files_crash"]
-         googleAppId:@"appID"
-      installIDModel:self.installIDModel];
+  return [self constructAdapterWithPath:[[FIRCLSReportAdapterTests resourcePath]
+                                            stringByAppendingPathComponent:@"ios_all_files_crash"]
+                            googleAppId:@"appID"
+                         installIDModel:self.installIDModel];
 }
 
 - (FIRCLSReportAdapter *)adapterForCorruptMetadata {
-  return [[FIRCLSReportAdapter alloc]
-        initWithPath:[[FIRCLSReportAdapterTests resourcePath]
-                         stringByAppendingPathComponent:@"corrupt_metadata"]
-         googleAppId:@"appID"
-      installIDModel:self.installIDModel];
+  return [self constructAdapterWithPath:[[FIRCLSReportAdapterTests resourcePath]
+                                            stringByAppendingPathComponent:@"corrupt_metadata"]
+                            googleAppId:@"appID"
+                         installIDModel:self.installIDModel];
 }
 
 - (FIRCLSReportAdapter *)adapterForValidMetadata {
-  return [[FIRCLSReportAdapter alloc]
-        initWithPath:[[FIRCLSReportAdapterTests resourcePath]
-                         stringByAppendingPathComponent:@"valid_metadata"]
-         googleAppId:@"appID"
-      installIDModel:self.installIDModel];
+  return [self constructAdapterWithPath:[[FIRCLSReportAdapterTests resourcePath]
+                                            stringByAppendingPathComponent:@"valid_metadata"]
+                            googleAppId:@"appID"
+                         installIDModel:self.installIDModel];
 }
 
 + (NSString *)resourcePath {

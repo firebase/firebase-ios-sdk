@@ -228,6 +228,15 @@ int32_t SaturatedLimitValue(NSInteger limit) {
                                                                         std::move(query_listener))];
 }
 
+- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter {
+  Filter parsedFilter = [self parseFilter:filter];
+  if (parsedFilter.IsEmpty()) {
+    // Return the existing query if not adding any more filters (e.g. an empty composite filter).
+    return self;
+  }
+  return Wrap(_query.AddNewFilter(std::move(parsedFilter)));
+}
+
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {
   return [self queryWhereFilter:[FIRFilter filterWhereField:field isEqualTo:value]];
 }
@@ -666,15 +675,6 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (const api::Query &)apiQuery {
   return _query;
-}
-
-- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter {
-  Filter parsedFilter = [self parseFilter:filter];
-  if (parsedFilter.IsEmpty()) {
-    // Return the existing query if not adding any more filters (e.g. an empty composite filter).
-    return self;
-  }
-  return Wrap(_query.AddNewFilter(std::move(parsedFilter)));
 }
 
 @end

@@ -1,5 +1,15 @@
-# Unreleased
-- [fixed] Fix an issue that stops some performance optimization being applied.
+# 10.7.0
+- [feature] Add support for disjunctions in queries (`OR` queries).
+- [fixed] Fixed stack overflow caused by deeply nested server timestamps.
+
+# 10.6.0
+- [fixed] Fix a potential high memory usage issue.
+
+# 10.5.0
+- [fixed] Add @discardableResult to addDocument API for easy handling unused return value. (#10640)
+
+# 10.4.0
+- [fixed] Fix an issue that stops some performance optimization being applied (#10579).
 
 # 10.3.0
 - [feature] Add MultiDb support.

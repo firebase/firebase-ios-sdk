@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
         [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"expiresIn"] integerValue]];
   }
   _playerID = [dictionary[@"playerId"] copy];
+  _teamPlayerID = [dictionary[@"teamPlayerId"] copy];
+  _gamePlayerID = [dictionary[@"gamePlayerId"] copy];
   _isNewUser = [dictionary[@"isNewUser"] boolValue];
   _displayName = [dictionary[@"displayName"] copy];
   return YES;

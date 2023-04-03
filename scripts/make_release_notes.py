@@ -256,29 +256,22 @@ def read_changelog_section(filename, single_version=None):
     # Discard all lines until we see a heading that either has the version the
     # user asked for or any version.
     if single_version:
-      initial_heading = re.compile(
-          r'^(#{1,6}) .*%s' % re.escape(single_version))
+      initial_heading = re.compile(r'^#{1,6} .*%s' % re.escape(single_version))
     else:
-      initial_heading = re.compile(r'^#({1,6}) ([^\d]*)\d')
+      initial_heading = re.compile(r'^#{1,6} ([^\d]*)\d')
 
-    heading = re.compile(r'^(#{1,6}) ')
+    heading = re.compile(r'^#{1,6} ')
 
     initial = True
-    heading_level = 6
     result = []
     for line in fd:
       if initial:
-        match = initial_heading.match(line)
-        if match:
+        if initial_heading.match(line):
           initial = False
-          heading_level = len(match.group(1))
           result.append(line)
 
       else:
-        match = heading.match(line)
-        # We only break if we find a new header at the same, or higher,
-        # level.
-        if match and len(match.group(1)) <= heading_level:
+        if heading.match(line):
           break
 
         result.append(line)

@@ -769,10 +769,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
             std::vector<TargetData> queries;
             for (id queryJson in queriesJson) {
               Query query = [self parseQuery:queryJson];
-              // TODO(mcg): populate the purpose of the target once it's possible to encode that in
-              // the spec tests. For now, hard-code that it's a listen despite the fact that it's
-              // not always the right value.
-              TargetData target_data(query.ToTarget(), targetID, 0, QueryPurpose::Listen);
+
+              QueryPurpose purpose = QueryPurpose::Listen;
+              if ([queryData objectForKey:@"targetPurpose"] != nil) {
+                purpose = static_cast<QueryPurpose>([queryData[@"targetPurpose"] intValue]);
+              }
+
+              TargetData target_data(query.ToTarget(), targetID, 0, purpose);
               if ([queryData objectForKey:@"resumeToken"] != nil) {
                 target_data = target_data.WithResumeToken(
                     MakeResumeToken(queryData[@"resumeToken"]), SnapshotVersion::None());
@@ -887,11 +890,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertNotEqual(found, actualTargets.end(), @"Expected active target not found: %s",
                       targetData.ToString().c_str());
 
-    // TODO(mcg): validate the purpose of the target once it's possible to encode that in the
-    // spec tests. For now, only validate properties that can be validated.
+    // TODO(Mila): Replace the XCTAssertEqual() checks on the individual properties of TargetData
+    // below with the single assertEquals on the TargetData objects themselves if the sequenceNumber
+    // is ever made to be consistent.
     // XCTAssertEqualObjects(actualTargets[targetID], TargetData);
-
     const TargetData &actual = found->second;
+
+    XCTAssertEqual(actual.purpose(), targetData.purpose());
     XCTAssertEqual(actual.target(), targetData.target());
     XCTAssertEqual(actual.target_id(), targetData.target_id());
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());

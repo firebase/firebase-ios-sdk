@@ -194,7 +194,7 @@ typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
   /** Action code for email link operation. */
   FIRActionCodeOperationEmailLink = 4,
 
-  /** Action code for verifing and changing email */
+  /** Action code for verifying and changing email */
   FIRActionCodeOperationVerifyAndChangeEmail = 5,
 
   /** Action code for reverting second factor addition */

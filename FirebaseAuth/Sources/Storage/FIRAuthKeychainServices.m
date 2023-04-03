@@ -226,11 +226,28 @@ NS_ASSUME_NONNULL_BEGIN
     @param key The key for the value being manipulated, used as the account field in the query.
  */
 - (NSDictionary *)genericPasswordQueryWithKey:(NSString *)key {
-  return @{
+  NSMutableDictionary *query = @{
     (__bridge id)kSecClass : (__bridge id)kSecClassGenericPassword,
     (__bridge id)kSecAttrAccount : [kAccountPrefix stringByAppendingString:key],
     (__bridge id)kSecAttrService : _service,
-  };
+  }
+                                   .mutableCopy;
+
+  // TODO(ncooke3): Refactor Auth to provide a user defaults based
+  // implementation for unit testing purposes on macOS.
+#ifndef FIREBASE_AUTH_MACOS_TESTING
+  // The below key prevents keychain popups from appearing on the client. It
+  // requires a configured provisioing profile to function properly–– which
+  // cannot be checked into the repo. Rather than disable most of the Auth
+  // testing suite on macOS, the key is omitted. Paired with the
+  // `scripts/configure_test_keychain.sh` script, the popups do not block CI.
+  // See go/firebase-macos-keychain-popups for more details.
+  if (@available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)) {
+    query[(__bridge id)kSecUseDataProtectionKeychain] = (__bridge id)kCFBooleanTrue;
+  }
+#endif  // FIREBASE_AUTH_MACOS_TESTING
+
+  return [query copy];
 }
 
 /** @fn legacyGenericPasswordQueryWithKey:

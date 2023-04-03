@@ -23,7 +23,7 @@
 #
 
 firebase.appquality.sessions.SessionInfo.session_id type:FT_POINTER
-firebase.appquality.sessions.SessionInfo.previous_session_id type:FT_POINTER
+firebase.appquality.sessions.SessionInfo.first_session_id type:FT_POINTER
 firebase.appquality.sessions.SessionInfo.firebase_installation_id type:FT_POINTER
 firebase.appquality.sessions.ApplicationInfo.app_id type:FT_POINTER
 firebase.appquality.sessions.ApplicationInfo.device_model type:FT_POINTER

@@ -1,3 +1,11 @@
+# 10.7.0
+- [added] Provide server errors via the `NSUnderlyingErrorKey`.
+
+# 10.5.0
+- [added] Added Storage API to limit upload chunk size. (#10137)
+- [fixed] Run `pod update` or `File -> Packages -> Update to latest Packages` to update the `GTMSessionFetcher` dependency to at least version `3.1.0`.
+  This fixes an issue where it infinitely retries when FirebaseStorage returns a 500 response.
+
 # 10.3.0
 - [fixed] Use dedicated serial queue for Storage uploads and downloads instead of a (concurrent) global queue.
   Fixes regression introduced in 10.0.0. (#10487)

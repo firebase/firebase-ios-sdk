@@ -19,6 +19,6 @@
 
 + (instancetype)sharedInstance;
 
-- (void)setLogView:(UITextView*)view;
-- (void)logToConsole:(NSString*)text;
+- (void)setLogView:(UITextView *)view;
+- (void)logToConsole:(NSString *)text;
 @end

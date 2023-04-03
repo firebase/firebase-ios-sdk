@@ -131,7 +131,7 @@
   uint8_t fakeData;
   FIRCLSThreadContext registers;
 
-  XCTAssert(FIRCLSDwarfExpressionMachineInit(&machine, (void*)&fakeData, &registers, 42));
+  XCTAssert(FIRCLSDwarfExpressionMachineInit(&machine, (void *)&fakeData, &registers, 42));
   XCTAssert(FIRCLSDwarfExpressionStackIsValid(&machine.stack));
 
   XCTAssertEqual(FIRCLSDwarfExpressionStackPeek(&machine.stack), 42);

@@ -117,7 +117,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   if (appCheckProvider == nil) {
     FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeProviderIsMissing,
                 @"Cannot instantiate `FIRAppCheck` for app: %@ without an app check provider. "
-                @"Please make sure the provide factory returns a valid app check provider.",
+                @"Please make sure the provider factory returns a valid app check provider.",
                 app.name);
     return nil;
   }
