@@ -1,3 +1,6 @@
+# Firebase 10.8.0
+- Fix new build warnings introduced by Xcode 14.3. (#11059)
+
 # Firebase 10.4.0
 - Deprecate `androidClientID` and `trackingID` from FirebaseOptions. (#10520)
 
