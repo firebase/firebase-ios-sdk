@@ -1543,7 +1543,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 - (void)revokeTokenWithAuthorizationCode:(NSString *)authorizationCode
-         completion:(nullable void (^)(NSError *_Nullable error))completion {
+                              completion:(nullable void (^)(NSError *_Nullable error))completion {
   [self.currentUser
       getIDTokenWithCompletion:^(NSString *_Nullable idToken, NSError *_Nullable error) {
         if (completion) {

@@ -856,7 +856,7 @@ NS_SWIFT_NAME(Auth)
         complete, or fails. Invoked asynchronously on the main thread in the future.
  */
 - (void)revokeTokenWithAuthorizationCode:(NSString *)authorizationCode
-         completion:(nullable void (^)(NSError *_Nullable error))completion;
+                              completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 #pragma mark - User sharing
 
