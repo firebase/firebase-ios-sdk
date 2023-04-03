@@ -1886,10 +1886,6 @@ import Foundation
       AuthLog.logNotice(code: "I-AUT000016",
                         message: "Invalid user token detected, user is automatically signed out.")
       try? auth?.signOutByForce(withUserID: uid)
-    } else {
-      // This case was ignored in the ObjC implementation.
-      AuthLog.logWarning(code: "I-AUT000016",
-                         message: "Unexpected error code after GetAccountInfoRequest")
     }
   }
 
