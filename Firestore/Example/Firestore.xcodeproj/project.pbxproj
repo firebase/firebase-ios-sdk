@@ -261,6 +261,7 @@
 		2EB2EE24076A4E4621E38E45 /* nanopb_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6F5B6C1399F92FD60F2C582B /* nanopb_util_test.cc */; };
 		2EC1C4D202A01A632339A161 /* field_transform_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7515B47C92ABEEC66864B55C /* field_transform_test.cc */; };
 		2F3740131CC8F8230351B91D /* byte_stream_cpp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 01D10113ECC5B446DB35E96D /* byte_stream_cpp_test.cc */; };
+		2F69187F601E00054469F4A5 /* DatabaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3355BE9391CC4857AF0BDAE3 /* DatabaseTests.swift */; };
 		2F8FDF35BBB549A6F4D2118E /* FSTMemorySpecTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02F20213FFC00B64F25 /* FSTMemorySpecTests.mm */; };
 		2FA0BAE32D587DF2EA5EEB97 /* async_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6FB467B208E9A8200554BA2 /* async_queue_test.cc */; };
 		3040FD156E1B7C92B0F2A70C /* ordered_code_benchmark.cc in Sources */ = {isa = PBXBuildFile; fileRef = 0473AFFF5567E667A125347B /* ordered_code_benchmark.cc */; };
@@ -1155,6 +1156,7 @@
 		CEA91CE103B42533C54DBAD6 /* memory_remote_document_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */; };
 		CF1FB026CCB901F92B4B2C73 /* watch_change_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 2D7472BC70C024D736FF74D9 /* watch_change_test.cc */; };
 		CF5DE1ED21DD0A9783383A35 /* CodableIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */; };
+		CFA4A635ECD105D2044B3692 /* DatabaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3355BE9391CC4857AF0BDAE3 /* DatabaseTests.swift */; };
 		CFCDC4670C61E034021F400B /* perf_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = D5B2593BCB52957D62F1C9D3 /* perf_spec_test.json */; };
 		CFF1EBC60A00BA5109893C6E /* memory_index_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = DB5A1E760451189DA36028B3 /* memory_index_manager_test.cc */; };
 		D00E69F7FDF2BE674115AD3F /* field_path_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B686F2AD2023DDB20028D6BE /* field_path_test.cc */; };
@@ -1166,6 +1168,7 @@
 		D1BCDAEACF6408200DFB9870 /* overlay_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = E1459FA70B8FC18DE4B80D0D /* overlay_test.cc */; };
 		D21060F8115A5F48FC3BF335 /* local_store_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 307FF03D0297024D59348EBD /* local_store_test.cc */; };
 		D22B96C19A0F3DE998D4320C /* delayed_constructor_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = D0A6E9136804A41CEC9D55D4 /* delayed_constructor_test.cc */; };
+		D2A96D452AF6426C491AF931 /* DatabaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3355BE9391CC4857AF0BDAE3 /* DatabaseTests.swift */; };
 		D377FA653FB976FB474D748C /* remote_event_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 584AE2C37A55B408541A6FF3 /* remote_event_test.cc */; };
 		D39F0216BF1EA8CD54C76CF8 /* FIRQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */; };
 		D3B470C98ACFAB7307FB3800 /* datastore_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3167BD972EFF8EC636530E59 /* datastore_test.cc */; };
@@ -1475,6 +1478,7 @@
 		3167BD972EFF8EC636530E59 /* datastore_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = datastore_test.cc; sourceTree = "<group>"; };
 		32C7CB095CD53D07E98D74B8 /* bundle.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = bundle.pb.h; sourceTree = "<group>"; };
 		332485C4DCC6BA0DBB5E31B7 /* leveldb_util_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_util_test.cc; sourceTree = "<group>"; };
+		3355BE9391CC4857AF0BDAE3 /* DatabaseTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DatabaseTests.swift; sourceTree = "<group>"; };
 		33607A3AE91548BD219EC9C6 /* transform_operation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = transform_operation_test.cc; sourceTree = "<group>"; };
 		358C3B5FE573B1D60A4F7592 /* strerror_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = strerror_test.cc; sourceTree = "<group>"; };
 		36D235D9F1240D5195CDB670 /* Pods-Firestore_IntegrationTests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_IntegrationTests_tvOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_IntegrationTests_tvOS/Pods-Firestore_IntegrationTests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
@@ -1941,6 +1945,7 @@
 			children = (
 				062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */,
 				124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */,
+				3355BE9391CC4857AF0BDAE3 /* DatabaseTests.swift */,
 				621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */,
 			);
 			path = Integration;
@@ -4019,6 +4024,7 @@
 				1C79AE3FBFC91800E30D092C /* CodableIntegrationTests.swift in Sources */,
 				BA3C0BA8082A6FB2546E47AC /* CodableTimestampTests.swift in Sources */,
 				AC835157AD2BE7AA8D20FB5A /* ConditionalConformanceTests.swift in Sources */,
+				2F69187F601E00054469F4A5 /* DatabaseTests.swift in Sources */,
 				816E8E62DC163649BA96951C /* EncodableFieldValueTests.swift in Sources */,
 				95ED06D2B0078D3CDB821B68 /* FIRArrayTransformTests.mm in Sources */,
 				DB3ADDA51FB93E84142EA90D /* FIRBundlesTests.mm in Sources */,
@@ -4243,6 +4249,7 @@
 				CF5DE1ED21DD0A9783383A35 /* CodableIntegrationTests.swift in Sources */,
 				32B0739404FA588608E1F41A /* CodableTimestampTests.swift in Sources */,
 				E434ACDF63F219F3031F292E /* ConditionalConformanceTests.swift in Sources */,
+				D2A96D452AF6426C491AF931 /* DatabaseTests.swift in Sources */,
 				5B0E2D0595BE30B2320D96F1 /* EncodableFieldValueTests.swift in Sources */,
 				660E99DEDA0A6FC1CCB200F9 /* FIRArrayTransformTests.mm in Sources */,
 				AE068EDBC74AF27679CCB6DA /* FIRBundlesTests.mm in Sources */,
@@ -4703,6 +4710,7 @@
 				54C3242322D3B627000FE6DD /* CodableIntegrationTests.swift in Sources */,
 				70AB665EB6A473FF6C4CFD31 /* CodableTimestampTests.swift in Sources */,
 				BCA720A0F54D23654F806323 /* ConditionalConformanceTests.swift in Sources */,
+				CFA4A635ECD105D2044B3692 /* DatabaseTests.swift in Sources */,
 				E688620D4578F1F7FBB1AF9C /* EncodableFieldValueTests.swift in Sources */,
 				73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */,
 				4B54FA587C7107973FD76044 /* FIRBundlesTests.mm in Sources */,

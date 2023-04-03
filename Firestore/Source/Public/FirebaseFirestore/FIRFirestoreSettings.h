@@ -59,7 +59,7 @@ NS_SWIFT_NAME(FirestoreSettings)
  */
 @property(nonatomic, assign) int64_t cacheSizeBytes;
 
-@property(nonatomic, copy) FIRLocalCacheSettings* cacheSettings;
+@property(nonatomic, copy, nullable) FIRLocalCacheSettings* cacheSettings;
 
 @end
 

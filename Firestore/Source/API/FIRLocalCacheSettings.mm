@@ -41,6 +41,21 @@ using api::PersistentCacheSettings;
   PersistentCacheSettings _internalSettings;
 }
 
+- (BOOL)isEqual:(id)other {
+  if (self == other) {
+    return YES;
+  } else if (![other isKindOfClass:[FIRPersistentCacheSettings class]]) {
+    return NO;
+  }
+
+  FIRPersistentCacheSettings *otherSettings = (FIRPersistentCacheSettings *)other;
+  return _internalSettings == otherSettings.internalSettings;
+}
+
+- (NSUInteger)hash {
+  return _internalSettings.Hash();
+}
+
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   FIRPersistentCacheSettings *copy = [[FIRPersistentCacheSettings alloc] init];
   copy.internalSettings = self.internalSettings;
@@ -71,6 +86,21 @@ using api::PersistentCacheSettings;
 
 @implementation FIRMemoryCacheSettings {
   MemoryCacheSettings _internalSettings;
+}
+
+- (BOOL)isEqual:(id)other {
+  if (self == other) {
+    return YES;
+  } else if (![other isKindOfClass:[FIRMemoryCacheSettings class]]) {
+    return NO;
+  }
+
+  FIRMemoryCacheSettings *otherSettings = (FIRMemoryCacheSettings *)other;
+  return _internalSettings == otherSettings.internalSettings;
+}
+
+- (NSUInteger)hash {
+  return _internalSettings.Hash();
 }
 
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {

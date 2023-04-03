@@ -184,7 +184,6 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   if (defaultSettings) return;
 
   defaultSettings = [[FIRFirestoreSettings alloc] init];
-  defaultSettings.cacheSettings = [[FIRPersistentCacheSettings alloc] init];
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
@@ -266,9 +265,6 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
                               instanceRegistry:nil];
 
   firestore.settings = [FSTIntegrationTestCase settings];
-  firestore.settings.cacheSettings = [[FIRPersistentCacheSettings alloc] init];
-  // firestore.settings.cacheSettings = [[FIRLocalCacheSettings alloc] init];
-  //  firestore.settings.cacheSettings = [FIRLocalCache memory];
   [_firestores addObject:firestore];
   return firestore;
 }

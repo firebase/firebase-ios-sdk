@@ -52,11 +52,19 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   }
 
   FIRFirestoreSettings *otherSettings = (FIRFirestoreSettings *)other;
-  return [self.host isEqual:otherSettings.host] &&
-         self.isSSLEnabled == otherSettings.isSSLEnabled &&
-         self.dispatchQueue == otherSettings.dispatchQueue &&
-         self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
-         self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+  BOOL equal = [self.host isEqual:otherSettings.host] &&
+               self.isSSLEnabled == otherSettings.isSSLEnabled &&
+               self.dispatchQueue == otherSettings.dispatchQueue &&
+               self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
+               self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+
+  if (equal && self.cacheSettings != nil && otherSettings.cacheSettings != nil) {
+    equal = [self.cacheSettings isEqual:otherSettings];
+  } else if (equal) {
+    equal = (self.cacheSettings == otherSettings.cacheSettings);
+  }
+
+  return equal;
 }
 
 - (NSUInteger)hash {
@@ -105,6 +113,10 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
                          Settings::MinimumCacheSizeBytes);
   }
   _cacheSizeBytes = cacheSizeBytes;
+}
+
+- (void)setCacheSettings:(nullable FIRLocalCacheSettings *)cacheSettings {
+  _cacheSettings = cacheSettings;
 }
 
 - (BOOL)isUsingDefaultHost {
