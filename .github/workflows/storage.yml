@@ -172,13 +172,15 @@ jobs:
     - name: Generate workspace (main)
       run: git checkout master && bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
-      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath build/main/
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath .docbuild/main/
+    - name: Stash
+      run: git stash
     - name: Switch branches
-      run: git checkout "${GITHUB_HEAD_REF}" && scripts/setup_bundler.sh
+      run: git checkout "${GITHUB_HEAD_REF}" && scripts/setup_bundler.sh && git stash pop
     - name: Generate workspace (changes)
       run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
-      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath build/changes/
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath .docbuild/changes/
     - name: Run docdiff
       run: ./scripts/docdiff.sh build/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive build/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
 
