@@ -22,6 +22,7 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/core/firestore_client.h"
@@ -1784,6 +1785,15 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotIdentical(db1, db2);
   XCTAssertNotIdentical(db1, db3);
   XCTAssertNotIdentical(db2, db3);
+}
+
+- (void)testCannotMixingCacheConfigAPIs {
+  [FIRApp configure];
+  FIRFirestore *db1 = [FIRFirestore firestore];
+
+  FIRFirestoreSettings *settings = db1.settings;
+  settings.cacheSizeBytes = 1000;
+  XCTAssertThrows(settings.cacheSettings = [FIRMemoryCacheSettings init]);
 }
 
 @end
