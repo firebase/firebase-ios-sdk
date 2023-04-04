@@ -20,7 +20,7 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
+@import FirebaseAuth;
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
