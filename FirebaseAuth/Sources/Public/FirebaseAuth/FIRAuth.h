@@ -35,6 +35,7 @@
 @protocol FIRFederatedAuthProvider;
 @protocol FIRAuthStorage;
 @class FIRAuthAPNSTokenManager;
+@class FIRAuthAppCredentialManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -308,6 +309,12 @@ NS_SWIFT_NAME(Auth)
     @brief The manager for APNs tokens used by phone number auth.
  */
 @property(nonatomic, strong, readonly) FIRAuthAPNSTokenManager *tokenManager;
+
+// Should be internal
+/** @property appCredentialManager
+    @brief The manager for app credentials used by phone number auth.
+ */
+@property(nonatomic, strong, readonly) FIRAuthAppCredentialManager *appCredentialManager;
 
 #endif
 
