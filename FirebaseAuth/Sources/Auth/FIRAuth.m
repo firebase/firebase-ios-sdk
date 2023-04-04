@@ -34,7 +34,6 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #endif
