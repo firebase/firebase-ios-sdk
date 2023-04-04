@@ -170,12 +170,12 @@ const LocalCacheSettings* Settings::local_cache_settings() const {
 
 void Settings::set_local_cache_settings(const LocalCacheSettings& settings) {
   HARD_ASSERT(persistence_enabled_ == Settings::DefaultPersistenceEnabled,
-              "Cannot set local cache settings, because persistence_enabled"
-              " is already specified. Please remove code specifing "
+              "Cannot set local cache settings, because persistence_enabled "
+              "is already specified. Please remove code specifing "
               "persistence_enabled.");
   HARD_ASSERT(
       cache_size_bytes_ == Settings::DefaultCacheSizeBytes,
-      "Cannot set local cache settings, because cache_size_bytes"
+      "Cannot set local cache settings, because cache_size_bytes "
       "is already specified. Please remove code specifing cache_size_bytes.");
   cache_settings_ = CopyCacheSettings(settings);
 }

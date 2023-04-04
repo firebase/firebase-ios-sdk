@@ -18,22 +18,58 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ * Marker protocol implemented by all supported cache settings.
+ *
+ * The two cache type supported are `PersistentCacheSettings` and `MemoryCacheSettings`. Custom
+ * implementation is not supported.
+ */
 NS_SWIFT_NAME(LocalCacheSettings)
 @protocol FIRLocalCacheSettings
 @end
 
+/**
+ * Configures the SDK to use a persistent cache. Firestore documents and mutations are persisted
+ * across App restart.
+ *
+ * This is the default cache type unless explicitly speicified otherwise.
+ *
+ * To use, create an instance using one of the initializer, then set the instance to
+ * `FirestoreSettings.cacheSettings`, and use `FirestoreSettings` instance to configure Firestore
+ * SDK.
+ */
 NS_SWIFT_NAME(PersistentCacheSettings)
 @interface FIRPersistentCacheSettings : NSObject <NSCopying, FIRLocalCacheSettings>
 
-// Default settings, with default cache size set to 100MB.
+/**
+ * Creates `PersistentCacheSettings` with default cache size: 100MB.
+ *
+ * The cache size is not a hard limit, but a target for the SDK's gabarge collector to work towards.
+ */
 - (instancetype)init;
+/**
+ * Creates `PersistentCacheSettings` with a custom cache size in bytes.
+ *
+ * The cache size is not a hard limit, but a target for the SDK's gabarge collector to work towards.
+ */
 - (instancetype)initWithSizeBytes:(NSNumber *)size;
 
 @end
 
+/**
+ * Configures the SDK to use a memory cache. Firestore documents and mutations are NOT persisted
+ * across App restart.
+ *
+ * To use, create an instance using one of the initializer, then set the instance to
+ * `FirestoreSettings.cacheSettings`, and use `FirestoreSettings` instance to configure Firestore
+ * SDK.
+ */
 NS_SWIFT_NAME(MemoryCacheSettings)
 @interface FIRMemoryCacheSettings : NSObject <NSCopying, FIRLocalCacheSettings>
 
+/**
+ * Creates an instnace of `MemoryCacheSettings`.
+ */
 - (instancetype)init;
 
 @end
