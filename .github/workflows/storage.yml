@@ -165,22 +165,31 @@ jobs:
     - name: Create artifacts folder
       run: mkdir artifacts && echo "ARTIFACTS_DIR=$(pwd)/artifacts" >> $GITHUB_ENV
     - name: Fetch all
-      run: git clone https://github.com/firebase/firebase-ios-sdk.git && cd firebase-ios-sdk
+      run: git clone https://github.com/firebase/firebase-ios-sdk.git
     - uses: ruby/setup-ruby@v1
+      working-directory: ./firebase-ios-sdk
     - name: Setup Bundler
+      working-directory: ./firebase-ios-sdk
       run: scripts/setup_bundler.sh
     - name: Generate workspace (main)
+      working-directory: ./firebase-ios-sdk
       run: git checkout master && bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
+      working-directory: ./firebase-ios-sdk
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}/main/
     - name: Stash
+      working-directory: ./firebase-ios-sdk
       run: git stash
     - name: Switch branches
+      working-directory: ./firebase-ios-sdk
       run: git checkout "${GITHUB_HEAD_REF}" && scripts/setup_bundler.sh && git stash pop
     - name: Generate workspace (changes)
+      working-directory: ./firebase-ios-sdk
       run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
+      working-directory: ./firebase-ios-sdk
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}//changes/
     - name: Run docdiff
+      working-directory: ./firebase-ios-sdk
       run: ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}//change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}//main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
 
