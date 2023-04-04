@@ -15,13 +15,6 @@
 # limitations under the License.
 
 
-# Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement
-# so that the release process can defer publish the GoogleAppMeasurement tag
-# until after testing.
-
-export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
-
-
 # Move schemes into place to run Swift Package Manager tests
 # These cannot be stored in the correct location because they cause
 # clutter for SDK clients.
