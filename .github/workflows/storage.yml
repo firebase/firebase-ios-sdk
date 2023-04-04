@@ -162,17 +162,17 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: macos-12
     steps:
+    - name: Create artifacts folder
+      run: mkdir artifacts && echo "ARTIFACTS_DIR=$(pwd)/artifacts" >> $GITHUB_ENV
     - name: Fetch all
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+      run: git clone https://github.com/firebase/firebase-ios-sdk.git && cd firebase-ios-sdk
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Generate workspace (main)
       run: git checkout master && bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
-      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath .docbuild/main/
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}/main/
     - name: Stash
       run: git stash
     - name: Switch branches
@@ -180,7 +180,7 @@ jobs:
     - name: Generate workspace (changes)
       run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
-      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath .docbuild/changes/
+      run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}//changes/
     - name: Run docdiff
-      run: ./scripts/docdiff.sh .docbuild/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive .docbuild/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
+      run: ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}//change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}//main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
 
