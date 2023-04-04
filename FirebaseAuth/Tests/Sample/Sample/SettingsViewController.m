@@ -21,7 +21,6 @@
 #import "AppManager.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 @import FirebaseAuth;
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
 #import <FirebaseCore/FIRVersion.h>
