@@ -1395,7 +1395,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
 
   // Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement so that the
   // release process can defer publishing the GoogleAppMeasurement tag until after testing.
-  if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] == "true" {
+  if ProcessInfo.processInfo.environment["FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT"] != nil {
     return .package(url: appMeasurementURL, branch: "main")
   }
 

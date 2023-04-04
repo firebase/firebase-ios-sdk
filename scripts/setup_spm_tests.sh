@@ -15,16 +15,13 @@
 # limitations under the License.
 
 
-# Point SPM to the tip of main of https://github.com/google/GoogleAppMeasurement
+# Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement
 # so that the release process can defer publishing the GoogleAppMeasurement tag
 # until after testing.
-#
-# Note: This only applies when invoking SPM tooling from the CLI. To open
-# Package.swift in Xcode with this environment variable, run:
-#   open --env FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=true Package.swift
-# Ensure that Xcode is not open or running when using the above command.
 
-export FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT=1
+# For example: Change `exact: "8.3.1"` to `branch: "main"`
+
+sed -i '' ''s#exact:[[:space:]]*"[0-9.]*"#branch: "main"#'' Package.swift
 
 
 # Move schemes into place to run Swift Package Manager tests
