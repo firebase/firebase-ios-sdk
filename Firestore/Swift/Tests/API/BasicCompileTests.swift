@@ -73,7 +73,6 @@ func initializeDb() -> Firestore {
   settings.host = "localhost"
   settings.isPersistenceEnabled = true
   settings.cacheSizeBytes = FirestoreCacheSizeUnlimited
-  // settings.localCache = LocalCache.disk(withSizeBytes: 1000)
   firestore.settings = settings
 
   return firestore
@@ -294,16 +293,16 @@ func readDocument(at docRef: DocumentReference) {
 }
 
 func readDocumentWithSource(at docRef: DocumentReference) {
-  docRef.getDocument(source: FirestoreSource.default) { document, error in
+  docRef.getDocument(source: FirestoreSource.default) { _, _ in
   }
-  docRef.getDocument(source: .server) { document, error in
+  docRef.getDocument(source: .server) { _, _ in
   }
-  docRef.getDocument(source: FirestoreSource.cache) { document, error in
+  docRef.getDocument(source: FirestoreSource.cache) { _, _ in
   }
 }
 
 func readDocuments(matching query: Query) {
-  query.getDocuments { querySnapshot, error in
+  query.getDocuments { querySnapshot, _ in
     // TODO(mikelehen): Figure out how to make "for..in" syntax work
     // directly on documentSet.
     for document in querySnapshot!.documents {
@@ -313,11 +312,11 @@ func readDocuments(matching query: Query) {
 }
 
 func readDocumentsWithSource(matching query: Query) {
-  query.getDocuments(source: FirestoreSource.default) { querySnapshot, error in
+  query.getDocuments(source: FirestoreSource.default) { _, _ in
   }
-  query.getDocuments(source: .server) { querySnapshot, error in
+  query.getDocuments(source: .server) { _, _ in
   }
-  query.getDocuments(source: FirestoreSource.cache) { querySnapshot, error in
+  query.getDocuments(source: FirestoreSource.cache) { _, _ in
   }
 }
 
@@ -346,7 +345,7 @@ func listenToDocument(at docRef: DocumentReference) {
 }
 
 func listenToDocumentWithMetadataChanges(at docRef: DocumentReference) {
-  let listener = docRef.addSnapshotListener(includeMetadataChanges: true) { document, error in
+  let listener = docRef.addSnapshotListener(includeMetadataChanges: true) { document, _ in
     if let document = document {
       if document.metadata.hasPendingWrites {
         print("Has pending writes")
@@ -383,7 +382,7 @@ func listenToDocuments(matching query: Query) {
 }
 
 func listenToQueryDiffs(onQuery query: Query) {
-  let listener = query.addSnapshotListener { snap, error in
+  let listener = query.addSnapshotListener { snap, _ in
     if let snap = snap {
       for change in snap.documentChanges {
         switch change.type {
@@ -403,7 +402,7 @@ func listenToQueryDiffs(onQuery query: Query) {
 }
 
 func listenToQueryDiffsWithMetadata(onQuery query: Query) {
-  let listener = query.addSnapshotListener(includeMetadataChanges: true) { snap, error in
+  let listener = query.addSnapshotListener(includeMetadataChanges: true) { snap, _ in
     if let snap = snap {
       for change in snap.documentChanges(includeMetadataChanges: true) {
         switch change.type {
@@ -445,7 +444,7 @@ func transactions() {
       print("Uh oh! \(error)")
     }
     return 0
-  }) { result, error in
+  }) { _, _ in
     // handle result.
   }
 }

@@ -21,13 +21,14 @@
 
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/util/exception.h"
-#include "Firestore/core/src/util/string_apple.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 namespace api = firebase::firestore::api;
 using api::MemoryCacheSettings;
 using api::PersistentCacheSettings;
+using api::Settings;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 @implementation FIRPersistentCacheSettings {
   PersistentCacheSettings _internalSettings;
@@ -70,6 +71,11 @@ using api::PersistentCacheSettings;
 
 - (instancetype)initWithSizeBytes:(NSNumber *)size {
   self = [super init];
+  if (size.longLongValue < Settings::MinimumCacheSizeBytes) {
+    ThrowInvalidArgument("Cache size must be set to at least %s bytes",
+                         Settings::MinimumCacheSizeBytes);
+  }
+
   self.internalSettings = PersistentCacheSettings{}.WithSizeBytes(size.longLongValue);
   return self;
 }

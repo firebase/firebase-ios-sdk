@@ -77,6 +77,9 @@ class Settings {
   void set_local_cache_settings(const LocalCacheSettings& settings);
 
   friend bool operator==(const Settings& lhs, const Settings& rhs);
+  friend bool operator!=(const Settings& lhs, const Settings& rhs) {
+    return !(lhs == rhs);
+  }
 
   size_t Hash() const;
 

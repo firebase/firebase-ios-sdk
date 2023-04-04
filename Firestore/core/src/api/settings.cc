@@ -66,6 +66,11 @@ std::unique_ptr<LocalCacheSettings> Settings::CopyCacheSettings(
 }
 
 size_t Settings::Hash() const {
+  if (cache_settings_ == nullptr) {
+    return util::Hash(host_, ssl_enabled_, persistence_enabled_,
+                      cache_size_bytes_);
+  }
+
   return util::Hash(host_, ssl_enabled_, persistence_enabled_,
                     cache_size_bytes_, *cache_settings_);
 }

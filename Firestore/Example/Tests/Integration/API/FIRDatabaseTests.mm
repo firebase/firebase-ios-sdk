@@ -1805,4 +1805,9 @@ using firebase::firestore::util::TimerId;
   XCTAssertThrowsSpecific(db2.settings = settings, NSException);
 }
 
+- (void)testMinimumCacheSize {
+  XCTAssertThrowsSpecific([[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(1024 * 1024 - 1)],
+                          NSException);
+}
+
 @end
