@@ -21,7 +21,7 @@
 
 # For example: Change `exact: "8.3.1"` to `branch: "main"`
 
-sed -i '' ''s#exact:[[:space:]]*"[0-9.]*"#branch: "main"#'' Package.swift
+sed -i '' 's#exact:[[:space:]]*"[0-9.]*"#branch: "main"#' Package.swift
 
 
 # Move schemes into place to run Swift Package Manager tests
