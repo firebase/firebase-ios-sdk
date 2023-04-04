@@ -34,32 +34,32 @@ using testutil::Value;
 
 namespace {
 
-int int_val = 100;
-double double_val = 10.5;
+double double_val = 10.1;
+int64_t long_val = 10;
 
 // will be FieldValue
-int __attribute__((unused)) get(AggregateBaseField1) {
-  return int_val;
-}
-
-double get(AverageAggregateField1) {
+double __attribute__((unused)) get(AggregateBaseField1) {
   return double_val;
 }
 
-int __attribute__((unused)) get(std::shared_ptr<AggregateField2>) {
-  return int_val;
+int64_t get(CountAggregateField1) {
+  return long_val;
 }
 
-double get(std::shared_ptr<AverageAggregateField2>) {
+double __attribute__((unused)) get(std::shared_ptr<AggregateField2>) {
   return double_val;
 }
 
-int __attribute__((unused)) get(AggregateField3) {
-  return int_val;
+int64_t get(std::shared_ptr<CountAggregateField2>) {
+  return long_val;
 }
 
-double get(AverageAggregateField3) {
+double __attribute__((unused)) get(AggregateField3) {
   return double_val;
+}
+
+int64_t get(CountAggregateField3) {
+  return long_val;
 }
 
 }  // namespace
@@ -74,7 +74,7 @@ TEST(AggregateTest1, Usage) {
   EXPECT_EQ(list[1].type(),
             core::AggregateBaseField1::Type::kAverageAggregateField);
 
-  EXPECT_EQ(double_val, get(core::AggregateField1::average()));
+  EXPECT_EQ(long_val, get(core::AggregateField1::count()));
 }
 
 TEST(AggregateTest2, Usage) {
@@ -85,7 +85,7 @@ TEST(AggregateTest2, Usage) {
   EXPECT_EQ(list[1]->type(),
             core::AggregateField2::Type::kAverageAggregateField);
 
-  EXPECT_EQ(double_val, get(core::AggregateField2::average()));
+  EXPECT_EQ(long_val, get(core::AggregateField2::count()));
 }
 
 TEST(AggregateTest3, Usage) {
@@ -96,7 +96,7 @@ TEST(AggregateTest3, Usage) {
   EXPECT_EQ(list[1].type(),
             core::AggregateField3::Type::kAverageAggregateField);
 
-  EXPECT_EQ(double_val, get(AverageAggregateField3()));
+  EXPECT_EQ(long_val, get(CountAggregateField3()));
 }
 
 TEST(AggregateTest4, Usage) {
