@@ -75,6 +75,15 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   // Ignore the dispatchQueue to avoid having to deal with sizeof(dispatch_queue_t).
   result = 31 * result + (self.isPersistenceEnabled ? 1231 : 1237);
   result = 31 * result + (NSUInteger)self.cacheSizeBytes;
+
+  if ([_cacheSettings isKindOfClass:[FIRPersistentCacheSettings class]]) {
+    FIRPersistentCacheSettings *casted = (FIRPersistentCacheSettings *)_cacheSettings;
+    result = 31 * result + casted.internalSettings.Hash();
+  } else if ([_cacheSettings isKindOfClass:[FIRMemoryCacheSettings class]]) {
+    FIRMemoryCacheSettings *casted = (FIRMemoryCacheSettings *)_cacheSettings;
+    result = 31 * result + casted.internalSettings.Hash();
+  }
+
   return result;
 }
 
