@@ -36,11 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #if TARGET_OS_IOS
 
-/** @property appCredentailManager
-    @brief The manager for app credentials used by phone number auth.
- */
-@property(nonatomic, strong, readonly) FIRAuthAppCredentialManager *appCredentialManager;
-
 #endif  // TARGET_OS_IOS
 
 - (instancetype)initWithApp:(FIRApp *)app
