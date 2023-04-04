@@ -16,6 +16,7 @@
 
 import Foundation
 import FirebaseDatabase
+import FirebaseSharedSwift
 
 public extension DataSnapshot {
   /// Retrieves the value of a snapshot and converts it to an instance of
