@@ -1,5 +1,8 @@
+# 10.9.0
+- [added] Added sign in with Apple token revocation supprot. (#11001)
+
 # 10.8.0
-- [added] Added Firebase App Check support to Firebase Auth.
+- [added] Added Firebase App Check support to Firebase Auth. (#11056)
 
 # 10.7.0
 - [added] Added an API for developers to pass the fullName from the Sign in with Apple credential to Firebase. (#10068)
