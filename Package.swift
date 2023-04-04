@@ -1200,7 +1200,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
-        "FirebaseFirestore",
+        "FirebaseFirestoreTarget",
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
