@@ -166,7 +166,7 @@ jobs:
       run: mkdir artifacts && echo "ARTIFACTS_DIR=$(pwd)/artifacts" >> $GITHUB_ENV
     - name: Fetch all
       run: git clone https://github.com/firebase/firebase-ios-sdk.git
-    - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@master
       working-directory: ./firebase-ios-sdk
     - name: Setup Bundler
       working-directory: ./firebase-ios-sdk
