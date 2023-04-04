@@ -1287,7 +1287,7 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreTestingSupport",
-      dependencies: ["FirebaseFirestore"],
+      dependencies: ["FirebaseFirestoreTarget"],
       path: "FirebaseTestingSupport/Firestore/Sources",
       publicHeadersPath: "./",
       cSettings: [
