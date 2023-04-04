@@ -182,5 +182,5 @@ jobs:
     - name: Build documentation
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath .docbuild/changes/
     - name: Run docdiff
-      run: ./scripts/docdiff.sh build/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive build/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
+      run: ./scripts/docdiff.sh .docbuild/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive .docbuild/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
 
