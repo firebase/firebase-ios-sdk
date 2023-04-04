@@ -24,6 +24,9 @@
 # Commonly
 # ./scripts/style.sh master
 
+# Fail the script if any command fails
+set -e
+
 # Strip the clang-format version output down to the major version. Examples:
 #   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
 #   clang-format version google3-trunk (trunk r333779)
@@ -62,6 +65,11 @@ esac
 # problems that would otherwise arise from the default of installing in
 # /usr/local.
 export MINT_PATH=Mint
+
+if ! which mint >/dev/null 2>&1; then
+  echo "mint is not available, install with 'brew install mint'"
+  exit 1
+fi
 
 system=$(uname -s)
 
