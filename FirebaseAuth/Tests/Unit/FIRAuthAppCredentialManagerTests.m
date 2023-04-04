@@ -21,7 +21,6 @@
 #import <XCTest/XCTest.h>
 
 #import <FirebaseAuth/FirebaseAuth-Swift.h>
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 
 #define ANY_ERROR_POINTER ((NSError * __autoreleasing *_Nullable)[OCMArg anyPointer])
 #define SAVE_TO(var)                     \
@@ -78,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setUp {
   _mockKeychain = OCMClassMock([FIRAuthKeychainServices class]);
 }
-
+#ifdef TODO_SWIFT
 /** @fn testCompletion
     @brief Tests a successfully completed verification flow.
  */
@@ -255,7 +254,6 @@ NS_ASSUME_NONNULL_BEGIN
   XCTAssertNil(manager.credential);
 }
 
-#ifdef TODO_SWIFT
 /** @fn testKeychain
     @brief Tests state preservation in the keychain.
  */

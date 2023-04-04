@@ -18,7 +18,6 @@
 
 #import "AppManager.h"
 @import FirebaseAuth;
-#import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "MainViewController+Internal.h"
 #import <FirebaseCore/FIRApp.h>
