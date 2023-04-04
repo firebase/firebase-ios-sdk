@@ -22,11 +22,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRLocalCacheSettings (Internal)
-- (instancetype)init;
-@property(nonatomic, assign) const firebase::firestore::api::LocalCacheSettings& internalSettings;
-@end
-
 @interface FIRPersistentCacheSettings (Internal)
 
 @property(nonatomic, assign)

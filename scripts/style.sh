@@ -24,9 +24,6 @@
 # Commonly
 # ./scripts/style.sh master
 
-# Fail the script if any command fails
-set -e
-
 # Strip the clang-format version output down to the major version. Examples:
 #   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
 #   clang-format version google3-trunk (trunk r333779)

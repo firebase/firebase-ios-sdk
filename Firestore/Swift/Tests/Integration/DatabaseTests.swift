@@ -61,20 +61,9 @@ class DatabaseTests: FSTIntegrationTestCase {
     XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
   }
 
-  func testCanSetCacheSettingsToNil() async throws {
-    let settings = db.settings
-    settings.cacheSettings = nil
-    db.settings = settings
-
-    try await db.document("coll/doc").setData(["foo": "bar"])
-    let result = try? await db.document("coll/doc").getDocument(source: .cache)
-    XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
-  }
-
   func testCanSetCacheSettingsMultipleTimes() async throws {
     let settings = db.settings
     settings.cacheSettings = PersistentCacheSettings()
-    settings.cacheSettings = nil
     settings.cacheSettings = MemoryCacheSettings()
     db.settings = settings
 
@@ -82,19 +71,4 @@ class DatabaseTests: FSTIntegrationTestCase {
     let result = try? await db.document("coll/doc").getDocument(source: .cache)
     XCTAssertNil(result)
   }
-
-//  func testCannnotMixingTwoStyles() throws {
-//      //XCTAssertThrowsError(db.settings)
-////    let settings = db.settings
-////    settings.isPersistenceEnabled = false
-////    settings.cacheSettings = MemoryCacheSettings()
-//    do {
-//      db.settings
-//      XCTFail("Above is should fail")
-//    } catch {
-//      XCTAssertNotNil(error)
-//    }
-//
-//    // XCTAssertThrowsError(db.settings = settings)
-//  }
 }

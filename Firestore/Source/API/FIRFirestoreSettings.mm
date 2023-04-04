@@ -15,7 +15,9 @@
  */
 
 #import "FIRFirestoreSettings.h"
+#import <Foundation/NSObject.h>
 #import "FIRLocalCacheSettings+Internal.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRLocalCacheSettings.h"
 
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/util/exception.h"
@@ -115,7 +117,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   _cacheSizeBytes = cacheSizeBytes;
 }
 
-- (void)setCacheSettings:(nullable FIRLocalCacheSettings *)cacheSettings {
+- (void)setCacheSettings:(id<FIRLocalCacheSettings, NSObject>)cacheSettings {
   _cacheSettings = cacheSettings;
 }
 
@@ -130,9 +132,15 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   settings.set_ssl_enabled(_sslEnabled);
   settings.set_persistence_enabled(_persistenceEnabled);
   settings.set_cache_size_bytes(_cacheSizeBytes);
-  if (_cacheSettings != nil) {
-    settings.set_local_cache_settings(_cacheSettings.internalSettings);
+
+  if ([_cacheSettings isKindOfClass:[FIRPersistentCacheSettings class]]) {
+    FIRPersistentCacheSettings *casted = (FIRPersistentCacheSettings *)_cacheSettings;
+    settings.set_local_cache_settings(casted.internalSettings);
+  } else if ([_cacheSettings isKindOfClass:[FIRMemoryCacheSettings class]]) {
+    FIRMemoryCacheSettings *casted = (FIRMemoryCacheSettings *)_cacheSettings;
+    settings.set_local_cache_settings(casted.internalSettings);
   }
+
   return settings;
 }
 

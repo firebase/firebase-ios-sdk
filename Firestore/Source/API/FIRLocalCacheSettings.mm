@@ -29,14 +29,6 @@ namespace api = firebase::firestore::api;
 using api::MemoryCacheSettings;
 using api::PersistentCacheSettings;
 
-@implementation FIRLocalCacheSettings
-
-- (instancetype)initWithSize:(NSNumber *)s {
-  return self;
-}
-
-@end
-
 @implementation FIRPersistentCacheSettings {
   PersistentCacheSettings _internalSettings;
 }

@@ -1792,8 +1792,17 @@ using firebase::firestore::util::TimerId;
   FIRFirestore *db1 = [FIRFirestore firestore];
 
   FIRFirestoreSettings *settings = db1.settings;
-  settings.cacheSizeBytes = 1000;
-  XCTAssertThrows(settings.cacheSettings = [FIRMemoryCacheSettings init]);
+  settings.cacheSizeBytes = 10000000;
+  settings.cacheSettings = [[FIRPersistentCacheSettings alloc] init];
+
+  XCTAssertThrowsSpecific(db1.settings = settings, NSException);
+
+  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"db2"];
+  settings = db2.settings;
+  settings.cacheSettings = [[FIRMemoryCacheSettings alloc] init];
+  settings.persistenceEnabled = NO;
+
+  XCTAssertThrowsSpecific(db2.settings = settings, NSException);
 }
 
 @end

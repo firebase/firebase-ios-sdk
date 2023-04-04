@@ -19,11 +19,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(LocalCacheSettings)
-@interface FIRLocalCacheSettings : NSObject
+@protocol FIRLocalCacheSettings
 @end
 
 NS_SWIFT_NAME(PersistentCacheSettings)
-@interface FIRPersistentCacheSettings : FIRLocalCacheSettings <NSCopying>
+@interface FIRPersistentCacheSettings : NSObject <NSCopying, FIRLocalCacheSettings>
 
 // Default settings, with default cache size set to 100MB.
 - (instancetype)init;
@@ -32,7 +32,7 @@ NS_SWIFT_NAME(PersistentCacheSettings)
 @end
 
 NS_SWIFT_NAME(MemoryCacheSettings)
-@interface FIRMemoryCacheSettings : FIRLocalCacheSettings <NSCopying>
+@interface FIRMemoryCacheSettings : NSObject <NSCopying, FIRLocalCacheSettings>
 
 - (instancetype)init;
 
