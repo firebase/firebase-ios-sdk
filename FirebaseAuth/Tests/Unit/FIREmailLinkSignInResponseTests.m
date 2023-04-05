@@ -159,7 +159,7 @@ static const BOOL kFakeIsNewUSerFlag = YES;
 }
 
 /** @fn testSuccessfulEmailLinkSignInResponse
-    @brief Tests a succesful email link sign-in response.
+    @brief Tests a successful email link sign-in response.
  */
 - (void)testSuccessfulEmailLinkSignInResponse {
   FIREmailLinkSignInRequest *request =

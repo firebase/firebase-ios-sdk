@@ -163,7 +163,7 @@ static NSString *const kInvalidAppCredentialErrorMessage = @"INVALID_APP_CREDENT
 }
 
 /** @fn testSuccessfulVerifyClientResponse
-    @brief Tests a succesful attempt of the verify password flow.
+    @brief Tests a successful attempt of the verify password flow.
  */
 - (void)testSuccessfulVerifyPasswordResponse {
   FIRVerifyClientRequest *request =
