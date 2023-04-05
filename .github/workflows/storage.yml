@@ -178,12 +178,9 @@ jobs:
     - name: Build documentation
       working-directory: firebase-ios-sdk
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}/main/
-    - name: Stash
-      working-directory: firebase-ios-sdk
-      run: git stash
     - name: Switch branches
       working-directory: firebase-ios-sdk
-      run: git checkout "${GITHUB_HEAD_REF}" && scripts/setup_bundler.sh && git stash pop
+      run: git checkout "${GITHUB_HEAD_REF}" && scripts/setup_bundler.sh
     - name: Generate workspace (changes)
       working-directory: firebase-ios-sdk
       run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
@@ -192,5 +189,5 @@ jobs:
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}//changes/
     - name: Run docdiff
       working-directory: firebase-ios-sdk
-      run: ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}//change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}//main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
+      run: ls ${{ env.ARTIFACTS_DIR }} && ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}/change/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
 
