@@ -53,7 +53,8 @@ NS_SWIFT_NAME(FirestoreSettings)
  *
  * Set to false to disable local persistent storage.
  */
-@property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled;
+@property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled DEPRECATED_MSG_ATTRIBUTE(
+    "This field is deprecated, use `cacheSettings` instead.");
 
 /**
  * NOTE: This field will be deprecated in a future major release. Use `cacheSettings` field
@@ -65,7 +66,8 @@ NS_SWIFT_NAME(FirestoreSettings)
  *
  * Set to `FirestoreCacheSizeUnlimited` to disable garbage collection entirely.
  */
-@property(nonatomic, assign) int64_t cacheSizeBytes;
+@property(nonatomic, assign) int64_t cacheSizeBytes DEPRECATED_MSG_ATTRIBUTE(
+    "This field is deprecated, use `cacheSettings` instead.");
 
 /**
  * Specifies the cache used by the SDK. Availabe options are `PersistentLocalCache`
