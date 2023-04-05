@@ -161,12 +161,12 @@ let package = Package(
       "2.30909.0" ..< "2.30910.0"
     ),
     .package(
-      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20220203.1" ..< "0.20220204.0"
+      url: "https://github.com/google/abseil-cpp-binary.git",
+      "1.2021110200.0" ..< "1.2021110300.0"
     ),
     .package(
-      url: "https://github.com/grpc/grpc-ios.git",
-      "1.44.0-grpc" ..< "1.45.0-grpc"
+      url: "https://github.com/google/grpc-binary.git",
+      "1.44.0" ..< "1.45.0"
     ),
     .package(
       url: "https://github.com/erikdoe/ocmock.git",
@@ -469,7 +469,7 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
-        "FirebaseFirestore",
+        "FirebaseFirestoreTarget",
         "FirebaseFirestoreSwift",
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
@@ -637,73 +637,24 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreTarget",
-      dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+      dependencies: [
+        .target(
+          name: "FirebaseFirestore",
+          condition: .when(platforms: [.iOS, .tvOS, .macOS])
+        ),
+        .product(name: "abseil", package: "abseil-cpp-binary"),
+        .product(name: "gRPC-C++", package: "grpc-binary"),
+        .product(name: "nanopb", package: "nanopb"),
+        "FirebaseCore",
+        "leveldb",
+      ],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     ),
 
-    .target(
+    .binaryTarget(
       name: "FirebaseFirestore",
-      dependencies: [
-        "FirebaseCore",
-        "leveldb",
-        .product(name: "nanopb", package: "nanopb"),
-        .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
-        .product(name: "gRPC-cpp", package: "grpc-ios"),
-      ],
-      path: "Firestore",
-      exclude: [
-        "CHANGELOG.md",
-        "CMakeLists.txt",
-        "Example/",
-        "LICENSE",
-        "Protos/CMakeLists.txt",
-        "Protos/Podfile",
-        "Protos/README.md",
-        "Protos/build_protos.py",
-        "Protos/cpp/",
-        "Protos/lib/",
-        "Protos/nanopb_cpp_generator.py",
-        "Protos/protos/",
-        "README.md",
-        "Source/CMakeLists.txt",
-        "Swift/",
-        "core/CMakeLists.txt",
-        "core/src/util/config_detected.h.in",
-        "core/test/",
-        "fuzzing/",
-        "test.sh",
-        // Swift PM doesn't recognize hpp files, so we're relying on search paths
-        // to find third_party/nlohmann_json/json.hpp.
-        "third_party/",
-
-        // Exclude alternate implementations for other platforms
-        "core/src/remote/connectivity_monitor_noop.cc",
-        "core/src/util/filesystem_win.cc",
-        "core/src/util/log_stdio.cc",
-        "core/src/util/secure_random_openssl.cc",
-      ],
-      sources: [
-        "Source/",
-        "Protos/nanopb/",
-        "core/include/",
-        "core/src",
-      ],
-      publicHeadersPath: "Source/Public",
-      cSettings: [
-        .headerSearchPath("../"),
-        .headerSearchPath("Source/Public/FirebaseFirestore"),
-        .headerSearchPath("Protos/nanopb"),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-        .define("FIRFirestore_VERSION", to: firebaseVersion),
-      ],
-      linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
-        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
-        .linkedLibrary("c++"),
-      ]
+      url: "https://dl.google.com/firebase/ios/bin/firestore/10.8.0/FirebaseFirestore.zip",
+      checksum: "56ea3c98343cc31e3579faf5292ec73223c86e6502848ad2bf4870f6cbc63104"
     ),
 
     .target(
@@ -718,7 +669,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseCoreExtension",
-        "FirebaseFirestore",
+        "FirebaseFirestoreTarget",
         "FirebaseSharedSwift",
       ],
       path: "Firestore",
@@ -1207,7 +1158,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
-        "FirebaseFirestore",
+        "FirebaseFirestoreTarget",
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
@@ -1246,7 +1197,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
-        "FirebaseFirestore",
+        "FirebaseFirestoreTarget",
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         "FirebaseInstallations",
@@ -1333,7 +1284,7 @@ let package = Package(
 
     .target(
       name: "FirebaseFirestoreTestingSupport",
-      dependencies: ["FirebaseFirestore"],
+      dependencies: ["FirebaseFirestoreTarget"],
       path: "FirebaseTestingSupport/Firestore/Sources",
       publicHeadersPath: "./",
       cSettings: [
@@ -1363,27 +1314,6 @@ if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != 
       name: "FirebaseFirestore",
       // The `xcframework` should be moved to the root of the repo.
       path: "FirebaseFirestore.xcframework"
-    )
-  }
-
-  // TODO(ncooke3): Below re-defining is not needed when original
-  // FirebaseFirestoreTarget definition matches below definition.
-  if let firestoreTargetIndex = package.targets
-    .firstIndex(where: { $0.name == "FirebaseFirestoreTarget" }) {
-    package.targets[firestoreTargetIndex] = .target(
-      name: "FirebaseFirestoreTarget",
-      dependencies: [
-        .target(
-          name: "FirebaseFirestore",
-          condition: .when(platforms: [.iOS, .tvOS, .macOS])
-        ),
-        .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
-        .product(name: "gRPC-cpp", package: "grpc-ios"),
-        .product(name: "nanopb", package: "nanopb"),
-        "FirebaseCore",
-        "leveldb",
-      ],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
 }
