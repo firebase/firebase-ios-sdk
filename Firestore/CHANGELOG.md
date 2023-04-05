@@ -1,3 +1,6 @@
+# 10.8.0
+- [feature] Add new cache config API to customize SDK cache settings.
+
 # 10.7.0
 - [feature] Add support for disjunctions in queries (`OR` queries).
 - [fixed] Fixed stack overflow caused by deeply nested server timestamps.
