@@ -166,8 +166,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/grpc-binary.git",
-      // "1.44.0" ..< "1.45.0"
-      branch: "nc/version"
+      "1.44.0" ..< "1.45.0"
     ),
     .package(
       url: "https://github.com/erikdoe/ocmock.git",
@@ -643,8 +642,8 @@ let package = Package(
           name: "FirebaseFirestore",
           condition: .when(platforms: [.iOS, .tvOS, .macOS])
         ),
-        .product(name: "abseil", package: "abseil"),
-        .product(name: "gRPC-C++", package: "gRPC"),
+        .product(name: "abseil", package: "abseil-cpp-binary"),
+        .product(name: "gRPC-C++", package: "grpc-binary"),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseCore",
         "leveldb",
