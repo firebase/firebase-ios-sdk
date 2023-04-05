@@ -15,4 +15,8 @@ recursive_unminify_json() {
 recursive_unminify_json $1;
 recursive_unminify_json $2;
 
+# git diff exits with a non-zero code when a diff is present,
+# which we want to ignore.
+set +euo pipefail
+
 git diff --no-index "$1" "$2";
