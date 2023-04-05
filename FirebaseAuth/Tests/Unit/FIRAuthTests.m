@@ -2804,15 +2804,6 @@ static const NSTimeInterval kWaitInterval = .5;
                        }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   [self assertUser:[FIRAuth auth].currentUser];
-  id mockSecureTokenResponse = OCMClassMock([FIRSecureTokenResponse class]);
-  OCMStub([mockSecureTokenResponse accessToken]).andReturn(@"IDToken");
-  OCMExpect([self->_mockBackend secureToken:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(
-          ^(FIRSecureTokenRequest *_Nullable request, FIRSecureTokenResponseCallback callback) {
-            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-              callback(mockSecureTokenResponse, nil);
-            });
-          });
   OCMExpect([_mockBackend revokeToken:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
           ^(FIRRevokeTokenRequest *_Nullable request, FIRRevokeTokenResponseCallback callback) {
@@ -2860,15 +2851,6 @@ static const NSTimeInterval kWaitInterval = .5;
                        }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   [self assertUser:[FIRAuth auth].currentUser];
-  id mockSecureTokenResponse = OCMClassMock([FIRSecureTokenResponse class]);
-  OCMStub([mockSecureTokenResponse accessToken]).andReturn(@"IDToken");
-  OCMExpect([self->_mockBackend secureToken:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(
-          ^(FIRSecureTokenRequest *_Nullable request, FIRSecureTokenResponseCallback callback) {
-            dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-              callback(mockSecureTokenResponse, nil);
-            });
-          });
   XCTestExpectation *revokeExpectation = [self expectationWithDescription:@"revoke"];
   OCMExpect([_mockBackend revokeToken:[OCMArg any] callback:[OCMArg any]])
       .andCallBlock2(
