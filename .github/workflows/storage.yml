@@ -189,5 +189,5 @@ jobs:
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}//changes/
     - name: Run docdiff
       working-directory: firebase-ios-sdk
-      run: ls ${{ env.ARTIFACTS_DIR }} && ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}/changes/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
+      run: ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}/changes/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
 
