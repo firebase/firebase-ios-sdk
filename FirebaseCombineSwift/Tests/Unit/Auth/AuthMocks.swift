@@ -96,8 +96,8 @@ extension AuthBackendImplementationMock {
 
   func revokeToken(_ request: FIRRevokeTokenRequest,
                    callback: @escaping FIRRevokeTokenResponseCallback) {
-   fatalError("You need to implement \(#function) in your mock.")
- }
+    fatalError("You need to implement \(#function) in your mock.")
+  }
 
   func signIn(withGameCenter request: FIRSignInWithGameCenterRequest,
               callback: @escaping FIRSignInWithGameCenterResponseCallback) {
