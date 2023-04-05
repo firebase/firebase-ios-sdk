@@ -1,5 +1,6 @@
-#Unrealeased
-- [feature] Added Firebase App Check support to Firebase Auth.
+# 10.8.0
+- [added] Added Firebase App Check support to Firebase Auth. (#11056)
+- [added] Added sign in with Apple token revocation support. (#9906)
 
 # 10.7.0
 - [added] Added an API for developers to pass the fullName from the Sign in with Apple credential to Firebase. (#10068)

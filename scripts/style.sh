@@ -63,6 +63,11 @@ esac
 # /usr/local.
 export MINT_PATH=Mint
 
+if ! which mint >/dev/null 2>&1; then
+  echo "mint is not available, install with 'brew install mint'"
+  exit 1
+fi
+
 system=$(uname -s)
 
 # Joins the given arguments with the separator given as the first argument.

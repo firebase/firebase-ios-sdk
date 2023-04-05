@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Google
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,14 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
+#import <Foundation/Foundation.h>
+
+#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-dispatch_queue_t FIRAuthGlobalWorkQueue(void) {
-  static dispatch_once_t once;
-  static dispatch_queue_t queue;
-  dispatch_once(&once, ^{
-    queue = dispatch_queue_create("com.google.firebase.auth.globalWorkQueue", NULL);
-  });
-  return queue;
-}
+@interface FIRRevokeTokenResponse : NSObject <FIRAuthRPCResponse>
+
+@end
 
 NS_ASSUME_NONNULL_END
