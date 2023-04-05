@@ -1480,20 +1480,20 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
 
 - (void)revokeTokenWithAuthorizationCode:(NSString *)authorizationCode
                               completion:(nullable void (^)(NSError *_Nullable error))completion {
-  [self.currentUser
-      getIDTokenWithCompletion:^(NSString *_Nullable idToken, NSError *_Nullable error) {
-        if (completion) {
-          if (error) {
-            completion(error);
-            return;
-          }
-        }
-        FIRRevokeTokenRequest *request =
-            [[FIRRevokeTokenRequest alloc] initWithToken:authorizationCode
-                                                 idToken:idToken
-                                    requestConfiguration:self->_requestConfiguration];
-        [FIRAuthBackend
-            revokeToken:request
+  [self.currentUser getIDTokenWithCompletion:^(NSString *_Nullable idToken,
+                                               NSError *_Nullable error) {
+    if (completion) {
+      if (error) {
+        completion(error);
+        return;
+      }
+    }
+    FIRRevokeTokenRequest *request =
+        [[FIRRevokeTokenRequest alloc] initWithToken:authorizationCode
+                                             idToken:idToken
+                                requestConfiguration:self->_requestConfiguration];
+    [FIRAuthBackend2
+        postWithRequest:request
                callback:^(FIRRevokeTokenResponse *_Nullable response, NSError *_Nullable error) {
                  if (completion) {
                    if (error) {
@@ -1503,7 +1503,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
                    }
                  }
                }];
-      }];
+  }];
 }
 
 #if TARGET_OS_IOS
