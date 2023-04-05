@@ -20,55 +20,58 @@ import XCTest
 import FirebaseCore
 import FirebaseFirestore
 
-class DatabaseTests: FSTIntegrationTestCase {
-  func testCanStillUseDisablePersistenceSettings() async throws {
-    let settings = db.settings
-    settings.isPersistenceEnabled = false
-    db.settings = settings
+#if swift(>=5.5.2)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  class DatabaseTests: FSTIntegrationTestCase {
+    func testCanStillUseDisablePersistenceSettings() async throws {
+      let settings = db.settings
+      settings.isPersistenceEnabled = false
+      db.settings = settings
 
-    try await db.document("coll/doc").setData(["foo": "bar"])
-    let result = try? await db.document("coll/doc").getDocument(source: .cache)
-    XCTAssertNil(result)
+      try await db.document("coll/doc").setData(["foo": "bar"])
+      let result = try? await db.document("coll/doc").getDocument(source: .cache)
+      XCTAssertNil(result)
+    }
+
+    func testCanStillUseEnablePersistenceSettings() async throws {
+      let settings = db.settings
+      settings.isPersistenceEnabled = true
+      db.settings = settings
+
+      try await db.document("coll/doc").setData(["foo": "bar"])
+      let result = try? await db.document("coll/doc").getDocument(source: .cache)
+      XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
+    }
+
+    func testCanUseMemoryCacheSettings() async throws {
+      let settings = db.settings
+      settings.cacheSettings = MemoryCacheSettings()
+      db.settings = settings
+
+      try await db.document("coll/doc").setData(["foo": "bar"])
+      let result = try? await db.document("coll/doc").getDocument(source: .cache)
+      XCTAssertNil(result)
+    }
+
+    func testCanUsePersistentCacheSettings() async throws {
+      let settings = db.settings
+      settings.cacheSettings = PersistentCacheSettings()
+      db.settings = settings
+
+      try await db.document("coll/doc").setData(["foo": "bar"])
+      let result = try? await db.document("coll/doc").getDocument(source: .cache)
+      XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
+    }
+
+    func testCanSetCacheSettingsMultipleTimes() async throws {
+      let settings = db.settings
+      settings.cacheSettings = PersistentCacheSettings()
+      settings.cacheSettings = MemoryCacheSettings()
+      db.settings = settings
+
+      try await db.document("coll/doc").setData(["foo": "bar"])
+      let result = try? await db.document("coll/doc").getDocument(source: .cache)
+      XCTAssertNil(result)
+    }
   }
-
-  func testCanStillUseEnablePersistenceSettings() async throws {
-    let settings = db.settings
-    settings.isPersistenceEnabled = true
-    db.settings = settings
-
-    try await db.document("coll/doc").setData(["foo": "bar"])
-    let result = try? await db.document("coll/doc").getDocument(source: .cache)
-    XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
-  }
-
-  func testCanUseMemoryCacheSettings() async throws {
-    let settings = db.settings
-    settings.cacheSettings = MemoryCacheSettings()
-    db.settings = settings
-
-    try await db.document("coll/doc").setData(["foo": "bar"])
-    let result = try? await db.document("coll/doc").getDocument(source: .cache)
-    XCTAssertNil(result)
-  }
-
-  func testCanUsePersistentCacheSettings() async throws {
-    let settings = db.settings
-    settings.cacheSettings = PersistentCacheSettings()
-    db.settings = settings
-
-    try await db.document("coll/doc").setData(["foo": "bar"])
-    let result = try? await db.document("coll/doc").getDocument(source: .cache)
-    XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
-  }
-
-  func testCanSetCacheSettingsMultipleTimes() async throws {
-    let settings = db.settings
-    settings.cacheSettings = PersistentCacheSettings()
-    settings.cacheSettings = MemoryCacheSettings()
-    db.settings = settings
-
-    try await db.document("coll/doc").setData(["foo": "bar"])
-    let result = try? await db.document("coll/doc").getDocument(source: .cache)
-    XCTAssertNil(result)
-  }
-}
+#endif
