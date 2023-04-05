@@ -20,3 +20,5 @@ recursive_unminify_json $2;
 set +euo pipefail
 
 git diff --no-index "$1" "$2";
+
+exit 0;
