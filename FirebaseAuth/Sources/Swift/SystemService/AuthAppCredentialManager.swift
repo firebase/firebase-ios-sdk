@@ -36,7 +36,7 @@
      */
     @objc public let maximumNumberOfPendingReceipts = 32
 
-    @objc public init(withKeychain keychain: AuthKeychainServices) {
+    @objc public init(withKeychain keychain: AuthStorage) {
       keychainServices = keychain
       if let encodedData = try? keychain.data(forKey: kKeychainDataKey).data,
          let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: encodedData) {
@@ -44,8 +44,10 @@
                                                     forKey: kFullCredentialKey) {
           self.credential = credential
         }
-        if let pendingReceipts = unarchiver.decodeObject(forKey: kPendingReceiptsKey)
-          as? [String] {
+        if let pendingReceipts = unarchiver.decodeObject(
+          of: [NSString.self, NSArray.self],
+          forKey: kPendingReceiptsKey
+        ) as? [String] {
           self.pendingReceipts = pendingReceipts
         }
       }
@@ -67,7 +69,7 @@
     }
 
     @objc public func canFinishVerification(withReceipt receipt: String, secret: String) -> Bool {
-      if pendingReceipts.contains(receipt) {
+      guard pendingReceipts.contains(receipt) else {
         return false
       }
       pendingReceipts = pendingReceipts.filter { $0 != receipt }
@@ -108,7 +110,7 @@
     /** @var _keychainServices
         @brief The keychain for app credentials to load from and to save to.
      */
-    private let keychainServices: AuthKeychainServices
+    private let keychainServices: AuthStorage
 
     /** @var pendingReceipts
         @brief A list of pending receipts sorted in the order they were recorded.
