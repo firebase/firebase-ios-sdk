@@ -156,7 +156,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: PodLibLint Storage Cron
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --platforms=${{ matrix.target }} --use-static-frameworks --skip-tests
-  
+
   doc-diff:
     # Run on PRs only.
     if: github.event_name == 'pull_request'
@@ -190,4 +190,3 @@ jobs:
     - name: Run docdiff
       working-directory: firebase-ios-sdk
       run: ./scripts/docdiff.sh ${{ env.ARTIFACTS_DIR }}/changes/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive ${{ env.ARTIFACTS_DIR }}/main/Build/Products/Debug-iphonesimulator/FirebaseStorage/FirebaseStorage.doccarchive
-
