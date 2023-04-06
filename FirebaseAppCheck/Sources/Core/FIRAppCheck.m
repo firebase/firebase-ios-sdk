@@ -73,7 +73,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
 @property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
-@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingLimitedTokenPromise;
+@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingLimitedUseTokenPromise;
 @end
 
 @implementation FIRAppCheck
@@ -323,21 +323,22 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 - (FBLPromise<FIRAppCheckToken *> *)retrieveLimitedTokenForcingRefresh {
   return [FBLPromise do:^id _Nullable {
-    if (self.ongoingLimitedTokenPromise == nil) {
+    if (self.ongoingLimitedUseTokenPromise == nil) {
       // Kick off a new operation only when there is not an ongoing one.
-      self.ongoingLimitedTokenPromise = [self createRetrieveLimitedUseTokenPromiseForcingRefresh]
+      self.ongoingLimitedUseTokenPromise =
+          [self createRetrieveLimitedUseTokenPromiseForcingRefresh]
 
-                                            // Release the ongoing operation promise on completion.
-                                            .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
-                                              self.ongoingLimitedTokenPromise = nil;
-                                              return token;
-                                            })
-                                            .recover(^NSError *(NSError *error) {
-                                              self.ongoingLimitedTokenPromise = nil;
-                                              return error;
-                                            });
+              // Release the ongoing operation promise on completion.
+              .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+                self.ongoingLimitedUseTokenPromise = nil;
+                return token;
+              })
+              .recover(^NSError *(NSError *error) {
+                self.ongoingLimitedUseTokenPromise = nil;
+                return error;
+              });
     }
-    return self.ongoingLimitedTokenPromise;
+    return self.ongoingLimitedUseTokenPromise;
   }];
 }
 
