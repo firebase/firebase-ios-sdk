@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2023 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,22 +15,11 @@
  */
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoTOTPInfo.h"
-
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoMFAEnrollment : NSObject <FIRAuthProto>
+@interface FIRAuthProtoStartMFATOTPEnrollmentRequestInfo : NSObject <FIRAuthProto>
 
-@property(nonatomic, copy, readonly, nullable) NSString *phoneInfo;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoTOTPInfo  *TOPTPInfo;
-@property(nonatomic, copy, readonly, nullable) id MFAValue;
-
-@property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
-
-@property(nonatomic, copy, readonly, nullable) NSString *displayName;
-
-@property(nonatomic, copy, readonly, nullable) NSDate *enrolledAt;
 
 @end
 

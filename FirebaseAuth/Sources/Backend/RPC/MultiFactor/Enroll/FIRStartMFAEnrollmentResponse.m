@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentResponse.h"
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
 
 @implementation FIRStartMFAEnrollmentResponse
 
@@ -25,6 +26,9 @@
   if (dictionary[@"phoneSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"phoneSessionInfo"];
     _enrollmentResponse = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
+  } else if (dictionary[@"TOTPSessionInfo"] != nil) {
+    NSDictionary *data = dictionary[@"TOTPSessionInfo"];
+    _enrollmentResponse = [[FIRAuthProtoStartMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
   } else {
     return NO;
   }

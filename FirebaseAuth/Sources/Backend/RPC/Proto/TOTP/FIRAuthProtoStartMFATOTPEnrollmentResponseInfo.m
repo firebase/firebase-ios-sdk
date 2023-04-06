@@ -1,11 +1,11 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2023 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRStartMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
+@implementation FIRAuthProtoStartMFATOTPEnrollmentResponseInfo
 
-@property(nonatomic, copy, readonly, nullable) id enrollmentResponse;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneResponseInfo *phoneSessionInfo;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFATOTPEnrollmentResponseInfo *TOTPSessionInfo;
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+  self = [super init];
+  if (self) {
+    _sharedSecretKey = [dictionary[@"sharedSecretKey"] copy];
+    _verificationCodeLength = [dictionary[@"verificationCodeLength"] copy];
+    _hashingAlgorithm = [dictionary[@"hashingAlgorithm"] copy];
+    _periodSec = [dictionary[@"periodSec"] copy];
+    _sessionInfo = [dictionary[@"sessionInfo"] copy];
+  }
+  return self;
+}
 
 @end
 
