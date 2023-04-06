@@ -73,7 +73,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
 @property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
-
+@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingLimitedTokenPromise;
 @end
 
 @implementation FIRAppCheck
@@ -200,6 +200,18 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       });
 }
 
+- (void)limitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
+                                                NSError *_Nullable error))handler {
+  [self retrieveLimitedTokenForcingRefresh]
+      .then(^id _Nullable(FIRAppCheckToken *token) {
+        handler(token, nil);
+        return token;
+      })
+      .catch(^(NSError *_Nonnull error) {
+        handler(nil, [FIRAppCheckErrorUtil publicDomainErrorWithError:error]);
+      });
+}
+
 + (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory {
   self.providerFactory = factory;
 }
@@ -309,6 +321,38 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   });
 }
 
+- (FBLPromise<FIRAppCheckToken *> *)retrieveLimitedTokenForcingRefresh {
+  return [FBLPromise do:^id _Nullable {
+    if (self.ongoingLimitedTokenPromise == nil) {
+      // Kick off a new operation only when there is not an ongoing one.
+      self.ongoingLimitedTokenPromise = [self createRetrieveLimitedUseTokenPromiseForcingRefresh]
+
+                                            // Release the ongoing operation promise on completion.
+                                            .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
+                                              self.ongoingLimitedTokenPromise = nil;
+                                              return token;
+                                            })
+                                            .recover(^NSError *(NSError *error) {
+                                              self.ongoingLimitedTokenPromise = nil;
+                                              return error;
+                                            });
+    }
+    return self.ongoingLimitedTokenPromise;
+  }];
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)createRetrieveLimitedUseTokenPromiseForcingRefresh {
+  return [self getLimitedUseTokenForcingRefresh].recover(^id _Nullable(NSError *_Nonnull error) {
+    return [self limitedUseToken];
+  });
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)getLimitedUseTokenForcingRefresh {
+  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+  [rejectedPromise reject:[FIRAppCheckErrorUtil cachedTokenNotFound]];
+  return rejectedPromise;
+}
+
 - (FBLPromise<FIRAppCheckToken *> *)refreshToken {
   return [FBLPromise
              wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
@@ -318,6 +362,24 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
         return [self.storage setToken:token];
       })
       .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
+        // TODO: Make sure the self.tokenRefresher is updated only once. Currently the timer will be
+        // updated twice in the case when the refresh triggered by self.tokenRefresher, but it
+        // should be fine for now as it is a relatively cheap operation.
+        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc]
+            initWithStatusSuccessAndExpirationDate:token.expirationDate
+                                    receivedAtDate:token.receivedAtDate];
+        [self.tokenRefresher updateWithRefreshResult:refreshResult];
+        [self postTokenUpdateNotificationWithToken:token];
+        return token;
+      });
+}
+
+- (FBLPromise<FIRAppCheckToken *> *)limitedUseToken {
+  return
+      [FBLPromise wrapObjectOrErrorCompletion:^(
+                      FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+        [self.appCheckProvider getTokenWithCompletion:handler];
+      }].then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
         // TODO: Make sure the self.tokenRefresher is updated only once. Currently the timer will be
         // updated twice in the case when the refresh triggered by self.tokenRefresher, but it
         // should be fine for now as it is a relatively cheap operation.
