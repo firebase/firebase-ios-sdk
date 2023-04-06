@@ -54,6 +54,8 @@
 @class FIRSignInWithGameCenterResponse;
 @class FIRSignUpNewUserRequest;
 @class FIRSignUpNewUserResponse;
+@class FIRRevokeTokenRequest;
+@class FIRRevokeTokenResponse;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
@@ -219,6 +221,15 @@ typedef void (^FIRVerifyPhoneNumberResponseCallback)(
  */
 typedef void (^FIRVerifyClientResponseCallback)(FIRVerifyClientResponse *_Nullable response,
                                                 NSError *_Nullable error);
+
+/** @typedef FIRRevokeTokenResponseCallback
+    @brief The type of block used to return the result of a call to the revokeToken endpoint.
+    @param response The received response, if any.
+    @param error The error which occurred, if any.
+    @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRRevokeTokenResponseCallback)(FIRRevokeTokenResponse *_Nullable response,
+                                               NSError *_Nullable error);
 
 /** @typedef FIRSignInWithGameCenterResponseCallback
     @brief The type of block used to return the result of a call to the SignInWithGameCenter
@@ -414,7 +425,17 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 + (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
+
 #endif
+
+/** @fn revokeToken:callback:
+    @brief Calls the revokeToken endpoint, which is responsible for revoking the given token
+        provided in the request parameters.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)revokeToken:(FIRRevokeTokenRequest *)request
+           callback:(FIRRevokeTokenResponseCallback)callback;
 
 @end
 
@@ -578,7 +599,17 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
+
 #endif
+
+/** @fn revokeToken:callback:
+    @brief Calls the revokeToken endpoint, which is responsible for revoking the given token
+        provided in the request parameters.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)revokeToken:(FIRRevokeTokenRequest *)request
+           callback:(FIRRevokeTokenResponseCallback)callback;
 
 /** @fn SignInWithGameCenter:callback:
     @brief Calls the SignInWithGameCenter endpoint, which is responsible for authenticating a user

@@ -436,7 +436,7 @@ static const double kAllowedTimeDifference = 0.1;
 }
 
 /** @fn testSuccessfulVerifyPasswordResponse
-    @brief Tests a succesful attempt of the verify password flow.
+    @brief Tests a successful attempt of the verify password flow.
  */
 - (void)testSuccessfulVerifyPasswordResponse {
   FIRVerifyPasswordRequest *request =

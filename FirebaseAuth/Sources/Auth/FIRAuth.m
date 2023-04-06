@@ -28,6 +28,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDataResult_Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthDispatcher.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
@@ -46,6 +47,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRResetPasswordResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRRevokeTokenRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRRevokeTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSendVerificationCodeResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoRequest.h"
@@ -462,7 +465,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   self = [self initWithAPIKey:app.options.APIKey
                       appName:app.name
                         appID:app.options.googleAppID
-              heartbeatLogger:app.heartbeatLogger];
+              heartbeatLogger:app.heartbeatLogger
+                     appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
   if (self) {
     _app = app;
 #if TARGET_OS_IOS
@@ -475,20 +479,22 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID {
-  return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil];
+  return [self initWithAPIKey:APIKey appName:appName appID:appID heartbeatLogger:nil appCheck:nil];
 }
 
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                 appName:(NSString *)appName
                                   appID:(NSString *)appID
-                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
+                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
+                               appCheck:(nullable id<FIRAppCheckInterop>)appCheck {
   self = [super init];
   if (self) {
     _listenerHandles = [NSMutableArray array];
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
                                                                           appID:appID
                                                                            auth:self
-                                                                heartbeatLogger:heartbeatLogger];
+                                                                heartbeatLogger:heartbeatLogger
+                                                                       appCheck:appCheck];
     _firebaseAppName = [appName copy];
 #if TARGET_OS_IOS
     _settings = [[FIRAuthSettings alloc] init];
@@ -1538,6 +1544,34 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     self->_requestConfiguration.additionalFrameworkMarker = [additionalFrameworkMarker copy];
   });
+}
+
+- (void)revokeTokenWithAuthorizationCode:(NSString *)authorizationCode
+                              completion:(nullable void (^)(NSError *_Nullable error))completion {
+  [self.currentUser
+      getIDTokenWithCompletion:^(NSString *_Nullable idToken, NSError *_Nullable error) {
+        if (completion) {
+          if (error) {
+            completion(error);
+            return;
+          }
+        }
+        FIRRevokeTokenRequest *request =
+            [[FIRRevokeTokenRequest alloc] initWithToken:authorizationCode
+                                                 idToken:idToken
+                                    requestConfiguration:self->_requestConfiguration];
+        [FIRAuthBackend
+            revokeToken:request
+               callback:^(FIRRevokeTokenResponse *_Nullable response, NSError *_Nullable error) {
+                 if (completion) {
+                   if (error) {
+                     completion(error);
+                   } else {
+                     completion(nil);
+                   }
+                 }
+               }];
+      }];
 }
 
 #if TARGET_OS_IOS

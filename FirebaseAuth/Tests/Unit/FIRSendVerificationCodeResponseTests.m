@@ -251,7 +251,7 @@ static NSString *const kCaptchaCheckFailedErrorMessage = @"CAPTCHA_CHECK_FAILED"
 }
 
 /** @fn testSuccessfulSendVerificationCodeResponse
-    @brief Tests a succesful to send a verification code.
+    @brief Tests a successful to send a verification code.
  */
 - (void)testSuccessfulSendVerificationCodeResponse {
   FIRAuthAppCredential *credential = [[FIRAuthAppCredential alloc] initWithReceipt:kTestReceipt

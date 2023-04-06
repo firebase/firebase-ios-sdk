@@ -18,7 +18,7 @@
 
 const char *FIRCLSCrashedMarkerFileName = "previously-crashed";
 
-void FIRCLSCreateCrashedMarkerFile() {
+void FIRCLSCreateCrashedMarkerFile(void) {
   FIRCLSFile file;
 
   if (!FIRCLSFileInitWithPath(&file, _firclsContext.readonly->previouslyCrashedFileFullPath, false)) {

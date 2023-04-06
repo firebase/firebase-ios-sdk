@@ -28,11 +28,11 @@ enum Strings {
   static let releaseEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/devices/-/testerApps/%@/installations/%@/releases"
   static let findReleaseEndpointUrlTemplate =
-    "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find"
+    "https://firebaseapptesters.googleapis.com/v1alpha/projects/%@/installations/%@/releases:find?compositeBinaryId.displayVersion=%@&compositeBinaryId.buildVersion=%@&compositeBinaryId.codeHash=%@"
   static let createFeedbackEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/%@/feedbackReports"
   static let uploadImageEndpointUrlTemplate =
-    "https://firebaseapptesters.googleapis.com/v1alpha/%@/feedbackReports"
+    "https://firebaseapptesters.googleapis.com/upload/v1alpha/%@:uploadArtifact"
   static let commitFeedbackEndpointUrlTemplate =
     "https://firebaseapptesters.googleapis.com/v1alpha/%@:commit"
   static let installationsAuthHeader = "X-Goog-Firebase-Installations-Auth"
@@ -46,6 +46,8 @@ enum Strings {
   static let GoogleUploadProtocolRaw = "raw"
   static let GoogleUploadFileNameHeader = "X-Goog-Upload-File-Name"
   static let GoogleUploadFileName = "screenshot.png"
+  static let contentTypeHeader = "Content-Type"
+  static let jsonContentType = "application/json"
 }
 
 enum AppDistributionApiError: NSInteger {
@@ -72,10 +74,6 @@ struct FindReleaseResponse: Codable {
 struct FeedbackReport: Codable {
   var name: String?
   var text: String?
-}
-
-struct CreateFeedbackReportRequest: Codable {
-  var feedbackReport: FeedbackReport
 }
 
 @objc(FIRFADApiServiceSwift) open class ApiService: NSObject {
@@ -196,6 +194,19 @@ struct CreateFeedbackReportRequest: Codable {
     )
   }
 
+  private static func buildFindReleaseUrl(projectNumber: String, identifier: String,
+                                          displayVersion: String, buildVersion: String,
+                                          codeHash: String) -> String {
+    return String(
+      format: Strings.findReleaseEndpointUrlTemplate,
+      projectNumber,
+      identifier,
+      displayVersion,
+      buildVersion,
+      codeHash
+    )
+  }
+
   static func findRelease(app: FirebaseApp, installations: InstallationsProtocol,
                           urlSession: URLSession, displayVersion: String,
                           buildVersion: String, codeHash: String,
@@ -204,39 +215,17 @@ struct CreateFeedbackReportRequest: Codable {
     generateAuthToken(installations: installations) { identifier, authTokenResult, error in
       // TODO(tundeagboola) The backend may not accept project ID here in which case
       // we'll have to figure out a way to get the project number
-      let urlString = String(
-        format: Strings.findReleaseEndpointUrlTemplate,
-        app,
-        identifier!
-      )
-      guard var urlComponents = URLComponents(string: urlString) else {
-        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
-        Logger.logError("Unable to build URL for findRelease request")
-        return
-      }
-      let compositeBinaryId = CompositeBinaryId(
+      let urlString = buildFindReleaseUrl(
+        projectNumber: app.options.gcmSenderID,
+        identifier: identifier!,
         displayVersion: displayVersion,
         buildVersion: buildVersion,
         codeHash: codeHash
       )
-      guard let compositeBinaryIdData = try? JSONEncoder().encode(compositeBinaryId) else {
-        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
-        Logger.logError("Unable to build URL for findRelease request")
-        return
-      }
-      urlComponents.queryItems = [URLQueryItem(
-        name: Strings.compositeBinaryIdQueryParamName,
-        value: String(data: compositeBinaryIdData, encoding: .utf8)
-      )]
-      guard let url = urlComponents.url else {
-        // TODO(tundeagboola) We should throw exceptions here insead of piping errors
-        Logger.logError("Unable to build URL for findRelease request")
-        return
-      }
       let request = self.createHttpRequest(
         app: app,
         method: Strings.httpGet,
-        url: url,
+        url: URL(string: urlString),
         authTokenResult: authTokenResult!
       )
       let findReleaseDataTask = urlSession
@@ -292,9 +281,9 @@ struct CreateFeedbackReportRequest: Codable {
         url: urlString,
         authTokenResult: authTokenResult
       )
-      let createFeedbackRequest =
-        CreateFeedbackReportRequest(feedbackReport: FeedbackReport(text: feedbackText))
-      request.httpBody = try? JSONEncoder().encode(createFeedbackRequest)
+      request.setValue(Strings.jsonContentType, forHTTPHeaderField: Strings.contentTypeHeader)
+      let feedbackReport = FeedbackReport(text: feedbackText)
+      request.httpBody = try? JSONEncoder().encode(feedbackReport)
       let createFeedbackTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
@@ -370,6 +359,8 @@ struct CreateFeedbackReportRequest: Codable {
         Strings.GoogleUploadFileNameHeader,
         forHTTPHeaderField: Strings.GoogleUploadFileName
       )
+      // TODO(tundeagboola) Add support for jpegs
+      request.httpBody = image.pngData()
       let uploadImageTask = urlSession
         .dataTask(with: request as URLRequest) { data, response, error in
           var fadError = error
