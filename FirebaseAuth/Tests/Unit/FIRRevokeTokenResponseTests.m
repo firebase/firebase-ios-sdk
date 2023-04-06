@@ -88,7 +88,7 @@ static NSString *const kExpectedAPIURL =
 }
 
 /** @fn testSuccessfulRevokeTokenResponse
-    @brief Tests a succesful attempt of the token revocation flow.
+    @brief Tests a successful attempt of the token revocation flow.
  */
 - (void)testSuccessfulResponse {
   FIRRevokeTokenRequest *request =
