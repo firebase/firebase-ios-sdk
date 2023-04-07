@@ -465,7 +465,7 @@ let package = Package(
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
         "AuthKeychainServicesTests.swift", // TODO: figure out SPM keychain testing
-      //  "AuthTests.swift",
+        //  "AuthTests.swift",
       ],
       cSettings: [
         .headerSearchPath("../../.."),
