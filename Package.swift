@@ -426,6 +426,7 @@ let package = Package(
     .target(
       name: "FirebaseAuth",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "FirebaseCoreExtension",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -464,9 +465,7 @@ let package = Package(
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
         "AuthKeychainServicesTests.swift", // TODO: figure out SPM keychain testing
-        "FIRAuthTests.m",
-        "FIRUserTests.m",
-        "AuthTests.swift",
+      //  "AuthTests.swift",
       ],
       cSettings: [
         .headerSearchPath("../../.."),
@@ -1282,17 +1281,17 @@ let package = Package(
     //           .linkedFramework("DeviceCheck", .when(platforms: [.iOS, .macOS, .tvOS])),
     //         ]),
     // // Internal headers only for consuming from Swift.
-    // .target(
-    //   name: "FirebaseAppCheckInterop",
-    //   path: "FirebaseAppCheck/Interop",
-    //   exclude: [
-    //     "CMakeLists.txt",
-    //   ],
-    //   publicHeadersPath: ".",
-    //   cSettings: [
-    //     .headerSearchPath("../../"),
-    //   ]
-    // ),
+    .target(
+      name: "FirebaseAppCheckInterop",
+      path: "FirebaseAppCheck/Interop",
+      exclude: [
+        "CMakeLists.txt",
+      ],
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
     // .testTarget(
     //   name: "AppCheckUnit",
     //   dependencies: [
