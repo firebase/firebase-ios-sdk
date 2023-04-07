@@ -129,7 +129,6 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
         )
         return
       }
-
       completion(authDomain, nil)
     }
   }
