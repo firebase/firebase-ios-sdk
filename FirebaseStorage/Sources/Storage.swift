@@ -47,7 +47,7 @@ import FirebaseAuthInterop
    *    Instances of Storage are long-lived, so calling this method multiple times
    *    will return the same instance.
    */
-  @objc(storage) open class func storage() -> Storage {
+  @objc(storage:) open class func storage(_ ignored: Any? = nil) -> Storage {
     return storage(app: FirebaseApp.app()!)
   }
 
