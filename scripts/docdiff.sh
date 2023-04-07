@@ -20,7 +20,7 @@ recursive_unminify_json() {
     pushd "$target_dir";
     find . -name "*.json" -print0 | while read -d $'\0' file
     do
-        python3 -m json.tool --sort-keys "$file" "$file";
+        python3 -m json.tool "$file" "$file";
     done
     popd;
 }

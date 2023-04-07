@@ -27,7 +27,7 @@ import FirebaseAuthInterop
 @_implementationOnly import FirebaseCoreExtension
 
 /**
- * Firebase Storage is a service that supports uploading and downloading binary objects,
+ * Storage is a service that supports uploading and downloading binary objects,
  * such as images, videos, and other files to Google Cloud Storage. Instances of `Storage`
  * are not thread-safe.
  *
@@ -44,6 +44,8 @@ import FirebaseAuthInterop
   /**
    * The default `Storage` instance.
    * - Returns: An instance of `Storage`, configured with the default `FirebaseApp`.
+   *    Instances of Storage are long-lived, so calling this method multiple times
+   *    will return the same instance.
    */
   @objc(storage) open class func storage() -> Storage {
     return storage(app: FirebaseApp.app()!)
