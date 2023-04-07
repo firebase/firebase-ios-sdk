@@ -108,10 +108,10 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
   void LookupDocuments(const std::vector<model::DocumentKey>& keys,
                        LookupCallback&& user_callback);
 
-  void RunCountQuery(const core::Query& query,
-                     api::CountQueryCallback&& result_callback);
+//  void RunCountQuery(const core::Query& query,
+//                     api::CountQueryCallback&& result_callback);
 
-  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField> &aggregates,
                      api::AggregateQueryCallback&& result_callback);
 
   /** Returns true if the given error is a gRPC ABORTED error. */
@@ -186,15 +186,15 @@ class Datastore : public std::enable_shared_from_this<Datastore> {
       const std::vector<model::DocumentKey>& keys,
       LookupCallback&& user_callback);
 
-  void RunCountQueryWithCredentials(const credentials::AuthToken& auth_token,
-                                    const std::string& app_check_token,
-                                    const core::Query& query,
-                                    api::CountQueryCallback&& callback);
+//   void RunCountQueryWithCredentials(const credentials::AuthToken& auth_token,
+//                                     const std::string& app_check_token,
+//                                     const core::Query& query,
+//                                     api::CountQueryCallback&& callback);
 
   void RunAggregateQueryWithCredentials(const credentials::AuthToken& auth_token,
                                     const std::string& app_check_token,
                                     const core::Query& query,
-                                    const std::vector<model::AggregateField *> &aggregates,
+                                    const std::vector<model::AggregateField> &aggregates,
                                     api::AggregateQueryCallback&& callback);
 
   using OnCredentials = std::function<void(

@@ -142,13 +142,13 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
   /**
    * Executes a count query using the given query as the base.
    */
-  void RunCountQuery(const core::Query& query,
-                     api::CountQueryCallback&& result_callback);
+//  void RunCountQuery(const core::Query& query,
+//                     api::CountQueryCallback&& result_callback);
 
   /**
    * Executes an aggregation query.
    */
-  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField> &aggregates,
                          api::AggregateQueryCallback&& result_callback);
 
   void HandleCredentialChange(const credentials::User& user);

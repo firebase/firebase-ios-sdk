@@ -30,14 +30,14 @@ namespace api {
 AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
 }
 
-AggregateQuery::AggregateQuery(Query query, std::vector<model::AggregateField *> &&aggregates)
+AggregateQuery::AggregateQuery(Query query, std::vector<model::AggregateField> &&aggregates)
     : query_{std::move(query)}, aggregates_(std::move(aggregates)){
 }
 
-void AggregateQuery::Get(CountQueryCallback&& callback) {
+/*void AggregateQuery::Get(CountQueryCallback&& callback) {
   query_.firestore()->client()->RunCountQuery(query_.query(),
                                               std::move(callback));
-}
+}*/
 
 void AggregateQuery::Get(AggregateQueryCallback&& callback) {
   query_.firestore()->client()->RunAggregateQuery(query_.query(), aggregates_,

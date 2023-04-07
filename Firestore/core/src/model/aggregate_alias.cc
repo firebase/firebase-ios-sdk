@@ -1,5 +1,5 @@
 /*
-* Copyright 2023 Google
+* Copyright 2023 Google LLC
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -22,18 +22,13 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-std::string AggregateAlias::CanonicalString() const {
-  auto escaped = absl::StrReplaceAll(this->alias, {{"\\", "\\\\"}, {"`", "\\`"}});
-  if (!AggregateAlias::IsValidAlias(escaped)) {
-    escaped.insert(escaped.begin(), '`');
-    escaped.push_back('`');
-  }
-  return escaped;
+const std::string& AggregateAlias::StringValue() const {
+  return _alias;
 }
 
 bool operator==(const AggregateAlias& lhs,
                 const AggregateAlias& rhs) {
-  return lhs.CanonicalString() == rhs.CanonicalString();
+  return lhs._alias == rhs._alias;
 }
 
 }  // namespace model

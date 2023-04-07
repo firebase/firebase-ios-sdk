@@ -195,10 +195,10 @@ class RemoteStore : public TargetMetadataProvider,
   absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const override;
 
-  void RunCountQuery(const core::Query& query,
-                     api::CountQueryCallback&& result_callback);
+  //void RunCountQuery(const core::Query& query,
+  //                   api::CountQueryCallback&& result_callback);
 
-  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+  void RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField> &aggregates,
                      api::AggregateQueryCallback&& result_callback);
 
   void OnWatchStreamOpen() override;

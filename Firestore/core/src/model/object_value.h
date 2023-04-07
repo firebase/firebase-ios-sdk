@@ -82,6 +82,14 @@ class ObjectValue {
   absl::optional<google_firestore_v1_Value> Get(const FieldPath& path) const;
 
   /**
+   * Returns the value with the given key or null.
+   *
+   * @param key the key to search
+   * @return The value at the key or null if it doesn't exist.
+   */
+  absl::optional<google_firestore_v1_Value> Get(const std::string& key) const;
+
+      /**
    * Returns the ObjectValue in its Protobuf representation.
    */
   google_firestore_v1_Value Get() const;

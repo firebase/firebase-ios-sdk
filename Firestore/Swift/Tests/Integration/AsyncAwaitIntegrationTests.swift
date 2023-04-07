@@ -89,6 +89,7 @@ let emptyBundle = """
         try await collection.addDocument(data: [:])
         let snapshot = try await collection.aggregate([sumOfFoo]).getAggregation(source: .server)
 
+<<<<<<< Updated upstream
         XCTAssertEqual(try snapshot.getDouble(sumOfFoo), 100.5)
         XCTAssertEqual(try snapshot.getLong(sumOfFoo), 100)
         XCTAssertEqual(try snapshot.get(sumOfFoo) as? Int64, 100)
@@ -113,5 +114,23 @@ let emptyBundle = """
       XCTAssertEqual(FIRQuerySnapshotGetIDs(snapshot),
                      ["doc1", "doc2", "doc4", "doc5"])
     }
+=======
+      func testSum() async throws {
+          let collection = collectionRef()
+          try await collection.addDocument(data: [:])
+
+          let snapshot = try await collection.aggregate([
+            AggregateField.sum("foo"),
+            AggregateField.sum("foo"),
+            AggregateField.sum("foo")]).getAggregation(source: .server)
+          
+          snapshot.get(AggregateField.sum("foo"))
+
+          XCTAssertEqual(try snapshot.getDouble(sumOfFoo), 100.5)
+          XCTAssertEqual(try snapshot.getLong(sumOfFoo), 100)
+          XCTAssertEqual(snapshot.get(sumOfFoo) as? NSNumber, 100.5)
+          //XCTAssertEqual(snapshot.get(sumOfFoo), 100.5)
+      }
+>>>>>>> Stashed changes
   }
 #endif

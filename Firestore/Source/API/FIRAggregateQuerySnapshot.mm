@@ -15,28 +15,32 @@
  */
 
 #import "FIRAggregateQuerySnapshot+Internal.h"
+#import "FIRAggregateField+Internal.h"
 
 #import "FIRAggregateQuery.h"
+#import "FIRQuery.h"
+#import "FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
 
+#include "absl/types/optional.h"
+
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
-#include "Firestore/core/src/api/document_snapshot.h"
+#include "Firestore/core/src/model/aggregate_alias.h"
 #include "Firestore/core/src/model/field_path.h"
 
 using firebase::firestore::google_firestore_v1_Value;
-using firebase::firestore::api::DocumentSnapshot;
 using firebase::firestore::model::FieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAggregateQuerySnapshot {
-  DocumentSnapshot _snapshot;
+  model::ObjectValue _result;
   FIRAggregateQuery* _query;
 }
 
-- (instancetype)initWithSnapshot:(api::DocumentSnapshot &&)snapshot query:(FIRAggregateQuery*)query {
+- (instancetype)initWithObject:(model::ObjectValue)result query:(FIRAggregateQuery*)query {
   if (self = [super init]) {
-    _snapshot = std::move(snapshot);
+    _result = std::move(result);
     _query = query;
   }
   return self;
@@ -61,19 +65,12 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Public Methods
 
 - (NSNumber*)count {
-  return [NSNumber numberWithLongLong:_result];
+  return (NSNumber *)[self valueForAggregation:[FIRAggregateField aggregateFieldForCount]];
 }
 
 - (FIRAggregateQuery*)query {
   return _query;
 }
-
-- (nullable id)valueForAggregationX:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:)) {
-  // TODO(sumavg) implement this method
-  aggregation.
-        return [NSNumber numberWithDouble:100.5];
-}
-
 
 - (nullable id)valueForAggregation:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:)) {
   return [self valueForAggregation:aggregation serverTimestampBehavior:FIRServerTimestampBehaviorNone];
@@ -82,10 +79,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id)valueForAggregation:(FIRAggregateField*)aggregation
            serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
 
-  absl::optional<google_firestore_v1_Value> fieldValue = _snapshot.GetValue(aggregation);
+  model::AggregateAlias alias = [aggregation createAlias];
+  absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
   if (!fieldValue) return nil;
   FSTUserDataWriter *dataWriter =
-      [[FSTUserDataWriter alloc] initWithFirestore:_snapshot.firestore()
+      [[FSTUserDataWriter alloc] initWithFirestore:_query.query.firestore.wrapped
                            serverTimestampBehavior:serverTimestampBehavior];
   return [dataWriter convertedValue:*fieldValue];
 }

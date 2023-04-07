@@ -17,22 +17,39 @@
 #import "FIRAggregateField.h"
 #import "FIRAggregateField+Internal.h"
 #import "FIRFieldPath+Internal.h"
+#import "Firestore/core/src/model/aggregate_field.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRAggregateField
 
-@implementation FIRAggregateField
 
+@interface FIRAggregateField ()
+  @property(nonatomic, strong, readwrite) FIRFieldPath *_fieldPath;
+@end
+
+@implementation FIRAggregateField
 - (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath{
   if (self = [super init]) {
-    _fieldPath = fieldPath;
+    self._fieldPath = fieldPath;
   }
   return self;
 }
 
-- (instancetype)initPrivate {
-  return [super init];
+- (instancetype)initPrivate{
+  if (self = [super init]) {
+  }
+  return self;
+}
+
+- (model::AggregateField)createInternalValue {
+  HARD_FAIL("Use createInternalValue from FIRAggregateField sub class.");
+  return model::AggregateField();
+}
+
+- (model::AggregateAlias)createAlias {
+  HARD_FAIL("Use createAlias from FIRAggregateField sub class.");
+  return model::AggregateAlias(std::string{});
 }
 
 + (instancetype)aggregateFieldForCount NS_SWIFT_NAME(count()) {
@@ -42,7 +59,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)aggregateFieldForSumOfField:(NSString *)field NS_SWIFT_NAME(sum(_:)) {
   FIRFieldPath *fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
   FSTSumAggregateField *af = [[FSTSumAggregateField alloc] initWithFieldPath:fieldPath];
-  //af.fieldNam = field;
   return af;
 }
 
@@ -53,7 +69,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)aggregateFieldForAverageOfField:(NSString *)field NS_SWIFT_NAME(average(_:)) {
   FIRFieldPath *fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
   FSTAverageAggregateField *af = [[FSTAverageAggregateField alloc] initWithFieldPath:fieldPath];
-  //af.fieldNam = field;
   return af;
 }
 
@@ -65,24 +80,23 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark - FSTSumAggregateField
-
-@interface FSTSumAggregateField ()
-- (instancetype)initWithFieldPath:(FIRFieldPath *)internalFieldPath;
-@end
-
 @implementation FSTSumAggregateField
-- (instancetype)initWithFieldPath:(FIRFieldPath *)internalFieldPath {
-  self = [super initWithFieldPath:internalFieldPath];
+- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
+  self = [super initWithFieldPath:fieldPath];
   return self;
+}
+
+- (model::AggregateAlias)createAlias {
+  return model::AggregateAlias(std::string{"sum_"} + super._fieldPath.internalValue.CanonicalString());
+}
+
+- (model::AggregateField)createInternalValue {
+  return model::AggregateField(model::AggregateField::kOpSum, [self createAlias], super._fieldPath.internalValue);
 }
 
 @end
 
 #pragma mark - FSTAverageAggregateField
-
-@interface FSTAverageAggregateField ()
-- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath;
-@end
 
 @implementation FSTAverageAggregateField
 - (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
@@ -90,17 +104,29 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (model::AggregateAlias)createAlias {
+  return model::AggregateAlias(std::string{"avg_"} + super._fieldPath.internalValue.CanonicalString());
+}
+
+- (model::AggregateField)createInternalValue {
+  return model::AggregateField(model::AggregateField::kOpAvg, [self createAlias], super._fieldPath.internalValue);
+}
+
 @end
 
 #pragma mark - FSTCountAggregateField
 
-@interface FSTCountAggregateField ()
-- (instancetype)initPrivate;
-@end
-
 @implementation FSTCountAggregateField
 - (instancetype)initPrivate {
   return [super initPrivate];
+}
+
+- (model::AggregateAlias)createAlias {
+  return model::AggregateAlias(std::string{"count"});
+}
+
+- (model::AggregateField)createInternalValue {
+  return model::AggregateField(model::AggregateField::kOpCount, [self createAlias]);
 }
 
 @end

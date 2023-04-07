@@ -14,30 +14,21 @@
 * limitations under the License.
 */
 
-#ifndef FIRESTORE_CORE_SRC_MODEL_AGGREGATE_ALIAS_H_
-#define FIRESTORE_CORE_SRC_MODEL_AGGREGATE_ALIAS_H_
-
-#include <string>
+#include "aggregate_field.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-class AggregateAlias {
- public:
-  AggregateAlias() : _alias() {}
-  AggregateAlias(const std::string alias): _alias(alias) {}
+const std::string AggregateField::kOpSum = "sum";
+const std::string AggregateField::kOpAvg = "avg";
+const std::string AggregateField::kOpCount = "count";
 
-  const std::string& StringValue() const;
+bool operator==(const AggregateField& lhs,
+                const AggregateField& rhs) {
+  return lhs.op == rhs.op && lhs.alias == rhs.alias;
+}
 
-  friend bool operator==(const AggregateAlias& lhs, const AggregateAlias& rhs);
-
- private:
-  const std::string _alias;
-};
-
-}  // namespace model
+}  // namespace api
 }  // namespace firestore
 }  // namespace firebase
-
-#endif  // FIRESTORE_CORE_SRC_MODEL_AGGREGATE_ALIAS_H_

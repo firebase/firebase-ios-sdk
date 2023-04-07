@@ -17,14 +17,18 @@
 #import "FIRAggregateField.h"
 #import "FIRFieldPath.h"
 
+#include "Firestore/core/src/model/aggregate_field.h"
+
+#include <string>
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAggregateField (Internal)
-/**
- * Specifies the field that is aggregated.
- */
-@property(nonatomic, strong, readonly) FIRFieldPath *fieldPath;
+namespace model = firebase::firestore::model;
 
+@interface FIRAggregateField (Internal)
+  @property(nonatomic, strong, readonly) FIRFieldPath *_fieldPath;
+  - (model::AggregateField)createInternalValue;
+  - (model::AggregateAlias)createAlias;
 @end
 
 /**
@@ -33,6 +37,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTSumAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
+- (id)initWithFieldPath:(FIRFieldPath *)path;
+- (model::AggregateField)createInternalValue;
+- (model::AggregateAlias)createAlias;
 @end
 
 /**
@@ -41,6 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTAverageAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithFieldPath:(FIRFieldPath *)internalFieldPath;
+- (model::AggregateField)createInternalValue;
+- (model::AggregateAlias)createAlias;
 @end
 
 /** FIRAggregateField class for count aggregations. Exposed internally so code can do isKindOfClass
@@ -48,6 +58,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTCountAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initPrivate;
+- (model::AggregateField)createInternalValue;
+- (model::AggregateAlias)createAlias;
 @end
 
 NS_ASSUME_NONNULL_END

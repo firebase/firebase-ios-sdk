@@ -188,15 +188,9 @@ class Query {
   }
 
   /**
-   * Creates a new `AggregateQuery` counting the number of documents matching
-   * this query.
-   */
-  AggregateQuery Count() const;
-
-  /**
    * Creates a new `AggregateQuery` that performs the specified aggregates.
    */
-  AggregateQuery Aggregate(std::vector<model::AggregateField *> &&) const;
+  AggregateQuery Aggregate(std::vector<model::AggregateField> &&) const;
 
  private:
   void ValidateNewFilter(const core::Filter& filter) const;

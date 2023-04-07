@@ -21,6 +21,7 @@
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/aggregate_field.h"
+#include "Firestore/core/src/model/aggregate_alias.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
@@ -313,9 +314,8 @@ util::StatusOr<int64_t> DatastoreSerializer::DecodeCountQueryResponse(
   return message->result.aggregate_fields[0].value.integer_value;
 }
 
-// TODO(sum/avg) implement
 nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
-DatastoreSerializer::EncodeAggregateQueryRequest(const core::Query& query, const std::vector<model::AggregateField *> &aggregates) const {
+DatastoreSerializer::EncodeAggregateQueryRequest(const core::Query& query, const std::vector<model::AggregateField> &aggregates) const {
   Message<google_firestore_v1_RunAggregationQueryRequest> result;
   auto encodedTarget = serializer_.EncodeQueryTarget(query.ToTarget());
   result->parent = encodedTarget.parent;
@@ -327,9 +327,9 @@ DatastoreSerializer::EncodeAggregateQueryRequest(const core::Query& query, const
   result->query_type.structured_aggregation_query.structured_query =
       encodedTarget.structured_query;
 
-  absl::flat_hash_map<std::string, model::AggregateField *> uniqueAggregates;
-  for (auto aggregate : aggregates) {
-    auto pair = std::pair<std::string, model::AggregateField *>(aggregate->alias.CanonicalString(), aggregate);
+  absl::flat_hash_map<std::string, model::AggregateField> uniqueAggregates;
+  for (const model::AggregateField& aggregate : aggregates) {
+    auto pair = std::pair<std::string, model::AggregateField>(aggregate.alias.StringValue(), aggregate);
     uniqueAggregates.insert(pair);
   }
 
@@ -343,31 +343,36 @@ DatastoreSerializer::EncodeAggregateQueryRequest(const core::Query& query, const
     result->query_type.structured_aggregation_query.aggregations[i].alias =
         nanopb::MakeBytesArray(aggregatePair.first);
 
-    if (typeid(aggregatePair.second) == typeid(model::CountAggregateField)) {
+    if (aggregatePair.second.alias.StringValue() == model::AggregateField::kOpCount) {
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
       result->query_type.structured_aggregation_query.aggregations[i].count =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
-    } else if (typeid(aggregatePair.second) == typeid(model::SumAggregateField)) {
-      // TODO(sum/avg) implement with protos
+    } else if (aggregatePair.second.alias.StringValue() == model::AggregateField::kOpSum) {
+      google_firestore_v1_StructuredQuery_FieldReference field{};
+
+      // TODO (sum/avg) alias should be field path
+      field.field_path = nanopb::MakeBytesArray(aggregatePair.second.alias.StringValue());
+
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
-          google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
-      result->query_type.structured_aggregation_query.aggregations[i].count =
-          google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
-    } else if (typeid(aggregatePair.second) == typeid(model::SumAggregateField)) {
-      // TODO(sum/avg) implement with protos
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_sum_tag;
+      result->query_type.structured_aggregation_query.aggregations[i].sum =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum{field};
+    } else if (aggregatePair.second.alias.StringValue() == model::AggregateField::kOpAvg) {
+      google_firestore_v1_StructuredQuery_FieldReference field{};
+      field.field_path = nanopb::MakeBytesArray(aggregatePair.second.alias.StringValue());
+
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
-          google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
-      result->query_type.structured_aggregation_query.aggregations[i].count =
-          google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_avg_tag;
+      result->query_type.structured_aggregation_query.aggregations[i].avg =
+          google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg{field};
     }
 
     ++i;
   }
-
 
   return result;
 }
@@ -383,6 +388,7 @@ util::StatusOr<model::ObjectValue> DatastoreSerializer::DecodeAggregateQueryResp
   }
 
   // TODO(sum/avg) what happens if a caller requests 0 aggregate fields, this should not crash
+  // needs a test
   HARD_ASSERT(!!message->result.aggregate_fields);
 
   return model::ObjectValue::FromAggregateFieldsEntry(message->result.aggregate_fields, message->result.aggregate_fields_count);

@@ -475,12 +475,7 @@ std::string Query::Describe(Operator op) const {
   UNREACHABLE();
 }
 
-AggregateQuery Query::Count() const {
-  // TODO(sum/avg) create aggregates array containing only count
-  return AggregateQuery(*this);
-}
-
-AggregateQuery Query::Aggregate(std::vector<AggregateField *> && aggregates) const {
+AggregateQuery Query::Aggregate(std::vector<model::AggregateField> && aggregates) const {
   return AggregateQuery(*this, std::move(aggregates));
 }
 

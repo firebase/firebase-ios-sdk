@@ -365,17 +365,17 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
   }
 }
 
-void RemoteStore::RunCountQuery(const core::Query& query,
-                                api::CountQueryCallback&& result_callback) {
-  if (CanUseNetwork()) {
-    datastore_->RunCountQuery(query, std::move(result_callback));
-  } else {
-    result_callback(Status::FromErrno(Error::kErrorUnavailable,
-                                      "Failed to get result from server."));
-  }
-}
+// void RemoteStore::RunCountQuery(const core::Query& query,
+//                                 api::CountQueryCallback&& result_callback) {
+//   if (CanUseNetwork()) {
+//     datastore_->RunCountQuery(query, std::move(result_callback));
+//   } else {
+//     result_callback(Status::FromErrno(Error::kErrorUnavailable,
+//                                       "Failed to get result from server."));
+//   }
+// }
 
-void RemoteStore::RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField *> &aggregates,
+void RemoteStore::RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField> &aggregates,
                                 api::AggregateQueryCallback&& result_callback) {
   if (CanUseNetwork()) {
     datastore_->RunAggregateQuery(query, aggregates, std::move(result_callback));
