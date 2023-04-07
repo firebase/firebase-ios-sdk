@@ -133,7 +133,7 @@ class VerifyPasswordTests: RPCBaseTests {
   }
 
   /** @fn testSuccessfulVerifyPasswordResponse
-      @brief Tests a succesful attempt of the verify password flow.
+      @brief Tests a successful attempt of the verify password flow.
    */
   func testSuccessfulVerifyPasswordResponse() throws {
     let kLocalIDKey = "localId"

@@ -98,7 +98,7 @@ import XCTest
     }
 
     /** @fn testSuccessfulVerifyPhoneNumberResponse
-        @brief Tests a succesful to verify phone number flow.
+        @brief Tests a successful to verify phone number flow.
      */
     func testSuccessfulVerifyPhoneNumberResponse() throws {
       let kTestLocalID = "testLocalId"
@@ -133,7 +133,7 @@ import XCTest
     }
 
     /** @fn testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof
-        @brief Tests a succesful to verify phone number flow with temporary proof response.
+        @brief Tests a successful to verify phone number flow with temporary proof response.
      */
     func testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof() throws {
       var callbackInvoked = false
