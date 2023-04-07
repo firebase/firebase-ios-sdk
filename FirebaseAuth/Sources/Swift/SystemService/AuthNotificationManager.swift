@@ -81,7 +81,6 @@
      */
     private var pendingCallbacks: [(Bool) -> Void]?
 
-
     /** @fn initWithApplication:appCredentialManager:
         @brief Initializes the instance.
         @param application The application.

@@ -417,7 +417,7 @@ import Foundation
             }
           }
           guard let verifyResponse = response as? VerifyClientResponse,
-             let receipt = verifyResponse.receipt,
+                let receipt = verifyResponse.receipt,
                 let timeout = verifyResponse.suggestedTimeOutDate?.timeIntervalSinceNow else {
             fatalError("Internal Auth Error: invalid VerifyClientResponse")
           }
@@ -425,8 +425,8 @@ import Foundation
                                                               timeout: timeout) { credential in
             if credential.secret == nil {
               AuthLog.logWarning(code: "I-AUT000014", message: "Failed to receive remote " +
-                                 "notification to verify app identity within \(timeout) " +
-                                 "second(s), falling back to reCAPTCHA verification.")
+                "notification to verify app identity within \(timeout) " +
+                "second(s), falling back to reCAPTCHA verification.")
               self.reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate, completion: completion)
               return
             }
@@ -498,13 +498,16 @@ import Foundation
           if let token = AuthWebUtils.queryItemValue(name: "recaptchaToken", from: queryItems) {
             return token
           }
-          if let firebaseError = AuthWebUtils.queryItemValue(name: "firebaseError", from: queryItems) {
+          if let firebaseError = AuthWebUtils.queryItemValue(
+            name: "firebaseError",
+            from: queryItems
+          ) {
             if let errorData = firebaseError.data(using: .utf8) {
               do {
                 if let errorDict = try JSONSerialization.jsonObject(with: errorData)
-                    as? [AnyHashable: Any],
-                   let code = errorDict["code"] as? String,
-                   let message = errorDict["message"] as? String {
+                  as? [AnyHashable: Any],
+                  let code = errorDict["code"] as? String,
+                  let message = errorDict["message"] as? String {
                   throw AuthErrorUtils.urlResponseError(code: code, message: message)
                 }
               } catch {
