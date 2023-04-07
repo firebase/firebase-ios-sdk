@@ -68,6 +68,20 @@
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
 }
 
+- (void)testCanRunAggregateQuery {
+  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{@"k" : @1},
+    @"b" : @{@"k" : @2},
+    @"c" : @{@"k" : @3}
+  }];
+    
+  FIRAggregateQuerySnapshot* snapshot = [self readSnapshotForAggregate:[testCollection aggregate:@[[FIRAggregateField aggregateFieldForCount], [FIRAggregateField aggregateFieldForSumOfField:@"k"], [FIRAggregateField aggregateFieldForAverageOfField:@"k"]]]];
+    XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]], [NSNumber numberWithLong:3L]);
+    XCTAssertEqual([snapshot count], [NSNumber numberWithLong:3L]);
+    XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"k"]], [NSNumber numberWithLong:6L]);
+    XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"k"]], [NSNumber numberWithDouble:2.0]);
+}
+
 - (void)testCanRunCountWithFilters {
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},

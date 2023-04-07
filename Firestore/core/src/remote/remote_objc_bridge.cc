@@ -343,30 +343,34 @@ DatastoreSerializer::EncodeAggregateQueryRequest(const core::Query& query, const
     result->query_type.structured_aggregation_query.aggregations[i].alias =
         nanopb::MakeBytesArray(aggregatePair.first);
 
-    if (aggregatePair.second.alias.StringValue() == model::AggregateField::kOpCount) {
+    if (aggregatePair.second.op == model::AggregateField::kOpCount) {
+        
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
+        
       result->query_type.structured_aggregation_query.aggregations[i].count =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
-    } else if (aggregatePair.second.alias.StringValue() == model::AggregateField::kOpSum) {
+    } else if (aggregatePair.second.op == model::AggregateField::kOpSum) {
       google_firestore_v1_StructuredQuery_FieldReference field{};
 
-      // TODO (sum/avg) alias should be field path
-      field.field_path = nanopb::MakeBytesArray(aggregatePair.second.alias.StringValue());
+      field.field_path = nanopb::MakeBytesArray(aggregatePair.second.fieldPath.CanonicalString());
 
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_sum_tag;
+        
       result->query_type.structured_aggregation_query.aggregations[i].sum =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum{field};
-    } else if (aggregatePair.second.alias.StringValue() == model::AggregateField::kOpAvg) {
+        
+    } else if (aggregatePair.second.op == model::AggregateField::kOpAvg) {
       google_firestore_v1_StructuredQuery_FieldReference field{};
-      field.field_path = nanopb::MakeBytesArray(aggregatePair.second.alias.StringValue());
+      field.field_path = nanopb::MakeBytesArray(aggregatePair.second.fieldPath.CanonicalString());
 
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_avg_tag;
+        
       result->query_type.structured_aggregation_query.aggregations[i].avg =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg{field};
     }
@@ -374,6 +378,8 @@ DatastoreSerializer::EncodeAggregateQueryRequest(const core::Query& query, const
     ++i;
   }
 
+  auto str = result.ToString();
+    
   return result;
 }
 

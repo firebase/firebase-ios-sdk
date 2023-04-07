@@ -87,7 +87,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias(std::string{"sum_"} + super._fieldPath.internalValue.CanonicalString());
+  return model::AggregateAlias(model::AggregateField::kOpSum + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
 }
 
 - (model::AggregateField)createInternalValue {
@@ -105,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias(std::string{"avg_"} + super._fieldPath.internalValue.CanonicalString());
+  return model::AggregateAlias(model::AggregateField::kOpCount + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
 }
 
 - (model::AggregateField)createInternalValue {
@@ -122,7 +122,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias(std::string{"count"});
+  return model::AggregateAlias(model::AggregateField::kOpCount);
 }
 
 - (model::AggregateField)createInternalValue {
