@@ -277,6 +277,7 @@ import Foundation
                                               multiFactorSession: nil,
                                               uiDelegate: uiDelegate,
                                               callback: callback)
+              return
             }
             callback((response as? SendVerificationCodeResponse)?.verificationID, nil)
           }
@@ -389,6 +390,9 @@ import Foundation
           return
         }
       #endif
+      if let credential = auth.appCredentialManager.credential {
+        completion(credential, nil, nil)
+      }
       auth.tokenManager.getToken { token, error in
         guard let token else {
           self.reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate, completion: completion)
@@ -412,10 +416,21 @@ import Foundation
               return
             }
           }
-          if let verifyResponse = response as? VerifyClientResponse {
-            let timeout = verifyResponse.suggestedTimeOutDate?.timeIntervalSinceNow
-            // TODO: Pause here and continue after AuthAppCredentialManager.swift
-            // self.auth.appCredentialManager.didStartVerificationWithReceipt()
+          guard let verifyResponse = response as? VerifyClientResponse,
+             let receipt = verifyResponse.receipt,
+                let timeout = verifyResponse.suggestedTimeOutDate?.timeIntervalSinceNow else {
+            fatalError("Internal Auth Error: invalid VerifyClientResponse")
+          }
+          self.auth.appCredentialManager.didStartVerification(withReceipt: receipt,
+                                                              timeout: timeout) { credential in
+            if credential.secret == nil {
+              AuthLog.logWarning(code: "I-AUT000014", message: "Failed to receive remote " +
+                                 "notification to verify app identity within \(timeout) " +
+                                 "second(s), falling back to reCAPTCHA verification.")
+              self.reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate, completion: completion)
+              return
+            }
+            completion(credential, nil, nil)
           }
         }
       }
@@ -454,7 +469,12 @@ import Foundation
             completion(nil, nil, error)
             return
           }
-          let reCAPTHAtoken = self.reCAPTCHAToken
+          do {
+            let reCAPTHAtoken = try self.reCAPTCHAToken(forURL: callbackURL)
+            completion(nil, reCAPTHAtoken, nil)
+          } catch {
+            completion(nil, nil, error)
+          }
         }
       }
     }
@@ -465,87 +485,40 @@ import Foundation
      @param error The error that occurred if any.
      @return The reCAPTCHA token if successful.
      */
-    private func reCAPTCHAToken(forURL url: URL, error: NSError) -> String? {
+    private func reCAPTCHAToken(forURL url: URL?) throws -> String {
+      guard let url = url else {
+        let reason = "Internal Auth Error: nil URL trying to access RECAPTCHA token"
+        throw AuthErrorUtils.appVerificationUserInteractionFailure(reason: reason)
+      }
       let actualURLComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
-      guard let queryItems = actualURLComponents?.queryItems else {
-        return nil
+      if let queryItems = actualURLComponents?.queryItems,
+         let deepLinkURL = AuthWebUtils.queryItemValue(name: "deep_link_id", from: queryItems) {
+        let deepLinkComponents = URLComponents(string: deepLinkURL)
+        if let queryItems = deepLinkComponents?.queryItems {
+          if let token = AuthWebUtils.queryItemValue(name: "recaptchaToken", from: queryItems) {
+            return token
+          }
+          if let firebaseError = AuthWebUtils.queryItemValue(name: "firebaseError", from: queryItems) {
+            if let errorData = firebaseError.data(using: .utf8) {
+              do {
+                if let errorDict = try JSONSerialization.jsonObject(with: errorData)
+                    as? [AnyHashable: Any],
+                   let code = errorDict["code"] as? String,
+                   let message = errorDict["message"] as? String {
+                  throw AuthErrorUtils.urlResponseError(code: code, message: message)
+                }
+              } catch {
+                throw AuthErrorUtils.JSONSerializationError(underlyingError: error)
+              }
+            }
+          }
+        }
+        let reason = "An unknown error occurred with the following response: \(deepLinkURL)"
+        throw AuthErrorUtils.appVerificationUserInteractionFailure(reason: reason)
       }
-      guard let deepLinkURL = AuthWebUtils.queryItemValue(name: "deep_link_id", from: queryItems)
-      else {
-        return nil
-      }
-      let deepLinkComponents = URLComponents(string: deepLinkURL)
-      if let queryItems = deepLinkComponents?.queryItems {
-        return AuthWebUtils.queryItemValue(name: "recaptchaToken", from: queryItems)
-      }
-      return nil
+      let reason = "Failed to get url Components for url: \(url)"
+      throw AuthErrorUtils.appVerificationUserInteractionFailure(reason: reason)
     }
-
-    //  - (nullable NSString *)reCAPTCHATokenForURL:(NSURL *)URL error:(NSError **_Nonnull)error {
-    //    NSURLComponents *actualURLComponents = [NSURLComponents componentsWithURL:URL
-    //                                                      resolvingAgainstBaseURL:NO];
-    //    NSArray<NSURLQueryItem *> *queryItems = [actualURLComponents queryItems];
-    //    NSString *deepLinkURL = [FIRAuthWebUtils queryItemValue:@"deep_link_id" from:queryItems];
-    //    NSData *errorData;
-    //    if (deepLinkURL) {
-    //      actualURLComponents = [NSURLComponents componentsWithString:deepLinkURL];
-    //      queryItems = [actualURLComponents queryItems];
-    //      NSString *recaptchaToken = [FIRAuthWebUtils queryItemValue:@"recaptchaToken" from:queryItems];
-    //      if (recaptchaToken) {
-    //        return recaptchaToken;
-    //      }
-    //      NSString *firebaseError = [FIRAuthWebUtils queryItemValue:@"firebaseError" from:queryItems];
-    //      errorData = [firebaseError dataUsingEncoding:NSUTF8StringEncoding];
-    //    } else {
-    //      errorData = nil;
-    //    }
-    //    if (error != NULL && errorData != nil) {
-    //      NSError *jsonError;
-    //      NSDictionary *errorDict = [NSJSONSerialization JSONObjectWithData:errorData
-    //                                                                options:0
-    //                                                                  error:&jsonError];
-    //      if (jsonError) {
-    //        *error = [FIRAuthErrorUtils JSONSerializationErrorWithUnderlyingError:jsonError];
-    //        return nil;
-    //      }
-    //      *error = [FIRAuthErrorUtils URLResponseErrorWithCode:errorDict[@"code"]
-    //                                                   message:errorDict[@"message"]];
-    //      if (!*error) {
-    //        NSString *reason;
-    //        if (errorDict[@"code"] && errorDict[@"message"]) {
-    //          reason =
-    //              [NSString stringWithFormat:@"[%@] - %@", errorDict[@"code"], errorDict[@"message"]];
-    //        } else {
-    //          reason = [NSString stringWithFormat:@"An unknown error occurred with the following "
-    //                                               "response: %@",
-    //                                              deepLinkURL];
-    //        }
-    //        *error = [FIRAuthErrorUtils appVerificationUserInteractionFailureWithReason:reason];
-    //      }
-    //    }
-    //    return nil;
-    //  }
-
-    //                                completion:^(NSURL *_Nullable callbackURL, NSError *_Nullable error) {
-    //                                  if (error) {
-    //                                    completion(nil, nil, error);
-    //                                    return;
-    //                                  }
-    //                                  NSError *reCAPTCHAError;
-    //                                  NSString *reCAPTCHAToken =
-    //                                      [self reCAPTCHATokenForURL:callbackURL error:&reCAPTCHAError];
-    //                                  if (!reCAPTCHAToken) {
-    //                                    completion(nil, nil, reCAPTCHAError);
-    //                                    return;
-    //                                  } else {
-    //                                    completion(nil, reCAPTCHAToken, nil);
-    //                                    return;
-    //                                  }
-    //                                }];
-    //                     }];
-    //  }
-
-    // POp back up with ObjC below after this
 
     /** @fn
      @brief Constructs a URL used for opening a reCAPTCHA app verification flow using a given event

@@ -63,17 +63,24 @@
         @brief Whether or not notification is being forwarded
      */
     private var isNotificationBeingForwarded: Bool = false
+
     /** @property timeout
         @brief The timeout for checking for notification forwarding.
         @remarks Only tests should access this property.
      */
+    @objc public let timeout: TimeInterval
+
+    /** @property immediateCallbackForTestFaking
+        @brief Disable callback waiting for tests.
+        @remarks Only tests should access this property.
+     */
+    var immediateCallbackForTestFaking = false
 
     /** @var _pendingCallbacks
         @brief All pending callbacks while a check is being performed.
      */
     private var pendingCallbacks: [(Bool) -> Void]?
 
-    @objc public let timeout: TimeInterval
 
     /** @fn initWithApplication:appCredentialManager:
         @brief Initializes the instance.
@@ -96,6 +103,10 @@
     @objc public func checkNotificationForwarding(withCallback callback: @escaping (Bool) -> Void) {
       if pendingCallbacks != nil {
         pendingCallbacks?.append(callback)
+        return
+      }
+      if immediateCallbackForTestFaking {
+        callback(true)
         return
       }
       if hasCheckedNotificationForwarding {
