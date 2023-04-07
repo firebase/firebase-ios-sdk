@@ -172,7 +172,7 @@ jobs:
     - name: Setup Bundler
       working-directory: firebase-ios-sdk
       run: scripts/setup_bundler.sh
-    - name: Generate workspace (main)
+    - name: Generate workspace
       working-directory: firebase-ios-sdk
       run: git checkout master && bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
@@ -181,9 +181,6 @@ jobs:
     - name: Switch branches
       working-directory: firebase-ios-sdk
       run: git checkout "${GITHUB_HEAD_REF}" && scripts/setup_bundler.sh
-    - name: Generate workspace (changes)
-      working-directory: firebase-ios-sdk
-      run: bundle exec pod gen FirebaseStorage.podspec --local-sources=./ --platforms=ios
     - name: Build documentation
       working-directory: firebase-ios-sdk
       run: xcodebuild docbuild -workspace gen/FirebaseStorage/FirebaseStorage.xcworkspace -scheme FirebaseStorage -sdk iphonesimulator -derivedDataPath ${{ env.ARTIFACTS_DIR }}//changes/
