@@ -526,54 +526,42 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
     }
 
-    NSError *error;
     NSString *storedUserAccessGroup =
-        [strongSelf.storedUserManager getStoredUserAccessGroupWithError:&error];
-    if (!error) {
-      if (!storedUserAccessGroup) {
-        FIRUser *user;
-        if ([strongSelf getUser:&user error:&error]) {
-          strongSelf.tenantID = user.tenantID;
-          [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
-          self->_lastNotifiedUserToken = user.rawAccessToken;
-        } else {
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-          if (error.code == FIRAuthErrorCodeKeychainError) {
-            // If there's a keychain error, assume it is due to the keychain being accessed
-            // before the device is unlocked as a result of prewarming, and listen for the
-            // UIApplicationProtectedDataDidBecomeAvailable notification.
-            [strongSelf addProtectedDataDidBecomeAvailableObserver];
-          }
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-          FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                      @"Error loading saved user when starting up: %@", error);
-        }
+        [strongSelf.storedUserManager getStoredUserAccessGroupWithError:nil];
+    if (!storedUserAccessGroup) {
+      FIRUser *user;
+      NSError *error;
+      if ([strongSelf getUser:&user error:&error]) {
+        strongSelf.tenantID = user.tenantID;
+        [strongSelf updateCurrentUser:user byForce:NO savingToDisk:NO error:&error];
+        self->_lastNotifiedUserToken = user.rawAccessToken;
       } else {
-        [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
-        if (error) {
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-          if (error.code == FIRAuthErrorCodeKeychainError) {
-            // If there's a keychain error, assume it is due to the keychain being accessed
-            // before the device is unlocked as a result of prewarming, and listen for the
-            // UIApplicationProtectedDataDidBecomeAvailable notification.
-            [strongSelf addProtectedDataDidBecomeAvailableObserver];
-          }
-#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-          FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
-                      @"Error loading saved user when starting up: %@", error);
+        if (error.code == FIRAuthErrorCodeKeychainError) {
+          // If there's a keychain error, assume it is due to the keychain being accessed
+          // before the device is unlocked as a result of prewarming, and listen for the
+          // UIApplicationProtectedDataDidBecomeAvailable notification.
+          [strongSelf addProtectedDataDidBecomeAvailableObserver];
         }
+#endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
+        FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                    @"Error loading saved user when starting up: %@", error);
       }
     } else {
+      NSError *error;
+      [strongSelf internalUseUserAccessGroup:storedUserAccessGroup error:&error];
+      if (error) {
 #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-      if (error.code == FIRAuthErrorCodeKeychainError) {
-        // If there's a keychain error, assume it is due to the keychain being accessed
-        // before the device is unlocked as a result of prewarming, and listen for the
-        // UIApplicationProtectedDataDidBecomeAvailable notification.
-        [strongSelf addProtectedDataDidBecomeAvailableObserver];
-      }
+        if (error.code == FIRAuthErrorCodeKeychainError) {
+          // If there's a keychain error, assume it is due to the keychain being accessed
+          // before the device is unlocked as a result of prewarming, and listen for the
+          // UIApplicationProtectedDataDidBecomeAvailable notification.
+          [strongSelf addProtectedDataDidBecomeAvailableObserver];
+        }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_MACCATALYST
-      FIRLogError(kFIRLoggerAuth, @"I-AUT000001", @"Error loading saved user when starting up: %@",
-                  error);
+        FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                    @"Error loading saved user when starting up: %@", error);
+      }
     }
 
 #if TARGET_OS_IOS
