@@ -2294,7 +2294,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (BOOL)internalUseUserAccessGroup:(NSString *_Nullable)accessGroup
                              error:(NSError *_Nullable *_Nullable)outError {
   BOOL success;
-  success = [self.storedUserManager setStoredUserAccessGroup:accessGroup error:outError];
+  success = [self.storedUserManager setStoredUserAccessGroup:accessGroup];
   if (!success) {
     return NO;
   }

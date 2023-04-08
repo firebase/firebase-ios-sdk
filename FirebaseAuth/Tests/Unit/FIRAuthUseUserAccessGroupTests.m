@@ -42,7 +42,7 @@
   OCMStub([classMock keychainServiceNameForAppName:OCMOCK_ANY]).andReturn(nil);
   FIRAuthStoredUserManager *myManager =
       [[FIRAuthStoredUserManager alloc] initWithServiceName:@"MyService"];
-  [myManager setStoredUserAccessGroup:@"MyGroup" error:nil];
+  [myManager setStoredUserAccessGroup:@"MyGroup"];
 
   FIRAuth *auth = [FIRAuth auth];
   XCTAssertNotNil(auth);
