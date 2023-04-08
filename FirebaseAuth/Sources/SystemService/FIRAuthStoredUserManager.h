@@ -47,9 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @fn getStoredUserAccessGroupWithError:
     @brief Get the user access group stored locally.
-    @param outError Return value for any error which occurs.
  */
-- (nullable NSString *)getStoredUserAccessGroupWithError:(NSError *_Nullable *_Nullable)outError;
+- (nullable NSString *)getStoredUserAccessGroup;
 
 /** @fn setStoredUserAccessGroup:error:
     @brief The setter of the user access group stored locally.

@@ -526,8 +526,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
           [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
     }
 
-    NSString *storedUserAccessGroup =
-        [strongSelf.storedUserManager getStoredUserAccessGroupWithError:nil];
+    NSString *storedUserAccessGroup = [strongSelf.storedUserManager getStoredUserAccessGroup];
     if (!storedUserAccessGroup) {
       FIRUser *user;
       NSError *error;

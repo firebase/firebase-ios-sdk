@@ -49,8 +49,8 @@ static NSString *kStoredUserCoderKey = @"firebase_auth_stored_user_coder_key";
 
 #pragma mark - User Access Group
 
-- (NSString *_Nullable)getStoredUserAccessGroupWithError:(NSError *_Nullable *_Nullable)outError {
-  NSData *data = [self.userDefaults dataForKey:kStoredUserAccessGroupKey error:outError];
+- (NSString *_Nullable)getStoredUserAccessGroup {
+  NSData *data = [self.userDefaults dataForKey:kStoredUserAccessGroupKey error:nil];
   if (data) {
     NSString *userAccessGroup = [NSString stringWithUTF8String:data.bytes];
     return userAccessGroup;
