@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifdef TODO_SWIFT
+// TODO: Swiftify after AuthDefaultUIDelegate.swift implementation
+
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 
@@ -144,4 +147,5 @@ static NSTimeInterval kExpectationTimeout = 2;
 
 @end
 
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif
+#endif

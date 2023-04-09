@@ -139,6 +139,18 @@
       let expectation = self.expectation(description: #function)
       let group = createGroup()
 
+      if !testMode {
+        let requestExpectation = self.expectation(description: "verifyRequester")
+        rpcIssuer?.verifyRequester = { request in
+          let myRequest = request as? SendVerificationCodeRequest
+          XCTAssertNotNil(myRequest)
+          XCTAssertEqual(myRequest?.phoneNumber, self.kTestPhoneNumber)
+          XCTAssertEqual(myRequest?.appCredential?.receipt, self.kTestReceipt)
+          XCTAssertEqual(myRequest?.appCredential?.secret, self.kTestSecret)
+          requestExpectation.fulfill()
+        }
+      }
+
       provider.verifyPhoneNumber(kTestPhoneNumber, uiDelegate: nil) { verificationID, error in
         XCTAssertTrue(Thread.isMainThread)
         if valid {

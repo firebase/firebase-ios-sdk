@@ -33,10 +33,6 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
-#if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark-- Logger Service String.
