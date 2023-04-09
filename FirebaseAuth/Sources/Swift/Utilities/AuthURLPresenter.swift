@@ -56,8 +56,10 @@
         self.uiDelegate = uiDelegate // ?? FIRAuthDefaultUIDelegate.defaultUIDelegate()
         #if targetEnvironment(macCatalyst)
           self.webViewController = AuthWebViewController(url: url, delegate: self)
-          let navController = UINavigationController(rootViewController: self.webViewController)
-          self.uiDelegate?.present(navController, animated: true)
+          if let webViewController = self.webViewController {
+            let navController = UINavigationController(rootViewController: webViewController)
+            self.uiDelegate?.present(navController, animated: true)
+          }
         #else
           self.safariViewController = SFSafariViewController(url: url)
           self.safariViewController?.delegate = self
