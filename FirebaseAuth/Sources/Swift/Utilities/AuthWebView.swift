@@ -73,21 +73,11 @@
     }
 
     private func createSpinner() -> UIActivityIndicatorView {
-      var spinnerStyle: UIActivityIndicatorView.Style = .gray
-      #if targetEnvironment(macCatalyst)
-        if #available(iOS 13.0, *) {
-          spinnerStyle = .medium
-        } else {
-          // iOS 13 deprecation
-          //            #pragma clang diagnostic push
-          //            #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-          spinnerStyle = .gray
-          //            #pragma clang diagnostic pop
-        }
-      #endif
-      let spinner = UIActivityIndicatorView(style: spinnerStyle)
-      return spinner
+      if #available(iOS 13.0, macCatalyst 13.0, *) {
+        return UIActivityIndicatorView(style: .medium)
+      } else {
+        return UIActivityIndicatorView(style: .gray)
+      }
     }
   }
-
 #endif
