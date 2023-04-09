@@ -62,6 +62,11 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
    */
   var group: DispatchGroup?
 
+  /** @var verifyRequester
+      @brief Optional function to run tests on the request.
+   */
+  var verifyRequester: ((AuthRPCRequest) -> Void)?
+
   var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
   var secureTokenNetworkError: Bool = false
@@ -74,6 +79,10 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
     handler = completionHandler
     self.request = request
     requestURL = request.requestURL()
+
+    if let verifyRequester {
+      verifyRequester(request)
+    }
 
     if let _ = request as? GetAccountInfoRequest,
        let json = fakeGetAccountProviderJSON {
