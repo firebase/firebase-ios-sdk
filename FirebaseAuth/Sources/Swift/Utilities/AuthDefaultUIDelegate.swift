@@ -32,6 +32,7 @@
     @available(iOSApplicationExtension, unavailable)
     @available(tvOSApplicationExtension, unavailable)
     class func defaultUIDelegate() -> AuthUIDelegate? {
+      // TODO: Consider removing code below when doing extension testing.
       // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
       // responds to it.
       guard let applicationClass = NSClassFromString("UIApplication"),
