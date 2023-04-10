@@ -61,11 +61,11 @@ NS_ASSUME_NONNULL_BEGIN
   if (![[other class] isEqual:[self class]]) return NO;
 
   auto otherQuery = static_cast<FIRAggregateQuery *>(other);
-  return [_query isEqual:otherQuery->_query];
+  return [_query isEqual:otherQuery->_query] && *_aggregateQuery == *(otherQuery->_aggregateQuery);
 }
 
 - (NSUInteger)hash {
-  return [_query hash];
+    return _aggregateQuery->Hash();
 }
 
 #pragma mark - Public Methods

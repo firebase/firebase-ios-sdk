@@ -26,7 +26,13 @@ const std::string AggregateField::kOpCount = "count";
 
 bool operator==(const AggregateField& lhs,
                 const AggregateField& rhs) {
-  return lhs.op == rhs.op && lhs.alias == rhs.alias;
+  return lhs.op == rhs.op
+         && lhs.alias == rhs.alias
+         && lhs.fieldPath.CanonicalString() == rhs.fieldPath.CanonicalString();
+}
+
+size_t AggregateField::Hash() const {
+  return util::Hash(op, alias, fieldPath.CanonicalString());
 }
 
 }  // namespace api

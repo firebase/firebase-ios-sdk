@@ -16,6 +16,7 @@
 
 #include "aggregate_alias.h"
 
+#include "Firestore/core/src/util/hashing.h"
 #include "absl/strings/str_replace.h"
 
 namespace firebase {
@@ -29,6 +30,10 @@ const std::string& AggregateAlias::StringValue() const {
 bool operator==(const AggregateAlias& lhs,
                 const AggregateAlias& rhs) {
   return lhs._alias == rhs._alias;
+}
+
+size_t AggregateAlias::Hash() const {
+  return util::Hash(_alias);
 }
 
 }  // namespace model

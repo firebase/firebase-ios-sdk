@@ -52,6 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
   return model::AggregateAlias(std::string{});
 }
 
+- (const std::string)name {
+  HARD_FAIL("Use name from FIRAggregateField sub class.");
+  return std::string{};
+}
+
 + (instancetype)aggregateFieldForCount NS_SWIFT_NAME(count()) {
   return [[FSTCountAggregateField alloc] initPrivate];
 }
@@ -87,11 +92,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias(model::AggregateField::kOpSum + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
+  return model::AggregateAlias([self name] + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
 }
 
 - (model::AggregateField)createInternalValue {
-  return model::AggregateField(model::AggregateField::kOpSum, [self createAlias], super._fieldPath.internalValue);
+  return model::AggregateField([self name], [self createAlias], super._fieldPath.internalValue);
+}
+
+- (const std::string)name {
+  return model::AggregateField::kOpSum;
 }
 
 @end
@@ -105,11 +114,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias(model::AggregateField::kOpCount + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
+  return model::AggregateAlias([self name] + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
 }
 
 - (model::AggregateField)createInternalValue {
-  return model::AggregateField(model::AggregateField::kOpAvg, [self createAlias], super._fieldPath.internalValue);
+  return model::AggregateField([self name], [self createAlias], super._fieldPath.internalValue);
+}
+
+- (const std::string)name {
+  return model::AggregateField::kOpAvg;
 }
 
 @end
@@ -122,11 +135,15 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias(model::AggregateField::kOpCount);
+  return model::AggregateAlias([self name]);
 }
 
 - (model::AggregateField)createInternalValue {
-  return model::AggregateField(model::AggregateField::kOpCount, [self createAlias]);
+  return model::AggregateField([self name], [self createAlias]);
+}
+
+- (const std::string)name {
+  return model::AggregateField::kOpCount;
 }
 
 @end

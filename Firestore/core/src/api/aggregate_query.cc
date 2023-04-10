@@ -27,6 +27,14 @@ namespace firebase {
 namespace firestore {
 namespace api {
 
+bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs) {
+    return lhs.query_ == rhs.query_ && lhs.aggregates_ == rhs.aggregates_;
+}
+
+size_t AggregateQuery::Hash() const {
+  return util::Hash(query_, aggregates_);
+}
+
 AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
 }
 

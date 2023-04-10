@@ -32,6 +32,8 @@ class AggregateAlias {
 
   friend bool operator==(const AggregateAlias& lhs, const AggregateAlias& rhs);
 
+  size_t Hash() const;
+
  private:
   const std::string _alias;
 };

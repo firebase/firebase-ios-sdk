@@ -37,6 +37,9 @@ class AggregateQuery {
     return query_;
   }
 
+  friend bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
+  size_t Hash() const;
+
 /*  void Get(CountQueryCallback&& callback);*/
 
   void Get(AggregateQueryCallback&& callback);

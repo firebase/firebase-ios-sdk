@@ -29,6 +29,7 @@ namespace model = firebase::firestore::model;
   @property(nonatomic, strong, readonly) FIRFieldPath *_fieldPath;
   - (model::AggregateField)createInternalValue;
   - (model::AggregateAlias)createAlias;
+  - (const std::string)name;
 @end
 
 /**
@@ -40,6 +41,7 @@ namespace model = firebase::firestore::model;
 - (id)initWithFieldPath:(FIRFieldPath *)path;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
+- (const std::string)name;
 @end
 
 /**
@@ -51,6 +53,7 @@ namespace model = firebase::firestore::model;
 - (instancetype)initWithFieldPath:(FIRFieldPath *)internalFieldPath;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
+- (const std::string)name;
 @end
 
 /** FIRAggregateField class for count aggregations. Exposed internally so code can do isKindOfClass
@@ -61,6 +64,7 @@ namespace model = firebase::firestore::model;
 - (instancetype)initPrivate;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
+- (const std::string)name;
 @end
 
 NS_ASSUME_NONNULL_END

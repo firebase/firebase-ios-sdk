@@ -16,6 +16,7 @@
 
 #import "FIRAggregateQuerySnapshot+Internal.h"
 #import "FIRAggregateField+Internal.h"
+#import "FIRFieldPath+Internal.h"
 
 #import "FIRAggregateQuery.h"
 #import "FIRQuery.h"
@@ -27,9 +28,11 @@
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
 #include "Firestore/core/src/model/aggregate_alias.h"
 #include "Firestore/core/src/model/field_path.h"
+#include "Firestore/core/src/util/exception.h"
 
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -81,7 +84,14 @@ NS_ASSUME_NONNULL_BEGIN
 
   model::AggregateAlias alias = [aggregation createAlias];
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
-  if (!fieldValue) return nil;
+  if (!fieldValue) {
+      std::string path{""};
+      if (aggregation._fieldPath) {
+          path = [aggregation._fieldPath internalValue].CanonicalString();
+      }
+      
+      ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query", [aggregation name], path);
+  }
   FSTUserDataWriter *dataWriter =
       [[FSTUserDataWriter alloc] initWithFirestore:_query.query.firestore.wrapped
                            serverTimestampBehavior:serverTimestampBehavior];

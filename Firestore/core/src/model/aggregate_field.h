@@ -44,6 +44,8 @@ class AggregateField {
   }
 
   friend bool operator==(const AggregateField& lhs, const AggregateField& rhs);
+
+  size_t Hash() const;
 };
 
 }  // namespace api
