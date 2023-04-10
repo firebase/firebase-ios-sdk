@@ -24,14 +24,28 @@
 # Commonly
 # ./scripts/style.sh master
 
+# Set the environment variable FIR_CLANG_FORMAT_PATH to use a specific version
+# of clang-format, regardless of its order in the shell PATH.
+#
+# Example (add to ~/.bash_profile, ~/.zshrc or run in interactive shell):
+#   FIR_CLANG_FORMAT_PATH="$(brew --prefix clang-format)/bin/clang-format"
+#   export FIR_CLANG_FORMAT_PATH
+if [[ -n "$FIR_CLANG_FORMAT_PATH" ]]; then
+  clang_format_bin="$FIR_CLANG_FORMAT_PATH"
+elif ! clang_format_bin=$(command -v clang-format); then
+  echo "clang-format not found, install with 'brew install clang-format'"
+  exit 1
+fi
+
 # Strip the clang-format version output down to the major version. Examples:
 #   clang-format version 7.0.0 (tags/google/stable/2018-01-11)
 #   clang-format version google3-trunk (trunk r333779)
-version=$(clang-format --version)
+version=$("$clang_format_bin" --version)
 
 # Log the version in non-interactive use as it can be useful in travis logs.
 if [[ ! -t 1 ]]; then
-  echo "Found: $version"
+  echo "Clang-format Path: $clang_format_bin"
+  echo "Clang-format Version: $version"
 fi
 
 # Remove leading "clang-format version"
@@ -191,7 +205,7 @@ for f in $files; do
       false
     fi
   else
-    clang-format "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
+    "$clang_format_bin" "${clang_options[@]}" "$f" | grep "<replacement " > /dev/null
   fi
 
   if [[ "$test_only" == true && $? -ne 1 ]]; then
