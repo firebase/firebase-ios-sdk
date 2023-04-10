@@ -37,19 +37,13 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     self.key = key
     remoteConfig = RemoteConfig.remoteConfig()
     self.fallbackValue = fallbackValue
+
     // Initialize with fallback value
     configValue = fallbackValue
+
     // Check cached remote config value
-    do {
-      let configValue: RemoteConfigValue = remoteConfig[key]
-      if configValue.source == .remote || configValue.source == .default {
-        self.configValue = try remoteConfig[key].decoded()
-      } else {
-        self.configValue = fallbackValue
-      }
-    } catch {
-      configValue = fallbackValue
-    }
+    applyConfigValue()
+
     NotificationCenter.default.addObserver(
       self, selector: #selector(configDidActivate), name: .onRemoteConfigActivated, object: nil
     )
@@ -61,13 +55,19 @@ internal class RemoteConfigValueObservable<T: Decodable>: ObservableObject {
     if FirebaseApp.app()?.name != appName {
       return
     }
+    applyConfigValue()
+  }
+
+  private func applyConfigValue() {
     do {
       let configValue: RemoteConfigValue = remoteConfig[key]
-      if configValue.source == .remote {
+      if configValue.source == .remote || configValue.source == .default {
         self.configValue = try remoteConfig[key].decoded()
+      } else {
+        self.configValue = fallbackValue
       }
     } catch {
-      // Suppresses a hard failure if decoding failed.
+      configValue = fallbackValue
     }
   }
 }
