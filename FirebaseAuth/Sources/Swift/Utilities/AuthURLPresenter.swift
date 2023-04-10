@@ -52,19 +52,26 @@
       self.callbackMatcher = callbackMatcher
       self.completion = completion
       DispatchQueue.main.async {
-        // TODO: Next line after AuthDefaultUIDelegate
-        self.uiDelegate = uiDelegate // ?? FIRAuthDefaultUIDelegate.defaultUIDelegate()
+        self.uiDelegate = uiDelegate ?? AuthDefaultUIDelegate.defaultUIDelegate()
         #if targetEnvironment(macCatalyst)
           self.webViewController = AuthWebViewController(url: url, delegate: self)
           if let webViewController = self.webViewController {
             let navController = UINavigationController(rootViewController: webViewController)
-            self.uiDelegate?.present(navController, animated: true)
+            if let fakeUIDelegate = self.fakeUIDelegate {
+              fakeUIDelegate.present(navController, animated: true)
+            } else {
+              self.uiDelegate?.present(navController, animated: true)
+            }
           }
         #else
           self.safariViewController = SFSafariViewController(url: url)
           self.safariViewController?.delegate = self
           if let safariViewController = self.safariViewController {
-            self.uiDelegate?.present(safariViewController, animated: true)
+            if let fakeUIDelegate = self.fakeUIDelegate {
+              fakeUIDelegate.present(safariViewController, animated: true)
+            } else {
+              self.uiDelegate?.present(safariViewController, animated: true)
+            }
           }
         #endif
       }
@@ -79,6 +86,7 @@
       if isPresenting,
          let callbackMatcher = callbackMatcher,
          callbackMatcher(url) {
+        finishPresentation(withURL: url, error: nil)
         return true
       }
       return false
@@ -114,40 +122,45 @@
       }
     }
 
-    /** @var _isPresenting
+    /** @var_isPresenting
         @brief Whether or not some web-based content is being presented.
             Accesses to this property are serialized on the global Auth work queue
             and thus this variable should not be read or written outside of the work queue.
      */
     private var isPresenting: Bool = false
 
-    /** @var _callbackMatcher
+    /** @var callbackMatcher
         @brief The callback URL matcher for the current presentation, if one is active.
      */
     private var callbackMatcher: ((URL) -> Bool)?
 
-    /** @var _safariViewController
+    /** @var safariViewController
         @brief The SFSafariViewController used for the current presentation, if any.
      */
     private var safariViewController: SFSafariViewController?
 
-    /** @var _webViewController
+    /** @var webViewController
         @brief The FIRAuthWebViewController used for the current presentation, if any.
      */
     private var webViewController: AuthWebViewController?
 
-    /** @var _UIDelegate
+    /** @var uiDelegate
         @brief The UIDelegate used to present the SFSafariViewController.
      */
     private var uiDelegate: AuthUIDelegate?
 
-    /** @var _completion
+    /** @var completion
         @brief The completion handler for the current presentation, if one is active.
             Accesses to this variable are serialized on the global Auth work queue
             and thus this variable should not be read or written outside of the work queue.
         @remarks This variable is also used as a flag to indicate a presentation is active.
      */
     private var completion: ((URL?, Error?) -> Void)?
+
+    /** @var fakeUIDelegate
+        @brief Test-only option to validate the calls to the uiDelegate.
+     */
+    var fakeUIDelegate: AuthUIDelegate?
 
     // MARK: Private methods
 
