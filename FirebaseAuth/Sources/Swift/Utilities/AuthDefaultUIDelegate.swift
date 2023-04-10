@@ -12,67 +12,74 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if !os(macOS) && !os(watchOS)
+#if os(iOS) || os(tvOS)
 
   import Foundation
   import UIKit
   @_implementationOnly import GoogleUtilities
 
-/** @class AuthDefaultUIDelegate
-    @brief Class responsible for providing a default FIRAuthUIDelegte.
-    @remarks This class should be used in the case that a UIDelegate was expected and necessary to
-        continue a given flow, but none was provided.
- */
-class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
-  // TODO: Figure out what to do for extensions.
-  /** @fn defaultUIDelegate
-      @brief Returns a default FIRAuthUIDelegate object.
-      @return The default FIRAuthUIDelegate object.
+  /** @class AuthDefaultUIDelegate
+      @brief Class responsible for providing a default FIRAuthUIDelegte.
+      @remarks This class should be used in the case that a UIDelegate was expected and necessary to
+          continue a given flow, but none was provided.
    */
-  @available(iOSApplicationExtension, unavailable)
-  class func defaultUIDelegate() -> AuthUIDelegate? {
-    // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-    // responds to it.
-    guard let applicationClass = NSClassFromString("UIApplication"),
-          applicationClass.responds(to: NSSelectorFromString("sharedApplication")) else {
-      return nil
-    }
-    var topViewController: UIViewController?
-    if #available(iOS 13.0, tvOS 13.0, *) {
-      let connectedScenes = UIApplication.shared.connectedScenes
-      for scene in connectedScenes {
-        if let windowScene = scene as? UIWindowScene {
-          for window in windowScene.windows {
-            if window.isKeyWindow {
-              topViewController = window.rootViewController
+  class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
+    // TODO: Figure out what to do for extensions.
+    /** @fn defaultUIDelegate
+        @brief Returns a default FIRAuthUIDelegate object.
+        @return The default FIRAuthUIDelegate object.
+     */
+    @available(iOSApplicationExtension, unavailable)
+    @available(tvOSApplicationExtension, unavailable)
+    class func defaultUIDelegate() -> AuthUIDelegate? {
+      // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+      // responds to it.
+      guard let applicationClass = NSClassFromString("UIApplication"),
+            applicationClass.responds(to: NSSelectorFromString("sharedApplication")) else {
+        return nil
+      }
+      var topViewController: UIViewController?
+      if #available(iOS 13.0, tvOS 13.0, *) {
+        let connectedScenes = UIApplication.shared.connectedScenes
+        for scene in connectedScenes {
+          if let windowScene = scene as? UIWindowScene {
+            for window in windowScene.windows {
+              if window.isKeyWindow {
+                topViewController = window.rootViewController
+              }
             }
           }
         }
+      } else {
+        topViewController = UIApplication.shared.keyWindow?.rootViewController
       }
-    } else {
-      topViewController = UIApplication.shared.keyWindow?.rootViewController
+      while true {
+        if let controller = topViewController?.presentedViewController {
+          topViewController = controller
+        } else if let navController = topViewController as? UINavigationController {
+          topViewController = navController.topViewController
+        } else if let tabBarController = topViewController as? UITabBarController {
+          topViewController = tabBarController.selectedViewController
+        } else {
+          break
+        }
+      }
+      return AuthDefaultUIDelegate(withViewController: topViewController)
     }
-    while true {
-      if let controller = topViewController?.presentedViewController {
-        topViewController = controller
-      } else if 
+
+    init(withViewController viewController: UIViewController?) {
+      self.viewController = viewController
     }
+
+    func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
+                 completion: (() -> Void)? = nil) {
+      viewController?.present(viewControllerToPresent, animated: flag, completion: completion)
+    }
+
+    func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
+      viewController?.dismiss(animated: flag, completion: completion)
+    }
+
+    private let viewController: UIViewController?
   }
-
-  init(withViewController viewController: UIViewController?) {
-    self.viewController = viewController
-  }
-
-  func present(_ viewControllerToPresent: UIViewController, animated flag: Bool, completion: (() -> Void)? = nil) {
-    viewController?.present(viewControllerToPresent, animated: flag, completion: completion)
-  }
-
-  func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {
-    viewController?.dismiss(animated: flag, completion: completion)
-  }
-
-  private let viewController: UIViewController?
-
-
-}
 #endif

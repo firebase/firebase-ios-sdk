@@ -48,7 +48,7 @@
     // MARK: - Properties
 
     private var url: URL
-    private weak var delegate: FIRAuthWebViewControllerDelegate?
+    weak var delegate: FIRAuthWebViewControllerDelegate?
     private weak var webView: AuthWebView?
 
     // MARK: - Initialization
