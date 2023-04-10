@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-import XCTest
-
-import FirebaseCore
-@testable import FirebaseAuth
-import SafariServices
-
 #if os(iOS)
+
+  import Foundation
+  import XCTest
+
+  import FirebaseCore
+  @testable import FirebaseAuth
+  import SafariServices
 
   class AuthURLPresenterTests: XCTestCase {
     /** @fn testFIRAuthURLPresenterNonNilUIDelegate
