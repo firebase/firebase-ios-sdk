@@ -22,7 +22,6 @@ import FirebaseCore
 
   class OAuthProviderTests: RPCBaseTests {
     static let kFakeAuthorizedDomain = "test.firebaseapp.com"
-    static let kFakeBundleID = "com.firebaseapp.example"
     private let kFakeAccessToken = "fakeAccessToken"
     private let kFakeIDToken = "fakeIDToken"
     private let kFakeProviderID = "fakeProviderID"
