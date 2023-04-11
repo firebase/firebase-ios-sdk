@@ -17,13 +17,13 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth-Swift.h>
 
-#import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 
 @interface FIRAuth (Test)
-@property(nonatomic, strong, nullable) FIRAuthStoredUserManager *storedUserManager;
+@property(nonatomic, strong, nullable) FIRAuthStoredUserManager2 *storedUserManager;
 @end
 
 @interface UseUserAccessGroupTests : XCTestCase
@@ -38,8 +38,8 @@
 
 - (void)testUseUserAccessGroup {
   id classMock = OCMClassMock([FIRAuth class]);
-  FIRAuthStoredUserManager *myManager =
-      [[FIRAuthStoredUserManager alloc] initWithServiceName:@"MyService"];
+  FIRAuthStoredUserManager2 *myManager =
+      [[FIRAuthStoredUserManager2 alloc] initWithServiceName:@"MyService"];
   [myManager setStoredUserAccessGroup:@"MyGroup"];
 
   FIRAuth *auth = [FIRAuth auth];
