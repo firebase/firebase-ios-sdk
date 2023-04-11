@@ -354,8 +354,6 @@ DatastoreSerializer::DecodeAggregateQueryResponse(
     return reader.status();
   }
 
-  // TODO(sum/avg) what happens if a caller requests 0 aggregate fields, this
-  // should not crash needs a test
   HARD_ASSERT(!!message->result.aggregate_fields);
 
   return model::ObjectValue::FromAggregateFieldsEntry(

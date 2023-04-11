@@ -257,6 +257,49 @@
 }
 
 // TODO(sum/avg) skip when running against production
+- (void)testCanRunEmptyAggregateQuery {
+  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{
+      @"author" : @"authorA",
+      @"title" : @"titleA",
+      @"pages" : @100,
+      @"height" : @24.5,
+      @"weight" : @24.1,
+      @"foo" : @1,
+      @"bar" : @2,
+      @"baz" : @3
+    },
+    @"b" : @{
+      @"author" : @"authorB",
+      @"title" : @"titleB",
+      @"pages" : @50,
+      @"height" : @25.5,
+      @"weight" : @75.5,
+      @"foo" : @1,
+      @"bar" : @2,
+      @"baz" : @3
+    }
+  }];
+
+  FIRAggregateQuery* emptyQuery = [testCollection aggregate:@[]];
+
+  __block NSError* result;
+  XCTestExpectation* expectation = [self expectationWithDescription:@"aggregate result"];
+
+  [emptyQuery aggregationWithSource:FIRAggregateSourceServer
+                         completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+                           XCTAssertNil(snapshot);
+                           result = error;
+                           [expectation fulfill];
+                         }];
+
+  [self awaitExpectation:expectation];
+
+  XCTAssertNotNil(result);
+  XCTAssertTrue([[result localizedDescription] containsString:@"Aggregations can not be empty"]);
+}
+
+// TODO(sum/avg) skip when running against production
 - (void)testAggregateFieldQuerySnapshotEquality {
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
