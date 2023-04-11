@@ -41,12 +41,6 @@ import Foundation
   /// Mediator object used to access user defaults.
   private let userDefaults: AuthUserDefaults
 
-  /// The default initializer is disabled.
-  @available(*, unavailable)
-  @objc override public init() {
-    fatalError("init() has not been implemented")
-  }
-
   /// Designated initializer.
   /// - Parameter serviceName: The service name to initialize with.
   @objc public init(serviceName: String) {
