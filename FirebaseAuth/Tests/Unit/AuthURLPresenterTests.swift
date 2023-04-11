@@ -70,7 +70,8 @@
       waitForExpectations(timeout: 5)
 
       class FakeUIDelegate: NSObject, AuthUIDelegate {
-        func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
+        func present(_ viewControllerToPresent: UIViewController,
+                     animated flag: Bool,
                      completion: (() -> Void)? = nil) {
           #if targetEnvironment(macCatalyst)
             let navigationController = viewControllerToPresent as? UINavigationController
