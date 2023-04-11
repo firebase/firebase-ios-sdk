@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * Marker protocol implemented by all supported cache settings.
  *
- * The two cache type supported are `PersistentCacheSettings` and `MemoryCacheSettings`. Custom
+ * The two cache types supported are `PersistentCacheSettings` and `MemoryCacheSettings`. Custom
  * implementation is not supported.
  */
 NS_SWIFT_NAME(LocalCacheSettings)
@@ -34,7 +34,7 @@ NS_SWIFT_NAME(LocalCacheSettings)
  *
  * This is the default cache type unless explicitly speicified otherwise.
  *
- * To use, create an instance using one of the initializer, then set the instance to
+ * To use, create an instance using one of the initializers, then set the instance to
  * `FirestoreSettings.cacheSettings`, and use `FirestoreSettings` instance to configure Firestore
  * SDK.
  */
@@ -47,6 +47,7 @@ NS_SWIFT_NAME(PersistentCacheSettings)
  * The cache size is not a hard limit, but a target for the SDK's gabarge collector to work towards.
  */
 - (instancetype)init;
+
 /**
  * Creates `PersistentCacheSettings` with a custom cache size in bytes.
  *

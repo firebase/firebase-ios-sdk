@@ -22,7 +22,6 @@
 #import <FirebaseFirestore/FIRDocumentSnapshot.h>
 #import <FirebaseFirestore/FIRFirestore.h>
 #import <FirebaseFirestore/FIRFirestoreSettings.h>
-#import <FirebaseFirestore/FIRLocalCacheSettings.h>
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>

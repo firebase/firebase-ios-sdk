@@ -24,13 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRPersistentCacheSettings (Internal)
 
-@property(nonatomic, assign)
-    const firebase::firestore::api::PersistentCacheSettings& internalSettings;
+- (const firebase::firestore::api::PersistentCacheSettings&)internalSettings;
 
 @end
 
 @interface FIRMemoryCacheSettings (Internal)
+
 @property(nonatomic, assign) const firebase::firestore::api::MemoryCacheSettings& internalSettings;
+
 @end
 
 NS_ASSUME_NONNULL_END

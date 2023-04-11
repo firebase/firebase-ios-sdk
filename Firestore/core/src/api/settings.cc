@@ -43,6 +43,10 @@ Settings::Settings(const Settings& other)
 }
 
 Settings& Settings::operator=(const Settings& other) {
+  if (this == &other) {
+    return *this;
+  }
+
   host_ = other.host_;
   ssl_enabled_ = other.ssl_enabled_;
   persistence_enabled_ = other.persistence_enabled_;
@@ -93,21 +97,29 @@ bool operator==(const Settings& lhs, const Settings& rhs) {
   return *(lhs.cache_settings_) == *(rhs.cache_settings_);
 }
 
+bool operator!=(const Settings& lhs, const Settings& rhs) {
+  return !(lhs == rhs);
+}
+
 bool operator==(const LocalCacheSettings& lhs, const LocalCacheSettings& rhs) {
-  if (lhs.kind_ != rhs.kind_) {
+  if (lhs.kind() != rhs.kind()) {
     return false;
   }
 
-  if (lhs.kind_ == LocalCacheSettings::Kind::kMemory) {
+  if (lhs.kind() == LocalCacheSettings::Kind::kMemory) {
     return static_cast<const MemoryCacheSettings&>(lhs) ==
            static_cast<const MemoryCacheSettings&>(rhs);
   }
 
-  if (lhs.kind_ == LocalCacheSettings::Kind::kPersistent) {
+  if (lhs.kind() == LocalCacheSettings::Kind::kPersistent) {
     return static_cast<const PersistentCacheSettings&>(lhs) ==
            static_cast<const PersistentCacheSettings&>(rhs);
   }
   UNREACHABLE();
+}
+
+bool operator!=(const LocalCacheSettings& lhs, const LocalCacheSettings& rhs) {
+  return !(lhs == rhs);
 }
 
 size_t MemoryCacheSettings::Hash() const {
@@ -116,6 +128,25 @@ size_t MemoryCacheSettings::Hash() const {
 
 size_t PersistentCacheSettings::Hash() const {
   return util::Hash(kind_, size_bytes_);
+}
+
+bool operator==(const MemoryCacheSettings& lhs,
+                const MemoryCacheSettings& rhs) {
+  return lhs.kind() == rhs.kind();
+}
+bool operator!=(const MemoryCacheSettings& lhs,
+                const MemoryCacheSettings& rhs) {
+  return !(lhs == rhs);
+}
+
+bool operator==(const PersistentCacheSettings& lhs,
+                const PersistentCacheSettings& rhs) {
+  return lhs.kind() == rhs.kind() && lhs.size_bytes() == rhs.size_bytes();
+}
+
+bool operator!=(const PersistentCacheSettings& lhs,
+                const PersistentCacheSettings& rhs) {
+  return !(lhs == rhs);
 }
 
 void Settings::set_persistence_enabled(bool value) {
@@ -127,11 +158,9 @@ void Settings::set_persistence_enabled(bool value) {
 }
 
 bool Settings::persistence_enabled() const {
-  if (local_cache_settings() != nullptr) {
-    return local_cache_settings()->kind() ==
-           api::LocalCacheSettings::Kind::kPersistent;
-  }
-  return persistence_enabled_;
+  return (cache_settings_ &&
+          cache_settings_->kind() == LocalCacheSettings::Kind::kPersistent) ||
+         persistence_enabled_;
 }
 
 void Settings::set_cache_size_bytes(int64_t value) {
@@ -143,10 +172,9 @@ void Settings::set_cache_size_bytes(int64_t value) {
 }
 
 int64_t Settings::cache_size_bytes() const {
-  if (local_cache_settings() != nullptr) {
-    if (local_cache_settings()->kind() ==
-        api::LocalCacheSettings::Kind::kPersistent) {
-      return static_cast<const PersistentCacheSettings*>(local_cache_settings())
+  if (cache_settings_) {
+    if (cache_settings_->kind() == api::LocalCacheSettings::Kind::kPersistent) {
+      return static_cast<const PersistentCacheSettings*>(cache_settings_.get())
           ->size_bytes_;
     } else {
       return CacheSizeUnlimited;
@@ -156,7 +184,7 @@ int64_t Settings::cache_size_bytes() const {
 }
 
 bool Settings::gc_enabled() const {
-  if (cache_settings_ != nullptr) {
+  if (cache_settings_) {
     return cache_settings_->kind_ == LocalCacheSettings::Kind::kPersistent &&
            static_cast<PersistentCacheSettings*>(cache_settings_.get())
                    ->size_bytes_ != CacheSizeUnlimited;
@@ -171,12 +199,12 @@ const LocalCacheSettings* Settings::local_cache_settings() const {
 void Settings::set_local_cache_settings(const LocalCacheSettings& settings) {
   HARD_ASSERT(persistence_enabled_ == Settings::DefaultPersistenceEnabled,
               "Cannot set local cache settings, because persistence_enabled "
-              "is already specified. Please remove code specifing "
+              "is already specified. Please remove code specifying "
               "persistence_enabled.");
   HARD_ASSERT(
       cache_size_bytes_ == Settings::DefaultCacheSizeBytes,
       "Cannot set local cache settings, because cache_size_bytes "
-      "is already specified. Please remove code specifing cache_size_bytes.");
+      "is already specified. Please remove code specifying cache_size_bytes.");
   cache_settings_ = CopyCacheSettings(settings);
 }
 

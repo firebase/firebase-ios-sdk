@@ -57,6 +57,22 @@ TEST(Settings, CopyConstructor) {
     EXPECT_EQ(*(settings.local_cache_settings()),
               *(copy.local_cache_settings()));
   }
+  {
+    Settings settings;
+    settings.set_host("host");
+    settings.set_ssl_enabled(false);
+    settings.set_local_cache_settings(
+        PersistentCacheSettings{}.WithSizeBytes(1000000));
+
+    Settings copy(settings);
+
+    EXPECT_EQ(settings.host(), copy.host());
+    EXPECT_EQ(settings.ssl_enabled(), copy.ssl_enabled());
+    EXPECT_EQ(settings.persistence_enabled(), copy.persistence_enabled());
+    EXPECT_EQ(settings.cache_size_bytes(), copy.cache_size_bytes());
+    EXPECT_EQ(*(settings.local_cache_settings()),
+              *(copy.local_cache_settings()));
+  }
 }
 
 TEST(Settings, MoveConstructor) {
@@ -81,7 +97,8 @@ TEST(Settings, CopyAssignmentOperator) {
   Settings settings;
   settings.set_host("host");
   settings.set_ssl_enabled(true);
-  settings.set_local_cache_settings(PersistentCacheSettings{});
+  settings.set_local_cache_settings(
+      PersistentCacheSettings{}.WithSizeBytes(1000000));
 
   Settings other;
   other = settings;
@@ -150,6 +167,22 @@ TEST(Settings, EqualityAndHash) {
     EXPECT_EQ(settings1.Hash(), settings2.Hash());
 
     settings2.set_local_cache_settings(PersistentCacheSettings{});
+
+    EXPECT_NE(settings1, settings2);
+    EXPECT_NE(settings1.Hash(), settings2.Hash());
+  }
+  {
+    Settings settings1;
+    settings1.set_host("host");
+    settings1.set_ssl_enabled(true);
+    settings1.set_local_cache_settings(
+        PersistentCacheSettings{}.WithSizeBytes(1000000));
+
+    Settings settings2;
+    settings2.set_host("host");
+    settings2.set_ssl_enabled(true);
+    settings2.set_local_cache_settings(
+        PersistentCacheSettings{}.WithSizeBytes(2000000));
 
     EXPECT_NE(settings1, settings2);
     EXPECT_NE(settings1.Hash(), settings2.Hash());

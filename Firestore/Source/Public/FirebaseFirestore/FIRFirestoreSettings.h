@@ -48,16 +48,16 @@ NS_SWIFT_NAME(FirestoreSettings)
 @property(nonatomic, strong) dispatch_queue_t dispatchQueue;
 
 /**
- * NOTE: This field will be deprecated in a future major release. Use `cacheSettings` field
+ * NOTE: This field will be deprecated in a future major release. Use the `cacheSettings` field
  * instead to specify cache type, and other cache configurations.
  *
  * Set to false to disable local persistent storage.
  */
 @property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled DEPRECATED_MSG_ATTRIBUTE(
-    "This field is deprecated, use `cacheSettings` instead.");
+    "This field is deprecated. Use `cacheSettings` instead.");
 
 /**
- * NOTE: This field will be deprecated in a future major release. Use `cacheSettings` field
+ * NOTE: This field will be deprecated in a future major release. Use the `cacheSettings` field
  * instead to specify cache size, and other cache configurations.
  *
  * Sets the cache size threshold above which the SDK will attempt to collect least-recently-used
@@ -67,7 +67,7 @@ NS_SWIFT_NAME(FirestoreSettings)
  * Set to `FirestoreCacheSizeUnlimited` to disable garbage collection entirely.
  */
 @property(nonatomic, assign) int64_t cacheSizeBytes DEPRECATED_MSG_ATTRIBUTE(
-    "This field is deprecated, use `cacheSettings` instead.");
+    "This field is deprecated. Use `cacheSettings` instead.");
 
 /**
  * Specifies the cache used by the SDK. Availabe options are `PersistentLocalCache`
@@ -76,7 +76,7 @@ NS_SWIFT_NAME(FirestoreSettings)
  * When unspecified, `PersistentLocalCache` will be used by default.
  *
  * NOTE: setting this field and `cacheSizeBytes` or `persistenceEnabled` at the same time will throw
- * exception during SDK initialization. Instead, using the configuration in
+ * an exception during SDK initialization. Instead, use the configuration in
  * the `PersistentLocalCache` object to specify the cache size.
  */
 @property(nonatomic, strong) id<FIRLocalCacheSettings, NSObject> cacheSettings;

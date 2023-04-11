@@ -1790,7 +1790,7 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotIdentical(db2, db3);
 }
 
-- (void)testCannotMixingCacheConfigAPIs {
+- (void)testCannotMixCacheConfigAPIs {
   [FIRApp configure];
   FIRFirestore *db1 = [FIRFirestore firestore];
 

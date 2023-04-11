@@ -77,9 +77,6 @@ class Settings {
   void set_local_cache_settings(const LocalCacheSettings& settings);
 
   friend bool operator==(const Settings& lhs, const Settings& rhs);
-  friend bool operator!=(const Settings& lhs, const Settings& rhs) {
-    return !(lhs == rhs);
-  }
 
   size_t Hash() const;
 
@@ -95,6 +92,8 @@ class Settings {
 };
 
 class LocalCacheSettings {
+  friend class Settings;
+
  public:
   enum class Kind { kMemory, kPersistent };
   virtual ~LocalCacheSettings() = default;
@@ -110,12 +109,11 @@ class LocalCacheSettings {
   explicit LocalCacheSettings(Kind kind) : kind_(std::move(kind)) {
   }
   Kind kind_;
-
- private:
-  friend class Settings;
 };
 
 class PersistentCacheSettings : public LocalCacheSettings {
+  friend class Settings;
+
  public:
   PersistentCacheSettings()
       : LocalCacheSettings(LocalCacheSettings::Kind::kPersistent),
@@ -123,42 +121,37 @@ class PersistentCacheSettings : public LocalCacheSettings {
   }
   PersistentCacheSettings WithSizeBytes(int64_t size) const;
 
-  friend bool operator==(const PersistentCacheSettings& lhs,
-                         const PersistentCacheSettings& rhs) {
-    return lhs.kind_ == rhs.kind_ && lhs.size_bytes_ == rhs.size_bytes_;
+  int64_t size_bytes() const {
+    return size_bytes_;
   }
 
-  friend bool operator!=(const PersistentCacheSettings& lhs,
-                         const PersistentCacheSettings& rhs) {
-    return !(lhs == rhs);
-  }
   size_t Hash() const override;
 
  private:
-  friend class Settings;
-
   int64_t size_bytes_;
 };
 
 class MemoryCacheSettings : public LocalCacheSettings {
+  friend class Settings;
+
  public:
   MemoryCacheSettings()
       : LocalCacheSettings(LocalCacheSettings::Kind::kMemory) {
   }
-  friend bool operator==(const MemoryCacheSettings& lhs,
-                         const MemoryCacheSettings& rhs) {
-    return lhs.kind_ == rhs.kind_;
-  }
-
-  friend bool operator!=(const MemoryCacheSettings& lhs,
-                         const MemoryCacheSettings& rhs) {
-    return !(lhs == rhs);
-  }
   size_t Hash() const override;
-
- private:
-  friend class Settings;
 };
+
+bool operator!=(const Settings& lhs, const Settings& rhs);
+
+bool operator==(const MemoryCacheSettings& lhs, const MemoryCacheSettings& rhs);
+
+bool operator!=(const MemoryCacheSettings& lhs, const MemoryCacheSettings& rhs);
+
+bool operator==(const PersistentCacheSettings& lhs,
+                const PersistentCacheSettings& rhs);
+
+bool operator!=(const PersistentCacheSettings& lhs,
+                const PersistentCacheSettings& rhs);
 
 }  // namespace api
 }  // namespace firestore
