@@ -429,8 +429,7 @@ static NSString *const kMissingPasswordReason = @"Missing Password";
     NSString *keychainServiceName =
         [[self class] keychainServiceNameForAppID:app.options.googleAppID];
     _keychainServices = [keychainStorageProvider storageWithIdentifier:keychainServiceName];
-    _storedUserManager =
-        [[FIRAuthStoredUserManager2 alloc] initWithServiceName:keychainServiceName];
+    _storedUserManager = [[FIRAuthStoredUserManager alloc] initWithServiceName:keychainServiceName];
 #if TARGET_OS_IOS
     _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
     _settings = [[FIRAuthSettings alloc] init];

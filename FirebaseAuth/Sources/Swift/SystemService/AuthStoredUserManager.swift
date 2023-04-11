@@ -25,7 +25,7 @@ import Foundation
   }
 }
 
-@objc(FIRAuthStoredUserManager2) public class AuthStoredUserManager: NSObject {
+@objc(FIRAuthStoredUserManager) public class AuthStoredUserManager: NSObject {
   /// Key of user access group stored in user defaults. Used for retrieve the
   /// user access group at launch.
   private static let storedUserAccessGroupKey = "firebase_auth_stored_user_access_group"
@@ -35,6 +35,8 @@ import Foundation
 
   /// The key to encode and decode the stored user.
   private static let storedUserCoderKey = "firebase_auth_stored_user_coder_key"
+
+  // TODO: lock down visibility?
 
   /// Mediator object used to access the keychain.
   @objc public let keychainServices: AuthSharedKeychainServices

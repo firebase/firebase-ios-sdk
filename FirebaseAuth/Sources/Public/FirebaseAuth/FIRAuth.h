@@ -30,7 +30,7 @@
 @class FIRUser;
 @class FIRAuthNotificationManager;
 @class FIRAuthURLPresenter;
-@class FIRAuthStoredUserManager2;
+@class FIRAuthStoredUserManager;
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 @protocol FIRAuthStorage;
@@ -331,7 +331,7 @@ NS_SWIFT_NAME(Auth)
 
 @property(nonatomic, strong) NSString *firebaseAppName;
 @property(nonatomic) id<FIRAuthStorage> keychainServices;
-@property(nonatomic) FIRAuthStoredUserManager2 *storedUserManager;
+@property(nonatomic) FIRAuthStoredUserManager *storedUserManager;
 
 // TODO: Temporary bridge from Swift until completely ported.
 + (dispatch_queue_t)globalWorkQueue;
