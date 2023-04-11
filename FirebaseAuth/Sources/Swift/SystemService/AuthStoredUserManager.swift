@@ -36,12 +36,10 @@ import Foundation
   /// The key to encode and decode the stored user.
   private static let storedUserCoderKey = "firebase_auth_stored_user_coder_key"
 
-  // TODO: lock down visibility?
-
   /// Mediator object used to access the keychain.
-  @objc public let keychainServices: AuthSharedKeychainServices
+  private let keychainServices: AuthSharedKeychainServices
   /// Mediator object used to access user defaults.
-  @objc public let userDefaults: AuthUserDefaults
+  private let userDefaults: AuthUserDefaults
 
   /// The default initializer is disabled.
   @available(*, unavailable)
@@ -80,16 +78,13 @@ import Foundation
 
   // MARK: - User for Access Group
 
-  // TODO(ncooke3): In the below doc comment, what does "Currently, we use
-  // the API key" mean?
-
   /// The getter of the user stored locally.
   /// - Parameters:
   ///   - accessGroup: The access group to retrieve the user from.
   ///   - shareAuthStateAcrossDevices: If `true`, the keychain will be synced
   ///    across the end-user's iCloud.
   ///   - projectIdentifier: An identifier of the project that the user
-  ///   associates with. Currently, we use the API key.
+  ///   associates with.
   /// - Returns: The stored user for the given attributes.
   /// - Throws: An error if the operation failed.
   @objc(getStoredUserForAccessGroup:shareAuthStateAcrossDevices:projectIdentifier:error:)
@@ -117,9 +112,6 @@ import Foundation
     return UserWrapper(user: user)
   }
 
-  // TODO(ncooke3): In the below doc comment, what does "Currently, we use
-  // the API key" mean?
-
   /// The setter of the user stored locally.
   /// - Parameters:
   ///   - user: The user to be stored.
@@ -127,7 +119,7 @@ import Foundation
   ///   - shareAuthStateAcrossDevices: If `true`, the keychain will be
   ///   synced across the end-user's iCloud.
   ///   - projectIdentifier: An identifier of the project that the user
-  ///   associates with. Currently, we use the API key.
+  ///   associates with.
   /// - Throws: An error if the operation failed.
   @objc(setStoredUser:forAccessGroup:shareAuthStateAcrossDevices:projectIdentifier:error:)
   public func setStoredUser(user: User,
@@ -156,16 +148,13 @@ import Foundation
     try keychainServices.setItem(archiver.encodedData, withQuery: query)
   }
 
-  // TODO(ncooke3): In the below doc comment, what does "Currently, we use
-  // the API key" mean?
-
   /// Remove the user that stored locally.
   /// - Parameters:
   ///   - accessGroup: The access group to remove the user from.
   ///   - shareAuthStateAcrossDevices: If `true`, the keychain will be
   ///   synced across the end-user's iCloud.
   ///   - projectIdentifier: An identifier of the project that the user
-  ///   associates with. Currently, we use the API key.
+  ///   associates with.
   /// - Throws: An error if the operation failed.
   @objc(removeStoredUserForAccessGroup:shareAuthStateAcrossDevices:projectIdentifier:error:)
   public func removeStoredUser(accessGroup: String,
