@@ -515,12 +515,12 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         // Must set lastFetchStatus before setting Fetch Error.
         strongSelf->_settings.lastFetchStatus = FIRRemoteConfigFetchStatusFailure;
         strongSelf->_settings.lastFetchError = FIRRemoteConfigErrorInternalError;
-        NSDictionary<NSErrorUserInfoKey, id> *userInfo = @{
-          NSLocalizedDescriptionKey :
-              ([error localizedDescription]
-                   ?: [NSString
-                          stringWithFormat:@"Internal Error. Status code: %ld", (long)statusCode])
-        };
+        NSMutableDictionary<NSErrorUserInfoKey, id> *userInfo = [NSMutableDictionary dictionary];
+        userInfo[NSUnderlyingErrorKey] = error;
+        userInfo[NSLocalizedDescriptionKey] =
+            error.localizedDescription
+                ?: [NSString stringWithFormat:@"Internal Error. Status code: %ld", statusCode];
+
         return [strongSelf
             reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
                             withUpdate:nil
