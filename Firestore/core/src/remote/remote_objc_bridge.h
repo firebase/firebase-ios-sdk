@@ -135,15 +135,9 @@ class DatastoreSerializer {
       const std::vector<grpc::ByteBuffer>& responses) const;
 
   nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
-  EncodeCountQueryRequest(const core::Query& query) const;
-
-  nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
   EncodeAggregateQueryRequest(
       const core::Query& query,
       const std::vector<model::AggregateField>& aggregates) const;
-
-  util::StatusOr<int64_t> DecodeCountQueryResponse(
-      const grpc::ByteBuffer& response) const;
 
   util::StatusOr<model::ObjectValue> DecodeAggregateQueryResponse(
       const grpc::ByteBuffer& response) const;

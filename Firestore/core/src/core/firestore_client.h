@@ -155,12 +155,6 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
   /**
    * Executes a count query using the given query as the base.
    */
-  void RunCountQuery(const Query& query,
-                     api::CountQueryCallback&& result_callback);
-
-  /**
-   * Executes a count query using the given query as the base.
-   */
   void RunAggregateQuery(const Query& query,
                          const std::vector<model::AggregateField>& aggregates,
                          api::AggregateQueryCallback&& result_callback);

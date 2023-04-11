@@ -250,11 +250,6 @@ void SyncEngine::Transaction(int max_attempts,
   runner->Run();
 }
 
-// void SyncEngine::RunCountQuery(const core::Query& query,
-//                                api::CountQueryCallback&& result_callback) {
-//   remote_store_->RunCountQuery(query, std::move(result_callback));
-// }
-
 void SyncEngine::RunAggregateQuery(
     const core::Query& query,
     const std::vector<model::AggregateField>& aggregates,

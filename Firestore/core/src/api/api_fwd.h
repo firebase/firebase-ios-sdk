@@ -56,7 +56,6 @@ using QuerySnapshotListener =
     std::unique_ptr<core::EventListener<QuerySnapshot>>;
 
 using QueryCallback = std::function<void(core::Query, bool)>;
-using CountQueryCallback = std::function<void(const util::StatusOr<int64_t>&)>;
 using AggregateQueryCallback =
     std::function<void(const util::StatusOr<model::ObjectValue>&)>;
 

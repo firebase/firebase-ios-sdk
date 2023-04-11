@@ -140,12 +140,6 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
                    core::TransactionResultCallback result_callback);
 
   /**
-   * Executes a count query using the given query as the base.
-   */
-  //  void RunCountQuery(const core::Query& query,
-  //                     api::CountQueryCallback&& result_callback);
-
-  /**
    * Executes an aggregation query.
    */
   void RunAggregateQuery(const core::Query& query,
