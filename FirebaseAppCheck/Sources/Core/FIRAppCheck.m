@@ -326,7 +326,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     if (self.ongoingLimitedUseTokenPromise == nil) {
       // Kick off a new operation only when there is not an ongoing one.
       self.ongoingLimitedUseTokenPromise =
-          [self createRetrieveLimitedUseTokenPromiseForcingRefresh]
+          [self limitedUseToken]
 
               // Release the ongoing operation promise on completion.
               .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
@@ -340,18 +340,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     }
     return self.ongoingLimitedUseTokenPromise;
   }];
-}
-
-- (FBLPromise<FIRAppCheckToken *> *)createRetrieveLimitedUseTokenPromiseForcingRefresh {
-  return [self getLimitedUseTokenForcingRefresh].recover(^id _Nullable(NSError *_Nonnull error) {
-    return [self limitedUseToken];
-  });
-}
-
-- (FBLPromise<FIRAppCheckToken *> *)getLimitedUseTokenForcingRefresh {
-  FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-  [rejectedPromise reject:[FIRAppCheckErrorUtil cachedTokenNotFound]];
-  return rejectedPromise;
 }
 
 - (FBLPromise<FIRAppCheckToken *> *)refreshToken {
@@ -381,14 +369,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                       FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
         [self.appCheckProvider getTokenWithCompletion:handler];
       }].then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
-        // TODO: Make sure the self.tokenRefresher is updated only once. Currently the timer will be
-        // updated twice in the case when the refresh triggered by self.tokenRefresher, but it
-        // should be fine for now as it is a relatively cheap operation.
-        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc]
-            initWithStatusSuccessAndExpirationDate:token.expirationDate
-                                    receivedAtDate:token.receivedAtDate];
-        [self.tokenRefresher updateWithRefreshResult:refreshResult];
-        [self postTokenUpdateNotificationWithToken:token];
         return token;
       });
 }
