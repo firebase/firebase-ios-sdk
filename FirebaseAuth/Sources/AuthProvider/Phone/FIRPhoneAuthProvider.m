@@ -22,6 +22,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
@@ -718,6 +719,9 @@ extern NSString *const FIRPhoneMultiFactorID;
                                      NSString *clientID = self->_auth.app.options.clientID;
                                      NSString *appID = self->_auth.app.options.googleAppID;
                                      NSString *apiKey = self->_auth.requestConfiguration.APIKey;
+                                     id<FIRAppCheckInterop> appCheck =
+                                         self->_auth.requestConfiguration.appCheck;
+
                                      NSMutableArray<NSURLQueryItem *> *queryItems = [@[
                                        [NSURLQueryItem queryItemWithName:@"apiKey" value:apiKey],
                                        [NSURLQueryItem queryItemWithName:@"authType"
@@ -738,7 +742,6 @@ extern NSString *const FIRPhoneMultiFactorID;
                                            addObject:[NSURLQueryItem queryItemWithName:@"appId"
                                                                                  value:appID]];
                                      }
-
                                      if (self->_auth.requestConfiguration.languageCode) {
                                        [queryItems
                                            addObject:[NSURLQueryItem
@@ -752,8 +755,32 @@ extern NSString *const FIRPhoneMultiFactorID;
                                              [NSString stringWithFormat:kReCAPTCHAURLStringFormat,
                                                                         authDomain]];
                                      [components setQueryItems:queryItems];
-                                     if (completion) {
-                                       completion([components URL], nil);
+                                     if (appCheck) {
+                                       [appCheck
+                                           getTokenForcingRefresh:false
+                                                       completion:^(
+                                                           id<FIRAppCheckTokenResultInterop> _Nonnull tokenResult) {
+                                                         if (tokenResult.error) {
+                                                           FIRLogWarning(
+                                                               kFIRLoggerAuth, @"I-AUT000018",
+                                                               @"Error getting App Check token; "
+                                                               @"using placeholder token "
+                                                               @"instead. Error: %@",
+                                                               tokenResult.error);
+                                                         }
+                                                         NSString *appCheckTokenFragment = [@"fac="
+                                                             stringByAppendingString:tokenResult
+                                                                                         .token];
+                                                         [components
+                                                             setFragment:appCheckTokenFragment];
+                                                         if (completion) {
+                                                           completion([components URL], nil);
+                                                         }
+                                                       }];
+                                     } else {
+                                       if (completion) {
+                                         completion([components URL], nil);
+                                       }
                                      }
                                    }];
 }

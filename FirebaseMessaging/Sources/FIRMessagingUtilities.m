@@ -39,7 +39,7 @@ static NSString *const kAPSEnvironmentDevelopmentValue = @"development";
 
 #pragma mark - URL Helpers
 
-NSString *FIRMessagingTokenRegisterServer() {
+NSString *FIRMessagingTokenRegisterServer(void) {
   return @"https://fcmtoken.googleapis.com/register";
 }
 
@@ -91,7 +91,7 @@ NSString *FIRMessagingAppIdentifier(void) {
 #endif
 }
 
-NSString *FIRMessagingFirebaseAppID() {
+NSString *FIRMessagingFirebaseAppID(void) {
   return [FIROptions defaultOptions].googleAppID;
 }
 
@@ -273,7 +273,7 @@ NSArray *FIRMessagingFirebaseLocales(void) {
   return locales;
 }
 
-NSString *FIRMessagingCurrentLocale() {
+NSString *FIRMessagingCurrentLocale(void) {
   NSArray *locales = FIRMessagingFirebaseLocales();
   NSArray *preferredLocalizations =
       [NSBundle preferredLocalizationsFromArray:locales
@@ -283,7 +283,7 @@ NSString *FIRMessagingCurrentLocale() {
   return legalDocsLanguage ? legalDocsLanguage : @"en";
 }
 
-BOOL FIRMessagingHasLocaleChanged() {
+BOOL FIRMessagingHasLocaleChanged(void) {
   NSString *lastLocale = [[GULUserDefaults standardUserDefaults]
       stringForKey:kFIRMessagingInstanceIDUserDefaultsKeyLocale];
   NSString *currentLocale = FIRMessagingCurrentLocale();
