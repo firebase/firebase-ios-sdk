@@ -519,7 +519,8 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         userInfo[NSUnderlyingErrorKey] = error;
         userInfo[NSLocalizedDescriptionKey] =
             error.localizedDescription
-                ?: [NSString stringWithFormat:@"Internal Error. Status code: %ld", statusCode];
+                ?: [NSString
+                       stringWithFormat:@"Internal Error. Status code: %ld", (long)statusCode];
 
         return [strongSelf
             reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
