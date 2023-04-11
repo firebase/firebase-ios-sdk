@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAggregateQuerySnapshot (/* init */)
 
 - (instancetype)initWithObject:(model::ObjectValue)result
-                        query:(FIRAggregateQuery *)query NS_DESIGNATED_INITIALIZER;
+                         query:(FIRAggregateQuery *)query NS_DESIGNATED_INITIALIZER;
 
 @end
 

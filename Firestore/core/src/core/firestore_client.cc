@@ -537,7 +537,8 @@ void FirestoreClient::Transaction(int max_attempts,
 }
 
 // void FirestoreClient::RunCountQuery(const Query& query,
-//                                     api::CountQueryCallback&& result_callback) {
+//                                     api::CountQueryCallback&&
+//                                     result_callback) {
 //   VerifyNotTerminated();
 //
 //   // Dispatch the result back onto the user dispatch queue.
@@ -553,20 +554,23 @@ void FirestoreClient::Transaction(int max_attempts,
 //   });
 // }
 
-void FirestoreClient::RunAggregateQuery(const Query& query, const std::vector<model::AggregateField>& aggregates,
-                                    api::AggregateQueryCallback&& result_callback) {
+void FirestoreClient::RunAggregateQuery(
+    const Query& query,
+    const std::vector<model::AggregateField>& aggregates,
+    api::AggregateQueryCallback&& result_callback) {
   VerifyNotTerminated();
 
   // Dispatch the result back onto the user dispatch queue.
-  auto async_callback = [this,
-                         result_callback](const StatusOr<model::ObjectValue>& status) {
-    if (result_callback) {
-      user_executor_->Execute([=] { result_callback(std::move(status)); });
-    }
-  };
+  auto async_callback =
+      [this, result_callback](const StatusOr<model::ObjectValue>& status) {
+        if (result_callback) {
+          user_executor_->Execute([=] { result_callback(std::move(status)); });
+        }
+      };
 
   worker_queue_->Enqueue([this, query, aggregates, async_callback] {
-    sync_engine_->RunAggregateQuery(query, aggregates, std::move(async_callback));
+    sync_engine_->RunAggregateQuery(query, aggregates,
+                                    std::move(async_callback));
   });
 }
 

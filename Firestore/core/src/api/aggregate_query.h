@@ -31,7 +31,8 @@ class AggregateQuery {
  public:
   AggregateQuery() = default;
   explicit AggregateQuery(Query query);
-  explicit AggregateQuery(Query query, std::vector<model::AggregateField> &&aggregates);
+  explicit AggregateQuery(Query query,
+                          std::vector<model::AggregateField>&& aggregates);
 
   const Query& query() const {
     return query_;
@@ -40,7 +41,7 @@ class AggregateQuery {
   friend bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
   size_t Hash() const;
 
-/*  void Get(CountQueryCallback&& callback);*/
+  /*  void Get(CountQueryCallback&& callback);*/
 
   void Get(AggregateQueryCallback&& callback);
 

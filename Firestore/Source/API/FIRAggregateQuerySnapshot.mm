@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateQuerySnapshot+Internal.h"
 #import "FIRAggregateField+Internal.h"
+#import "FIRAggregateQuerySnapshot+Internal.h"
 #import "FIRFieldPath+Internal.h"
 
 #import "FIRAggregateQuery.h"
-#import "FIRQuery.h"
 #import "FIRFirestore+Internal.h"
+#import "FIRQuery.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
 
 #include "absl/types/optional.h"
@@ -38,10 +38,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAggregateQuerySnapshot {
   model::ObjectValue _result;
-  FIRAggregateQuery* _query;
+  FIRAggregateQuery *_query;
 }
 
-- (instancetype)initWithObject:(model::ObjectValue)result query:(FIRAggregateQuery*)query {
+- (instancetype)initWithObject:(model::ObjectValue)result query:(FIRAggregateQuery *)query {
   if (self = [super init]) {
     _result = std::move(result);
     _query = query;
@@ -55,7 +55,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (other == self) return YES;
   if (![[other class] isEqual:[self class]]) return NO;
 
-  auto otherSnap = static_cast<FIRAggregateQuerySnapshot*>(other);
+  auto otherSnap = static_cast<FIRAggregateQuerySnapshot *>(other);
   return _result == otherSnap->_result && [_query isEqual:otherSnap->_query];
 }
 
@@ -67,30 +67,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Public Methods
 
-- (NSNumber*)count {
+- (NSNumber *)count {
   return (NSNumber *)[self valueForAggregation:[FIRAggregateField aggregateFieldForCount]];
 }
 
-- (FIRAggregateQuery*)query {
+- (FIRAggregateQuery *)query {
   return _query;
 }
 
-- (nullable id)valueForAggregation:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:)) {
-  return [self valueForAggregation:aggregation serverTimestampBehavior:FIRServerTimestampBehaviorNone];
+- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation NS_SWIFT_NAME(get(_:)) {
+  return [self valueForAggregation:aggregation
+           serverTimestampBehavior:FIRServerTimestampBehaviorNone];
 }
 
-- (nullable id)valueForAggregation:(FIRAggregateField*)aggregation
+- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation
            serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
-
   model::AggregateAlias alias = [aggregation createAlias];
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
   if (!fieldValue) {
-      std::string path{""};
-      if (aggregation._fieldPath) {
-          path = [aggregation._fieldPath internalValue].CanonicalString();
-      }
-      
-      ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query", [aggregation name], path);
+    std::string path{""};
+    if (aggregation._fieldPath) {
+      path = [aggregation._fieldPath internalValue].CanonicalString();
+    }
+
+    ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query", [aggregation name],
+                         path);
   }
   FSTUserDataWriter *dataWriter =
       [[FSTUserDataWriter alloc] initWithFirestore:_query.query.firestore.wrapped

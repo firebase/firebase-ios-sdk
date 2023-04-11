@@ -269,13 +269,16 @@ void Datastore::LookupDocumentsWithCredentials(
 //           result_callback(auth_token.status());
 //           return;
 //         }
-//         RunCountQueryWithCredentials(auth_token.ValueOrDie(), app_check_token,
+//         RunCountQueryWithCredentials(auth_token.ValueOrDie(),
+//         app_check_token,
 //                                      query, std::move(result_callback));
 //       });
 // }
 
-void Datastore::RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField> &aggregates,
-                              api::AggregateQueryCallback&& result_callback) {
+void Datastore::RunAggregateQuery(
+    const core::Query& query,
+    const std::vector<model::AggregateField>& aggregates,
+    api::AggregateQueryCallback&& result_callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
       [this, query, aggregates, result_callback](
@@ -285,8 +288,9 @@ void Datastore::RunAggregateQuery(const core::Query& query, const std::vector<mo
           result_callback(auth_token.status());
           return;
         }
-        RunAggregateQueryWithCredentials(auth_token.ValueOrDie(), app_check_token,
-                                     query, aggregates, std::move(result_callback));
+        RunAggregateQueryWithCredentials(auth_token.ValueOrDie(),
+                                         app_check_token, query, aggregates,
+                                         std::move(result_callback));
       });
 }
 
@@ -299,7 +303,8 @@ void Datastore::RunAggregateQuery(const core::Query& query, const std::vector<mo
 //       MakeByteBuffer(datastore_serializer_.EncodeCountQueryRequest(query));
 //
 //   std::unique_ptr<GrpcUnaryCall> call_owning =
-//       grpc_connection_.CreateUnaryCall(kRpcNameRunAggregationQuery, auth_token,
+//       grpc_connection_.CreateUnaryCall(kRpcNameRunAggregationQuery,
+//       auth_token,
 //                                        app_check_token, std::move(message));
 //   GrpcUnaryCall* call = call_owning.get();
 //   active_calls_.push_back(std::move(call_owning));
@@ -325,10 +330,10 @@ void Datastore::RunAggregateQueryWithCredentials(
     const credentials::AuthToken& auth_token,
     const std::string& app_check_token,
     const core::Query& query,
-    const std::vector<model::AggregateField> &aggregates,
+    const std::vector<model::AggregateField>& aggregates,
     api::AggregateQueryCallback&& callback) {
-  grpc::ByteBuffer message =
-      MakeByteBuffer(datastore_serializer_.EncodeAggregateQueryRequest(query, aggregates));
+  grpc::ByteBuffer message = MakeByteBuffer(
+      datastore_serializer_.EncodeAggregateQueryRequest(query, aggregates));
 
   std::unique_ptr<GrpcUnaryCall> call_owning =
       grpc_connection_.CreateUnaryCall(kRpcNameRunAggregationQuery, auth_token,
@@ -343,7 +348,8 @@ void Datastore::RunAggregateQueryWithCredentials(
         HandleCallStatus(result.status());
 
         if (result.ok()) {
-          callback(datastore_serializer_.DecodeAggregateQueryResponse( result.ValueOrDie()));
+          callback(datastore_serializer_.DecodeAggregateQueryResponse(
+              result.ValueOrDie()));
         } else {
           callback(result.status());
         }

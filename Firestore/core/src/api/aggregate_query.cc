@@ -28,7 +28,7 @@ namespace firestore {
 namespace api {
 
 bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs) {
-    return lhs.query_ == rhs.query_ && lhs.aggregates_ == rhs.aggregates_;
+  return lhs.query_ == rhs.query_ && lhs.aggregates_ == rhs.aggregates_;
 }
 
 size_t AggregateQuery::Hash() const {
@@ -38,8 +38,9 @@ size_t AggregateQuery::Hash() const {
 AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
 }
 
-AggregateQuery::AggregateQuery(Query query, std::vector<model::AggregateField> &&aggregates)
-    : query_{std::move(query)}, aggregates_(std::move(aggregates)){
+AggregateQuery::AggregateQuery(Query query,
+                               std::vector<model::AggregateField>&& aggregates)
+    : query_{std::move(query)}, aggregates_(std::move(aggregates)) {
 }
 
 /*void AggregateQuery::Get(CountQueryCallback&& callback) {
@@ -49,7 +50,7 @@ AggregateQuery::AggregateQuery(Query query, std::vector<model::AggregateField> &
 
 void AggregateQuery::Get(AggregateQueryCallback&& callback) {
   query_.firestore()->client()->RunAggregateQuery(query_.query(), aggregates_,
-                                              std::move(callback));
+                                                  std::move(callback));
 }
 
 }  // namespace api

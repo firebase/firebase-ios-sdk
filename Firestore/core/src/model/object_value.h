@@ -68,9 +68,10 @@ class ObjectValue {
       google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count);
 
   static ObjectValue FromAggregateFieldsEntry(
-      google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry, pb_size_t count);
+      google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
+      pb_size_t count);
 
-      /** Recursively extracts the FieldPaths that are set in this ObjectValue. */
+  /** Recursively extracts the FieldPaths that are set in this ObjectValue. */
   FieldMask ToFieldMask() const;
 
   /**
@@ -89,7 +90,7 @@ class ObjectValue {
    */
   absl::optional<google_firestore_v1_Value> Get(const std::string& key) const;
 
-      /**
+  /**
    * Returns the ObjectValue in its Protobuf representation.
    */
   google_firestore_v1_Value Get() const;

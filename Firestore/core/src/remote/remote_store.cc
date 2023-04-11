@@ -375,10 +375,13 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
 //   }
 // }
 
-void RemoteStore::RunAggregateQuery(const core::Query& query, const std::vector<model::AggregateField> &aggregates,
-                                api::AggregateQueryCallback&& result_callback) {
+void RemoteStore::RunAggregateQuery(
+    const core::Query& query,
+    const std::vector<model::AggregateField>& aggregates,
+    api::AggregateQueryCallback&& result_callback) {
   if (CanUseNetwork()) {
-    datastore_->RunAggregateQuery(query, aggregates, std::move(result_callback));
+    datastore_->RunAggregateQuery(query, aggregates,
+                                  std::move(result_callback));
   } else {
     result_callback(Status::FromErrno(Error::kErrorUnavailable,
                                       "Failed to get result from server."));

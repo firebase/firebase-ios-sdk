@@ -20,15 +20,15 @@
 
 #import "FIRAggregateField+Internal.h"
 #import "FIRAggregateQuerySnapshot+Internal.h"
-#import "FIRQuery+Internal.h"
 #import "FIRFieldPath+Internal.h"
+#import "FIRQuery+Internal.h"
 
 #include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/api/query_core.h"
-#include "Firestore/core/src/util/error_apple.h"
-#include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/object_value.h"
+#include "Firestore/core/src/util/error_apple.h"
+#include "Firestore/core/src/util/statusor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -49,7 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
       _aggregateFields.push_back([firField createInternalValue]);
     }
 
-    _aggregateQuery = absl::make_unique<api::AggregateQuery>(query.apiQuery.Aggregate(std::move(_aggregateFields)));
+    _aggregateQuery = absl::make_unique<api::AggregateQuery>(
+        query.apiQuery.Aggregate(std::move(_aggregateFields)));
   }
   return self;
 }
@@ -65,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (NSUInteger)hash {
-    return _aggregateQuery->Hash();
+  return _aggregateQuery->Hash();
 }
 
 #pragma mark - Public Methods
@@ -77,7 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)aggregationWithSource:(FIRAggregateSource)source
                    completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                         NSError *_Nullable error))completion {
-  _aggregateQuery->Get([self, completion](const firebase::firestore::util::StatusOr<model::ObjectValue> &result) {
+  _aggregateQuery->Get([self, completion](
+                           const firebase::firestore::util::StatusOr<model::ObjectValue> &result) {
     if (result.ok()) {
       completion([[FIRAggregateQuerySnapshot alloc] initWithObject:result.ValueOrDie() query:self],
                  nil);

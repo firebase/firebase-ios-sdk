@@ -222,13 +222,16 @@ ObjectValue ObjectValue::FromFieldsEntry(
 }
 
 ObjectValue ObjectValue::FromAggregateFieldsEntry(
-    google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry, pb_size_t count) {
+    google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
+    pb_size_t count) {
   Message<google_firestore_v1_Value> value;
   value->which_value_type = google_firestore_v1_Value_map_value_tag;
   SetRepeatedField(
       &value->map_value.fields, &value->map_value.fields_count,
-      absl::Span<google_firestore_v1_AggregationResult_AggregateFieldsEntry>(fields_entry, count),
-      [](const google_firestore_v1_AggregationResult_AggregateFieldsEntry& entry) {
+      absl::Span<google_firestore_v1_AggregationResult_AggregateFieldsEntry>(
+          fields_entry, count),
+      [](const google_firestore_v1_AggregationResult_AggregateFieldsEntry&
+             entry) {
         return google_firestore_v1_MapValue_FieldsEntry{entry.key, entry.value};
       });
   // Prevent double-freeing of the document's fields. The fields are now owned
@@ -285,11 +288,11 @@ absl::optional<google_firestore_v1_Value> ObjectValue::Get(
   return nested_value;
 }
 
-absl::optional<google_firestore_v1_Value> ObjectValue::Get(const std::string& key) const {
-    google_firestore_v1_MapValue_FieldsEntry* entry =
-        FindEntry(*value_, key);
-    if (!entry) return absl::nullopt;
-    return entry->value;
+absl::optional<google_firestore_v1_Value> ObjectValue::Get(
+    const std::string& key) const {
+  google_firestore_v1_MapValue_FieldsEntry* entry = FindEntry(*value_, key);
+  if (!entry) return absl::nullopt;
+  return entry->value;
 }
 
 google_firestore_v1_Value ObjectValue::Get() const {

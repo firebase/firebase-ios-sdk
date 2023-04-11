@@ -475,7 +475,8 @@ std::string Query::Describe(Operator op) const {
   UNREACHABLE();
 }
 
-AggregateQuery Query::Aggregate(std::vector<model::AggregateField> && aggregates) const {
+AggregateQuery Query::Aggregate(
+    std::vector<model::AggregateField>&& aggregates) const {
   return AggregateQuery(*this, std::move(aggregates));
 }
 

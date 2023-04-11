@@ -23,20 +23,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRAggregateField
 
-
 @interface FIRAggregateField ()
-  @property(nonatomic, strong, readwrite) FIRFieldPath *_fieldPath;
+@property(nonatomic, strong, readwrite) FIRFieldPath *_fieldPath;
 @end
 
 @implementation FIRAggregateField
-- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath{
+- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
   if (self = [super init]) {
     self._fieldPath = fieldPath;
   }
   return self;
 }
 
-- (instancetype)initPrivate{
+- (instancetype)initPrivate {
   if (self = [super init]) {
   }
   return self;
@@ -92,7 +91,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias([self name] + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
+  return model::AggregateAlias([self name] + std::string{"_"} +
+                               super._fieldPath.internalValue.CanonicalString());
 }
 
 - (model::AggregateField)createInternalValue {
@@ -114,7 +114,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (model::AggregateAlias)createAlias {
-  return model::AggregateAlias([self name] + std::string{"_"} + super._fieldPath.internalValue.CanonicalString());
+  return model::AggregateAlias([self name] + std::string{"_"} +
+                               super._fieldPath.internalValue.CanonicalString());
 }
 
 - (model::AggregateField)createInternalValue {
