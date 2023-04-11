@@ -29,8 +29,8 @@
     FIRAuthWebViewControllerDelegate {
     /** @fn
         @brief Presents an URL to interact with user.
-        @param URL The URL to present.
-        @param UIDelegate The UI delegate to present view controller.
+        @param url The URL to present.
+        @param uiDelegate The UI delegate to present view controller.
         @param completion A block to be called either synchronously if the presentation fails to start,
             or asynchronously in future on an unspecified thread once the presentation finishes.
      */
@@ -79,7 +79,7 @@
 
     /** @fn canHandleURL:
         @brief Determines if a URL was produced by the currently presented URL.
-        @param URL The URL to handle.
+        @param url The URL to handle.
         @return Whether the URL could be handled or not.
      */
     @objc(canHandleURL:) public func canHandle(url: URL) -> Bool {
@@ -147,7 +147,7 @@
     /** @var uiDelegate
         @brief The UIDelegate used to present the SFSafariViewController.
      */
-    private var uiDelegate: AuthUIDelegate?
+    var uiDelegate: AuthUIDelegate?
 
     /** @var completion
         @brief The completion handler for the current presentation, if one is active.
@@ -155,7 +155,7 @@
             and thus this variable should not be read or written outside of the work queue.
         @remarks This variable is also used as a flag to indicate a presentation is active.
      */
-    private var completion: ((URL?, Error?) -> Void)?
+    var completion: ((URL?, Error?) -> Void)?
 
     /** @var fakeUIDelegate
         @brief Test-only option to validate the calls to the uiDelegate.
