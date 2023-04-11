@@ -291,54 +291,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
 #ifdef TODO_SWIFT
-/** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow
-    @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
- */
-- (void)testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow {
-  [self mockBundleWithURLScheme:kFakeEncodedFirebaseAppID];
-  _provider = [FIRPhoneAuthProvider providerWithAuth:_mockAuth];
-
-  // Simulate missing app token error.
-  OCMExpect([_mockNotificationManager checkNotificationForwardingWithCallback:OCMOCK_ANY])
-      .andCallBlock1(^(FIRAuthNotificationForwardingCallback callback) {
-        callback(YES);
-      });
-  [self mockMissingAPNSToken];
-
-  // Fall back to the reCAPTCHA flow.
-  id mockUIDelegate = OCMProtocolMock(@protocol(FIRAuthUIDelegate));
-  [self verifyReCAPTCHAVerificationFlowWithUIDelegate:mockUIDelegate
-                                             clientID:nil
-                                        firebaseAppID:kFakeFirebaseAppID];
-
-  OCMExpect([_mockBackend sendVerificationCode:[OCMArg any] callback:[OCMArg any]])
-      .andCallBlock2(^(FIRSendVerificationCodeRequest *request,
-                       FIRSendVerificationCodeResponseCallback callback) {
-        XCTAssertEqualObjects(request.phoneNumber, kTestPhoneNumber);
-        XCTAssertNil(request.appCredential);
-        XCTAssertEqualObjects(request.reCAPTCHAToken, kFakeReCAPTCHAToken);
-        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
-          id mockSendVerificationCodeResponse =
-              OCMClassMock([FIRSendVerificationCodeResponse class]);
-          OCMStub([mockSendVerificationCodeResponse verificationID]).andReturn(kTestVerificationID);
-          callback(mockSendVerificationCodeResponse, nil);
-        });
-      });
-
-  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-  [_provider verifyPhoneNumber:kTestPhoneNumber
-                    UIDelegate:mockUIDelegate
-                    completion:^(NSString *_Nullable verificationID, NSError *_Nullable error) {
-                      XCTAssertTrue([NSThread isMainThread]);
-                      XCTAssertNil(error);
-                      XCTAssertEqualObjects(verificationID, kTestVerificationID);
-                      [expectation fulfill];
-                    }];
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-  OCMVerifyAll(_mockBackend);
-  OCMVerifyAll(_mockNotificationManager);
-}
-
 /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdWhileClientIdPresentFlow
     @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion: when the
    client ID is present in the plist file, but the encoded app ID is the registered custom URL

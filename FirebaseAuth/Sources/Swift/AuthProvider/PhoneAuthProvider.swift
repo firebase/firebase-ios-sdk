@@ -548,7 +548,7 @@ import Foundation
                               URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
                               URLQueryItem(name: "ibi", value: bundleID ?? ""),
                               URLQueryItem(name: "v", value: AuthBackend.authUserAgent()),
-                              URLQueryItem(name: "eventID", value: eventID)]
+                              URLQueryItem(name: "eventId", value: eventID)]
             if self.usingClientIDScheme {
               queryItems.append(URLQueryItem(name: "clientID", value: clientID))
             } else {
@@ -594,8 +594,13 @@ import Foundation
           return
         }
       }
-      callbackScheme = ""
       usingClientIDScheme = false
+      if let appID = auth.app?.options.googleAppID {
+        let dashedAppID = appID.replacingOccurrences(of: ":", with: "-")
+        callbackScheme = "app-\(dashedAppID)"
+        return
+      }
+      callbackScheme = ""
     }
 
     private let kAuthTypeVerifyApp = "verifyApp"
