@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSUInteger)hash {
   NSUInteger result = [_query hash];
-  result = 31 * result + [[self count] hash];
+  result = 31 * result + _result.Hash();
   return result;
 }
 

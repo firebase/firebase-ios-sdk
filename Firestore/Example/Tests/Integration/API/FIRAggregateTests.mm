@@ -257,6 +257,81 @@
 }
 
 // TODO(sum/avg) skip when running against production
+- (void)testAggregateFieldQuerySnapshotEquality {
+  FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
+    @"a" : @{
+      @"author" : @"authorA",
+      @"title" : @"titleA",
+      @"pages" : @100,
+      @"height" : @24.5,
+      @"weight" : @24.1,
+      @"foo" : @1,
+      @"bar" : @2,
+      @"baz" : @3
+    },
+    @"b" : @{
+      @"author" : @"authorB",
+      @"title" : @"titleB",
+      @"pages" : @50,
+      @"height" : @25.5,
+      @"weight" : @75.5,
+      @"foo" : @1,
+      @"bar" : @2,
+      @"baz" : @3
+    }
+  }];
+
+  FIRAggregateQuerySnapshot* snapshot1 =
+      [self readSnapshotForAggregate:[testCollection aggregate:@[
+              [FIRAggregateField aggregateFieldForCount],
+              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+            ]]];
+
+  FIRAggregateQuerySnapshot* snapshot2 =
+      [self readSnapshotForAggregate:[testCollection aggregate:@[
+              [FIRAggregateField aggregateFieldForCount],
+              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+            ]]];
+
+  // different aggregates
+  FIRAggregateQuerySnapshot* snapshot3 =
+      [self readSnapshotForAggregate:[testCollection aggregate:@[
+              [FIRAggregateField aggregateFieldForCount],
+              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
+            ]]];
+
+  // different data set
+  FIRAggregateQuerySnapshot* snapshot4 = [self
+      readSnapshotForAggregate:[[testCollection queryWhereField:@"pages" isGreaterThan:@50]
+                                   aggregate:@[
+                                     [FIRAggregateField aggregateFieldForCount],
+                                     [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+                                     [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
+                                     [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
+                                     [FIRAggregateField
+                                         aggregateFieldForAverageOfField:@"weight"]
+                                   ]]];
+
+  XCTAssertEqualObjects(snapshot1, snapshot2);
+  XCTAssertNotEqualObjects(snapshot1, snapshot3);
+  XCTAssertNotEqualObjects(snapshot1, snapshot4);
+  XCTAssertNotEqualObjects(snapshot3, snapshot4);
+
+  XCTAssertEqual([snapshot1 hash], [snapshot2 hash]);
+  XCTAssertNotEqual([snapshot1 hash], [snapshot3 hash]);
+  XCTAssertNotEqual([snapshot1 hash], [snapshot4 hash]);
+  XCTAssertNotEqual([snapshot3 hash], [snapshot4 hash]);
+}
+
+// TODO(sum/avg) skip when running against production
 - (void)testCanGetDuplicateAggregations {
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
