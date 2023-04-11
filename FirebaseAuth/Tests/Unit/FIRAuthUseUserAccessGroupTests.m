@@ -17,9 +17,9 @@
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
+#import <FirebaseAuth/FirebaseAuth-Swift.h>
 
-#import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
 
 @interface FIRAuth (Test)

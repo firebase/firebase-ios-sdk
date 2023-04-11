@@ -30,7 +30,6 @@
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth-Swift.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
-#import "FirebaseAuth/Sources/SystemService/FIRAuthStoredUserManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthExceptionUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2087,7 +2086,8 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
         [self.storedUserManager getStoredUserForAccessGroup:self.userAccessGroup
                                 shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                           projectIdentifier:self.app.options.APIKey
-                                                      error:error];
+                                                      error:error]
+            .user;
     user.auth = self;
     *outUser = user;
     if (user) {
@@ -2195,13 +2195,10 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
 
 - (BOOL)internalUseUserAccessGroup:(NSString *_Nullable)accessGroup
                              error:(NSError *_Nullable *_Nullable)outError {
-  BOOL success;
-  success = [self.storedUserManager setStoredUserAccessGroup:accessGroup];
-  if (!success) {
-    return NO;
-  }
+  [self.storedUserManager setStoredUserAccessGroup:accessGroup];
 
   FIRUser *user = [self getStoredUserForAccessGroup:accessGroup error:outError];
+  BOOL success;
   if (!user && outError && *outError) {
     return NO;
   }
@@ -2267,7 +2264,8 @@ typedef void (^FIRSignupNewUserCallback)(FIRSignUpNewUserResponse *_Nullable res
     user = [self.storedUserManager getStoredUserForAccessGroup:accessGroup
                                    shareAuthStateAcrossDevices:self.shareAuthStateAcrossDevices
                                              projectIdentifier:self.app.options.APIKey
-                                                         error:outError];
+                                                         error:outError]
+               .user;
   }
 
   user.auth = self;
