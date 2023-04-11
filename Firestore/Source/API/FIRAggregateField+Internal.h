@@ -15,11 +15,12 @@
  */
 
 #import "FIRAggregateField.h"
+
+#include <string>
+
 #import "FIRFieldPath.h"
 
 #include "Firestore/core/src/model/aggregate_field.h"
-
-#include <string>
 
 NS_ASSUME_NONNULL_BEGIN
 

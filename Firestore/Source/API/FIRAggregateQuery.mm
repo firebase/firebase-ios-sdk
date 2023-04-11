@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <string>
+#include <string>
 
 #import "FIRAggregateQuery+Internal.h"
 

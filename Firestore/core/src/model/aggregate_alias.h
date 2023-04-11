@@ -27,7 +27,7 @@ class AggregateAlias {
  public:
   AggregateAlias() : _alias() {
   }
-  AggregateAlias(const std::string alias) : _alias(alias) {
+  explicit AggregateAlias(const std::string alias) : _alias(alias) {
   }
 
   const std::string& StringValue() const;

@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-#include "aggregate_field.h"
+#include <vector>
+
+#include "Firestore/core/src/model/aggregate_field.h"
 
 namespace firebase {
 namespace firestore {
 namespace model {
 
-const std::string AggregateField::kOpSum = "sum";
-const std::string AggregateField::kOpAvg = "avg";
-const std::string AggregateField::kOpCount = "count";
+const char AggregateField::kOpSum[] = "sum";
+const char AggregateField::kOpAvg[] = "avg";
+const char AggregateField::kOpCount[] = "count";
 
 bool operator==(const AggregateField& lhs, const AggregateField& rhs) {
   return lhs.op == rhs.op && lhs.alias == rhs.alias &&

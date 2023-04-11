@@ -16,6 +16,8 @@
 #ifndef FIRESTORE_CORE_SRC_API_AGGREGATE_QUERY_H_
 #define FIRESTORE_CORE_SRC_API_AGGREGATE_QUERY_H_
 
+#include <vector>
+
 #include "Firestore/core/src/api/query_core.h"
 
 namespace firebase {

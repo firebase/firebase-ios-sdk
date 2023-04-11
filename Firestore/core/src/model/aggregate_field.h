@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-#ifndef FIREBASE_AGGREGATE_FIELD_H_
-#define FIREBASE_AGGREGATE_FIELD_H_
+#ifndef FIRESTORE_CORE_SRC_MODEL_AGGREGATE_FIELD_H_
+#define FIRESTORE_CORE_SRC_MODEL_AGGREGATE_FIELD_H_
 
 #include <string>
+#include <utility>
+
 #include "Firestore/core/src/model/aggregate_alias.h"
 #include "Firestore/core/src/model/field_path.h"
 
@@ -27,9 +29,9 @@ namespace model {
 
 class AggregateField {
  public:
-  static const std::string kOpSum;
-  static const std::string kOpAvg;
-  static const std::string kOpCount;
+  static const char kOpSum[];
+  static const char kOpAvg[];
+  static const char kOpCount[];
 
   const std::string op;
   const model::AggregateAlias alias;
@@ -55,4 +57,4 @@ class AggregateField {
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIREBASE_AGGREGATE_FIELD_H_
+#endif  // FIRESTORE_CORE_SRC_MODEL_AGGREGATE_FIELD_H_
