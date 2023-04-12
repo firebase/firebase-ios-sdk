@@ -55,10 +55,11 @@
             becomes available, or when timeout occurs, whichever happens earlier.
      */
     @objc public func getToken(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
-      // TODO: Need to fake here for PhoneAuth tests.
-//      let error = NSError(domain: "asfasdf", code: AuthErrorCode.missingAppToken.rawValue)
-//      callback(nil, error)
-//      return
+      if failFastForTesting {
+        let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
+        callback(nil, error)
+        return
+      }
       if let token = tokenStore {
         callback(token, nil)
         return
@@ -116,6 +117,8 @@
     @objc public func cancel(withError error: Error) {
       callback(withToken: nil, error: error)
     }
+
+    var failFastForTesting: Bool = false
 
     // TODO: remove public.
     // `application` is a var to enable unit test faking.
