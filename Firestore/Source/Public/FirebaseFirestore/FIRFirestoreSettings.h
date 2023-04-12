@@ -70,14 +70,14 @@ NS_SWIFT_NAME(FirestoreSettings)
     "This field is deprecated. Use `cacheSettings` instead.");
 
 /**
- * Specifies the cache used by the SDK. Availabe options are `PersistentLocalCache`
- * and `MemoryLocalCache`, each with different configuration options.
+ * Specifies the cache used by the SDK. Available options are `PersistentCacheSettings`
+ * and `MemoryCacheSettings`, each with different configuration options.
  *
- * When unspecified, `PersistentLocalCache` will be used by default.
+ * When unspecified, `PersistentCacheSettings` will be used by default.
  *
  * NOTE: setting this field and `cacheSizeBytes` or `persistenceEnabled` at the same time will throw
  * an exception during SDK initialization. Instead, use the configuration in
- * the `PersistentLocalCache` object to specify the cache size.
+ * the `PersistentCacheSettings` object to specify the cache size.
  */
 @property(nonatomic, strong) id<FIRLocalCacheSettings, NSObject> cacheSettings;
 

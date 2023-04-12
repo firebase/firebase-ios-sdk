@@ -32,7 +32,7 @@ NS_SWIFT_NAME(LocalCacheSettings)
  * Configures the SDK to use a persistent cache. Firestore documents and mutations are persisted
  * across App restart.
  *
- * This is the default cache type unless explicitly speicified otherwise.
+ * This is the default cache type unless explicitly specified otherwise.
  *
  * To use, create an instance using one of the initializers, then set the instance to
  * `FirestoreSettings.cacheSettings`, and use `FirestoreSettings` instance to configure Firestore
