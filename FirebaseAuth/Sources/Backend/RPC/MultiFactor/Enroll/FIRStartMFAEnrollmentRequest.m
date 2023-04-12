@@ -28,8 +28,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 @implementation FIRStartMFAEnrollmentRequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                               phoneInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneInfo
-                      TOTPEnrollmentInfo:(FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
+										 phoneEnrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -37,14 +36,23 @@ static NSString *const kTenantIDKey = @"tenantId";
                       useStaging:NO];
   if (self) {
     _IDToken = IDToken;
-      if (phoneInfo) {
-          _enrollmentInfo = phoneInfo;
-      }
-      if (TOTPEnrollmentInfo) {
-          _enrollmentInfo = TOTPEnrollmentInfo;
-      }
+	  _phoneEnrollmentInfo = phoneEnrollmentInfo;
   }
   return self;
+}
+
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+											TOTPEnrollmentInfo:(FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
+										requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+	self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
+						requestConfiguration:requestConfiguration
+						 useIdentityPlatform:YES
+											useStaging:NO];
+	if (self) {
+		_IDToken = IDToken;
+		_TOTPEnrollmentInfo = TOTPEnrollmentInfo;
+	}
+	return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
@@ -52,13 +60,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_IDToken) {
     postBody[@"idToken"] = _IDToken;
   }
-  if (_enrollmentInfo) {
-    if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
-      postBody[@"phoneEnrollmentInfo"] = [_enrollmentInfo dictionary];
-    } else if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMFATOTPEnrollmentRequestInfo class]]) {
-        postBody[@"TOTPEnrollmentInfo"] = [_enrollmentInfo dictionary];
-      }
-    }
+	if (_phoneEnrollmentInfo) {
+		postBody[@"phoneEnrollmentInfo"] = [_phoneEnrollmentInfo dictionary];
+	} else if (_TOTPEnrollmentInfo) {
+		postBody[@"TOTPEnrollmentInfo"] = [_TOTPEnrollmentInfo dictionary];
+	}
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
   }

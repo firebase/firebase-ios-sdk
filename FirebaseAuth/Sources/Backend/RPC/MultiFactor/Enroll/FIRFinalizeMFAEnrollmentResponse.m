@@ -27,10 +27,10 @@
   _refreshToken = [dictionary[@"refreshToken"] copy];
   if(dictionary[@"phoneAuthInfo"] != nil) {
     NSDictionary* data = dictionary[@"phoneAuthInfo"];
-    _auxiliaryAuthInfo = [[FIRAuthProtoFinalizeMFAPhoneResponseInfo alloc] initWithDictionary:data];
+    _phoneAuthInfo = [[FIRAuthProtoFinalizeMFAPhoneResponseInfo alloc] initWithDictionary:data];
   } else if(dictionary[@"TOTPAuthInfo"] != nil) {
     NSDictionary* data = dictionary[@"TOTPAuthInfo"];
-    _auxiliaryAuthInfo = [[FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
+    _TOTPAuthInfo = [[FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
   }
   return YES;
 }

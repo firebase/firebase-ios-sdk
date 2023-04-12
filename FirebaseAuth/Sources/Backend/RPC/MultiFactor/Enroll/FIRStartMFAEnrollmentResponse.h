@@ -21,8 +21,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRStartMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
-
-@property(nonatomic, copy, readonly, nullable) id enrollmentResponse;
 @property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneResponseInfo *phoneSessionInfo;
 @property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFATOTPEnrollmentResponseInfo *TOTPSessionInfo;
 

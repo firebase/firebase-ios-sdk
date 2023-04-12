@@ -16,10 +16,10 @@
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
 
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoTOTPInfo : NSObject <FIRAuthProto>
+@interface FIRAuthProtoTOTPInfo : NSObject
+
 
 @end
 

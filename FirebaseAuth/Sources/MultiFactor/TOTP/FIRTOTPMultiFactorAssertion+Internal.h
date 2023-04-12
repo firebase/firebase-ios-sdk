@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class FIRMultiFactorAssertion
-    @brief The base class for asserting ownership of a second factor. This is equivalent to the
-        AuthCredential class.
-        This class is available on iOS only.
-*/
-NS_SWIFT_NAME(MultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
-@interface FIRMultiFactorAssertion : NSObject
+@interface FIRTOTPMultiFactorAssertion ()
 
-/**
-   @brief The second factor identifier for this opaque object asserting a second factor.
-*/
-@property(nonatomic, readonly, nonnull) NSString *factorID;
+@property(nonatomic, copy, readonly) FIRTOTPSecret *secret;
+@property(nonatomic, copy, readonly) NSString *oneTimePassword;
+
+-(instancetype) initWithSecret:(FIRTOTPSecret *)secret
+							 oneTimePassword:(NSString *)oneTimePassword;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

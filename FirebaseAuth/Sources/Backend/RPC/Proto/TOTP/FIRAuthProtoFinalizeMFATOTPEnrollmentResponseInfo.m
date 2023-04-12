@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo : NSObject <FIRAuthProto>
-
-
-@property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
-@property(nonatomic, copy, readonly, nullable) NSString *code;
-
-- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
-									 code:(NSString *)code;
+@implementation FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo
 
 @end
 
 NS_ASSUME_NONNULL_END
+

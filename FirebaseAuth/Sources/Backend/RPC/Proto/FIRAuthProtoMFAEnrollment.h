@@ -23,8 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthProtoMFAEnrollment : NSObject <FIRAuthProto>
 
 @property(nonatomic, copy, readonly, nullable) NSString *phoneInfo;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoTOTPInfo  *TOPTPInfo;
-@property(nonatomic, copy, readonly, nullable) id MFAValue;
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoTOTPInfo *TOTPInfo;
 
 @property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
 

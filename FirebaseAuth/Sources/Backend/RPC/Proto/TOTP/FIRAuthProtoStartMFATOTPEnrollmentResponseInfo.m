@@ -24,10 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
   self = [super init];
   if (self) {
     _sharedSecretKey = [dictionary[@"sharedSecretKey"] copy];
-    _verificationCodeLength = [dictionary[@"verificationCodeLength"] copy];
+    _verificationCodeLength = [dictionary[@"verificationCodeLength"] integerValue];
     _hashingAlgorithm = [dictionary[@"hashingAlgorithm"] copy];
-    _periodSec = [dictionary[@"periodSec"] copy];
+    _periodSec = [dictionary[@"periodSec"] integerValue];
     _sessionInfo = [dictionary[@"sessionInfo"] copy];
+		_finalizeEnrollmentTime =  [dictionary[@"finalizeEnrollmentTime"] isKindOfClass:[NSString class]]
+					? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"finalizeEnrollmentTime"] doubleValue]]
+					: nil;
   }
   return self;
 }

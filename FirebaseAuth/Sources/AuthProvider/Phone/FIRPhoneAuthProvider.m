@@ -484,7 +484,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                           FIRStartMFAEnrollmentRequest *request =
                               [[FIRStartMFAEnrollmentRequest alloc]
                                        initWithIDToken:IDToken
-                                        enrollmentInfo:startMFARequestInfo
+                                        phoneEnrollmentInfo:startMFARequestInfo
                                   requestConfiguration:self->_auth.requestConfiguration];
                           [FIRAuthBackend
                               startMultiFactorEnrollment:request
@@ -528,7 +528,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                   } else {
                                                     if (callback) {
                                                       callback(
-                                                          response.enrollmentResponse.sessionInfo,
+                                                          response.phoneSessionInfo.sessionInfo,
                                                           nil);
                                                     }
                                                   }

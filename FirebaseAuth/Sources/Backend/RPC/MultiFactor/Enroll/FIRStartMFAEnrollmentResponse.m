@@ -25,10 +25,10 @@
                     error:(NSError *__autoreleasing _Nullable *_Nullable)error {
   if (dictionary[@"phoneSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"phoneSessionInfo"];
-    _enrollmentResponse = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
+    _phoneSessionInfo = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
   } else if (dictionary[@"TOTPSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"TOTPSessionInfo"];
-    _enrollmentResponse = [[FIRAuthProtoStartMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
+    _TOTPSessionInfo = [[FIRAuthProtoStartMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
   } else {
     return NO;
   }

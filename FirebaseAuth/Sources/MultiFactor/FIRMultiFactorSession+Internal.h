@@ -19,6 +19,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorSession.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,6 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic) NSString *MFAPendingCredential;
 
 @property(nonatomic) FIRMultiFactorInfo *multiFactorInfo;
+
+@property(nonatomic) FIRAuth *auth;
+
 
 + (FIRMultiFactorSession *)sessionForCurrentUser;
 

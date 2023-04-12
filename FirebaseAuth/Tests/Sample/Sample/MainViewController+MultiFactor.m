@@ -20,7 +20,11 @@
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import <FirebaseAuth/FIRMultiFactorInfo.h>
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorGenerator.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
 #import "MainViewController+Internal.h"
+#import <FirebaseCore/FIRApp.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf phoneEnroll]; }],
     [StaticContentTableViewCell cellWithTitle:@"Phone Unenroll"
                                        action:^{ [weakSelf phoneUnenroll]; }],
+		[StaticContentTableViewCell cellWithTitle:@"TOTP Enroll"
+																			 action:^{ [weakSelf TOTPEnroll]; }],
+		[StaticContentTableViewCell cellWithTitle:@"TOTPUnenroll"
+																			 action:^{ [weakSelf TOTPUnenroll]; }],
   ]];
 }
 
@@ -107,6 +115,36 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
+- (void)TOTPEnroll {
+	FIRUser *user = FIRAuth.auth.currentUser;
+	if (!user) {
+		[self logFailure:@"Please sign in first." error:nil];
+		return;
+	}
+	[user.multiFactor getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
+		FIRTOTPSecret *secret = [FIRTOTPMultiFactorGenerator generateSecretWithMultiFactorSession:session];
+		NSString *accountName = user.email;
+		NSString *issuer = FIRAuth.auth.app.name;
+		NSString *url = [secret generateQRCodeURLWithAccountName:accountName
+																											issuer:issuer];
+		[self showTextInputPromptWithMessage:@"Enter TOTP Code" completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword){
+			FIRTOTPMultiFactorAssertion *assertion = [FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:oneTimePassword];
+			[self showTextInputPromptWithMessage:@"Display name"
+													 completionBlock:^(BOOL userPressedOK,
+																						 NSString *_Nullable displayName) {
+				[user.multiFactor enrollWithAssertion:assertion
+																	displayName:displayName
+																	 completion:^(NSError *_Nullable error) {
+					
+				}];
+			}];
+		}];
+		
+	}];
+}
+
+- (void)TOTPUnenroll {
+}
 @end
 
 NS_ASSUME_NONNULL_END

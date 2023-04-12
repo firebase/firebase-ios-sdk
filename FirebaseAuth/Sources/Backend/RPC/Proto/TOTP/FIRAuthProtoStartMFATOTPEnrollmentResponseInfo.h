@@ -21,10 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthProtoStartMFATOTPEnrollmentResponseInfo : NSObject <FIRAuthProto>
 
 @property(nonatomic, copy, readonly, nullable) NSString *sharedSecretKey;
-@property(nonatomic, copy, readonly, nullable) NSNumber *verificationCodeLength;
+@property(nonatomic, readonly) NSInteger verificationCodeLength;
 @property(nonatomic, copy, readonly, nullable) NSString *hashingAlgorithm;
-@property(nonatomic, copy, readonly, nullable) NSString *periodSec;
+@property(nonatomic, readonly) NSInteger periodSec;
 @property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
+@property(nonatomic, copy, readonly, nullable) NSDate *finalizeEnrollmentTime;
 
 @end
 

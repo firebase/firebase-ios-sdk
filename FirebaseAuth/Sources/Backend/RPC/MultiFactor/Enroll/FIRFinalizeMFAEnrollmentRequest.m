@@ -28,7 +28,6 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                      phoneVerificationInfo:(nonnull FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
-                      TOTPVerificationInfo:(nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)TOTPVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -37,14 +36,25 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (self) {
     _IDToken = IDToken;
     _displayName = displayName;
-      if (phoneVerificationInfo) {
-          _verificationInfo = phoneVerificationInfo;
-      }
-      if (TOTPVerificationInfo) {
-          _verificationInfo = TOTPVerificationInfo;
-      }
+		_phoneVerificationInfo = phoneVerificationInfo;
   }
   return self;
+}
+
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+														 displayName:(NSString *)displayName
+											TOTPVerificationInfo:(nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)TOTPVerificationInfo
+										requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+	self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
+						requestConfiguration:requestConfiguration
+						 useIdentityPlatform:YES
+											useStaging:NO];
+	if (self) {
+		_IDToken = IDToken;
+		_displayName = displayName;
+		_TOTPVerificationInfo = TOTPVerificationInfo;
+	}
+	return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
@@ -55,14 +65,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_displayName) {
     postBody[@"displayName"] = _displayName;
   }
-  if (_verificationInfo) {
-    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFAPhoneRequestInfo class]]) {
-      postBody[@"phoneVerificationInfo"] = [_phoneVerificationInfo dictionary];
-    }
-    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo class]]) {
-      postBody[@"TOTPVerificationInfo"] = [_TOTPVerificationInfo dictionary];
-    }
-  }
+	if (_phoneVerificationInfo) {
+		postBody[@"phoneVerificationInfo"] = [_phoneVerificationInfo dictionary];
+	} else if (_TOTPVerificationInfo) {
+		postBody[@"TOTPVerificationInfo"] = [_TOTPVerificationInfo dictionary];
+	}
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
   }

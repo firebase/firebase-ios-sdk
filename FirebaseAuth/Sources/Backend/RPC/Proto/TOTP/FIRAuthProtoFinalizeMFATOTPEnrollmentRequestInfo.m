@@ -21,11 +21,11 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo
 
 - (instancetype)initWithSessionInfo:(NSString *)sessionInfo
-                   verificationCode:(NSString *)verificationCode {
+                   code:(NSString *)code {
   self = [super init];
   if (self) {
     _sessionInfo = sessionInfo;
-    _code = verificationCode;
+    _code = code;
   }
   return self;
 }

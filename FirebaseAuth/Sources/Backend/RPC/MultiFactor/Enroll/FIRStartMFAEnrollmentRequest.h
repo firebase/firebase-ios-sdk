@@ -24,15 +24,16 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRStartMFAEnrollmentRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 @property(nonatomic, copy, readonly, nullable) NSString *IDToken;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneRequestInfo *phoneInfo;
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneRequestInfo *phoneEnrollmentInfo;
 @property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *TOTPEnrollmentInfo;
 
-@property(nonatomic, strong, readonly, nullable) id enrollmentInfo;
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                               phoneEnrollmentInfo: (FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                               phoneInfo: (FIRAuthProtoStartMFAPhoneRequestInfo *)phoneInfo
-                      TOTPEnrollmentInfo: (FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
-                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
+											TOTPEnrollmentInfo: (FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
+										requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
 
