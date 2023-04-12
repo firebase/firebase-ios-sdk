@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
+// TODO(wuandy): Delete this once isPersistenceEnabled and cacheSizeBytes are removed.
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #import "FIRFirestoreSettings.h"
+#import <Foundation/NSObject.h>
+#import "FIRLocalCacheSettings+Internal.h"
+#include "Firestore/Source/Public/FirebaseFirestore/FIRLocalCacheSettings.h"
 
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/util/exception.h"
@@ -52,12 +58,19 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   }
 
   FIRFirestoreSettings *otherSettings = (FIRFirestoreSettings *)other;
-  return [self.host isEqual:otherSettings.host] &&
-         self.isSSLEnabled == otherSettings.isSSLEnabled &&
-         self.dispatchQueue == otherSettings.dispatchQueue &&
-         self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
-         self.memoryLruGCEnabled == otherSettings.memoryLruGCEnabled &&
-         self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+  BOOL equal = [self.host isEqual:otherSettings.host] &&
+               self.isSSLEnabled == otherSettings.isSSLEnabled &&
+               self.dispatchQueue == otherSettings.dispatchQueue &&
+               self.isPersistenceEnabled == otherSettings.isPersistenceEnabled &&
+               self.cacheSizeBytes == otherSettings.cacheSizeBytes;
+
+  if (equal && self.cacheSettings != nil && otherSettings.cacheSettings != nil) {
+    equal = [self.cacheSettings isEqual:otherSettings];
+  } else if (equal) {
+    equal = (self.cacheSettings == otherSettings.cacheSettings);
+  }
+
+  return equal;
 }
 
 - (NSUInteger)hash {
@@ -67,6 +80,15 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   result = 31 * result + (self.isPersistenceEnabled ? 1231 : 1237);
   result = 31 * result + (self.isMemoryLruGCEnabled ? 1231 : 1237);
   result = 31 * result + (NSUInteger)self.cacheSizeBytes;
+
+  if ([_cacheSettings isKindOfClass:[FIRPersistentCacheSettings class]]) {
+    FIRPersistentCacheSettings *casted = (FIRPersistentCacheSettings *)_cacheSettings;
+    result = 31 * result + casted.internalSettings.Hash();
+  } else if ([_cacheSettings isKindOfClass:[FIRMemoryCacheSettings class]]) {
+    FIRMemoryCacheSettings *casted = (FIRMemoryCacheSettings *)_cacheSettings;
+    result = 31 * result + casted.internalSettings.Hash();
+  }
+
   return result;
 }
 
@@ -78,6 +100,7 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   copy.persistenceEnabled = _persistenceEnabled;
   copy.memoryLruGCEnabled = _memoryLruGCEnabled;
   copy.cacheSizeBytes = _cacheSizeBytes;
+  copy.cacheSettings = _cacheSettings;
   return copy;
 }
 
@@ -109,6 +132,10 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   _cacheSizeBytes = cacheSizeBytes;
 }
 
+- (void)setCacheSettings:(id<FIRLocalCacheSettings, NSObject>)cacheSettings {
+  _cacheSettings = cacheSettings;
+}
+
 - (BOOL)isUsingDefaultHost {
   NSString *defaultHost = [NSString stringWithUTF8String:Settings::DefaultHost];
   return [self.host isEqualToString:defaultHost];
@@ -120,7 +147,15 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   settings.set_ssl_enabled(_sslEnabled);
   settings.set_persistence_enabled(_persistenceEnabled);
   settings.set_cache_size_bytes(_cacheSizeBytes);
-  settings.set_memory_lru_gc_enabled(_memoryLruGCEnabled);
+
+  if ([_cacheSettings isKindOfClass:[FIRPersistentCacheSettings class]]) {
+    FIRPersistentCacheSettings *casted = (FIRPersistentCacheSettings *)_cacheSettings;
+    settings.set_local_cache_settings(casted.internalSettings);
+  } else if ([_cacheSettings isKindOfClass:[FIRMemoryCacheSettings class]]) {
+    FIRMemoryCacheSettings *casted = (FIRMemoryCacheSettings *)_cacheSettings;
+    settings.set_local_cache_settings(casted.internalSettings);
+  }
+
   return settings;
 }
 

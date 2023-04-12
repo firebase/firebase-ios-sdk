@@ -119,7 +119,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1

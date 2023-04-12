@@ -26,7 +26,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos --skip-tests]
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
@@ -147,7 +147,8 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        target: [ios, tvos, macos]
+        # Disable watchos because it does not support XCTest.
+        target: [ios, tvos, macos, watchos --skip-tests]
         flags: [
           '--use-static-frameworks'
         ]

@@ -22,11 +22,11 @@
 
 @implementation FIRCLSCodeMapping
 
-+ (instancetype)mappingWithURL:(NSURL*)URL {
++ (instancetype)mappingWithURL:(NSURL *)URL {
   return [[self alloc] initWithURL:URL];
 }
 
-- (instancetype)initWithURL:(NSURL*)URL {
+- (instancetype)initWithURL:(NSURL *)URL {
   self = [super init];
   if (!self) {
     return nil;

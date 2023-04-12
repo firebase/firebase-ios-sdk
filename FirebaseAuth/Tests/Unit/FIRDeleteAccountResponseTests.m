@@ -166,7 +166,7 @@ static NSString *const kCredentialTooOldErrorMessage = @"CREDENTIAL_TOO_OLD_LOGI
 }
 
 /** @fn testSuccessfulDeleteAccount
-    @brief This test simulates a completed succesful deleteAccount operation.
+    @brief This test simulates a completed successful deleteAccount operation.
  */
 - (void)testSuccessfulDeleteAccountResponse {
   FIRDeleteAccountRequest *request =

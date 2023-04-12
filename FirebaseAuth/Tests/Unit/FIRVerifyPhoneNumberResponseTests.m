@@ -223,7 +223,7 @@ static const double kAllowedTimeDifference = 0.1;
 }
 
 /** @fn testSuccessfulVerifyPhoneNumberResponse
-    @brief Tests a succesful to verify phone number flow.
+    @brief Tests a successful to verify phone number flow.
  */
 - (void)testSuccessfulVerifyPhoneNumberResponse {
   FIRVerifyPhoneNumberRequest *request =
@@ -261,7 +261,7 @@ static const double kAllowedTimeDifference = 0.1;
 }
 
 /** @fn testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof
-    @brief Tests a succesful to verify phone number flow with temporary proof response.
+    @brief Tests a successful to verify phone number flow with temporary proof response.
  */
 - (void)testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof {
   FIRVerifyPhoneNumberRequest *request =

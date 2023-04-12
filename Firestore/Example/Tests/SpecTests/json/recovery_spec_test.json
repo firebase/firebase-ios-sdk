@@ -3132,7 +3132,8 @@
                   "path": "collection/key1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 2
             },
             "4": {
               "queries": [
@@ -3221,7 +3222,8 @@
                   "path": "collection/key1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 2
             },
             "4": {
               "queries": [
@@ -3610,7 +3612,8 @@
                   "path": "collection/key1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 2
             },
             "4": {
               "queries": [
@@ -3669,7 +3672,8 @@
                   "path": "collection/key1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": 2
             },
             "4": {
               "queries": [

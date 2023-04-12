@@ -18,11 +18,15 @@
 #ifndef FIRESTORE_CORE_SRC_API_SETTINGS_H_
 #define FIRESTORE_CORE_SRC_API_SETTINGS_H_
 
+#include <memory>
 #include <string>
+#include <utility>
 
 namespace firebase {
 namespace firestore {
 namespace api {
+
+class LocalCacheSettings;
 
 /**
  * Represents settings associated with a FirestoreClient.
@@ -43,6 +47,11 @@ class Settings {
   static constexpr int64_t CacheSizeUnlimited = -1;
 
   Settings() = default;
+  Settings(const Settings& other);
+  Settings(Settings&& other) = default;
+
+  Settings& operator=(const Settings& other);
+  Settings& operator=(Settings&& other) = default;
 
   void set_host(const std::string& value) {
     host_ = value;
@@ -58,40 +67,93 @@ class Settings {
     return ssl_enabled_;
   }
 
-  void set_persistence_enabled(bool value) {
-    persistence_enabled_ = value;
-  }
-  bool persistence_enabled() const {
-    return persistence_enabled_;
-  }
+  void set_persistence_enabled(bool value);
+  bool persistence_enabled() const;
 
-  void set_cache_size_bytes(int64_t value) {
-    cache_size_bytes_ = value;
-  }
-  int64_t cache_size_bytes() const {
-    return cache_size_bytes_;
-  }
-  bool gc_enabled() const {
-    return cache_size_bytes_ != CacheSizeUnlimited;
-  }
-  void set_memory_lru_gc_enabled(bool value) {
-    lru_gc_enabled_ = value;
-  }
-  bool lru_gc_enabled() const {
-    return lru_gc_enabled_;
-  }
+  void set_cache_size_bytes(int64_t value);
+  int64_t cache_size_bytes() const;
+  bool gc_enabled() const;
+
+  const LocalCacheSettings* local_cache_settings() const;
+  void set_local_cache_settings(const LocalCacheSettings& settings);
 
   friend bool operator==(const Settings& lhs, const Settings& rhs);
 
   size_t Hash() const;
 
  private:
+  static std::unique_ptr<LocalCacheSettings> CopyCacheSettings(
+      const LocalCacheSettings& settings);
+
   std::string host_ = DefaultHost;
   bool ssl_enabled_ = DefaultSslEnabled;
   bool persistence_enabled_ = DefaultPersistenceEnabled;
   bool lru_gc_enabled_ = DefaultLruGcEnabled;
   int64_t cache_size_bytes_ = DefaultCacheSizeBytes;
+  std::unique_ptr<LocalCacheSettings> cache_settings_ = nullptr;
 };
+
+class LocalCacheSettings {
+  friend class Settings;
+
+ public:
+  enum class Kind { kMemory, kPersistent };
+  virtual ~LocalCacheSettings() = default;
+  friend bool operator==(const LocalCacheSettings& lhs,
+                         const LocalCacheSettings& rhs);
+  virtual size_t Hash() const = 0;
+
+  Kind kind() const {
+    return kind_;
+  }
+
+ protected:
+  explicit LocalCacheSettings(Kind kind) : kind_(std::move(kind)) {
+  }
+  Kind kind_;
+};
+
+class PersistentCacheSettings : public LocalCacheSettings {
+  friend class Settings;
+
+ public:
+  PersistentCacheSettings()
+      : LocalCacheSettings(LocalCacheSettings::Kind::kPersistent),
+        size_bytes_(Settings::DefaultCacheSizeBytes) {
+  }
+  PersistentCacheSettings WithSizeBytes(int64_t size) const;
+
+  int64_t size_bytes() const {
+    return size_bytes_;
+  }
+
+  size_t Hash() const override;
+
+ private:
+  int64_t size_bytes_;
+};
+
+class MemoryCacheSettings : public LocalCacheSettings {
+  friend class Settings;
+
+ public:
+  MemoryCacheSettings()
+      : LocalCacheSettings(LocalCacheSettings::Kind::kMemory) {
+  }
+  size_t Hash() const override;
+};
+
+bool operator!=(const Settings& lhs, const Settings& rhs);
+
+bool operator==(const MemoryCacheSettings& lhs, const MemoryCacheSettings& rhs);
+
+bool operator!=(const MemoryCacheSettings& lhs, const MemoryCacheSettings& rhs);
+
+bool operator==(const PersistentCacheSettings& lhs,
+                const PersistentCacheSettings& rhs);
+
+bool operator!=(const PersistentCacheSettings& lhs,
+                const PersistentCacheSettings& rhs);
 
 }  // namespace api
 }  // namespace firestore

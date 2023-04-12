@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(wuandy): Delete this once isPersistenceEnabled and cacheSizeBytes are removed.
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -22,6 +25,7 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
 #include "Firestore/core/src/core/firestore_client.h"
@@ -1844,6 +1848,29 @@ using firebase::firestore::util::TimerId;
                     [getComplete fulfill];
                   }];
   [self awaitExpectations];
+}
+
+- (void)testCannotMixCacheConfigAPIs {
+  [FIRApp configure];
+  FIRFirestore *db1 = [FIRFirestore firestore];
+
+  FIRFirestoreSettings *settings = db1.settings;
+  settings.cacheSizeBytes = 10000000;
+  settings.cacheSettings = [[FIRPersistentCacheSettings alloc] init];
+
+  XCTAssertThrowsSpecific(db1.settings = settings, NSException);
+
+  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"db2"];
+  settings = db2.settings;
+  settings.cacheSettings = [[FIRMemoryCacheSettings alloc] init];
+  settings.persistenceEnabled = NO;
+
+  XCTAssertThrowsSpecific(db2.settings = settings, NSException);
+}
+
+- (void)testMinimumCacheSize {
+  XCTAssertThrowsSpecific([[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(1024 * 1024 - 1)],
+                          NSException);
 }
 
 @end

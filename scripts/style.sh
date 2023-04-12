@@ -42,7 +42,7 @@ version="${version/ (*)/}"
 version="${version/.*/}"
 
 case "$version" in
-  15)
+  16)
     ;;
   google3-trunk)
     echo "Please use a publicly released clang-format; a recent LLVM release"
@@ -51,7 +51,7 @@ case "$version" in
     exit 1
     ;;
   *)
-    echo "Please upgrade to clang-format version 15."
+    echo "Please upgrade to clang-format version 16."
     echo "If it's installed via homebrew you can run:"
     echo "brew upgrade clang-format"
     exit 1
@@ -62,6 +62,11 @@ esac
 # problems that would otherwise arise from the default of installing in
 # /usr/local.
 export MINT_PATH=Mint
+
+if ! which mint >/dev/null 2>&1; then
+  echo "mint is not available, install with 'brew install mint'"
+  exit 1
+fi
 
 system=$(uname -s)
 

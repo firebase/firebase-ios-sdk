@@ -1,3 +1,14 @@
+# Unreleased
+- [feature] Add new cache config API to customize SDK cache settings.
+
+# 10.8.0
+- [feature] Change Firestore's Swift Package Manager distribution from source
+  to binary to reduce the time it takes to add the Firebase package and to
+  build the Firestore SDK (#6564).
+
+# 10.7.0
+- [feature] Add support for disjunctions in queries (`OR` queries).
+- [fixed] Fixed stack overflow caused by deeply nested server timestamps.
 
 # 10.6.0
 - [fixed] Fix a potential high memory usage issue.
