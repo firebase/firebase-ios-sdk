@@ -1251,7 +1251,7 @@
               [FIRAggregateField aggregateFieldForAverageOfField:@"rating"]
             ]]];
 
-  // Sum
+  // Average
   XCTAssertEqual(
       [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
           doubleValue],
@@ -1269,7 +1269,7 @@
               [FIRAggregateField aggregateFieldForAverageOfField:@"rating"]
             ]]];
 
-  // Sum
+  // Average
   XCTAssertEqual(
       [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
           doubleValue],
@@ -1288,7 +1288,7 @@
               [FIRAggregateField aggregateFieldForAverageOfField:@"rating"]
             ]]];
 
-  // Sum
+  // Average
   XCTAssertEqual(
       [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
           doubleValue],
@@ -1350,7 +1350,7 @@
   XCTAssertEqual(
       [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
 
-  // Sum
+  // Average
   XCTAssertEqual(
       [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
           doubleValue],

@@ -73,4 +73,12 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
 }  // extern "C"
 #endif
 
+@interface FSTNSExceptionUtil : NSObject
+
++ (BOOL)testForException:(void (^)(void))methodToTry
+          reasonContains:(nonnull NSString *)message
+    NS_SWIFT_NAME(testForException(_:reasonContains:));
+
+@end
+
 NS_ASSUME_NONNULL_END

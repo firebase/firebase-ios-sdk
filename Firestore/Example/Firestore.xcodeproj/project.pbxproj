@@ -1310,6 +1310,9 @@
 		EF6C285129E462A200A7D4F1 /* FIRAggregateTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF6C285029E462A200A7D4F1 /* FIRAggregateTests.mm */; };
 		EF6C285229E462A200A7D4F1 /* FIRAggregateTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF6C285029E462A200A7D4F1 /* FIRAggregateTests.mm */; };
 		EF6C285329E462A200A7D4F1 /* FIRAggregateTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = EF6C285029E462A200A7D4F1 /* FIRAggregateTests.mm */; };
+		EF6C286D29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6C286C29E6D22200A7D4F1 /* AggregationIntegrationTests.swift */; };
+		EF6C286E29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6C286C29E6D22200A7D4F1 /* AggregationIntegrationTests.swift */; };
+		EF6C286F29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF6C286C29E6D22200A7D4F1 /* AggregationIntegrationTests.swift */; };
 		EF79998EBE4C72B97AB1880E /* value_util_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 40F9D09063A07F710811A84F /* value_util_test.cc */; };
 		EF8C005DC4BEA6256D1DBC6F /* user_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCC9BD953F121B9E29F9AA42 /* user_test.cc */; };
 		EFD682178A87513A5F1AEFD9 /* memory_query_engine_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8EF6A33BC2D84233C355F1D0 /* memory_query_engine_test.cc */; };
@@ -1806,6 +1809,7 @@
 		E76F0CDF28E5FA62D21DE648 /* leveldb_target_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_target_cache_test.cc; sourceTree = "<group>"; };
 		ECEBABC7E7B693BE808A1052 /* Pods_Firestore_IntegrationTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Firestore_IntegrationTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF6C285029E462A200A7D4F1 /* FIRAggregateTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRAggregateTests.mm; sourceTree = "<group>"; };
+		EF6C286C29E6D22200A7D4F1 /* AggregationIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AggregationIntegrationTests.swift; sourceTree = "<group>"; };
 		EF83ACD5E1E9F25845A9ACED /* leveldb_migrations_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_migrations_test.cc; sourceTree = "<group>"; };
 		F02F734F272C3C70D1307076 /* filter_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = filter_test.cc; sourceTree = "<group>"; };
 		F119BDDF2F06B3C0883B8297 /* firebase_app_check_credentials_provider_test.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = firebase_app_check_credentials_provider_test.mm; path = credentials/firebase_app_check_credentials_provider_test.mm; sourceTree = "<group>"; };
@@ -1943,6 +1947,7 @@
 		124C932A22C1635300CA8C2D /* Integration */ = {
 			isa = PBXGroup;
 			children = (
+				EF6C286C29E6D22200A7D4F1 /* AggregationIntegrationTests.swift */,
 				062072B62773A055001655D7 /* AsyncAwaitIntegrationTests.swift */,
 				124C932B22C1642C00CA8C2D /* CodableIntegrationTests.swift */,
 				621D620928F9CE7400D2FA26 /* QueryIntegrationTests.swift */,
@@ -4018,6 +4023,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF6C286F29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B92773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
 				733AFC467B600967536BD70F /* BasicCompileTests.swift in Sources */,
 				79987AF2DF1FCE799008B846 /* CodableGeoPointTests.swift in Sources */,
@@ -4243,6 +4249,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF6C286E29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B82773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
 				B896E5DE1CC27347FAC009C3 /* BasicCompileTests.swift in Sources */,
 				722F9A798F39F7D1FE7CF270 /* CodableGeoPointTests.swift in Sources */,
@@ -4704,6 +4711,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF6C286D29E6D22200A7D4F1 /* AggregationIntegrationTests.swift in Sources */,
 				062072B72773A055001655D7 /* AsyncAwaitIntegrationTests.swift in Sources */,
 				F731A0CCD0220B370BC1BE8B /* BasicCompileTests.swift in Sources */,
 				7C5E017689012489AAB7718D /* CodableGeoPointTests.swift in Sources */,
