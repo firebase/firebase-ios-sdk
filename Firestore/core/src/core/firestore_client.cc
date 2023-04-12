@@ -220,7 +220,7 @@ void FirestoreClient::Initialize(const User& user, const Settings& settings) {
     if (settings.gc_enabled()) {
       ScheduleLruGarbageCollection();
     }
-  } else if (settings.lru_gc_enabled()) {
+  } else if (settings.gc_enabled()) {
     local::LocalSerializer local_serializer(
         Serializer(database_info_.database_id()));
     auto sizer =

@@ -22,6 +22,8 @@
 #include <string>
 #include <utility>
 
+#include "absl/memory/memory.h"
+
 namespace firebase {
 namespace firestore {
 namespace api {
@@ -41,7 +43,6 @@ class Settings {
   static constexpr const char* DefaultHost = "firestore.googleapis.com";
   static constexpr bool DefaultSslEnabled = true;
   static constexpr bool DefaultPersistenceEnabled = true;
-  static constexpr bool DefaultLruGcEnabled = true;
   static constexpr int64_t DefaultCacheSizeBytes = 100 * 1024 * 1024;
   static constexpr int64_t MinimumCacheSizeBytes = 1 * 1024 * 1024;
   static constexpr int64_t CacheSizeUnlimited = -1;
@@ -88,7 +89,6 @@ class Settings {
   std::string host_ = DefaultHost;
   bool ssl_enabled_ = DefaultSslEnabled;
   bool persistence_enabled_ = DefaultPersistenceEnabled;
-  bool lru_gc_enabled_ = DefaultLruGcEnabled;
   int64_t cache_size_bytes_ = DefaultCacheSizeBytes;
   std::unique_ptr<LocalCacheSettings> cache_settings_ = nullptr;
 };
@@ -133,14 +133,78 @@ class PersistentCacheSettings : public LocalCacheSettings {
   int64_t size_bytes_;
 };
 
+class MemoryGargabeCollectorSettings {
+ public:
+  enum class MemoryGcKind { kEagerGc, kLruGc };
+  virtual ~MemoryGargabeCollectorSettings() = default;
+  friend bool operator==(const MemoryGargabeCollectorSettings& lhs,
+                         const MemoryGargabeCollectorSettings& rhs);
+  virtual size_t Hash() const = 0;
+
+  MemoryGcKind kind() const {
+    return kind_;
+  }
+
+ protected:
+  explicit MemoryGargabeCollectorSettings(MemoryGcKind kind)
+      : kind_(std::move(kind)) {
+  }
+  MemoryGcKind kind_;
+};
+
+class MemoryEagerGcSettings : public MemoryGargabeCollectorSettings {
+ public:
+  MemoryEagerGcSettings()
+      : MemoryGargabeCollectorSettings(
+            MemoryGargabeCollectorSettings::MemoryGcKind::kEagerGc) {
+  }
+  size_t Hash() const override;
+};
+
+class MemoryLruGcSettings : public MemoryGargabeCollectorSettings {
+ public:
+  MemoryLruGcSettings()
+      : MemoryGargabeCollectorSettings(
+            MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc),
+        size_bytes_(Settings::DefaultCacheSizeBytes) {
+  }
+
+  size_t Hash() const override;
+  MemoryLruGcSettings WithSizeBytes(int64_t size) const;
+
+  int64_t size_bytes() const {
+    return size_bytes_;
+  }
+
+ private:
+  int64_t size_bytes_;
+};
+
 class MemoryCacheSettings : public LocalCacheSettings {
   friend class Settings;
 
  public:
   MemoryCacheSettings()
-      : LocalCacheSettings(LocalCacheSettings::Kind::kMemory) {
+      : LocalCacheSettings(LocalCacheSettings::Kind::kMemory),
+        settings_(absl::make_unique<MemoryEagerGcSettings>()) {
   }
+  MemoryCacheSettings(const MemoryCacheSettings& other);
+  MemoryCacheSettings& operator=(const MemoryCacheSettings& other);
+
   size_t Hash() const override;
+
+  MemoryCacheSettings WithMemoryGarbageCollectorSettings(
+      const MemoryGargabeCollectorSettings& settings);
+
+  const MemoryGargabeCollectorSettings& gc_settings() const {
+    return *settings_;
+  }
+
+ private:
+  static std::unique_ptr<MemoryGargabeCollectorSettings> CopyMemoryGcSettings(
+      const MemoryGargabeCollectorSettings& settings);
+
+  std::unique_ptr<MemoryGargabeCollectorSettings> settings_;
 };
 
 bool operator!=(const Settings& lhs, const Settings& rhs);
@@ -154,6 +218,16 @@ bool operator==(const PersistentCacheSettings& lhs,
 
 bool operator!=(const PersistentCacheSettings& lhs,
                 const PersistentCacheSettings& rhs);
+
+bool operator==(const MemoryEagerGcSettings& lhs,
+                const MemoryEagerGcSettings& rhs);
+
+bool operator!=(const MemoryEagerGcSettings& lhs,
+                const MemoryEagerGcSettings& rhs);
+
+bool operator==(const MemoryLruGcSettings& lhs, const MemoryLruGcSettings& rhs);
+
+bool operator!=(const MemoryLruGcSettings& lhs, const MemoryLruGcSettings& rhs);
 
 }  // namespace api
 }  // namespace firestore
