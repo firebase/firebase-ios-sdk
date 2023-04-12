@@ -392,6 +392,7 @@ import Foundation
       #endif
       if let credential = auth.appCredentialManager.credential {
         completion(credential, nil, nil)
+        return
       }
       auth.tokenManager.getToken { token, error in
         guard let token else {
