@@ -17,7 +17,6 @@
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import Foundation
-import FirebaseFirestore.FIRAggregateField
 
 let emptyBundle = """
 {\
