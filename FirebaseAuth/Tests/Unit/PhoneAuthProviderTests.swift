@@ -44,18 +44,6 @@
     private let kFakeEncodedFirebaseAppID = "app-1-123456789-ios-123abc456def"
     private let kFakeReCAPTCHAToken = "fakeReCAPTCHAToken"
 
-    // Switches for testing different Phone Auth test flows
-    // TODO: Consider using an enum for these instead.
-    static var testTenantID = false
-    static var testCancel = false
-    static var testErrorString = false
-    static var testInternalError = false
-    static var testInvalidClientID = false
-    static var testUnknownError = false
-    static var testAppID = false
-    static var testEmulator = false
-    static var testAppCheck = false
-
     static var auth: Auth?
 
     /** @fn testCredentialWithVerificationID
@@ -98,14 +86,16 @@
             number was provided.
      */
     func testVerifyInvalidPhoneNumber() throws {
-      try internalTestVerify(valid: false, function: #function)
+      try internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
+                             errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
+                             function: #function)
     }
 
     /** @fn testVerifyPhoneNumber
         @brief Tests a successful invocation of @c verifyPhoneNumber:completion:.
      */
     func testVerifyPhoneNumber() throws {
-      try internalTestVerify(valid: true, function: #function)
+      try internalTestVerify(function: #function)
     }
 
     /** @fn testVerifyPhoneNumberInTestMode
@@ -113,7 +103,7 @@
             is disabled.
      */
     func testVerifyPhoneNumberInTestMode() throws {
-      try internalTestVerify(valid: true, function: #function, testMode: true)
+      try internalTestVerify(function: #function, testMode: true)
     }
 
     /** @fn testVerifyPhoneNumberInTestModeFailure
@@ -121,61 +111,121 @@
             is disabled.
      */
     func testVerifyPhoneNumberInTestModeFailure() throws {
-      try internalTestVerify(valid: false, function: #function, testMode: true)
+      try internalTestVerify(errorString: "INVALID_PHONE_NUMBER",
+                             errorCode: AuthErrorCode.invalidPhoneNumber.rawValue,
+                             function: #function, testMode: true)
     }
 
-    // TODO: Also need to be able to fake getToken from AuthAPNSTokenManager.
     /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow
         @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
      */
     func testVerifyPhoneNumberUIDelegateFirebaseAppIdFlow() throws {
-      try internalTestVerify(valid: true, function: #function, reCAPTCHAfallback: true)
+      try internalTestVerify(function: #function, reCAPTCHAfallback: true)
     }
 
-    private func internalTestVerify(valid: Bool, function: String, testMode: Bool = false,
+    /** @fn testVerifyPhoneNumberUIDelegateFirebaseAppIdWhileClientIdPresentFlow
+        @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion: when the
+       client ID is present in the plist file, but the encoded app ID is the registered custom URL scheme.
+     */
+    func testVerifyPhoneNumberUIDelegateFirebaseAppIdWhileClientIdPresentFlow() throws {
+      try internalTestVerify(function: #function, useClientID: true,
+                             bothClientAndAppID: true, reCAPTCHAfallback: true)
+    }
+
+    /** @fn testVerifyPhoneNumberUIDelegateClientIdFlow
+        @brief Tests a successful invocation of @c verifyPhoneNumber:UIDelegate:completion:.
+     */
+    func testVerifyPhoneNumberUIDelegateClientIdFlow() throws {
+      try internalTestVerify(function: #function, useClientID: true, reCAPTCHAfallback: true)
+    }
+
+    /** @fn testVerifyPhoneNumberUIDelegateInvalidClientID
+        @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in an
+            invalid client ID error.
+     */
+    func testVerifyPhoneNumberUIDelegateInvalidClientID() throws {
+      try internalTestVerify(
+        errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringInvalidClientID,
+        errorCode: AuthErrorCode.invalidClientID.rawValue,
+        function: #function,
+        useClientID: true,
+        reCAPTCHAfallback: true
+      )
+    }
+
+    /** @fn testVerifyPhoneNumberUIDelegateWebNetworkRequestFailed
+        @brief Tests a invocation of @c verifyPhoneNumber:UIDelegate:completion: which results in a web
+            network request failed error.
+     */
+    func testVerifyPhoneNumberUIDelegateWebNetworkRequestFailed() throws {
+      try internalTestVerify(
+        errorURLString: PhoneAuthProviderTests.kFakeRedirectURLStringWebNetworkRequestFailed,
+        errorCode: AuthErrorCode.webNetworkRequestFailed.rawValue,
+        function: #function,
+        useClientID: true,
+        reCAPTCHAfallback: true
+      )
+    }
+
+    private func internalTestVerify(errorString: String? = nil,
+                                    errorURLString: String? = nil,
+                                    errorCode: Int = 0,
+                                    function: String,
+                                    testMode: Bool = false,
+                                    useClientID: Bool = false,
+                                    bothClientAndAppID: Bool = false,
                                     reCAPTCHAfallback: Bool = false) throws {
-      initApp(function, testMode: testMode, reCAPTCHAfallback: reCAPTCHAfallback)
+      initApp(function, useClientID: useClientID, bothClientAndAppID: bothClientAndAppID,
+              testMode: testMode,
+              reCAPTCHAfallback: reCAPTCHAfallback)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
-      let expectation = self.expectation(description: #function)
+      let expectation = self.expectation(description: function)
       var group = DispatchGroup()
       if reCAPTCHAfallback {
         // 1. Create a group to synchronize request creation by the fake rpcIssuer.
         group = createGroup()
       }
 
-      let requestExpectation = self.expectation(description: "verifyRequester")
-      rpcIssuer?.verifyRequester = { request in
-        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
-        if reCAPTCHAfallback {
-          XCTAssertNil(request.appCredential)
-          XCTAssertEqual(request.reCAPTCHAToken, self.kFakeReCAPTCHAToken)
-        } else if testMode {
-          XCTAssertNil(request.appCredential)
-          XCTAssertNil(request.reCAPTCHAToken)
-        } else {
-          XCTAssertEqual(request.appCredential?.receipt, self.kTestReceipt)
-          XCTAssertEqual(request.appCredential?.secret, self.kTestSecret)
-        }
-        requestExpectation.fulfill()
-        do {
-          if valid {
-            // Response for the underlying SendVerificationCode RPC call.
-            try self.rpcIssuer?
-              .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
+      if errorURLString == nil {
+        let requestExpectation = self.expectation(description: "verifyRequester")
+        rpcIssuer?.verifyRequester = { request in
+          XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+          if reCAPTCHAfallback {
+            XCTAssertNil(request.appCredential)
+            XCTAssertEqual(request.reCAPTCHAToken, self.kFakeReCAPTCHAToken)
+          } else if testMode {
+            XCTAssertNil(request.appCredential)
+            XCTAssertNil(request.reCAPTCHAToken)
           } else {
-            try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
+            XCTAssertEqual(request.appCredential?.receipt, self.kTestReceipt)
+            XCTAssertEqual(request.appCredential?.secret, self.kTestSecret)
           }
-        } catch {
-          XCTFail("Failure sending response: \(error)")
+          requestExpectation.fulfill()
+          do {
+            // Response for the underlying SendVerificationCode RPC call.
+            if let errorString {
+              try self.rpcIssuer?.respond(serverErrorMessage: errorString)
+            } else {
+              try self.rpcIssuer?
+                .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
+            }
+          } catch {
+            XCTFail("Failure sending response: \(error)")
+          }
         }
       }
-
       if reCAPTCHAfallback {
         // Use fake authURLPresenter so we can test the parameters that get sent to it.
+        let urlString = errorURLString ??
+          PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken
+        let errorTest = errorURLString != nil
         PhoneAuthProviderTests.auth?.authURLPresenter =
-          FakePresenter(urlString: PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken,
-                        firebaseAppID: PhoneAuthProviderTests.kFakeFirebaseAppID)
+          FakePresenter(urlString: urlString,
+                        clientID: useClientID ? PhoneAuthProviderTests.kFakeClientID : nil,
+                        firebaseAppID: useClientID ? nil : PhoneAuthProviderTests
+                          .kFakeFirebaseAppID,
+                        errorTest: errorTest)
       }
       let uiDelegate = reCAPTCHAfallback ? FakeUIDelegate() : nil
 
@@ -185,13 +235,12 @@
 
           // 8. After the response triggers the callback in the FakePresenter, verify the response.
           XCTAssertTrue(Thread.isMainThread)
-          if valid {
+          if errorCode != 0 {
+            XCTAssertNil(verificationID)
+            XCTAssertEqual((error as? NSError)?.code, errorCode)
+          } else {
             XCTAssertNil(error)
             XCTAssertEqual(verificationID, self.kTestVerificationID)
-          } else {
-            XCTAssertNotNil(error)
-            XCTAssertNil(verificationID)
-            XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.invalidPhoneNumber.rawValue)
           }
           expectation.fulfill()
         }
@@ -208,23 +257,25 @@
                      "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
         )
       }
-      waitForExpectations(timeout: 555)
+      waitForExpectations(timeout: 55)
     }
 
-    // TODO: verify all options are needed for PhoneAuthTests
-    private func initApp(_ functionName: String, useAppID: Bool = true,
-                         scheme: String = PhoneAuthProviderTests.kFakeEncodedFirebaseAppID,
+    private func initApp(_ functionName: String, useClientID: Bool = false,
+                         bothClientAndAppID: Bool = false,
                          testMode: Bool = false, reCAPTCHAfallback: Bool = false) {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
       options.apiKey = PhoneAuthProviderTests.kFakeAPIKey
       options.projectID = "myProjectID"
-      if useAppID {
-        options.googleAppID = PhoneAuthProviderTests.kFakeFirebaseAppID
-      } else {
-        // Use the clientID.
+      if useClientID {
         options.clientID = PhoneAuthProviderTests.kFakeClientID
       }
+      if !useClientID || bothClientAndAppID {
+        // Use the appID.
+        options.googleAppID = PhoneAuthProviderTests.kFakeFirebaseAppID
+      }
+      let scheme = useClientID ? PhoneAuthProviderTests.kFakeReverseClientID :
+        PhoneAuthProviderTests.kFakeEncodedFirebaseAppID
 
       let strippedName = functionName.replacingOccurrences(of: "(", with: "")
         .replacingOccurrences(of: ")", with: "")
@@ -246,6 +297,9 @@
         }
         auth.notificationManager.immediateCallbackForTestFaking = true
         auth.mainBundleUrlTypes = [["CFBundleURLSchemes": [scheme]]]
+
+        // Skip APNS token fetching.
+        auth.tokenManager.failFastForTesting = true
       }
     }
 
@@ -298,12 +352,13 @@
         XCTAssertEqual(appCheckToken, verifyAppCheckToken)
 
         var redirectURL = ""
+        if let clientID {
+          XCTAssertEqual(params["clientId"], clientID)
+          redirectURL = "\(kFakeReverseClientID)\(urlString)"
+        }
         if let firebaseAppID {
           XCTAssertEqual(params["appId"], firebaseAppID)
           redirectURL = "\(kFakeEncodedFirebaseAppID)\(urlString)"
-        } else if let clientID {
-          XCTAssertEqual(params["clientId"], clientID)
-          redirectURL = "\(kFakeReverseClientID)\(urlString)"
         }
 
         // 6. Test callbackMatcher
@@ -317,7 +372,7 @@
         }
         let redirectWithEventID = "\(redirectURL)%26eventId%3D\(eventID)"
         let originalComponents = URLComponents(string: redirectWithEventID)!
-        XCTAssertTrue(callbackMatcher(originalComponents.url))
+        XCTAssertEqual(callbackMatcher(originalComponents.url), !errorTest)
 
         var components = originalComponents
         components.query = "https"
@@ -344,11 +399,13 @@
       let urlString: String
       let clientID: String?
       let firebaseAppID: String?
+      let errorTest: Bool
 
-      init(urlString: String, clientID: String? = nil, firebaseAppID: String? = nil) {
+      init(urlString: String, clientID: String?, firebaseAppID: String?, errorTest: Bool) {
         self.urlString = urlString
         self.clientID = clientID
         self.firebaseAppID = firebaseAppID
+        self.errorTest = errorTest
       }
     }
 
@@ -369,13 +426,19 @@
       }
     }
 
-    private let kFakeRedirectURLStringInvalidClientID =
-      "com.googleusercontent.apps.123456://firebaseauth/" +
+    private static let kFakeRedirectURLStringInvalidClientID =
+      "//firebaseauth/" +
       "link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fcal" +
       "lback%3FfirebaseError%3D%257B%2522code%2522%253A%2522auth%252Finvalid-oauth-client-id%2522%252" +
       "C%2522message%2522%253A%2522The%2520OAuth%2520client%2520ID%2520provided%2520is%2520either%252" +
       "0invalid%2520or%2520does%2520not%2520match%2520the%2520specified%2520API%2520key.%2522%257D%26" +
       "authType%3DverifyApp"
+
+    private static let kFakeRedirectURLStringWebNetworkRequestFailed =
+      "//firebaseauth/link?deep_link_id=https%3A%2F%2Fexample.firebaseapp.com%2F__%2Fauth%2Fc" +
+      "allback%3FfirebaseError%3D%257B%2522code%2522%253A%2522auth%252Fnetwork-request-failed%2522%" +
+      "252C%2522message%2522%253A%2522The%2520network%2520request%2520failed%2520.%2522%257D%" +
+      "26authType%3DverifyApp"
 
     private static let kFakeRedirectURLStringWithReCAPTCHAToken =
       "://firebaseauth/" +

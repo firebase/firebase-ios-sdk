@@ -392,6 +392,7 @@ import Foundation
       #endif
       if let credential = auth.appCredentialManager.credential {
         completion(credential, nil, nil)
+        return
       }
       auth.tokenManager.getToken { token, error in
         guard let token else {
@@ -503,15 +504,16 @@ import Foundation
             from: queryItems
           ) {
             if let errorData = firebaseError.data(using: .utf8) {
+              var errorDict: [AnyHashable: Any]?
               do {
-                if let errorDict = try JSONSerialization.jsonObject(with: errorData)
-                  as? [AnyHashable: Any],
-                  let code = errorDict["code"] as? String,
-                  let message = errorDict["message"] as? String {
-                  throw AuthErrorUtils.urlResponseError(code: code, message: message)
-                }
+                errorDict = try JSONSerialization.jsonObject(with: errorData) as? [AnyHashable: Any]
               } catch {
                 throw AuthErrorUtils.JSONSerializationError(underlyingError: error)
+              }
+              if let errorDict,
+                 let code = errorDict["code"] as? String,
+                 let message = errorDict["message"] as? String {
+                throw AuthErrorUtils.urlResponseError(code: code, message: message)
               }
             }
           }
@@ -550,7 +552,7 @@ import Foundation
                               URLQueryItem(name: "v", value: AuthBackend.authUserAgent()),
                               URLQueryItem(name: "eventId", value: eventID)]
             if self.usingClientIDScheme {
-              queryItems.append(URLQueryItem(name: "clientID", value: clientID))
+              queryItems.append(URLQueryItem(name: "clientId", value: clientID))
             } else {
               queryItems.append(URLQueryItem(name: "appId", value: appID))
             }
