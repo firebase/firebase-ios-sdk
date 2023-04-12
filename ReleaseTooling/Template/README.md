@@ -88,11 +88,6 @@ frameworks and libraries listed in each Firebase framework's
 indicator that not all system libraries are being brought into your build
 automatically.
 
-"(~> X)" below means that the SDK requires all of the xcframeworks from X. You
-should make sure to include all of the xcframeworks from X when including the
-SDK.
-
-__INTEGRATION__
 # Samples
 
 You can get samples for Firebase from https://github.com/firebase/quickstart-ios:
@@ -104,10 +99,3 @@ this archive; for example, FirebaseUI. For the samples that depend on SDKs not
 included in this archive, you'll need to use CocoaPods or use the
 [ZipBuilder](https://github.com/firebase/firebase-ios-sdk/tree/master/ReleaseTooling)
 to create your own custom binary frameworks.
-
-# Versions
-
-The xcframeworks in this directory map to these versions of the Firebase SDKs in
-CocoaPods.
-
-__VERSIONS__
