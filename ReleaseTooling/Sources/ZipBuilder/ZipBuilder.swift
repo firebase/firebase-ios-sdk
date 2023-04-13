@@ -18,9 +18,9 @@ import Foundation
 import FirebaseManifest
 
 /// Misc. constants used in the build tool.
-struct Constants {
+enum Constants {
   /// Constants related to the Xcode project template.
-  struct ProjectPath {
+  enum ProjectPath {
     // Required for building.
     static let infoPlist = "Info.plist"
     static let projectFile = "FrameworkMaker.xcodeproj"
@@ -30,6 +30,7 @@ struct Constants {
 
     // Required for distribution.
     static let readmeName = "README.md"
+    static let metadataName = "METADATA.md"
 
     // Required from the Firebase pod.
     static let firebaseHeader = "Firebase.h"
@@ -37,10 +38,6 @@ struct Constants {
 
     /// The dummy Firebase library for Carthage distribution.
     static let dummyFirebaseLib = "dummy_Firebase_lib"
-
-    // Make the struct un-initializable.
-    @available(*, unavailable)
-    init() { fatalError() }
   }
 
   /// The text added to the README for a product if it contains Resources. The empty line at the end
@@ -50,10 +47,6 @@ struct Constants {
   directory into your target's main bundle.
 
   """
-
-  // Make the struct un-initializable.
-  @available(*, unavailable)
-  init() { fatalError() }
 }
 
 /// A zip file builder. The zip file can be built with the `buildAndAssembleReleaseDir()` function.
@@ -425,9 +418,9 @@ struct ZipBuilder {
     }
 
     // Start the README dependencies string with the frameworks built in Analytics.
-    var readmeDeps = dependencyString(for: "FirebaseAnalyticsSwift",
-                                      in: analyticsDir,
-                                      frameworks: analyticsFrameworks)
+    var metadataDeps = dependencyString(for: "FirebaseAnalyticsSwift",
+                                        in: analyticsDir,
+                                        frameworks: analyticsFrameworks)
 
     // Loop through all the other subspecs that aren't Core and Analytics and write them to their
     // final destination, including resources.
@@ -462,7 +455,7 @@ struct ZipBuilder {
                                        builtFrameworks: frameworksToAssemble,
                                        frameworksToIgnore: analyticsPods)
         // Update the README.
-        readmeDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
+        metadataDeps += dependencyString(for: folder, in: productDir, frameworks: podFrameworks)
       } catch {
         fatalError("Could not copy frameworks from \(pod) into the zip file: \(error)")
       }
@@ -531,25 +524,30 @@ struct ZipBuilder {
       }
     }
 
-    // Assemble the README. Start with the version text, then use the template to inject the
-    // versions and the list of frameworks to include for each pod.
-    let readmePath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
-    let readmeTemplate: String
+    // Assemble the `METADATA.md` file by injecting the template file with
+    // this zip version's dependency graph and dependency versioning table.
+    let metadataPath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.metadataName)
+    let metadataTemplate: String
     do {
-      readmeTemplate = try String(contentsOf: readmePath)
+      metadataTemplate = try String(contentsOf: metadataPath)
     } catch {
-      fatalError("Could not get contents of the README template: \(error)")
+      fatalError("Could not get contents of the METADATA template: \(error)")
     }
     let versionsText = versionsString(for: installedPods)
-    let readmeText = readmeTemplate.replacingOccurrences(of: "__INTEGRATION__", with: readmeDeps)
+    let metadataText = metadataTemplate
+      .replacingOccurrences(of: "__INTEGRATION__", with: metadataDeps)
       .replacingOccurrences(of: "__VERSIONS__", with: versionsText)
     do {
-      try readmeText.write(to: zipDir.appendingPathComponent(Constants.ProjectPath.readmeName),
-                           atomically: true,
-                           encoding: .utf8)
+      try metadataText.write(to: zipDir.appendingPathComponent(Constants.ProjectPath.metadataName),
+                             atomically: true,
+                             encoding: .utf8)
     } catch {
-      fatalError("Could not write README to Zip directory: \(error)")
+      fatalError("Could not write METADATA to Zip directory: \(error)")
     }
+
+    // Assemble the `README.md`.
+    let readmePath = paths.templateDir.appendingPathComponent(Constants.ProjectPath.readmeName)
+    try fileManager.copyItem(at: readmePath, to: zipDir.appendingPathComponent("README.md"))
 
     print("Contents of the packaged release were assembled at: \(zipDir)")
     return zipDir
