@@ -100,6 +100,19 @@ MemoryCacheSettings& MemoryCacheSettings::operator=(
   return *this;
 }
 
+MemoryLruGcSettings MemoryLruGcSettings::WithSizeBytes(int64_t size) const {
+  MemoryLruGcSettings new_settings{*this};
+  new_settings.size_bytes_ = size;
+  return new_settings;
+}
+
+MemoryCacheSettings MemoryCacheSettings::WithMemoryGarbageCollectorSettings(
+    const MemoryGargabeCollectorSettings& settings) {
+  MemoryCacheSettings new_settings(*this);
+  new_settings.settings_ = CopyMemoryGcSettings(settings);
+  return new_settings;
+}
+
 size_t Settings::Hash() const {
   return util::Hash(host_, ssl_enabled_, persistence_enabled_,
                     cache_size_bytes_, cache_settings_);
@@ -283,7 +296,7 @@ bool Settings::gc_enabled() const {
     }
   }
 
-  return cache_size_bytes_ != CacheSizeUnlimited;
+  return persistence_enabled_ && cache_size_bytes_ != CacheSizeUnlimited;
 }
 
 const LocalCacheSettings* Settings::local_cache_settings() const {

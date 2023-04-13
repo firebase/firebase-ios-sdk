@@ -45,7 +45,6 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
     _dispatchQueue = dispatch_get_main_queue();
     _persistenceEnabled = Settings::DefaultPersistenceEnabled;
     _cacheSizeBytes = Settings::DefaultCacheSizeBytes;
-    _memoryLruGCEnabled = FALSE;
   }
   return self;
 }
@@ -78,7 +77,6 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   result = 31 * result + (self.isSSLEnabled ? 1231 : 1237);
   // Ignore the dispatchQueue to avoid having to deal with sizeof(dispatch_queue_t).
   result = 31 * result + (self.isPersistenceEnabled ? 1231 : 1237);
-  result = 31 * result + (self.isMemoryLruGCEnabled ? 1231 : 1237);
   result = 31 * result + (NSUInteger)self.cacheSizeBytes;
 
   if ([_cacheSettings isKindOfClass:[FIRPersistentCacheSettings class]]) {
@@ -98,7 +96,6 @@ extern "C" const int64_t kFIRFirestoreCacheSizeUnlimited = Settings::CacheSizeUn
   copy.sslEnabled = _sslEnabled;
   copy.dispatchQueue = _dispatchQueue;
   copy.persistenceEnabled = _persistenceEnabled;
-  copy.memoryLruGCEnabled = _memoryLruGCEnabled;
   copy.cacheSizeBytes = _cacheSizeBytes;
   copy.cacheSettings = _cacheSettings;
   return copy;

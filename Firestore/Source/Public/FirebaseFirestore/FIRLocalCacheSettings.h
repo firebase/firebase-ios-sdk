@@ -57,6 +57,26 @@ NS_SWIFT_NAME(PersistentCacheSettings)
 
 @end
 
+NS_SWIFT_NAME(MemoryGarbageCollectorSettings)
+@protocol FIRMemoryGarbageCollectorSettings
+@end
+
+NS_SWIFT_NAME(MemoryEagerGCSetting)
+@interface FIRMemoryEagerGCSettings : NSObject <NSCopying, FIRMemoryGarbageCollectorSettings>
+
+- (instancetype)init;
+
+@end
+
+NS_SWIFT_NAME(MemoryLRUGCSettings)
+@interface FIRMemoryLRUGCSettings : NSObject <NSCopying, FIRMemoryGarbageCollectorSettings>
+
+// Defaults to 100MB.
+- (instancetype)init;
+- (instancetype)initWithSizeBytes:(NSNumber *)size;
+
+@end
+
 /**
  * Configures the SDK to use a memory cache. Firestore documents and mutations are NOT persisted
  * across App restart.
@@ -72,6 +92,9 @@ NS_SWIFT_NAME(MemoryCacheSettings)
  * Creates an instnace of `MemoryCacheSettings`.
  */
 - (instancetype)init;
+
+- (instancetype)initWithGarbageCollectorSettings:
+    (id<FIRMemoryGarbageCollectorSettings, NSObject>)settings;
 
 @end
 
