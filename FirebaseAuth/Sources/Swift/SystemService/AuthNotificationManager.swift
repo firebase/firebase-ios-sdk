@@ -74,7 +74,7 @@
         @brief Disable callback waiting for tests.
         @remarks Only tests should access this property.
      */
-    var immediateCallbackForTestFaking = false
+    var immediateCallbackForTestFaking: (() -> Bool)?
 
     /** @var _pendingCallbacks
         @brief All pending callbacks while a check is being performed.
@@ -104,8 +104,8 @@
         pendingCallbacks?.append(callback)
         return
       }
-      if immediateCallbackForTestFaking {
-        callback(true)
+      if let getValueFunc = immediateCallbackForTestFaking {
+        callback(getValueFunc())
         return
       }
       if hasCheckedNotificationForwarding {
