@@ -36,8 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 /** Internal FIRDocumentSnapshot API we don't want exposed in our public header files. */
 @interface FIRAggregateQuerySnapshot (Internal)
 
-- (nullable id)valueForField:(id)field
-     serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
+- (id)valueForField:(id)field
+    serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 

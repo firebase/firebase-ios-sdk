@@ -75,13 +75,13 @@ NS_ASSUME_NONNULL_BEGIN
   return _query;
 }
 
-- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation NS_SWIFT_NAME(get(_:)) {
+- (id)valueForAggregation:(FIRAggregateField *)aggregation NS_SWIFT_NAME(get(_:)) {
   return [self valueForAggregation:aggregation
            serverTimestampBehavior:FIRServerTimestampBehaviorNone];
 }
 
-- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation
-           serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
+- (id)valueForAggregation:(FIRAggregateField *)aggregation
+    serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
   model::AggregateAlias alias = [aggregation createAlias];
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
   if (!fieldValue) {

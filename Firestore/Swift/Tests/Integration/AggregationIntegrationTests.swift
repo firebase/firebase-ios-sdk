@@ -58,20 +58,27 @@ import Foundation
 
       // Count
       XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 2)
+      XCTAssertEqual(try snapshot.getInt64(AggregateField.count()), 2)
 
       // Sum
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 150)
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Double, 150)
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Int64, 150)
+      XCTAssertEqual(try snapshot.getInt64(AggregateField.sum("pages")), 150)
+
       XCTAssertEqual(snapshot.get(AggregateField.sum("weight")) as? NSNumber, 99.6)
       XCTAssertEqual(snapshot.get(AggregateField.sum("weight")) as? Double, 99.6)
+      XCTAssertEqual(try snapshot.getDouble(AggregateField.sum("weight")), 99.6)
 
       // Average
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? NSNumber, 75.0)
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? Double, 75.0)
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? Int64, 75)
+      XCTAssertEqual(try snapshot.getInt64(AggregateField.average("pages")), 75)
+
       XCTAssertEqual(snapshot.get(AggregateField.average("weight")) as? NSNumber, 49.8)
       XCTAssertEqual(snapshot.get(AggregateField.average("weight")) as? Double, 49.8)
+      XCTAssertEqual(try snapshot.getDouble(AggregateField.average("weight")), 49.8)
     }
 
     func testCannotPerformMoreThanMaxAggregations() async throws {
@@ -85,7 +92,7 @@ import Foundation
                                               "bar": 2,
                                               "baz": 3])
 
-      // Max is 5, we're attempting 6. I also like to live dangerously.
+      // Max is 5, we're attempting 6.
       do {
         let snapshot = try await collection.aggregate([
           AggregateField.count(),
@@ -124,11 +131,17 @@ import Foundation
 
       // Sum
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 150)
+      XCTAssertEqual(try snapshot.getInt64(AggregateField.sum("pages")), 150)
+
       XCTAssertTrue((snapshot.get(AggregateField.sum("rating")) as? Double)?.isNaN ?? false)
+      XCTAssertTrue(try snapshot.getDouble(AggregateField.sum("rating"))!.isNaN)
 
       // Average
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? NSNumber, 75.0)
+      XCTAssertEqual(try snapshot.getDouble(AggregateField.average("pages")), 75.0)
+
       XCTAssertTrue((snapshot.get(AggregateField.average("rating")) as? Double)?.isNaN ?? false)
+      XCTAssertTrue(try snapshot.getDouble(AggregateField.average("rating"))!.isNaN)
     }
 
     func testThrowsAnErrorWhenGettingTheResultOfAnUnrequestedAggregation() async throws {
@@ -232,11 +245,19 @@ import Foundation
         Double(Int64.max) + Double(Int64.max) + Double(Int64.max)
       )
       XCTAssertEqual(
+        try snapshot.getDouble(AggregateField.sum("longOverflow")),
+        Double(Int64.max) + Double(Int64.max) + Double(Int64.max)
+      )
+      XCTAssertEqual(
         snapshot.get(AggregateField.sum("accumulationOverflow")) as? Int64,
         Int64.max - 100
       )
       XCTAssertEqual(
         snapshot.get(AggregateField.sum("positiveInfinity")) as? Double,
+        Double.infinity
+      )
+      XCTAssertEqual(
+        try snapshot.getDouble(AggregateField.sum("positiveInfinity")),
         Double.infinity
       )
       XCTAssertEqual(
@@ -307,13 +328,20 @@ import Foundation
 
       // Count
       XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 0)
+      XCTAssertEqual(try snapshot.getInt64(AggregateField.count()), 0)
 
       // Sum
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 0)
+      XCTAssertEqual(try snapshot.getDouble(AggregateField.sum("pages")), 0)
+      XCTAssertEqual(try snapshot.getInt64(AggregateField.sum("pages")), 0)
 
       // Average
       // TODO: (sum/avg) this design is bad, will require and API update
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? NSNull, NSNull())
+
+      if let averagePages = try? snapshot.getInt64(AggregateField.average("pages")) {
+        XCTFail("expected average pages to be NSNull and not convertable to a Double")
+      }
     }
 
     func testPerformsAggregateOverResultSetOfZeroFields() async throws {
