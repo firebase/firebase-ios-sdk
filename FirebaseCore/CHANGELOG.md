@@ -1,3 +1,7 @@
+# Firebase 10.8.1
+- [fixed] Swift Package Manager only release to fix a 10.8.0 Firestore issue
+  impacting macCatalyst. (#11119)
+
 # Firebase 10.8.0
 - Fix new build warnings introduced by Xcode 14.3. (#11059)
 - [changed] The Firebase Swift package now requires the Swift 5.6 toolchain (Xcode 13.3) to build.
