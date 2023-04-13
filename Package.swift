@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.8.0"
+let firebaseVersion = "10.8.1"
 
 let package = Package(
   name: "Firebase",
@@ -640,7 +640,7 @@ let package = Package(
       dependencies: [
         .target(
           name: "FirebaseFirestore",
-          condition: .when(platforms: [.iOS, .tvOS, .macOS])
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
         ),
         .product(name: "abseil", package: "abseil-cpp-binary"),
         .product(name: "gRPC-C++", package: "grpc-binary"),
@@ -660,7 +660,7 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreSwiftTarget",
       dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
     ),
 
