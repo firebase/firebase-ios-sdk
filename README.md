@@ -7,7 +7,7 @@
   </a>
   <a href="https://cocoapods.org/pods/Firebase">
     <img src="https://img.shields.io/github/license/Firebase/firebase-ios-sdk?style=flat"/>
-  </a>
+  </a><br/>
   <a href="https://swiftpackageindex.com/firebase/firebase-ios-sdk">
     <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Ffirebase%2Ffirebase-ios-sdk%2Fbadge%3Ftype%3Dplatforms"/>
   </a>
