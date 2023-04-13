@@ -422,7 +422,7 @@ import FirebaseCore
         // 4. After the fake rpcIssuer leaves the group, validate the created Request instance.
         let request = try XCTUnwrap(rpcIssuer?.request as? GetProjectConfigRequest)
         XCTAssertEqual(request.endpoint, "getProjectConfig")
-        XCTAssertEqual(request.APIKey, OAuthProviderTests.kFakeAPIKey)
+        XCTAssertEqual(request.apiKey, OAuthProviderTests.kFakeAPIKey)
 
         // 5. Send the response from the fake backend.
         _ = try rpcIssuer?

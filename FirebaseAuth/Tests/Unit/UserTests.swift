@@ -1311,7 +1311,7 @@ class UserTests: RPCBaseTests {
       group.wait()
 
       let request = try XCTUnwrap(rpcIssuer?.request as? SetAccountInfoRequest)
-      XCTAssertEqual(request.APIKey, UserTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
       if changePassword {
         XCTAssertEqual(request.password, kNewPassword)
@@ -1372,7 +1372,7 @@ class UserTests: RPCBaseTests {
       let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
       XCTAssertEqual(request.email, kEmail)
       XCTAssertEqual(request.password, kFakePassword)
-      XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
@@ -1444,7 +1444,7 @@ class UserTests: RPCBaseTests {
     XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
     XCTAssertEqual(request.providerAccessToken, kGoogleAccessToken)
     XCTAssertTrue(request.returnSecureToken)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertTrue(request.returnSecureToken)
   }
 
@@ -1499,7 +1499,7 @@ class UserTests: RPCBaseTests {
       XCTAssertEqual(request.providerIDToken, kFacebookIDToken)
       XCTAssertEqual(request.providerAccessToken, kFacebookAccessToken)
       XCTAssertTrue(request.returnSecureToken)
-      XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
@@ -1565,7 +1565,7 @@ class UserTests: RPCBaseTests {
   ////      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
   ////      XCTAssertEqual(request.email, kEmail)
   ////      XCTAssertEqual(request.password, kFakePassword)
-  ////      XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+  ////      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
   ////      XCTAssertTrue(request.returnSecureToken)
   ////
   ////      // 3. Send the response from the fake backend.
