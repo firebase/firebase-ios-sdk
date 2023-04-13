@@ -101,13 +101,8 @@ MemoryCacheSettings& MemoryCacheSettings::operator=(
 }
 
 size_t Settings::Hash() const {
-  if (cache_settings_ == nullptr) {
-    return util::Hash(host_, ssl_enabled_, persistence_enabled_,
-                      cache_size_bytes_);
-  }
-
   return util::Hash(host_, ssl_enabled_, persistence_enabled_,
-                    cache_size_bytes_, *cache_settings_);
+                    cache_size_bytes_, cache_settings_);
 }
 
 bool operator==(const Settings& lhs, const Settings& rhs) {
@@ -236,9 +231,11 @@ void Settings::set_persistence_enabled(bool value) {
 }
 
 bool Settings::persistence_enabled() const {
-  return (cache_settings_ &&
-          cache_settings_->kind() == LocalCacheSettings::Kind::kPersistent) ||
-         persistence_enabled_;
+  if (cache_settings_) {
+    return cache_settings_->kind() == LocalCacheSettings::Kind::kPersistent;
+  }
+
+  return persistence_enabled_;
 }
 
 void Settings::set_cache_size_bytes(int64_t value) {
