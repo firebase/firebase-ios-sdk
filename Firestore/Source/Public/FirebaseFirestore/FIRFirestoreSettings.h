@@ -56,8 +56,6 @@ NS_SWIFT_NAME(FirestoreSettings)
 @property(nonatomic, getter=isPersistenceEnabled) BOOL persistenceEnabled DEPRECATED_MSG_ATTRIBUTE(
     "This field is deprecated. Use `cacheSettings` instead.");
 
-@property(nonatomic, getter=isMemoryLruGCEnabled) BOOL memoryLruGCEnabled;
-
 /**
  * NOTE: This field will be deprecated in a future major release. Use the `cacheSettings` field
  * instead to specify cache size, and other cache configurations.
