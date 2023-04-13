@@ -116,7 +116,7 @@
       > {
         Future { promise in
           do {
-            try self.setData(from: value) { error in
+            try self.setData(from: value, encoder: encoder) { error in
               if let error = error {
                 promise(.failure(error))
               } else {
@@ -148,7 +148,7 @@
       > {
         Future { promise in
           do {
-            try self.setData(from: value, merge: merge) { error in
+            try self.setData(from: value, merge: merge, encoder: encoder) { error in
               if let error = error {
                 promise(.failure(error))
               } else {
@@ -182,7 +182,7 @@
       > {
         Future { promise in
           do {
-            try self.setData(from: value, mergeFields: mergeFields) { error in
+            try self.setData(from: value, mergeFields: mergeFields, encoder: encoder) { error in
               if let error = error {
                 promise(.failure(error))
               } else {

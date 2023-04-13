@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseAnalytics'
-    s.version          = '10.8.0'
+    s.version          = '10.9.0'
     s.summary          = 'Firebase Analytics for iOS'
 
     s.description      = <<-DESC
@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/c549faaa5cd321b5/FirebaseAnalytics-10.6.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/5f0d532a0eb9e9ca/FirebaseAnalytics-10.8.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.10.0'
@@ -37,12 +37,12 @@ Pod::Spec.new do |s|
     s.default_subspecs = 'AdIdSupport'
 
     s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement', '10.8.0'
+        ss.dependency 'GoogleAppMeasurement', '10.9.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 
     s.subspec 'WithoutAdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.8.0'
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.9.0'
         ss.vendored_frameworks = 'Frameworks/FirebaseAnalytics.xcframework'
     end
 

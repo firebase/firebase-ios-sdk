@@ -70,12 +70,15 @@ class ApplicationInfo: ApplicationInfoProtocol {
 
   private let networkInformation: NetworkInfoProtocol
   private let envParams: [String: String]
+  private let infoDict: [String: Any]?
 
   init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
-       envParams: [String: String] = ProcessInfo.processInfo.environment) {
+       envParams: [String: String] = ProcessInfo.processInfo.environment,
+       infoDict: [String: Any]? = Bundle.main.infoDictionary) {
     self.appID = appID
     networkInformation = networkInfo
     self.envParams = envParams
+    self.infoDict = infoDict
   }
 
   var sdkVersion: String {
@@ -107,11 +110,11 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var appBuildVersion: String {
-    return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+    return infoDict?["CFBundleVersion"] as? String ?? ""
   }
 
   var appDisplayVersion: String {
-    return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+    return infoDict?["CFBundleShortVersionString"] as? String ?? ""
   }
 
   var osBuildVersion: String {
