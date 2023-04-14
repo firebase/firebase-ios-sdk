@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class TOTPMultiFactorAssertion
-    @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP (Time-based One Time Password).
-        second factor.
+    @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
+   (Time-based One Time Password). second factor.
 */
 NS_SWIFT_NAME(TOTPMultiFactorAssertion)
 @interface FIRTOTPMultiFactorAssertion : FIRMultiFactorAssertion

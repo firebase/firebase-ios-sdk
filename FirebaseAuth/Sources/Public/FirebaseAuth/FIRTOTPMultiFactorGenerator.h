@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,13 @@ NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
     @interface FIRTOTPMultiFactorGenerator : NSObject
 
 /** @fn assertionForSignInWithenrollmentID:
-    @brief Initializes the MFA assertion to confirm ownership of the totp second factor. This assertion is used to complete signIn with TOTP as a second factor.
+    @brief Initializes the MFA assertion to confirm ownership of the totp second factor. This
+   assertion is used to complete signIn with TOTP as a second factor.
     @param enrollmentID The id that identifies the enrolled TOTP second factor.
     @param oneTimePassword one time password string.
 */
-+ (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID: (NSString *)enrollmentID
-                                                    oneTimePassword: (NSString *)oneTimePassword;
++ (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
+                                                    oneTimePassword:(NSString *)oneTimePassword;
 
 @end
 
