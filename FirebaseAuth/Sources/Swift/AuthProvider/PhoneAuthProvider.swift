@@ -314,7 +314,7 @@ import Foundation
       }
       guard let session else {
         verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
-                                        retryOnInvalidAppCredential: true,
+                                        retryOnInvalidAppCredential: retryOnInvalidAppCredential,
                                         uiDelegate: uiDelegate,
                                         callback: callback)
         return

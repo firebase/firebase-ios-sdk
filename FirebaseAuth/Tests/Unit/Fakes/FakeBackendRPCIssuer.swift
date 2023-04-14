@@ -66,6 +66,8 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       @brief Optional function to run tests on the request.
    */
   var verifyRequester: ((SendVerificationCodeRequest) -> Void)?
+  var verifyClientRequester: ((VerifyClientRequest) -> Void)?
+  var projectConfigRequester: ((GetProjectConfigRequest) -> Void)?
 
   var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
@@ -83,6 +85,12 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
     if let verifyRequester,
        let verifyRequest = request as? SendVerificationCodeRequest {
       verifyRequester(verifyRequest)
+    } else if let verifyClientRequester,
+              let verifyClientRequest = request as? VerifyClientRequest {
+      verifyClientRequester(verifyClientRequest)
+    } else if let projectConfigRequester,
+              let projectConfigRequest = request as? GetProjectConfigRequest {
+      projectConfigRequester(projectConfigRequest)
     }
 
     if let _ = request as? GetAccountInfoRequest,

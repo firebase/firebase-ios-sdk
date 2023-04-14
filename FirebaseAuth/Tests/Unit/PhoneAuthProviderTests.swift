@@ -39,6 +39,7 @@
     private let kTestVerificationCode = "verificationCode"
     private let kTestPhoneNumber = "55555555"
     private let kTestReceipt = "receipt"
+    private let kTestTimeout = "5"
     private let kTestSecret = "secret"
     private let kVerificationIDKey = "sessionInfo"
     private let kFakeEncodedFirebaseAppID = "app-1-123456789-ios-123abc456def"
@@ -264,8 +265,116 @@
        back to the reCAPTCHA flow when the push notification is not received before the timeout.
      */
     func testVerifyPhoneNumberUIDelegateiOSSecretMissingFlow() throws {
-      // TODO: here
+      try internalFlow(function: #function, useClientID: false, reCAPTCHAfallback: true)
     }
+
+    /** @fn testVerifyClient
+        @brief Tests verifying client before sending verification code.
+     */
+    func testVerifyClient() throws {
+      try internalFlow(function: #function, useClientID: true, reCAPTCHAfallback: false)
+    }
+
+    private func internalFlow(function: String,
+                              useClientID: Bool = false,
+                              reCAPTCHAfallback: Bool = false) throws {
+      let function = function
+      initApp(function, useClientID: useClientID, reCAPTCHAfallback: true, fakeToken: true)
+      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
+      let provider = PhoneAuthProvider.provider(auth: auth)
+      let expectation = self.expectation(description: function)
+
+      // Fake push notification.
+      auth.appCredentialManager.fakeCredential = AuthAppCredential(
+        receipt: kTestReceipt,
+        secret: reCAPTCHAfallback ? nil : kTestSecret
+      )
+
+      let verifyClientRequestExpectation = self.expectation(description: "verifyClientRequest")
+      rpcIssuer?.verifyClientRequester = { request in
+        XCTAssertEqual(request.appToken, "21402324255E")
+        XCTAssertFalse(request.isSandbox)
+        verifyClientRequestExpectation.fulfill()
+        kAuthGlobalWorkQueue.async {
+          do {
+            // Response for the underlying VerifyClientRequest RPC call.
+            try self.rpcIssuer?.respond(withJSON: [
+              "receipt": self.kTestReceipt,
+              "suggestedTimeout": self.kTestTimeout,
+            ])
+          } catch {
+            XCTFail("Failure sending response: \(error)")
+          }
+        }
+      }
+
+      if reCAPTCHAfallback {
+        let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+        rpcIssuer?.projectConfigRequester = { request in
+          XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
+          projectConfigExpectation.fulfill()
+          kAuthGlobalWorkQueue.async {
+            do {
+              // Response for the underlying VerifyClientRequest RPC call.
+              try self.rpcIssuer?.respond(
+                withJSON: ["projectId": "kFakeProjectID",
+                           "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
+              )
+            } catch {
+              XCTFail("Failure sending response: \(error)")
+            }
+          }
+        }
+      }
+
+      let verifyRequesterExpectation = self.expectation(description: "verifyRequester")
+      rpcIssuer?.verifyRequester = { request in
+        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+        if reCAPTCHAfallback {
+          XCTAssertNil(request.appCredential)
+          XCTAssertEqual(request.reCAPTCHAToken, self.kFakeReCAPTCHAToken)
+        } else {
+          XCTAssertEqual(request.appCredential?.receipt, self.kTestReceipt)
+          XCTAssertEqual(request.appCredential?.secret, self.kTestSecret)
+        }
+        verifyRequesterExpectation.fulfill()
+        do {
+          // Response for the underlying SendVerificationCode RPC call.
+          try self.rpcIssuer?
+            .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+
+      // Use fake authURLPresenter so we can test the parameters that get sent to it.
+      PhoneAuthProviderTests.auth?.authURLPresenter =
+        FakePresenter(
+          urlString: PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken,
+          clientID: useClientID ? PhoneAuthProviderTests.kFakeClientID : nil,
+          firebaseAppID: useClientID ? nil : PhoneAuthProviderTests.kFakeFirebaseAppID,
+          errorTest: false,
+          presenterError: nil
+        )
+      let uiDelegate = reCAPTCHAfallback ? FakeUIDelegate() : nil
+
+      // 2. After setting up the parameters, call `verifyPhoneNumber`.
+      provider
+        .verifyPhoneNumber(kTestPhoneNumber, uiDelegate: uiDelegate) { verificationID, error in
+
+          // 8. After the response triggers the callback in the FakePresenter, verify the callback.
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(error)
+          XCTAssertEqual(verificationID, self.kTestVerificationID)
+          expectation.fulfill()
+        }
+
+      waitForExpectations(timeout: 10)
+    }
+
+    /** @fn testVerifyClient
+        @brief Tests verifying client before sending verification code.
+     */
 
     private func internalTestVerify(errorString: String? = nil,
                                     errorURLString: String? = nil,
@@ -338,7 +447,7 @@
       provider
         .verifyPhoneNumber(kTestPhoneNumber, uiDelegate: uiDelegate) { verificationID, error in
 
-          // 8. After the response triggers the callback in the FakePresenter, verify the response.
+          // 8. After the response triggers the callback in the FakePresenter, verify the callback.
           XCTAssertTrue(Thread.isMainThread)
           if errorCode != 0 {
             XCTAssertNil(verificationID)
@@ -362,7 +471,7 @@
                      "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
         )
       }
-      waitForExpectations(timeout: 55)
+      waitForExpectations(timeout: 5)
     }
 
     private func initApp(_ functionName: String,
@@ -370,7 +479,8 @@
                          bothClientAndAppID: Bool = false,
                          testMode: Bool = false,
                          reCAPTCHAfallback: Bool = false,
-                         forwardingNotification: Bool = true) {
+                         forwardingNotification: Bool = true,
+                         fakeToken: Bool = false) {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                     gcmSenderID: "00000000000000000-00000000000-000000000")
       options.apiKey = PhoneAuthProviderTests.kFakeAPIKey
@@ -406,8 +516,16 @@
         auth.notificationManager.immediateCallbackForTestFaking = { return forwardingNotification }
         auth.mainBundleUrlTypes = [["CFBundleURLSchemes": [scheme]]]
 
-        // Skip APNS token fetching.
-        auth.tokenManager.failFastForTesting = true
+        if fakeToken {
+          guard let data = "!@#$%^".data(using: .utf8) else {
+            XCTFail("Failed to encode data for fake token")
+            return
+          }
+          auth.tokenManager.tokenStore = AuthAPNSToken(withData: data, type: .prod)
+        } else {
+          // Skip APNS token fetching.
+          auth.tokenManager.failFastForTesting = true
+        }
       }
     }
 

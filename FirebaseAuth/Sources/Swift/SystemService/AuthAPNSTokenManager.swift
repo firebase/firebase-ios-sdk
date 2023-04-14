@@ -88,7 +88,6 @@
         @remarks Setting a token with AuthAPNSTokenTypeUnknown will automatically converts it to
             a token with the automatically detected type.
      */
-    private var tokenStore: AuthAPNSToken?
     @objc public var token: AuthAPNSToken? {
       get {
         return tokenStore
@@ -109,6 +108,9 @@
         self.callback(withToken: newToken, error: nil)
       }
     }
+
+    // Should only be written to in tests
+    var tokenStore: AuthAPNSToken?
 
     /** @fn cancelWithError:
         @brief Cancels any pending `getTokenWithCallback:` request.
