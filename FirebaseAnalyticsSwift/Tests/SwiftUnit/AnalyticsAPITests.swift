@@ -16,7 +16,6 @@
 
 // MARK: This file is used to evaluate the experience of using Analytics APIs in Swift.
 
-import FirebaseAnalytics
 import Foundation
 
 final class AnalyticsAPITests {
