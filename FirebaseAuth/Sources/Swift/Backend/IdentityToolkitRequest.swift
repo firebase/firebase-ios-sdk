@@ -40,7 +40,7 @@ private let kIdentityPlatformStagingAPIHost =
   /** @property APIKey
    @brief Gets the client's API key used for the request.
    */
-  @objc public var APIKey: String
+  @objc(APIKey) public var apiKey: String
 
   /** @property tenantID
    @brief The tenant ID of the request. nil if none is available.
@@ -56,7 +56,7 @@ private let kIdentityPlatformStagingAPIHost =
   @objc public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
                     useIdentityPlatform: Bool = false, useStaging: Bool = false) {
     self.endpoint = endpoint
-    APIKey = requestConfiguration.apiKey
+    apiKey = requestConfiguration.apiKey
     _requestConfiguration = requestConfiguration
     _useIdentityPlatform = useIdentityPlatform
     _useStaging = useStaging
@@ -86,7 +86,7 @@ private let kIdentityPlatformStagingAPIHost =
         apiHostAndPathPrefix = kIdentityPlatformAPIHost
         apiProtocol = kHttpsProtocol
       }
-      urlString = "\(apiProtocol)//\(apiHostAndPathPrefix)/v2/\(endpoint)?key=\(APIKey)"
+      urlString = "\(apiProtocol)//\(apiHostAndPathPrefix)/v2/\(endpoint)?key=\(apiKey)"
 
     } else {
       if let emulatorHostAndPort = emulatorHostAndPort {
@@ -100,7 +100,7 @@ private let kIdentityPlatformStagingAPIHost =
         apiHostAndPathPrefix = kFirebaseAuthAPIHost
       }
       urlString =
-        "\(apiProtocol)//\(apiHostAndPathPrefix)/identitytoolkit/v3/relyingparty/\(endpoint)?key=\(APIKey)"
+        "\(apiProtocol)//\(apiHostAndPathPrefix)/identitytoolkit/v3/relyingparty/\(endpoint)?key=\(apiKey)"
     }
     return URL(string: urlString)!
   }
