@@ -57,7 +57,9 @@ import FirebaseFirestore
       let settings = db.settings
       settings
         .cacheSettings =
-        MemoryCacheSettings(garbageCollectorSettings: MemoryLRUGCSettings(sizeBytes: 2_000_000))
+        MemoryCacheSettings(
+          garbageCollectorSettings: MemoryLRUGCSettings(sizeBytes: 2_000_000)
+        )
       db.settings = settings
 
       try await db.document("coll/doc").setData(["foo": "bar"])
@@ -68,7 +70,8 @@ import FirebaseFirestore
     func testCannotGetDocumentWithMemoryEagerGCEnabled() async throws {
       let settings = db.settings
       settings
-        .cacheSettings = MemoryCacheSettings(garbageCollectorSettings: MemoryEagerGCSetting())
+        .cacheSettings =
+        MemoryCacheSettings(garbageCollectorSettings: MemoryEagerGCSetting())
       db.settings = settings
 
       try await db.document("coll/doc").setData(["foo": "bar"])

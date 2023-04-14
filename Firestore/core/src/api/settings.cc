@@ -261,8 +261,8 @@ void Settings::set_cache_size_bytes(int64_t value) {
 
 int64_t Settings::cache_size_bytes() const {
   if (cache_settings_) {
-    if (cache_settings_->kind_ == LocalCacheSettings::Kind::kPersistent) {
-      return static_cast<PersistentCacheSettings*>(cache_settings_.get())
+    if (cache_settings_->kind() == api::LocalCacheSettings::Kind::kPersistent) {
+      return static_cast<const PersistentCacheSettings*>(cache_settings_.get())
           ->size_bytes_;
     } else {
       auto* memory_cache_settings =
