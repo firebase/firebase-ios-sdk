@@ -39,7 +39,7 @@
     private let kTestVerificationCode = "verificationCode"
     private let kTestPhoneNumber = "55555555"
     private let kTestReceipt = "receipt"
-    private let kTestTimeout = "5"
+    private let kTestTimeout = "1"
     private let kTestSecret = "secret"
     private let kVerificationIDKey = "sessionInfo"
     private let kFakeEncodedFirebaseAppID = "app-1-123456789-ios-123abc456def"
@@ -275,11 +275,112 @@
       try internalFlow(function: #function, useClientID: true, reCAPTCHAfallback: false)
     }
 
+    /** @fn testSendVerificationCodeFailedRetry
+        @brief Tests failed retry after failing to send verification code.
+     */
+    func testSendVerificationCodeFailedRetry() throws {
+      try internalFlowRetry(function: #function)
+    }
+
+    /** @fn testSendVerificationCodeSuccessfulRetry
+        @brief Tests successful retry after failing to send verification code.
+     */
+    func testSendVerificationCodeSuccessfulRetry() throws {
+      try internalFlowRetry(function: #function, goodRetry: true)
+    }
+
+    private func internalFlowRetry(function: String, goodRetry: Bool = false) throws {
+      let function = function
+      initApp(function, useClientID: true, fakeToken: true)
+      let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
+      let provider = PhoneAuthProvider.provider(auth: auth)
+      let expectation = self.expectation(description: function)
+
+      // Fake push notification.
+      auth.appCredentialManager.fakeCredential = AuthAppCredential(
+        receipt: kTestReceipt,
+        secret: kTestSecret
+      )
+
+      // 1. Intercept, handle, and test three RPC calls.
+
+      let verifyClientRequestExpectation = self.expectation(description: "verifyClientRequest")
+      verifyClientRequestExpectation.expectedFulfillmentCount = 2
+      rpcIssuer?.verifyClientRequester = { request in
+        XCTAssertEqual(request.appToken, "21402324255E")
+        XCTAssertFalse(request.isSandbox)
+        verifyClientRequestExpectation.fulfill()
+        kAuthGlobalWorkQueue.async {
+          do {
+            // Response for the underlying VerifyClientRequest RPC call.
+            try self.rpcIssuer?.respond(withJSON: [
+              "receipt": self.kTestReceipt,
+              "suggestedTimeout": self.kTestTimeout,
+            ])
+          } catch {
+            XCTFail("Failure sending response: \(error)")
+          }
+        }
+      }
+
+      let verifyRequesterExpectation = self.expectation(description: "verifyRequester")
+      verifyRequesterExpectation.expectedFulfillmentCount = 2
+      var visited = false
+      rpcIssuer?.verifyRequester = { request in
+        XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
+
+        XCTAssertEqual(request.appCredential?.receipt, self.kTestReceipt)
+        XCTAssertEqual(request.appCredential?.secret, self.kTestSecret)
+
+        verifyRequesterExpectation.fulfill()
+        do {
+          if visited == false || goodRetry == false {
+            // First Response for the underlying SendVerificationCode RPC call.
+            try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_APP_CREDENTIAL")
+            visited = true
+          } else {
+            // Second Response for the underlying SendVerificationCode RPC call.
+            try self.rpcIssuer?
+              .respond(withJSON: [self.kVerificationIDKey: self.kTestVerificationID])
+          }
+        } catch {
+          XCTFail("Failure sending response: \(error)")
+        }
+      }
+
+      // Use fake authURLPresenter so we can test the parameters that get sent to it.
+      PhoneAuthProviderTests.auth?.authURLPresenter =
+        FakePresenter(
+          urlString: PhoneAuthProviderTests.kFakeRedirectURLStringWithReCAPTCHAToken,
+          clientID: PhoneAuthProviderTests.kFakeClientID,
+          firebaseAppID: nil,
+          errorTest: false,
+          presenterError: nil
+        )
+
+      // 2. After setting up the fakes and parameters, call `verifyPhoneNumber`.
+      provider
+        .verifyPhoneNumber(kTestPhoneNumber, uiDelegate: nil) { verificationID, error in
+
+          // 8. After the response triggers the callback in the FakePresenter, verify the callback.
+          XCTAssertTrue(Thread.isMainThread)
+          if goodRetry {
+            XCTAssertNil(error)
+            XCTAssertEqual(verificationID, self.kTestVerificationID)
+          } else {
+            XCTAssertNil(verificationID)
+            XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.internalError.rawValue)
+          }
+          expectation.fulfill()
+        }
+      waitForExpectations(timeout: 5)
+    }
+
     private func internalFlow(function: String,
                               useClientID: Bool = false,
                               reCAPTCHAfallback: Bool = false) throws {
       let function = function
-      initApp(function, useClientID: useClientID, reCAPTCHAfallback: true, fakeToken: true)
+      initApp(function, useClientID: useClientID, fakeToken: true)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
       let expectation = self.expectation(description: function)
@@ -289,6 +390,8 @@
         receipt: kTestReceipt,
         secret: reCAPTCHAfallback ? nil : kTestSecret
       )
+
+      // 1. Intercept, handle, and test three RPC calls.
 
       let verifyClientRequestExpectation = self.expectation(description: "verifyClientRequest")
       rpcIssuer?.verifyClientRequester = { request in
@@ -358,7 +461,7 @@
         )
       let uiDelegate = reCAPTCHAfallback ? FakeUIDelegate() : nil
 
-      // 2. After setting up the parameters, call `verifyPhoneNumber`.
+      // 2. After setting up the fakes and parameters, call `verifyPhoneNumber`.
       provider
         .verifyPhoneNumber(kTestPhoneNumber, uiDelegate: uiDelegate) { verificationID, error in
 
@@ -369,7 +472,7 @@
           expectation.fulfill()
         }
 
-      waitForExpectations(timeout: 10)
+      waitForExpectations(timeout: 5)
     }
 
     /** @fn testVerifyClient
@@ -388,15 +491,36 @@
                                     presenterError: Error? = nil) throws {
       initApp(function, useClientID: useClientID, bothClientAndAppID: bothClientAndAppID,
               testMode: testMode,
-              reCAPTCHAfallback: reCAPTCHAfallback,
               forwardingNotification: forwardingNotification)
       let auth = try XCTUnwrap(PhoneAuthProviderTests.auth)
       let provider = PhoneAuthProvider.provider(auth: auth)
       let expectation = self.expectation(description: function)
-      var group = DispatchGroup()
+
+      if !reCAPTCHAfallback {
+        // Fake out appCredentialManager flow.
+        auth.appCredentialManager.credential = AuthAppCredential(receipt: kTestReceipt,
+                                                                 secret: kTestSecret)
+      }
+
+      // 1. Intercept, handle, and test the projectConfiguration RPC calls.
+
       if reCAPTCHAfallback {
-        // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-        group = createGroup()
+        let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+        rpcIssuer?.projectConfigRequester = { request in
+          XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
+          projectConfigExpectation.fulfill()
+          kAuthGlobalWorkQueue.async {
+            do {
+              // Response for the underlying VerifyClientRequest RPC call.
+              try self.rpcIssuer?.respond(
+                withJSON: ["projectId": "kFakeProjectID",
+                           "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
+              )
+            } catch {
+              XCTFail("Failure sending response: \(error)")
+            }
+          }
+        }
       }
 
       if errorURLString == nil, presenterError == nil {
@@ -458,19 +582,7 @@
           }
           expectation.fulfill()
         }
-      if reCAPTCHAfallback {
-        // 3. Wait for the fake rpcIssuer to leave the group.
-        group.wait()
-      }
 
-      // 4. After the fake rpcIssuer leaves the group, trigger the fake network response.
-      if reCAPTCHAfallback {
-        // Response for the underlying GetProjectConfig RPC call.
-        try rpcIssuer?.respond(
-          withJSON: ["projectId": "kFakeProjectID",
-                     "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
-        )
-      }
       waitForExpectations(timeout: 5)
     }
 
@@ -478,7 +590,6 @@
                          useClientID: Bool = false,
                          bothClientAndAppID: Bool = false,
                          testMode: Bool = false,
-                         reCAPTCHAfallback: Bool = false,
                          forwardingNotification: Bool = true,
                          fakeToken: Bool = false) {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
@@ -508,10 +619,6 @@
           let settings = AuthSettings()
           settings.isAppVerificationDisabledForTesting = true
           auth.settings = settings
-        } else if !reCAPTCHAfallback {
-          // Fake out appCredentialManager flow.
-          auth.appCredentialManager.credential = AuthAppCredential(receipt: kTestReceipt,
-                                                                   secret: kTestSecret)
         }
         auth.notificationManager.immediateCallbackForTestFaking = { return forwardingNotification }
         auth.mainBundleUrlTypes = [["CFBundleURLSchemes": [scheme]]]

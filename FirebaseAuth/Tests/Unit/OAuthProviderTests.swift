@@ -260,9 +260,10 @@ import FirebaseCore
       if !OAuthProviderTests.testEmulator {
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
         rpcIssuer?.projectConfigRequester = { request in
+          // 3. Validate the created Request instance.
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
-          // 4. Validate the created Request instance.
           XCTAssertEqual(request.endpoint, "getProjectConfig")
+          // 4. Fulfill the expectation.
           projectConfigExpectation.fulfill()
           kAuthGlobalWorkQueue.async {
             do {
