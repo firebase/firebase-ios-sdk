@@ -256,11 +256,25 @@ import FirebaseCore
       // Use fake authURLPresenter so we can test the parameters that get sent to it.
       OAuthProviderTests.auth?.authURLPresenter = FakePresenter()
 
-      // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
-      let group = DispatchGroup()
+      // 1. Setup fakes and parameters for getCredential.
       if !OAuthProviderTests.testEmulator {
-        rpcIssuer?.group = group
-        group.enter()
+        let projectConfigExpectation = self.expectation(description: "projectConfiguration")
+        rpcIssuer?.projectConfigRequester = { request in
+          XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
+          // 4. Validate the created Request instance.
+          XCTAssertEqual(request.endpoint, "getProjectConfig")
+          projectConfigExpectation.fulfill()
+          kAuthGlobalWorkQueue.async {
+            do {
+              // 5. Send the response from the fake backend.
+              try self.rpcIssuer?
+                .respond(withJSON: ["authorizedDomains": [OAuthProviderTests
+                    .kFakeAuthorizedDomain]])
+            } catch {
+              XCTFail("Failure sending response: \(error)")
+            }
+          }
+        }
       }
 
       class FakePresenter: NSObject, FIRAuthWebViewControllerDelegate {
@@ -414,19 +428,6 @@ import FirebaseCore
           )
         }
         expectation.fulfill()
-      }
-      if !OAuthProviderTests.testEmulator {
-        // 3. Wait for fake rpcIssuer to leave the group.
-        group.wait()
-
-        // 4. After the fake rpcIssuer leaves the group, validate the created Request instance.
-        let request = try XCTUnwrap(rpcIssuer?.request as? GetProjectConfigRequest)
-        XCTAssertEqual(request.endpoint, "getProjectConfig")
-        XCTAssertEqual(request.apiKey, OAuthProviderTests.kFakeAPIKey)
-
-        // 5. Send the response from the fake backend.
-        _ = try rpcIssuer?
-          .respond(withJSON: ["authorizedDomains": [OAuthProviderTests.kFakeAuthorizedDomain]])
       }
       waitForExpectations(timeout: 5)
     }
