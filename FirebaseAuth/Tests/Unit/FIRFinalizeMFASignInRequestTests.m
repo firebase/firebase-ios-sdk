@@ -34,15 +34,30 @@ static NSString *const kTestAPIKey = @"APIKey";
  */
 static NSString *const kTestFirebaseAppID = @"appID";
 
+/** @var kExpectedAPIURL
+    @brief The expected URL for the test calls.
+ */
 static NSString *const kExpectedAPIURL =
     @"https://identitytoolkit.googleapis.com/v2/accounts/mfaSignIn:finalize?key=APIKey";
 
+/** @var kMfaPendingCredential
+    @brief Fake MFA Pending Credential for tesing.
+ */
 static NSString *const kMfaPendingCredential = @"mfaPendingCredential";
 
+/** @var kVerificationCode
+    @brief Fake totp verification code for tesing.
+ */
 static NSString *const kVerificationCode = @"verificationCode";
 
+/** @var kMfaEnrollmentID
+    @brief Fake MFA Enrollment ID for tesing.
+ */
 static NSString *const kMfaEnrollmentID = @"mfaEnrollmentId";
 
+/** @var kTotpVerificationInfo
+    @brief Fake TOTP verification info for tesing.
+ */
 static NSString *const kTotpVerificationInfo = @"totpVerificationInfo";
 
 /** @class FIRFinalizeMFASignInRequestTest
