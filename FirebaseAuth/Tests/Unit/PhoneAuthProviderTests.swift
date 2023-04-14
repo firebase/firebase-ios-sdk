@@ -23,9 +23,6 @@
 
   class PhoneAuthProviderTests: RPCBaseTests {
     static let kFakeAuthorizedDomain = "test.firebaseapp.com"
-    private let kFakeAccessToken = "fakeAccessToken"
-    private let kFakeIDToken = "fakeIDToken"
-    private let kFakeProviderID = "fakeProviderID"
     static let kFakeAPIKey = "asdfghjkl"
     static let kFakeEmulatorHost = "emulatorhost"
     static let kFakeEmulatorPort = 12345
@@ -310,16 +307,14 @@
         XCTAssertEqual(request.appToken, "21402324255E")
         XCTAssertFalse(request.isSandbox)
         verifyClientRequestExpectation.fulfill()
-        kAuthGlobalWorkQueue.async {
-          do {
-            // Response for the underlying VerifyClientRequest RPC call.
-            try self.rpcIssuer?.respond(withJSON: [
-              "receipt": self.kTestReceipt,
-              "suggestedTimeout": self.kTestTimeout,
-            ])
-          } catch {
-            XCTFail("Failure sending response: \(error)")
-          }
+        do {
+          // Response for the underlying VerifyClientRequest RPC call.
+          try self.rpcIssuer?.respond(withJSON: [
+            "receipt": self.kTestReceipt,
+            "suggestedTimeout": self.kTestTimeout,
+          ])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
         }
       }
 
@@ -398,19 +393,16 @@
         XCTAssertEqual(request.appToken, "21402324255E")
         XCTAssertFalse(request.isSandbox)
         verifyClientRequestExpectation.fulfill()
-        kAuthGlobalWorkQueue.async {
-          do {
-            // Response for the underlying VerifyClientRequest RPC call.
-            try self.rpcIssuer?.respond(withJSON: [
-              "receipt": self.kTestReceipt,
-              "suggestedTimeout": self.kTestTimeout,
-            ])
-          } catch {
-            XCTFail("Failure sending response: \(error)")
-          }
+        do {
+          // Response for the underlying VerifyClientRequest RPC call.
+          try self.rpcIssuer?.respond(withJSON: [
+            "receipt": self.kTestReceipt,
+            "suggestedTimeout": self.kTestTimeout,
+          ])
+        } catch {
+          XCTFail("Failure sending response: \(error)")
         }
       }
-
       if reCAPTCHAfallback {
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
         rpcIssuer?.projectConfigRequester = { request in
@@ -503,22 +495,19 @@
       }
 
       // 1. Intercept, handle, and test the projectConfiguration RPC calls.
-
       if reCAPTCHAfallback {
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
         rpcIssuer?.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
           projectConfigExpectation.fulfill()
-          kAuthGlobalWorkQueue.async {
-            do {
-              // Response for the underlying VerifyClientRequest RPC call.
-              try self.rpcIssuer?.respond(
-                withJSON: ["projectId": "kFakeProjectID",
-                           "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
-              )
-            } catch {
-              XCTFail("Failure sending response: \(error)")
-            }
+          do {
+            // Response for the underlying VerifyClientRequest RPC call.
+            try self.rpcIssuer?.respond(
+              withJSON: ["projectId": "kFakeProjectID",
+                         "authorizedDomains": [PhoneAuthProviderTests.kFakeAuthorizedDomain]]
+            )
+          } catch {
+            XCTFail("Failure sending response: \(error)")
           }
         }
       }
@@ -582,7 +571,6 @@
           }
           expectation.fulfill()
         }
-
       waitForExpectations(timeout: 5)
     }
 
