@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Add new cache config API to customize SDK cache settings.
+
 # 10.8.0
 - [feature] Change Firestore's Swift Package Manager distribution from source
   to binary to reduce the time it takes to add the Firebase package and to

@@ -18,6 +18,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRLoadBundleTask+Internal.h"
+#import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
@@ -200,7 +201,7 @@ using firebase::firestore::util::MakeString;
 
 - (void)testLoadedDocumentsShouldNotBeGarbageCollectedRightAway {
   auto settings = [self.db settings];
-  [settings setPersistenceEnabled:FALSE];
+  [settings setCacheSettings:[[FIRMemoryCacheSettings alloc] init]];
   [self.db setSettings:settings];
 
   auto bundle = [self defaultBundle];
