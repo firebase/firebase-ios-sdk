@@ -460,7 +460,6 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser { user in
       do {
         let group = self.createGroup()
-
         let profileChange = user.createProfileChangeRequest()
         profileChange.photoURL = URL(string: self.kTestPhotoURL)
         profileChange.displayName = self.kNewDisplayName
@@ -1342,46 +1341,48 @@ class UserTests: RPCBaseTests {
     let kRefreshToken = "fakeRefreshToken"
     setFakeSecureTokenService(fakeAccessToken: fakeAccessToken)
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
-
-    do {
-      try UserTests.auth?.signOut()
-      UserTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
-        // 4. After the response triggers the callback, verify the returned result.
-        XCTAssertTrue(Thread.isMainThread)
-        guard let user = authResult?.user else {
-          XCTFail("authResult.user is missing")
-          return
-        }
-        XCTAssertEqual(user.refreshToken, kRefreshToken)
-        XCTAssertFalse(user.isAnonymous)
-        XCTAssertEqual(user.email, self.kEmail)
-        guard let additionalUserInfo = authResult?.additionalUserInfo else {
-          XCTFail("authResult.additionalUserInfo is missing")
-          return
-        }
-        XCTAssertFalse(additionalUserInfo.isNewUser)
-        XCTAssertEqual(additionalUserInfo.providerID, EmailAuthProvider.id)
-        XCTAssertNil(error)
-        completion(user)
-      }
-      group.wait()
-
-      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
-      XCTAssertEqual(request.email, kEmail)
-      XCTAssertEqual(request.password, kFakePassword)
+    rpcIssuer?.verifyPasswordRequester = { request in
+      // 2. Validate the created Request instance.
+      XCTAssertEqual(request.email, self.kEmail)
+      XCTAssertEqual(request.password, self.kFakePassword)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertTrue(request.returnSecureToken)
-
-      // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
-                                        "isNewUser": true,
-                                        "refreshToken": kRefreshToken])
-
+      do {
+        // 3. Send the response from the fake backend.
+        try self.rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
+                                               "isNewUser": true,
+                                               "refreshToken": kRefreshToken])
+      } catch {
+        XCTFail("Failure sending response: \(error)")
+      }
+    }
+    // 1. After setting up fakes, sign out and sign in.
+    do {
+      try UserTests.auth?.signOut()
     } catch {
-      XCTFail("Throw in \(#function): \(error)")
+      XCTFail("Sign out failed: \(error)")
+      return
+    }
+    UserTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
+      // 4. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      guard let user = authResult?.user else {
+        XCTFail("authResult.user is missing")
+        return
+      }
+      XCTAssertEqual(user.refreshToken, kRefreshToken)
+      XCTAssertFalse(user.isAnonymous)
+      XCTAssertEqual(user.email, self.kEmail)
+      guard let additionalUserInfo = authResult?.additionalUserInfo else {
+        XCTFail("authResult.additionalUserInfo is missing")
+        return
+      }
+      XCTAssertFalse(additionalUserInfo.isNewUser)
+      XCTAssertEqual(additionalUserInfo.providerID, EmailAuthProvider.id)
+      XCTAssertNil(error)
+      // Clear the password Requester to avoid being called again by reauthenticate tests.
+      self.rpcIssuer?.verifyPasswordRequester = nil
+      completion(user)
     }
   }
 
