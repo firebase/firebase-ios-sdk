@@ -556,7 +556,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [self verifyAllMocks];
 }
 
-- (void)testLimitedUseToken {
+- (void)testLimitedUseTokenSuccess {
   NSArray * /*[expectedToken, storeTokenPromise]*/ expectedTokenAndPromise =
       [self expectLimitedUseTokenRequestFromAppCheckProvider];
   FIRAppCheckToken *expectedToken = expectedTokenAndPromise.firstObject;
@@ -578,7 +578,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [self verifyAllMocks];
 }
 
-#pragma mark - Token update notificationsFIRAppCheckAppCheckTokenDidChangeNotification' from any object
+#pragma mark - Token update notifications
 
 - (void)testTokenUpdateNotificationKeys {
   XCTAssertEqualObjects([self.appCheck tokenDidChangeNotificationName],

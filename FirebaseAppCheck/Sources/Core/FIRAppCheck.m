@@ -327,7 +327,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       // Kick off a new operation only when there is not an ongoing one.
       self.ongoingLimitedUseTokenPromise =
           [self limitedUseToken]
-
               // Release the ongoing operation promise on completion.
               .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
                 self.ongoingLimitedUseTokenPromise = nil;
