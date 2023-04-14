@@ -63,7 +63,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 	if (_phoneEnrollmentInfo) {
 		postBody[@"phoneEnrollmentInfo"] = [_phoneEnrollmentInfo dictionary];
 	} else if (_TOTPEnrollmentInfo) {
-		postBody[@"TOTPEnrollmentInfo"] = [_TOTPEnrollmentInfo dictionary];
+		postBody[@"totpEnrollmentInfo"] = [_TOTPEnrollmentInfo dictionary];
 	}
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;

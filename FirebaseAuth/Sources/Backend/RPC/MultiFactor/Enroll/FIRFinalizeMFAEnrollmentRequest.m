@@ -68,7 +68,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 	if (_phoneVerificationInfo) {
 		postBody[@"phoneVerificationInfo"] = [_phoneVerificationInfo dictionary];
 	} else if (_TOTPVerificationInfo) {
-		postBody[@"TOTPVerificationInfo"] = [_TOTPVerificationInfo dictionary];
+		postBody[@"totpVerificationInfo"] = [_TOTPVerificationInfo dictionary];
 	}
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;

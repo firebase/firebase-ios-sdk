@@ -26,8 +26,8 @@
   if (dictionary[@"phoneSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"phoneSessionInfo"];
     _phoneSessionInfo = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
-  } else if (dictionary[@"TOTPSessionInfo"] != nil) {
-    NSDictionary *data = dictionary[@"TOTPSessionInfo"];
+  } else if (dictionary[@"totpSessionInfo"] != nil) {
+    NSDictionary *data = dictionary[@"totpSessionInfo"];
     _TOTPSessionInfo = [[FIRAuthProtoStartMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
   } else {
     return NO;

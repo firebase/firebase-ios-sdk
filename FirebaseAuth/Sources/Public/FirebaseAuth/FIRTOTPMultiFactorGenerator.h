@@ -32,17 +32,18 @@ NS_SWIFT_NAME(TOTPMultiFactorGenerator)
 /** @fn generateSecretWithMultiFactorSession
 		@brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a QRCode URL or inputting into a TOTP App. This method uses the auth instance corresponding to the user in the multiFactorSession.
 		@param session The multiFactorSession instance.
+		@param completion Completion block
 */
 
-+ (FIRTOTPSecret *) generateSecretWithMultiFactorSession: (FIRMultiFactorSession *)session;
++ (void)generateSecretWithMultiFactorSession:(FIRMultiFactorSession *)session completion:(void (^)(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error))completion;
 
 /** @fn assertionForEnrollmentWithSecret:
 		@brief Initializes the MFA assertion to confirm ownership of the TOTP second factor. This assertion is used to complete enrollment of TOTP as a second factor.
 		@param secret The TOTP secret.
 		@param oneTimePassword one time password string.
+		@param completion completion block
 */
-+ (FIRTOTPMultiFactorAssertion *)assertionForEnrollmentWithSecret: (FIRTOTPSecret *)secret
-																									oneTimePassword: (NSString *)oneTimePassword;
++ (void)assertionForEnrollmentWithSecret:(FIRTOTPSecret *)secret oneTimePassword:(NSString *)oneTimePassword completion:(void (^)(FIRTOTPMultiFactorAssertion *_Nullable, NSError *_Nullable))completion;
 
 /** @fn assertionForSignInWithenrollmentID:
 		@brief Initializes the MFA assertion to confirm ownership of the totp second factor. This assertion is used to complete signIn with TOTP as a second factor.

@@ -28,8 +28,8 @@
   if(dictionary[@"phoneAuthInfo"] != nil) {
     NSDictionary* data = dictionary[@"phoneAuthInfo"];
     _phoneAuthInfo = [[FIRAuthProtoFinalizeMFAPhoneResponseInfo alloc] initWithDictionary:data];
-  } else if(dictionary[@"TOTPAuthInfo"] != nil) {
-    NSDictionary* data = dictionary[@"TOTPAuthInfo"];
+  } else if(dictionary[@"totpAuthInfo"] != nil) {
+    NSDictionary* data = dictionary[@"totpAuthInfo"];
     _TOTPAuthInfo = [[FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
   }
   return YES;

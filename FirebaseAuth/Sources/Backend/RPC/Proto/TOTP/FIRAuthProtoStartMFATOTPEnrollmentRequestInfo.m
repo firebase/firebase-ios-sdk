@@ -20,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthProtoStartMFATOTPEnrollmentRequestInfo
 
+- (NSDictionary *)dictionary {
+	return @{};
+}
 @end
 
 NS_ASSUME_NONNULL_END

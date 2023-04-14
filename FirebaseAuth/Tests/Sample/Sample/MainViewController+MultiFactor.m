@@ -116,31 +116,49 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)TOTPEnroll {
-	FIRUser *user = FIRAuth.auth.currentUser;
-	if (!user) {
-		[self logFailure:@"Please sign in first." error:nil];
-		return;
-	}
-	[user.multiFactor getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
-		FIRTOTPSecret *secret = [FIRTOTPMultiFactorGenerator generateSecretWithMultiFactorSession:session];
-		NSString *accountName = user.email;
-		NSString *issuer = FIRAuth.auth.app.name;
-		NSString *url = [secret generateQRCodeURLWithAccountName:accountName
-																											issuer:issuer];
-		[self showTextInputPromptWithMessage:@"Enter TOTP Code" completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword){
-			FIRTOTPMultiFactorAssertion *assertion = [FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:oneTimePassword];
-			[self showTextInputPromptWithMessage:@"Display name"
-													 completionBlock:^(BOOL userPressedOK,
-																						 NSString *_Nullable displayName) {
-				[user.multiFactor enrollWithAssertion:assertion
-																	displayName:displayName
-																	 completion:^(NSError *_Nullable error) {
-					
+		FIRUser *user = FIRAuth.auth.currentUser;
+		if (!user) {
+				[self logFailure:@"Please sign in first." error:nil];
+				return;
+		}
+		[user.multiFactor getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
+				if (error) {
+						[self logFailure:@"Error getting multi-factor session." error:error];
+						return;
+				}
+				[FIRTOTPMultiFactorGenerator generateSecretWithMultiFactorSession:session completion:^(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error) {
+						if (error) {
+								[self logFailure:@"Error generating TOTP secret." error:error];
+								return;
+						}
+						NSString *accountName = user.email;
+						NSString *issuer = FIRAuth.auth.app.name;
+						NSString *url = [secret generateQRCodeURLWithAccountName:accountName issuer:issuer];
+						[self showTextInputPromptWithMessage:[NSString stringWithFormat:@"TOTP URL is %@, enter code:", url] completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword){
+								if (!userPressedOK) {
+										return;
+								}
+								[FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:oneTimePassword completion:^(FIRTOTPMultiFactorAssertion *_Nullable assertion, NSError *_Nullable error) {
+										if (error) {
+												[self logFailure:@"Error generating TOTP assertion." error:error];
+												return;
+										}
+										[self showTextInputPromptWithMessage:@"Display name" completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+												if (!userPressedOK) {
+														return;
+												}
+												[user.multiFactor enrollWithAssertion:assertion displayName:displayName completion:^(NSError *_Nullable error) {
+														if (error) {
+																[self logFailure:@"Error enrolling multi-factor." error:error];
+																return;
+														}
+														[self logSuccess:@"Successfully enrolled in multi-factor."];
+												}];
+										}];
+								}];
+						}];
 				}];
-			}];
 		}];
-		
-	}];
 }
 
 - (void)TOTPUnenroll {
