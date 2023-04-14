@@ -100,7 +100,9 @@
         return
       }
       callbacksByReceipt.removeValue(forKey: receipt)
-      if let credential {
+      if let fakeCredential {
+        callback(fakeCredential)
+      } else if let credential {
         callback(credential)
       } else {
         callback(AuthAppCredential(receipt: receipt, secret: nil))
@@ -121,5 +123,8 @@
         @brief A map from pending receipts to callbacks.
      */
     private var callbacksByReceipt: [String: (AuthAppCredential) -> Void] = [:]
+
+    // Only for testing.
+    var fakeCredential: AuthAppCredential?
   }
 #endif

@@ -93,7 +93,7 @@ class AuthTests: RPCBaseTests {
     let request = try XCTUnwrap(rpcIssuer?.request as? CreateAuthURIRequest)
     XCTAssertEqual(request.identifier, kEmail)
     XCTAssertEqual(request.endpoint, "createAuthUri")
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
     try rpcIssuer?.respond(withJSON: ["signinMethods": allSignInMethods])
@@ -168,7 +168,7 @@ class AuthTests: RPCBaseTests {
     let request = try XCTUnwrap(rpcIssuer?.request as? EmailLinkSignInRequest)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.oobCode, fakeCode)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
     try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
@@ -244,7 +244,7 @@ class AuthTests: RPCBaseTests {
     let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.password, kFakePassword)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
@@ -307,7 +307,7 @@ class AuthTests: RPCBaseTests {
     let request = try XCTUnwrap(rpcIssuer?.request as? ResetPasswordRequest)
     XCTAssertEqual(request.oobCode, kFakeOobCode)
     XCTAssertEqual(request.updatedPassword, kFakePassword)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
     try rpcIssuer?.respond(withJSON: [:])
@@ -367,7 +367,7 @@ class AuthTests: RPCBaseTests {
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? ResetPasswordRequest)
     XCTAssertEqual(request.oobCode, kFakeOobCode)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
     try rpcIssuer?.respond(withJSON: ["email": kEmail,
@@ -421,7 +421,7 @@ class AuthTests: RPCBaseTests {
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? SetAccountInfoRequest)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
     try rpcIssuer?.respond(withJSON: [:])
@@ -474,7 +474,7 @@ class AuthTests: RPCBaseTests {
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? ResetPasswordRequest)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.oobCode, kFakeOobCode)
 
     // 3. Send the response from the fake backend.
@@ -541,7 +541,7 @@ class AuthTests: RPCBaseTests {
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? SignUpNewUserRequest)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertNil(request.email)
     XCTAssertNil(request.password)
     XCTAssertTrue(request.returnSecureToken)
@@ -612,7 +612,7 @@ class AuthTests: RPCBaseTests {
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? VerifyCustomTokenRequest)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.token, kCustomToken)
     XCTAssertTrue(request.returnSecureToken)
 
@@ -682,7 +682,7 @@ class AuthTests: RPCBaseTests {
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? SignUpNewUserRequest)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.password, kFakePassword)
     XCTAssertTrue(request.returnSecureToken)
@@ -777,7 +777,7 @@ class AuthTests: RPCBaseTests {
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? GetOOBConfirmationCodeRequest)
     XCTAssertEqual(request.email, kEmail)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
     _ = try rpcIssuer?.respond(withJSON: [:])
@@ -827,7 +827,7 @@ class AuthTests: RPCBaseTests {
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
     let request = try XCTUnwrap(rpcIssuer?.request as? GetOOBConfirmationCodeRequest)
     XCTAssertEqual(request.email, kEmail)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.continueURL, kContinueURL)
     XCTAssertTrue(request.handleCodeInApp)
 
@@ -930,7 +930,7 @@ class AuthTests: RPCBaseTests {
     let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.password, kFakePassword)
-    XCTAssertEqual(request.APIKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.

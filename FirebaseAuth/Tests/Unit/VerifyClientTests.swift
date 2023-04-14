@@ -73,7 +73,7 @@ class VerifyClientTests: RPCBaseTests {
       rpcError = error as? NSError
     }
 
-    _ = try rpcIssuer?.respond(withJSON: [
+    try rpcIssuer?.respond(withJSON: [
       kReceiptKey: kFakeReceipt,
       kSuggestedTimeOutKey: kFakeSuggestedTimeout,
     ])
