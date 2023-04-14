@@ -192,7 +192,6 @@ class Target {
   }
   friend class Query;
   friend class remote::Serializer;
-  friend class bundle::BundleSerializer;
   friend class local::LevelDbIndexManager;
 
   /** Returns the field filters that target the given field path. */
