@@ -556,13 +556,22 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [self verifyAllMocks];
 }
 
-- (void)testLimitedUseTokenSuccess {
-  NSArray * /*[expectedToken, storeTokenPromise]*/ expectedTokenAndPromise =
-      [self expectLimitedUseTokenRequestFromAppCheckProvider];
-  FIRAppCheckToken *expectedToken = expectedTokenAndPromise.firstObject;
-  FBLPromise *storeTokenPromise = expectedTokenAndPromise.lastObject;
-  XCTestExpectation *notificationExpectation =
-      [self tokenUpdateNotificationWithExpectedToken:expectedToken.token isInverted:YES];
+- (void)testLimitedUseTokenWithSuccess {
+  // 1. Don't Expect token to be requested from storage.
+  OCMReject([self.mockStorage getToken]);
+
+  // 2. Expect token requested from app check provider.
+  FIRAppCheckToken *expectedToken = [self validToken];
+  id completionArg = [OCMArg invokeBlockWithArgs:expectedToken, [NSNull null], nil];
+  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
+
+  // 3. Don't expect token requested from app check provider.
+  OCMReject([self.mockStorage setToken:expectedToken]);
+
+  // 4. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""
+                                                                                   isInverted:YES];
+  // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
 
   [self.appCheck
@@ -572,8 +581,37 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
         XCTAssertEqualObjects(token.token, expectedToken.token);
         XCTAssertNil(error);
       }];
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
+  [self verifyAllMocks];
+}
 
-  [storeTokenPromise fulfill:expectedToken];
+- (void)testLimitedUseToken_WhenTokenGenerationErrors {
+  // 1. Don't Expect token to be requested from storage.
+  OCMReject([self.mockStorage getToken]);
+
+  // 2. Expect token requested from app check provider.
+  NSError *providerError = [FIRAppCheckErrorUtil keychainErrorWithError:[self internalError]];
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], providerError, nil];
+  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
+
+  // 3. Don't expect token requested from app check provider.
+  OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
+
+  // 4. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""
+                                                                                   isInverted:YES];
+  // 5. Expect token request to be completed.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+
+  [self.appCheck
+      limitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [getTokenExpectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertNil(token.token);
+        XCTAssertEqualObjects(error, providerError);
+        XCTAssertEqualObjects(error.domain, FIRAppCheckErrorDomain);
+      }];
+
   [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   [self verifyAllMocks];
 }
@@ -1024,23 +1062,6 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   // 3.2. Stub storage set token method.
   OCMExpect([self.mockStorage setToken:expectedToken]).andReturn(storeTokenPromise);
 
-  return @[ expectedToken, storeTokenPromise ];
-}
-
-- (NSArray *)expectLimitedUseTokenRequestFromAppCheckProvider {
-  // 1. Don't expect token to be requested from storage.
-  OCMReject([self.mockStorage getToken]);
-
-  // 2. Expect token requested from app check provider.
-  FIRAppCheckToken *expectedToken = [self validToken];
-  id completionArg = [OCMArg invokeBlockWithArgs:expectedToken, [NSNull null], nil];
-  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
-
-  // 3. Don't expect new token to be stored.
-  // 3.1. Create a pending promise to resolve later.
-  FBLPromise<FIRAppCheckToken *> *storeTokenPromise = [FBLPromise pendingPromise];
-  // 3.2. Stub storage set token method.
-  OCMReject([self.mockStorage setToken:expectedToken]);
   return @[ expectedToken, storeTokenPromise ];
 }
 
