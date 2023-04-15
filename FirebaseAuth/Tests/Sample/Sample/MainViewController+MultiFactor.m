@@ -20,9 +20,8 @@
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import <FirebaseAuth/FIRMultiFactorInfo.h>
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorGenerator.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
+#import <FirebaseAuth/FIRTOTPMultiFactorGenerator.h>
+#import <FirebaseAuth/FIRTOTPMultiFactorAssertion.h>
 #import "MainViewController+Internal.h"
 #import <FirebaseCore/FIRApp.h>
 
@@ -133,30 +132,33 @@ NS_ASSUME_NONNULL_BEGIN
 						}
 						NSString *accountName = user.email;
 						NSString *issuer = FIRAuth.auth.app.name;
-						NSString *url = [secret generateQRCodeURLWithAccountName:accountName issuer:issuer];
-						[self showTextInputPromptWithMessage:[NSString stringWithFormat:@"TOTP URL is %@, enter code:", url] completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword){
-								if (!userPressedOK) {
-										return;
-								}
-								[FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:oneTimePassword completion:^(FIRTOTPMultiFactorAssertion *_Nullable assertion, NSError *_Nullable error) {
-										if (error) {
-												[self logFailure:@"Error generating TOTP assertion." error:error];
-												return;
-										}
-										[self showTextInputPromptWithMessage:@"Display name" completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
-												if (!userPressedOK) {
+						dispatch_async(dispatch_get_main_queue(), ^{
+							NSString *url = [secret generateQRCodeURLWithAccountName:accountName issuer:issuer];
+							[self showQRCodePromptWithTextInput:@"Scan this QR Code and enter OTP:"
+																		 qrCodeString:url
+																	completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword) {
+										[FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:oneTimePassword completion:^(FIRTOTPMultiFactorAssertion *_Nullable assertion, NSError *_Nullable error) {
+												if (error) {
+														[self logFailure:@"Error generating TOTP assertion." error:error];
 														return;
 												}
-												[user.multiFactor enrollWithAssertion:assertion displayName:displayName completion:^(NSError *_Nullable error) {
-														if (error) {
-																[self logFailure:@"Error enrolling multi-factor." error:error];
-																return;
-														}
-														[self logSuccess:@"Successfully enrolled in multi-factor."];
-												}];
+												dispatch_async(dispatch_get_main_queue(), ^{
+														[self showTextInputPromptWithMessage:@"Display name" completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+																if (!userPressedOK) {
+																		return;
+																}
+																[user.multiFactor enrollWithAssertion:assertion displayName:displayName completion:^(NSError *_Nullable error) {
+																		if (error) {
+																				[self logFailure:@"Error enrolling multi-factor." error:error];
+																				return;
+																		}
+																		[self logSuccess:@"Successfully enrolled in multi-factor."];
+																}];
+														}];
+												});
 										}];
 								}];
-						}];
+						});
 				}];
 		}];
 }

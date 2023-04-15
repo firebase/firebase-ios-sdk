@@ -30,4 +30,4 @@ to obtain such an id.
 */
 
 #define KFACEBOOK_APP_ID 189710277009416
-#define KCONTINUE_URL $KCONTINUE_URL
+#define KCONTINUE_URL @""
