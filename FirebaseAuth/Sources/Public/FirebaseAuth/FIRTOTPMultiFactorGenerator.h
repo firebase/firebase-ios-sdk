@@ -15,9 +15,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "FIRMultiFactorSession.h"
 #import "FIRTOTPSecret.h"
-#import "FIRTOTPMultiFactorAssertion.h"
+#import "FIRMultiFactorSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

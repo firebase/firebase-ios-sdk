@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
     dict[@"sessionInfo"] = _sessionInfo;
   }
   if (_code) {
-    dict[@"code"] = _code;
+    dict[@"verificationCode"] = _code;
   }
   return [dict copy];
 }

@@ -20,6 +20,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo
 
+- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
+	if (self) {
+		self = [super init];
+	}
+	return self;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

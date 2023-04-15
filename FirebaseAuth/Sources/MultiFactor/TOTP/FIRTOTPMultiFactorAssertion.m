@@ -40,6 +40,7 @@ extern NSString *const _Nonnull FIRTOTPMultiFactorID;
 							 oneTimePassword:(NSString *)oneTimePassword{
 	self = [super init];
 	if (self) {
+		_factorID = FIRTOTPMultiFactorID;
 		_secret = secret;
 		_oneTimePassword = oneTimePassword;
 	}

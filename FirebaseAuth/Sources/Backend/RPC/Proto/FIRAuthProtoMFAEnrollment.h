@@ -15,7 +15,6 @@
  */
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoTOTPInfo.h"
 
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAuthProtoMFAEnrollment : NSObject <FIRAuthProto>
 
 @property(nonatomic, copy, readonly, nullable) NSString *phoneInfo;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoTOTPInfo *TOTPInfo;
+@property(nonatomic, copy, readonly, nullable) NSObject *TOTPInfo;
 
 @property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
 

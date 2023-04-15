@@ -106,9 +106,9 @@ static NSString *kUserCodingKey = @"user";
 		[FIRAuthBackend finalizeMultiFactorEnrollment:request callback:^(FIRFinalizeMFAEnrollmentResponse *_Nullable response,
 																																		 NSError *_Nullable error) {
 			if(error) {
-				//handle error
+				NSLog(@"Error enrolling TOTP");
 			} else {
-				//display "successfully enrolled"
+				NSLog(@"Enrolled TOTP Successfully!!");
 			}
 		}];
 	}
