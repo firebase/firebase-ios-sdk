@@ -24,14 +24,18 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/SignIn/FIRFinalizeMFASignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATotpSignInRequestInfo.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
 
 #if TARGET_OS_IOS
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorAssertion+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorAssertion+Internal.h"
+
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -55,16 +59,28 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resolveSignInWithAssertion:(nonnull FIRMultiFactorAssertion *)assertion
                         completion:(nullable FIRAuthDataResultCallback)completion {
 #if TARGET_OS_IOS
-  FIRPhoneMultiFactorAssertion *phoneAssertion = (FIRPhoneMultiFactorAssertion *)assertion;
-  FIRAuthProtoFinalizeMFAPhoneRequestInfo *finalizeMFAPhoneRequestInfo =
-      [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc]
-          initWithSessionInfo:phoneAssertion.authCredential.verificationID
-             verificationCode:phoneAssertion.authCredential.verificationCode];
-  FIRFinalizeMFASignInRequest *request = [[FIRFinalizeMFASignInRequest alloc]
-      initWithMFAPendingCredential:self.MFAPendingCredential
-                  verificationInfo:finalizeMFAPhoneRequestInfo
-              requestConfiguration:self.auth.requestConfiguration];
-  [FIRAuthBackend
+    //TODO find out is this if statement is correct
+    NSObject <FIRAuthProto> *finalizedMFARequestInfo;
+    if ([assertion isKindOfClass:[FIRPhoneMultiFactorAssertion class]]) {
+        FIRPhoneMultiFactorAssertion *phoneAssertion = (FIRPhoneMultiFactorAssertion *)assertion;
+        finalizedMFARequestInfo =
+            [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc]
+                initWithSessionInfo:phoneAssertion.authCredential.verificationID
+                   verificationCode:phoneAssertion.authCredential.verificationCode];
+        
+    }
+    if ([assertion isKindOfClass:[FIRTOTPMultiFactorAssertion class]]) {
+        FIRTOTPMultiFactorAssertion *totpAssertion = (FIRTOTPMultiFactorAssertion *)assertion;
+        finalizedMFARequestInfo =
+            [[FIRAuthProtoFinalizeMFATotpSignInRequestInfo alloc]
+             initWithVerificationCode:totpAssertion.oneTimePassword
+                      mfaEnrollmentID:totpAssertion.enrollmentID];
+    }
+    FIRFinalizeMFASignInRequest *request = [[FIRFinalizeMFASignInRequest alloc]
+        initWithMFAPendingCredential:self.MFAPendingCredential
+                    verificationInfo:finalizedMFARequestInfo
+                requestConfiguration:self.auth.requestConfiguration];
+    [FIRAuthBackend
       finalizeMultiFactorSignIn:request
                        callback:^(FIRFinalizeMFASignInResponse *_Nullable response,
                                   NSError *_Nullable error) {
