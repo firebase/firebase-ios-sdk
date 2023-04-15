@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
+
 #import <XCTest/XCTest.h>
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
@@ -121,3 +124,4 @@ static NSString *const kTotpVerificationInfo = @"totpVerificationInfo";
 }
 
 @end
+#endif
