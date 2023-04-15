@@ -16,6 +16,8 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/Totp/FIRAuthProtoStartMFATotpResponseInfo.h"
+
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy, readonly, nullable)
     FIRAuthProtoStartMFAPhoneResponseInfo *enrollmentResponse;
+
+@property(nonatomic, copy, readonly, nullable)
+    FIRAuthProtoStartMFATotpResponseInfo *totpEnrollmentResponse;
 
 @end
 

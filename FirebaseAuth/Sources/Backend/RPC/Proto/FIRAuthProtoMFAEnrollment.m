@@ -26,6 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
     if (dictionary[@"phoneInfo"]) {
       _phoneInfo = dictionary[@"phoneInfo"];
     }
+    if (dictionary[@"totpInfo"]) {
+      _totpInfo = [dictionary[@"totpInfo"] copy];
+    }
     _MFAEnrollmentID = dictionary[@"mfaEnrollmentId"];
     _displayName = dictionary[@"displayName"];
     if ([dictionary[@"enrolledAt"] isKindOfClass:[NSString class]]) {

@@ -25,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
 
+@property(nonatomic, copy, readonly, nullable) NSDictionary *totpAuthInfo;
+
 @end
 
 NS_ASSUME_NONNULL_END
