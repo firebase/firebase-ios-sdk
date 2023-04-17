@@ -565,7 +565,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   id completionArg = [OCMArg invokeBlockWithArgs:expectedToken, [NSNull null], nil];
   OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
 
-  // 3. Don't expect token requested from app check provider.
+  // 3. Don't expect token requested from storage.
   OCMReject([self.mockStorage setToken:expectedToken]);
 
   // 4. Don't expect token update notification to be sent.
