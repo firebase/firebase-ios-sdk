@@ -27,7 +27,6 @@
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
-#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/async_queue.h"
 #include "Firestore/core/src/util/byte_stream.h"
@@ -50,6 +49,7 @@ class QueryEngine;
 namespace model {
 class Mutation;
 class FieldIndex;
+class AggregateField;
 }  // namespace model
 
 namespace remote {

@@ -28,6 +28,8 @@
 #include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/nanopb/message.h"
 
+using firebase::firestore::model::AggregateField;
+
 namespace firebase {
 namespace firestore {
 
@@ -191,7 +193,7 @@ class Query {
   /**
    * Creates a new `AggregateQuery` that performs the specified aggregates.
    */
-  AggregateQuery Aggregate(std::vector<model::AggregateField>&&) const;
+  AggregateQuery Aggregate(std::vector<AggregateField>&&) const;
 
  private:
   void ValidateNewFilter(const core::Filter& filter) const;

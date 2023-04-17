@@ -59,10 +59,8 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/exception.h"
-#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
-#include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 
 namespace nanopb = firebase::firestore::nanopb;

@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-#include <string>
 
 #import "FIRAggregateQuery+Internal.h"
 
 #import "FIRAggregateField+Internal.h"
 #import "FIRAggregateQuerySnapshot+Internal.h"
-#import "FIRFieldPath+Internal.h"
 #import "FIRQuery+Internal.h"
 
 #include "Firestore/core/src/api/aggregate_query.h"
-#include "Firestore/core/src/api/query_core.h"
-#include "Firestore/core/src/model/aggregate_field.h"
-#include "Firestore/core/src/model/object_value.h"
 #include "Firestore/core/src/util/error_apple.h"
-#include "Firestore/core/src/util/statusor.h"
+
+using firebase::firestore::api::AggregateQuery;
+using firebase::firestore::model::AggregateField;
+using firebase::firestore::model::ObjectValue;
+using firebase::firestore::util::StatusOr;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAggregateQuery {
   FIRQuery *_query;
-  std::unique_ptr<api::AggregateQuery> _aggregateQuery;
+  std::unique_ptr<AggregateQuery> _aggregateQuery;
 }
 
 - (instancetype)initWithQueryAndAggregations:(FIRQuery *)query
@@ -44,12 +43,12 @@ NS_ASSUME_NONNULL_BEGIN
   if (self = [super init]) {
     _query = query;
 
-    std::vector<model::AggregateField> _aggregateFields;
-    for (FIRAggregateField *firField in aggregations) {
-      _aggregateFields.push_back([firField createInternalValue]);
+    std::vector<AggregateField> _aggregateFields;
+    for (FIRAggregateField *field in aggregations) {
+      _aggregateFields.push_back([field createInternalValue]);
     }
 
-    _aggregateQuery = absl::make_unique<api::AggregateQuery>(
+    _aggregateQuery = absl::make_unique<AggregateQuery>(
         query.apiQuery.Aggregate(std::move(_aggregateFields)));
   }
   return self;
@@ -79,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
                    completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                         NSError *_Nullable error))completion {
   _aggregateQuery->Get([self, completion](
-                           const firebase::firestore::util::StatusOr<model::ObjectValue> &result) {
+                           const StatusOr<ObjectValue> &result) {
     if (result.ok()) {
       completion([[FIRAggregateQuerySnapshot alloc] initWithObject:result.ValueOrDie() query:self],
                  nil);

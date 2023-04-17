@@ -32,16 +32,18 @@
 
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::model::FieldPath;
+using firebase::firestore::model::AggregateAlias;
+using firebase::firestore::model::ObjectValue;
 using firebase::firestore::util::ThrowInvalidArgument;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAggregateQuerySnapshot {
-  model::ObjectValue _result;
+  ObjectValue _result;
   FIRAggregateQuery *_query;
 }
 
-- (instancetype)initWithObject:(model::ObjectValue)result query:(FIRAggregateQuery *)query {
+- (instancetype)initWithObject:(ObjectValue)result query:(FIRAggregateQuery *)query {
   if (self = [super init]) {
     _result = std::move(result);
     _query = query;
@@ -82,7 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable id)valueForAggregation:(FIRAggregateField *)aggregation
            serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
-  model::AggregateAlias alias = [aggregation createAlias];
+  AggregateAlias alias = [aggregation createAlias];
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
   if (!fieldValue) {
     std::string path{""};

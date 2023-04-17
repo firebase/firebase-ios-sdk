@@ -23,6 +23,8 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/model/aggregate_field.h"
 
+using firebase::firestore::model::AggregateField;
+
 namespace firebase {
 namespace firestore {
 namespace api {
@@ -39,7 +41,7 @@ AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
 }
 
 AggregateQuery::AggregateQuery(Query query,
-                               std::vector<model::AggregateField>&& aggregates)
+                               std::vector<AggregateField>&& aggregates)
     : query_{std::move(query)}, aggregates_(std::move(aggregates)) {
 }
 

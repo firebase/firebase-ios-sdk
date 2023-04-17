@@ -24,6 +24,9 @@
 #include "Firestore/core/src/util/statusor.h"
 #include "absl/types/optional.h"
 
+using firebase::firestore::model::ObjectValue;
+using firebase::firestore::util::StatusOr;
+
 namespace firebase {
 namespace firestore {
 
@@ -57,7 +60,7 @@ using QuerySnapshotListener =
 
 using QueryCallback = std::function<void(core::Query, bool)>;
 using AggregateQueryCallback =
-    std::function<void(const util::StatusOr<model::ObjectValue>&)>;
+    std::function<void(const StatusOr<ObjectValue>&)>;
 
 }  // namespace api
 }  // namespace firestore

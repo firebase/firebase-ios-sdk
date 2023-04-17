@@ -21,14 +21,13 @@
 
 @class FIRAggregateQuery;
 
-namespace api = firebase::firestore::api;
-namespace model = firebase::firestore::model;
+using firebase::firestore::model::ObjectValue;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAggregateQuerySnapshot (/* init */)
 
-- (instancetype)initWithObject:(model::ObjectValue)result
+- (instancetype)initWithObject:(ObjectValue)result
                          query:(FIRAggregateQuery *)query NS_DESIGNATED_INITIALIZER;
 
 @end

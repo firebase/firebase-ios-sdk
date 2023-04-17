@@ -15,21 +15,20 @@
  */
 
 #import "FIRAggregateField.h"
-
-#include <string>
-
 #import "FIRFieldPath.h"
 
+#include <string>
 #include "Firestore/core/src/model/aggregate_field.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-namespace model = firebase::firestore::model;
+using firebase::firestore::model::AggregateField;
+using firebase::firestore::model::AggregateAlias;
 
 @interface FIRAggregateField (Internal)
 @property(nonatomic, strong, readonly) FIRFieldPath *_fieldPath;
-- (model::AggregateField)createInternalValue;
-- (model::AggregateAlias)createAlias;
+- (AggregateField)createInternalValue;
+- (AggregateAlias)createAlias;
 - (const std::string)name;
 @end
 
@@ -40,8 +39,8 @@ namespace model = firebase::firestore::model;
 @interface FSTSumAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
 - (id)initWithFieldPath:(FIRFieldPath *)path;
-- (model::AggregateField)createInternalValue;
-- (model::AggregateAlias)createAlias;
+- (AggregateField)createInternalValue;
+- (AggregateAlias)createAlias;
 - (const std::string)name;
 @end
 
@@ -52,8 +51,8 @@ namespace model = firebase::firestore::model;
 @interface FSTAverageAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithFieldPath:(FIRFieldPath *)internalFieldPath;
-- (model::AggregateField)createInternalValue;
-- (model::AggregateAlias)createAlias;
+- (AggregateField)createInternalValue;
+- (AggregateAlias)createAlias;
 - (const std::string)name;
 @end
 
@@ -63,8 +62,8 @@ namespace model = firebase::firestore::model;
 @interface FSTCountAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initPrivate;
-- (model::AggregateField)createInternalValue;
-- (model::AggregateAlias)createAlias;
+- (AggregateField)createInternalValue;
+- (AggregateAlias)createAlias;
 - (const std::string)name;
 @end
 

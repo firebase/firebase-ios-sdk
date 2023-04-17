@@ -33,7 +33,6 @@
 #include "Firestore/core/src/core/target_id_generator.h"
 #include "Firestore/core/src/core/view.h"
 #include "Firestore/core/src/local/reference_set.h"
-#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/remote/remote_store.h"
 #include "Firestore/core/src/util/random_access_queue.h"
@@ -47,6 +46,10 @@ namespace local {
 class LocalStore;
 class TargetData;
 }  // namespace local
+
+namespace model {
+class AggregateField;
+}  // namespace model
 
 namespace core {
 

@@ -20,6 +20,8 @@
 
 #include "Firestore/core/src/api/query_core.h"
 
+using firebase::firestore::model::AggregateField;
+
 namespace firebase {
 namespace firestore {
 namespace api {
@@ -34,7 +36,7 @@ class AggregateQuery {
   AggregateQuery() = default;
   explicit AggregateQuery(Query query);
   explicit AggregateQuery(Query query,
-                          std::vector<model::AggregateField>&& aggregates);
+                          std::vector<AggregateField>&& aggregates);
 
   const Query& query() const {
     return query_;
@@ -49,7 +51,7 @@ class AggregateQuery {
 
  private:
   Query query_;
-  std::vector<model::AggregateField> aggregates_;
+  std::vector<AggregateField> aggregates_;
 };
 
 }  // namespace api

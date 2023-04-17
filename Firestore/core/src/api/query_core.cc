@@ -476,7 +476,7 @@ std::string Query::Describe(Operator op) const {
 }
 
 AggregateQuery Query::Aggregate(
-    std::vector<model::AggregateField>&& aggregates) const {
+    std::vector<AggregateField>&& aggregates) const {
   return AggregateQuery(*this, std::move(aggregates));
 }
 
