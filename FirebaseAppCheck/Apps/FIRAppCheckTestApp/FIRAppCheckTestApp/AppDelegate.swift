@@ -24,8 +24,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication,
                    didFinishLaunchingWithOptions launchOptions: [UIApplication
                      .LaunchOptionsKey: Any]?) -> Bool {
+    let providerFactory = AppCheckDebugProviderFactory()
+    AppCheck.setAppCheckProviderFactory(providerFactory)
     FirebaseApp.configure()
 
+    requestLimitedUseToken()
+                         
     requestDeviceCheckToken()
 
     requestDebugToken()
@@ -71,6 +75,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
       if let error = error {
         print("DeviceCheck error: \((error as NSError).userInfo)")
+      }
+    }
+  }
+    
+  func requestLimitedUseToken(){
+    AppCheck.appCheck().limitedUseToken(){(result, error) in
+      if let result = result {
+        print("FAC limited-use token: \(result.token), expiratoin date:\(result.expirationDate)")
+      } else {
+        print("Error: \(String(describing: error))")
       }
     }
   }
