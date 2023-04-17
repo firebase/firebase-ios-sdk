@@ -114,7 +114,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }
 
-    
   @available(iOS 14.0, *)
   func requestAppAttestToken() {
     guard let firebaseApp = FirebaseApp.app() else {
