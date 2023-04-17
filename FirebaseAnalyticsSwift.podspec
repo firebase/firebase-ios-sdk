@@ -47,7 +47,7 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
     ]
   end
 
-    s.test_spec 'objc-api-coverage' do |objc_api_tests|
+  s.test_spec 'objc-api-coverage' do |objc_api_tests|
     objc_api_tests.platforms = {
       :ios => ios_deployment_target,
       :osx => osx_deployment_target,
