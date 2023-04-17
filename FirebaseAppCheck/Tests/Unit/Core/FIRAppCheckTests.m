@@ -556,6 +556,66 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [self verifyAllMocks];
 }
 
+- (void)testLimitedUseTokenWithSuccess {
+  // 1. Don't expect token to be requested from storage.
+  OCMReject([self.mockStorage getToken]);
+
+  // 2. Expect token requested from app check provider.
+  FIRAppCheckToken *expectedToken = [self validToken];
+  id completionArg = [OCMArg invokeBlockWithArgs:expectedToken, [NSNull null], nil];
+  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
+
+  // 3. Don't expect token requested from storage.
+  OCMReject([self.mockStorage setToken:expectedToken]);
+
+  // 4. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""
+                                                                                   isInverted:YES];
+  // 5. Expect token request to be completed.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+
+  [self.appCheck
+      limitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [getTokenExpectation fulfill];
+        XCTAssertNotNil(token);
+        XCTAssertEqualObjects(token.token, expectedToken.token);
+        XCTAssertNil(error);
+      }];
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
+  [self verifyAllMocks];
+}
+
+- (void)testLimitedUseToken_WhenTokenGenerationErrors {
+  // 1. Don't expect token to be requested from storage.
+  OCMReject([self.mockStorage getToken]);
+
+  // 2. Expect error when requesting token from app check provider.
+  NSError *providerError = [FIRAppCheckErrorUtil keychainErrorWithError:[self internalError]];
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], providerError, nil];
+  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
+
+  // 3. Don't expect token requested from app check provider.
+  OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
+
+  // 4. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""
+                                                                                   isInverted:YES];
+  // 5. Expect token request to be completed.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+
+  [self.appCheck
+      limitedUseTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [getTokenExpectation fulfill];
+        XCTAssertNotNil(error);
+        XCTAssertNil(token.token);
+        XCTAssertEqualObjects(error, providerError);
+        XCTAssertEqualObjects(error.domain, FIRAppCheckErrorDomain);
+      }];
+
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
+  [self verifyAllMocks];
+}
+
 #pragma mark - Token update notifications
 
 - (void)testTokenUpdateNotificationKeys {
