@@ -79,7 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }
     
-  func requestLimitedUseToken(){
+  func requestLimitedUseToken() {
     AppCheck.appCheck().limitedUseToken() { (result, error) in
       if let result = result {
         print("FAC limited-use token: \(result.token), expiratoin date: \(result.expirationDate)")
