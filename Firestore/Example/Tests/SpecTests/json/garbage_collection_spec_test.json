@@ -768,162 +768,6 @@
       }
     ]
   },
-  "Contents of query are kept after listen is removed, and GC threshold is reached": {
-    "describeName": "Garbage Collection:",
-    "itName": "Contents of query are kept after listen is removed, and GC threshold is reached",
-    "tags": [
-    ],
-    "config": {
-      "numClients": 1,
-      "useEagerGCForMemory": false
-    },
-    "steps": [
-      {
-        "userListen": {
-          "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
-            "path": "collection"
-          },
-          "targetId": 2
-        },
-        "expectedState": {
-          "activeTargets": {
-            "2": {
-              "queries": [
-                {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
-                  "path": "collection"
-                }
-              ],
-              "resumeToken": ""
-            }
-          }
-        }
-      },
-      {
-        "watchAck": [
-          2
-        ]
-      },
-      {
-        "watchEntity": {
-          "docs": [
-            {
-              "createTime": 0,
-              "key": "collection/a",
-              "options": {
-                "hasCommittedMutations": false,
-                "hasLocalMutations": false
-              },
-              "value": {
-                "key": "a"
-              },
-              "version": 1000
-            }
-          ],
-          "targets": [
-            2
-          ]
-        }
-      },
-      {
-        "watchCurrent": [
-          [
-            2
-          ],
-          "resume-token-1000"
-        ]
-      },
-      {
-        "watchSnapshot": {
-          "targetIds": [
-          ],
-          "version": 1000
-        },
-        "expectedSnapshotEvents": [
-          {
-            "added": [
-              {
-                "createTime": 0,
-                "key": "collection/a",
-                "options": {
-                  "hasCommittedMutations": false,
-                  "hasLocalMutations": false
-                },
-                "value": {
-                  "key": "a"
-                },
-                "version": 1000
-              }
-            ],
-            "errorCode": 0,
-            "fromCache": false,
-            "hasPendingWrites": false,
-            "query": {
-              "filters": [
-              ],
-              "orderBys": [
-              ],
-              "path": "collection"
-            }
-          }
-        ]
-      },
-      {
-        "userUnlisten": [
-          2,
-          {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
-            "path": "collection"
-          }
-        ],
-        "expectedState": {
-          "activeTargets": {
-          }
-        }
-      },
-      {
-        "triggerLruGC": 1
-      },
-      {
-        "userListen": {
-          "query": {
-            "filters": [
-            ],
-            "orderBys": [
-            ],
-            "path": "collection"
-          },
-          "targetId": 4
-        },
-        "expectedState": {
-          "activeTargets": {
-            "4": {
-              "queries": [
-                {
-                  "filters": [
-                  ],
-                  "orderBys": [
-                  ],
-                  "path": "collection"
-                }
-              ],
-              "resumeToken": ""
-            }
-          }
-        }
-      }
-    ]
-  },
   "Contents of query are kept after listen is removed.": {
     "describeName": "Garbage Collection:",
     "itName": "Contents of query are kept after listen is removed.",
@@ -1099,6 +943,162 @@
                 }
               ],
               "resumeToken": "resume-token-1000"
+            }
+          }
+        }
+      }
+    ]
+  },
+  "Contents of query are removed after listen is removed, and GC threshold is reached": {
+    "describeName": "Garbage Collection:",
+    "itName": "Contents of query are removed after listen is removed, and GC threshold is reached",
+    "tags": [
+    ],
+    "config": {
+      "numClients": 1,
+      "useEagerGCForMemory": false
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "userUnlisten": [
+          2,
+          {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          }
+        ],
+        "expectedState": {
+          "activeTargets": {
+          }
+        }
+      },
+      {
+        "triggerLruGC": 1
+      },
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 4
+        },
+        "expectedState": {
+          "activeTargets": {
+            "4": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
             }
           }
         }
