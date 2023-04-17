@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-void nanopb_free(void * _Nullable ptr) {
+void nanopb_free(void *_Nullable ptr) {
   pb_free(ptr);
 }
 

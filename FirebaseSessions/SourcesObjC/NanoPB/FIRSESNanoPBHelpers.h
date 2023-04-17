@@ -33,7 +33,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// Deinitializes a nanopb struct. Rewritten here to expose to Swift, since `pb_free` is a macro.
-void nanopb_free(void * _Nullable);
+void nanopb_free(void* _Nullable);
 
 /// Returns an error associated with the istream. Written in Objective-C because Swift does not
 /// support C language macros

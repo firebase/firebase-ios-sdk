@@ -82,7 +82,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       proto.application_info.session_sdk_version,
       proto.application_info.device_model,
       proto.application_info.apple_app_info.bundle_short_version,
-      proto.application_info.apple_app_info.mcc_mnc
+      proto.application_info.apple_app_info.mcc_mnc,
     ]
     for pointer in garbage {
       nanopb_free(pointer)
