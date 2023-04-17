@@ -1,5 +1,5 @@
 # Unreleased
-- [fixed] Updated upload-symbols to 3.15. Disable dSYM uploads for Flutter apps building with --obfuscate. Please upload dSYMs through the Firebase console web uploader. To manually upload your dSYMs, you can use the console-based "Drag and Drop" option to upload a zip archive containing your dSYM files (go to Firebase console > [Crashlytics](https://console.firebase.google.com/project/_/crashlytics) > dSYMs tab). (#11136)
+- [fixed] Updated upload-symbols to 3.15. Disabled dSYM uploads for Flutter apps building with --obfuscate and added instructions for uploading through the Crashlytics dashboard. (#11136)
 
 # 10.7.0
 - [fixed] Updated upload-symbols to 3.14 with an improvement to upload all dSYM files for Flutter apps
