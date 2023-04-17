@@ -74,8 +74,25 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
       .performance = firebase_appquality_sessions_DataCollectionState_COLLECTION_SDK_NOT_INSTALLED
   }
 
+  deinit {
+    let garbage: [UnsafeMutablePointer<pb_bytes_array_t>?] = [
+      proto.session_data.session_id,
+      proto.session_data.first_session_id,
+      proto.application_info.app_id,
+      proto.application_info.session_sdk_version,
+      proto.application_info.device_model,
+      proto.application_info.apple_app_info.bundle_short_version,
+      proto.application_info.apple_app_info.mcc_mnc
+    ]
+    for pointer in garbage {
+      nanopb_free(pointer)
+    }
+  }
+
   func setInstallationID(installationId: String) {
+    let oldID = proto.session_data.firebase_installation_id
     proto.session_data.firebase_installation_id = makeProtoString(installationId)
+    nanopb_free(oldID)
   }
 
   func setSamplingRate(samplingRate: Double) {
@@ -109,7 +126,9 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
                                    appInfo: ApplicationInfoProtocol) {
     switch subscriber {
     case .Performance:
+      let oldString = proto.application_info.apple_app_info.mcc_mnc
       proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
+      nanopb_free(oldString)
       proto.application_info.apple_app_info.network_connection_info
         .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)
       proto.application_info.apple_app_info.network_connection_info
