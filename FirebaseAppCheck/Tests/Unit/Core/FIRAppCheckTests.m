@@ -557,7 +557,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 }
 
 - (void)testLimitedUseTokenWithSuccess {
-  // 1. Don't Expect token to be requested from storage.
+  // 1. Don't expect token to be requested from storage.
   OCMReject([self.mockStorage getToken]);
 
   // 2. Expect token requested from app check provider.
@@ -586,10 +586,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 }
 
 - (void)testLimitedUseToken_WhenTokenGenerationErrors {
-  // 1. Don't Expect token to be requested from storage.
+  // 1. Don't expect token to be requested from storage.
   OCMReject([self.mockStorage getToken]);
 
-  // 2. Expect token requested from app check provider.
+  // 2. Expect error when requesting token from app check provider.
   NSError *providerError = [FIRAppCheckErrorUtil keychainErrorWithError:[self internalError]];
   id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], providerError, nil];
   OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);

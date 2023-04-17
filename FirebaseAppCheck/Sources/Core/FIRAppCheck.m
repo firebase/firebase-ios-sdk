@@ -202,7 +202,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 - (void)limitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
                                                 NSError *_Nullable error))handler {
-  [self retrieveLimitedTokenForcingRefresh]
+  [self retrieveLimitedUseToken]
       .then(^id _Nullable(FIRAppCheckToken *token) {
         handler(token, nil);
         return token;
@@ -321,7 +321,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   });
 }
 
-- (FBLPromise<FIRAppCheckToken *> *)retrieveLimitedTokenForcingRefresh {
+- (FBLPromise<FIRAppCheckToken *> *)retrieveLimitedUseToken {
   return [FBLPromise do:^id _Nullable {
     if (self.ongoingLimitedUseTokenPromise == nil) {
       // Kick off a new operation only when there is not an ongoing one.
