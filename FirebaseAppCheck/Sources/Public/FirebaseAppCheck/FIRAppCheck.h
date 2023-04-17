@@ -58,7 +58,7 @@ NS_SWIFT_NAME(AppCheck)
 /// If your non-Firebase backend exposes sensitive or expensive endpoints that have low traffic
 /// volume, consider protecting it with [Replay
 /// Protection](https://firebase.google.com/docs/app-check/custom-resource-backend#replay-protection).
-/// In this case, use the ``limitedUseTokenWithCompletion()`` instead to obtain a limited-use token.
+/// In this case, use the ``limitedUseToken(completion:)`` instead to obtain a limited-use token.
 /// @param forcingRefresh If `YES`,  a new Firebase app check token is requested and the token
 /// cache is ignored. If `NO`, the cached token is used if it exists and has not expired yet. In
 /// most cases, `NO` should be used. `YES` should only be used if the server explicitly returns an

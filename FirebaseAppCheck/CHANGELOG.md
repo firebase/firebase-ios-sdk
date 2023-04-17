@@ -1,5 +1,6 @@
 #Unreleased
-- [feature] Added limitedUseTokenWithCompletion() for obtaining limited-use tokens for protecting non-Firebase backends.
+- [feature] Added `limitedUseToken(completion:)` for obtaining limited-use tokens for
+  protecting non-Firebase backends. (#11086)
 
 # 9.5.0
 - [added] DeviceCheck and App Attest providers are supported by watchOS 9.0+. (#10094, #10098)

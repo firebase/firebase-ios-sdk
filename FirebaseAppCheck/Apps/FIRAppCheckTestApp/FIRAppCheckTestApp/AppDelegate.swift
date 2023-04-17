@@ -80,18 +80,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }
 
-  func requestLimitedUseToken() {
-    AppCheck.appCheck().limitedUseToken { result, error in
-      if let result = result {
-        print("FAC limited-use token: \(result.token), expiration date: \(result.expirationDate)")
-      }
-
-      if let error = error {
-        print("Error: \(String(describing: error))")
-      }
-    }
-  }
-
   func requestDebugToken() {
     guard let firebaseApp = FirebaseApp.app() else {
       return
@@ -112,6 +100,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
   }
 
+  // MARK: App Check API
+
+  func requestLimitedUseToken() {
+    AppCheck.appCheck().limitedUseToken { result, error in
+      if let result = result {
+        print("FAC limited-use token: \(result.token), expiration date: \(result.expirationDate)")
+      }
+
+      if let error = error {
+        print("Error: \(String(describing: error))")
+      }
+    }
+  }
+
+    
   @available(iOS 14.0, *)
   func requestAppAttestToken() {
     guard let firebaseApp = FirebaseApp.app() else {
