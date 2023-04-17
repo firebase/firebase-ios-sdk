@@ -19,6 +19,7 @@
 
 #include <functional>
 #include <iterator>
+#include <memory>
 #include <string>
 #include <type_traits>
 
@@ -108,6 +109,7 @@ constexpr size_t Combine(size_t state, size_t hash_value) {
  *   * A std::hash specialization, if available
  *   * A range-based specialization, valid if either of the above hold on the
  *     members of the range.
+ *   * A unique_ptr pointing to a Hash() member.
  *
  * Explicit ordering resolves the ambiguity of the case where a std::hash
  * specialization is available, but the type is also a range for whose members
@@ -123,7 +125,7 @@ template <int I>
 struct HashChoice : HashChoice<I + 1> {};
 
 template <>
-struct HashChoice<5> {};
+struct HashChoice<6> {};
 
 template <typename K>
 size_t InvokeHash(const K& value);
@@ -197,6 +199,12 @@ template <typename K, typename = absl::enable_if_t<std::is_enum<K>::value>>
 size_t RankedInvokeHash(K value, HashChoice<5>) {
   auto underlying = static_cast<typename std::underlying_type<K>::type>(value);
   return InvokeHash(underlying);
+}
+
+template <typename K>
+auto RankedInvokeHash(const std::unique_ptr<K>& ptr, HashChoice<6>)
+    -> decltype(InvokeHash(*ptr)) {
+  return ptr ? InvokeHash(*ptr) : 23631;
 }
 
 template <typename K>
