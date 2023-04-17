@@ -17,9 +17,9 @@
 
 #import "FIRAggregateQuery+Internal.h"
 
-#import "FIRAggregateField+Internal.h"
-#import "FIRAggregateQuerySnapshot+Internal.h"
-#import "FIRQuery+Internal.h"
+#import "Firestore/Source/API/FIRAggregateField+Internal.h"
+#import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
 
 #include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/util/error_apple.h"

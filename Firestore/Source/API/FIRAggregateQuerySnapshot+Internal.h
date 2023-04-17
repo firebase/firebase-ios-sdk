@@ -27,16 +27,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAggregateQuerySnapshot (/* init */)
 
+- (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithObject:(model::ObjectValue)result
                          query:(FIRAggregateQuery *)query NS_DESIGNATED_INITIALIZER;
-
-@end
-
-/** Internal FIRDocumentSnapshot API we don't want exposed in our public header files. */
-@interface FIRAggregateQuerySnapshot (Internal)
-
-- (nullable id)valueForField:(id)field
-     serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
 
 @end
 

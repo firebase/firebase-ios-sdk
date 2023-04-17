@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateField+Internal.h"
 #import "FIRAggregateQuerySnapshot+Internal.h"
-#import "FIRFieldPath+Internal.h"
 
 #import "FIRAggregateQuery.h"
-#import "FIRFirestore+Internal.h"
 #import "FIRQuery.h"
+
+#import "Firestore/Source/API/FIRAggregateField+Internal.h"
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
 #import "Firestore/Source/API/FSTUserDataWriter.h"
 
 #include "absl/types/optional.h"

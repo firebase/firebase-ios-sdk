@@ -15,8 +15,9 @@
  */
 
 #import "FIRAggregateField.h"
-#import "FIRAggregateField+Internal.h"
-#import "FIRFieldPath+Internal.h"
+
+#import "Firestore/Source/API/FIRAggregateField+Internal.h"
+#import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
 using firebase::firestore::model::AggregateField;
 using firebase::firestore::model::AggregateAlias;
