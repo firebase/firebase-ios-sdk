@@ -26,11 +26,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      .LaunchOptionsKey: Any]?) -> Bool {
     let providerFactory = AppCheckDebugProviderFactory()
     AppCheck.setAppCheckProviderFactory(providerFactory)
-                         
+
     FirebaseApp.configure()
 
     requestLimitedUseToken()
-                         
+
     requestDeviceCheckToken()
 
     requestDebugToken()
@@ -79,13 +79,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       }
     }
   }
-    
+
   func requestLimitedUseToken() {
-    AppCheck.appCheck().limitedUseToken() { result, error in
+    AppCheck.appCheck().limitedUseToken { result, error in
       if let result = result {
         print("FAC limited-use token: \(result.token), expiratoin date: \(result.expirationDate)")
       }
-        
+
       if let error = error {
         print("Error: \(String(describing: error))")
       }
