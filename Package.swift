@@ -328,6 +328,11 @@ let package = Package(
       dependencies: ["FirebaseAnalyticsWrapper"],
       path: "FirebaseAnalyticsSwift/Sources"
     ),
+    .testTarget(
+      name: "AnalyticsSwiftUnit",
+      dependencies: ["FirebaseAnalyticsSwift"],
+      path: "FirebaseAnalyticsSwift/Tests/SwiftUnit"
+    ),
 
     .target(
       name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
