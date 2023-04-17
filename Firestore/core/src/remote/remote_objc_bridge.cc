@@ -45,10 +45,12 @@ namespace remote {
 
 using core::DatabaseInfo;
 using local::TargetData;
+using model::AggregateField;
 using model::Document;
 using model::DocumentKey;
 using model::Mutation;
 using model::MutationResult;
+using model::ObjectValue;
 using model::SnapshotVersion;
 using model::TargetId;
 using nanopb::ByteString;
@@ -272,7 +274,7 @@ DatastoreSerializer::MergeLookupResponses(
 nanopb::Message<google_firestore_v1_RunAggregationQueryRequest>
 DatastoreSerializer::EncodeAggregateQueryRequest(
     const core::Query& query,
-    const std::vector<model::AggregateField>& aggregates) const {
+    const std::vector<AggregateField>& aggregates) const {
   Message<google_firestore_v1_RunAggregationQueryRequest> result;
   auto encodedTarget = serializer_.EncodeQueryTarget(query.ToTarget());
   result->parent = encodedTarget.parent;
@@ -284,9 +286,9 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
   result->query_type.structured_aggregation_query.structured_query =
       encodedTarget.structured_query;
 
-  absl::flat_hash_map<std::string, model::AggregateField> uniqueAggregates;
-  for (const model::AggregateField& aggregate : aggregates) {
-    auto pair = std::pair<std::string, model::AggregateField>(
+  absl::flat_hash_map<std::string, AggregateField> uniqueAggregates;
+  for (const AggregateField& aggregate : aggregates) {
+    auto pair = std::pair<std::string, AggregateField>(
         aggregate.alias.StringValue(), aggregate);
     uniqueAggregates.insert(pair);
   }
@@ -298,18 +300,18 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
           count);
 
   size_t i = 0;
-  for (auto aggregatePair : uniqueAggregates) {
+  for (const auto &aggregatePair : uniqueAggregates) {
     result->query_type.structured_aggregation_query.aggregations[i].alias =
         nanopb::MakeBytesArray(aggregatePair.first);
 
-    if (aggregatePair.second.op == model::AggregateField::kOpCount) {
+    if (aggregatePair.second.op == AggregateField::kOpCount) {
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
 
       result->query_type.structured_aggregation_query.aggregations[i].count =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
-    } else if (aggregatePair.second.op == model::AggregateField::kOpSum) {
+    } else if (aggregatePair.second.op == AggregateField::kOpSum) {
       google_firestore_v1_StructuredQuery_FieldReference field{};
 
       field.field_path = nanopb::MakeBytesArray(
@@ -322,7 +324,7 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
       result->query_type.structured_aggregation_query.aggregations[i].sum =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum{field};
 
-    } else if (aggregatePair.second.op == model::AggregateField::kOpAvg) {
+    } else if (aggregatePair.second.op == AggregateField::kOpAvg) {
       google_firestore_v1_StructuredQuery_FieldReference field{};
       field.field_path = nanopb::MakeBytesArray(
           aggregatePair.second.fieldPath.CanonicalString());
@@ -338,12 +340,10 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
     ++i;
   }
 
-  auto str = result.ToString();
-
   return result;
 }
 
-util::StatusOr<model::ObjectValue>
+util::StatusOr<ObjectValue>
 DatastoreSerializer::DecodeAggregateQueryResponse(
     const grpc::ByteBuffer& response) const {
   ByteBufferReader reader{response};
@@ -356,7 +356,7 @@ DatastoreSerializer::DecodeAggregateQueryResponse(
 
   HARD_ASSERT(!!message->result.aggregate_fields);
 
-  return model::ObjectValue::FromAggregateFieldsEntry(
+  return ObjectValue::FromAggregateFieldsEntry(
       message->result.aggregate_fields, message->result.aggregate_fields_count);
 }
 

@@ -24,7 +24,6 @@
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/firestore.nanopb.h"
 #include "Firestore/core/src/core/core_fwd.h"
-#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/message.h"
@@ -41,6 +40,7 @@ class TargetData;
 }  // namespace local
 
 namespace model {
+class AggregateField;
 class DocumentKey;
 class SnapshotVersion;
 }  // namespace model

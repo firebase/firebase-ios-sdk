@@ -27,7 +27,6 @@
 #include "Firestore/core/src/credentials/auth_token.h"
 #include "Firestore/core/src/credentials/credentials_fwd.h"
 #include "Firestore/core/src/credentials/credentials_provider.h"
-#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/remote/grpc_call.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
@@ -46,6 +45,7 @@ namespace firestore {
 
 namespace model {
 class Document;
+class AggregateField;
 };  // namespace model
 
 namespace remote {

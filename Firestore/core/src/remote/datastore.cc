@@ -23,9 +23,7 @@
 #include "Firestore/core/src/core/database_info.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/credentials/auth_token.h"
-#include "Firestore/core/src/credentials/credentials_provider.h"
-#include "Firestore/core/src/model/database_id.h"
-#include "Firestore/core/src/model/document.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/mutation.h"
 #include "Firestore/core/src/remote/connectivity_monitor.h"
@@ -33,11 +31,9 @@
 #include "Firestore/core/src/remote/grpc_completion.h"
 #include "Firestore/core/src/remote/grpc_connection.h"
 #include "Firestore/core/src/remote/grpc_nanopb.h"
-#include "Firestore/core/src/remote/grpc_stream.h"
 #include "Firestore/core/src/remote/grpc_streaming_reader.h"
 #include "Firestore/core/src/remote/grpc_unary_call.h"
 #include "Firestore/core/src/util/async_queue.h"
-#include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/executor.h"
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
@@ -54,6 +50,7 @@ namespace {
 using core::DatabaseInfo;
 using credentials::AuthCredentialsProvider;
 using credentials::AuthToken;
+using model::AggregateField;
 using model::DocumentKey;
 using model::Mutation;
 using util::AsyncQueue;
@@ -260,7 +257,7 @@ void Datastore::LookupDocumentsWithCredentials(
 
 void Datastore::RunAggregateQuery(
     const core::Query& query,
-    const std::vector<model::AggregateField>& aggregates,
+    const std::vector<AggregateField>& aggregates,
     api::AggregateQueryCallback&& result_callback) {
   ResumeRpcWithCredentials(
       // TODO(c++14): move into lambda.
@@ -281,7 +278,7 @@ void Datastore::RunAggregateQueryWithCredentials(
     const credentials::AuthToken& auth_token,
     const std::string& app_check_token,
     const core::Query& query,
-    const std::vector<model::AggregateField>& aggregates,
+    const std::vector<AggregateField>& aggregates,
     api::AggregateQueryCallback&& callback) {
   grpc::ByteBuffer message = MakeByteBuffer(
       datastore_serializer_.EncodeAggregateQueryRequest(query, aggregates));

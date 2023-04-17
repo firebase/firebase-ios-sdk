@@ -21,6 +21,7 @@
 #include <utility>
 
 #include "Firestore/core/src/model/aggregate_alias.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/field_path.h"
 
 namespace firebase {

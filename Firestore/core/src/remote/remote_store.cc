@@ -39,6 +39,7 @@ using core::Transaction;
 using local::LocalStore;
 using local::QueryPurpose;
 using local::TargetData;
+using model::AggregateField;
 using model::BatchId;
 using model::DocumentKeySet;
 using model::kBatchIdUnknown;
@@ -367,7 +368,7 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
 
 void RemoteStore::RunAggregateQuery(
     const core::Query& query,
-    const std::vector<model::AggregateField>& aggregates,
+    const std::vector<AggregateField>& aggregates,
     api::AggregateQueryCallback&& result_callback) {
   if (CanUseNetwork()) {
     datastore_->RunAggregateQuery(query, aggregates,

@@ -23,7 +23,6 @@
 
 #include "Firestore/core/src/core/transaction.h"
 #include "Firestore/core/src/local/target_data.h"
-#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutation_batch.h"
 #include "Firestore/core/src/model/types.h"
@@ -42,6 +41,10 @@ namespace firestore {
 namespace local {
 class LocalStore;
 }  // namespace local
+
+namespace model {
+class AggregateField;
+}  // namespace model
 
 namespace remote {
 
