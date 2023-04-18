@@ -118,9 +118,8 @@ using firebase::firestore::util::ThrowInvalidArgument;
 }
 
 - (instancetype)init {
-  if (self = [super init]) {
-    self.internalSettings = MemoryEagerGcSettings{};
-  }
+  self = [super init];
+  self.internalSettings = MemoryEagerGcSettings{};
   return self;
 }
 
@@ -160,16 +159,14 @@ using firebase::firestore::util::ThrowInvalidArgument;
 }
 
 - (instancetype)init {
-  if (self = [super init]) {
-    self.internalSettings = MemoryLruGcSettings{};
-  }
+  self = [super init];
+  self.internalSettings = MemoryLruGcSettings{};
   return self;
 }
 
 - (instancetype)initWithSizeBytes:(NSNumber *)size {
-  if (self = [super init]) {
-    self.internalSettings = MemoryLruGcSettings{}.WithSizeBytes(size.longLongValue);
-  }
+  self = [super init];
+  self.internalSettings = MemoryLruGcSettings{}.WithSizeBytes(size.longLongValue);
   return self;
 }
 
@@ -209,24 +206,23 @@ using firebase::firestore::util::ThrowInvalidArgument;
 }
 
 - (instancetype)init {
-  if (self = [super init]) {
-    self.internalSettings = MemoryCacheSettings{};
-  }
+  self = [super init];
+  self.internalSettings = MemoryCacheSettings{};
   return self;
 }
 
 - (instancetype)initWithGarbageCollectorSettings:
     (id<FIRMemoryGarbageCollectorSettings, NSObject>)settings {
-  if (self = [super init]) {
-    if ([settings isKindOfClass:[FIRMemoryEagerGCSettings class]]) {
-      FIRMemoryEagerGCSettings *casted = (FIRMemoryEagerGCSettings *)settings;
-      self.internalSettings =
-          MemoryCacheSettings{}.WithMemoryGarbageCollectorSettings(casted.internalSettings);
-    } else if ([settings isKindOfClass:[FIRMemoryLRUGCSettings class]]) {
-      FIRMemoryLRUGCSettings *casted = (FIRMemoryLRUGCSettings *)settings;
-      self.internalSettings =
-          MemoryCacheSettings{}.WithMemoryGarbageCollectorSettings(casted.internalSettings);
-    }
+  self = [super init];
+
+  if ([settings isKindOfClass:[FIRMemoryEagerGCSettings class]]) {
+    FIRMemoryEagerGCSettings *casted = (FIRMemoryEagerGCSettings *)settings;
+    self.internalSettings =
+        MemoryCacheSettings{}.WithMemoryGarbageCollectorSettings(casted.internalSettings);
+  } else if ([settings isKindOfClass:[FIRMemoryLRUGCSettings class]]) {
+    FIRMemoryLRUGCSettings *casted = (FIRMemoryLRUGCSettings *)settings;
+    self.internalSettings =
+        MemoryCacheSettings{}.WithMemoryGarbageCollectorSettings(casted.internalSettings);
   }
 
   return self;

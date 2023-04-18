@@ -68,7 +68,7 @@ NS_SWIFT_NAME(MemoryGarbageCollectorSettings)
 @end
 
 /**
- * Configures the SDK to use an eager garbage collector for memory cache.
+ * Configures the SDK to use a eager garbage collector for memory cache.
  *
  * Once configured, the SDK will remove any Firestore documents from memory as soon as they are not
  * used by any active queries.
@@ -101,13 +101,13 @@ NS_SWIFT_NAME(MemoryLRUGCSettings)
 @interface FIRMemoryLRUGCSettings : NSObject <NSCopying, FIRMemoryGarbageCollectorSettings>
 
 /**
- * Creates an instnace of `FIRMemoryLRUGCSettings`, with default target cache size 100MB. The SDK
- * will run garbage collection if the current cache size is larger than 100MB.
+ * Creates an instnace of `FIRMemoryLRUGCSettings`, with default target cache size 100MB.  SDK will
+ * run garbage collection if the current cache size is larger than 100MB.
  */
 - (instancetype)init;
 
 /**
- * Creates an instnace of `FIRMemoryLRUGCSettings`, with a custom target cache size. The SDK will
+ * Creates an instnace of `FIRMemoryLRUGCSettings`, with a custom target cache size. SDK will
  * run garbage collection if the current cache size is larger than the given size.
  */
 - (instancetype)initWithSizeBytes:(NSNumber *)size;

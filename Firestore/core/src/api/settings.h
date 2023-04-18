@@ -146,7 +146,8 @@ class MemoryGargabeCollectorSettings {
   }
 
  protected:
-  explicit MemoryGargabeCollectorSettings(MemoryGcKind kind) : kind_(kind) {
+  explicit MemoryGargabeCollectorSettings(MemoryGcKind kind)
+      : kind_(std::move(kind)) {
   }
   MemoryGcKind kind_;
 };
