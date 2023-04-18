@@ -572,14 +572,15 @@ NS_SWIFT_NAME(Query)
  * Using an `AggregateQuery` to perform aggregations is efficient because only the final aggregation
  * values, not the documents' data, is downloaded. The query can even aggregate the documents if the
  * result set would be prohibitively large to download entirely (e.g. thousands of documents).
-*
-* @param aggregations Specifies the aggregation operations to perform on the result set of this
+ *
+ * @param aggregations Specifies the aggregation operations to perform on the result set of this
  * query.
-*
-* @return An `AggregateQuery` encapsulating this `Query` and `AggregateField`s, which can be used
+ *
+ * @return An `AggregateQuery` encapsulating this `Query` and `AggregateField`s, which can be used
  * to query the server for the aggregation results.
  */
-- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations NS_SWIFT_NAME(aggregate(_:));
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations
+    NS_SWIFT_NAME(aggregate(_:));
 
 @end
 

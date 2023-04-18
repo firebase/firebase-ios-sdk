@@ -68,10 +68,10 @@ class ObjectValue {
       google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count);
 
   /**
-   * Creates a new ObjectValue that is backed by the provided aggregation result.
-   * ObjectValue takes on ownership of the data and zeroes out the pointers in
-   * `fields_entry`. This allows the callsite to destruct the AggregationResult
-   * proto without affecting the fields data.
+   * Creates a new ObjectValue that is backed by the provided aggregation
+   * result. ObjectValue takes on ownership of the data and zeroes out the
+   * pointers in `fields_entry`. This allows the callsite to destruct the
+   * AggregationResult proto without affecting the fields data.
    * @param fields_entry The ObjectValue will be backed by this data.
    * @param count Count of fields in `fields_entry`.
    * @return The created `ObjectValue`.

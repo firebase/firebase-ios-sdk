@@ -300,7 +300,7 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
           count);
 
   size_t i = 0;
-  for (const auto &aggregatePair : uniqueAggregates) {
+  for (const auto& aggregatePair : uniqueAggregates) {
     result->query_type.structured_aggregation_query.aggregations[i].alias =
         nanopb::MakeBytesArray(aggregatePair.first);
 
@@ -343,8 +343,7 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
   return result;
 }
 
-util::StatusOr<ObjectValue>
-DatastoreSerializer::DecodeAggregateQueryResponse(
+util::StatusOr<ObjectValue> DatastoreSerializer::DecodeAggregateQueryResponse(
     const grpc::ByteBuffer& response) const {
   ByteBufferReader reader{response};
   auto message =

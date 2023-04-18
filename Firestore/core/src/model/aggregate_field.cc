@@ -16,7 +16,7 @@
 
 #include <vector>
 
-#include "aggregate_field.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 
 namespace firebase {
 namespace firestore {

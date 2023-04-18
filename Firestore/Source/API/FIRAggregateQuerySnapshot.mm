@@ -32,8 +32,8 @@
 #include "Firestore/core/src/util/exception.h"
 
 using firebase::firestore::google_firestore_v1_Value;
-using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::AggregateAlias;
+using firebase::firestore::model::FieldPath;
 using firebase::firestore::model::ObjectValue;
 using firebase::firestore::util::ThrowInvalidArgument;
 

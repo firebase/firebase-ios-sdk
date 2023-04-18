@@ -546,12 +546,12 @@ void FirestoreClient::RunAggregateQuery(
   VerifyNotTerminated();
 
   // Dispatch the result back onto the user dispatch queue.
-  auto async_callback =
-      [this, result_callback](const StatusOr<ObjectValue>& status) {
-        if (result_callback) {
-          user_executor_->Execute([=] { result_callback(std::move(status)); });
-        }
-      };
+  auto async_callback = [this,
+                         result_callback](const StatusOr<ObjectValue>& status) {
+    if (result_callback) {
+      user_executor_->Execute([=] { result_callback(std::move(status)); });
+    }
+  };
 
   worker_queue_->Enqueue([this, query, aggregates, async_callback] {
     sync_engine_->RunAggregateQuery(query, aggregates,

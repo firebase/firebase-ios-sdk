@@ -30,7 +30,7 @@ namespace model {
 
 class AggregateField {
  public:
-  enum class OpKind {Unknown, Sum, Avg, Count};
+  enum class OpKind { Unknown, Sum, Avg, Count };
 
   static std::string OperatorKind(OpKind kind) {
     switch (kind) {
@@ -50,7 +50,7 @@ class AggregateField {
   const model::AggregateAlias alias;
   const model::FieldPath fieldPath;
 
-  AggregateField(): op(OpKind::Unknown) {
+  AggregateField() : op(OpKind::Unknown) {
   }
   AggregateField(OpKind op, model::AggregateAlias&& alias)
       : op(op), alias(std::move(alias)) {

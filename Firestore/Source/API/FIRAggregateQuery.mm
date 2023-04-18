@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #import "FIRAggregateQuery+Internal.h"
 
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
@@ -48,8 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
       _aggregateFields.push_back([field createInternalValue]);
     }
 
-    _aggregateQuery = absl::make_unique<AggregateQuery>(
-        query.apiQuery.Aggregate(std::move(_aggregateFields)));
+    _aggregateQuery =
+        absl::make_unique<AggregateQuery>(query.apiQuery.Aggregate(std::move(_aggregateFields)));
   }
   return self;
 }
@@ -77,8 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)aggregationWithSource:(FIRAggregateSource)source
                    completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                         NSError *_Nullable error))completion {
-  _aggregateQuery->Get([self, completion](
-                           const StatusOr<ObjectValue> &result) {
+  _aggregateQuery->Get([self, completion](const StatusOr<ObjectValue> &result) {
     if (result.ok()) {
       completion([[FIRAggregateQuerySnapshot alloc] initWithObject:result.ValueOrDie() query:self],
                  nil);

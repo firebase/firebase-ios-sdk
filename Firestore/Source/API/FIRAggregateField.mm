@@ -26,11 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAggregateField ()
 @property(nonatomic, strong) FIRFieldPath *fieldPath;
 @property(nonatomic, readwrite) model::AggregateField::OpKind _op;
-- (instancetype)initWithFieldPath:(nullable FIRFieldPath *)fieldPath opKind:(model::AggregateField::OpKind)op;
+- (instancetype)initWithFieldPath:(nullable FIRFieldPath *)fieldPath
+                           opKind:(model::AggregateField::OpKind)op;
 @end
 
 @implementation FIRAggregateField
-- (instancetype)initWithFieldPath:(nullable FIRFieldPath *)fieldPath opKind:(model::AggregateField::OpKind)op {
+- (instancetype)initWithFieldPath:(nullable FIRFieldPath *)fieldPath
+                           opKind:(model::AggregateField::OpKind)op {
   if (self = [super init]) {
     self.fieldPath = fieldPath;
     self._op = op;
@@ -106,8 +108,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTCountAggregateField
 - (instancetype)initPrivate {
-    self = [super initWithFieldPath:Nil opKind:model::AggregateField::OpKind::Count];
-    return self;
+  self = [super initWithFieldPath:Nil opKind:model::AggregateField::OpKind::Count];
+  return self;
 }
 
 @end
