@@ -78,9 +78,12 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     let garbage: [UnsafeMutablePointer<pb_bytes_array_t>?] = [
       proto.session_data.session_id,
       proto.session_data.first_session_id,
+      proto.session_data.firebase_installation_id,
       proto.application_info.app_id,
       proto.application_info.session_sdk_version,
       proto.application_info.device_model,
+      proto.application_info.development_platform_name,
+      proto.application_info.development_platform_version,
       proto.application_info.apple_app_info.bundle_short_version,
       proto.application_info.apple_app_info.mcc_mnc,
     ]
