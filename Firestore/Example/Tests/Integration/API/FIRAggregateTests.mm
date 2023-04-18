@@ -710,7 +710,7 @@
   } @catch (NSException* exception) {
     XCTAssertEqualObjects(exception.name, @"FIRInvalidArgumentException");
     XCTAssertEqualObjects(exception.reason,
-                          @"'count()' was not requested in the aggregation query");
+                          @"'count()' was not requested in the aggregation query.");
   }
 
   @
@@ -720,7 +720,7 @@
   } @catch (NSException* exception) {
     XCTAssertEqualObjects(exception.name, @"FIRInvalidArgumentException");
     XCTAssertEqualObjects(exception.reason,
-                          @"'sum(foo)' was not requested in the aggregation query");
+                          @"'sum(foo)' was not requested in the aggregation query.");
   }
 
   @
@@ -730,7 +730,7 @@
   } @catch (NSException* exception) {
     XCTAssertEqualObjects(exception.name, @"FIRInvalidArgumentException");
     XCTAssertEqualObjects(exception.reason,
-                          @"'avg(pages)' was not requested in the aggregation query");
+                          @"'avg(pages)' was not requested in the aggregation query.");
   }
 }
 

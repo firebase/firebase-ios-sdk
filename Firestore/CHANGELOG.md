@@ -1,5 +1,6 @@
 # Unreleased
 - [feature] Add new cache config API to customize SDK cache settings.
+- [changed] Internal refactor to support upcoming aggregation operations.
 
 # 10.8.0
 - [feature] Change Firestore's Swift Package Manager distribution from source

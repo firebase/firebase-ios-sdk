@@ -66,6 +66,11 @@ class AggregateField {
   size_t Hash() const;
 };
 
+inline bool operator==(const AggregateField& lhs, const AggregateField& rhs) {
+  return lhs.op == rhs.op && lhs.alias == rhs.alias &&
+         lhs.fieldPath.CanonicalString() == rhs.fieldPath.CanonicalString();
+}
+
 }  // namespace model
 }  // namespace firestore
 }  // namespace firebase

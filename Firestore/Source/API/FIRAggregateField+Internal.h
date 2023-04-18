@@ -38,9 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTSumAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
-- (id)initWithFieldPath:(FIRFieldPath *)path;
-- (model::AggregateField)createInternalValue;
-- (model::AggregateAlias)createAlias;
+- (id)initWithFieldPath:(FIRFieldPath *)fieldPath;
 @end
 
 /**
@@ -49,9 +47,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FSTAverageAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithFieldPath:(FIRFieldPath *)internalFieldPath;
-- (model::AggregateField)createInternalValue;
-- (model::AggregateAlias)createAlias;
+- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath;
 @end
 
 /** FIRAggregateField class for count aggregations. Exposed internally so code can do isKindOfClass
@@ -60,8 +56,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSTCountAggregateField : FIRAggregateField
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initPrivate;
-- (model::AggregateField)createInternalValue;
-- (model::AggregateAlias)createAlias;
 @end
 
 NS_ASSUME_NONNULL_END
