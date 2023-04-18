@@ -46,17 +46,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (AggregateField)createInternalValue {
   HARD_FAIL("Use createInternalValue from FIRAggregateField sub class.");
-  return AggregateField();
 }
 
 - (AggregateAlias)createAlias {
   HARD_FAIL("Use createAlias from FIRAggregateField sub class.");
-  return AggregateAlias(std::string{});
 }
 
 - (const std::string)name {
   HARD_FAIL("Use name from FIRAggregateField sub class.");
-  return std::string{};
 }
 
 + (instancetype)aggregateFieldForCount NS_SWIFT_NAME(count()) {

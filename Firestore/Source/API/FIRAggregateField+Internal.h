@@ -26,7 +26,7 @@ namespace model = firebase::firestore::model;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAggregateField (Internal)
-@property(nonatomic, strong, readonly) FIRFieldPath *_fieldPath;
+@property(nonatomic, strong, readonly) FIRFieldPath *fieldPath;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
 - (const std::string)name;

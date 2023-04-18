@@ -576,7 +576,8 @@ NS_SWIFT_NAME(Query)
 * @param aggregations Specifies the aggregation operations to perform on the result set of this
  * query.
 *
-* @return An `AggregateQuery` encapsulating this `Query` and `AggregateField`s.
+* @return An `AggregateQuery` encapsulating this `Query` and `AggregateField`s, which can be used
+ * to query the server for the aggregation results.
  */
 - (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations NS_SWIFT_NAME(aggregate(_ aggregations:));
 

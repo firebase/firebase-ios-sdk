@@ -93,7 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
       path = [aggregation._fieldPath internalValue].CanonicalString();
     }
 
-    ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query", [aggregation name],
+    ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query.", [aggregation name],
                          path);
   }
   FSTUserDataWriter *dataWriter =

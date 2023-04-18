@@ -33,8 +33,6 @@ namespace api {
  */
 class AggregateQuery {
  public:
-  AggregateQuery() = default;
-  explicit AggregateQuery(Query query);
   explicit AggregateQuery(Query query,
                           std::vector<AggregateField>&& aggregates);
 
@@ -45,14 +43,14 @@ class AggregateQuery {
   friend bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
   size_t Hash() const;
 
-  /*  void Get(CountQueryCallback&& callback);*/
-
   void Get(AggregateQueryCallback&& callback);
 
  private:
   Query query_;
   std::vector<AggregateField> aggregates_;
 };
+
+bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
 
 }  // namespace api
 }  // namespace firestore

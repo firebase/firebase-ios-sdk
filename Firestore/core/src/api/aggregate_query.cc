@@ -37,12 +37,9 @@ size_t AggregateQuery::Hash() const {
   return util::Hash(query_, aggregates_);
 }
 
-AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
-}
-
 AggregateQuery::AggregateQuery(Query query,
                                std::vector<AggregateField>&& aggregates)
-    : query_{std::move(query)}, aggregates_(std::move(aggregates)) {
+    : query_{std::move(query)}, aggregates_{std::move(aggregates)} {
 }
 
 void AggregateQuery::Get(AggregateQueryCallback&& callback) {
