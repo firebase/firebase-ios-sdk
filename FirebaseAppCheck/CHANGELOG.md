@@ -1,4 +1,4 @@
-# Unreleased
+# 10.9.0
 - [feature] Added `limitedUseToken(completion:)` for obtaining limited-use tokens for
   protecting non-Firebase backends. (#11086)
 
