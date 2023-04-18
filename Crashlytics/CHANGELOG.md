@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Removed references to deprecated CTCarrier API in FirebaseSessions. (#11144)
+
 # 10.9.0
 - [fixed] Updated upload-symbols to 3.15. Disabled dSYM uploads for Flutter
   apps building with --obfuscate and added instructions for uploading through

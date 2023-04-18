@@ -182,29 +182,4 @@ NSString *_Nullable FIRSESGetSysctlEntry(const char *sysctlKey) {
   }
 }
 
-NSString *_Nullable FIRSESValidateMccMnc(NSString *_Nullable mcc, NSString *_Nullable mnc) {
-  // These are both nil if the target does not support mobile connectivity
-  if (mcc == nil && mnc == nil) {
-    return nil;
-  }
-
-  if (mcc.length != 3 || mnc.length < 2 || mnc.length > 3) {
-    return nil;
-  }
-
-  // If the resulting appended mcc + mnc contains characters that are not
-  // decimal digits, return nil
-  static NSCharacterSet *notDigits;
-  static dispatch_once_t token;
-  dispatch_once(&token, ^{
-    notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-  });
-  NSString *mccMnc = [mcc stringByAppendingString:mnc];
-  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) {
-    return nil;
-  }
-
-  return mccMnc;
-}
-
 NS_ASSUME_NONNULL_END
