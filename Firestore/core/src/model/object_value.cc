@@ -234,8 +234,8 @@ ObjectValue ObjectValue::FromAggregateFieldsEntry(
              entry) {
         return google_firestore_v1_MapValue_FieldsEntry{entry.key, entry.value};
       });
-  // Prevent double-freeing of the document's fields. The fields are now owned
-  // by ObjectValue.
+  // Prevent double-freeing of the AggregationResults's fields. The fields are
+  // now owned by ObjectValue.
   ReleaseFieldOwnership(fields_entry, count);
   return ObjectValue{std::move(value)};
 }

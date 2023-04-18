@@ -67,6 +67,15 @@ class ObjectValue {
   static ObjectValue FromFieldsEntry(
       google_firestore_v1_Document_FieldsEntry* fields_entry, pb_size_t count);
 
+  /**
+   * Creates a new ObjectValue that is backed by the provided aggregation result.
+   * ObjectValue takes on ownership of the data and zeroes out the pointers in
+   * `fields_entry`. This allows the callsite to destruct the AggregationResult
+   * proto without affecting the fields data.
+   * @param fields_entry The ObjectValue will be backed by this data.
+   * @param count Count of fields in `fields_entry`.
+   * @return The created `ObjectValue`.
+   */
   static ObjectValue FromAggregateFieldsEntry(
       google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
       pb_size_t count);
@@ -83,7 +92,7 @@ class ObjectValue {
   absl::optional<google_firestore_v1_Value> Get(const FieldPath& path) const;
 
   /**
-   * Returns the value with the given key or null.
+   * Returns the value with the given key or null if it doesn't exist.
    *
    * @param key the key to search
    * @return The value at the key or null if it doesn't exist.

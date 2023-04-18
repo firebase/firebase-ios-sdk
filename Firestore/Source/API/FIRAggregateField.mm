@@ -61,9 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)aggregateFieldForSumOfField:(NSString *)field NS_SWIFT_NAME(sum(_:)) {
-  FIRFieldPath *fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
-  FSTSumAggregateField *af = [[FSTSumAggregateField alloc] initWithFieldPath:fieldPath];
-  return af;
+  return [self aggregateFieldForSumOfFieldPath:[FIRFieldPath pathWithDotSeparatedString:field]];
 }
 
 + (instancetype)aggregateFieldForSumOfFieldPath:(FIRFieldPath *)fieldPath NS_SWIFT_NAME(sum(_:)) {
@@ -71,9 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 + (instancetype)aggregateFieldForAverageOfField:(NSString *)field NS_SWIFT_NAME(average(_:)) {
-  FIRFieldPath *fieldPath = [FIRFieldPath pathWithDotSeparatedString:field];
-  FSTAverageAggregateField *af = [[FSTAverageAggregateField alloc] initWithFieldPath:fieldPath];
-  return af;
+  return [self aggregateFieldForAverageOfFieldPath:[FIRFieldPath pathWithDotSeparatedString:field]];
 }
 
 + (instancetype)aggregateFieldForAverageOfFieldPath:(FIRFieldPath *)fieldPath

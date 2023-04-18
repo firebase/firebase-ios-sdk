@@ -191,9 +191,14 @@ class Query {
   }
 
   /**
-   * Creates a new `AggregateQuery` that performs the specified aggregates.
+   * Creates a new `AggregateQuery` that performs the specified aggregations.
+   *
+   * @param aggregations The aggregations to be performed by the created
+   * `AggregateQuery`.
+   *
+   * @return The created `AggregateQuery`.
    */
-  AggregateQuery Aggregate(std::vector<AggregateField>&&) const;
+  AggregateQuery Aggregate(std::vector<AggregateField>&& aggregations) const;
 
  private:
   void ValidateNewFilter(const core::Filter& filter) const;
