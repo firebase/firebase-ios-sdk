@@ -1,5 +1,6 @@
 # Unreleased
 - [feature] Add new cache config API to customize SDK cache settings.
+- [feature] Add LRU garbage collector as an option to memory cache.
 
 # 10.8.0
 - [feature] Change Firestore's Swift Package Manager distribution from source

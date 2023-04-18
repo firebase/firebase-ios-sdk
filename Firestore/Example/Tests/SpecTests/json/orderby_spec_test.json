@@ -6,7 +6,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -53,6 +53,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -111,6 +112,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -145,6 +147,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -183,7 +186,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -231,6 +234,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -243,6 +247,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -278,6 +283,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -290,6 +296,7 @@
                 "version": 1001
               },
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -365,6 +372,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -377,6 +385,7 @@
                 "version": 1001
               },
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,

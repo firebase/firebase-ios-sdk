@@ -204,7 +204,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 @end
 
 @implementation FSTSpecTests {
-  BOOL _gcEnabled;
+  BOOL _useEagerGCForMemory;
   size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
   FSTUserDataReader *_reader;
@@ -217,7 +217,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                                             __func__]                              \
                         userInfo:nil];
 
-- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
+- (std::unique_ptr<Persistence>)persistenceWithEagerGCForMemory:(__unused BOOL)eagerGC {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -237,9 +237,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   std::unique_ptr<Executor> user_executor = Executor::CreateSerial("user executor");
   user_executor_ = absl::ShareUniquePtr(std::move(user_executor));
 
-  // Store GCEnabled so we can re-use it in doRestart.
-  NSNumber *GCEnabled = config[@"useGarbageCollection"];
-  _gcEnabled = [GCEnabled boolValue];
+  // Store eagerGCForMemory so we can re-use it in doRestart.
+  NSNumber *eagerGCForMemory = config[@"useEagerGCForMemory"];
+  _useEagerGCForMemory = [eagerGCForMemory boolValue];
   NSNumber *maxConcurrentLimboResolutions = config[@"maxConcurrentLimboResolutions"];
   _maxConcurrentLimboResolutions = (maxConcurrentLimboResolutions == nil)
                                        ? std::numeric_limits<size_t>::max()
@@ -248,9 +248,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
-  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  std::unique_ptr<Persistence> persistence =
+      [self persistenceWithEagerGCForMemory:_useEagerGCForMemory];
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
+                                                   eagerGC:_useEagerGCForMemory
                                                initialUser:User::Unauthenticated()
                                          outstandingWrites:{}
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -558,6 +560,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   [self.driver enableNetwork];
 }
 
+- (void)doTriggerLruGC:(NSNumber *)threshold {
+  [self.driver triggerLruGC:threshold];
+}
+
 - (void)doChangeUser:(nullable id)UID {
   if ([UID isEqual:[NSNull null]]) {
     UID = nil;
@@ -573,9 +579,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
   [self.driver shutdown];
 
-  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  std::unique_ptr<Persistence> persistence =
+      [self persistenceWithEagerGCForMemory:_useEagerGCForMemory];
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
+                                                   eagerGC:_useEagerGCForMemory
                                                initialUser:currentUser
                                          outstandingWrites:outstandingWrites
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -639,6 +647,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     }
   } else if (step[@"changeUser"]) {
     [self doChangeUser:step[@"changeUser"]];
+  } else if (step[@"triggerLruGC"]) {
+    [self doTriggerLruGC:step[@"triggerLruGC"]];
   } else if (step[@"restart"]) {
     [self doRestart];
   } else if (step[@"applyClientState"]) {

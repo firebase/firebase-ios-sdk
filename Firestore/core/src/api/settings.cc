@@ -69,6 +69,50 @@ std::unique_ptr<LocalCacheSettings> Settings::CopyCacheSettings(
   UNREACHABLE();
 }
 
+std::unique_ptr<MemoryGargabeCollectorSettings>
+MemoryCacheSettings::CopyMemoryGcSettings(
+    const MemoryGargabeCollectorSettings& settings) {
+  if (settings.kind() ==
+      MemoryGargabeCollectorSettings::MemoryGcKind::kEagerGc) {
+    return absl::make_unique<MemoryEagerGcSettings>(
+        static_cast<const MemoryEagerGcSettings&>(settings));
+  } else if (settings.kind() ==
+             MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc) {
+    return absl::make_unique<MemoryLruGcSettings>(
+        static_cast<const MemoryLruGcSettings&>(settings));
+  }
+  UNREACHABLE();
+}
+
+MemoryCacheSettings::MemoryCacheSettings(const MemoryCacheSettings& other)
+    : LocalCacheSettings(other.kind()),
+      settings_(CopyMemoryGcSettings(*other.settings_)) {
+}
+
+MemoryCacheSettings& MemoryCacheSettings::operator=(
+    const MemoryCacheSettings& other) {
+  if (this == &other) {
+    return *this;
+  }
+
+  LocalCacheSettings::operator=(other);
+  settings_ = CopyMemoryGcSettings(*other.settings_);
+  return *this;
+}
+
+MemoryLruGcSettings MemoryLruGcSettings::WithSizeBytes(int64_t size) const {
+  MemoryLruGcSettings new_settings{*this};
+  new_settings.size_bytes_ = size;
+  return new_settings;
+}
+
+MemoryCacheSettings MemoryCacheSettings::WithMemoryGarbageCollectorSettings(
+    const MemoryGargabeCollectorSettings& settings) {
+  MemoryCacheSettings new_settings(*this);
+  new_settings.settings_ = CopyMemoryGcSettings(settings);
+  return new_settings;
+}
+
 size_t Settings::Hash() const {
   return util::Hash(host_, ssl_enabled_, persistence_enabled_,
                     cache_size_bytes_, cache_settings_);
@@ -113,22 +157,49 @@ bool operator==(const LocalCacheSettings& lhs, const LocalCacheSettings& rhs) {
   UNREACHABLE();
 }
 
+bool operator==(const MemoryGargabeCollectorSettings& lhs,
+                const MemoryGargabeCollectorSettings& rhs) {
+  if (lhs.kind() != rhs.kind()) {
+    return false;
+  }
+
+  if (lhs.kind() == MemoryGargabeCollectorSettings::MemoryGcKind::kEagerGc) {
+    return static_cast<const MemoryEagerGcSettings&>(lhs) ==
+           static_cast<const MemoryEagerGcSettings&>(rhs);
+  }
+
+  if (lhs.kind() == MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc) {
+    return static_cast<const MemoryLruGcSettings&>(lhs) ==
+           static_cast<const MemoryLruGcSettings&>(rhs);
+  }
+  UNREACHABLE();
+}
+
 bool operator!=(const LocalCacheSettings& lhs, const LocalCacheSettings& rhs) {
   return !(lhs == rhs);
 }
 
 size_t MemoryCacheSettings::Hash() const {
-  return util::Hash(kind_);
+  return util::Hash(kind_, *settings_);
 }
 
 size_t PersistentCacheSettings::Hash() const {
   return util::Hash(kind_, size_bytes_);
 }
 
+size_t MemoryEagerGcSettings::Hash() const {
+  return util::Hash(kind_);
+}
+
+size_t MemoryLruGcSettings::Hash() const {
+  return util::Hash(kind_, size_bytes_);
+}
+
 bool operator==(const MemoryCacheSettings& lhs,
                 const MemoryCacheSettings& rhs) {
-  return lhs.kind() == rhs.kind();
+  return lhs.kind() == rhs.kind() && lhs.gc_settings() == rhs.gc_settings();
 }
+
 bool operator!=(const MemoryCacheSettings& lhs,
                 const MemoryCacheSettings& rhs) {
   return !(lhs == rhs);
@@ -141,6 +212,26 @@ bool operator==(const PersistentCacheSettings& lhs,
 
 bool operator!=(const PersistentCacheSettings& lhs,
                 const PersistentCacheSettings& rhs) {
+  return !(lhs == rhs);
+}
+
+bool operator==(const MemoryEagerGcSettings& lhs,
+                const MemoryEagerGcSettings& rhs) {
+  return lhs.kind() == rhs.kind();
+}
+
+bool operator!=(const MemoryEagerGcSettings& lhs,
+                const MemoryEagerGcSettings& rhs) {
+  return !(lhs == rhs);
+}
+
+bool operator==(const MemoryLruGcSettings& lhs,
+                const MemoryLruGcSettings& rhs) {
+  return lhs.kind() == rhs.kind() && lhs.size_bytes() == rhs.size_bytes();
+}
+
+bool operator!=(const MemoryLruGcSettings& lhs,
+                const MemoryLruGcSettings& rhs) {
   return !(lhs == rhs);
 }
 
@@ -174,7 +265,16 @@ int64_t Settings::cache_size_bytes() const {
       return static_cast<const PersistentCacheSettings*>(cache_settings_.get())
           ->size_bytes_;
     } else {
-      return CacheSizeUnlimited;
+      auto* memory_cache_settings =
+          static_cast<MemoryCacheSettings*>(cache_settings_.get());
+      if (memory_cache_settings->gc_settings().kind() ==
+          MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc) {
+        return static_cast<const MemoryLruGcSettings&>(
+                   memory_cache_settings->gc_settings())
+            .size_bytes();
+      } else {
+        return CacheSizeUnlimited;
+      }
     }
   }
   return cache_size_bytes_;
@@ -182,11 +282,21 @@ int64_t Settings::cache_size_bytes() const {
 
 bool Settings::gc_enabled() const {
   if (cache_settings_) {
-    return cache_settings_->kind_ == LocalCacheSettings::Kind::kPersistent &&
-           static_cast<PersistentCacheSettings*>(cache_settings_.get())
-                   ->size_bytes_ != CacheSizeUnlimited;
+    if (cache_settings_->kind_ == LocalCacheSettings::Kind::kPersistent) {
+      return static_cast<PersistentCacheSettings*>(cache_settings_.get())
+                 ->size_bytes_ != CacheSizeUnlimited;
+    } else {
+      auto* memory_cache_settings =
+          static_cast<MemoryCacheSettings*>(cache_settings_.get());
+      return memory_cache_settings->gc_settings().kind() ==
+                 MemoryGargabeCollectorSettings::MemoryGcKind::kLruGc &&
+             static_cast<const MemoryLruGcSettings&>(
+                 memory_cache_settings->gc_settings())
+                     .size_bytes() != CacheSizeUnlimited;
+    }
   }
-  return cache_size_bytes_ != CacheSizeUnlimited;
+
+  return persistence_enabled_ && cache_size_bytes_ != CacheSizeUnlimited;
 }
 
 const LocalCacheSettings* Settings::local_cache_settings() const {
