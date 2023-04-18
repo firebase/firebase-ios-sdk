@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed a memory leak when generating session events (#11027).
+
 # 10.6.0
 - [added] Integrated with Firebase sessions library and replaced the session information associated with performance metrics with session details provided by the Firebase sessions library. If your app uses the Performance Monitoring SDK, review Firebase's [data disclosure page](https://firebase.google.com/docs/ios/app-store-data-collection) to make sure that your app's privacy details in the App Store are accurate and complete.
 - [changed] Changed definition of sessions, as Performance Monitoring now depends on the new Firebase sessions SDK.

@@ -1,5 +1,6 @@
 # Unreleased
 - [fixed] Updated upload-symbols to 3.15. Disabled dSYM uploads for Flutter apps building with --obfuscate and added instructions for uploading through the Crashlytics dashboard. (#11136)
+- [fixed] Fixed a memory leak when generating session events (#11027).
 
 # 10.7.0
 - [fixed] Updated upload-symbols to 3.14 with an improvement to upload all dSYM files for Flutter apps
