@@ -54,7 +54,7 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
       :tvos => tvos_deployment_target
     }
     objc_api_tests.source_files = [
-      'FirebaseAnalyticsSwift/Tests/ObjCAPI/*.m',
+      'FirebaseAnalyticsSwift/Tests/ObjCAPI/*.[hm]',
     ]
   end
 end
