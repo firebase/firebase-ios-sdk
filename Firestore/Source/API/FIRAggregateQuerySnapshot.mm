@@ -89,8 +89,8 @@ NS_ASSUME_NONNULL_BEGIN
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
   if (!fieldValue) {
     std::string path{""};
-    if (aggregation._fieldPath) {
-      path = [aggregation._fieldPath internalValue].CanonicalString();
+    if (aggregation.fieldPath) {
+      path = [aggregation.fieldPath internalValue].CanonicalString();
     }
 
     ThrowInvalidArgument("'%s(%s)' was not requested in the aggregation query.", [aggregation name],

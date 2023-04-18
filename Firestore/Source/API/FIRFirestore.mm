@@ -331,7 +331,7 @@ NS_ASSUME_NONNULL_BEGIN
   auto result_capture = std::make_shared<TransactionResult>(self, updateBlock, queue, completion);
 
   // Wrap the user-supplied updateBlock in a core C++ compatible callback. Wrap the result of the
-  // updateBlock invocation up in a TransactionResult for tunneling through the internals of the
+    // updateBlock invocation up in a TransactionResult for tunneling through the internals of the
   // system.
   auto internalUpdateBlock = [result_capture](
                                  std::shared_ptr<core::Transaction> internalTransaction,

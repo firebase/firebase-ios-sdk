@@ -22,10 +22,6 @@ namespace firebase {
 namespace firestore {
 namespace model {
 
-const char AggregateField::kOpSum[] = "sum";
-const char AggregateField::kOpAvg[] = "avg";
-const char AggregateField::kOpCount[] = "count";
-
 bool operator==(const AggregateField& lhs, const AggregateField& rhs) {
   return lhs.op == rhs.op && lhs.alias == rhs.alias &&
          lhs.fieldPath.CanonicalString() == rhs.fieldPath.CanonicalString();

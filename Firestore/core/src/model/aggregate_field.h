@@ -30,20 +30,32 @@ namespace model {
 
 class AggregateField {
  public:
-  static const char kOpSum[];
-  static const char kOpAvg[];
-  static const char kOpCount[];
+  enum class OpKind {Unknown, Sum, Avg, Count};
 
-  const std::string op;
+  static std::string OperatorKind(OpKind kind) {
+    switch (kind) {
+      case OpKind::Sum:
+        return "sum";
+      case OpKind::Avg:
+        return "avg";
+      case OpKind::Count:
+        return "count";
+      case OpKind::Unknown:
+        HARD_FAIL("Unexpected OpKind value `Unknown`.");
+    }
+    UNREACHABLE();
+  }
+
+  const OpKind op;
   const model::AggregateAlias alias;
   const model::FieldPath fieldPath;
 
-  AggregateField() {
+  AggregateField(): op(OpKind::Unknown) {
   }
-  AggregateField(const std::string& op, model::AggregateAlias&& alias)
+  AggregateField(OpKind op, model::AggregateAlias&& alias)
       : op(op), alias(std::move(alias)) {
   }
-  AggregateField(const std::string& op,
+  AggregateField(OpKind op,
                  model::AggregateAlias&& alias,
                  const model::FieldPath& fieldPath)
       : op(op), alias(std::move(alias)), fieldPath(fieldPath) {

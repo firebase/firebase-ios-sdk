@@ -19,21 +19,21 @@
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
-using firebase::firestore::model::AggregateField;
-using firebase::firestore::model::AggregateAlias;
-
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRAggregateField
 
 @interface FIRAggregateField ()
 @property(nonatomic, strong, readwrite) FIRFieldPath *_fieldPath;
+@property(nonatomic, readwrite) model::AggregateField::OpKind _op;
+- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath opKind:(model::AggregateField::OpKind)op;
 @end
 
 @implementation FIRAggregateField
-- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
+- (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath opKind:(model::AggregateField::OpKind)op {
   if (self = [super init]) {
     self._fieldPath = fieldPath;
+    self._op = op;
   }
   return self;
 }
@@ -43,17 +43,16 @@ NS_ASSUME_NONNULL_BEGIN
   }
   return self;
 }
+- (const std::string)name {
+  return model::AggregateField::OperatorKind([self _op]);
+}
 
-- (AggregateField)createInternalValue {
+- (model::AggregateField)createInternalValue {
   HARD_FAIL("Use createInternalValue from FIRAggregateField sub class.");
 }
 
-- (AggregateAlias)createAlias {
+- (model::AggregateAlias)createAlias {
   HARD_FAIL("Use createAlias from FIRAggregateField sub class.");
-}
-
-- (const std::string)name {
-  HARD_FAIL("Use name from FIRAggregateField sub class.");
 }
 
 + (instancetype)aggregateFieldForCount NS_SWIFT_NAME(count()) {
@@ -82,44 +81,35 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTSumAggregateField
 @implementation FSTSumAggregateField
 - (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
-  self = [super initWithFieldPath:fieldPath];
+  self = [super initWithFieldPath:fieldPath opKind:model::AggregateField::OpKind::Sum];
   return self;
 }
 
-- (AggregateAlias)createAlias {
-  return AggregateAlias([self name] + std::string{"_"} +
+- (model::AggregateAlias)createAlias {
+  return model::AggregateAlias([self name] + std::string{"_"} +
                                super._fieldPath.internalValue.CanonicalString());
 }
 
-- (AggregateField)createInternalValue {
-  return AggregateField([self name], [self createAlias], super._fieldPath.internalValue);
+- (model::AggregateField)createInternalValue {
+  return model::AggregateField([self _op], [self createAlias], super._fieldPath.internalValue);
 }
-
-- (const std::string)name {
-  return AggregateField::kOpSum;
-}
-
 @end
 
 #pragma mark - FSTAverageAggregateField
 
 @implementation FSTAverageAggregateField
 - (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
-  self = [super initWithFieldPath:fieldPath];
+  self = [super initWithFieldPath:fieldPath opKind:model::AggregateField::OpKind::Avg];
   return self;
 }
 
-- (AggregateAlias)createAlias {
-  return AggregateAlias([self name] + std::string{"_"} +
+- (model::AggregateAlias)createAlias {
+  return model::AggregateAlias([self name] + std::string{"_"} +
                                super._fieldPath.internalValue.CanonicalString());
 }
 
-- (AggregateField)createInternalValue {
-  return AggregateField([self name], [self createAlias], super._fieldPath.internalValue);
-}
-
-- (const std::string)name {
-  return AggregateField::kOpAvg;
+- (model::AggregateField)createInternalValue {
+  return model::AggregateField([self _op], [self createAlias], super._fieldPath.internalValue);
 }
 
 @end
@@ -131,16 +121,12 @@ NS_ASSUME_NONNULL_BEGIN
   return [super initPrivate];
 }
 
-- (AggregateAlias)createAlias {
-  return AggregateAlias([self name]);
+- (model::AggregateAlias)createAlias {
+  return model::AggregateAlias([self name]);
 }
 
-- (AggregateField)createInternalValue {
-  return AggregateField([self name], [self createAlias]);
-}
-
-- (const std::string)name {
-  return AggregateField::kOpCount;
+- (model::AggregateField)createInternalValue {
+  return model::AggregateField([self _op], [self createAlias]);
 }
 
 @end

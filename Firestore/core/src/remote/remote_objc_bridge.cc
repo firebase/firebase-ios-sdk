@@ -304,14 +304,14 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
     result->query_type.structured_aggregation_query.aggregations[i].alias =
         nanopb::MakeBytesArray(aggregatePair.first);
 
-    if (aggregatePair.second.op == AggregateField::kOpCount) {
+    if (aggregatePair.second.op == AggregateField::OpKind::Count) {
       result->query_type.structured_aggregation_query.aggregations[i]
           .which_operator =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag;
 
       result->query_type.structured_aggregation_query.aggregations[i].count =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Count{};
-    } else if (aggregatePair.second.op == AggregateField::kOpSum) {
+    } else if (aggregatePair.second.op == AggregateField::OpKind::Sum) {
       google_firestore_v1_StructuredQuery_FieldReference field{};
 
       field.field_path = nanopb::MakeBytesArray(
@@ -324,7 +324,7 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
       result->query_type.structured_aggregation_query.aggregations[i].sum =
           google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum{field};
 
-    } else if (aggregatePair.second.op == AggregateField::kOpAvg) {
+    } else if (aggregatePair.second.op == AggregateField::OpKind::Avg) {
       google_firestore_v1_StructuredQuery_FieldReference field{};
       field.field_path = nanopb::MakeBytesArray(
           aggregatePair.second.fieldPath.CanonicalString());

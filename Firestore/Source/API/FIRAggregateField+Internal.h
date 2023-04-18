@@ -41,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)initWithFieldPath:(FIRFieldPath *)path;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
-- (const std::string)name;
 @end
 
 /**
@@ -53,7 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFieldPath:(FIRFieldPath *)internalFieldPath;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
-- (const std::string)name;
 @end
 
 /** FIRAggregateField class for count aggregations. Exposed internally so code can do isKindOfClass
@@ -64,7 +62,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initPrivate;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
-- (const std::string)name;
 @end
 
 NS_ASSUME_NONNULL_END
