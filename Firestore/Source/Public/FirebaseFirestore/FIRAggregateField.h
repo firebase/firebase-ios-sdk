@@ -30,18 +30,18 @@ NS_SWIFT_NAME(AggregateField)
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Create an AggregateField object that can be used to compute the count of
+ * Create an `AggregateField` object that can be used to compute the count of
  * documents in the result set of a query.
  *
  * The result of a count operation will always be a 64-bit integer value.
  *
- * @return AggregateField object that can be used to compute the count of
+ * @return `AggregateField` object that can be used to compute the count of
  * documents in the result set of a query.
  */
 + (instancetype)aggregateFieldForCount NS_SWIFT_NAME(count());
 
 /**
- * Create an AggregateField object that can be used to compute the sum of
+ * Create an `AggregateField` object that can be used to compute the sum of
  * a specified field over a range of documents in the result set of a query.
  *
  * The result of a sum operation will always be a 64-bit integer value, a double, or NaN.
@@ -54,13 +54,13 @@ NS_SWIFT_NAME(AggregateField)
  * value representing infinity.
  *
  * @param field Specifies the field to sum across the result set.
- * @return AggregateField object that can be used to compute the sum of
+ * @return `AggregateField` object that can be used to compute the sum of
  * a specified field over a range of documents in the result set of a query.
  */
 + (instancetype)aggregateFieldForSumOfField:(NSString *)field NS_SWIFT_NAME(sum(_:));
 
 /**
- * Create an AggregateField object that can be used to compute the sum of
+ * Create an `AggregateField` object that can be used to compute the sum of
  * a specified field over a range of documents in the result set of a query.
  *
  * The result of a sum operation will always be a 64-bit integer value, a double, or NaN.
@@ -73,13 +73,13 @@ NS_SWIFT_NAME(AggregateField)
  * value representing infinity.
  *
  * @param fieldPath Specifies the field to sum across the result set.
- * @return AggregateField object that can be used to compute the sum of
+ * @return `AggregateField` object that can be used to compute the sum of
  * a specified field over a range of documents in the result set of a query.
  */
 + (instancetype)aggregateFieldForSumOfFieldPath:(FIRFieldPath *)fieldPath NS_SWIFT_NAME(sum(_:));
 
 /**
- * Create an AggregateField object that can be used to compute the average of
+ * Create an `AggregateField` object that can be used to compute the average of
  * a specified field over a range of documents in the result set of a query.
  *
  * The result of an average operation will always be a 64-bit integer value, a double, or NaN.
@@ -88,13 +88,13 @@ NS_SWIFT_NAME(AggregateField)
  * - Averaging over NaN will result in a double value representing NaN.
  *
  * @param field Specifies the field to average across the result set.
- * @return AggregateField object that can be used to compute the average of
+ * @return `AggregateField` object that can be used to compute the average of
  * a specified field over a range of documents in the result set of a query.
  */
 + (instancetype)aggregateFieldForAverageOfField:(NSString *)field NS_SWIFT_NAME(average(_:));
 
 /**
- * Create an AggregateField object that can be used to compute the average of
+ * Create an `AggregateField` object that can be used to compute the average of
  * a specified field over a range of documents in the result set of a query.
  *
  * The result of an average operation will always be a 64-bit integer value, a double, or NaN.
@@ -103,7 +103,7 @@ NS_SWIFT_NAME(AggregateField)
  * - Averaging over NaN will result in a double value representing NaN.
  *
  * @param fieldPath Specifies the field to average across the result set.
- * @return AggregateField object that can be used to compute the average of
+ * @return `AggregateField` object that can be used to compute the average of
  * a specified field over a range of documents in the result set of a query.
  */
 + (instancetype)aggregateFieldForAverageOfFieldPath:(FIRFieldPath *)fieldPath

@@ -47,8 +47,8 @@ NS_SWIFT_NAME(AggregateQuerySnapshot)
  * @param aggregation An instance of `AggregateField` that specifies which aggregation result to
  * return.
  * @return Returns the aggregation result from the server without loss of precision.
- * @warning Throws an InvalidArgument exception if the aggregation was not requested in the
- * AggregateQuery.
+ * @warning Throws an `InvalidArgument` exception if the aggregation was not requested in the
+ * `AggregateQuery`.
  * @see FIRAggregateField
  */
 - (nullable id)valueForAggregation:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:));

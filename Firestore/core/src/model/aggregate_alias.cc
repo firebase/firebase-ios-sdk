@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/model/aggregate_alias.h"
+#include "aggregate_alias.h"
 
 #include "Firestore/core/src/util/hashing.h"
 

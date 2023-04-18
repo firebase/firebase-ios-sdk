@@ -354,7 +354,7 @@ DatastoreSerializer::DecodeAggregateQueryResponse(
     return reader.status();
   }
 
-  HARD_ASSERT(!!message->result.aggregate_fields);
+  HARD_ASSERT(message->result.aggregate_fields != nullptr);
 
   return ObjectValue::FromAggregateFieldsEntry(
       message->result.aggregate_fields, message->result.aggregate_fields_count);

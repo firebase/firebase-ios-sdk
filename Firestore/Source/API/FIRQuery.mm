@@ -20,10 +20,11 @@
 #include <utility>
 #include <vector>
 
-#import "FIRAggregateField+Internal.h"
-#import "FIRAggregateQuery+Internal.h"
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
+
+#import "Firestore/Source/API/FIRAggregateField+Internal.h"
+#import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
