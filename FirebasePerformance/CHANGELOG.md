@@ -1,4 +1,4 @@
-# Unreleased
+# 10.9.0
 - [fixed] Fixed a memory leak when generating session events (#11027).
 
 # 10.6.0
