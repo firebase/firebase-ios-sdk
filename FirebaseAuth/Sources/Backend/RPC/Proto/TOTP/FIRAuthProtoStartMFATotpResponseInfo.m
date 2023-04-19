@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
     _hashingAlgorithm = [dictionary[@"hashingAlgorithm"] copy];
     _periodSec = [dictionary[@"periodSec"] integerValue];
     _sessionInfo = [dictionary[@"sessionInfo"] copy];
-    _finalizeEnrollmentTime =  [dictionary[@"finalizeEnrollmentTime"] isKindOfClass:[NSString class]]
-      ? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"finalizeEnrollmentTime"] doubleValue]]
-      : nil;
+    _finalizeEnrollmentTime =
+        [dictionary[@"finalizeEnrollmentTime"] isKindOfClass:[NSString class]]
+            ? [NSDate
+                  dateWithTimeIntervalSinceNow:[dictionary[@"finalizeEnrollmentTime"] doubleValue]]
+            : nil;
   }
   return self;
 }
