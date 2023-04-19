@@ -444,6 +444,7 @@ jobs:
     needs: package-head
     env:
       FRAMEWORK_DIR: "Firebase-actions-dir"
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-12
     steps:
       - name: Xcode 13.3.1
