@@ -29,10 +29,12 @@ let package = Package(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
+    // This library is not designed to be imported into client source code.
     .library(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
+    // This library is not designed to be imported into client source code.
     .library(
       name: "FirebaseAnalyticsOnDeviceConversion",
       targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
@@ -1199,6 +1201,7 @@ let package = Package(
         "FirebaseAnalyticsSwiftTarget",
         "FirebaseAnalyticsWrapper",
         "Firebase",
+
       ],
       path: "SwiftPMTests/analytics-import-test"
     ),
