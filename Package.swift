@@ -1201,7 +1201,6 @@ let package = Package(
         "FirebaseAnalyticsSwiftTarget",
         "FirebaseAnalyticsWrapper",
         "Firebase",
-
       ],
       path: "SwiftPMTests/analytics-import-test"
     ),
