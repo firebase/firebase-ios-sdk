@@ -150,7 +150,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.10.0" ..< "8.0.0"
+      "7.11.0" ..< "8.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
