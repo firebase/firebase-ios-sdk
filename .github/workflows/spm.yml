@@ -97,7 +97,3 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Build Client App –– ${{ matrix.platform }}
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh SwiftPMClientApp ${{ matrix.platform }} xcodebuild
-    - uses: actions/upload-artifact@v2
-      with:
-        name: xcodebuild_${{ matrix.platform }}.log
-        path: xcodebuild.log
