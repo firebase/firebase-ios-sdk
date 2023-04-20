@@ -86,7 +86,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        platform: [iOS, tvOS]
+        platform: [iOS]
         # TODO(Xcode 14.3): Remove above line and uncomment below array when GHA
         # supports Ventura/Xcode 14.3.
         # platform: [iOS, tvOS, macOS, catalyst]
