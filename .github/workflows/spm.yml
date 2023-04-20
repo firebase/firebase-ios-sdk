@@ -86,7 +86,10 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        platform: [iOS, tvOS, macOS, catalyst]
+        platform: [iOS, tvOS]
+        # TODO(Xcode 14.3): Remove above line and uncomment below array when GHA
+        # supports Ventura/Xcode 14.3.
+        # platform: [iOS, tvOS, macOS, catalyst]
     steps:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
