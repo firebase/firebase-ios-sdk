@@ -28,10 +28,10 @@ Pod::Spec.new do |s|
 
     s.dependency 'FirebaseCore', '~> 10.0'
     s.dependency 'FirebaseInstallations', '~> 10.0'
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
-    s.dependency 'GoogleUtilities/Network', '~> 7.8'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.11'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.11'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.11'
+    s.dependency 'GoogleUtilities/Network', '~> 7.11'
     s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
     s.default_subspecs = 'AdIdSupport'
