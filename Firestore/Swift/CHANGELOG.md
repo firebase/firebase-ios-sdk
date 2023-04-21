@@ -1,3 +1,7 @@
+# 10.9.0
+- [changed] The async `CollectionReference.addDocument(data:)` API now returns
+  a discardable result. (#10640)
+
 # 10.4.0
 - [fixed] Restore 9.x Codable behavior of encoding `Data` types as an `NSData`
   blob instead of a String.

@@ -104,16 +104,13 @@ class Timestamp {
    * Converts `time_t` to a `Timestamp`.
    *
    * @param seconds_since_unix_epoch
-   *     @parblock
    *     The number of seconds of UTC time since Unix epoch
    *     1970-01-01T00:00:00Z. Can be negative to represent dates before the
    *     epoch. Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z
    *     inclusive; otherwise, assertion failure will be triggered.
-   *
    *     Note that while the epoch of `time_t` is unspecified, it's usually Unix
    *     epoch. If this assumption is broken, this function will produce
    *     incorrect results.
-   *     @endparblock
    *
    * @return a new timestamp with the given number of seconds and zero
    *     nanoseconds.
@@ -125,17 +122,14 @@ class Timestamp {
    * Converts `std::chrono::time_point` to a `Timestamp`.
    *
    * @param time_point
-   *     @parblock
    *     The time point with system clock's epoch, which is
    *     presumed to be Unix epoch 1970-01-01T00:00:00Z. Can be negative to
    *     represent dates before the epoch. Must be from 0001-01-01T00:00:00Z to
    *     9999-12-31T23:59:59Z inclusive; otherwise, assertion failure will be
    *     triggered.
-   *
    *     Note that while the epoch of `std::chrono::system_clock` is
    *     unspecified, it's usually Unix epoch. If this assumption is broken,
    *     this constructor will produce incorrect results.
-   *     @endparblock
    */
   static Timestamp FromTimePoint(
       std::chrono::time_point<std::chrono::system_clock> time_point);

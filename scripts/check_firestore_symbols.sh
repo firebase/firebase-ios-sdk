@@ -34,6 +34,8 @@
 #
 # USAGE: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>
 
+set -euo pipefail
+
 if [[ $# -ne 2 ]]; then
     echo "Usage: ./check_firestore_symbols.sh <PATH_TO_FIREBASE_REPO> <PATH_TO_FIRESTORE_XCFRAMEWORK>"
     exit 1
@@ -123,14 +125,10 @@ cd "$TEST_PKG_ROOT"
 # Build the test package *without* the `-ObjC` linker flag, and dump the
 # resulting executable file's Objective-C symbols into a text file.
 echo "Building test package without -ObjC linker flag..."
-# Invoke a subshell to avoid pipefail affecting the rest of the script.
-(
-    set -eo pipefail && FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
-    xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
-        -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg" \
-        | xcpretty
-)
-
+FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 xcodebuild -scheme 'TestPkg' \
+    -destination 'generic/platform=macOS' \
+    -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg" \
+    | xcpretty
 
 nm ~/Library/Developer/Xcode/DerivedData/TestPkg/Build/Products/Debug/TestPkg \
       | grep -o "[-+]\[.*\]" > objc_symbols_without_linker_flag.txt
@@ -138,20 +136,27 @@ nm ~/Library/Developer/Xcode/DerivedData/TestPkg/Build/Products/Debug/TestPkg \
 # Build the test package *with* the -ObjC linker flag, and dump the
 # resulting executable file's Objective-C symbols into a text file.
 echo "Building test package with -ObjC linker flag..."
-# Invoke a subshell to avoid pipefail affecting the rest of the script.
-(
-    set -eo pipefail && FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 \
-    xcodebuild -scheme 'TestPkg' -destination 'generic/platform=macOS' \
-        -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg-ObjC" \
-        OTHER_LDFLAGS='-ObjC' \
-        | xcpretty
-)
+FIREBASECI_USE_LOCAL_FIRESTORE_ZIP=1 xcodebuild -scheme 'TestPkg' \
+    -destination 'generic/platform=macOS' \
+    -derivedDataPath "$HOME/Library/Developer/Xcode/DerivedData/TestPkg-ObjC" \
+    OTHER_LDFLAGS='-ObjC' \
+    | xcpretty
 
 nm ~/Library/Developer/Xcode/DerivedData/TestPkg-ObjC/Build/Products/Debug/TestPkg \
       | grep -o "[-+]\[.*\]" > objc_symbols_with_linker_flag.txt
 
-# Compare the two text files to see if the -ObjC linker flag has any effect.
-DIFF=$(diff objc_symbols_without_linker_flag.txt objc_symbols_with_linker_flag.txt)
+# Compare the two text files to see if the -ObjC linker flag caused additional
+# symbols to link.
+#
+# Note: In the case where the diff is non-empty, the diff command will
+# return exit code 1, which will cause the set pipefail to terminate execution.
+# To avoid this, `|| true` ensures the exit code always indicates success.
+DIFF=$(
+    git diff --no-index \
+        objc_symbols_without_linker_flag.txt \
+        objc_symbols_with_linker_flag.txt \
+        || true
+)
 if [[ -n "$DIFF" ]]; then
     echo "Failure: Unlinked Objective-C symbols have been detected:"
     echo "$DIFF"

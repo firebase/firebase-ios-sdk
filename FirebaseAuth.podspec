@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuth'
-  s.version          = '10.8.0'
+  s.version          = '10.9.0'
   s.summary          = 'Apple platform client for Firebase Authentication'
 
   s.description      = <<-DESC
@@ -39,6 +39,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
     source + '**/*.[mh]',
     'FirebaseCore/Extension/*.h',
     'FirebaseAuth/Interop/*.h',
+    'FirebaseAppCheck/Interop/*.h',
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
   s.preserve_paths = [
@@ -51,6 +52,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.0'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'

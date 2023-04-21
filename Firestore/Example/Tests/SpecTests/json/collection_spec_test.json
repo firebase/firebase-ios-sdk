@@ -6,7 +6,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -46,6 +46,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/key",
               "options": {
                 "hasCommittedMutations": false,
@@ -80,6 +81,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/key",
                 "options": {
                   "hasCommittedMutations": false,
@@ -113,7 +115,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -155,6 +157,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/key",
                 "options": {
                   "hasCommittedMutations": false,
