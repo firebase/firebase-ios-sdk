@@ -81,7 +81,7 @@ NS_SWIFT_NAME(MemoryEagerGCSetting)
 @interface FIRMemoryEagerGCSettings : NSObject <NSCopying, FIRMemoryGarbageCollectorSettings>
 
 /**
- * Creates an instnace of `MemoryEagerGCSettings`.
+ * Creates an instance of `MemoryEagerGCSettings`.
  */
 - (instancetype)init;
 
@@ -90,9 +90,9 @@ NS_SWIFT_NAME(MemoryEagerGCSetting)
 /**
  * Configures the SDK to use a least-recently-used garbage collector for memory cache.
  *
- * Once configured, the SDK will attemp to remove documents that are least recently used in batches,
- * if the current cache size is larger than the given target cache size. Default cache size is
- * 100MB.
+ * Once configured, the SDK will attempt to remove documents that are least recently used in
+ * batches, if the current cache size is larger than the given target cache size. Default cache size
+ * is 100MB.
  *
  * To use, create an instance using one of the initializers, then initialize
  * `MemoryCacheSettings` with this instance.
@@ -101,13 +101,13 @@ NS_SWIFT_NAME(MemoryLRUGCSettings)
 @interface FIRMemoryLRUGCSettings : NSObject <NSCopying, FIRMemoryGarbageCollectorSettings>
 
 /**
- * Creates an instnace of `FIRMemoryLRUGCSettings`, with default target cache size 100MB. The SDK
+ * Creates an instance of `FIRMemoryLRUGCSettings`, with default target cache size 100MB. The SDK
  * will run garbage collection if the current cache size is larger than 100MB.
  */
 - (instancetype)init;
 
 /**
- * Creates an instnace of `FIRMemoryLRUGCSettings`, with a custom target cache size. The SDK will
+ * Creates an instance of `FIRMemoryLRUGCSettings`, with a custom target cache size. The SDK will
  * run garbage collection if the current cache size is larger than the given size.
  */
 - (instancetype)initWithSizeBytes:(NSNumber *)size;
@@ -126,12 +126,12 @@ NS_SWIFT_NAME(MemoryCacheSettings)
 @interface FIRMemoryCacheSettings : NSObject <NSCopying, FIRLocalCacheSettings>
 
 /**
- * Creates an instnace of `MemoryCacheSettings`.
+ * Creates an instance of `MemoryCacheSettings`.
  */
 - (instancetype)init;
 
 /**
- * Creates an instnace of `MemoryCacheSettings` with given `MemoryGarbageCollectorSettings` to
+ * Creates an instance of `MemoryCacheSettings` with given `MemoryGarbageCollectorSettings` to
  * custom the gabarge collector.
  */
 - (instancetype)initWithGarbageCollectorSettings:
