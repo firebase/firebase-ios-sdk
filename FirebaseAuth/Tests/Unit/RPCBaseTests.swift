@@ -40,6 +40,7 @@ class RPCBaseTests: XCTestCase {
   let kTestPhotoURL = "https://host.domain/image"
   let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
   let kLastSignInDateTimeIntervalInSeconds = 1_505_858_583.0
+  let kTestPhoneNumber = "415-555-1234"
 
   /** @var kTestAPIKey
       @brief Fake API key used for testing.
@@ -239,7 +240,8 @@ class RPCBaseTests: XCTestCase {
                                  withLocalID localID: String = "testLocalId",
                                  withProviderID providerID: String = "testProviderID",
                                  withFederatedID federatedID: String = "testFederatedId",
-                                 withEmail email: String = "user@company.com") {
+                                 withEmail email: String = "user@company.com",
+                                 withPasswordHash passwordHash: String? = nil) {
     let kProviderUserInfoKey = "providerUserInfo"
     let kPhotoUrlKey = "photoUrl"
     let kProviderIDkey = "providerId"
@@ -247,7 +249,7 @@ class RPCBaseTests: XCTestCase {
     let kFederatedIDKey = "federatedId"
     let kEmailKey = "email"
     let kPasswordHashKey = "passwordHash"
-    let kTestPasswordHash = "testPasswordHash"
+    let kTestPasswordHash = passwordHash
     let kEmailVerifiedKey = "emailVerified"
     let kLocalIDKey = "localId"
 
@@ -265,6 +267,7 @@ class RPCBaseTests: XCTestCase {
       kPhotoUrlKey: kTestPhotoURL,
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,
+      "phoneNumber": kTestPhoneNumber,
     ]]
   }
 
