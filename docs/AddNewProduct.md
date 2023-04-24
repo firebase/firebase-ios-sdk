@@ -35,7 +35,7 @@ binary zip distributions.
 Firebase SDKs can be developed via Swift Package Manager or CocoaPods.
 
 The new project should set up a `podspec` for CocoaPods and add a `product` specification to
-[Package.swift](Package.swift).
+the [Package.swift](Package.swift).
 
 ## Testing
 
