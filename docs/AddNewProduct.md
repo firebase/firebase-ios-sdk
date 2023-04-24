@@ -47,8 +47,8 @@ CocoaPods and Swift Package Manager. If only one is implemented, it should be SP
 Dependencies are a great way to add libraries of well-tested functionality to Firebase. On the flip
 side, they can add bloat and risk to the Firebase user experience. Ideally, only existing Firebase
 dependencies should be used. See [Package.swift](Package.swift). If a new dependency is needed,
-consider making it a weak dependency and only hard depending on a protocol. Any new hard
-dependencies must be approved by the iCore team.
+consider making it a weak dependency, implemented with a direct dependency on a protocol instead of
+the full library. New non-protocol-only direct dependencies must be approved by the iCore team.
 
 ## Directory Structure
 

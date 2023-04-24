@@ -2,8 +2,9 @@
 
 ## Introduction
 
-**This document is deprecated in favor of [docs/AddNewProduct.md](AddNewProduct.md)**. It
-provides additional context about legacy Objective C implementations.
+**This document is deprecated in favor of [docs/AddNewProduct.md](AddNewProduct.md)**.
+
+This doc continues to provide additional context about legacy Objective C implementations.
 
 The Firebase build is driven by the contents of a podspec. It is helpful to
 use an existing podspec as a template when starting a new pod.
