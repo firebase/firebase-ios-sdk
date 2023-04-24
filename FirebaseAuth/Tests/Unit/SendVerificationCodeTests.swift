@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 
 class SendVerificationCodeTests: RPCBaseTests {
-  private let kTestPhoneNumber = "12345678"
   private let kTestSecret = "secret"
   private let kTestReceipt = "receipt"
   private let kTestReCAPTCHAToken = "reCAPTCHAToken"

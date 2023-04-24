@@ -1690,6 +1690,14 @@ import Foundation
 
   private func link(withEmailCredential emailCredential: EmailAuthCredential,
                     completion: ((AuthDataResult?, Error?) -> Void)?) {
+    if hasEmailPasswordCredential {
+      User.callInMainThreadWithAuthDataResultAndError(
+        callback: completion,
+        result: nil,
+        error: AuthErrorUtils.providerAlreadyLinkedError()
+      )
+      return
+    }
     if let password = emailCredential.password {
       updateEmail(email: emailCredential.email, password: password) { error in
         if let error {
