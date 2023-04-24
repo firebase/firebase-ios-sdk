@@ -130,7 +130,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     switch subscriber {
     case .Performance:
       let oldString = proto.application_info.apple_app_info.mcc_mnc
-      proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
+      proto.application_info.apple_app_info.mcc_mnc = makeProtoString("")
       nanopb_free(oldString)
       proto.application_info.apple_app_info.network_connection_info
         .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)

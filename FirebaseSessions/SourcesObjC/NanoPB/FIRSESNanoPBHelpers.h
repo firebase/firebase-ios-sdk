@@ -91,9 +91,6 @@ pb_size_t FIRSESGetAppleApplicationInfoTag(void);
 /// private method in GULAppEnvironmentUtil.
 NSString* _Nullable FIRSESGetSysctlEntry(const char* sysctlKey);
 
-/// Returns the validated MccMnc if it is available, or nil if the device does not support telephone
-NSString* _Nullable FIRSESValidateMccMnc(NSString* _Nullable mcc, NSString* _Nullable mnc);
-
 NS_ASSUME_NONNULL_END
 
 #endif /* FIRSESNanoPBHelpers_h */
