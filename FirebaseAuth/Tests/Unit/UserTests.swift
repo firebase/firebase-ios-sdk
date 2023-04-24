@@ -35,6 +35,9 @@ class UserTests: RPCBaseTests {
   let kNewDisplayName = "New User Doe"
   let kUserName = "User Doe"
   let kGoogleProfile = ["email": "usergmail.com", "given_name": "MyFirst", "family_name": "MyLast"]
+  let kVerificationCode = "12345678"
+  let kVerificationID = "55432"
+  let kPhoneNumber = "555-1234"
 
   static var auth: Auth?
 
@@ -81,7 +84,6 @@ class UserTests: RPCBaseTests {
     let kGooglePhotoURL = "https://googleusercontents.com/user/profile"
     let kFacebookID = "FACEBOOK_ID"
     let kFacebookEmail = "user@facebook.com"
-    let kPhoneNumber = "555-1234"
     let kUserArchiverKey = "userArchiverKey"
     let kEnrollmentID = "fakeEnrollment"
 
@@ -119,6 +121,7 @@ class UserTests: RPCBaseTests {
       kPhotoUrlKey: kTestPhotoURL,
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,
+      "phoneNumber": kPhoneNumber,
       "createdAt": String(Int(kCreationDateTimeIntervalInSeconds) * 1000), // to nanoseconds
       "lastLoginAt": String(Int(kLastSignInDateTimeIntervalInSeconds) * 1000),
     ]]
@@ -170,7 +173,7 @@ class UserTests: RPCBaseTests {
         #if os(iOS)
           // Verify FIRUserInfo properties from the phone auth provider.
           let phoneUserInfo = try XCTUnwrap(providerMap[PhoneAuthProvider.id])
-          XCTAssertEqual(phoneUserInfo.phoneNumber, kPhoneNumber)
+          XCTAssertEqual(phoneUserInfo.phoneNumber, self.kPhoneNumber)
         #endif
 
         // Test NSSecureCoding
@@ -260,7 +263,7 @@ class UserTests: RPCBaseTests {
       @brief Tests the flow of a successful @c updateEmail:completion: call.
    */
   func testUpdateEmailSuccess() {
-    setFakeGetAccountProvider()
+    setFakeGetAccountProvider(withPasswordHash: kFakePassword)
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       self.changeUserEmail(user: user, expectation: expectation)
@@ -343,7 +346,112 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  // TODO: Three phone number tests for iOS go here.
+  #if os(iOS)
+
+    /** @fn testUpdatePhoneSuccess
+        @brief Tests the flow of a successful @c updatePhoneNumberCredential:completion: call.
+     */
+    func testUpdatePhoneSuccess() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithEmailPasswordReturnFakeUser { user in
+        do {
+          let group = self.createGroup()
+          self.expectVerifyPhoneNumberRequest()
+          self.rpcIssuer?.fakeGetAccountProviderJSON = [[
+            "phoneNumber": self.kPhoneNumber,
+          ]]
+
+          let credential = PhoneAuthProvider.provider(auth: auth).credential(
+            withVerificationID: self.kVerificationID,
+            verificationCode: self.kVerificationCode
+          )
+
+          user.updatePhoneNumber(credential) { error in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertNil(error)
+            XCTAssertEqual(auth.currentUser?.phoneNumber, self.kPhoneNumber)
+            expectation.fulfill()
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testUpdatePhoneNumberFailure
+        @brief Tests the flow of a failed @c updatePhoneNumberCredential:completion: call.
+     */
+    func testUpdatePhoneNumberFailure() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithEmailPasswordReturnFakeUser { user in
+        do {
+          let group = self.createGroup()
+          self.expectVerifyPhoneNumberRequest()
+
+          let credential = PhoneAuthProvider.provider(auth: auth).credential(
+            withVerificationID: self.kVerificationID,
+            verificationCode: self.kVerificationCode
+          )
+
+          user.updatePhoneNumber(credential) { rawError in
+            XCTAssertTrue(Thread.isMainThread)
+            let error = try! XCTUnwrap(rawError)
+            XCTAssertEqual((error as NSError).code, AuthErrorCode.invalidPhoneNumber.rawValue)
+            XCTAssertEqual(auth.currentUser, user)
+            expectation.fulfill()
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testUpdatePhoneNumberFailureAutoSignOut
+        @brief Tests the flow of a failed @c updatePhoneNumberCredential:completion: call that
+            automatically signs out.
+     */
+    func testUpdatePhoneNumberFailureAutoSignOut() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithEmailPasswordReturnFakeUser { user in
+        do {
+          let group = self.createGroup()
+          self.expectVerifyPhoneNumberRequest()
+
+          let credential = PhoneAuthProvider.provider(auth: auth).credential(
+            withVerificationID: self.kVerificationID,
+            verificationCode: self.kVerificationCode
+          )
+
+          user.updatePhoneNumber(credential) { rawError in
+            XCTAssertTrue(Thread.isMainThread)
+            let error = try! XCTUnwrap(rawError)
+            XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
+            // User is no longer signed in.
+            XCTAssertNil(UserTests.auth?.currentUser)
+            expectation.fulfill()
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+  #endif
 
   /** @fn testUpdatePasswordSuccess
       @brief Tests the flow of a successful @c updatePassword:completion: call.
@@ -1148,7 +1256,7 @@ class UserTests: RPCBaseTests {
       }
     }
 
-    /** @fn tesLlinkProviderFailure
+    /** @fn testLinkProviderFailure
         @brief Tests the flow of a failed @c linkWithProvider:completion:
             call.
      */
@@ -1177,7 +1285,7 @@ class UserTests: RPCBaseTests {
           XCTFail("Caught an error in \(#function): \(error)")
         }
       }
-      waitForExpectations(timeout: 555)
+      waitForExpectations(timeout: 5)
     }
 
     /** @fn testReauthenticateWithProviderFailure
@@ -1211,40 +1319,216 @@ class UserTests: RPCBaseTests {
       waitForExpectations(timeout: 5)
     }
 
-    // TODO: The Remaining FOUR tests rely on Phone Auth. Implement those after completing Phone Auth.
     /** @fn testLinkPhoneAuthCredentialSuccess
         @brief Tests the flow of a successful @c linkWithCredential call using a phoneAuthCredential.
      */
-//  func testLinkPhoneAuthCredentialSuccess() throws {
-//    setFakeGetAccountProvider()
-//    let expectation = self.expectation(description: #function)
-//    let auth = try XCTUnwrap(UserTests.auth)
-//    signInWithEmailPasswordReturnFakeUser() { user in
-//      XCTAssertNotNil(user)
-//      do {
-//        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
-//        let group = self.createGroup()
-//        user.reauthenticate(with: FakeOAuthProvider(providerID: "foo", auth: auth),
-//                  uiDelegate: nil) { linkAuthResult, rawError in
-//          XCTAssertTrue(Thread.isMainThread)
-//          XCTAssertNil(linkAuthResult)
-//          let error = try! XCTUnwrap(rawError)
-//          XCTAssertEqual((error as NSError).code, AuthErrorCode.userTokenExpired.rawValue)
-//          // User is still signed in.
-//          XCTAssertEqual(UserTests.auth?.currentUser, user)
-//          expectation.fulfill()
-//        }
-//        group.wait()
-//        try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
-//      } catch {
-//        XCTFail("Caught an error in \(#function): \(error)")
-//      }
-//    }
-//    waitForExpectations(timeout: 5)
-//  }
+    func testLinkPhoneAuthCredentialSuccess() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithEmailPasswordReturnFakeUser { user in
+        XCTAssertNotNil(user)
+        self.expectVerifyPhoneNumberRequest(isLink: true)
+        do {
+          self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
+          let group = self.createGroup()
+          let credential = PhoneAuthProvider.provider(auth: auth).credential(
+            withVerificationID: self.kVerificationID,
+            verificationCode: self.kVerificationCode
+          )
+          user.link(with: credential) { linkAuthResult, error in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertNil(error)
+            // Verify that the current user is unchanged.
+            XCTAssertEqual(auth.currentUser, user)
+            // Verify that the current user and reauthenticated user are the same pointers.
+            XCTAssertEqual(user, linkAuthResult?.user)
+            // Verify that anyway the current user and reauthenticated user have same IDs.
+            XCTAssertEqual(linkAuthResult?.user.uid, user.uid)
+            XCTAssertEqual(linkAuthResult?.user.email, user.email)
+            XCTAssertEqual(linkAuthResult?.user.displayName, user.displayName)
+            XCTAssertEqual(auth.currentUser?.providerData.first?.providerID, PhoneAuthProvider.id)
+            XCTAssertEqual(
+              linkAuthResult?.user.providerData.first?.providerID,
+              PhoneAuthProvider.id
+            )
+            XCTAssertEqual(auth.currentUser?.phoneNumber, self.kTestPhoneNumber)
+            expectation.fulfill()
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testUnlinkPhoneAuthCredentialSuccess
+        @brief Tests the flow of a successful @c unlinkFromProvider:completion: call using a
+            @c FIRPhoneAuthProvider.
+     */
+    func testUnlinkPhoneAuthCredentialSuccess() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithEmailPasswordReturnFakeUser { user in
+        XCTAssertNotNil(user)
+        self.expectVerifyPhoneNumberRequest(isLink: true)
+        do {
+          self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
+          let group = self.createGroup()
+          let credential = PhoneAuthProvider.provider(auth: auth).credential(
+            withVerificationID: self.kVerificationID,
+            verificationCode: self.kVerificationCode
+          )
+          user.link(with: credential) { linkAuthResult, error in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertNil(error)
+            // Verify that the current user is unchanged.
+            XCTAssertEqual(auth.currentUser, user)
+            // Verify that the current user and reauthenticated user are the same pointers.
+            XCTAssertEqual(user, linkAuthResult?.user)
+            // Verify that anyway the current user and reauthenticated user have same IDs.
+            XCTAssertEqual(linkAuthResult?.user.uid, user.uid)
+            XCTAssertEqual(linkAuthResult?.user.email, user.email)
+            XCTAssertEqual(linkAuthResult?.user.displayName, user.displayName)
+            XCTAssertEqual(auth.currentUser?.providerData.first?.providerID, PhoneAuthProvider.id)
+            XCTAssertEqual(
+              linkAuthResult?.user.providerData.first?.providerID,
+              PhoneAuthProvider.id
+            )
+            XCTAssertEqual(auth.currentUser?.phoneNumber, self.kTestPhoneNumber)
+
+            // Immediately unlink the phone auth provider.
+            let unlinkGroup = self.createGroup()
+            user.unlink(fromProvider: PhoneAuthProvider.id) { user, error in
+              XCTAssertNil(error)
+              XCTAssertEqual(auth.currentUser, user)
+              XCTAssertNil(auth.currentUser?.phoneNumber)
+              expectation.fulfill()
+            }
+            unlinkGroup.wait()
+
+            do {
+              let request = try XCTUnwrap(self.rpcIssuer?.request as? SetAccountInfoRequest)
+              XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
+              XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
+              XCTAssertNil(request.email)
+              XCTAssertNil(request.password)
+              XCTAssertNil(request.localID)
+              XCTAssertNil(request.displayName)
+              XCTAssertNil(request.photoURL)
+              XCTAssertNil(request.providers)
+              XCTAssertNil(request.deleteAttributes)
+              XCTAssertEqual(try XCTUnwrap(request.deleteProviders?.first), PhoneAuthProvider.id)
+
+              try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                     "refreshToken": self.kRefreshToken])
+            } catch {
+              XCTFail("Caught an error responding for unlink's SetAccountInfoRequest: \(error)")
+            }
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 555)
+    }
+
+    /** @fn testlinkPhoneAuthCredentialFailure
+        @brief Tests the flow of a failed call to @c linkWithCredential:completion: due
+            to a phone provider already being linked.
+     */
+    func testlinkPhoneAuthCredentialFailure() throws {
+      setFakeGetAccountProvider(withPasswordHash: kFakePassword)
+      let expectation = self.expectation(description: #function)
+      signInWithEmailPasswordReturnFakeUser { user in
+        XCTAssertNotNil(user)
+        self.expectVerifyPhoneNumberRequest(isLink: true)
+        self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
+
+        let credential = EmailAuthCredential(withEmail: self.kEmail, password: self.kFakePassword)
+
+        user.link(with: credential) { linkAuthResult, rawError in
+          XCTAssertTrue(Thread.isMainThread)
+          XCTAssertNil(linkAuthResult)
+          if let error = try? XCTUnwrap(rawError) {
+            XCTAssertEqual((error as NSError).code, AuthErrorCode.providerAlreadyLinked.rawValue)
+          } else {
+            XCTFail("Did not throw expected error")
+          }
+          expectation.fulfill()
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testlinkPhoneCredentialAlreadyExistsError
+        @brief Tests the flow of @c linkWithCredential:completion:
+            call using a phoneAuthCredential and a credential already exisits error. In this case we
+            should get a FIRAuthCredential in the error object.
+     */
+    func testlinkPhoneCredentialAlreadyExistsError() throws {
+      setFakeGetAccountProvider()
+      let expectation = self.expectation(description: #function)
+      let auth = try XCTUnwrap(UserTests.auth)
+      signInWithEmailPasswordReturnFakeUser { user in
+        XCTAssertNotNil(user)
+        self.expectVerifyPhoneNumberRequest(isLink: true)
+        do {
+          self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
+          let group = self.createGroup()
+          let credential = PhoneAuthProvider.provider(auth: auth).credential(
+            withVerificationID: self.kVerificationID,
+            verificationCode: self.kVerificationCode
+          )
+          user.link(with: credential) { linkAuthResult, rawError in
+            XCTAssertTrue(Thread.isMainThread)
+            XCTAssertNil(linkAuthResult)
+            do {
+              let error = try XCTUnwrap(rawError)
+              XCTAssertEqual((error as NSError).code, AuthErrorCode.credentialAlreadyInUse.rawValue)
+              let credential = try XCTUnwrap((error as NSError)
+                .userInfo[AuthErrors.userInfoUpdatedCredentialKey] as? PhoneAuthCredential)
+              XCTAssertEqual(credential.phoneNumber, self.kTestPhoneNumber)
+              XCTAssertEqual(credential.temporaryProof, "Fake Temporary Proof")
+            } catch {
+              XCTFail("Did not throw expected error \(error)")
+            }
+            expectation.fulfill()
+          }
+          group.wait()
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken,
+                                                 "phoneNumber": self.kTestPhoneNumber,
+                                                 "temporaryProof": "Fake Temporary Proof"])
+        } catch {
+          XCTFail("Caught an error in \(#function): \(error)")
+        }
+      }
+      waitForExpectations(timeout: 5)
+    }
   #endif
 
   // MARK: Private helper functions
+
+  private func expectVerifyPhoneNumberRequest(isLink: Bool = false) {
+    rpcIssuer?.verifyPhoneNumberRequester = { request in
+      XCTAssertEqual(request.verificationID, self.kVerificationID)
+      XCTAssertEqual(request.verificationCode, self.kVerificationCode)
+      XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
+      if isLink {
+        XCTAssertEqual(request.operation, AuthOperationType.link)
+      } else {
+        XCTAssertEqual(request.operation, AuthOperationType.update)
+      }
+    }
+  }
 
   private func internalGetIDTokenResult(token: String, forceRefresh: Bool = true,
                                         emailMatch: String = "aunitestuser@gmail.com",

@@ -34,7 +34,6 @@
 
     private let kTestVerificationID = "verificationID"
     private let kTestVerificationCode = "verificationCode"
-    private let kTestPhoneNumber = "55555555"
     private let kTestReceipt = "receipt"
     private let kTestTimeout = "1"
     private let kTestSecret = "secret"
