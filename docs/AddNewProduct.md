@@ -32,7 +32,7 @@ formatting consistency.
 Firebase supports four different distributions - Swift Package Manager, CocoaPods, Carthage, and
 binary zip distributions.
 
-It can be developed via Swift Package Manager or CocoaPods.
+Firebase SDKs can be developed via Swift Package Manager or CocoaPods.
 
 The new project should set up a `podspec` for CocoaPods and add a `product` specification to
 [Package.swift](Package.swift).
