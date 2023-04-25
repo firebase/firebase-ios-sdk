@@ -465,13 +465,12 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
-- (void)doWatchFilter:(NSArray *)watchFilter {
-  NSArray<NSNumber *> *targets = watchFilter[0];
+- (void)doWatchFilter:(NSDictionary *)watchFilter {
+  NSArray<NSString *> *keys = watchFilter[@"keys"];
+  NSArray<NSNumber *> *targets = watchFilter[@"targetIds"];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
-  int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
-
-  ExistenceFilter filter{keyCount};
+  ExistenceFilter filter{static_cast<int>(keys.count)};
   ExistenceFilterWatchChange change{filter, targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
