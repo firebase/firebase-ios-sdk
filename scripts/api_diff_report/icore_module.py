@@ -23,31 +23,31 @@ OBJECTIVE_C = "Objective-C"
 
 # List of Swift and Objective-C modules
 MODULE_LIST = [
-  'FirebaseABTesting', 
+  'FirebaseABTesting',
   'FirebaseAnalytics',  # Not buildable from source
   'FirebaseAnalyticsOnDeviceConversion', # Not buildable.
-  'FirebaseAnalyticsSwift', 
-  'FirebaseAppCheck', 
-  'FirebaseAppDistribution', 
-  'FirebaseAuth', 
-  'FirebaseCore', 
-  'FirebaseCrashlytics', 
-  'FirebaseDatabase', 
-  'FirebaseDatabaseSwift', 
-  'FirebaseDynamicLinks', 
-  'FirebaseFirestore', 
-  'FirebaseFirestoreSwift', 
-  'FirebaseFunctions', 
-  'FirebaseInAppMessaging',
-  'FirebaseInAppMessagingSwift', 
-  'FirebaseInstallations', 
-  'FirebaseMessaging', 
-  'FirebaseMLModelDownloader', 
-  'FirebasePerformance', 
-  'FirebaseRemoteConfig', 
-  'FirebaseRemoteConfigSwift', 
+  'FirebaseAnalyticsSwift',
+  'FirebaseAppCheck',
+  'FirebaseAppDistribution',
+  'FirebaseAuth',
+  'FirebaseCore',
+  'FirebaseCrashlytics',
+  'FirebaseDatabase',
+  'FirebaseDatabaseSwift',
+  'FirebaseDynamicLinks',
+  'FirebaseFirestore',
+  'FirebaseFirestoreSwift',
+  'FirebaseFunctions',
+  'FirebaseInAppMessaging'
+  'FirebaseInAppMessagingSwift',
+  'FirebaseInstallations',
+  'FirebaseMessaging',
+  'FirebaseMLModelDownloader',
+  'FirebasePerformance',
+  'FirebaseRemoteConfig',
+  'FirebaseRemoteConfigSwift',
   'FirebaseSharedSwift', # Not buildable. No scheme named "FirebaseSharedSwift"
-  'FirebaseStorage', 
+  'FirebaseStorage',
   'GoogleAppMeasurement', # Not buildable. NO "source_files"
   'GoogleAppMeasurementOnDeviceConversion' # Not buildable. NO "source_files"
   ]
@@ -70,7 +70,7 @@ def detect_changed_modules(changed_api_files):
   return changed_modules
 
 
-# retrive moudle info in MODULE_LIST from `.podspecs` 
+# retrive moudle info in MODULE_LIST from `.podspecs`
 # The moudle info helps to build Jazzy
 # includes: module name, source_files, public_header_files, language, umbrella_header, framework_root
 def module_info():
@@ -84,15 +84,15 @@ def module_info():
         module_list[k]["scheme"] = get_scheme(k)
         module_list[k]["umbrella_header"] = get_umbrella_header(k, v.get("public_header_files"))
         module_list[k]["root_dir"] = get_root_dir(k, v.get("source_files"))
-  
+
   logging.info(f"all_module:\n{json.dumps(module_list, indent=4)}")
   return module_list
 
 
 # Jazzy documentation Info
-# SWIFT only. 
+# SWIFT only.
 # Get scheme from module name in .podspecs
-# Assume the scheme is the same as the module name: 
+# Assume the scheme is the same as the module name:
 def get_scheme(module_name):
   MODULE_SCHEME_PATCH = {
     "FirebaseInAppMessagingSwift": "FirebaseInAppMessagingSwift-Beta",
@@ -105,7 +105,7 @@ def get_scheme(module_name):
 # Jazzy documentation Info
 # OBJC only
 # Get umbrella_header from public_header_files in .podspecs
-# Assume the umbrella_header is with the format: 
+# Assume the umbrella_header is with the format:
 #   {module_name}/Sources/Public/{module_name}/{module_name}.h
 def get_umbrella_header(module_name, public_header_files):
   if public_header_files:
@@ -117,7 +117,7 @@ def get_umbrella_header(module_name, public_header_files):
 
 
 # Get source code root_dir from source_files in .podspecs
-# Assume the root_dir is with the format: 
+# Assume the root_dir is with the format:
 #   {module_name}/Sources or {module_name}/Source
 def get_root_dir(module_name, source_files):
   MODULE_ROOT_PATCH = {
@@ -138,16 +138,16 @@ def get_root_dir(module_name, source_files):
 
 
 def module_info_from_package_swift():
-  result = subprocess.Popen("swift package dump-package", 
-                            universal_newlines=True, 
-                            shell=True, 
+  result = subprocess.Popen("swift package dump-package",
+                            universal_newlines=True,
+                            shell=True,
                             stdout=subprocess.PIPE)
-  
+
   package_json = json.loads(result.stdout.read())
 
   module_scheme = dict([(x['targets'][0], x['name']) for x in package_json['products']])
   module_path = dict([(x['name'], x['path']) for x in  package_json['targets'] if x['name'] in module_scheme])
-  
+
   result = {}
   for k,v in module_scheme.items():
     result[k] = {"scheme": v, "path": module_path.get(k, "")}
@@ -164,16 +164,16 @@ def module_info_from_podspecs(root_dir=os.getcwd()):
       if not podspec_data.get("source_files") and podspec_data.get("ios"):
         source_files = podspec_data.get("ios").get("source_files")
       result[podspec_data["name"]] = {"name": podspec_data["name"],
-                                      "source_files": source_files, 
+                                      "source_files": source_files,
                                       "public_header_files": podspec_data.get("public_header_files")}
   return result
 
 
 def parse_podspec(podspec_file):
-  result = subprocess.run(f"pod ipc spec {podspec_file}", 
-                        stdout=subprocess.PIPE, 
-                        stderr=subprocess.PIPE, 
-                        text=True, 
+  result = subprocess.run(f"pod ipc spec {podspec_file}",
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
                         shell=True)
   if result.returncode != 0:
     logging.info(f"Error: {result.stderr}")

@@ -53,7 +53,7 @@ def main():
     if os.path.exists(api_doc_dir):
       module_api_container = parse_module(api_doc_dir)
       api_container[module["name"]] = {"path": api_doc_dir, "api_types": module_api_container}
-    else: # api doc fail to build. 
+    else: # api doc fail to build.
       api_container[module["name"]] = {"path": "", "api_types":{}}
 
   api_info_path = os.path.join(output_dir, API_INFO_FILE_NAME)
@@ -73,18 +73,18 @@ def build_api_doc(module, output_dir, api_theme_dir):
     logging.info("------------")
     cmd = f'jazzy --module {module["name"]} --swift-build-tool xcodebuild --build-tool-arguments -scheme,{module["scheme"]},-destination,generic/platform=iOS,build --output {output_dir} --theme {api_theme_dir}'
     logging.info(cmd)
-    result = subprocess.Popen(cmd, 
-                              universal_newlines=True, 
-                              shell=True, 
+    result = subprocess.Popen(cmd,
+                              universal_newlines=True,
+                              shell=True,
                               stdout=subprocess.PIPE)
     logging.info(result.stdout.read())
   elif module["language"] == icore_module.OBJECTIVE_C:
     logging.info("------------")
     cmd = f'jazzy --objc --framework-root {module["root_dir"]} --umbrella-header {module["umbrella_header"]} --output {output_dir} --theme {api_theme_dir}'
     logging.info(cmd)
-    result = subprocess.Popen(cmd, 
-                              universal_newlines=True, 
-                              shell=True, 
+    result = subprocess.Popen(cmd,
+                              universal_newlines=True,
+                              shell=True,
                               stdout=subprocess.PIPE)
     logging.info(result.stdout.read())
 
@@ -96,7 +96,7 @@ def build_api_doc(module, output_dir, api_theme_dir):
 #     "api_type_link": $(api_type_link),
 #     "apis": {
 #       $(api_name_1): {
-#         "api_link": $(api_link_1), 
+#         "api_link": $(api_link_1),
 #         "declaration": [$(swift_declaration), $(objc_declaration)],
 #         "sub_apis": {
 #           $(sub_api_name_1): {"declaration": [$(swift_declaration), $(objc_declaration)]},
@@ -146,7 +146,7 @@ def parse_module(api_doc_path):
   return module_api_container
 
 
-# Parse API html and extract necessary information. 
+# Parse API html and extract necessary information.
 # e.g. ${module}/Classes.html
 def parse_api(api_doc_path, module_api_container):
   for api_type, api_type_abstract in module_api_container.items():
@@ -169,7 +169,7 @@ def parse_api(api_doc_path, module_api_container):
         parse_sub_api(f'{api_doc_path}/{unquote(api_abstruct["api_link"])}', api_data_container[api]["sub_apis"])
 
 
-# Parse SUB_API html and extract necessary information. 
+# Parse SUB_API html and extract necessary information.
 # e.g. ${module}/Classes/${class_name}.html
 def parse_sub_api(api_link, sub_api_data_container):
   with open(api_link, "r") as file:

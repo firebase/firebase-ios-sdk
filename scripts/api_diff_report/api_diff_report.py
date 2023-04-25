@@ -15,7 +15,7 @@
 import json
 import argparse
 import logging
-import os 
+import os
 import api_info
 import datetime
 import pytz
@@ -29,7 +29,7 @@ def main():
   logging.getLogger().setLevel(logging.INFO)
 
   args = parse_cmdline_args()
-  
+
   merged_branch = os.path.expanduser(args.merged_branch)
   base_branch = os.path.expanduser(args.base_branch)
   new_api_json = json.load(open(os.path.join(merged_branch, api_info.API_INFO_FILE_NAME)))
@@ -82,7 +82,7 @@ def generate_diff_json(new_api, old_api, level="module"):
       if diff[key].get("declaration"):
         diff[key]["declaration"] = [STATUS_ADD] + diff[key]["declaration"]
     # Removed API
-    elif key not in new_api: 
+    elif key not in new_api:
       diff[key] = old_api[key]
       diff[key]["status"] = STATUS_REMOVED
       if diff[key].get("declaration"):
@@ -97,14 +97,14 @@ def generate_diff_json(new_api, old_api, level="module"):
       # No changes at current level
       if not child_diff and not declaration_diff: # no diff
         continue
-      
+
       diff[key] = new_api[key]
       # Changes at child level
       if child_diff:
         diff[key][next_level] = child_diff
-        
+
       # Modified API (changes in API declaration)
-      if declaration_diff: 
+      if declaration_diff:
         diff[key]["status"] = STATUS_MODIFIED
         diff[key]["declaration"] = [STATUS_ADD] + new_api[key]["declaration"] + [STATUS_REMOVED] + old_api[key]["declaration"]
 
@@ -197,7 +197,7 @@ def process_declarations(current_status, declarations, sub_report):
 # Categorize API info by Swift and Objective-C
 def categorize_declarations(detail):
   lines = detail.split("\n")
-  
+
   swift_lines = [line.replace("Swift", "") for line in lines if "Swift" in line]
   objc_lines = [line.replace("Objective-C", "") for line in lines if "Objective-C" in line]
 
