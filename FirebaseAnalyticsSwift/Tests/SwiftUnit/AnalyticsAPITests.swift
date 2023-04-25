@@ -16,10 +16,31 @@
 
 // MARK: This file is used to evaluate the experience of using Analytics APIs in Swift.
 
-import FirebaseAnalytics
 import Foundation
+import SwiftUI
+
+@testable import FirebaseAnalyticsSwift
+import FirebaseAnalytics
 
 final class AnalyticsAPITests {
+  @available(iOS 13.0, *)
+  func loggedAnalyticsModifierUsage(viewModifier: LoggedAnalyticsModifier,
+                                    content: LoggedAnalyticsModifier.Content) {
+    let _: String = viewModifier.screenName
+    let _: String = viewModifier.screenClass
+    let _: [String: Any] = viewModifier.extraParameters
+    let _: any View = viewModifier.body(content: content)
+  }
+
+  @available(iOS 13.0, *)
+  func viewExtensionUsage(viewModifier: LoggedAnalyticsModifier, view: any View) {
+    let _: any View = view.analyticsScreen(
+      name: "name",
+      class: "class",
+      extraParameters: ["param": 1]
+    )
+  }
+
   func usage() {
     // MARK: - Analytics
 
