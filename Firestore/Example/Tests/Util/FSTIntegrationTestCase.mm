@@ -26,10 +26,10 @@
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
 
+#include <exception>
 #include <memory>
 #include <string>
 #include <utility>
-#include <exception>
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
@@ -203,7 +203,9 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     } else {
       @throw [[NSException alloc]
           initWithName:@"InvalidArgumentError"
-                reason:[NSString stringWithFormat:@"Unexpected TARGET_BACKEND environment variable \"%@\"", targetBackend]
+                reason:[NSString stringWithFormat:
+                                     @"Unexpected TARGET_BACKEND environment variable \"%@\"",
+                                     targetBackend]
               userInfo:nil];
     }
   } else {
