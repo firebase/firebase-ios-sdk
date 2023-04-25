@@ -36,6 +36,8 @@
 @protocol FIRAuthStorage;
 @class FIRAuthAPNSTokenManager;
 @class FIRAuthAppCredentialManager;
+@class FIRActionCodeInfo;
+@class FIRActionCodeURL;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -175,109 +177,6 @@ typedef void (^FIRApplyActionCodeCallback)(NSError *_Nullable error)
 
 typedef void (^FIRAuthVoidErrorCallback)(NSError *_Nullable)
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
-
-/** @class FIRActionCodeInfo
-    @brief Manages information regarding action codes.
- */
-NS_SWIFT_NAME(ActionCodeInfo)
-@interface FIRActionCodeInfo : NSObject
-
-/**
-    @brief Operations which can be performed with action codes.
-  */
-typedef NS_ENUM(NSInteger, FIRActionCodeOperation) {
-  /** Action code for unknown operation. */
-  FIRActionCodeOperationUnknown = 0,
-
-  /** Action code for password reset operation. */
-  FIRActionCodeOperationPasswordReset = 1,
-
-  /** Action code for verify email operation. */
-  FIRActionCodeOperationVerifyEmail = 2,
-
-  /** Action code for recover email operation. */
-  FIRActionCodeOperationRecoverEmail = 3,
-
-  /** Action code for email link operation. */
-  FIRActionCodeOperationEmailLink = 4,
-
-  /** Action code for verifying and changing email */
-  FIRActionCodeOperationVerifyAndChangeEmail = 5,
-
-  /** Action code for reverting second factor addition */
-  FIRActionCodeOperationRevertSecondFactorAddition = 6,
-
-} NS_SWIFT_NAME(ActionCodeOperation);
-
-/**
-    @brief The operation being performed.
- */
-@property(nonatomic, readonly) FIRActionCodeOperation operation;
-
-/** @property email
-    @brief The email address to which the code was sent. The new email address in the case of
-        `ActionCodeOperationRecoverEmail`.
- */
-@property(nonatomic, nullable, readonly, copy) NSString *email;
-
-/** @property previousEmail
-    @brief The email that is being recovered in the case of `ActionCodeOperationRecoverEmail`.
- */
-@property(nonatomic, nullable, readonly, copy) NSString *previousEmail;
-
-/** @fn init
-    @brief please use initWithOperation: instead.
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
-
-/** @class FIRActionCodeURL
-    @brief This class will allow developers to easily extract information about out of band links.
- */
-NS_SWIFT_NAME(ActionCodeURL)
-@interface FIRActionCodeURL : NSObject
-
-/** @property APIKey
-    @brief Returns the API key from the link. nil, if not provided.
- */
-@property(nonatomic, nullable, copy, readonly) NSString *APIKey;
-
-/** @property operation
-    @brief Returns the mode of oob action. The property will be of `FIRActionCodeOperation` type.
-        It will return `FIRActionCodeOperationUnknown` if no oob action is provided.
- */
-@property(nonatomic, readonly) FIRActionCodeOperation operation;
-
-/** @property code
-    @brief Returns the email action code from the link. nil, if not provided.
- */
-@property(nonatomic, nullable, copy, readonly) NSString *code;
-
-/** @property continueURL
-    @brief Returns the continue URL from the link. nil, if not provided.
- */
-@property(nonatomic, nullable, copy, readonly) NSURL *continueURL;
-
-/** @property languageCode
-    @brief Returns the language code from the link. nil, if not provided.
- */
-@property(nonatomic, nullable, copy, readonly) NSString *languageCode;
-
-/** @fn actionCodeURLWithLink:
-    @brief Construct an `ActionCodeURL` from an out of band link (e.g. email link).
-    @param link The oob link string used to construct the action code URL.
-    @return The `ActionCodeURL` object constructed based on the oob link provided.
- */
-+ (nullable instancetype)actionCodeURLWithLink:(NSString *)link;
-
-/** @fn init
-    @brief Please use `init(link:)` in Swift or `actionCodeURLWithLink:` in Objective-C
-        instead.
- */
-- (instancetype)init NS_UNAVAILABLE;
-
-@end
 
 /** @typedef FIRCheckActionCodeCallBack
     @brief The type of block invoked when performing a check action code operation.
