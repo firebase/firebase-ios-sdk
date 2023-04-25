@@ -132,12 +132,14 @@
         ]
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1"
           ],
-          "collection/1"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
@@ -366,13 +368,15 @@
         ]
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1",
+            "collection/2"
           ],
-          "collection/1",
-          "collection/2"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchEntity": {
@@ -729,11 +733,13 @@
         }
       },
       {
-        "watchFilter": [
-          [
+        "watchFilter": {
+          "keys": [
+          ],
+          "targetIds": [
             2
           ]
-        ]
+        }
       },
       {
         "watchRemove": {
@@ -910,12 +916,14 @@
         ]
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1"
           ],
-          "collection/1"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
@@ -1203,12 +1211,14 @@
         ]
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1"
           ],
-          "collection/1"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
@@ -1313,12 +1323,14 @@
         }
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1"
           ],
-          "collection/1"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
@@ -1489,12 +1501,14 @@
         ]
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1"
           ],
-          "collection/1"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
@@ -1846,12 +1860,14 @@
         ]
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1"
           ],
-          "collection/1"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
@@ -2149,11 +2165,13 @@
         ]
       },
       {
-        "watchFilter": [
-          [
+        "watchFilter": {
+          "keys": [
+          ],
+          "targetIds": [
             2
           ]
-        ]
+        }
       },
       {
         "watchSnapshot": {
@@ -2265,12 +2283,14 @@
         ]
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/1"
           ],
-          "collection/1"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
