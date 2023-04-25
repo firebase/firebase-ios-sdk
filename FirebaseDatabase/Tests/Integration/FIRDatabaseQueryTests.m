@@ -4110,16 +4110,74 @@
 
 - (void)testGetForEmptyNodeReturnsNull {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
-
   __block BOOL done = NO;
-
-  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
-    XCTAssert([snapshot.value isEqual:[NSNull null]]);
-    done = YES;
+  [ref removeValueWithCompletionBlock:^(NSError * _Nullable error, FIRDatabaseReference * _Nonnull ref) {
+      XCTAssertNil(error);
+      done = YES;
   }];
-
   WAIT_FOR(done);
+  done = NO;
+  [ref observeSingleEventOfType:FIRDataEventTypeValue withBlock:
+    ^(FIRDataSnapshot * _Nonnull snapshot) {
+      XCTAssert([snapshot.value isEqual:[NSNull null]]);
+      done = YES;
+  }];
+  WAIT_FOR(done);
+//  done = NO;
+//  [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+//    XCTAssertNil(err);
+//    XCTAssert([snapshot.value isEqual:[NSNull null]]);
+//    done = YES;
+//  }];
+//  WAIT_FOR(done);
 }
+
+- (void)testOfflineGetWithPersistenceForEmptyNodeReturnsNull {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
+
+  FIRDatabase* db = [ref database];
+  [db goOffline];
+
+  FIRDatabaseReference* connected = [db referenceWithPath:@".info/connected"];
+    
+  __block BOOL done = NO;
+  FIRDatabaseHandle disconnected = [connected
+      observeEventType:FIRDataEventTypeValue
+             withBlock:^(FIRDataSnapshot* snapshot) {
+               if (![snapshot.value boolValue]) {
+                 [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+                   XCTAssert([snapshot.value isEqual:[NSNull null]]);
+                   done = YES;
+                 }];
+               }
+             }];
+  WAIT_FOR(done);
+  [connected removeObserverWithHandle:disconnected];
+}
+
+- (void)testOfflineGetWithoutPersistenceForEmptyNodeReturnsNull {
+  FIRDatabaseReference* ref = [FTestHelpers getRandomNodeWithoutPersistence];
+
+  FIRDatabase* db = [ref database];
+  [db goOffline];
+
+  FIRDatabaseReference* connected = [db referenceWithPath:@".info/connected"];
+    
+  __block BOOL done = NO;
+  FIRDatabaseHandle disconnected = [connected
+      observeEventType:FIRDataEventTypeValue
+             withBlock:^(FIRDataSnapshot* snapshot) {
+               if (![snapshot.value boolValue]) {
+                 [ref getDataWithCompletionBlock:^(NSError* err, FIRDataSnapshot* snapshot) {
+                   XCTAssert([snapshot.value isEqual:[NSNull null]]);
+                   done = YES;
+                 }];
+               }
+             }];
+  WAIT_FOR(done);
+  [connected removeObserverWithHandle:disconnected];
+}
+
 
 - (void)testGetInvokesCallbacksOnMainThread {
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
@@ -4175,105 +4233,189 @@
   }
 }
 
+/*
+ * A helper to execute the following common steps:
+ *
+ * 1. Set `data` at `writer`.
+ * 2. Wait for `data` to be read from `reader`.
+ * 3. Install an observer at `listen`, asserting a `listenData` value event.
+ * 4. Disconnect from the database.
+ * 5. Perform `getDataWithCompletionBlock` at `get`, asserting `getData` result.
+ *
+ * This helper is used to test `getDataWithCompletionBlock`'s interaction with
+ * the in-memory data cache populated by observers.
+ */
+- (void)getUsesOfflineListenResultsForData:(id)data
+                                  writerAt:(FIRDatabaseReference*)writer
+                                  readerAt:(FIRDatabaseReference*)reader
+                                  listenAt:(FIRDatabaseQuery*)listen
+                                     getAt:(FIRDatabaseQuery*)get
+                              listenResult:(id)listenData
+                                 getResult:(id)getData {
+  [self waitForCompletionOf:writer setValue:data];
+  __block BOOL done = NO;
+  [self snapWaiter:reader
+         withBlock:^(FIRDataSnapshot* snapshot) {
+           XCTAssertEqualObjects(data, snapshot.value);
+           done = YES;
+         }];
+  WAIT_FOR(done);
+  done = NO;
+  FIRDatabaseHandle listenHandle =
+      [listen observeEventType:FIRDataEventTypeValue
+                     withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
+                       XCTAssertEqualObjects(listenData, snapshot.value);
+                       done = YES;
+                     }];
+  WAIT_FOR(done);
+  done = NO;
+  [[reader database] goOffline];
+  FIRDatabaseReference* connected = [[reader database] referenceWithPath:@".info/connected"];
+  FIRDatabaseHandle disconnected =
+      [connected observeEventType:FIRDataEventTypeValue
+                        withBlock:^(FIRDataSnapshot* snapshot) {
+                          if (![snapshot.value boolValue]) {
+                            [get getDataWithCompletionBlock:^(NSError* _Nullable error,
+                                                              FIRDataSnapshot* _Nullable snapshot) {
+                              XCTAssertNil(error);
+                              XCTAssertEqualObjects(getData, snapshot.value);
+                              done = YES;
+                            }];
+                          }
+                        }];
+  WAIT_FOR(done);
+  [listen removeObserverWithHandle:listenHandle];
+  [connected removeObserverWithHandle:disconnected];
+  [[reader database] goOnline];
+  done = NO;
+
+  FIRDatabaseHandle reconnected = [connected observeEventType:FIRDataEventTypeValue
+                                                    withBlock:^(FIRDataSnapshot* snapshot) {
+                                                      done = [snapshot.value boolValue];
+                                                    }];
+  WAIT_FOR(done);
+  [connected removeObserverWithHandle:reconnected];
+}
+
 - (void)testGetResolvesToCacheWhenOnlineAndParentListener {
-  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
-  FIRDatabaseReference* writer = pair.one;
-  FIRDatabaseReference* reader = pair.two;
-  [self waitForCompletionOf:writer setValue:@{@"a" : @1}];
-  [self snapWaiter:reader
-         withBlock:^(FIRDataSnapshot* snapshot) {
-           XCTAssertEqualObjects(
-               @{@"a" : @1}, snapshot.value);
-         }];
-  __block BOOL done = NO;
-  [[reader child:@"a"]
-      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(@1, snapshot.value);
-        done = YES;
-      }];
-  WAIT_FOR(done);
-}
-
-- (void)testGetResolvesToCacheWhenOnlineAndSameLevelListener {
-  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
-  FIRDatabaseReference* writer = pair.one;
-  FIRDatabaseReference* reader = pair.two;
-  [self waitForCompletionOf:writer setValue:@{@"a" : @1}];
-  [self snapWaiter:reader
-         withBlock:^(FIRDataSnapshot* snapshot) {
-           XCTAssertEqualObjects(
-               @{@"a" : @1}, snapshot.value);
-         }];
-  __block BOOL done = NO;
-  [reader
-      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(
-            @{@"a" : @1}, snapshot.value);
-        done = YES;
-      }];
-  WAIT_FOR(done);
-}
-
-- (void)testGetResolvesToServerCacheWhenListenerIsAvailable {
   FTupleFirebase* pair = [FTestHelpers getRandomNodePairWithoutPersistence];
   FIRDatabaseReference* writer = pair.one;
   FIRDatabaseReference* reader = pair.two;
-  [self waitForCompletionOf:writer setValue:@{@"a" : @1}];
-  __block BOOL done = NO;
-  FIRDatabaseHandle handle = [reader observeEventType:FIRDataEventTypeValue
-                                            withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
-                                              XCTAssertEqualObjects(
-                                                  @{@"a" : @1}, snapshot.value);
-                                              done = YES;
-                                            }];
-  WAIT_FOR(done);
-  done = NO;
-  @try {
-    [[reader database] goOffline];
-    [reader getDataWithCompletionBlock:^(NSError* _Nullable error,
-                                         FIRDataSnapshot* _Nullable snapshot) {
-      XCTAssertNil(error);
-      XCTAssertEqualObjects(
-          @{@"a" : @1}, snapshot.value);
-      done = YES;
-    }];
-    WAIT_FOR(done);
-    [reader removeObserverWithHandle:handle];
-  } @finally {
-    [[reader database] goOnline];
+  [self getUsesOfflineListenResultsForData:@{@"a" : @1}
+                                  writerAt:writer
+                                  readerAt:reader
+                                  listenAt:reader
+                                     getAt:[reader child:@"a"]
+                              listenResult:@{@"a" : @1}
+                                 getResult:@1];
+}
+
+- (void)testGetResolvesToCacheWhenOnlineAndSameLevelListener {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePairWithoutPersistence];
+  FIRDatabaseReference* writer = pair.one;
+  FIRDatabaseReference* reader = pair.two;
+  [self getUsesOfflineListenResultsForData:@{@"a" : @1}
+                                  writerAt:writer
+                                  readerAt:reader
+                                  listenAt:reader
+                                     getAt:reader
+                              listenResult:@{@"a" : @1}
+                                 getResult:@{@"a" : @1}];
+}
+
+- (void)testGetResolvesToCacheWhenOnlineAndChildListener {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePairWithoutPersistence];
+  FIRDatabaseReference* writer = pair.one;
+  FIRDatabaseReference* reader = pair.two;
+  [self
+      getUsesOfflineListenResultsForData:@{@"a" : @1}
+                                writerAt:writer
+                                readerAt:reader
+                                listenAt:[reader child:@"a"]
+                                   getAt:reader
+                            listenResult:@1
+                               getResult:nil];  // Cache doesn't have complete data at the get path.
+}
+
+- (void)testGetAndQueriesAt {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePairWithoutPersistence];
+  FIRDatabaseReference* writer = pair.one;
+  FIRDatabaseReference* reader = pair.two;
+  id data = @{@"a" : @1, @"b" : @2, @"c" : @3};
+  NSArray<FIRDatabaseQuery*>* queries = @[
+    [[reader queryOrderedByKey] queryStartingAtValue:@"b"],
+    [[reader queryOrderedByKey] queryEndingAtValue:@"b"],
+    [[reader queryOrderedByKey] queryLimitedToFirst:1],
+    [[reader queryOrderedByKey] queryLimitedToLast:1],
+    [[[reader queryOrderedByKey] queryStartingAtValue:@"b"] queryLimitedToFirst:1],
+    [[[reader queryOrderedByKey] queryEndingAtValue:@"c"] queryLimitedToLast:1],
+  ];
+  NSDictionary* tc = @{
+    @0 : @{@"b" : @2, @"c" : @3},
+    @1 : @{@"a" : @1, @"b" : @2},
+    @2 : @{@"a" : @1},
+    @3 : @{@"c" : @3},
+    @4 : @{@"b" : @2},
+    @5 : @{@"c" : @3},
+  };
+  for (NSNumber* queryId in tc) {
+    id listenResult = [tc objectForKey:queryId];
+    FIRDatabaseQuery* query = [queries objectAtIndex:[queryId integerValue]];
+    [self getUsesOfflineListenResultsForData:data
+                                    writerAt:writer
+                                    readerAt:reader
+                                    listenAt:query
+                                       getAt:reader
+                                listenResult:listenResult
+                                   getResult:nil];  // Cache doesn't have complete data at the get
+                                                    // path.
   }
 }
 
-- (void)testGetResolvesToCacheWhenOnlineAndChildLevelListener {
-  FTupleFirebase* pair = [FTestHelpers getRandomNodePair];
-  FIRDatabaseReference* parentWriteNode = [pair.one childByAutoId];
-  FIRDatabaseReference* parentReadNode = [pair.two child:parentWriteNode.key];
-  FIRDatabaseReference* childWriteNode = [parentWriteNode childByAutoId];
-  FIRDatabaseReference* childReadNode = [parentReadNode child:childWriteNode.key];
-
-  [self waitForCompletionOf:childWriteNode setValue:@42];
-  [self waitForValueOf:childReadNode toBe:@42];
-  __block BOOL done = NO;
-  [parentReadNode
-      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(
-            @{childReadNode.key : @42}, snapshot.value);
-        done = YES;
-      }];
-  WAIT_FOR(done);
-  done = NO;
-  [self waitForCompletionOf:parentWriteNode setValue:@{childWriteNode.key : @43}];
-  [self waitForValueOf:parentReadNode toBe:@{childReadNode.key : @43}];
-  [childReadNode
-      getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
-        XCTAssertNil(error);
-        XCTAssertEqualObjects(@43, snapshot.value);
-        done = YES;
-      }];
-  WAIT_FOR(done);
+- (void)testGetAndQueriesAbove {
+  FTupleFirebase* pair = [FTestHelpers getRandomNodePairWithoutPersistence];
+  FIRDatabaseReference* writer = pair.one;
+  FIRDatabaseReference* reader = pair.two;
+  id data = @{@"a" : @1, @"b" : @2, @"c" : @3};
+  NSArray<FIRDatabaseQuery*>* queries = @[
+    [[reader queryOrderedByKey] queryStartingAtValue:@"b"],
+    [[reader queryOrderedByKey] queryEndingAtValue:@"b"],
+    [[reader queryOrderedByKey] queryLimitedToFirst:1],
+    [[reader queryOrderedByKey] queryLimitedToLast:1],
+    [[[reader queryOrderedByKey] queryStartingAtValue:@"b"] queryLimitedToFirst:1],
+    [[[reader queryOrderedByKey] queryEndingAtValue:@"c"] queryLimitedToLast:1],
+  ];
+  NSDictionary* tc = @{
+    @0 : @{@"b" : @2, @"c" : @3},
+    @1 : @{@"a" : @1, @"b" : @2},
+    @2 : @{@"a" : @1},
+    @3 : @{@"c" : @3},
+    @4 : @{@"b" : @2},
+    @5 : @{@"c" : @3},
+  };
+  NSDictionary* getResults = @{
+    @0 : [NSNull null],
+    @1 : @1,
+    @2 : @1,
+    @3 : [NSNull null],
+    @4 : [NSNull null],
+    @5 : [NSNull null]
+  };
+  for (NSNumber* queryId in tc) {
+    id listenResult = [tc objectForKey:queryId];
+    FIRDatabaseQuery* query = [queries objectAtIndex:[queryId integerValue]];
+    id getResult = [getResults objectForKey:queryId];
+    if (getResult == [NSNull null]) {
+      getResult = nil;
+    }
+    [self getUsesOfflineListenResultsForData:data
+                                    writerAt:writer
+                                    readerAt:reader
+                                    listenAt:query
+                                       getAt:[reader child:@"a"]
+                                listenResult:listenResult
+                                   getResult:getResult];
+  }
 }
 
 - (void)testLimitToGetWithListenerOnlyFiresOnce {
@@ -4295,6 +4437,8 @@
   __block BOOL done = NO;
   [readNode
       getDataWithCompletionBlock:^(NSError* _Nullable error, FIRDataSnapshot* _Nullable snapshot) {
+        XCTAssertEqualObjects(
+            @{@"a" : @1}, snapshot.value);
         done = YES;
       }];
   WAIT_FOR(done);
@@ -4411,6 +4555,8 @@
                                   @{@"2" : @2}, snapshot.valueInExportFormat);
                               done = YES;
                             }];
+  WAIT_FOR(done);
+  done = NO;
   [queryLimitLastTwo observeEventType:FIRDataEventTypeValue
                             withBlock:^(FIRDataSnapshot* _Nonnull snapshot) {
                               id expected = @{@"1" : @1, @"2" : @2};
@@ -4551,30 +4697,39 @@
   FIRDatabaseReference* ref = [FTestHelpers getRandomNode];
   FIRDatabase* db = [ref database];
   __block BOOL received = NO;
+  id this = self;
+  FIRDatabaseReference* connected = [db referenceWithPath:@".info/connected"];
   @try {
     [db goOffline];
-    id this = self;
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    dispatch_async(dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT), ^{
-      [NSThread sleepForTimeInterval:0.2];
-      @synchronized(this) {
-        XCTAssertFalse(received);
-        [db goOnline];
-      }
-      dispatch_semaphore_signal(semaphore);
-    });
     __block BOOL done = NO;
-    [ref getDataWithCompletionBlock:^(NSError* _Nullable error,
-                                      FIRDataSnapshot* _Nullable snapshot) {
-      XCTAssertNil(error);
-      @synchronized(this) {
-        received = YES;
+    [connected observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot* snapshot) {
+      if (![snapshot.value boolValue]) {
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        dispatch_async(dispatch_queue_create("", DISPATCH_QUEUE_CONCURRENT), ^{
+          [NSThread sleepForTimeInterval:0.2];
+          @synchronized(this) {
+            XCTAssertFalse(received);
+            [db goOnline];
+          }
+          dispatch_semaphore_signal(semaphore);
+        });
+        __block BOOL getDone = NO;
+        [ref getDataWithCompletionBlock:^(NSError* _Nullable error,
+                                          FIRDataSnapshot* _Nullable snapshot) {
+          XCTAssertNil(error);
+          @synchronized(this) {
+            received = YES;
+          }
+          getDone = YES;
+        }];
+        WAIT_FOR(getDone);
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+        done = YES;
       }
-      done = YES;
     }];
     WAIT_FOR(done);
-    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
   } @finally {
+    [connected removeAllObservers];
     [db goOnline];
   }
 }

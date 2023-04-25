@@ -19,4 +19,12 @@
 
 @interface FIRDatabaseQueryTests : FTestBase
 
+- (void)getUsesOfflineListenResultsForData:(id)data
+                                  writerAt:(FIRDatabaseReference*)writer
+                                  readerAt:(FIRDatabaseReference*)reader
+                                  listenAt:(FIRDatabaseQuery*)listen
+                                     getAt:(FIRDatabaseQuery*)get
+                              listenResult:(id)listenData
+                                 getResult:(id)getData;
+
 @end

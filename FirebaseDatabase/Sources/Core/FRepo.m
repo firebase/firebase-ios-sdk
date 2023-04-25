@@ -522,7 +522,7 @@
     withCompletionBlock:(void (^)(NSError *__nullable error,
                                   FIRDataSnapshot *__nullable snapshot))block {
     FQuerySpec *querySpec = [query querySpec];
-    id<FNode> node = [self.serverSyncTree getServerValue:[query querySpec]];
+    id<FNode> node = [self.serverSyncTree getServerValue:querySpec];
     if (node != nil) {
         [self.eventRaiser raiseCallback:^{
           block(nil, [[FIRDataSnapshot alloc]
@@ -536,7 +536,7 @@
     FIndexedNode *persisted =
         [self.serverSyncTree persistenceServerCache:querySpec];
     __block BOOL done = NO;
-    if (![persisted.node isEmpty]) {
+    if (persisted != nil) {
         dispatch_after(
             dispatch_time(DISPATCH_TIME_NOW,
                           kGetDataPersistenceFallbackTimeout),
