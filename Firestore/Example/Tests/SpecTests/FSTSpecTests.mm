@@ -209,7 +209,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 @end
 
 @implementation FSTSpecTests {
-  BOOL _gcEnabled;
+  BOOL _useEagerGCForMemory;
   size_t _maxConcurrentLimboResolutions;
   BOOL _networkEnabled;
   FSTUserDataReader *_reader;
@@ -222,7 +222,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
                                                             __func__]                              \
                         userInfo:nil];
 
-- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(__unused BOOL)GCEnabled {
+- (std::unique_ptr<Persistence>)persistenceWithEagerGCForMemory:(__unused BOOL)eagerGC {
   @throw FSTAbstractMethodException();  // NOLINT
 }
 
@@ -242,9 +242,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   std::unique_ptr<Executor> user_executor = Executor::CreateSerial("user executor");
   user_executor_ = absl::ShareUniquePtr(std::move(user_executor));
 
-  // Store GCEnabled so we can re-use it in doRestart.
-  NSNumber *GCEnabled = config[@"useGarbageCollection"];
-  _gcEnabled = [GCEnabled boolValue];
+  // Store eagerGCForMemory so we can re-use it in doRestart.
+  NSNumber *eagerGCForMemory = config[@"useEagerGCForMemory"];
+  _useEagerGCForMemory = [eagerGCForMemory boolValue];
   NSNumber *maxConcurrentLimboResolutions = config[@"maxConcurrentLimboResolutions"];
   _maxConcurrentLimboResolutions = (maxConcurrentLimboResolutions == nil)
                                        ? std::numeric_limits<size_t>::max()
@@ -253,9 +253,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   if (numClients) {
     XCTAssertEqualObjects(numClients, @1, @"The iOS client does not support multi-client tests");
   }
-  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  std::unique_ptr<Persistence> persistence =
+      [self persistenceWithEagerGCForMemory:_useEagerGCForMemory];
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
+                                                   eagerGC:_useEagerGCForMemory
                                                initialUser:User::Unauthenticated()
                                          outstandingWrites:{}
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -348,6 +350,20 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   int32_t padding = [bitsData[@"padding"] intValue];
   int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
   return BloomFilterParameters{std::move(bitmap), padding, hashCount};
+}
+
+- (QueryPurpose)parseQueryPurpose:(NSString *)value {
+  if ([value isEqualToString:@"TargetPurposeListen"]) {
+    return QueryPurpose::Listen;
+  }
+  if ([value isEqualToString:@"TargetPurposeExistenceFilterMismatch"]) {
+    return QueryPurpose::ExistenceFilterMismatch;
+  }
+  if ([value isEqualToString:@"TargetPurposeLimboResolution"]) {
+    return QueryPurpose::LimboResolution;
+  }
+  XCTFail(@"unknown query purpose value: %@", value);
+  return QueryPurpose::Listen;
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
@@ -489,16 +505,14 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 }
 
 - (void)doWatchFilter:(NSDictionary *)watchFilter {
+  NSArray<NSString *> *keys = watchFilter[@"keys"];
   NSArray<NSNumber *> *targets = watchFilter[@"targetIds"];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
-
-  NSArray<NSNumber *> *keys = watchFilter[@"keys"];
-  int keyCount = keys ? (int)keys.count : 0;
 
   absl::optional<BloomFilterParameters> bloomFilterParameters =
       [self parseBloomFilterParameter:watchFilter[@"bloomFilter"]];
 
-  ExistenceFilter filter{keyCount, std::move(bloomFilterParameters)};
+  ExistenceFilter filter{static_cast<int>(keys.count), std::move(bloomFilterParameters)};
   ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
@@ -587,6 +601,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   [self.driver enableNetwork];
 }
 
+- (void)doTriggerLruGC:(NSNumber *)threshold {
+  [self.driver triggerLruGC:threshold];
+}
+
 - (void)doChangeUser:(nullable id)UID {
   if ([UID isEqual:[NSNull null]]) {
     UID = nil;
@@ -602,9 +620,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
   [self.driver shutdown];
 
-  std::unique_ptr<Persistence> persistence = [self persistenceWithGCEnabled:_gcEnabled];
+  std::unique_ptr<Persistence> persistence =
+      [self persistenceWithEagerGCForMemory:_useEagerGCForMemory];
   self.driver =
       [[FSTSyncEngineTestDriver alloc] initWithPersistence:std::move(persistence)
+                                                   eagerGC:_useEagerGCForMemory
                                                initialUser:currentUser
                                          outstandingWrites:outstandingWrites
                              maxConcurrentLimboResolutions:_maxConcurrentLimboResolutions];
@@ -668,6 +688,8 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     }
   } else if (step[@"changeUser"]) {
     [self doChangeUser:step[@"changeUser"]];
+  } else if (step[@"triggerLruGC"]) {
+    [self doTriggerLruGC:step[@"triggerLruGC"]];
   } else if (step[@"restart"]) {
     [self doRestart];
   } else if (step[@"applyClientState"]) {
@@ -811,7 +833,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
               QueryPurpose purpose = QueryPurpose::Listen;
               if ([queryData objectForKey:@"targetPurpose"] != nil) {
-                purpose = static_cast<QueryPurpose>([queryData[@"targetPurpose"] intValue]);
+                purpose = [self parseQueryPurpose:queryData[@"targetPurpose"]];
               }
 
               TargetData target_data(query.ToTarget(), targetID, 0, purpose);

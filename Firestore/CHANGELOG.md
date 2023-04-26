@@ -1,7 +1,12 @@
+# 10.9.0
+- [feature] Add new cache config API to customize SDK cache settings.
+- [feature] Add LRU garbage collector as an option to memory cache.
+
 # 10.8.0
 - [feature] Change Firestore's Swift Package Manager distribution from source
   to binary to reduce the time it takes to add the Firebase package and to
   build the Firestore SDK (#6564).
+- [fixed] Fixed SSL symbol collision issue affecting SwiftPM users. (#6869)
 
 # 10.7.0
 - [feature] Add support for disjunctions in queries (`OR` queries).
