@@ -1694,7 +1694,8 @@ import Foundation
       User.callInMainThreadWithAuthDataResultAndError(
         callback: completion,
         result: nil,
-        error: AuthErrorUtils.providerAlreadyLinkedError()
+        error: AuthErrorUtils
+          .providerAlreadyLinkedError()
       )
       return
     }
