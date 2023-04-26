@@ -327,18 +327,18 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
-- (QueryPurpose)parseQueryPurpose:(NSNumber *)value {
-  switch ([value intValue]) {
-    case 0:
-      return QueryPurpose::Listen;
-    case 1:
-      return QueryPurpose::ExistenceFilterMismatch;
-    case 3:
-      return QueryPurpose::LimboResolution;
-    default:
-      XCTFail(@"unknown query purpose value: %@", value);
-      return QueryPurpose::Listen;
+- (QueryPurpose)parseQueryPurpose:(NSString *)value {
+  if ([value isEqualToString:@"TargetPurposeListen"]) {
+    return QueryPurpose::Listen;
   }
+  if ([value isEqualToString:@"TargetPurposeExistenceFilterMismatch"]) {
+    return QueryPurpose::ExistenceFilterMismatch;
+  }
+  if ([value isEqualToString:@"TargetPurposeLimboResolution"]) {
+    return QueryPurpose::LimboResolution;
+  }
+  XCTFail(@"unknown query purpose value: %@", value);
+  return QueryPurpose::Listen;
 }
 
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
