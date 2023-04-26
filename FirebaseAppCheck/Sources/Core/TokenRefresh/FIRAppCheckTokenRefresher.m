@@ -16,7 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
+#import "FirebaseAppCheck/Sources/Core/GACAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTimer.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 
@@ -35,7 +35,7 @@ static const double kAutoRefreshFraction = 0.5;
 
 @property(nonatomic, readonly) dispatch_queue_t refreshQueue;
 
-@property(nonatomic, readonly) id<FIRAppCheckSettingsProtocol> settings;
+@property(nonatomic, readonly) id<GACAppCheckSettings> settings;
 
 @property(nonatomic, readonly) FIRTimerProvider timerProvider;
 @property(atomic, nullable) id<FIRAppCheckTimerProtocol> timer;
@@ -52,7 +52,7 @@ static const double kAutoRefreshFraction = 0.5;
 
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
                         timerProvider:(FIRTimerProvider)timerProvider
-                             settings:(id<FIRAppCheckSettingsProtocol>)settings {
+                             settings:(id<GACAppCheckSettings>)settings {
   self = [super init];
   if (self) {
     _refreshQueue =
@@ -65,7 +65,7 @@ static const double kAutoRefreshFraction = 0.5;
 }
 
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-                             settings:(id<FIRAppCheckSettingsProtocol>)settings {
+                             settings:(id<GACAppCheckSettings>)settings {
   return [self initWithRefreshResult:refreshResult
                        timerProvider:[FIRAppCheckTimer timerProvider]
                             settings:settings];

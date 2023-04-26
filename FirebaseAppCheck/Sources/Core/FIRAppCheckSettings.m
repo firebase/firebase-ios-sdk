@@ -38,6 +38,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 @implementation FIRAppCheckSettings
 
 @dynamic isTokenAutoRefreshEnabled;
+@dynamic isDataCollectionDefaultEnabled;
 
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
                 userDefault:(NSUserDefaults *)userDefaults
@@ -94,6 +95,10 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     self.isTokenAutoRefreshEnabledNumber = @(isTokenAutoRefreshEnabled);
     [self.userDefaults setObject:self.isTokenAutoRefreshEnabledNumber forKey:self.userDefaultKey];
   }
+}
+
+- (BOOL)isDataCollectionDefaultEnabled {
+  return self.firebaseApp.dataCollectionDefaultEnabled;
 }
 
 @end

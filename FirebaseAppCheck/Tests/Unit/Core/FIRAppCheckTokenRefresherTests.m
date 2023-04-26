@@ -28,7 +28,7 @@
 
 @property(nonatomic) FIRFakeTimer *fakeTimer;
 
-@property(nonatomic) OCMockObject<FIRAppCheckSettingsProtocol> *mockSettings;
+@property(nonatomic) OCMockObject<GACAppCheckSettings> *mockSettings;
 
 @property(nonatomic) FIRAppCheckTokenRefreshResult *initialTokenRefreshResult;
 
@@ -37,7 +37,7 @@
 @implementation FIRAppCheckTokenRefresherTests
 
 - (void)setUp {
-  self.mockSettings = OCMProtocolMock(@protocol(FIRAppCheckSettingsProtocol));
+  self.mockSettings = OCMProtocolMock(@protocol(GACAppCheckSettings));
   self.fakeTimer = [[FIRFakeTimer alloc] init];
 
   NSDate *receivedAtDate = [NSDate date];

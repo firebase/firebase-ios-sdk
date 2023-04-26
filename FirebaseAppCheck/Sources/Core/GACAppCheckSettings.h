@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Core/GACAppCheckSettings.h"
-
-@class FIRApp;
-
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix;
-FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey;
+/// A collection of App Check-wide settings and parameters.
+@protocol GACAppCheckSettings <NSObject>
 
-/// Handles storing and updating the Firebase app check wide settings and parameters.
-@interface FIRAppCheckSettings : NSObject <GACAppCheckSettings>
+/// If App Check token auto-refresh is allowed.
+@property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
 
-- (instancetype)initWithApp:(FIRApp *)firebaseApp
-                userDefault:(NSUserDefaults *)userDefaults
-                 mainBundle:(NSBundle *)mainBundle;
+/// If automatic data collection is enabled.
+@property(nonatomic, readonly, assign) BOOL isDataCollectionDefaultEnabled;
 
 @end
 
