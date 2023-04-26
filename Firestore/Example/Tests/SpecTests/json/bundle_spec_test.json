@@ -1179,7 +1179,7 @@
                 }
               ],
               "resumeToken": "",
-              "targetPurpose": 3
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
