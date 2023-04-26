@@ -3445,11 +3445,13 @@
         ]
       },
       {
-        "watchFilter": [
-          [
+        "watchFilter": {
+          "keys": [
+          ],
+          "targetIds": [
             1
           ]
-        ]
+        }
       },
       {
         "watchCurrent": [
@@ -8201,15 +8203,16 @@
         }
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "keys": [
+            "collection/b1",
+            "collection/b2",
+            "collection/b3"
           ],
-          "collection/b1",
-          "collection/b2",
-          "collection/b3"
-        ]
-
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
