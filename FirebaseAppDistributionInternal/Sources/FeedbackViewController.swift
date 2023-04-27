@@ -48,7 +48,48 @@ class FeedbackViewController: UIViewController {
     image = nil
   }
 
-  @IBAction func tappedSend(_ sender: Any) {}
+  @IBAction func tappedSend(_ sender: Any) {
+    guard let releaseName = releaseName else {
+      // TODO(tundeagboola) throw error or
+      return
+    }
+
+    ApiService
+      .createFeedback(releaseName: releaseName,
+                      feedbackText: feedbackTextView.text) { feedbackName, error in
+        if error != nil {
+          // TODO(tundeaboola) handle error if create feedback fails
+          return
+        }
+
+        guard let feedbackName = feedbackName else {
+          // TODO(tundeaboola) handle error if create feedback fails
+          return
+        }
+
+        guard let image = self.screenshotUIImageView.image else {
+          return self.commitFeedback(feedbackName: feedbackName)
+        }
+
+        ApiService.uploadImage(feedbackName: feedbackName, image: image) { error in
+          if error != nil {
+            // TODO(tundeaboola) handle error if upload image fails
+            return
+          }
+
+          self.commitFeedback(feedbackName: feedbackName)
+        }
+      }
+  }
+
+  private func commitFeedback(feedbackName: String) {
+    ApiService.commitFeedback(feedbackName: feedbackName) { error in
+      if error != nil {
+        // TODO(tundeaboola) handle error if commit feedback fails
+      }
+      self.feedbackSubmitted()
+    }
+  }
 
   @IBAction func tappedCancel(_ sender: Any) {
     dismiss(animated: true)
@@ -56,5 +97,10 @@ class FeedbackViewController: UIViewController {
 
   override func viewDidDisappear(_ animated: Bool) {
     viewDidDisappearCallback()
+  }
+
+  func feedbackSubmitted() {
+    // TODO(tundeagboola) show success toast
+    dismiss(animated: true)
   }
 }

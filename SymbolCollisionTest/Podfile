@@ -33,8 +33,9 @@ target 'SymbolCollisionTest' do
 
     # Google Pods depending on a Firebase or GDT major version
 
-    # TODO(v10): Uncomment when MLKit updates to Firebase 10 and GTMSessionFetcher 2.x
-#    pod 'GoogleMLKit'
+    # MLKit is incompatible with ARCore.
+    # duplicate symbol 'farmhashte::Fingerprint64WithSeeds. See #11003.
+    # pod 'GoogleMLKit'
 
   # Other Google Pods
     pod 'ARCore'

@@ -300,7 +300,7 @@
 
     [(id<UNUserNotificationCenterDelegate>)invalidNotificationCenter.delegate
          userNotificationCenter:self.mockUserNotificationCenter
-        willPresentNotification:OCMClassMock([UNNotification class])
+        willPresentNotification:[UNNotification alloc]
           withCompletionHandler:^(UNNotificationPresentationOptions options){
           }];
   }
@@ -315,7 +315,7 @@
     OCMReject([self.mockMessaging appDidReceiveMessage:[OCMArg any]]);
 
     [invalidDelegate userNotificationCenter:self.mockUserNotificationCenter
-                    willPresentNotification:OCMClassMock([UNNotification class])
+                    willPresentNotification:[UNNotification alloc]
                       withCompletionHandler:^(UNNotificationPresentationOptions options){
                       }];
   }

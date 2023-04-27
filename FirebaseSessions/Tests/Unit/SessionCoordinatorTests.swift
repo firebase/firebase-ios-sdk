@@ -111,7 +111,43 @@ class SessionCoordinatorTests: XCTestCase {
     }
 
     // We should have logged the event, but with a failed result
-    XCTAssertNil(fireLogger.loggedEvent)
+    XCTAssertNotNil(fireLogger.loggedEvent)
+    XCTAssertFalse(resultSuccess)
+  }
+
+  func test_attemptLoggingSessionStart_handlesGDTAndInstallationsError() throws {
+    let fireLogError = NSError(domain: "DataTransportError", code: -2)
+    fireLogger.result = .failure(fireLogError)
+    installations
+      .result = .failure(FirebaseSessionsError
+        .SessionInstallationsError(NSError(domain: "TestInstallationsError", code: -1)))
+
+    let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
+
+    // Start success so it must be set to false
+    var resultSuccess = true
+    coordinator.attemptLoggingSessionStart(event: event) { result in
+      switch result {
+      case .success(()):
+        resultSuccess = true
+      case let .failure(err):
+        resultSuccess = false
+        // Result should use the FireLog error if there's an error in both
+        // Installations and FireLog
+        XCTAssertEqual(err, FirebaseSessionsError.DataTransportError(fireLogError))
+      }
+    }
+
+    // Make sure we've set the Installation ID to empty because the FIID
+    // fetch failed
+    assertEqualProtoString(
+      event.proto.session_data.firebase_installation_id,
+      expected: "",
+      fieldName: "installation_id"
+    )
+
+    // We should have logged the event, but with a failed result
+    XCTAssertEqual(fireLogger.loggedEvent, event)
     XCTAssertFalse(resultSuccess)
   }
 }

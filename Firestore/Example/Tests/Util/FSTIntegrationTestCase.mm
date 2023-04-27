@@ -184,7 +184,6 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   if (defaultSettings) return;
 
   defaultSettings = [[FIRFirestoreSettings alloc] init];
-  defaultSettings.persistenceEnabled = YES;
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.

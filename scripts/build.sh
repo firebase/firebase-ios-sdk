@@ -171,7 +171,7 @@ watchos_flags=(
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
-  -destination platform="macOS,variant=Mac Catalyst" TARGETED_DEVICE_FAMILY=2
+  -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
   CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
 )
 
@@ -694,6 +694,14 @@ case "$product-$platform-$method" in
   *-*-spmbuildonly)
     RunXcodebuild \
       -scheme $product \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  SwiftPMClientApp-*-xcodebuild)
+    RunXcodebuild \
+      -project 'SwiftPMTests/ClientApp/ClientApp.xcodeproj' \
+      -scheme "ClientApp" \
       "${xcb_flags[@]}" \
       build
     ;;

@@ -374,11 +374,12 @@ static void callInMainThreadWithAuthDataResultAndError(
     _phoneNumber = phoneNumber;
     _metadata = metadata ?: [[FIRUserMetadata alloc] initWithCreationDate:nil lastSignInDate:nil];
     _tenantID = tenantID;
-    // The `heartbeatLogger` will be set later via a property update.
+    // The `heartbeatLogger` and `appCheck` will be set later via a property update.
     _requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:APIKey
                                                                           appID:appID
                                                                            auth:_auth
-                                                                heartbeatLogger:nil];
+                                                                heartbeatLogger:nil
+                                                                       appCheck:nil];
 #if TARGET_OS_IOS
     _multiFactor = multiFactor ?: [[FIRMultiFactor alloc] init];
     _multiFactor.user = self;

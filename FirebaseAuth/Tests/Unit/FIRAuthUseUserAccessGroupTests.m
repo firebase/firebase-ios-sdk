@@ -42,14 +42,14 @@
   OCMStub([classMock keychainServiceNameForAppName:OCMOCK_ANY]).andReturn(nil);
   FIRAuthStoredUserManager *myManager =
       [[FIRAuthStoredUserManager alloc] initWithServiceName:@"MyService"];
-  [myManager setStoredUserAccessGroup:@"MyGroup" error:nil];
+  [myManager setStoredUserAccessGroup:@"MyGroup"];
 
   FIRAuth *auth = [FIRAuth auth];
   XCTAssertNotNil(auth);
   id partialMock = OCMPartialMock(auth);
   OCMStub([partialMock storedUserManager]).andReturn(myManager);
 
-  XCTAssertNotNil([auth.storedUserManager getStoredUserAccessGroupWithError:nil]);
+  XCTAssertNotNil([auth.storedUserManager getStoredUserAccessGroup]);
   XCTAssertTrue([auth useUserAccessGroup:@"id.com.example.group1" error:nil]);
   XCTAssertTrue([auth useUserAccessGroup:@"id.com.example.group2" error:nil]);
   XCTAssertTrue([auth useUserAccessGroup:nil error:nil]);

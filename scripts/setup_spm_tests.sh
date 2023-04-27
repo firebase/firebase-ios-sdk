@@ -16,12 +16,12 @@
 
 
 # Point SPM CI to the tip of main of https://github.com/google/GoogleAppMeasurement
-# so that the release process can defer publish the GoogleAppMeasurement tag
+# so that the release process can defer publishing the GoogleAppMeasurement tag
 # until after testing.
 
-# For example: Change `.exact("8.3.1")` to `.branch("main")`
+# For example: Change `exact: "8.3.1"` to `branch: "main"`
 
-sed -i '' 's#exact("[0-9.]*#branch("main#' Package.swift
+sed -i '' 's#exact:[[:space:]]*"[0-9.]*"#branch: "main"#' Package.swift
 
 
 # Move schemes into place to run Swift Package Manager tests
