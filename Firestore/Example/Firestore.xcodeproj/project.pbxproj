@@ -488,8 +488,8 @@
 		518BF03D57FBAD7C632D18F8 /* FIRQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */; };
 		521F4BF388B6C924303B205C /* Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json in Resources */ = {isa = PBXBuildFile; fileRef = A055B68FED10D29EC145AFBD /* Validation_BloomFilterTest_MD5_1_01_bloom_filter_proto.json */; };
 		52967C3DD7896BFA48840488 /* byte_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */; };
-		52BC453A24D8335C5A57C775 /* md5_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = DD044ED27730B7A9000DF4FE /* md5_test.cc */; };
 		529AB59F636060FEA21BD4FF /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
+		52BC453A24D8335C5A57C775 /* md5_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = DD044ED27730B7A9000DF4FE /* md5_test.cc */; };
 		53AB47E44D897C81A94031F6 /* write.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D921C2DDC800EFB9CC /* write.pb.cc */; };
 		53B66BDB310D80AA3D79F52B /* Validation_BloomFilterTest_MD5_50000_01_membership_test_result.json in Resources */ = {isa = PBXBuildFile; fileRef = 2CF440979CE992E038A54427 /* Validation_BloomFilterTest_MD5_50000_01_membership_test_result.json */; };
 		53BBB5CDED453F923ADD08D2 /* stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5B5414D28802BC76FDADABD6 /* stream_test.cc */; };
