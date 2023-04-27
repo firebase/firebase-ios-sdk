@@ -26,6 +26,7 @@
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
 
+#include <exception>
 #include <memory>
 #include <string>
 #include <utility>
@@ -187,7 +188,30 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
   NSString *project = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
-  NSString *host = [[NSProcessInfo processInfo] environment][@"DATASTORE_HOST"];
+  NSString *targetBackend = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
+  NSString *host;
+  if (targetBackend) {
+    if ([targetBackend isEqualToString:@"emulator"]) {
+      [self setUpEmulatorDefault];
+      return;
+    } else if ([targetBackend isEqualToString:@"qa"]) {
+      host = @"staging-firestore.sandbox.googleapis.com";
+    } else if ([targetBackend isEqualToString:@"nightly"]) {
+      host = @"test-firestore.sandbox.googleapis.com";
+    } else if ([targetBackend isEqualToString:@"prod"]) {
+      host = @"firestore.googleapis.com";
+    } else {
+      @throw [[NSException alloc]
+          initWithName:@"InvalidArgumentError"
+                reason:[NSString stringWithFormat:
+                                     @"Unexpected TARGET_BACKEND environment variable \"%@\"",
+                                     targetBackend]
+              userInfo:nil];
+    }
+  } else {
+    host = [[NSProcessInfo processInfo] environment][@"DATASTORE_HOST"];
+  }
+
   if (project && host) {
     defaultProjectId = project;
     defaultSettings.host = host;
@@ -210,6 +234,10 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   }
 
   // Otherwise fall back on assuming the emulator or localhost.
+  [self setUpEmulatorDefault];
+}
+
++ (void)setUpEmulatorDefault {
   defaultProjectId = @"test-db";
 
   defaultSettings.host = @"localhost:8080";
