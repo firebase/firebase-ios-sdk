@@ -30,7 +30,9 @@
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/util/hard_assert.h"
+
 #include "absl/types/optional.h"
+#include "absl/container/flat_hash_map.h"
 
 namespace firebase {
 namespace firestore {
@@ -78,7 +80,7 @@ class ObjectValue {
    */
   static ObjectValue FromAggregateFieldsEntry(
       google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
-      pb_size_t count);
+      pb_size_t count, const absl::flat_hash_map<std::string, std::string>& aliasMap);
 
   /** Recursively extracts the FieldPaths that are set in this ObjectValue. */
   FieldMask ToFieldMask() const;
