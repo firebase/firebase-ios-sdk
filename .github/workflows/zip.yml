@@ -469,6 +469,10 @@ jobs:
           scripts/check_firestore_symbols.sh \
             $(pwd) \
             "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/FirebaseFirestore.xcframework
+      - uses: actions/upload-artifact@v1
+        with:
+          name: xcodebuild logs
+          path: /tmp/zip-debug/
 
   quickstart_framework_inappmessaging:
     # Don't run on private repo.
