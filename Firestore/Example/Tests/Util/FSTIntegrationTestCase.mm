@@ -600,6 +600,16 @@ extern "C" NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySna
   return result;
 }
 
+extern "C" NSArray<FIRDocumentReference *> *FIRDocumentReferenceArrayFromQuerySnapshot(
+    FIRQuerySnapshot *docs) {
+  NSMutableArray<FIRDocumentReference *> *documentReferenceAccumulator =
+      [[NSMutableArray alloc] init];
+  for (FIRDocumentSnapshot *documentSnapshot in docs.documents) {
+    [documentReferenceAccumulator addObject:documentSnapshot.reference];
+  }
+  return [documentReferenceAccumulator copy];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

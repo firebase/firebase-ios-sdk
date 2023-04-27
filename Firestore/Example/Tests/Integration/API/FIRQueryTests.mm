@@ -1192,39 +1192,31 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
 
 - (void)testResumingAQueryShouldUseExistenceFilterToDetectDeletes {
   // Prepare the names and contents of the 100 documents to create.
-  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testData =
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs =
       [[NSMutableDictionary alloc] init];
   for (int i = 0; i < 100; i++) {
-    [testData setValue:@{@"key" : @42} forKey:[NSString stringWithFormat:@"doc%@", @(i)]];
+    [testDocs setValue:@{@"key" : @42} forKey:[NSString stringWithFormat:@"doc%@", @(1000 + i)]];
   }
 
   // Create 100 documents in a new collection.
-  FIRCollectionReference *collRef = [self collectionRefWithDocuments:testData];
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:testDocs];
 
   // Run a query to populate the local cache with the 100 documents and a resume token.
-  NSArray<FIRDocumentReference *> *createdDocuments;
-  {
-    FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
-                                                            source:FIRFirestoreSourceDefault];
-    NSMutableArray<FIRDocumentReference *> *createdDocumentsAccumulator =
-        [[NSMutableArray alloc] init];
-    for (FIRDocumentSnapshot *documentSnapshot in querySnapshot1.documents) {
-      [createdDocumentsAccumulator addObject:documentSnapshot.reference];
-    }
-    createdDocuments = [createdDocumentsAccumulator copy];
-  }
-  XCTAssertEqual(createdDocuments.count, 100u, @"createdDocuments has the wrong size");
+  FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
+                                                          source:FIRFirestoreSourceDefault];
+  XCTAssertEqual(querySnapshot1.count, 100, @"querySnapshot1.count has an unexpected value");
+  NSArray<FIRDocumentReference *> *createdDocuments =
+      FIRDocumentReferenceArrayFromQuerySnapshot(querySnapshot1);
 
   // Delete 50 of the 100 documents. Do this in a transaction, rather than
   // [FIRDocumentReference deleteDocument], to avoid affecting the local cache.
   NSSet<NSString *> *deletedDocumentIds;
   {
     NSMutableArray<NSString *> *deletedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
-    deletedDocumentIds = [deletedDocumentIdsAccumulator copy];
     XCTestExpectation *expectation = [self expectationWithDescription:@"DeleteTransaction"];
     [collRef.firestore
         runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
-          for (NSUInteger i = 0; i < createdDocuments.count; i += 2) {
+          for (decltype(createdDocuments.count) i = 0; i < createdDocuments.count; i += 2) {
             FIRDocumentReference *documentToDelete = createdDocuments[i];
             [transaction deleteDocument:documentToDelete];
             [deletedDocumentIdsAccumulator addObject:documentToDelete.documentID];
@@ -1254,14 +1246,8 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
   // existence filter, resulting in the client including the deleted documents in the snapshot
   // of the resumed query.
   if (!([FSTIntegrationTestCase isRunningAgainstEmulator] && querySnapshot2.count == 100)) {
-    NSSet<NSString *> *actualDocumentIds;
-    {
-      NSMutableArray<NSString *> *actualDocumentIdsAccumulator = [[NSMutableArray alloc] init];
-      for (FIRDocumentSnapshot *documentSnapshot in querySnapshot2.documents) {
-        [actualDocumentIdsAccumulator addObject:documentSnapshot.documentID];
-      }
-      actualDocumentIds = [NSSet setWithArray:actualDocumentIdsAccumulator];
-    }
+    NSSet<NSString *> *actualDocumentIds =
+        [NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)];
     NSSet<NSString *> *expectedDocumentIds;
     {
       NSMutableArray<NSString *> *expectedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
@@ -1277,7 +1263,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
           SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
       NSArray<NSString *> *missingDocumentIds =
           SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
-      XCTFail(@"The snapshot contained %lu documents (expected %lu): "
+      XCTFail(@"querySnapshot2 contained %lu documents (expected %lu): "
               @"%lu unexpected and %lu missing; "
               @"unexpected documents: %@; missing documents: %@",
               (unsigned long)actualDocumentIds.count, (unsigned long)expectedDocumentIds.count,
