@@ -41,6 +41,12 @@ class AggregateQuery {
   Query query_;
 };
 
+bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
+
+inline bool operator!=(const AggregateQuery& lhs, const AggregateQuery& rhs) {
+  return !(lhs == rhs);
+}
+
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
