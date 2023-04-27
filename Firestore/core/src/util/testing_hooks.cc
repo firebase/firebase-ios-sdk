@@ -14,12 +14,43 @@
  * limitations under the License.
  */
 
+#include <mutex>
+#include <vector>
+
 #include "Firestore/core/src/util/testing_hooks.h"
+
+#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
 namespace util {
 
+namespace {
+
+using ExistenceFilterMismatchCallback =
+    std::function<void(const TestingHooks::ExistenceFilterMismatchInfo&)>;
+
+class OnExistenceFilterMismatchListenerRegistration final
+    : public api::ListenerRegistration {
+ public:
+  void Remove() override {
+  }
+};
+
+}  // namespace
+
+ABSL_ATTRIBUTE_UNUSED  // This function is only used in integration tests
+    std::shared_ptr<api::ListenerRegistration>
+    TestingHooks::OnExistenceFilterMismatch(
+        ExistenceFilterMismatchCallback callback) {
+  (void)callback;
+  return std::make_shared<OnExistenceFilterMismatchListenerRegistration>();
+}
+
+void TestingHooks::NotifyOnExistenceFilterMismatch(
+    const ExistenceFilterMismatchInfo& info) {
+  (void)info;
+}
 
 }  // namespace util
 }  // namespace firestore

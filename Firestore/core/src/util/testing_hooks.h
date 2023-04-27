@@ -17,7 +17,6 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_TESTING_HOOKS_H_
 #define FIRESTORE_CORE_SRC_UTIL_TESTING_HOOKS_H_
 
-#include <cstdint>
 #include <functional>
 #include <memory>
 
@@ -34,14 +33,13 @@ namespace util {
  */
 class TestingHooks final {
  public:
-
   /**
    * Information about an existence filter mismatch, as specified to callbacks
    * registered with `OnExistenceFilterMismatch()`.
    */
   struct ExistenceFilterMismatchInfo {
-    int32_t localCacheCount = -1;
-    int32_t existenceFilterCount = -1;
+    int localCacheCount = -1;
+    int existenceFilterCount = -1;
   };
 
   /**
@@ -69,13 +67,15 @@ class TestingHooks final {
    * callback; only the first invocation of `Remove()` does anything; all
    * subsequent invocations do nothing.
    */
-  static std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(std::function<void(const ExistenceFilterMismatchInfo&)>);
+  static std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(
+      std::function<void(const ExistenceFilterMismatchInfo&)>);
 
   /**
    * Invokes all currently-registered `OnExistenceFilterMismatch` callbacks.
    * @param info Information about the existence filter mismatch.
    */
-  static void NotifyOnExistenceFilterMismatch(const ExistenceFilterMismatchInfo&);
+  static void NotifyOnExistenceFilterMismatch(
+      const ExistenceFilterMismatchInfo&);
 
  private:
   TestingHooks() = delete;
