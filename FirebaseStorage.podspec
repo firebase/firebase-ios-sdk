@@ -70,6 +70,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = 'FirebaseStorage/Tests/Unit/StorageAPITests.swift'
+    unit_tests.requires_app_host = true
   end
 
   s.test_spec 'integration' do |int_tests|

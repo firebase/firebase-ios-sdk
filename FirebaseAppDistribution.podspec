@@ -46,6 +46,7 @@ iOS SDK for App Distribution for Firebase.
      'FirebaseAppDistribution/Tests/Unit*/*.[mh]',
      'FirebaseAppDistribution/Tests/Unit/Swift*/*.swift',
    ]
+   unit_tests.requires_app_host = true
    unit_tests.resources = 'FirebaseAppDistribution/Tests/Unit/Resources/*'
    unit_tests.dependency 'OCMock'
   end

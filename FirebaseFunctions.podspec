@@ -54,6 +54,7 @@ Cloud Functions for Firebase.
     objc_tests.source_files = [
       'FirebaseFunctions/Tests/ObjCIntegration/ObjC*'
     ]
+    objc_tests.requires_app_host = true
   end
 
   s.test_spec 'integration' do |int_tests|
@@ -63,5 +64,6 @@ Cloud Functions for Firebase.
       :tvos => tvos_deployment_target
     }
     int_tests.source_files = 'FirebaseFunctions/Tests/Integration/*.swift'
+    int_tests.requires_app_host = true
   end
 end
