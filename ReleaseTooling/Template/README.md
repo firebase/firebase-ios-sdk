@@ -14,7 +14,7 @@ Xcode 14.1 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
-1. Find the desired SDK in the list below.
+1. Find the desired SDK from the list within `METADATA.md`.
 2. Make sure you have an Xcode project open in Xcode.
 3. In Xcode, hit `⌘-1` to open the Project Navigator pane. It will open on
    left side of the Xcode window if it wasn't already open.
