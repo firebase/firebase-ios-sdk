@@ -141,7 +141,7 @@ static NSString *const kFacebookTestAccountName = KFACEBOOK_USER_NAME;
   __block NSData *data = nil;
   [fetcher beginFetchWithCompletionHandler:^(NSData *receivedData, NSError *error) {
     if (error) {
-      NSLog(@"Creating Facebook account finished with error: %@", error);
+      NSLog(@"Error: Creating Facebook account finished with error: %@", error);
       return;
     }
     data = receivedData;
