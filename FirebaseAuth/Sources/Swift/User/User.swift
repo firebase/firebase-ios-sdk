@@ -1928,49 +1928,7 @@ import Foundation
       @return Whether the operation is successful.
    */
   func updateKeychain() -> Error? {
-    if self != auth?.rawCurrentUser {
-      // No-op if the user is no longer signed in. This is not considered an error as we don't check
-      // whether the user is still current on other callbacks of user operations either.
-      return nil
-    }
-    do {
-      try saveUser()
-    } catch {
-      return error
-    }
-    return nil
-  }
-
-  private func saveUser() throws {
-    guard let auth = auth else {
-      return
-    }
-    if auth.userAccessGroup == nil {
-      let userKey = "\(auth.firebaseAppName)_firebase_user"
-      #if os(watchOS)
-        let archiver = NSKeyedArchiver(requiringSecureCoding: false)
-      #else
-        // Encode the user object.
-        let archiveData = NSMutableData()
-        let archiver = NSKeyedArchiver(forWritingWith: archiveData)
-      #endif
-      archiver.encode(self, forKey: userKey)
-      archiver.finishEncoding()
-      #if os(watchOS)
-        let archiveData = archiver.encodedData
-      #endif
-
-      // Save the user object's encoded value.
-      try auth.keychainServices.setData(archiveData as Data, forKey: userKey)
-
-      // TODO: Compile this
-//    } else {
-//      try auth.storedUserManager.setStoredUser(
-//        self,
-//                                               forAccessGroup: auth.userAccessGroup,
-//                                               shareAuthStateAcrossDevices: auth.shareAuthStateAcrossDevices,
-//                                               projectIdentifier: auth.app.options.apiKey)
-    }
+    return auth.updateKeychain(withUser: self)
   }
 
   /** @fn callInMainThreadWithError

@@ -127,8 +127,18 @@ import Foundation
       }
       let updateUserBlock: (User) -> Void = { user in
         do {
-          try updateCurrentUser(user)
-          // TODO:
+          try self.updateCurrentUser(user: user, byForce: true, savingToDisk: true)
+          if let completion {
+            DispatchQueue.main.async {
+              completion(nil)
+            }
+          }
+        } catch {
+          if let completion {
+            DispatchQueue.main.async {
+              completion(error)
+            }
+          }
         }
       }
       if user.requestConfiguration.apiKey != self.requestConfiguration.apiKey {
@@ -144,164 +154,13 @@ import Foundation
             }
             return
           }
+          updateUserBlock(user)
         }
-        // TODO: here
+      } else {
+        updateUserBlock(user)
       }
     }
   }
-
-  /** @fn updateCurrentUser:byForce:savingToDisk:error:
-      @brief Update the current user; initializing the user's internal properties correctly, and
-          optionally saving the user to disk.
-      @remarks This method is called during: sign in and sign out events, as well as during class
-          initialization time. The only time the saveToDisk parameter should be set to NO is during
-          class initialization time because the user was just read from disk.
-      @param user The user to use as the current user (including nil, which is passed at sign out
-          time.)
-      @param saveToDisk Indicates the method should persist the user data to disk.
-   */
-  private func updateCurrentUser(user: User?, byForce force: Bool, savingToDisk saveToDisk:Bool) throws -> Bool {
-    if (user == self.currentUser) {
-      self.possiblyPostAuthStateChangeNotification()
-      return true
-    }
-    if let user {
-      if (user.tenantID != nil || self.tenantID != nil) && self.tenantID != user.tenantID {
-        let error = AuthErrorUtils.tenantIDMismatchError()
-        throw error
-      }
-    }
-    var success = true
-    if saveToDisk {
-      success = self.saveUser(user)
-    }
-    if success || force {
-      currentUser = user
-      self.possiblyPostAuthStateChangeNotification()
-    }
-    return success
-  }
-
-  /** @fn possiblyPostAuthStateChangeNotification
-      @brief Posts the auth state change notificaton if current user's token has been changed.
-   */
-  private func possiblyPostAuthStateChangeNotification() {
-    let token = self.currentUser?.rawAccessToken()
-    if self.lastNotifiedUserToken == token ||
-        (token != nil && self.lastNotifiedUserToken == token) {
-      return
-    }
-    lastNotifiedUserToken = token
-    if autoRefreshTokens {
-      // Shedule new refresh task after successful attempt.
-      self.scheduleAutoTokenRefresh()
-    }
-    var internalNotificationParameters: [String: Any] = [:]
-    if let app = self.app {
-      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationAppKey] = app
-    }
-    if let token, token.count > 0 {
-      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token
-    }
-    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = currentUser?.uid
-    let notifications = NotificationCenter()
-    DispatchQueue.main.async {
-      notifications.post(name: NSNotification.Name.FIRAuthStateDidChangeInternal,
-                         object: self,
-                         userInfo: internalNotificationParameters)
-      notifications.post(name: self.authStateDidChangeNotification, object: self)
-    }
-  }
-
-  /** @fn scheduleAutoTokenRefreshWithDelay:
-      @brief Schedules a task to automatically refresh tokens on the current user. The0 token refresh
-          is scheduled 5 minutes before the  scheduled expiration time.
-      @remarks If the token expires in less than 5 minutes, schedule the token refresh immediately.
-   */
-  private func scheduleAutoTokenRefresh() {
-    let tokenExpirationInterval =
-    (currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
-    self.scheduleAutoTokenRefresh(withDelay:max(tokenExpirationInterval, 0), retry: false)
-  }
-
-  /** @fn scheduleAutoTokenRefreshWithDelay:
-      @brief Schedules a task to automatically refresh tokens on the current user.
-      @param delay The delay in seconds after which the token refresh task should be scheduled to be
-          executed.
-      @param retry Flag to determine whether the invocation is a retry attempt or not.
-   */
-  private func scheduleAutoTokenRefresh(withDelay delay: TimeInterval, retry: Bool) {
-    guard let accessToken = currentUser?.rawAccessToken() else {
-      return
-    }
-    let intDelay = Int(ceil(delay))
-    if retry {
-      AuthLog.logInfo(code: "I-AUT000003", message: "Token auto-refresh re-scheduled in " +
-                      "\(intDelay / 60):\(intDelay % 60) " +
-                      "because of error on previous refresh attempt.")
-    } else {
-      AuthLog.logInfo(code: "I-AUT000004", message: "Token auto-refresh scheduled in " +
-                      "\(intDelay / 60):\(intDelay % 60) " +
-                      "for the new token.")
-    }
-    self.autoRefreshScheduled = true
-    weak var weakSelf = self
-    AuthDispatcher.shared.dispatch(afterDelay: delay, queue: kAuthGlobalWorkQueue) {
-      guard let strongSelf = weakSelf else {
-        return
-      }
-      guard strongSelf.currentUser?.rawAccessToken() == accessToken else {
-        // Another auto refresh must have been scheduled, so keep
-        // _autoRefreshScheduled unchanged.
-        return
-      }
-      strongSelf.autoRefreshScheduled = false
-      if strongSelf.isAppInBackground {
-        return
-      }
-      let uid = strongSelf.currentUser?.uid
-      strongSelf.currentUser?.internalGetToken(forceRefresh: true) { token, error in
-        if strongSelf.currentUser?.uid == uid {
-          return
-        }
-        if let error {
-          // Kicks off exponential back off logic to retry failed attempt. Starts with one minute delay
-          // (60 seconds) if this is the first failed attempt.
-          let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
-          strongSelf.scheduleAutoTokenRefresh(withDelay: rescheduleDelay, retry: true)
-        }
-      }
-    }
-  }
-
-  // TODO: Need to manage breaking change for
-  // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
-  // Move to FIRApp with other Auth notifications?
-  public let authStateDidChangeNotification =
-    NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
-
-  /** @var _lastNotifiedUserToken
-      @brief The user access (ID) token used last time for posting auth state changed notification.
-   */
-  private var lastNotifiedUserToken: String?
-
-  /** @var _autoRefreshTokens
-      @brief This flag denotes whether or not tokens should be automatically refreshed.
-      @remarks Will only be set to @YES if the another Firebase service is included (additionally to
-        Firebase Auth).
-   */
-  private var autoRefreshTokens = false
-
-  /** @var _autoRefreshScheduled
-      @brief Whether or not token auto-refresh is currently scheduled.
-   */
-  private var autoRefreshScheduled = false
-
-  /** @var _isAppInBackground
-      @brief A flag that is set to YES if the app is put in the background and no when the app is
-          returned to the foreground.
-   */
-  private var isAppInBackground = false
 
   /** @fn updateCurrentUser:completion:
    @brief Sets the `currentUser` on the receiver to the provided user object.
@@ -344,8 +203,8 @@ import Foundation
                                          requestConfiguration: self.requestConfiguration)
       AuthBackend.post(withRequest: request) { response, error in
         if let completion {
-          DispatchQueue.main {
-            completion((response as? CreateAuthURIResponse).signinMethods, error)
+          DispatchQueue.main.async {
+            completion((response as? CreateAuthURIResponse)?.signinMethods, error)
           }
         }
       }
@@ -402,12 +261,115 @@ import Foundation
    */
   @objc public func signIn(withEmail email: String,
                            password: String,
-                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-    kAuthGlobalWorkQueue.async {
-      let decoratedCallback = self.signInFlowDataResultCallback(byDecorating: completion)
-      // TODO: more
+                           callback: ((AuthDataResult?, Error?) -> Void)) {
+    let request = VerifyPasswordRequest(email: email,
+                                        password: password,
+                                        requestConfiguration: requestConfiguration)
+    if request.password.count == 0 {
+      callback(nil, AuthErrorUtils.wrongPasswordError(message: nil))
+      return
+    }
+    AuthBackend.post(withRequest: request) { rawResponse, error in
+      if let error {
+        callback(nil, error)
+        return
+      }
+      guard let response = rawResponse as? VerifyPasswordResponse else {
+        fatalError("Internal Auth Error: null response from VerifyPasswordRequest")
+      }
+      self.completeSignIn(withAccessToken: response.idToken, accessTokenExpirationDate: response.approximateExpirationDate, refreshToken: response.refreshToken, anonymous: <#T##Bool#>, callback: <#T##FIRAuthResultCallback#>)
     }
   }
+
+  /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
+      @brief Signs in using an email address and password.
+      @param email The user's email address.
+      @param password The user's password.
+      @param completion A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+          asynchronously on the global auth work queue in the future.
+      @remarks This is the internal counterpart of this method, which uses a callback that does not
+          update the current user.
+   */
+  private func internalSignInAndRetrieveData(withEmail email: String, password: String,
+                                             completion: ((AuthDataResult?, Error?) -> Void)?) {
+    let credential = EmailAuthCredential(withEmail: email, password: password)
+    self.internalSignInAndRetrieveData(withCredential: credential,
+                                       isReauthentication: false,
+                                       callback: completion)
+  }
+
+  private func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
+                                             isReauthentication: Bool,
+                                             callback:  ((AuthDataResult?, Error?) -> Void)?) {
+    if let emailCredential = credential as? EmailAuthCredential {
+      // Special case for email/password credentials
+      if let link = emailCredential.link {
+        // Email link sign in
+        self.internalSignInAndRetrieveData(withEmail: emailCredential.email, link: link,
+                                           completion: callback)
+      } else {
+        // Email password sign in
+        let completeEmailSignIn: (User?, Error?) -> Void = { user, error in
+          if let callback {
+            if let error {
+              callback(nil, error)
+              return
+            }
+            guard let user else {
+              // TODO: This matches ObjC code but seems wrong.
+              callback(nil, nil)
+            }
+            let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
+                                                        profile: nil,
+                                                        username: nil,
+                                                        isNewUser: false)
+            let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
+            callback(result, nil)
+          }
+        }
+        self.signIn(withEmail: emailCredential.email,
+                    password: emailCredential.password,
+                    completion: completeEmailSignIn)
+      }
+    }
+
+  }
+
+  /** @fn signInFlowAuthDataResultCallbackByDecoratingCallback:
+      @brief Creates a FIRAuthDataResultCallback block which wraps another FIRAuthDataResultCallback;
+          trying to update the current user before forwarding it's invocations along to a subject
+          block.
+      @param callback Called when the user has been updated or when an error has occurred. Invoked
+          asynchronously on the main thread in the future.
+      @return Returns a block that updates the current user.
+      @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
+          consider alternative ways of updating the current user.
+  */
+  private func signInFlowAuthDataResultCallback(byDecorating callback:
+      ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
+    let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
+    { callback, result, error in
+      if let callback {
+        DispatchQueue.main.async {
+          callback(result, error)
+        }
+      }
+    }
+    return { authResult, error in
+      if let error {
+        authDataCallback(callback, nil, error)
+        return
+      }
+      do {
+        try self.updateCurrentUser(user: authResult?.user, byForce: false, savingToDisk: true)
+      } catch {
+        authDataCallback(callback, nil, error)
+        return
+      }
+      authDataCallback(callback, authResult, nil)
+    }
+  }
+
 
   /** @fn signInWithEmail:password:completion:
    @brief Signs in using an email address and password.
@@ -587,7 +549,12 @@ import Foundation
    */
   @objc public func signIn(with credential: AuthCredential,
                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-
+    kAuthGlobalWorkQueue.async {
+      let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+      self.internalSignInAndRetrieveData(withCredential: credential,
+                                         isReauthentication: false,
+                                         callback: decoratedCallback)
+    }
   }
 
   /** @fn signInWithCredential:completion:
@@ -1174,7 +1141,9 @@ import Foundation
         @brief Switch userAccessGroup and current user to the given accessGroup and the user stored in
             it.
      */
-    @objc public func useUserAccessGroup(_ accessGroup: String?) throws
+  @objc public func useUserAccessGroup(_ accessGroup: String?) throws {
+
+  }
 
 
     /** @fn getStoredUserForAccessGroup:error:
@@ -1183,6 +1152,276 @@ import Foundation
             This case will return `nil`.
             Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
      */
-    @objc public func getStoredUser(forAccessGroup accessGroup: String?) throws -> FIRUser?
+  @objc public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
+
+  }
+
+
+  // TODO: Need to manage breaking change for
+  // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
+  // Move to FIRApp with other Auth notifications?
+  public let authStateDidChangeNotification =
+    NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
+
+  // MARK: Internal methods
+
+  func updateKeychain(withUser user: User?) -> Error? {
+    if user != currentUser {
+      // No-op if the user is no longer signed in. This is not considered an error as we don't check
+      // whether the user is still current on other callbacks of user operations either.
+      return nil
+    }
+    do {
+      try saveUser(user)
+      self.possiblyPostAuthStateChangeNotification()
+    } catch {
+      return error
+    }
+    return nil
+  }
+
+  // MARK: Private methods
+
+  /** @fn possiblyPostAuthStateChangeNotification
+      @brief Posts the auth state change notificaton if current user's token has been changed.
+   */
+  private func possiblyPostAuthStateChangeNotification() {
+    let token = self.currentUser?.rawAccessToken()
+    if self.lastNotifiedUserToken == token ||
+        (token != nil && self.lastNotifiedUserToken == token) {
+      return
+    }
+    lastNotifiedUserToken = token
+    if autoRefreshTokens {
+      // Shedule new refresh task after successful attempt.
+      self.scheduleAutoTokenRefresh()
+    }
+    var internalNotificationParameters: [String: Any] = [:]
+    if let app = self.app {
+      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationAppKey] = app
+    }
+    if let token, token.count > 0 {
+      internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationTokenKey] = token
+    }
+    internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = currentUser?.uid
+    let notifications = NotificationCenter()
+    DispatchQueue.main.async {
+      notifications.post(name: NSNotification.Name.FIRAuthStateDidChangeInternal,
+                         object: self,
+                         userInfo: internalNotificationParameters)
+      notifications.post(name: self.authStateDidChangeNotification, object: self)
+    }
+  }
+
+  /** @fn scheduleAutoTokenRefreshWithDelay:
+      @brief Schedules a task to automatically refresh tokens on the current user. The0 token refresh
+          is scheduled 5 minutes before the  scheduled expiration time.
+      @remarks If the token expires in less than 5 minutes, schedule the token refresh immediately.
+   */
+  private func scheduleAutoTokenRefresh() {
+    let tokenExpirationInterval =
+    (currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
+    self.scheduleAutoTokenRefresh(withDelay:max(tokenExpirationInterval, 0), retry: false)
+  }
+
+  /** @fn scheduleAutoTokenRefreshWithDelay:
+      @brief Schedules a task to automatically refresh tokens on the current user.
+      @param delay The delay in seconds after which the token refresh task should be scheduled to be
+          executed.
+      @param retry Flag to determine whether the invocation is a retry attempt or not.
+   */
+  private func scheduleAutoTokenRefresh(withDelay delay: TimeInterval, retry: Bool) {
+    guard let accessToken = currentUser?.rawAccessToken() else {
+      return
+    }
+    let intDelay = Int(ceil(delay))
+    if retry {
+      AuthLog.logInfo(code: "I-AUT000003", message: "Token auto-refresh re-scheduled in " +
+                      "\(intDelay / 60):\(intDelay % 60) " +
+                      "because of error on previous refresh attempt.")
+    } else {
+      AuthLog.logInfo(code: "I-AUT000004", message: "Token auto-refresh scheduled in " +
+                      "\(intDelay / 60):\(intDelay % 60) " +
+                      "for the new token.")
+    }
+    self.autoRefreshScheduled = true
+    weak var weakSelf = self
+    AuthDispatcher.shared.dispatch(afterDelay: delay, queue: kAuthGlobalWorkQueue) {
+      guard let strongSelf = weakSelf else {
+        return
+      }
+      guard strongSelf.currentUser?.rawAccessToken() == accessToken else {
+        // Another auto refresh must have been scheduled, so keep
+        // _autoRefreshScheduled unchanged.
+        return
+      }
+      strongSelf.autoRefreshScheduled = false
+      if strongSelf.isAppInBackground {
+        return
+      }
+      let uid = strongSelf.currentUser?.uid
+      strongSelf.currentUser?.internalGetToken(forceRefresh: true) { token, error in
+        if strongSelf.currentUser?.uid == uid {
+          return
+        }
+        if let error {
+          // Kicks off exponential back off logic to retry failed attempt. Starts with one minute delay
+          // (60 seconds) if this is the first failed attempt.
+          let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
+          strongSelf.scheduleAutoTokenRefresh(withDelay: rescheduleDelay, retry: true)
+        }
+      }
+    }
+  }
+
+
+
+  /** @fn updateCurrentUser:byForce:savingToDisk:error:
+      @brief Update the current user; initializing the user's internal properties correctly, and
+          optionally saving the user to disk.
+      @remarks This method is called during: sign in and sign out events, as well as during class
+          initialization time. The only time the saveToDisk parameter should be set to NO is during
+          class initialization time because the user was just read from disk.
+      @param user The user to use as the current user (including nil, which is passed at sign out
+          time.)
+      @param saveToDisk Indicates the method should persist the user data to disk.
+   */
+  private func updateCurrentUser(user: User?, byForce force: Bool, savingToDisk saveToDisk:Bool) throws {
+    if (user == self.currentUser) {
+      self.possiblyPostAuthStateChangeNotification()
+    }
+    if let user {
+      if (user.tenantID != nil || self.tenantID != nil) && self.tenantID != user.tenantID {
+        let error = AuthErrorUtils.tenantIDMismatchError()
+        throw error
+      }
+    }
+    var throwError: Error? = nil
+    if saveToDisk {
+      do {
+        try self.saveUser(user)
+      } catch {
+        throwError = error
+      }
+    }
+    if throwError == nil || force {
+      currentUser = user
+      self.possiblyPostAuthStateChangeNotification()
+    }
+    if let throwError {
+      throw throwError
+    }
+  }
+
+  private func saveUser(_ user: User?) throws {
+    if let userAccessGroup {
+      guard let apiKey = self.app?.options.apiKey else {
+        fatalError("Internal Auth Error: Missing apiKey in saveUser")
+      }
+      if let user {
+        try storedUserManager.setStoredUser(user: user,
+                                        accessGroup: userAccessGroup,
+                                        shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
+                                        projectIdentifier: apiKey)
+      } else {
+        try storedUserManager.removeStoredUser(
+          accessGroup: userAccessGroup,
+                                  shareAuthStateAcrossDevices: self.shareAuthStateAcrossDevices,
+                                           projectIdentifier: apiKey)
+      }
+    } else {
+      let userKey = "\(firebaseAppName)_firebase_user"
+      if let user {
+#if os(watchOS)
+        let archiver = NSKeyedArchiver(requiringSecureCoding: false)
+#else
+        // Encode the user object.
+        let archiveData = NSMutableData()
+        let archiver = NSKeyedArchiver(forWritingWith: archiveData)
+#endif
+        archiver.encode(user, forKey: userKey)
+        archiver.finishEncoding()
+#if os(watchOS)
+        let archiveData = archiver.encodedData
+#endif
+        // Save the user object's encoded value.
+        try keychainServices.setData(archiveData as Data, forKey: userKey)
+      } else {
+        try keychainServices.removeData(forKey: userKey)
+      }
+    }
+  }
+
+  // MARK: Internal properties
+
+  /** @property requestConfiguration
+      @brief The configuration object comprising of paramters needed to make a request to Firebase
+          Auth's backend.
+   */
+  internal let requestConfiguration: AuthRequestConfiguration
+
+#if os(iOS)
+
+/** @property tokenManager
+    @brief The manager for APNs tokens used by phone number auth.
+ */
+  internal let tokenManager: AuthAPNSTokenManager
+
+/** @property appCredentailManager
+    @brief The manager for app credentials used by phone number auth.
+ */
+  internal let appCredentialManager: AuthAppCredentialManager
+
+/** @property notificationManager
+    @brief The manager for remote notifications used by phone number auth.
+ */
+  internal let notificationManager: AuthNotificationManager
+
+#endif  // TARGET_OS_IOS
+
+/** @property authURLPresenter
+    @brief An object that takes care of presenting URLs via the auth instance.
+ */
+  internal let authURLPresenter: AuthURLPresenter
+
+  // MARK: Private properties
+
+  /** @property storedUserManager
+      @brief The stored user manager.
+   */
+  private var storedUserManager: AuthStoredUserManager
+
+  /** @var _firebaseAppName
+      @brief The Firebase app name.
+   */
+  private let firebaseAppName: String
+
+  /** @var _keychainServices
+      @brief The keychain service.
+   */
+  private var keychainServices: AuthKeychainServices
+
+  /** @var _lastNotifiedUserToken
+      @brief The user access (ID) token used last time for posting auth state changed notification.
+   */
+  private var lastNotifiedUserToken: String?
+
+  /** @var _autoRefreshTokens
+      @brief This flag denotes whether or not tokens should be automatically refreshed.
+      @remarks Will only be set to @YES if the another Firebase service is included (additionally to
+        Firebase Auth).
+   */
+  private var autoRefreshTokens = false
+
+  /** @var _autoRefreshScheduled
+      @brief Whether or not token auto-refresh is currently scheduled.
+   */
+  private var autoRefreshScheduled = false
+
+  /** @var _isAppInBackground
+      @brief A flag that is set to YES if the app is put in the background and no when the app is
+          returned to the foreground.
+   */
+  private var isAppInBackground = false
 }
 
