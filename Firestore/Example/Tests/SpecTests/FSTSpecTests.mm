@@ -359,6 +359,9 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   if ([value isEqualToString:@"TargetPurposeExistenceFilterMismatch"]) {
     return QueryPurpose::ExistenceFilterMismatch;
   }
+  if ([value isEqualToString:@"TargetPurposeExistenceFilterMismatchBloom"]) {
+    return QueryPurpose::ExistenceFilterMismatchBloom;
+  }
   if ([value isEqualToString:@"TargetPurposeLimboResolution"]) {
     return QueryPurpose::LimboResolution;
   }
