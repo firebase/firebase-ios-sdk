@@ -117,5 +117,6 @@ Pod::Spec.new do |s|
     unit_tests.resources = 'Crashlytics/UnitTests/Data/*',
                            'Crashlytics/UnitTests/*.clsrecord',
                            'Crashlytics/UnitTests/FIRCLSMachO/machO_data/*'
+    unit_tests.requires_app_host = true
   end
 end
