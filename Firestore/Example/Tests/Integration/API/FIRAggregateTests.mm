@@ -375,6 +375,31 @@
 }
 
 // TODO(sum/avg) skip when running against production
+- (void)testAllowsAliasesLongerThan1500Bytes {
+  // The longest field name allowed is 1500. The alias chosen by the client is <op>_<fieldName>.
+  // If the field name is
+  // 1500 bytes, the alias will be longer than 1500, which is the limit for aliases. This is to
+  // make sure the client
+  // can handle this corner case correctly.
+  NSString* longField = [@"" stringByPaddingToLength:1500
+                                          withString:@"0123456789"
+                                     startingAtIndex:0];
+
+  FIRCollectionReference* testCollection =
+      [self collectionRefWithDocuments:@{@"a" : @{longField : @1}, @"b" : @{longField : @2}}];
+
+  FIRAggregateQuerySnapshot* snapshot =
+      [self readSnapshotForAggregate:[testCollection
+                                         aggregate:@[ [FIRAggregateField
+                                                       aggregateFieldForSumOfField:longField] ]]];
+
+  // Sum
+  XCTAssertEqual(
+      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:longField]],
+      [NSNumber numberWithLong:3], );
+}
+
+// TODO(sum/avg) skip when running against production
 - (void)testCanGetDuplicateAggregations {
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{

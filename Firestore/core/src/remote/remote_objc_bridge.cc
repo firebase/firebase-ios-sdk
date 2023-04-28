@@ -379,7 +379,8 @@ util::StatusOr<ObjectValue> DatastoreSerializer::DecodeAggregateQueryResponse(
   HARD_ASSERT(message->result.aggregate_fields != nullptr);
 
   return ObjectValue::FromAggregateFieldsEntry(
-      message->result.aggregate_fields, message->result.aggregate_fields_count, aliasMap);
+      message->result.aggregate_fields, message->result.aggregate_fields_count,
+      aliasMap);
 }
 
 }  // namespace remote
