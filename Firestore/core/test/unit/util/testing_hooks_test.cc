@@ -17,13 +17,13 @@
 #include "Firestore/core/src/util/testing_hooks.h"
 
 #include <chrono>
+#include <future>
+#include <memory>
+#include <thread>
 
 #include "Firestore/core/src/api/listener_registration.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 
-#include "absl/types/optional.h"
-
-#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
@@ -52,7 +52,7 @@ using ExistenceFilterMismatchInfoAccumulator = firebase::firestore::testutil::As
 
 class TestingHooksTest : public ::testing::Test, public AsyncTest, public TestingHooksTestHelper {
  public:
-  void AssertInvokedWith(const std::shared_ptr<ExistenceFilterMismatchInfoAccumulator>& accumulator, TestingHooks::ExistenceFilterMismatchInfo expected) {
+  void AssertAccumulatedObject(const std::shared_ptr<ExistenceFilterMismatchInfoAccumulator>& accumulator, TestingHooks::ExistenceFilterMismatchInfo expected) {
     Await(accumulator->WaitForObject());
     ASSERT_FALSE(accumulator->IsEmpty());
     TestingHooks::ExistenceFilterMismatchInfo info = accumulator->Shift();
@@ -60,8 +60,8 @@ class TestingHooksTest : public ::testing::Test, public AsyncTest, public Testin
     EXPECT_EQ(info.existenceFilterCount, expected.existenceFilterCount);
   }
 
-  void NotifyOnExistenceFilterMismatchAsync(TestingHooks::ExistenceFilterMismatchInfo info) {
-    Async([info, testing_hooks = testing_hooks_]() { testing_hooks->NotifyOnExistenceFilterMismatch(info); });
+  std::future<void> NotifyOnExistenceFilterMismatchAsync(TestingHooks::ExistenceFilterMismatchInfo info) {
+    return Async([info, testing_hooks = testing_hooks_]() { testing_hooks->NotifyOnExistenceFilterMismatch(info); });
   }
 };
 
@@ -71,7 +71,19 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchCallbackShouldGetNotified) {
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
 
-  AssertInvokedWith(accumulator, {123, 456});
+  AssertAccumulatedObject(accumulator, {123, 456});
+}
+
+TEST_F(TestingHooksTest, OnExistenceFilterMismatchCallbackShouldGetNotifiedMultipleTimes) {
+  auto accumulator = ExistenceFilterMismatchInfoAccumulator::NewInstance();
+  testing_hooks_->OnExistenceFilterMismatch(accumulator->AsCallback());
+
+  NotifyOnExistenceFilterMismatchAsync({111, 222});
+  AssertAccumulatedObject(accumulator, {111, 222});
+  NotifyOnExistenceFilterMismatchAsync({333, 444});
+  AssertAccumulatedObject(accumulator, {333, 444});
+  NotifyOnExistenceFilterMismatchAsync({555, 666});
+  AssertAccumulatedObject(accumulator, {555, 666});
 }
 
 TEST_F(TestingHooksTest, OnExistenceFilterMismatchAllCallbacksShouldGetNotified) {
@@ -82,8 +94,8 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchAllCallbacksShouldGetNotified)
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
 
-  AssertInvokedWith(accumulator1, {123, 456});
-  AssertInvokedWith(accumulator2, {123, 456});
+  AssertAccumulatedObject(accumulator1, {123, 456});
+  AssertAccumulatedObject(accumulator2, {123, 456});
 }
 
 TEST_F(TestingHooksTest, OnExistenceFilterMismatchShouldNotBeNotifiedAfterRemove) {
@@ -108,8 +120,8 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchRemoveShouldOnlyRemoveOne) {
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
 
-  AssertInvokedWith(accumulator1, {123, 456});
-  AssertInvokedWith(accumulator3, {123, 456});
+  AssertAccumulatedObject(accumulator1, {123, 456});
+  AssertAccumulatedObject(accumulator3, {123, 456});
   std::this_thread::sleep_for(250ms);
   EXPECT_TRUE(accumulator2->IsEmpty());
 }
