@@ -1,18 +1,18 @@
 /*
-* Copyright 2023 Google LLC
-*
-* Licensed under the Apache License, Version 2.0 (the "License");
-* you may not use this file except in compliance with the License.
-* You may obtain a copy of the License at
-*
-*      http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Copyright 2023 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 #include <memory>
 
@@ -32,9 +32,12 @@ namespace {
 TEST(AggregateQuery, Equality) {
   {
     auto firestore = std::make_shared<Firestore>();
-    AggregateQuery aggregate_query1 = Query{core::Query{model::ResourcePath{"foo"}}, firestore}.Count();
-    AggregateQuery aggregate_query2 = Query{core::Query{model::ResourcePath{"foo"}}, firestore}.Count();
-    AggregateQuery aggregate_query3 = Query{core::Query{model::ResourcePath{"bar"}}, firestore}.Count();
+    AggregateQuery aggregate_query1 =
+        Query{core::Query{model::ResourcePath{"foo"}}, firestore}.Count();
+    AggregateQuery aggregate_query2 =
+        Query{core::Query{model::ResourcePath{"foo"}}, firestore}.Count();
+    AggregateQuery aggregate_query3 =
+        Query{core::Query{model::ResourcePath{"bar"}}, firestore}.Count();
 
     EXPECT_EQ(aggregate_query1, aggregate_query1);
     EXPECT_EQ(aggregate_query1, aggregate_query2);

@@ -41,9 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)testEquals {
   std::shared_ptr<api::Firestore> firestore = FSTTestFirestore().wrapped;
-  FIRAggregateQuery *queryFoo = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore].count;
-  FIRAggregateQuery *queryFooDup = [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore].count;
-  FIRAggregateQuery *queryBar = [[FIRQuery alloc] initWithQuery:Query("bar") firestore:firestore].count;
+  FIRAggregateQuery *queryFoo =
+      [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore].count;
+  FIRAggregateQuery *queryFooDup =
+      [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore].count;
+  FIRAggregateQuery *queryBar =
+      [[FIRQuery alloc] initWithQuery:Query("bar") firestore:firestore].count;
 
   XCTAssertEqual([queryFoo hash], [queryFooDup hash]);
   XCTAssertNotEqual([queryFoo hash], [queryBar hash]);
