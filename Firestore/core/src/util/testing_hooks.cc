@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
+#include <atomic>
 #include <mutex>
 #include <vector>
+#include <unordered_map>
 
+#include "Firestore/core/src/util/no_destructor.h"
 #include "Firestore/core/src/util/testing_hooks.h"
-
-#include "absl/base/attributes.h"
 
 namespace firebase {
 namespace firestore {
@@ -27,29 +28,62 @@ namespace util {
 
 namespace {
 
-using ExistenceFilterMismatchCallback =
-    std::function<void(const TestingHooks::ExistenceFilterMismatchInfo&)>;
-
-class OnExistenceFilterMismatchListenerRegistration final
-    : public api::ListenerRegistration {
+class RemoveDelegateListenerRegistration final : public api::ListenerRegistration {
  public:
-  void Remove() override {
+  RemoveDelegateListenerRegistration(std::function<void()> delegate) : delegate_(std::move(delegate)) {
   }
+
+  void Remove() override {
+    delegate_();
+  }
+
+ private:
+  std::function<void()> delegate_;
 };
 
-}  // namespace
 
-ABSL_ATTRIBUTE_UNUSED  // This function is only used in integration tests
-    std::shared_ptr<api::ListenerRegistration>
-    TestingHooks::OnExistenceFilterMismatch(
-        ExistenceFilterMismatchCallback callback) {
-  (void)callback;
-  return std::make_shared<OnExistenceFilterMismatchListenerRegistration>();
+}
+
+std::shared_ptr<api::ListenerRegistration> TestingHooks::OnExistenceFilterMismatch( ExistenceFilterMismatchCallback callback) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  const int id = next_id_++;
+  existence_filter_mismatch_callbacks_.insert({id, std::move(callback)});
+
+  return std::make_shared<RemoveDelegateListenerRegistration>([this, id]() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    auto iter = existence_filter_mismatch_callbacks_.find(id);
+    if (iter != existence_filter_mismatch_callbacks_.end()) {
+      existence_filter_mismatch_callbacks_.erase(iter);
+    }
+  });
 }
 
 void TestingHooks::NotifyOnExistenceFilterMismatch(
     const ExistenceFilterMismatchInfo& info) {
-  (void)info;
+  std::unique_lock<std::mutex> lock(mutex_);
+
+  // Short-circuit if there is nothing to do.
+  if (existence_filter_mismatch_callbacks_.empty()) {
+    return;
+  }
+
+  // Copy the callbacks into a vector so that we don't need to hold the mutex
+  // while making the callbacks. This "copy" is somewhat inefficient; however,
+  // it will only ever happen during integration testing so performance is not
+  // a concern.
+  std::vector<ExistenceFilterMismatchCallback> callbacks;
+  for (auto&& entry : existence_filter_mismatch_callbacks_) {
+    callbacks.push_back(entry.second);
+  }
+
+  // Release the lock so that it is released while calling the callbacks, to
+  // avoid any potential deadlock.
+  lock.unlock();
+
+  // Notify the callbacks.
+  for (auto&& callback : callbacks) {
+    callback(info);
+  }
 }
 
 }  // namespace util

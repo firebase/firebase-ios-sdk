@@ -241,7 +241,7 @@ void WatchChangeAggregator::HandleExistenceFilter(
         // snapshot with `isFromCache:true`.
         ResetTarget(target_id);
         pending_target_resets_.insert(target_id);
-        TestingHooks::NotifyOnExistenceFilterMismatch(
+        TestingHooks::GetInstance().NotifyOnExistenceFilterMismatch(
             {current_size, expected_count});
       }
     }

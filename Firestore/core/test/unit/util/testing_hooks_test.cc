@@ -16,72 +16,49 @@
 
 #include "Firestore/core/src/util/testing_hooks.h"
 
-#include "absl/types/optional.h"
+#include "Firestore/core/test/unit/testutil/async_testing.h"
 
-#include <chrono>
-#include <condition_variable>
-#include <memory>
-#include <mutex>
-#include <vector>
-#include <utility>
+#include "absl/types/optional.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-namespace {
+namespace firebase {
+namespace firestore {
+namespace util {
 
-using namespace std::chrono_literals;
-using firebase::firestore::util::TestingHooks;
-
-template <typename T>
-class MessageAccumulator : public std::enable_shared_from_this<MessageAccumulator<T>> {
+// A "friend" class of TestingHooks to call its private members.
+class TestingHooksTestHelper {
  public:
-  static std::shared_ptr<MessageAccumulator> NewInstance() {
-    return std::shared_ptr<MessageAccumulator>(new MessageAccumulator);
-  }
-
-  std::function<void(const T&)> MakeListener() {
-    auto shared_this = this->shared_from_this();
-    return [shared_this](const T& message) {
-      shared_this->OnMessage(message);
-    };
-  }
-
-  void OnMessage(T&& message) {
-    std::lock_guard<std::mutex> lock(mutex_);
-    messages_.push_back(std::move(message));
-    condition_variable_.notify_all();
-  }
-
-  absl::optional<T> WaitForMessage() {
-    std::unique_lock<std::mutex> lock(mutex_);
-    condition_variable_.wait_for(lock, 1000ms, [&](){return !messages_.empty();});
-    auto iter = messages_.begin();
-    if (iter == messages_.end()) {
-      return absl::nullopt;
-    }
-    T message = std::move(*iter);
-    messages_.erase(iter);
-    return std::move(message);
-  }
-
- private:
-  MessageAccumulator() = default;
-  std::mutex mutex_;
-  std::condition_variable condition_variable_;
-  std::vector<T> messages_;
+  TestingHooksTestHelper() : testing_hooks_(new TestingHooks) {}
+  std::shared_ptr<TestingHooks> testing_hooks_;
 };
 
-TEST(TestingHooks, OnExistenceFilterMismatchShouldCompleteSuccessfully) {
-  TestingHooks::OnExistenceFilterMismatch([](const TestingHooks::ExistenceFilterMismatchInfo&) {});
-}
+} //  namespace util
+} //  namespace firestore
+} //  namespace firebase
 
-TEST(TestingHooks, OnExistenceFilterMismatchRegisteredCallbackShouldGetNotified) {
-  auto accumulator = MessageAccumulator<TestingHooks::ExistenceFilterMismatchInfo>::NewInstance();
-  TestingHooks::OnExistenceFilterMismatch(accumulator->MakeListener());
-  absl::optional<TestingHooks::ExistenceFilterMismatchInfo> message_optional = accumulator->WaitForMessage();
-  ASSERT_TRUE(message_optional.has_value());
-  TestingHooks::ExistenceFilterMismatchInfo message = std::move(message_optional).value();
+namespace {
+
+using firebase::firestore::util::TestingHooks;
+using firebase::firestore::util::TestingHooksTestHelper;
+using firebase::firestore::testutil::AsyncTest;
+using ExistenceFilterMismatchInfoAccumulator = firebase::firestore::testutil::AsyncAccumulator<TestingHooks::ExistenceFilterMismatchInfo>;
+
+class TestingHooksTest : public ::testing::Test, public AsyncTest, public TestingHooksTestHelper {
+};
+
+TEST_F(TestingHooksTest, OnExistenceFilterMismatchCallbackShouldGetNotified) {
+  auto accumulator = ExistenceFilterMismatchInfoAccumulator::NewInstance();
+  testing_hooks_->OnExistenceFilterMismatch(accumulator->AsCallback());
+
+  Async([testing_hooks = testing_hooks_]() { testing_hooks->NotifyOnExistenceFilterMismatch({123, 456}); });
+
+  Await(accumulator->WaitForObject());
+  ASSERT_FALSE(accumulator->IsEmpty());
+  TestingHooks::ExistenceFilterMismatchInfo info = accumulator->Shift();
+  EXPECT_EQ(info.localCacheCount, 123);
+  EXPECT_EQ(info.existenceFilterCount, 456);
 }
 
 }  // namespace

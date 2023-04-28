@@ -19,6 +19,8 @@
 
 #include <functional>
 #include <memory>
+#include <mutex>
+#include <unordered_map>
 
 #include "Firestore/core/src/api/listener_registration.h"
 
@@ -33,6 +35,13 @@ namespace util {
  */
 class TestingHooks final {
  public:
+
+  /** Returns the singleton instance of this class. */
+  static TestingHooks& GetInstance() {
+    TestingHooks* instance = new TestingHooks;
+    return *instance;
+  }
+
   /**
    * Information about an existence filter mismatch, as specified to callbacks
    * registered with `OnExistenceFilterMismatch()`.
@@ -41,6 +50,8 @@ class TestingHooks final {
     int localCacheCount = -1;
     int existenceFilterCount = -1;
   };
+
+  using ExistenceFilterMismatchCallback = std::function<void(const TestingHooks::ExistenceFilterMismatchInfo&)>;
 
   /**
    * Registers a callback to be invoked when an existence filter mismatch occurs
@@ -67,22 +78,28 @@ class TestingHooks final {
    * callback; only the first invocation of `Remove()` does anything; all
    * subsequent invocations do nothing.
    */
-  static std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(
-      std::function<void(const ExistenceFilterMismatchInfo&)>);
+  std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(ExistenceFilterMismatchCallback);
 
   /**
    * Invokes all currently-registered `OnExistenceFilterMismatch` callbacks.
    * @param info Information about the existence filter mismatch.
    */
-  static void NotifyOnExistenceFilterMismatch(
-      const ExistenceFilterMismatchInfo&);
+  void NotifyOnExistenceFilterMismatch(const ExistenceFilterMismatchInfo&);
 
  private:
-  TestingHooks() = delete;
+  TestingHooks() = default;
+
   TestingHooks(const TestingHooks&) = delete;
   TestingHooks(TestingHooks&&) = delete;
   TestingHooks& operator=(const TestingHooks&) = delete;
   TestingHooks& operator=(TestingHooks&&) = delete;
+
+  friend class TestingHooksTestHelper;
+
+  mutable std::mutex mutex_;
+  int next_id_ = 0;
+  std::unordered_map<int, ExistenceFilterMismatchCallback> existence_filter_mismatch_callbacks_;
+
 };
 
 }  // namespace util
