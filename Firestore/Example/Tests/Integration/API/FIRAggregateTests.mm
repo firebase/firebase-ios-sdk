@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRAggregateField.h>
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
 
+// TODO(sum/avg) update these imports with public imports when sum/avg is public
+#import "Firestore/Source/API/FIRAggregateField.h"
+#import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/core/src/util/exception.h"
 
 @interface FIRAggregateTests : FSTIntegrationTestCase
 @end

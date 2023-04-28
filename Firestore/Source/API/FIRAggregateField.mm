@@ -16,6 +16,8 @@
 
 #import "FIRAggregateField.h"
 
+#include <string>
+
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
