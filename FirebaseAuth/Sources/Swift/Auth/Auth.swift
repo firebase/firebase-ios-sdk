@@ -261,7 +261,7 @@ import Foundation
    */
   @objc public func signIn(withEmail email: String,
                            password: String,
-                           callback: ((AuthDataResult?, Error?) -> Void)) {
+                           callback: @escaping ((User?, Error?) -> Void)) {
     let request = VerifyPasswordRequest(email: email,
                                         password: password,
                                         requestConfiguration: requestConfiguration)
@@ -277,96 +277,11 @@ import Foundation
       guard let response = rawResponse as? VerifyPasswordResponse else {
         fatalError("Internal Auth Error: null response from VerifyPasswordRequest")
       }
-      self.completeSignIn(withAccessToken: response.idToken, accessTokenExpirationDate: response.approximateExpirationDate, refreshToken: response.refreshToken, anonymous: <#T##Bool#>, callback: <#T##FIRAuthResultCallback#>)
-    }
-  }
-
-  /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
-      @brief Signs in using an email address and password.
-      @param email The user's email address.
-      @param password The user's password.
-      @param completion A block which is invoked when the sign in finishes (or is cancelled.) Invoked
-          asynchronously on the global auth work queue in the future.
-      @remarks This is the internal counterpart of this method, which uses a callback that does not
-          update the current user.
-   */
-  private func internalSignInAndRetrieveData(withEmail email: String, password: String,
-                                             completion: ((AuthDataResult?, Error?) -> Void)?) {
-    let credential = EmailAuthCredential(withEmail: email, password: password)
-    self.internalSignInAndRetrieveData(withCredential: credential,
-                                       isReauthentication: false,
-                                       callback: completion)
-  }
-
-  private func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
-                                             isReauthentication: Bool,
-                                             callback:  ((AuthDataResult?, Error?) -> Void)?) {
-    if let emailCredential = credential as? EmailAuthCredential {
-      // Special case for email/password credentials
-      if let link = emailCredential.link {
-        // Email link sign in
-        self.internalSignInAndRetrieveData(withEmail: emailCredential.email, link: link,
-                                           completion: callback)
-      } else {
-        // Email password sign in
-        let completeEmailSignIn: (User?, Error?) -> Void = { user, error in
-          if let callback {
-            if let error {
-              callback(nil, error)
-              return
-            }
-            guard let user else {
-              // TODO: This matches ObjC code but seems wrong.
-              callback(nil, nil)
-            }
-            let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
-                                                        profile: nil,
-                                                        username: nil,
-                                                        isNewUser: false)
-            let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
-            callback(result, nil)
-          }
-        }
-        self.signIn(withEmail: emailCredential.email,
-                    password: emailCredential.password,
-                    completion: completeEmailSignIn)
-      }
-    }
-
-  }
-
-  /** @fn signInFlowAuthDataResultCallbackByDecoratingCallback:
-      @brief Creates a FIRAuthDataResultCallback block which wraps another FIRAuthDataResultCallback;
-          trying to update the current user before forwarding it's invocations along to a subject
-          block.
-      @param callback Called when the user has been updated or when an error has occurred. Invoked
-          asynchronously on the main thread in the future.
-      @return Returns a block that updates the current user.
-      @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
-          consider alternative ways of updating the current user.
-  */
-  private func signInFlowAuthDataResultCallback(byDecorating callback:
-      ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
-    let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
-    { callback, result, error in
-      if let callback {
-        DispatchQueue.main.async {
-          callback(result, error)
-        }
-      }
-    }
-    return { authResult, error in
-      if let error {
-        authDataCallback(callback, nil, error)
-        return
-      }
-      do {
-        try self.updateCurrentUser(user: authResult?.user, byForce: false, savingToDisk: true)
-      } catch {
-        authDataCallback(callback, nil, error)
-        return
-      }
-      authDataCallback(callback, authResult, nil)
+      self.completeSignIn(withAccessToken: response.idToken,
+                          accessTokenExpirationDate: response.approximateExpirationDate,
+                          refreshToken: response.refreshToken,
+                          anonymous: false,
+                          callback: callback)
     }
   }
 
@@ -393,11 +308,11 @@ import Foundation
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
+  public func signIn(withEmail email: String, password: String) async throws -> User {
     return try await withCheckedThrowingContinuation { continuation in
-      self.signIn(withEmail: email, password: password) { result, error in
-        if let result {
-          continuation.resume(returning: result)
+      self.signIn(withEmail: email, password: password) { user, error in
+        if let user {
+          continuation.resume(returning: user)
         } else {
           continuation.resume(throwing: error!)
         }
@@ -424,9 +339,16 @@ import Foundation
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func signIn(withEmail email: String, link: String,
+  @objc public func signIn(withEmail email: String,
+                           link: String,
                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-
+    kAuthGlobalWorkQueue.async {
+      let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+      let credential = EmailAuthCredential(withEmail: email, link: link)
+      self.internalSignInAndRetrieveData(withCredential: credential,
+                                         isReauthentication: false,
+                                         callback: decoratedCallback)
+    }
   }
 
   /** @fn signInWithEmail:link:completion:
@@ -507,7 +429,28 @@ import Foundation
    @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
    */
 
-  // TODO: missing ????
+  @objc(signInWithProvider:UIDelegate:completion:)
+  public func signIn(withProvider provider: FederatedAuthProvider,
+                      uiDelegate: AuthUIDelegate,
+                     completion: ((AuthDataResult?, Error?) -> Void)?) {
+    #if os(iOS)
+    kAuthGlobalWorkQueue.async {
+      let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+      provider.getCredentialWith(uiDelegate) { rawCredential, error in
+        if let error {
+          decoratedCallback(nil, error)
+          return
+        }
+        guard let credential = rawCredential else {
+          fatalError("Internal Auth Error: Failed to get a AuthCredential")
+        }
+        self.internalSignInAndRetrieveData(withCredential: credential,
+                                           isReauthentication: false,
+                                           callback: decoratedCallback)
+      }
+    }
+    #endif
+  }
 
   /** @fn signInWithCredential:completion:
    @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
@@ -1351,6 +1294,370 @@ import Foundation
       }
     }
   }
+
+  /** @fn completeSignInWithTokenService:callback:
+      @brief Completes a sign-in flow once we have access and refresh tokens for the user.
+      @param accessToken The STS access token.
+      @param accessTokenExpirationDate The approximate expiration date of the access token.
+      @param refreshToken The STS refresh token.
+      @param anonymous Whether or not the user is anonymous.
+      @param callback Called when the user has been signed in or when an error occurred. Invoked
+          asynchronously on the global auth work queue in the future.
+   */
+  private func completeSignIn(withAccessToken accessToken: String?,
+                              accessTokenExpirationDate: Date?,
+                              refreshToken: String?,
+                              anonymous: Bool,
+                              callback: @escaping ((User?, Error?) -> Void)) {
+    User.retrieveUser(withAuth: self,
+                      accessToken: accessToken,
+                      accessTokenExpirationDate: accessTokenExpirationDate,
+                      refreshToken: refreshToken,
+                      anonymous: anonymous,
+                      callback: callback)
+  }
+
+  /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
+      @brief Signs in using an email address and password.
+      @param email The user's email address.
+      @param password The user's password.
+      @param completion A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+          asynchronously on the global auth work queue in the future.
+      @remarks This is the internal counterpart of this method, which uses a callback that does not
+          update the current user.
+   */
+  private func internalSignInAndRetrieveData(withEmail email: String, password: String,
+                                             completion: ((AuthDataResult?, Error?) -> Void)?) {
+    let credential = EmailAuthCredential(withEmail: email, password: password)
+    self.internalSignInAndRetrieveData(withCredential: credential,
+                                       isReauthentication: false,
+                                       callback: completion)
+  }
+
+  private func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
+                                             isReauthentication: Bool,
+                                             callback: ((AuthDataResult?, Error?) -> Void)?) {
+    if let emailCredential = credential as? EmailAuthCredential {
+
+      // Special case for email/password credentials
+      switch emailCredential.emailType {
+
+      case .link(let link):
+        // Email link sign in
+        self.internalSignInAndRetrieveData(withEmail: emailCredential.email,
+                                           link: link,
+                                           callback: callback)
+      case .password(let password):
+        // Email password sign in
+        let completeEmailSignIn: (User?, Error?) -> Void = { user, error in
+          if let callback {
+            if let error {
+              callback(nil, error)
+              return
+            }
+            guard let user else {
+              // TODO: This matches ObjC code but seems wrong.
+              callback(nil, nil)
+            }
+            let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
+                                                        profile: nil,
+                                                        username: nil,
+                                                        isNewUser: false)
+            let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
+            callback(result, nil)
+          }
+        }
+        self.signIn(withEmail: emailCredential.email,
+                    password: password,
+                    callback: completeEmailSignIn)
+      }
+      return
+    }
+    if let gameCenterCredential = credential as? GameCenterAuthCredential {
+      self.signInAndRetrieveData(withGameCenterCredential: gameCenterCredential,
+                                 callback: callback)
+      return
+    }
+#if os(iOS)
+    if let phoneCredential = credential as? PhoneAuthCredential {
+      // Special case for phone auth credentials
+      let operation = isReauthentication ? AuthOperationType.reauth : AuthOperationType.signUpOrSignIn
+      self.signIn(withPhoneCredential:phoneCredential, operation: operation) { rawResponse, error in
+        if let callback {
+          if let error {
+            callback(nil, error)
+            return
+          }
+          guard let response = rawResponse as? VerifyPhoneNumberResponse else {
+            fatalError("Internal Auth Error: Failed to get a VerifyPhoneNumberResponse")
+          }
+          self.completeSignIn(withAccessToken: response.idToken,
+                              accessTokenExpirationDate: response.approximateExpirationDate,
+                              refreshToken: response.refreshToken,
+                              anonymous: false) { user, error in
+            if let error {
+              callback(nil, error)
+              return
+            }
+            if let user {
+              let additionalUserInfo = AdditionalUserInfo(providerID: PhoneAuthProvider.id,
+                                                          profile: nil,
+                                                          username: nil,
+                                                          isNewUser: response.isNewUser)
+              let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
+              callback(result, nil)
+            } else {
+              callback(nil, nil)
+            }
+          }
+        }
+      }
+      return
+    }
+#endif
+
+    let request = VerifyAssertionRequest(providerID: credential.provider,
+                                         requestConfiguration: requestConfiguration)
+    request.autoCreate = !isReauthentication
+    credential.prepare(request)
+    AuthBackend.post(withRequest: request) { rawResponse, error in
+      if let error {
+        if let callback {
+          callback(nil, error)
+        }
+        return
+      }
+      guard let response = rawResponse as? VerifyAssertionResponse else {
+        fatalError("Internal Auth Error: Failed to get a VerifyAssertionResponse")
+      }
+      if response.needConfirmation {
+        if let callback {
+          let email = response.email
+          let credential = OAuthCredential(withVerifyAssertionResponse: response)
+          callback(nil, AuthErrorUtils.accountExistsWithDifferentCredentialError(
+            email: email,
+                updatedCredential: credential))
+        }
+        return
+      }
+      guard let providerID = response.providerID, providerID.count > 0 else {
+        if let callback {
+          callback(nil, AuthErrorUtils.unexpectedResponse(deserializedResponse: response))
+        }
+        return
+      }
+      self.completeSignIn(withAccessToken: response.idToken,
+                          accessTokenExpirationDate: response.approximateExpirationDate,
+                          refreshToken: response.refreshToken,
+                          anonymous: false) { user, error in
+        if let callback {
+          if let error {
+            callback(nil, error)
+            return
+          }
+          if let user {
+            let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
+            let updatedOAuthCredential = OAuthCredential.init(withVerifyAssertionResponse: response)
+            let result = AuthDataResult(withUser: user,
+                                        additionalUserInfo: additionalUserInfo,
+                                        credential: updatedOAuthCredential)
+            callback(result, error)
+          } else {
+            callback(nil, nil)
+          }
+        }
+      }
+    }
+  }
+
+  #if os(iOS)
+  /** @fn signInWithPhoneCredential:callback:
+      @brief Signs in using a phone credential.
+      @param credential The Phone Auth credential used to sign in.
+      @param operation The type of operation for which this sign-in attempt is initiated.
+      @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+          asynchronously on the global auth work queue in the future.
+   */
+  private func signIn(withPhoneCredential credential: PhoneAuthCredential,
+                      operation: AuthOperationType,
+                      callback: @escaping (AuthRPCResponse?, Error?) -> Void) {
+    if let temporaryProof = credential.temporaryProof, temporaryProof.count > 0,
+       let phoneNumber = credential.phoneNumber, phoneNumber.count > 0 {
+      let request = VerifyPhoneNumberRequest(temporaryProof: temporaryProof,
+                                             phoneNumber: phoneNumber,
+                                             operation: operation,
+                                             requestConfiguration: requestConfiguration)
+      AuthBackend.post(withRequest: request, callback: callback)
+      return
+    }
+    guard let verificationID = credential.verificationID, verificationID.count > 0 else {
+      callback(nil, AuthErrorUtils.missingVerificationIDError(message: nil))
+    }
+    guard let verificationCode = credential.verificationCode, verificationCode.count > 0 else {
+      callback(nil, AuthErrorUtils.missingVerificationCodeError(message: nil))
+    }
+    let request = VerifyPhoneNumberRequest(verificationID: verificationID,
+                                           verificationCode: verificationCode,
+                                           operation: operation,
+                                           requestConfiguration: requestConfiguration)
+    AuthBackend.post(withRequest: request, callback: callback)
+  }
+  #endif
+
+  /** @fn signInAndRetrieveDataWithGameCenterCredential:callback:
+      @brief Signs in using a game center credential.
+      @param credential The Game Center Auth Credential used to sign in.
+      @param callback A block which is invoked when the sign in finished (or is cancelled). Invoked
+          asynchronously on the global auth work queue in the future.
+   */
+  private func signInAndRetrieveData(withGameCenterCredential credential: GameCenterAuthCredential,
+                                     callback: ((AuthDataResult?, Error?) -> Void)?) {
+    guard let publicKeyURL = credential.publicKeyURL,
+          let signature = credential.signature,
+          let salt = credential.salt else {
+      fatalError("Internal Auth Error: Game Center credential missing publicKeyURL, signature, or salt")
+    }
+    let request = SignInWithGameCenterRequest(playerID: credential.playerID,
+                                              teamPlayerID: credential.teamPlayerID,
+                                              gamePlayerID: credential.gamePlayerID,
+                                              publicKeyURL: publicKeyURL,
+                                              signature: signature,
+                                              salt: salt,
+                                              timestamp: credential.timestamp,
+                                              displayName: credential.displayName,
+                                              requestConfiguration: requestConfiguration)
+    AuthBackend.post(withRequest: request) { rawResponse, error in
+      if let error {
+        if let callback {
+          callback(nil, error)
+        }
+        return
+      }
+      guard let response = rawResponse as? SignInWithGameCenterResponse else {
+        fatalError("Internal Auth Error: Failed to get a SignInWithGameCenterResponse")
+      }
+      self.completeSignIn(withAccessToken: response.idToken,
+                          accessTokenExpirationDate: response.approximateExpirationDate,
+                          refreshToken: response.refreshToken,
+                          anonymous: false) { user, error in
+        if let callback {
+          if let error {
+            callback(nil, error)
+            return
+          }
+          if let user {
+            let additionalUserInfo = AdditionalUserInfo(providerID: GameCenterAuthProvider.id,
+                                                        profile: nil,
+                                                        username: nil,
+                                                        isNewUser: response.isNewUser)
+            let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
+            callback(result, nil)
+          } else {
+            callback(nil, nil)
+          }
+        }
+      }
+    }
+  }
+
+  /** @fn internalSignInAndRetrieveDataWithEmail:link:completion:
+      @brief Signs in using an email and email sign-in link.
+      @param email The user's email address.
+      @param link The email sign-in link.
+      @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+          asynchronously on the global auth work queue in the future.
+   */
+  private func internalSignInAndRetrieveData(withEmail email: String,
+                                             link: String,
+                                             callback: ((AuthDataResult?, Error?) -> Void)?) {
+    guard isSignIn(withEmailLink: link) else {
+      fatalError("The link provided is not valid for email/link sign-in. Please check the link by " +
+                 "calling isSignIn(withEmailLink:) on the Auth instance before attempting to use it " +
+                 "for email/link sign-in.")
+    }
+    var queryItems = AuthWebUtils.parseURL(link)
+    if queryItems.count == 0 {
+      let urlComponents = URLComponents(string: link)
+      if let query = urlComponents?.query {
+        queryItems = AuthWebUtils.parseURL(query)
+      }
+    }
+    guard let actionCode = queryItems["oobCode"] else {
+      fatalError("Missing oobCode in link URL")
+    }
+    let request = EmailLinkSignInRequest(email: email,
+                                         oobCode: actionCode,
+                                         requestConfiguration: requestConfiguration)
+    AuthBackend.post(withRequest: request) { rawResponse, error in
+      if let error {
+        if let callback {
+          callback(nil, error)
+        }
+        return
+      }
+      guard let response = rawResponse as? EmailLinkSignInResponse else {
+        fatalError("Internal Auth Error: Failed to get a EmailLinkSignInResponse")
+      }
+      self.completeSignIn(withAccessToken: response.idToken,
+                          accessTokenExpirationDate: response.approximateExpirationDate,
+                          refreshToken: response.refreshToken,
+                          anonymous: false) { user, error in
+        if let callback {
+          if let error {
+            callback(nil, error)
+            return
+          }
+          if let user {
+            let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
+                                                        profile: nil,
+                                                        username: nil,
+                                                        isNewUser: response.isNewUser)
+            let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
+            callback(result, nil)
+          } else {
+            callback(nil, nil)
+          }
+        }
+      }
+    }
+  }
+
+  /** @fn signInFlowAuthDataResultCallbackByDecoratingCallback:
+      @brief Creates a FIRAuthDataResultCallback block which wraps another FIRAuthDataResultCallback;
+          trying to update the current user before forwarding it's invocations along to a subject
+          block.
+      @param callback Called when the user has been updated or when an error has occurred. Invoked
+          asynchronously on the main thread in the future.
+      @return Returns a block that updates the current user.
+      @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
+          consider alternative ways of updating the current user.
+  */
+  private func signInFlowAuthDataResultCallback(byDecorating callback:
+      ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
+    let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
+    { callback, result, error in
+      if let callback {
+        DispatchQueue.main.async {
+          callback(result, error)
+        }
+      }
+    }
+    return { authResult, error in
+      if let error {
+        authDataCallback(callback, nil, error)
+        return
+      }
+      do {
+        try self.updateCurrentUser(user: authResult?.user, byForce: false, savingToDisk: true)
+      } catch {
+        authDataCallback(callback, nil, error)
+        return
+      }
+      authDataCallback(callback, authResult, nil)
+    }
+  }
+
+
 
   // MARK: Internal properties
 
