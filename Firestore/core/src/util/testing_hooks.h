@@ -35,7 +35,6 @@ namespace util {
  */
 class TestingHooks final {
  public:
-
   /** Returns the singleton instance of this class. */
   static TestingHooks& GetInstance() {
     TestingHooks* instance = new TestingHooks;
@@ -51,7 +50,8 @@ class TestingHooks final {
     int existenceFilterCount = -1;
   };
 
-  using ExistenceFilterMismatchCallback = std::function<void(const TestingHooks::ExistenceFilterMismatchInfo&)>;
+  using ExistenceFilterMismatchCallback =
+      std::function<void(const TestingHooks::ExistenceFilterMismatchInfo&)>;
 
   /**
    * Registers a callback to be invoked when an existence filter mismatch occurs
@@ -78,7 +78,8 @@ class TestingHooks final {
    * callback; only the first invocation of `Remove()` does anything; all
    * subsequent invocations do nothing.
    */
-  std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(ExistenceFilterMismatchCallback);
+  std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(
+      ExistenceFilterMismatchCallback);
 
   /**
    * Invokes all currently-registered `OnExistenceFilterMismatch` callbacks.
@@ -98,8 +99,8 @@ class TestingHooks final {
 
   mutable std::mutex mutex_;
   int next_id_ = 0;
-  std::unordered_map<int, std::shared_ptr<ExistenceFilterMismatchCallback>> existence_filter_mismatch_callbacks_;
-
+  std::unordered_map<int, std::shared_ptr<ExistenceFilterMismatchCallback>>
+      existence_filter_mismatch_callbacks_;
 };
 
 }  // namespace util

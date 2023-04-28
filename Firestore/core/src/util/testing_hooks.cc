@@ -33,9 +33,11 @@ namespace {
  * invokes the function specified to the constructor. This allows easily
  * creating `ListenerRegistration` objects that call a lambda.
  */
-class RemoveDelegatingListenerRegistration final : public api::ListenerRegistration {
+class RemoveDelegatingListenerRegistration final
+    : public api::ListenerRegistration {
  public:
-  RemoveDelegatingListenerRegistration(std::function<void()> delegate) : delegate_(std::move(delegate)) {
+  RemoveDelegatingListenerRegistration(std::function<void()> delegate)
+      : delegate_(std::move(delegate)) {
   }
 
   void Remove() override {
@@ -46,14 +48,17 @@ class RemoveDelegatingListenerRegistration final : public api::ListenerRegistrat
   std::function<void()> delegate_;
 };
 
+}  // namespace
 
-}
-
-std::shared_ptr<api::ListenerRegistration> TestingHooks::OnExistenceFilterMismatch(ExistenceFilterMismatchCallback callback) {
+std::shared_ptr<api::ListenerRegistration>
+TestingHooks::OnExistenceFilterMismatch(
+    ExistenceFilterMismatchCallback callback) {
   // Register the callback.
   std::unique_lock<std::mutex> lock(mutex_);
   const int id = next_id_++;
-  existence_filter_mismatch_callbacks_.insert({id, std::make_shared<ExistenceFilterMismatchCallback>(std::move(callback))});
+  existence_filter_mismatch_callbacks_.insert(
+      {id,
+       std::make_shared<ExistenceFilterMismatchCallback>(std::move(callback))});
   lock.unlock();
 
   // Create a ListenerRegistration that the caller can use to unregister the
@@ -71,9 +76,8 @@ void TestingHooks::NotifyOnExistenceFilterMismatch(
     const ExistenceFilterMismatchInfo& info) {
   std::lock_guard<std::mutex> lock(mutex_);
   for (auto&& entry : existence_filter_mismatch_callbacks_) {
-    std::async([info, callback = entry.second]() {
-      callback->operator()(info);
-    });
+    std::async(
+        [info, callback = entry.second]() { callback->operator()(info); });
   }
 }
 

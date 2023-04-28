@@ -161,9 +161,9 @@ class AsyncTest {
  * instances to be created with a shared_ptr via the `NewInstance()` method.
  */
 template <typename T>
-class AsyncAccumulator final : public std::enable_shared_from_this<AsyncAccumulator<T>> {
+class AsyncAccumulator final
+    : public std::enable_shared_from_this<AsyncAccumulator<T>> {
  public:
-
   /**
    * Creates and returns a std::shared_ptr to a new instance of this class.
    */
