@@ -98,7 +98,7 @@ class TestingHooks final {
 
   mutable std::mutex mutex_;
   int next_id_ = 0;
-  std::unordered_map<int, ExistenceFilterMismatchCallback> existence_filter_mismatch_callbacks_;
+  std::unordered_map<int, std::shared_ptr<ExistenceFilterMismatchCallback>> existence_filter_mismatch_callbacks_;
 
 };
 
