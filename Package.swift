@@ -164,11 +164,11 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/abseil-cpp-binary.git",
-      "1.2021110200.0" ..< "1.2021110300.0"
+      "1.2022062300.0" ..< "1.2022062400.0"
     ),
     .package(
       url: "https://github.com/google/grpc-binary.git",
-      "1.44.0" ..< "1.45.0"
+      "1.50.1" ..< "1.51.0"
     ),
     .package(
       url: "https://github.com/erikdoe/ocmock.git",
