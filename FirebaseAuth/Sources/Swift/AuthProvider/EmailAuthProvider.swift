@@ -50,17 +50,18 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
     case password(String)
     case link(String)
   }
-  let emailType:EmailType
+
+  let emailType: EmailType
 
   init(withEmail email: String, password: String) {
     self.email = email
-    self.emailType = .password(password)
+    emailType = .password(password)
     super.init(provider: EmailAuthProvider.id)
   }
 
   init(withEmail email: String, link: String) {
     self.email = email
-    self.emailType = .link(link)
+    emailType = .link(link)
     super.init(provider: EmailAuthProvider.id)
   }
 
@@ -69,8 +70,8 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
   public func encode(with coder: NSCoder) {
     coder.encode(email)
     switch emailType {
-    case .password(let password) : coder.encode(password, forKey: "password")
-    case .link(let link) : coder.encode(link ,forKey: "link")
+    case let .password(password): coder.encode(password, forKey: "password")
+    case let .link(link): coder.encode(link, forKey: "link")
     }
   }
 
@@ -80,9 +81,9 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
     }
     self.email = email
     if let password = coder.decodeObject(forKey: "password") as? String {
-      self.emailType = .password(password)
+      emailType = .password(password)
     } else if let link = coder.decodeObject(forKey: "link") as? String {
-      self.emailType = .link(link)
+      emailType = .link(link)
     } else {
       return nil
     }
