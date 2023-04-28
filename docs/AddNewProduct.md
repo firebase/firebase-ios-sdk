@@ -13,8 +13,8 @@ implementations should be implemented in Swift. If Objective C API support is re
 be implemented via the Swift `@objc` attribute. Consult with iCore and product management about
 the requirement itself.
 
-Apple and others provide many great guides for Swift programming. Googlers, see also this [2022
-presentation](go/swift-sdks-2022).
+Apple and others provide many great guides for Swift programming. Googlers, see also
+[go/swift-sdks-2022](http://go/swift-sdks-2022).
 
 Existing Firebase Swift implementations can be helpful. However, note that they are mostly
 Objective C ports and do not take advantage of Swift features like structs, default arguments, and
