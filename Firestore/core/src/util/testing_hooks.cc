@@ -18,6 +18,7 @@
 
 #include <future>
 #include <mutex>
+#include <type_traits>
 #include <unordered_map>
 
 #include "Firestore/core/src/util/no_destructor.h"
@@ -60,6 +61,13 @@ TestingHooks::OnExistenceFilterMismatch(
       {id,
        std::make_shared<ExistenceFilterMismatchCallback>(std::move(callback))});
   lock.unlock();
+
+  // NOTE: Capturing `this` in the lambda below is safe because the destructor
+  // is deleted and, therefore, `this` can never be deleted. The static_assert
+  // statements below verify this invariant.
+  using this_type = std::remove_pointer<decltype(this)>::type;
+  static_assert(std::is_same<this_type, TestingHooks>::value, "");
+  static_assert(!std::is_destructible<this_type>::value, "");
 
   // Create a ListenerRegistration that the caller can use to unregister the
   // callback.

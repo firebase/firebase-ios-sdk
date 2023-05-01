@@ -23,6 +23,7 @@
 #include <unordered_map>
 
 #include "Firestore/core/src/api/listener_registration.h"
+#include "Firestore/core/src/util/no_destructor.h"
 
 namespace firebase {
 namespace firestore {
@@ -37,7 +38,7 @@ class TestingHooks final {
  public:
   /** Returns the singleton instance of this class. */
   static TestingHooks& GetInstance() {
-    TestingHooks* instance = new TestingHooks;
+    static NoDestructor<TestingHooks> instance;
     return *instance;
   }
 
@@ -90,12 +91,16 @@ class TestingHooks final {
  private:
   TestingHooks() = default;
 
+  // Delete the destructor so that the singleton instance of this class can
+  // never be deleted.
+  ~TestingHooks() = delete;
+
   TestingHooks(const TestingHooks&) = delete;
   TestingHooks(TestingHooks&&) = delete;
   TestingHooks& operator=(const TestingHooks&) = delete;
   TestingHooks& operator=(TestingHooks&&) = delete;
 
-  friend class TestingHooksTestHelper;
+  friend class NoDestructor<TestingHooks>;
 
   mutable std::mutex mutex_;
   int next_id_ = 0;

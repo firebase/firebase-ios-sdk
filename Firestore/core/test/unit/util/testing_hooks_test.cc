@@ -22,40 +22,25 @@
 #include <thread>
 
 #include "Firestore/core/src/api/listener_registration.h"
+#include "Firestore/core/src/util/defer.h"
 #include "Firestore/core/test/unit/testutil/async_testing.h"
 
 #include "gtest/gtest.h"
 
-namespace firebase {
-namespace firestore {
-namespace util {
-
-// A "friend" class of TestingHooks to call its private members.
-class TestingHooksTestHelper {
- public:
-  TestingHooksTestHelper() : testing_hooks_(new TestingHooks) {
-  }
-  std::shared_ptr<TestingHooks> testing_hooks_;
-};
-
-}  //  namespace util
-}  //  namespace firestore
-}  //  namespace firebase
-
 namespace {
 
 using namespace std::chrono_literals;
+
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::testutil::AsyncTest;
+using firebase::firestore::util::Defer;
 using firebase::firestore::util::TestingHooks;
-using firebase::firestore::util::TestingHooksTestHelper;
+
 using ExistenceFilterMismatchInfoAccumulator =
     firebase::firestore::testutil::AsyncAccumulator<
         TestingHooks::ExistenceFilterMismatchInfo>;
 
-class TestingHooksTest : public ::testing::Test,
-                         public AsyncTest,
-                         public TestingHooksTestHelper {
+class TestingHooksTest : public ::testing::Test, public AsyncTest {
  public:
   void AssertAccumulatedObject(
       const std::shared_ptr<ExistenceFilterMismatchInfoAccumulator>&
@@ -70,15 +55,24 @@ class TestingHooksTest : public ::testing::Test,
 
   std::future<void> NotifyOnExistenceFilterMismatchAsync(
       TestingHooks::ExistenceFilterMismatchInfo info) {
-    return Async([info, testing_hooks = testing_hooks_]() {
-      testing_hooks->NotifyOnExistenceFilterMismatch(info);
+    return Async([info]() {
+      TestingHooks::GetInstance().NotifyOnExistenceFilterMismatch(info);
     });
   }
 };
 
+TEST_F(TestingHooksTest, GetInstanceShouldAlwaysReturnTheSameObject) {
+  TestingHooks& testing_hooks1 = TestingHooks::GetInstance();
+  TestingHooks& testing_hooks2 = TestingHooks::GetInstance();
+  EXPECT_EQ(&testing_hooks1, &testing_hooks2);
+}
+
 TEST_F(TestingHooksTest, OnExistenceFilterMismatchCallbackShouldGetNotified) {
   auto accumulator = ExistenceFilterMismatchInfoAccumulator::NewInstance();
-  testing_hooks_->OnExistenceFilterMismatch(accumulator->AsCallback());
+  std::shared_ptr<ListenerRegistration> listener_registration =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator->AsCallback());
+  Defer unregister_listener([=] { listener_registration->Remove(); });
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
 
@@ -88,7 +82,10 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchCallbackShouldGetNotified) {
 TEST_F(TestingHooksTest,
        OnExistenceFilterMismatchCallbackShouldGetNotifiedMultipleTimes) {
   auto accumulator = ExistenceFilterMismatchInfoAccumulator::NewInstance();
-  testing_hooks_->OnExistenceFilterMismatch(accumulator->AsCallback());
+  std::shared_ptr<ListenerRegistration> listener_registration =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator->AsCallback());
+  Defer unregister_listener([=] { listener_registration->Remove(); });
 
   NotifyOnExistenceFilterMismatchAsync({111, 222});
   AssertAccumulatedObject(accumulator, {111, 222});
@@ -102,8 +99,14 @@ TEST_F(TestingHooksTest,
        OnExistenceFilterMismatchAllCallbacksShouldGetNotified) {
   auto accumulator1 = ExistenceFilterMismatchInfoAccumulator::NewInstance();
   auto accumulator2 = ExistenceFilterMismatchInfoAccumulator::NewInstance();
-  testing_hooks_->OnExistenceFilterMismatch(accumulator1->AsCallback());
-  testing_hooks_->OnExistenceFilterMismatch(accumulator2->AsCallback());
+  std::shared_ptr<ListenerRegistration> listener_registration1 =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator1->AsCallback());
+  Defer unregister_listener1([=] { listener_registration1->Remove(); });
+  std::shared_ptr<ListenerRegistration> listener_registration2 =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator2->AsCallback());
+  Defer unregister_listener2([=] { listener_registration2->Remove(); });
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
 
@@ -112,10 +115,31 @@ TEST_F(TestingHooksTest,
 }
 
 TEST_F(TestingHooksTest,
+       OnExistenceFilterMismatchCallbackShouldGetNotifiedOncePerRegistration) {
+  auto accumulator = ExistenceFilterMismatchInfoAccumulator::NewInstance();
+  std::shared_ptr<ListenerRegistration> listener_registration1 =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator->AsCallback());
+  Defer unregister_listener1([=] { listener_registration1->Remove(); });
+  std::shared_ptr<ListenerRegistration> listener_registration2 =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator->AsCallback());
+  Defer unregister_listener2([=] { listener_registration1->Remove(); });
+
+  NotifyOnExistenceFilterMismatchAsync({123, 456});
+
+  AssertAccumulatedObject(accumulator, {123, 456});
+  AssertAccumulatedObject(accumulator, {123, 456});
+  std::this_thread::sleep_for(250ms);
+  EXPECT_TRUE(accumulator->IsEmpty());
+}
+
+TEST_F(TestingHooksTest,
        OnExistenceFilterMismatchShouldNotBeNotifiedAfterRemove) {
   auto accumulator = ExistenceFilterMismatchInfoAccumulator::NewInstance();
   std::shared_ptr<ListenerRegistration> registration =
-      testing_hooks_->OnExistenceFilterMismatch(accumulator->AsCallback());
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator->AsCallback());
   registration->Remove();
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
@@ -128,11 +152,20 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchRemoveShouldOnlyRemoveOne) {
   auto accumulator1 = ExistenceFilterMismatchInfoAccumulator::NewInstance();
   auto accumulator2 = ExistenceFilterMismatchInfoAccumulator::NewInstance();
   auto accumulator3 = ExistenceFilterMismatchInfoAccumulator::NewInstance();
-  testing_hooks_->OnExistenceFilterMismatch(accumulator1->AsCallback());
-  std::shared_ptr<ListenerRegistration> registration2 =
-      testing_hooks_->OnExistenceFilterMismatch(accumulator2->AsCallback());
-  testing_hooks_->OnExistenceFilterMismatch(accumulator3->AsCallback());
-  registration2->Remove();
+  std::shared_ptr<ListenerRegistration> listener_registration1 =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator1->AsCallback());
+  Defer unregister_listener1([=] { listener_registration1->Remove(); });
+  std::shared_ptr<ListenerRegistration> listener_registration2 =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator2->AsCallback());
+  Defer unregister_listener2([=] { listener_registration1->Remove(); });
+  std::shared_ptr<ListenerRegistration> listener_registration3 =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator3->AsCallback());
+  Defer unregister_listener3([=] { listener_registration3->Remove(); });
+
+  listener_registration2->Remove();
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
 
@@ -144,11 +177,13 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchRemoveShouldOnlyRemoveOne) {
 
 TEST_F(TestingHooksTest, OnExistenceFilterMismatchMultipleRemovesHaveNoEffect) {
   auto accumulator = ExistenceFilterMismatchInfoAccumulator::NewInstance();
-  std::shared_ptr<ListenerRegistration> registration =
-      testing_hooks_->OnExistenceFilterMismatch(accumulator->AsCallback());
-  registration->Remove();
-  registration->Remove();
-  registration->Remove();
+  std::shared_ptr<ListenerRegistration> listener_registration =
+      TestingHooks::GetInstance().OnExistenceFilterMismatch(
+          accumulator->AsCallback());
+  Defer unregister_listener([=] { listener_registration->Remove(); });
+  listener_registration->Remove();
+  listener_registration->Remove();
+  listener_registration->Remove();
 
   NotifyOnExistenceFilterMismatchAsync({123, 456});
 

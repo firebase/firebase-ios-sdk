@@ -18,7 +18,6 @@
 
 #include <functional>
 #include <memory>
-#include <mutex>
 #include <vector>
 
 #include "Firestore/core/src/api/listener_registration.h"
