@@ -158,8 +158,7 @@ bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager*
     _firclsContext.readonly->binaryimage.path =
         FIRCLSContextAppendToRoot(rootPath, FIRCLSReportBinaryImageFile);
 
-    FIRCLSBinaryImageInit(&_firclsContext.readonly->binaryimage,
-                          &_firclsContext.writable->binaryImage);
+    FIRCLSBinaryImageInit();
   });
 
   dispatch_group_async(group, queue, ^{
