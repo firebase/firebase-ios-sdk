@@ -553,7 +553,44 @@ import Foundation
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {}
+  @objc public func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+    kAuthGlobalWorkQueue.async {
+      let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+      if let currentUser = self.currentUser, currentUser.isAnonymous {
+        let result = AuthDataResult(withUser: currentUser, additionalUserInfo: nil)
+        decoratedCallback(result, nil)
+      }
+      let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { rawResponse, error in
+        if let error {
+          decoratedCallback(nil, error)
+          return
+        }
+        guard let response = rawResponse as? SignUpNewUserResponse else {
+          fatalError("Internal Auth Error: Failed to get a SignUpNewUserResponse")
+        }
+        self.completeSignIn(withAccessToken: response.idToken,
+                            accessTokenExpirationDate: response.approximateExpirationDate,
+                            refreshToken: response.refreshToken,
+                            anonymous: true) { user, error in
+          if let error {
+            decoratedCallback(nil, error)
+            return
+          }
+          if let user {
+            let additionalUserInfo = AdditionalUserInfo(providerID: nil,
+                                                        profile: nil,
+                                                        username: nil,
+                                                        isNewUser: true)
+            decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
+                              nil)
+          } else {
+            decoratedCallback(nil, nil)
+          }
+        }
+      }
+    }
+  }
 
   /** @fn signInAnonymouslyWithCompletion:
    @brief Asynchronously creates and becomes an anonymous user.
@@ -600,7 +637,41 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc public func signIn(withCustomToken token: String,
-                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {}
+                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+    kAuthGlobalWorkQueue.async {
+      let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+      let request = VerifyCustomTokenRequest(token: token,
+                                             requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { rawResponse, error in
+        if let error {
+          decoratedCallback(nil, error)
+          return
+        }
+        guard let response = rawResponse as? VerifyCustomTokenResponse else {
+          fatalError("Internal Auth Error: Failed to get a VerifyCustomTokenResponse")
+        }
+        self.completeSignIn(withAccessToken: response.idToken,
+                            accessTokenExpirationDate: response.approximateExpirationDate,
+                            refreshToken: response.refreshToken,
+                            anonymous: true) { user, error in
+          if let error {
+            decoratedCallback(nil, error)
+            return
+          }
+          if let user {
+            let additionalUserInfo = AdditionalUserInfo(providerID: nil,
+                                                        profile: nil,
+                                                        username: nil,
+                                                        isNewUser: response.isNewUser)
+            decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
+                              nil)
+          } else {
+            decoratedCallback(nil, nil)
+          }
+        }
+      }
+    }
+  }
 
   /** @fn signInWithCustomToken:completion:
       @brief Asynchronously signs in to Firebase with the given Auth token.
@@ -653,8 +724,57 @@ import Foundation
 
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func createUser(withEmail email: String, password: String,
-                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {}
+  @objc public func createUser(withEmail email: String,
+                               password: String,
+                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+    guard password.count > 0 else {
+      if let completion {
+        completion(nil, AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing password"))
+      }
+      return
+    }
+    guard email.count > 0 else {
+      if let completion {
+        completion(nil, AuthErrorUtils.missingEmailError(message: nil))
+      }
+      return
+    }
+    kAuthGlobalWorkQueue.async {
+      let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+      let request = SignUpNewUserRequest(email: email,
+                                         password: password,
+                                         displayName: nil,
+                                             requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { rawResponse, error in
+        if let error {
+          decoratedCallback(nil, error)
+          return
+        }
+        guard let response = rawResponse as? SignUpNewUserResponse else {
+          fatalError("Internal Auth Error: Failed to get a SignUpNewUserResponse")
+        }
+        self.completeSignIn(withAccessToken: response.idToken,
+                            accessTokenExpirationDate: response.approximateExpirationDate,
+                            refreshToken: response.refreshToken,
+                            anonymous: true) { user, error in
+          if let error {
+            decoratedCallback(nil, error)
+            return
+          }
+          if let user {
+            let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
+                                                        profile: nil,
+                                                        username: nil,
+                                                        isNewUser: true)
+            decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
+                              nil)
+          } else {
+            decoratedCallback(nil, nil)
+          }
+        }
+      }
+    }
+  }
 
   /** @fn createUserWithEmail:password:completion:
       @brief Creates and, on success, signs in a user with the given email address and password.
@@ -817,7 +937,9 @@ import Foundation
       @remarks This method will not work for out of band codes which require an additional parameter,
           such as password reset code.
    */
-  @objc public func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void)
+  @objc public func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
+
+  }
 
   /** @fn applyActionCode:completion:
       @brief Applies out of band code.
@@ -829,7 +951,10 @@ import Foundation
       @remarks This method will not work for out of band codes which require an additional parameter,
           such as password reset code.
    */
-  @objc public func applyActionCode(_ code: String) async throws
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func applyActionCode(_ code: String) async throws {
+
+  }
 
   /** @fn sendPasswordResetWithEmail:completion:
       @brief Initiates a password reset for the given email address.
@@ -849,7 +974,9 @@ import Foundation
 
    */
   @objc public func sendPasswordReset(withEmail email: String,
-                                      completion: ((Error?) -> Void)? = nil)
+                                      completion: ((Error?) -> Void)? = nil) {
+
+  }
 
   /** @fn sendPasswordResetWithEmail:completion:
       @brief Initiates a password reset for the given email address.
@@ -868,7 +995,10 @@ import Foundation
               sending update email.
 
    */
-  @objc public func sendPasswordReset(withEmail email: String) async throws
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func sendPasswordReset(withEmail email: String) async throws {
+
+  }
 
   /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
       @brief Initiates a password reset for the given email address and `ActionCodeSettings` object.
@@ -898,8 +1028,10 @@ import Foundation
 
    */
   @objc public func sendPasswordReset(withEmail email: String,
-                                      actionCodeSettings: FIRActionCodeSettings,
-                                      completion: ((Error?) -> Void)? = nil)
+                                      actionCodeSettings: ActionCodeSettings,
+                                      completion: ((Error?) -> Void)? = nil) {
+
+  }
 
   /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
       @brief Initiates a password reset for the given email address and `ActionCodeSettings` object.
@@ -928,8 +1060,11 @@ import Foundation
               continue URL is not valid.
 
    */
-  @objc public func sendPasswordReset(withEmail email: String,
-                                      actionCodeSettings: FIRActionCodeSettings) async throws
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func sendPasswordReset(withEmail email: String,
+                                actionCodeSettings: ActionCodeSettings) async throws {
+
+  }
 
   /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
       @brief Sends a sign in with email link to provided email address.
@@ -941,8 +1076,10 @@ import Foundation
           asynchronously on the main thread in the future.
    */
   @objc public func sendSignInLink(toEmail email: String,
-                                   actionCodeSettings: FIRActionCodeSettings,
-                                   completion: ((Error?) -> Void)? = nil)
+                                   actionCodeSettings: ActionCodeSettings,
+                                   completion: ((Error?) -> Void)? = nil) {
+
+  }
 
   /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
       @brief Sends a sign in with email link to provided email address.
@@ -953,8 +1090,11 @@ import Foundation
       @param completion Optionally; a block which is invoked when the request finishes. Invoked
           asynchronously on the main thread in the future.
    */
-  @objc public func sendSignInLink(toEmail email: String,
-                                   actionCodeSettings: FIRActionCodeSettings) async throws
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func sendSignInLink(toEmail email: String,
+                             actionCodeSettings: ActionCodeSettings) async throws {
+
+  }
 
   /** @fn signOut:
       @brief Signs out the current user.
@@ -970,7 +1110,9 @@ import Foundation
               dictionary will contain more information about the error encountered.
 
    */
-  @objc public func signOut() throws
+  @objc public func signOut() throws {
+
+  }
 
   /** @fn isSignInWithEmailLink
       @brief Checks if link is an email sign-in link.
@@ -978,7 +1120,9 @@ import Foundation
       @param link The email sign-in link.
       @return Returns true when the link passed matches the expected format of an email sign-in link.
    */
-  @objc public func isSignIn(withEmailLink link: String) -> Bool
+  @objc public func isSignIn(withEmailLink link: String) -> Bool {
+
+  }
 
   /** @fn addAuthStateDidChangeListener:
       @brief Registers a block as an "auth state did change" listener. To be invoked when:
@@ -998,15 +1142,19 @@ import Foundation
 
       @return A handle useful for manually unregistering the block as a listener.
    */
-  @objc public func addStateDidChangeListener(_ listener: @escaping (Auth, FIRUser?) -> Void)
-    -> AuthStateDidChangeListenerHandle
+  @objc public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  -> AuthStateDidChangeListenerHandle {
+
+  }
 
   /** @fn removeAuthStateDidChangeListener:
       @brief Unregisters a block as an "auth state did change" listener.
 
       @param listenerHandle The handle for the listener.
    */
-  @objc public func removeStateDidChangeListener(_ listenerHandle: AuthStateDidChangeListenerHandle)
+  @objc public func removeStateDidChangeListener(_ listenerHandle: AuthStateDidChangeListenerHandle) {
+
+  }
 
   /** @fn addIDTokenDidChangeListener:
       @brief Registers a block as an "ID token did change" listener. To be invoked when:
@@ -1027,25 +1175,33 @@ import Foundation
 
       @return A handle useful for manually unregistering the block as a listener.
    */
-  @objc public func addIDTokenDidChangeListener(_ listener: @escaping (Auth, FIRUser?) -> Void)
-    -> IDTokenDidChangeListenerHandle
+  @objc public func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  -> IDTokenDidChangeListenerHandle {
+
+  }
 
   /** @fn removeIDTokenDidChangeListener:
       @brief Unregisters a block as an "ID token did change" listener.
 
       @param listenerHandle The handle for the listener.
    */
-  @objc public func removeIDTokenDidChangeListener(_ listenerHandle: IDTokenDidChangeListenerHandle)
+  @objc public func removeIDTokenDidChangeListener(_ listenerHandle: IDTokenDidChangeListenerHandle) {
+
+  }
 
   /** @fn useAppLanguage
       @brief Sets `languageCode` to the app's current language.
    */
-  @objc public func useAppLanguage()
+  @objc public func useAppLanguage() {
+
+  }
 
   /** @fn useEmulatorWithHost:port
       @brief Configures Firebase Auth to connect to an emulated host instead of the remote backend.
    */
-  @objc public func useEmulator(withHost host: String, port: Int)
+  @objc public func useEmulator(withHost host: String, port: Int) {
+
+  }
 
   /** @fn revokeTokenWithAuthorizationCode:Completion
       @brief Revoke the users token with authorization code.
@@ -1053,14 +1209,19 @@ import Foundation
           complete, or fails. Invoked asynchronously on the main thread in the future.
    */
   @objc public func revokeToken(withAuthorizationCode authorizationCode: String,
-                                completion: ((Error?) -> Void)? = nil)
+                                completion: ((Error?) -> Void)? = nil) {
+
+  }
 
   /** @fn revokeTokenWithAuthorizationCode:Completion
       @brief Revoke the users token with authorization code.
       @param completion (Optional) the block invoked when the request to revoke the token is
           complete, or fails. Invoked asynchronously on the main thread in the future.
    */
-  @objc public func revokeToken(withAuthorizationCode authorizationCode: String) async throws
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+ public func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
+
+  }
 
   /** @fn useUserAccessGroup:error:
       @brief Switch userAccessGroup and current user to the given accessGroup and the user stored in
@@ -1068,13 +1229,16 @@ import Foundation
    */
   @objc public func useUserAccessGroup(_ accessGroup: String?) throws {}
 
+
+// TODO: objc implementation?
+
   /** @fn getStoredUserForAccessGroup:error:
       @brief Get the stored user in the given accessGroup.
       @note This API is not supported on tvOS when `shareAuthStateAcrossDevices` is set to `true`.
           This case will return `nil`.
           Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
    */
-  @objc public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {}
+  public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {}
 
   // TODO: Need to manage breaking change for
   // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
@@ -1086,7 +1250,7 @@ import Foundation
 
   init(withApp app: FirebaseApp) {
     self.app = app
-    mainBundleUrlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes")
+    mainBundleUrlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
   }
 
   func updateKeychain(withUser user: User?) -> Error? {
@@ -1338,6 +1502,7 @@ import Foundation
             guard let user else {
               // TODO: This matches ObjC code but seems wrong.
               callback(nil, nil)
+              return
             }
             let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
                                                         profile: nil,
@@ -1479,9 +1644,11 @@ import Foundation
       }
       guard let verificationID = credential.verificationID, verificationID.count > 0 else {
         callback(nil, AuthErrorUtils.missingVerificationIDError(message: nil))
+        return
       }
       guard let verificationCode = credential.verificationCode, verificationCode.count > 0 else {
         callback(nil, AuthErrorUtils.missingVerificationCodeError(message: nil))
+        return
       }
       let request = VerifyPhoneNumberRequest(verificationID: verificationID,
                                              verificationCode: verificationCode,
@@ -1651,7 +1818,7 @@ import Foundation
   /** @property mainBundle
       @brief Allow tests to swap in an alternate mainBundle.
    */
-  internal var mainBundleUrlTypes: [String: Any]
+  internal var mainBundleUrlTypes: [[String: Any]]?
 
   /** @property requestConfiguration
       @brief The configuration object comprising of paramters needed to make a request to Firebase
