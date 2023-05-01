@@ -22,6 +22,8 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include "Firestore/core/test/unit/testutil/testing_hooks_util.h"
+
 namespace {
 
 NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *> *remove) {
@@ -1236,8 +1238,13 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
   [NSThread sleepForTimeInterval:10.0f];
 
   // Resume the query and save the resulting snapshot for verification.
-  FIRQuerySnapshot *querySnapshot2 = [self readDocumentSetForRef:collRef
-                                                          source:FIRFirestoreSourceDefault];
+  // Use some internal testing hooks to "capture" the existence filter mismatches to verify them.
+  FIRQuerySnapshot *querySnapshot2;
+  std::vector<firebase::firestore::util::TestingHooks::ExistenceFilterMismatchInfo>
+      existence_filter_mismatches =
+          firebase::firestore::testutil::CaptureExistenceFilterMismatches([&] {
+            querySnapshot2 = [self readDocumentSetForRef:collRef source:FIRFirestoreSourceDefault];
+          });
 
   // Verify that the snapshot from the resumed query contains the expected documents; that is,
   // that it contains the 50 documents that were _not_ deleted.
@@ -1272,6 +1279,17 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
               [missingDocumentIds componentsJoinedByString:@", "]);
     }
   }
+
+  // Skip the verification of the existence filter mismatch when testing against the Firestore
+  // emulator because the Firestore emulator fails to to send an existence filter at all.
+  // TODO(b/270731363): Enable the verification of the existence filter mismatch once the Firestore
+  // emulator is fixed to send an existence filter.
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) {
+    return;
+  }
+
+  // Verify that Watch sent an existence filter with the correct counts when the query was resumed.
+  XCTAssertEqual(static_cast<int>(existence_filter_mismatches.size()), 1);
 }
 
 @end
