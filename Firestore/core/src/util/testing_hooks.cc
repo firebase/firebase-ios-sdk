@@ -51,6 +51,12 @@ class RemoveDelegatingListenerRegistration final
 
 }  // namespace
 
+/** Returns the singleton instance of this class. */
+TestingHooks& TestingHooks::GetInstance() {
+  static NoDestructor<TestingHooks> instance;
+  return *instance;
+}
+
 std::shared_ptr<api::ListenerRegistration>
 TestingHooks::OnExistenceFilterMismatch(
     ExistenceFilterMismatchCallback callback) {

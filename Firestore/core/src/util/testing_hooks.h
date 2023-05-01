@@ -37,10 +37,7 @@ namespace util {
 class TestingHooks final {
  public:
   /** Returns the singleton instance of this class. */
-  static TestingHooks& GetInstance() {
-    static NoDestructor<TestingHooks> instance;
-    return *instance;
-  }
+  static TestingHooks& GetInstance();
 
   /**
    * Information about an existence filter mismatch, as specified to callbacks
