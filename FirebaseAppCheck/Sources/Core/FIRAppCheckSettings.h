@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Core/GACAppCheckSettings.h"
+#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
 
 @class FIRApp;
 
