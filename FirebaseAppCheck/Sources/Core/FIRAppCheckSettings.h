@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
+
 @class FIRApp;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,7 +34,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKe
 @end
 
 /// Handles storing and updating the Firebase app check wide settings and parameters.
-@interface FIRAppCheckSettings : NSObject <FIRAppCheckSettingsProtocol>
+@interface FIRAppCheckSettings : GACAppCheckSettings <FIRAppCheckSettingsProtocol>
 
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
                 userDefault:(NSUserDefaults *)userDefaults

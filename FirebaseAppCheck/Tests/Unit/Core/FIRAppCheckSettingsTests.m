@@ -104,7 +104,7 @@
   OCMReject([self.mockApp isDataCollectionDefaultEnabled]);
 
   // 1.4. Expect the new value to be saved to the user defaults.
-  OCMExpect([self.mockUserDefaults setObject:@(newFlagValue) forKey:self.userDefaultKey]);
+  OCMExpect([self.mockUserDefaults setBool:newFlagValue forKey:self.userDefaultKey]);
 
   // 2. Set flag value.
   self.settings.isTokenAutoRefreshEnabled = newFlagValue;
@@ -206,7 +206,7 @@
 - (void)testSetIsTokenAutoRefreshEnabled {
   // 1. Set first time.
   // 1.1. Expect the new value to be saved to the user defaults.
-  OCMExpect([self.mockUserDefaults setObject:@(YES) forKey:self.userDefaultKey]);
+  OCMExpect([self.mockUserDefaults setBool:YES forKey:self.userDefaultKey]);
 
   // 1.2 Set.
   self.settings.isTokenAutoRefreshEnabled = YES;
@@ -217,13 +217,146 @@
 
   // 2. Set second time.
   // 2.1. Expect the new value to be saved to the user defaults.
-  OCMExpect([self.mockUserDefaults setObject:@(NO) forKey:self.userDefaultKey]);
+  OCMExpect([self.mockUserDefaults setBool:NO forKey:self.userDefaultKey]);
 
   // 2.2 Set.
   self.settings.isTokenAutoRefreshEnabled = NO;
 
   // 2.3. Check.
   XCTAssertEqual(self.settings.isTokenAutoRefreshEnabled, NO);
+  OCMVerifyAll(self.mockUserDefaults);
+}
+
+#pragma mark - GACAppCheckSettings Tests
+
+- (void)testGetTokenAutoRefreshPolicyWhenDidNotExplicitlySet {
+  // 1. Configure expectations.
+  // 1.1. Expect user defaults to be checked.
+  OCMExpect([self.mockUserDefaults objectForKey:self.userDefaultKey]).andReturn(nil);
+
+  // 1.2. Expect main bundle to be checked.
+  OCMExpect(
+      [self.bundleMock objectForInfoDictionaryKey:kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey])
+      .andReturn(nil);
+
+  // 2. Check the flag value.
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDefault);
+
+  // 3. Check mocks.
+  OCMVerifyAll(self.mockUserDefaults);
+  OCMVerifyAll(self.mockApp);
+  OCMVerifyAll(self.bundleMock);
+}
+
+- (void)testGetTokenAutoRefreshPolicyWhenSetToDefault {
+  // 1. Configure expectations.
+  // 1.1. Expect user defaults to be checked.
+  OCMExpect([self.mockUserDefaults objectForKey:self.userDefaultKey]).andReturn(nil);
+
+  // 1.2. Expect main bundle to be checked.
+  OCMExpect(
+      [self.bundleMock objectForInfoDictionaryKey:kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey])
+      .andReturn(nil);
+
+  // 1.3. Expect the user defaults value to be cleared.
+  OCMExpect([self.mockUserDefaults removeObjectForKey:self.userDefaultKey]);
+
+  // 2. Set the flag value.
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyDefault;
+
+  // 3. Check the flag value.
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDefault);
+
+  // 4. Check mocks.
+  OCMVerifyAll(self.mockUserDefaults);
+  OCMVerifyAll(self.mockApp);
+  OCMVerifyAll(self.bundleMock);
+}
+
+- (void)testGetTokenAutoRefreshPolicyWhenEnabledThisAppRun {
+  // 1. Configure expectations.
+  // 1.1. Don't expect user defaults to be checked.
+  OCMReject([self.mockUserDefaults objectForKey:self.userDefaultKey]);
+
+  // 1.2. Don't expect main bundle to be checked.
+  OCMReject(
+      [self.bundleMock objectForInfoDictionaryKey:kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey]);
+
+  // 1.3. Expect the new value to be saved to the user defaults.
+  OCMExpect([self.mockUserDefaults setBool:YES forKey:self.userDefaultKey]);
+
+  // 2. Set flag value.
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyEnabled;
+
+  // 3. Check the flag value.
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyEnabled);
+
+  // 4. Check mocks.
+  OCMVerifyAll(self.mockUserDefaults);
+  OCMVerifyAll(self.mockApp);
+  OCMVerifyAll(self.bundleMock);
+}
+
+- (void)testGetTokenAutoRefreshPolicyWhenDisabledThisAppRun {
+  // 1. Configure expectations.
+  // 1.1. Don't expect user defaults to be checked.
+  OCMReject([self.mockUserDefaults objectForKey:self.userDefaultKey]);
+
+  // 1.2. Don't expect main bundle to be checked.
+  OCMReject(
+      [self.bundleMock objectForInfoDictionaryKey:kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey]);
+
+  // 1.3. Expect the new value to be saved to the user defaults.
+  OCMExpect([self.mockUserDefaults setBool:NO forKey:self.userDefaultKey]);
+
+  // 2. Set flag value.
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyDisabled;
+
+  // 3. Check the flag value.
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDisabled);
+
+  // 4. Check mocks.
+  OCMVerifyAll(self.mockUserDefaults);
+  OCMVerifyAll(self.mockApp);
+  OCMVerifyAll(self.bundleMock);
+}
+
+- (void)testSetTokenAutoRefreshPolicyDefault {
+  // 1. Set first time.
+  // 1.1. Expect the user defaults value to be cleared.
+  OCMExpect([self.mockUserDefaults removeObjectForKey:self.userDefaultKey]);
+
+  // 1.2 Set.
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyDefault;
+
+  // 1.3. Check.
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDefault);
+  OCMVerifyAll(self.mockUserDefaults);
+}
+
+- (void)testSetTokenAutoRefreshPolicyEnabled {
+  // 1. Set first time.
+  // 1.1. Expect the new value to be saved to the user defaults.
+  OCMExpect([self.mockUserDefaults setBool:YES forKey:self.userDefaultKey]);
+
+  // 1.2 Set.
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyEnabled;
+
+  // 1.3. Check.
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyEnabled);
+  OCMVerifyAll(self.mockUserDefaults);
+}
+
+- (void)testSetTokenAutoRefreshPolicyDisabled {
+  // 1. Set first time.
+  // 1.1. Expect the new value to be saved to the user defaults.
+  OCMExpect([self.mockUserDefaults setBool:NO forKey:self.userDefaultKey]);
+
+  // 1.2 Set.
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyDisabled;
+
+  // 1.3. Check.
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDisabled);
   OCMVerifyAll(self.mockUserDefaults);
 }
 
