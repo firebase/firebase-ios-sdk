@@ -50,8 +50,8 @@ class TestingHooksTest : public ::testing::Test, public AsyncTest {
     Await(accumulator->WaitForObject());
     ASSERT_FALSE(accumulator->IsEmpty());
     TestingHooks::ExistenceFilterMismatchInfo info = accumulator->Shift();
-    EXPECT_EQ(info.localCacheCount, expected.localCacheCount);
-    EXPECT_EQ(info.existenceFilterCount, expected.existenceFilterCount);
+    EXPECT_EQ(info.local_cache_count, expected.local_cache_count);
+    EXPECT_EQ(info.existence_filter_count, expected.existence_filter_count);
   }
 
   std::future<void> NotifyOnExistenceFilterMismatchAsync(

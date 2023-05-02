@@ -1290,6 +1290,10 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
 
   // Verify that Watch sent an existence filter with the correct counts when the query was resumed.
   XCTAssertEqual(static_cast<int>(existence_filter_mismatches.size()), 1);
+  firebase::firestore::util::TestingHooks::ExistenceFilterMismatchInfo &info =
+      existence_filter_mismatches[0];
+  XCTAssertEqual(info.local_cache_count, 100);
+  XCTAssertEqual(info.existence_filter_count, 50);
 }
 
 @end

@@ -21,10 +21,10 @@
 #include <functional>
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
+#include <mutex>   // NOLINT(build/c++11)
 #include <thread>  // NOLINT(build/c++11)
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "gtest/gtest.h"
 

@@ -44,8 +44,8 @@ class TestingHooks final {
    * registered with `OnExistenceFilterMismatch()`.
    */
   struct ExistenceFilterMismatchInfo {
-    int localCacheCount = -1;
-    int existenceFilterCount = -1;
+    int local_cache_count = -1;
+    int existence_filter_count = -1;
   };
 
   using ExistenceFilterMismatchCallback =
