@@ -30,7 +30,7 @@
 
 namespace {
 
-using namespace std::chrono_literals;
+using namespace std::chrono_literals;  // NOLINT(build/namespaces)
 
 using firebase::firestore::api::ListenerRegistration;
 using firebase::firestore::testutil::AsyncTest;
