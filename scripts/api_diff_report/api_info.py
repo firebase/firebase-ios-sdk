@@ -64,13 +64,14 @@ def main():
         f.write(json.dumps(api_container, indent=2))
 
 
-# Filter out non api files
 def get_api_files(file_list):
+    """Filter out non api files."""
     return [f for f in file_list if f.endswith('.swift') or (f.endswith('.h') and 'Public' in f)]
 
 
-# Use Jazzy to build API documentation for a specific module's source code
 def build_api_doc(module, output_dir, api_theme_dir):
+    """Use Jazzy to build API documentation for a specific module's source
+    code."""
     if module['language'] == icore_module.SWIFT:
         logging.info('------------')
         cmd = f'jazzy --module {module["name"]} --swift-build-tool xcodebuild --build-tool-arguments -scheme,{module["scheme"]},-destination,generic/platform=iOS,build --output {output_dir} --theme {api_theme_dir}'
@@ -91,31 +92,32 @@ def build_api_doc(module, output_dir, api_theme_dir):
         logging.info(result.stdout.read())
 
 
-# Parse "${module}/index.html" and extract necessary information
-# e.g.
-# {
-#   $(api_type_1): {
-#     "api_type_link": $(api_type_link),
-#     "apis": {
-#       $(api_name_1): {
-#         "api_link": $(api_link_1),
-#         "declaration": [$(swift_declaration), $(objc_declaration)],
-#         "sub_apis": {
-#           $(sub_api_name_1): {"declaration": [$(swift_declaration), $(objc_declaration)]},
-#           $(sub_api_name_2): {"declaration": [$(swift_declaration), $(objc_declaration)]},
-#           ...
-#         }
-#       },
-#       $(api_name_2): {
-#         ...
-#       },
-#     }
-#   },
-#   $(api_type_2): {
-#     ..
-#   },
-# }
 def parse_module(api_doc_path):
+    """Parse "${module}/index.html" and extract necessary information
+    e.g.
+    {
+      $(api_type_1): {
+        "api_type_link": $(api_type_link),
+        "apis": {
+          $(api_name_1): {
+            "api_link": $(api_link_1),
+            "declaration": [$(swift_declaration), $(objc_declaration)],
+            "sub_apis": {
+              $(sub_api_name_1): {"declaration": [$(swift_declaration), $(objc_declaration)]},
+              $(sub_api_name_2): {"declaration": [$(swift_declaration), $(objc_declaration)]},
+              ...
+            }
+          },
+          $(api_name_2): {
+            ...
+          },
+        }
+      },
+      $(api_type_2): {
+        ..
+      },
+    }
+    """
     module_api_container = {}
     # Read the HTML content from the file
     index_link = f'{api_doc_path}/index.html'
@@ -149,9 +151,11 @@ def parse_module(api_doc_path):
     return module_api_container
 
 
-# Parse API html and extract necessary information.
-# e.g. ${module}/Classes.html
 def parse_api(api_doc_path, module_api_container):
+    """Parse API html and extract necessary information.
+
+    e.g. ${module}/Classes.html
+    """
     for api_type, api_type_abstract in module_api_container.items():
         api_type_link = f'{api_doc_path}/{unquote(api_type_abstract["api_type_link"])}'
         api_data_container = module_api_container[api_type]['apis']
@@ -176,9 +180,11 @@ def parse_api(api_doc_path, module_api_container):
                     f'{api_doc_path}/{unquote(api_abstruct["api_link"])}', api_data_container[api]['sub_apis'])
 
 
-# Parse SUB_API html and extract necessary information.
-# e.g. ${module}/Classes/${class_name}.html
 def parse_sub_api(api_link, sub_api_data_container):
+    """Parse SUB_API html and extract necessary information.
+
+    e.g. ${module}/Classes/${class_name}.html
+    """
     with open(api_link, 'r') as file:
         html_content = file.read()
 
@@ -194,9 +200,10 @@ def parse_sub_api(api_link, sub_api_data_container):
                 api_declaration_text)
 
 
-# This is a *PATCH*, that remove commentary lines from API info
-# e.g. Declaration of FIRAppCheck: https://firebase.google.com/docs/reference/ios/firebaseappcheck/api/reference/Classes/FIRAppCheck
 def remove_commentary_lines(declaration):
+    """This is a *PATCH*, that remove commentary lines from API info e.g.
+    Declaration of FIRAppCheck: https://firebase.google.com/docs/reference/ios/
+    firebaseappcheck/api/reference/Classes/FIRAppCheck."""
     lines = declaration.split('\n')
     filtered_lines = []
     for line in lines:

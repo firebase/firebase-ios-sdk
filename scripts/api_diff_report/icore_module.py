@@ -56,10 +56,9 @@ MODULE_LIST = [
 def main():
     module_info()
 
-# Detect changed modules based on changed API files
-
 
 def detect_changed_modules(changed_api_files):
+    """Detect changed modules based on changed API files."""
     all_modules = module_info()
     changed_modules = {}
     for file_path in changed_api_files:
@@ -72,10 +71,11 @@ def detect_changed_modules(changed_api_files):
     return changed_modules
 
 
-# retrive moudle info in MODULE_LIST from `.podspecs`
-# The moudle info helps to build Jazzy
-# includes: module name, source_files, public_header_files, language, umbrella_header, framework_root
 def module_info():
+    """retrive moudle info in MODULE_LIST from `.podspecs`
+    The moudle info helps to build Jazzy
+    includes: module name, source_files, public_header_files, language, umbrella_header, framework_root
+    """
     module_from_podspecs = module_info_from_podspecs()
     module_list = {}
     for k, v in module_from_podspecs.items():
@@ -94,11 +94,12 @@ def module_info():
     return module_list
 
 
-# Jazzy documentation Info
-# SWIFT only.
-# Get scheme from module name in .podspecs
-# Assume the scheme is the same as the module name:
 def get_scheme(module_name):
+    """Jazzy documentation Info SWIFT only.
+
+    Get scheme from module name in .podspecs Assume the scheme is the
+    same as the module name:
+    """
     MODULE_SCHEME_PATCH = {
         'FirebaseInAppMessagingSwift': 'FirebaseInAppMessagingSwift-Beta',
     }
@@ -107,12 +108,13 @@ def get_scheme(module_name):
     return module_name
 
 
-# Jazzy documentation Info
-# OBJC only
-# Get umbrella_header from public_header_files in .podspecs
-# Assume the umbrella_header is with the format:
-#   {module_name}/Sources/Public/{module_name}/{module_name}.h
 def get_umbrella_header(module_name, public_header_files):
+    """Jazzy documentation Info OBJC only Get umbrella_header from
+    public_header_files in .podspecs Assume the umbrella_header is with the
+    format:
+
+    {module_name}/Sources/Public/{module_name}/{module_name}.h
+    """
     if public_header_files:
         if isinstance(public_header_files, list):
             return public_header_files[0].replace('*', module_name)
@@ -121,10 +123,12 @@ def get_umbrella_header(module_name, public_header_files):
     return ''
 
 
-# Get source code root_dir from source_files in .podspecs
-# Assume the root_dir is with the format:
-#   {module_name}/Sources or {module_name}/Source
 def get_root_dir(module_name, source_files):
+    """Get source code root_dir from source_files in .podspecs Assume the
+    root_dir is with the format:
+
+    {module_name}/Sources or {module_name}/Source
+    """
     MODULE_ROOT_PATCH = {
         'FirebaseFirestore': 'Firestore/Source',
         'FirebaseFirestoreSwift': 'Firestore/Swift/Source',

@@ -50,31 +50,34 @@ def main():
         logging.info('No API Diff Detected.')
 
 
-# diff_json only contains module & api that has a change. format:
-# {
-#   $(moduel_name_1): {
-#     "api_types": {
-#       $(api_type_1): {
-#         "apis": {
-#           $(api_1): {
-#             "declaration": [
-#               $(api_1_declaration)
-#             ],
-#             "sub_apis": {
-#               $(sub_api_1): {
-#                 "declaration": [
-#                   $(sub_api_1_declaration)
-#                 ]
-#               },
-#             },
-#             "status": $(diff_status)
-#           }
-#         }
-#       }
-#     }
-#   }
-# }
 def generate_diff_json(new_api, old_api, level='module'):
+    """diff_json only contains module & api that has a change.
+
+    format:
+    {
+      $(moduel_name_1): {
+        "api_types": {
+          $(api_type_1): {
+            "apis": {
+              $(api_1): {
+                "declaration": [
+                  $(api_1_declaration)
+                ],
+                "sub_apis": {
+                  $(sub_api_1): {
+                    "declaration": [
+                      $(sub_api_1_declaration)
+                    ]
+                  },
+                },
+                "status": $(diff_status)
+              }
+            }
+          }
+        }
+      }
+    }
+    """
     NEXT_LEVEL = {'module': 'api_types',
                   'api_types': 'apis', 'apis': 'sub_apis'}
     next_level = NEXT_LEVEL.get(level)
@@ -187,8 +190,8 @@ def generate_markdown_report(diff, level=0):
     return report
 
 
-# Diff syntax highlighting in Github Markdown
 def process_declarations(current_status, declarations, sub_report):
+    """Diff syntax highlighting in Github Markdown."""
     detail = ''
     if current_status == STATUS_MODIFIED:
         for line in (declarations + sub_report.split('\n')):
@@ -209,8 +212,8 @@ def process_declarations(current_status, declarations, sub_report):
     return categorize_declarations(detail)
 
 
-# Categorize API info by Swift and Objective-C
 def categorize_declarations(detail):
+    """Categorize API info by Swift and Objective-C."""
     lines = detail.split('\n')
 
     swift_lines = [line.replace('Swift', '')
