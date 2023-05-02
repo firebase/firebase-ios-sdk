@@ -79,14 +79,14 @@ class TestingHooks final {
    * could still occur _after_ unregistering.
    */
   std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(
-      ExistenceFilterMismatchCallback);
+      ExistenceFilterMismatchCallback callback);
 
   /**
    * Invokes all currently-registered `OnExistenceFilterMismatch` callbacks
    * synchronously.
    * @param info Information about the existence filter mismatch.
    */
-  void NotifyOnExistenceFilterMismatch(const ExistenceFilterMismatchInfo&);
+  void NotifyOnExistenceFilterMismatch(const ExistenceFilterMismatchInfo& info);
 
  private:
   TestingHooks() = default;
