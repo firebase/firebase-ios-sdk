@@ -123,6 +123,8 @@ TEST(Settings, MoveAssignmentOperator) {
   other = std::move(settings);
 
   EXPECT_EQ(copy, other);
+  EXPECT_NO_FATAL_FAILURE(settings.persistence_enabled());
+  EXPECT_NO_FATAL_FAILURE(settings.local_cache_settings());
 }
 
 TEST(Settings, EqualityAndHash) {
