@@ -33,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                      totpEnrollmentInfo:(NSDictionary *)totpEnrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end
