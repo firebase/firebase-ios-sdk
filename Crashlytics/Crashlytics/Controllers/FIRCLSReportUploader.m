@@ -89,9 +89,18 @@
       FIRCLSApplicationActivityDefault, @"Crashlytics Crash Report Processing", ^{
         // Check to see if the FID has rotated before we construct the payload
         // so that the payload has an updated value.
-        [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull newFIID) {
-          self.fiid = [newFIID copy];
-        }];
+        //
+        // If we're in urgent mode, this will be running on the main thread. Since
+        // the FIID callback is run on the main thread, this call can deadlock in
+        // urgent mode. Since urgent mode happens when the app is in a crash loop,
+        // we can safely assume users aren't rotating their FIID, so this can be skipped.
+        if (!urgent) {
+          [self.installIDModel regenerateInstallIDIfNeededWithBlock:^(NSString *_Nonnull newFIID) {
+            self.fiid = [newFIID copy];
+          }];
+        } else {
+          FIRCLSWarningLog(@"Crashlytics skipped rotating the Install ID during urgent mode because it is run on the main thread, which can't succeed. This can happen if the app crashed the last run and Crashlytics is uploading urgently.");
+        }
 
         // Run on-device symbolication before packaging if we should process
         if (shouldProcess) {
