@@ -16,10 +16,12 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 @implementation FIRAppCheckValidator
 
+#ifdef TODO_SPLIT
 + (NSArray<NSString *> *)tokenExchangeMissingFieldsInOptions:(FIROptions *)options {
   NSMutableArray<NSString *> *missingFields = [NSMutableArray array];
 
@@ -37,5 +39,6 @@
 
   return [missingFields copy];
 }
+#endif
 
 @end

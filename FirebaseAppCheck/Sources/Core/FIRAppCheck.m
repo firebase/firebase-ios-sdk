@@ -38,8 +38,9 @@
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 /// A notification with the specified name is sent to the default notification center
@@ -61,7 +62,11 @@ static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
 
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
+#ifdef TODO_SPLIT
 @interface FIRAppCheck () <FIRLibrary, FIRAppCheckInterop>
+#else
+@interface FIRAppCheck () <FIRAppCheckInterop>
+#endif
 @property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;
 
 @property(nonatomic, readonly) NSString *appName;
@@ -80,6 +85,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 #pragma mark - FIRComponents
 
+#ifdef TODO_SPLIT
 + (void)load {
   [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-app-check"];
 }
@@ -186,7 +192,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   id<FIRAppCheckInterop> appCheck = FIR_COMPONENT(FIRAppCheckInterop, firebaseApp.container);
   return (FIRAppCheck *)appCheck;
 }
-
+#endif
 - (void)tokenForcingRefresh:(BOOL)forcingRefresh
                  completion:(void (^)(FIRAppCheckToken *_Nullable token,
                                       NSError *_Nullable error))handler {

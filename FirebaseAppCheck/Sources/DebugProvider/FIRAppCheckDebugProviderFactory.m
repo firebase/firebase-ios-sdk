@@ -26,10 +26,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable id<FIRAppCheckProvider>)createProviderWithApp:(FIRApp *)app {
   FIRAppCheckDebugProvider *provider = [[FIRAppCheckDebugProvider alloc] initWithApp:app];
 
+#ifdef TODO_SPLIT
   // Print only locally generated token to avoid a valid token leak on CI.
   FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugToken,
                 @"Firebase App Check debug token: '%@'.", [provider localDebugToken]);
-
+#endif
   return provider;
 }
 

@@ -27,9 +27,9 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 #import "FirebaseAppCheck/Sources/DebugProvider/API/FIRAppCheckDebugProviderAPIService.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
-
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kDebugTokenEnvKey = @"FIRAAppCheckDebugToken";
@@ -48,7 +48,7 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
   }
   return self;
 }
-
+#ifdef TODO_SPLIT
 - (nullable instancetype)initWithApp:(FIRApp *)app {
   NSArray<NSString *> *missingOptionsFields =
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
@@ -76,6 +76,7 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
 
   return [self initWithAPIService:debugAPIService];
 }
+#endif
 
 - (NSString *)currentDebugToken {
   NSString *envVariableValue = [[NSProcessInfo processInfo] environment][kDebugTokenEnvKey];

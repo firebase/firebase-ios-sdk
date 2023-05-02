@@ -16,8 +16,11 @@
 
 #import <Foundation/Foundation.h>
 
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#else
+typedef NSString *const FIRLoggerService;
+#endif
 extern FIRLoggerService kFIRLoggerAppCheck;
 
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeUnknown;

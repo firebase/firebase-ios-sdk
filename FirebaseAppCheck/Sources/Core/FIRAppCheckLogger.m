@@ -16,8 +16,9 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 FIRLoggerService kFIRLoggerAppCheck = @"[FirebaseAppCheck]";
@@ -49,7 +50,9 @@ NSString *const kFIRLoggerAppCheckMessageCodeAttestationRejected = @"I-FAA007002
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
+#ifdef TODO_SWIFT
   FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerAppCheck, messageCode, message, args_ptr);
+#endif
   va_end(args_ptr);
 }
 

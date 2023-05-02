@@ -40,8 +40,9 @@
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
 
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 /// A data object that contains all key attest data required for FAC token exchange.
@@ -136,6 +137,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
+#ifdef TODO_SPLIT
 #if FIR_APP_ATTEST_SUPPORTED_TARGETS
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
@@ -169,6 +171,9 @@ NS_ASSUME_NONNULL_BEGIN
 #else   // FIR_APP_ATTEST_SUPPORTED_TARGETS
   return nil;
 #endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
+#else
+  return nil;
+#endif
 }
 
 #pragma mark - FIRAppCheckProvider

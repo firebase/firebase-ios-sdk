@@ -16,8 +16,9 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 NSString *const kFIRAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix =
@@ -47,8 +48,10 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     _firebaseApp = firebaseApp;
     _userDefaults = userDefaults;
     _mainBundle = mainBundle;
+#ifdef TODO_SPLIT
     _userDefaultKey = [kFIRAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix
         stringByAppendingString:firebaseApp.name];
+#endif
   }
   return self;
 }
@@ -77,7 +80,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
       // Return the value.
       return isTokenAutoRefreshEnabledNumber.boolValue;
     }
-
+#ifdef TODO_SPLIT
     // Fallback to the global data collection flag.
     if (self.firebaseApp) {
       return self.firebaseApp.isDataCollectionDefaultEnabled;
@@ -86,6 +89,9 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
       // case.
       return NO;
     }
+#else
+    return NO;
+#endif
   }
 }
 

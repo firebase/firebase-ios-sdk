@@ -37,7 +37,7 @@ Pod::Spec.new do |s|
   s.source_files = [
     base_dir + 'Sources/**/*.[mh]',
     base_dir + 'Interop/*.h',
-    'FirebaseCore/Extension/*.h',
+ #   'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
 
@@ -45,7 +45,7 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
-  s.dependency 'FirebaseCore', '~> 10.0'
+#  s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
 

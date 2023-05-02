@@ -35,9 +35,9 @@
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/DCDevice+FIRDeviceCheckTokenGenerator.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
-
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDeviceCheckProvider ()
@@ -74,6 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
+#ifdef TODO_SPLIT
   NSArray<NSString *> *missingOptionsFields =
       [FIRAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
@@ -100,6 +101,9 @@ NS_ASSUME_NONNULL_BEGIN
                                                      appID:app.options.googleAppID];
 
   return [self initWithAPIService:deviceCheckAPIService];
+#else
+  return nil;
+#endif
 }
 
 #pragma mark - FIRAppCheckProvider

@@ -25,8 +25,9 @@
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
+#ifdef TODO_SPLIT
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
+#endif
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
 
@@ -109,11 +110,11 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
              request.HTTPBody = body;
 
              [request setValue:self.APIKey forHTTPHeaderField:kAPIKeyHeaderKey];
-
+#ifdef TODO_SPLIT
              [request setValue:FIRHeaderValueFromHeartbeatsPayload(
                                    [self.heartbeatLogger flushHeartbeatsIntoPayload])
                  forHTTPHeaderField:kHeartbeatKey];
-
+#endif
              [request setValue:[[NSBundle mainBundle] bundleIdentifier]
                  forHTTPHeaderField:kBundleIdKey];
 
