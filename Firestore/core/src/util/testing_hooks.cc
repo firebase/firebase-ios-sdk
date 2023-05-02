@@ -16,10 +16,11 @@
 
 #include "Firestore/core/src/util/testing_hooks.h"
 
-#include <future>
+#include <functional>
 #include <mutex>
 #include <type_traits>
 #include <unordered_map>
+#include <utility>
 
 #include "Firestore/core/src/util/no_destructor.h"
 
@@ -88,10 +89,27 @@ TestingHooks::OnExistenceFilterMismatch(
 
 void TestingHooks::NotifyOnExistenceFilterMismatch(
     const ExistenceFilterMismatchInfo& info) {
-  std::lock_guard<std::mutex> lock(mutex_);
+  std::unique_lock<std::mutex> lock(mutex_);
+
+  // Short-circuit to avoid any unnecessary work if there is nothing to do.
+  if (existence_filter_mismatch_callbacks_.empty()) {
+    return;
+  }
+
+  // Copy the callbacks into a vector so that they can be invoked after
+  // releasing the lock.
+  std::vector<std::shared_ptr<ExistenceFilterMismatchCallback>> callbacks;
   for (auto&& entry : existence_filter_mismatch_callbacks_) {
-    std::async(
-        [info, callback = entry.second]() { callback->operator()(info); });
+    callbacks.push_back(entry.second);
+  }
+
+  // Release the lock so that the callback invocations are done _without_
+  // holding the lock. This avoids deadlock in the case that invocations are
+  // re-entrant.
+  lock.unlock();
+
+  for (std::shared_ptr<ExistenceFilterMismatchCallback> callback : callbacks) {
+    callback->operator()(info);
   }
 }
 

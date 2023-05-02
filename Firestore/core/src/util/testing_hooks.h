@@ -59,11 +59,11 @@ class TestingHooks final {
    * rely on any particular ordering. If a given callback is registered multiple
    * times then it will be notified multiple times, once per registration.
    *
-   * The thread on which the callback occurs is unspecified; listeners should
-   * perform their work as quickly as possible and return to avoid blocking any
-   * critical work. In particular, the listener callbacks should *not* block or
-   * perform long-running operations. Listener callbacks can occur concurrently
-   * with other callbacks on the same and other listeners.
+   * The listener callbacks are performed synchronously in
+   * `NotifyOnExistenceFilterMismatch()`; therefore, listeners should perform
+   * their work as quickly as possible and return to avoid blocking any critical
+   * work. In particular, the listener callbacks should *not* block or perform
+   * long-running operations.
    *
    * The `ExistenceFilterMismatchInfo` reference specified to the callback is
    * only valid during the lifetime of the callback. Once the callback returns
@@ -74,13 +74,16 @@ class TestingHooks final {
    *
    * @return an object whose `Remove()` member function unregisters the given
    * callback; only the first invocation of `Remove()` does anything; all
-   * subsequent invocations do nothing.
+   * subsequent invocations do nothing. Note that due to inherent race
+   * conditions it is technically possible, although unlikely, that callbacks
+   * could still occur _after_ unregistering.
    */
   std::shared_ptr<api::ListenerRegistration> OnExistenceFilterMismatch(
       ExistenceFilterMismatchCallback);
 
   /**
-   * Invokes all currently-registered `OnExistenceFilterMismatch` callbacks.
+   * Invokes all currently-registered `OnExistenceFilterMismatch` callbacks
+   * synchronously.
    * @param info Information about the existence filter mismatch.
    */
   void NotifyOnExistenceFilterMismatch(const ExistenceFilterMismatchInfo&);
