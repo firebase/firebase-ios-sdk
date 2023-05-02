@@ -848,17 +848,17 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 #if TARGET_OS_IOS
                    NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                       // check which MFA factors are enabled.
-                       if (MFAEnrollment.phoneInfo != NULL) {
-                           FIRPhoneMultiFactorInfo *info =
-                               [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                           [multiFactorInfo addObject:info];
-                       }
-                       if (MFAEnrollment.totpInfo != NULL) {
-                           FIRTOTPMultiFactorInfo *info =
-                               [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                           [multiFactorInfo addObject:info];
-                       }
+                     // check which MFA factors are enabled.
+                     if (MFAEnrollment.phoneInfo != NULL) {
+                       FIRPhoneMultiFactorInfo *info =
+                           [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfo addObject:info];
+                     }
+                     if (MFAEnrollment.totpInfo != NULL) {
+                       FIRTOTPMultiFactorInfo *info =
+                           [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfo addObject:info];
+                     }
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
@@ -1117,11 +1117,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                            completionHandler:^(NSData *data, NSError *error) {
                              // If there is an error with no body data at all, then this must be a
                              // network error.
-      NSString *endpoint;
-      NSString *helpertest = @"requestURL";
-      endpoint =
-          [NSString stringWithFormat:@"%@ - %@", helpertest, [request requestURL]];
-      NSLog(endpoint);
                              if (error && !data) {
                                callback([FIRAuthErrorUtils networkErrorWithUnderlyingError:error]);
                                return;

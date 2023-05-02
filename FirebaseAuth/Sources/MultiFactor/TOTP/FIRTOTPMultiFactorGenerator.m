@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,12 @@
 
 @implementation FIRTOTPMultiFactorGenerator
 
-
-+ (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID: (NSString *)enrollmentID
-                                                    oneTimePassword: (NSString *)oneTimePassword {
-    FIRTOTPMultiFactorAssertion *assertion = [[FIRTOTPMultiFactorAssertion alloc] init];
-    assertion.oneTimePassword = oneTimePassword;
-    assertion.enrollmentID = enrollmentID;
-    return assertion;
++ (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
+                                                    oneTimePassword:(NSString *)oneTimePassword {
+  FIRTOTPMultiFactorAssertion *assertion = [[FIRTOTPMultiFactorAssertion alloc] init];
+  assertion.oneTimePassword = oneTimePassword;
+  assertion.enrollmentID = enrollmentID;
+  return assertion;
 }
 
 @end
