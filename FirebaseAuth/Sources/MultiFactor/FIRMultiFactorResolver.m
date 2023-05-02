@@ -65,8 +65,7 @@ NS_ASSUME_NONNULL_BEGIN
     finalizedMFARequestInfo = [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc]
         initWithSessionInfo:phoneAssertion.authCredential.verificationID
            verificationCode:phoneAssertion.authCredential.verificationCode];
-  }
-  if ([assertion isKindOfClass:[FIRTOTPMultiFactorAssertion class]]) {
+  } else {
     FIRTOTPMultiFactorAssertion *totpAssertion = (FIRTOTPMultiFactorAssertion *)assertion;
     finalizedMFARequestInfo = [[FIRAuthProtoFinalizeMFATotpSignInRequestInfo alloc]
         initWithVerificationCode:totpAssertion.oneTimePassword
