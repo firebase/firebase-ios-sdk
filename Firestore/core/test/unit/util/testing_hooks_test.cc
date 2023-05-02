@@ -16,10 +16,11 @@
 
 #include "Firestore/core/src/util/testing_hooks.h"
 
-#include <chrono>
-#include <future>
+#include <chrono>  // NOLINT(build/c++11)
+#include <future>  // NOLINT(build/c++11)
 #include <memory>
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
+#include <vector>  // NOLINT(build/c++11)
 
 #include "Firestore/core/src/api/listener_registration.h"
 #include "Firestore/core/src/util/defer.h"

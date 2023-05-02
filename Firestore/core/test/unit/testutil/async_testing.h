@@ -18,13 +18,13 @@
 #define FIRESTORE_CORE_TEST_UNIT_TESTUTIL_ASYNC_TESTING_H_
 
 #include <chrono>  // NOLINT(build/c++11)
-#include <condition_variable>
 #include <functional>
 #include <future>  // NOLINT(build/c++11)
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <thread>  // NOLINT(build/c++11)
 #include <vector>
+#include <utility>
 
 #include "gtest/gtest.h"
 

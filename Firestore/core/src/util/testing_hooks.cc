@@ -17,10 +17,11 @@
 #include "Firestore/core/src/util/testing_hooks.h"
 
 #include <functional>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/util/no_destructor.h"
 
