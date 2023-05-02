@@ -21,7 +21,6 @@ import icore_module
 from urllib.parse import unquote
 from bs4 import BeautifulSoup
 
-
 API_INFO_FILE_NAME = 'api_info.json'
 
 
@@ -54,7 +53,9 @@ def main():
         if os.path.exists(api_doc_dir):
             module_api_container = parse_module(api_doc_dir)
             api_container[module['name']] = {
-                'path': api_doc_dir, 'api_types': module_api_container}
+                'path': api_doc_dir,
+                'api_types': module_api_container
+            }
         else:  # api doc fail to build.
             api_container[module['name']] = {'path': '', 'api_types': {}}
 
@@ -66,7 +67,10 @@ def main():
 
 def get_api_files(file_list):
     """Filter out non api files."""
-    return [f for f in file_list if f.endswith('.swift') or (f.endswith('.h') and 'Public' in f)]
+    return [
+        f for f in file_list
+        if f.endswith('.swift') or (f.endswith('.h') and 'Public' in f)
+    ]
 
 
 def build_api_doc(module, output_dir, api_theme_dir):
@@ -130,16 +134,21 @@ def parse_module(api_doc_path):
     # Locate the element with class="nav-groups"
     nav_groups_element = soup.find('ul', class_='nav-groups')
     # Extract data and convert to JSON format
-    for nav_group in nav_groups_element.find_all('li', class_='nav-group-name'):
+    for nav_group in nav_groups_element.find_all('li',
+                                                 class_='nav-group-name'):
         api_type = nav_group.find('a').text
         api_type_link = nav_group.find('a')['href']
 
         apis = {}
-        for nav_group_task in nav_group.find_all('li', class_='nav-group-task'):
+        for nav_group_task in nav_group.find_all('li',
+                                                 class_='nav-group-task'):
             api_name = nav_group_task.find('a').text
             api_link = nav_group_task.find('a')['href']
-            apis[api_name] = {'api_link': api_link,
-                              'declaration': [], 'sub_apis': {}}
+            apis[api_name] = {
+                'api_link': api_link,
+                'declaration': [],
+                'sub_apis': {}
+            }
 
         module_api_container[api_type] = {
             'api_type_link': api_type_link,
@@ -164,7 +173,9 @@ def parse_api(api_doc_path, module_api_container):
 
         # Parse the HTML content
         soup = BeautifulSoup(html_content, 'html.parser')
-        for api in soup.find('div', class_='task-group').find_all('li', class_='item'):
+        for api in soup.find('div',
+                             class_='task-group').find_all('li',
+                                                           class_='item'):
             api_name = api.find('a', class_='token').text
             for api_declaration in api.find_all('div', class_='language'):
                 api_declaration_text = ' '.join(
@@ -177,7 +188,8 @@ def parse_api(api_doc_path, module_api_container):
         for api, api_abstruct in api_type_abstract['apis'].items():
             if api_abstruct['api_link'].endswith('.html'):
                 parse_sub_api(
-                    f'{api_doc_path}/{unquote(api_abstruct["api_link"])}', api_data_container[api]['sub_apis'])
+                    f'{api_doc_path}/{unquote(api_abstruct["api_link"])}',
+                    api_data_container[api]['sub_apis'])
 
 
 def parse_sub_api(api_link, sub_api_data_container):
@@ -190,12 +202,14 @@ def parse_sub_api(api_link, sub_api_data_container):
 
     # Parse the HTML content
     soup = BeautifulSoup(html_content, 'html.parser')
-    for s_api in soup.find('div', class_='task-group').find_all('li', class_='item'):
+    for s_api in soup.find('div', class_='task-group').find_all('li',
+                                                                class_='item'):
         api_name = s_api.find('a', class_='token').text
         sub_api_data_container[api_name] = {'declaration': []}
         for api_declaration in s_api.find_all('div', class_='language'):
             api_declaration_text = ' '.join(api_declaration.stripped_strings)
-            api_declaration_text = remove_commentary_lines(api_declaration_text)
+            api_declaration_text = remove_commentary_lines(
+                api_declaration_text)
             sub_api_data_container[api_name]['declaration'].append(
                 api_declaration_text)
 
@@ -217,7 +231,8 @@ def parse_cmdline_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-f', '--file_list', nargs='+', default=[])
     parser.add_argument('-o', '--output_dir', default='output_dir')
-    parser.add_argument('-t', '--api_theme_dir',
+    parser.add_argument('-t',
+                        '--api_theme_dir',
                         default='scripts/api_diff_report/theme')
 
     args = parser.parse_args()

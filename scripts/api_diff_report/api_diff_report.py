@@ -43,7 +43,8 @@ def main():
         logging.info(f'json diff: \n{json.dumps(diff, indent=2)}')
         logging.info(f'plain text diff report: \n{generate_text_report(diff)}')
         logging.info(
-            f'markdown diff report title: \n{generate_markdown_title(args.commit, args.run_id)}')
+            f'markdown diff report title: \n{generate_markdown_title(args.commit, args.run_id)}'
+        )
         logging.info(
             f'markdown diff report: \n{generate_markdown_report(diff)}')
     else:
@@ -78,8 +79,11 @@ def generate_diff_json(new_api, old_api, level='module'):
       }
     }
     """
-    NEXT_LEVEL = {'module': 'api_types',
-                  'api_types': 'apis', 'apis': 'sub_apis'}
+    NEXT_LEVEL = {
+        'module': 'api_types',
+        'api_types': 'apis',
+        'apis': 'sub_apis'
+    }
     next_level = NEXT_LEVEL.get(level)
 
     diff = {}
@@ -89,23 +93,28 @@ def generate_diff_json(new_api, old_api, level='module'):
             diff[key] = new_api[key]
             diff[key]['status'] = STATUS_ADD
             if diff[key].get('declaration'):
-                diff[key]['declaration'] = [
-                    STATUS_ADD] + diff[key]['declaration']
+                diff[key]['declaration'] = [STATUS_ADD
+                                            ] + diff[key]['declaration']
         # Removed API
         elif key not in new_api:
             diff[key] = old_api[key]
             diff[key]['status'] = STATUS_REMOVED
             if diff[key].get('declaration'):
-                diff[key]['declaration'] = [
-                    STATUS_ADD] + diff[key]['declaration']
+                diff[key]['declaration'] = [STATUS_ADD
+                                            ] + diff[key]['declaration']
         # Moudle Build Error. If a "module" exist but have no content (e.g. doc_path), it must have a build error.
-        elif level == 'module' and (not new_api[key]['path'] or not old_api[key]['path']):
+        elif level == 'module' and (not new_api[key]['path']
+                                    or not old_api[key]['path']):
             diff[key] = {'status': STATUS_ERROR}
         else:
             child_diff = generate_diff_json(
-                new_api[key][next_level], old_api[key][next_level], level=next_level) if next_level else {}
-            declaration_diff = new_api[key].get('declaration') != old_api[key].get(
-                'declaration') if level in ['apis', 'sub_apis'] else False
+                new_api[key][next_level],
+                old_api[key][next_level],
+                level=next_level) if next_level else {}
+            declaration_diff = new_api[key].get(
+                'declaration') != old_api[key].get('declaration') if level in [
+                    'apis', 'sub_apis'
+                ] else False
 
             # No changes at current level
             if not child_diff and not declaration_diff:  # no diff
@@ -153,11 +162,11 @@ def generate_text_report(diff, level=0, print_key=True):
 def generate_markdown_title(commit, run_id):
     pst_now = datetime.datetime.utcnow().astimezone(
         pytz.timezone('America/Los_Angeles'))
-    return ('## Apple API Diff Report\n'
-            + 'Commit: %s\n' % commit
-            + 'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G')
-            + '**[View workflow logs & download artifacts](https://github.com/firebase/firebase-cpp-sdk/actions/runs/%s)**\n\n' % run_id
-            + '-----\n')
+    return (
+        '## Apple API Diff Report\n' + 'Commit: %s\n' % commit +
+        'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G') +
+        '**[View workflow logs & download artifacts](https://github.com/firebase/firebase-cpp-sdk/actions/runs/%s)**\n\n'
+        % run_id + '-----\n')
 
 
 def generate_markdown_report(diff, level=0):
@@ -175,10 +184,11 @@ def generate_markdown_report(diff, level=0):
                     if current_status != STATUS_ERROR:  # ADDED,REMOVED,MODIFIED
                         report += f'<details>\n<summary>\n[{current_status}] {key}\n</summary>\n\n'
                         declarations = value.get('declaration', [])
-                        sub_report = generate_text_report(
-                            value, level=1, print_key=False)
-                        detail = process_declarations(
-                            current_status, declarations, sub_report)
+                        sub_report = generate_text_report(value,
+                                                          level=1,
+                                                          print_key=False)
+                        detail = process_declarations(current_status,
+                                                      declarations, sub_report)
                         report += f'```diff\n{detail}\n```\n\n</details>\n\n'
                 else:  # no diff at current level
                     report += f'{header_str} {key}\n'
@@ -216,13 +226,17 @@ def categorize_declarations(detail):
     """Categorize API info by Swift and Objective-C."""
     lines = detail.split('\n')
 
-    swift_lines = [line.replace('Swift', '')
-                   for line in lines if 'Swift' in line]
-    objc_lines = [line.replace('Objective-C', '')
-                  for line in lines if 'Objective-C' in line]
+    swift_lines = [
+        line.replace('Swift', '') for line in lines if 'Swift' in line
+    ]
+    objc_lines = [
+        line.replace('Objective-C', '') for line in lines
+        if 'Objective-C' in line
+    ]
 
     swift_detail = 'Swift:\n' + '\n'.join(swift_lines) if swift_lines else ''
-    objc_detail = 'Objective-C:\n' + '\n'.join(objc_lines) if objc_lines else ''
+    objc_detail = 'Objective-C:\n' + '\n'.join(
+        objc_lines) if objc_lines else ''
 
     if not swift_detail and not objc_detail:
         return detail

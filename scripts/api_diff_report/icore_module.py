@@ -17,7 +17,6 @@ import logging
 import json
 import subprocess
 
-
 SWIFT = 'Swift'
 OBJECTIVE_C = 'Objective-C'
 
@@ -155,9 +154,9 @@ def module_info_from_package_swift():
     package_json = json.loads(result.stdout.read())
 
     module_scheme = dict([(x['targets'][0], x['name'])
-                         for x in package_json['products']])
-    module_path = dict([(x['name'], x['path'])
-                       for x in package_json['targets'] if x['name'] in module_scheme])
+                          for x in package_json['products']])
+    module_path = dict([(x['name'], x['path']) for x in package_json['targets']
+                        if x['name'] in module_scheme])
 
     result = {}
     for k, v in module_scheme.items():
@@ -172,11 +171,14 @@ def module_info_from_podspecs(root_dir=os.getcwd()):
         if filename.endswith('.podspec'):
             podspec_data = parse_podspec(filename)
             source_files = podspec_data.get('source_files')
-            if not podspec_data.get('source_files') and podspec_data.get('ios'):
+            if not podspec_data.get('source_files') and podspec_data.get(
+                    'ios'):
                 source_files = podspec_data.get('ios').get('source_files')
-            result[podspec_data['name']] = {'name': podspec_data['name'],
-                                            'source_files': source_files,
-                                            'public_header_files': podspec_data.get('public_header_files')}
+            result[podspec_data['name']] = {
+                'name': podspec_data['name'],
+                'source_files': source_files,
+                'public_header_files': podspec_data.get('public_header_files')
+            }
     return result
 
 
