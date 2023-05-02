@@ -76,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)aggregationWithSource:(FIRAggregateSource)source
                    completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                         NSError *_Nullable error))completion {
-  _aggregateQuery->Get([self, completion](const StatusOr<ObjectValue> &result) {
+  _aggregateQuery->GetAggregate([self, completion](const StatusOr<ObjectValue> &result) {
     if (result.ok()) {
       completion([[FIRAggregateQuerySnapshot alloc] initWithObject:result.ValueOrDie() query:self],
                  nil);

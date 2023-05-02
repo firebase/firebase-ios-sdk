@@ -58,6 +58,7 @@ using core::IsDisjunctiveOperator;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
+using model::AggregateAlias;
 using model::AggregateField;
 using model::DocumentKey;
 using model::FieldPath;
@@ -478,6 +479,12 @@ std::string Query::Describe(Operator op) const {
 AggregateQuery Query::Aggregate(
     std::vector<AggregateField>&& aggregations) const {
   return AggregateQuery(*this, std::move(aggregations));
+}
+
+AggregateQuery Query::Count() const {
+  return AggregateQuery(
+      *this, std::vector<AggregateField>{AggregateField(
+                 AggregateField::OpKind::Count, AggregateAlias("count"))});
 }
 
 }  // namespace api

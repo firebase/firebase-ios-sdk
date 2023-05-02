@@ -43,13 +43,7 @@ AggregateQuery::AggregateQuery(Query query,
     : query_{std::move(query)}, aggregates_{std::move(aggregates)} {
 }
 
-AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
-  AggregateField countAf(AggregateField::OpKind::Count,
-                         AggregateAlias("count"));
-  aggregates_ = std::vector<AggregateField>{countAf};
-}
-
-void AggregateQuery::Get(AggregateQueryCallback&& callback) {
+void AggregateQuery::GetAggregate(AggregateQueryCallback&& callback) {
   query_.firestore()->client()->RunAggregateQuery(query_.query(), aggregates_,
                                                   std::move(callback));
 }

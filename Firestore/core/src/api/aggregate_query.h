@@ -36,10 +36,6 @@ class AggregateQuery {
   explicit AggregateQuery(Query query,
                           std::vector<AggregateField>&& aggregates);
 
-  // Backward-compatible constructor that creates an AggregateQuery
-  // only performing a count aggregation
-  explicit AggregateQuery(Query query);
-
   const Query& query() const {
     return query_;
   }
@@ -47,7 +43,7 @@ class AggregateQuery {
   friend bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
   size_t Hash() const;
 
-  void Get(AggregateQueryCallback&& callback);
+  void GetAggregate(AggregateQueryCallback&& callback);
 
   // Backward-compatible getter for count result
   void Get(CountQueryCallback&& callback);
