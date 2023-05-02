@@ -27,7 +27,8 @@
     _enrollmentResponse = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
   } else if (dictionary[@"totpSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"totpSessionInfo"];
-    _totpEnrollmentResponse = [[FIRAuthProtoStartMFATotpResponseInfo alloc] initWithDictionary:data];
+    _totpEnrollmentResponse =
+        [[FIRAuthProtoStartMFATotpResponseInfo alloc] initWithDictionary:data];
   } else {
     return NO;
   }

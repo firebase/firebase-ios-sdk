@@ -63,9 +63,9 @@ static NSString *const kTenantIDKey = @"tenantId";
       postBody[@"phoneEnrollmentInfo"] = [_enrollmentInfo dictionary];
     }
   } else {
-      // totpEnrollmentInfo is always an empty object.
-      NSMutableDictionary *totpEnrollmentInfo = [NSMutableDictionary dictionary];
-      postBody[@"totpEnrollmentInfo"] = [totpEnrollmentInfo copy];
+    // totpEnrollmentInfo is always an empty object.
+    NSMutableDictionary *totpEnrollmentInfo = [NSMutableDictionary dictionary];
+    postBody[@"totpEnrollmentInfo"] = [totpEnrollmentInfo copy];
   }
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
