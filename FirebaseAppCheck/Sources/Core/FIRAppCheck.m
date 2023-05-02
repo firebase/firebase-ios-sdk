@@ -27,6 +27,7 @@
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheck+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
@@ -37,8 +38,6 @@
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
-
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,7 +60,7 @@ static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
 
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
-@interface FIRAppCheck () <FIRLibrary, FIRAppCheckInterop>
+@interface FIRAppCheck () <FIRAppCheckInterop>
 @property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;
 
 @property(nonatomic, readonly) NSString *appName;
@@ -78,28 +77,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 @implementation FIRAppCheck
 
-#pragma mark - FIRComponents
-
-+ (void)load {
-  [FIRApp registerInternalLibrary:(Class<FIRLibrary>)self withName:@"fire-app-check"];
-}
-
-+ (NSArray<FIRComponent *> *)componentsToRegister {
-  FIRComponentCreationBlock creationBlock =
-      ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
-    *isCacheable = YES;
-    return [[FIRAppCheck alloc] initWithApp:container.app];
-  };
-
-  // Use eager instantiation timing to give a chance for FAC token to be requested before it is
-  // actually needed to avoid extra delaying dependent requests.
-  FIRComponent *appCheckProvider =
-      [FIRComponent componentWithProtocol:@protocol(FIRAppCheckInterop)
-                      instantiationTiming:FIRInstantiationTimingAlwaysEager
-                             dependencies:@[]
-                            creationBlock:creationBlock];
-  return @[ appCheckProvider ];
-}
+#pragma mark - Internal
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
   id<FIRAppCheckProviderFactory> providerFactory = [FIRAppCheck providerFactory];
