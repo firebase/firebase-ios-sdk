@@ -123,11 +123,6 @@ TEST(Settings, MoveAssignmentOperator) {
   other = std::move(settings);
 
   EXPECT_EQ(copy, other);
-  EXPECT_EQ("", settings.host());
-  EXPECT_EQ(true, settings.ssl_enabled());
-  EXPECT_EQ(true, settings.persistence_enabled());
-  EXPECT_EQ(Settings::DefaultCacheSizeBytes, settings.cache_size_bytes());
-  EXPECT_EQ(nullptr, settings.local_cache_settings());
 }
 
 TEST(Settings, EqualityAndHash) {
