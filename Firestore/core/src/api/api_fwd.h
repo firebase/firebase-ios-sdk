@@ -61,6 +61,7 @@ using QuerySnapshotListener =
 using QueryCallback = std::function<void(core::Query, bool)>;
 using AggregateQueryCallback =
     std::function<void(const StatusOr<ObjectValue>&)>;
+using CountQueryCallback = std::function<void(const util::StatusOr<int64_t>&)>;
 
 }  // namespace api
 }  // namespace firestore

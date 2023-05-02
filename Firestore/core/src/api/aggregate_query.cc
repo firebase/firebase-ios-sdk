@@ -23,6 +23,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/model/aggregate_field.h"
 
+using firebase::firestore::model::AggregateAlias;
 using firebase::firestore::model::AggregateField;
 
 namespace firebase {
@@ -42,9 +43,32 @@ AggregateQuery::AggregateQuery(Query query,
     : query_{std::move(query)}, aggregates_{std::move(aggregates)} {
 }
 
+AggregateQuery::AggregateQuery(Query query) : query_{std::move(query)} {
+  AggregateField countAf(AggregateField::OpKind::Count,
+                         AggregateAlias("count"));
+  aggregates_ = std::vector<AggregateField>{countAf};
+}
+
 void AggregateQuery::Get(AggregateQueryCallback&& callback) {
   query_.firestore()->client()->RunAggregateQuery(query_.query(), aggregates_,
                                                   std::move(callback));
+}
+
+void AggregateQuery::Get(CountQueryCallback&& callback) {
+  query_.firestore()->client()->RunAggregateQuery(
+      query_.query(), aggregates_,
+      [callback](const StatusOr<ObjectValue>& result) {
+        if (result.ok()) {
+          auto countValue =
+              result.ValueOrDie().Get(AggregateAlias("count").StringValue());
+          HARD_ASSERT(countValue.has_value() &&
+                      countValue.value().which_value_type ==
+                          google_firestore_v1_Value_integer_value_tag);
+          callback(StatusOr<int64_t>(countValue->integer_value));
+        } else {
+          callback(StatusOr<int64_t>(std::move(result.status())));
+        }
+      });
 }
 
 }  // namespace api
