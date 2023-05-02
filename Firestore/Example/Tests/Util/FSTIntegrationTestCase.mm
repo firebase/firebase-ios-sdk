@@ -25,6 +25,7 @@
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
+#import <FirebaseFirestore/FIRWriteBatch.h>
 
 #include <exception>
 #include <memory>
@@ -393,11 +394,48 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection {
+  NSMutableArray<XCTestExpectation *> *commits = [[NSMutableArray alloc] init];
+  __block FIRWriteBatch *writeBatch = nil;
+  __block int writeBatchSize = 0;
+
   [documents enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary<NSString *, id> *value,
                                                  BOOL *) {
-    FIRDocumentReference *ref = [collection documentWithPath:key];
-    [self writeDocumentRef:ref data:value];
+    if (writeBatch == nil) {
+      writeBatch = [collection.firestore batch];
+    }
+
+    [writeBatch setData:value forDocument:[collection documentWithPath:key]];
+    writeBatchSize++;
+
+    // Write batches are capped at 500 writes. Use 400 just to be safe.
+    if (writeBatchSize == 400) {
+      XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
+      [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
+        [commitExpectation fulfill];
+        if (error != nil) {
+          XCTFail(@"WriteBatch commit failed: %@", error);
+        }
+      }];
+      [commits addObject:commitExpectation];
+      writeBatch = nil;
+      writeBatchSize = 0;
+    }
   }];
+
+  if (writeBatch != nil) {
+    XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
+    [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
+      [commitExpectation fulfill];
+      if (error != nil) {
+        XCTFail(@"WriteBatch commit failed: %@", error);
+      }
+    }];
+    [commits addObject:commitExpectation];
+  }
+
+  for (XCTestExpectation *commitExpectation in commits) {
+    [self awaitExpectation:commitExpectation];
+  }
 }
 
 - (void)readerAndWriterOnDocumentRef:(void (^)(FIRDocumentReference *readerRef,
@@ -588,6 +626,16 @@ extern "C" NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySna
     [result addObject:docChangeData];
   }
   return result;
+}
+
+extern "C" NSArray<FIRDocumentReference *> *FIRDocumentReferenceArrayFromQuerySnapshot(
+    FIRQuerySnapshot *docs) {
+  NSMutableArray<FIRDocumentReference *> *documentReferenceAccumulator =
+      [[NSMutableArray alloc] init];
+  for (FIRDocumentSnapshot *documentSnapshot in docs.documents) {
+    [documentReferenceAccumulator addObject:documentSnapshot.reference];
+  }
+  return [documentReferenceAccumulator copy];
 }
 
 @end
