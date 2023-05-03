@@ -34,6 +34,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenNotificationKey NS_SWIFT_NAME
 /// `userInfo` key for the `AppCheckToken` in `AppCheckTokenDidChangeNotification`.
 FOUNDATION_EXPORT NSString *const kFIRAppCheckAppNameNotificationKey NS_SWIFT_NAME(AppCheckAppNameNotificationKey);
 
+/// A class used to manage app check tokens for a given Firebase app.
 NS_SWIFT_NAME(AppCheck)
 @interface FIRAppCheck : NSObject
 
