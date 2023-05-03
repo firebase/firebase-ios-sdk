@@ -51,4 +51,3 @@
 #import "FIRPhoneMultiFactorInfo.h"
 #import "FIRTOTPMultiFactorAssertion.h"
 #import "FIRTOTPMultiFactorGenerator.h"
-#import "FIRTOTPMultiFactorInfo.h"
