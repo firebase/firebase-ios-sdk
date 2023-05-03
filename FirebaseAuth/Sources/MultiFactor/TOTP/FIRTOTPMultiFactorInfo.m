@@ -18,10 +18,10 @@
 #if TARGET_OS_IOS
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorInfo.h"
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorInfo+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorInfo.h"
 
 extern NSString *const FIRTOTPMultiFactorID;
 

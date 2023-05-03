@@ -33,6 +33,12 @@ NS_SWIFT_NAME(TOTPMultiFactorInfo) API_UNAVAILABLE(macos, tvos, watchos)
 */
 @property(nonatomic, readonly, nullable) NSObject *totpInfo;
 
+/** @fn initWithProto:
+    @brief Initilize the FIRAuthProtoMFAEnrollment instance with proto.
+    @param proto FIRAuthProtoMFAEnrollment proto object.
+*/
+- (instancetype)initWithProto:(FIRAuthProtoMFAEnrollment *)proto;
+
 @end
 
 NS_ASSUME_NONNULL_END
