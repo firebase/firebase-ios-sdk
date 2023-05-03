@@ -232,8 +232,7 @@ class AsyncAccumulator final
    * `AccumulateObject()`.
    */
   std::function<void(const T&)> AsCallback() {
-    auto shared_this = this->shared_from_this();
-    return [shared_this](const T& object) {
+    return [shared_this = this->shared_from_this()](const T& object) {
       shared_this->AccumulateObject(object);
     };
   }
