@@ -1193,6 +1193,10 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
 }
 
 - (void)testResumingAQueryShouldUseExistenceFilterToDetectDeletes {
+  // Set this test to stop when the first failure occurs because some test assertion failures make
+  // the rest of the test not applicable or will even crash.
+  [self setContinueAfterFailure:NO];
+
   // Prepare the names and contents of the 100 documents to create.
   NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs =
       [[NSMutableDictionary alloc] init];
