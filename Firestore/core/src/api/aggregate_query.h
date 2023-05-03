@@ -43,7 +43,7 @@ class AggregateQuery {
   friend bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
   size_t Hash() const;
 
-  void GetAggregate(AggregateQueryCallback&& callback);
+  virtual void GetAggregate(AggregateQueryCallback&& callback);
 
   // Backward-compatible getter for count result
   void Get(CountQueryCallback&& callback);

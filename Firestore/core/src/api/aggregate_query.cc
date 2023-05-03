@@ -44,25 +44,24 @@ AggregateQuery::AggregateQuery(Query query,
 }
 
 void AggregateQuery::GetAggregate(AggregateQueryCallback&& callback) {
+  if (callback) throw 1;
   query_.firestore()->client()->RunAggregateQuery(query_.query(), aggregates_,
                                                   std::move(callback));
 }
 
 void AggregateQuery::Get(CountQueryCallback&& callback) {
-  query_.firestore()->client()->RunAggregateQuery(
-      query_.query(), aggregates_,
-      [callback](const StatusOr<ObjectValue>& result) {
-        if (result.ok()) {
-          auto countValue =
-              result.ValueOrDie().Get(AggregateAlias("count").StringValue());
-          HARD_ASSERT(countValue.has_value() &&
-                      countValue.value().which_value_type ==
-                          google_firestore_v1_Value_integer_value_tag);
-          callback(StatusOr<int64_t>(countValue->integer_value));
-        } else {
-          callback(StatusOr<int64_t>(std::move(result.status())));
-        }
-      });
+  this->GetAggregate([callback](const StatusOr<ObjectValue>& result) {
+    if (result.ok()) {
+      auto countValue =
+          result.ValueOrDie().Get(AggregateAlias("count").StringValue());
+      HARD_ASSERT(countValue.has_value() &&
+                  countValue.value().which_value_type ==
+                      google_firestore_v1_Value_integer_value_tag);
+      callback(StatusOr<int64_t>(countValue->integer_value));
+    } else {
+      callback(StatusOr<int64_t>(std::move(result.status())));
+    }
+  });
 }
 
 }  // namespace api
