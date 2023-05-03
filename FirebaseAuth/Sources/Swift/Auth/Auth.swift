@@ -831,7 +831,22 @@ import Foundation
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc public func confirmPasswordReset(withCode code: String, newPassword: String,
-                                         completion: @escaping (Error?) -> Void) {}
+                                         completion: @escaping (Error?) -> Void) {
+    kAuthGlobalWorkQueue.async {
+      let request = ResetPasswordRequest(oobCode: code,
+                                         newPassword: newPassword,
+                                         requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { _, error in
+        DispatchQueue.main.async {
+          if let error {
+            completion(error)
+            return
+          }
+          completion(nil)
+        }
+      }
+    }
+  }
 
   /** @fn confirmPasswordResetWithCode:newPassword:completion:
       @brief Resets the password given a code sent to the user outside of the app and a new password
@@ -873,7 +888,32 @@ import Foundation
           asynchronously on the main thread in the future.
    */
   @objc public func checkActionCode(_ code: String,
-                                    completion: @escaping (ActionCodeInfo?, Error?) -> Void) {}
+                                    completion: @escaping (ActionCodeInfo?, Error?) -> Void) {
+    kAuthGlobalWorkQueue.async {
+      let request = ResetPasswordRequest(oobCode: code,
+                                         newPassword: nil,
+                                         requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { rawResponse, error in
+        DispatchQueue.main.async {
+          if let error {
+            completion(nil, error)
+            return
+          }
+          guard let response = rawResponse as? ResetPasswordResponse,
+          let email = response.email else {
+            fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
+          }
+          let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
+          let actionCodeInfo = ActionCodeInfo(withOperation: operation,
+                                              email: email,
+                                              newEmail: response.verifiedEmail)
+          DispatchQueue.main.async {
+            completion(actionCodeInfo, nil)
+          }
+        }
+      }
+    }
+  }
 
   /** @fn checkActionCode:completion:
       @brief Checks the validity of an out of band code.
@@ -904,7 +944,13 @@ import Foundation
    */
   @objc public func verifyPasswordResetCode(_ code: String,
                                             completion: @escaping (String?, Error?) -> Void) {
-
+    self.checkActionCode(code) { info, error in
+      if let error {
+        completion(nil, error)
+        return
+      }
+      completion(info?.email, nil)
+    }
   }
 
   /** @fn verifyPasswordResetCode:completion:
@@ -938,7 +984,15 @@ import Foundation
           such as password reset code.
    */
   @objc public func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
-
+    kAuthGlobalWorkQueue.async {
+      let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
+      request.oobCode = code
+      AuthBackend.post(withRequest: request) { rawResponse, error in
+        DispatchQueue.main.async {
+          completion(error)
+        }
+      }
+    }
   }
 
   /** @fn applyActionCode:completion:
@@ -953,7 +1007,15 @@ import Foundation
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func applyActionCode(_ code: String) async throws {
-
+    return try await withCheckedThrowingContinuation { continuation in
+      self.applyActionCode(code) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
   }
 
   /** @fn sendPasswordResetWithEmail:completion:
@@ -975,29 +1037,7 @@ import Foundation
    */
   @objc public func sendPasswordReset(withEmail email: String,
                                       completion: ((Error?) -> Void)? = nil) {
-
-  }
-
-  /** @fn sendPasswordResetWithEmail:completion:
-      @brief Initiates a password reset for the given email address.
-
-      @param email The email address of the user.
-      @param completion Optionally; a block which is invoked when the request finishes. Invoked
-          asynchronously on the main thread in the future.
-
-      @remarks Possible error codes:
-
-          + `AuthErrorCodeInvalidRecipientEmail` - Indicates an invalid recipient email was
-              sent in the request.
-          + `AuthErrorCodeInvalidSender` - Indicates an invalid sender email is set in
-              the console for this action.
-          + `AuthErrorCodeInvalidMessagePayload` - Indicates an invalid email template for
-              sending update email.
-
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func sendPasswordReset(withEmail email: String) async throws {
-
+    sendPasswordReset(withEmail: email, actionCodeSettings: nil, completion: completion)
   }
 
   /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
@@ -1028,9 +1068,21 @@ import Foundation
 
    */
   @objc public func sendPasswordReset(withEmail email: String,
-                                      actionCodeSettings: ActionCodeSettings,
+                                      actionCodeSettings: ActionCodeSettings?,
                                       completion: ((Error?) -> Void)? = nil) {
-
+    kAuthGlobalWorkQueue.async {
+      let request = GetOOBConfirmationCodeRequest.passwordResetRequest(
+        email: email,
+        actionCodeSettings: actionCodeSettings,
+        requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { response, error in
+        if let completion {
+          DispatchQueue.main.async {
+            completion(error)
+          }
+        }
+      }
+    }
   }
 
   /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
@@ -1062,8 +1114,16 @@ import Foundation
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func sendPasswordReset(withEmail email: String,
-                                actionCodeSettings: ActionCodeSettings) async throws {
-
+                                actionCodeSettings: ActionCodeSettings? = nil) async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
   }
 
   /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
@@ -1078,7 +1138,19 @@ import Foundation
   @objc public func sendSignInLink(toEmail email: String,
                                    actionCodeSettings: ActionCodeSettings,
                                    completion: ((Error?) -> Void)? = nil) {
-
+    kAuthGlobalWorkQueue.async {
+      let request = GetOOBConfirmationCodeRequest.signInWithEmailLinkRequest(
+        email,
+        actionCodeSettings: actionCodeSettings,
+        requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { response, error in
+        if let completion {
+          DispatchQueue.main.async {
+            completion(error)
+          }
+        }
+      }
+    }
   }
 
   /** @fn sendSignInLinkToEmail:actionCodeSettings:completion:
@@ -1093,7 +1165,15 @@ import Foundation
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func sendSignInLink(toEmail email: String,
                              actionCodeSettings: ActionCodeSettings) async throws {
-
+    return try await withCheckedThrowingContinuation { continuation in
+      self.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
   }
 
   /** @fn signOut:
@@ -1111,7 +1191,12 @@ import Foundation
 
    */
   @objc public func signOut() throws {
-
+    try kAuthGlobalWorkQueue.sync {
+      guard self.currentUser != nil else {
+        return
+      }
+      return try self.updateCurrentUser(user: nil, byForce: false, savingToDisk: true)
+    }
   }
 
   /** @fn isSignInWithEmailLink
@@ -1121,7 +1206,16 @@ import Foundation
       @return Returns true when the link passed matches the expected format of an email sign-in link.
    */
   @objc public func isSignIn(withEmailLink link: String) -> Bool {
-
+    guard link.count > 0 else {
+      return false
+    }
+    let queryItems = getQueryItems(link)
+    if let _ = queryItems["oobCode"],
+       let mode = queryItems["signIn"],
+       mode == "signIn" {
+      return true
+    }
+    return false
   }
 
   /** @fn addAuthStateDidChangeListener:
@@ -1142,9 +1236,19 @@ import Foundation
 
       @return A handle useful for manually unregistering the block as a listener.
    */
-  @objc public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  @objc(addAuthStateDidChangeListener:)
+  public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
   -> AuthStateDidChangeListenerHandle {
-
+    var firstInvocation = true
+    var previousUserID: String? = nil
+    return addIDTokenDidChangeListener() { auth, user in
+      let shouldCallListener = firstInvocation || previousUserID != user?.uid
+      firstInvocation = false
+      previousUserID = user?.uid
+      if shouldCallListener {
+        listener(auth, user)
+      }
+    }
   }
 
   /** @fn removeAuthStateDidChangeListener:
@@ -1152,8 +1256,13 @@ import Foundation
 
       @param listenerHandle The handle for the listener.
    */
-  @objc public func removeStateDidChangeListener(_ listenerHandle: AuthStateDidChangeListenerHandle) {
-
+  @objc(removeAuthStateDidChangeListener:)
+  public func removeStateDidChangeListener(_ listenerHandle: AuthStateDidChangeListenerHandle) {
+    NotificationCenter.default.removeObserver(listenerHandle)
+    //TODO
+    @synchronized(self) {
+      [_listenerHandles removeObject:listenerHandle];
+    }
   }
 
   /** @fn addIDTokenDidChangeListener:
@@ -1731,13 +1840,7 @@ import Foundation
         "calling isSignIn(withEmailLink:) on the Auth instance before attempting to use it " +
         "for email/link sign-in.")
     }
-    var queryItems = AuthWebUtils.parseURL(link)
-    if queryItems.count == 0 {
-      let urlComponents = URLComponents(string: link)
-      if let query = urlComponents?.query {
-        queryItems = AuthWebUtils.parseURL(query)
-      }
-    }
+    let queryItems = getQueryItems(link)
     guard let actionCode = queryItems["oobCode"] else {
       fatalError("Missing oobCode in link URL")
     }
@@ -1776,6 +1879,17 @@ import Foundation
         }
       }
     }
+  }
+
+  private func getQueryItems(_ link: String) -> [String: String] {
+    var queryItems = AuthWebUtils.parseURL(link)
+    if queryItems.count == 0 {
+      let urlComponents = URLComponents(string: link)
+      if let query = urlComponents?.query {
+        queryItems = AuthWebUtils.parseURL(query)
+      }
+    }
+    return queryItems
   }
 
   /** @fn signInFlowAuthDataResultCallbackByDecoratingCallback:
