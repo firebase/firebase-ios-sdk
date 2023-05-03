@@ -44,7 +44,13 @@ class TestingHooks final {
    * registered with `OnExistenceFilterMismatch()`.
    */
   struct ExistenceFilterMismatchInfo {
+    /** The number of documents that matched the query in the local cache. */
     int local_cache_count = -1;
+
+    /**
+     * The number of documents that matched the query on the server, as
+     * specified in the `ExistenceFilter` message's `count` field.
+     */
     int existence_filter_count = -1;
   };
 
