@@ -124,46 +124,66 @@ typedef void (^ShowEmailDialogCompletion)(FIRAuthCredential *credential);
                                                NSError *_Nullable error) {
             [self hideSpinner:^{
               if (error) {
-                if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
-                  FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
-                  NSMutableString *displayNameString = [NSMutableString string];
-                  for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
-                    [displayNameString appendString:tmpFactorInfo.displayName];
-                    [displayNameString appendString:@" "];
-                  }
-                  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to sign in\n%@", displayNameString]
-                                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
-                    FIRPhoneMultiFactorInfo* selectedHint;
-                    for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
-                      if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
-                        selectedHint = (FIRPhoneMultiFactorInfo *)tmpFactorInfo;
+                  if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
+                      FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
+                      NSMutableString *displayNameString = [NSMutableString string];
+                      for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                          [self log:[NSString stringWithFormat:@"temp factor info: %@",tmpFactorInfo]];
+                          [displayNameString appendString:tmpFactorInfo.displayName];
+                          [displayNameString appendString:@" "];
                       }
-                    }
-                  [FIRPhoneAuthProvider.provider
-                     verifyPhoneNumberWithMultiFactorInfo:selectedHint
-                     UIDelegate:nil
-                     multiFactorSession:resolver.session
-                     completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
-                      if (error) {
-                        [self logFailure:@"Multi factor start sign in failed." error:error];
-                      } else {
-                        [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
-                                             completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
-                         FIRPhoneAuthCredential *credential =
-                         [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                                      verificationCode:verificationCode];
-                         FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
-                         [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
-                           if (error) {
-                             [self logFailure:@"Multi factor finalize sign in failed." error:error];
-                           } else {
-                             [self logSuccess:@"Multi factor finalize sign in succeeded."];
-                           }
-                         }];
-                       }];
-                      }
-                    }];
-                  }];
+                      [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to sign in\n%@", displayNameString]
+                                           completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+                          FIRMultiFactorInfo* selectedHint;
+                          for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
+                              if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                                  selectedHint = tmpFactorInfo;
+                              }
+                          }
+                          if ([selectedHint.factorID isEqualToString:@"phone"]) {
+                              [FIRPhoneAuthProvider.provider
+                               verifyPhoneNumberWithMultiFactorInfo:(FIRPhoneMultiFactorInfo *)selectedHint
+                               UIDelegate:nil
+                               multiFactorSession:resolver.session
+                               completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
+                                  if (error) {
+                                      [self logFailure:@"Multi factor start sign in failed." error:error];
+                                  } else {
+                                      [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
+                                                           completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
+                                          FIRPhoneAuthCredential *credential =
+                                          [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
+                                                                                       verificationCode:verificationCode];
+                                          FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+                                          [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+                                              if (error) {
+                                                  [self logFailure:@"Phone Multi factor finalize sign in failed." error:error];
+                                              } else {
+                                                  [self logSuccess:@"Phone Multi factor finalize sign in succeeded."];
+                                              }
+                                          }];
+                                      }];
+                                  }
+                              }];
+                          } else if ([selectedHint.factorID isEqualToString:@"totp"]) {
+                              [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"TOTP Verification code for %@", selectedHint.displayName]
+                                                   completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword) {
+                                  FIRMultiFactorAssertion *assertion = [FIRTOTPMultiFactorGenerator assertionForSignInWithEnrollmentID:selectedHint.UID oneTimePassword:oneTimePassword];
+                                  [resolver resolveSignInWithAssertion:assertion
+                                                            completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                                         NSError *_Nullable error) {
+                                      if (error) {
+                                          [self logFailure:@"TOTP Multi factor finalize sign in failed." error:error];
+                                      } else {
+                                          [self logSuccess:@"TOTP Multi factor finalize sign in succeeded."];
+                                      }
+                                  }];
+                              }];
+                              }
+                          else {
+                              [self log:[NSString stringWithFormat:@"Multi factor sign in not supported with factor ID: %@", selectedHint.factorID]];
+                          }
+                      }];
                 } else {
                   [self logFailure:@"sign-in with Email/Password failed" error:error];
                 }
