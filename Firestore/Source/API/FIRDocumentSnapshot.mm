@@ -162,7 +162,11 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable id)valueForField:(id)field {
-  FIRServerTimestampBehavior serverTimestampBehavior = FIRServerTimestampBehaviorNone;
+  return [self valueForField:field serverTimestampBehavior:FIRServerTimestampBehaviorNone];
+}
+
+- (nullable id)valueForField:(id)field
+     serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior {
   FieldPath fieldPath;
   if ([field isKindOfClass:[NSString class]]) {
     fieldPath = FieldPath::FromDotSeparatedString(MakeString(field));
