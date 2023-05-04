@@ -53,6 +53,32 @@ import FirebaseFirestore
       XCTAssertNil(result)
     }
 
+    func testCanGetDocumentWithMemoryLruGCEnabled() async throws {
+      let settings = db.settings
+      settings
+        .cacheSettings =
+        MemoryCacheSettings(
+          garbageCollectorSettings: MemoryLRUGCSettings(sizeBytes: 2_000_000)
+        )
+      db.settings = settings
+
+      try await db.document("coll/doc").setData(["foo": "bar"])
+      let result = try? await db.document("coll/doc").getDocument(source: .cache)
+      XCTAssertEqual(["foo": "bar"], result?.data() as! [String: String])
+    }
+
+    func testCannotGetDocumentWithMemoryEagerGCEnabled() async throws {
+      let settings = db.settings
+      settings
+        .cacheSettings =
+        MemoryCacheSettings(garbageCollectorSettings: MemoryEagerGCSetting())
+      db.settings = settings
+
+      try await db.document("coll/doc").setData(["foo": "bar"])
+      let result = try? await db.document("coll/doc").getDocument(source: .cache)
+      XCTAssertNil(result)
+    }
+
     func testCanUsePersistentCacheSettings() async throws {
       let settings = db.settings
       settings.cacheSettings = PersistentCacheSettings()

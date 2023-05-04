@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 namespace api = firebase::firestore::api;
 using api::MemoryCacheSettings;
+using api::MemoryEagerGcSettings;
+using api::MemoryLruGcSettings;
 using api::PersistentCacheSettings;
 using api::Settings;
 using firebase::firestore::util::ThrowInvalidArgument;
@@ -82,6 +84,97 @@ using firebase::firestore::util::ThrowInvalidArgument;
 
 @end
 
+@implementation FIRMemoryEagerGCSettings {
+  MemoryEagerGcSettings _internalSettings;
+}
+
+- (BOOL)isEqual:(id)other {
+  if (self == other) {
+    return YES;
+  } else if (![other isKindOfClass:[FIRMemoryEagerGCSettings class]]) {
+    return NO;
+  }
+
+  FIRMemoryEagerGCSettings *otherSettings = (FIRMemoryEagerGCSettings *)other;
+  return _internalSettings == otherSettings.internalSettings;
+}
+
+- (NSUInteger)hash {
+  return _internalSettings.Hash();
+}
+
+- (id)copyWithZone:(__unused NSZone *_Nullable)zone {
+  FIRMemoryEagerGCSettings *copy = [[FIRMemoryEagerGCSettings alloc] init];
+  copy.internalSettings = self.internalSettings;
+  return copy;
+}
+
+- (void)setInternalSettings:(const MemoryEagerGcSettings &)settings {
+  _internalSettings = settings;
+}
+
+- (const MemoryEagerGcSettings &)internalSettings {
+  return _internalSettings;
+}
+
+- (instancetype)init {
+  if (self = [super init]) {
+    self.internalSettings = MemoryEagerGcSettings{};
+  }
+  return self;
+}
+
+@end
+
+@implementation FIRMemoryLRUGCSettings {
+  MemoryLruGcSettings _internalSettings;
+}
+
+- (BOOL)isEqual:(id)other {
+  if (self == other) {
+    return YES;
+  } else if (![other isKindOfClass:[FIRMemoryLRUGCSettings class]]) {
+    return NO;
+  }
+
+  FIRMemoryLRUGCSettings *otherSettings = (FIRMemoryLRUGCSettings *)other;
+  return _internalSettings == otherSettings.internalSettings;
+}
+
+- (NSUInteger)hash {
+  return _internalSettings.Hash();
+}
+
+- (id)copyWithZone:(__unused NSZone *_Nullable)zone {
+  FIRMemoryLRUGCSettings *copy = [[FIRMemoryLRUGCSettings alloc] init];
+  copy.internalSettings = self.internalSettings;
+  return copy;
+}
+
+- (void)setInternalSettings:(const MemoryLruGcSettings &)settings {
+  _internalSettings = settings;
+}
+
+- (const MemoryLruGcSettings &)internalSettings {
+  return _internalSettings;
+}
+
+- (instancetype)init {
+  if (self = [super init]) {
+    self.internalSettings = MemoryLruGcSettings{};
+  }
+  return self;
+}
+
+- (instancetype)initWithSizeBytes:(NSNumber *)size {
+  if (self = [super init]) {
+    self.internalSettings = MemoryLruGcSettings{}.WithSizeBytes(size.longLongValue);
+  }
+  return self;
+}
+
+@end
+
 @implementation FIRMemoryCacheSettings {
   MemoryCacheSettings _internalSettings;
 }
@@ -116,8 +209,26 @@ using firebase::firestore::util::ThrowInvalidArgument;
 }
 
 - (instancetype)init {
-  self = [super init];
-  self.internalSettings = MemoryCacheSettings{};
+  if (self = [super init]) {
+    self.internalSettings = MemoryCacheSettings{};
+  }
+  return self;
+}
+
+- (instancetype)initWithGarbageCollectorSettings:
+    (id<FIRMemoryGarbageCollectorSettings, NSObject>)settings {
+  if (self = [super init]) {
+    if ([settings isKindOfClass:[FIRMemoryEagerGCSettings class]]) {
+      FIRMemoryEagerGCSettings *casted = (FIRMemoryEagerGCSettings *)settings;
+      self.internalSettings =
+          MemoryCacheSettings{}.WithMemoryGarbageCollectorSettings(casted.internalSettings);
+    } else if ([settings isKindOfClass:[FIRMemoryLRUGCSettings class]]) {
+      FIRMemoryLRUGCSettings *casted = (FIRMemoryLRUGCSettings *)settings;
+      self.internalSettings =
+          MemoryCacheSettings{}.WithMemoryGarbageCollectorSettings(casted.internalSettings);
+    }
+  }
+
   return self;
 }
 

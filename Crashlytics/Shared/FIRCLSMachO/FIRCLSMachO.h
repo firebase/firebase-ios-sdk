@@ -56,6 +56,10 @@ typedef void (^FIRCLSMachOSliceIterator)(FIRCLSMachOSliceRef slice);
 typedef void (^FIRCLSMachOLoadCommandIterator)(uint32_t type,
                                                uint32_t size,
                                                const struct load_command* cmd);
+typedef void (*FIRCLSMachOLoadCommandIteratorFunc)(uint32_t type,
+                                                   uint32_t size,
+                                                   const struct load_command* cmd,
+                                                   void* context);
 
 __BEGIN_DECLS
 
@@ -69,6 +73,9 @@ struct FIRCLSMachOSlice FIRCLSMachOFileSliceWithArchitectureName(FIRCLSMachOFile
 void FIRCLSMachOEnumerateSlicesAtAddress(void* executableData, FIRCLSMachOSliceIterator block);
 void FIRCLSMachOSliceEnumerateLoadCommands(FIRCLSMachOSliceRef slice,
                                            FIRCLSMachOLoadCommandIterator block);
+void FIRCLSMachOSliceEnumerateLoadCommands_f(FIRCLSMachOSliceRef slice,
+                                             void* context,
+                                             FIRCLSMachOLoadCommandIteratorFunc function);
 struct FIRCLSMachOSlice FIRCLSMachOSliceGetCurrent(void);
 struct FIRCLSMachOSlice FIRCLSMachOSliceWithHeader(void* machHeader);
 

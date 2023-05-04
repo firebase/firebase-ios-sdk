@@ -62,7 +62,6 @@ class DevEventConsoleLogger: EventGDTLoggerProtocol {
             mobile_subtype: \(proto.application_info.apple_app_info.network_connection_info
       .mobile_subtype.rawValue)
           os_name: \(proto.application_info.apple_app_info.os_name.description)
-          mcc_mnc: \(proto.application_info.apple_app_info.mcc_mnc.description)
           log_environment: \(proto.application_info.log_environment)
     """
 
