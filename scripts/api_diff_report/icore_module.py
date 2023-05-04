@@ -71,8 +71,8 @@ def detect_changed_modules(changed_api_files):
 
 
 def module_info():
-    """retrive moudle info in MODULE_LIST from `.podspecs`
-    The moudle info helps to build Jazzy
+    """retrieve module info in MODULE_LIST from `.podspecs`
+    The module info helps to build Jazzy
     includes: module name, source_files, public_header_files, language, umbrella_header, framework_root
     """
     module_from_podspecs = module_info_from_podspecs()

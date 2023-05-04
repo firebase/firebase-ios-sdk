@@ -31,10 +31,10 @@ def main():
 
     args = parse_cmdline_args()
 
-    merged_branch = os.path.expanduser(args.merged_branch)
+    pr_branch = os.path.expanduser(args.pr_branch)
     base_branch = os.path.expanduser(args.base_branch)
     new_api_json = json.load(
-        open(os.path.join(merged_branch, api_info.API_INFO_FILE_NAME)))
+        open(os.path.join(pr_branch, api_info.API_INFO_FILE_NAME)))
     old_api_json = json.load(
         open(os.path.join(base_branch, api_info.API_INFO_FILE_NAME)))
 
@@ -56,7 +56,7 @@ def generate_diff_json(new_api, old_api, level='module'):
 
     format:
     {
-      $(moduel_name_1): {
+      $(module_name_1): {
         "api_types": {
           $(api_type_1): {
             "apis": {
@@ -100,12 +100,14 @@ def generate_diff_json(new_api, old_api, level='module'):
             diff[key] = old_api[key]
             diff[key]['status'] = STATUS_REMOVED
             if diff[key].get('declaration'):
-                diff[key]['declaration'] = [STATUS_ADD
+                diff[key]['declaration'] = [STATUS_REMOVED
                                             ] + diff[key]['declaration']
-        # Moudle Build Error. If a "module" exist but have no content (e.g. doc_path), it must have a build error.
+        # Moudle Build Error. If a "module" exist but have no 
+        # content (e.g. doc_path), it must have a build error.
         elif level == 'module' and (not new_api[key]['path']
                                     or not old_api[key]['path']):
             diff[key] = {'status': STATUS_ERROR}
+        # Check diff in clild level and diff in declaration
         else:
             child_diff = generate_diff_json(
                 new_api[key][next_level],
@@ -116,8 +118,8 @@ def generate_diff_json(new_api, old_api, level='module'):
                     'apis', 'sub_apis'
                 ] else False
 
-            # No changes at current level
-            if not child_diff and not declaration_diff:  # no diff
+            # No diff
+            if not child_diff and not declaration_diff:  
                 continue
 
             diff[key] = new_api[key]
@@ -194,7 +196,7 @@ def generate_markdown_report(diff, level=0):
                     report += f'{header_str} {key}\n'
                     report += generate_markdown_report(value, level=level + 1)
 
-                if level == 0:  # Module level: Always print out divider at the end
+                if level == 0:  # Module level: Always print out divider in the end
                     report += '-----\n'
 
     return report
@@ -246,7 +248,7 @@ def categorize_declarations(detail):
 
 def parse_cmdline_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--merged_branch')
+    parser.add_argument('-p', '--pr_branch')
     parser.add_argument('-b', '--base_branch')
     parser.add_argument('-c', '--commit')
     parser.add_argument('-i', '--run_id')
