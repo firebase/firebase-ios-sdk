@@ -834,7 +834,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     case FIRAuthErrorCodeKeychainError:
       return @"ERROR_KEYCHAIN_ERROR";
     case FIRAuthErrorCodeMissingClientType:
-      return @"ERROR_MISSING_CLIENT_IDENTIFIER";
+      return @"ERROR_MISSING_CLIENT_Type";
     case FIRAuthErrorCodeUserTokenExpired:
       return @"ERROR_USER_TOKEN_EXPIRED";
     case FIRAuthErrorCodeUserNotFound:

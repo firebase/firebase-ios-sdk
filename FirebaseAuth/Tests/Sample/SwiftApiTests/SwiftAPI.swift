@@ -215,7 +215,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.invalidRecaptchaAction
     _ = AuthErrorCode.invalidRecaptchaEnforcementState
     _ = AuthErrorCode.recaptchaNotEnabled
-    _ = AuthErrorCode.missingClientIdentifier
+    _ = AuthErrorCode.missingClientType
     _ = AuthErrorCode.keychainError
     _ = AuthErrorCode.internalError
     _ = AuthErrorCode.malformedJWT
