@@ -38,12 +38,15 @@ class MockAggregateQuery : public AggregateQuery {
  public:
   StatusOr<ObjectValue> mockResult;
 
+  ~MockAggregateQuery() override = default;
+
   MockAggregateQuery(Query query,
                      std::vector<AggregateField>&& aggregates,
                      StatusOr<ObjectValue>&& mockResult)
       : AggregateQuery(query, std::move(aggregates)),
         mockResult(std::move(mockResult)){};
-  void GetAggregate(AggregateQueryCallback&& callback) {
+
+  void GetAggregate(AggregateQueryCallback&& callback) override {
     callback(mockResult);
   }
 };

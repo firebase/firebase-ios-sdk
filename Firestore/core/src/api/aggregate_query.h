@@ -36,6 +36,8 @@ class AggregateQuery {
   explicit AggregateQuery(Query query,
                           std::vector<AggregateField>&& aggregates);
 
+  virtual ~AggregateQuery() = default;
+
   const Query& query() const {
     return query_;
   }
