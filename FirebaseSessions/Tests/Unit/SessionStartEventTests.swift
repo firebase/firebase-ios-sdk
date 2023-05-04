@@ -268,7 +268,7 @@ class SessionStartEventTests: XCTestCase {
       #endif
       assertEqualProtoString(
         proto.application_info.apple_app_info.mcc_mnc,
-        expected: MockApplicationInfo.testMCCMNC,
+        expected: "",
         fieldName: "mcc_mnc"
       )
     }

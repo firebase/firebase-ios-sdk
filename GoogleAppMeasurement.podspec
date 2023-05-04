@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'GoogleAppMeasurement'
-    s.version          = '10.9.0'
+    s.version          = '10.10.0'
     s.summary          = 'Shared measurement methods for Google libraries. Not intended for direct use.'
 
     s.description      = <<-DESC
@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
     s.authors          = 'Google, Inc.'
 
     s.source           = {
-        :http => 'https://dl.google.com/firebase/ios/analytics/c63c2bcbdb7c6785/GoogleAppMeasurement-10.8.0.tar.gz'
+        :http => 'https://dl.google.com/firebase/ios/analytics/785f9e166c7ac0d4/GoogleAppMeasurement-10.9.0.tar.gz'
     }
 
     s.cocoapods_version = '>= 1.10.2'
@@ -28,16 +28,16 @@ Pod::Spec.new do |s|
     s.libraries  = 'c++', 'sqlite3', 'z'
     s.frameworks = 'StoreKit'
 
-    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.8'
-    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.8'
-    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
-    s.dependency 'GoogleUtilities/Network', '~> 7.8'
+    s.dependency 'GoogleUtilities/AppDelegateSwizzler', '~> 7.11'
+    s.dependency 'GoogleUtilities/MethodSwizzler', '~> 7.11'
+    s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.11'
+    s.dependency 'GoogleUtilities/Network', '~> 7.11'
     s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
     s.default_subspecs = 'AdIdSupport'
 
     s.subspec 'AdIdSupport' do |ss|
-        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.9.0'
+        ss.dependency 'GoogleAppMeasurement/WithoutAdIdSupport', '10.10.0'
         ss.vendored_frameworks = 'Frameworks/GoogleAppMeasurementIdentitySupport.xcframework'
     end
 

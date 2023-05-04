@@ -34,6 +34,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenNotificationKey NS_SWIFT_NAME
 /// `userInfo` key for the `AppCheckToken` in `AppCheckTokenDidChangeNotification`.
 FOUNDATION_EXPORT NSString *const kFIRAppCheckAppNameNotificationKey NS_SWIFT_NAME(AppCheckAppNameNotificationKey);
 
+/// A class used to manage app check tokens for a given Firebase app.
 NS_SWIFT_NAME(AppCheck)
 @interface FIRAppCheck : NSObject
 
@@ -54,6 +55,11 @@ NS_SWIFT_NAME(AppCheck)
 /// Requests Firebase app check token. This method should *only* be used if you need to authorize
 /// requests to a non-Firebase backend. Requests to Firebase backend are authorized automatically if
 /// configured.
+///
+/// If your non-Firebase backend exposes sensitive or expensive endpoints that have low traffic
+/// volume, consider protecting it with [Replay
+/// Protection](https://firebase.google.com/docs/app-check/custom-resource-backend#replay-protection).
+/// In this case, use the ``limitedUseToken(completion:)`` instead to obtain a limited-use token.
 /// @param forcingRefresh If `YES`,  a new Firebase app check token is requested and the token
 /// cache is ignored. If `NO`, the cached token is used if it exists and has not expired yet. In
 /// most cases, `NO` should be used. `YES` should only be used if the server explicitly returns an
@@ -64,6 +70,17 @@ NS_SWIFT_NAME(AppCheck)
                  completion:
                      (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
     NS_SWIFT_NAME(token(forcingRefresh:completion:));
+
+/// Requests a limited-use Firebase App Check token. This method should be used only if you need to
+/// authorize requests to a non-Firebase backend.
+///
+/// Returns limited-use tokens that are intended for use with your non-Firebase backend endpoints
+/// that are protected with [Replay
+/// Protection](https://firebase.google.com/docs/app-check/custom-resource-backend#replay-protection).
+/// This method does not affect the token generation behavior of the
+/// ``tokenForcingRefresh()`` method.
+- (void)limitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
+                                                NSError *_Nullable error))handler;
 
 /// Sets the `AppCheckProviderFactory` to use to generate
 /// `AppCheckDebugProvider` objects.

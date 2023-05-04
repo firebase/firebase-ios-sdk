@@ -58,6 +58,63 @@ NS_SWIFT_NAME(PersistentCacheSettings)
 @end
 
 /**
+ * Marker protocol implemented by all supported garbage collector settings.
+ *
+ * The two cache types supported are `MemoryEagerGCSettings` and `MemoryLRUGCSettings`. Custom
+ * implementation is not supported.
+ */
+NS_SWIFT_NAME(MemoryGarbageCollectorSettings)
+@protocol FIRMemoryGarbageCollectorSettings
+@end
+
+/**
+ * Configures the SDK to use an eager garbage collector for memory cache.
+ *
+ * Once configured, the SDK will remove any Firestore documents from memory as soon as they are not
+ * used by any active queries.
+ *
+ * To use, create an instance using the initializer, then initialize
+ * `MemoryCacheSettings` with this instance. This is the default garbage collector, so alternatively
+ * you can use the default initializer of `MemoryCacheSettings`.
+ */
+NS_SWIFT_NAME(MemoryEagerGCSetting)
+@interface FIRMemoryEagerGCSettings : NSObject <NSCopying, FIRMemoryGarbageCollectorSettings>
+
+/**
+ * Creates an instance of `MemoryEagerGCSettings`.
+ */
+- (instancetype)init;
+
+@end
+
+/**
+ * Configures the SDK to use a least-recently-used garbage collector for memory cache.
+ *
+ * Once configured, the SDK will attempt to remove documents that are least recently used in
+ * batches, if the current cache size is larger than the given target cache size. Default cache size
+ * is 100MB.
+ *
+ * To use, create an instance using one of the initializers, then initialize
+ * `MemoryCacheSettings` with this instance.
+ */
+NS_SWIFT_NAME(MemoryLRUGCSettings)
+@interface FIRMemoryLRUGCSettings : NSObject <NSCopying, FIRMemoryGarbageCollectorSettings>
+
+/**
+ * Creates an instance of `FIRMemoryLRUGCSettings`, with default target cache size 100MB. The SDK
+ * will run garbage collection if the current cache size is larger than 100MB.
+ */
+- (instancetype)init;
+
+/**
+ * Creates an instance of `FIRMemoryLRUGCSettings`, with a custom target cache size. The SDK will
+ * run garbage collection if the current cache size is larger than the given size.
+ */
+- (instancetype)initWithSizeBytes:(NSNumber *)size;
+
+@end
+
+/**
  * Configures the SDK to use a memory cache. Firestore documents and mutations are NOT persisted
  * across App restart.
  *
@@ -69,9 +126,16 @@ NS_SWIFT_NAME(MemoryCacheSettings)
 @interface FIRMemoryCacheSettings : NSObject <NSCopying, FIRLocalCacheSettings>
 
 /**
- * Creates an instnace of `MemoryCacheSettings`.
+ * Creates an instance of `MemoryCacheSettings`.
  */
 - (instancetype)init;
+
+/**
+ * Creates an instance of `MemoryCacheSettings` with given `MemoryGarbageCollectorSettings` to
+ * custom the gabarge collector.
+ */
+- (instancetype)initWithGarbageCollectorSettings:
+    (id<FIRMemoryGarbageCollectorSettings, NSObject>)settings;
 
 @end
 

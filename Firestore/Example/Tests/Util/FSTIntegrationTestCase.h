@@ -142,6 +142,9 @@ NSArray<NSString *> *FIRQuerySnapshotGetIDs(FIRQuerySnapshot *docs);
  * in order of { type, doc title, doc data }. */
 NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySnapshot *docs);
 
+/** Gets the FIRDocumentReference objects from a FIRQuerySnapshot and returns them. */
+NSArray<FIRDocumentReference *> *FIRDocumentReferenceArrayFromQuerySnapshot(FIRQuerySnapshot *);
+
 #if __cplusplus
 }  // extern "C"
 #endif

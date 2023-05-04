@@ -39,22 +39,39 @@ class SessionCoordinator: SessionCoordinatorProtocol {
                                   callback: @escaping (Result<Void, FirebaseSessionsError>)
                                     -> Void) {
     /// Order of execution
-    /// 1. Fetch the installations Id. If successful, move to 3. Else, drop sending the event.
+    /// 1. Fetch the installations Id. Regardless of success, move to step 2
     /// 2. Log the event. If successful, all is good. Else, log the message with error.
+    /// 3. If there was a FireLog error, expose it to the callback. Otherwise expose the FIID
+    /// error if it exists. Otherwise, success.
+    fillInFIID(event: event) { fiidResult in
+      self.fireLogger.logEvent(event: event) { logResult in
+        switch logResult {
+        case .success():
+          Logger.logDebug("Successfully logged Session Start event to GoogleDataTransport")
+
+          switch fiidResult {
+          case .success(()):
+            callback(.success(()))
+          case let .failure(error):
+            callback(.failure(error))
+          }
+        case let .failure(error):
+          callback(.failure(FirebaseSessionsError.DataTransportError(error)))
+        }
+      }
+    }
+  }
+
+  private func fillInFIID(event: SessionStartEvent,
+                          callback: @escaping (Result<Void, FirebaseSessionsError>)
+                            -> Void) {
     installations.installationID { result in
       switch result {
       case let .success(fiid):
         event.setInstallationID(installationId: fiid)
-        self.fireLogger.logEvent(event: event) { logResult in
-          switch logResult {
-          case .success():
-            Logger.logDebug("Successfully logged Session Start event to GoogleDataTransport")
-            callback(.success(()))
-          case let .failure(error):
-            callback(.failure(FirebaseSessionsError.DataTransportError(error)))
-          }
-        }
+        callback(.success(()))
       case let .failure(error):
+        event.setInstallationID(installationId: "")
         callback(.failure(FirebaseSessionsError.SessionInstallationsError(error)))
       }
     }
