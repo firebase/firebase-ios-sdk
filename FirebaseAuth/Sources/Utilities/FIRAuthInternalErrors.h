@@ -90,11 +90,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeKeychainError = FIRAuthPublicErrorCodeFlag |
                                           FIRAuthErrorCodeKeychainError,
 
-  /** @var FIRAuthInternalErrorCodeMissingClientIdentifier
-      @brief Indicates an error for when the client identifier is missing.
+  /** @var FIRAuthInternalErrorCodeMissingClientType
+      @brief Indicates an error for when the client type is missing.
    */
-  FIRAuthInternalErrorCodeMissingClientIdentifier = FIRAuthPublicErrorCodeFlag |
-                                                    FIRAuthErrorCodeMissingClientIdentifier,
+  FIRAuthInternalErrorCodeMissingClientType = FIRAuthPublicErrorCodeFlag |
+                                              FIRAuthErrorCodeMissingClientType,
 
   /** @var FIRAuthInternalErrorCodeInternalError
       @brief An internal error occurred.

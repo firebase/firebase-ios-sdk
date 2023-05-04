@@ -1073,7 +1073,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
            callback:(FIRRevokeTokenResponseCallback)callback {
   FIRRevokeTokenResponse *response = [[FIRRevokeTokenResponse alloc] init];
   [self
-      postWithRequest:request
+      callWithRequest:request
              response:response
              callback:^(NSError *error) {
                if (error) {
@@ -1595,6 +1595,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   if ([shortErrorMessage isEqualToString:kBlockingCloudFunctionErrorResponse]) {
     return
         [FIRAuthErrorUtils blockingCloudFunctionServerResponseWithMessage:serverDetailErrorMessage];
+  }
 
   if ([shortErrorMessage isEqualToString:kInvalidRecaptchaScore]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeCaptchaCheckFailed

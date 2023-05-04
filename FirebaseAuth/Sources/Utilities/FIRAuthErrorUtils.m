@@ -169,13 +169,6 @@ static NSString *const kFIRAuthErrorMessageKeychainError =
      "keychain. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo dictionary "
      "will contain more information about the error encountered";
 
-/** @var kFIRAuthErrorMessageMissingClientIdentifier
-    @brief Message for @c FIRAuthErrorCodeMissingClientIdentifier error code.
- */
-static NSString *const kFIRAuthErrorMessageMissingClientIdentifier =
-    @"The request does not contain "
-     "any client identifier.";
-
 /** @var kFIRAuthErrorMessageUserTokenExpired
     @brief Message for @c FIRAuthErrorCodeTokenExpired error code.
  */
@@ -597,23 +590,29 @@ static NSString *const kFIRAuthErrorMessageUnsupportedTenantOperation =
 static NSString *const kFIRAuthErrorMessageBlockingCloudFunctionReturnedError =
     @"Blocking cloud function returned an error.";
 
-static NSString *const kFIRAuthErrorMessageInvalidRecaptchaScore =
-    @"The recaptcha score sent to backend is invalid.";
+static NSString *const kFIRAuthErrorMessageRecaptchaNotEnabled =
+    @"The reCAPTCHA verification is not enabled for this project.";
 
 static NSString *const kFIRAuthErrorMessageMissingRecaptchaToken =
-    @"The recaptcha token is missing when sending request to the backend.";
+    @"The reCAPTCHA verification token is missing when sending request to the backend.";
 
 static NSString *const kFIRAuthErrorMessageInvalidRecaptchaToken =
-    @"The recaptcha token is invalid when sending request to the backend.";
+    @"The reCAPTCHA verification token is invalid or has expired.";
 
-static NSString *const kFIRAuthErrorMessageInvalidRecaptchaAction =
-    @"The recaptcha action is invalid when sending request to the backend.";
+static NSString *const kFIAuthErrorMessageInvalidRecaptchaAction =
+    @"The reCAPTCHA verification failed due to an invalid action.";
 
-static NSString *const kFIRAuthErrorMessageInvalidRecaptchaEnforcementState =
-    @"The recaptcha enforcement state is invalid.";
+static NSString *const kFIRAuthErrorMessageMissingClientType =
+    @"The request is missing a client type or the client type is invalid.";
 
-static NSString *const kFIRAuthErrorMessageRecaptchaNotEnabled =
-    @"The recaptcha integration is not enabled for this project.";
+static NSString *const kFIRAuthErrorMessageMissingRecaptchaVersion =
+    @"The request is missing the reCAPTCHA version parameter.";
+
+static NSString *const kFIRAuthErrorMessageInvalidRecaptchaVersion =
+    @"The request specifies an invalid version of the reCAPTCHA verification.";
+
+static NSString *const kFIRAuthErrorMessageInvalidReqType =
+    @"The request is not supported or is invalid.";
 
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
@@ -651,8 +650,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageNetworkError;
     case FIRAuthErrorCodeKeychainError:
       return kFIRAuthErrorMessageKeychainError;
-    case FIRAuthErrorCodeMissingClientIdentifier:
-      return kFIRAuthErrorMessageMissingClientIdentifier;
+    case FIRAuthErrorCodeMissingClientType:
+      return kFIRAuthErrorMessageMissingClientType;
     case FIRAuthErrorCodeUserTokenExpired:
       return kFIRAuthErrorMessageUserTokenExpired;
     case FIRAuthErrorCodeUserNotFound:
@@ -781,18 +780,20 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageUnsupportedTenantOperation;
     case FIRAuthErrorCodeBlockingCloudFunctionError:
       return kFIRAuthErrorMessageBlockingCloudFunctionReturnedError;
-    case FIRAuthErrorCodeInvalidRecaptchaScore:
-      return kFIRAuthErrorMessageInvalidRecaptchaScore;
+    case FIRAuthErrorCodeRecaptchaNotEnabled:
+      return kFIRAuthErrorMessageRecaptchaNotEnabled;
     case FIRAuthErrorCodeMissingRecaptchaToken:
       return kFIRAuthErrorMessageMissingRecaptchaToken;
     case FIRAuthErrorCodeInvalidRecaptchaToken:
       return kFIRAuthErrorMessageInvalidRecaptchaToken;
     case FIRAuthErrorCodeInvalidRecaptchaAction:
-      return kFIRAuthErrorMessageInvalidRecaptchaAction;
-    case FIRAuthErrorCodeInvalidRecaptchaEnforcementState:
-      return kFIRAuthErrorMessageInvalidRecaptchaEnforcementState;
-    case FIRAuthErrorCodeRecaptchaNotEnabled:
-      return kFIRAuthErrorMessageRecaptchaNotEnabled;
+      return kFIRAuthErrorMessageMissingClientType;
+    case FIRAuthErrorCodeMissingRecaptchaVersion:
+      return kFIRAuthErrorMessageMissingRecaptchaVersion;
+    case FIRAuthErrorCodeInvalidRecaptchaVersion:
+      return kFIRAuthErrorMessageInvalidRecaptchaVersion;
+    case FIRAuthErrorCodeInvalidReqType:
+      return kFIRAuthErrorMessageInvalidReqType;
   }
 }
 
@@ -832,7 +833,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_NETWORK_REQUEST_FAILED";
     case FIRAuthErrorCodeKeychainError:
       return @"ERROR_KEYCHAIN_ERROR";
-    case FIRAuthErrorCodeMissingClientIdentifier:
+    case FIRAuthErrorCodeMissingClientType:
       return @"ERROR_MISSING_CLIENT_IDENTIFIER";
     case FIRAuthErrorCodeUserTokenExpired:
       return @"ERROR_USER_TOKEN_EXPIRED";
@@ -962,18 +963,20 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_UNSUPPORTED_TENANT_OPERATION";
     case FIRAuthErrorCodeBlockingCloudFunctionError:
       return @"ERROR_BLOCKING_CLOUD_FUNCTION_RETURNED_ERROR";
-    case FIRAuthErrorCodeInvalidRecaptchaScore:
-      return @"INVALID_RECAPTCHA_SCORE";
-    case FIRAuthErrorCodeMissingRecaptchaToken:
-      return @"MISSING_RECAPTCHA_TOKEN";
-    case FIRAuthErrorCodeInvalidRecaptchaToken:
-      return @"INVALID_RECAPTCHA_TOKEN";
-    case FIRAuthErrorCodeInvalidRecaptchaAction:
-      return @"INVALID_RECAPTCHA_ACTION";
-    case FIRAuthErrorCodeInvalidRecaptchaEnforcementState:
-      return @"INVALID_RECAPTCHA_ENFORCEMENT_STATE";
     case FIRAuthErrorCodeRecaptchaNotEnabled:
       return @"ERROR_RECAPTCHA_NOT_ENABLED";
+    case FIRAuthErrorCodeMissingRecaptchaToken:
+      return @"ERROR_MISSING_RECAPTCHA_TOKEN";
+    case FIRAuthErrorCodeInvalidRecaptchaToken:
+      return @"ERROR_INVALID_RECAPTCHA_TOKEN";
+    case FIRAuthErrorCodeInvalidRecaptchaAction:
+      return @"ERROR_INVALID_RECAPTCHA_ACTION";
+    case FIRAuthErrorCodeMissingRecaptchaVersion:
+      return @"ERROR_MISSING_RECAPTCHA_VERSION";
+    case FIRAuthErrorCodeInvalidRecaptchaVersion:
+      return @"ERROR_INVALID_RECAPTCHA_VERSION";
+    case FIRAuthErrorCodeInvalidReqType:
+      return @"ERROR_INVALID_REQ_TYPE";
   }
 }
 
@@ -1375,8 +1378,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   return [self errorWithCode:FIRAuthInternalErrorCodeAppNotVerified message:message];
 }
 
-+ (NSError *)missingClientIdentifierErrorWithMessage:(nullable NSString *)message {
-  return [self errorWithCode:FIRAuthInternalErrorCodeMissingClientIdentifier message:message];
++ (NSError *)missingClientTypeErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingClientType message:message];
 }
 
 + (NSError *)captchaCheckFailedErrorWithMessage:(nullable NSString *)message {

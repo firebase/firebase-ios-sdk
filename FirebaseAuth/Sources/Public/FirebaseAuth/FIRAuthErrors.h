@@ -418,33 +418,37 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeBlockingCloudFunctionError = 17105,
 
-    /** Indicates that the recaptcha score sent to backend is invalid.
+    /** Indicates that the recaptcha integration is not enabled for this project.
      */
-    FIRAuthErrorCodeInvalidRecaptchaScore = 17095,
+    FIRAuthErrorCodeRecaptchaNotEnabled = 17200,
 
     /** Indicates that the recaptcha token is missing when sending request to the backend.
      */
-    FIRAuthErrorCodeMissingRecaptchaToken = 17096,
+    FIRAuthErrorCodeMissingRecaptchaToken = 17201,
 
     /** Indicates that the recaptcha token is invalid when sending request to the backend.
      */
-    FIRAuthErrorCodeInvalidRecaptchaToken = 17097,
+    FIRAuthErrorCodeInvalidRecaptchaToken = 17202,
 
     /** Indicates that The recaptcha action is invalid when sending request to the backend.
      */
-    FIRAuthErrorCodeInvalidRecaptchaAction = 17098,
+    FIRAuthErrorCodeInvalidRecaptchaAction = 17203,
 
-    /** Indicates that the recaptcha enforcement state is invalid.
+    /** Indicates an error for when the client type is missing.
      */
-    FIRAuthErrorCodeInvalidRecaptchaEnforcementState = 17099,
+    FIRAuthErrorCodeMissingClientType = 17204,
 
-    /** Indicates that the recaptcha integration is not enabled for this project.
+    /** Indicates that the recaptcha version sent to backend is missing.
      */
-    FIRAuthErrorCodeRecaptchaNotEnabled = 17095,
+    FIRAuthErrorCodeMissingRecaptchaVersion = 17205,
 
-    /** Indicates an error for when the client identifier is missing.
+    /** Indicates that the recaptcha version sent to backend is invalid.
      */
-    FIRAuthErrorCodeMissingClientIdentifier = 17993,
+    FIRAuthErrorCodeInvalidRecaptchaVersion = 17206,
+
+    /** Indicates that the request type sent to backend is invalid.
+     */
+    FIRAuthErrorCodeInvalidReqType = 17207,
 
     /** Indicates an error occurred while attempting to access the keychain.
      */
