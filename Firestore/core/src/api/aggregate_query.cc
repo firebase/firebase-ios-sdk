@@ -44,20 +44,21 @@ AggregateQuery::AggregateQuery(Query query,
 }
 
 void AggregateQuery::GetAggregate(AggregateQueryCallback&& callback) {
-  if (callback) throw 1;
   query_.firestore()->client()->RunAggregateQuery(query_.query(), aggregates_,
                                                   std::move(callback));
 }
 
+// TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+// to the new Aggregate API
 void AggregateQuery::Get(CountQueryCallback&& callback) {
   this->GetAggregate([callback](const StatusOr<ObjectValue>& result) {
     if (result.ok()) {
-      auto countValue =
+      auto count_value =
           result.ValueOrDie().Get(AggregateAlias("count").StringValue());
-      HARD_ASSERT(countValue.has_value() &&
-                  countValue.value().which_value_type ==
+      HARD_ASSERT(count_value.has_value() &&
+                  count_value.value().which_value_type ==
                       google_firestore_v1_Value_integer_value_tag);
-      callback(StatusOr<int64_t>(countValue->integer_value));
+      callback(StatusOr<int64_t>(count_value->integer_value));
     } else {
       callback(StatusOr<int64_t>(std::move(result.status())));
     }

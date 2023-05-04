@@ -481,6 +481,8 @@ AggregateQuery Query::Aggregate(
   return AggregateQuery(*this, std::move(aggregations));
 }
 
+// TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+// to the new Aggregate API
 AggregateQuery Query::Count() const {
   return AggregateQuery(
       *this, std::vector<AggregateField>{AggregateField(

@@ -200,6 +200,8 @@ class Query {
    */
   AggregateQuery Aggregate(std::vector<AggregateField>&& aggregations) const;
 
+  // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+  // to the new Aggregate API
   /**
    * Creates a new `AggregateQuery` counting the number of documents matching
    * this query. This API is preserved for backward-compatability with

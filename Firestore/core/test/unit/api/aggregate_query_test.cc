@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
+// TODO(b/280805906) Remove these tests for the count specific API after the c++
+// SDK migrates to the new Aggregate API
+
 #include <memory>
 #include <string>
 #include <utility>
 
+#include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/util/status.h"
 #include "gtest/gtest.h"
-
-#define private public
-#include "Firestore/core/src/api/aggregate_query.h"
 
 namespace firebase {
 namespace firestore {
@@ -44,6 +45,18 @@ class MockAggregateQuery : public AggregateQuery {
         mockResult(std::move(mockResult)){};
   void GetAggregate(AggregateQueryCallback&& callback) {
     callback(mockResult);
+  }
+};
+
+class AggregateQueryTest {
+ public:
+  static const Query& GetQuery(const AggregateQuery& aggregateQuery) {
+    return aggregateQuery.query_;
+  }
+
+  static const std::vector<AggregateField>& GetAggregates(
+      const AggregateQuery& aggregateQuery) {
+    return aggregateQuery.aggregates_;
   }
 };
 
@@ -127,11 +140,14 @@ TEST(Query, Count) {
   // Testing the Count() method
   AggregateQuery aggregateQuery = query.Count();
 
+  auto internalQuery = AggregateQueryTest::GetQuery(aggregateQuery);
+  auto internalAggregates = AggregateQueryTest::GetAggregates(aggregateQuery);
+
   // Assert
-  EXPECT_EQ(aggregateQuery.query_, query);
-  EXPECT_EQ(aggregateQuery.aggregates_.size(), 1);
-  EXPECT_EQ(aggregateQuery.aggregates_[0].op, AggregateField::OpKind::Count);
-  EXPECT_EQ(aggregateQuery.aggregates_[0].alias.StringValue(), "count");
+  EXPECT_EQ(internalQuery, query);
+  EXPECT_EQ(internalAggregates.size(), 1);
+  EXPECT_EQ(internalAggregates[0].op, AggregateField::OpKind::Count);
+  EXPECT_EQ(internalAggregates[0].alias.StringValue(), "count");
 }
 
 }  // namespace

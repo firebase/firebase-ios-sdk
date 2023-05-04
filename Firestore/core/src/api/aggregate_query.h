@@ -45,10 +45,12 @@ class AggregateQuery {
 
   virtual void GetAggregate(AggregateQueryCallback&& callback);
 
-  // Backward-compatible getter for count result
+  // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+  // to the new Aggregate API Backward-compatible getter for count result
   void Get(CountQueryCallback&& callback);
 
  private:
+  friend class AggregateQueryTest;
   Query query_;
   std::vector<AggregateField> aggregates_;
 };
