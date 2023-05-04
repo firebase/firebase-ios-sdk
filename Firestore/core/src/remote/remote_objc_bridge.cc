@@ -295,7 +295,7 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
   for (const AggregateField& aggregate : aggregates) {
     auto pair = std::pair<std::string, AggregateField>(
         aggregate.alias.StringValue(), aggregate);
-    uniqueAggregates.insert(pair);
+    uniqueAggregates.insert(std::move(pair));
   }
 
   auto count = uniqueAggregates.size();
@@ -311,7 +311,7 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
     std::string clientAlias = aggregatePair.first;
     std::string serverAlias = absl::StrFormat("aggregation_%d", aggregationNum);
     auto pair = std::pair<std::string, std::string>(serverAlias, clientAlias);
-    aliasMap.insert(pair);
+    aliasMap.insert(std::move(pair));
 
     // Send the server alias in the request to the backend
     result->query_type.structured_aggregation_query.aggregations[aggregationNum]
