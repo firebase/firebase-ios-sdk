@@ -18,20 +18,32 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// Policies (i.e., behavior) for the App Check token auto-refresh mechanism.
 typedef NS_CLOSED_ENUM(NSInteger, GACAppCheckTokenAutoRefreshPolicy) {
-  GACAppCheckTokenAutoRefreshPolicyDefault,
+  /// Token auto-refresh behavior is not configured; determining default behavior is delegated to
+  /// `GACAppCheckSettings` subclasses.
+  GACAppCheckTokenAutoRefreshPolicyUnspecified,
+
+  /// Token auto-refresh is explicitly enabled.
   GACAppCheckTokenAutoRefreshPolicyEnabled,
+
+  /// Token auto-refresh is explicitly disabled.
   GACAppCheckTokenAutoRefreshPolicyDisabled
 };
 
+/// A collection of App Check-wide settings and parameters.
 @protocol GACAppCheckSettingsProtocol <NSObject>
 
-@property(nonatomic, assign) GACAppCheckTokenAutoRefreshPolicy tokenAutoRefreshPolicy;
+/// If App Check token auto-refresh is enabled.
+@property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
 
 @end
 
 /// Handles storing and updating App Check-wide settings and parameters.
 @interface GACAppCheckSettings : NSObject <GACAppCheckSettingsProtocol>
+
+/// The configured policy (i.e., behavior) for the App Check token auto-refresh mechanism.
+@property(nonatomic, assign) GACAppCheckTokenAutoRefreshPolicy tokenAutoRefreshPolicy;
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                                mainBundle:(NSBundle *)mainBundle

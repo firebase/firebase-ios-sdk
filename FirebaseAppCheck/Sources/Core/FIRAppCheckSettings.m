@@ -53,7 +53,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
   @synchronized(self) {
     GACAppCheckTokenAutoRefreshPolicy policy = self.tokenAutoRefreshPolicy;
 
-    if (policy != GACAppCheckTokenAutoRefreshPolicyDefault) {
+    if (policy != GACAppCheckTokenAutoRefreshPolicyUnspecified) {
       return policy == GACAppCheckTokenAutoRefreshPolicyEnabled;
     }
 

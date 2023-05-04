@@ -35,6 +35,7 @@
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
+#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
 
 #import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
@@ -67,7 +68,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly) id<FIRAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<FIRAppCheckStorageProtocol> storage;
 @property(nonatomic, readonly) NSNotificationCenter *notificationCenter;
-@property(nonatomic, readonly) id<FIRAppCheckSettingsProtocol> settings;
+@property(nonatomic, readonly) id<GACAppCheckSettingsProtocol> settings;
 
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
@@ -100,7 +101,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     return nil;
   }
 
-  FIRAppCheckSettings *settings =
+  id<GACAppCheckSettingsProtocol> settings =
       [[FIRAppCheckSettings alloc] initWithApp:app
                                    userDefault:[NSUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
@@ -126,7 +127,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                         storage:(id<FIRAppCheckStorageProtocol>)storage
                  tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
              notificationCenter:(NSNotificationCenter *)notificationCenter
-                       settings:(id<FIRAppCheckSettingsProtocol>)settings {
+                       settings:(id<GACAppCheckSettingsProtocol>)settings {
   self = [super init];
   if (self) {
     _appName = appName;

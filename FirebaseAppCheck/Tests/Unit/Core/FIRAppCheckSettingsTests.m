@@ -19,6 +19,7 @@
 #import <OCMock/OCMock.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
+#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -240,7 +241,8 @@
       .andReturn(nil);
 
   // 2. Check the flag value.
-  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDefault);
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy,
+                 GACAppCheckTokenAutoRefreshPolicyUnspecified);
 
   // 3. Check mocks.
   OCMVerifyAll(self.mockUserDefaults);
@@ -262,10 +264,11 @@
   OCMExpect([self.mockUserDefaults removeObjectForKey:self.userDefaultKey]);
 
   // 2. Set the flag value.
-  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyDefault;
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyUnspecified;
 
   // 3. Check the flag value.
-  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDefault);
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy,
+                 GACAppCheckTokenAutoRefreshPolicyUnspecified);
 
   // 4. Check mocks.
   OCMVerifyAll(self.mockUserDefaults);
@@ -327,10 +330,11 @@
   OCMExpect([self.mockUserDefaults removeObjectForKey:self.userDefaultKey]);
 
   // 1.2 Set.
-  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyDefault;
+  self.settings.tokenAutoRefreshPolicy = GACAppCheckTokenAutoRefreshPolicyUnspecified;
 
   // 1.3. Check.
-  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy, GACAppCheckTokenAutoRefreshPolicyDefault);
+  XCTAssertEqual(self.settings.tokenAutoRefreshPolicy,
+                 GACAppCheckTokenAutoRefreshPolicyUnspecified);
   OCMVerifyAll(self.mockUserDefaults);
 }
 

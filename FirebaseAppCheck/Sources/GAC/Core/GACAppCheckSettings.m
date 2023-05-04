@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation GACAppCheckSettings
 
 @synthesize tokenAutoRefreshPolicy = _tokenAutoRefreshPolicy;
+@dynamic isTokenAutoRefreshEnabled;
 
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                                mainBundle:(NSBundle *)mainBundle
@@ -45,10 +46,23 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
+- (BOOL)isTokenAutoRefreshEnabled {
+  NSAssert(NO, @"The method `isTokenAutoRefreshEnabled` must be implemented in a subclass of "
+               @"GACAppCheckSettings.");
+  return NO;
+}
+
+- (void)setIsTokenAutoRefreshEnabled:(BOOL)isTokenAutoRefreshEnabled {
+  NSAssert(NO, @"The method `setIsTokenAutoRefreshEnabled:` must be implemented in a subclass of "
+               @"GACAppCheckSettings.");
+}
+
+#pragma mark - GACAppCheckSettingsProtocol
+
 - (GACAppCheckTokenAutoRefreshPolicy)tokenAutoRefreshPolicy {
   @synchronized(self) {
     // Return the in-memory cached value, when available, to avoid checking user defaults or bundle.
-    if (_tokenAutoRefreshPolicy != GACAppCheckTokenAutoRefreshPolicyDefault) {
+    if (_tokenAutoRefreshPolicy != GACAppCheckTokenAutoRefreshPolicyUnspecified) {
       return _tokenAutoRefreshPolicy;
     }
 
@@ -57,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
         [self.userDefaults objectForKey:self.tokenAutoRefreshPolicyUserDefaultsKey]);
 
     // Check the main bundule (Info.plist) if no user defaults value was cached.
-    if (_tokenAutoRefreshPolicy == GACAppCheckTokenAutoRefreshPolicyDefault) {
+    if (_tokenAutoRefreshPolicy == GACAppCheckTokenAutoRefreshPolicyUnspecified) {
       _tokenAutoRefreshPolicy = GACAppCheckSettingsTokenRefreshPolicy(
           [self.mainBundle objectForInfoDictionaryKey:self.tokenAutoRefreshPolicyInfoPListKey]);
     }
@@ -68,7 +82,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setTokenAutoRefreshPolicy:(GACAppCheckTokenAutoRefreshPolicy)tokenAutoRefreshPolicy {
   @synchronized(self) {
-    if (tokenAutoRefreshPolicy == GACAppCheckTokenAutoRefreshPolicyDefault) {
+    if (tokenAutoRefreshPolicy == GACAppCheckTokenAutoRefreshPolicyUnspecified) {
       [self.userDefaults removeObjectForKey:self.tokenAutoRefreshPolicyUserDefaultsKey];
       return;
     }
@@ -80,10 +94,12 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
+#pragma mark - Private
+
 GACAppCheckTokenAutoRefreshPolicy GACAppCheckSettingsTokenRefreshPolicy(
     NSNumber *_Nullable autoRefreshNumber) {
   if (autoRefreshNumber == nil) {
-    return GACAppCheckTokenAutoRefreshPolicyDefault;
+    return GACAppCheckTokenAutoRefreshPolicyUnspecified;
   }
 
   return autoRefreshNumber.boolValue ? GACAppCheckTokenAutoRefreshPolicyEnabled

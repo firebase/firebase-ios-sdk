@@ -51,7 +51,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
                         storage:(id<FIRAppCheckStorageProtocol>)storage
                  tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
              notificationCenter:(NSNotificationCenter *)notificationCenter
-                       settings:(id<FIRAppCheckSettingsProtocol>)settings;
+                       settings:(id<GACAppCheckSettingsProtocol>)settings;
 
 - (nullable instancetype)initWithApp:(FIRApp *)app;
 @end
@@ -62,7 +62,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 @property(nonatomic) OCMockObject<FIRAppCheckStorageProtocol> *mockStorage;
 @property(nonatomic) OCMockObject<FIRAppCheckProvider> *mockAppCheckProvider;
 @property(nonatomic) OCMockObject<FIRAppCheckTokenRefresherProtocol> *mockTokenRefresher;
-@property(nonatomic) OCMockObject<FIRAppCheckSettingsProtocol> *mockSettings;
+@property(nonatomic) OCMockObject<GACAppCheckSettingsProtocol> *mockSettings;
 @property(nonatomic) NSNotificationCenter *notificationCenter;
 @property(nonatomic) FIRAppCheck<FIRAppCheckInterop> *appCheck;
 
@@ -79,7 +79,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   self.mockStorage = OCMProtocolMock(@protocol(FIRAppCheckStorageProtocol));
   self.mockAppCheckProvider = OCMProtocolMock(@protocol(FIRAppCheckProvider));
   self.mockTokenRefresher = OCMProtocolMock(@protocol(FIRAppCheckTokenRefresherProtocol));
-  self.mockSettings = OCMProtocolMock(@protocol(FIRAppCheckSettingsProtocol));
+  self.mockSettings = OCMProtocolMock(@protocol(GACAppCheckSettingsProtocol));
   self.notificationCenter = [[NSNotificationCenter alloc] init];
 
   [self stubSetTokenRefreshHandler];
