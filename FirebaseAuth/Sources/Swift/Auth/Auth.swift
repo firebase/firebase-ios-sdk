@@ -16,6 +16,8 @@ import Foundation
 
 @_implementationOnly import FirebaseCore
 @_implementationOnly import FirebaseCoreExtension
+@_implementationOnly import FirebaseAppCheckInterop
+@_implementationOnly import GoogleUtilities
 
 // TODO: What should this be?
 // extension NSNotification.Name {
@@ -1237,8 +1239,7 @@ import Foundation
       @return A handle useful for manually unregistering the block as a listener.
    */
   @objc(addAuthStateDidChangeListener:)
-  public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
-  -> AuthStateDidChangeListenerHandle {
+  public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void) -> NSObjectProtocol {
     var firstInvocation = true
     var previousUserID: String? = nil
     return addIDTokenDidChangeListener() { auth, user in
@@ -1257,12 +1258,12 @@ import Foundation
       @param listenerHandle The handle for the listener.
    */
   @objc(removeAuthStateDidChangeListener:)
-  public func removeStateDidChangeListener(_ listenerHandle: AuthStateDidChangeListenerHandle) {
+  public func removeStateDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
-    //TODO
-    @synchronized(self) {
-      [_listenerHandles removeObject:listenerHandle];
-    }
+    objc_sync_enter(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
+    // TODO: fix this
+    //listenerHandles = listenerHandles.filter { $0 != listenerHandle }
   }
 
   /** @fn addIDTokenDidChangeListener:
@@ -1284,9 +1285,23 @@ import Foundation
 
       @return A handle useful for manually unregistering the block as a listener.
    */
-  @objc public func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
-  -> IDTokenDidChangeListenerHandle {
-
+  @objc public
+  func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void) -> NSObjectProtocol {
+    let handle = NotificationCenter.default.addObserver(
+      forName: authStateDidChangeNotification,
+      object: self,
+      queue: OperationQueue.main) { notification in
+        if let auth = notification.object as? Auth {
+          listener(auth, auth.currentUser)
+        }
+      }
+    objc_sync_enter(Auth.self)
+    listenerHandles.append(handle)
+    objc_sync_exit(Auth.self)
+    DispatchQueue.main.async {
+      listener(self, self.currentUser)
+    }
+    return handle
   }
 
   /** @fn removeIDTokenDidChangeListener:
@@ -1294,22 +1309,34 @@ import Foundation
 
       @param listenerHandle The handle for the listener.
    */
-  @objc public func removeIDTokenDidChangeListener(_ listenerHandle: IDTokenDidChangeListenerHandle) {
-
+  @objc public func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
+    // TODO: implement me
   }
 
   /** @fn useAppLanguage
       @brief Sets `languageCode` to the app's current language.
    */
   @objc public func useAppLanguage() {
-
+    kAuthGlobalWorkQueue.async {
+      self.requestConfiguration.languageCode = Locale.preferredLanguages.first
+    }
   }
 
   /** @fn useEmulatorWithHost:port
       @brief Configures Firebase Auth to connect to an emulated host instead of the remote backend.
    */
   @objc public func useEmulator(withHost host: String, port: Int) {
-
+    guard host.count > 0 else {
+      fatalError("Cannot connect to empty host")
+    }
+    // If host is an IPv6 address, it should be formatted with surrounding brackets.
+    let formattedHost = host.contains(":") ? "[\(host)]" : host
+    kAuthGlobalWorkQueue.async {
+      self.requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
+      #if os(iOS)
+      self.settings?.isAppVerificationDisabledForTesting = true
+      #endif
+    }
   }
 
   /** @fn revokeTokenWithAuthorizationCode:Completion
@@ -1319,7 +1346,29 @@ import Foundation
    */
   @objc public func revokeToken(withAuthorizationCode authorizationCode: String,
                                 completion: ((Error?) -> Void)? = nil) {
-
+    self.currentUser?.getIDToken() { idToken, error in
+      if let error {
+        if let completion {
+          completion(error)
+        }
+        return
+      }
+      guard let idToken else {
+        fatalError("Internal Auth Error: Both idToken and error are nil")
+      }
+      let request = RevokeTokenRequest(withToken: authorizationCode,
+                                       idToken: idToken,
+                                       requestConfiguration: self.requestConfiguration)
+      AuthBackend.post(withRequest: request) { response, error in
+        if let completion {
+          if let error {
+            completion(error)
+          } else {
+            completion(nil)
+          }
+        }
+      }
+    }
   }
 
   /** @fn revokeTokenWithAuthorizationCode:Completion
@@ -1329,17 +1378,38 @@ import Foundation
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
  public func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
-
+   return try await withCheckedThrowingContinuation { continuation in
+     self.revokeToken(withAuthorizationCode: authorizationCode) { error in
+       if let error {
+         continuation.resume(throwing: error)
+       } else {
+         continuation.resume()
+       }
+     }
+   }
   }
 
   /** @fn useUserAccessGroup:error:
       @brief Switch userAccessGroup and current user to the given accessGroup and the user stored in
           it.
    */
-  @objc public func useUserAccessGroup(_ accessGroup: String?) throws {}
+  @objc public func useUserAccessGroup(_ accessGroup: String?) throws {
+    // self.storedUserManager is initialized asynchronously. Make sure it is done.
+    kAuthGlobalWorkQueue.sync {}
+    return try self.internalUseUserAccessGroup(accessGroup)
+  }
 
-
-// TODO: objc implementation?
+  private func internalUseUserAccessGroup(_ accessGroup: String?) throws {
+    storedUserManager.setStoredUserAccessGroup(accessGroup: accessGroup)
+    let user = try self.getStoredUser(forAccessGroup: accessGroup)
+    try updateCurrentUser(user: user, byForce: false, savingToDisk: false)
+    if userAccessGroup == nil && accessGroup != nil {
+      let userKey = "\(firebaseAppName)\(kUserKey)"
+      try keychainServices.removeData(forKey: userKey)
+    }
+    userAccessGroup = accessGroup
+    self.lastNotifiedUserToken = user?.rawAccessToken()
+  }
 
   /** @fn getStoredUserForAccessGroup:error:
       @brief Get the stored user in the given accessGroup.
@@ -1347,7 +1417,35 @@ import Foundation
           This case will return `nil`.
           Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
    */
-  public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {}
+  public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
+    var user: User?
+    if let accessGroup {
+#if os(tvOS)
+      if self.shareAuthStateAcrossDevices {
+        AuthLog.logInfo(code: "I-AUT000001",
+                        message: "Getting a stored user for a given access group is not supported " +
+                        "on tvOS when `shareAuthStateAcrossDevices` is set to `true` (#8878)." +
+                        "This case will return `nil`.")
+        return nil
+      }
+#endif
+      guard let apiKey = app?.options.apiKey else {
+        fatalError("Internal Auth Error: missing apiKey")
+      }
+      user = try self.storedUserManager.getStoredUser(
+        accessGroup: accessGroup,
+        shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
+        projectIdentifier: apiKey).user
+    } else {
+      let userKey = "\(firebaseAppName)\(kUserKey)"
+      if let encodedUserData = try keychainServices.data(forKey: userKey).data {
+        let unarchiver = try NSKeyedUnarchiver(forReadingFrom: encodedUserData)
+        user = unarchiver.decodeObject(of: User.self, forKey: userKey)
+      }
+    }
+    user?.auth = self
+    return user
+  }
 
   // TODO: Need to manage breaking change for
   // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
@@ -1358,8 +1456,79 @@ import Foundation
   // MARK: Internal methods
 
   init(withApp app: FirebaseApp) {
+    Auth.setKeychainServiceName(forApp: app)
     self.app = app
     mainBundleUrlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
+    #if os(iOS)
+    authURLPresenter = AuthURLPresenter()
+    #endif
+  }
+
+  init(withAPIKey apiKey: String, appName: String, appID: String,
+      heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
+       appCheck: AppCheckInterop? = nil) {
+    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey,
+                                                    appID: appID,
+                                                    auth: self,
+                                                    heartbeatLogger: heartbeatLogger,
+                                                    appCheck: appCheck)
+    firebaseAppName = appName
+    #if os(iOS)
+    settings = AuthSettings()
+    GULAppDelegateSwizzler.proxyOriginalDelegateIncludingAPNSMethods()
+    GULSceneDelegateSwizzler.proxyOriginalSceneDelegate()
+    #endif
+
+    self.protectedDataInitialization()
+  }
+
+  private func protectedDataInitialization() {
+    // Continue with the rest of initialization in the work thread.
+    weak var weakSelf = self
+    kAuthGlobalWorkQueue.async {
+      // Load current user from Keychain.
+      guard let strongSelf = weakSelf else {
+        return
+      }
+      let keychainServiceName = Auth.keychainServiceNameForAppName(appName: strongSelf.firebaseAppName)
+      if let keychainServiceName {
+        strongSelf.keychainServices = AuthKeychainServices(service: keychainServiceName)
+        strongSelf.storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
+      }
+      if let storedUserAccessGroup = strongSelf.storedUserManager.getStoredUserAccessGroup() {
+        let user = getUser
+      }
+    }
+  }
+
+  /** @fn setKeychainServiceNameForApp
+      @brief Sets the keychain service name global data for the particular app.
+      @param app The Firebase app to set keychain service name for.
+   */
+  class func setKeychainServiceName(forApp app: FirebaseApp) {
+    objc_sync_enter(Auth.self)
+    keychainServiceNameForAppName[app.name] = "firebase_auth_\(app.options.googleAppID)"
+    objc_sync_exit(Auth.self)
+  }
+
+  /** @fn keychainServiceNameForAppName:
+      @brief Gets the keychain service name global data for the particular app by name.
+      @param appName The name of the Firebase app to get keychain service name for.
+   */
+  class func keychainServiceNameForAppName(appName: String) -> String? {
+    objc_sync_enter(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
+    return keychainServiceNameForAppName[appName]
+  }
+
+  /** @fn deleteKeychainServiceNameForAppName:
+      @brief Deletes the keychain service name global data for the particular app by name.
+      @param appName The name of the Firebase app to delete keychain service name for.
+   */
+  class func deleteKeychainServiceNameForAppName(appName: String) {
+    objc_sync_enter(Auth.self)
+    keychainServiceNameForAppName.removeValue(forKey: appName)
+    objc_sync_exit(Auth.self)
   }
 
   func updateKeychain(withUser user: User?) -> Error? {
@@ -1528,7 +1697,7 @@ import Foundation
         )
       }
     } else {
-      let userKey = "\(firebaseAppName)_firebase_user"
+      let userKey = "\(firebaseAppName)\(kUserKey)"
       if let user {
         #if os(watchOS)
           let archiver = NSKeyedArchiver(requiringSecureCoding: false)
@@ -2003,4 +2172,25 @@ import Foundation
           returned to the foreground.
    */
   private var isAppInBackground = false
+
+  /** @var kUserKey
+      @brief Key of user stored in the keychain. Prefixed with a Firebase app name.
+   */
+  private let kUserKey = "_firebase_user"
+
+  /** @var keychainServiceNameForAppName
+      @brief A map from Firebase app name to keychain service names.
+      @remarks This map is needed for looking up the keychain service name after the FIRApp instance
+          is deleted, to remove the associated keychain item. Accessing should occur within a
+          @syncronized([FIRAuth class]) context.
+   */
+  static var keychainServiceNameForAppName: [String: String] = [:]
+
+  // TODO: Is there a better array to declare an array of function pointers.
+  /** @var _listenerHandles
+      @brief Handles returned from @c NSNotificationCenter for blocks which are "auth state did
+          change" notification listeners.
+      @remarks Mutations should occur within a @syncronized(self) context.
+   */
+  private var listenerHandles: [NSObjectProtocol] = [] // [() -> ()] = []
 }
