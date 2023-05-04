@@ -68,7 +68,7 @@ import FirebaseAppCheckInterop
     if let instance = instances[app.name] {
       return instance
     }
-    let newInstance = Auth.Auth(app: app)
+    let newInstance = Auth.auth(app: app)
     instances[app.name] = newInstance
     return newInstance
   }

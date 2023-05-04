@@ -96,7 +96,7 @@ import Foundation
    have no effect. You should set shareAuthStateAcrossDevices to it's desired
    state and then set the userAccessGroup after.
    */
-  @objc public var shareAuthStateAcrossDevices: Bool
+  @objc public var shareAuthStateAcrossDevices: Bool = false
 
   /** @property tenantID
    @brief The tenant ID of the auth instance. nil if none is available.
@@ -1262,8 +1262,7 @@ import Foundation
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
-    // TODO: fix this
-    //listenerHandles = listenerHandles.filter { $0 != listenerHandle }
+    listenerHandles.remove(listenerHandle)
   }
 
   /** @fn addIDTokenDidChangeListener:
@@ -1296,7 +1295,7 @@ import Foundation
         }
       }
     objc_sync_enter(Auth.self)
-    listenerHandles.append(handle)
+    listenerHandles.add(listener)
     objc_sync_exit(Auth.self)
     DispatchQueue.main.async {
       listener(self, self.currentUser)
@@ -1422,7 +1421,7 @@ import Foundation
     if let accessGroup {
 #if os(tvOS)
       if self.shareAuthStateAcrossDevices {
-        AuthLog.logInfo(code: "I-AUT000001",
+        AuthLog.logError(code: "I-AUT000001",
                         message: "Getting a stored user for a given access group is not supported " +
                         "on tvOS when `shareAuthStateAcrossDevices` is set to `true` (#8878)." +
                         "This case will return `nil`.")
@@ -1455,31 +1454,42 @@ import Foundation
 
   // MARK: Internal methods
 
-  init(withApp app: FirebaseApp) {
+  convenience init(withApp app: FirebaseApp) {
+    let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
+                                                                          in: app.container)
+    guard let apiKey = app.options.apiKey else {
+      fatalError("Missing apiKey for Auth initialization")
+    }
+    self.init(withAPIKey: apiKey,
+         appName: app.name,
+         appID: app.options.googleAppID,
+         heartbeatLogger: app.heartbeatLogger,
+         appCheck: appCheck)
     Auth.setKeychainServiceName(forApp: app)
     self.app = app
     mainBundleUrlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
-    #if os(iOS)
-    authURLPresenter = AuthURLPresenter()
-    #endif
   }
 
   init(withAPIKey apiKey: String, appName: String, appID: String,
       heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
        appCheck: AppCheckInterop? = nil) {
-    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey,
-                                                    appID: appID,
-                                                    auth: self,
-                                                    heartbeatLogger: heartbeatLogger,
-                                                    appCheck: appCheck)
+
     firebaseAppName = appName
     #if os(iOS)
+    authURLPresenter = AuthURLPresenter()
     settings = AuthSettings()
     GULAppDelegateSwizzler.proxyOriginalDelegateIncludingAPNSMethods()
     GULSceneDelegateSwizzler.proxyOriginalSceneDelegate()
     #endif
+    requestConfiguration = AuthRequestConfiguration(apiKey: apiKey,
+                                                    appID: appID,
+                                                    auth: nil,
+                                                    heartbeatLogger: heartbeatLogger,
+                                                    appCheck: appCheck)
+    super.init()
+    requestConfiguration.auth = self
 
-    self.protectedDataInitialization()
+    protectedDataInitialization()
   }
 
   private func protectedDataInitialization() {
@@ -1495,10 +1505,75 @@ import Foundation
         strongSelf.keychainServices = AuthKeychainServices(service: keychainServiceName)
         strongSelf.storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
       }
-      if let storedUserAccessGroup = strongSelf.storedUserManager.getStoredUserAccessGroup() {
-        let user = getUser
+      do {
+        if let storedUserAccessGroup = strongSelf.storedUserManager.getStoredUserAccessGroup() {
+          try strongSelf.internalUseUserAccessGroup(storedUserAccessGroup)
+        } else {
+          let user = getUser()
+          strongSelf.updateCurrentUser(user) // TODO: Implement me with all params.
+          if let user {
+            strongSelf.tenantID = user.tenantID
+            strongSelf.lastNotifiedToken = user.rawAccessToken()
+          }
+        }
+      } catch {
+        #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+        if (error as NSError).code = AuthErrorCode.keychainError.rawValue {
+          // If there's a keychain error, assume it is due to the keychain being accessed
+          // before the device is unlocked as a result of prewarming, and listen for the
+          // UIApplicationProtectedDataDidBecomeAvailable notification.
+          strongSelf.addProtectedDataDidBecomeAvaliableObserver()
+        }
+        #endif
+        AuthLog.logError(code: "I-AUT000001",
+                           message: "Error loading saved user when starting up: \(error)")
       }
+
+      #if os(iOS)
+      // TODO: escape for app extensions
+      // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+      // responds to it.
+//      if (![GULAppEnvironmentUtil isAppExtension]) {
+//        Class cls = NSClassFromString(@"UIApplication");
+//        if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
+//          applicationClass = cls;
+//        }
+//      }
+      if let application = UIApplication.shared {
+        // Initialize for phone number auth.
+        strongSelf.tokenManager = AuthAPNSTokenManager(withApplication: application)
+        strongSelf.appCredentialManager = AuthAppCredentialManager(withKeychain: strongSelf.keychainServices)
+        strongSelf.notificationManager = AuthNotificationManager(
+          withApplication: application,
+          appCredentialManager: strongSelf.appCredentialManager)
+      }
+
+      // TODO: Does this swizzling still work?
+      GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
+      #endif
     }
+  }
+
+  private func getUser() throws -> User? {
+    var user: User?
+    if let userAccessGroup {
+      guard let apiKey = app?.options.apiKey else {
+        fatalError("Internal Auth Error: missing apiKey")
+      }
+      user = try storedUserManager.getStoredUser(
+        accessGroup: userAccessGroup,
+                                    shareAuthStateAcrossDevices:shareAuthStateAcrossDevices,
+                                                 projectIdentifier: apiKey).user
+    } else {
+      let userKey = "\(firebaseAppName)\(kUserKey)"
+      guard let encodedUserData = try keychainServices.data(forKey: userKey).data else {
+        return nil
+      }
+      let unarchiver = try NSKeyedUnarchiver(forReadingFrom: encodedUserData)
+      user = unarchiver.decodeObject(of: User.self, forKey: userKey)
+    }
+    user?.auth = self
+    return user
   }
 
   /** @fn setKeychainServiceNameForApp
@@ -1758,7 +1833,7 @@ import Foundation
                                        callback: completion)
   }
 
-  private func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
+  internal func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
                                              isReauthentication: Bool,
                                              callback: ((AuthDataResult?, Error?) -> Void)?) {
     if let emailCredential = credential as? EmailAuthCredential {
@@ -2107,24 +2182,24 @@ import Foundation
       @brief The configuration object comprising of paramters needed to make a request to Firebase
           Auth's backend.
    */
-  internal let requestConfiguration: AuthRequestConfiguration
+  internal var requestConfiguration: AuthRequestConfiguration
 
   #if os(iOS)
 
     /** @property tokenManager
         @brief The manager for APNs tokens used by phone number auth.
      */
-    internal let tokenManager: AuthAPNSTokenManager
+    internal var tokenManager: AuthAPNSTokenManager!
 
     /** @property appCredentailManager
         @brief The manager for app credentials used by phone number auth.
      */
-    internal let appCredentialManager: AuthAppCredentialManager
+    internal var appCredentialManager: AuthAppCredentialManager!
 
     /** @property notificationManager
         @brief The manager for remote notifications used by phone number auth.
      */
-    internal let notificationManager: AuthNotificationManager
+    internal var notificationManager: AuthNotificationManager!
 
   #endif // TARGET_OS_IOS
 
@@ -2138,7 +2213,7 @@ import Foundation
   /** @property storedUserManager
       @brief The stored user manager.
    */
-  private var storedUserManager: AuthStoredUserManager
+  private var storedUserManager: AuthStoredUserManager!
 
   /** @var _firebaseAppName
       @brief The Firebase app name.
@@ -2148,7 +2223,7 @@ import Foundation
   /** @var _keychainServices
       @brief The keychain service.
    */
-  private var keychainServices: AuthKeychainServices
+  private var keychainServices: AuthKeychainServices!
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.
@@ -2192,5 +2267,6 @@ import Foundation
           change" notification listeners.
       @remarks Mutations should occur within a @syncronized(self) context.
    */
-  private var listenerHandles: [NSObjectProtocol] = [] // [() -> ()] = []
+  private var listenerHandles: NSMutableArray = []
+  //private var listenerHandles: [NSObjectProtocol] = [] // [() -> ()] = []
 }
