@@ -45,6 +45,14 @@ typedef NS_CLOSED_ENUM(NSInteger, GACAppCheckTokenAutoRefreshPolicy) {
 /// The configured policy (i.e., behavior) for the App Check token auto-refresh mechanism.
 @property(nonatomic, assign) GACAppCheckTokenAutoRefreshPolicy tokenAutoRefreshPolicy;
 
+/// The designated initializer.
+/// - Parameters:
+///   - userDefaults: An interface to the user’s defaults database.
+///   - mainBundle: An interface to the main bundle for the executable.
+///   - tokenAutoRefreshPolicyUserDefaultsKey: The user defaults key for the token auto-refresh
+///   configuration value.
+///   - tokenAutoRefreshPolicyInfoPListKey: The Info.plist key for the token auto-refresh
+///   configuration value.
 - (instancetype)initWithUserDefaults:(NSUserDefaults *)userDefaults
                                mainBundle:(NSBundle *)mainBundle
     tokenAutoRefreshPolicyUserDefaultsKey:(NSString *)tokenAutoRefreshPolicyUserDefaultsKey
