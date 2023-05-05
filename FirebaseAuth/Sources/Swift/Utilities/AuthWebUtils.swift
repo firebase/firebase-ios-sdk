@@ -92,18 +92,14 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
       return
     }
 
-    let request = GetProjectConfigRequest(requestConfiguration: requestConfiguration)
-
-    AuthBackend.post(withRequest: request) { response, error in
-      if let error = error {
-        completion(nil, error)
-        return
-      }
-      // Look up an authorized domain ends with one of the supportedAuthDomains.
-      // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
-      // The searching ends once the first valid suportedAuthDomain is found.
-      var authDomain: String?
-      if let response = response as? GetProjectConfigResponse {
+    let request = GetProjectConfigRequest_NEW_(requestConfiguration: requestConfiguration)
+    AuthBackend.post(with: request) { result in
+      switch result {
+      case .success(let response):
+        // Look up an authorized domain ends with one of the supportedAuthDomains.
+        // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
+        // The searching ends once the first valid suportedAuthDomain is found.
+        var authDomain: String?
         for domain in response.authorizedDomains ?? [] {
           for supportedAuthDomain in Self.supportedAuthDomains {
             let index = domain.count - supportedAuthDomain.count
@@ -117,16 +113,18 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
             break
           }
         }
-      }
 
-      if authDomain == nil || authDomain!.isEmpty {
-        completion(
-          nil,
-          AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: response)
-        )
-        return
+        if authDomain == nil || authDomain!.isEmpty {
+          completion(nil,
+            AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: response))
+          return
+        } else {
+          completion(authDomain, nil)
+          return
+        }
+      case .failure(let error):
+        completion(nil, error)
       }
-      completion(authDomain, nil)
     }
   }
 

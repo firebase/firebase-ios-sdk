@@ -14,6 +14,28 @@
 
 import Foundation
 
+public class GetProjectConfigResponse_NEW_: AuthRPCResponse_NEW_ {
+  
+  public var projectID: String?
+
+  public var authorizedDomains: [String]?
+
+  public func setFields(dictionary: [String : AnyHashable]) throws {
+    projectID = dictionary["projectId"] as? String
+    if let authorizedDomains = dictionary["authorizedDomains"] as? String,
+       let data = authorizedDomains.data(using: .utf8) {
+      if let decoded = try? JSONSerialization.jsonObject(
+        with: data,
+        options: [.mutableLeaves]
+      ), let array = decoded as? [String] {
+        self.authorizedDomains = array
+      }
+    } else if let authorizedDomains = dictionary["authorizedDomains"] as? [String] {
+      self.authorizedDomains = authorizedDomains
+    }
+  }
+}
+
 @objc(FIRGetProjectConfigResponse) public class GetProjectConfigResponse: NSObject,
   AuthRPCResponse {
   /** @property projectID

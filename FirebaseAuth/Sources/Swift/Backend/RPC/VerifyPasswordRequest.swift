@@ -58,45 +58,44 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the verifyPassword endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-@objc(FIRVerifyPasswordRequest) public class VerifyPasswordRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
   /** @property email
       @brief The email of the user.
    */
-  @objc public var email: String
+  public var email: String
 
   /** @property password
       @brief The password inputed by the user.
    */
-  @objc public var password: String
+  public var password: String
 
   /** @property pendingIDToken
       @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
    */
-  @objc public var pendingIDToken: String?
+  public var pendingIDToken: String?
 
   /** @property captchaChallenge
       @brief The captcha challenge.
    */
-  @objc public var captchaChallenge: String?
+  public var captchaChallenge: String?
 
   /** @property captchaResponse
       @brief Response to the captcha.
    */
-  @objc public var captchaResponse: String?
+  public var captchaResponse: String?
 
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
       @remarks The default value is @c YES .
    */
-  @objc public var returnSecureToken: Bool
+  public var returnSecureToken: Bool
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = VerifyPasswordResponse()
+  public var response: VerifyPasswordResponse = VerifyPasswordResponse()
 
-  @objc public init(email: String, password: String,
+  public init(email: String, password: String,
                     requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.password = password

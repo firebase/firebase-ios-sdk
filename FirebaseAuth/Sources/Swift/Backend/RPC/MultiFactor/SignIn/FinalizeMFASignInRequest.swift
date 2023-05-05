@@ -21,14 +21,14 @@ private let kFinalizeMFASignInEndPoint = "accounts/mfaSignIn:finalize"
  */
 private let kTenantIDKey = "tenantId"
 
-class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
   var mfaPendingCredential: String?
   var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
+  var response: FinalizeMFAEnrollmentResponse = FinalizeMFAEnrollmentResponse()
 
   init(mfaPendingCredential: String?,
        verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,

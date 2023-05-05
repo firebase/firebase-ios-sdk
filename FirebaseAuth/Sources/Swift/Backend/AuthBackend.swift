@@ -91,6 +91,10 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     return (gBackendImplementation)!
   }
 
+  public class func post<T: AuthRPCRequest_NEW_>(with request: T, callback: @escaping ((Result<T.Response, Error>) -> Void)) {
+    callback(.success(request.response))
+  }
+
   /** @fn postWithRequest:response:callback:
       @brief Calls the RPC using HTTP POST.
       @remarks Possible error responses:

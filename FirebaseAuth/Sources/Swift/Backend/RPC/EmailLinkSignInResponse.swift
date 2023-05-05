@@ -17,7 +17,7 @@ import Foundation
 /** @class FIRVerifyAssertionResponse
     @brief Represents the response from the emailLinkSignin endpoint.
  */
-@objc(FIREmailLinkSignInResponse) public class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
+public class EmailLinkSignInResponse: NSObject, AuthRPCResponse_NEW_ {
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */
@@ -26,33 +26,33 @@ import Foundation
   /** @property email
    @brief The email returned by the IdP.
    */
-  @objc public var email: String?
+  public var email: String?
 
   /** @property refreshToken
    @brief The refreshToken returned by the server.
    */
-  @objc public var refreshToken: String?
+  public var refreshToken: String?
 
   /** @property approximateExpirationDate
    @brief The approximate expiration date of the access token.
    */
-  @objc public var approximateExpirationDate: Date?
+  public var approximateExpirationDate: Date?
 
   /** @property isNewUser
    @brief Flag indicating that the user signing in is a new user and not a returning user.
    */
-  @objc public var isNewUser: Bool = false
+  public var isNewUser: Bool = false
 
   /** @property MFAPendingCredential
        @brief An opaque string that functions as proof that the user has successfully passed the first
       factor check.
    */
-  @objc public var MFAPendingCredential: String?
+  public var MFAPendingCredential: String?
 
   /** @property MFAInfo
        @brief Info on which multi-factor authentication providers are enabled.
    */
-  @objc public var MFAInfo: [AuthProtoMFAEnrollment]?
+  public var MFAInfo: [AuthProtoMFAEnrollment]?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String

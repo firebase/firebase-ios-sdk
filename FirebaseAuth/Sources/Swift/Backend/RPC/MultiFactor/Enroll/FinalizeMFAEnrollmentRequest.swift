@@ -21,7 +21,7 @@ private let kFinalizeMFAEnrollmentEndPoint = "accounts/mfaEnrollment:finalize"
  */
 private let kTenantIDKey = "tenantId"
 
-class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
+class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
   var idToken: String?
 
   var displayName: String?
@@ -31,11 +31,11 @@ class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
+  var response: FinalizeMFAEnrollmentResponse = FinalizeMFAEnrollmentResponse()
 
   init(idToken: String?, displayName: String?,
-       verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
-       requestConfiguration: AuthRequestConfiguration) {
+                    verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
+                    requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
     self.displayName = displayName
     self.verificationInfo = verificationInfo

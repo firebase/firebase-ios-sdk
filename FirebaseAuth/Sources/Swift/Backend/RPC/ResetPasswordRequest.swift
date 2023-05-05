@@ -34,22 +34,21 @@ private let kCurrentPasswordKey = "newPassword"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRResetPasswordRequest) public class ResetPasswordRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
   /** @property oobCode
       @brief The oobCode sent in the request.
    */
-  @objc public let oobCode: String
+  public let oobCode: String
 
   /** @property updatedPassword
       @brief The new password sent in the request.
    */
-  @objc public let updatedPassword: String?
+  public let updatedPassword: String?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = ResetPasswordResponse()
+  public var response: ResetPasswordResponse = ResetPasswordResponse()
 
   /** @fn initWithOobCode:newPassword:requestConfiguration:
       @brief Designated initializer.
@@ -57,7 +56,7 @@ private let kTenantIDKey = "tenantId"
       @param newPassword The new password.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  @objc public init(oobCode: String, newPassword: String?,
+  public init(oobCode: String, newPassword: String?,
                     requestConfiguration: AuthRequestConfiguration) {
     self.oobCode = oobCode
     updatedPassword = newPassword

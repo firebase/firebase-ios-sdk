@@ -114,92 +114,91 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
  */
-@objc(FIRSetAccountInfoRequest) public class SetAccountInfoRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
   /** @property accessToken
       @brief The STS Access Token of the authenticated user.
    */
-  @objc public var accessToken: String?
+  public var accessToken: String?
 
   /** @property displayName
       @brief The name of the user.
    */
-  @objc public var displayName: String?
+  public var displayName: String?
 
   /** @property localID
       @brief The local ID of the user.
    */
-  @objc public var localID: String?
+  public var localID: String?
 
   /** @property email
       @brief The email of the user.
    */
-  @objc public var email: String?
+  public var email: String?
 
   /** @property photoURL
       @brief The photoURL of the user.
    */
-  @objc public var photoURL: URL?
+  public var photoURL: URL?
 
   /** @property password
       @brief The new password of the user.
    */
-  @objc public var password: String?
+  public var password: String?
 
   /** @property providers
       @brief The associated identity providers of the user.
    */
-  @objc public var providers: [String]?
+  public var providers: [String]?
 
   /** @property OOBCode
       @brief The out-of-band code of the change email request.
    */
-  @objc(OOBCode) public var oobCode: String?
+  public var oobCode: String?
 
   /** @property emailVerified
       @brief Whether to mark the email as verified or not.
    */
-  @objc public var emailVerified: Bool = false
+  public var emailVerified: Bool = false
 
   /** @property upgradeToFederatedLogin
       @brief Whether to mark the user to upgrade to federated login.
    */
-  @objc public var upgradeToFederatedLogin: Bool = false
+  public var upgradeToFederatedLogin: Bool = false
 
   /** @property captchaChallenge
       @brief The captcha challenge.
    */
-  @objc public var captchaChallenge: String?
+  public var captchaChallenge: String?
 
   /** @property captchaResponse
       @brief Response to the captcha.
    */
-  @objc public var captchaResponse: String?
+  public var captchaResponse: String?
 
   /** @property deleteAttributes
       @brief The list of user attributes to delete.
       @remarks Every element of the list must be one of the predefined constant starts with
           "FIRSetAccountInfoUserAttribute".
    */
-  @objc public var deleteAttributes: [String]?
+  public var deleteAttributes: [String]?
 
   /** @property deleteProviders
       @brief The list of identity providers to delete.
    */
-  @objc public var deleteProviders: [String]?
+  public var deleteProviders: [String]?
 
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
       @remarks The default value is @c YES .
    */
-  @objc public var returnSecureToken: Bool = false
+  public var returnSecureToken: Bool = false
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = SetAccountInfoResponse()
+  public var response: SetAccountInfoResponse = SetAccountInfoResponse()
 
-  @objc public init(requestConfiguration: AuthRequestConfiguration) {
+  public init(requestConfiguration: AuthRequestConfiguration) {
     returnSecureToken = true
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }

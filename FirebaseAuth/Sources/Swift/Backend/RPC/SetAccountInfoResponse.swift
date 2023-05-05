@@ -52,21 +52,21 @@ public class SetAccountInfoResponseProviderUserInfo: NSObject {
     @brief Represents the response from the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
  */
-@objc(FIRSetAccountInfoResponse) public class SetAccountInfoResponse: NSObject, AuthRPCResponse {
+public class SetAccountInfoResponse: AuthRPCResponse_NEW_ {
   /** @property email
       @brief The email or the user.
    */
-  @objc public var email: String?
+  public var email: String?
 
   /** @property displayName
       @brief The display name of the user.
    */
-  @objc public var displayName: String?
+  public var displayName: String?
 
   /** @property providerUserInfo
       @brief The user's profiles at the associated identity providers.
    */
-  @objc public var providerUserInfo: [SetAccountInfoResponseProviderUserInfo]?
+  public var providerUserInfo: [SetAccountInfoResponseProviderUserInfo]?
 
   /** @property idToken
       @brief Either an authorization code suitable for performing an STS token exchange, or the
@@ -78,12 +78,12 @@ public class SetAccountInfoResponseProviderUserInfo: NSObject {
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
    */
-  @objc public var approximateExpirationDate: Date?
+  public var approximateExpirationDate: Date?
 
   /** @property refreshToken
       @brief The refresh token from Secure Token Service.
    */
-  @objc public var refreshToken: String?
+  public var refreshToken: String?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String

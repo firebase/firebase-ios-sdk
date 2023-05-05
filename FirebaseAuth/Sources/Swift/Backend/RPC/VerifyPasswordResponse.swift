@@ -21,48 +21,48 @@ import Foundation
        - FIRAuthInternalErrorCodeEmailNotFound
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-@objc(FIRVerifyPasswordResponse) public class VerifyPasswordResponse: NSObject, AuthRPCResponse {
+public class VerifyPasswordResponse: AuthRPCResponse_NEW_ {
   /** @property localID
       @brief The RP local ID if it's already been mapped to the IdP account identified by the
           federated ID.
    */
-  @objc public var localID: String?
+  public var localID: String?
 
   /** @property email
       @brief The email returned by the IdP. NOTE: The federated login user may not own the email.
    */
-  @objc public var email: String?
+  public var email: String?
 
   /** @property displayName
       @brief The display name of the user.
    */
-  @objc public var displayName: String?
+  public var displayName: String?
 
   /** @property IDToken
       @brief Either an authorization code suitable for performing an STS token exchange, or the
           access token from Secure Token Service, depending on whether @c returnSecureToken is set
           on the request.
    */
-  @objc(IDToken) public var idToken: String?
+  public var idToken: String?
 
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
    */
-  @objc public var approximateExpirationDate: Date?
+  public var approximateExpirationDate: Date?
 
   /** @property refreshToken
       @brief The refresh token from Secure Token Service.
    */
-  @objc public var refreshToken: String?
+  public var refreshToken: String?
 
   /** @property photoURL
       @brief The URI of the public accessible profile picture.
    */
-  @objc public var photoURL: URL?
+  public var photoURL: URL?
 
-  @objc(MFAPendingCredential) public var mfaPendingCredential: String?
+  public var mfaPendingCredential: String?
 
-  @objc(MFAInfo) public var mfaInfo: [AuthProtoMFAEnrollment]?
+  public var mfaInfo: [AuthProtoMFAEnrollment]?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     localID = dictionary["localId"] as? String

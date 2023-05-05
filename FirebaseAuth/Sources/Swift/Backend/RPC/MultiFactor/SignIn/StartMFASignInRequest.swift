@@ -21,8 +21,7 @@ private let kStartMFASignInEndPoint = "accounts/mfaSignIn:start"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRStartMFASignInRequest) public class StartMFASignInRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
   var MFAPendingCredential: String?
   var MFAEnrollmentID: String?
   var signInInfo: AuthProtoStartMFAPhoneRequestInfo?
@@ -30,7 +29,7 @@ private let kTenantIDKey = "tenantId"
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = StartMFASignInResponse()
+  public var response: StartMFASignInResponse = StartMFASignInResponse()
 
   init(MFAPendingCredential: String?, MFAEnrollmentID: String?,
        signInInfo: AuthProtoStartMFAPhoneRequestInfo?,

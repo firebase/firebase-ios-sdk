@@ -14,6 +14,28 @@
 
 import Foundation
 
+/// The generic interface for an RPC request needed by AuthBackend.
+public protocol AuthRPCRequest_NEW_ {
+  associatedtype Response: AuthRPCResponse_NEW_
+
+  /// Gets the request's full URL.
+  func requestURL() -> URL
+
+  var containsPostBody: Bool { get }
+
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable]
+
+  func requestConfiguration() -> AuthRequestConfiguration
+
+  var response: Response { get }
+}
+
+// Default implementation of AuthRPCRequests. This produces similar behaviour to an optional method
+// in Obj-C.
+extension AuthRPCRequest_NEW_ {
+  public var containsPostBody: Bool { return true }
+}
+
 // TODO: Once this type doesn't need to be @objc, perhaps it would make sense to make the response an
 // associated type of the request protocol and perform all encoding of requests and decoding of responses
 // using Codable.

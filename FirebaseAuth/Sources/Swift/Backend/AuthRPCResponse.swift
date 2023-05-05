@@ -14,6 +14,19 @@
 
 import Foundation
 
+public protocol AuthRPCResponse_NEW_ {
+  func setFields(dictionary: [String: AnyHashable]) throws
+
+  func clientError(shortErrorMessage: String, detailedErrorMessage: String?) -> Error?
+}
+
+extension AuthRPCResponse_NEW_ {
+  // Default implementation.
+  public func clientError(shortErrorMessage: String, detailedErrorMessage: String? = nil) -> Error? {
+    return nil
+  }
+}
+
 /** @protocol FIRAuthRPCResponse
     @brief The generic interface for an RPC response needed by @c FIRAuthBackend.
  */

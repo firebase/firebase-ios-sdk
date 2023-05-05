@@ -14,8 +14,7 @@
 
 import Foundation
 
-@objc(FIRVerifyClientResponse)
-public class VerifyClientResponse: NSObject, AuthRPCResponse {
+public class VerifyClientResponse: AuthRPCResponse_NEW_ {
   /// Receipt that the APNS token was successfully validated with APNS.
   @objc public private(set) var receipt: String?
 

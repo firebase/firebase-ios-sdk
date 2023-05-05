@@ -34,18 +34,17 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRVerifyCustomTokenRequest) public class VerifyCustomTokenRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
-  @objc public let token: String
+public class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+  public let token: String
 
-  @objc public var returnSecureToken: Bool
+  public var returnSecureToken: Bool
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = VerifyCustomTokenResponse()
+  public var response: VerifyCustomTokenResponse = VerifyCustomTokenResponse()
 
-  @objc public init(token: String, requestConfiguration: AuthRequestConfiguration) {
+  public init(token: String, requestConfiguration: AuthRequestConfiguration) {
     self.token = token
     returnSecureToken = true
     super.init(endpoint: kVerifyCustomTokenEndpoint, requestConfiguration: requestConfiguration)

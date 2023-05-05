@@ -19,21 +19,27 @@ import Foundation
  */
 private let kGetProjectConfigEndPoint = "getProjectConfig"
 
-@objc(FIRGetProjectConfigRequest) public class GetProjectConfigRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  @objc public var response: AuthRPCResponse = GetProjectConfigResponse()
+public class GetProjectConfigRequest_NEW_:  IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+  /// The corresponding response for this request.
+  public var response: GetProjectConfigResponse_NEW_ = GetProjectConfigResponse_NEW_()
 
-  @objc public init(requestConfiguration: AuthRequestConfiguration) {
+  public init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-    // XXX TODO: Probably nicer to throw, but what should we throw?
+  override public func requestURL() -> URL {
+    return URL(string: "")!
+  }
+
+  public func unencodedHTTPRequestBody() throws -> [String : AnyHashable] {
+    // TODO: Probably nicer to throw, but what should we throw?
     fatalError()
   }
 
-  override public func containsPostBody() -> Bool { false }
+  override public func requestConfiguration() -> AuthRequestConfiguration {
+    // TODO: Figure it out
+    fatalError()
+  }
+
+  public var containsPostBody: Bool { false }
 }

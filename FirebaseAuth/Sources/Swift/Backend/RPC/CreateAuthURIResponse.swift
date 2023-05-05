@@ -19,36 +19,36 @@ import Foundation
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
  */
 
-@objc(FIRCreateAuthURIResponse) public class CreateAuthURIResponse: NSObject, AuthRPCResponse {
+public class CreateAuthURIResponse: AuthRPCResponse_NEW_ {
   /** @property authUri
       @brief The URI used by the IDP to authenticate the user.
    */
-  @objc public var authURI: String?
+  public var authURI: String?
 
   /** @property registered
       @brief Whether the user is registered if the identifier is an email.
    */
-  @objc public var registered: Bool = false
+  public var registered: Bool = false
 
   /** @property providerId
       @brief The provider ID of the auth URI.
    */
-  @objc public var providerID: String?
+  public var providerID: String?
 
   /** @property forExistingProvider
       @brief True if the authUri is for user's existing provider.
    */
-  @objc public var forExistingProvider: Bool = false
+  public var forExistingProvider: Bool = false
 
   /** @property allProviders
       @brief A list of provider IDs the passed @c identifier could use to sign in with.
    */
-  @objc public var allProviders: [String]?
+  public var allProviders: [String]?
 
   /** @property signinMethods
       @brief A list of sign-in methods available for the passed @c identifier.
    */
-  @objc public var signinMethods: [String]?
+  public var signinMethods: [String]?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     providerID = dictionary["providerId"] as? String

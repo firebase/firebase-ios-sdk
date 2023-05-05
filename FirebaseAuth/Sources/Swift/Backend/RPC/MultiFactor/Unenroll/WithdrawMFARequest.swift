@@ -21,16 +21,16 @@ private let kWithdrawMFAEndPoint = "accounts/mfaEnrollment:withdraw"
  */
 private let kTenantIDKey = "tenantId"
 
-class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
-  @objc public var idToken: String?
-  @objc public var mfaEnrollmentID: String?
+public class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+  public var idToken: String?
+  public var mfaEnrollmentID: String?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = WithdrawMFAResponse()
+  public var response: WithdrawMFAResponse = WithdrawMFAResponse()
 
-  @objc public init(idToken: String?,
+  public init(idToken: String?,
                     mfaEnrollmentID: String?,
                     requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
