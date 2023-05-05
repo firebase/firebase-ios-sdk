@@ -16,7 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"

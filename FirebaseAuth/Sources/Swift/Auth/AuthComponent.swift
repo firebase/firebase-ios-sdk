@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-import FirebaseAppCheckInterop
-@_implementationOnly import FirebaseCore
+@_implementationOnly import FirebaseAppCheckInterop
+import FirebaseCore
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
 @_implementationOnly import FirebaseCoreExtension

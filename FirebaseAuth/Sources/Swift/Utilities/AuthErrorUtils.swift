@@ -14,10 +14,6 @@
 
 import Foundation
 
-#if COCOAPODS
-  @_implementationOnly import FirebaseAuth_Private
-#endif // COCOAPODS
-
 // MARK: - URL response error codes
 
 /** @var kURLResponseErrorCodeInvalidClientID
@@ -542,13 +538,13 @@ private let kFIRAuthErrorMessageMalformedJWT =
       -> Error {
       var userInfo: [String: Any] = [:]
       if let pendingCredential = pendingCredential, let hints = hints {
-        let resolver = MultiFactorResolver(
-          mfaPendingCredential: pendingCredential,
-          hints: hints,
-          //auth: auth
-          // TODO: Update after MultFactorResolver.swift
-          auth: nil
-        )
+        // TODO: After MultiFactorResolver to swift
+//        let resolver = MultiFactorResolver(
+//          mfaPendingCredential: pendingCredential,
+//          hints: hints,
+//          auth: auth
+//        )
+        let resolver = MultiFactorResolver()
         userInfo[userInfoMultiFactorResolverKey] = resolver
       }
 

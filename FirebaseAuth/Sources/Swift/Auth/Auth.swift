@@ -14,7 +14,7 @@
 
 import Foundation
 
-@_implementationOnly import FirebaseCore
+import FirebaseCore
 @_implementationOnly import FirebaseCoreExtension
 @_implementationOnly import FirebaseAppCheckInterop
 @_implementationOnly import GoogleUtilities
@@ -2176,7 +2176,7 @@ import Foundation
   /** @property mainBundle
       @brief Allow tests to swap in an alternate mainBundle.
    */
-  internal var mainBundleUrlTypes: [[String: Any]]?
+  internal var mainBundleUrlTypes: [[String: Any]]!
 
   /** @property requestConfiguration
       @brief The configuration object comprising of paramters needed to make a request to Firebase

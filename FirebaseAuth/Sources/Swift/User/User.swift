@@ -1926,7 +1926,7 @@ import Foundation
       @return Whether the operation is successful.
    */
   func updateKeychain() -> Error? {
-    return auth.updateKeychain(withUser: self)
+    return auth?.updateKeychain(withUser: self)
   }
 
   /** @fn callInMainThreadWithError
