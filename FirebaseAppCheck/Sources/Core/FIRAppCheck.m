@@ -234,6 +234,21 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       });
 }
 
+- (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
+    [self retrieveLimitedUseToken]
+        .then(^id _Nullable(FIRAppCheckToken *token) {
+            FIRAppCheckTokenResult *result = [[FIRAppCheckTokenResult alloc] initWithToken:token.token
+                                                                                     error:nil];
+            handler(result);
+            return result;
+        })
+        .catch(^(NSError *_Nonnull error) {
+            FIRAppCheckTokenResult *result =
+                [[FIRAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
+            handler(result);
+        });
+}
+
 - (nonnull NSString *)tokenDidChangeNotificationName {
   return FIRAppCheckAppCheckTokenDidChangeNotification;
 }
