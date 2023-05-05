@@ -293,8 +293,8 @@ void Datastore::RunAggregateQueryWithCredentials(
 
   call->Start(
       // TODO(c++14): move into lambda.
-      [this, call, callback,
-       &aliasMap](const StatusOr<grpc::ByteBuffer>& result) {
+      [this, call, callback, aliasMap = std::move(aliasMap)](
+          const StatusOr<grpc::ByteBuffer>& result) {
         LogGrpcCallFinished("RunAggregationQuery", call, result.status());
         HandleCallStatus(result.status());
 
