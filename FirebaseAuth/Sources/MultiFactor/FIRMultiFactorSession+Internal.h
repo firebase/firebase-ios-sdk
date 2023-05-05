@@ -19,7 +19,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorSession.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic) FIRMultiFactorInfo *multiFactorInfo;
 
-@property(nonatomic) FIRAuth *auth;
+@property(nonatomic) FIRUser* currentUser ;
 
 
 + (FIRMultiFactorSession *)sessionForCurrentUser;

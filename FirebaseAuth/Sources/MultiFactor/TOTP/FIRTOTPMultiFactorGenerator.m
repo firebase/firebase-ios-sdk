@@ -35,7 +35,7 @@
 
 + (void)generateSecretWithMultiFactorSession:(FIRMultiFactorSession *)session completion:(void (^)(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error))completion {
 		if (session.IDToken) {
-				FIRStartMFAEnrollmentRequest *request = [[FIRStartMFAEnrollmentRequest alloc] initWithIDToken:session.IDToken TOTPEnrollmentInfo:[[FIRAuthProtoStartMFATOTPEnrollmentRequestInfo alloc] init] requestConfiguration:session.auth.requestConfiguration];
+				FIRStartMFAEnrollmentRequest *request = [[FIRStartMFAEnrollmentRequest alloc] initWithIDToken:session.IDToken TOTPEnrollmentInfo:[[FIRAuthProtoStartMFATOTPEnrollmentRequestInfo alloc] init] requestConfiguration:session.currentUser.auth.requestConfiguration];
 				[FIRAuthBackend startMultiFactorEnrollment:request callback:^(FIRStartMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error) {
 						if (error) {
 								if (completion) {

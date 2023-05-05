@@ -134,6 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 						NSString *issuer = FIRAuth.auth.app.name;
 						dispatch_async(dispatch_get_main_queue(), ^{
 							NSString *url = [secret generateQRCodeURLWithAccountName:accountName issuer:issuer];
+							[secret openInOTPAppWithQRCodeURL:url];
 							[self showQRCodePromptWithTextInput:@"Scan this QR Code and enter OTP:"
 																		 qrCodeString:url
 																	completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword) {
@@ -164,6 +165,28 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)TOTPUnenroll {
+	NSMutableString *displayNameString = [NSMutableString string];
+	for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
+		[displayNameString appendString:tmpFactorInfo.displayName];
+		[displayNameString appendString:@" "];
+	}
+	[self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Multifactor Unenroll\n%@", displayNameString]
+											 completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+		FIRMultiFactorInfo *factorInfo;
+		for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
+			if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+				factorInfo = tmpFactorInfo;
+			}
+		}
+		[FIRAuth.auth.currentUser.multiFactor unenrollWithInfo:factorInfo
+																								completion:^(NSError * _Nullable error) {
+			if (error) {
+				[self logFailure:@"Multi factor unenroll failed." error:error];
+			} else {
+				[self logSuccess:@"Multi factor unenroll succeeded."];
+			}
+		}];
+	}];
 }
 @end
 
