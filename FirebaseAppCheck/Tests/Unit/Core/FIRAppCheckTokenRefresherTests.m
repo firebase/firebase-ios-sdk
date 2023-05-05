@@ -18,9 +18,9 @@
 
 #import <OCMock/OCMock.h>
 
-#import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
+#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFakeTimer.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 
@@ -28,7 +28,7 @@
 
 @property(nonatomic) FIRFakeTimer *fakeTimer;
 
-@property(nonatomic) OCMockObject<FIRAppCheckSettingsProtocol> *mockSettings;
+@property(nonatomic) OCMockObject<GACAppCheckSettingsProtocol> *mockSettings;
 
 @property(nonatomic) FIRAppCheckTokenRefreshResult *initialTokenRefreshResult;
 
@@ -37,7 +37,7 @@
 @implementation FIRAppCheckTokenRefresherTests
 
 - (void)setUp {
-  self.mockSettings = OCMProtocolMock(@protocol(FIRAppCheckSettingsProtocol));
+  self.mockSettings = OCMProtocolMock(@protocol(GACAppCheckSettingsProtocol));
   self.fakeTimer = [[FIRFakeTimer alloc] init];
 
   NSDate *receivedAtDate = [NSDate date];
