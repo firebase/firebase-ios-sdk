@@ -18,7 +18,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTimer.h"
 
-@protocol FIRAppCheckSettingsProtocol;
+@protocol GACAppCheckSettingsProtocol;
 @class FIRAppCheckTokenRefreshResult;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -57,12 +57,12 @@ typedef void (^FIRAppCheckTokenRefreshBlock)(FIRAppCheckTokenRefreshCompletion c
 /// @param settings An object that handles Firebase app check settings.
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
                         timerProvider:(FIRTimerProvider)timerProvider
-                             settings:(id<FIRAppCheckSettingsProtocol>)settings
+                             settings:(id<GACAppCheckSettingsProtocol>)settings
     NS_DESIGNATED_INITIALIZER;
 
 /// A convenience initializer with a timer provider returning an instance of  `FIRAppCheckTimer`.
 - (instancetype)initWithRefreshResult:(FIRAppCheckTokenRefreshResult *)refreshResult
-                             settings:(id<FIRAppCheckSettingsProtocol>)settings;
+                             settings:(id<GACAppCheckSettingsProtocol>)settings;
 
 @end
 
