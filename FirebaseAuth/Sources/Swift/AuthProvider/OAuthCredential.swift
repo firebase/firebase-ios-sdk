@@ -74,7 +74,7 @@ import Foundation
     super.init(provider: providerID)
   }
 
-  @objc public convenience init?(withVerifyAssertionResponse response: VerifyAssertionResponse) {
+  convenience init?(withVerifyAssertionResponse response: VerifyAssertionResponse) {
     guard Self.nonEmptyString(response.oauthIDToken) ||
       Self.nonEmptyString(response.oauthAccessToken) ||
       Self.nonEmptyString(response.oauthSecretToken) else {
@@ -88,7 +88,7 @@ import Foundation
               pendingToken: response.pendingToken)
   }
 
-  @objc override public func prepare(_ request: VerifyAssertionRequest) {
+  override public func prepare(_ request: VerifyAssertionRequest) {
     request.providerIDToken = idToken
     request.providerRawNonce = rawNonce
     request.providerAccessToken = accessToken

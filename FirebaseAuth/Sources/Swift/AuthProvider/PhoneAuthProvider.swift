@@ -269,17 +269,18 @@ import FirebaseCore
           fatalError("Internal Phone Auth Error:Both reCAPTCHA token and app credential are nil")
         }
         if let request {
-          AuthBackend.post(withRequest: request) { response, error in
-            if let error {
+          AuthBackend.post(with: request) { response in
+            switch response {
+            case .success(let response):
+              callback(response.verificationID, nil)
+            case .failure(let error):
               self.handleVerifyErrorWithRetry(error: error,
                                               phoneNumber: phoneNumber,
                                               retryOnInvalidAppCredential: retryOnInvalidAppCredential,
                                               multiFactorSession: nil,
                                               uiDelegate: uiDelegate,
                                               callback: callback)
-              return
             }
-            callback((response as? SendVerificationCodeResponse)?.verificationID, nil)
           }
         }
       }
@@ -307,8 +308,13 @@ import FirebaseCore
           requestConfiguration: auth.requestConfiguration
         )
 
-        AuthBackend.post(withRequest: request) { response, error in
-          callback((response as? SendVerificationCodeResponse)?.verificationID, error)
+        AuthBackend.post(with: request) { result in
+          switch result {
+          case .success(let response):
+            callback(response.verificationID, nil)
+          case .failure(let error):
+            callback(nil, error)
+          }
         }
         return
       }
@@ -329,6 +335,8 @@ import FirebaseCore
                                                                     appCredential: appCredential,
                                                                     reCAPTCHAToken: reCAPTCHAToken)
 
+        // XXX TODO: Figure out the right logic here, where we're assuming the callback is a certain
+        // type.
         let request: AuthRPCRequest = (session.idToken != nil) ?
           StartMFAEnrollmentRequest(idToken: session.idToken,
                                     enrollmentInfo: startMFARequestInfo,
@@ -402,7 +410,7 @@ import FirebaseCore
         let request = VerifyClientRequest(withAppToken: token.string,
                                           isSandbox: token.type == AuthAPNSTokenType.sandbox,
                                           requestConfiguration: self.auth.requestConfiguration)
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { result in
           if let error {
             let nserror = error as NSError
             // reCAPTCHA Flow if it's an invalid app credential or a missing app token.

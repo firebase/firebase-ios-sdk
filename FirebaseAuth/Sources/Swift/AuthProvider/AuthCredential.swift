@@ -24,7 +24,7 @@ import Foundation
   }
 
   // TODO: remove public after FIRUser port
-  @objc(prepareVerifyAssertionRequest:) public func prepare(_ request: VerifyAssertionRequest) {
+  func prepare(_ request: VerifyAssertionRequest) {
     fatalError("This method must be overridden by a subclass.")
   }
 }
