@@ -30,16 +30,14 @@ def main():
 
   args = parse_cmdline_args()
 
-  pr_branch = os.path.expanduser(args.pr_branch)
-  base_branch = os.path.expanduser(args.base_branch)
-  if os.path.exists(pr_branch):
-    new_api_json = json.load(
-        open(os.path.join(pr_branch, api_info.API_INFO_FILE_NAME)))
+  new_api_file = os.path.join(os.path.expanduser(args.pr_branch), api_info.API_INFO_FILE_NAME)
+  old_api_file = os.path.join(os.path.expanduser(args.base_branch), api_info.API_INFO_FILE_NAME)
+  if os.path.exists(new_api_file):
+    new_api_json = json.load(open(new_api_file))
   else:
     new_api_json = {}
-  if os.path.exists(base_branch):
-    old_api_json = json.load(
-        open(os.path.join(base_branch, api_info.API_INFO_FILE_NAME)))
+  if os.path.exists(old_api_file):
+    old_api_json = json.load(open(old_api_file))
   else:
     old_api_json = {}
 
