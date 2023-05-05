@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.9.0"
+let firebaseVersion = "10.10.0"
 
 let package = Package(
   name: "Firebase",
@@ -164,11 +164,11 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/abseil-cpp-binary.git",
-      "1.2021110200.0" ..< "1.2021110300.0"
+      "1.2022062300.0" ..< "1.2022062400.0"
     ),
     .package(
       url: "https://github.com/google/grpc-binary.git",
-      "1.44.0" ..< "1.45.0"
+      "1.50.1" ..< "1.51.0"
     ),
     .package(
       url: "https://github.com/erikdoe/ocmock.git",
@@ -673,8 +673,8 @@ let package = Package(
 
     .binaryTarget(
       name: "FirebaseFirestore",
-      url: "https://dl.google.com/firebase/ios/bin/firestore/10.9.0/FirebaseFirestore.zip",
-      checksum: "aafb56cc47a7bddd111f31c7bec2fa8f5164d039a9887f31da88f474558a737b"
+      url: "https://dl.google.com/firebase/ios/bin/firestore/10.10.0/FirebaseFirestore.zip",
+      checksum: "bb362e131fda776d6911e553516439fe7d3744a213c6720ee9d58ebc5b6de789"
     ),
 
     .target(

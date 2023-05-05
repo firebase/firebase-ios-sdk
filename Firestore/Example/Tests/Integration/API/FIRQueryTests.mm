@@ -22,6 +22,18 @@
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
+#include "Firestore/core/test/unit/testutil/testing_hooks_util.h"
+
+namespace {
+
+NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *> *remove) {
+  NSMutableSet<NSString *> *mutableSet = [NSMutableSet setWithSet:set];
+  [mutableSet minusSet:remove];
+  return [mutableSet.allObjects sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+}
+
+}  // namespace
+
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
 
@@ -1178,6 +1190,114 @@
                                                                                  in:@[ @2, @3 ]]]
                                        queryOrderedByField:@"a"]
                      matchesResult:@[ @"doc6", @"doc3" ]];
+}
+
+- (void)testResumingAQueryShouldUseExistenceFilterToDetectDeletes {
+  // Set this test to stop when the first failure occurs because some test assertion failures make
+  // the rest of the test not applicable or will even crash.
+  [self setContinueAfterFailure:NO];
+
+  // Prepare the names and contents of the 100 documents to create.
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs =
+      [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < 100; i++) {
+    [testDocs setValue:@{@"key" : @42} forKey:[NSString stringWithFormat:@"doc%@", @(1000 + i)]];
+  }
+
+  // Create 100 documents in a new collection.
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:testDocs];
+
+  // Run a query to populate the local cache with the 100 documents and a resume token.
+  FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
+                                                          source:FIRFirestoreSourceDefault];
+  XCTAssertEqual(querySnapshot1.count, 100, @"querySnapshot1.count has an unexpected value");
+  NSArray<FIRDocumentReference *> *createdDocuments =
+      FIRDocumentReferenceArrayFromQuerySnapshot(querySnapshot1);
+
+  // Delete 50 of the 100 documents. Do this in a transaction, rather than
+  // [FIRDocumentReference deleteDocument], to avoid affecting the local cache.
+  NSSet<NSString *> *deletedDocumentIds;
+  {
+    NSMutableArray<NSString *> *deletedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"DeleteTransaction"];
+    [collRef.firestore
+        runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
+          for (decltype(createdDocuments.count) i = 0; i < createdDocuments.count; i += 2) {
+            FIRDocumentReference *documentToDelete = createdDocuments[i];
+            [transaction deleteDocument:documentToDelete];
+            [deletedDocumentIdsAccumulator addObject:documentToDelete.documentID];
+          }
+          return @"document deletion successful";
+        }
+        completion:^(id, NSError *) {
+          [expectation fulfill];
+        }];
+    [self awaitExpectation:expectation];
+    deletedDocumentIds = [NSSet setWithArray:deletedDocumentIdsAccumulator];
+  }
+  XCTAssertEqual(deletedDocumentIds.count, 50u, @"deletedDocumentIds has the wrong size");
+
+  // Wait for 10 seconds, during which Watch will stop tracking the query and will send an existence
+  // filter rather than "delete" events when the query is resumed.
+  [NSThread sleepForTimeInterval:10.0f];
+
+  // Resume the query and save the resulting snapshot for verification.
+  // Use some internal testing hooks to "capture" the existence filter mismatches to verify them.
+  FIRQuerySnapshot *querySnapshot2;
+  std::vector<firebase::firestore::util::TestingHooks::ExistenceFilterMismatchInfo>
+      existence_filter_mismatches =
+          firebase::firestore::testutil::CaptureExistenceFilterMismatches([&] {
+            querySnapshot2 = [self readDocumentSetForRef:collRef source:FIRFirestoreSourceDefault];
+          });
+
+  // Verify that the snapshot from the resumed query contains the expected documents; that is,
+  // that it contains the 50 documents that were _not_ deleted.
+  // TODO(b/270731363): Remove the "if" condition below once the Firestore Emulator is fixed to
+  // send an existence filter. At the time of writing, the Firestore emulator fails to send an
+  // existence filter, resulting in the client including the deleted documents in the snapshot
+  // of the resumed query.
+  if (!([FSTIntegrationTestCase isRunningAgainstEmulator] && querySnapshot2.count == 100)) {
+    NSSet<NSString *> *actualDocumentIds =
+        [NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)];
+    NSSet<NSString *> *expectedDocumentIds;
+    {
+      NSMutableArray<NSString *> *expectedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (FIRDocumentReference *documentRef in createdDocuments) {
+        if (![deletedDocumentIds containsObject:documentRef.documentID]) {
+          [expectedDocumentIdsAccumulator addObject:documentRef.documentID];
+        }
+      }
+      expectedDocumentIds = [NSSet setWithArray:expectedDocumentIdsAccumulator];
+    }
+    if (![actualDocumentIds isEqualToSet:expectedDocumentIds]) {
+      NSArray<NSString *> *unexpectedDocumentIds =
+          SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
+      NSArray<NSString *> *missingDocumentIds =
+          SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
+      XCTFail(@"querySnapshot2 contained %lu documents (expected %lu): "
+              @"%lu unexpected and %lu missing; "
+              @"unexpected documents: %@; missing documents: %@",
+              (unsigned long)actualDocumentIds.count, (unsigned long)expectedDocumentIds.count,
+              (unsigned long)unexpectedDocumentIds.count, (unsigned long)missingDocumentIds.count,
+              [unexpectedDocumentIds componentsJoinedByString:@", "],
+              [missingDocumentIds componentsJoinedByString:@", "]);
+    }
+  }
+
+  // Skip the verification of the existence filter mismatch when testing against the Firestore
+  // emulator because the Firestore emulator fails to to send an existence filter at all.
+  // TODO(b/270731363): Enable the verification of the existence filter mismatch once the Firestore
+  // emulator is fixed to send an existence filter.
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) {
+    return;
+  }
+
+  // Verify that Watch sent an existence filter with the correct counts when the query was resumed.
+  XCTAssertEqual(static_cast<int>(existence_filter_mismatches.size()), 1);
+  firebase::firestore::util::TestingHooks::ExistenceFilterMismatchInfo &info =
+      existence_filter_mismatches[0];
+  XCTAssertEqual(info.local_cache_count, 100);
+  XCTAssertEqual(info.existence_filter_count, 50);
 }
 
 @end
