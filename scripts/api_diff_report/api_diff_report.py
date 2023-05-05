@@ -32,10 +32,16 @@ def main():
 
   pr_branch = os.path.expanduser(args.pr_branch)
   base_branch = os.path.expanduser(args.base_branch)
-  new_api_json = json.load(
-      open(os.path.join(pr_branch, api_info.API_INFO_FILE_NAME)))
-  old_api_json = json.load(
-      open(os.path.join(base_branch, api_info.API_INFO_FILE_NAME)))
+  if os.path.exists(pr_branch):
+    new_api_json = json.load(
+        open(os.path.join(pr_branch, api_info.API_INFO_FILE_NAME)))
+  else:
+    new_api_json = {}
+  if os.path.exists(base_branch):
+    old_api_json = json.load(
+        open(os.path.join(base_branch, api_info.API_INFO_FILE_NAME)))
+  else:
+    old_api_json = {}
 
   diff = generate_diff_json(new_api_json, old_api_json)
   if diff:
