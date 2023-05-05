@@ -381,7 +381,7 @@
   // 1500 bytes, the alias will be longer than 1500, which is the limit for aliases. This is to
   // make sure the client
   // can handle this corner case correctly.
-  NSString* longField = [@"" stringByPaddingToLength:1500
+  NSString* longField = [@"" stringByPaddingToLength:1499
                                           withString:@"0123456789"
                                      startingAtIndex:0];
 
