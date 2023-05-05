@@ -38,11 +38,11 @@ def main():
   changed_api_files = get_api_files(args.file_list)
   if not changed_api_files:
     logging.info('No Changed API File Detected')
-    exit(1)
+    exit(0)
   changed_modules = icore_module.detect_changed_modules(changed_api_files)
   if not changed_modules:
     logging.info('No Changed Module Detected')
-    exit(1)
+    exit(0)
 
   # Generate API documentation and parse API declarations
   # for each changed module

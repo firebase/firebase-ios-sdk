@@ -79,9 +79,10 @@ def generate_markdown_title(title, commit, run_id):
   pst_now = datetime.datetime.utcnow().astimezone(
       pytz.timezone('America/Los_Angeles'))
   return (
-      title + 'Commit: %s\n' % commit +
-      'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G') +
-      '**[View workflow logs & download artifacts](https://github.com/firebase/firebase-ios-sdk/actions/runs/%s)**\n\n'
+      title + 'Commit: %s\n' % commit
+      + 'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G')
+      + '**[View workflow logs & download artifacts]'
+      + '(https://github.com/firebase/firebase-ios-sdk/actions/runs/%s)**\n\n'
       % run_id + '-----\n')
 
 

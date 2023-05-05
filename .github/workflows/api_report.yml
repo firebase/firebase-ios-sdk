@@ -74,7 +74,7 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: api_info
-          path: | 
+          path: |
             ${{ env.prApiOutput }}
             ${{ env.baseApiOutput }}
             ${{ env.diffReportOutput }}
