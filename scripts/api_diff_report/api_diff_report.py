@@ -42,9 +42,6 @@ def main():
   if diff:
     logging.info(f'json diff: \n{json.dumps(diff, indent=2)}')
     logging.info(f'plain text diff report: \n{generate_text_report(diff)}')
-    logging.info(
-        f'markdown diff report title: \n{generate_markdown_title(args.commit, args.run_id)}'
-    )
     logging.info(f'markdown diff report: \n{generate_markdown_report(diff)}')
   else:
     logging.info('No API Diff Detected.')
@@ -97,8 +94,8 @@ def generate_diff_json(new_api, old_api, level='module'):
         diff[key]['declaration'] = [STATUS_REMOVED] + diff[key]['declaration']
     # Moudle Build Error. If a "module" exist but have no
     # content (e.g. doc_path), it must have a build error.
-    elif level == 'module' and (not new_api[key]['path'] or
-                                not old_api[key]['path']):
+    elif level == 'module' and (not new_api[key]['path']
+                                or not old_api[key]['path']):
       diff[key] = {'status': STATUS_ERROR}
     # Check diff in clild level and diff in declaration
     else:
@@ -120,8 +117,10 @@ def generate_diff_json(new_api, old_api, level='module'):
       # Modified API (changes in API declaration)
       if declaration_diff:
         diff[key]['status'] = STATUS_MODIFIED
-        diff[key]['declaration'] = [STATUS_ADD] + new_api[key]['declaration'] + \
-            [STATUS_REMOVED] + old_api[key]['declaration']
+        diff[key]['declaration'] = [STATUS_ADD] + \
+            new_api[key]['declaration'] + \
+            [STATUS_REMOVED] + \
+            old_api[key]['declaration']
 
   return diff
 
@@ -135,10 +134,10 @@ def generate_text_report(diff, level=0, print_key=True):
       if key in ['api_types', 'apis', 'sub_apis']:
         report += generate_text_report(value, level=level)
       else:
-        status_text = f"{value.get('status', '')}: " if 'status' in value else ''
+        status_text = f"{value.get('status', '')}:" if 'status' in value else ''
         if status_text:
           if print_key:
-            report += f'{indent_str}{status_text}{key}\n'
+            report += f'{indent_str}{status_text} {key}\n'
           else:
             report += f'{indent_str}{status_text}\n'
         if value.get('declaration'):
@@ -155,9 +154,10 @@ def generate_markdown_title(commit, run_id):
   pst_now = datetime.datetime.utcnow().astimezone(
       pytz.timezone('America/Los_Angeles'))
   return (
-      '## Apple API Diff Report\n' + 'Commit: %s\n' % commit +
-      'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G') +
-      '**[View workflow logs & download artifacts](https://github.com/firebase/firebase-cpp-sdk/actions/runs/%s)**\n\n'
+      '## Apple API Diff Report\n' + 'Commit: %s\n' % commit
+      + 'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G')
+      +'**[View workflow logs & download artifacts]'
+      + '(https://github.com/firebase/firebase-ios-sdk/actions/runs/%s)**\n\n'
       % run_id + '-----\n')
 
 
@@ -175,7 +175,9 @@ def generate_markdown_report(diff, level=0):
           if level == 0:
             report += f'{header_str} {key} [{current_status}]\n'
           if current_status != STATUS_ERROR:  # ADDED,REMOVED,MODIFIED
-            report += f'<details>\n<summary>\n[{current_status}] {key}\n</summary>\n\n'
+            report += '<details>\n<summary>\n'
+            report += f'[{current_status}] {key}\n'
+            report += '</summary>\n\n'
             declarations = value.get('declaration', [])
             sub_report = generate_text_report(value, level=1, print_key=False)
             detail = process_declarations(current_status, declarations,

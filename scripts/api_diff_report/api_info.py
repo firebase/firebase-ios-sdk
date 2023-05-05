@@ -44,7 +44,8 @@ def main():
     logging.info('No Changed Module Detected')
     exit(1)
 
-  # Generate API documentation and parse API declarations for each changed module
+  # Generate API documentation and parse API declarations
+  # for each changed module
   api_container = {}
   for _, module in changed_modules.items():
     api_doc_dir = os.path.join(output_dir, 'doc', module['name'])
@@ -81,7 +82,8 @@ def build_api_doc(module, output_dir, api_theme_dir):
     cmd = f'jazzy --module {module["name"]}'\
         + ' --swift-build-tool xcodebuild'\
         + ' --build-tool-arguments'\
-        + f' -scheme,{module["scheme"]},-destination,generic/platform=iOS,build'\
+        + f' -scheme,{module["scheme"]}'\
+        + ',-destination,generic/platform=iOS,build'\
         + f' --output {output_dir}'\
         + f' --theme {api_theme_dir}'
     logging.info(cmd)
