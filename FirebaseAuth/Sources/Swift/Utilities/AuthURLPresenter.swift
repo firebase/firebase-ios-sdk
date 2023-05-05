@@ -25,8 +25,7 @@
       @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
    */
   @objc(FIRAuthURLPresenter) public class AuthURLPresenter: NSObject,
-    SFSafariViewControllerDelegate,
-    FIRAuthWebViewControllerDelegate {
+    SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
     /** @fn
         @brief Presents an URL to interact with user.
         @param url The URL to present.
@@ -94,7 +93,7 @@
 
     // MARK: AuthWebViewControllerDelegate
 
-    public func webViewControllerDidCancel(_ controller: AuthWebViewController) {
+    func webViewControllerDidCancel(_ controller: AuthWebViewController) {
       kAuthGlobalWorkQueue.async {
         if self.webViewController == controller {
           self.finishPresentation(withURL: nil,
@@ -103,7 +102,7 @@
       }
     }
 
-    public func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool {
+    func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool {
       var result = false
       kAuthGlobalWorkQueue.sync {
         if self.webViewController == controller {
@@ -113,7 +112,7 @@
       return result
     }
 
-    public func webViewController(_ controller: AuthWebViewController,
+    func webViewController(_ controller: AuthWebViewController,
                                   didFailWithError error: Error) {
       kAuthGlobalWorkQueue.async {
         if self.webViewController == controller {

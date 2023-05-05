@@ -19,7 +19,6 @@
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthSettings.h"
 #import "FIRAuthUIDelegate.h"
-#import "FIRAuthWebViewController.h"
 #import "FIRMultiFactor.h"
 #import "FIRMultiFactorResolver.h"
 #import "FIRPhoneMultiFactorGenerator.h"

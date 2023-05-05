@@ -463,7 +463,7 @@ import FirebaseCore
             callbackScheme: self.callbackScheme
           )
         }
-        self.auth.authURLPresenter.present(reCAPTCHAURL,
+        (self.auth.authURLPresenter as? AuthURLPresenter)?.present(reCAPTCHAURL,
                                            uiDelegate: uiDelegate,
                                            callbackMatcher: callbackMatcher) { callbackURL, error in
           if let error = error {

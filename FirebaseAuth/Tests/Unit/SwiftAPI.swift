@@ -85,19 +85,19 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings) { error in
     }
     try auth.signOut()
-    auth.isSignIn(withEmailLink: "link")
+    let _ = auth.isSignIn(withEmailLink: "link")
     let handle = auth.addStateDidChangeListener { auth, user in
     }
     auth.removeStateDidChangeListener(handle)
-    auth.addIDTokenDidChangeListener { auth, user in
+    let _ = auth.addIDTokenDidChangeListener { auth, user in
     }
     auth.removeIDTokenDidChangeListener(handle)
     auth.useAppLanguage()
     auth.useEmulator(withHost: "myHost", port: 123)
     #if os(iOS)
-      auth.canHandle(URL(fileURLWithPath: "/my/path"))
+      let _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
-      auth.canHandleNotification([:])
+      let _ = auth.canHandleNotification([:])
     #endif
     try auth.useUserAccessGroup("abc")
     let nilUser = try auth.getStoredUser(forAccessGroup: "def")

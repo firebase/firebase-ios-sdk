@@ -627,7 +627,7 @@
       var delegate: UIApplicationDelegate?
     }
 
-    class FakePresenter: NSObject, FIRAuthWebViewControllerDelegate {
+    class FakePresenter: NSObject, AuthWebViewControllerDelegate {
       func webViewController(_ webViewController: AuthWebViewController,
                              canHandle URL: URL) -> Bool {
         XCTFail("Do not call")

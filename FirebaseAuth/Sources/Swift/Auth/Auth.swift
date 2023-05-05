@@ -19,6 +19,10 @@ import FirebaseCore
 @_implementationOnly import FirebaseAppCheckInterop
 @_implementationOnly import GoogleUtilities
 
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+import UIKit
+#endif
+
 // TODO: What should this be?
 // extension NSNotification.Name {
 //    /**
@@ -29,11 +33,17 @@ import FirebaseCore
 //    public static let AuthStateDidChange: NSNotification.Name
 // }
 
+#if os(iOS)
+@available(iOS 13.0, *)
+extension Auth: UISceneDelegate {
+}
+#endif
+
 /** @class Auth
     @brief Manages authentication for Firebase apps.
     @remarks This class is thread-safe.
  */
-@objc public class Auth: NSObject {
+@objc(FIRAuth) open class Auth: NSObject {
   /** @fn auth
    @brief Gets the auth object for the default Firebase app.
    @remarks The default Firebase app must have already been configured or an exception will be
@@ -121,7 +131,7 @@ import FirebaseCore
       }
       let updateUserBlock: (User) -> Void = { user in
         do {
-          try self.updateCurrentUser(user: user, byForce: true, savingToDisk: true)
+          try self.updateCurrentUser(user, byForce: true, savingToDisk: true)
           if let completion {
             DispatchQueue.main.async {
               completion(nil)
@@ -209,9 +219,6 @@ import FirebaseCore
    @brief Fetches the list of all sign-in methods previously used for the provided email address.
 
    @param email The email address for which to obtain a list of sign-in methods.
-   @param completion Optionally; a block which is invoked when the list of sign in methods for the
-   specified email address is ready or an error was encountered. Invoked asynchronously on the
-   main thread in the future.
 
    @remarks Possible error codes:
 
@@ -233,26 +240,48 @@ import FirebaseCore
   }
 
   /** @fn signInWithEmail:password:completion:
-   @brief Signs in using an email address and password.
+      @brief Signs in using an email address and password.
 
-   @param email The user's email address.
-   @param password The user's password.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
+      @param email The user's email address.
+      @param password The user's password.
+      @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+          canceled. Invoked asynchronously on the main thread in the future.
 
-   @remarks Possible error codes:
+      @remarks Possible error codes:
 
-   + `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
-   accounts are not enabled. Enable them in the Auth section of the
-   Firebase console.
-   + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
-   + `AuthErrorCodeWrongPassword` - Indicates the user attempted
-   sign in with an incorrect password.
-   + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
+          + `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
+              accounts are not enabled. Enable them in the Auth section of the
+              Firebase console.
+          + `AuthErrorCodeUserDisabled` - Indicates the user's account is disabled.
+          + `AuthErrorCodeWrongPassword` - Indicates the user attempted
+              sign in with an incorrect password.
+          + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
 
-   @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
+
+      @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc public func signIn(withEmail email: String,
+                           password: String,
+                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+    kAuthGlobalWorkQueue.async {
+      let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+      self.internalSignInAndRetrieveData(withEmail:email,
+                                         password: password) { authData, error in
+        decoratedCallback(authData, error)
+      }
+    }
+  }
+
+  /** @fn signInWithEmail:password:callback:
+      @brief Signs in using an email address and password.
+      @param email The user's email address.
+      @param password The user's password.
+      @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
+          asynchronously on the global auth work queue in the future.
+      @remarks This is the internal counterpart of this method, which uses a callback that does not
+          update the current user.
+   */
+  internal func signIn(withEmail email: String,
                            password: String,
                            callback: @escaping ((User?, Error?) -> Void)) {
     let request = VerifyPasswordRequest(email: email,
@@ -283,8 +312,6 @@ import FirebaseCore
 
    @param email The user's email address.
    @param password The user's password.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
 
    @remarks Possible error codes:
 
@@ -299,11 +326,11 @@ import FirebaseCore
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func signIn(withEmail email: String, password: String) async throws -> User {
+  public func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
-      self.signIn(withEmail: email, password: password) { user, error in
-        if let user {
-          continuation.resume(returning: user)
+      self.signIn(withEmail: email, password: password) { authData, error in
+        if let authData {
+          continuation.resume(returning: authData)
         } else {
           continuation.resume(throwing: error!)
         }
@@ -377,7 +404,7 @@ import FirebaseCore
    This method is available on iOS, macOS Catalyst, and tvOS only.
 
    @param provider An instance of an auth provider used to initiate the sign-in flow.
-   @param UIDelegate Optionally an instance of a class conforming to the AuthUIDelegate
+   @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
    protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
    will be used.
    @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
@@ -417,10 +444,9 @@ import FirebaseCore
 
    @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
    */
-
   @objc(signInWithProvider:UIDelegate:completion:)
-  public func signIn(withProvider provider: FederatedAuthProvider,
-                     uiDelegate: AuthUIDelegate,
+  public func signIn(with provider: FederatedAuthProvider,
+                     uiDelegate: AuthUIDelegate?,
                      completion: ((AuthDataResult?, Error?) -> Void)?) {
     #if os(iOS)
       kAuthGlobalWorkQueue.async {
@@ -439,6 +465,63 @@ import FirebaseCore
         }
       }
     #endif
+  }
+
+  /** @fn signInWithProvider:UIDelegate:completion:
+   @brief Signs in using the provided auth provider instance.
+   This method is available on iOS, macOS Catalyst, and tvOS only.
+
+   @param provider An instance of an auth provider used to initiate the sign-in flow.
+   @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
+   protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
+   will be used.
+
+   @remarks Possible error codes:
+   <ul>
+   <li>@c AuthErrorCodeOperationNotAllowed - Indicates that email and password
+   accounts are not enabled. Enable them in the Auth section of the
+   Firebase console.
+   </li>
+   <li>@c AuthErrorCodeUserDisabled - Indicates the user's account is disabled.
+   </li>
+   <li>@c AuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
+   SFSafariViewController or WKWebView failed.
+   </li>
+   <li>@c AuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
+   SFSafariViewController or WKWebView.
+   </li>
+   <li>@c AuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
+   a web sign-in flow.
+   </li>
+   <li>@c AuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
+   present a new web context while one was already being presented.
+   </li>
+   <li>@c AuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
+   cancelled prematurely by the user.
+   </li>
+   <li>@c AuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
+   by the credential (e.g. the email in a Facebook access token) is already in use by an
+   existing account, that cannot be authenticated with this sign-in method. Call
+   fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+   the sign-in providers returned. This error will only be thrown if the "One account per
+   email address" setting is enabled in the Firebase console, under Auth settings.
+   </li>
+   </ul>
+
+   @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  public func signIn(with provider: FederatedAuthProvider,
+                     uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.signIn(with: provider, uiDelegate: uiDelegate) { result, error in
+        if let result {
+          continuation.resume(returning: result)
+        } else {
+          continuation.resume(throwing: error!)
+        }
+      }
+    }
   }
 
   /** @fn signInWithCredential:completion:
@@ -596,8 +679,6 @@ import FirebaseCore
 
   /** @fn signInAnonymouslyWithCompletion:
    @brief Asynchronously creates and becomes an anonymous user.
-   @param completion Optionally; a block which is invoked when the sign in finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
 
    @remarks If there is already an anonymous user signed in, that user will be returned instead.
    If there is any other existing user signed in, that user will be signed out.
@@ -1192,12 +1273,12 @@ import FirebaseCore
               dictionary will contain more information about the error encountered.
 
    */
-  @objc public func signOut() throws {
+  @objc(signOut:) public func signOut() throws {
     try kAuthGlobalWorkQueue.sync {
       guard self.currentUser != nil else {
         return
       }
-      return try self.updateCurrentUser(user: nil, byForce: false, savingToDisk: true)
+      return try self.updateCurrentUser(nil, byForce: false, savingToDisk: true)
     }
   }
 
@@ -1401,7 +1482,7 @@ import FirebaseCore
   private func internalUseUserAccessGroup(_ accessGroup: String?) throws {
     storedUserManager.setStoredUserAccessGroup(accessGroup: accessGroup)
     let user = try self.getStoredUser(forAccessGroup: accessGroup)
-    try updateCurrentUser(user: user, byForce: false, savingToDisk: false)
+    try updateCurrentUser(user, byForce: false, savingToDisk: false)
     if userAccessGroup == nil && accessGroup != nil {
       let userKey = "\(firebaseAppName)\(kUserKey)"
       try keychainServices.removeData(forKey: userKey)
@@ -1446,6 +1527,24 @@ import FirebaseCore
     return user
   }
 
+  @objc public func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
+    kAuthGlobalWorkQueue.sync {
+      self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
+    }
+  }
+
+  @objc public func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
+    kAuthGlobalWorkQueue.sync {
+      return self.notificationManager.canHandle(notification: userInfo)
+    }
+  }
+
+  @objc public func canHandle(_ url: URL) -> Bool {
+    kAuthGlobalWorkQueue.sync {
+      return (self.authURLPresenter as? AuthURLPresenter)!.canHandle(url: url)
+    }
+  }
+
   // TODO: Need to manage breaking change for
   // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
   // Move to FIRApp with other Auth notifications?
@@ -1454,7 +1553,8 @@ import FirebaseCore
 
   // MARK: Internal methods
 
-  convenience init(withApp app: FirebaseApp) {
+  convenience init<T: AuthStorage>(app: FirebaseApp,
+                                   keychainStorageProvider: T.Type) {
     let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
                                                                           in: app.container)
     guard let apiKey = app.options.apiKey else {
@@ -1509,20 +1609,20 @@ import FirebaseCore
         if let storedUserAccessGroup = strongSelf.storedUserManager.getStoredUserAccessGroup() {
           try strongSelf.internalUseUserAccessGroup(storedUserAccessGroup)
         } else {
-          let user = getUser()
-          strongSelf.updateCurrentUser(user) // TODO: Implement me with all params.
+          let user = try self.getUser()
+          try strongSelf.updateCurrentUser(user, byForce: false, savingToDisk: false)
           if let user {
             strongSelf.tenantID = user.tenantID
-            strongSelf.lastNotifiedToken = user.rawAccessToken()
+            strongSelf.lastNotifiedUserToken = user.rawAccessToken()
           }
         }
       } catch {
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        if (error as NSError).code = AuthErrorCode.keychainError.rawValue {
+        if (error as NSError).code == AuthErrorCode.keychainError.rawValue {
           // If there's a keychain error, assume it is due to the keychain being accessed
           // before the device is unlocked as a result of prewarming, and listen for the
           // UIApplicationProtectedDataDidBecomeAvailable notification.
-          strongSelf.addProtectedDataDidBecomeAvaliableObserver()
+          strongSelf.addProtectedDataDidBecomeAvailableObserver()
         }
         #endif
         AuthLog.logError(code: "I-AUT000001",
@@ -1539,19 +1639,42 @@ import FirebaseCore
 //          applicationClass = cls;
 //        }
 //      }
-      if let application = UIApplication.shared {
+      let application = UIApplication.shared
         // Initialize for phone number auth.
         strongSelf.tokenManager = AuthAPNSTokenManager(withApplication: application)
         strongSelf.appCredentialManager = AuthAppCredentialManager(withKeychain: strongSelf.keychainServices)
         strongSelf.notificationManager = AuthNotificationManager(
           withApplication: application,
           appCredentialManager: strongSelf.appCredentialManager)
-      }
 
       // TODO: Does this swizzling still work?
-      GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
+      if #available(iOS 13.0, *) {
+        GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
+      }
       #endif
     }
+  }
+
+#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+  private func addProtectedDataDidBecomeAvailableObserver() {
+    weak var weakSelf = self
+    self.protectedDataDidBecomeAvailableObserver =
+    NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification,
+                                             object: nil,
+                                           queue: nil) { notification in
+      let strongSelf = weakSelf
+      if let observer = strongSelf?.protectedDataDidBecomeAvailableObserver {
+        NotificationCenter.default.removeObserver(observer,
+                       name: UIApplication.protectedDataDidBecomeAvailableNotification,
+                       object: nil)
+      }
+    }
+  }
+#endif
+
+  // TODO: Port dealloc here
+  deinit {
+
   }
 
   private func getUser() throws -> User? {
@@ -1619,6 +1742,17 @@ import FirebaseCore
       return error
     }
     return nil
+  }
+
+  internal func getUserID() -> String? {
+    return currentUser?.uid
+  }
+
+  internal func signOutByForce(withUserID userID:String) throws {
+    guard currentUser?.uid == userID else {
+      return
+    }
+    try updateCurrentUser(nil, byForce: true, savingToDisk: true)
   }
 
   // MARK: Private methods
@@ -1706,7 +1840,7 @@ import FirebaseCore
         if strongSelf.currentUser?.uid == uid {
           return
         }
-        if let error {
+        if error != nil {
           // Kicks off exponential back off logic to retry failed attempt. Starts with one minute delay
           // (60 seconds) if this is the first failed attempt.
           let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
@@ -1726,7 +1860,7 @@ import FirebaseCore
           time.)
       @param saveToDisk Indicates the method should persist the user data to disk.
    */
-  private func updateCurrentUser(user: User?, byForce force: Bool,
+  private func updateCurrentUser(_ user: User?, byForce force: Bool,
                                  savingToDisk saveToDisk: Bool) throws {
     if user == self.currentUser {
       self.possiblyPostAuthStateChangeNotification()
@@ -1803,7 +1937,8 @@ import FirebaseCore
       @param callback Called when the user has been signed in or when an error occurred. Invoked
           asynchronously on the global auth work queue in the future.
    */
-  private func completeSignIn(withAccessToken accessToken: String?,
+  // TODO: internal
+  @objc public func completeSignIn(withAccessToken accessToken: String?,
                               accessTokenExpirationDate: Date?,
                               refreshToken: String?,
                               anonymous: Bool,
@@ -2146,7 +2281,9 @@ import FirebaseCore
        @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
            consider alternative ways of updating the current user.
    */
-  private func signInFlowAuthDataResultCallback(byDecorating callback:
+  // TODO: internal after MFA
+  @objc(signInFlowAuthDataResultCallbackByDecoratingCallback:)
+  public func signInFlowAuthDataResultCallback(byDecorating callback:
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
     let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
       { callback, result, error in
@@ -2162,7 +2299,7 @@ import FirebaseCore
         return
       }
       do {
-        try self.updateCurrentUser(user: authResult?.user, byForce: false, savingToDisk: true)
+        try self.updateCurrentUser(authResult?.user, byForce: false, savingToDisk: true)
       } catch {
         authDataCallback(callback, nil, error)
         return
@@ -2182,7 +2319,8 @@ import FirebaseCore
       @brief The configuration object comprising of paramters needed to make a request to Firebase
           Auth's backend.
    */
-  internal var requestConfiguration: AuthRequestConfiguration
+  // TODO: internal
+  @objc public var requestConfiguration: AuthRequestConfiguration
 
   #if os(iOS)
 
@@ -2206,7 +2344,7 @@ import FirebaseCore
   /** @property authURLPresenter
       @brief An object that takes care of presenting URLs via the auth instance.
    */
-  internal let authURLPresenter: AuthURLPresenter
+  internal var authURLPresenter: AuthWebViewControllerDelegate
 
   // MARK: Private properties
 
@@ -2248,6 +2386,23 @@ import FirebaseCore
    */
   private var isAppInBackground = false
 
+  /** @var _applicationDidBecomeActiveObserver
+      @brief An opaque object to act as the observer for UIApplicationDidBecomeActiveNotification.
+   */
+  private var applicationDidBecomeActiveObserver: NSObjectProtocol?
+
+  /** @var _applicationDidBecomeActiveObserver
+      @brief An opaque object to act as the observer for
+          UIApplicationDidEnterBackgroundNotification.
+   */
+  private var applicationDidEnterBackgroundObserver: NSObjectProtocol?
+
+  /** @var _protectedDataDidBecomeAvailableObserver
+      @brief An opaque object to act as the observer for
+     UIApplicationProtectedDataDidBecomeAvailable.
+   */
+  private var protectedDataDidBecomeAvailableObserver: NSObjectProtocol?
+
   /** @var kUserKey
       @brief Key of user stored in the keychain. Prefixed with a Firebase app name.
    */
@@ -2261,12 +2416,10 @@ import FirebaseCore
    */
   static var keychainServiceNameForAppName: [String: String] = [:]
 
-  // TODO: Is there a better array to declare an array of function pointers.
   /** @var _listenerHandles
       @brief Handles returned from @c NSNotificationCenter for blocks which are "auth state did
           change" notification listeners.
       @remarks Mutations should occur within a @syncronized(self) context.
    */
   private var listenerHandles: NSMutableArray = []
-  //private var listenerHandles: [NSObjectProtocol] = [] // [() -> ()] = []
 }
