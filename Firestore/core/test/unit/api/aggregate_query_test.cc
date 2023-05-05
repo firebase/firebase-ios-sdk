@@ -24,133 +24,138 @@
 #include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/util/status.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 namespace firebase {
 namespace firestore {
 
 using model::AggregateAlias;
+using ::testing::Invoke;
 using util::Status;
 
 namespace api {
 
 class MockAggregateQuery : public AggregateQuery {
  public:
-  StatusOr<ObjectValue> mockResult;
+  MockAggregateQuery(Query query, std::vector<AggregateField>&& aggregates)
+      : AggregateQuery(query, std::move(aggregates)){};
 
-  ~MockAggregateQuery() override = default;
-
-  MockAggregateQuery(Query query,
-                     std::vector<AggregateField>&& aggregates,
-                     StatusOr<ObjectValue>&& mockResult)
-      : AggregateQuery(query, std::move(aggregates)),
-        mockResult(std::move(mockResult)){};
-
-  void GetAggregate(AggregateQueryCallback&& callback) override {
-    callback(mockResult);
-  }
+  MOCK_METHOD(void,
+              GetAggregate,
+              (AggregateQueryCallback && callback),
+              (override));
 };
 
 class AggregateQueryTest {
  public:
-  static const Query& GetQuery(const AggregateQuery& aggregateQuery) {
-    return aggregateQuery.query_;
+  static const Query& GetQuery(const AggregateQuery& aggregate_query) {
+    return aggregate_query.query_;
   }
 
   static const std::vector<AggregateField>& GetAggregates(
-      const AggregateQuery& aggregateQuery) {
-    return aggregateQuery.aggregates_;
+      const AggregateQuery& aggregate_query) {
+    return aggregate_query.aggregates_;
   }
 };
 
 namespace {
 
-// Assert that the Get method calls GetAggregate method
+// Assert that the Get member function calls GetAggregate member function
 // and that the result from GetAggregate is processed
 // appropriately
 TEST(AggregateQuery, GetCallsGetAggregateOk) {
-  // Params for Get: Query and AggregateField vector
-  Query query;
-  AggregateField countAggregateField(AggregateField::OpKind::Count,
-                                     AggregateAlias("count"));
-  std::vector<AggregateField> aggregates{countAggregateField};
-
-  // Mock aggregate field result
+  // Test aggregate field result
   google_firestore_v1_AggregationResult_AggregateFieldsEntry
-      mockAggregatesField[1];
-  mockAggregatesField[0].key =
-      nanopb::ByteString(absl::string_view("count")).release();
-  mockAggregatesField[0].value.which_value_type =
+      aggregate_fields_entry[1];
+  aggregate_fields_entry[0].key = nanopb::ByteString("count").release();
+  aggregate_fields_entry[0].value.which_value_type =
       google_firestore_v1_Value_integer_value_tag;
-  mockAggregatesField[0].value.integer_value = 10;
+  aggregate_fields_entry[0].value.integer_value = 10;
 
-  // Mock ObjectValue result
-  ObjectValue mockObjectValue =
-      ObjectValue::FromAggregateFieldsEntry(mockAggregatesField, 1);
+  // Test ObjectValue result
+  ObjectValue object_value_result =
+      ObjectValue::FromAggregateFieldsEntry(aggregate_fields_entry, 1);
 
-  // Set mocked result on our MockAggregateQuery object
-  MockAggregateQuery aggregateQuery(query, std::move(aggregates),
-                                    StatusOr<ObjectValue>(mockObjectValue));
+  // Create an AggregateQuery with mocked GetAggregate function that
+  // invokes the callback with the test results from above
+  Query query;
+  AggregateField count_aggregate_field(AggregateField::OpKind::Count,
+                                       AggregateAlias("count"));
+  std::vector<AggregateField> aggregates{count_aggregate_field};
+  MockAggregateQuery mock_aggregate_query(query, std::move(aggregates));
+  EXPECT_CALL(mock_aggregate_query, GetAggregate)
+      .Times(1)
+      .WillOnce(Invoke([object_value_result = std::move(object_value_result)](
+                           AggregateQueryCallback&& callback) {
+        callback(object_value_result);
+      }));
 
-  // Call the Get method
-  size_t callbackCount = 0;
-  aggregateQuery.Get([&callbackCount](const StatusOr<int64_t>& result) mutable {
-    callbackCount++;
-    EXPECT_EQ(result.ok(), true);
-    EXPECT_EQ(result.ValueOrDie(), 10);
-  });
+  // Call the Get function, which is the function under test
+  int callback_count = 0;
+  mock_aggregate_query.Get(
+      [&callback_count](const StatusOr<int64_t>& result) mutable {
+        callback_count++;
+        EXPECT_EQ(result.ok(), true);
+        EXPECT_EQ(result.ValueOrDie(), 10);
+      });
 
-  // Assert
-  EXPECT_EQ(callbackCount, 1);
+  // Assert the callback was invoked
+  EXPECT_EQ(callback_count, 1);
 }
 
-// Assert that the Get method calls GetAggregate method
+// Assert that the Get member function calls GetAggregate member function
 // and that an error result from GetAggregate is processed
 // appropriately
 TEST(AggregateQuery, GetCallsGetAggregateError) {
-  // Params for Get: Query and AggregateField vector
+  // Error result
+  Status error_result = Status(Error::kErrorInternal, "foo");
+
+  // Create an AggregateQuery with mocked GetAggregate function that
+  // invokes the callback with the error status from above
   Query query;
-  AggregateField countAggregateField(AggregateField::OpKind::Count,
-                                     AggregateAlias("count"));
-  std::vector<AggregateField> aggregates{countAggregateField};
+  AggregateField count_aggregate_field(AggregateField::OpKind::Count,
+                                       AggregateAlias("count"));
+  std::vector<AggregateField> aggregates{count_aggregate_field};
+  MockAggregateQuery mock_aggregate_query(query, std::move(aggregates));
+  EXPECT_CALL(mock_aggregate_query, GetAggregate)
+      .Times(1)
+      .WillOnce(Invoke(
+          [error_result = std::move(error_result)](
+              AggregateQueryCallback&& callback) { callback(error_result); }));
 
-  // Mock error status
-  Status mockError = Status(Error::kErrorInternal, "foo");
-
-  // Set mocked result on our MockAggregateQuery object
-  MockAggregateQuery aggregateQuery(query, std::move(aggregates),
-                                    StatusOr<ObjectValue>(mockError));
-
-  // Call the Get method
-  size_t callbackCount = 0;
-  aggregateQuery.Get([&callbackCount](const StatusOr<int64_t>& result) mutable {
-    callbackCount++;
-    EXPECT_EQ(result.ok(), false);
-    EXPECT_EQ(result.status().code(), Error::kErrorInternal);
-    EXPECT_EQ(result.status().error_message(), "foo");
-  });
+  // Call the Get member function
+  int callback_count = 0;
+  mock_aggregate_query.Get(
+      [&callback_count](const StatusOr<int64_t>& result) mutable {
+        callback_count++;
+        EXPECT_EQ(result.ok(), false);
+        EXPECT_EQ(result.status().code(), Error::kErrorInternal);
+        EXPECT_EQ(result.status().error_message(), "foo");
+      });
 
   // Assert
-  EXPECT_EQ(callbackCount, 1);
+  EXPECT_EQ(callback_count, 1);
 }
 
-// Assert that the Query.Count method creates an AggregateQuery
+// Assert that the Query::Count member function creates an AggregateQuery
 // with the expected query and aggregates
 TEST(Query, Count) {
   // Baseline Query
   Query query;
 
-  // Testing the Count() method
-  AggregateQuery aggregateQuery = query.Count();
+  // Testing the Count() function
+  AggregateQuery aggregate_query = query.Count();
 
-  auto internalQuery = AggregateQueryTest::GetQuery(aggregateQuery);
-  auto internalAggregates = AggregateQueryTest::GetAggregates(aggregateQuery);
+  const Query& internal_query = AggregateQueryTest::GetQuery(aggregate_query);
+  const std::vector<AggregateField>& internal_aggregates =
+      AggregateQueryTest::GetAggregates(aggregate_query);
 
   // Assert
-  EXPECT_EQ(internalQuery, query);
-  EXPECT_EQ(internalAggregates.size(), 1);
-  EXPECT_EQ(internalAggregates[0].op, AggregateField::OpKind::Count);
-  EXPECT_EQ(internalAggregates[0].alias.StringValue(), "count");
+  EXPECT_EQ(internal_query, query);
+  ASSERT_EQ(internal_aggregates.size(), 1);
+  EXPECT_EQ(internal_aggregates[0].op, AggregateField::OpKind::Count);
+  EXPECT_EQ(internal_aggregates[0].alias.StringValue(), "count");
 }
 
 }  // namespace

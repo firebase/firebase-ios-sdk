@@ -45,6 +45,9 @@ class AggregateQuery {
   friend bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
   size_t Hash() const;
 
+  // TODO(b/280805906) this method is marked as virtual to allow mocking
+  // in api/aggregate_query_test.cc. The virtual keyword can be removed
+  // when the tests and mocking are removed.
   virtual void GetAggregate(AggregateQueryCallback&& callback);
 
   // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
