@@ -21,31 +21,45 @@
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
+#import "Firestore/core/src/model/aggregate_field.h"
+
+using firebase::firestore::model::AggregateField;
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - FIRAggregateField
 
 @interface FIRAggregateField ()
-@property(nonatomic, strong) FIRFieldPath *fieldPath;
+@property(nonatomic, strong) FIRFieldPath *_fieldPath;
 @property(nonatomic, readwrite) model::AggregateField::OpKind _op;
-- (instancetype)initWithFieldPath:(nullable FIRFieldPath *)fieldPath
-                           opKind:(model::AggregateField::OpKind)op;
+- (instancetype)initWithFieldPathAndKind:(nullable FIRFieldPath *)fieldPath
+                                  opKind:(model::AggregateField::OpKind)op;
 @end
 
 @implementation FIRAggregateField
-- (instancetype)initWithFieldPath:(nullable FIRFieldPath *)fieldPath
-                           opKind:(model::AggregateField::OpKind)op {
+- (instancetype)initWithFieldPathAndKind:(nullable FIRFieldPath *)fieldPath
+                                  opKind:(model::AggregateField::OpKind)op {
   if (self = [super init]) {
-    self.fieldPath = fieldPath;
+    self._fieldPath = fieldPath;
     self._op = op;
   }
   return self;
 }
 
-@synthesize fieldPath;
+- (FIRFieldPath *)fieldPath {
+  return [self _fieldPath];
+}
 
 - (const std::string)name {
-  return model::AggregateField::OperatorKind([self _op]);
+  switch ([self _op]) {
+    case AggregateField::OpKind::Sum:
+      return std::string("sum");
+    case AggregateField::OpKind::Avg:
+      return std::string("avg");
+    case AggregateField::OpKind::Count:
+      return std::string("count");
+  }
+  UNREACHABLE();
 }
 
 - (model::AggregateField)createInternalValue {
@@ -69,15 +83,15 @@ NS_ASSUME_NONNULL_BEGIN
   return [[FSTCountAggregateField alloc] initPrivate];
 }
 
-+ (instancetype)aggregateFieldForSumOfField:(NSString *)field NS_SWIFT_NAME(sum(_:)) {
++ (instancetype)aggregateFieldForSumOfField:(NSString *)field {
   return [self aggregateFieldForSumOfFieldPath:[FIRFieldPath pathWithDotSeparatedString:field]];
 }
 
-+ (instancetype)aggregateFieldForSumOfFieldPath:(FIRFieldPath *)fieldPath NS_SWIFT_NAME(sum(_:)) {
++ (instancetype)aggregateFieldForSumOfFieldPath:(FIRFieldPath *)fieldPath {
   return [[FSTSumAggregateField alloc] initWithFieldPath:fieldPath];
 }
 
-+ (instancetype)aggregateFieldForAverageOfField:(NSString *)field NS_SWIFT_NAME(average(_:)) {
++ (instancetype)aggregateFieldForAverageOfField:(NSString *)field {
   return [self aggregateFieldForAverageOfFieldPath:[FIRFieldPath pathWithDotSeparatedString:field]];
 }
 
@@ -91,7 +105,7 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - FSTSumAggregateField
 @implementation FSTSumAggregateField
 - (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
-  self = [super initWithFieldPath:fieldPath opKind:model::AggregateField::OpKind::Sum];
+  self = [super initWithFieldPathAndKind:fieldPath opKind:model::AggregateField::OpKind::Sum];
   return self;
 }
 @end
@@ -100,7 +114,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTAverageAggregateField
 - (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath {
-  self = [super initWithFieldPath:fieldPath opKind:model::AggregateField::OpKind::Avg];
+  self = [super initWithFieldPathAndKind:fieldPath opKind:model::AggregateField::OpKind::Avg];
   return self;
 }
 
@@ -110,7 +124,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FSTCountAggregateField
 - (instancetype)initPrivate {
-  self = [super initWithFieldPath:Nil opKind:model::AggregateField::OpKind::Count];
+  self = [super initWithFieldPathAndKind:Nil opKind:model::AggregateField::OpKind::Count];
   return self;
 }
 

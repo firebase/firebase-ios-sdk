@@ -77,3 +77,22 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh version-test ${{ matrix.target }} spm
     - name: Analytics Build Tests
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh analytics-import-test ${{ matrix.target }} spm
+
+  client-app:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    runs-on: macos-12
+    strategy:
+      matrix:
+        platform: [iOS]
+        # TODO(Xcode 14.3): Remove above line and uncomment below array when GHA
+        # supports Ventura/Xcode 14.3.
+        # platform: [iOS, tvOS, macOS, catalyst]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Build Client App –– ${{ matrix.platform }}
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh SwiftPMClientApp ${{ matrix.platform }} xcodebuild

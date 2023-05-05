@@ -25,6 +25,7 @@ import Foundation
     /// - Parameter data: A `Dictionary` containing the data for the new document.
     /// - Throws: `Error` if the backend rejected the write.
     /// - Returns: A `DocumentReference` pointing to the newly created document.
+    @discardableResult
     func addDocument(data: [String: Any]) async throws -> DocumentReference {
       return try await withCheckedThrowingContinuation { continuation in
         var document: DocumentReference?

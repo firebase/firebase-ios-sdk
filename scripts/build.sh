@@ -698,6 +698,14 @@ case "$product-$platform-$method" in
       build
     ;;
 
+  SwiftPMClientApp-*-xcodebuild)
+    RunXcodebuild \
+      -project 'SwiftPMTests/ClientApp/ClientApp.xcodeproj' \
+      -scheme "ClientApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
   *)
 
     echo "Don't know how to build this product-platform-method combination" 1>&2

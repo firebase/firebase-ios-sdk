@@ -26,10 +26,10 @@ namespace model = firebase::firestore::model;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAggregateField (Internal)
-@property(nonatomic, strong, readonly) FIRFieldPath *fieldPath;
 - (model::AggregateField)createInternalValue;
 - (model::AggregateAlias)createAlias;
 - (const std::string)name;
+- (const FIRFieldPath *)fieldPath;
 @end
 
 /**
@@ -50,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithFieldPath:(FIRFieldPath *)fieldPath;
 @end
 
-/** FIRAggregateField class for count aggregations. Exposed internally so code can do isKindOfClass
+/**
+ * FIRAggregateField class for count aggregations. Exposed internally so code can do isKindOfClass
  * checks on it.
  */
 @interface FSTCountAggregateField : FIRAggregateField
