@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestore/FIRAggregateField.h>
 #import <FirebaseFirestore/FIRFieldPath.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
 
+// TODO(sum/avg) update these imports with public imports when sum/avg is public
+#import "Firestore/Source/API/FIRAggregateField.h"
+#import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
+#import "Firestore/Source/API/FIRQuery+Internal.h"
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-#import "Firestore/core/src/util/exception.h"
 
 @interface FIRAggregateTests : FSTIntegrationTestCase
 @end
@@ -198,8 +201,10 @@
   XCTAssertNotEqual([query6 hash], [query4 hash]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testCanRunAggregateQuery {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -256,8 +261,10 @@
       49.8);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testCanRunEmptyAggregateQuery {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -299,8 +306,9 @@
   XCTAssertTrue([[result localizedDescription] containsString:@"Aggregations can not be empty"]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testAggregateFieldQuerySnapshotEquality {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -374,8 +382,10 @@
   XCTAssertNotEqual([snapshot3 hash], [snapshot4 hash]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testAllowsAliasesLongerThan1500Bytes {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   // The longest field name allowed is 1500. The alias chosen by the client is <op>_<fieldName>.
   // If the field name is
   // 1500 bytes, the alias will be longer than 1500, which is the limit for aliases. This is to
@@ -399,8 +409,10 @@
       [NSNumber numberWithLong:3], );
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testCanGetDuplicateAggregations {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -441,8 +453,10 @@
       [NSNumber numberWithLong:150L], );
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testTerminateDoesNotCrashWithFlyingAggregateQuery {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -493,8 +507,10 @@
       [NSNumber numberWithLong:150L], );
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testCanPerformMaxAggregations {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -547,8 +563,10 @@
       49.8);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testCannotPerformMoreThanMaxAggregations {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -598,8 +616,10 @@
   XCTAssertTrue([[result localizedDescription] containsString:@"maximum number of aggregations"]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testCanRunAggregateCollectionGroupQuery {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   NSString* collectionGroup =
       [NSString stringWithFormat:@"%@%@", @"b",
                                  [self.db collectionWithPath:@"foo"].documentWithAutoID.documentID];
@@ -639,8 +659,10 @@
       [NSNumber numberWithDouble:2.0]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAggregationsWhenNaNExistsForSomeFieldValues {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -699,8 +721,10 @@
       2000.0);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testThrowsAnErrorWhenGettingTheResultOfAnUnrequestedAggregation {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -759,8 +783,10 @@
   }
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAggregationWhenUsingInOperator {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -827,8 +853,10 @@
       100.0);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAggregationWhenUsingArrayContainsAnyOperator {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -895,8 +923,10 @@
       100.0);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAggregationsOnNestedMapValues {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -947,8 +977,10 @@
       3.0);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumThatOverflowsMaxLong {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -975,8 +1007,10 @@
           [[NSNumber numberWithLong:LLONG_MAX] doubleValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumThatCanOverflowLongValuesDuringAccumulation {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1000,8 +1034,10 @@
       [[NSNumber numberWithLong:LLONG_MAX - 100] longLongValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumThatIsNegative {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1034,8 +1070,10 @@
       [[NSNumber numberWithLong:-10101] longLongValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumThatIsPositiveInfinity {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1060,8 +1098,10 @@
       [NSNumber numberWithDouble:INFINITY]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumThatIsNegativeInfinity {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1086,8 +1126,10 @@
       [NSNumber numberWithDouble:-INFINITY]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumThatIsValidButCouldOverflowDuringAggregation {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
     @"b" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
@@ -1115,8 +1157,10 @@
       [[NSNumber numberWithLong:0] doubleValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumOverResultSetOfZeroDocuments {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1151,8 +1195,10 @@
       [NSNumber numberWithLong:0L]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumOnlyOnNumericFields {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithLong:5]},
     @"b" : @{@"rating" : [NSNumber numberWithLong:4]},
@@ -1177,8 +1223,10 @@
       [[NSNumber numberWithLong:10] longLongValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsSumOfMinIEEE754 {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:__DBL_DENORM_MIN__]}
   }];
@@ -1195,8 +1243,10 @@
       [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAverageOfVariousNumericTypes {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"x" : @1,
@@ -1264,8 +1314,10 @@
   }
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAverageCausingUnderflow {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:__DBL_DENORM_MIN__]},
     @"b" : @{@"rating" : [NSNumber numberWithDouble:0]}
@@ -1283,8 +1335,10 @@
       [[NSNumber numberWithDouble:0] doubleValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAverageOfMinIEEE754 {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:__DBL_DENORM_MIN__]}
   }];
@@ -1301,8 +1355,10 @@
       [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAverageOverflowIEEE754DuringAccumulation {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
     @"b" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]}
@@ -1320,8 +1376,10 @@
       [[NSNumber numberWithDouble:INFINITY] doubleValue]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAverageOverResultSetOfZeroDocuments {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -1356,8 +1414,10 @@
       [NSNull null]);
 }
 
-// TODO(sum/avg) skip when running against production
 - (void)testPerformsAverageOnlyOnNumericFields {
+  // TODO(sum/avg) remove the check below when sum and avg are supported in production
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{@"rating" : [NSNumber numberWithLong:5]},
     @"b" : @{@"rating" : [NSNumber numberWithLong:4]},
