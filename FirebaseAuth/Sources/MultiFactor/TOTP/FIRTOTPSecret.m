@@ -18,7 +18,7 @@
 
 #import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
-#import "UIKit/UIKit.h"
+#import <UIKit/UIKit.h>
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRTOTPSecret
