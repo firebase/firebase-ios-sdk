@@ -1,3 +1,6 @@
+# 10.10.0
+- [fixed] Crash on InApp message presentation when a CarPlay scene is active (#11232)
+
 # 10.0.0
 - [removed] Removed `foo` constant from Swift `InAppMessagingPreviewHelpers` API (#10222).
 - [fixed] Changed internal `dataChanged` symbol that triggered App Store warnings (#10276).
