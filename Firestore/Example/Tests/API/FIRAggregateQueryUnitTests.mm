@@ -47,6 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
       [[FIRQuery alloc] initWithQuery:Query("foo") firestore:firestore].count;
   FIRAggregateQuery *queryBar =
       [[FIRQuery alloc] initWithQuery:Query("bar") firestore:firestore].count;
+  XCTAssertEqualObjects(queryFoo, queryFooDup);
+  XCTAssertNotEqualObjects(queryFoo, queryBar);
 
   XCTAssertEqual([queryFoo hash], [queryFooDup hash]);
   XCTAssertNotEqual([queryFoo hash], [queryBar hash]);
