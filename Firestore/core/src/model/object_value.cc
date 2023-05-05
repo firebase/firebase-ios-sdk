@@ -238,7 +238,7 @@ ObjectValue ObjectValue::FromAggregateFieldsEntry(
       &value->map_value.fields, &value->map_value.fields_count,
       absl::Span<google_firestore_v1_AggregationResult_AggregateFieldsEntry>(
           fields_entry, count),
-      [aliasMap](
+      [&aliasMap](
           const google_firestore_v1_AggregationResult_AggregateFieldsEntry&
               entry) {
         // Remap the short-form aliases that were sent to the server
