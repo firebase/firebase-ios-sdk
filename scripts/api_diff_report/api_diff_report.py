@@ -109,8 +109,8 @@ def generate_diff_json(new_api, old_api, level='module'):
         diff[key]['declaration'] = [STATUS_REMOVED] + diff[key]['declaration']
     # Module Build Error. If a "module" exist but have no
     # content (e.g. doc_path), it must have a build error.
-    elif level == 'module' and (not new_api[key]['path'] or
-                                not old_api[key]['path']):
+    elif level == 'module' and (not new_api[key]['path']
+                                or not old_api[key]['path']):
       diff[key] = {'status': STATUS_ERROR}
     # Check diff in child level and diff in declaration
     else:
