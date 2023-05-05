@@ -1,5 +1,5 @@
 # 10.10.0
-- [fixed] Crash on InApp message presentation when a CarPlay scene is active (#11232)
+- [fixed] Crash on InApp message presentation when a CarPlay scene is active (#9376)
 
 # 10.0.0
 - [removed] Removed `foo` constant from Swift `InAppMessagingPreviewHelpers` API (#10222).
