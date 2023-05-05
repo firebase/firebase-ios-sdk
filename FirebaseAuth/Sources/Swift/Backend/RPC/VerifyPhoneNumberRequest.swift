@@ -78,42 +78,41 @@ extension AuthOperationType {
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRVerifyPhoneNumberRequest) public class VerifyPhoneNumberRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property verificationID
        @brief The verification ID obtained from the response of @c sendVerificationCode.
    */
-  @objc public var verificationID: String?
+  public var verificationID: String?
 
   /** @property verificationCode
        @brief The verification code provided by the user.
    */
-  @objc public var verificationCode: String?
+  public var verificationCode: String?
 
   /** @property accessToken
       @brief The STS Access Token for the authenticated user.
    */
-  @objc public var accessToken: String?
+  public var accessToken: String?
 
   /** @var temporaryProof
       @brief The temporary proof code, previously returned from the backend.
    */
-  @objc public var temporaryProof: String?
+  public var temporaryProof: String?
 
   /** @var phoneNumber
       @brief The phone number to be verified in the request.
    */
-  @objc public var phoneNumber: String?
+  public var phoneNumber: String?
 
   /** @var operation
       @brief The type of operation triggering this verify phone number request.
    */
-  @objc public var operation: AuthOperationType
+  public var operation: AuthOperationType
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = VerifyPhoneNumberResponse()
+  public var response: VerifyPhoneNumberResponse = VerifyPhoneNumberResponse()
 
   /** @fn initWithTemporaryProof:phoneNumberAPIKey
       @brief Designated initializer.
@@ -122,7 +121,7 @@ extension AuthOperationType {
       @param operation Indicates what operation triggered the verify phone number request.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  @objc public init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
+  public init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
                     requestConfiguration: AuthRequestConfiguration) {
     self.temporaryProof = temporaryProof
     self.phoneNumber = phoneNumber
@@ -137,7 +136,7 @@ extension AuthOperationType {
       @param operation Indicates what operation triggered the verify phone number request.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  @objc public init(verificationID: String,
+  public init(verificationID: String,
                     verificationCode: String,
                     operation: AuthOperationType,
                     requestConfiguration: AuthRequestConfiguration) {

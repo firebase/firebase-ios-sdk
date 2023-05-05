@@ -14,44 +14,32 @@
 
 import Foundation
 
-// TODO: Once this type doesn't need to be @objc, perhaps it would make sense to make the response an
-// associated type of the request protocol and perform all encoding of requests and decoding of responses
-// using Codable.
-
-/** @protocol FIRAuthRPCRequest
-    @brief The generic interface for an RPC request needed by @c FIRAuthBackend.
- */
+/// The generic interface for an RPC request needed by AuthBackend.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthRPCRequest) public protocol AuthRPCRequest: NSObjectProtocol {
-  /** @fn requestURL
-      @brief Gets the request's full URL.
-   */
+protocol AuthRPCRequest {
+  associatedtype Response: AuthRPCResponse
 
+  /// Gets the request's full URL.
   func requestURL() -> URL
 
-  /** @fn containsPostBody
-      @brief Returns whether the request contains a post body or not. Requests without a post body
-          are get requests.
-      @remarks The default implementation returns true.
-   */
-  @objc optional func containsPostBody() -> Bool
+  /// Returns whether the request contains a post body or not. Requests without a post body are
+  /// GET requests. A default implementation returns `true`.
+  var containsPostBody: Bool { get }
 
-  /** @fn UnencodedHTTPRequestBodyWithError:
-      @brief Creates unencoded HTTP body representing the request.
-      @param error An out field for an error which occurred constructing the request.
-      @return The HTTP body data representing the request before any encoding, or nil for error.
-   */
-  @objc(unencodedHTTPRequestBodyWithError:)
+  /// Creates unencoded HTTP body representing the request.
+  /// - Throws: Any error which occurred constructing the request.
+  /// - Returns: The HTTP body data representing the request before any encoding.
   func unencodedHTTPRequestBody() throws -> [String: AnyHashable]
 
-  /** @fn requestConfiguration
-      @brief Obtains the request configurations if available.
-      @return Returns the request configurations.
-   */
+  /// The request configuration.
   func requestConfiguration() -> AuthRequestConfiguration
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  var response: AuthRPCResponse { get }
+  /// The corresponding response for this request.
+  var response: Response { get }
+}
+
+// Default implementation of AuthRPCRequests. This produces similar behaviour to an optional method
+// in Obj-C.
+extension AuthRPCRequest {
+  public var containsPostBody: Bool { return true }
 }

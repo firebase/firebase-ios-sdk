@@ -135,9 +135,7 @@ private let kVerifyBeforeUpdateEmailRequestTypeValue = "VERIFY_AND_CHANGE_EMAIL"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRGetOOBConfirmationCodeRequest)
-public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property requestType
       @brief The types of OOB Confirmation Code to request.
    */
@@ -147,60 +145,60 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
       @brief The email of the user.
       @remarks For password reset.
    */
-  @objc public var email: String?
+  public var email: String?
 
   /** @property updatedEmail
       @brief The new email to be updated.
       @remarks For verifyBeforeUpdateEmail.
    */
-  @objc public var updatedEmail: String?
+  public var updatedEmail: String?
 
   /** @property accessToken
       @brief The STS Access Token of the authenticated user.
       @remarks For email change.
    */
-  @objc public var accessToken: String?
+  public var accessToken: String?
 
   /** @property continueURL
       @brief This URL represents the state/Continue URL in the form of a universal link.
    */
-  @objc public var continueURL: String?
+  public var continueURL: String?
 
   /** @property iOSBundleID
       @brief The iOS bundle Identifier, if available.
    */
-  @objc public var iOSBundleID: String?
+  public var iOSBundleID: String?
 
   /** @property androidPackageName
       @brief The Android package name, if available.
    */
-  @objc public var androidPackageName: String?
+  public var androidPackageName: String?
 
   /** @property androidMinimumVersion
       @brief The minimum Android version supported, if available.
    */
-  @objc public var androidMinimumVersion: String?
+  public var androidMinimumVersion: String?
 
   /** @property androidInstallIfNotAvailable
       @brief Indicates whether or not the Android app should be installed if not already available.
    */
-  @objc public var androidInstallApp: Bool
+  public var androidInstallApp: Bool
 
   /** @property handleCodeInApp
       @brief Indicates whether the action code link will open the app directly or after being
           redirected from a Firebase owned web widget.
    */
-  @objc public var handleCodeInApp: Bool
+  public var handleCodeInApp: Bool
 
   /** @property dynamicLinkDomain
       @brief The Firebase Dynamic Link domain used for out of band code flow.
    */
-  @objc public var dynamicLinkDomain: String?
+  public var dynamicLinkDomain: String?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = GetOOBConfirmationCodeResponse()
+  public var response: GetOOBConfirmationCodeResponse = GetOOBConfirmationCodeResponse()
 
   /** @fn initWithRequestType:email:APIKey:
       @brief Designated initializer.
@@ -236,7 +234,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
     )
   }
 
-  @objc public static func passwordResetRequest(email: String,
+  public static func passwordResetRequest(email: String,
                                                 actionCodeSettings: ActionCodeSettings?,
                                                 requestConfiguration: AuthRequestConfiguration) ->
     GetOOBConfirmationCodeRequest {
@@ -248,7 +246,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
          requestConfiguration: requestConfiguration)
   }
 
-  @objc public static func verifyEmailRequest(accessToken: String,
+  public static func verifyEmailRequest(accessToken: String,
                                               actionCodeSettings: ActionCodeSettings?,
                                               requestConfiguration: AuthRequestConfiguration) ->
     GetOOBConfirmationCodeRequest {
@@ -260,7 +258,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
          requestConfiguration: requestConfiguration)
   }
 
-  @objc public static func signInWithEmailLinkRequest(_ email: String,
+  public static func signInWithEmailLinkRequest(_ email: String,
                                                       actionCodeSettings: ActionCodeSettings?,
                                                       requestConfiguration: AuthRequestConfiguration)
     -> Self {
@@ -272,7 +270,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
          requestConfiguration: requestConfiguration)
   }
 
-  @objc public static func verifyBeforeUpdateEmail(accessToken: String,
+  public static func verifyBeforeUpdateEmail(accessToken: String,
                                                    newEmail: String,
                                                    actionCodeSettings: ActionCodeSettings?,
                                                    requestConfiguration: AuthRequestConfiguration)

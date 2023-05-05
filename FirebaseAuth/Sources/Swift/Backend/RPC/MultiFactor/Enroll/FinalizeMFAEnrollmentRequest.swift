@@ -32,11 +32,11 @@ class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
+  var response: FinalizeMFAEnrollmentResponse = FinalizeMFAEnrollmentResponse()
 
   init(idToken: String?, displayName: String?,
-       verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
-       requestConfiguration: AuthRequestConfiguration) {
+                    verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
+                    requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
     self.displayName = displayName
     self.verificationInfo = verificationInfo

@@ -22,16 +22,16 @@ private let kWithdrawMFAEndPoint = "accounts/mfaEnrollment:withdraw"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
-  @objc public var idToken: String?
-  @objc public var mfaEnrollmentID: String?
+public class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
+  var idToken: String?
+  var mfaEnrollmentID: String?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = WithdrawMFAResponse()
+  var response: WithdrawMFAResponse = WithdrawMFAResponse()
 
-  @objc public init(idToken: String?,
+  init(idToken: String?,
                     mfaEnrollmentID: String?,
                     requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
@@ -39,7 +39,7 @@ class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kWithdrawMFAEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
     if let idToken = idToken {
       postBody["idToken"] = idToken

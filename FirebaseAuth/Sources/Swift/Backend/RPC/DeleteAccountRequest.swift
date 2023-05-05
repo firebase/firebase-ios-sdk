@@ -31,22 +31,21 @@ private let kIDTokenKey = "idToken"
 private let kLocalIDKey = "localId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRDeleteAccountRequest) public class DeleteAccountRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var _accessToken
       @brief The STS Access Token of the authenticated user.
    */
-  @objc public let accessToken: String
+  public let accessToken: String
 
   /** @var _localID
       @brief The localID of the user.
    */
-  @objc public let localID: String
+  public let localID: String
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = DeleteAccountResponse()
+  public var response: DeleteAccountResponse = DeleteAccountResponse()
 
   @objc(initWithLocalID:accessToken:requestConfiguration:) public init(localID: String,
                                                                        accessToken: String,

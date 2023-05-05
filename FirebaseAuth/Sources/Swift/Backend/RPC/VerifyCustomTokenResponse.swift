@@ -17,8 +17,7 @@ import Foundation
 /** @class FIRVerifyCustomTokenResponse
     @brief Represents the response from the verifyCustomToken endpoint.
  */
-@objc(FIRVerifyCustomTokenResponse) public class VerifyCustomTokenResponse: NSObject,
-  AuthRPCResponse {
+public class VerifyCustomTokenResponse: AuthRPCResponse {
   /** @property idToken
    @brief Either an authorization code suitable for performing an STS token exchange, or the
    access token from Secure Token Service, depending on whether @c returnSecureToken is set
@@ -29,17 +28,17 @@ import Foundation
   /** @property approximateExpirationDate
    @brief The approximate expiration date of the access token.
    */
-  @objc public var approximateExpirationDate: Date?
+  public var approximateExpirationDate: Date?
 
   /** @property refreshToken
    @brief The refresh token from Secure Token Service.
    */
-  @objc public var refreshToken: String?
+  public var refreshToken: String?
 
   /** @property isNewUser
    @brief Flag indicating that the user signing in is a new user and not a returning user.
    */
-  @objc public var isNewUser: Bool = false
+  public var isNewUser: Bool = false
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String

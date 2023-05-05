@@ -44,43 +44,42 @@ private let kIDTokenKey = "idToken"
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRRevokeTokenRequest) public class RevokeTokenRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property providerID
       @brief The provider that issued the token to revoke.
    */
-  @objc public var providerID: String
+  public var providerID: String
 
   /** @property tokenType
       @brief The type of the token to revoke.
    */
-  @objc public var tokenType: TokenType
+  public var tokenType: TokenType
 
   /** @property token
       @brief The token to be revoked.
    */
-  @objc public var token: String
+  public var token: String
 
   /** @property idToken
       @brief The ID Token associated with this credential.
    */
-  @objc public var idToken: String
+  public var idToken: String
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = RevokeTokenResponse()
+  public var response: RevokeTokenResponse = RevokeTokenResponse()
 
-  @objc public enum TokenType: Int {
+  public enum TokenType: Int {
     case unspecified = 0, refreshToken = 1, accessToken = 2, authorizationCode = 3
   }
 
   @available(*, unavailable)
-  @objc public init(withEndpoint endpoint: String, requestConfiguration: AuthRequestConfiguration) {
+  public init(withEndpoint endpoint: String, requestConfiguration: AuthRequestConfiguration) {
     fatalError("Use init(withToken: ... instead")
   }
 
-  @objc public init(withToken token: String,
+  public init(withToken token: String,
                     idToken: String,
                     requestConfiguration: AuthRequestConfiguration) {
     // Apple and authorization code are the only provider and token type we support for now.

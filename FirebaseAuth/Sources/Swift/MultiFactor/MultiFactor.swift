@@ -85,7 +85,7 @@ import Foundation
           requestConfiguration: user.requestConfiguration
         )
 
-        AuthBackend.post(withRequest: request) { rawResponse, error in
+        AuthBackend.post(with: request) { rawResponse, error in
           if let error {
             if let completion {
               completion(error)
@@ -161,7 +161,7 @@ import Foundation
       let request = WithdrawMFARequest(idToken: user.rawAccessToken(),
                                        mfaEnrollmentID: factorUID,
                                        requestConfiguration: user.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           if let completion {
             completion(error)

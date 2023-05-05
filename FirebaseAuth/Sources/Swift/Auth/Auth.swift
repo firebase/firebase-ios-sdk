@@ -299,10 +299,10 @@ extension Auth: AuthInterop {
       let request = CreateAuthURIRequest(identifier: email,
                                          continueURI: "http:www.google.com",
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
-            completion((response as? CreateAuthURIResponse)?.signinMethods, error)
+            completion(response?.signinMethods, error)
           }
         }
       }
@@ -384,12 +384,12 @@ extension Auth: AuthInterop {
       callback(nil, AuthErrorUtils.wrongPasswordError(message: nil))
       return
     }
-    AuthBackend.post(withRequest: request) { rawResponse, error in
+    AuthBackend.post(with: request) { rawResponse, error in
       if let error {
         callback(nil, error)
         return
       }
-      guard let response = rawResponse as? VerifyPasswordResponse else {
+      guard let response = rawResponse else {
         fatalError("Internal Auth Error: null response from VerifyPasswordRequest")
       }
       self.completeSignIn(withAccessToken: response.idToken,
@@ -746,12 +746,12 @@ extension Auth: AuthInterop {
         decoratedCallback(result, nil)
       }
       let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           decoratedCallback(nil, error)
           return
         }
-        guard let response = rawResponse as? SignUpNewUserResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a SignUpNewUserResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -827,12 +827,12 @@ extension Auth: AuthInterop {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let request = VerifyCustomTokenRequest(token: token,
                                              requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           decoratedCallback(nil, error)
           return
         }
-        guard let response = rawResponse as? VerifyCustomTokenResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a VerifyCustomTokenResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -932,12 +932,12 @@ extension Auth: AuthInterop {
                                          password: password,
                                          displayName: nil,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           decoratedCallback(nil, error)
           return
         }
-        guard let response = rawResponse as? SignUpNewUserResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a SignUpNewUserResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -1025,7 +1025,7 @@ extension Auth: AuthInterop {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: newPassword,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { _, error in
+      AuthBackend.post(with: request) { _, error in
         DispatchQueue.main.async {
           if let error {
             completion(error)
@@ -1082,13 +1082,13 @@ extension Auth: AuthInterop {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: nil,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         DispatchQueue.main.async {
           if let error {
             completion(nil, error)
             return
           }
-          guard let response = rawResponse as? ResetPasswordResponse,
+          guard let response = rawResponse,
                 let email = response.email else {
             fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
           }
@@ -1176,7 +1176,7 @@ extension Auth: AuthInterop {
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
       request.oobCode = code
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         DispatchQueue.main.async {
           completion(error)
         }
@@ -1265,7 +1265,7 @@ extension Auth: AuthInterop {
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
             completion(error)
@@ -1334,7 +1334,7 @@ extension Auth: AuthInterop {
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
             completion(error)
@@ -1552,7 +1552,7 @@ extension Auth: AuthInterop {
       let request = RevokeTokenRequest(withToken: authorizationCode,
                                        idToken: idToken,
                                        requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
             if let error {
@@ -2157,7 +2157,7 @@ extension Auth: AuthInterop {
               callback(nil, error)
               return
             }
-            guard let response = rawResponse as? VerifyPhoneNumberResponse else {
+            guard let response = rawResponse else {
               fatalError("Internal Auth Error: Failed to get a VerifyPhoneNumberResponse")
             }
             self.completeSignIn(withAccessToken: response.idToken,
@@ -2192,14 +2192,14 @@ extension Auth: AuthInterop {
                                          requestConfiguration: requestConfiguration)
     request.autoCreate = !isReauthentication
     credential.prepare(request)
-    AuthBackend.post(withRequest: request) { rawResponse, error in
+    AuthBackend.post(with: request) { rawResponse, error in
       if let error {
         if let callback {
           callback(nil, error)
         }
         return
       }
-      guard let response = rawResponse as? VerifyAssertionResponse else {
+      guard let response = rawResponse else {
         fatalError("Internal Auth Error: Failed to get a VerifyAssertionResponse")
       }
       if response.needConfirmation {
@@ -2275,7 +2275,7 @@ extension Auth: AuthInterop {
                                                verificationCode: code,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        AuthBackend.post(withRequest: request, callback: callback)
+        AuthBackend.post(with: request, callback: callback)
       }
     }
   #endif
@@ -2305,14 +2305,14 @@ extension Auth: AuthInterop {
                                                 timestamp: credential.timestamp,
                                                 displayName: credential.displayName,
                                                 requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           if let callback {
             callback(nil, error)
           }
           return
         }
-        guard let response = rawResponse as? SignInWithGameCenterResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a SignInWithGameCenterResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -2362,14 +2362,14 @@ extension Auth: AuthInterop {
     let request = EmailLinkSignInRequest(email: email,
                                          oobCode: actionCode,
                                          requestConfiguration: requestConfiguration)
-    AuthBackend.post(withRequest: request) { rawResponse, error in
+    AuthBackend.post(with: request) { rawResponse, error in
       if let error {
         if let callback {
           callback(nil, error)
         }
         return
       }
-      guard let response = rawResponse as? EmailLinkSignInResponse else {
+      guard let response = rawResponse else {
         fatalError("Internal Auth Error: Failed to get a EmailLinkSignInResponse")
       }
       self.completeSignIn(withAccessToken: response.idToken,

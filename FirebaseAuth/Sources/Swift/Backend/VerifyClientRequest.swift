@@ -15,7 +15,6 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRVerifyClientRequest)
 public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The endpoint for the verifyClient request.
   private static let verifyClientEndpoint = "verifyClient"
@@ -29,7 +28,7 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = VerifyClientResponse()
+  public var response: VerifyClientResponse = VerifyClientResponse()
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody = [String: AnyHashable]()

@@ -45,14 +45,13 @@ private let kPostBodyKey = "postBody"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIREmailLinkSignInRequest) public class EmailLinkSignInRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
-  @objc public let email: String
+public class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+  public let email: String
 
   /** @property oobCode
       @brief The OOB code used to complete the email link sign-in flow.
    */
-  @objc public let oobCode: String
+  public let oobCode: String
 
   /** @property IDToken
       @brief The ID Token code potentially used to complete the email link sign-in flow.
@@ -63,9 +62,9 @@ private let kTenantIDKey = "tenantId"
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = EmailLinkSignInResponse()
+  public var response: EmailLinkSignInResponse = EmailLinkSignInResponse()
 
-  @objc public init(email: String, oobCode: String,
+  public init(email: String, oobCode: String,
                     requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.oobCode = oobCode
