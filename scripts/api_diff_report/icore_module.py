@@ -45,157 +45,161 @@ MODULE_LIST = [
     'FirebasePerformance',
     'FirebaseRemoteConfig',
     'FirebaseRemoteConfigSwift',
-    'FirebaseSharedSwift',  # Not buildable. No scheme named "FirebaseSharedSwift"
+    # Not buildable. No scheme named "FirebaseSharedSwift"
+    'FirebaseSharedSwift',
     'FirebaseStorage',
-    'GoogleAppMeasurement',  # Not buildable. NO "source_files"
-    'GoogleAppMeasurementOnDeviceConversion'  # Not buildable. NO "source_files"
+    # Not buildable. NO "source_files"
+    'GoogleAppMeasurement',
+    # Not buildable. NO "source_files"
+    'GoogleAppMeasurementOnDeviceConversion'
 ]
 
 
 def main():
-    module_info()
+  module_info()
 
 
 def detect_changed_modules(changed_api_files):
-    """Detect changed modules based on changed API files."""
-    all_modules = module_info()
-    changed_modules = {}
-    for file_path in changed_api_files:
-        for k, v in all_modules.items():
-            if v['root_dir'] and v['root_dir'] in file_path:
-                changed_modules[k] = v
-                break
+  """Detect changed modules based on changed API files."""
+  all_modules = module_info()
+  changed_modules = {}
+  for file_path in changed_api_files:
+    for k, v in all_modules.items():
+      if v['root_dir'] and v['root_dir'] in file_path:
+        changed_modules[k] = v
+        break
 
-    logging.info(f'changed_modules:\n{json.dumps(changed_modules, indent=4)}')
-    return changed_modules
+  logging.info(f'changed_modules:\n{json.dumps(changed_modules, indent=4)}')
+  return changed_modules
 
 
 def module_info():
-    """retrieve module info in MODULE_LIST from `.podspecs`
+  """retrieve module info in MODULE_LIST from `.podspecs`
     The module info helps to build Jazzy
-    includes: module name, source_files, public_header_files, language, umbrella_header, framework_root
+    includes: module name, source_files, public_header_files,
+              language, umbrella_header, framework_root
     """
-    module_from_podspecs = module_info_from_podspecs()
-    module_list = {}
-    for k, v in module_from_podspecs.items():
-        if k in MODULE_LIST:
-            if k not in module_list:
-                module_list[k] = v
-                module_list[k]['language'] = OBJECTIVE_C if v.get(
-                    'public_header_files') else SWIFT
-                module_list[k]['scheme'] = get_scheme(k)
-                module_list[k]['umbrella_header'] = get_umbrella_header(
-                    k, v.get('public_header_files'))
-                module_list[k]['root_dir'] = get_root_dir(
-                    k, v.get('source_files'))
+  module_from_podspecs = module_info_from_podspecs()
+  module_list = {}
+  for k, v in module_from_podspecs.items():
+    if k in MODULE_LIST:
+      if k not in module_list:
+        module_list[k] = v
+        module_list[k]['language'] = OBJECTIVE_C if v.get(
+            'public_header_files') else SWIFT
+        module_list[k]['scheme'] = get_scheme(k)
+        module_list[k]['umbrella_header'] = get_umbrella_header(
+            k, v.get('public_header_files'))
+        module_list[k]['root_dir'] = get_root_dir(k, v.get('source_files'))
 
-    logging.info(f'all_module:\n{json.dumps(module_list, indent=4)}')
-    return module_list
+  logging.info(f'all_module:\n{json.dumps(module_list, indent=4)}')
+  return module_list
 
 
 def get_scheme(module_name):
-    """Jazzy documentation Info SWIFT only.
+  """Jazzy documentation Info SWIFT only.
 
     Get scheme from module name in .podspecs Assume the scheme is the
     same as the module name:
     """
-    MODULE_SCHEME_PATCH = {
-        'FirebaseInAppMessagingSwift': 'FirebaseInAppMessagingSwift-Beta',
-    }
-    if module_name in MODULE_SCHEME_PATCH:
-        return MODULE_SCHEME_PATCH[module_name]
-    return module_name
+  MODULE_SCHEME_PATCH = {
+      'FirebaseInAppMessagingSwift': 'FirebaseInAppMessagingSwift-Beta',
+  }
+  if module_name in MODULE_SCHEME_PATCH:
+    return MODULE_SCHEME_PATCH[module_name]
+  return module_name
 
 
 def get_umbrella_header(module_name, public_header_files):
-    """Jazzy documentation Info OBJC only Get umbrella_header from
+  """Jazzy documentation Info OBJC only Get umbrella_header from
     public_header_files in .podspecs Assume the umbrella_header is with the
     format:
 
     {module_name}/Sources/Public/{module_name}/{module_name}.h
     """
-    if public_header_files:
-        if isinstance(public_header_files, list):
-            return public_header_files[0].replace('*', module_name)
-        elif isinstance(public_header_files, str):
-            return public_header_files.replace('*', module_name)
-    return ''
+  if public_header_files:
+    if isinstance(public_header_files, list):
+      return public_header_files[0].replace('*', module_name)
+    elif isinstance(public_header_files, str):
+      return public_header_files.replace('*', module_name)
+  return ''
 
 
 def get_root_dir(module_name, source_files):
-    """Get source code root_dir from source_files in .podspecs Assume the
+  """Get source code root_dir from source_files in .podspecs Assume the
     root_dir is with the format:
 
     {module_name}/Sources or {module_name}/Source
     """
-    MODULE_ROOT_PATCH = {
-        'FirebaseFirestore': 'Firestore/Source',
-        'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
-        'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
-        'FirebaseInAppMessagingSwift': 'FirebaseInAppMessaging/Swift/Source',
-    }
-    if module_name in MODULE_ROOT_PATCH:
-        return MODULE_ROOT_PATCH[module_name]
-    if source_files:
-        for source_file in source_files:
-            if f'{module_name}/Sources' in source_file:
-                return f'{module_name}/Sources'
-            if f'{module_name}/Source' in source_file:
-                return f'{module_name}/Source'
-    return ''
+  MODULE_ROOT_PATCH = {
+      'FirebaseFirestore': 'Firestore/Source',
+      'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
+      'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
+      'FirebaseInAppMessagingSwift': 'FirebaseInAppMessaging/Swift/Source',
+  }
+  if module_name in MODULE_ROOT_PATCH:
+    return MODULE_ROOT_PATCH[module_name]
+  if source_files:
+    for source_file in source_files:
+      if f'{module_name}/Sources' in source_file:
+        return f'{module_name}/Sources'
+      if f'{module_name}/Source' in source_file:
+        return f'{module_name}/Source'
+  return ''
 
 
 def module_info_from_package_swift():
-    result = subprocess.Popen('swift package dump-package',
-                              universal_newlines=True,
-                              shell=True,
-                              stdout=subprocess.PIPE)
+  result = subprocess.Popen('swift package dump-package',
+                            universal_newlines=True,
+                            shell=True,
+                            stdout=subprocess.PIPE)
 
-    package_json = json.loads(result.stdout.read())
+  package_json = json.loads(result.stdout.read())
 
-    module_scheme = dict([(x['targets'][0], x['name'])
-                          for x in package_json['products']])
-    module_path = dict([(x['name'], x['path']) for x in package_json['targets']
-                        if x['name'] in module_scheme])
+  module_scheme = dict([
+      (x['targets'][0], x['name']) for x in package_json['products']
+  ])
+  module_path = dict([(x['name'], x['path'])
+                      for x in package_json['targets']
+                      if x['name'] in module_scheme])
 
-    result = {}
-    for k, v in module_scheme.items():
-        result[k] = {'scheme': v, 'path': module_path.get(k, '')}
+  result = {}
+  for k, v in module_scheme.items():
+    result[k] = {'scheme': v, 'path': module_path.get(k, '')}
 
-    return result
+  return result
 
 
 def module_info_from_podspecs(root_dir=os.getcwd()):
-    result = {}
-    for filename in os.listdir(root_dir):
-        if filename.endswith('.podspec'):
-            podspec_data = parse_podspec(filename)
-            source_files = podspec_data.get('source_files')
-            if not podspec_data.get('source_files') and podspec_data.get(
-                    'ios'):
-                source_files = podspec_data.get('ios').get('source_files')
-            result[podspec_data['name']] = {
-                'name': podspec_data['name'],
-                'source_files': source_files,
-                'public_header_files': podspec_data.get('public_header_files')
-            }
-    return result
+  result = {}
+  for filename in os.listdir(root_dir):
+    if filename.endswith('.podspec'):
+      podspec_data = parse_podspec(filename)
+      source_files = podspec_data.get('source_files')
+      if not podspec_data.get('source_files') and podspec_data.get('ios'):
+        source_files = podspec_data.get('ios').get('source_files')
+      result[podspec_data['name']] = {
+          'name': podspec_data['name'],
+          'source_files': source_files,
+          'public_header_files': podspec_data.get('public_header_files')
+      }
+  return result
 
 
 def parse_podspec(podspec_file):
-    result = subprocess.run(f'pod ipc spec {podspec_file}',
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            text=True,
-                            shell=True)
-    if result.returncode != 0:
-        logging.info(f'Error: {result.stderr}')
-        return None
+  result = subprocess.run(f'pod ipc spec {podspec_file}',
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          text=True,
+                          shell=True)
+  if result.returncode != 0:
+    logging.info(f'Error: {result.stderr}')
+    return None
 
-    # Parse the JSON output
-    podspec_data = json.loads(result.stdout)
-    return podspec_data
+  # Parse the JSON output
+  podspec_data = json.loads(result.stdout)
+  return podspec_data
 
 
 if __name__ == '__main__':
-    main()
+  main()
