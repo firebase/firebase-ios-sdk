@@ -102,7 +102,7 @@ def generate_diff_json(new_api, old_api, level='module'):
             if diff[key].get('declaration'):
                 diff[key]['declaration'] = [STATUS_REMOVED
                                             ] + diff[key]['declaration']
-        # Moudle Build Error. If a "module" exist but have no 
+        # Moudle Build Error. If a "module" exist but have no
         # content (e.g. doc_path), it must have a build error.
         elif level == 'module' and (not new_api[key]['path']
                                     or not old_api[key]['path']):
@@ -119,7 +119,7 @@ def generate_diff_json(new_api, old_api, level='module'):
                 ] else False
 
             # No diff
-            if not child_diff and not declaration_diff:  
+            if not child_diff and not declaration_diff:
                 continue
 
             diff[key] = new_api[key]
