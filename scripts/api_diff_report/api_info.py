@@ -165,13 +165,13 @@ def parse_module(api_doc_path):
   return module_api_container
 
 
-def parse_api(api_doc_path, module_api_container):
+def parse_api(doc_path, module_api_container):
   """Parse API html and extract necessary information.
 
     e.g. ${module}/Classes.html
     """
   for api_type, api_type_abstract in module_api_container.items():
-    api_type_link = f'{api_doc_path}/{unquote(api_type_abstract["api_type_link"])}'
+    api_type_link = f'{doc_path}/{unquote(api_type_abstract["api_type_link"])}'
     api_data_container = module_api_container[api_type]['apis']
     with open(api_type_link, 'r') as file:
       html_content = file.read()
@@ -188,7 +188,7 @@ def parse_api(api_doc_path, module_api_container):
 
     for api, api_abstruct in api_type_abstract['apis'].items():
       if api_abstruct['api_link'].endswith('.html'):
-        parse_sub_api(f'{api_doc_path}/{unquote(api_abstruct["api_link"])}',
+        parse_sub_api(f'{doc_path}/{unquote(api_abstruct["api_link"])}',
                       api_data_container[api]['sub_apis'])
 
 

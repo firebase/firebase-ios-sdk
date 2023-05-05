@@ -156,7 +156,7 @@ def generate_markdown_title(commit, run_id):
   return (
       '## Apple API Diff Report\n' + 'Commit: %s\n' % commit
       + 'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G')
-      +'**[View workflow logs & download artifacts]'
+      + '**[View workflow logs & download artifacts]'
       + '(https://github.com/firebase/firebase-ios-sdk/actions/runs/%s)**\n\n'
       % run_id + '-----\n')
 
