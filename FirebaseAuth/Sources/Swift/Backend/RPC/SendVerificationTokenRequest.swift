@@ -44,30 +44,29 @@ private let kreCAPTCHATokenKey = "recaptchaToken"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRSendVerificationCodeRequest)
 public class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property phoneNumber
       @brief The phone number to which the verification code should be sent.
    */
-  @objc public let phoneNumber: String
+  public let phoneNumber: String
 
   /** @property appCredential
       @brief The credential to prove the identity of the app in order to send the verification code.
    */
-  @objc public let appCredential: AuthAppCredential?
+  public let appCredential: AuthAppCredential?
 
   /** @property reCAPTCHAToken
       @brief The reCAPTCHA token to prove the identity of the app in order to send the verification
           code.
    */
-  @objc public let reCAPTCHAToken: String?
+  public let reCAPTCHAToken: String?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = SendVerificationCodeResponse()
+  public var response: SendVerificationCodeResponse = SendVerificationCodeResponse()
 
-  @objc public init(phoneNumber: String, appCredential: AuthAppCredential?,
+  public init(phoneNumber: String, appCredential: AuthAppCredential?,
                     reCAPTCHAToken: String?, requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
     self.appCredential = appCredential
@@ -78,7 +77,7 @@ public class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest
     )
   }
 
-  @objc public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
     postBody[kPhoneNumberKey] = phoneNumber
     if let receipt = appCredential?.receipt {

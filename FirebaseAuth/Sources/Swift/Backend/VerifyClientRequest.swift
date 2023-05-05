@@ -14,7 +14,6 @@
 
 import Foundation
 
-@objc(FIRVerifyClientRequest)
 public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The endpoint for the verifyClient request.
   private static let verifyClientEndpoint = "verifyClient"
@@ -28,7 +27,7 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = VerifyClientResponse()
+  public var response: VerifyClientResponse = VerifyClientResponse()
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody = [String: AnyHashable]()

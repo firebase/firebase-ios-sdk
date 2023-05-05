@@ -746,7 +746,7 @@ import Foundation
                                                requestConfiguration: requestConfiguration)
           credential.prepare(request)
           request.accessToken = accessToken
-          AuthBackend.post(withRequest: request) { rawResponse, error in
+          AuthBackend.post(with: request) { rawResponse, error in
             if let error {
               self.signOutIfTokenIsInvalid(withError: error)
               completeWithError(nil, error)
@@ -913,7 +913,7 @@ import Foundation
           return
         }
         request.deleteProviders = [provider]
-        AuthBackend.post(withRequest: request) { rawResponse, error in
+        AuthBackend.post(with: request) { rawResponse, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
             completeAndCallbackWithError(error)
@@ -1053,7 +1053,7 @@ import Foundation
           actionCodeSettings: actionCodeSettings,
           requestConfiguration: requestConfiguration
         )
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { response, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
           }
@@ -1131,7 +1131,7 @@ import Foundation
         }
         let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
                                            requestConfiguration: requestConfiguration)
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { response, error in
           if let error {
             User.callInMainThreadWithError(callback: completion, error: error)
             return
@@ -1218,7 +1218,7 @@ import Foundation
           actionCodeSettings: actionCodeSettings,
           requestConfiguration: requestConfiguration
         )
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { response, error in
           User.callInMainThreadWithError(callback: completion, error: error)
         }
       }
@@ -1303,7 +1303,7 @@ import Foundation
       let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                         requestConfiguration: user
                                                           .requestConfiguration)
-      AuthBackend.post(withRequest: getAccountInfoRequest) { rawResponse, error in
+      AuthBackend.post(with: getAccountInfoRequest) { rawResponse, error in
         if let error {
           // No need to sign out user here for errors because the user hasn't been signed in yet.
           callback(nil, error)
@@ -1413,7 +1413,7 @@ import Foundation
             if let requestConfiguration = self.auth?.requestConfiguration {
               let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                                 requestConfiguration: requestConfiguration)
-              AuthBackend.post(withRequest: getAccountInfoRequest) { response, error in
+              AuthBackend.post(with: getAccountInfoRequest) { response, error in
                 if let error {
                   self.signOutIfTokenIsInvalid(withError: error)
                   callback(error)
@@ -1491,7 +1491,7 @@ import Foundation
             setAccountInfoRequest.accessToken = accessToken
             changeBlock(user, setAccountInfoRequest)
             // Execute request:
-            AuthBackend.post(withRequest: setAccountInfoRequest) { response, error in
+            AuthBackend.post(with: setAccountInfoRequest) { response, error in
               if let error {
                 self.signOutIfTokenIsInvalid(withError: error)
                 complete()
@@ -1566,7 +1566,7 @@ import Foundation
       }
       let request = GetAccountInfoRequest(accessToken: token,
                                           requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let error {
           self.signOutIfTokenIsInvalid(withError: error)
           callback(nil, error)
@@ -1654,7 +1654,7 @@ import Foundation
                                                operation: operation,
                                                requestConfiguration: configuration)
         request.accessToken = accessToken
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { response, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
             completion(error)
@@ -1733,7 +1733,7 @@ import Foundation
                                              oobCode: actionCode,
                                              requestConfiguration: requestConfiguration)
         request.idToken = accessToken
-        AuthBackend.post(withRequest: request) { rawResponse, error in
+        AuthBackend.post(with: request) { rawResponse, error in
           if let error {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
@@ -1782,7 +1782,7 @@ import Foundation
                                                   displayName: gameCenterCredential.displayName,
                                                   requestConfiguration: requestConfiguration)
         request.accessToken = accessToken
-        AuthBackend.post(withRequest: request) { rawResponse, error in
+        AuthBackend.post(with: request) { rawResponse, error in
           if let error {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
@@ -1861,7 +1861,7 @@ import Foundation
       }
       let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                         requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: getAccountInfoRequest) { rawResponse, error in
+      AuthBackend.post(with: getAccountInfoRequest) { rawResponse, error in
         if let error {
           self.signOutIfTokenIsInvalid(withError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)

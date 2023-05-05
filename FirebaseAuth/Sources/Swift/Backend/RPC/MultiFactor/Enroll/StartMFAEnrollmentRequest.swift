@@ -21,15 +21,14 @@ private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRStartMFAEnrollmentRequest) public class StartMFAEnrollmentRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   private(set) var idToken: String?
   private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = StartMFAEnrollmentResponse()
+  public var response: StartMFAEnrollmentResponse = StartMFAEnrollmentResponse()
 
   init(idToken: String?,
        enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
