@@ -183,7 +183,6 @@ def parse_api(doc_path, module_api_container):
       api_name = api.find('a', class_='token').text
       for api_declaration in api.find_all('div', class_='language'):
         api_declaration_text = ' '.join(api_declaration.stripped_strings)
-        api_declaration_text = remove_commentary_lines(api_declaration_text)
         api_data_container[api_name]['declaration'].append(api_declaration_text)
 
     for api, api_abstruct in api_type_abstract['apis'].items():
