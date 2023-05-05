@@ -28,7 +28,7 @@ from requests.packages.urllib3.util.retry import Retry
 STAGES_PROGRESS = "progress"
 STAGES_END = "end"
 
-TITLE_PROGESS = "## ⏳&nbsp; Detecing API diff in progress...\n"
+TITLE_PROGESS = "## ⏳&nbsp; Detecting API diff in progress...\n"
 TITLE_END_DIFF = '## Apple API Diff Report\n'
 TITLE_END_NO_DIFF = "## ✅&nbsp; No API diff detected\n"
 
