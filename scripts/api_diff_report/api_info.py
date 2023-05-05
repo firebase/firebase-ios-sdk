@@ -78,12 +78,12 @@ def build_api_doc(module, output_dir, api_theme_dir):
     code."""
   if module['language'] == icore_module.SWIFT:
     logging.info('------------')
-    cmd = f'''jazzy --module {module["name"]} 
-        --swift-build-tool xcodebuild 
-        --build-tool-arguments 
-        -scheme,{module["scheme"]},-destination,generic/platform=iOS,build 
-        --output {output_dir} 
-        --theme {api_theme_dir}'''
+    cmd = f'jazzy --module {module["name"]}'\
+        + ' --swift-build-tool xcodebuild'\
+        + ' --build-tool-arguments'\
+        + f' -scheme,{module["scheme"]},-destination,generic/platform=iOS,build'\
+        + f' --output {output_dir}'\
+        + f' --theme {api_theme_dir}'
     logging.info(cmd)
     result = subprocess.Popen(cmd,
                               universal_newlines=True,
@@ -92,11 +92,11 @@ def build_api_doc(module, output_dir, api_theme_dir):
     logging.info(result.stdout.read())
   elif module['language'] == icore_module.OBJECTIVE_C:
     logging.info('------------')
-    cmd = f'''jazzy --objc 
-        --framework-root {module["root_dir"]} 
-        --umbrella-header {module["umbrella_header"]} 
-        --output {output_dir} 
-        --theme {api_theme_dir}'''
+    cmd = 'jazzy --objc'\
+        + f' --framework-root {module["root_dir"]}'\
+        + f' --umbrella-header {module["umbrella_header"]}'\
+        + f' --output {output_dir}'\
+        + f' --theme {api_theme_dir}'
     logging.info(cmd)
     result = subprocess.Popen(cmd,
                               universal_newlines=True,
