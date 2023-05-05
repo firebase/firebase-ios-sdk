@@ -17,7 +17,6 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FIRTOTPSecret+Internal.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
