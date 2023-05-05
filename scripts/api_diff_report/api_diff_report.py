@@ -97,7 +97,7 @@ def generate_diff_json(new_api, old_api, level='module'):
     elif level == 'module' and (not new_api[key]['path']
                                 or not old_api[key]['path']):
       diff[key] = {'status': STATUS_ERROR}
-    # Check diff in clild level and diff in declaration
+    # Check diff in child level and diff in declaration
     else:
       child_diff = generate_diff_json(new_api[key][next_level],
                                       old_api[key][next_level],
