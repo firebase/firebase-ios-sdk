@@ -92,7 +92,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
   }
 
   public class func post<T: AuthRPCRequest_NEW_>(with request: T, callback: @escaping ((Result<T.Response, Error>) -> Void)) {
-    callback(.success(request.response))
+    fatalError("Not implemented")
   }
 
   /** @fn postWithRequest:response:callback:
