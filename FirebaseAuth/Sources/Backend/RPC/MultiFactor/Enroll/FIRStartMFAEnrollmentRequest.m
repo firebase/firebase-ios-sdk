@@ -28,7 +28,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 @implementation FIRStartMFAEnrollmentRequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-										 phoneEnrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
+                     phoneEnrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -36,23 +36,24 @@ static NSString *const kTenantIDKey = @"tenantId";
                       useStaging:NO];
   if (self) {
     _IDToken = IDToken;
-	  _phoneEnrollmentInfo = phoneEnrollmentInfo;
+    _phoneEnrollmentInfo = phoneEnrollmentInfo;
   }
   return self;
 }
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-											TOTPEnrollmentInfo:(FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
-										requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-	self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
-						requestConfiguration:requestConfiguration
-						 useIdentityPlatform:YES
-											useStaging:NO];
-	if (self) {
-		_IDToken = IDToken;
-		_TOTPEnrollmentInfo = TOTPEnrollmentInfo;
-	}
-	return self;
+                      TOTPEnrollmentInfo:
+                          (FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
+  if (self) {
+    _IDToken = IDToken;
+    _TOTPEnrollmentInfo = TOTPEnrollmentInfo;
+  }
+  return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
@@ -60,11 +61,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_IDToken) {
     postBody[@"idToken"] = _IDToken;
   }
-	if (_phoneEnrollmentInfo) {
-		postBody[@"phoneEnrollmentInfo"] = [_phoneEnrollmentInfo dictionary];
-	} else if (_TOTPEnrollmentInfo) {
-		postBody[@"totpEnrollmentInfo"] = [_TOTPEnrollmentInfo dictionary];
-	}
+  if (_phoneEnrollmentInfo) {
+    postBody[@"phoneEnrollmentInfo"] = [_phoneEnrollmentInfo dictionary];
+  } else if (_TOTPEnrollmentInfo) {
+    postBody[@"totpEnrollmentInfo"] = [_TOTPEnrollmentInfo dictionary];
+  }
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
   }

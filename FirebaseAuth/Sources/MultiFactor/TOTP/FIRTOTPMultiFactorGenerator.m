@@ -17,63 +17,97 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
+#import "FIRTOTPSecret+Internal.h"
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
+#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorAssertion+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorGenerator.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
-#import "FIRTOTPSecret+Internal.h"
-#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorAssertion+Internal.h"
 
 @implementation FIRTOTPMultiFactorGenerator
 
-+ (void)generateSecretWithMultiFactorSession:(FIRMultiFactorSession *)session completion:(void (^)(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error))completion {
-		if (session.IDToken) {
-				FIRStartMFAEnrollmentRequest *request = [[FIRStartMFAEnrollmentRequest alloc] initWithIDToken:session.IDToken TOTPEnrollmentInfo:[[FIRAuthProtoStartMFATOTPEnrollmentRequestInfo alloc] init] requestConfiguration:session.currentUser.auth.requestConfiguration];
-				[FIRAuthBackend startMultiFactorEnrollment:request callback:^(FIRStartMFAEnrollmentResponse *_Nullable response, NSError *_Nullable error) {
-						if (error) {
-								if (completion) {
-										completion(nil, error);
-								}
-						} else if (response.TOTPSessionInfo) {
-								FIRTOTPSecret *secret = [[FIRTOTPSecret alloc] initWithSecretKey:response.TOTPSessionInfo.sharedSecretKey hashingAlgorithm:response.TOTPSessionInfo.hashingAlgorithm codeLength:response.TOTPSessionInfo.verificationCodeLength codeIntervalSeconds:response.TOTPSessionInfo.periodSec enrollmentCompletionDeadline:response.TOTPSessionInfo.finalizeEnrollmentTime sessionInfo:response.TOTPSessionInfo.sessionInfo];
-								if (completion) {
-										completion(secret, nil);
-								}
-						} else {
-								NSError *error = [NSError errorWithDomain:FIRAuthErrorDomain code:FIRAuthErrorCodeInternalError userInfo:@{NSLocalizedDescriptionKey: @"Error generating TOTP secret."}];
-								if (completion) {
-										completion(nil, error);
-								}
-						}
-				}];
-		} else {
-				NSError *error = [NSError errorWithDomain:FIRAuthErrorDomain code:FIRAuthErrorCodeInternalError userInfo:@{NSLocalizedDescriptionKey: @"Invalid ID token."}];
-				if (completion) {
-						completion(nil, error);
-				}
-		}
++ (void)generateSecretWithMultiFactorSession:(FIRMultiFactorSession *)session
+                                  completion:(void (^)(FIRTOTPSecret *_Nullable secret,
+                                                       NSError *_Nullable error))completion {
+  if (session.IDToken) {
+    FIRStartMFAEnrollmentRequest *request = [[FIRStartMFAEnrollmentRequest alloc]
+             initWithIDToken:session.IDToken
+          TOTPEnrollmentInfo:[[FIRAuthProtoStartMFATOTPEnrollmentRequestInfo alloc] init]
+        requestConfiguration:session.currentUser.auth.requestConfiguration];
+    [FIRAuthBackend
+        startMultiFactorEnrollment:request
+                          callback:^(FIRStartMFAEnrollmentResponse *_Nullable response,
+                                     NSError *_Nullable error) {
+                            if (error) {
+                              if (completion) {
+                                completion(nil, error);
+                              }
+                            } else if (response.TOTPSessionInfo) {
+                              FIRTOTPSecret *secret = [[FIRTOTPSecret alloc]
+                                             initWithSecretKey:response.TOTPSessionInfo
+                                                                   .sharedSecretKey
+                                              hashingAlgorithm:response.TOTPSessionInfo
+                                                                   .hashingAlgorithm
+                                                    codeLength:response.TOTPSessionInfo
+                                                                   .verificationCodeLength
+                                           codeIntervalSeconds:response.TOTPSessionInfo.periodSec
+                                  enrollmentCompletionDeadline:response.TOTPSessionInfo
+                                                                   .finalizeEnrollmentTime
+                                                   sessionInfo:response.TOTPSessionInfo
+                                                                   .sessionInfo];
+                              if (completion) {
+                                completion(secret, nil);
+                              }
+                            } else {
+                              NSError *error =
+                                  [NSError errorWithDomain:FIRAuthErrorDomain
+                                                      code:FIRAuthErrorCodeInternalError
+                                                  userInfo:@{
+                                                    NSLocalizedDescriptionKey :
+                                                        @"Error generating TOTP secret."
+                                                  }];
+                              if (completion) {
+                                completion(nil, error);
+                              }
+                            }
+                          }];
+  } else {
+    NSError *error = [NSError errorWithDomain:FIRAuthErrorDomain
+                                         code:FIRAuthErrorCodeInternalError
+                                     userInfo:@{NSLocalizedDescriptionKey : @"Invalid ID token."}];
+    if (completion) {
+      completion(nil, error);
+    }
+  }
 }
 
-+ (void)assertionForEnrollmentWithSecret:(FIRTOTPSecret *)secret oneTimePassword:(NSString *)oneTimePassword completion:(void (^)(FIRTOTPMultiFactorAssertion *_Nullable, NSError *_Nullable))completion {
-		FIRTOTPMultiFactorAssertion *assertion = [[FIRTOTPMultiFactorAssertion alloc] initWithSecret:secret oneTimePassword:oneTimePassword];
-		if (assertion) {
-				completion(assertion, nil);
-		} else {
-				NSError *error = [NSError errorWithDomain:@"com.example.totp" code:0 userInfo:@{NSLocalizedDescriptionKey: @"Error creating TOTP assertion."}];
-				completion(nil, error);
-		}
++ (void)assertionForEnrollmentWithSecret:(FIRTOTPSecret *)secret
+                         oneTimePassword:(NSString *)oneTimePassword
+                              completion:(void (^)(FIRTOTPMultiFactorAssertion *_Nullable,
+                                                   NSError *_Nullable))completion {
+  FIRTOTPMultiFactorAssertion *assertion =
+      [[FIRTOTPMultiFactorAssertion alloc] initWithSecret:secret oneTimePassword:oneTimePassword];
+  if (assertion) {
+    completion(assertion, nil);
+  } else {
+    NSError *error =
+        [NSError errorWithDomain:@"com.example.totp"
+                            code:0
+                        userInfo:@{NSLocalizedDescriptionKey : @"Error creating TOTP assertion."}];
+    completion(nil, error);
+  }
 }
 
-+(FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
-																									 oneTimePassword:(NSString *)oneTimePassword{
-	return nil;
++ (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
+                                                    oneTimePassword:(NSString *)oneTimePassword {
+  return nil;
 }
 @end
 

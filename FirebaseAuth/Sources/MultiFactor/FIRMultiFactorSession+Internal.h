@@ -31,8 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic) FIRMultiFactorInfo *multiFactorInfo;
 
-@property(nonatomic) FIRUser* currentUser ;
-
+@property(nonatomic) FIRUser *currentUser;
 
 + (FIRMultiFactorSession *)sessionForCurrentUser;
 

@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
         This class is available on iOS only.
 */
 NS_SWIFT_NAME(MultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
-@interface FIRMultiFactorAssertion : NSObject
+    @interface FIRMultiFactorAssertion : NSObject
 
 /**
    @brief The second factor identifier for this opaque object asserting a second factor.

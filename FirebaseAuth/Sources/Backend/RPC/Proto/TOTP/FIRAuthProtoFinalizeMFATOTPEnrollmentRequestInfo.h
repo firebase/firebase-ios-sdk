@@ -20,12 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo : NSObject <FIRAuthProto>
 
-
 @property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
 @property(nonatomic, copy, readonly, nullable) NSString *code;
 
-- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
-									 code:(NSString *)code;
+- (instancetype)initWithSessionInfo:(NSString *)sessionInfo code:(NSString *)code;
 
 @end
 

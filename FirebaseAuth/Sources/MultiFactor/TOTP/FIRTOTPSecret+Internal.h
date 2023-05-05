@@ -17,12 +17,11 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorSession.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
-
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorSession.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,11 +35,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
 
 - (instancetype)initWithSecretKey:(NSString *)secretKey
-									hashingAlgorithm:(NSString *)hashingAlgorithm
-												codeLength:(NSInteger)codeLength
-								codeIntervalSeconds:(NSInteger)codeIntervalSeconds
-		 enrollmentCompletionDeadline:(NSDate *)enrollmentCompletionDeadline
-											sessionInfo:(NSString *)sessionInfo;
+                 hashingAlgorithm:(NSString *)hashingAlgorithm
+                       codeLength:(NSInteger)codeLength
+              codeIntervalSeconds:(NSInteger)codeIntervalSeconds
+     enrollmentCompletionDeadline:(NSDate *)enrollmentCompletionDeadline
+                      sessionInfo:(NSString *)sessionInfo;
 
 @end
 

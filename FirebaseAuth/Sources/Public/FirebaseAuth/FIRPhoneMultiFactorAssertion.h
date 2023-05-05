@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
         This class is available on iOS only.
 */
 NS_SWIFT_NAME(PhoneMultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
-@interface FIRPhoneMultiFactorAssertion : FIRMultiFactorAssertion
+    @interface FIRPhoneMultiFactorAssertion : FIRMultiFactorAssertion
 
 @end
 

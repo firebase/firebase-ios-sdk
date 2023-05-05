@@ -25,8 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
 @property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoFinalizeMFAPhoneResponseInfo *phoneAuthInfo;
-@property(nonatomic, copy, readonly, nullable) FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo *TOTPAuthInfo;
+@property(nonatomic, copy, readonly, nullable)
+    FIRAuthProtoFinalizeMFAPhoneResponseInfo *phoneAuthInfo;
+@property(nonatomic, copy, readonly, nullable)
+    FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo *TOTPAuthInfo;
 
 @end
 

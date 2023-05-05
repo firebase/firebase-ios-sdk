@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRUser *currentUser = [[FIRAuth auth] currentUser];
   NSString *IDToken = currentUser.rawAccessToken;
   FIRMultiFactorSession *session = [[FIRMultiFactorSession alloc] initWithIDToken:IDToken];
-	session.currentUser = currentUser;
+  session.currentUser = currentUser;
   return session;
 }
 

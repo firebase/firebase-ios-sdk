@@ -28,9 +28,11 @@ NS_ASSUME_NONNULL_BEGIN
     _hashingAlgorithm = [dictionary[@"hashingAlgorithm"] copy];
     _periodSec = [dictionary[@"periodSec"] integerValue];
     _sessionInfo = [dictionary[@"sessionInfo"] copy];
-		_finalizeEnrollmentTime =  [dictionary[@"finalizeEnrollmentTime"] isKindOfClass:[NSString class]]
-					? [NSDate dateWithTimeIntervalSinceNow:[dictionary[@"finalizeEnrollmentTime"] doubleValue]]
-					: nil;
+    _finalizeEnrollmentTime =
+        [dictionary[@"finalizeEnrollmentTime"] isKindOfClass:[NSString class]]
+            ? [NSDate
+                  dateWithTimeIntervalSinceNow:[dictionary[@"finalizeEnrollmentTime"] doubleValue]]
+            : nil;
   }
   return self;
 }

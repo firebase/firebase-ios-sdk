@@ -16,11 +16,10 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorAssertion+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorAssertion+Internal.h"
-
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,22 +28,21 @@ extern NSString *const _Nonnull FIRTOTPMultiFactorID;
 @implementation FIRTOTPMultiFactorAssertion
 
 - (instancetype)init {
-	self = [super init];
-	if (self) {
-		_factorID = FIRTOTPMultiFactorID;
-	}
-	return self;
+  self = [super init];
+  if (self) {
+    _factorID = FIRTOTPMultiFactorID;
+  }
+  return self;
 }
 
--(instancetype) initWithSecret:(FIRTOTPSecret *)secret
-							 oneTimePassword:(NSString *)oneTimePassword{
-	self = [super init];
-	if (self) {
-		_factorID = FIRTOTPMultiFactorID;
-		_secret = secret;
-		_oneTimePassword = oneTimePassword;
-	}
-	return self;
+- (instancetype)initWithSecret:(FIRTOTPSecret *)secret oneTimePassword:(NSString *)oneTimePassword {
+  self = [super init];
+  if (self) {
+    _factorID = FIRTOTPMultiFactorID;
+    _secret = secret;
+    _oneTimePassword = oneTimePassword;
+  }
+  return self;
 }
 
 @end

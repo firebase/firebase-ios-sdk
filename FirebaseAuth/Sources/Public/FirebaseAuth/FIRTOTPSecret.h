@@ -53,22 +53,22 @@ NS_SWIFT_NAME(TOTPSecret)
 /**
  @brief Returns a QRCode URL as described in
  https://github.com/google/google-authenticator/wiki/Key-Uri-Format
- This can be displayed to the user as a QRCode to be scanned into a TOTP App like Google Authenticator.
- 
+ This can be displayed to the user as a QRCode to be scanned into a TOTP App like Google
+ Authenticator.
+
  @param accountName the name of the account/app.
  @param issuer issuer of the TOTP(likely the app name).
  @returns A QRCode URL string.
  */
-- (NSString *) generateQRCodeURLWithAccountName:(NSString *)accountName issuer:(NSString *)issuer;
+- (NSString *)generateQRCodeURLWithAccountName:(NSString *)accountName issuer:(NSString *)issuer;
 
 /**
  @brief Opens the specified QR Code URL in a password manager like iCloud Keychain.
- * See more details here: https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes
+ * See more details here:
+ https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes
  */
-- (void) openInOTPAppWithQRCodeURL:(NSString *)QRCodeURL;
+- (void)openInOTPAppWithQRCodeURL:(NSString *)QRCodeURL;
 
 @end
-
-
 
 NS_ASSUME_NONNULL_END

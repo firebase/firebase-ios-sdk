@@ -17,8 +17,8 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,8 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly) FIRTOTPSecret *secret;
 @property(nonatomic, copy, readonly) NSString *oneTimePassword;
 
--(instancetype) initWithSecret:(FIRTOTPSecret *)secret
-							 oneTimePassword:(NSString *)oneTimePassword;
+- (instancetype)initWithSecret:(FIRTOTPSecret *)secret oneTimePassword:(NSString *)oneTimePassword;
 
 @end
 

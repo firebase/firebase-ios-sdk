@@ -21,8 +21,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /** @class TOTPMultiFactorAssertion
-		@brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP (Time-based One Time Password).
-				second factor.
+                @brief The subclass of base class MultiFactorAssertion, used to assert ownership of
+   a TOTP (Time-based One Time Password). second factor.
 */
 NS_SWIFT_NAME(TOTPMultiFactorAssertion)
 @interface FIRTOTPMultiFactorAssertion : FIRMultiFactorAssertion

@@ -27,7 +27,8 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
-                     phoneVerificationInfo:(nonnull FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
+                   phoneVerificationInfo:
+                       (nonnull FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -36,25 +37,27 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (self) {
     _IDToken = IDToken;
     _displayName = displayName;
-		_phoneVerificationInfo = phoneVerificationInfo;
+    _phoneVerificationInfo = phoneVerificationInfo;
   }
   return self;
 }
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-														 displayName:(NSString *)displayName
-											TOTPVerificationInfo:(nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)TOTPVerificationInfo
-										requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-	self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
-						requestConfiguration:requestConfiguration
-						 useIdentityPlatform:YES
-											useStaging:NO];
-	if (self) {
-		_IDToken = IDToken;
-		_displayName = displayName;
-		_TOTPVerificationInfo = TOTPVerificationInfo;
-	}
-	return self;
+                             displayName:(NSString *)displayName
+                    TOTPVerificationInfo:
+                        (nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)
+                            TOTPVerificationInfo
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
+  if (self) {
+    _IDToken = IDToken;
+    _displayName = displayName;
+    _TOTPVerificationInfo = TOTPVerificationInfo;
+  }
+  return self;
 }
 
 - (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
@@ -65,11 +68,11 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_displayName) {
     postBody[@"displayName"] = _displayName;
   }
-	if (_phoneVerificationInfo) {
-		postBody[@"phoneVerificationInfo"] = [_phoneVerificationInfo dictionary];
-	} else if (_TOTPVerificationInfo) {
-		postBody[@"totpVerificationInfo"] = [_TOTPVerificationInfo dictionary];
-	}
+  if (_phoneVerificationInfo) {
+    postBody[@"phoneVerificationInfo"] = [_phoneVerificationInfo dictionary];
+  } else if (_TOTPVerificationInfo) {
+    postBody[@"totpVerificationInfo"] = [_TOTPVerificationInfo dictionary];
+  }
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
   }

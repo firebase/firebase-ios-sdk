@@ -16,14 +16,14 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
-#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 #import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 #import "UIKit/UIKit.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRTOTPSecret
 
-//explicity synthesize
+// explicity synthesize
 @synthesize secretKey = _secretKey;
 @synthesize hashingAlgorithm = _hashingAlgorithm;
 @synthesize enrollmentCompletionDeadline = _enrollmentCompletionDeadline;
@@ -32,57 +32,58 @@ NS_ASSUME_NONNULL_BEGIN
 @synthesize sessionInfo = _sessionInfo;
 
 - (instancetype)initWithSecretKey:(NSString *)secretKey
-									hashingAlgorithm:(NSString *)hashingAlgorithm
-												codeLength:(NSInteger)codeLength
-								codeIntervalSeconds:(NSInteger)codeIntervalSeconds
-				enrollmentCompletionDeadline:(NSDate *)enrollmentCompletionDeadline
-											sessionInfo: (NSString *)sessionInfo{
-		self = [super init];
-		if (self) {
-				_secretKey = secretKey;
-				_hashingAlgorithm = hashingAlgorithm;
-			  _codeLength = codeLength;
-			  _codeIntervalSeconds = codeIntervalSeconds;
-				_enrollmentCompletionDeadline = [enrollmentCompletionDeadline copy];
-			  _sessionInfo = sessionInfo;
-		}
-		return self;
+                 hashingAlgorithm:(NSString *)hashingAlgorithm
+                       codeLength:(NSInteger)codeLength
+              codeIntervalSeconds:(NSInteger)codeIntervalSeconds
+     enrollmentCompletionDeadline:(NSDate *)enrollmentCompletionDeadline
+                      sessionInfo:(NSString *)sessionInfo {
+  self = [super init];
+  if (self) {
+    _secretKey = secretKey;
+    _hashingAlgorithm = hashingAlgorithm;
+    _codeLength = codeLength;
+    _codeIntervalSeconds = codeIntervalSeconds;
+    _enrollmentCompletionDeadline = [enrollmentCompletionDeadline copy];
+    _sessionInfo = sessionInfo;
+  }
+  return self;
 }
 
-- (NSString *)sharedSecretKey{
-	return _secretKey;
+- (NSString *)sharedSecretKey {
+  return _secretKey;
 }
 
 - (NSString *)hashAlgorithm {
-	return _hashingAlgorithm;
+  return _hashingAlgorithm;
 }
 
 - (NSInteger)codeLength {
-	return _codeLength;
+  return _codeLength;
 }
 
 - (NSInteger)codeIntervalSeconds {
-	return _codeIntervalSeconds;
+  return _codeIntervalSeconds;
 }
 
-- (NSDate *)enrollmentCompletionDeadline{
-	return _enrollmentCompletionDeadline;
+- (NSDate *)enrollmentCompletionDeadline {
+  return _enrollmentCompletionDeadline;
 }
 
-- (NSString *) generateQRCodeURLWithAccountName:(NSString *)accountName issuer:(NSString *)issuer {
-	NSString *urlString = [NSString stringWithFormat:@"otpauth://totp/%@:%@?secret=%@&issuer=%@&algorithm=%@&digits=%ld",
-														 issuer, accountName, self.secretKey, issuer, self.hashingAlgorithm, self.codeLength];
-	printf(@"%s", [NSString stringWithFormat:@"urlstring look s like = %@", urlString]);
-	return urlString;
+- (NSString *)generateQRCodeURLWithAccountName:(NSString *)accountName issuer:(NSString *)issuer {
+  NSString *urlString = [NSString
+      stringWithFormat:@"otpauth://totp/%@:%@?secret=%@&issuer=%@&algorithm=%@&digits=%ld", issuer,
+                       accountName, self.secretKey, issuer, self.hashingAlgorithm, self.codeLength];
+  printf(@"%s", [NSString stringWithFormat:@"urlstring look s like = %@", urlString]);
+  return urlString;
 }
 
 - (void)openInOTPAppWithQRCodeURL:(NSString *)QRCodeURL {
-		NSURL *url = [NSURL URLWithString:QRCodeURL];
-		if ([[UIApplication sharedApplication] canOpenURL:url]) {
-				[[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-		} else {
-				NSLog(@"Cannot open URL");
-		}
+  NSURL *url = [NSURL URLWithString:QRCodeURL];
+  if ([[UIApplication sharedApplication] canOpenURL:url]) {
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+  } else {
+    NSLog(@"Cannot open URL");
+  }
 }
 @end
 
