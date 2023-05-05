@@ -208,22 +208,8 @@ def parse_sub_api(api_link, sub_api_data_container):
     sub_api_data_container[api_name] = {'declaration': []}
     for api_declaration in s_api.find_all('div', class_='language'):
       api_declaration_text = ' '.join(api_declaration.stripped_strings)
-      api_declaration_text = remove_commentary_lines(api_declaration_text)
       sub_api_data_container[api_name]['declaration'].append(
           api_declaration_text)
-
-
-def remove_commentary_lines(declaration):
-  """This is a *PATCH*, that remove commentary lines from API info e.g.
-    Declaration of FIRAppCheck: https://firebase.google.com/docs/reference/ios/
-    firebaseappcheck/api/reference/Classes/FIRAppCheck."""
-  lines = declaration.split('\n')
-  filtered_lines = []
-  for line in lines:
-    code, _, _ = line.partition('///')
-    if code:
-      filtered_lines.append(code.rstrip())
-  return '\n'.join(filtered_lines)
 
 
 def parse_cmdline_args():

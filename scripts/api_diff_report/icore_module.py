@@ -148,28 +148,6 @@ def get_root_dir(module_name, source_files):
   return ''
 
 
-def module_info_from_package_swift():
-  result = subprocess.Popen('swift package dump-package',
-                            universal_newlines=True,
-                            shell=True,
-                            stdout=subprocess.PIPE)
-
-  package_json = json.loads(result.stdout.read())
-
-  module_scheme = dict([
-      (x['targets'][0], x['name']) for x in package_json['products']
-  ])
-  module_path = dict([(x['name'], x['path'])
-                      for x in package_json['targets']
-                      if x['name'] in module_scheme])
-
-  result = {}
-  for k, v in module_scheme.items():
-    result[k] = {'scheme': v, 'path': module_path.get(k, '')}
-
-  return result
-
-
 def module_info_from_podspecs(root_dir=os.getcwd()):
   result = {}
   for filename in os.listdir(root_dir):
