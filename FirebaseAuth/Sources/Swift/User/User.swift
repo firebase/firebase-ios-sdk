@@ -389,7 +389,10 @@ import Foundation
   public func reauthenticate(with credential: AuthCredential,
                              completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      self.auth?.internalSignInAndRetrieveData(withCredential: credential, isReauthentication: true) {
+      self.auth?.internalSignInAndRetrieveData(
+        withCredential: credential,
+        isReauthentication: true
+      ) {
         authResult, error in
         if let error {
           // If "user not found" error returned by backend,
@@ -1700,7 +1703,7 @@ import Foundation
       return
     }
     switch emailCredential.emailType {
-    case .password(let password):
+    case let .password(password):
       updateEmail(email: emailCredential.email, password: password) { error in
         if let error {
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
@@ -1713,7 +1716,7 @@ import Foundation
                                                           error: nil)
         }
       }
-    case .link(let link):
+    case let .link(link):
       internalGetToken { accessToken, error in
         var queryItems = AuthWebUtils.parseURL(link)
         if link.count == 0 {

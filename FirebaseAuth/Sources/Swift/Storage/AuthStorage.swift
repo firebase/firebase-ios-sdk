@@ -15,10 +15,10 @@
 import Foundation
 
 /// A protocol for a persistent data storage container.
-  protocol AuthStorage: NSObjectProtocol {
+protocol AuthStorage: NSObjectProtocol {
   /// Creates a storage instance with the given identifier.
   /// - Parameter identifier: The storage's distinguishing identifer.
-   static func storage(identifier: String) -> Self
+  static func storage(identifier: String) -> Self
 
   /// Retrieves the data for the given key from storage.
   /// - Parameter key: The key to use.

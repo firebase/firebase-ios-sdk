@@ -92,7 +92,7 @@ import CommonCrypto
       let reverseClientIDScheme = clientID.components(separatedBy: ".").reversed()
         .joined(separator: ".")
       if let urlTypes = auth.mainBundleUrlTypes,
-        AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme,
+         AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: reverseClientIDScheme,
                                                  urlTypes: urlTypes) {
         callbackScheme = reverseClientIDScheme
         usingClientIDScheme = true
@@ -181,7 +181,7 @@ import CommonCrypto
     public func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
                                   completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
-              AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
+            AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: urlTypes) else {
         fatalError(
           "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
@@ -214,8 +214,8 @@ import CommonCrypto
                                                callbackScheme: self.callbackScheme)
           }
           (self.auth.authURLPresenter as? AuthURLPresenter)?.present(headfulLiteURL,
-                                             uiDelegate: UIDelegate,
-                                             callbackMatcher: callbackMatcher) { callbackURL, error in
+                                                                     uiDelegate: UIDelegate,
+                                                                     callbackMatcher: callbackMatcher) { callbackURL, error in
             if let error {
               callbackOnMainThread(nil, error)
               return

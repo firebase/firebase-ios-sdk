@@ -113,7 +113,7 @@
     }
 
     func webViewController(_ controller: AuthWebViewController,
-                                  didFailWithError error: Error) {
+                           didFailWithError error: Error) {
       kAuthGlobalWorkQueue.async {
         if self.webViewController == controller {
           self.finishPresentation(withURL: nil, error: error)

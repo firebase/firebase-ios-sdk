@@ -20,7 +20,7 @@ import FirebaseCore
 @_implementationOnly import GoogleUtilities
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-import UIKit
+  import UIKit
 #endif
 
 // TODO: What should this be?
@@ -34,9 +34,8 @@ import UIKit
 // }
 
 #if os(iOS)
-@available(iOS 13.0, *)
-extension Auth: UISceneDelegate {
-}
+  @available(iOS 13.0, *)
+  extension Auth: UISceneDelegate {}
 #endif
 
 /** @class Auth
@@ -257,7 +256,6 @@ extension Auth: UISceneDelegate {
               sign in with an incorrect password.
           + `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
 
-
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc public func signIn(withEmail email: String,
@@ -265,7 +263,7 @@ extension Auth: UISceneDelegate {
                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
-      self.internalSignInAndRetrieveData(withEmail:email,
+      self.internalSignInAndRetrieveData(withEmail: email,
                                          password: password) { authData, error in
         decoratedCallback(authData, error)
       }
@@ -282,8 +280,8 @@ extension Auth: UISceneDelegate {
           update the current user.
    */
   internal func signIn(withEmail email: String,
-                           password: String,
-                           callback: @escaping ((User?, Error?) -> Void)) {
+                       password: String,
+                       callback: @escaping ((User?, Error?) -> Void)) {
     let request = VerifyPasswordRequest(email: email,
                                         password: password,
                                         requestConfiguration: requestConfiguration)
@@ -667,8 +665,10 @@ extension Auth: UISceneDelegate {
                                                         profile: nil,
                                                         username: nil,
                                                         isNewUser: true)
-            decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
-                              nil)
+            decoratedCallback(
+              AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
+              nil
+            )
           } else {
             decoratedCallback(nil, nil)
           }
@@ -746,8 +746,10 @@ extension Auth: UISceneDelegate {
                                                         profile: nil,
                                                         username: nil,
                                                         isNewUser: response.isNewUser)
-            decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
-                              nil)
+            decoratedCallback(
+              AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
+              nil
+            )
           } else {
             decoratedCallback(nil, nil)
           }
@@ -827,7 +829,7 @@ extension Auth: UISceneDelegate {
       let request = SignUpNewUserRequest(email: email,
                                          password: password,
                                          displayName: nil,
-                                             requestConfiguration: self.requestConfiguration)
+                                         requestConfiguration: self.requestConfiguration)
       AuthBackend.post(withRequest: request) { rawResponse, error in
         if let error {
           decoratedCallback(nil, error)
@@ -849,8 +851,10 @@ extension Auth: UISceneDelegate {
                                                         profile: nil,
                                                         username: nil,
                                                         isNewUser: true)
-            decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
-                              nil)
+            decoratedCallback(
+              AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
+              nil
+            )
           } else {
             decoratedCallback(nil, nil)
           }
@@ -983,7 +987,7 @@ extension Auth: UISceneDelegate {
             return
           }
           guard let response = rawResponse as? ResetPasswordResponse,
-          let email = response.email else {
+                let email = response.email else {
             fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
           }
           let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
@@ -1027,7 +1031,7 @@ extension Auth: UISceneDelegate {
    */
   @objc public func verifyPasswordResetCode(_ code: String,
                                             completion: @escaping (String?, Error?) -> Void) {
-    self.checkActionCode(code) { info, error in
+    checkActionCode(code) { info, error in
       if let error {
         completion(nil, error)
         return
@@ -1157,7 +1161,8 @@ extension Auth: UISceneDelegate {
       let request = GetOOBConfirmationCodeRequest.passwordResetRequest(
         email: email,
         actionCodeSettings: actionCodeSettings,
-        requestConfiguration: self.requestConfiguration)
+        requestConfiguration: self.requestConfiguration
+      )
       AuthBackend.post(withRequest: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
@@ -1225,7 +1230,8 @@ extension Auth: UISceneDelegate {
       let request = GetOOBConfirmationCodeRequest.signInWithEmailLinkRequest(
         email,
         actionCodeSettings: actionCodeSettings,
-        requestConfiguration: self.requestConfiguration)
+        requestConfiguration: self.requestConfiguration
+      )
       AuthBackend.post(withRequest: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
@@ -1294,7 +1300,7 @@ extension Auth: UISceneDelegate {
     }
     let queryItems = getQueryItems(link)
     if let _ = queryItems["oobCode"],
-       let mode = queryItems["signIn"],
+       let mode = queryItems["mode"],
        mode == "signIn" {
       return true
     }
@@ -1320,10 +1326,11 @@ extension Auth: UISceneDelegate {
       @return A handle useful for manually unregistering the block as a listener.
    */
   @objc(addAuthStateDidChangeListener:)
-  public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void) -> NSObjectProtocol {
+  public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+    -> NSObjectProtocol {
     var firstInvocation = true
-    var previousUserID: String? = nil
-    return addIDTokenDidChangeListener() { auth, user in
+    var previousUserID: String?
+    return addIDTokenDidChangeListener { auth, user in
       let shouldCallListener = firstInvocation || previousUserID != user?.uid
       firstInvocation = false
       previousUserID = user?.uid
@@ -1366,15 +1373,17 @@ extension Auth: UISceneDelegate {
       @return A handle useful for manually unregistering the block as a listener.
    */
   @objc public
-  func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void) -> NSObjectProtocol {
+  func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+    -> NSObjectProtocol {
     let handle = NotificationCenter.default.addObserver(
       forName: authStateDidChangeNotification,
       object: self,
-      queue: OperationQueue.main) { notification in
-        if let auth = notification.object as? Auth {
-          listener(auth, auth.currentUser)
-        }
+      queue: OperationQueue.main
+    ) { notification in
+      if let auth = notification.object as? Auth {
+        listener(auth, auth.currentUser)
       }
+    }
     objc_sync_enter(Auth.self)
     listenerHandles.add(listener)
     objc_sync_exit(Auth.self)
@@ -1414,7 +1423,7 @@ extension Auth: UISceneDelegate {
     kAuthGlobalWorkQueue.async {
       self.requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
       #if os(iOS)
-      self.settings?.isAppVerificationDisabledForTesting = true
+        self.settings?.isAppVerificationDisabledForTesting = true
       #endif
     }
   }
@@ -1426,7 +1435,7 @@ extension Auth: UISceneDelegate {
    */
   @objc public func revokeToken(withAuthorizationCode authorizationCode: String,
                                 completion: ((Error?) -> Void)? = nil) {
-    self.currentUser?.getIDToken() { idToken, error in
+    currentUser?.getIDToken { idToken, error in
       if let error {
         if let completion {
           completion(error)
@@ -1457,16 +1466,16 @@ extension Auth: UISceneDelegate {
           complete, or fails. Invoked asynchronously on the main thread in the future.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
- public func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
-   return try await withCheckedThrowingContinuation { continuation in
-     self.revokeToken(withAuthorizationCode: authorizationCode) { error in
-       if let error {
-         continuation.resume(throwing: error)
-       } else {
-         continuation.resume()
-       }
-     }
-   }
+  public func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.revokeToken(withAuthorizationCode: authorizationCode) { error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
+        }
+      }
+    }
   }
 
   /** @fn useUserAccessGroup:error:
@@ -1476,19 +1485,19 @@ extension Auth: UISceneDelegate {
   @objc public func useUserAccessGroup(_ accessGroup: String?) throws {
     // self.storedUserManager is initialized asynchronously. Make sure it is done.
     kAuthGlobalWorkQueue.sync {}
-    return try self.internalUseUserAccessGroup(accessGroup)
+    return try internalUseUserAccessGroup(accessGroup)
   }
 
   private func internalUseUserAccessGroup(_ accessGroup: String?) throws {
     storedUserManager.setStoredUserAccessGroup(accessGroup: accessGroup)
-    let user = try self.getStoredUser(forAccessGroup: accessGroup)
+    let user = try getStoredUser(forAccessGroup: accessGroup)
     try updateCurrentUser(user, byForce: false, savingToDisk: false)
-    if userAccessGroup == nil && accessGroup != nil {
+    if userAccessGroup == nil, accessGroup != nil {
       let userKey = "\(firebaseAppName)\(kUserKey)"
       try keychainServices.removeData(forKey: userKey)
     }
     userAccessGroup = accessGroup
-    self.lastNotifiedUserToken = user?.rawAccessToken()
+    lastNotifiedUserToken = user?.rawAccessToken()
   }
 
   /** @fn getStoredUserForAccessGroup:error:
@@ -1500,22 +1509,23 @@ extension Auth: UISceneDelegate {
   public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
     var user: User?
     if let accessGroup {
-#if os(tvOS)
-      if self.shareAuthStateAcrossDevices {
-        AuthLog.logError(code: "I-AUT000001",
-                        message: "Getting a stored user for a given access group is not supported " +
-                        "on tvOS when `shareAuthStateAcrossDevices` is set to `true` (#8878)." +
-                        "This case will return `nil`.")
-        return nil
-      }
-#endif
+      #if os(tvOS)
+        if shareAuthStateAcrossDevices {
+          AuthLog.logError(code: "I-AUT000001",
+                           message: "Getting a stored user for a given access group is not supported " +
+                             "on tvOS when `shareAuthStateAcrossDevices` is set to `true` (#8878)." +
+                             "This case will return `nil`.")
+          return nil
+        }
+      #endif
       guard let apiKey = app?.options.apiKey else {
         fatalError("Internal Auth Error: missing apiKey")
       }
-      user = try self.storedUserManager.getStoredUser(
+      user = try storedUserManager.getStoredUser(
         accessGroup: accessGroup,
         shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
-        projectIdentifier: apiKey).user
+        projectIdentifier: apiKey
+      ).user
     } else {
       let userKey = "\(firebaseAppName)\(kUserKey)"
       if let encodedUserData = try keychainServices.data(forKey: userKey).data {
@@ -1535,13 +1545,13 @@ extension Auth: UISceneDelegate {
 
   @objc public func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
     kAuthGlobalWorkQueue.sync {
-      return self.notificationManager.canHandle(notification: userInfo)
+      self.notificationManager.canHandle(notification: userInfo)
     }
   }
 
   @objc public func canHandle(_ url: URL) -> Bool {
     kAuthGlobalWorkQueue.sync {
-      return (self.authURLPresenter as? AuthURLPresenter)!.canHandle(url: url)
+      (self.authURLPresenter as? AuthURLPresenter)!.canHandle(url: url)
     }
   }
 
@@ -1556,30 +1566,30 @@ extension Auth: UISceneDelegate {
   convenience init<T: AuthStorage>(app: FirebaseApp,
                                    keychainStorageProvider: T.Type) {
     let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
-                                                                          in: app.container)
+                                                           in: app.container)
     guard let apiKey = app.options.apiKey else {
       fatalError("Missing apiKey for Auth initialization")
     }
     self.init(withAPIKey: apiKey,
-         appName: app.name,
-         appID: app.options.googleAppID,
-         heartbeatLogger: app.heartbeatLogger,
-         appCheck: appCheck)
+              appName: app.name,
+              appID: app.options.googleAppID,
+              heartbeatLogger: app.heartbeatLogger,
+              appCheck: appCheck)
     Auth.setKeychainServiceName(forApp: app)
     self.app = app
-    mainBundleUrlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
+    mainBundleUrlTypes = Bundle.main
+      .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
   }
 
   init(withAPIKey apiKey: String, appName: String, appID: String,
-      heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
+       heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
        appCheck: AppCheckInterop? = nil) {
-
     firebaseAppName = appName
     #if os(iOS)
-    authURLPresenter = AuthURLPresenter()
-    settings = AuthSettings()
-    GULAppDelegateSwizzler.proxyOriginalDelegateIncludingAPNSMethods()
-    GULSceneDelegateSwizzler.proxyOriginalSceneDelegate()
+      authURLPresenter = AuthURLPresenter()
+      settings = AuthSettings()
+      GULAppDelegateSwizzler.proxyOriginalDelegateIncludingAPNSMethods()
+      GULSceneDelegateSwizzler.proxyOriginalSceneDelegate()
     #endif
     requestConfiguration = AuthRequestConfiguration(apiKey: apiKey,
                                                     appID: appID,
@@ -1600,7 +1610,8 @@ extension Auth: UISceneDelegate {
       guard let strongSelf = weakSelf else {
         return
       }
-      let keychainServiceName = Auth.keychainServiceNameForAppName(appName: strongSelf.firebaseAppName)
+      let keychainServiceName = Auth
+        .keychainServiceNameForAppName(appName: strongSelf.firebaseAppName)
       if let keychainServiceName {
         strongSelf.keychainServices = AuthKeychainServices(service: keychainServiceName)
         strongSelf.storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
@@ -1618,64 +1629,68 @@ extension Auth: UISceneDelegate {
         }
       } catch {
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-        if (error as NSError).code == AuthErrorCode.keychainError.rawValue {
-          // If there's a keychain error, assume it is due to the keychain being accessed
-          // before the device is unlocked as a result of prewarming, and listen for the
-          // UIApplicationProtectedDataDidBecomeAvailable notification.
-          strongSelf.addProtectedDataDidBecomeAvailableObserver()
-        }
+          if (error as NSError).code == AuthErrorCode.keychainError.rawValue {
+            // If there's a keychain error, assume it is due to the keychain being accessed
+            // before the device is unlocked as a result of prewarming, and listen for the
+            // UIApplicationProtectedDataDidBecomeAvailable notification.
+            strongSelf.addProtectedDataDidBecomeAvailableObserver()
+          }
         #endif
         AuthLog.logError(code: "I-AUT000001",
-                           message: "Error loading saved user when starting up: \(error)")
+                         message: "Error loading saved user when starting up: \(error)")
       }
 
       #if os(iOS)
-      // TODO: escape for app extensions
-      // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-      // responds to it.
+        // TODO: escape for app extensions
+        // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+        // responds to it.
 //      if (![GULAppEnvironmentUtil isAppExtension]) {
 //        Class cls = NSClassFromString(@"UIApplication");
 //        if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
 //          applicationClass = cls;
 //        }
 //      }
-      let application = UIApplication.shared
+        let application = UIApplication.shared
         // Initialize for phone number auth.
         strongSelf.tokenManager = AuthAPNSTokenManager(withApplication: application)
-        strongSelf.appCredentialManager = AuthAppCredentialManager(withKeychain: strongSelf.keychainServices)
+        strongSelf
+          .appCredentialManager = AuthAppCredentialManager(withKeychain: strongSelf
+            .keychainServices)
         strongSelf.notificationManager = AuthNotificationManager(
           withApplication: application,
-          appCredentialManager: strongSelf.appCredentialManager)
+          appCredentialManager: strongSelf.appCredentialManager
+        )
 
-      // TODO: Does this swizzling still work?
-      if #available(iOS 13.0, *) {
-        GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
-      }
+        // TODO: Does this swizzling still work?
+        if #available(iOS 13.0, *) {
+          GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
+        }
       #endif
     }
   }
 
-#if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
-  private func addProtectedDataDidBecomeAvailableObserver() {
-    weak var weakSelf = self
-    self.protectedDataDidBecomeAvailableObserver =
-    NotificationCenter.default.addObserver(forName: UIApplication.protectedDataDidBecomeAvailableNotification,
-                                             object: nil,
-                                           queue: nil) { notification in
-      let strongSelf = weakSelf
-      if let observer = strongSelf?.protectedDataDidBecomeAvailableObserver {
-        NotificationCenter.default.removeObserver(observer,
-                       name: UIApplication.protectedDataDidBecomeAvailableNotification,
-                       object: nil)
-      }
+  #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
+    private func addProtectedDataDidBecomeAvailableObserver() {
+      weak var weakSelf = self
+      protectedDataDidBecomeAvailableObserver =
+        NotificationCenter.default.addObserver(
+          forName: UIApplication.protectedDataDidBecomeAvailableNotification,
+          object: nil,
+          queue: nil
+        ) { notification in
+          let strongSelf = weakSelf
+          if let observer = strongSelf?.protectedDataDidBecomeAvailableObserver {
+            NotificationCenter.default.removeObserver(observer,
+                                                      name: UIApplication
+                                                        .protectedDataDidBecomeAvailableNotification,
+                                                      object: nil)
+          }
+        }
     }
-  }
-#endif
+  #endif
 
   // TODO: Port dealloc here
-  deinit {
-
-  }
+  deinit {}
 
   private func getUser() throws -> User? {
     var user: User?
@@ -1685,8 +1700,9 @@ extension Auth: UISceneDelegate {
       }
       user = try storedUserManager.getStoredUser(
         accessGroup: userAccessGroup,
-                                    shareAuthStateAcrossDevices:shareAuthStateAcrossDevices,
-                                                 projectIdentifier: apiKey).user
+        shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
+        projectIdentifier: apiKey
+      ).user
     } else {
       let userKey = "\(firebaseAppName)\(kUserKey)"
       guard let encodedUserData = try keychainServices.data(forKey: userKey).data else {
@@ -1737,7 +1753,7 @@ extension Auth: UISceneDelegate {
     }
     do {
       try saveUser(user)
-      self.possiblyPostAuthStateChangeNotification()
+      possiblyPostAuthStateChangeNotification()
     } catch {
       return error
     }
@@ -1748,7 +1764,7 @@ extension Auth: UISceneDelegate {
     return currentUser?.uid
   }
 
-  internal func signOutByForce(withUserID userID:String) throws {
+  internal func signOutByForce(withUserID userID: String) throws {
     guard currentUser?.uid == userID else {
       return
     }
@@ -1761,18 +1777,18 @@ extension Auth: UISceneDelegate {
       @brief Posts the auth state change notificaton if current user's token has been changed.
    */
   private func possiblyPostAuthStateChangeNotification() {
-    let token = self.currentUser?.rawAccessToken()
-    if self.lastNotifiedUserToken == token ||
-      (token != nil && self.lastNotifiedUserToken == token) {
+    let token = currentUser?.rawAccessToken()
+    if lastNotifiedUserToken == token ||
+      (token != nil && lastNotifiedUserToken == token) {
       return
     }
     lastNotifiedUserToken = token
     if autoRefreshTokens {
       // Shedule new refresh task after successful attempt.
-      self.scheduleAutoTokenRefresh()
+      scheduleAutoTokenRefresh()
     }
     var internalNotificationParameters: [String: Any] = [:]
-    if let app = self.app {
+    if let app = app {
       internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationAppKey] = app
     }
     if let token, token.count > 0 {
@@ -1797,7 +1813,7 @@ extension Auth: UISceneDelegate {
   private func scheduleAutoTokenRefresh() {
     let tokenExpirationInterval =
       (currentUser?.accessTokenExpirationDate()?.timeIntervalSinceNow ?? 0) - 5 * 60
-    self.scheduleAutoTokenRefresh(withDelay: max(tokenExpirationInterval, 0), retry: false)
+    scheduleAutoTokenRefresh(withDelay: max(tokenExpirationInterval, 0), retry: false)
   }
 
   /** @fn scheduleAutoTokenRefreshWithDelay:
@@ -1820,7 +1836,7 @@ extension Auth: UISceneDelegate {
         "\(intDelay / 60):\(intDelay % 60) " +
         "for the new token.")
     }
-    self.autoRefreshScheduled = true
+    autoRefreshScheduled = true
     weak var weakSelf = self
     AuthDispatcher.shared.dispatch(afterDelay: delay, queue: kAuthGlobalWorkQueue) {
       guard let strongSelf = weakSelf else {
@@ -1862,11 +1878,11 @@ extension Auth: UISceneDelegate {
    */
   private func updateCurrentUser(_ user: User?, byForce force: Bool,
                                  savingToDisk saveToDisk: Bool) throws {
-    if user == self.currentUser {
-      self.possiblyPostAuthStateChangeNotification()
+    if user == currentUser {
+      possiblyPostAuthStateChangeNotification()
     }
     if let user {
-      if user.tenantID != nil || self.tenantID != nil, self.tenantID != user.tenantID {
+      if user.tenantID != nil || tenantID != nil, tenantID != user.tenantID {
         let error = AuthErrorUtils.tenantIDMismatchError()
         throw error
       }
@@ -1874,14 +1890,14 @@ extension Auth: UISceneDelegate {
     var throwError: Error?
     if saveToDisk {
       do {
-        try self.saveUser(user)
+        try saveUser(user)
       } catch {
         throwError = error
       }
     }
     if throwError == nil || force {
       currentUser = user
-      self.possiblyPostAuthStateChangeNotification()
+      possiblyPostAuthStateChangeNotification()
     }
     if let throwError {
       throw throwError
@@ -1890,7 +1906,7 @@ extension Auth: UISceneDelegate {
 
   private func saveUser(_ user: User?) throws {
     if let userAccessGroup {
-      guard let apiKey = self.app?.options.apiKey else {
+      guard let apiKey = app?.options.apiKey else {
         fatalError("Internal Auth Error: Missing apiKey in saveUser")
       }
       if let user {
@@ -1901,7 +1917,7 @@ extension Auth: UISceneDelegate {
       } else {
         try storedUserManager.removeStoredUser(
           accessGroup: userAccessGroup,
-          shareAuthStateAcrossDevices: self.shareAuthStateAcrossDevices,
+          shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
           projectIdentifier: apiKey
         )
       }
@@ -1939,10 +1955,10 @@ extension Auth: UISceneDelegate {
    */
   // TODO: internal
   @objc public func completeSignIn(withAccessToken accessToken: String?,
-                              accessTokenExpirationDate: Date?,
-                              refreshToken: String?,
-                              anonymous: Bool,
-                              callback: @escaping ((User?, Error?) -> Void)) {
+                                   accessTokenExpirationDate: Date?,
+                                   refreshToken: String?,
+                                   anonymous: Bool,
+                                   callback: @escaping ((User?, Error?) -> Void)) {
     User.retrieveUser(withAuth: self,
                       accessToken: accessToken,
                       accessTokenExpirationDate: accessTokenExpirationDate,
@@ -1963,22 +1979,22 @@ extension Auth: UISceneDelegate {
   private func internalSignInAndRetrieveData(withEmail email: String, password: String,
                                              completion: ((AuthDataResult?, Error?) -> Void)?) {
     let credential = EmailAuthCredential(withEmail: email, password: password)
-    self.internalSignInAndRetrieveData(withCredential: credential,
-                                       isReauthentication: false,
-                                       callback: completion)
+    internalSignInAndRetrieveData(withCredential: credential,
+                                  isReauthentication: false,
+                                  callback: completion)
   }
 
   internal func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
-                                             isReauthentication: Bool,
-                                             callback: ((AuthDataResult?, Error?) -> Void)?) {
+                                              isReauthentication: Bool,
+                                              callback: ((AuthDataResult?, Error?) -> Void)?) {
     if let emailCredential = credential as? EmailAuthCredential {
       // Special case for email/password credentials
       switch emailCredential.emailType {
       case let .link(link):
         // Email link sign in
-        self.internalSignInAndRetrieveData(withEmail: emailCredential.email,
-                                           link: link,
-                                           callback: callback)
+        internalSignInAndRetrieveData(withEmail: emailCredential.email,
+                                      link: link,
+                                      callback: callback)
       case let .password(password):
         // Email password sign in
         let completeEmailSignIn: (User?, Error?) -> Void = { user, error in
@@ -2000,15 +2016,15 @@ extension Auth: UISceneDelegate {
             callback(result, nil)
           }
         }
-        self.signIn(withEmail: emailCredential.email,
-                    password: password,
-                    callback: completeEmailSignIn)
+        signIn(withEmail: emailCredential.email,
+               password: password,
+               callback: completeEmailSignIn)
       }
       return
     }
     if let gameCenterCredential = credential as? GameCenterAuthCredential {
-      self.signInAndRetrieveData(withGameCenterCredential: gameCenterCredential,
-                                 callback: callback)
+      signInAndRetrieveData(withGameCenterCredential: gameCenterCredential,
+                            callback: callback)
       return
     }
     #if os(iOS)
@@ -2016,41 +2032,40 @@ extension Auth: UISceneDelegate {
         // Special case for phone auth credentials
         let operation = isReauthentication ? AuthOperationType.reauth : AuthOperationType
           .signUpOrSignIn
-        self
-          .signIn(withPhoneCredential: phoneCredential,
-                  operation: operation) { rawResponse, error in
-            if let callback {
+        signIn(withPhoneCredential: phoneCredential,
+               operation: operation) { rawResponse, error in
+          if let callback {
+            if let error {
+              callback(nil, error)
+              return
+            }
+            guard let response = rawResponse as? VerifyPhoneNumberResponse else {
+              fatalError("Internal Auth Error: Failed to get a VerifyPhoneNumberResponse")
+            }
+            self.completeSignIn(withAccessToken: response.idToken,
+                                accessTokenExpirationDate: response.approximateExpirationDate,
+                                refreshToken: response.refreshToken,
+                                anonymous: false) { user, error in
               if let error {
                 callback(nil, error)
                 return
               }
-              guard let response = rawResponse as? VerifyPhoneNumberResponse else {
-                fatalError("Internal Auth Error: Failed to get a VerifyPhoneNumberResponse")
-              }
-              self.completeSignIn(withAccessToken: response.idToken,
-                                  accessTokenExpirationDate: response.approximateExpirationDate,
-                                  refreshToken: response.refreshToken,
-                                  anonymous: false) { user, error in
-                if let error {
-                  callback(nil, error)
-                  return
-                }
-                if let user {
-                  let additionalUserInfo = AdditionalUserInfo(providerID: PhoneAuthProvider.id,
-                                                              profile: nil,
-                                                              username: nil,
-                                                              isNewUser: response.isNewUser)
-                  let result = AuthDataResult(
-                    withUser: user,
-                    additionalUserInfo: additionalUserInfo
-                  )
-                  callback(result, nil)
-                } else {
-                  callback(nil, nil)
-                }
+              if let user {
+                let additionalUserInfo = AdditionalUserInfo(providerID: PhoneAuthProvider.id,
+                                                            profile: nil,
+                                                            username: nil,
+                                                            isNewUser: response.isNewUser)
+                let result = AuthDataResult(
+                  withUser: user,
+                  additionalUserInfo: additionalUserInfo
+                )
+                callback(result, nil)
+              } else {
+                callback(nil, nil)
               }
             }
           }
+        }
         return
       }
     #endif
