@@ -30,8 +30,10 @@ def main():
 
   args = parse_cmdline_args()
 
-  new_api_file = os.path.join(os.path.expanduser(args.pr_branch), api_info.API_INFO_FILE_NAME)
-  old_api_file = os.path.join(os.path.expanduser(args.base_branch), api_info.API_INFO_FILE_NAME)
+  new_api_file = os.path.join(os.path.expanduser(args.pr_branch),
+                              api_info.API_INFO_FILE_NAME)
+  old_api_file = os.path.join(os.path.expanduser(args.base_branch),
+                              api_info.API_INFO_FILE_NAME)
   if os.path.exists(new_api_file):
     new_api_json = json.load(open(new_api_file))
   else:
@@ -107,8 +109,8 @@ def generate_diff_json(new_api, old_api, level='module'):
         diff[key]['declaration'] = [STATUS_REMOVED] + diff[key]['declaration']
     # Module Build Error. If a "module" exist but have no
     # content (e.g. doc_path), it must have a build error.
-    elif level == 'module' and (not new_api[key]['path']
-                                or not old_api[key]['path']):
+    elif level == 'module' and (not new_api[key]['path'] or
+                                not old_api[key]['path']):
       diff[key] = {'status': STATUS_ERROR}
     # Check diff in child level and diff in declaration
     else:
