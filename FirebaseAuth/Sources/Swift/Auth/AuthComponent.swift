@@ -47,7 +47,7 @@ import FirebaseCore
   static func componentsToRegister() -> [Component] {
     let appCheckInterop = Dependency(with: AppCheckInterop.self, isRequired: false)
     return [Component(AuthProvider.self,
-                      instantiationTiming: .lazy,
+                      instantiationTiming: .alwaysEager,
                       dependencies: [
                         appCheckInterop,
                       ]) { container, isCacheable in
