@@ -17,8 +17,7 @@ import Foundation
 
 /// A fake storage instance that imitates the system keychain while storing data in-memory.
 final class FakeAuthKeychainServices: NSObject, AuthStorage {
-  init(service: String) {
-  }
+  init(service: String) {}
 
   private static var keychainServices: [String: FakeAuthKeychainServices] = [:]
 

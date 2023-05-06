@@ -736,7 +736,7 @@ import FirebaseCore
         self.completeSignIn(withAccessToken: response.idToken,
                             accessTokenExpirationDate: response.approximateExpirationDate,
                             refreshToken: response.refreshToken,
-                            anonymous: true) { user, error in
+                            anonymous: false) { user, error in
           if let error {
             decoratedCallback(nil, error)
             return
@@ -1564,29 +1564,21 @@ import FirebaseCore
   // MARK: Internal methods
 
   init<T: AuthStorage>(app: FirebaseApp,
-                                   keychainStorageProvider: T.Type = AuthKeychainServices.self) {
+                       keychainStorageProvider: T.Type = AuthKeychainServices.self) {
     self.app = app
     mainBundleUrlTypes = Bundle.main
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
-
-
 
     let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
                                                            in: app.container)
     guard let apiKey = app.options.apiKey else {
       fatalError("Missing apiKey for Auth initialization")
     }
-    self.app = app
 
     firebaseAppName = app.name
     let keychainServiceName = Auth.keychainServiceForAppID(app.options.googleAppID)
     keychainServices = keychainStorageProvider.init(service: keychainServiceName)
     storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
-//  }
-//
-//  init(withAPIKey apiKey: String, appName: String, appID: String,
-//       heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
-//       appCheck: AppCheckInterop? = nil) {
 
     #if os(iOS)
       authURLPresenter = AuthURLPresenter()
@@ -1677,17 +1669,33 @@ import FirebaseCore
         ) { notification in
           let strongSelf = weakSelf
           if let observer = strongSelf?.protectedDataDidBecomeAvailableObserver {
-            NotificationCenter.default.removeObserver(observer,
-                                                      name: UIApplication
-                                                        .protectedDataDidBecomeAvailableNotification,
-                                                      object: nil)
+            NotificationCenter.default.removeObserver(
+              observer,
+              name: UIApplication.protectedDataDidBecomeAvailableNotification,
+              object: nil
+            )
           }
         }
     }
   #endif
 
-  // TODO: Port dealloc here
-  deinit {}
+  deinit {
+    let defaultCenter = NotificationCenter.default
+    while listenerHandles.count > 0 {
+      let handleToRemove = listenerHandles.lastObject
+      defaultCenter.removeObserver(handleToRemove as Any)
+      listenerHandles.removeLastObject()
+    }
+
+    #if os(iOS)
+      defaultCenter.removeObserver(applicationDidBecomeActiveObserver as Any,
+                                   name: UIApplication.didBecomeActiveNotification,
+                                   object: nil)
+      defaultCenter.removeObserver(applicationDidEnterBackgroundObserver as Any,
+                                   name: UIApplication.didEnterBackgroundNotification,
+                                   object: nil)
+    #endif
+  }
 
   private func getUser() throws -> User? {
     var user: User?
