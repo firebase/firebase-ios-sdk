@@ -37,4 +37,6 @@ protocol AuthStorage: NSObjectProtocol {
   /// - Parameter key: The key to use.
   /// - Throws: An error if the operation is not successful.
   func removeData(forKey key: String) throws
+
+  init(service: String) 
 }

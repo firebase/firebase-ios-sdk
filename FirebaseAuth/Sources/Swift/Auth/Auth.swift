@@ -1563,28 +1563,31 @@ import FirebaseCore
 
   // MARK: Internal methods
 
-  convenience init<T: AuthStorage>(app: FirebaseApp,
-                                   keychainStorageProvider: T.Type) {
+  init<T: AuthStorage>(app: FirebaseApp,
+                                   keychainStorageProvider: T.Type = AuthKeychainServices.self) {
+    self.app = app
+    mainBundleUrlTypes = Bundle.main
+      .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
+
+
+
     let appCheck = ComponentType<AppCheckInterop>.instance(for: AppCheckInterop.self,
                                                            in: app.container)
     guard let apiKey = app.options.apiKey else {
       fatalError("Missing apiKey for Auth initialization")
     }
-    self.init(withAPIKey: apiKey,
-              appName: app.name,
-              appID: app.options.googleAppID,
-              heartbeatLogger: app.heartbeatLogger,
-              appCheck: appCheck)
-    Auth.setKeychainServiceName(forApp: app)
     self.app = app
-    mainBundleUrlTypes = Bundle.main
-      .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
-  }
 
-  init(withAPIKey apiKey: String, appName: String, appID: String,
-       heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
-       appCheck: AppCheckInterop? = nil) {
-    firebaseAppName = appName
+    firebaseAppName = app.name
+    let keychainServiceName = Auth.keychainServiceForAppID(app.options.googleAppID)
+    keychainServices = keychainStorageProvider.init(service: keychainServiceName)
+    storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
+//  }
+//
+//  init(withAPIKey apiKey: String, appName: String, appID: String,
+//       heartbeatLogger: FIRHeartbeatLoggerProtocol? = nil,
+//       appCheck: AppCheckInterop? = nil) {
+
     #if os(iOS)
       authURLPresenter = AuthURLPresenter()
       settings = AuthSettings()
@@ -1592,9 +1595,9 @@ import FirebaseCore
       GULSceneDelegateSwizzler.proxyOriginalSceneDelegate()
     #endif
     requestConfiguration = AuthRequestConfiguration(apiKey: apiKey,
-                                                    appID: appID,
+                                                    appID: app.options.googleAppID,
                                                     auth: nil,
-                                                    heartbeatLogger: heartbeatLogger,
+                                                    heartbeatLogger: app.heartbeatLogger,
                                                     appCheck: appCheck)
     super.init()
     requestConfiguration.auth = self
@@ -1609,12 +1612,6 @@ import FirebaseCore
       // Load current user from Keychain.
       guard let strongSelf = weakSelf else {
         return
-      }
-      let keychainServiceName = Auth
-        .keychainServiceNameForAppName(appName: strongSelf.firebaseAppName)
-      if let keychainServiceName {
-        strongSelf.keychainServices = AuthKeychainServices(service: keychainServiceName)
-        strongSelf.storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
       }
       do {
         if let storedUserAccessGroup = strongSelf.storedUserManager.getStoredUserAccessGroup() {
@@ -1715,34 +1712,12 @@ import FirebaseCore
     return user
   }
 
-  /** @fn setKeychainServiceNameForApp
-      @brief Sets the keychain service name global data for the particular app.
-      @param app The Firebase app to set keychain service name for.
-   */
-  class func setKeychainServiceName(forApp app: FirebaseApp) {
-    objc_sync_enter(Auth.self)
-    keychainServiceNameForAppName[app.name] = "firebase_auth_\(app.options.googleAppID)"
-    objc_sync_exit(Auth.self)
-  }
-
   /** @fn keychainServiceNameForAppName:
       @brief Gets the keychain service name global data for the particular app by name.
       @param appName The name of the Firebase app to get keychain service name for.
    */
-  class func keychainServiceNameForAppName(appName: String) -> String? {
-    objc_sync_enter(Auth.self)
-    defer { objc_sync_exit(Auth.self) }
-    return keychainServiceNameForAppName[appName]
-  }
-
-  /** @fn deleteKeychainServiceNameForAppName:
-      @brief Deletes the keychain service name global data for the particular app by name.
-      @param appName The name of the Firebase app to delete keychain service name for.
-   */
-  class func deleteKeychainServiceNameForAppName(appName: String) {
-    objc_sync_enter(Auth.self)
-    keychainServiceNameForAppName.removeValue(forKey: appName)
-    objc_sync_exit(Auth.self)
+  class func keychainServiceForAppID(_ appID: String) -> String {
+    return "firebase_auth_\(appID)"
   }
 
   func updateKeychain(withUser user: User?) -> Error? {
@@ -2376,7 +2351,7 @@ import FirebaseCore
   /** @var _keychainServices
       @brief The keychain service.
    */
-  private var keychainServices: AuthKeychainServices!
+  private var keychainServices: AuthStorage
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.
@@ -2422,14 +2397,6 @@ import FirebaseCore
       @brief Key of user stored in the keychain. Prefixed with a Firebase app name.
    */
   private let kUserKey = "_firebase_user"
-
-  /** @var keychainServiceNameForAppName
-      @brief A map from Firebase app name to keychain service names.
-      @remarks This map is needed for looking up the keychain service name after the FIRApp instance
-          is deleted, to remove the associated keychain item. Accessing should occur within a
-          @syncronized([FIRAuth class]) context.
-   */
-  static var keychainServiceNameForAppName: [String: String] = [:]
 
   /** @var _listenerHandles
       @brief Handles returned from @c NSNotificationCenter for blocks which are "auth state did
