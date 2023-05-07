@@ -568,7 +568,7 @@
           }
           expectation.fulfill()
         }
-      waitForExpectations(timeout: 533)
+      waitForExpectations(timeout: 5)
     }
 
     private func initApp(_ functionName: String,
