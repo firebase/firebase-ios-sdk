@@ -1579,6 +1579,7 @@ import FirebaseCore
     firebaseAppName = app.name
     let keychainServiceName = Auth.keychainServiceForAppID(app.options.googleAppID)
     keychainServices = keychainStorageProvider.init(service: keychainServiceName)
+    // TODO: storedUserManager needs to know keychainServices.
     storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
 
     #if os(iOS)
