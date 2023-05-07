@@ -213,9 +213,9 @@ import CommonCrypto
                                                authType: "signInWithRedirect",
                                                callbackScheme: self.callbackScheme)
           }
-          (self.auth.authURLPresenter as? AuthURLPresenter)?.present(headfulLiteURL,
-                                                                     uiDelegate: UIDelegate,
-                                                                     callbackMatcher: callbackMatcher) { callbackURL, error in
+          self.auth.authURLPresenter.present(headfulLiteURL,
+                                             uiDelegate: UIDelegate,
+                                             callbackMatcher: callbackMatcher) { callbackURL, error in
             if let error {
               callbackOnMainThread(nil, error)
               return

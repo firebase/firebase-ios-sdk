@@ -560,8 +560,9 @@ import FirebaseCore
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods
    */
-  @objc public func signIn(with credential: AuthCredential,
-                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc(signInWithCredential:completion:)
+  public func signIn(with credential: AuthCredential,
+                     completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       self.internalSignInAndRetrieveData(withCredential: credential,
@@ -841,7 +842,7 @@ import FirebaseCore
         self.completeSignIn(withAccessToken: response.idToken,
                             accessTokenExpirationDate: response.approximateExpirationDate,
                             refreshToken: response.refreshToken,
-                            anonymous: true) { user, error in
+                            anonymous: false) { user, error in
           if let error {
             decoratedCallback(nil, error)
             return
@@ -2322,20 +2323,21 @@ import FirebaseCore
 
   #if os(iOS)
 
+    // TODO: the next three should be internal after Sample is ported.
     /** @property tokenManager
         @brief The manager for APNs tokens used by phone number auth.
      */
-    internal var tokenManager: AuthAPNSTokenManager!
+    @objc public var tokenManager: AuthAPNSTokenManager!
 
     /** @property appCredentailManager
         @brief The manager for app credentials used by phone number auth.
      */
-    internal var appCredentialManager: AuthAppCredentialManager!
+    @objc public var appCredentialManager: AuthAppCredentialManager!
 
     /** @property notificationManager
         @brief The manager for remote notifications used by phone number auth.
      */
-    internal var notificationManager: AuthNotificationManager!
+    @objc public var notificationManager: AuthNotificationManager!
 
   #endif // TARGET_OS_IOS
 

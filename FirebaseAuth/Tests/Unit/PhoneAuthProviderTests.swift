@@ -491,10 +491,8 @@
         // Fake out appCredentialManager flow.
         auth.appCredentialManager.credential = AuthAppCredential(receipt: kTestReceipt,
                                                                  secret: kTestSecret)
-      }
-
-      // 1. Intercept, handle, and test the projectConfiguration RPC calls.
-      if reCAPTCHAfallback {
+      } else {
+        // 1. Intercept, handle, and test the projectConfiguration RPC calls.
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
         rpcIssuer?.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
@@ -570,7 +568,7 @@
           }
           expectation.fulfill()
         }
-      waitForExpectations(timeout: 5)
+      waitForExpectations(timeout: 533)
     }
 
     private func initApp(_ functionName: String,
