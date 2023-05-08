@@ -36,14 +36,17 @@ import Foundation
   /// The key to encode and decode the stored user.
   private static let storedUserCoderKey = "firebase_auth_stored_user_coder_key"
 
+  // TODO: Should keychainServices be AuthStorage
   /// Mediator object used to access the keychain.
   private let keychainServices: AuthSharedKeychainServices
+
   /// Mediator object used to access user defaults.
   private let userDefaults: AuthUserDefaults
 
   /// Designated initializer.
   /// - Parameter serviceName: The service name to initialize with.
   @objc public init(serviceName: String) {
+    // TODO: keychainServices should be set by parameter.
     keychainServices = AuthSharedKeychainServices()
     userDefaults = AuthUserDefaults(service: serviceName)
   }
