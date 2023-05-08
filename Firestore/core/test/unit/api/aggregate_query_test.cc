@@ -39,7 +39,8 @@ namespace api {
 class MockAggregateQuery : public AggregateQuery {
  public:
   MockAggregateQuery(Query query, std::vector<AggregateField>&& aggregates)
-      : AggregateQuery(std::move(query), std::move(aggregates)){};
+      : AggregateQuery(std::move(query), std::move(aggregates)) {
+  }
 
   ~MockAggregateQuery() override = default;
 
