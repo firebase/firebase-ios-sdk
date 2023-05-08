@@ -123,6 +123,7 @@ typedef std::
  * mutation queues).
  */
 - (instancetype)initWithPersistence:(std::unique_ptr<local::Persistence>)persistence
+                            eagerGC:(BOOL)eagerGC
                         initialUser:(const credentials::User &)initialUser
                   outstandingWrites:(const FSTOutstandingWriteQueues &)outstandingWrites
       maxConcurrentLimboResolutions:(size_t)maxConcurrentLimboResolutions NS_DESIGNATED_INITIALIZER;
@@ -265,6 +266,11 @@ typedef std::
  * Runs a pending timer callback on the worker queue.
  */
 - (void)runTimer:(firebase::firestore::util::TimerId)timerID;
+
+/**
+ * Triggers a LRU GC run with given cache threshold.
+ */
+- (void)triggerLruGC:(NSNumber *)threshold;
 
 /**
  * Switches the FSTSyncEngine to a new user. The test driver tracks the outstanding mutations for

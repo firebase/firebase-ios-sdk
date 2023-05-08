@@ -34,4 +34,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+// TODO(sum/avg) move the contents of this FuturePublicApi category to
+// ../Public/FirebaseFirestore/FIRAggregateQuerySnapshot.h
+@interface FIRAggregateQuerySnapshot (FuturePublicApi)
+
+/**
+ * Gets the aggregation result for the specified aggregation without loss of precision. No coercion
+ * of data types or values is performed.
+ *
+ * See the `AggregateField` class for the expected aggregration result values and types. Numeric
+ * aggregation results will be boxed in an `NSNumber`.
+ *
+ * @param aggregation An instance of `AggregateField` that specifies which aggregation result to
+ * return.
+ * @return Returns the aggregation result from the server without loss of precision.
+ * @warning Throws an `InvalidArgument` exception if the aggregation was not requested in the
+ * `AggregateQuery`.
+ * @see `AggregateField`
+ */
+- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation NS_SWIFT_NAME(get(_:));
+
+@end
+
 NS_ASSUME_NONNULL_END

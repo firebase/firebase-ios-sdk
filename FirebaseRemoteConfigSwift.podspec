@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseRemoteConfigSwift'
-  s.version                 = '10.9.0'
+  s.version                 = '10.10.0'
   s.summary                 = 'Swift Extensions for Firebase Remote Config'
 
   s.description      = <<-DESC

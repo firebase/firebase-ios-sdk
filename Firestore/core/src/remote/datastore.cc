@@ -280,8 +280,10 @@ void Datastore::RunAggregateQueryWithCredentials(
     const core::Query& query,
     const std::vector<AggregateField>& aggregates,
     api::AggregateQueryCallback&& callback) {
-  grpc::ByteBuffer message = MakeByteBuffer(
-      datastore_serializer_.EncodeAggregateQueryRequest(query, aggregates));
+  absl::flat_hash_map<std::string, std::string> aliasMap;
+  grpc::ByteBuffer message =
+      MakeByteBuffer(datastore_serializer_.EncodeAggregateQueryRequest(
+          query, aggregates, aliasMap));
 
   std::unique_ptr<GrpcUnaryCall> call_owning =
       grpc_connection_.CreateUnaryCall(kRpcNameRunAggregationQuery, auth_token,
@@ -289,21 +291,20 @@ void Datastore::RunAggregateQueryWithCredentials(
   GrpcUnaryCall* call = call_owning.get();
   active_calls_.push_back(std::move(call_owning));
 
-  call->Start(
-      // TODO(c++14): move into lambda.
-      [this, call, callback](const StatusOr<grpc::ByteBuffer>& result) {
-        LogGrpcCallFinished("RunAggregationQuery", call, result.status());
-        HandleCallStatus(result.status());
+  call->Start([this, call, callback, aliasMap = std::move(aliasMap)](
+                  const StatusOr<grpc::ByteBuffer>& result) {
+    LogGrpcCallFinished("RunAggregationQuery", call, result.status());
+    HandleCallStatus(result.status());
 
-        if (result.ok()) {
-          callback(datastore_serializer_.DecodeAggregateQueryResponse(
-              result.ValueOrDie()));
-        } else {
-          callback(result.status());
-        }
+    if (result.ok()) {
+      callback(datastore_serializer_.DecodeAggregateQueryResponse(
+          result.ValueOrDie(), aliasMap));
+    } else {
+      callback(result.status());
+    }
 
-        RemoveGrpcCall(call);
-      });
+    RemoveGrpcCall(call);
+  });
 }
 
 void Datastore::ResumeRpcWithCredentials(const OnCredentials& on_credentials) {

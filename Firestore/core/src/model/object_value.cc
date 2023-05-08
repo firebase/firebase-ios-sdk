@@ -21,10 +21,14 @@
 #include <set>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/fields_array.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hashing.h"
+
+#include "absl/strings/str_format.h"
 #include "absl/types/span.h"
 
 namespace firebase {
@@ -33,6 +37,8 @@ namespace model {
 
 namespace {
 
+using model::DeepClone;
+using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::FreeFieldsArray;
 using nanopb::FreeNanopbMessage;
@@ -223,20 +229,32 @@ ObjectValue ObjectValue::FromFieldsEntry(
 
 ObjectValue ObjectValue::FromAggregateFieldsEntry(
     google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
-    pb_size_t count) {
+    pb_size_t count,
+    const absl::flat_hash_map<std::string, std::string>& aliasMap) {
   Message<google_firestore_v1_Value> value;
   value->which_value_type = google_firestore_v1_Value_map_value_tag;
+
   SetRepeatedField(
       &value->map_value.fields, &value->map_value.fields_count,
       absl::Span<google_firestore_v1_AggregationResult_AggregateFieldsEntry>(
           fields_entry, count),
-      [](const google_firestore_v1_AggregationResult_AggregateFieldsEntry&
-             entry) {
-        return google_firestore_v1_MapValue_FieldsEntry{entry.key, entry.value};
+      [&aliasMap](
+          const google_firestore_v1_AggregationResult_AggregateFieldsEntry&
+              entry) {
+        // Remap the short-form aliases that were sent to the server
+        // to the client-side aliases. Users will access the results
+        // using the client-side alias.
+        ByteString serverAlias(entry.key);
+        std::string serverAliasString = serverAlias.ToString();
+        HARD_ASSERT(aliasMap.contains(serverAliasString),
+                    "%s not present in aliasMap", serverAlias.ToString());
+
+        ByteString clientAlias(aliasMap.find(serverAliasString)->second);
+
+        return google_firestore_v1_MapValue_FieldsEntry{
+            clientAlias.release(), *DeepClone(entry.value).release()};
       });
-  // Prevent double-freeing of the AggregationResults's fields. The fields are
-  // now owned by ObjectValue.
-  ReleaseFieldOwnership(fields_entry, count);
+
   return ObjectValue{std::move(value)};
 }
 

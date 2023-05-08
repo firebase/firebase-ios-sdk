@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FIRFieldPath;
 
+// TODO(sum/avg) move this entire file to ../Public/FirebaseFirestore when the API can be public
+
 /**
  * Represents an aggregation that can be performed by Firestore.
  */

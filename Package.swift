@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.9.0"
+let firebaseVersion = "10.10.0"
 
 let package = Package(
   name: "Firebase",
@@ -29,10 +29,12 @@ let package = Package(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
+    // This library is not designed to be imported into client source code.
     .library(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
+    // This library is not designed to be imported into client source code.
     .library(
       name: "FirebaseAnalyticsOnDeviceConversion",
       targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
@@ -150,7 +152,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.10.0" ..< "8.0.0"
+      "7.11.0" ..< "8.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -162,11 +164,11 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/abseil-cpp-binary.git",
-      "1.2021110200.0" ..< "1.2021110300.0"
+      "1.2022062300.0" ..< "1.2022062400.0"
     ),
     .package(
       url: "https://github.com/google/grpc-binary.git",
-      "1.44.0" ..< "1.45.0"
+      "1.50.1" ..< "1.51.0"
     ),
     .package(
       url: "https://github.com/erikdoe/ocmock.git",
@@ -314,8 +316,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.8.0/FirebaseAnalytics.zip",
-      checksum: "f758786d204e2139d221bd91ac0767514845a507affe7d0a268563b2746ebf02"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.9.0/FirebaseAnalytics.zip",
+      checksum: "b0a16eef8caf30eadc496ab24fef5216798c8ec360addb6af53806957950c300"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -332,6 +334,11 @@ let package = Package(
       name: "AnalyticsSwiftUnit",
       dependencies: ["FirebaseAnalyticsSwift"],
       path: "FirebaseAnalyticsSwift/Tests/SwiftUnit"
+    ),
+    .testTarget(
+      name: "AnalyticsObjCAPI",
+      dependencies: ["FirebaseAnalyticsSwift"],
+      path: "FirebaseAnalyticsSwift/Tests/ObjCAPI"
     ),
 
     .target(
@@ -516,7 +523,11 @@ let package = Package(
         .headerSearchPath(".."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: [.macOS])),
+        .define(
+          "CLS_SDK_NAME",
+          to: "Crashlytics macOS SDK",
+          .when(platforms: [.macOS, .macCatalyst])
+        ),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
         .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
         .define("PB_FIELD_32BIT", to: "1"),
@@ -540,7 +551,11 @@ let package = Package(
         .headerSearchPath("../.."),
         .define("DISPLAY_VERSION", to: firebaseVersion),
         .define("CLS_SDK_NAME", to: "Crashlytics iOS SDK", .when(platforms: [.iOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics macOS SDK", .when(platforms: [.macOS])),
+        .define(
+          "CLS_SDK_NAME",
+          to: "Crashlytics macOS SDK",
+          .when(platforms: [.macOS, .macCatalyst])
+        ),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
         .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
       ]
@@ -658,8 +673,8 @@ let package = Package(
 
     .binaryTarget(
       name: "FirebaseFirestore",
-      url: "https://dl.google.com/firebase/ios/bin/firestore/10.8.0/FirebaseFirestore.zip",
-      checksum: "56ea3c98343cc31e3579faf5292ec73223c86e6502848ad2bf4870f6cbc63104"
+      url: "https://dl.google.com/firebase/ios/bin/firestore/10.10.0/FirebaseFirestore.zip",
+      checksum: "bb362e131fda776d6911e553516439fe7d3744a213c6720ee9d58ebc5b6de789"
     ),
 
     .target(
@@ -1334,5 +1349,5 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.8.0")
+  return .package(url: appMeasurementURL, exact: "10.9.0")
 }

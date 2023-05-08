@@ -88,6 +88,7 @@
 		0D88B4CB916A4752B08E5B42 /* query_listener_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7C3F995E040E9E9C5E8514BB /* query_listener_test.cc */; };
 		0DAA255C2FEB387895ADEE12 /* bits_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB380D01201BC69F00D97691 /* bits_test.cc */; };
 		0DBD29A16030CDCD55E38CAB /* mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3068AA9DFBBA86C1FE2A946E /* mutation_queue_test.cc */; };
+		0DDCAC7C7CA55CF10AE0E809 /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
 		0DDEE9FE08845BB7CA4607DE /* grpc_connection_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D9649021544D4F00EB9CFB /* grpc_connection_test.cc */; };
 		0E17927CE45F5E3FC6691E24 /* firebase_auth_credentials_provider_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = F869D85E900E5AF6CD02E2FC /* firebase_auth_credentials_provider_test.mm */; };
 		0E4C94369FFF7EC0C9229752 /* iterator_adaptors_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0353420A3D8CB003E0143 /* iterator_adaptors_test.cc */; };
@@ -163,6 +164,7 @@
 		1B816F48012524939CA57CB3 /* user_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = CCC9BD953F121B9E29F9AA42 /* user_test.cc */; };
 		1B9653C51491FAA4BCDE1E11 /* byte_stream_apple_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7628664347B9C96462D4BF17 /* byte_stream_apple_test.mm */; };
 		1B9E54F4C4280A713B825981 /* token_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = A082AFDD981B07B5AD78FDE8 /* token_test.cc */; };
+		1BB0C34B2E8D8BCC5882430A /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
 		1BF1F9A0CBB6B01654D3C2BE /* field_transform_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7515B47C92ABEEC66864B55C /* field_transform_test.cc */; };
 		1C19D796DB6715368407387A /* annotations.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */; };
 		1C4F88DDEFA6FA23E9E4DB4B /* mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 3068AA9DFBBA86C1FE2A946E /* mutation_queue_test.cc */; };
@@ -179,6 +181,7 @@
 		1D7919CD2A05C15803F5FE05 /* leveldb_mutation_queue_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5C7942B6244F4C416B11B86C /* leveldb_mutation_queue_test.cc */; };
 		1DB3013C5FC736B519CD65A3 /* common.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D221C2DDC800EFB9CC /* common.pb.cc */; };
 		1DCA68BB2EF7A9144B35411F /* leveldb_opener_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 75860CD13AF47EB1EA39EC2F /* leveldb_opener_test.cc */; };
+		1E194F1CFDFE0265DF1CD5E6 /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
 		1E2AE064CF32A604DC7BFD4D /* to_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B696858D2214B53900271095 /* to_string_test.cc */; };
 		1E41BEEDB1F7F23D8A7C47E6 /* bundle_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6ECAF7DE28A19C69DF386D88 /* bundle_reader_test.cc */; };
 		1E42CD0F60EB22A5D0C86D1F /* timestamp_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = ABF6506B201131F8005F2C74 /* timestamp_test.cc */; };
@@ -372,6 +375,7 @@
 		475FE2D34C6555A54D77A054 /* empty_credentials_provider_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 8FA60B08D59FEA0D6751E87F /* empty_credentials_provider_test.cc */; };
 		4781186C01D33E67E07F0D0D /* orderby_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A21F315EE100DD57A1 /* orderby_spec_test.json */; };
 		479A392EAB42453D49435D28 /* memory_bundle_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = AB4AB1388538CD3CB19EB028 /* memory_bundle_cache_test.cc */; };
+		47B8ED6737A24EF96B1ED318 /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
 		4809D7ACAA9414E3192F04FF /* FIRGeoPointTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E048202154AA00B64F25 /* FIRGeoPointTests.mm */; };
 		485CBA9F99771437BA1CB401 /* event_manager_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6F57521E161450FAF89075ED /* event_manager_test.cc */; };
 		489D672CAA09B9BC66798E9F /* status.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9920B89AAC00B5BCE7 /* status.pb.cc */; };
@@ -431,6 +435,7 @@
 		5150E9F256E6E82D6F3CB3F1 /* bundle_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = F7FC06E0A47D393DE1759AE1 /* bundle_cache_test.cc */; };
 		518BF03D57FBAD7C632D18F8 /* FIRQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */; };
 		52967C3DD7896BFA48840488 /* byte_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5342CDDB137B4E93E2E85CCA /* byte_string_test.cc */; };
+		529AB59F636060FEA21BD4FF /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
 		53AB47E44D897C81A94031F6 /* write.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D921C2DDC800EFB9CC /* write.pb.cc */; };
 		53BBB5CDED453F923ADD08D2 /* stream_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 5B5414D28802BC76FDADABD6 /* stream_test.cc */; };
 		53F449F69DF8A3ABC711FD59 /* secure_random_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54740A531FC913E500713A1A /* secure_random_test.cc */; };
@@ -607,6 +612,7 @@
 		5F19F66D8B01BA2B97579017 /* tree_sorted_map_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA4D20A36DBB00BCEB75 /* tree_sorted_map_test.cc */; };
 		5F6CE37B34C542704C5605A4 /* executor_libdispatch_test.mm in Sources */ = {isa = PBXBuildFile; fileRef = B6FB4689208F9B9100554BA2 /* executor_libdispatch_test.mm */; };
 		5F6FD840AC2D729B50991CCB /* memory_document_overlay_cache_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 29D9C76922DAC6F710BC1EF4 /* memory_document_overlay_cache_test.cc */; };
+		5F9F1D9B397C4D7EA1E063D2 /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
 		5FA3DB52A478B01384D3A2ED /* query.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 544129D621C2DDC800EFB9CC /* query.pb.cc */; };
 		5FC0157A03EF9820BCCCC4A3 /* FSTSyncEngineTestDriver.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E02E20213FFC00B64F25 /* FSTSyncEngineTestDriver.mm */; };
 		5FE047FE866758FD6A6A6478 /* FIRFieldPathTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04C202154AA00B64F25 /* FIRFieldPathTests.mm */; };
@@ -1732,6 +1738,7 @@
 		A5FA86650A18F3B7A8162287 /* Pods-Firestore_Benchmarks_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Benchmarks_iOS.release.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Benchmarks_iOS/Pods-Firestore_Benchmarks_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		A70E82DD627B162BEF92B8ED /* Pods-Firestore_Example_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_tvOS/Pods-Firestore_Example_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		A853C81A6A5A51C9D0389EDA /* bundle_loader_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = bundle_loader_test.cc; path = bundle/bundle_loader_test.cc; sourceTree = "<group>"; };
+		AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */ = {isa = PBXFileReference; includeInIndex = 1; path = garbage_collection_spec_test.json; sourceTree = "<group>"; };
 		AB323F9553050F4F6490F9FF /* pretty_printing_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = pretty_printing_test.cc; path = nanopb/pretty_printing_test.cc; sourceTree = "<group>"; };
 		AB380CF82019382300D97691 /* target_id_generator_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = target_id_generator_test.cc; sourceTree = "<group>"; };
 		AB380CFC201A2EE200D97691 /* string_util_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_util_test.cc; sourceTree = "<group>"; };
@@ -2668,6 +2675,7 @@
 				79EAA9F7B1B9592B5F053923 /* bundle_spec_test.json */,
 				54DA129C1F315EE100DD57A1 /* collection_spec_test.json */,
 				54DA129D1F315EE100DD57A1 /* existence_filter_spec_test.json */,
+				AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */,
 				8C7278B604B8799F074F4E8C /* index_spec_test.json */,
 				54DA129E1F315EE100DD57A1 /* limbo_spec_test.json */,
 				54DA129F1F315EE100DD57A1 /* limit_spec_test.json */,
@@ -3052,6 +3060,7 @@
 				DEF4BF5FAA83C37100408F89 /* bundle_spec_test.json in Resources */,
 				546877D52248206A005E3DE0 /* collection_spec_test.json in Resources */,
 				546877D62248206A005E3DE0 /* existence_filter_spec_test.json in Resources */,
+				1E194F1CFDFE0265DF1CD5E6 /* garbage_collection_spec_test.json in Resources */,
 				BFBE4732E93E38317B110778 /* index_spec_test.json in Resources */,
 				546877D72248206A005E3DE0 /* limbo_spec_test.json in Resources */,
 				546877D82248206A005E3DE0 /* limit_spec_test.json in Resources */,
@@ -3085,6 +3094,7 @@
 				6141D3FDF5728FCE9CC1DBFA /* bundle_spec_test.json in Resources */,
 				54ACB6C9224C11F400172E69 /* collection_spec_test.json in Resources */,
 				54ACB6CA224C11F400172E69 /* existence_filter_spec_test.json in Resources */,
+				529AB59F636060FEA21BD4FF /* garbage_collection_spec_test.json in Resources */,
 				604B75044D6BEC2B7515EA1B /* index_spec_test.json in Resources */,
 				54ACB6CB224C11F400172E69 /* limbo_spec_test.json in Resources */,
 				54ACB6CC224C11F400172E69 /* limit_spec_test.json in Resources */,
@@ -3108,6 +3118,7 @@
 				4B5FA86D9568ECE20C6D3AD1 /* bundle_spec_test.json in Resources */,
 				08839E1CEAAC07E350257E9D /* collection_spec_test.json in Resources */,
 				9C1F25177DC5753B075DCF65 /* existence_filter_spec_test.json in Resources */,
+				0DDCAC7C7CA55CF10AE0E809 /* garbage_collection_spec_test.json in Resources */,
 				77C36312F8025EC73991D7DA /* index_spec_test.json in Resources */,
 				F08DA55D31E44CB5B9170CCE /* limbo_spec_test.json in Resources */,
 				15A5F95DA733FD89A1E4147D /* limit_spec_test.json in Resources */,
@@ -3131,6 +3142,7 @@
 				0B002E2E2012B32EB801C6D5 /* bundle_spec_test.json in Resources */,
 				009CDC6F03AC92F3E345085E /* collection_spec_test.json in Resources */,
 				7AD020FC27493FF8E659436C /* existence_filter_spec_test.json in Resources */,
+				1BB0C34B2E8D8BCC5882430A /* garbage_collection_spec_test.json in Resources */,
 				6156C6A837D78D49ED8B8812 /* index_spec_test.json in Resources */,
 				85BC2AB572A400114BF59255 /* limbo_spec_test.json in Resources */,
 				9F41D724D9947A89201495AD /* limit_spec_test.json in Resources */,
@@ -3173,6 +3185,7 @@
 				9C366448F9BA7A4AC0821AF7 /* bundle_spec_test.json in Resources */,
 				54DA12A61F315EE100DD57A1 /* collection_spec_test.json in Resources */,
 				54DA12A71F315EE100DD57A1 /* existence_filter_spec_test.json in Resources */,
+				5F9F1D9B397C4D7EA1E063D2 /* garbage_collection_spec_test.json in Resources */,
 				3783E25DFF9E5C0896D34FEF /* index_spec_test.json in Resources */,
 				54DA12A81F315EE100DD57A1 /* limbo_spec_test.json in Resources */,
 				54DA12A91F315EE100DD57A1 /* limit_spec_test.json in Resources */,
@@ -3214,6 +3227,7 @@
 				32030FA5B4BE6ABDFF2F974E /* bundle_spec_test.json in Resources */,
 				46B104DEE6014D881F7ED169 /* collection_spec_test.json in Resources */,
 				3887E1635B31DCD7BC0922BD /* existence_filter_spec_test.json in Resources */,
+				47B8ED6737A24EF96B1ED318 /* garbage_collection_spec_test.json in Resources */,
 				E04607A1E2964684184E8AEA /* index_spec_test.json in Resources */,
 				2AD8EE91928AE68DF268BEDA /* limbo_spec_test.json in Resources */,
 				BC5AC8890974E0821431267E /* limit_spec_test.json in Resources */,

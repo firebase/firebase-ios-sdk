@@ -7,7 +7,7 @@
     ],
     "config": {
       "numClients": 2,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -135,7 +135,7 @@
     ],
     "config": {
       "numClients": 2,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
