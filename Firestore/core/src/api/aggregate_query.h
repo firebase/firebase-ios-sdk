@@ -36,6 +36,9 @@ class AggregateQuery {
   explicit AggregateQuery(Query query,
                           std::vector<AggregateField>&& aggregates);
 
+  // TODO(b/280805906) this destructor is marked as virtual because this class
+  // is mocked in api/aggregate_query_test.cc. The virtual keyword can be
+  // removed when the tests and mocking are removed.
   virtual ~AggregateQuery() = default;
 
   const Query& query() const {

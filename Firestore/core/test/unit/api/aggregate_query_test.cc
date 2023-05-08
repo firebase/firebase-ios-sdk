@@ -39,7 +39,9 @@ namespace api {
 class MockAggregateQuery : public AggregateQuery {
  public:
   MockAggregateQuery(Query query, std::vector<AggregateField>&& aggregates)
-      : AggregateQuery(query, std::move(aggregates)){};
+      : AggregateQuery(std::move(query), std::move(aggregates)){};
+
+  ~MockAggregateQuery() override = default;
 
   MOCK_METHOD(void,
               GetAggregate,
@@ -79,11 +81,10 @@ TEST(AggregateQuery, GetCallsGetAggregateOk) {
 
   // Create an AggregateQuery with mocked GetAggregate function that
   // invokes the callback with the test results from above
-  Query query;
   AggregateField count_aggregate_field(AggregateField::OpKind::Count,
                                        AggregateAlias("count"));
   std::vector<AggregateField> aggregates{count_aggregate_field};
-  MockAggregateQuery mock_aggregate_query(query, std::move(aggregates));
+  MockAggregateQuery mock_aggregate_query({}, std::move(aggregates));
   EXPECT_CALL(mock_aggregate_query, GetAggregate)
       .Times(1)
       .WillOnce(Invoke([object_value_result = std::move(object_value_result)](
@@ -96,7 +97,7 @@ TEST(AggregateQuery, GetCallsGetAggregateOk) {
   mock_aggregate_query.Get(
       [&callback_count](const StatusOr<int64_t>& result) mutable {
         callback_count++;
-        EXPECT_EQ(result.ok(), true);
+        ASSERT_EQ(result.ok(), true);
         EXPECT_EQ(result.ValueOrDie(), 10);
       });
 
@@ -129,7 +130,7 @@ TEST(AggregateQuery, GetCallsGetAggregateError) {
   mock_aggregate_query.Get(
       [&callback_count](const StatusOr<int64_t>& result) mutable {
         callback_count++;
-        EXPECT_EQ(result.ok(), false);
+        ASSERT_EQ(result.ok(), false);
         EXPECT_EQ(result.status().code(), Error::kErrorInternal);
         EXPECT_EQ(result.status().error_message(), "foo");
       });
