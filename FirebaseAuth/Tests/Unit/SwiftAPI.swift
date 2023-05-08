@@ -47,19 +47,17 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     auth.signIn(withEmail: "abc@abc.com", link: "link") { result, error in
     }
-    #if !os(macOS)
+    #if os(iOS)
       let provider = OAuthProvider(
         providerID: GoogleAuthProvider.id,
         auth: FirebaseAuth.Auth.auth()
       )
       auth.signIn(with: provider, uiDelegate: nil) { result, error in
       }
-      #if !os(tvOS)
-        provider.getCredentialWith(nil) { credential, error in
-          auth.signIn(with: credential!) { result, error in
-          }
+      provider.getCredentialWith(nil) { credential, error in
+        auth.signIn(with: credential!) { result, error in
         }
-      #endif
+      }
       auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
       }
     #endif

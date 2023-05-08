@@ -397,6 +397,9 @@ import FirebaseCore
     }
   }
 
+  @available(tvOS, unavailable)
+  @available(macOS, unavailable)
+  @available(watchOS, unavailable)
   /** @fn signInWithProvider:UIDelegate:completion:
    @brief Signs in using the provided auth provider instance.
    This method is available on iOS, macOS Catalyst, and tvOS only.
@@ -509,6 +512,9 @@ import FirebaseCore
    @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(tvOS, unavailable)
+  @available(macOS, unavailable)
+  @available(watchOS, unavailable)
   public func signIn(with provider: FederatedAuthProvider,
                      uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
@@ -1538,23 +1544,25 @@ import FirebaseCore
     return user
   }
 
-  @objc public func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
-    kAuthGlobalWorkQueue.sync {
-      self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
+  #if os(iOS)
+    @objc public func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
+      kAuthGlobalWorkQueue.sync {
+        self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
+      }
     }
-  }
 
-  @objc public func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
-    kAuthGlobalWorkQueue.sync {
-      self.notificationManager.canHandle(notification: userInfo)
+    @objc public func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
+      kAuthGlobalWorkQueue.sync {
+        self.notificationManager.canHandle(notification: userInfo)
+      }
     }
-  }
 
-  @objc public func canHandle(_ url: URL) -> Bool {
-    kAuthGlobalWorkQueue.sync {
-      (self.authURLPresenter as? AuthURLPresenter)!.canHandle(url: url)
+    @objc public func canHandle(_ url: URL) -> Bool {
+      kAuthGlobalWorkQueue.sync {
+        (self.authURLPresenter as? AuthURLPresenter)!.canHandle(url: url)
+      }
     }
-  }
+  #endif
 
   // TODO: Need to manage breaking change for
   // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
@@ -2340,12 +2348,12 @@ import FirebaseCore
      */
     @objc public var notificationManager: AuthNotificationManager!
 
-  #endif // TARGET_OS_IOS
+    /** @property authURLPresenter
+        @brief An object that takes care of presenting URLs via the auth instance.
+     */
+    internal var authURLPresenter: AuthWebViewControllerDelegate
 
-  /** @property authURLPresenter
-      @brief An object that takes care of presenting URLs via the auth instance.
-   */
-  internal var authURLPresenter: AuthWebViewControllerDelegate
+  #endif // TARGET_OS_IOS
 
   // MARK: Private properties
 

@@ -38,8 +38,11 @@ class UseUserAccessGroupTests: RPCBaseTests {
 
   func testUseUserAccessGroup() throws {
     let auth = try XCTUnwrap(UseUserAccessGroupTests.auth)
-    XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group1"))
-    XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group2"))
+    #if !os(macOS)
+      // TODO: reenable with FakeAuthKeychainServices
+      XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group1"))
+      XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group2"))
+    #endif
     XCTAssertNoThrow(try auth.useUserAccessGroup(nil))
   }
 }

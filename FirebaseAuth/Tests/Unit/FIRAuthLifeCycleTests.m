@@ -133,7 +133,7 @@ static const NSTimeInterval kWaitInterval = .5;
     XCTAssertNotNil(app);
     XCTAssertNotNil(auth);
   }
-  [self waitForTimeIntervel:kWaitInterval];
+  [self waitForTimeInterval:kWaitInterval];
   // Verify that both the app and the auth are released upon exit of the autorelease pool,
   // i.e., the app is the sole owner of the auth.
   XCTAssertNil(app);
@@ -160,12 +160,12 @@ static const NSTimeInterval kWaitInterval = .5;
     @brief Wait for a particular time interval.
  @remarks This method also waits for all other pending @c XCTestExpectation instances.
  */
-- (void)waitForTimeIntervel:(NSTimeInterval)timeInterval {
+- (void)waitForTimeInterval:(NSTimeInterval)timeInterval {
   static dispatch_queue_t queue;
   static dispatch_once_t onceToken;
-  XCTestExpectation *expectation = [self expectationWithDescription:@"waitForTimeIntervel:"];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"waitForTimeInterval:"];
   dispatch_once(&onceToken, ^{
-    queue = dispatch_queue_create("com.google.FIRAuthUnitTests.waitForTimeIntervel", NULL);
+    queue = dispatch_queue_create("com.google.FIRAuthUnitTests.waitForTimeInterval", NULL);
   });
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, timeInterval * NSEC_PER_SEC), queue, ^() {
     [expectation fulfill];
