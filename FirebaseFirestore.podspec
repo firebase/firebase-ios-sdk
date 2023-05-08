@@ -52,6 +52,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/include/**/*.{cc,mm}',
     'Firestore/core/src/**/*.{cc,mm}',
     'FirebaseAuth/Interop/*.h',
+    'Firestore/Swift/Source/**/*.swift',
   ]
 
   # Internal headers that aren't necessarily globally unique. Most C++ internal
@@ -74,6 +75,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.requires_arc = [
     'Firestore/Source/**/*',
     'Firestore/core/src/**/*.mm',
+    'Firestore/Swift/Source/**/*.swift',
   ]
 
   # Exclude alternate implementations for other platforms. These types depend
@@ -89,6 +91,8 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   ]
 
   s.dependency 'FirebaseCore', '~> 10.0'
+  s.dependency 'FirebaseCoreExtension', '~> 10.0'
+  s.dependency 'FirebaseSharedSwift', '~> 10.0'
 
   abseil_version = '~> 1.20220623.0'
   s.dependency 'abseil/algorithm', abseil_version
