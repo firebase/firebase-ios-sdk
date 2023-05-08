@@ -34,7 +34,7 @@
 
 @end
 
-FPRMemoryGaugeData *fprCollectMemoryMetric() {
+FPRMemoryGaugeData *fprCollectMemoryMetric(void) {
   NSDate *collectionTime = [NSDate date];
 
   struct mstats ms = mstats();
