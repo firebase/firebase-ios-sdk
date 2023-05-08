@@ -36,7 +36,7 @@
 }
 
 - (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
-    handler(self.tokenResult);
+  handler(self.tokenResult);
 }
 
 - (nonnull NSString *)notificationAppNameKey {
