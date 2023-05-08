@@ -39,13 +39,13 @@ TEST(AggregateQuery, Equality) {
     AggregateQuery aggregate_query3 =
         Query{core::Query{model::ResourcePath{"bar"}}, firestore}.Count();
 
-    EXPECT_TRUE(aggregate_query1==aggregate_query1);
-    EXPECT_TRUE(aggregate_query1==aggregate_query2);
-    EXPECT_TRUE(aggregate_query1!=aggregate_query3);
+    EXPECT_TRUE(aggregate_query1 == aggregate_query1);
+    EXPECT_TRUE(aggregate_query1 == aggregate_query2);
+    EXPECT_TRUE(aggregate_query1 != aggregate_query3);
 
-    EXPECT_FALSE(aggregate_query1!=aggregate_query1);
-    EXPECT_FALSE(aggregate_query1!=aggregate_query2);
-    EXPECT_FALSE(aggregate_query1==aggregate_query3);
+    EXPECT_FALSE(aggregate_query1 != aggregate_query1);
+    EXPECT_FALSE(aggregate_query1 != aggregate_query2);
+    EXPECT_FALSE(aggregate_query1 == aggregate_query3);
   }
 }
 
