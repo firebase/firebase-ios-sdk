@@ -20,6 +20,11 @@
 
 set -euo pipefail
 
+# Use Java 11 if it is available on the runner image
+if [[ ! -z "${JAVA_HOME_11_X64:-}" ]]; then
+  export JAVA_HOME=$JAVA_HOME_11_X64
+fi
+
 VERSION='1.17.4'
 FILENAME="cloud-firestore-emulator-v${VERSION}.jar"
 URL="https://storage.googleapis.com/firebase-preview-drop/emulator/${FILENAME}"
