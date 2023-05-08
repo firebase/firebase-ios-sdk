@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  *                   internally to perform the network request. Having it here so that
  *                   it's easier for doing mocking with unit testing.
  */
-- (instancetype)initWithMessageTitle:(NSString *)title
+- (instancetype)initWithMessageTitle:(nullable NSString *)title
                          messageBody:(NSString *)body
                     actionButtonText:(nullable NSString *)actionButtonText
            secondaryActionButtonText:(nullable NSString *)secondaryActionButtonText
