@@ -34,8 +34,9 @@ class StorageComponentTests: StorageTestHelpers {
 
   /// Tests that a Storage instance can be created properly by the StorageComponent.
   func testStorageInstanceCreation() throws {
-    let component = StorageComponent(app: StorageComponentTests.app)
-    let storage = component.storage(for: "someBucket")
+    let app = try XCTUnwrap(StorageComponentTests.app)
+    let component = StorageComponent(app: app)
+    let storage = component.storage(for: "someBucket", app: app)
     XCTAssertNotNil(storage)
   }
 
@@ -61,26 +62,42 @@ class StorageComponentTests: StorageTestHelpers {
 
   /// Tests that instances of Storage created are different.
   func testMultipleStorageInstancesCreated() throws {
+    let app = try XCTUnwrap(StorageComponentTests.app)
     let registrants = NSMutableSet(array: [StorageComponent.self])
-    let container = FirebaseComponentContainer(
-      app: StorageComponentTests.app,
-      registrants: registrants
-    )
+    let container = FirebaseComponentContainer(app: app, registrants: registrants)
 
     let provider = ComponentType<StorageProvider>.instance(for: StorageProvider.self,
                                                            in: container)
     XCTAssertNotNil(provider)
 
-    let storage1 = provider.storage(for: "randomBucket")
-    let storage2 = provider.storage(for: "randomBucket")
+    let storage1 = provider.storage(for: "randomBucket", app: app)
+    let storage2 = provider.storage(for: "randomBucket", app: app)
     XCTAssertNotNil(storage1)
 
     // Ensure they're the same instance.
     XCTAssert(storage1 === storage2)
 
-    let storage3 = provider.storage(for: "differentBucket")
+    let storage3 = provider.storage(for: "differentBucket", app: app)
     XCTAssertNotNil(storage3)
 
     XCTAssert(storage1 !== storage3)
+  }
+
+  /// Test that Storage instances get deallocated.
+  func testStorageLifecycle() throws {
+    weak var weakApp: FirebaseApp?
+    weak var weakStorage: Storage?
+    try autoreleasepool {
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      options.projectID = "myProjectID"
+      let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
+      weakApp = try XCTUnwrap(app1)
+      let storage = Storage(app: app1, bucket: "transitory bucket")
+      weakStorage = storage
+      XCTAssertNotNil(weakStorage)
+    }
+    XCTAssertNil(weakApp)
+    XCTAssertNil(weakStorage)
   }
 }

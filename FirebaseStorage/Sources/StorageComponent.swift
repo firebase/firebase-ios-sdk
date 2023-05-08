@@ -22,14 +22,14 @@ import FirebaseCore
 
 @objc(FIRStorageProvider)
 protocol StorageProvider {
-  @objc func storage(for bucket: String) -> Storage
+  @objc func storage(for bucket: String, app: FirebaseApp) -> Storage
 }
 
 @objc(FIRStorageComponent) class StorageComponent: NSObject, Library, StorageProvider {
   // MARK: - Private Variables
 
   /// The app associated with all Storage instances in this container.
-  private let app: FirebaseApp
+  private weak var app: FirebaseApp?
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Storage associated with the given app.
@@ -63,7 +63,7 @@ protocol StorageProvider {
 
   // MARK: - StorageProvider conformance
 
-  func storage(for bucket: String) -> Storage {
+  func storage(for bucket: String, app: FirebaseApp) -> Storage {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.
