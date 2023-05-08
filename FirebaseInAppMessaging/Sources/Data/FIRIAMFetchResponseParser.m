@@ -334,7 +334,7 @@
     }
 
     FIRIAMMessageContentDataWithImageURL *msgData =
-        [[FIRIAMMessageContentDataWithImageURL alloc] initWithMessageTitle:title
+        [[FIRIAMMessageContentDataWithImageURL alloc] initWithMessageTitle:title ?: @""
                                                                messageBody:body
                                                           actionButtonText:actionButtonText
                                                  secondaryActionButtonText:secondaryActionButtonText
@@ -346,7 +346,7 @@
 
     FIRIAMMessageRenderData *renderData =
         [[FIRIAMMessageRenderData alloc] initWithMessageID:messageID
-                                               messageName:messageName
+                                               messageName:messageName ?: @""
                                                contentData:msgData
                                            renderingEffect:renderEffect];
     NSDictionary *dataBundle = nil;
