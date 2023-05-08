@@ -68,7 +68,7 @@ import FirebaseCore
   @objc public class func auth(app: FirebaseApp) -> Auth {
     let provider = ComponentType<AuthProvider>.instance(for: AuthProvider.self,
                                                         in: app.container)
-    return provider.auth()
+    return provider.auth(app)
   }
 
   /** @property app
