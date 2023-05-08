@@ -16,12 +16,8 @@ if(NOT FIREBASE_IOS_BUILD_TESTS)
   return()
 endif()
 
-firebase_ios_add_test(
-  firestore_api_test
-  cc_compilation_test.cc
-  load_bundle_task_test.cc
-  settings_test.cc
-)
+file(GLOB sources *.cc)
+firebase_ios_add_test(firestore_api_test ${sources})
 
 target_link_libraries(
   firestore_api_test PRIVATE
