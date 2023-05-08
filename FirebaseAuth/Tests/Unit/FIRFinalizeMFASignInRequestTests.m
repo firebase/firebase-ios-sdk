@@ -103,8 +103,8 @@ static NSString *const kTotpVerificationInfo = @"totpVerificationInfo";
 - (void)testTOTPFinalizeMFASignInRequest {
   FIRAuthProtoFinalizeMFATOTPSignInRequestInfo *requestInfo =
       [[FIRAuthProtoFinalizeMFATOTPSignInRequestInfo alloc]
-       initWithMfaEnrollmentID:kMfaEnrollmentID
-       verificationCode:kVerificationCode];
+          initWithMfaEnrollmentID:kMfaEnrollmentID
+                 verificationCode:kVerificationCode];
   FIRFinalizeMFASignInRequest *request =
       [[FIRFinalizeMFASignInRequest alloc] initWithMFAPendingCredential:kMfaPendingCredential
                                                        verificationInfo:requestInfo
