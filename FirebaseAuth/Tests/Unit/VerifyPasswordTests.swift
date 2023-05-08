@@ -175,7 +175,7 @@ class VerifyPasswordTests: RPCBaseTests {
     XCTAssertEqual(rpcResponse?.email, kTestEmail)
     XCTAssertEqual(rpcResponse?.localID, kTestLocalID)
     XCTAssertEqual(rpcResponse?.displayName, kTestDisplayName)
-    XCTAssertEqual(rpcResponse?.IDToken, kTestIDToken)
+    XCTAssertEqual(rpcResponse?.idToken, kTestIDToken)
     let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
     XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)

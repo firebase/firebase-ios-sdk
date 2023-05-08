@@ -18,14 +18,16 @@
 #if TARGET_OS_IOS
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactor.h"
+@class FIRUser;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMultiFactor ()
 
 // TODO: revisit User.swift usage of this property after this is in Swift.
-
-@property(nonatomic, weak) FIRUser *user;
+// TODO: should be weak
+//@property(nonatomic, weak) FIRUser *user;
+@property(nonatomic) FIRUser *user;
 
 /** @fn initWithMFAEnrollments:
     @brief Initialize a multi factor instance with a list of MFA enrollments.

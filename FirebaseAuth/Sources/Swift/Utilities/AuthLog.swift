@@ -32,6 +32,10 @@ enum AuthLog {
     FirebaseLogger.log(level: .warning, service: "[FirebaseAuth]", code: code, message: message)
   }
 
+  static func logError(code: String, message: String) {
+    FirebaseLogger.log(level: .error, service: "[FirebaseAuth]", code: code, message: message)
+  }
+
   private static func log(level: FirebaseLoggerLevel, code: String, message: String) {
     FirebaseLogger.log(level: level, service: "[FirebaseAuth]", code: code, message: message)
   }

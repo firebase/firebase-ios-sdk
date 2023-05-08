@@ -33,11 +33,8 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
   }
 
   @objc public static func isCallbackSchemeRegistered(forCustomURLScheme scheme: String,
-                                                      urlTypes: [[String: Any]]?) -> Bool {
+                                                      urlTypes: [[String: Any]]) -> Bool {
     let expectedCustomScheme = scheme.lowercased()
-    guard let urlTypes = urlTypes else {
-      return false
-    }
     for urlType in urlTypes {
       guard let urlTypeSchemes = urlType["CFBundleURLSchemes"] else {
         continue

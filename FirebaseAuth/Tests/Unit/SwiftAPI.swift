@@ -47,19 +47,17 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     auth.signIn(withEmail: "abc@abc.com", link: "link") { result, error in
     }
-    #if !os(macOS)
+    #if os(iOS)
       let provider = OAuthProvider(
         providerID: GoogleAuthProvider.id,
         auth: FirebaseAuth.Auth.auth()
       )
       auth.signIn(with: provider, uiDelegate: nil) { result, error in
       }
-      #if !os(tvOS)
-        provider.getCredentialWith(nil) { credential, error in
-          auth.signIn(with: credential!) { result, error in
-          }
+      provider.getCredentialWith(nil) { credential, error in
+        auth.signIn(with: credential!) { result, error in
         }
-      #endif
+      }
       auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
       }
     #endif
@@ -85,19 +83,19 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings) { error in
     }
     try auth.signOut()
-    auth.isSignIn(withEmailLink: "link")
+    _ = auth.isSignIn(withEmailLink: "link")
     let handle = auth.addStateDidChangeListener { auth, user in
     }
     auth.removeStateDidChangeListener(handle)
-    auth.addIDTokenDidChangeListener { auth, user in
+    _ = auth.addIDTokenDidChangeListener { auth, user in
     }
     auth.removeIDTokenDidChangeListener(handle)
     auth.useAppLanguage()
     auth.useEmulator(withHost: "myHost", port: 123)
     #if os(iOS)
-      auth.canHandle(URL(fileURLWithPath: "/my/path"))
+      _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
-      auth.canHandleNotification([:])
+      _ = auth.canHandleNotification([:])
     #endif
     try auth.useUserAccessGroup("abc")
     let nilUser = try auth.getStoredUser(forAccessGroup: "def")

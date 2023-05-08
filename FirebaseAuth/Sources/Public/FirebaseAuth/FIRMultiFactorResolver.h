@@ -19,6 +19,11 @@
 @class FIRMultiFactorSession;
 @class FIRMultiFactorInfo;
 @class FIRAuthProtoMFAEnrollment;
+@class FIRAuth;
+@class FIRAuthDataResult;
+
+typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
+                                          NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -54,6 +59,11 @@ NS_SWIFT_NAME(MultiFactorResolver) API_UNAVAILABLE(macos, tvos, watchos)
 */
 - (void)resolveSignInWithAssertion:(FIRMultiFactorAssertion *)assertion
                         completion:(nullable FIRAuthDataResultCallback)completion;
+
+// Internal below:
+- (instancetype)initWithMFAPendingCredential:(NSString *_Nullable)MFAPendingCredential
+                                       hints:(NSArray<FIRMultiFactorInfo *> *)hints
+                                        auth:(FIRAuth *)auth;
 
 @end
 

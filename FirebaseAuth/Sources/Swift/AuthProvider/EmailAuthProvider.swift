@@ -43,25 +43,25 @@ import Foundation
   }
 }
 
-// TODO: Change all visibilities to internal and remove objc, once internal FIRAuth.m and FIRUser.m
-// dependents are converted.
-@objc(FIREmailPasswordAuthCredential) public class EmailAuthCredential: AuthCredential,
-  NSSecureCoding {
-  @objc public let email: String
-  @objc public let password: String?
-  @objc public let link: String?
+class EmailAuthCredential: AuthCredential, NSSecureCoding {
+  let email: String
 
-  @objc public init(withEmail email: String, password: String) {
+  enum EmailType {
+    case password(String)
+    case link(String)
+  }
+
+  let emailType: EmailType
+
+  init(withEmail email: String, password: String) {
     self.email = email
-    self.password = password
-    link = nil
+    emailType = .password(password)
     super.init(provider: EmailAuthProvider.id)
   }
 
-  @objc public init(withEmail email: String, link: String) {
+  init(withEmail email: String, link: String) {
     self.email = email
-    self.link = link
-    password = nil
+    emailType = .link(link)
     super.init(provider: EmailAuthProvider.id)
   }
 
@@ -69,8 +69,10 @@ import Foundation
 
   public func encode(with coder: NSCoder) {
     coder.encode(email)
-    coder.encode(password)
-    coder.encode(link)
+    switch emailType {
+    case let .password(password): coder.encode(password, forKey: "password")
+    case let .link(link): coder.encode(link, forKey: "link")
+    }
   }
 
   public required init?(coder: NSCoder) {
@@ -79,11 +81,9 @@ import Foundation
     }
     self.email = email
     if let password = coder.decodeObject(forKey: "password") as? String {
-      self.password = password
-      link = nil
+      emailType = .password(password)
     } else if let link = coder.decodeObject(forKey: "link") as? String {
-      self.link = link
-      password = nil
+      emailType = .link(link)
     } else {
       return nil
     }
