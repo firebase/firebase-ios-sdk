@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATotpSignInRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPSignInRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation FIRAuthProtoFinalizeMFATotpSignInRequestInfo
+@implementation FIRAuthProtoFinalizeMFATOTPSignInRequestInfo
 
-- (instancetype)initWithVerificationCode:(NSString *)verificationCode
-                         mfaEnrollmentID:(nonnull NSString *)mfaEnrollmentID {
+- (instancetype)initWithMfaEnrollmentID:(nonnull NSString *)mfaEnrollmentID
+                       verificationCode:(NSString *)verificationCode {
   self = [super init];
   if (self) {
     _mfaEnrollmentID = mfaEnrollmentID;

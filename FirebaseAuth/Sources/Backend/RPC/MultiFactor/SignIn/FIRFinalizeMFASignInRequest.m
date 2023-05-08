@@ -49,10 +49,10 @@ static NSString *const kTenantIDKey = @"tenantId";
     if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFAPhoneRequestInfo class]]) {
       postBody[@"phoneVerificationInfo"] = [_verificationInfo dictionary];
     }
-    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFATotpSignInRequestInfo class]]) {
+    if ([_verificationInfo isKindOfClass:[FIRAuthProtoFinalizeMFATOTPSignInRequestInfo class]]) {
       postBody[@"totpVerificationInfo"] = [_verificationInfo dictionary];
-      FIRAuthProtoFinalizeMFATotpSignInRequestInfo *fIRAuthProtoFinalizeMFATotpSignInRequestInfo =
-          (FIRAuthProtoFinalizeMFATotpSignInRequestInfo *)_verificationInfo;
+      FIRAuthProtoFinalizeMFATOTPSignInRequestInfo *fIRAuthProtoFinalizeMFATotpSignInRequestInfo =
+          (FIRAuthProtoFinalizeMFATOTPSignInRequestInfo *)_verificationInfo;
       // mfaEnrollmentID only required for TOTP
       // https://source.corp.google.com/piper///depot/google3/google/cloud/identitytoolkit/v2/authentication_service.proto;l=139?q=symbol:google.cloud.identitytoolkit.v2.FinalizeMfaSignInRequest
       postBody[@"mfaEnrollmentId"] = fIRAuthProtoFinalizeMFATotpSignInRequestInfo.mfaEnrollmentID;

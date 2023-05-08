@@ -18,7 +18,7 @@
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoFinalizeMFAPhoneRequestInfo.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATotpSignInRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPSignInRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

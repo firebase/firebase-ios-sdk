@@ -24,7 +24,7 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/SignIn/FIRFinalizeMFASignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/SignIn/FIRFinalizeMFASignInResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATotpSignInRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPSignInRequestInfo.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 /** @var kTestAPIKey
@@ -101,10 +101,10 @@ static NSString *const kTotpVerificationInfo = @"totpVerificationInfo";
     @brief Tests the Finalize MFA Sign in using TOTP request.
  */
 - (void)testTOTPFinalizeMFASignInRequest {
-  FIRAuthProtoFinalizeMFATotpSignInRequestInfo *requestInfo =
-      [[FIRAuthProtoFinalizeMFATotpSignInRequestInfo alloc]
-          initWithVerificationCode:kVerificationCode
-                   mfaEnrollmentID:kMfaEnrollmentID];
+  FIRAuthProtoFinalizeMFATOTPSignInRequestInfo *requestInfo =
+      [[FIRAuthProtoFinalizeMFATOTPSignInRequestInfo alloc]
+       initWithMfaEnrollmentID:kMfaEnrollmentID
+       verificationCode:kVerificationCode];
   FIRFinalizeMFASignInRequest *request =
       [[FIRFinalizeMFASignInRequest alloc] initWithMFAPendingCredential:kMfaPendingCredential
                                                        verificationInfo:requestInfo

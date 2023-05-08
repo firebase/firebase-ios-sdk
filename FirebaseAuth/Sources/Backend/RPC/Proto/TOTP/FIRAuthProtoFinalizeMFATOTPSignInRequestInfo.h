@@ -18,14 +18,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoFinalizeMFATotpSignInRequestInfo : NSObject <FIRAuthProto>
+@interface FIRAuthProtoFinalizeMFATOTPSignInRequestInfo : NSObject <FIRAuthProto>
 
 @property(nonatomic, strong, readonly, nullable) NSString *mfaEnrollmentID;
 
 @property(nonatomic, strong, readonly, nullable) NSString *verificationCode;
 
-- (instancetype)initWithVerificationCode:(NSString *)verificationCode
-                         mfaEnrollmentID:(NSString *)mfaEnrollmentID;
+- (instancetype)initWithMfaEnrollmentID:(NSString *)mfaEnrollmentID
+                       verificationCode:(NSString *)verificationCode;
 @end
 
 NS_ASSUME_NONNULL_END
