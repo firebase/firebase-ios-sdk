@@ -20,14 +20,14 @@ import FirebaseCore
 @_implementationOnly import FirebaseCoreExtension
 
 @objc(FIRAuthProvider) public protocol AuthProvider {
-  @objc func auth() -> Auth
+  @objc func auth(_ app: FirebaseApp) -> Auth
 }
 
 @objc(FIRAuthComponent) class AuthComponent: NSObject, Library, AuthProvider {
   // MARK: - Private Variables
 
   /// The app associated with all Auth instances in this container.
-  private let app: FirebaseApp
+  private weak var app: FirebaseApp?
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Auth associated with the given app.
@@ -59,7 +59,7 @@ import FirebaseCore
 
   // MARK: - AuthProvider conformance
 
-  func auth() -> Auth {
+  func auth(_ app: FirebaseApp) -> Auth {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.
