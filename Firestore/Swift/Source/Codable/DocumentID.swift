@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
 import FirebaseSharedSwift
 @_implementationOnly import FirebaseCoreExtension
 

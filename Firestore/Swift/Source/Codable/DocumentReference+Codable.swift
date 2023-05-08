@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
-
 /** Mark DocumentReference to conform to Codable. */
 
 /**

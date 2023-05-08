@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import FirebaseFirestore
 
 public extension WriteBatch {
   /// Encodes an instance of `Encodable` and overwrites the encoded data

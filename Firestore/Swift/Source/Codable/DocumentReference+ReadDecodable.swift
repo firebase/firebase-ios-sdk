@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import FirebaseFirestore
 
 public extension DocumentReference {
   /// Fetches and decodes the document referenced by this `DocumentReference`.

@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import FirebaseFirestore
 
 public extension CollectionReference {
   /// Encodes an instance of `Encodable` and adds a new document to this collection

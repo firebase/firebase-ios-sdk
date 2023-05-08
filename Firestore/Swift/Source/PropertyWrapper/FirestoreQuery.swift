@@ -15,7 +15,6 @@
  */
 
 import SwiftUI
-import FirebaseFirestore
 
 /// The strategy to use when an error occurs during mapping Firestore documents
 /// to the target type of `FirestoreQuery`.

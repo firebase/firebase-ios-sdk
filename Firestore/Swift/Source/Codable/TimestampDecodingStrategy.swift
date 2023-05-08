@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import FirebaseFirestore
 import FirebaseSharedSwift
 
 public extension FirebaseDataDecoder.DateDecodingStrategy {

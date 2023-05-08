@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import FirebaseFirestore
 
 public extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of

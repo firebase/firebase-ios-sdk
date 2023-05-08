@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
-
 /**
  * A protocol describing the encodable properties of a GeoPoint.
  *

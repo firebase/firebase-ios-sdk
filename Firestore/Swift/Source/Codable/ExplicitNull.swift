@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
-
 /// Wraps an `Optional` field in a `Codable` object such that when the field
 /// has a `nil` value it will encode to a null value in Firestore. Normally,
 /// optional fields are omitted from the encoded document.

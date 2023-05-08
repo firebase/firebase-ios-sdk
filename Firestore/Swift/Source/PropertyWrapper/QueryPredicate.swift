@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
-
 /// Query predicates that can be used to filter results fetched by `FirestoreQuery`.
 ///
 /// Construct predicates using one of the following ways:

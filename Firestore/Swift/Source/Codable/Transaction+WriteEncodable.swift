@@ -15,7 +15,6 @@
  */
 
 import Foundation
-import FirebaseFirestore
 
 public extension Transaction {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
