@@ -48,7 +48,7 @@ function ensure_exists() {
 
 # Runs the emulator synchronously
 function run() {
-  exec java -jar "$jar" "$@"
+  exec java -jar "$jar" "$@" 2>&1 | awk '{ print "[FIRESTORE_EMULATOR]", $0 }'
 }
 
 # Verifies the emulator isn't already running at the PID in the pid_file
@@ -69,7 +69,8 @@ function check_not_running() {
 function start() {
   check_not_running
 
-  run "$@" >& "${log_file}" &
+  ## run "$@" >& "${log_file}" &
+  run "$@" &
   pid="$!"
   echo "$pid" > "${pid_file}"
   echo "Firestore emulator running as PID ${pid}" 1>&2
