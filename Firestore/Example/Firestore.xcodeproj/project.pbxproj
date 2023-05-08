@@ -169,6 +169,12 @@
 		1B9F95F129FAD4D800EEC075 /* FIRAggregateQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95EC29FAD3F100EEC075 /* FIRAggregateQueryUnitTests.mm */; };
 		1B9F95F229FAD4E000EEC075 /* FIRAggregateQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95EC29FAD3F100EEC075 /* FIRAggregateQueryUnitTests.mm */; };
 		1B9F95F329FAD4E100EEC075 /* FIRAggregateQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95EC29FAD3F100EEC075 /* FIRAggregateQueryUnitTests.mm */; };
+		1B9F95F52A0933AA00EEC075 /* aggregate_query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */; };
+		1B9F95F62A0933AA00EEC075 /* aggregate_query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */; };
+		1B9F95F72A0933AA00EEC075 /* aggregate_query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */; };
+		1B9F95F82A0933AA00EEC075 /* aggregate_query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */; };
+		1B9F95F92A0933AA00EEC075 /* aggregate_query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */; };
+		1B9F95FA2A0933AA00EEC075 /* aggregate_query_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */; };
 		1BB0C34B2E8D8BCC5882430A /* garbage_collection_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = AAED89D7690E194EF3BA1132 /* garbage_collection_spec_test.json */; };
 		1BF1F9A0CBB6B01654D3C2BE /* field_transform_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 7515B47C92ABEEC66864B55C /* field_transform_test.cc */; };
 		1C19D796DB6715368407387A /* annotations.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9520B89AAC00B5BCE7 /* annotations.pb.cc */; };
@@ -1474,6 +1480,7 @@
 		166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_index_manager_test.cc; sourceTree = "<group>"; };
 		1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = cc_compilation_test.cc; path = api/cc_compilation_test.cc; sourceTree = "<group>"; };
 		1B9F95EC29FAD3F100EEC075 /* FIRAggregateQueryUnitTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRAggregateQueryUnitTests.mm; sourceTree = "<group>"; };
+		1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = aggregate_query_test.cc; path = api/aggregate_query_test.cc; sourceTree = "<group>"; };
 		1C01D8CE367C56BB2624E299 /* index.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = index.pb.h; path = admin/index.pb.h; sourceTree = "<group>"; };
 		1C3F7302BF4AE6CBC00ECDD0 /* resource.pb.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = resource.pb.cc; sourceTree = "<group>"; };
 		1CA9800A53669EFBFFB824E3 /* memory_remote_document_cache_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = memory_remote_document_cache_test.cc; sourceTree = "<group>"; };
@@ -2497,6 +2504,7 @@
 		8FC5BFAD63BAC5AADAC8A94A /* api */ = {
 			isa = PBXGroup;
 			children = (
+				1B9F95F42A0933AA00EEC075 /* aggregate_query_test.cc */,
 				1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */,
 				8F1A7B4158D9DD76EE4836BF /* load_bundle_task_test.cc */,
 				DD12BC1DB2480886D2FB0005 /* settings_test.cc */,
@@ -3660,6 +3668,7 @@
 				F4F00BF4E87D7F0F0F8831DB /* FSTEventAccumulator.mm in Sources */,
 				0A6FBE65A7FE048BAD562A15 /* FSTGoogleTestTests.mm in Sources */,
 				939C898FE9D129F6A2EA259C /* FSTHelpers.mm in Sources */,
+				1B9F95F72A0933AA00EEC075 /* aggregate_query_test.cc in Sources */,
 				C4055D868A38221B332CD03D /* FSTIntegrationTestCase.mm in Sources */,
 				EC80A217F3D66EB0272B36B0 /* FSTLevelDBSpecTests.mm in Sources */,
 				6FF2B680CC8631B06C7BD7AB /* FSTMemorySpecTests.mm in Sources */,
@@ -3869,6 +3878,7 @@
 				73E42D984FB36173A2BDA57C /* FSTEventAccumulator.mm in Sources */,
 				E375FBA0632EFB4D14C4E5A9 /* FSTGoogleTestTests.mm in Sources */,
 				F72DF72447EA7AB9D100816A /* FSTHelpers.mm in Sources */,
+				1B9F95F92A0933AA00EEC075 /* aggregate_query_test.cc in Sources */,
 				AEBF3F80ACC01AA8A27091CD /* FSTIntegrationTestCase.mm in Sources */,
 				7495E3BAE536CD839EE20F31 /* FSTLevelDBSpecTests.mm in Sources */,
 				EB04FE18E5794FEC187A09E3 /* FSTMemorySpecTests.mm in Sources */,
@@ -4116,6 +4126,7 @@
 				146C140B254F3837A4DD7AE8 /* bits_test.cc in Sources */,
 				3DDC57212ADBA9AD498EAA4C /* bundle.pb.cc in Sources */,
 				F3DEF2DB11FADAABDAA4C8BB /* bundle_builder.cc in Sources */,
+				1B9F95FA2A0933AA00EEC075 /* aggregate_query_test.cc in Sources */,
 				392966346DA5EB3165E16A22 /* bundle_cache_test.cc in Sources */,
 				CE411D4B70353823DE63C0D5 /* bundle_loader_test.cc in Sources */,
 				DE45CD044B431DB0525595A5 /* bundle_reader_test.cc in Sources */,
@@ -4343,6 +4354,7 @@
 				C1B4621C0820EEB0AC9CCD22 /* bits_test.cc in Sources */,
 				01C66732ECCB83AB1D896026 /* bundle.pb.cc in Sources */,
 				EAA1962BFBA0EBFBA53B343F /* bundle_builder.cc in Sources */,
+				1B9F95F82A0933AA00EEC075 /* aggregate_query_test.cc in Sources */,
 				C901A1BFD553B6DD70BB7CC7 /* bundle_cache_test.cc in Sources */,
 				5A44725457D6B7805FD66EEB /* bundle_loader_test.cc in Sources */,
 				248DE4F56DD938F4DBCCF39B /* bundle_reader_test.cc in Sources */,
@@ -4542,6 +4554,7 @@
 				5492E03E2021401F00B64F25 /* FSTEventAccumulator.mm in Sources */,
 				54764FAF1FAA21B90085E60A /* FSTGoogleTestTests.mm in Sources */,
 				5492E03F2021401F00B64F25 /* FSTHelpers.mm in Sources */,
+				1B9F95F52A0933AA00EEC075 /* aggregate_query_test.cc in Sources */,
 				5491BC721FB44593008B3588 /* FSTIntegrationTestCase.mm in Sources */,
 				5492E03120213FFC00B64F25 /* FSTLevelDBSpecTests.mm in Sources */,
 				5492E03420213FFC00B64F25 /* FSTMemorySpecTests.mm in Sources */,
@@ -4808,6 +4821,7 @@
 				0B9BD73418289EFF91917934 /* bits_test.cc in Sources */,
 				F8126CD7308A4B8AEC0F30A8 /* bundle.pb.cc in Sources */,
 				5AFA1055E8F6B4E4B1CCE2C4 /* bundle_builder.cc in Sources */,
+				1B9F95F62A0933AA00EEC075 /* aggregate_query_test.cc in Sources */,
 				AE5E5E4A7BF12C2337AFA13B /* bundle_cache_test.cc in Sources */,
 				65D54B964A2021E5A36AB21F /* bundle_loader_test.cc in Sources */,
 				B9706A5CD29195A613CF4147 /* bundle_reader_test.cc in Sources */,
