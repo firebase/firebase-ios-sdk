@@ -154,7 +154,7 @@ private let kTenantIDKey = "tenantId"
   /** @property OOBCode
       @brief The out-of-band code of the change email request.
    */
-  @objc public var OOBCode: String?
+  @objc(OOBCode) public var oobCode: String?
 
   /** @property emailVerified
       @brief Whether to mark the email as verified or not.
@@ -227,8 +227,8 @@ private let kTenantIDKey = "tenantId"
     if let providers {
       postBody[kProvidersKey] = providers
     }
-    if let OOBCode {
-      postBody[kOOBCodeKey] = OOBCode
+    if let oobCode {
+      postBody[kOOBCodeKey] = oobCode
     }
     if emailVerified {
       postBody[kEmailVerifiedKey] = true

@@ -36,7 +36,7 @@
      */
     @objc public let maximumNumberOfPendingReceipts = 32
 
-    @objc public init(withKeychain keychain: AuthStorage) {
+    init(withKeychain keychain: AuthStorage) {
       keychainServices = keychain
       if let encodedData = try? keychain.data(forKey: kKeychainDataKey).data,
          let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: encodedData) {

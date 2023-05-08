@@ -24,7 +24,7 @@ private let kAccountPrefix = "firebase_auth_1_"
 /** @class FIRAuthKeychain
     @brief The utility class to manipulate data in iOS Keychain.
  */
-@objc(FIRAuthKeychainServices) public final class AuthKeychainServices: NSObject, AuthStorage {
+final class AuthKeychainServices: NSObject, AuthStorage {
   /** @var _service
       @brief The name of the keychain service.
    */
@@ -38,15 +38,15 @@ private let kAccountPrefix = "firebase_auth_1_"
 
   private var legacyEntryDeletedForKey: Set<String> = []
 
-  @objc public static func storage(identifier: String) -> Self {
+  static func storage(identifier: String) -> Self {
     return Self(service: identifier)
   }
 
-  @objc public init(service: String) {
+  init(service: String) {
     self.service = service
   }
 
-  @objc public func data(forKey key: String) throws -> DataWrapper {
+  func data(forKey key: String) throws -> DataWrapper {
     if key.isEmpty {
       fatalError("The key cannot be empty.")
     }
@@ -70,7 +70,7 @@ private let kAccountPrefix = "firebase_auth_1_"
     }
   }
 
-  @objc public func setData(_ data: Data, forKey key: String) throws {
+  func setData(_ data: Data, forKey key: String) throws {
     if key.isEmpty {
       fatalError("The key cannot be empty.")
     }
@@ -81,7 +81,7 @@ private let kAccountPrefix = "firebase_auth_1_"
     try setItem(query: genericPasswordQuery(key: key), attributes: attributes)
   }
 
-  @objc public func removeData(forKey key: String) throws {
+  func removeData(forKey key: String) throws {
     if key.isEmpty {
       fatalError("The key cannot be empty.")
     }

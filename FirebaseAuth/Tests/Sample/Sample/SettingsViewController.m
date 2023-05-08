@@ -19,7 +19,6 @@
 #import <objc/runtime.h>
 
 #import "AppManager.h"
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 @import FirebaseAuth;
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
