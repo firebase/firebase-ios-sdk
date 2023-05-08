@@ -15,8 +15,8 @@
 import Foundation
 
 import FirebaseCore
-@_implementationOnly import FirebaseCoreExtension
-@_implementationOnly import FirebaseAppCheckInterop
+import FirebaseCoreExtension
+import FirebaseAppCheckInterop
 @_implementationOnly import GoogleUtilities
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -2015,11 +2015,13 @@ import FirebaseCore
       }
       return
     }
-    if let gameCenterCredential = credential as? GameCenterAuthCredential {
-      signInAndRetrieveData(withGameCenterCredential: gameCenterCredential,
-                            callback: callback)
-      return
-    }
+    #if !os(watchOS)
+      if let gameCenterCredential = credential as? GameCenterAuthCredential {
+        signInAndRetrieveData(withGameCenterCredential: gameCenterCredential,
+                              callback: callback)
+        return
+      }
+    #endif
     #if os(iOS)
       if let phoneCredential = credential as? PhoneAuthCredential {
         // Special case for phone auth credentials
@@ -2154,63 +2156,65 @@ import FirebaseCore
     }
   #endif
 
-  /** @fn signInAndRetrieveDataWithGameCenterCredential:callback:
-      @brief Signs in using a game center credential.
-      @param credential The Game Center Auth Credential used to sign in.
-      @param callback A block which is invoked when the sign in finished (or is cancelled). Invoked
-          asynchronously on the global auth work queue in the future.
-   */
-  private func signInAndRetrieveData(withGameCenterCredential credential: GameCenterAuthCredential,
-                                     callback: ((AuthDataResult?, Error?) -> Void)?) {
-    guard let publicKeyURL = credential.publicKeyURL,
-          let signature = credential.signature,
-          let salt = credential.salt else {
-      fatalError(
-        "Internal Auth Error: Game Center credential missing publicKeyURL, signature, or salt"
-      )
-    }
-    let request = SignInWithGameCenterRequest(playerID: credential.playerID,
-                                              teamPlayerID: credential.teamPlayerID,
-                                              gamePlayerID: credential.gamePlayerID,
-                                              publicKeyURL: publicKeyURL,
-                                              signature: signature,
-                                              salt: salt,
-                                              timestamp: credential.timestamp,
-                                              displayName: credential.displayName,
-                                              requestConfiguration: requestConfiguration)
-    AuthBackend.post(withRequest: request) { rawResponse, error in
-      if let error {
-        if let callback {
-          callback(nil, error)
-        }
-        return
+  #if !os(watchOS)
+    /** @fn signInAndRetrieveDataWithGameCenterCredential:callback:
+        @brief Signs in using a game center credential.
+        @param credential The Game Center Auth Credential used to sign in.
+        @param callback A block which is invoked when the sign in finished (or is cancelled). Invoked
+            asynchronously on the global auth work queue in the future.
+     */
+    private func signInAndRetrieveData(withGameCenterCredential credential: GameCenterAuthCredential,
+                                       callback: ((AuthDataResult?, Error?) -> Void)?) {
+      guard let publicKeyURL = credential.publicKeyURL,
+            let signature = credential.signature,
+            let salt = credential.salt else {
+        fatalError(
+          "Internal Auth Error: Game Center credential missing publicKeyURL, signature, or salt"
+        )
       }
-      guard let response = rawResponse as? SignInWithGameCenterResponse else {
-        fatalError("Internal Auth Error: Failed to get a SignInWithGameCenterResponse")
-      }
-      self.completeSignIn(withAccessToken: response.idToken,
-                          accessTokenExpirationDate: response.approximateExpirationDate,
-                          refreshToken: response.refreshToken,
-                          anonymous: false) { user, error in
-        if let callback {
-          if let error {
+      let request = SignInWithGameCenterRequest(playerID: credential.playerID,
+                                                teamPlayerID: credential.teamPlayerID,
+                                                gamePlayerID: credential.gamePlayerID,
+                                                publicKeyURL: publicKeyURL,
+                                                signature: signature,
+                                                salt: salt,
+                                                timestamp: credential.timestamp,
+                                                displayName: credential.displayName,
+                                                requestConfiguration: requestConfiguration)
+      AuthBackend.post(withRequest: request) { rawResponse, error in
+        if let error {
+          if let callback {
             callback(nil, error)
-            return
           }
-          if let user {
-            let additionalUserInfo = AdditionalUserInfo(providerID: GameCenterAuthProvider.id,
-                                                        profile: nil,
-                                                        username: nil,
-                                                        isNewUser: response.isNewUser)
-            let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
-            callback(result, nil)
-          } else {
-            callback(nil, nil)
+          return
+        }
+        guard let response = rawResponse as? SignInWithGameCenterResponse else {
+          fatalError("Internal Auth Error: Failed to get a SignInWithGameCenterResponse")
+        }
+        self.completeSignIn(withAccessToken: response.idToken,
+                            accessTokenExpirationDate: response.approximateExpirationDate,
+                            refreshToken: response.refreshToken,
+                            anonymous: false) { user, error in
+          if let callback {
+            if let error {
+              callback(nil, error)
+              return
+            }
+            if let user {
+              let additionalUserInfo = AdditionalUserInfo(providerID: GameCenterAuthProvider.id,
+                                                          profile: nil,
+                                                          username: nil,
+                                                          isNewUser: response.isNewUser)
+              let result = AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo)
+              callback(result, nil)
+            } else {
+              callback(nil, nil)
+            }
           }
         }
       }
     }
-  }
+  #endif
 
   /** @fn internalSignInAndRetrieveDataWithEmail:link:completion:
       @brief Signs in using an email and email sign-in link.
