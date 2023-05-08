@@ -7956,8 +7956,7 @@
     "describeName": "Limbo Documents:",
     "itName": "Limbo resolution throttling with bloom filter application",
     "tags": [
-      "no-ios",
-      "no-android"
+      "no-ios"
     ],
     "config": {
       "maxConcurrentLimboResolutions": 2,
