@@ -60,9 +60,10 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 @property(nonatomic) FIROAuthProvider *yahooOAuthProvider;
 @property(nonatomic) FIROAuthProvider *gitHubOAuthProvider;
 
-@property(nonatomic) NSMutableArray<FIRAuthStateDidChangeListenerHandle> *authStateDidChangeListeners;
+// TODO: Restore FIRAuthStateDidChangeListenerHandle for CocoaPods.
+@property(nonatomic) NSMutableArray<id<NSObject>> *authStateDidChangeListeners;
 
-@property(nonatomic) NSMutableArray<FIRAuthStateDidChangeListenerHandle> *IDTokenDidChangeListeners;
+@property(nonatomic) NSMutableArray<id<NSObject>> *IDTokenDidChangeListeners;
 
 - (void)updateTable;
 

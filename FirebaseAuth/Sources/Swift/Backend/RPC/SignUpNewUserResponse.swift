@@ -20,7 +20,7 @@ import Foundation
           access token from Secure Token Service, depending on whether @c returnSecureToken is set
           on the request.
    */
-  @objc public var IDToken: String?
+  @objc(IDToken) public var idToken: String?
 
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
@@ -33,7 +33,7 @@ import Foundation
   @objc public var refreshToken: String?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     if let approximateExpirationDate = dictionary["expiresIn"] as? String {
       self
         .approximateExpirationDate =

@@ -16,7 +16,6 @@
 
 #import "MainViewController+MultiFactor.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 @import FirebaseAuth;
 #import "MainViewController+Internal.h"
 #import <FirebaseCore/FIRApp.h>

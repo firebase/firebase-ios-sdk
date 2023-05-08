@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-
 @class FIRMultiFactorSession;
 @class FIRMultiFactorInfo;
 @class FIRMultiFactorAssertion;
