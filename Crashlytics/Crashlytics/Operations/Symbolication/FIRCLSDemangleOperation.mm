@@ -16,6 +16,9 @@
 #include "Crashlytics/Crashlytics/Private/FIRStackFrame_Private.h"
 
 #import <cxxabi.h>
+#include <dlfcn.h>
+
+static void *swiftDemangleHandle;
 
 @implementation FIRCLSDemangleOperation
 
@@ -28,9 +31,50 @@
     return [self demangleCppSymbol:symbol];
   } else if (strncmp(symbol, "__Z", 3) == 0) {
     return [self demangleBlockInvokeCppSymbol:symbol];
+  } else if (strncmp(symbol, "_T", 2) == 0 || strncmp(symbol, "_T0", 3) == 0 ||
+             strncmp(symbol, "$S", 2) == 0 || strncmp(symbol, "$s", 2) == 0) {
+    // Given a mangled Swift symbol, demangle it into a human readable format.
+    // Source: https://github.com/apple/swift/pull/25314/files
+    // Valid Swift symbols begin with the following prefixes:
+    //   ┌─────────────────────╥────────┐
+    //   │ Swift Version       ║        │
+    //   ╞═════════════════════╬════════╡
+    //   │ Swift 3 and below   ║   _T   │
+    //   ├─────────────────────╫────────┤
+    //   │ Swift 4             ║  _T0   │
+    //   ├─────────────────────╫────────┤
+    //   │ Swift 4.x           ║   $S   │
+    //   ├─────────────────────╫────────┤
+    //   │ Swift 5+            ║   $s   │
+    //   └─────────────────────╨────────┘
+    //
+    return [self demangleSwiftSymbol:symbol];
   }
 
   return nil;
+}
+
++ (NSString *)demangleSwiftSymbol:(const char *)symbol {
+  if (!swiftDemangleHandle) {
+    return nil;
+  }
+
+  Swift_Demangle swift_demangler = (Swift_Demangle)dlsym(swiftDemangleHandle, "swift_demangle");
+
+  if (!swift_demangler) {
+    return nil;
+  }
+  char *demangledString = NULL;
+  demangledString = swift_demangler(symbol, strlen(symbol), nil, nil, 0);
+
+  if (!demangledString) {
+    return nil;
+  }
+
+  NSString *result = [NSString stringWithUTF8String:demangledString];
+  free(demangledString);
+
+  return result;
 }
 
 + (NSString *)demangleBlockInvokeCppSymbol:(const char *)symbol {
@@ -84,6 +128,15 @@
 }
 
 - (void)main {
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+  swiftDemangleHandle = dlopen("swift/libswiftCore.dylib", RTLD_NOW);
+  self.completionBlock = ^{
+    if (swiftDemangleHandle) {
+      dlclose(swiftDemangleHandle);
+    }
+  };
+#endif
+
   [self enumerateFramesWithBlock:^(FIRStackFrame *frame) {
     NSString *demangedSymbol = [self demangleSymbol:[[frame rawSymbol] UTF8String]];
 

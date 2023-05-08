@@ -46,6 +46,14 @@
                         @"monitor(NSString*, long, NSString*)", @"");
 }
 
+- (void)testDemangleSwiftSymbolsNoHandler {
+  XCTAssertEqualObjects(
+      [self
+          demangle:
+              "$ss17_assertionFailure__4file4line5flagss5NeverOs12StaticStringV_SSAHSus6UInt32VtF"],
+      nil, @"");
+}
+
 - (void)testDemangleCppSymbolsWithBlockInvoke {
   XCTAssertEqualObjects([self demangle:"__Z7monitorP8NSStringlS0__block_invoke"],
                         @"monitor(NSString*, long, NSString*)_block_invoke", @"");
@@ -60,16 +68,28 @@
   [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_Z7monitorP8NSStringlS0_"]];
   [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"_ZN9wikipedia7article6formatEv"]];
   [frameArray addObject:[FIRStackFrame stackFrameWithSymbol:@"unmangledSymbol"]];
+  [frameArray
+      addObject:[FIRStackFrame stackFrameWithSymbol:
+                                   @"$ss17_assertionFailure__"
+                                   @"4file4line5flagss5NeverOs12StaticStringV_SSAHSus6UInt32VtF"]];
 
   FIRCLSDemangleOperation *op = [[FIRCLSDemangleOperation alloc] init];
   [op setThreadArray:@[ frameArray ]];
 
   [op start];
 
-  XCTAssertEqual([frameArray count], 3, @"");
+  XCTAssertEqual([frameArray count], 4, @"");
   XCTAssertEqualObjects([frameArray[0] symbol], @"monitor(NSString*, long, NSString*)", @"");
   XCTAssertEqualObjects([frameArray[1] symbol], @"wikipedia::article::format()", @"");
   XCTAssertEqualObjects([frameArray[2] symbol], @"unmangledSymbol", @"");
+
+#if !TARGET_OS_MACCATALYST && !TARGET_OS_OSX
+  XCTAssertEqualObjects(
+      [frameArray[3] symbol],
+      @"Swift._assertionFailure(_: Swift.StaticString, _: Swift.String, file: Swift.StaticString, "
+      @"line: Swift.UInt, flags: Swift.UInt32) -> Swift.Never",
+      @"");
+#endif
 }
 
 @end

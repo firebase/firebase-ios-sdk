@@ -13,11 +13,13 @@
 // limitations under the License.
 
 #import "Crashlytics/Crashlytics/Operations/Symbolication/FIRCLSThreadArrayOperation.h"
+typedef char *(*Swift_Demangle)(const char *, size_t, char *, size_t *, uint32_t);
 
 @interface FIRCLSDemangleOperation : FIRCLSThreadArrayOperation
 
 + (NSString *)demangleSymbol:(const char *)symbol;
 + (NSString *)demangleCppSymbol:(const char *)symbol;
++ (NSString *)demangleSwiftSymbol:(const char *)symbol;
 
 - (NSString *)demangleSymbol:(const char *)symbol;
 

@@ -1,5 +1,6 @@
 # Unreleased
 - [changed] Removed references to deprecated CTCarrier API in FirebaseSessions. (#11144)
+- [changed] Added swift symbol demangle for on-device symbolication.
 
 # 10.9.0
 - [fixed] Updated upload-symbols to 3.15. Disabled dSYM uploads for Flutter
