@@ -99,7 +99,7 @@ class GetAccountInfoTests: RPCBaseTests {
       kPhotoUrlKey: kTestPhotoURL,
       kEmailVerifiedKey: true,
       kPasswordHashKey: kTestPasswordHash,
-    ]]
+    ] as [String: Any]]
 
     _ = try rpcIssuer?.respond(withJSON: ["users": usersIn])
 

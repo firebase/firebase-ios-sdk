@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-@_implementationOnly import FirebaseCore
+import FirebaseCore
 @_implementationOnly import FirebaseCoreExtension
 #if COCOAPODS
   import GTMSessionFetcher
@@ -184,9 +184,9 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     post(withRequest: request, response: response) { error in
       if let error = error {
         callback(nil, error)
-      } else if let mfaError = AuthBackendRPCImplementation
-        .generateMFAError(response: response,
-                          auth: request.requestConfiguration().auth) {
+      } else if let auth = request.requestConfiguration().auth,
+                let mfaError = AuthBackendRPCImplementation
+                .generateMFAError(response: response, auth: auth) {
         callback(nil, mfaError)
       } else if let error = AuthBackendRPCImplementation.phoneCredentialInUse(response: response) {
         callback(nil, error)
@@ -197,7 +197,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
   }
 
   #if os(iOS)
-    private class func generateMFAError(response: AuthRPCResponse, auth: Auth?) -> Error? {
+    private class func generateMFAError(response: AuthRPCResponse, auth: Auth) -> Error? {
       if let mfaResponse = response as? EmailLinkSignInResponse,
          mfaResponse.idToken == nil,
          let enrollments = mfaResponse.MFAInfo {

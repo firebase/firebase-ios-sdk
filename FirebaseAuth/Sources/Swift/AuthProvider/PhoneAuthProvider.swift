@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-@_implementationOnly import FirebaseCore
+import FirebaseCore
 
 // When building for CocoaPods, non-public headers are exposed to Swift via a
 // private module map.
@@ -73,7 +73,7 @@ import Foundation
           "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
         )
       }
-      Auth.globalWorkQueue().async {
+      kAuthGlobalWorkQueue.async {
         let callbackOnMainThread: (String?, Error?) -> Void = { verificationID, error in
           if let completion {
             DispatchQueue.main.async {
@@ -118,7 +118,7 @@ import Foundation
           "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
         )
       }
-      Auth.globalWorkQueue().async {
+      kAuthGlobalWorkQueue.async {
         let callbackOnMainThread: (String?, Error?) -> Void = { verificationID, error in
           if let completion {
             DispatchQueue.main.async {

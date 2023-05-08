@@ -29,7 +29,7 @@
         @brief Tests a successfully completed verification flow.
      */
     func testCompletion() {
-      let fakeKeychain = FakeAuthKeychainServices()
+      let fakeKeychain = FakeAuthKeychainServices(service: "AuthAppCredentialManagerTests")
       let manager = AuthAppCredentialManager(withKeychain: fakeKeychain)
       XCTAssertNil(manager.credential)
 
@@ -63,7 +63,7 @@
         @brief Tests a verification flow that times out.
      */
     func testTimeout() {
-      let fakeKeychain = FakeAuthKeychainServices()
+      let fakeKeychain = FakeAuthKeychainServices(service: "AuthAppCredentialManagerTests")
       let manager = AuthAppCredentialManager(withKeychain: fakeKeychain)
       XCTAssertNil(manager.credential)
 
@@ -90,7 +90,7 @@
         @brief Tests the maximum allowed number of pending receipt.
      */
     func testMaximumPendingReceipt() {
-      let fakeKeychain = FakeAuthKeychainServices()
+      let fakeKeychain = FakeAuthKeychainServices(service: "AuthAppCredentialManagerTests")
       let manager = AuthAppCredentialManager(withKeychain: fakeKeychain)
       XCTAssertNil(manager.credential)
 
@@ -161,7 +161,7 @@
         @brief Tests state preservation in the keychain.
      */
     func testKeychain() {
-      let fakeKeychain = FakeAuthKeychainServices()
+      let fakeKeychain = FakeAuthKeychainServices(service: "AuthAppCredentialManagerTests")
       let manager = AuthAppCredentialManager(withKeychain: fakeKeychain)
       XCTAssertNil(manager.credential)
 

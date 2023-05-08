@@ -18,42 +18,54 @@
   import UIKit
   import WebKit
 
-  // TODO: Uncomment after FIRAuth.m is gone.
-
   /** @protocol AuthWebViewControllerDelegate
-      @brief Defines a delegate for FIRAuthWebViewController
+      @brief Defines a delegate for AuthWebViewController
    */
-  // public protocol AuthWebViewControllerDelegate: AnyObject {
-  /** @fn webViewControllerDidCancel:
-      @brief Notifies the delegate that the web view controller is being cancelled by the user.
-      @param webViewController The web view controller in question.
-   */
-//  func webViewControllerDidCancel(_ controller: AuthWebViewController)
-  /** @fn webViewController:canHandleURL:
-      @brief Determines if a URL should be handled by the delegate.
-      @param URL The URL to handle.
-      @return Whether the URL could be handled or not.
-   */
-//  func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
-  /** @fn webViewController:didFailWithError:
-      @brief Notifies the delegate that the web view controller failed to load a page.
-      @param webViewController The web view controller in question.
-      @param error The error that has occurred.
-   */
-//  func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
-  // }
+  protocol AuthWebViewControllerDelegate: AnyObject {
+    /** @fn webViewControllerDidCancel:
+        @brief Notifies the delegate that the web view controller is being cancelled by the user.
+        @param webViewController The web view controller in question.
+     */
+    func webViewControllerDidCancel(_ controller: AuthWebViewController)
 
-  @objc(FIRAuthWebViewController) public class AuthWebViewController: UIViewController,
+    /** @fn webViewController:canHandleURL:
+        @brief Determines if a URL should be handled by the delegate.
+        @param URL The URL to handle.
+        @return Whether the URL could be handled or not.
+     */
+    func webViewController(_ controller: AuthWebViewController, canHandle url: URL) -> Bool
+
+    /** @fn webViewController:didFailWithError:
+        @brief Notifies the delegate that the web view controller failed to load a page.
+        @param webViewController The web view controller in question.
+        @param error The error that has occurred.
+     */
+    func webViewController(_ controller: AuthWebViewController, didFailWithError error: Error)
+
+    /** @fn presentURL:UIDelegate:callbackMatcher:completion:
+        @brief Presents an URL to interact with user.
+        @param url The URL to present.
+        @param uiDelegate The UI delegate to present view controller.
+        @param completion A block to be called either synchronously if the presentation fails to start,
+            or asynchronously in future on an unspecified thread once the presentation finishes.
+     */
+    func present(_ url: URL,
+                 uiDelegate: AuthUIDelegate?,
+                 callbackMatcher: @escaping (URL?) -> Bool,
+                 completion: @escaping (URL?, Error?) -> Void)
+  }
+
+  class AuthWebViewController: UIViewController,
     WKNavigationDelegate {
     // MARK: - Properties
 
     private var url: URL
-    weak var delegate: FIRAuthWebViewControllerDelegate?
+    weak var delegate: AuthWebViewControllerDelegate?
     private weak var webView: AuthWebView?
 
     // MARK: - Initialization
 
-    @objc(initWithURL:delegate:) public init(url: URL, delegate: FIRAuthWebViewControllerDelegate) {
+    init(url: URL, delegate: AuthWebViewControllerDelegate) {
       self.url = url
       self.delegate = delegate
       super.init(nibName: nil, bundle: nil)

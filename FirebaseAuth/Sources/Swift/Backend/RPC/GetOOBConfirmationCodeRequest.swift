@@ -238,7 +238,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
   @objc public static func passwordResetRequest(email: String,
                                                 actionCodeSettings: ActionCodeSettings?,
                                                 requestConfiguration: AuthRequestConfiguration) ->
-    GetOOBConfirmationCodeRequest? {
+    GetOOBConfirmationCodeRequest {
     Self(requestType: .passwordReset,
          email: email,
          newEmail: nil,
@@ -262,7 +262,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
   @objc public static func signInWithEmailLinkRequest(_ email: String,
                                                       actionCodeSettings: ActionCodeSettings?,
                                                       requestConfiguration: AuthRequestConfiguration)
-    -> Self? {
+    -> Self {
     Self(requestType: .emailLink,
          email: email,
          newEmail: nil,

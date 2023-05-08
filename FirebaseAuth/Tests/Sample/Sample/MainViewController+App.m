@@ -18,7 +18,6 @@
 
 #import "AppManager.h"
 @import FirebaseAuth;
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "MainViewController+Internal.h"
 #import <FirebaseCore/FIRApp.h>
 
@@ -76,7 +75,8 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
   NSUInteger index = self.authStateDidChangeListeners.count;
   [self log:[NSString stringWithFormat:@"Auth State Did Change Listener #%lu was added.",
              (unsigned long)index]];
-  FIRAuthStateDidChangeListenerHandle handle =
+  // TODO: restore FIRAuthStateDidChangeListenerHandle
+  id<NSObject> handle =
   [[AppManager auth] addAuthStateDidChangeListener:^(FIRAuth *_Nonnull auth,
                                                      FIRUser *_Nullable user) {
     [weakSelf log:[NSString stringWithFormat:
@@ -92,7 +92,7 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
     return;
   }
   NSUInteger index = self.authStateDidChangeListeners.count - 1;
-  FIRAuthStateDidChangeListenerHandle handle = self.authStateDidChangeListeners.lastObject;
+  id<NSObject> handle = self.authStateDidChangeListeners.lastObject;
   [[AppManager auth] removeAuthStateDidChangeListener:handle];
   [self.authStateDidChangeListeners removeObject:handle];
   NSString *logString =
@@ -106,7 +106,7 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
   NSUInteger index = self.IDTokenDidChangeListeners.count;
   [self log:[NSString stringWithFormat:@"ID Token Did Change Listener #%lu was added.",
              (unsigned long)index]];
-  FIRIDTokenDidChangeListenerHandle handle =
+  id<NSObject>  handle =
   [[AppManager auth] addIDTokenDidChangeListener:^(FIRAuth *_Nonnull auth,
                                                    FIRUser *_Nullable user) {
     [weakSelf log:[NSString stringWithFormat:
@@ -122,7 +122,7 @@ static NSString *const kTokenRefreshedAlertTitle = @"Token";
     return;
   }
   NSUInteger index = self.IDTokenDidChangeListeners.count - 1;
-  FIRIDTokenDidChangeListenerHandle handle = self.IDTokenDidChangeListeners.lastObject;
+  id<NSObject> handle = self.IDTokenDidChangeListeners.lastObject;
   [[AppManager auth] removeIDTokenDidChangeListener:handle];
   [self.IDTokenDidChangeListeners removeObject:handle];
   NSString *logString =

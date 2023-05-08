@@ -18,7 +18,6 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorResolver.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 
 #import "FirebaseAuth-Swift.h"
@@ -29,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithMFAPendingCredential:(NSString *_Nullable)MFAPendingCredential
                                        hints:(NSArray<FIRMultiFactorInfo *> *)hints
-                                        auth:(FIRAuth *_Nullable)auth {
+                                        auth:(FIRAuth *)auth {
   self = [super init];
   if (self) {
     _MFAPendingCredential = MFAPendingCredential;

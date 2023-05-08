@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (StaticContentTableViewSection *)emailAuthSection;
 
+// TODO: restore.
+typedef void (^FIRAuthResultCallback)(FIRUser *_Nullable user, NSError *_Nullable error);
 - (void)signUpNewEmail:(NSString *)email
               password:(NSString *)password
               callback:(nullable FIRAuthResultCallback)callback;

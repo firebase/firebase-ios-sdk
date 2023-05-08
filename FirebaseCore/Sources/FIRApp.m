@@ -826,6 +826,7 @@ static FIRApp *sDefaultApp;
   // be SDKs that are written in Swift but still visible to ObjC.
   NSDictionary<NSString *, NSString *> *swiftComponents = @{
     @"FIRSessions" : @"fire-ses",
+    @"FIRAuthComponent" : @"fire-auth",
     @"FIRFunctionsComponent" : @"fire-fun",
     @"FIRStorageComponent" : @"fire-str",
   };

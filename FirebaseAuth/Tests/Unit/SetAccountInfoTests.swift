@@ -73,7 +73,7 @@ class SetAccountInfoTests: RPCBaseTests {
     request.email = ktestEmail
     request.password = kTestPassword
     request.providers = [kTestProviders]
-    request.OOBCode = kTestOOBCode
+    request.oobCode = kTestOOBCode
     request.emailVerified = true
     request.photoURL = URL(string: kTestPhotoURL)
     request.upgradeToFederatedLogin = true

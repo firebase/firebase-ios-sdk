@@ -15,26 +15,28 @@
 import Foundation
 
 /// A protocol for a persistent data storage container.
-@objc(FIRAuthStorage) public protocol AuthStorage: NSObjectProtocol {
+protocol AuthStorage: NSObjectProtocol {
   /// Creates a storage instance with the given identifier.
   /// - Parameter identifier: The storage's distinguishing identifer.
-  @objc static func storage(identifier: String) -> Self
+  static func storage(identifier: String) -> Self
 
   /// Retrieves the data for the given key from storage.
   /// - Parameter key: The key to use.
   /// - Returns: The data stored in the storage for the given key.
   /// - Throws: An error if the operation is not successful.
-  @objc func data(forKey key: String) throws -> DataWrapper
+  func data(forKey key: String) throws -> DataWrapper
 
   /// Sets the data for the given key from storage.
   /// - Parameters:
   ///   - data: The data to store.
   ///   - key: The key to use.
   /// - Throws: An error if the operation is not successful.
-  @objc func setData(_ data: Data, forKey key: String) throws
+  func setData(_ data: Data, forKey key: String) throws
 
   /// Removes the data for the given key from storage.
   /// - Parameter key: The key to use.
   /// - Throws: An error if the operation is not successful.
-  @objc func removeData(forKey key: String) throws
+  func removeData(forKey key: String) throws
+
+  init(service: String)
 }

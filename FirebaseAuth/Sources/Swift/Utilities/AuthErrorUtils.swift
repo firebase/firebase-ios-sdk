@@ -14,10 +14,6 @@
 
 import Foundation
 
-#if COCOAPODS
-  @_implementationOnly import FirebaseAuth_Private
-#endif // COCOAPODS
-
 // MARK: - URL response error codes
 
 /** @var kURLResponseErrorCodeInvalidClientID
@@ -538,7 +534,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
     // TODO(ncooke3): Address the optionality of these arguments.
     @objc public static func secondFactorRequiredError(pendingCredential: String?,
                                                        hints: [MultiFactorInfo]?,
-                                                       auth: Auth?)
+                                                       auth: Auth)
       -> Error {
       var userInfo: [String: Any] = [:]
       if let pendingCredential = pendingCredential, let hints = hints {

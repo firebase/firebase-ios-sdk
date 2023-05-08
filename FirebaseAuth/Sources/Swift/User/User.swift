@@ -389,7 +389,10 @@ import Foundation
   public func reauthenticate(with credential: AuthCredential,
                              completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      self.auth?.internalSignInAndRetrieveData(with: credential, isReauthentication: true) {
+      self.auth?.internalSignInAndRetrieveData(
+        withCredential: credential,
+        isReauthentication: true
+      ) {
         authResult, error in
         if let error {
           // If "user not found" error returned by backend,
@@ -1694,11 +1697,13 @@ import Foundation
       User.callInMainThreadWithAuthDataResultAndError(
         callback: completion,
         result: nil,
-        error: AuthErrorUtils.providerAlreadyLinkedError()
+        error: AuthErrorUtils
+          .providerAlreadyLinkedError()
       )
       return
     }
-    if let password = emailCredential.password {
+    switch emailCredential.emailType {
+    case let .password(password):
       updateEmail(email: emailCredential.email, password: password) { error in
         if let error {
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
@@ -1711,11 +1716,8 @@ import Foundation
                                                           error: nil)
         }
       }
-    } else {
+    case let .link(link):
       internalGetToken { accessToken, error in
-        guard let link = emailCredential.link else {
-          fatalError("Internal Auth Error: link is not an email Credential as expected.")
-        }
         var queryItems = AuthWebUtils.parseURL(link)
         if link.count == 0 {
           if let urlComponents = URLComponents(string: link),
@@ -1927,49 +1929,7 @@ import Foundation
       @return Whether the operation is successful.
    */
   func updateKeychain() -> Error? {
-    if self != auth?.rawCurrentUser {
-      // No-op if the user is no longer signed in. This is not considered an error as we don't check
-      // whether the user is still current on other callbacks of user operations either.
-      return nil
-    }
-    do {
-      try saveUser()
-    } catch {
-      return error
-    }
-    return nil
-  }
-
-  private func saveUser() throws {
-    guard let auth = auth else {
-      return
-    }
-    if auth.userAccessGroup == nil {
-      let userKey = "\(auth.firebaseAppName)_firebase_user"
-      #if os(watchOS)
-        let archiver = NSKeyedArchiver(requiringSecureCoding: false)
-      #else
-        // Encode the user object.
-        let archiveData = NSMutableData()
-        let archiver = NSKeyedArchiver(forWritingWith: archiveData)
-      #endif
-      archiver.encode(self, forKey: userKey)
-      archiver.finishEncoding()
-      #if os(watchOS)
-        let archiveData = archiver.encodedData
-      #endif
-
-      // Save the user object's encoded value.
-      try auth.keychainServices.setData(archiveData as Data, forKey: userKey)
-
-      // TODO: Compile this
-//    } else {
-//      try auth.storedUserManager.setStoredUser(
-//        self,
-//                                               forAccessGroup: auth.userAccessGroup,
-//                                               shareAuthStateAcrossDevices: auth.shareAuthStateAcrossDevices,
-//                                               projectIdentifier: auth.app.options.apiKey)
-    }
+    return auth?.updateKeychain(withUser: self)
   }
 
   /** @fn callInMainThreadWithError

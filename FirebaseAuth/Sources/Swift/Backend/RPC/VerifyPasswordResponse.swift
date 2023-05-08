@@ -43,7 +43,7 @@ import Foundation
           access token from Secure Token Service, depending on whether @c returnSecureToken is set
           on the request.
    */
-  @objc public var IDToken: String?
+  @objc(IDToken) public var idToken: String?
 
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
@@ -60,15 +60,15 @@ import Foundation
    */
   @objc public var photoURL: URL?
 
-  @objc public var MFAPendingCredential: String?
+  @objc(MFAPendingCredential) public var mfaPendingCredential: String?
 
-  @objc public var MFAInfo: [AuthProtoMFAEnrollment]?
+  @objc(MFAInfo) public var mfaInfo: [AuthProtoMFAEnrollment]?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     localID = dictionary["localId"] as? String
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     if let expiresIn = dictionary["expiresIn"] as? String {
       approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
         .doubleValue)
@@ -77,8 +77,8 @@ import Foundation
     photoURL = (dictionary["photoUrl"] as? String).flatMap { URL(string: $0) }
 
     if let mfaInfo = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
-      MFAInfo = mfaInfo.map { AuthProtoMFAEnrollment(dictionary: $0) }
+      self.mfaInfo = mfaInfo.map { AuthProtoMFAEnrollment(dictionary: $0) }
     }
-    MFAPendingCredential = dictionary["mfaPendingCredential"] as? String
+    mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
   }
 }

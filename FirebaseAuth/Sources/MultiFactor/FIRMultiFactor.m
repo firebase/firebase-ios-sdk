@@ -18,7 +18,6 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactor.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactor+Internal.h"
 
 #import "FirebaseAuth-Swift.h"
@@ -38,6 +37,7 @@ static NSString *kUserCodingKey = @"user";
   }
 }
 
+typedef void (^FIRAuthVoidErrorCallback)(NSError *_Nullable);
 - (void)enrollWithAssertion:(FIRMultiFactorAssertion *)assertion
                 displayName:(nullable NSString *)displayName
                  completion:(nullable FIRAuthVoidErrorCallback)completion {

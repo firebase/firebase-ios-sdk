@@ -73,6 +73,9 @@ typedef void (^FIRTokenCallback)(NSString *_Nullable token, NSError *_Nullable e
   BOOL _useUserInMemory;
 }
 
+// TODO: restore this
+const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
+
 - (id)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {

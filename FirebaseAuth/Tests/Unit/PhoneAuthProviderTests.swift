@@ -491,10 +491,8 @@
         // Fake out appCredentialManager flow.
         auth.appCredentialManager.credential = AuthAppCredential(receipt: kTestReceipt,
                                                                  secret: kTestSecret)
-      }
-
-      // 1. Intercept, handle, and test the projectConfiguration RPC calls.
-      if reCAPTCHAfallback {
+      } else {
+        // 1. Intercept, handle, and test the projectConfiguration RPC calls.
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
         rpcIssuer?.projectConfigRequester = { request in
           XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
@@ -627,7 +625,7 @@
       var delegate: UIApplicationDelegate?
     }
 
-    class FakePresenter: NSObject, FIRAuthWebViewControllerDelegate {
+    class FakePresenter: NSObject, AuthWebViewControllerDelegate {
       func webViewController(_ webViewController: AuthWebViewController,
                              canHandle URL: URL) -> Bool {
         XCTFail("Do not call")
