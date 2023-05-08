@@ -31,9 +31,9 @@ NS_SWIFT_NAME(AppCheckInterop) @protocol FIRAppCheckInterop
                     completion:(FIRAppCheckTokenHandlerInterop)handler
     NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
 
-/// Retrieve a new limitedUseToken
+/// Retrieve a new limited-use Firebase App Check token
 - (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler
-    NS_SWIFT_NAME(getlimitedUseToken(completion:));
+    NS_SWIFT_NAME(getLimitedUseToken(completion:));
 
 /// A notification with the specified name is sent to the default notification center
 /// (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
