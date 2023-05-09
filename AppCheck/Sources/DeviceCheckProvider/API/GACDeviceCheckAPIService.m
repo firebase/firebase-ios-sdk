@@ -38,7 +38,7 @@ static NSString *const kContentTypeKey = @"Content-Type";
 static NSString *const kJSONContentType = @"application/json";
 static NSString *const kDeviceTokenField = @"device_token";
 
-@interface FIRDeviceCheckAPIService ()
+@interface GACDeviceCheckAPIService ()
 
 @property(nonatomic, readonly) id<GACAppCheckAPIServiceProtocol> APIService;
 
@@ -47,7 +47,7 @@ static NSString *const kDeviceTokenField = @"device_token";
 
 @end
 
-@implementation FIRDeviceCheckAPIService
+@implementation GACDeviceCheckAPIService
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
                          projectID:(NSString *)projectID

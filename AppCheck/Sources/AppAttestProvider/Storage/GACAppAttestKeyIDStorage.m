@@ -25,9 +25,9 @@
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 
 /// The `NSUserDefaults` suite name for the storage location of the app attest key ID.
-static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.FIRAppAttestKeyIDStorage";
+static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.GACAppAttestKeyIDStorage";
 
-@interface FIRAppAttestKeyIDStorage ()
+@interface GACAppAttestKeyIDStorage ()
 
 @property(nonatomic, readonly) NSString *appName;
 @property(nonatomic, readonly) NSString *appID;
@@ -37,7 +37,7 @@ static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.FIRAppAtt
 
 @end
 
-@implementation FIRAppAttestKeyIDStorage
+@implementation GACAppAttestKeyIDStorage
 
 - (instancetype)initWithAppName:(NSString *)appName appID:(NSString *)appID {
   self = [super init];

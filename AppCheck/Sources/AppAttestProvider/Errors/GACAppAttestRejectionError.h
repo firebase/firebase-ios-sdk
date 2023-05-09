@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppAttestRejectionError : NSError
+@interface GACAppAttestRejectionError : NSError
 
 - (instancetype)init;
 

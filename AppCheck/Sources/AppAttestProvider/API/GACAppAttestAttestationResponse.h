@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppAttestAttestationResponse : NSObject
+@interface GACAppAttestAttestationResponse : NSObject
 
 /// App Attest attestation artifact required to refresh Firebase App Check token.
 @property(nonatomic, readonly) NSData *artifact;

@@ -38,10 +38,10 @@ NSString *const kFIRLoggerAppCheckMessageDebugProviderFailedExchange = @"I-FAA00
 // GACAppCheckDebugProviderFactory.m
 NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
 
-// FIRDeviceCheckProvider.m
+// GACDeviceCheckProvider.m
 NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions = @"I-FAA006001";
 
-// FIRAppAttestProvider.m
+// GACAppAttestProvider.m
 NSString *const kFIRLoggerAppCheckMessageCodeAppAttestNotSupported = @"I-FAA007001";
 NSString *const kFIRLoggerAppCheckMessageCodeAttestationRejected = @"I-FAA007002";
 
