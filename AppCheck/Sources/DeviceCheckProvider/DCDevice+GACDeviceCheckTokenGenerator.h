@@ -16,7 +16,7 @@
 
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckAvailability.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 #import <DeviceCheck/DeviceCheck.h>
 
@@ -24,10 +24,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface DCDevice (FIRDeviceCheckTokenGenerator) <FIRDeviceCheckTokenGenerator>
+@interface DCDevice (GACDeviceCheckTokenGenerator) <GACDeviceCheckTokenGenerator>
 
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS

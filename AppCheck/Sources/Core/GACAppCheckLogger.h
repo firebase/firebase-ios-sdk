@@ -36,10 +36,10 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderFailedEx
 // GACAppCheckDebugProviderFactory.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
 
-// FIRDeviceCheckProvider.m
+// GACDeviceCheckProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions;
 
-// FIRAppAttestProvider.m
+// GACAppAttestProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeAppAttestNotSupported;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeAttestationRejected;
 
