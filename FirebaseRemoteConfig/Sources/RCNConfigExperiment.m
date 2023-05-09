@@ -32,7 +32,11 @@ static NSString *const kMethodNameLatestStartTime =
     NSMutableArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
 @property(nonatomic, strong)
     NSMutableDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
-@property(nonatomic, strong) RCNConfigDBManager *DBManager;   ///< Database Manager.
+@property(nonatomic, strong)
+    NSMutableArray<NSData *> *activatedExperimentPayloads;  ///< Activated experiment payloads.
+@property(nonatomic, strong) NSMutableDictionary<NSString *, id>
+    *activatedExperimentMetadata;                            ///< Activated experiment metadata
+@property(nonatomic, strong) RCNConfigDBManager *DBManager;  ///< Database Manager.
 @property(nonatomic, strong) FIRExperimentController *experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
 @end
@@ -88,6 +92,26 @@ static NSString *const kMethodNameLatestStartTime =
     }
     if (result[@RCNExperimentTableKeyMetadata]) {
       strongSelf->_experimentMetadata = [result[@RCNExperimentTableKeyMetadata] mutableCopy];
+    }
+
+    if (result[@RCNExperimentTableKeyActivePayload]) {
+      [strongSelf->_activatedExperimentPayloads removeAllObjects];
+      for (NSData *experiment in result[@RCNExperimentTableKeyActivePayload]) {
+        NSError *error;
+        id experimentPayloadJSON = [NSJSONSerialization JSONObjectWithData:experiment
+                                                                   options:kNilOptions
+                                                                     error:&error];
+        if (!experimentPayloadJSON || error) {
+          FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
+                        @"Activated experiment payload could not be parsed as JSON.");
+        } else {
+          [strongSelf->_activatedExperimentPayloads addObject:experiment];
+        }
+      }
+    }
+    if (result[@RCNExperimentTableKeyActiveMetadata]) {
+      strongSelf->_activatedExperimentMetadata =
+          [result[@RCNExperimentTableKeyActiveMetadata] mutableCopy];
     }
   };
   [_DBManager loadExperimentWithCompletionHandler:completionHandler];
@@ -155,6 +179,32 @@ static NSString *const kMethodNameLatestStartTime =
   [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
                                      value:serializedExperimentMetadata
                          completionHandler:nil];
+}
+
+- (void)updateActiveExperiments {
+  /// Put current fetched experiment metadata into activated experiment DB.
+  NSError *error;
+  NSData *serializedExperimentMetadata =
+      [NSJSONSerialization dataWithJSONObject:_experimentMetadata
+                                      options:NSJSONWritingPrettyPrinted
+                                        error:&error];
+
+  if (error) {
+    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000092",
+                @"Invalid activated experiment metadata to be serialized.");
+    return;
+  } else {
+    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActiveMetadata
+                                       value:serializedExperimentMetadata
+                           completionHandler:nil];
+  }
+
+  /// Put current fetched experiment payloads into activated experiment DB.
+  for (NSData *data in _experimentPayloads) {
+    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
+                                       value:data
+                           completionHandler:nil];
+  }
 }
 
 - (NSTimeInterval)latestStartTimeWithExistingLastStartTime:(NSTimeInterval)existingLastStartTime {

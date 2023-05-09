@@ -30,5 +30,7 @@
 
 #define RCNExperimentTableKeyPayload "experiment_payload"
 #define RCNExperimentTableKeyMetadata "experiment_metadata"
+#define RCNExperimentTableKeyActiveMetadata "experiment_active_metadata"
+#define RCNExperimentTableKeyActivePayload "experiment_active_payload"
 
 #endif
