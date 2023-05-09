@@ -45,7 +45,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// A data object that contains all key attest data required for FAC token exchange.
-@interface FIRAppAttestKeyAttestationResult : NSObject
+@interface GACAppAttestKeyAttestationResult : NSObject
 
 @property(nonatomic, readonly) NSString *keyID;
 @property(nonatomic, readonly) NSData *challenge;
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FIRAppAttestKeyAttestationResult
+@implementation GACAppAttestKeyAttestationResult
 
 - (instancetype)initWithKeyID:(NSString *)keyID
                     challenge:(NSData *)challenge
@@ -74,7 +74,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// A data object that contains information required for assertion request.
-@interface FIRAppAttestAssertionData : NSObject
+@interface GACAppAttestAssertionData : NSObject
 
 @property(nonatomic, readonly) NSData *challenge;
 @property(nonatomic, readonly) NSData *artifact;
@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FIRAppAttestAssertionData
+@implementation GACAppAttestAssertionData
 
 - (instancetype)initWithChallenge:(NSData *)challenge
                          artifact:(NSData *)artifact
@@ -102,12 +102,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface FIRAppAttestProvider ()
+@interface GACAppAttestProvider ()
 
-@property(nonatomic, readonly) id<FIRAppAttestAPIServiceProtocol> APIService;
-@property(nonatomic, readonly) id<FIRAppAttestService> appAttestService;
-@property(nonatomic, readonly) id<FIRAppAttestKeyIDStorageProtocol> keyIDStorage;
-@property(nonatomic, readonly) id<FIRAppAttestArtifactStorageProtocol> artifactStorage;
+@property(nonatomic, readonly) id<GACAppAttestAPIServiceProtocol> APIService;
+@property(nonatomic, readonly) id<GACAppAttestService> appAttestService;
+@property(nonatomic, readonly) id<GACAppAttestKeyIDStorageProtocol> keyIDStorage;
+@property(nonatomic, readonly) id<GACAppAttestArtifactStorageProtocol> artifactStorage;
 @property(nonatomic, readonly) id<GACAppCheckBackoffWrapperProtocol> backoffWrapper;
 
 @property(nonatomic, nullable) FBLPromise<GACAppCheckToken *> *ongoingGetTokenOperation;
@@ -116,12 +116,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@implementation FIRAppAttestProvider
+@implementation GACAppAttestProvider
 
-- (instancetype)initWithAppAttestService:(id<FIRAppAttestService>)appAttestService
-                              APIService:(id<FIRAppAttestAPIServiceProtocol>)APIService
-                            keyIDStorage:(id<FIRAppAttestKeyIDStorageProtocol>)keyIDStorage
-                         artifactStorage:(id<FIRAppAttestArtifactStorageProtocol>)artifactStorage
+- (instancetype)initWithAppAttestService:(id<GACAppAttestService>)appAttestService
+                              APIService:(id<GACAppAttestAPIServiceProtocol>)APIService
+                            keyIDStorage:(id<GACAppAttestKeyIDStorageProtocol>)keyIDStorage
+                         artifactStorage:(id<GACAppAttestArtifactStorageProtocol>)artifactStorage
                           backoffWrapper:(id<GACAppCheckBackoffWrapperProtocol>)backoffWrapper {
   self = [super init];
   if (self) {
@@ -130,18 +130,18 @@ NS_ASSUME_NONNULL_BEGIN
     _keyIDStorage = keyIDStorage;
     _artifactStorage = artifactStorage;
     _backoffWrapper = backoffWrapper;
-    _queue = dispatch_queue_create("com.firebase.FIRAppAttestProvider", DISPATCH_QUEUE_SERIAL);
+    _queue = dispatch_queue_create("com.firebase.GACAppAttestProvider", DISPATCH_QUEUE_SERIAL);
   }
   return self;
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
+#if GAC_APP_ATTEST_SUPPORTED_TARGETS
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
-  FIRAppAttestKeyIDStorage *keyIDStorage =
-      [[FIRAppAttestKeyIDStorage alloc] initWithAppName:app.name appID:app.options.googleAppID];
+  GACAppAttestKeyIDStorage *keyIDStorage =
+      [[GACAppAttestKeyIDStorage alloc] initWithAppName:app.name appID:app.options.googleAppID];
 
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
@@ -149,13 +149,13 @@ NS_ASSUME_NONNULL_BEGIN
                                                   appID:app.options.googleAppID
                                         heartbeatLogger:app.heartbeatLogger];
 
-  FIRAppAttestAPIService *appAttestAPIService =
-      [[FIRAppAttestAPIService alloc] initWithAPIService:APIService
+  GACAppAttestAPIService *appAttestAPIService =
+      [[GACAppAttestAPIService alloc] initWithAPIService:APIService
                                                projectID:app.options.projectID
                                                    appID:app.options.googleAppID];
 
-  FIRAppAttestArtifactStorage *artifactStorage =
-      [[FIRAppAttestArtifactStorage alloc] initWithAppName:app.name
+  GACAppAttestArtifactStorage *artifactStorage =
+      [[GACAppAttestArtifactStorage alloc] initWithAppName:app.name
                                                      appID:app.options.googleAppID
                                                accessGroup:app.options.appGroupID];
 
@@ -166,9 +166,9 @@ NS_ASSUME_NONNULL_BEGIN
                            keyIDStorage:keyIDStorage
                         artifactStorage:artifactStorage
                          backoffWrapper:backoffWrapper];
-#else   // FIR_APP_ATTEST_SUPPORTED_TARGETS
+#else   // GAC_APP_ATTEST_SUPPORTED_TARGETS
   return nil;
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
+#endif  // GAC_APP_ATTEST_SUPPORTED_TARGETS
 }
 
 #pragma mark - GACAppCheckProvider
@@ -218,21 +218,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (FBLPromise<GACAppCheckToken *> *)createGetTokenSequencePromise {
   // Check attestation state to decide on the next steps.
-  return [self attestationState].thenOn(self.queue, ^id(FIRAppAttestProviderState *attestState) {
+  return [self attestationState].thenOn(self.queue, ^id(GACAppAttestProviderState *attestState) {
     switch (attestState.state) {
-      case FIRAppAttestAttestationStateUnsupported:
+      case GACAppAttestAttestationStateUnsupported:
         GACAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeAppAttestNotSupported,
                             @"App Attest is not supported.");
         return attestState.appAttestUnsupportedError;
         break;
 
-      case FIRAppAttestAttestationStateSupportedInitial:
-      case FIRAppAttestAttestationStateKeyGenerated:
+      case GACAppAttestAttestationStateSupportedInitial:
+      case GACAppAttestAttestationStateKeyGenerated:
         // Initial handshake is required for both the "initial" and the "key generated" states.
         return [self initialHandshakeWithKeyID:attestState.appAttestKeyID];
         break;
 
-      case FIRAppAttestAttestationStateKeyRegistered:
+      case GACAppAttestAttestationStateKeyRegistered:
         // Refresh FAC token using the existing registered App Attest key pair.
         return [self refreshTokenWithKeyID:attestState.appAttestKeyID
                                   artifact:attestState.attestationArtifact];
@@ -252,7 +252,7 @@ NS_ASSUME_NONNULL_BEGIN
              condition:^BOOL(NSInteger attemptCount, NSError *_Nonnull error) {
                // Reset keyID before retrying.
                keyIDForAttempt = nil;
-               return [error isKindOfClass:[FIRAppAttestRejectionError class]];
+               return [error isKindOfClass:[GACAppAttestRejectionError class]];
              }
              retry:^FBLPromise<NSArray * /*[keyID, attestArtifact]*/> *_Nullable {
                return [self attestKeyGenerateIfNeededWithID:keyIDForAttempt];
@@ -260,8 +260,8 @@ NS_ASSUME_NONNULL_BEGIN
       .thenOn(self.queue, ^FBLPromise<GACAppCheckToken *> *(NSArray *attestationResults) {
         // 4. Save the artifact and return the received FAC token.
 
-        FIRAppAttestKeyAttestationResult *attestation = attestationResults.firstObject;
-        FIRAppAttestAttestationResponse *firebaseAttestationResponse =
+        GACAppAttestKeyAttestationResult *attestation = attestationResults.firstObject;
+        GACAppAttestAttestationResponse *firebaseAttestationResponse =
             attestationResults.lastObject;
 
         return [self saveArtifactAndGetAppCheckTokenFromResponse:firebaseAttestationResponse
@@ -270,7 +270,7 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (FBLPromise<GACAppCheckToken *> *)saveArtifactAndGetAppCheckTokenFromResponse:
-                                        (FIRAppAttestAttestationResponse *)response
+                                        (GACAppAttestAttestationResponse *)response
                                                                           keyID:(NSString *)keyID {
   return [self.artifactStorage setArtifact:response.artifact forKey:keyID].thenOn(
       self.queue, ^GACAppCheckToken *(id result) {
@@ -278,7 +278,7 @@ NS_ASSUME_NONNULL_BEGIN
       });
 }
 
-- (FBLPromise<FIRAppAttestKeyAttestationResult *> *)attestKey:(NSString *)keyID
+- (FBLPromise<GACAppAttestKeyAttestationResult *> *)attestKey:(NSString *)keyID
                                                     challenge:(NSData *)challenge {
   return [FBLPromise onQueue:self.queue
                           do:^NSData *_Nullable {
@@ -294,9 +294,9 @@ NS_ASSUME_NONNULL_BEGIN
                                  completionHandler:handler];
                 }];
           })
-      .thenOn(self.queue, ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSData *attestation) {
-        FIRAppAttestKeyAttestationResult *result =
-            [[FIRAppAttestKeyAttestationResult alloc] initWithKeyID:keyID
+      .thenOn(self.queue, ^FBLPromise<GACAppAttestKeyAttestationResult *> *(NSData *attestation) {
+        GACAppAttestKeyAttestationResult *result =
+            [[GACAppAttestKeyAttestationResult alloc] initWithKeyID:keyID
                                                           challenge:challenge
                                                         attestation:attestation];
         return [FBLPromise resolvedWith:result];
@@ -314,7 +314,7 @@ NS_ASSUME_NONNULL_BEGIN
                            [self generateAppAttestKeyIDIfNeeded:keyID]
                          ]]
       .thenOn(self.queue,
-              ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
+              ^FBLPromise<GACAppAttestKeyAttestationResult *> *(NSArray *challengeAndKeyID) {
                 // 2. Attest the key.
                 NSData *challenge = challengeAndKeyID.firstObject;
                 NSString *keyID = challengeAndKeyID.lastObject;
@@ -322,7 +322,7 @@ NS_ASSUME_NONNULL_BEGIN
                 return [self attestKey:keyID challenge:challenge];
               })
       .thenOn(self.queue,
-              ^FBLPromise<NSArray *> *(FIRAppAttestKeyAttestationResult *result) {
+              ^FBLPromise<NSArray *> *(GACAppAttestKeyAttestationResult *result) {
                 // 3. Exchange the attestation to FAC token and pass the results to the next step.
                 NSArray *attestationResults = @[
                   // 3.1. Just pass the attestation result to the next step.
@@ -347,7 +347,7 @@ NS_ASSUME_NONNULL_BEGIN
           // Reset the attestation.
           return [self resetAttestation].thenOn(self.queue, ^NSError *(id result) {
             // Throw the rejection error.
-            return [[FIRAppAttestRejectionError alloc] init];
+            return [[GACAppAttestRejectionError alloc] init];
           });
         }
 
@@ -369,19 +369,19 @@ NS_ASSUME_NONNULL_BEGIN
                                                  artifact:(NSData *)artifact {
   return [self.APIService getRandomChallenge]
       .thenOn(self.queue,
-              ^FBLPromise<FIRAppAttestAssertionData *> *(NSData *challenge) {
+              ^FBLPromise<GACAppAttestAssertionData *> *(NSData *challenge) {
                 return [self generateAssertionWithKeyID:keyID
                                                artifact:artifact
                                               challenge:challenge];
               })
-      .thenOn(self.queue, ^id(FIRAppAttestAssertionData *assertion) {
+      .thenOn(self.queue, ^id(GACAppAttestAssertionData *assertion) {
         return [self.APIService getAppCheckTokenWithArtifact:assertion.artifact
                                                    challenge:assertion.challenge
                                                    assertion:assertion.assertion];
       });
 }
 
-- (FBLPromise<FIRAppAttestAssertionData *> *)generateAssertionWithKeyID:(NSString *)keyID
+- (FBLPromise<GACAppAttestAssertionData *> *)generateAssertionWithKeyID:(NSString *)keyID
                                                                artifact:(NSData *)artifact
                                                               challenge:(NSData *)challenge {
   // 1. Calculate the statement and its hash for assertion.
@@ -407,8 +407,8 @@ NS_ASSUME_NONNULL_BEGIN
                 }];
           })
       // 3. Compose the result object.
-      .thenOn(self.queue, ^FIRAppAttestAssertionData *(NSData *assertion) {
-        return [[FIRAppAttestAssertionData alloc] initWithChallenge:challenge
+      .thenOn(self.queue, ^GACAppAttestAssertionData *(NSData *assertion) {
+        return [[GACAppAttestAssertionData alloc] initWithChallenge:challenge
                                                            artifact:artifact
                                                           assertion:assertion];
       });
@@ -416,9 +416,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - State handling
 
-- (FBLPromise<FIRAppAttestProviderState *> *)attestationState {
+- (FBLPromise<GACAppAttestProviderState *> *)attestationState {
   dispatch_queue_t stateQueue =
-      dispatch_queue_create("FIRAppAttestProvider.state", DISPATCH_QUEUE_SERIAL);
+      dispatch_queue_create("GACAppAttestProvider.state", DISPATCH_QUEUE_SERIAL);
 
   return [FBLPromise
       onQueue:stateQueue
@@ -428,26 +428,26 @@ NS_ASSUME_NONNULL_BEGIN
              // 1. Check if App Attest is supported.
              id isSupportedResult = FBLPromiseAwait([self isAppAttestSupported], &error);
              if (isSupportedResult == nil) {
-               return [[FIRAppAttestProviderState alloc] initUnsupportedWithError:error];
+               return [[GACAppAttestProviderState alloc] initUnsupportedWithError:error];
              }
 
              // 2. Check for stored key ID of the generated App Attest key pair.
              NSString *appAttestKeyID =
                  FBLPromiseAwait([self.keyIDStorage getAppAttestKeyID], &error);
              if (appAttestKeyID == nil) {
-               return [[FIRAppAttestProviderState alloc] initWithSupportedInitialState];
+               return [[GACAppAttestProviderState alloc] initWithSupportedInitialState];
              }
 
              // 3. Check for stored attestation artifact received from Firebase backend.
              NSData *attestationArtifact =
                  FBLPromiseAwait([self.artifactStorage getArtifactForKey:appAttestKeyID], &error);
              if (attestationArtifact == nil) {
-               return [[FIRAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
+               return [[GACAppAttestProviderState alloc] initWithGeneratedKeyID:appAttestKeyID];
              }
 
              // 4. A valid App Attest key pair was generated and registered with Firebase
              // backend. Return the corresponding state.
-             return [[FIRAppAttestProviderState alloc] initWithRegisteredKeyID:appAttestKeyID
+             return [[GACAppAttestProviderState alloc] initWithRegisteredKeyID:appAttestKeyID
                                                                       artifact:attestationArtifact];
            }];
 }

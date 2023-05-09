@@ -17,14 +17,14 @@
 #import <Foundation/Foundation.h>
 
 @class FBLPromise<Result>;
-@class FIRAppAttestAttestationResponse;
+@class GACAppAttestAttestationResponse;
 @class GACAppCheckToken;
 @protocol GACAppCheckAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
 /// Methods to send API requests required for App Attest based attestation sequence.
-@protocol FIRAppAttestAPIServiceProtocol <NSObject>
+@protocol GACAppAttestAPIServiceProtocol <NSObject>
 
 /// Request a random challenge from server.
 - (FBLPromise<NSData *> *)getRandomChallenge;
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param challenge The challenge used to generate the attestation.
 /// @return A promise that is fulfilled with a response object with an encrypted attestation
 /// artifact and an Firebase App Check token or rejected with an error.
-- (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
+- (FBLPromise<GACAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
                                                                       keyID:(NSString *)keyID
                                                                   challenge:(NSData *)challenge;
 
@@ -48,8 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/// A default implementation of `FIRAppAttestAPIServiceProtocol`.
-@interface FIRAppAttestAPIService : NSObject <FIRAppAttestAPIServiceProtocol>
+/// A default implementation of `GACAppAttestAPIServiceProtocol`.
+@interface GACAppAttestAPIService : NSObject <GACAppAttestAPIServiceProtocol>
 
 /// Default initializer.
 /// @param APIService An instance implementing `GACAppCheckAPIServiceProtocol` to be used to send

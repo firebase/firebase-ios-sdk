@@ -17,10 +17,10 @@
 #import "AppCheck/Sources/AppAttestProvider/DCAppAttestService+GACAppAttestService.h"
 
 // Currently DCAppAttestService is available on iOS only.
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
+#if GAC_APP_ATTEST_SUPPORTED_TARGETS
 
-@implementation DCAppAttestService (FIRAppAttestService)
+@implementation DCAppAttestService (GACAppAttestService)
 
 @end
 
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
+#endif  // GAC_APP_ATTEST_SUPPORTED_TARGETS

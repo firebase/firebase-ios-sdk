@@ -16,23 +16,23 @@
 
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckAvailability.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 #import "AppCheck/Sources/Public/AppCheck/GACDeviceCheckProviderFactory.h"
 
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheck.h"
 #import "AppCheck/Sources/Public/AppCheck/GACDeviceCheckProvider.h"
 
-@implementation FIRDeviceCheckProviderFactory
+@implementation GACDeviceCheckProviderFactory
 
 + (void)load {
   [GACAppCheck setAppCheckProviderFactory:[[self alloc] init]];
 }
 
 - (nullable id<GACAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
-  return [[FIRDeviceCheckProvider alloc] initWithApp:app];
+  return [[GACDeviceCheckProvider alloc] initWithApp:app];
 }
 
 @end
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS

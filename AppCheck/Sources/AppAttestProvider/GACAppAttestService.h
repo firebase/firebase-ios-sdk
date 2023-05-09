@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// See `DCAppAttestService`
 /// https://developer.apple.com/documentation/devicecheck/dcappattestservice?language=objc
-@protocol FIRAppAttestService <NSObject>
+@protocol GACAppAttestService <NSObject>
 
 @property(getter=isSupported, readonly) BOOL supported;
 

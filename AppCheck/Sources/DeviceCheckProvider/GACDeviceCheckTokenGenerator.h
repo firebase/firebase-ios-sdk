@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRDeviceCheckTokenGenerator <NSObject>
+@protocol GACDeviceCheckTokenGenerator <NSObject>
 
 - (void)generateTokenWithCompletionHandler:(void (^)(NSData* _Nullable token,
                                                      NSError* _Nullable error))completion;
