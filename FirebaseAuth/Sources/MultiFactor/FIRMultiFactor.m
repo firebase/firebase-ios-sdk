@@ -22,6 +22,9 @@
 
 #import "FirebaseAuth-Swift.h"
 
+typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
+                                          NSError *_Nullable error);
+
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *kEnrolledFactorsCodingKey = @"enrolledFactors";
