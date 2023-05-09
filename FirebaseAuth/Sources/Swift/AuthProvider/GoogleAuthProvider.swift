@@ -31,6 +31,11 @@ import Foundation
                                      accessToken: String) -> AuthCredential {
     return GoogleAuthCredential(withIDToken: IDToken, accessToken: accessToken)
   }
+
+  @available(*, unavailable)
+  @objc override public init() {
+    fatalError("This class is not meant to be initialized.")
+  }
 }
 
 @objc(FIRGoogleAuthCredential) private class GoogleAuthCredential: AuthCredential, NSSecureCoding {
