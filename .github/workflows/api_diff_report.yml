@@ -29,7 +29,8 @@ jobs:
       - id: get_changed_files
         name: Get changed file list
         run: |
-          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD ${{ env.PR_BRANCH_PATH }} | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          cd ${{ env.PR_BRANCH_PATH }}
+          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Setup python
         uses: actions/setup-python@v4
