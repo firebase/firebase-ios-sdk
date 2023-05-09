@@ -7,11 +7,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  STAGE_PROGRESS: "progress"
-  STAGE_END: "end"
-  PR_API_OUTPUT: "$GITHUB_WORKSPACE/pr_branch_output"
-  BASE_API_OUTPUT: "$GITHUB_WORKSPACE/base_branch_output"
-  DIFF_REPORT_OUTPUT: "$GITHUB_WORKSPACE/diff_report_output"
+  STAGE_PROGRESS: progress
+  STAGE_END: end
+  PR_API_OUTPUT: ${{ github.workspace }}/pr_branch_output
+  BASE_API_OUTPUT: ${{ github.workspace }}/base_branch_output
+  DIFF_REPORT_OUTPUT: ${{ github.workspace }}/diff_report_output
 
 jobs:
   diff_report:
