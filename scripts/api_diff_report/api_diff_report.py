@@ -35,11 +35,13 @@ def main():
   old_api_file = os.path.join(os.path.expanduser(args.base_branch),
                               api_info.API_INFO_FILE_NAME)
   if os.path.exists(new_api_file):
-    new_api_json = json.load(open(new_api_file))
+    with open(new_api_file) as f:
+      new_api_json = json.load(f)
   else:
     new_api_json = {}
   if os.path.exists(old_api_file):
-    old_api_json = json.load(open(old_api_file))
+    with open(old_api_file) as f:
+      old_api_json = json.load(f)
   else:
     old_api_json = {}
 

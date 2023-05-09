@@ -7,15 +7,14 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  stageProgress: "progress"
-  stageEnd: "end"
-  prApiOutput: "~/pr_branch"
-  baseApiOutput: "~/base_branch"
-  diffReportOutput: "~/diff_report"
+  STAGE_PROGRESS: "progress"
+  STAGE_END: "end"
+  PR_API_OUTPUT: "$GITHUB_WORKSPACE/pr_branch_output"
+  BASE_API_OUTPUT: "$GITHUB_WORKSPACE/base_branch_output"
+  DIFF_REPORT_OUTPUT: "$GITHUB_WORKSPACE/diff_report_output"
 
 jobs:
   diff_report:
-    if: github.event.pull_request.base.ref == 'master'
     runs-on: macos-latest
 
     steps:
@@ -37,7 +36,7 @@ jobs:
 
       - name: Clean Diff Report Comment in PR
         run: |
-          python ~/api_diff_report/pr_commenter.py --stage ${{ env.stageProgress }} \
+          python ~/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_PROGRESS }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
             --commit $GITHUB_SHA \
@@ -48,23 +47,23 @@ jobs:
         run: echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Generate API files for PR branch
-        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.prApiOutput }} -t "~/api_diff_report/theme"
+        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.PR_API_OUTPUT }} -t "~/api_diff_report/theme"
 
       - name: Checkout Base branch
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.base_ref }}
+          ref: refs/pull/${{ github.event.number }}/merge
 
       - name: Generate API files for Base branch
-        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.baseApiOutput }} -t "~/api_diff_report/theme"
+        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.BASE_API_OUTPUT }} -t "~/api_diff_report/theme"
 
       - name: Generate API Diff Report
-        run: python ~/api_diff_report/api_diff_report.py -p ${{ env.prApiOutput }} -b ${{ env.baseApiOutput }} -o ${{ env.diffReportOutput }}
+        run: python ~/api_diff_report/api_diff_report.py -p ${{ env.PR_API_OUTPUT }} -b ${{ env.BASE_API_OUTPUT }} -o ${{ env.DIFF_REPORT_OUTPUT }}
 
       - name: Update Diff Report Comment in PR
         run: |
-          python ~/api_diff_report/pr_commenter.py --stage ${{ env.stageEnd }} \
-            --report ${{ env.diffReportOutput }} \
+          python ~/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_END }} \
+            --report ${{ env.DIFF_REPORT_OUTPUT }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
             --commit $GITHUB_SHA \
@@ -75,7 +74,7 @@ jobs:
         with:
           name: api_info
           path: |
-            ${{ env.prApiOutput }}
-            ${{ env.baseApiOutput }}
-            ${{ env.diffReportOutput }}
+            ${{ env.PR_API_OUTPUT }}
+            ${{ env.BASE_API_OUTPUT }}
+            ${{ env.DIFF_REPORT_OUTPUT }}
           retention-days: 1

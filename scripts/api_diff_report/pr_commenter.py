@@ -173,7 +173,6 @@ def delete_comment(token, comment_id):
 def add_label(token, issue_number, label):
   """https://docs.github.com/en/rest/reference/issues#add-labels-to-an-issue"""
   url = f'{GITHUB_API_URL}/issues/{issue_number}/labels'
-  headers = {}
   headers = {
       'Accept': 'application/vnd.github.v3+json',
       'Authorization': f'token {token}'
