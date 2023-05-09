@@ -38,7 +38,7 @@ static NSTimeInterval const kLastSignInDateTimeIntervalInSeconds = 1505858583;
 @implementation FIRUserMetadataTests
 
 /** @fn testUserMetadataCreation
-    @brief Tests succuessful creation of a @c FIRUserMetadata object.
+    @brief Tests successful creation of a @c FIRUserMetadata object.
  */
 - (void)testUserMetadataCreation {
   NSDate *creationDate = [NSDate dateWithTimeIntervalSince1970:kCreationDateTimeIntervalInSeconds];
@@ -51,7 +51,7 @@ static NSTimeInterval const kLastSignInDateTimeIntervalInSeconds = 1505858583;
 }
 
 /** @fn testUserMetadataCoding
-    @brief Tests succuessful archiving and unarchiving of a @c FIRUserMetadata object.
+    @brief Tests successful archiving and unarchiving of a @c FIRUserMetadata object.
  */
 - (void)testUserMetadataCoding {
   NSDate *creationDate = [NSDate dateWithTimeIntervalSince1970:kCreationDateTimeIntervalInSeconds];

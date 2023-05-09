@@ -55,39 +55,39 @@ typedef void (^FIRAuthVoidErrorCallback)(NSError *_Nullable);
                                                    displayName:displayName
                                               verificationInfo:finalizeMFAPhoneRequestInfo
                                           requestConfiguration:self.user.requestConfiguration];
-  [FIRAuthBackend2
-      postWithRequest:request
-             callback:^(FIRFinalizeMFAEnrollmentResponse *_Nullable response,
-                        NSError *_Nullable error) {
-               if (error) {
-                 if (completion) {
-                   completion(error);
-                 }
-               } else {
-                 [FIRAuth.auth
-                     completeSignInWithAccessToken:response.IDToken
-                         accessTokenExpirationDate:nil
-                                      refreshToken:response.refreshToken
-                                         anonymous:NO
-                                          callback:^(FIRUser *_Nullable user,
-                                                     NSError *_Nullable error) {
-                                            FIRAuthDataResult *result =
-                                                [[FIRAuthDataResult alloc] initWithUser:user
-                                                                     additionalUserInfo:nil
-                                                                             credential:nil];
-                                            FIRAuthDataResultCallback decoratedCallback = [FIRAuth
-                                                                                               .auth
-                                                signInFlowAuthDataResultCallbackByDecoratingCallback:
-                                                    ^(FIRAuthDataResult *_Nullable authResult,
-                                                      NSError *_Nullable error) {
-                                                      if (completion) {
-                                                        completion(error);
-                                                      }
-                                                    }];
-                                            decoratedCallback(result, error);
-                                          }];
-               }
-             }];
+//  [FIRAuthBackend2
+//      postWithRequest:request
+//             callback:^(FIRFinalizeMFAEnrollmentResponse *_Nullable response,
+//                        NSError *_Nullable error) {
+//               if (error) {
+//                 if (completion) {
+//                   completion(error);
+//                 }
+//               } else {
+//                 [FIRAuth.auth
+//                     completeSignInWithAccessToken:response.IDToken
+//                         accessTokenExpirationDate:nil
+//                                      refreshToken:response.refreshToken
+//                                         anonymous:NO
+//                                          callback:^(FIRUser *_Nullable user,
+//                                                     NSError *_Nullable error) {
+//                                            FIRAuthDataResult *result =
+//                                                [[FIRAuthDataResult alloc] initWithUser:user
+//                                                                     additionalUserInfo:nil
+//                                                                             credential:nil];
+//                                            FIRAuthDataResultCallback decoratedCallback = [FIRAuth
+//                                                                                               .auth
+//                                                signInFlowAuthDataResultCallbackByDecoratingCallback:
+//                                                    ^(FIRAuthDataResult *_Nullable authResult,
+//                                                      NSError *_Nullable error) {
+//                                                      if (completion) {
+//                                                        completion(error);
+//                                                      }
+//                                                    }];
+//                                            decoratedCallback(result, error);
+//                                          }];
+//               }
+//             }];
 #endif
 }
 
@@ -110,31 +110,31 @@ typedef void (^FIRAuthVoidErrorCallback)(NSError *_Nullable);
                    completion(error);
                  }
                } else {
-                 [FIRAuth.auth
-                     completeSignInWithAccessToken:response.IDToken
-                         accessTokenExpirationDate:nil
-                                      refreshToken:response.refreshToken
-                                         anonymous:NO
-                                          callback:^(FIRUser *_Nullable user,
-                                                     NSError *_Nullable error) {
-                                            FIRAuthDataResult *result =
-                                                [[FIRAuthDataResult alloc] initWithUser:user
-                                                                     additionalUserInfo:nil
-                                                                             credential:nil];
-                                            FIRAuthDataResultCallback decoratedCallback = [FIRAuth
-                                                                                               .auth
-                                                signInFlowAuthDataResultCallbackByDecoratingCallback:
-                                                    ^(FIRAuthDataResult *_Nullable authResult,
-                                                      NSError *_Nullable error) {
-                                                      if (error) {
-                                                        [[FIRAuth auth] signOut:NULL];
-                                                      }
-                                                      if (completion) {
-                                                        completion(error);
-                                                      }
+                 [FIRAuth.auth completeSignInWithAccessToken:response.IDToken
+                                   accessTokenExpirationDate:nil
+                                                refreshToken:response.refreshToken
+                                                   anonymous:NO
+                                                    callback:^(FIRUser *_Nullable user,
+                                                               NSError *_Nullable error) {
+                                                      FIRAuthDataResult *result =
+                                                          [[FIRAuthDataResult alloc]
+                                                                    initWithUser:user
+                                                              additionalUserInfo:nil
+                                                                      credential:nil];
+                                                      //                                            FIRAuthDataResultCallback decoratedCallback = [FIRAuth
+                                                      //                                                                                               .auth
+                                                      //                                                signInFlowAuthDataResultCallbackByDecoratingCallback:
+                                                      //                                                    ^(FIRAuthDataResult *_Nullable authResult,
+                                                      //                                                      NSError *_Nullable error) {
+                                                      //                                                      if (error) {
+                                                      //                                                        [[FIRAuth auth] signOut:NULL];
+                                                      //                                                      }
+                                                      //                                                      if (completion) {
+                                                      //                                                        completion(error);
+                                                      //                                                      }
+                                                      //                                                    }];
+                                                      //                                            decoratedCallback(result, error);
                                                     }];
-                                            decoratedCallback(result, error);
-                                          }];
                }
              }];
 }

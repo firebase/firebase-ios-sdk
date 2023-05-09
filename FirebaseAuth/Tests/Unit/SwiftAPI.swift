@@ -342,7 +342,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
-      let obj = MultiFactorResolver()
+      let obj = MultiFactorResolver(with: "", hints: [], auth: FirebaseAuth.Auth.auth())
       obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential)) { _, _ in
       }
     }
@@ -352,7 +352,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
-      let obj = MultiFactorResolver()
+      let obj = MultiFactorResolver(with: "", hints: [], auth: FirebaseAuth.Auth.auth())
       try await obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential))
     }
   #endif
