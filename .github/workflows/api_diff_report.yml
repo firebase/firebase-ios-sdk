@@ -50,9 +50,7 @@ jobs:
         run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.PR_API_OUTPUT }} -t "~/api_diff_report/theme"
 
       - name: Checkout Base branch
-        uses: actions/checkout@v3
-        with:
-          ref: refs/pull/${{ github.event.number }}/merge
+        run: git checkout HEAD^
 
       - name: Generate API files for Base branch
         run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.BASE_API_OUTPUT }} -t "~/api_diff_report/theme"
