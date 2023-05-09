@@ -44,7 +44,7 @@ static NSString *const kContentTypeKey = @"Content-Type";
 static NSString *const kJSONContentType = @"application/json";
 static NSString *const kHTTPMethodPost = @"POST";
 
-@interface FIRAppAttestAPIService ()
+@interface GACAppAttestAPIService ()
 
 @property(nonatomic, readonly) id<GACAppCheckAPIServiceProtocol> APIService;
 
@@ -53,7 +53,7 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 @end
 
-@implementation FIRAppAttestAPIService
+@implementation GACAppAttestAPIService
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
                          projectID:(NSString *)projectID
@@ -148,7 +148,7 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 #pragma mark - Attestation request
 
-- (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
+- (FBLPromise<GACAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
                                                                       keyID:(NSString *)keyID
                                                                   challenge:(NSData *)challenge {
   NSURL *URL = [self URLForEndpoint:kExchangeAppAttestAttestationEndpoint];
@@ -165,7 +165,7 @@ static NSString *const kHTTPMethodPost = @"POST";
             NSError *error;
 
             __auto_type response =
-                [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
+                [[GACAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
                                                                   requestDate:[NSDate date]
                                                                         error:&error];
 

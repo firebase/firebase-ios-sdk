@@ -56,7 +56,7 @@ typedef void (^GACAppCheckTokenRefreshBlock)(GACAppCheckTokenRefreshCompletion c
 /// @param refreshResult A previous token refresh attempt result.
 /// @param settings An object that handles Firebase app check settings.
 - (instancetype)initWithRefreshResult:(GACAppCheckTokenRefreshResult *)refreshResult
-                        timerProvider:(FIRTimerProvider)timerProvider
+                        timerProvider:(GACTimerProvider)timerProvider
                              settings:(id<GACAppCheckSettingsProtocol>)settings
     NS_DESIGNATED_INITIALIZER;
 

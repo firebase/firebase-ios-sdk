@@ -19,52 +19,52 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// Represents different stages of App Attest attestation.
-typedef NS_ENUM(NSInteger, FIRAppAttestAttestationState) {
+typedef NS_ENUM(NSInteger, GACAppAttestAttestationState) {
   /// App Attest is not supported on the current device.
-  FIRAppAttestAttestationStateUnsupported,
+  GACAppAttestAttestationStateUnsupported,
 
   /// App Attest is supported, the App Attest key pair has been generated.
-  FIRAppAttestAttestationStateSupportedInitial,
+  GACAppAttestAttestationStateSupportedInitial,
 
   /// App Attest key pair has been generated but has not been attested and registered with Firebase
   /// backend.
-  FIRAppAttestAttestationStateKeyGenerated,
+  GACAppAttestAttestationStateKeyGenerated,
 
   /// App Attest key has been generated, attested with Apple backend and registered with Firebase
   /// backend. An encrypted artifact required to refresh FAC token is stored on the device.
-  FIRAppAttestAttestationStateKeyRegistered,
+  GACAppAttestAttestationStateKeyRegistered,
 };
 
 /// Represents attestation stages of App Attest. The class is designed to be used exclusively by
-/// `FIRAppAttestProvider`.
-@interface FIRAppAttestProviderState : NSObject
+/// `GACAppAttestProvider`.
+@interface GACAppAttestProviderState : NSObject
 
 /// App Attest attestation state.
-@property(nonatomic, readonly) FIRAppAttestAttestationState state;
+@property(nonatomic, readonly) GACAppAttestAttestationState state;
 
-/// An error object when state is FIRAppAttestAttestationStateUnsupported.
+/// An error object when state is GACAppAttestAttestationStateUnsupported.
 @property(nonatomic, nullable, readonly) NSError *appAttestUnsupportedError;
 
-/// An App Attest key ID when state is FIRAppAttestAttestationStateKeyGenerated or
-/// FIRAppAttestAttestationStateKeyRegistered.
+/// An App Attest key ID when state is GACAppAttestAttestationStateKeyGenerated or
+/// GACAppAttestAttestationStateKeyRegistered.
 @property(nonatomic, nullable, readonly) NSString *appAttestKeyID;
 
 /// An attestation artifact received from Firebase backend when state is
-/// FIRAppAttestAttestationStateKeyRegistered.
+/// GACAppAttestAttestationStateKeyRegistered.
 @property(nonatomic, nullable, readonly) NSData *attestationArtifact;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/// Init with FIRAppAttestAttestationStateUnsupported and an error describing issue.
+/// Init with GACAppAttestAttestationStateUnsupported and an error describing issue.
 - (instancetype)initUnsupportedWithError:(NSError *)error;
 
-/// Init with FIRAppAttestAttestationStateSupportedInitial.
+/// Init with GACAppAttestAttestationStateSupportedInitial.
 - (instancetype)initWithSupportedInitialState;
 
-/// Init with FIRAppAttestAttestationStateKeyGenerated and the key ID.
+/// Init with GACAppAttestAttestationStateKeyGenerated and the key ID.
 - (instancetype)initWithGeneratedKeyID:(NSString *)keyID;
 
-/// Init with FIRAppAttestAttestationStateKeyRegistered, the key ID and the attestation artifact
+/// Init with GACAppAttestAttestationStateKeyRegistered, the key ID and the attestation artifact
 /// received from Firebase backend.
 - (instancetype)initWithRegisteredKeyID:(NSString *)keyID artifact:(NSData *)artifact;
 

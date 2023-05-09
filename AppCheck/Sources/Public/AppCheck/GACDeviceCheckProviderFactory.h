@@ -16,7 +16,7 @@
 
 #import "GACAppCheckAvailability.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 #import <Foundation/Foundation.h>
 
@@ -30,12 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// provider is specified. See `AppCheck` class for more details.
 /// This class is available on all platforms for select OS versions. See
 /// https://firebase.google.com/docs/ios/learn-more for more details.
-FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
+GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(InternalDeviceCheckProviderFactory)
-@interface FIRDeviceCheckProviderFactory : NSObject <GACAppCheckProviderFactory>
+@interface GACDeviceCheckProviderFactory : NSObject <GACAppCheckProviderFactory>
 
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS
