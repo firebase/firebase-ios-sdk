@@ -1,0 +1,4 @@
+{
+  "token": "valid_app_check_token",
+  "ttl": "1800s"
+}
