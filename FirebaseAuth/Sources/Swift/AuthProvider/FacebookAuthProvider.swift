@@ -29,6 +29,11 @@ import Foundation
   @objc public class func credential(withAccessToken accessToken: String) -> AuthCredential {
     return FacebookAuthCredential(withAccessToken: accessToken)
   }
+
+  @available(*, unavailable)
+  @objc override public init() {
+    fatalError("This class is not meant to be initialized.")
+  }
 }
 
 @objc(FIRFacebookAuthCredential) private class FacebookAuthCredential: AuthCredential,

@@ -29,6 +29,11 @@ import Foundation
   @objc public class func credential(withToken token: String) -> AuthCredential {
     return GitHubAuthCredential(withToken: token)
   }
+
+  @available(*, unavailable)
+  @objc override public init() {
+    fatalError("This class is not meant to be initialized.")
+  }
 }
 
 @objc(FIRGitHubAuthCredential) private class GitHubAuthCredential: AuthCredential, NSSecureCoding {

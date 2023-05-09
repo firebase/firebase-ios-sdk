@@ -101,6 +101,11 @@
         }
       }
     }
+
+    @available(*, unavailable)
+    @objc override public init() {
+      fatalError("This class is not meant to be initialized.")
+    }
   }
 
   // Change to internal

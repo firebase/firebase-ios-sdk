@@ -30,6 +30,11 @@ import Foundation
   @objc public class func credential(withToken token: String, secret: String) -> AuthCredential {
     return TwitterAuthCredential(withToken: token, secret: secret)
   }
+
+  @available(*, unavailable)
+  @objc override public init() {
+    fatalError("This class is not meant to be initialized.")
+  }
 }
 
 @objc(FIRTwitterAuthCredential) private class TwitterAuthCredential: AuthCredential,
