@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
-          path: ${{ env.PR_BRANCH_PATH }}
+          path: pr_branch
 
       - id: get_changed_files
         name: Get changed file list
@@ -36,11 +36,11 @@ jobs:
           python-version: 3.7
 
       - name: Install Prerequisites
-        run:  ${{ env.PR_BRANCH_PATH }}/firebase-ios-sdk/scripts/api_diff_report/prerequisite.sh
+        run:  ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/prerequisite.sh
 
       - name: Clean Diff Report Comment in PR
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/firebase-ios-sdk/scripts/api_diff_report/pr_commenter.py \
+          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/pr_commenter.py \
             --stage ${{ env.STAGE_PROGRESS }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
@@ -49,33 +49,33 @@ jobs:
 
       - name: Generate API files for PR branch
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/firebase-ios-sdk/scripts/api_diff_report/api_info.py \
+          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/api_info.py \
             --file_list ${{ steps.get_changed_files.outputs.file_list }} \
             --path ${{ env.PR_BRANCH_PATH }} \
             --output_dir ${{ env.PR_API_OUTPUT }} \
-            --api_theme_dir "pr_branch/firebase-ios-sdk/scripts/api_diff_report/theme"
+            --api_theme_dir "pr_branch/scripts/api_diff_report/theme"
 
       - name: Checkout Base branch
         run: git checkout HEAD^ -- ${{ env.BASE_BRANCH_PATH }}
 
       - name: Generate API files for Base branch
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/firebase-ios-sdk/scripts/api_diff_report/api_info.py \
+          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/api_info.py \
             --file_list ${{ steps.get_changed_files.outputs.file_list }} \
             --path ${{ env.BASE_BRANCH_PATH }} \
             --output_dir ${{ env.BASE_API_OUTPUT }} \
-            --api_theme_dir "${{ env.BASE_BRANCH_PATH }}/firebase-ios-sdk/scripts/api_diff_report/theme"
+            --api_theme_dir "${{ env.BASE_BRANCH_PATH }}/scripts/api_diff_report/theme"
 
       - name: Generate API Diff Report
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/firebase-ios-sdk/scripts/api_diff_report/api_diff_report.py \
+          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/api_diff_report.py \
             --pr_branch ${{ env.PR_API_OUTPUT }} \
             --base_branch ${{ env.BASE_API_OUTPUT }} \
             --output_dir ${{ env.DIFF_REPORT_OUTPUT }}
 
       - name: Update Diff Report Comment in PR
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/firebase-ios-sdk/scripts/api_diff_report/pr_commenter.py \
+          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/pr_commenter.py \
             --stage ${{ env.STAGE_END }} \
             --report ${{ env.DIFF_REPORT_OUTPUT }} \
             --token ${{github.token}} \
@@ -87,5 +87,5 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: api_info_and_report
-          path: ci_outputs
+          path: ${{ github.workspace }}/ci_outputs
           retention-days: 1
