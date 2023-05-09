@@ -23,20 +23,17 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Copy diff report tools
-        run: cp -a scripts/api_diff_report/. ~/api_diff_report
-
       - name: Setup python
         uses: actions/setup-python@v4
         with:
           python-version: 3.7
 
       - name: Install Prerequisites
-        run:  ~/api_diff_report/prerequisite.sh
+        run:  scripts/api_diff_report/prerequisite.sh
 
       - name: Clean Diff Report Comment in PR
         run: |
-          python ~/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_PROGRESS }} \
+          python scripts/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_PROGRESS }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
             --commit $GITHUB_SHA \
@@ -47,20 +44,20 @@ jobs:
         run: echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Generate API files for PR branch
-        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.PR_API_OUTPUT }} -t "~/api_diff_report/theme"
+        run: python scripts/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.PR_API_OUTPUT }} -t "~/api_diff_report/theme"
 
       - name: Checkout Base branch
         run: git checkout HEAD^
 
       - name: Generate API files for Base branch
-        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.BASE_API_OUTPUT }} -t "~/api_diff_report/theme"
+        run: python scripts/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.BASE_API_OUTPUT }} -t "~/api_diff_report/theme"
 
       - name: Generate API Diff Report
-        run: python ~/api_diff_report/api_diff_report.py -p ${{ env.PR_API_OUTPUT }} -b ${{ env.BASE_API_OUTPUT }} -o ${{ env.DIFF_REPORT_OUTPUT }}
+        run: python scripts/api_diff_report/api_diff_report.py -p ${{ env.PR_API_OUTPUT }} -b ${{ env.BASE_API_OUTPUT }} -o ${{ env.DIFF_REPORT_OUTPUT }}
 
       - name: Update Diff Report Comment in PR
         run: |
-          python ~/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_END }} \
+          python scripts/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_END }} \
             --report ${{ env.DIFF_REPORT_OUTPUT }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
