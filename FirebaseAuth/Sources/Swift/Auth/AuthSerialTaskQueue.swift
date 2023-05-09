@@ -14,11 +14,11 @@
 
 import Foundation
 
-public typealias FIRAuthSerialTaskCompletionBlock = () -> Void
-public typealias FIRAuthSerialTask = (_ complete: @escaping FIRAuthSerialTaskCompletionBlock)
+typealias FIRAuthSerialTaskCompletionBlock = () -> Void
+typealias FIRAuthSerialTask = (_ complete: @escaping FIRAuthSerialTaskCompletionBlock)
   -> Void
 
-@objc(FIRAuthSerialTaskQueue) public class AuthSerialTaskQueue: NSObject {
+class AuthSerialTaskQueue: NSObject {
   private let dispatchQueue: DispatchQueue
 
   @objc override public init() {
@@ -29,7 +29,7 @@ public typealias FIRAuthSerialTask = (_ complete: @escaping FIRAuthSerialTaskCom
     super.init()
   }
 
-  @objc public func enqueueTask(_ task: @escaping FIRAuthSerialTask) {
+  func enqueueTask(_ task: @escaping FIRAuthSerialTask) {
     dispatchQueue.async {
       self.dispatchQueue.suspend()
       task {
