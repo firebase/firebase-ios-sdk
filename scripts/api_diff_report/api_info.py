@@ -31,6 +31,7 @@ def main():
   args = parse_cmdline_args()
   output_dir = os.path.expanduser(args.output_dir)
   api_theme_dir = os.path.expanduser(args.api_theme_dir)
+  branch_path = os.path.expanduser(args.path)
   if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
@@ -39,7 +40,8 @@ def main():
   if not changed_api_files:
     logging.info('No Changed API File Detected')
     exit(0)
-  changed_modules = icore_module.detect_changed_modules(changed_api_files,args.path)
+  changed_modules = icore_module.detect_changed_modules(changed_api_files,
+                                                        branch_path)
   if not changed_modules:
     logging.info('No Changed Module Detected')
     exit(0)
