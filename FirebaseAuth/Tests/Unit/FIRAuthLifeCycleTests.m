@@ -96,7 +96,7 @@ static const NSTimeInterval kWaitInterval = .5;
 /** @fn testAppAPIkey
     @brief Verifies the API key is correctly copied from @c FIRApp to @c FIRAuth .
  */
-- (void)SKIPtestAppAPIkey {
+- (void)testAppAPIkey {
   FIRAuth *auth = [FIRAuth auth];
   XCTAssertEqualObjects(auth.requestConfiguration.APIKey, kAPIKey);
 }
