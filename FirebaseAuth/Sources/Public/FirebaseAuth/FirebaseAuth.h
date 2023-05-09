@@ -20,4 +20,3 @@
 #import "FIRAuthUIDelegate.h"
 #import "FIRMultiFactor.h"
 #import "FIRMultiFactorResolver.h"
-#import "FIRPhoneMultiFactorGenerator.h"
