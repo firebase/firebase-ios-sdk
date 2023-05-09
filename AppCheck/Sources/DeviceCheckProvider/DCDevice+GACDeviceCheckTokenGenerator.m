@@ -16,10 +16,10 @@
 
 #import "AppCheck/Sources/DeviceCheckProvider/DCDevice+GACDeviceCheckTokenGenerator.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
-@implementation DCDevice (FIRDeviceCheckTokenGenerator)
+@implementation DCDevice (GACDeviceCheckTokenGenerator)
 
 @end
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS

@@ -19,11 +19,11 @@
 #import "GACAppCheckAvailability.h"
 #import "GACAppCheckProvider.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 @class FIRApp;
-@protocol FIRDeviceCheckAPIServiceProtocol;
-@protocol FIRDeviceCheckTokenGenerator;
+@protocol GACDeviceCheckAPIServiceProtocol;
+@protocol GACDeviceCheckTokenGenerator;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,9 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// [DeviceCheck](https://developer.apple.com/documentation/devicecheck) API.
 /// This class is available on all platforms for select OS versions. See
 /// https://firebase.google.com/docs/ios/learn-more for more details.
-FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
+GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(InternalDeviceCheckProvider)
-@interface FIRDeviceCheckProvider : NSObject <GACAppCheckProvider>
+@interface GACDeviceCheckProvider : NSObject <GACAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -47,4 +47,4 @@ NS_SWIFT_NAME(InternalDeviceCheckProvider)
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS

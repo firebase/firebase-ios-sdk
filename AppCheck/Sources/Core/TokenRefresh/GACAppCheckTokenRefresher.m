@@ -37,7 +37,7 @@ static const double kAutoRefreshFraction = 0.5;
 
 @property(nonatomic, readonly) id<GACAppCheckSettingsProtocol> settings;
 
-@property(nonatomic, readonly) FIRTimerProvider timerProvider;
+@property(nonatomic, readonly) GACTimerProvider timerProvider;
 @property(atomic, nullable) id<GACAppCheckTimerProtocol> timer;
 @property(atomic) NSUInteger retryCount;
 
@@ -51,7 +51,7 @@ static const double kAutoRefreshFraction = 0.5;
 @synthesize tokenRefreshHandler = _tokenRefreshHandler;
 
 - (instancetype)initWithRefreshResult:(GACAppCheckTokenRefreshResult *)refreshResult
-                        timerProvider:(FIRTimerProvider)timerProvider
+                        timerProvider:(GACTimerProvider)timerProvider
                              settings:(id<GACAppCheckSettingsProtocol>)settings {
   self = [super init];
   if (self) {

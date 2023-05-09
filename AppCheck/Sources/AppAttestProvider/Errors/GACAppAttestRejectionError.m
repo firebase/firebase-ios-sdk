@@ -20,7 +20,7 @@
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 
-@implementation FIRAppAttestRejectionError
+@implementation GACAppAttestRejectionError
 
 - (instancetype)init {
   return [self initWithDomain:GACAppCheckErrorDomain code:GACAppCheckErrorCodeUnknown userInfo:nil];
