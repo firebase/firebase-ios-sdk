@@ -23,11 +23,11 @@ import Foundation
 
   private let kFactorIDCodingKey = "factorID"
 
-/** @class FIRMultiFactorSession
-    @brief Opaque object that identifies the current session to enroll a second factor or to
-        complete sign in when previously enrolled.
-        This class is available on iOS only.
- */
+  /** @class FIRMultiFactorSession
+      @brief Opaque object that identifies the current session to enroll a second factor or to
+          complete sign in when previously enrolled.
+          This class is available on iOS only.
+   */
   @objc(FIRMultiFactorSession) public class MultiFactorSession: NSObject {
     // XXX TODO SHOULD BE INTERNAL
     @objc(IDToken) public var idToken: String?
