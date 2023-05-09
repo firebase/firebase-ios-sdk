@@ -155,6 +155,9 @@ static NSString *const kMethodNameLatestStartTime =
                            lastStartTime:lastStartTime
                                 payloads:_experimentPayloads
                        completionHandler:handler];
+
+  /// Update activated experiments payload and metadata in DB.
+  [self updateActiveExperiments];
 }
 
 - (void)updateExperimentStartTime {
