@@ -59,9 +59,9 @@ def main():
   module_info()
 
 
-def detect_changed_modules(changed_api_files):
+def detect_changed_modules(changed_api_files, root_dir=os.getcwd()):
   """Detect changed modules based on changed API files."""
-  all_modules = module_info()
+  all_modules = module_info(root_dir)
   changed_modules = {}
   for file_path in changed_api_files:
     for k, v in all_modules.items():
@@ -73,13 +73,13 @@ def detect_changed_modules(changed_api_files):
   return changed_modules
 
 
-def module_info():
+def module_info(root_dir):
   """retrieve module info in MODULE_LIST from `.podspecs`
     The module info helps to build Jazzy
     includes: module name, source_files, public_header_files,
               language, umbrella_header, framework_root
     """
-  module_from_podspecs = module_info_from_podspecs()
+  module_from_podspecs = module_info_from_podspecs(root_dir)
   module_list = {}
   for k, v in module_from_podspecs.items():
     if k in MODULE_LIST:

@@ -39,7 +39,7 @@ def main():
   if not changed_api_files:
     logging.info('No Changed API File Detected')
     exit(0)
-  changed_modules = icore_module.detect_changed_modules(changed_api_files)
+  changed_modules = icore_module.detect_changed_modules(changed_api_files,args.path)
   if not changed_modules:
     logging.info('No Changed Module Detected')
     exit(0)
@@ -214,6 +214,7 @@ def parse_sub_api(api_link, sub_api_data_container):
 def parse_cmdline_args():
   parser = argparse.ArgumentParser()
   parser.add_argument('-f', '--file_list', nargs='+', default=[])
+  parser.add_argument('-p', '--path', default=os.getcwd())
   parser.add_argument('-o', '--output_dir', default='output_dir')
   parser.add_argument('-t',
                       '--api_theme_dir',
