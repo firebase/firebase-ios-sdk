@@ -23,7 +23,15 @@ import Foundation
 
   private let kFactorIDCodingKey = "factorID"
 
+/** @class FIRMultiFactorInfo
+    @brief Safe public structure used to represent a second factor entity from a client perspective.
+        This class is available on iOS only.
+*/
   @objc(FIRMultiFactorInfo) public class MultiFactorInfo: NSObject, NSSecureCoding {
+
+    /**
+       @brief The multi-factor enrollment ID.
+    */
     @objc(UID) public var uid: String?
 
     /**

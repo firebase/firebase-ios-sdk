@@ -16,7 +16,13 @@ import Foundation
 
 #if os(iOS)
 
+/** @class FIRPhoneMultiFactorAssertion
+    @brief The subclass of base class FIRMultiFactorAssertion, used to assert ownership of a phone
+        second factor.
+        This class is available on iOS only.
+*/
   @objc(FIRPhoneMultiFactorAssertion) public class PhoneMultiFactorAssertion: MultiFactorAssertion {
+    // TODO: This should be internal
     @objc public var authCredential: PhoneAuthCredential?
 
     @objc public init() {
