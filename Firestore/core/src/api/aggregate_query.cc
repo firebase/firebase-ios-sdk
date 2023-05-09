@@ -51,20 +51,20 @@ void AggregateQuery::GetAggregate(AggregateQueryCallback&& callback) {
 // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
 // to the new Aggregate API
 void AggregateQuery::Get(CountQueryCallback&& callback) {
-  this->GetAggregate([callback = std::move(callback)](
-                         const StatusOr<ObjectValue>& result) {
-    if (!result.ok()) {
-      callback(StatusOr<int64_t>(std::move(result.status())));
-      return;
-    }
+  this->GetAggregate(
+      [callback = std::move(callback)](const StatusOr<ObjectValue>& result) {
+        if (!result.ok()) {
+          callback(StatusOr<int64_t>(std::move(result.status())));
+          return;
+        }
 
-    absl::optional<firebase::firestore::google_firestore_v1_Value> count_value =
-        result.ValueOrDie().Get(AggregateAlias("count").StringValue());
-    HARD_ASSERT(count_value.has_value() &&
-                count_value.value().which_value_type ==
-                    google_firestore_v1_Value_integer_value_tag);
-    callback(StatusOr<int64_t>(count_value->integer_value));
-  });
+        absl::optional<google_firestore_v1_Value> count_value =
+            result.ValueOrDie().Get(AggregateAlias("count").StringValue());
+        HARD_ASSERT(count_value.has_value() &&
+                    count_value.value().which_value_type ==
+                        google_firestore_v1_Value_integer_value_tag);
+        callback(StatusOr<int64_t>(count_value->integer_value));
+      });
 }
 
 }  // namespace api

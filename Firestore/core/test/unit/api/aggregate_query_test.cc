@@ -38,9 +38,7 @@ namespace api {
 
 class MockAggregateQuery : public AggregateQuery {
  public:
-  MockAggregateQuery(Query query, std::vector<AggregateField>&& aggregates)
-      : AggregateQuery(std::move(query), std::move(aggregates)) {
-  }
+  using AggregateQuery::AggregateQuery;
 
   ~MockAggregateQuery() override = default;
 
@@ -119,11 +117,10 @@ TEST(AggregateQuery, GetCallsGetAggregateError) {
 
   // Create an AggregateQuery with mocked GetAggregate function that
   // invokes the callback with the error status from above
-  Query query;
   AggregateField count_aggregate_field(AggregateField::OpKind::Count,
                                        AggregateAlias("count"));
   std::vector<AggregateField> aggregates{count_aggregate_field};
-  MockAggregateQuery mock_aggregate_query(query, std::move(aggregates));
+  MockAggregateQuery mock_aggregate_query({}, std::move(aggregates));
   EXPECT_CALL(mock_aggregate_query, GetAggregate)
       .Times(1)
       .WillOnce(Invoke(
