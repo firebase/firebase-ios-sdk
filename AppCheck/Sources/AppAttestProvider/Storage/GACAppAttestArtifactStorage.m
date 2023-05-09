@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_artifact_storage";
 
-@interface FIRAppAttestArtifactStorage ()
+@interface GACAppAttestArtifactStorage ()
 
 @property(nonatomic, readonly) NSString *appName;
 @property(nonatomic, readonly) NSString *appID;
@@ -40,7 +40,7 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
 
 @end
 
-@implementation FIRAppAttestArtifactStorage
+@implementation GACAppAttestArtifactStorage
 
 - (instancetype)initWithAppName:(NSString *)appName
                           appID:(NSString *)appID
@@ -69,11 +69,11 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
 
 - (FBLPromise<NSData *> *)getArtifactForKey:(NSString *)keyID {
   return [self.keychainStorage getObjectForKey:[self artifactKey]
-                                   objectClass:[FIRAppAttestStoredArtifact class]
+                                   objectClass:[GACAppAttestStoredArtifact class]
                                    accessGroup:self.accessGroup]
       .then(^NSData *(id<NSSecureCoding> storedArtifact) {
-        FIRAppAttestStoredArtifact *artifact = (FIRAppAttestStoredArtifact *)storedArtifact;
-        if ([artifact isKindOfClass:[FIRAppAttestStoredArtifact class]] &&
+        GACAppAttestStoredArtifact *artifact = (GACAppAttestStoredArtifact *)storedArtifact;
+        if ([artifact isKindOfClass:[GACAppAttestStoredArtifact class]] &&
             [artifact.keyID isEqualToString:keyID]) {
           return artifact.artifact;
         } else {
@@ -105,8 +105,8 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
 
 - (FBLPromise<NSData *> *)storeArtifact:(nullable NSData *)artifact
                                  forKey:(nonnull NSString *)keyID {
-  FIRAppAttestStoredArtifact *storedArtifact =
-      [[FIRAppAttestStoredArtifact alloc] initWithKeyID:keyID artifact:artifact];
+  GACAppAttestStoredArtifact *storedArtifact =
+      [[GACAppAttestStoredArtifact alloc] initWithKeyID:keyID artifact:artifact];
   return [self.keychainStorage setObject:storedArtifact
                                   forKey:[self artifactKey]
                              accessGroup:self.accessGroup]

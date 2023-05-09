@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// [DeviceCheck](https://developer.apple.com/documentation/devicecheck/dcappattestservice) API.
 /// This class is available on all platforms for select OS versions. See
 /// https://firebase.google.com/docs/ios/learn-more for more details.
-FIR_APP_ATTEST_PROVIDER_AVAILABILITY
+GAC_APP_ATTEST_PROVIDER_AVAILABILITY
 NS_SWIFT_NAME(InternalAppAttestProvider)
-@interface FIRAppAttestProvider : NSObject <GACAppCheckProvider>
+@interface GACAppAttestProvider : NSObject <GACAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
 

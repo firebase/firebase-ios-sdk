@@ -19,7 +19,7 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckAvailability.h"
 
 // Currently DCAppAttestService is available on iOS only.
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
+#if GAC_APP_ATTEST_SUPPORTED_TARGETS
 
 #import <DeviceCheck/DeviceCheck.h>
 
@@ -27,11 +27,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FIR_APP_ATTEST_PROVIDER_AVAILABILITY
-@interface DCAppAttestService (FIRAppAttestService) <FIRAppAttestService>
+GAC_APP_ATTEST_PROVIDER_AVAILABILITY
+@interface DCAppAttestService (GACAppAttestService) <GACAppAttestService>
 
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
+#endif  // GAC_APP_ATTEST_SUPPORTED_TARGETS

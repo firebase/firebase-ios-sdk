@@ -22,7 +22,7 @@
 static NSString *const kResponseFieldAppCheckTokenDict = @"appCheckToken";
 static NSString *const kResponseFieldArtifact = @"artifact";
 
-@implementation FIRAppAttestAttestationResponse
+@implementation GACAppAttestAttestationResponse
 
 - (instancetype)initWithArtifact:(NSData *)artifact token:(GACAppCheckToken *)token {
   self = [super init];

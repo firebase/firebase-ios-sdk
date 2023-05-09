@@ -22,7 +22,7 @@ static NSString *const kStorageVersionKey = @"storageVersion";
 
 static NSInteger const kStorageVersion = 1;
 
-@implementation FIRAppAttestStoredArtifact
+@implementation GACAppAttestStoredArtifact
 
 - (instancetype)initWithKeyID:(NSString *)keyID artifact:(NSData *)artifact {
   self = [super init];

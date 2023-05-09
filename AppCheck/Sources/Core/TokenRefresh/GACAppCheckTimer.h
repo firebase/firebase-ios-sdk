@@ -24,13 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-typedef id<GACAppCheckTimerProtocol> _Nullable (^FIRTimerProvider)(NSDate *fireDate,
+typedef id<GACAppCheckTimerProtocol> _Nullable (^GACTimerProvider)(NSDate *fireDate,
                                                                    dispatch_queue_t queue,
                                                                    dispatch_block_t handler);
 
 @interface GACAppCheckTimer : NSObject <GACAppCheckTimerProtocol>
 
-+ (FIRTimerProvider)timerProvider;
++ (GACTimerProvider)timerProvider;
 
 - (nullable instancetype)initWithFireDate:(NSDate *)date
                             dispatchQueue:(dispatch_queue_t)dispatchQueue
