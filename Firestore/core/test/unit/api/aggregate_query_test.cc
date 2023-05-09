@@ -71,14 +71,18 @@ TEST(AggregateQuery, GetCallsGetAggregateOk) {
   // Test aggregate field result
   google_firestore_v1_AggregationResult_AggregateFieldsEntry
       aggregate_fields_entry[1];
-  aggregate_fields_entry[0].key = nanopb::ByteString("count").release();
+  aggregate_fields_entry[0].key = nanopb::ByteString("aggregate_0").release();
   aggregate_fields_entry[0].value.which_value_type =
       google_firestore_v1_Value_integer_value_tag;
   aggregate_fields_entry[0].value.integer_value = 10;
 
+  // Test alias map
+  absl::flat_hash_map<std::string, std::string> alias_map;
+  alias_map["aggregate_0"] = "count";
+
   // Test ObjectValue result
-  ObjectValue object_value_result =
-      ObjectValue::FromAggregateFieldsEntry(aggregate_fields_entry, 1);
+  ObjectValue object_value_result = ObjectValue::FromAggregateFieldsEntry(
+      aggregate_fields_entry, 1, alias_map);
 
   // Create an AggregateQuery with mocked GetAggregate function that
   // invokes the callback with the test results from above
