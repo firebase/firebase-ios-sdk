@@ -34,6 +34,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenNotificationKey NS_SWIFT_NAME
 /// `userInfo` key for the `AppCheckToken` in `AppCheckTokenDidChangeNotification`.
 FOUNDATION_EXPORT NSString *const kFIRAppCheckAppNameNotificationKey NS_SWIFT_NAME(AppCheckAppNameNotificationKey);
 
+/// A class used to manage app check tokens for a given Firebase app.
 NS_SWIFT_NAME(AppCheck)
 @interface FIRAppCheck : NSObject
 
@@ -49,7 +50,7 @@ NS_SWIFT_NAME(AppCheck)
 /// @param firebaseApp A configured `FirebaseApp` instance if exists.
 /// @return An instance of `AppCheck` corresponding to the passed application.
 /// @throw Throws an exception if required `FirebaseApp` options are missing.
-+ (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp NS_SWIFT_NAME(appCheck(app:));
++ (nullable instancetype)appCheckWithApp:(FIRApp *_Nullable)firebaseApp NS_SWIFT_NAME(appCheck(app:));
 
 /// Requests Firebase app check token. This method should *only* be used if you need to authorize
 /// requests to a non-Firebase backend. Requests to Firebase backend are authorized automatically if

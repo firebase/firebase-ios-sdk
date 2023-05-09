@@ -30,7 +30,9 @@ firebase.appquality.sessions.ApplicationInfo.device_model type:FT_POINTER
 firebase.appquality.sessions.ApplicationInfo.development_platform_name type:FT_POINTER
 firebase.appquality.sessions.ApplicationInfo.development_platform_version type:FT_POINTER
 firebase.appquality.sessions.ApplicationInfo.session_sdk_version type:FT_POINTER
+firebase.appquality.sessions.ApplicationInfo.os_version type:FT_POINTER
 firebase.appquality.sessions.AndroidApplicationInfo.package_name type:FT_POINTER
 firebase.appquality.sessions.AndroidApplicationInfo.version_name type:FT_POINTER
 firebase.appquality.sessions.AppleApplicationInfo.bundle_short_version type:FT_POINTER
+firebase.appquality.sessions.AppleApplicationInfo.app_build_version type:FT_POINTER
 firebase.appquality.sessions.AppleApplicationInfo.mcc_mnc type:FT_POINTER

@@ -1,0 +1,75 @@
+name: API Diff Report
+
+on: [pull_request]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+env:
+  STAGE_PROGRESS: "progress"
+  STAGE_END: "end"
+  PR_API_OUTPUT: "$GITHUB_WORKSPACE/pr_branch_output"
+  BASE_API_OUTPUT: "$GITHUB_WORKSPACE/base_branch_output"
+  DIFF_REPORT_OUTPUT: "$GITHUB_WORKSPACE/diff_report_output"
+
+jobs:
+  diff_report:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.7
+
+      - name: Install Prerequisites
+        run:  scripts/api_diff_report/prerequisite.sh
+
+      - name: Clean Diff Report Comment in PR
+        run: |
+          python scripts/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_PROGRESS }} \
+            --token ${{github.token}} \
+            --pr_number ${{github.event.pull_request.number}} \
+            --commit $GITHUB_SHA \
+            --run_id ${{github.run_id}}
+
+      - id: get_changed_files
+        name: Get changed file list
+        run: echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+      - name: Generate API files for PR branch
+        run: python scripts/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.PR_API_OUTPUT }} -t "~/api_diff_report/theme"
+
+      - name: Checkout Base branch
+        run: git checkout HEAD^
+
+      - name: Generate API files for Base branch
+        run: python scripts/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.BASE_API_OUTPUT }} -t "~/api_diff_report/theme"
+
+      - name: Generate API Diff Report
+        run: python scripts/api_diff_report/api_diff_report.py -p ${{ env.PR_API_OUTPUT }} -b ${{ env.BASE_API_OUTPUT }} -o ${{ env.DIFF_REPORT_OUTPUT }}
+
+      - name: Update Diff Report Comment in PR
+        run: |
+          python scripts/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_END }} \
+            --report ${{ env.DIFF_REPORT_OUTPUT }} \
+            --token ${{github.token}} \
+            --pr_number ${{github.event.pull_request.number}} \
+            --commit $GITHUB_SHA \
+            --run_id ${{github.run_id}}
+
+      - uses: actions/upload-artifact@v3
+        if: ${{ !cancelled() }}
+        with:
+          name: api_info
+          path: |
+            ${{ env.PR_API_OUTPUT }}
+            ${{ env.BASE_API_OUTPUT }}
+            ${{ env.DIFF_REPORT_OUTPUT }}
+          retention-days: 1
