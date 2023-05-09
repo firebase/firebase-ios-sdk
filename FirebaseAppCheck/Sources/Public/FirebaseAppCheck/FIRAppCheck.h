@@ -50,7 +50,7 @@ NS_SWIFT_NAME(AppCheck)
 /// @param firebaseApp A configured `FirebaseApp` instance if exists.
 /// @return An instance of `AppCheck` corresponding to the passed application.
 /// @throw Throws an exception if required `FirebaseApp` options are missing.
-+ (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp NS_SWIFT_NAME(appCheck(app:));
++ (nullable instancetype)appCheckWithApp:(FIRApp *_Nullable)firebaseApp NS_SWIFT_NAME(appCheck(app:));
 
 /// Requests Firebase app check token. This method should *only* be used if you need to authorize
 /// requests to a non-Firebase backend. Requests to Firebase backend are authorized automatically if
