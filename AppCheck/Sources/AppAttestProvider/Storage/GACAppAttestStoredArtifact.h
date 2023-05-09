@@ -18,7 +18,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppAttestStoredArtifact : NSObject <NSSecureCoding>
+@interface GACAppAttestStoredArtifact : NSObject <NSSecureCoding>
 
 /// The App Attest key ID used to generate the artifact.
 @property(nonatomic, readonly) NSString *keyID;

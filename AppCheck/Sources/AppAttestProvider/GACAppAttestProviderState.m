@@ -16,12 +16,12 @@
 
 #import "AppCheck/Sources/AppAttestProvider/GACAppAttestProviderState.h"
 
-@implementation FIRAppAttestProviderState
+@implementation GACAppAttestProviderState
 
 - (instancetype)initUnsupportedWithError:(NSError *)error {
   self = [super init];
   if (self) {
-    _state = FIRAppAttestAttestationStateUnsupported;
+    _state = GACAppAttestAttestationStateUnsupported;
     _appAttestUnsupportedError = error;
   }
   return self;
@@ -30,7 +30,7 @@
 - (instancetype)initWithSupportedInitialState {
   self = [super init];
   if (self) {
-    _state = FIRAppAttestAttestationStateSupportedInitial;
+    _state = GACAppAttestAttestationStateSupportedInitial;
   }
   return self;
 }
@@ -38,7 +38,7 @@
 - (instancetype)initWithGeneratedKeyID:(NSString *)keyID {
   self = [super init];
   if (self) {
-    _state = FIRAppAttestAttestationStateKeyGenerated;
+    _state = GACAppAttestAttestationStateKeyGenerated;
     _appAttestKeyID = keyID;
   }
   return self;
@@ -47,7 +47,7 @@
 - (instancetype)initWithRegisteredKeyID:(NSString *)keyID artifact:(NSData *)artifact {
   self = [super init];
   if (self) {
-    _state = FIRAppAttestAttestationStateKeyRegistered;
+    _state = GACAppAttestAttestationStateKeyRegistered;
     _appAttestKeyID = keyID;
     _attestationArtifact = artifact;
   }

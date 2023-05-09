@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation GACAppCheckTimer
 
-+ (FIRTimerProvider)timerProvider {
++ (GACTimerProvider)timerProvider {
   return ^id<GACAppCheckTimerProtocol> _Nullable(NSDate *fireDate, dispatch_queue_t queue,
                                                  dispatch_block_t handler) {
     return [[GACAppCheckTimer alloc] initWithFireDate:fireDate dispatchQueue:queue block:handler];

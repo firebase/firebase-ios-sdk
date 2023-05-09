@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// The protocol defines methods to store App Attest key IDs per Firebase app.
-@protocol FIRAppAttestKeyIDStorageProtocol <NSObject>
+@protocol GACAppAttestKeyIDStorageProtocol <NSObject>
 
 /** Manages storage of an app attest key ID.
  *  @param keyID The app attest key ID to store or `nil` to remove the existing app attest key ID.
@@ -40,10 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 /// The App Attest key ID storage implementation.
-/// This class is designed for use by `FIRAppAttestProvider`. It's operations are managed by
-/// `FIRAppAttestProvider`'s internal serial queue. It is not considered thread safe and should not
+/// This class is designed for use by `GACAppAttestProvider`. It's operations are managed by
+/// `GACAppAttestProvider`'s internal serial queue. It is not considered thread safe and should not
 /// be used by other classes at this time.
-@interface FIRAppAttestKeyIDStorage : NSObject <FIRAppAttestKeyIDStorageProtocol>
+@interface GACAppAttestKeyIDStorage : NSObject <GACAppAttestKeyIDStorageProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;
 
