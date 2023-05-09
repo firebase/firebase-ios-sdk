@@ -16,9 +16,17 @@ import Foundation
 
 #if os(iOS)
 
+  /** @class FIRPhoneMultiFactorInfo
+   @brief Extends the MultiFactorInfo class for phone number second factors.
+       The identifier of this second factor is "phone".
+       This class is available on iOS only.
+   */
   @objc(FIRPhoneMultiFactorInfo) public class PhoneMultiFactorInfo: MultiFactorInfo {
     @objc public static let FIRPhoneMultiFactorID = "FIRPhoneMultiFactorID"
 
+    /**
+        @brief This is the phone number associated with the current second factor.
+     */
     @objc public var phoneNumber: String
     @objc override public init(proto: AuthProtoMFAEnrollment) {
       guard let phoneInfo = proto.phoneInfo else {
