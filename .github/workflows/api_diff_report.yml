@@ -9,11 +9,11 @@ concurrency:
 env:
   STAGE_PROGRESS: progress
   STAGE_END: end
-  PR_BRANCH_PATH: ${{ github.workspace }}/pr_branch
-  BASE_BRANCH_PATH: ${{ github.workspace }}/base_branch
-  PR_API_OUTPUT: ${{ github.workspace }}/ci_outputs/pr_branch_api
-  BASE_API_OUTPUT: ${{ github.workspace }}/ci_outputs/base_branch_api
-  DIFF_REPORT_OUTPUT: ${{ github.workspace }}/ci_outputs/diff_report
+  PR_BRANCH_PATH: pr_branch
+  BASE_BRANCH_PATH: base_branch
+  PR_API_OUTPUT: ci_outputs/pr_branch_api
+  BASE_API_OUTPUT: ci_outputs/base_branch_api
+  DIFF_REPORT_OUTPUT: ci_outputs/diff_report
 
 jobs:
   diff_report:
@@ -24,11 +24,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
-          path: pr_branch
+          path: ${{ env.PR_BRANCH_PATH }}
 
       - id: get_changed_files
         name: Get changed file list
-        run: echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+        run: |
+          ls ${{ env.PR_BRANCH_PATH }}
+          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Setup python
         uses: actions/setup-python@v4
@@ -87,5 +89,5 @@ jobs:
         if: ${{ !cancelled() }}
         with:
           name: api_info_and_report
-          path: ${{ github.workspace }}/ci_outputs
+          path: ci_outputs
           retention-days: 1
