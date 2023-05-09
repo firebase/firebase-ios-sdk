@@ -76,6 +76,6 @@ import Foundation
     aCoder.encode(providerID, forKey: AdditionalUserInfo.providerIDCodingKey)
     aCoder.encode(profile, forKey: AdditionalUserInfo.profileCodingKey)
     aCoder.encode(username, forKey: AdditionalUserInfo.usernameCodingKey)
-    aCoder.encode(isNewUser, forKey: AdditionalUserInfo.newUserKey)
+    aCoder.encode(isNewUser ? 1 : 0, forKey: AdditionalUserInfo.newUserKey)
   }
 }
