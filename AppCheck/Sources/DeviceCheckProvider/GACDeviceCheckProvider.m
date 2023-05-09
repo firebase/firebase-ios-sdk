@@ -16,7 +16,7 @@
 
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckAvailability.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 #import <Foundation/Foundation.h>
 
@@ -40,22 +40,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRDeviceCheckProvider ()
-@property(nonatomic, readonly) id<FIRDeviceCheckAPIServiceProtocol> APIService;
-@property(nonatomic, readonly) id<FIRDeviceCheckTokenGenerator> deviceTokenGenerator;
+@interface GACDeviceCheckProvider ()
+@property(nonatomic, readonly) id<GACDeviceCheckAPIServiceProtocol> APIService;
+@property(nonatomic, readonly) id<GACDeviceCheckTokenGenerator> deviceTokenGenerator;
 @property(nonatomic, readonly) id<GACAppCheckBackoffWrapperProtocol> backoffWrapper;
 
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
+- (instancetype)initWithAPIService:(id<GACDeviceCheckAPIServiceProtocol>)APIService
+              deviceTokenGenerator:(id<GACDeviceCheckTokenGenerator>)deviceTokenGenerator
                     backoffWrapper:(id<GACAppCheckBackoffWrapperProtocol>)backoffWrapper
     NS_DESIGNATED_INITIALIZER;
 
 @end
 
-@implementation FIRDeviceCheckProvider
+@implementation GACDeviceCheckProvider
 
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
+- (instancetype)initWithAPIService:(id<GACDeviceCheckAPIServiceProtocol>)APIService
+              deviceTokenGenerator:(id<GACDeviceCheckTokenGenerator>)deviceTokenGenerator
                     backoffWrapper:(id<GACAppCheckBackoffWrapperProtocol>)backoffWrapper {
   self = [super init];
   if (self) {
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService {
+- (instancetype)initWithAPIService:(id<GACDeviceCheckAPIServiceProtocol>)APIService {
   GACAppCheckBackoffWrapper *backoffWrapper = [[GACAppCheckBackoffWrapper alloc] init];
   return [self initWithAPIService:APIService
              deviceTokenGenerator:[DCDevice currentDevice]
@@ -79,7 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (missingOptionsFields.count > 0) {
     FIRLogError(kFIRLoggerAppCheck,
                 kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions,
-                @"Cannot instantiate `FIRDeviceCheckProvider` for app: %@. The following "
+                @"Cannot instantiate `GACDeviceCheckProvider` for app: %@. The following "
                 @"`FirebaseOptions` fields are missing: %@",
                 app.name, [missingOptionsFields componentsJoinedByString:@", "]);
     return nil;
@@ -94,8 +94,8 @@ NS_ASSUME_NONNULL_BEGIN
                                                   appID:app.options.googleAppID
                                         heartbeatLogger:app.heartbeatLogger];
 
-  FIRDeviceCheckAPIService *deviceCheckAPIService =
-      [[FIRDeviceCheckAPIService alloc] initWithAPIService:APIService
+  GACDeviceCheckAPIService *deviceCheckAPIService =
+      [[GACDeviceCheckAPIService alloc] initWithAPIService:APIService
                                                  projectID:app.options.projectID
                                                      appID:app.options.googleAppID];
 
@@ -143,4 +143,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS
