@@ -153,6 +153,7 @@ def module_info_from_podspecs(root_dir=os.getcwd()):
   for filename in os.listdir(root_dir):
     if filename.endswith('.podspec'):
       pod_file = os.path.join(root_dir, filename)
+      print(pod_file)
       podspec_data = parse_podspec(pod_file)
       print(podspec_data)
       if podspec_data:
