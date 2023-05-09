@@ -22,13 +22,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRDeviceCheckAPIServiceProtocol <NSObject>
+@protocol GACDeviceCheckAPIServiceProtocol <NSObject>
 
 - (FBLPromise<GACAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken;
 
 @end
 
-@interface FIRDeviceCheckAPIService : NSObject <FIRDeviceCheckAPIServiceProtocol>
+@interface GACDeviceCheckAPIService : NSObject <GACDeviceCheckAPIServiceProtocol>
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
                          projectID:(NSString *)projectID

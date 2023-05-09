@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Defines API of a storage capable to store an encrypted artifact required to refresh Firebase App
 /// Check token obtained with App Attest provider.
-@protocol FIRAppAttestArtifactStorageProtocol <NSObject>
+@protocol GACAppAttestArtifactStorageProtocol <NSObject>
 
 /// Set the artifact. An artifact previously set for *any* key ID will be replaced by the new one
 /// with the new key ID. The storage always stores a single artifact.
@@ -42,8 +42,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-/// An implementation of FIRAppAttestArtifactStorageProtocol.
-@interface FIRAppAttestArtifactStorage : NSObject <FIRAppAttestArtifactStorageProtocol>
+/// An implementation of GACAppAttestArtifactStorageProtocol.
+@interface GACAppAttestArtifactStorage : NSObject <GACAppAttestArtifactStorageProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;
 
