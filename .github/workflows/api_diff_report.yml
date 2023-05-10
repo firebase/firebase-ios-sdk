@@ -29,8 +29,7 @@ jobs:
       - id: get_changed_files
         name: Get changed file list
         run: |
-          cd ${{ env.PR_BRANCH_PATH }}
-          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "file_list=$(git -C ${{ env.PR_BRANCH_PATH }} diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Setup python
         uses: actions/setup-python@v4
@@ -57,8 +56,13 @@ jobs:
             --output_dir ${{ env.PR_API_OUTPUT }} \
             --api_theme_dir "pr_branch/scripts/api_diff_report/theme"
 
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+          path: ${{ env.BASE_BRANCH_PATH }}
+
       - name: Checkout Base branch
-        run: git checkout HEAD^ -- ${{ env.BASE_BRANCH_PATH }}
+        run: git -C ${{ env.BASE_BRANCH_PATH }} checkout HEAD^
 
       - name: Generate API files for Base branch
         run: |
