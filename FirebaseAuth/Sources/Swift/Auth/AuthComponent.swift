@@ -28,7 +28,7 @@ import FirebaseCore
 
   /// The app associated with all Auth instances in this container.
   /// This is `unowned` instead of `weak` so it can be used without unwrapping in `auth()`
-  private unowned var app: FirebaseApp
+  private unowned let app: FirebaseApp
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Auth associated with the given app.
