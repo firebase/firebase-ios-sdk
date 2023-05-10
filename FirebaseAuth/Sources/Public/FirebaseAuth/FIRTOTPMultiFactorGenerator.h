@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
    entity to the Firebase Auth/GCIP server. Depending on the type of second factor, this will help
    generate the assertion.
 */
-NS_SWIFT_NAME(TOTPMultiFactorGenerator)
+NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
 @interface FIRTOTPMultiFactorGenerator : NSObject
 
 /** @fn generateSecretWithMultiFactorSession
