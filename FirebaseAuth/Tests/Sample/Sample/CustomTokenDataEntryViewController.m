@@ -54,7 +54,7 @@ static NSString *const kDone = @"Done";
       @brief The text view allowing the user to enter their custom token text.
       @remarks Constructed and set in the method: @c loadTextView.
    */
-   __weak UITextView *_Nullable _tokenTextView;
+  __weak UITextView *_Nullable _tokenTextView;
 }
 
 - (nullable instancetype)initWithCompletion:
@@ -84,8 +84,8 @@ static NSString *const kDone = @"Done";
 - (void)loadHeader {
   CGRect navBarFrame = CGRectMake(0, 0, self.view.bounds.size.width, navigationBarDefaultHeight);
   UINavigationBar *navBar = [[UINavigationBar alloc] initWithFrame:navBarFrame];
-  navBar.autoresizingMask = UIViewAutoresizingFlexibleWidth
-      | UIViewAutoresizingFlexibleBottomMargin;
+  navBar.autoresizingMask =
+      UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
 
   UINavigationItem *navItem = [[UINavigationItem alloc] initWithTitle:kTitle];
   UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithTitle:kCancel
@@ -112,11 +112,8 @@ static NSString *const kDone = @"Done";
     @remarks Relies on the navigationBarSystemHeight variable being correct.
  */
 - (void)loadTextView {
-  CGRect tokenTextViewFrame =
-      CGRectMake(0,
-                 navigationBarSystemHeight,
-                 self.view.bounds.size.width,
-                 self.view.bounds.size.height - navigationBarSystemHeight);
+  CGRect tokenTextViewFrame = CGRectMake(0, navigationBarSystemHeight, self.view.bounds.size.width,
+                                         self.view.bounds.size.height - navigationBarSystemHeight);
   UITextView *tokenTextView = [[UITextView alloc] initWithFrame:tokenTextViewFrame];
   tokenTextView.backgroundColor = [UIColor whiteColor];
   tokenTextView.textAlignment = NSTextAlignmentLeft;
@@ -139,10 +136,10 @@ static NSString *const kDone = @"Done";
 
 - (void)finishByCancelling:(BOOL)cancelled
     withUserEnteredTokenText:(nullable NSString *)userEnteredTokenText {
-  [self dismissViewControllerAnimated:YES completion:^{
-    self->_completion(cancelled,
-                cancelled ? nil : userEnteredTokenText);
-  }];
+  [self dismissViewControllerAnimated:YES
+                           completion:^{
+                             self->_completion(cancelled, cancelled ? nil : userEnteredTokenText);
+                           }];
 }
 
 @end

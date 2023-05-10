@@ -18,16 +18,16 @@
 
 #import <objc/runtime.h>
 
+#import <FirebaseAuth/FirebaseAuth.h>
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIROptions.h>
+#import <FirebaseCore/FIRVersion.h>
 #import "AppManager.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSToken.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAPNSTokenManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredential.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
-#import <FirebaseCore/FIRApp.h>
-#import <FirebaseCore/FIROptions.h>
-#import <FirebaseCore/FIRVersion.h>
-#import <FirebaseAuth/FirebaseAuth.h>
 #import "StaticContentTableViewManager.h"
 #import "UIViewController+Alerts.h"
 
@@ -54,10 +54,8 @@ static NSString *const kSecureTokenSandboxHost = @"staging-securetoken.sandbox.g
 /** @var kGoogleServiceInfoPlists
     @brief a C-array of plist file base names of Google service info to initialize FIRApp.
  */
-static NSString *const kGoogleServiceInfoPlists[] = {
-  @"GoogleService-Info",
-  @"GoogleService-Info_multi"
-};
+static NSString *const kGoogleServiceInfoPlists[] = {@"GoogleService-Info",
+                                                     @"GoogleService-Info_multi"};
 
 /** @var kSharedKeychainAccessGroup
     @brief The shared keychain access group for testing.
@@ -101,8 +99,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     return string;
   }
   NSUInteger half = (length - 3) / 2;
-  return [NSString stringWithFormat:@"%@...%@",
-                                    [string substringToIndex:half],
+  return [NSString stringWithFormat:@"%@...%@", [string substringToIndex:half],
                                     [string substringFromIndex:string.length - half]];
 }
 
@@ -143,8 +140,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   NSMutableArray *appOptions = [[NSMutableArray alloc] initWithCapacity:numberOfOptions];
   for (int i = 0; i < numberOfOptions; i++) {
     NSString *plistFileName = kGoogleServiceInfoPlists[i];
-    NSString *plistFilePath = [[NSBundle mainBundle] pathForResource:plistFileName
-                                                              ofType:@"plist"];
+    NSString *plistFilePath = [[NSBundle mainBundle] pathForResource:plistFileName ofType:@"plist"];
     FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistFilePath];
     [appOptions addObject:options];
   }
@@ -153,92 +149,121 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
 
 - (void)loadTableView {
   NSString *appIdentifierPrefix = NSBundle.mainBundle.infoDictionary[@"AppIdentifierPrefix"];
-  NSString *fullKeychainAccessGroup = [appIdentifierPrefix stringByAppendingString:kSharedKeychainAccessGroup];
+  NSString *fullKeychainAccessGroup =
+      [appIdentifierPrefix stringByAppendingString:kSharedKeychainAccessGroup];
 
   __weak typeof(self) weakSelf = self;
   _tableViewManager.contents = [StaticContentTableViewContent contentWithSections:@[
-    [StaticContentTableViewSection sectionWithTitle:@"Versions" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"FirebaseAuth"
-                                          value:FIRFirebaseVersion()],
-    ]],
-    [StaticContentTableViewSection sectionWithTitle:@"API Hosts" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"Identity Toolkit"
-                                          value:APIHost(kIdentityToolkitRequestClassName)
-                                         action:^{
-        [weakSelf toggleAPIHostWithRequestClassName:kIdentityToolkitRequestClassName];
-      }],
-      [StaticContentTableViewCell cellWithTitle:@"Secure Token"
-                                          value:APIHost(kSecureTokenRequestClassName)
-                                         action:^{
-        [weakSelf toggleAPIHostWithRequestClassName:kSecureTokenRequestClassName];
-      }],
-    ]],
-    [StaticContentTableViewSection sectionWithTitle:@"Firebase Apps" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"Active App"
-                                          value:[self activeAppDescription]
-                                         action:^{
-        [weakSelf toggleActiveApp];
-      }],
-      [StaticContentTableViewCell cellWithTitle:@"Default App"
-                                          value:[self projectIDForAppAtIndex:0]
-                                         action:^{
-        [weakSelf toggleProjectForAppAtIndex:0];
-      }],
-      [StaticContentTableViewCell cellWithTitle:@"Other App"
-                                          value:[self projectIDForAppAtIndex:1]
-                                         action:^{
-        [weakSelf toggleProjectForAppAtIndex:1];
-      }],
-    ]],
-    [StaticContentTableViewSection sectionWithTitle:@"Keychain Access Groups" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"Current Access Group"
-                                          value:[AppManager auth].userAccessGroup ? [AppManager auth].userAccessGroup : @"[none]"
-      ],
-      [StaticContentTableViewCell cellWithTitle:@"Default Group"
-                                          value:@"[none]"
-                                         action:^{
-                                           [[AppManager auth] useUserAccessGroup:nil error:nil];
-                                           [self loadTableView];
-      }],
-      [StaticContentTableViewCell cellWithTitle:@"Shared Group"
-                                          value:fullKeychainAccessGroup
-                                         action:^{
-                                           [[AppManager auth] useUserAccessGroup:fullKeychainAccessGroup error:nil];
-                                           [self loadTableView];
-      }],
-    ]],
-    [StaticContentTableViewSection sectionWithTitle:@"Phone Auth" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"APNs Token"
-                                          value:[self APNSTokenString]
-                                         action:^{
-        [weakSelf clearAPNSToken];
-      }],
-      [StaticContentTableViewCell cellWithTitle:@"App Credential"
-                                          value:[self appCredentialString]
-                                         action:^{
-        [weakSelf clearAppCredential];
-      }],
-    ]],
-    [StaticContentTableViewSection sectionWithTitle:@"Language" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"Auth Language"
-                                          value:[AppManager auth].languageCode ?: @"[none]"
-                                         action:^{
-        [weakSelf showLanguageInput];
-      }],
-      [StaticContentTableViewCell cellWithTitle:@"Use App language" action:^{
-        [[AppManager auth] useAppLanguage];
-        [weakSelf loadTableView];
-      }],
-    ]],
-    [StaticContentTableViewSection sectionWithTitle:@"Auth Settings" cells:@[
-      [StaticContentTableViewCell cellWithTitle:@"Disable App Verification (Phone)"
-                                          value:[AppManager auth].settings.
-                                              appVerificationDisabledForTesting ? @"Yes" : @"No"
-                                         action:^{
-        [weakSelf toggleDisableAppVerification];
-        [weakSelf loadTableView];
-      }],
-    ]],
+    [StaticContentTableViewSection
+        sectionWithTitle:@"Versions"
+                   cells:@[
+                     [StaticContentTableViewCell cellWithTitle:@"FirebaseAuth"
+                                                         value:FIRFirebaseVersion()],
+                   ]],
+    [StaticContentTableViewSection
+        sectionWithTitle:@"API Hosts"
+                   cells:@[
+                     [StaticContentTableViewCell
+                         cellWithTitle:@"Identity Toolkit"
+                                 value:APIHost(kIdentityToolkitRequestClassName)
+                                action:^{
+                                  [weakSelf toggleAPIHostWithRequestClassName:
+                                                kIdentityToolkitRequestClassName];
+                                }],
+                     [StaticContentTableViewCell cellWithTitle:@"Secure Token"
+                                                         value:APIHost(kSecureTokenRequestClassName)
+                                                        action:^{
+                                                          [weakSelf
+                                                              toggleAPIHostWithRequestClassName:
+                                                                  kSecureTokenRequestClassName];
+                                                        }],
+                   ]],
+    [StaticContentTableViewSection
+        sectionWithTitle:@"Firebase Apps"
+                   cells:@[
+                     [StaticContentTableViewCell cellWithTitle:@"Active App"
+                                                         value:[self activeAppDescription]
+                                                        action:^{
+                                                          [weakSelf toggleActiveApp];
+                                                        }],
+                     [StaticContentTableViewCell cellWithTitle:@"Default App"
+                                                         value:[self projectIDForAppAtIndex:0]
+                                                        action:^{
+                                                          [weakSelf toggleProjectForAppAtIndex:0];
+                                                        }],
+                     [StaticContentTableViewCell cellWithTitle:@"Other App"
+                                                         value:[self projectIDForAppAtIndex:1]
+                                                        action:^{
+                                                          [weakSelf toggleProjectForAppAtIndex:1];
+                                                        }],
+                   ]],
+    [StaticContentTableViewSection
+        sectionWithTitle:@"Keychain Access Groups"
+                   cells:@[
+                     [StaticContentTableViewCell
+                         cellWithTitle:@"Current Access Group"
+                                 value:[AppManager auth].userAccessGroup
+                                           ? [AppManager auth].userAccessGroup
+                                           : @"[none]"],
+                     [StaticContentTableViewCell cellWithTitle:@"Default Group"
+                                                         value:@"[none]"
+                                                        action:^{
+                                                          [[AppManager auth]
+                                                              useUserAccessGroup:nil
+                                                                           error:nil];
+                                                          [self loadTableView];
+                                                        }],
+                     [StaticContentTableViewCell
+                         cellWithTitle:@"Shared Group"
+                                 value:fullKeychainAccessGroup
+                                action:^{
+                                  [[AppManager auth] useUserAccessGroup:fullKeychainAccessGroup
+                                                                  error:nil];
+                                  [self loadTableView];
+                                }],
+                   ]],
+    [StaticContentTableViewSection
+        sectionWithTitle:@"Phone Auth"
+                   cells:@[
+                     [StaticContentTableViewCell cellWithTitle:@"APNs Token"
+                                                         value:[self APNSTokenString]
+                                                        action:^{
+                                                          [weakSelf clearAPNSToken];
+                                                        }],
+                     [StaticContentTableViewCell cellWithTitle:@"App Credential"
+                                                         value:[self appCredentialString]
+                                                        action:^{
+                                                          [weakSelf clearAppCredential];
+                                                        }],
+                   ]],
+    [StaticContentTableViewSection
+        sectionWithTitle:@"Language"
+                   cells:@[
+                     [StaticContentTableViewCell
+                         cellWithTitle:@"Auth Language"
+                                 value:[AppManager auth].languageCode ?: @"[none]"
+                                action:^{
+                                  [weakSelf showLanguageInput];
+                                }],
+                     [StaticContentTableViewCell cellWithTitle:@"Use App language"
+                                                        action:^{
+                                                          [[AppManager auth] useAppLanguage];
+                                                          [weakSelf loadTableView];
+                                                        }],
+                   ]],
+    [StaticContentTableViewSection
+        sectionWithTitle:@"Auth Settings"
+                   cells:@[
+                     [StaticContentTableViewCell
+                         cellWithTitle:@"Disable App Verification (Phone)"
+                                 value:[AppManager auth].settings.appVerificationDisabledForTesting
+                                           ? @"Yes"
+                                           : @"No"
+                                action:^{
+                                  [weakSelf toggleDisableAppVerification];
+                                  [weakSelf loadTableView];
+                                }],
+                   ]],
   ]];
 }
 
@@ -303,7 +328,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     @return The ID of the project.
  */
 - (NSString *)keychainAccessGroupAtIndex:(int)index {
-  NSArray *array = @[@"123", @"456"];
+  NSArray *array = @[ @"123", @"456" ];
   return array[index];
 }
 
@@ -328,18 +353,21 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     optionIndex = (optionIndex + 1) % gFirebaseAppOptions.count;
     options = gFirebaseAppOptions[optionIndex];
   } else {
-    // For non-default apps, `nil` is considered the next options after the last options in the array.
+    // For non-default apps, `nil` is considered the next options after the last options in the
+    // array.
     optionIndex = (optionIndex + 1) % (gFirebaseAppOptions.count + 1);
     if (optionIndex != gFirebaseAppOptions.count) {
       options = gFirebaseAppOptions[optionIndex];
     }
   }
   __weak typeof(self) weakSelf = self;
-  [[AppManager sharedInstance] recreateAppAtIndex:index withOptions:options completion:^() {
-    dispatch_async(dispatch_get_main_queue(), ^() {
-      [weakSelf loadTableView];
-    });
-  }];
+  [[AppManager sharedInstance] recreateAppAtIndex:index
+                                      withOptions:options
+                                       completion:^() {
+                                         dispatch_async(dispatch_get_main_queue(), ^() {
+                                           [weakSelf loadTableView];
+                                         });
+                                       }];
 }
 
 /** @fn APNSTokenString
@@ -350,8 +378,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   if (!token) {
     return @"";
   }
-  return [NSString stringWithFormat:@"%@(%@)",
-                                    truncatedString(token.string, 19),
+  return [NSString stringWithFormat:@"%@(%@)", truncatedString(token.string, 19),
                                     token.type == FIRAuthAPNSTokenTypeProd ? @"P" : @"S"];
 }
 
@@ -364,17 +391,16 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
     return;
   }
   NSString *tokenType = token.type == FIRAuthAPNSTokenTypeProd ? @"Production" : @"Sandbox";
-  NSString *message = [NSString stringWithFormat:@"token: %@\ntype: %@",
-                                                 token.string, tokenType];
+  NSString *message = [NSString stringWithFormat:@"token: %@\ntype: %@", token.string, tokenType];
   [self showMessagePromptWithTitle:@"Clear APNs Token?"
                            message:message
                   showCancelButton:YES
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-    if (userPressedOK) {
-      [AppManager auth].tokenManager.token = nil;
-      [self loadTableView];
-    }
-  }];
+                          if (userPressedOK) {
+                            [AppManager auth].tokenManager.token = nil;
+                            [self loadTableView];
+                          }
+                        }];
 }
 
 /** @fn appCredentialString
@@ -385,8 +411,7 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   if (!credential) {
     return @"";
   }
-  return [NSString stringWithFormat:@"%@/%@",
-                                    truncatedString(credential.receipt, 13),
+  return [NSString stringWithFormat:@"%@/%@", truncatedString(credential.receipt, 13),
                                     truncatedString(credential.secret, 13)];
 }
 
@@ -398,17 +423,17 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
   if (!credential) {
     return;
   }
-  NSString *message = [NSString stringWithFormat:@"receipt: %@\nsecret: %@",
-                                                 credential.receipt, credential.secret];
+  NSString *message =
+      [NSString stringWithFormat:@"receipt: %@\nsecret: %@", credential.receipt, credential.secret];
   [self showMessagePromptWithTitle:@"Clear App Credential?"
                            message:message
                   showCancelButton:YES
                         completion:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-    if (userPressedOK) {
-      [[AppManager auth].appCredentialManager clearCredential];
-      [self loadTableView];
-    }
-  }];
+                          if (userPressedOK) {
+                            [[AppManager auth].appCredentialManager clearCredential];
+                            [self loadTableView];
+                          }
+                        }];
 }
 
 /** @fn showLanguageInput
@@ -417,12 +442,12 @@ static NSString *truncatedString(NSString *string, NSUInteger length) {
 - (void)showLanguageInput {
   [self showTextInputPromptWithMessage:@"Enter Language Code For Auth:"
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable languageCode) {
-    if (!userPressedOK) {
-      return;
-    }
-    [AppManager auth].languageCode = languageCode.length ? languageCode : nil;
-    [self loadTableView];
-  }];
+                         if (!userPressedOK) {
+                           return;
+                         }
+                         [AppManager auth].languageCode = languageCode.length ? languageCode : nil;
+                         [self loadTableView];
+                       }];
 }
 
 @end

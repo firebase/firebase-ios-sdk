@@ -25,12 +25,18 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (StaticContentTableViewSection *)authSection {
   __weak typeof(self) weakSelf = self;
-  return [StaticContentTableViewSection sectionWithTitle:@"Auth" cells:@[
-    [StaticContentTableViewCell cellWithTitle:@"Sign in Anonymously"
-                                      action:^{ [weakSelf signInAnonymously]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Sign out"
-                                      action:^{ [weakSelf signOut]; }]
-    ]];
+  return [StaticContentTableViewSection
+      sectionWithTitle:@"Auth"
+                 cells:@[
+                   [StaticContentTableViewCell cellWithTitle:@"Sign in Anonymously"
+                                                      action:^{
+                                                        [weakSelf signInAnonymously];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Sign out"
+                                                      action:^{
+                                                        [weakSelf signOut];
+                                                      }]
+                 ]];
 }
 
 - (void)signInAnonymously {

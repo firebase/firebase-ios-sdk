@@ -16,14 +16,14 @@
 
 #import "MainViewController+MultiFactor.h"
 
-#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
-#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import <FirebaseAuth/FIRMultiFactorInfo.h>
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import <FirebaseAuth/FIRTOTPMultiFactorGenerator.h>
 #import <FirebaseAuth/FIRTOTPMultiFactorAssertion.h>
-#import "MainViewController+Internal.h"
+#import <FirebaseAuth/FIRTOTPMultiFactorGenerator.h>
 #import <FirebaseCore/FIRApp.h>
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
+#import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
+#import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,16 +31,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (StaticContentTableViewSection *)multiFactorSection {
   __weak typeof(self) weakSelf = self;
-  return [StaticContentTableViewSection sectionWithTitle:@"Multi Factor" cells:@[
-    [StaticContentTableViewCell cellWithTitle:@"Phone Enroll"
-                                       action:^{ [weakSelf phoneEnroll]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Phone Unenroll"
-                                       action:^{ [weakSelf phoneUnenroll]; }],
-		[StaticContentTableViewCell cellWithTitle:@"TOTP Enroll"
-																			 action:^{ [weakSelf TOTPEnroll]; }],
-		[StaticContentTableViewCell cellWithTitle:@"TOTPUnenroll"
-																			 action:^{ [weakSelf TOTPUnenroll]; }],
-  ]];
+  return [StaticContentTableViewSection
+      sectionWithTitle:@"Multi Factor"
+                 cells:@[
+                   [StaticContentTableViewCell cellWithTitle:@"Phone Enroll"
+                                                      action:^{
+                                                        [weakSelf phoneEnroll];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Phone Unenroll"
+                                                      action:^{
+                                                        [weakSelf phoneUnenroll];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"TOTP Enroll"
+                                                      action:^{
+                                                        [weakSelf TOTPEnroll];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"TOTPUnenroll"
+                                                      action:^{
+                                                        [weakSelf TOTPUnenroll];
+                                                      }],
+                 ]];
 }
 
 - (void)phoneEnroll {
@@ -49,44 +59,86 @@ NS_ASSUME_NONNULL_BEGIN
     [self logFailure:@"Please sign in first." error:nil];
     return;
   }
-  [self showTextInputPromptWithMessage:@"Phone Number"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
-    [user.multiFactor
-     getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
-      [FIRPhoneAuthProvider.provider verifyPhoneNumber:phoneNumber
-                                            UIDelegate:nil
-                                    multiFactorSession:session
-                                            completion:^(NSString * _Nullable verificationID,
-                                                         NSError * _Nullable error) {
-        if (error) {
-          [self logFailure:@"Multi factor start enroll failed." error:error];
-        } else {
-          [self showTextInputPromptWithMessage:@"Verification code"
-                               completionBlock:^(BOOL userPressedOK,
-                                                 NSString *_Nullable verificationCode) {
-            FIRPhoneAuthCredential *credential =
-            [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                         verificationCode:verificationCode];
-            FIRMultiFactorAssertion *assertion =
-            [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
-            [self showTextInputPromptWithMessage:@"Display name"
-                                 completionBlock:^(BOOL userPressedOK,
-                                                   NSString *_Nullable displayName) {
-              [user.multiFactor enrollWithAssertion:assertion
-                                        displayName:displayName
-                                         completion:^(NSError *_Nullable error) {
-                if (error) {
-                  [self logFailure:@"Multi factor finalize enroll failed." error:error];
-                } else {
-                  [self logSuccess:@"Multi factor finalize enroll succeeded."];
-                }
-              }];
-            }];
-          }];
-        }
-      }];
-    }];
-  }];
+  [self
+      showTextInputPromptWithMessage:@"Phone Number"
+                     completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
+                       [user.multiFactor
+                           getSessionWithCompletion:
+                               ^(FIRMultiFactorSession *_Nullable session,
+                                 NSError *_Nullable error) {
+                                 [FIRPhoneAuthProvider.provider verifyPhoneNumber:phoneNumber
+                                                                       UIDelegate:nil
+                                                               multiFactorSession:session
+                                                                       completion:
+                                                                           ^(NSString
+                                                                                 *_Nullable verificationID,
+                                                                             NSError
+                                                                                 *_Nullable error) {
+                                                                             if (error) {
+                                                                               [self
+                                                                                   logFailure:
+                                                                                       @"Multi "
+                                                                                       @"factor "
+                                                                                       @"start "
+                                                                                       @"enroll "
+                                                                                       @"failed."
+                                                                                        error:
+                                                                                            error];
+                                                                             } else {
+                                                                               [self showTextInputPromptWithMessage:
+                                                                                         @"Verifica"
+                                                                                         @"tion "
+                                                                                         @"code"
+                                                                                                    completionBlock:
+                                                                                                        ^(BOOL
+                                                                                                              userPressedOK,
+                                                                                                          NSString
+                                                                                                              *_Nullable verificationCode) {
+                                                                                                          FIRPhoneAuthCredential
+                                                                                                              *credential = [[FIRPhoneAuthProvider
+                                                                                                                  provider]
+                                                                                                                  credentialWithVerificationID:
+                                                                                                                      verificationID
+                                                                                                                              verificationCode:
+                                                                                                                                  verificationCode];
+                                                                                                          FIRMultiFactorAssertion
+                                                                                                              *assertion = [FIRPhoneMultiFactorGenerator
+                                                                                                                  assertionWithCredential:
+                                                                                                                      credential];
+                                                                                                          [self
+                                                                                                              showTextInputPromptWithMessage:
+                                                                                                                  @"Display name"
+                                                                                                                             completionBlock:^(
+                                                                                                                                 BOOL
+                                                                                                                                     userPressedOK,
+                                                                                                                                 NSString
+                                                                                                                                     *_Nullable displayName) {
+                                                                                                                               [user.multiFactor
+                                                                                                                                   enrollWithAssertion:
+                                                                                                                                       assertion
+                                                                                                                                           displayName:
+                                                                                                                                               displayName
+                                                                                                                                            completion:^(
+                                                                                                                                                NSError
+                                                                                                                                                    *_Nullable error) {
+                                                                                                                                              if (error) {
+                                                                                                                                                [self
+                                                                                                                                                    logFailure:
+                                                                                                                                                        @"Multi factor finalize enroll failed."
+                                                                                                                                                         error:
+                                                                                                                                                             error];
+                                                                                                                                              } else {
+                                                                                                                                                [self
+                                                                                                                                                    logSuccess:
+                                                                                                                                                        @"Multi factor finalize enroll succeeded."];
+                                                                                                                                              }
+                                                                                                                                            }];
+                                                                                                                             }];
+                                                                                                        }];
+                                                                             }
+                                                                           }];
+                               }];
+                     }];
 }
 
 - (void)phoneUnenroll {
@@ -95,98 +147,154 @@ NS_ASSUME_NONNULL_BEGIN
     [displayNameString appendString:tmpFactorInfo.displayName];
     [displayNameString appendString:@" "];
   }
-  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Multifactor Unenroll\n%@", displayNameString]
+  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Multifactor Unenroll\n%@",
+                                                                  displayNameString]
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
-    FIRMultiFactorInfo *factorInfo;
-    for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
-      if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
-        factorInfo = tmpFactorInfo;
-      }
-    }
-    [FIRAuth.auth.currentUser.multiFactor unenrollWithInfo:factorInfo
-                                                completion:^(NSError * _Nullable error) {
-      if (error) {
-        [self logFailure:@"Multi factor unenroll failed." error:error];
-      } else {
-        [self logSuccess:@"Multi factor unenroll succeeded."];
-      }
-    }];
-  }];
+                         FIRMultiFactorInfo *factorInfo;
+                         for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser
+                                  .multiFactor.enrolledFactors) {
+                           if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                             factorInfo = tmpFactorInfo;
+                           }
+                         }
+                         [FIRAuth.auth.currentUser.multiFactor
+                             unenrollWithInfo:factorInfo
+                                   completion:^(NSError *_Nullable error) {
+                                     if (error) {
+                                       [self logFailure:@"Multi factor unenroll failed."
+                                                  error:error];
+                                     } else {
+                                       [self logSuccess:@"Multi factor unenroll succeeded."];
+                                     }
+                                   }];
+                       }];
 }
 
 - (void)TOTPEnroll {
-		FIRUser *user = FIRAuth.auth.currentUser;
-		if (!user) {
-				[self logFailure:@"Please sign in first." error:nil];
-				return;
-		}
-		[user.multiFactor getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
-				if (error) {
-						[self logFailure:@"Error getting multi-factor session." error:error];
-						return;
-				}
-				[FIRTOTPMultiFactorGenerator generateSecretWithMultiFactorSession:session completion:^(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error) {
-						if (error) {
-								[self logFailure:@"Error generating TOTP secret." error:error];
-								return;
-						}
-						NSString *accountName = user.email;
-						NSString *issuer = FIRAuth.auth.app.name;
-						dispatch_async(dispatch_get_main_queue(), ^{
-							NSString *url = [secret generateQRCodeURLWithAccountName:accountName issuer:issuer];
-							[secret openInOTPAppWithQRCodeURL:url];
-							[self showQRCodePromptWithTextInput:@"Scan this QR Code and enter OTP:"
-																		 qrCodeString:url
-																	completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword) {
-										[FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:oneTimePassword completion:^(FIRTOTPMultiFactorAssertion *_Nullable assertion, NSError *_Nullable error) {
-												if (error) {
-														[self logFailure:@"Error generating TOTP assertion." error:error];
-														return;
-												}
-												dispatch_async(dispatch_get_main_queue(), ^{
-														[self showTextInputPromptWithMessage:@"Display name" completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
-																if (!userPressedOK) {
-																		return;
-																}
-																[user.multiFactor enrollWithAssertion:assertion displayName:displayName completion:^(NSError *_Nullable error) {
-																		if (error) {
-																				[self logFailure:@"Error enrolling multi-factor." error:error];
-																				return;
-																		}
-																		[self logSuccess:@"Successfully enrolled in multi-factor."];
-																}];
-														}];
-												});
-										}];
-								}];
-						});
-				}];
-		}];
+  FIRUser *user = FIRAuth.auth.currentUser;
+  if (!user) {
+    [self logFailure:@"Please sign in first." error:nil];
+    return;
+  }
+  [user.multiFactor
+      getSessionWithCompletion:
+          ^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
+            if (error) {
+              [self logFailure:@"Error getting multi-factor session." error:error];
+              return;
+            }
+            [FIRTOTPMultiFactorGenerator
+                generateSecretWithMultiFactorSession:session
+                                          completion:
+                                              ^(FIRTOTPSecret *_Nullable secret,
+                                                NSError *_Nullable error) {
+                                                if (error) {
+                                                  [self logFailure:@"Error generating TOTP secret."
+                                                             error:error];
+                                                  return;
+                                                }
+                                                NSString *accountName = user.email;
+                                                NSString *issuer = FIRAuth.auth.app.name;
+                                                dispatch_async(
+                                                    dispatch_get_main_queue(), ^{
+                                                      NSString *url = [secret
+                                                          generateQRCodeURLWithAccountName:
+                                                              accountName
+                                                                                    issuer:issuer];
+                                                      [secret openInOTPAppWithQRCodeURL:url];
+                                                      [self showQRCodePromptWithTextInput:
+                                                                @"Scan this QR Code and enter OTP:"
+                                                                             qrCodeString:url
+                                                                          completionBlock:
+                                                                              ^(BOOL userPressedOK,
+                                                                                NSString
+                                                                                    *_Nullable oneTimePassword) {
+                                                                                [FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:
+                                                                                                                 secret
+                                                                                                                              oneTimePassword:
+                                                                                                                                  oneTimePassword
+                                                                                                                                   completion:
+                                                                                                                                       ^(FIRTOTPMultiFactorAssertion
+                                                                                                                                             *_Nullable assertion,
+                                                                                                                                         NSError
+                                                                                                                                             *_Nullable error) {
+                                                                                                                                         if (error) {
+                                                                                                                                           [self
+                                                                                                                                               logFailure:
+                                                                                                                                                   @"Error generating TOTP assertion."
+                                                                                                                                                    error:
+                                                                                                                                                        error];
+                                                                                                                                           return;
+                                                                                                                                         }
+                                                                                                                                         dispatch_async(dispatch_get_main_queue(), ^{
+                                                                                                                                           [self
+                                                                                                                                               showTextInputPromptWithMessage:
+                                                                                                                                                   @"Display name"
+                                                                                                                                                              completionBlock:^(
+                                                                                                                                                                  BOOL
+                                                                                                                                                                      userPressedOK,
+                                                                                                                                                                  NSString
+                                                                                                                                                                      *_Nullable displayName) {
+                                                                                                                                                                if (!userPressedOK) {
+                                                                                                                                                                  return;
+                                                                                                                                                                }
+                                                                                                                                                                [user
+                                                                                                                                                                        .multiFactor enrollWithAssertion:
+                                                                                                                                                                                         assertion
+                                                                                                                                                                                             displayName:
+                                                                                                                                                                                                 displayName
+                                                                                                                                                                                              completion:
+                                                                                                                                                                                                  ^(
+                                                                                                                                                                                                      NSError
+                                                                                                                                                                                                          *_Nullable error) {
+                                                                                                                                                                                                    if (error) {
+                                                                                                                                                                                                      [self
+                                                                                                                                                                                                          logFailure:
+                                                                                                                                                                                                              @"Error enrolling multi-factor."
+                                                                                                                                                                                                               error:
+                                                                                                                                                                                                                   error];
+                                                                                                                                                                                                      return;
+                                                                                                                                                                                                    }
+                                                                                                                                                                                                    [self
+                                                                                                                                                                                                        logSuccess:
+                                                                                                                                                                                                            @"Successfully enrolled in multi-factor."];
+                                                                                                                                                                                                  }];
+                                                                                                                                                              }];
+                                                                                                                                         });
+                                                                                                                                       }];
+                                                                              }];
+                                                    });
+                                              }];
+          }];
 }
 
 - (void)TOTPUnenroll {
-	NSMutableString *displayNameString = [NSMutableString string];
-	for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
-		[displayNameString appendString:tmpFactorInfo.displayName];
-		[displayNameString appendString:@" "];
-	}
-	[self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Multifactor Unenroll\n%@", displayNameString]
-											 completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
-		FIRMultiFactorInfo *factorInfo;
-		for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
-			if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
-				factorInfo = tmpFactorInfo;
-			}
-		}
-		[FIRAuth.auth.currentUser.multiFactor unenrollWithInfo:factorInfo
-																								completion:^(NSError * _Nullable error) {
-			if (error) {
-				[self logFailure:@"Multi factor unenroll failed." error:error];
-			} else {
-				[self logSuccess:@"Multi factor unenroll succeeded."];
-			}
-		}];
-	}];
+  NSMutableString *displayNameString = [NSMutableString string];
+  for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
+    [displayNameString appendString:tmpFactorInfo.displayName];
+    [displayNameString appendString:@" "];
+  }
+  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Multifactor Unenroll\n%@",
+                                                                  displayNameString]
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+                         FIRMultiFactorInfo *factorInfo;
+                         for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser
+                                  .multiFactor.enrolledFactors) {
+                           if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+                             factorInfo = tmpFactorInfo;
+                           }
+                         }
+                         [FIRAuth.auth.currentUser.multiFactor
+                             unenrollWithInfo:factorInfo
+                                   completion:^(NSError *_Nullable error) {
+                                     if (error) {
+                                       [self logFailure:@"Multi factor unenroll failed."
+                                                  error:error];
+                                     } else {
+                                       [self logSuccess:@"Multi factor unenroll succeeded."];
+                                     }
+                                   }];
+                       }];
 }
 @end
 

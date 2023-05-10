@@ -16,12 +16,12 @@
 
 #import "MainViewController+Google.h"
 
+#import <FirebaseAuth/FIROAuthProvider.h>
+#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
 #import "AppManager.h"
 #import "AuthProviders.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorSession+Internal.h"
-#import <FirebaseAuth/FIROAuthProvider.h>
-#import <FirebaseAuth/FIRPhoneMultiFactorInfo.h>
 #import "MainViewController+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,16 +32,28 @@ extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
 
 - (StaticContentTableViewSection *)googleAuthSection {
   __weak typeof(self) weakSelf = self;
-  return [StaticContentTableViewSection sectionWithTitle:@"Google Auth" cells:@[
-    [StaticContentTableViewCell cellWithTitle:@"Sign in with Google"
-                                      action:^{ [weakSelf signInGoogle]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Link with Google"
-                                      action:^{ [weakSelf linkWithGoogle]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Unlink from Google"
-                                      action:^{ [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID completion:nil]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Google"
-                                      action:^{ [weakSelf reauthenticateGoogle]; }],
-    ]];
+  return [StaticContentTableViewSection
+      sectionWithTitle:@"Google Auth"
+                 cells:@[
+                   [StaticContentTableViewCell cellWithTitle:@"Sign in with Google"
+                                                      action:^{
+                                                        [weakSelf signInGoogle];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Link with Google"
+                                                      action:^{
+                                                        [weakSelf linkWithGoogle];
+                                                      }],
+                   [StaticContentTableViewCell
+                       cellWithTitle:@"Unlink from Google"
+                              action:^{
+                                [weakSelf unlinkFromProvider:FIRGoogleAuthProviderID
+                                                  completion:nil];
+                              }],
+                   [StaticContentTableViewCell cellWithTitle:@"Reauthenticate Google"
+                                                      action:^{
+                                                        [weakSelf reauthenticateGoogle];
+                                                      }],
+                 ]];
 }
 
 - (void)signInGoogle {
@@ -49,74 +61,153 @@ extern NSString *const FIRAuthErrorUserInfoMultiFactorResolverKey;
   if (!auth) {
     return;
   }
-  [[AuthProviders google] getAuthCredentialWithPresentingViewController:self
-                                                     callback:^(FIRAuthCredential *credential,
-                                                                NSError *error) {
-   if (credential) {
-     FIRAuthDataResultCallback completion = ^(FIRAuthDataResult *_Nullable authResult,
-                                              NSError *_Nullable error) {
-       if (error) {
-         if (error.code == FIRAuthErrorCodeSecondFactorRequired) {
-           FIRMultiFactorResolver *resolver = error.userInfo[FIRAuthErrorUserInfoMultiFactorResolverKey];
-           NSMutableString *displayNameString = [NSMutableString string];
-           for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
-             [displayNameString appendString:tmpFactorInfo.displayName];
-             [displayNameString appendString:@" "];
-           }
-           [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Select factor to sign in\n%@", displayNameString]
-                                completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
-                                  FIRPhoneMultiFactorInfo* selectedHint;
-                                  for (FIRMultiFactorInfo *tmpFactorInfo in resolver.hints) {
-                                    if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
-                                      selectedHint = (FIRPhoneMultiFactorInfo *)tmpFactorInfo;
-                                    }
-                                  }
-                                  [FIRPhoneAuthProvider.provider
-                                   verifyPhoneNumberWithMultiFactorInfo:selectedHint
-                                   UIDelegate:nil
-                                   multiFactorSession:resolver.session
-                                   completion:^(NSString * _Nullable verificationID, NSError * _Nullable error) {
-                                                   if (error) {
-                                                     [self logFailure:@"Multi factor start sign in failed." error:error];
+  [[AuthProviders google]
+      getAuthCredentialWithPresentingViewController:self
+                                           callback:^(FIRAuthCredential *credential,
+                                                      NSError *error) {
+                                             if (credential) {
+                                               FIRAuthDataResultCallback completion = ^(
+                                                   FIRAuthDataResult *_Nullable authResult,
+                                                   NSError *_Nullable error) {
+                                                 if (error) {
+                                                   if (error.code ==
+                                                       FIRAuthErrorCodeSecondFactorRequired) {
+                                                     FIRMultiFactorResolver *resolver =
+                                                         error.userInfo
+                                                             [FIRAuthErrorUserInfoMultiFactorResolverKey];
+                                                     NSMutableString *displayNameString =
+                                                         [NSMutableString string];
+                                                     for (FIRMultiFactorInfo
+                                                              *tmpFactorInfo in resolver.hints) {
+                                                       [displayNameString
+                                                           appendString:tmpFactorInfo.displayName];
+                                                       [displayNameString appendString:@" "];
+                                                     }
+                                                     [self
+                                                         showTextInputPromptWithMessage:
+                                                             [NSString
+                                                                 stringWithFormat:@"Select factor "
+                                                                                  @"to sign in\n%@",
+                                                                                  displayNameString]
+                                                                        completionBlock:^(
+                                                                            BOOL userPressedOK,
+                                                                            NSString
+                                                                                *_Nullable displayName) {
+                                                                          FIRPhoneMultiFactorInfo
+                                                                              *selectedHint;
+                                                                          for (FIRMultiFactorInfo
+                                                                                   *tmpFactorInfo in
+                                                                                       resolver
+                                                                                           .hints) {
+                                                                            if ([displayName
+                                                                                    isEqualToString:
+                                                                                        tmpFactorInfo
+                                                                                            .displayName]) {
+                                                                              selectedHint =
+                                                                                  (FIRPhoneMultiFactorInfo
+                                                                                       *)
+                                                                                      tmpFactorInfo;
+                                                                            }
+                                                                          }
+                                                                          [FIRPhoneAuthProvider
+                                                                                  .provider verifyPhoneNumberWithMultiFactorInfo:
+                                                                                                selectedHint
+                                                                                                                      UIDelegate:
+                                                                                                                          nil
+                                                                                                              multiFactorSession:
+                                                                                                                  resolver
+                                                                                                                      .session
+                                                                                                                      completion:
+                                                                                                                          ^(NSString
+                                                                                                                                *_Nullable verificationID,
+                                                                                                                            NSError
+                                                                                                                                *_Nullable error) {
+                                                                                                                            if (error) {
+                                                                                                                              [self
+                                                                                                                                  logFailure:
+                                                                                                                                      @"Multi factor start sign in failed."
+                                                                                                                                       error:
+                                                                                                                                           error];
+                                                                                                                            } else {
+                                                                                                                              [self
+                                                                                                                                  showTextInputPromptWithMessage:
+                                                                                                                                      [NSString
+                                                                                                                                          stringWithFormat:
+                                                                                                                                              @"Verification code for %@",
+                                                                                                                                              selectedHint
+                                                                                                                                                  .displayName]
+                                                                                                                                                 completionBlock:^(
+                                                                                                                                                     BOOL
+                                                                                                                                                         userPressedOK,
+                                                                                                                                                     NSString
+                                                                                                                                                         *_Nullable verificationCode) {
+                                                                                                                                                   FIRPhoneAuthCredential
+                                                                                                                                                       *credential = [[FIRPhoneAuthProvider
+                                                                                                                                                           provider]
+                                                                                                                                                           credentialWithVerificationID:
+                                                                                                                                                               verificationID
+                                                                                                                                                                       verificationCode:
+                                                                                                                                                                           verificationCode];
+                                                                                                                                                   FIRMultiFactorAssertion
+                                                                                                                                                       *assertion = [FIRPhoneMultiFactorGenerator
+                                                                                                                                                           assertionWithCredential:
+                                                                                                                                                               credential];
+                                                                                                                                                   [resolver
+                                                                                                                                                       resolveSignInWithAssertion:
+                                                                                                                                                           assertion
+                                                                                                                                                                       completion:^(
+                                                                                                                                                                           FIRAuthDataResult
+                                                                                                                                                                               *_Nullable authResult,
+                                                                                                                                                                           NSError
+                                                                                                                                                                               *_Nullable error) {
+                                                                                                                                                                         if (error) {
+                                                                                                                                                                           [self
+                                                                                                                                                                               logFailure:
+                                                                                                                                                                                   @"Multi factor finalize sign in failed."
+                                                                                                                                                                                    error:
+                                                                                                                                                                                        error];
+                                                                                                                                                                         } else {
+                                                                                                                                                                           [self
+                                                                                                                                                                               logSuccess:
+                                                                                                                                                                                   @"Multi factor finalize sign in succeeded."];
+                                                                                                                                                                         }
+                                                                                                                                                                       }];
+                                                                                                                                                 }];
+                                                                                                                            }
+                                                                                                                          }];
+                                                                        }];
                                                    } else {
-                                                     [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Verification code for %@", selectedHint.displayName]
-                                                                          completionBlock:^(BOOL userPressedOK, NSString *_Nullable verificationCode) {
-                                                                            FIRPhoneAuthCredential *credential =
-                                                                            [[FIRPhoneAuthProvider provider] credentialWithVerificationID:verificationID
-                                                                                                                         verificationCode:verificationCode];
-                                                                            FIRMultiFactorAssertion *assertion = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
-                                                                            [resolver resolveSignInWithAssertion:assertion completion:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
-                                                                              if (error) {
-                                                                                [self logFailure:@"Multi factor finalize sign in failed." error:error];
-                                                                              } else {
-                                                                                [self logSuccess:@"Multi factor finalize sign in succeeded."];
-                                                                              }
-                                                                            }];
-                                                                          }];
+                                                     [self
+                                                         logFailure:@"sign-in with provider failed"
+                                                              error:error];
                                                    }
-                                                 }];
-                                }];
-         } else {
-           [self logFailure:@"sign-in with provider failed" error:error];
-         }
-       } else {
-         [self logSuccess:@"sign-in with provider succeeded."];
-       }
-       if (authResult.additionalUserInfo) {
-         [self logSuccess:[self stringWithAdditionalUserInfo:authResult.additionalUserInfo]];
-         if (self.isNewUserToggleOn) {
-           NSString *newUserString = authResult.additionalUserInfo.isNewUser ?
-           @"New user" : @"Existing user";
-           [self showMessagePromptWithTitle:@"New or Existing"
-                                    message:newUserString
-                           showCancelButton:NO
-                                 completion:nil];
-         }
-       }
-     };
-     [auth signInWithCredential:credential completion:completion];
-   }
- }];
+                                                 } else {
+                                                   [self logSuccess:
+                                                             @"sign-in with provider succeeded."];
+                                                 }
+                                                 if (authResult.additionalUserInfo) {
+                                                   [self
+                                                       logSuccess:[self
+                                                                      stringWithAdditionalUserInfo:
+                                                                          authResult
+                                                                              .additionalUserInfo]];
+                                                   if (self.isNewUserToggleOn) {
+                                                     NSString *newUserString =
+                                                         authResult.additionalUserInfo.isNewUser
+                                                             ? @"New user"
+                                                             : @"Existing user";
+                                                     [self showMessagePromptWithTitle:
+                                                               @"New or Existing"
+                                                                              message:newUserString
+                                                                     showCancelButton:NO
+                                                                           completion:nil];
+                                                   }
+                                                 }
+                                               };
+                                               [auth signInWithCredential:credential
+                                                               completion:completion];
+                                             }
+                                           }];
 }
 
 - (void)linkWithGoogle {

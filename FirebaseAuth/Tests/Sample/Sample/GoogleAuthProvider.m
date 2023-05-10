@@ -18,10 +18,10 @@
 
 #import <GoogleSignIn/GoogleSignIn.h>
 
-#import "AppManager.h"
+#import <FirebaseAuth/FIRGoogleAuthProvider.h>
 #import <FirebaseCore/FIRApp.h>
 #import <FirebaseCore/FIROptions.h>
-#import <FirebaseAuth/FIRGoogleAuthProvider.h>
+#import "AppManager.h"
 
 @implementation GoogleAuthProvider
 
@@ -33,16 +33,17 @@
   GIDConfiguration *config = [[GIDConfiguration alloc] initWithClientID:[self googleClientID]];
   [signIn signInWithConfiguration:config
          presentingViewController:viewController
-                         callback:^(GIDGoogleUser * _Nullable user, NSError * _Nullable error) {
-    if (error) {
-      callback(nil, error);
-      return;
-    }
-    GIDAuthentication *auth = user.authentication;
-    FIRAuthCredential *credential = [FIRGoogleAuthProvider credentialWithIDToken:auth.idToken
-                                                                     accessToken:auth.accessToken];
-    callback(credential, error);
-  }];
+                         callback:^(GIDGoogleUser *_Nullable user, NSError *_Nullable error) {
+                           if (error) {
+                             callback(nil, error);
+                             return;
+                           }
+                           GIDAuthentication *auth = user.authentication;
+                           FIRAuthCredential *credential =
+                               [FIRGoogleAuthProvider credentialWithIDToken:auth.idToken
+                                                                accessToken:auth.accessToken];
+                           callback(credential, error);
+                         }];
 }
 
 - (void)signOut {

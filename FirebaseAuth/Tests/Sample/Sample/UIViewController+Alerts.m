@@ -62,10 +62,8 @@ static NSString *const kCancel = @"Cancel";
 @implementation UIViewController (Alerts)
 
 - (void)setUseStatusBarSpinner:(BOOL)useStatusBarSpinner {
-  objc_setAssociatedObject(self,
-                           &kUseStatusBarSpinnerAssociatedObjectKey,
-                           useStatusBarSpinner ? @(YES) : nil,
-                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, &kUseStatusBarSpinnerAssociatedObjectKey,
+                           useStatusBarSpinner ? @(YES) : nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (BOOL)useStatusBarSpinner {
@@ -96,30 +94,30 @@ static NSString *const kCancel = @"Cancel";
         [UIAlertController alertControllerWithTitle:title
                                             message:message
                                      preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *okAction =
-        [UIAlertAction actionWithTitle:kOK
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * _Nonnull action) {
-          if (completion) {
-            completion(YES, nil);
-          }
-        }];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:kOK
+                                                       style:UIAlertActionStyleDefault
+                                                     handler:^(UIAlertAction *_Nonnull action) {
+                                                       if (completion) {
+                                                         completion(YES, nil);
+                                                       }
+                                                     }];
     [alert addAction:okAction];
 
     if (showCancelButton) {
       UIAlertAction *cancelAction =
           [UIAlertAction actionWithTitle:kCancel
                                    style:UIAlertActionStyleCancel
-                                 handler:^(UIAlertAction * _Nonnull action) {
-            completion(NO, nil);
-          }];
+                                 handler:^(UIAlertAction *_Nonnull action) {
+                                   completion(NO, nil);
+                                 }];
       [alert addAction:cancelAction];
     }
     [self presentViewController:alert animated:YES completion:nil];
   } else {
-    UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
-                                                                   message:message
-                                                            preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *alert =
+        [UIAlertController alertControllerWithTitle:title
+                                            message:message
+                                     preferredStyle:UIAlertControllerStyleAlert];
     [self presentViewController:alert animated:YES completion:nil];
   }
 }
@@ -135,29 +133,29 @@ static NSString *const kCancel = @"Cancel";
                           keyboardType:(UIKeyboardType)keyboardType
                        completionBlock:(nonnull AlertPromptCompletionBlock)completion {
   if ([self supportsAlertController]) {
-      UIAlertController *prompt =
-          [UIAlertController alertControllerWithTitle:nil
-                                              message:message
-                                       preferredStyle:UIAlertControllerStyleAlert];
-      __weak UIAlertController *weakPrompt = prompt;
-      UIAlertAction *cancelAction =
-          [UIAlertAction actionWithTitle:kCancel
-                                   style:UIAlertActionStyleCancel
-                                 handler:^(UIAlertAction * _Nonnull action) {
-            completion(NO, nil);
-          }];
-      UIAlertAction *okAction = [UIAlertAction actionWithTitle:kOK
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^(UIAlertAction * _Nonnull action) {
-            UIAlertController *strongPrompt = weakPrompt;
-            completion(YES, strongPrompt.textFields[0].text);
-      }];
-      [prompt addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
-        textField.keyboardType = keyboardType;
-      }];
-      [prompt addAction:cancelAction];
-      [prompt addAction:okAction];
-      [self presentViewController:prompt animated:YES completion:nil];
+    UIAlertController *prompt =
+        [UIAlertController alertControllerWithTitle:nil
+                                            message:message
+                                     preferredStyle:UIAlertControllerStyleAlert];
+    __weak UIAlertController *weakPrompt = prompt;
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:kCancel
+                                                           style:UIAlertActionStyleCancel
+                                                         handler:^(UIAlertAction *_Nonnull action) {
+                                                           completion(NO, nil);
+                                                         }];
+    UIAlertAction *okAction =
+        [UIAlertAction actionWithTitle:kOK
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction *_Nonnull action) {
+                                 UIAlertController *strongPrompt = weakPrompt;
+                                 completion(YES, strongPrompt.textFields[0].text);
+                               }];
+    [prompt addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
+      textField.keyboardType = keyboardType;
+    }];
+    [prompt addAction:cancelAction];
+    [prompt addAction:okAction];
+    [self presentViewController:prompt animated:YES completion:nil];
   } else {
     SimpleTextPromptDelegate *prompt =
         [[SimpleTextPromptDelegate alloc] initWithCompletionHandler:completion];
@@ -172,75 +170,75 @@ static NSString *const kCancel = @"Cancel";
 }
 
 - (void)showQRCodePromptWithTextInput:(NSString *)message
-												 qrCodeString:(NSString *)qrCodeString
-											 completionBlock:(AlertPromptCompletionBlock)completion {
+                         qrCodeString:(NSString *)qrCodeString
+                      completionBlock:(AlertPromptCompletionBlock)completion {
+  // Create the QR code image from the provided string
+  NSData *qrCodeData = [qrCodeString dataUsingEncoding:NSUTF8StringEncoding];
+  CIFilter *qrCodeFilter = [CIFilter filterWithName:@"CIQRCodeGenerator"];
+  [qrCodeFilter setValue:qrCodeData forKey:@"inputMessage"];
+  CIImage *qrCodeImage = qrCodeFilter.outputImage;
 
-		// Create the QR code image from the provided string
-		NSData *qrCodeData = [qrCodeString dataUsingEncoding:NSUTF8StringEncoding];
-		CIFilter *qrCodeFilter = [CIFilter filterWithName:@"CIQRCodeGenerator"];
-		[qrCodeFilter setValue:qrCodeData forKey:@"inputMessage"];
-		CIImage *qrCodeImage = qrCodeFilter.outputImage;
+  // Scale the QR code image to an appropriate size
+  CGRect extent = qrCodeImage.extent;
+  CGFloat scale = MIN(240.0 / CGRectGetWidth(extent), 240.0 / CGRectGetHeight(extent));
+  CIImage *scaledImage =
+      [qrCodeImage imageByApplyingTransform:CGAffineTransformMakeScale(scale, scale)];
+  UIImage *qrCodeUIImage = [UIImage imageWithCIImage:scaledImage];
 
-		// Scale the QR code image to an appropriate size
-		CGRect extent = qrCodeImage.extent;
-		CGFloat scale = MIN(240.0 / CGRectGetWidth(extent), 240.0 / CGRectGetHeight(extent));
-		CIImage *scaledImage = [qrCodeImage imageByApplyingTransform:CGAffineTransformMakeScale(scale, scale)];
-		UIImage *qrCodeUIImage = [UIImage imageWithCIImage:scaledImage];
+  // Create the alert controller to display the QR code and text input
+  UIAlertController *prompt =
+      [UIAlertController alertControllerWithTitle:nil
+                                          message:@"\n\n\n\n\n\n\n\n\n\n"
+                                   preferredStyle:UIAlertControllerStyleAlert];
+  __weak UIAlertController *weakPrompt = prompt;
+  UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
+                                                         style:UIAlertActionStyleCancel
+                                                       handler:^(UIAlertAction *_Nonnull action) {
+                                                         completion(NO, nil);
+                                                       }];
+  UIAlertAction *okAction =
+      [UIAlertAction actionWithTitle:@"OK"
+                               style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction *_Nonnull action) {
+                               UIAlertController *strongPrompt = weakPrompt;
+                               completion(YES, strongPrompt.textFields[0].text);
+                             }];
+  [prompt addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
+    textField.placeholder = @"Enter OTP";
+  }];
+  [prompt addAction:cancelAction];
+  [prompt addAction:okAction];
 
-		// Create the alert controller to display the QR code and text input
-		UIAlertController *prompt = [UIAlertController alertControllerWithTitle:nil
-																																		message:@"\n\n\n\n\n\n\n\n\n\n"
-																														 preferredStyle:UIAlertControllerStyleAlert];
-		__weak UIAlertController *weakPrompt = prompt;
-		UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel"
-																													 style:UIAlertActionStyleCancel
-																												 handler:^(UIAlertAction * _Nonnull action) {
-				completion(NO, nil);
-		}];
-		UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK"
-																											 style:UIAlertActionStyleDefault
-																										 handler:^(UIAlertAction * _Nonnull action) {
-				UIAlertController *strongPrompt = weakPrompt;
-				completion(YES, strongPrompt.textFields[0].text);
-		}];
-		[prompt addTextFieldWithConfigurationHandler:^(UITextField *_Nonnull textField) {
-				textField.placeholder = @"Enter OTP";
-		}];
-		[prompt addAction:cancelAction];
-		[prompt addAction:okAction];
+  // Add the QR code image view to the alert controller
+  UIImageView *qrCodeImageView = [[UIImageView alloc] initWithImage:qrCodeUIImage];
+  qrCodeImageView.contentMode = UIViewContentModeScaleAspectFit;
+  qrCodeImageView.translatesAutoresizingMaskIntoConstraints = NO;
+  [prompt.view addSubview:qrCodeImageView];
+  [qrCodeImageView.centerXAnchor constraintEqualToAnchor:prompt.view.centerXAnchor].active = YES;
+  [qrCodeImageView.topAnchor constraintEqualToAnchor:prompt.view.topAnchor constant:10.0].active =
+      YES;
+  [qrCodeImageView.widthAnchor constraintEqualToConstant:240.0].active = YES;
+  [qrCodeImageView.heightAnchor constraintEqualToConstant:240.0].active = YES;
 
-		// Add the QR code image view to the alert controller
-		UIImageView *qrCodeImageView = [[UIImageView alloc] initWithImage:qrCodeUIImage];
-		qrCodeImageView.contentMode = UIViewContentModeScaleAspectFit;
-		qrCodeImageView.translatesAutoresizingMaskIntoConstraints = NO;
-		[prompt.view addSubview:qrCodeImageView];
-		[qrCodeImageView.centerXAnchor constraintEqualToAnchor:prompt.view.centerXAnchor].active = YES;
-		[qrCodeImageView.topAnchor constraintEqualToAnchor:prompt.view.topAnchor
-																								constant:10.0].active = YES;
-		[qrCodeImageView.widthAnchor constraintEqualToConstant:240.0].active = YES;
-		[qrCodeImageView.heightAnchor constraintEqualToConstant:240.0].active = YES;
+  // Add the message label to the alert controller
+  UILabel *messageLabel = [[UILabel alloc] init];
+  messageLabel.text = message;
+  messageLabel.textAlignment = NSTextAlignmentCenter;
+  messageLabel.numberOfLines = 0;
+  messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
+  [prompt.view addSubview:messageLabel];
+  [messageLabel.topAnchor constraintEqualToAnchor:qrCodeImageView.bottomAnchor constant:10.0]
+      .active = YES;
+  [messageLabel.leadingAnchor constraintEqualToAnchor:prompt.view.leadingAnchor constant:10.0]
+      .active = YES;
+  [messageLabel.trailingAnchor constraintEqualToAnchor:prompt.view.trailingAnchor constant:-10.0]
+      .active = YES;
 
-		// Add the message label to the alert controller
-		UILabel *messageLabel = [[UILabel alloc] init];
-		messageLabel.text = message;
-		messageLabel.textAlignment = NSTextAlignmentCenter;
-		messageLabel.numberOfLines = 0;
-		messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
-		[prompt.view addSubview:messageLabel];
-		[messageLabel.topAnchor constraintEqualToAnchor:qrCodeImageView.bottomAnchor
-																						 constant:10.0].active = YES;
-		[messageLabel.leadingAnchor constraintEqualToAnchor:prompt.view.leadingAnchor
-																								 constant:10.0].active = YES;
-		[messageLabel.trailingAnchor constraintEqualToAnchor:prompt.view.trailingAnchor
-																									constant:-10.0].active = YES;
-
-		// Present the alert controller
-		[self presentViewController:prompt animated:YES completion:nil];
+  // Present the alert controller
+  [self presentViewController:prompt animated:YES completion:nil];
 }
 
-
-
-- (void)showSpinner:(nullable void(^)(void))completion {
+- (void)showSpinner:(nullable void (^)(void))completion {
   if (self.useStatusBarSpinner) {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
     completion();
@@ -255,8 +253,7 @@ static NSString *const kCancel = @"Cancel";
 
 - (void)showModernSpinner:(nullable void (^)(void))completion {
   UIAlertController *pleaseWaitAlert =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
   if (pleaseWaitAlert) {
     if (completion) {
       completion();
@@ -267,30 +264,25 @@ static NSString *const kCancel = @"Cancel";
                                                         message:@"Please Wait...\n\n\n\n"
                                                  preferredStyle:UIAlertControllerStyleAlert];
 
-  UIActivityIndicatorView *spinner =
-      [[UIActivityIndicatorView alloc]
-          initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+  UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc]
+      initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
   spinner.color = [UIColor blackColor];
   spinner.center = CGPointMake(pleaseWaitAlert.view.bounds.size.width / 2,
-      pleaseWaitAlert.view.bounds.size.height / 2);
-  spinner.autoresizingMask = UIViewAutoresizingFlexibleBottomMargin |
-      UIViewAutoresizingFlexibleTopMargin |
-      UIViewAutoresizingFlexibleLeftMargin |
-      UIViewAutoresizingFlexibleRightMargin;
+                               pleaseWaitAlert.view.bounds.size.height / 2);
+  spinner.autoresizingMask =
+      UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin |
+      UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
   [spinner startAnimating];
   [pleaseWaitAlert.view addSubview:spinner];
 
-  objc_setAssociatedObject(self,
-      (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-      pleaseWaitAlert,
-      OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
+                           pleaseWaitAlert, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   [self presentViewController:pleaseWaitAlert animated:YES completion:completion];
 }
 
 - (void)showIOS7Spinner:(nullable void (^)(void))completion {
   UIWindow *pleaseWaitWindow =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
 
   if (pleaseWaitWindow) {
     if (completion) {
@@ -304,12 +296,11 @@ static NSString *const kCancel = @"Cancel";
   pleaseWaitWindow.windowLevel = UIWindowLevelStatusBar - 1;
 
   UIView *pleaseWaitView = [[UIView alloc] initWithFrame:pleaseWaitWindow.bounds];
-  pleaseWaitView.autoresizingMask = UIViewAutoresizingFlexibleWidth |
-      UIViewAutoresizingFlexibleHeight;
+  pleaseWaitView.autoresizingMask =
+      UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
   pleaseWaitView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.5];
-  UIActivityIndicatorView *spinner =
-      [[UIActivityIndicatorView alloc]
-          initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+  UIActivityIndicatorView *spinner = [[UIActivityIndicatorView alloc]
+      initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
   spinner.center = pleaseWaitView.center;
   [pleaseWaitView addSubview:spinner];
   [spinner startAnimating];
@@ -321,21 +312,21 @@ static NSString *const kCancel = @"Cancel";
 
   [pleaseWaitWindow makeKeyAndVisible];
 
-  objc_setAssociatedObject(self,
-      (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-      pleaseWaitWindow,
-      OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
+                           pleaseWaitWindow, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 
-  [UIView animateWithDuration:0.5f animations:^{
-    pleaseWaitView.layer.opacity = 1.0f;
-  } completion:^(BOOL finished) {
-    if (completion) {
-      completion();
-    }
-  }];
+  [UIView animateWithDuration:0.5f
+      animations:^{
+        pleaseWaitView.layer.opacity = 1.0f;
+      }
+      completion:^(BOOL finished) {
+        if (completion) {
+          completion();
+        }
+      }];
 }
 
-- (void)hideSpinner:(nullable void(^)(void))completion {
+- (void)hideSpinner:(nullable void (^)(void))completion {
   if (self.useStatusBarSpinner) {
     [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
     completion();
@@ -348,39 +339,35 @@ static NSString *const kCancel = @"Cancel";
   }
 }
 
-- (void)hideModernSpinner:(nullable void(^)(void))completion {
+- (void)hideModernSpinner:(nullable void (^)(void))completion {
   UIAlertController *pleaseWaitAlert =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
 
   [pleaseWaitAlert dismissViewControllerAnimated:YES completion:completion];
 
-  objc_setAssociatedObject(self,
-      (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-      nil,
-      OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey), nil,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (void)hideIOS7Spinner:(nullable void(^)(void))completion {
+- (void)hideIOS7Spinner:(nullable void (^)(void))completion {
   UIWindow *pleaseWaitWindow =
-      objc_getAssociatedObject(self,
-                               (__bridge const void *)kPleaseWaitAssociatedObjectKey);
+      objc_getAssociatedObject(self, (__bridge const void *)kPleaseWaitAssociatedObjectKey);
 
   UIView *pleaseWaitView;
   pleaseWaitView = pleaseWaitWindow.subviews.firstObject;
 
-  [UIView animateWithDuration:0.5f animations:^{
-    pleaseWaitView.layer.opacity = 0.0f;
-  } completion:^(BOOL finished) {
-    [pleaseWaitWindow resignKeyWindow];
-    objc_setAssociatedObject(self,
-        (__bridge const void *)(kPleaseWaitAssociatedObjectKey),
-        nil,
-        OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    if (completion) {
-      completion();
-    }
-  }];
+  [UIView animateWithDuration:0.5f
+      animations:^{
+        pleaseWaitView.layer.opacity = 0.0f;
+      }
+      completion:^(BOOL finished) {
+        [pleaseWaitWindow resignKeyWindow];
+        objc_setAssociatedObject(self, (__bridge const void *)(kPleaseWaitAssociatedObjectKey), nil,
+                                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        if (completion) {
+          completion();
+        }
+      }];
 }
 
 @end

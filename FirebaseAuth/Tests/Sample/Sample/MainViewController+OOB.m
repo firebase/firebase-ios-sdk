@@ -25,26 +25,45 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (StaticContentTableViewSection *)oobSection {
   __weak typeof(self) weakSelf = self;
-  return [StaticContentTableViewSection sectionWithTitle:@"OOB" cells:@[
-    [StaticContentTableViewCell cellWithTitle:@"Action Type"
-                                        value:[self actionCodeRequestTypeString]
-                                       action:^{ [weakSelf toggleActionCodeRequestType]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Continue URL"
-                                        value:self.actionCodeContinueURL.absoluteString ?: @"(nil)"
-                                       action:^{ [weakSelf changeActionCodeContinueURL]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Request Verify Email"
-                                       action:^{ [weakSelf requestVerifyEmail]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Request Password Reset"
-                                       action:^{ [weakSelf requestPasswordReset]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Reset Password"
-                                       action:^{ [weakSelf resetPassword]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Check Action Code"
-                                       action:^{ [weakSelf checkActionCode]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Apply Action Code"
-                                       action:^{ [weakSelf applyActionCode]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Verify Password Reset Code"
-                                       action:^{ [weakSelf verifyPasswordResetCode]; }],
-    ]];
+  return [StaticContentTableViewSection
+      sectionWithTitle:@"OOB"
+                 cells:@[
+                   [StaticContentTableViewCell cellWithTitle:@"Action Type"
+                                                       value:[self actionCodeRequestTypeString]
+                                                      action:^{
+                                                        [weakSelf toggleActionCodeRequestType];
+                                                      }],
+                   [StaticContentTableViewCell
+                       cellWithTitle:@"Continue URL"
+                               value:self.actionCodeContinueURL.absoluteString ?: @"(nil)"
+                              action:^{
+                                [weakSelf changeActionCodeContinueURL];
+                              }],
+                   [StaticContentTableViewCell cellWithTitle:@"Request Verify Email"
+                                                      action:^{
+                                                        [weakSelf requestVerifyEmail];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Request Password Reset"
+                                                      action:^{
+                                                        [weakSelf requestPasswordReset];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Reset Password"
+                                                      action:^{
+                                                        [weakSelf resetPassword];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Check Action Code"
+                                                      action:^{
+                                                        [weakSelf checkActionCode];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Apply Action Code"
+                                                      action:^{
+                                                        [weakSelf applyActionCode];
+                                                      }],
+                   [StaticContentTableViewCell cellWithTitle:@"Verify Password Reset Code"
+                                                      action:^{
+                                                        [weakSelf verifyPasswordResetCode];
+                                                      }],
+                 ]];
 }
 
 - (void)toggleActionCodeRequestType {
@@ -95,11 +114,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)changeActionCodeContinueURL {
   [self showTextInputPromptWithMessage:@"Continue URL"
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-   if (userPressedOK) {
-     self.actionCodeContinueURL = userInput.length ? [NSURL URLWithString:userInput] : nil;
-     [self updateTable];
-   }
- }];
+                         if (userPressedOK) {
+                           self.actionCodeContinueURL =
+                               userInput.length ? [NSURL URLWithString:userInput] : nil;
+                           [self updateTable];
+                         }
+                       }];
 }
 
 - (void)requestVerifyEmail {
@@ -129,143 +149,176 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)requestPasswordReset {
   [self showTextInputPromptWithMessage:@"Email:"
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-     if (!userPressedOK || !userInput.length) {
-       return;
-     }
-     [self showSpinner:^{
-       void (^requestPasswordReset)(void (^)(NSError *)) = ^(void (^completion)(NSError *)) {
-         if (self.actionCodeRequestType == ActionCodeRequestTypeEmail) {
-           [[AppManager auth] sendPasswordResetWithEmail:userInput completion:completion];
-         } else {
-           [[AppManager auth] sendPasswordResetWithEmail:userInput
-                                      actionCodeSettings:[self actionCodeSettings]
-                                              completion:completion];
-         }
-       };
-       requestPasswordReset(^(NSError *_Nullable error) {
-         [self hideSpinner:^{
-           if (error) {
-             [self logFailure:@"request password reset failed" error:error];
-             [self showMessagePrompt:error.localizedDescription];
-             return;
-           }
-           [self logSuccess:@"request password reset succeeded."];
-           [self showMessagePrompt:@"Sent"];
-         }];
-       });
-     }];
-   }];
+                         if (!userPressedOK || !userInput.length) {
+                           return;
+                         }
+                         [self showSpinner:^{
+                           void (^requestPasswordReset)(void (^)(NSError *)) =
+                               ^(void (^completion)(NSError *)) {
+                                 if (self.actionCodeRequestType == ActionCodeRequestTypeEmail) {
+                                   [[AppManager auth] sendPasswordResetWithEmail:userInput
+                                                                      completion:completion];
+                                 } else {
+                                   [[AppManager auth]
+                                       sendPasswordResetWithEmail:userInput
+                                               actionCodeSettings:[self actionCodeSettings]
+                                                       completion:completion];
+                                 }
+                               };
+                           requestPasswordReset(^(NSError *_Nullable error) {
+                             [self hideSpinner:^{
+                               if (error) {
+                                 [self logFailure:@"request password reset failed" error:error];
+                                 [self showMessagePrompt:error.localizedDescription];
+                                 return;
+                               }
+                               [self logSuccess:@"request password reset succeeded."];
+                               [self showMessagePrompt:@"Sent"];
+                             }];
+                           });
+                         }];
+                       }];
 }
 
 - (void)resetPassword {
-  [self showTextInputPromptWithMessage:@"OOB Code:"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-   if (!userPressedOK || !userInput.length) {
-     return;
-   }
-   NSString *code =  userInput;
-   [self showTextInputPromptWithMessage:@"New Password:"
-                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-    if (!userPressedOK || !userInput.length) {
-      return;
-    }
+  [self
+      showTextInputPromptWithMessage:@"OOB Code:"
+                     completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+                       if (!userPressedOK || !userInput.length) {
+                         return;
+                       }
+                       NSString *code = userInput;
+                       [self
+                           showTextInputPromptWithMessage:@"New Password:"
+                                          completionBlock:^(BOOL userPressedOK,
+                                                            NSString *_Nullable userInput) {
+                                            if (!userPressedOK || !userInput.length) {
+                                              return;
+                                            }
 
-    [self showSpinner:^{
-      [[AppManager auth] confirmPasswordResetWithCode:code
-                                          newPassword:userInput
-                                           completion:^(NSError *_Nullable error) {
-       [self hideSpinner:^{
-         if (error) {
-           [self logFailure:@"Password reset failed" error:error];
-           [self showMessagePrompt:error.localizedDescription];
-           return;
-         }
-         [self logSuccess:@"Password reset succeeded."];
-         [self showMessagePrompt:@"Password reset succeeded."];
-       }];
-     }];
-    }];
-  }];
- }];
+                                            [self showSpinner:^{
+                                              [[AppManager auth]
+                                                  confirmPasswordResetWithCode:code
+                                                                   newPassword:userInput
+                                                                    completion:^(
+                                                                        NSError *_Nullable error) {
+                                                                      [self hideSpinner:^{
+                                                                        if (error) {
+                                                                          [self logFailure:
+                                                                                    @"Password "
+                                                                                    @"reset failed"
+                                                                                     error:error];
+                                                                          [self
+                                                                              showMessagePrompt:
+                                                                                  error
+                                                                                      .localizedDescription];
+                                                                          return;
+                                                                        }
+                                                                        [self logSuccess:
+                                                                                  @"Password reset "
+                                                                                  @"succeeded."];
+                                                                        [self showMessagePrompt:
+                                                                                  @"Password reset "
+                                                                                  @"succeeded."];
+                                                                      }];
+                                                                    }];
+                                            }];
+                                          }];
+                     }];
 }
 
 - (void)checkActionCode {
   [self showTextInputPromptWithMessage:@"OOB Code:"
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-   if (!userPressedOK || !userInput.length) {
-     return;
-   }
-   [self showSpinner:^{
-     [[AppManager auth] checkActionCode:userInput completion:^(FIRActionCodeInfo *_Nullable info,
-                                                               NSError *_Nullable error) {
-       [self hideSpinner:^{
-         if (error) {
-           [self logFailure:@"Check action code failed" error:error];
-           [self showMessagePrompt:error.localizedDescription];
-           return;
-         }
-         [self logSuccess:@"Check action code succeeded."];
-         NSString *email = info.email;
-         NSString *previousEmail = info.previousEmail;
-         NSString *message =
-             previousEmail ? [NSString stringWithFormat:@"%@ -> %@", previousEmail, email] : email;
-         NSString *operation = [self nameForActionCodeOperation:info.operation];
-         [self showMessagePromptWithTitle:operation
-                                  message:message
-                         showCancelButton:NO
-                               completion:nil];
-       }];
-     }];
-   }];
- }];
+                         if (!userPressedOK || !userInput.length) {
+                           return;
+                         }
+                         [self showSpinner:^{
+                           [[AppManager auth]
+                               checkActionCode:userInput
+                                    completion:^(FIRActionCodeInfo *_Nullable info,
+                                                 NSError *_Nullable error) {
+                                      [self hideSpinner:^{
+                                        if (error) {
+                                          [self logFailure:@"Check action code failed" error:error];
+                                          [self showMessagePrompt:error.localizedDescription];
+                                          return;
+                                        }
+                                        [self logSuccess:@"Check action code succeeded."];
+                                        NSString *email = info.email;
+                                        NSString *previousEmail = info.previousEmail;
+                                        NSString *message =
+                                            previousEmail
+                                                ? [NSString stringWithFormat:@"%@ -> %@",
+                                                                             previousEmail, email]
+                                                : email;
+                                        NSString *operation =
+                                            [self nameForActionCodeOperation:info.operation];
+                                        [self showMessagePromptWithTitle:operation
+                                                                 message:message
+                                                        showCancelButton:NO
+                                                              completion:nil];
+                                      }];
+                                    }];
+                         }];
+                       }];
 }
 
 - (void)applyActionCode {
-  [self showTextInputPromptWithMessage:@"OOB Code:"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-   if (!userPressedOK || !userInput.length) {
-     return;
-   }
-   [self showSpinner:^{
-
-     [[AppManager auth] applyActionCode:userInput completion:^(NSError *_Nullable error) {
-       [self hideSpinner:^{
-         if (error) {
-           [self logFailure:@"Apply action code failed" error:error];
-           [self showMessagePrompt:error.localizedDescription];
-           return;
-         }
-         [self logSuccess:@"Apply action code succeeded."];
-         [self showMessagePrompt:@"Action code was properly applied."];
-       }];
-     }];
-   }];
- }];
+  [self
+      showTextInputPromptWithMessage:@"OOB Code:"
+                     completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+                       if (!userPressedOK || !userInput.length) {
+                         return;
+                       }
+                       [self showSpinner:^{
+                         [[AppManager auth]
+                             applyActionCode:userInput
+                                  completion:^(NSError *_Nullable error) {
+                                    [self hideSpinner:^{
+                                      if (error) {
+                                        [self logFailure:@"Apply action code failed" error:error];
+                                        [self showMessagePrompt:error.localizedDescription];
+                                        return;
+                                      }
+                                      [self logSuccess:@"Apply action code succeeded."];
+                                      [self showMessagePrompt:@"Action code was properly applied."];
+                                    }];
+                                  }];
+                       }];
+                     }];
 }
 
 - (void)verifyPasswordResetCode {
-  [self showTextInputPromptWithMessage:@"OOB Code:"
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
-   if (!userPressedOK || !userInput.length) {
-     return;
-   }
-   [self showSpinner:^{
-     [[AppManager auth] verifyPasswordResetCode:userInput completion:^(NSString *_Nullable email,
-                                                                       NSError *_Nullable error) {
-       [self hideSpinner:^{
-         if (error) {
-           [self logFailure:@"Verify password reset code failed" error:error];
-           [self showMessagePrompt:error.localizedDescription];
-           return;
-         }
-         [self logSuccess:@"Verify password resest code succeeded."];
-         NSString *alertMessage =
-         [[NSString alloc] initWithFormat:@"Code verified for email: %@", email];
-         [self showMessagePrompt:alertMessage];
-       }];
-     }];
-   }];
- }];
+  [self
+      showTextInputPromptWithMessage:@"OOB Code:"
+                     completionBlock:^(BOOL userPressedOK, NSString *_Nullable userInput) {
+                       if (!userPressedOK || !userInput.length) {
+                         return;
+                       }
+                       [self showSpinner:^{
+                         [[AppManager auth]
+                             verifyPasswordResetCode:userInput
+                                          completion:^(NSString *_Nullable email,
+                                                       NSError *_Nullable error) {
+                                            [self hideSpinner:^{
+                                              if (error) {
+                                                [self
+                                                    logFailure:@"Verify password reset code failed"
+                                                         error:error];
+                                                [self showMessagePrompt:error.localizedDescription];
+                                                return;
+                                              }
+                                              [self logSuccess:
+                                                        @"Verify password resest code succeeded."];
+                                              NSString *alertMessage = [[NSString alloc]
+                                                  initWithFormat:@"Code verified for email: %@",
+                                                                 email];
+                                              [self showMessagePrompt:alertMessage];
+                                            }];
+                                          }];
+                       }];
+                     }];
 }
 
 @end

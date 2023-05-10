@@ -75,27 +75,27 @@ typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullab
                        completionBlock:(AlertPromptCompletionBlock)completion;
 
 /*! @fn showQRCodePromptWithTextInput:message:qrCodeString:completionBlock:
-		@brief Shows a prompt with a QR code image, text message, text field for input, and 'OK'/'Cancel' buttons.
-		@param message The message to display.
-		@param qrCodeString The string to encode as a QR code and display as an image.
-		@param completion A block to call when the user taps 'OK' or 'Cancel'.
+                @brief Shows a prompt with a QR code image, text message, text field for input, and
+   'OK'/'Cancel' buttons.
+                @param message The message to display.
+                @param qrCodeString The string to encode as a QR code and display as an image.
+                @param completion A block to call when the user taps 'OK' or 'Cancel'.
  */
 - (void)showQRCodePromptWithTextInput:(NSString *)message
-													qrCodeString:(NSString *)qrCodeString
-											 completionBlock:(AlertPromptCompletionBlock)completion;
-
+                         qrCodeString:(NSString *)qrCodeString
+                      completionBlock:(AlertPromptCompletionBlock)completion;
 
 /*! @fn showSpinner
     @brief Shows the please wait spinner.
     @param completion Called after the spinner has been hidden.
  */
-- (void)showSpinner:(nullable void(^)(void))completion;
+- (void)showSpinner:(nullable void (^)(void))completion;
 
 /*! @fn hideSpinner
     @brief Hides the please wait spinner.
     @param completion Called after the spinner has been hidden.
  */
-- (void)hideSpinner:(nullable void(^)(void))completion;
+- (void)hideSpinner:(nullable void (^)(void))completion;
 
 @end
 

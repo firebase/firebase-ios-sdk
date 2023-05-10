@@ -54,7 +54,9 @@ static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
   return _contents.sections[section].title;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index {
+- (NSInteger)tableView:(UITableView *)tableView
+    sectionForSectionIndexTitle:(NSString *)title
+                        atIndex:(NSInteger)index {
   return index;
 }
 
@@ -159,15 +161,10 @@ static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
 @implementation StaticContentTableViewCell
 
 + (nullable instancetype)cellWithTitle:(nullable NSString *)title {
-  return [[self alloc] initWithCustomCell:nil
-                                    title:title
-                                    value:nil
-                                   action:nil
-                          accessibilityID:nil];
+  return [[self alloc] initWithCustomCell:nil title:title value:nil action:nil accessibilityID:nil];
 }
 
-+ (nullable instancetype)cellWithTitle:(nullable NSString *)title
-                                 value:(nullable NSString *)value {
++ (nullable instancetype)cellWithTitle:(nullable NSString *)title value:(nullable NSString *)value {
   return [[self alloc] initWithCustomCell:nil
                                     title:title
                                     value:value
@@ -198,11 +195,11 @@ static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
                                  value:(nullable NSString *)value
                                 action:(nullable StaticContentTableViewCellAction)action
                        accessibilityID:(nullable NSString *)accessibilityID {
-      return [[self alloc] initWithCustomCell:nil
-                                        title:title
-                                        value:value
-                                       action:action
-                              accessibilityID:accessibilityID];
+  return [[self alloc] initWithCustomCell:nil
+                                    title:title
+                                    value:value
+                                   action:action
+                          accessibilityID:accessibilityID];
 }
 
 + (nullable instancetype)cellWithCustomCell:(nullable UITableViewCell *)customCell {
@@ -217,7 +214,8 @@ static NSString *const kValueCellReuseIdentitfier = @"reuseValueIdentifier";
                                      action:(nullable StaticContentTableViewCellAction)action {
   return [[self alloc] initWithCustomCell:customCell
                                     title:nil
-                                    value:nil action:action
+                                    value:nil
+                                   action:action
                           accessibilityID:nil];
 }
 
