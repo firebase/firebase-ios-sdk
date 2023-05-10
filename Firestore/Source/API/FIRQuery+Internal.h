@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRAggregateField.h"
 #import "FIRQuery.h"
 
 #include <memory>

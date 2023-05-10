@@ -16,6 +16,7 @@
 
 #import "FIRAggregateQuerySnapshot.h"
 
+#import "FIRAggregateField.h"
 #import "FIRDocumentSnapshot.h"
 
 #include "Firestore/core/src/api/api_fwd.h"

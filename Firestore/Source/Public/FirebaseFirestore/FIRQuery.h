@@ -25,7 +25,6 @@
 @class FIRFilter;
 @class FIRQuerySnapshot;
 @class FIRDocumentSnapshot;
-@class FIRAggregateField;
 
 NS_ASSUME_NONNULL_BEGIN
 

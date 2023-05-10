@@ -19,7 +19,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRAggregateQuery;
-@class FIRAggregateField;
 
 /**
  * The results of executing an `AggregateQuery`.

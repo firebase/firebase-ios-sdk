@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-// TODO(sum/avg) uncomment the following header import when sum and average are public
-// #import "FIRAggregateField.h"
 #import "FIRAggregateQuery.h"
 #import "FIRAggregateQuerySnapshot.h"
 #import "FIRAggregateSource.h"
