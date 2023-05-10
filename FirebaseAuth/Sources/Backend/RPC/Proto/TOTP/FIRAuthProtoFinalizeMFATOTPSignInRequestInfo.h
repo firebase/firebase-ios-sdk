@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#import "FIRMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProto.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class TOTPMultiFactorAssertion
-    @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
-   (Time-based One Time Password). second factor.
-    This class is available on iOS only.
-*/
-NS_SWIFT_NAME(TOTPMultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
-    @interface FIRTOTPMultiFactorAssertion : FIRMultiFactorAssertion
+@interface FIRAuthProtoFinalizeMFATOTPSignInRequestInfo : NSObject <FIRAuthProto>
 
+@property(nonatomic, strong, readonly, nullable) NSString *mfaEnrollmentID;
+
+@property(nonatomic, strong, readonly, nullable) NSString *verificationCode;
+
+- (instancetype)initWithMfaEnrollmentID:(NSString *)mfaEnrollmentID
+                       verificationCode:(NSString *)verificationCode;
 @end
 
 NS_ASSUME_NONNULL_END

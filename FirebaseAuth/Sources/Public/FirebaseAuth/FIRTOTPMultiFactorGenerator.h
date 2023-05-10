@@ -17,16 +17,18 @@
 #import <Foundation/Foundation.h>
 #import "FIRMultiFactorSession.h"
 #import "FIRTOTPSecret.h"
+#import "FIRTOTPMultiFactorAssertion.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class TOTPMultiFactorGenerator
-                @brief The data structure used to help initialize an assertion for a second factor
-   entity to the Firebase Auth/GCIP server. Depending on the type of second factor, this will help
-   generate the assertion.
+/** @class FIRTOTPMultiFactorGenerator
+    @brief The data structure used to help initialize an assertion for a second factor entity to the
+        Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
+        the assertion.
+        This class is available on iOS only.
 */
 NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
-@interface FIRTOTPMultiFactorGenerator : NSObject
+    @interface FIRTOTPMultiFactorGenerator : NSObject
 
 /** @fn generateSecretWithMultiFactorSession
                 @brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for
@@ -52,11 +54,12 @@ NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
                               completion:(void (^)(FIRTOTPMultiFactorAssertion *_Nullable,
                                                    NSError *_Nullable))completion;
 
+
 /** @fn assertionForSignInWithenrollmentID:
-                @brief Initializes the MFA assertion to confirm ownership of the totp second factor.
-   This assertion is used to complete signIn with TOTP as a second factor.
-                @param enrollmentID The id that identifies the enrolled TOTP second factor.
-                @param oneTimePassword one time password string.
+    @brief Initializes the MFA assertion to confirm ownership of the totp second factor. This
+   assertion is used to complete signIn with TOTP as a second factor.
+    @param enrollmentID The id that identifies the enrolled TOTP second factor.
+    @param oneTimePassword one time password string.
 */
 + (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
                                                     oneTimePassword:(NSString *)oneTimePassword;
