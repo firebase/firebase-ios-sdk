@@ -38,9 +38,11 @@
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 
+static NSString *const kAppName = @"GACAppCheckStorageTestsApp";
+static NSString *const kGoogleAppID = @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa";
+
 @interface GACAppCheckStorageTests : XCTestCase
-@property(nonatomic) NSString *appName;
-@property(nonatomic) NSString *appID;
+@property(nonatomic) NSString *tokenKey;
 @property(nonatomic) GACAppCheckStorage *storage;
 @end
 
@@ -49,11 +51,8 @@
 - (void)setUp {
   [super setUp];
 
-  self.appName = @"GACAppCheckStorageTestsApp";
-  self.appID = @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa";
-  self.storage = [[GACAppCheckStorage alloc] initWithAppName:self.appName
-                                                       appID:self.appID
-                                                 accessGroup:nil];
+  self.tokenKey = [self tokenKeyWithGoogleAppID:kGoogleAppID];
+  self.storage = [[GACAppCheckStorage alloc] initWithTokenKey:self.tokenKey accessGroup:nil];
 }
 
 - (void)tearDown {
@@ -94,10 +93,9 @@
 - (void)testGetToken_KeychainError {
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
-  GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithAppName:self.appName
-                                                                      appID:self.appID
-                                                            keychainStorage:mockKeychainStorage
-                                                                accessGroup:nil];
+  GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithTokenKey:self.tokenKey
+                                                             keychainStorage:mockKeychainStorage
+                                                                 accessGroup:nil];
   // 2. Create and expect keychain error.
   NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
   OCMExpect([mockKeychainStorage getObjectForKey:[OCMArg any]
@@ -119,10 +117,9 @@
 - (void)testSetToken_KeychainError {
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
-  GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithAppName:self.appName
-                                                                      appID:self.appID
-                                                            keychainStorage:mockKeychainStorage
-                                                                accessGroup:nil];
+  GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithTokenKey:self.tokenKey
+                                                             keychainStorage:mockKeychainStorage
+                                                                 accessGroup:nil];
 
   // 2. Create and expect keychain error.
   NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
@@ -148,10 +145,9 @@
 - (void)testRemoveToken_KeychainError {
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
-  GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithAppName:self.appName
-                                                                      appID:self.appID
-                                                            keychainStorage:mockKeychainStorage
-                                                                accessGroup:nil];
+  GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithTokenKey:self.tokenKey
+                                                             keychainStorage:mockKeychainStorage
+                                                                 accessGroup:nil];
 
   // 2. Create and expect keychain error.
   NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
@@ -181,14 +177,20 @@
   XCTAssertNil(setPromise.error);
 
   // 2. Try to read the token with another storage.
-  GACAppCheckStorage *storage2 =
-      [[GACAppCheckStorage alloc] initWithAppName:self.appName
-                                            appID:@"1:200000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
-                                      accessGroup:nil];
+  NSString *tokenKey =
+      [self tokenKeyWithGoogleAppID:@"1:200000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"];
+  GACAppCheckStorage *storage2 = [[GACAppCheckStorage alloc] initWithTokenKey:tokenKey
+                                                                  accessGroup:nil];
   __auto_type getPromise = [storage2 getToken];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertNil(getPromise.value);
   XCTAssertNil(getPromise.error);
+}
+
+#pragma mark - Private Helpers
+
+- (NSString *)tokenKeyWithGoogleAppID:(NSString *)googleAppID {
+  return [NSString stringWithFormat:@"app_check_token.%@.%@", kAppName, googleAppID];
 }
 
 @end

@@ -33,8 +33,7 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
 
 @interface GACAppCheckStorage ()
 
-@property(nonatomic, readonly) NSString *appName;
-@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) NSString *tokenKey;
 @property(nonatomic, readonly) GULKeychainStorage *keychainStorage;
 @property(nonatomic, readonly, nullable) NSString *accessGroup;
 
@@ -42,29 +41,22 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
 
 @implementation GACAppCheckStorage
 
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                keychainStorage:(GULKeychainStorage *)keychainStorage
-                    accessGroup:(nullable NSString *)accessGroup {
+- (instancetype)initWithTokenKey:(NSString *)tokenKey
+                 keychainStorage:(GULKeychainStorage *)keychainStorage
+                     accessGroup:(nullable NSString *)accessGroup {
   self = [super init];
   if (self) {
-    _appName = [appName copy];
-    _appID = [appID copy];
+    _tokenKey = [tokenKey copy];
     _keychainStorage = keychainStorage;
     _accessGroup = [accessGroup copy];
   }
   return self;
 }
 
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                    accessGroup:(nullable NSString *)accessGroup {
+- (instancetype)initWithTokenKey:(NSString *)tokenKey accessGroup:(nullable NSString *)accessGroup {
   GULKeychainStorage *keychainStorage =
       [[GULKeychainStorage alloc] initWithService:kKeychainService];
-  return [self initWithAppName:appName
-                         appID:appID
-               keychainStorage:keychainStorage
-                   accessGroup:accessGroup];
+  return [self initWithTokenKey:tokenKey keychainStorage:keychainStorage accessGroup:accessGroup];
 }
 
 - (FBLPromise<GACAppCheckToken *> *)getToken {
@@ -110,14 +102,6 @@ static NSString *const kKeychainService = @"com.firebase.app_check.token_storage
       .then(^id _Nullable(NSNull *_Nullable value) {
         return token;
       });
-}
-
-- (NSString *)tokenKey {
-  return [[self class] tokenKeyForAppName:self.appName appID:self.appID];
-}
-
-+ (NSString *)tokenKeyForAppName:(NSString *)appName appID:(NSString *)appID {
-  return [NSString stringWithFormat:@"app_check_token.%@.%@", appName, appID];
 }
 
 @end
