@@ -73,7 +73,6 @@ NS_ASSUME_NONNULL_BEGIN
   NSString *urlString = [NSString
       stringWithFormat:@"otpauth://totp/%@:%@?secret=%@&issuer=%@&algorithm=%@&digits=%ld", issuer,
                        accountName, self.secretKey, issuer, self.hashingAlgorithm, self.codeLength];
-  printf(@"%s", [NSString stringWithFormat:@"urlstring look s like = %@", urlString]);
   return urlString;
 }
 
