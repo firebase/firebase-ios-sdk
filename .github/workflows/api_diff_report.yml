@@ -7,11 +7,11 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  STAGE_PROGRESS: "progress"
-  STAGE_END: "end"
-  PR_API_OUTPUT: "$GITHUB_WORKSPACE/pr_branch_output"
-  BASE_API_OUTPUT: "$GITHUB_WORKSPACE/base_branch_output"
-  DIFF_REPORT_OUTPUT: "$GITHUB_WORKSPACE/diff_report_output"
+  STAGE_PROGRESS: progress
+  STAGE_END: end
+  PR_API_OUTPUT: ci_outputs/pr_branch_api
+  BASE_API_OUTPUT: ci_outputs/base_branch_api
+  DIFF_REPORT_OUTPUT: ci_outputs/diff_report
 
 jobs:
   diff_report:
@@ -26,6 +26,11 @@ jobs:
       - name: Copy diff report tools
         run: cp -a scripts/api_diff_report/. ~/api_diff_report
 
+      - id: get_changed_files
+        name: Get changed file list
+        run: |
+          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
       - name: Setup python
         uses: actions/setup-python@v4
         with:
@@ -36,31 +41,41 @@ jobs:
 
       - name: Clean Diff Report Comment in PR
         run: |
-          python ~/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_PROGRESS }} \
+          python ~/api_diff_report/pr_commenter.py \
+            --stage ${{ env.STAGE_PROGRESS }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
             --commit $GITHUB_SHA \
             --run_id ${{github.run_id}}
 
-      - id: get_changed_files
-        name: Get changed file list
-        run: echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
-
       - name: Generate API files for PR branch
-        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.PR_API_OUTPUT }} -t "~/api_diff_report/theme"
+        run: |
+          python ~/api_diff_report/api_info.py \
+            --file_list ${{ steps.get_changed_files.outputs.file_list }} \
+            --output_dir ${{ env.PR_API_OUTPUT }} \
+            --api_theme_dir ~/api_diff_report/theme
 
       - name: Checkout Base branch
         run: git checkout HEAD^
 
       - name: Generate API files for Base branch
-        run: python ~/api_diff_report/api_info.py -f ${{ steps.get_changed_files.outputs.file_list }} -o ${{ env.BASE_API_OUTPUT }} -t "~/api_diff_report/theme"
+        run: |
+          python ~/api_diff_report/api_info.py \
+            --file_list ${{ steps.get_changed_files.outputs.file_list }} \
+            --output_dir ${{ env.BASE_API_OUTPUT }} \
+            --api_theme_dir ~/api_diff_report/theme
 
       - name: Generate API Diff Report
-        run: python ~/api_diff_report/api_diff_report.py -p ${{ env.PR_API_OUTPUT }} -b ${{ env.BASE_API_OUTPUT }} -o ${{ env.DIFF_REPORT_OUTPUT }}
+        run: |
+          python ~/api_diff_report/api_diff_report.py \
+            --pr_branch ${{ env.PR_API_OUTPUT }} \
+            --base_branch ${{ env.BASE_API_OUTPUT }} \
+            --output_dir ${{ env.DIFF_REPORT_OUTPUT }}
 
       - name: Update Diff Report Comment in PR
         run: |
-          python ~/api_diff_report/pr_commenter.py --stage ${{ env.STAGE_END }} \
+          python ~/api_diff_report/pr_commenter.py \
+            --stage ${{ env.STAGE_END }} \
             --report ${{ env.DIFF_REPORT_OUTPUT }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
@@ -70,9 +85,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: ${{ !cancelled() }}
         with:
-          name: api_info
-          path: |
-            ${{ env.PR_API_OUTPUT }}
-            ${{ env.BASE_API_OUTPUT }}
-            ${{ env.DIFF_REPORT_OUTPUT }}
+          name: api_info_and_report
+          path: ci_outputs
           retention-days: 1
