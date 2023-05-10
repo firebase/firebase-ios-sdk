@@ -89,7 +89,10 @@ import Foundation
           user.auth?.completeSignIn(withAccessToken: response.idToken,
                                     accessTokenExpirationDate: nil,
                                     refreshToken: response.refreshToken,
-                                    anonymous: false) { user, error in
+                                    anonymous: false) { _, error in
+            if error != nil {
+              try? user.auth?.signOut()
+            }
             if let completion {
               completion(error)
             }

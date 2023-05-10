@@ -21,6 +21,9 @@
 #import "MainViewController+Internal.h"
 @import FirebaseAuth;
 
+typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
+                                          NSError *_Nullable error);
+
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation MainViewController (Google)
