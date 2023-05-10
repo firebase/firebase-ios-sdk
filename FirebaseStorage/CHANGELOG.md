@@ -1,3 +1,6 @@
+# 10.10.0
+- [fixed] Fixed potential memory leak of Storage instances. (#11248)
+
 # 10.7.0
 - [added] Provide server errors via the `NSUnderlyingErrorKey`.
 
