@@ -14,7 +14,7 @@
 
 #import "AppCheck/Tests/Unit/Utils/GACFixtureLoader.h"
 
-@implementation FIRFixtureLoader
+@implementation GACFixtureLoader
 
 + (NSData *)loadFixtureNamed:(NSString *)fileName {
   NSURL *fileURL;
