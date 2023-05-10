@@ -40,7 +40,7 @@
 
 // Since DeviceCheck is the default attestation provider for AppCheck, disable
 // test cases that may be dependent on DeviceCheck being available.
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 // The FAC token value returned when an error occurs.
 static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
@@ -1079,4 +1079,4 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 @end
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS

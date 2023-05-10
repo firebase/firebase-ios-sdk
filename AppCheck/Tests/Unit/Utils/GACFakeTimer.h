@@ -20,15 +20,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^FIRFakeTimerCreateHandler)(NSDate *fireDate);
+typedef void (^GACFakeTimerCreateHandler)(NSDate *fireDate);
 
-@interface FIRFakeTimer : NSObject <GACAppCheckTimerProtocol>
+@interface GACFakeTimer : NSObject <GACAppCheckTimerProtocol>
 
-- (FIRTimerProvider)fakeTimerProvider;
+- (GACTimerProvider)fakeTimerProvider;
 
 /// `createHandler` is called each time the timer provider returned by `fakeTimerProvider` is asked
 /// to create a timer.
-@property(nonatomic, copy, nullable) FIRFakeTimerCreateHandler createHandler;
+@property(nonatomic, copy, nullable) GACFakeTimerCreateHandler createHandler;
 
 @property(nonatomic, copy, nullable) dispatch_block_t invalidationHandler;
 
