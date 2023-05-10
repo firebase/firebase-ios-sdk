@@ -68,7 +68,7 @@ import FirebaseAppCheckInterop
   @objc public class func auth(app: FirebaseApp) -> Auth {
     let provider = ComponentType<AuthProvider>.instance(for: AuthProvider.self,
                                                         in: app.container)
-    return provider.auth(app)
+    return provider.auth()
   }
 
   /** @property app
