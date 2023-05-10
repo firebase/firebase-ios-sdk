@@ -62,6 +62,10 @@ using QueryCallback = std::function<void(core::Query, bool)>;
 using AggregateQueryCallback =
     std::function<void(const StatusOr<ObjectValue>&)>;
 
+// TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+// to the new Aggregate API
+using CountQueryCallback = std::function<void(const util::StatusOr<int64_t>&)>;
+
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase

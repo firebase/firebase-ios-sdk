@@ -36,6 +36,11 @@ class AggregateQuery {
   explicit AggregateQuery(Query query,
                           std::vector<AggregateField>&& aggregates);
 
+  // TODO(b/280805906) this destructor is marked as virtual because this class
+  // is mocked in api/aggregate_query_test.cc. The virtual keyword can be
+  // removed when the tests and mocking are removed.
+  virtual ~AggregateQuery() = default;
+
   const Query& query() const {
     return query_;
   }
@@ -43,9 +48,17 @@ class AggregateQuery {
   friend bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs);
   size_t Hash() const;
 
-  void Get(AggregateQueryCallback&& callback);
+  // TODO(b/280805906) this method is marked as virtual to allow mocking
+  // in api/aggregate_query_test.cc. The virtual keyword can be removed
+  // when the tests and mocking are removed.
+  virtual void GetAggregate(AggregateQueryCallback&& callback);
+
+  // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+  // to the new Aggregate API Backward-compatible getter for count result
+  void Get(CountQueryCallback&& callback);
 
  private:
+  friend class AggregateQueryTest;
   Query query_;
   std::vector<AggregateField> aggregates_;
 };
