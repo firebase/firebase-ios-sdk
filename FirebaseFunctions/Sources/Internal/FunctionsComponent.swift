@@ -36,7 +36,8 @@ protocol FunctionsProvider {
   // MARK: - Private Variables
 
   /// The app associated with all functions instances in this container.
-  private weak var app: FirebaseApp?
+  /// This is `unowned` instead of `weak` so it can be used without unwrapping in `functions()`
+  private unowned var app: FirebaseApp
 
   /// A map of active instances, grouped by app. Keys are FirebaseApp names and values are arrays
   /// containing all instances of Functions associated with the given app.
