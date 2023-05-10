@@ -37,26 +37,26 @@
 
 #import "AppCheck/Tests/Utils/AppCheckBackoffWrapperFake/GACAppCheckBackoffWrapperFake.h"
 
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
+#if GAC_APP_ATTEST_SUPPORTED_TARGETS
 
-FIR_APP_ATTEST_PROVIDER_AVAILABILITY
-@interface FIRAppAttestProvider (Tests)
-- (instancetype)initWithAppAttestService:(id<FIRAppAttestService>)appAttestService
-                              APIService:(id<FIRAppAttestAPIServiceProtocol>)APIService
-                            keyIDStorage:(id<FIRAppAttestKeyIDStorageProtocol>)keyIDStorage
-                         artifactStorage:(id<FIRAppAttestArtifactStorageProtocol>)artifactStorage
+GAC_APP_ATTEST_PROVIDER_AVAILABILITY
+@interface GACAppAttestProvider (Tests)
+- (instancetype)initWithAppAttestService:(id<GACAppAttestService>)appAttestService
+                              APIService:(id<GACAppAttestAPIServiceProtocol>)APIService
+                            keyIDStorage:(id<GACAppAttestKeyIDStorageProtocol>)keyIDStorage
+                         artifactStorage:(id<GACAppAttestArtifactStorageProtocol>)artifactStorage
                           backoffWrapper:(id<GACAppCheckBackoffWrapperProtocol>)backoffWrapper;
 @end
 
-FIR_APP_ATTEST_PROVIDER_AVAILABILITY
-@interface FIRAppAttestProviderTests : XCTestCase
+GAC_APP_ATTEST_PROVIDER_AVAILABILITY
+@interface GACAppAttestProviderTests : XCTestCase
 
-@property(nonatomic) FIRAppAttestProvider *provider;
+@property(nonatomic) GACAppAttestProvider *provider;
 
-@property(nonatomic) OCMockObject<FIRAppAttestService> *mockAppAttestService;
-@property(nonatomic) OCMockObject<FIRAppAttestAPIServiceProtocol> *mockAPIService;
-@property(nonatomic) OCMockObject<FIRAppAttestKeyIDStorageProtocol> *mockStorage;
-@property(nonatomic) OCMockObject<FIRAppAttestArtifactStorageProtocol> *mockArtifactStorage;
+@property(nonatomic) OCMockObject<GACAppAttestService> *mockAppAttestService;
+@property(nonatomic) OCMockObject<GACAppAttestAPIServiceProtocol> *mockAPIService;
+@property(nonatomic) OCMockObject<GACAppAttestKeyIDStorageProtocol> *mockStorage;
+@property(nonatomic) OCMockObject<GACAppAttestArtifactStorageProtocol> *mockArtifactStorage;
 
 @property(nonatomic) NSData *randomChallenge;
 @property(nonatomic) NSData *randomChallengeHash;
@@ -65,21 +65,21 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
 @end
 
-@implementation FIRAppAttestProviderTests
+@implementation GACAppAttestProviderTests
 
 - (void)setUp {
   [super setUp];
 
-  self.mockAppAttestService = OCMProtocolMock(@protocol(FIRAppAttestService));
-  self.mockAPIService = OCMProtocolMock(@protocol(FIRAppAttestAPIServiceProtocol));
-  self.mockStorage = OCMProtocolMock(@protocol(FIRAppAttestKeyIDStorageProtocol));
-  self.mockArtifactStorage = OCMProtocolMock(@protocol(FIRAppAttestArtifactStorageProtocol));
+  self.mockAppAttestService = OCMProtocolMock(@protocol(GACAppAttestService));
+  self.mockAPIService = OCMProtocolMock(@protocol(GACAppAttestAPIServiceProtocol));
+  self.mockStorage = OCMProtocolMock(@protocol(GACAppAttestKeyIDStorageProtocol));
+  self.mockArtifactStorage = OCMProtocolMock(@protocol(GACAppAttestArtifactStorageProtocol));
 
   self.fakeBackoffWrapper = [[GACAppCheckBackoffWrapperFake alloc] init];
   // Don't backoff by default.
   self.fakeBackoffWrapper.isNextOperationAllowed = YES;
 
-  self.provider = [[FIRAppAttestProvider alloc] initWithAppAttestService:self.mockAppAttestService
+  self.provider = [[GACAppAttestProvider alloc] initWithAppAttestService:self.mockAppAttestService
                                                               APIService:self.mockAPIService
                                                             keyIDStorage:self.mockStorage
                                                          artifactStorage:self.mockArtifactStorage
@@ -111,7 +111,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   options.projectID = @"project_id";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
 
-  XCTAssertNotNil([[FIRAppAttestProvider alloc] initWithApp:app]);
+  XCTAssertNotNil([[GACAppAttestProvider alloc] initWithApp:app]);
 }
 #endif  // !TARGET_OS_MACCATALYST
 
@@ -132,7 +132,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
     return GACAppCheckBackoffType1Day;
   };
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(NO)];
 
   // 2. Don't expect other operations.
@@ -173,7 +173,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -209,7 +209,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
                                                         expirationDate:[NSDate date]];
   NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
   __auto_type attestKeyResponse =
-      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
+      [[GACAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:generatedKeyID
                                                 challenge:self.randomChallenge])
@@ -247,7 +247,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -283,7 +283,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
                                                         expirationDate:[NSDate date]];
   NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
   __auto_type attestKeyResponse =
-      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
+      [[GACAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
                                                     keyID:existingKeyID
                                                 challenge:self.randomChallenge])
@@ -321,7 +321,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -373,7 +373,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -431,7 +431,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -518,7 +518,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
                                                         expirationDate:[NSDate date]];
   NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
   __auto_type attestKeyResponse =
-      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
+      [[GACAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
   OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData2
                                                     keyID:keyID2
                                                 challenge:self.randomChallenge])
@@ -590,7 +590,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         [completionExpectation fulfill];
 
         XCTAssertNil(token);
-        FIRAppAttestRejectionError *expectedError = [[FIRAppAttestRejectionError alloc] init];
+        GACAppAttestRejectionError *expectedError = [[GACAppAttestRejectionError alloc] init];
         XCTAssertEqualObjects(error, expectedError);
       }];
 
@@ -607,7 +607,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 }
 
 - (void)testGetToken_WhenKeyRegisteredAndChallengeRequestError {
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -651,7 +651,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 }
 
 - (void)testGetToken_WhenKeyRegisteredAndGenerateAssertionError {
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -702,7 +702,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 }
 
 - (void)testGetToken_WhenKeyRegisteredAndTokenExchangeRequestError {
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -760,7 +760,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used only once.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -835,7 +835,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used only once.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -990,7 +990,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   // 0. Expect backoff wrapper to be used.
   self.fakeBackoffWrapper.backoffExpectation = [self expectationWithDescription:@"Backoff"];
 
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -1047,7 +1047,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 }
 
 - (void)expectAppAttestAvailabilityToBeCheckedAndNotExistingStoredKeyRequested {
-  // 1. Expect FIRAppAttestService.isSupported.
+  // 1. Expect GACAppAttestService.isSupported.
   [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
 
   // 2. Expect storage getAppAttestKeyID.
@@ -1090,4 +1090,4 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
 @end
 
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
+#endif  // GAC_APP_ATTEST_SUPPORTED_TARGETS
