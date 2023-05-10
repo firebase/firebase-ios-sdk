@@ -77,8 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
   NSArray<NSString *> *missingOptionsFields =
       [GACAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
-    FIRLogError(kFIRLoggerAppCheck,
-                kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions,
+    GACLogError(kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions,
                 @"Cannot instantiate `GACDeviceCheckProvider` for app: %@. The following "
                 @"`FirebaseOptions` fields are missing: %@",
                 app.name, [missingOptionsFields componentsJoinedByString:@", "]);

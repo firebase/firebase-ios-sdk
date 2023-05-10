@@ -39,6 +39,8 @@
 #import "AppCheck/Interop/GACAppCheckInterop.h"
 #import "AppCheck/Interop/GACAppCheckTokenResultInterop.h"
 
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 /// A notification with the specified name is sent to the default notification center
@@ -91,7 +93,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   id<GACAppCheckProviderFactory> providerFactory = [GACAppCheck providerFactory];
 
   if (providerFactory == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing,
+    GACLogError(kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing,
                 @"Cannot instantiate `GACAppCheck` for app: %@ without a provider factory. "
                 @"Please register a provider factory using "
                 @"`AppCheck.setAppCheckProviderFactory(_ ,forAppName:)` method.",
@@ -101,7 +103,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
   id<GACAppCheckProvider> appCheckProvider = [providerFactory createProviderWithApp:app];
   if (appCheckProvider == nil) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeProviderIsMissing,
+    GACLogError(kFIRLoggerAppCheckMessageCodeProviderIsMissing,
                 @"Cannot instantiate `GACAppCheck` for app: %@ without an app check provider. "
                 @"Please make sure the provider factory returns a valid app check provider.",
                 app.name);
