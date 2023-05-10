@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 #import "FIRMultiFactorSession.h"
-#import "FIRTOTPSecret.h"
 #import "FIRTOTPMultiFactorAssertion.h"
+#import "FIRTOTPSecret.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,7 +53,6 @@ NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
                          oneTimePassword:(NSString *)oneTimePassword
                               completion:(void (^)(FIRTOTPMultiFactorAssertion *_Nullable,
                                                    NSError *_Nullable))completion;
-
 
 /** @fn assertionForSignInWithenrollmentID:
     @brief Initializes the MFA assertion to confirm ownership of the totp second factor. This
