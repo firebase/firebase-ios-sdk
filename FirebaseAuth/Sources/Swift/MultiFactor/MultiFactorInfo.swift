@@ -31,7 +31,7 @@ import Foundation
     /**
         @brief The multi-factor enrollment ID.
      */
-    @objc(UID) public var uid: String?
+    @objc(UID) public var uid: String
 
     /**
         @brief The user friendly name of the current second factor.
@@ -49,7 +49,10 @@ import Foundation
     @objc public var factorID: String?
 
     @objc public init(proto: AuthProtoMFAEnrollment) {
-      uid = proto.MFAEnrollmentID
+      guard let uid = proto.mfaEnrollmentID else {
+        fatalError("Auth Internal Error: Failed to inialize MFA: missing enrollment ID")
+      }
+      self.uid = uid
       displayName = proto.displayName
       enrollmentDate = proto.enrolledAt
     }
@@ -61,7 +64,13 @@ import Foundation
     }
 
     public required init?(coder: NSCoder) {
-      uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String
+      guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String,
+            let factorID = coder.decodeObject(of: [NSString.self],
+                                              forKey: kFactorIDCodingKey) as? String else {
+        return nil
+      }
+      self.uid = uid
+      self.factorID = factorID
       displayName = coder.decodeObject(
         of: [NSString.self],
         forKey: kDisplayNameCodingKey
@@ -70,7 +79,6 @@ import Foundation
         of: [NSString.self],
         forKey: kEnrollmentDateCodingKey
       ) as? Date
-      factorID = coder.decodeObject(of: [NSString.self], forKey: kFactorIDCodingKey) as? String
     }
 
     public func encode(with coder: NSCoder) {

@@ -21,24 +21,22 @@ private let kFinalizeMFAEnrollmentEndPoint = "accounts/mfaEnrollment:finalize"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRFinalizeMFAEnrollmentRequest)
-public class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
-  @objc public var IDToken: String?
+class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
+  var idToken: String?
 
-  @objc public var displayName: String?
+  var displayName: String?
 
-  @objc public var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
+  var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
+  var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
 
-  @objc public init(IDToken: String?, displayName: String?,
-                    verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
-                    requestConfiguration: AuthRequestConfiguration) {
-    self.IDToken = IDToken
+  init(idToken: String?, displayName: String?,
+       verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
+       requestConfiguration: AuthRequestConfiguration) {
+    self.idToken = idToken
     self.displayName = displayName
     self.verificationInfo = verificationInfo
     super.init(
@@ -51,8 +49,8 @@ public class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest,
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var body: [String: AnyHashable] = [:]
-    if let IDToken = IDToken {
-      body["idToken"] = IDToken
+    if let idToken = idToken {
+      body["idToken"] = idToken
     }
     if let displayName = displayName {
       body["displayName"] = displayName

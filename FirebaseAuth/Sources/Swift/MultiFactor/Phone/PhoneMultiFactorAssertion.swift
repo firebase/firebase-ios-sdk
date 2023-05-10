@@ -21,11 +21,10 @@ import Foundation
        second factor.
        This class is available on iOS only.
    */
-  @objc(FIRPhoneMultiFactorAssertion) public class PhoneMultiFactorAssertion: MultiFactorAssertion {
-    // TODO: This should be internal
-    @objc public var authCredential: PhoneAuthCredential?
+  class PhoneMultiFactorAssertion: MultiFactorAssertion {
+    var authCredential: PhoneAuthCredential?
 
-    @objc public init() {
+    init() {
       super.init(factorID: PhoneMultiFactorInfo.FIRPhoneMultiFactorID)
     }
   }

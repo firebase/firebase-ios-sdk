@@ -21,30 +21,30 @@ private let kWithdrawMFAEndPoint = "accounts/mfaEnrollment:withdraw"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRWithdrawMFARequest) public class WithdrawMFARequest: IdentityToolkitRequest,
-  AuthRPCRequest {
-  @objc public var IDToken: String?
-  @objc public var MFAEnrollmentID: String?
+class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
+  @objc public var idToken: String?
+  @objc public var mfaEnrollmentID: String?
 
   /** @var response
       @brief The corresponding response for this request
    */
   @objc public var response: AuthRPCResponse = WithdrawMFAResponse()
 
-  @objc public init(IDToken: String?, MFAEnrollmentID: String?,
+  @objc public init(idToken: String?,
+                    mfaEnrollmentID: String?,
                     requestConfiguration: AuthRequestConfiguration) {
-    self.IDToken = IDToken
-    self.MFAEnrollmentID = MFAEnrollmentID
+    self.idToken = idToken
+    self.mfaEnrollmentID = mfaEnrollmentID
     super.init(endpoint: kWithdrawMFAEndPoint, requestConfiguration: requestConfiguration)
   }
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
-    if let IDToken = IDToken {
-      postBody["idToken"] = IDToken
+    if let idToken = idToken {
+      postBody["idToken"] = idToken
     }
-    if let MFAEnrollmentID = MFAEnrollmentID {
-      postBody["mfaEnrollmentId"] = MFAEnrollmentID
+    if let mfaEnrollmentID = mfaEnrollmentID {
+      postBody["mfaEnrollmentId"] = mfaEnrollmentID
     }
     if let tenantID = tenantID {
       postBody[kTenantIDKey] = tenantID

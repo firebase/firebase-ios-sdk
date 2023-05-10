@@ -21,6 +21,9 @@
 @import FirebaseAuth;
 #import "StaticContentTableViewManager.h"
 
+typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
+                                          NSError *_Nullable error);
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MainViewController (Auth)

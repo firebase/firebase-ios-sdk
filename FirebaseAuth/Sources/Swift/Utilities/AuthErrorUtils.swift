@@ -538,11 +538,7 @@ private let kFIRAuthErrorMessageMalformedJWT =
       -> Error {
       var userInfo: [String: Any] = [:]
       if let pendingCredential = pendingCredential, let hints = hints {
-        let resolver = MultiFactorResolver(
-          mfaPendingCredential: pendingCredential,
-          hints: hints,
-          auth: auth
-        )
+        let resolver = MultiFactorResolver(with: pendingCredential, hints: hints, auth: auth)
         userInfo[userInfoMultiFactorResolverKey] = resolver
       }
 

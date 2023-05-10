@@ -2293,9 +2293,7 @@ import FirebaseAppCheckInterop
        @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
            consider alternative ways of updating the current user.
    */
-  // TODO: internal after MFA
-  @objc(signInFlowAuthDataResultCallbackByDecoratingCallback:)
-  public func signInFlowAuthDataResultCallback(byDecorating callback:
+  func signInFlowAuthDataResultCallback(byDecorating callback:
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
     let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
       { callback, result, error in

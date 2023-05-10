@@ -30,9 +30,10 @@ import Foundation
          @param phoneAuthCredential The phone auth credential used for multi factor flows.
      */
     @objc(assertionWithCredential:)
-    public class func assertion(with credential: PhoneAuthCredential) -> MultiFactorAssertion {
+    public class func assertion(with phoneAuthCredential: PhoneAuthCredential)
+      -> MultiFactorAssertion {
       let assertion = PhoneMultiFactorAssertion()
-      assertion.authCredential = credential
+      assertion.authCredential = phoneAuthCredential
       return assertion
     }
   }

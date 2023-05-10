@@ -18,9 +18,11 @@
 
 #import "AppManager.h"
 #import "AuthProviders.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "MainViewController+Internal.h"
 @import FirebaseAuth;
+
+typedef void (^FIRAuthDataResultCallback)(FIRAuthDataResult *_Nullable authResult,
+                                          NSError *_Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
 

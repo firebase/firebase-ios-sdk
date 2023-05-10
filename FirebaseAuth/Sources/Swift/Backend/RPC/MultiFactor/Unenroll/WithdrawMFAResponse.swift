@@ -14,12 +14,12 @@
 
 import Foundation
 
-@objc(FIRWithdrawMFAResponse) public class WithdrawMFAResponse: NSObject, AuthRPCResponse {
-  @objc public var IDToken: String?
-  @objc public var refreshToken: String?
+class WithdrawMFAResponse: NSObject, AuthRPCResponse {
+  var idToken: String?
+  var refreshToken: String?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
-    IDToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
   }
 }
