@@ -221,8 +221,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [self attestationState].thenOn(self.queue, ^id(GACAppAttestProviderState *attestState) {
     switch (attestState.state) {
       case GACAppAttestAttestationStateUnsupported:
-        GACAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeAppAttestNotSupported,
-                            @"App Attest is not supported.");
+        GACLogDebug(kFIRLoggerAppCheckMessageCodeAppAttestNotSupported,
+                    @"App Attest is not supported.");
         return attestState.appAttestUnsupportedError;
         break;
 
@@ -341,9 +341,9 @@ NS_ASSUME_NONNULL_BEGIN
         GACAppCheckHTTPError *HTTPError = (GACAppCheckHTTPError *)error;
         if ([HTTPError isKindOfClass:[GACAppCheckHTTPError class]] &&
             HTTPError.HTTPResponse.statusCode == 403) {
-          GACAppCheckDebugLog(kFIRLoggerAppCheckMessageCodeAttestationRejected,
-                              @"App Attest attestation was rejected by backend. The existing "
-                              @"attestation will be reset.");
+          GACLogDebug(kFIRLoggerAppCheckMessageCodeAttestationRejected,
+                      @"App Attest attestation was rejected by backend. The existing "
+                      @"attestation will be reset.");
           // Reset the attestation.
           return [self resetAttestation].thenOn(self.queue, ^NSError *(id result) {
             // Throw the rejection error.
