@@ -34,7 +34,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 @interface DummyAppCheckProvider : NSObject <GACAppCheckProvider>
 @end
@@ -66,7 +66,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nullable) id mockAppCheckProvider;
 @property(nonatomic, nullable) id mockTokenRefresher;
 
-- (void)testDefaultAppCheckProvider FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY;
+// TODO(andrewheard): Remove section from generic App Check SDK.
+#ifdef FIREBASE_APP_CHECK_ONLY
+
+- (void)testDefaultAppCheckProvider GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY;
+
+#endif  // FIREBASE_APP_CHECK_ONLY
 
 @end
 
@@ -87,7 +92,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   if (@available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)) {
     // Recover default provider factory.
-    [GACAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
+    [GACAppCheck setAppCheckProviderFactory:[[GACDeviceCheckProviderFactory alloc] init]];
   }
 
   [self.mockTokenRefresher stopMocking];
@@ -100,12 +105,15 @@ NS_ASSUME_NONNULL_BEGIN
   [super tearDown];
 }
 
+// TODO(andrewheard): Remove section from generic App Check SDK.
+#ifdef FIREBASE_APP_CHECK_ONLY
+
 - (void)testDefaultAppCheckProvider {
   NSString *appName = @"testDefaultAppCheckProvider";
 
-  // 1. Expect FIRDeviceCheckProvider to be instantiated.
+  // 1. Expect GACDeviceCheckProvider to be instantiated.
 
-  id deviceCheckProviderMock = OCMClassMock([FIRDeviceCheckProvider class]);
+  id deviceCheckProviderMock = OCMClassMock([GACDeviceCheckProvider class]);
   id appValidationArg = [OCMArg checkWithBlock:^BOOL(FIRApp *app) {
     XCTAssertEqualObjects(app.name, appName);
     return YES;
@@ -126,7 +134,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   // 4. Cleanup
   // Recover default provider factory.
-  [GACAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
+  [GACAppCheck setAppCheckProviderFactory:[[GACDeviceCheckProviderFactory alloc] init]];
   [deviceCheckProviderMock stopMocking];
 }
 
@@ -187,6 +195,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif  // !SWIFT_PACKAGE
 
+#endif  // FIREBASE_APP_CHECK_ONLY
+
 #pragma mark - Helpers
 
 - (void)configureAppWithName:(NSString *)appName {
@@ -226,6 +236,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 NS_ASSUME_NONNULL_END

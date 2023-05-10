@@ -26,7 +26,7 @@
 
 @interface GACAppCheckTokenRefresherTests : XCTestCase
 
-@property(nonatomic) FIRFakeTimer *fakeTimer;
+@property(nonatomic) GACFakeTimer *fakeTimer;
 
 @property(nonatomic) OCMockObject<GACAppCheckSettingsProtocol> *mockSettings;
 
@@ -38,7 +38,7 @@
 
 - (void)setUp {
   self.mockSettings = OCMProtocolMock(@protocol(GACAppCheckSettingsProtocol));
-  self.fakeTimer = [[FIRFakeTimer alloc] init];
+  self.fakeTimer = [[GACFakeTimer alloc] init];
 
   NSDate *receivedAtDate = [NSDate date];
   self.initialTokenRefreshResult = [[GACAppCheckTokenRefreshResult alloc]

@@ -66,8 +66,6 @@ Pod::Spec.new do |s|
       unit_tests.source_files = [
         base_dir + 'Tests/Unit/**/*.[mh]',
         base_dir + 'Tests/Utils/**/*.[mh]',
-        'SharedTestUtilities/AppCheckFake/*',
-        'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
         'SharedTestUtilities/Date/*',
         'SharedTestUtilities/URLSession/*',
       ]

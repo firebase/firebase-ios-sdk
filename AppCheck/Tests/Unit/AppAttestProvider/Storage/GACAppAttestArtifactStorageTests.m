@@ -36,23 +36,23 @@
 #import "AppCheck/Sources/AppAttestProvider/Storage/GACAppAttestArtifactStorage.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 
-@interface FIRAppAttestArtifactStorageTests : XCTestCase
+@interface GACAppAttestArtifactStorageTests : XCTestCase
 
 @property(nonatomic) NSString *appName;
 @property(nonatomic) NSString *appID;
-@property(nonatomic) FIRAppAttestArtifactStorage *storage;
+@property(nonatomic) GACAppAttestArtifactStorage *storage;
 
 @end
 
-@implementation FIRAppAttestArtifactStorageTests
+@implementation GACAppAttestArtifactStorageTests
 
 - (void)setUp {
   [super setUp];
 
-  self.appName = @"FIRAppAttestArtifactStorageTests";
+  self.appName = @"GACAppAttestArtifactStorageTests";
   self.appID = @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa";
 
-  self.storage = [[FIRAppAttestArtifactStorage alloc] initWithAppName:self.appName
+  self.storage = [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
                                                                 appID:self.appID
                                                           accessGroup:nil];
 }
@@ -133,8 +133,8 @@
 - (void)testGetArtifact_KeychainError {
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
-  FIRAppAttestArtifactStorage *artifactStorage =
-      [[FIRAppAttestArtifactStorage alloc] initWithAppName:self.appName
+  GACAppAttestArtifactStorage *artifactStorage =
+      [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
                                                      appID:self.appID
                                            keychainStorage:mockKeychainStorage
                                                accessGroup:nil];
@@ -160,8 +160,8 @@
 - (void)testSetArtifact_KeychainError {
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
-  FIRAppAttestArtifactStorage *artifactStorage =
-      [[FIRAppAttestArtifactStorage alloc] initWithAppName:self.appName
+  GACAppAttestArtifactStorage *artifactStorage =
+      [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
                                                      appID:self.appID
                                            keychainStorage:mockKeychainStorage
                                                accessGroup:nil];
@@ -187,8 +187,8 @@
 - (void)testRemoveArtifact_KeychainError {
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
-  FIRAppAttestArtifactStorage *artifactStorage =
-      [[FIRAppAttestArtifactStorage alloc] initWithAppName:self.appName
+  GACAppAttestArtifactStorage *artifactStorage =
+      [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
                                                      appID:self.appID
                                            keychainStorage:mockKeychainStorage
                                                accessGroup:nil];
@@ -244,10 +244,10 @@
   NSString *keyID = [NSUUID UUID].UUIDString;
 
   // Create two storages.
-  FIRAppAttestArtifactStorage *storage1 =
-      [[FIRAppAttestArtifactStorage alloc] initWithAppName:appName1 appID:appID1 accessGroup:nil];
-  FIRAppAttestArtifactStorage *storage2 =
-      [[FIRAppAttestArtifactStorage alloc] initWithAppName:appName2 appID:appID2 accessGroup:nil];
+  GACAppAttestArtifactStorage *storage1 =
+      [[GACAppAttestArtifactStorage alloc] initWithAppName:appName1 appID:appID1 accessGroup:nil];
+  GACAppAttestArtifactStorage *storage2 =
+      [[GACAppAttestArtifactStorage alloc] initWithAppName:appName2 appID:appID2 accessGroup:nil];
   // 1. Independently set artifacts for the two storages.
   NSData *artifact1 = [@"app_attest_artifact1" dataUsingEncoding:NSUTF8StringEncoding];
   FBLPromise *setPromise1 = [storage1 setArtifact:artifact1 forKey:keyID];
