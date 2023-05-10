@@ -16,9 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
-extern FIRLoggerService kFIRLoggerAppCheck;
+NS_ASSUME_NONNULL_BEGIN
 
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeUnknown;
 
@@ -43,4 +41,15 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIn
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeAppAttestNotSupported;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeAttestationRejected;
 
-void GACAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
+#define GAC_LOGGING_FUNCTION(level) \
+  void GACLog##level(NSString *messageCode, NSString *format, ...);
+
+GAC_LOGGING_FUNCTION(Error)
+GAC_LOGGING_FUNCTION(Warning)
+GAC_LOGGING_FUNCTION(Notice)
+GAC_LOGGING_FUNCTION(Info)
+GAC_LOGGING_FUNCTION(Debug)
+
+#undef GAC_LOGGING_FUNCTION
+
+NS_ASSUME_NONNULL_END
