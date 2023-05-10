@@ -214,7 +214,6 @@ def parse_sub_api(api_link, sub_api_data_container):
 def parse_cmdline_args():
   parser = argparse.ArgumentParser()
   parser.add_argument('-f', '--file_list', nargs='+', default=[])
-  parser.add_argument('-p', '--path', default=os.getcwd())
   parser.add_argument('-o', '--output_dir', default='output_dir')
   parser.add_argument('-t',
                       '--api_theme_dir',
