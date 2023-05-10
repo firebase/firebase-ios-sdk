@@ -328,7 +328,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
       let obj = MultiFactor()
-      try await obj.session()
+      _ = try await obj.session()
       try await obj.enroll(
         with: PhoneMultiFactorGenerator.assertion(with: credential),
         displayName: "name"
@@ -342,7 +342,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
-      let obj = MultiFactorResolver()
+      let obj = MultiFactorResolver(with: "", hints: [], auth: FirebaseAuth.Auth.auth())
       obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential)) { _, _ in
       }
     }
@@ -352,8 +352,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
-      let obj = MultiFactorResolver()
-      try await obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential))
+      let obj = MultiFactorResolver(with: "", hints: [], auth: FirebaseAuth.Auth.auth())
+      _ = try await obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential))
     }
   #endif
 
@@ -418,7 +418,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     func FIRPhoneMultiFactorGenerator_h() {
       let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
                                                                verificationCode: "code")
-      PhoneMultiFactorGenerator.assertion(with: credential)
+      _ = PhoneMultiFactorGenerator.assertion(with: credential)
     }
   #endif
 

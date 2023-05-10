@@ -17,7 +17,7 @@ import Foundation
 @objc(FIRAuthProtoMFAEnrollment) public class AuthProtoMFAEnrollment: NSObject, AuthProto {
   @objc public var phoneInfo: String?
 
-  @objc public var MFAEnrollmentID: String?
+  @objc public var mfaEnrollmentID: String?
 
   @objc public var displayName: String?
 
@@ -28,7 +28,7 @@ import Foundation
   public required init(dictionary: [String: AnyHashable]) {
     self.dictionary = dictionary
     phoneInfo = dictionary["phoneInfo"] as? String
-    MFAEnrollmentID = dictionary["mfaEnrollmentId"] as? String
+    mfaEnrollmentID = dictionary["mfaEnrollmentId"] as? String
     displayName = dictionary["displayName"] as? String
     if let enrolledAt = dictionary["enrolledAt"] as? String {
       let dateFormatter = DateFormatter()
