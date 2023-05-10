@@ -31,7 +31,7 @@ set(snappy_source_dir "${SOURCE_DIR}")
 ExternalProject_Get_property(snappy BINARY_DIR)
 set(snappy_binary_dir "${BINARY_DIR}")
 
-set(additional_patch_file ${CMAKE_CURRENT_LIST_DIR}/leveldb_windows_utf16_paths.patch)
+set(additional_patch_file ${CMAKE_CURRENT_LIST_DIR}/leveldb-${version}_windows_paths.patch)
 
 ExternalProject_Add(
   leveldb
