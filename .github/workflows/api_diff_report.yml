@@ -52,8 +52,7 @@ jobs:
         run: |
           python ~/api_diff_report/api_info.py \
             --file_list ${{ steps.get_changed_files.outputs.file_list }} \
-            --output_dir ${{ env.PR_API_OUTPUT }} \
-            --api_theme_dir ~/api_diff_report/theme
+            --output_dir ${{ env.PR_API_OUTPUT }}
 
       - name: Checkout Base branch
         run: git checkout HEAD^
@@ -62,8 +61,7 @@ jobs:
         run: |
           python ~/api_diff_report/api_info.py \
             --file_list ${{ steps.get_changed_files.outputs.file_list }} \
-            --output_dir ${{ env.BASE_API_OUTPUT }} \
-            --api_theme_dir ~/api_diff_report/theme
+            --output_dir ${{ env.BASE_API_OUTPUT }}
 
       - name: Generate API Diff Report
         run: |

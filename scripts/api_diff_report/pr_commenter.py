@@ -34,7 +34,7 @@ TITLE_END_NO_DIFF = "## ✅&nbsp; No API diff detected\n"
 
 COMMENT_HIDDEN_IDENTIFIER = '\r\n<hidden value="diff-report"></hidden>\r\n'
 GITHUB_API_URL = 'https://api.github.com/repos/firebase/firebase-ios-sdk'
-PR_LABLE = "public-api-change"
+PR_LABEL = "public-api-change"
 
 
 def main():
@@ -53,7 +53,7 @@ def main():
   if stage == STAGES_PROGRESS:
     report = COMMENT_HIDDEN_IDENTIFIER
     report += generate_markdown_title(TITLE_PROGESS, commit, run_id)
-    delete_label(token, pr_number, PR_LABLE)
+    delete_label(token, pr_number, PR_LABEL)
   elif stage == STAGES_END:
     diff_report_file = os.path.join(os.path.expanduser(args.report),
                                     api_diff_report.API_DIFF_FILE_NAME)
@@ -62,11 +62,11 @@ def main():
     if report_content:
       report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
           TITLE_END_DIFF, commit, run_id) + report_content
-      add_label(token, pr_number, PR_LABLE)
+      add_label(token, pr_number, PR_LABEL)
     else:
       report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
           TITLE_END_NO_DIFF, commit, run_id)
-      delete_label(token, pr_number, PR_LABLE)
+      delete_label(token, pr_number, PR_LABEL)
 
   if report:
     comment_id = get_comment_id(token, pr_number, COMMENT_HIDDEN_IDENTIFIER)
