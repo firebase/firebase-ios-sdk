@@ -37,15 +37,15 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@interface FIRDeviceCheckAPIServiceE2ETests : XCTestCase
-@property(nonatomic) FIRDeviceCheckAPIService *deviceCheckAPIService;
+@interface GACDeviceCheckAPIServiceE2ETests : XCTestCase
+@property(nonatomic) GACDeviceCheckAPIService *deviceCheckAPIService;
 @property(nonatomic) GACAppCheckAPIService *APIService;
 @property(nonatomic) NSURLSession *URLSession;
 @end
 
 // TODO(ncooke3): Fix these tests up and get them running on CI.
 
-@implementation FIRDeviceCheckAPIServiceE2ETests
+@implementation GACDeviceCheckAPIServiceE2ETests
 
 - (void)setUp {
   self.URLSession = [NSURLSession
@@ -59,7 +59,7 @@
                                                                 appID:options.googleAppID
                                                       heartbeatLogger:heartbeatLogger];
   self.deviceCheckAPIService =
-      [[FIRDeviceCheckAPIService alloc] initWithAPIService:self.APIService
+      [[GACDeviceCheckAPIService alloc] initWithAPIService:self.APIService
                                                  projectID:options.projectID
                                                      appID:options.googleAppID];
 }
