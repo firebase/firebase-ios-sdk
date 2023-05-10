@@ -1266,7 +1266,7 @@ import Foundation
     metadata = UserMetadata(withCreationDate: nil, lastSignInDate: nil)
     tenantID = nil
     #if os(iOS)
-      multiFactor = MultiFactor(mfaEnrollments: [])
+      multiFactor = MultiFactor(withMFAEnrollments: [])
     #endif
     uid = ""
     hasEmailPasswordCredential = false
@@ -1613,7 +1613,7 @@ import Foundation
     providerDataRaw = providerData
     #if os(iOS)
       if let enrollments = user.MFAEnrollments {
-        multiFactor = MultiFactor(mfaEnrollments: enrollments)
+        multiFactor = MultiFactor(withMFAEnrollments: enrollments)
       }
       // TODO: Revisit after port of Multifactor_internal.h
       // self.multiFactor.user = self
@@ -2063,8 +2063,8 @@ import Foundation
     taskQueue = AuthSerialTaskQueue()
     #if os(iOS)
       self.multiFactor = multiFactor ?? MultiFactor()
-      // TODO: figure out next line.
-      // multiFactor?.user = self
+      super.init()
+      multiFactor?.user = self
     #endif
   }
 }

@@ -57,7 +57,7 @@ static NSString *const kProviderID = @"PROVIDER_ID";
 }
 
 /** @fn testAdditionalUserInfoCreation
-    @brief Tests succuessful creation of @c FIRAdditionalUserInfo with
+    @brief Tests successful creation of @c FIRAdditionalUserInfo with
         @c initWithProviderID:profile:username: call.
  */
 - (void)testAdditionalUserInfoCreation {
@@ -73,7 +73,7 @@ static NSString *const kProviderID = @"PROVIDER_ID";
 }
 
 /** @fn testAdditionalUserInfoCreationWithStaticInitializer
-    @brief Tests succuessful creation of @c FIRAdditionalUserInfo with
+    @brief Tests successful creation of @c FIRAdditionalUserInfo with
         @c userInfoWithVerifyAssertionResponse call.
  */
 - (void)testAdditionalUserInfoCreationWithStaticInitializer {
