@@ -45,28 +45,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /** Default convenience initializer.
- *  @param appName A Firebase App name (`FirebaseApp.name`). The app name will be used as a part of
- * the key to store the token for the storage instance.
- *  @param appID A Firebase App identifier (`FirebaseOptions.googleAppID`). The app ID will be used
- * as a part of the key to store the token for the storage instance.
+ *  @param tokenKey The key to store the token for the storage instance.
  *  @param accessGroup The Keychain Access Group.
  */
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                    accessGroup:(nullable NSString *)accessGroup;
+- (instancetype)initWithTokenKey:(NSString *)tokenKey accessGroup:(nullable NSString *)accessGroup;
 
 /** Designated initializer.
- *  @param appName A Firebase App name (`FirebaseApp.name`). The app name will be used as a part of
- * the key to store the token for the storage instance.
- *  @param appID A Firebase App identifier (`FirebaseOptions.googleAppID`). The app ID will be used
- * as a part of the key to store the token for the storage instance.
+ *  @param tokenKey The key to store the token for the storage instance.
  *  @param keychainStorage An instance of `GULKeychainStorage` used as an underlying secure storage.
  *  @param accessGroup The Keychain Access Group.
  */
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                keychainStorage:(GULKeychainStorage *)keychainStorage
-                    accessGroup:(nullable NSString *)accessGroup NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithTokenKey:(NSString *)tokenKey
+                 keychainStorage:(GULKeychainStorage *)keychainStorage
+                     accessGroup:(nullable NSString *)accessGroup NS_DESIGNATED_INITIALIZER;
 
 @end
 
