@@ -9,8 +9,6 @@ concurrency:
 env:
   STAGE_PROGRESS: progress
   STAGE_END: end
-  PR_BRANCH_PATH: pr_branch
-  BASE_BRANCH_PATH: base_branch
   PR_API_OUTPUT: ci_outputs/pr_branch_api
   BASE_API_OUTPUT: ci_outputs/base_branch_api
   DIFF_REPORT_OUTPUT: ci_outputs/diff_report
@@ -24,12 +22,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
-          path: ${{ env.PR_BRANCH_PATH }}
+
+      - name: Copy diff report tools
+        run: cp -a scripts/api_diff_report/. ~/api_diff_report
 
       - id: get_changed_files
         name: Get changed file list
         run: |
-          echo "file_list=$(git -C ${{ env.PR_BRANCH_PATH }} diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
+          echo "file_list=$(git diff --name-only -r HEAD^1 HEAD | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Setup python
         uses: actions/setup-python@v4
@@ -37,11 +37,11 @@ jobs:
           python-version: 3.7
 
       - name: Install Prerequisites
-        run:  ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/prerequisite.sh
+        run:  ~/api_diff_report/prerequisite.sh
 
       - name: Clean Diff Report Comment in PR
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/pr_commenter.py \
+          python ~/api_diff_report/pr_commenter.py \
             --stage ${{ env.STAGE_PROGRESS }} \
             --token ${{github.token}} \
             --pr_number ${{github.event.pull_request.number}} \
@@ -50,38 +50,31 @@ jobs:
 
       - name: Generate API files for PR branch
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/api_info.py \
+          python ~/api_diff_report/api_info.py \
             --file_list ${{ steps.get_changed_files.outputs.file_list }} \
-            --path ${{ env.PR_BRANCH_PATH }} \
             --output_dir ${{ env.PR_API_OUTPUT }} \
-            --api_theme_dir "pr_branch/scripts/api_diff_report/theme"
-
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 2
-          path: ${{ env.BASE_BRANCH_PATH }}
+            --api_theme_dir ~/api_diff_report/theme
 
       - name: Checkout Base branch
-        run: git -C ${{ env.BASE_BRANCH_PATH }} checkout HEAD^
+        run: git checkout HEAD^
 
       - name: Generate API files for Base branch
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/api_info.py \
+          python ~/api_diff_report/api_info.py \
             --file_list ${{ steps.get_changed_files.outputs.file_list }} \
-            --path ${{ env.BASE_BRANCH_PATH }} \
             --output_dir ${{ env.BASE_API_OUTPUT }} \
-            --api_theme_dir "${{ env.BASE_BRANCH_PATH }}/scripts/api_diff_report/theme"
+            --api_theme_dir ~/api_diff_report/theme
 
       - name: Generate API Diff Report
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/api_diff_report.py \
+          python ~/api_diff_report/api_diff_report.py \
             --pr_branch ${{ env.PR_API_OUTPUT }} \
             --base_branch ${{ env.BASE_API_OUTPUT }} \
             --output_dir ${{ env.DIFF_REPORT_OUTPUT }}
 
       - name: Update Diff Report Comment in PR
         run: |
-          python ${{ env.PR_BRANCH_PATH }}/scripts/api_diff_report/pr_commenter.py \
+          python ~/api_diff_report/pr_commenter.py \
             --stage ${{ env.STAGE_END }} \
             --report ${{ env.DIFF_REPORT_OUTPUT }} \
             --token ${{github.token}} \
