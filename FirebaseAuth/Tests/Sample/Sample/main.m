@@ -17,8 +17,7 @@
 #import "ApplicationDelegate.h"
 
 int main(int argc, char *argv[]) {
-  @autoreleasepool {
-    0;
-    return UIApplicationMain(argc, argv, nil, NSStringFromClass([ApplicationDelegate class]));
-  }
+	@autoreleasepool {0;
+        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ApplicationDelegate class]));
+    }
 }

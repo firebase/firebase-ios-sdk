@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
     @param cancelled Indicates the user cancelled the flow and didn't want to enter a token.
     @param userEnteredTokenText The token text the user entered.
  */
-typedef void (^CustomTokenDataEntryViewControllerCompletion)(
-    BOOL cancelled, NSString *_Nullable userEnteredTokenText);
+typedef void (^CustomTokenDataEntryViewControllerCompletion)
+    (BOOL cancelled, NSString *_Nullable userEnteredTokenText);
 
 /** @class CustomTokenDataEntryViewController
     @brief Simple view controller to allow data entry of custom BYOAuth tokens.
@@ -47,8 +47,8 @@ typedef void (^CustomTokenDataEntryViewControllerCompletion)(
     @brief Designated initializer.
     @param completion A block which will be invoked when the user either chooses "cancel" or "done".
  */
-- (nullable instancetype)initWithCompletion:(CustomTokenDataEntryViewControllerCompletion)completion
-    NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithCompletion:
+    (CustomTokenDataEntryViewControllerCompletion)completion NS_DESIGNATED_INITIALIZER;
 
 @end
 

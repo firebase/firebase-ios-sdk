@@ -27,7 +27,7 @@
 /** @typedef StaticContentTableViewCellAction
     @brief The type of block invoked when a cell is tapped.
  */
-typedef void (^StaticContentTableViewCellAction)(void);
+typedef void(^StaticContentTableViewCellAction)(void);
 
 #pragma mark -
 
@@ -39,7 +39,7 @@ typedef void (^StaticContentTableViewCellAction)(void);
         we end up cutting corners and making junky testing apps, and spending more time in the
         process.
  */
-@interface StaticContentTableViewManager : NSObject <UITableViewDelegate, UITableViewDataSource>
+@interface StaticContentTableViewManager : NSObject<UITableViewDelegate, UITableViewDataSource>
 
 /** @property contents
     @brief The static contents of the @c UITableView.
@@ -185,7 +185,8 @@ typedef void (^StaticContentTableViewCellAction)(void);
     @param title The text of the @c titleLabel of the @c UITableViewCell.
     @param value The text of the @c detailTextLabel of the @c UITableViewCell.
  */
-+ (nullable instancetype)cellWithTitle:(nullable NSString *)title value:(nullable NSString *)value;
++ (nullable instancetype)cellWithTitle:(nullable NSString *)title
+                                 value:(nullable NSString *)value;
 
 /** @fn cellWithTitle:action:
     @brief Convenience factory method for a new instance of @c StaticContentTableViewCell.

@@ -63,24 +63,19 @@ static NSString *stringFromDate(NSDate *date) {
 }
 
 - (void)loadTableView {
-  NSMutableArray<StaticContentTableViewSection *> *sections = [@[ [StaticContentTableViewSection
-      sectionWithTitle:@"User"
-                 cells:@[
-                   [StaticContentTableViewCell cellWithTitle:@"anonymous"
-                                                       value:stringWithBool(_user.anonymous)],
-                   [StaticContentTableViewCell
-                       cellWithTitle:@"creation date"
-                               value:stringFromDate(_user.metadata.creationDate)],
-                   [StaticContentTableViewCell
-                       cellWithTitle:@"last sign in date"
-                               value:stringFromDate(_user.metadata.lastSignInDate)],
-                   [StaticContentTableViewCell cellWithTitle:@"email verified"
-                                                       value:stringWithBool(_user.emailVerified)],
-                   [StaticContentTableViewCell cellWithTitle:@"refresh token"
-                                                       value:_user.refreshToken],
-                   [StaticContentTableViewCell cellWithTitle:@"multi factor"
-                                                       value:[self multiFactorString]],
-                 ]] ] mutableCopy];
+  NSMutableArray<StaticContentTableViewSection *> *sections = [@[
+    [StaticContentTableViewSection sectionWithTitle:@"User" cells:@[
+      [StaticContentTableViewCell cellWithTitle:@"anonymous" value:stringWithBool(_user.anonymous)],
+      [StaticContentTableViewCell cellWithTitle:@"creation date"
+                                          value:stringFromDate(_user.metadata.creationDate)],
+      [StaticContentTableViewCell cellWithTitle:@"last sign in date"
+                                          value:stringFromDate(_user.metadata.lastSignInDate)],
+      [StaticContentTableViewCell cellWithTitle:@"email verified"
+                                          value:stringWithBool(_user.emailVerified)],
+      [StaticContentTableViewCell cellWithTitle:@"refresh token" value:_user.refreshToken],
+      [StaticContentTableViewCell cellWithTitle:@"multi factor" value:[self multiFactorString]],
+    ]]
+  ] mutableCopy];
   [sections addObject:[self sectionWithUserInfo:_user]];
   for (id<FIRUserInfo> userInfo in _user.providerData) {
     [sections addObject:[self sectionWithUserInfo:userInfo]];
@@ -89,18 +84,13 @@ static NSString *stringFromDate(NSDate *date) {
 }
 
 - (StaticContentTableViewSection *)sectionWithUserInfo:(id<FIRUserInfo>)userInfo {
-  return [StaticContentTableViewSection
-      sectionWithTitle:userInfo.providerID
-                 cells:@[
-                   [StaticContentTableViewCell cellWithTitle:@"uid" value:userInfo.uid],
-                   [StaticContentTableViewCell cellWithTitle:@"displayName"
-                                                       value:userInfo.displayName],
-                   [StaticContentTableViewCell cellWithTitle:@"photoURL"
-                                                       value:[userInfo.photoURL absoluteString]],
-                   [StaticContentTableViewCell cellWithTitle:@"email" value:userInfo.email],
-                   [StaticContentTableViewCell cellWithTitle:@"phoneNumber"
-                                                       value:userInfo.phoneNumber]
-                 ]];
+  return [StaticContentTableViewSection sectionWithTitle:userInfo.providerID cells:@[
+    [StaticContentTableViewCell cellWithTitle:@"uid" value:userInfo.uid],
+    [StaticContentTableViewCell cellWithTitle:@"displayName" value:userInfo.displayName],
+    [StaticContentTableViewCell cellWithTitle:@"photoURL" value:[userInfo.photoURL absoluteString]],
+    [StaticContentTableViewCell cellWithTitle:@"email" value:userInfo.email],
+    [StaticContentTableViewCell cellWithTitle:@"phoneNumber" value:userInfo.phoneNumber]
+  ]];
 }
 
 - (IBAction)done:(id)sender {

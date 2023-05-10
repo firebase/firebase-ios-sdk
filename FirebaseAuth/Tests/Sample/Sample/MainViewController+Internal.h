@@ -18,9 +18,9 @@
 
 #import "MainViewController.h"
 
-#import "AuthProviders.h"
 #import "FirebaseAuth/FirebaseAuth.h"
 #import "UIViewController+Alerts.h"
+#import "AuthProviders.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -60,8 +60,7 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 @property(nonatomic) FIROAuthProvider *yahooOAuthProvider;
 @property(nonatomic) FIROAuthProvider *gitHubOAuthProvider;
 
-@property(nonatomic)
-    NSMutableArray<FIRAuthStateDidChangeListenerHandle> *authStateDidChangeListeners;
+@property(nonatomic) NSMutableArray<FIRAuthStateDidChangeListenerHandle> *authStateDidChangeListeners;
 
 @property(nonatomic) NSMutableArray<FIRAuthStateDidChangeListenerHandle> *IDTokenDidChangeListeners;
 
@@ -71,7 +70,7 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 - (void)signinWithProvider:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData;
 
-- (void)signInWithProvider:(nonnull id<AuthProvider>)provider callback:(void (^)(void))callback;
+- (void)signInWithProvider:(nonnull id<AuthProvider>)provider callback:(void(^)(void))callback;
 
 - (void)linkWithAuthProvider:(id<AuthProvider>)authProvider retrieveData:(BOOL)retrieveData;
 
@@ -84,14 +83,14 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 - (void)logSuccess:(NSString *)string;
 
-- (void)logFailure:(NSString *)string error:(NSError *_Nullable)error;
+- (void)logFailure:(NSString *)string error:(NSError * _Nullable) error;
 
 - (void)logFailedTest:(NSString *)reason;
 
 - (NSString *)stringWithAdditionalUserInfo:(nullable FIRAdditionalUserInfo *)additionalUserInfo;
 
 - (void)showTypicalUIForUserUpdateResultsWithTitle:(NSString *)resultsTitle
-                                             error:(NSError *_Nullable)error;
+                                             error:(NSError  * _Nullable)error;
 
 - (FIRActionCodeSettings *)actionCodeSettings;
 
