@@ -16,9 +16,9 @@
 
 #import "AppCheck/Tests/Unit/Utils/GACFakeTimer.h"
 
-@implementation FIRFakeTimer
+@implementation GACFakeTimer
 
-- (FIRTimerProvider)fakeTimerProvider {
+- (GACTimerProvider)fakeTimerProvider {
   return ^id<GACAppCheckTimerProtocol> _Nullable(NSDate *fireDate, dispatch_queue_t queue,
                                                  dispatch_block_t handler) {
     self.handler = handler;

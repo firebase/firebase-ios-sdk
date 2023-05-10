@@ -31,7 +31,7 @@
   NSDate *startTime = [NSDate date];
   NSDate *fireDate = [NSDate dateWithTimeIntervalSinceNow:fireTimerIn];
 
-  FIRTimerProvider timerProvider = [GACAppCheckTimer timerProvider];
+  GACTimerProvider timerProvider = [GACAppCheckTimer timerProvider];
 
   XCTestExpectation *timerExpectation = [self expectationWithDescription:@"timer"];
   GACAppCheckTimer *timer = timerProvider(fireDate, queue, ^{

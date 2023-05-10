@@ -33,9 +33,9 @@
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
-@interface FIRAppAttestAPIServiceTests : XCTestCase
+@interface GACAppAttestAPIServiceTests : XCTestCase
 
-@property(nonatomic) FIRAppAttestAPIService *appAttestAPIService;
+@property(nonatomic) GACAppAttestAPIService *appAttestAPIService;
 
 @property(nonatomic) id mockAPIService;
 
@@ -44,7 +44,7 @@
 
 @end
 
-@implementation FIRAppAttestAPIServiceTests
+@implementation GACAppAttestAPIServiceTests
 
 - (void)setUp {
   [super setUp];
@@ -55,7 +55,7 @@
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
   OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/beta");
 
-  self.appAttestAPIService = [[FIRAppAttestAPIService alloc] initWithAPIService:self.mockAPIService
+  self.appAttestAPIService = [[GACAppAttestAPIService alloc] initWithAPIService:self.mockAPIService
                                                                       projectID:self.projectID
                                                                           appID:self.appID];
 }
@@ -72,7 +72,7 @@
 
 - (void)testGetRandomChallengeWhenAPIResponseValid {
   // 1. Prepare API response.
-  NSData *responseBody = [FIRFixtureLoader loadFixtureNamed:@"AppAttestResponseSuccess.json"];
+  NSData *responseBody = [GACFixtureLoader loadFixtureNamed:@"AppAttestResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
   // 2. Stub API Service Request to return prepared API response.
@@ -178,7 +178,7 @@
 - (void)assertMissingFieldErrorWithFixture:(NSString *)fixtureName
                               missingField:(NSString *)fieldName {
   // 1. Prepare API response.
-  NSData *missingFieldBody = [FIRFixtureLoader loadFixtureNamed:fixtureName];
+  NSData *missingFieldBody = [GACFixtureLoader loadFixtureNamed:fixtureName];
   GULURLSessionDataResponse *incompleteAPIResponse = [self APIResponseWithCode:200
                                                                   responseBody:missingFieldBody];
   // 2. Stub API Service Request to return prepared API response.
@@ -212,7 +212,7 @@
 
   // 1. Prepare response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
+      [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -254,7 +254,7 @@
 
   // 1. Prepare response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
+      [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -288,7 +288,7 @@
 
   // 1. Prepare response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"DeviceCheckResponseMissingToken.json"];
+      [GACFixtureLoader loadFixtureNamed:@"DeviceCheckResponseMissingToken.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -325,7 +325,7 @@
 
   // 1. Prepare response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"AppAttestAttestationResponseSuccess.json"];
+      [GACFixtureLoader loadFixtureNamed:@"AppAttestAttestationResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 
@@ -396,7 +396,7 @@
 
   // 1. Prepare unexpected response.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
+      [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   GULURLSessionDataResponse *validAPIResponse = [self APIResponseWithCode:200
                                                              responseBody:responseBody];
 

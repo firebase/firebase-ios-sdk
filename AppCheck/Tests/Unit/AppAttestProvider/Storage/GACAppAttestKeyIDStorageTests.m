@@ -22,20 +22,20 @@
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 
-@interface FIRAppAttestKeyIDStorageTests : XCTestCase
+@interface GACAppAttestKeyIDStorageTests : XCTestCase
 @property(nonatomic) NSString *appName;
 @property(nonatomic) NSString *appID;
-@property(nonatomic) FIRAppAttestKeyIDStorage *storage;
+@property(nonatomic) GACAppAttestKeyIDStorage *storage;
 @end
 
-@implementation FIRAppAttestKeyIDStorageTests
+@implementation GACAppAttestKeyIDStorageTests
 
 - (void)setUp {
   [super setUp];
 
-  self.appName = @"FIRAppAttestKeyIDStorageTestsApp";
+  self.appName = @"GACAppAttestKeyIDStorageTestsApp";
   self.appID = @"app_id";
-  self.storage = [[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID];
+  self.storage = [[GACAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID];
 }
 
 - (void)tearDown {
@@ -48,7 +48,7 @@
 }
 
 - (void)testInitWithApp {
-  XCTAssertNotNil([[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID]);
+  XCTAssertNotNil([[GACAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID]);
 }
 
 - (void)testSetAndGetAppAttestKeyID {
@@ -104,9 +104,9 @@
                                               appName2:(NSString *)appName2
                                                 appID2:(NSString *)appID2 {
   // Create two storages.
-  FIRAppAttestKeyIDStorage *storage1 = [[FIRAppAttestKeyIDStorage alloc] initWithAppName:appName1
+  GACAppAttestKeyIDStorage *storage1 = [[GACAppAttestKeyIDStorage alloc] initWithAppName:appName1
                                                                                    appID:appID1];
-  FIRAppAttestKeyIDStorage *storage2 = [[FIRAppAttestKeyIDStorage alloc] initWithAppName:appName2
+  GACAppAttestKeyIDStorage *storage2 = [[GACAppAttestKeyIDStorage alloc] initWithAppName:appName2
                                                                                    appID:appID2];
   // 1. Independently set app attest key IDs for the two storages.
   NSString *appAttestKeyID1 = @"app_attest_key_ID1";
