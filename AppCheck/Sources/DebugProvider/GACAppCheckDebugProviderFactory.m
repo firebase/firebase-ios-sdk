@@ -27,8 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
   GACAppCheckDebugProvider *provider = [[GACAppCheckDebugProvider alloc] initWithApp:app];
 
   // Print only locally generated token to avoid a valid token leak on CI.
-  FIRLogWarning(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageCodeDebugToken,
-                @"Firebase App Check debug token: '%@'.", [provider localDebugToken]);
+  GACLogWarning(kFIRLoggerAppCheckMessageCodeDebugToken, @"Firebase App Check debug token: '%@'.",
+                [provider localDebugToken]);
 
   return provider;
 }
