@@ -79,7 +79,7 @@ def module_info():
     includes: module name, source_files, public_header_files,
               language, umbrella_header, framework_root
     """
-  module_from_podspecs = module_info_from_podspecs(root_dir)
+  module_from_podspecs = module_info_from_podspecs()
   module_list = {}
   for k, v in module_from_podspecs.items():
     if k in MODULE_LIST:
