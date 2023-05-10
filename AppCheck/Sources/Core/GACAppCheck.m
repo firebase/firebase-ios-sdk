@@ -121,9 +121,13 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   GACAppCheckTokenRefresher *tokenRefresher =
       [[GACAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult settings:settings];
 
-  GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithAppName:app.name
-                                                                      appID:app.options.googleAppID
-                                                                accessGroup:app.options.appGroupID];
+  // TODO(andrewheard): Remove from generic App Check SDK.
+  // FIREBASE_APP_CHECK_ONLY_BEGIN
+  NSString *tokenKey =
+      [NSString stringWithFormat:@"app_check_token.%@.%@", app.name, app.options.googleAppID];
+  // FIREBASE_APP_CHECK_ONLY_END
+  GACAppCheckStorage *storage =
+      [[GACAppCheckStorage alloc] initWithTokenKey:tokenKey accessGroup:app.options.appGroupID];
 
   return [self initWithAppName:app.name
               appCheckProvider:appCheckProvider
