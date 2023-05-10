@@ -20,7 +20,7 @@ import Foundation
        second factor.
        This class is available on iOS only.
    */
-  @objc(FIRPhoneMultiFactorResolver)
+  @objc(FIRMultiFactorResolver)
   public class MultiFactorResolver: NSObject {
     /**
         @brief The opaque session identifier for the current sign-in flow.
@@ -47,7 +47,6 @@ import Foundation
     @objc(resolveSignInWithAssertion:completion:)
     public func resolveSignIn(with assertion: MultiFactorAssertion,
                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-      let decoratedCallback = auth.signInFlowAuthDataResultCallback(byDecorating: completion)
       let phoneAssertion = assertion as? PhoneMultiFactorAssertion
       let finalizeMFAPhoneRequestInfo = AuthProtoFinalizeMFAPhoneRequestInfo(
         sessionInfo: phoneAssertion?.authCredential?.verificationID,
@@ -72,7 +71,28 @@ import Foundation
               fatalError("Internal Auth Error: completeSignIn didn't pass back a user")
             }
             let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
+            let decoratedCallback = self.auth
+              .signInFlowAuthDataResultCallback(byDecorating: completion)
             decoratedCallback(result, nil)
+          }
+        }
+      }
+    }
+
+    /** @fn resolveSignInWithAssertion:completion:
+         @brief A helper function to help users complete sign in with a second factor using an
+             FIRMultiFactorAssertion confirming the user successfully completed the second factor
+        challenge.
+         @param completion The block invoked when the request is complete, or fails.
+     */
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    public func resolveSignIn(with assertion: MultiFactorAssertion) async throws -> AuthDataResult {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.resolveSignIn(with: assertion) { result, error in
+          if let result {
+            continuation.resume(returning: result)
+          } else {
+            continuation.resume(throwing: error!)
           }
         }
       }

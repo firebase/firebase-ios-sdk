@@ -18,7 +18,6 @@
 
 #import "AppManager.h"
 #import "AuthProviders.h"
-#import "FirebaseAuth/Sources/MultiFactor/FIRMultiFactorResolver+Internal.h"
 #import "MainViewController+Internal.h"
 @import FirebaseAuth;
 
