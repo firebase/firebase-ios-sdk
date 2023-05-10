@@ -59,6 +59,9 @@ internal enum FunctionsConstants {
   /// The region to use for all function references.
   internal let region: String
 
+  /// The boolean to decide if getLimitedUseToken() is generated
+  internal var useLimitedUseAppCheckToken: Bool = false
+
   // MARK: - Public APIs
 
   /**
@@ -139,11 +142,19 @@ internal enum FunctionsConstants {
    * Creates a reference to the Callable HTTPS trigger with the given name.
    * - Parameter name The name of the Callable HTTPS trigger.
    */
-  @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
+  @objc(HTTPSCallableWithName:useLimitedUseAppCheckToken:) open func httpsCallable(_ name: String,
+                                                                                   useLimitedUseAppCheckToken: Bool =
+                                                                                     false)
+    -> HTTPSCallable {
+    self.useLimitedUseAppCheckToken = useLimitedUseAppCheckToken
     return HTTPSCallable(functions: self, name: name)
   }
 
-  @objc(HTTPSCallableWithURL:) open func httpsCallable(_ url: URL) -> HTTPSCallable {
+  @objc(HTTPSCallableWithURL:useLimitedUseAppCheckToken:) open func httpsCallable(_ url: URL,
+                                                                                  useLimitedUseAppCheckToken: Bool =
+                                                                                    false)
+    -> HTTPSCallable {
+    self.useLimitedUseAppCheckToken = useLimitedUseAppCheckToken
     return HTTPSCallable(functions: self, url: url)
   }
 
@@ -157,6 +168,7 @@ internal enum FunctionsConstants {
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
   open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
+                         useLimitedUseAppCheckToken: Bool,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
                          encoder: FirebaseDataEncoder = FirebaseDataEncoder(
@@ -164,7 +176,11 @@ internal enum FunctionsConstants {
                          decoder: FirebaseDataDecoder = FirebaseDataDecoder(
                          ))
     -> Callable<Request, Response> {
-    return Callable(callable: httpsCallable(name), encoder: encoder, decoder: decoder)
+    return Callable(
+      callable: httpsCallable(name, useLimitedUseAppCheckToken: useLimitedUseAppCheckToken),
+      encoder: encoder,
+      decoder: decoder
+    )
   }
 
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
@@ -177,6 +193,7 @@ internal enum FunctionsConstants {
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
   open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ url: URL,
+                         useLimitedUseAppCheckToken: Bool,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
                          encoder: FirebaseDataEncoder = FirebaseDataEncoder(
@@ -184,7 +201,11 @@ internal enum FunctionsConstants {
                          decoder: FirebaseDataDecoder = FirebaseDataDecoder(
                          ))
     -> Callable<Request, Response> {
-    return Callable(callable: httpsCallable(url), encoder: encoder, decoder: decoder)
+    return Callable(
+      callable: httpsCallable(url, useLimitedUseAppCheckToken: useLimitedUseAppCheckToken),
+      encoder: encoder,
+      decoder: decoder
+    )
   }
 
   /**
@@ -353,8 +374,20 @@ internal enum FunctionsConstants {
       fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
     }
 
-    if let appCheckToken = context.appCheckToken {
-      fetcher.setRequestValue(appCheckToken, forHTTPHeaderField: Constants.appCheckTokenHeader)
+    if useLimitedUseAppCheckToken == true {
+      if let appCheckToken = context.limitedUseAppCheckToken {
+        fetcher.setRequestValue(
+          appCheckToken,
+          forHTTPHeaderField: Constants.appCheckTokenHeader
+        )
+      }
+    } else {
+      if let appCheckToken = context.appCheckToken {
+        fetcher.setRequestValue(
+          appCheckToken,
+          forHTTPHeaderField: Constants.appCheckTokenHeader
+        )
+      }
     }
 
     // Override normal security rules if this is a local test.

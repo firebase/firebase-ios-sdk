@@ -22,11 +22,14 @@ internal class FunctionsContext: NSObject {
   let authToken: String?
   let fcmToken: String?
   let appCheckToken: String?
+  let limitedUseAppCheckToken: String?
 
-  init(authToken: String?, fcmToken: String?, appCheckToken: String?) {
+  init(authToken: String?, fcmToken: String?, appCheckToken: String?,
+       limitedUseAppCheckToken: String?) {
     self.authToken = authToken
     self.fcmToken = fcmToken
     self.appCheckToken = appCheckToken
+    self.limitedUseAppCheckToken = limitedUseAppCheckToken
   }
 }
 
@@ -54,6 +57,7 @@ internal class FunctionsContextProvider: NSObject {
     var authToken: String?
     var appCheckToken: String?
     var error: Error?
+    var limitedUseAppCheckToken: String?
 
     if let auth = auth {
       dispatchGroup.enter()
@@ -77,10 +81,23 @@ internal class FunctionsContextProvider: NSObject {
       }
     }
 
+    if let appCheck = appCheck {
+      dispatchGroup.enter()
+
+      appCheck.getLimitedUseToken { tokenResult in
+        // Send only valid token to functions.
+        if tokenResult.error == nil {
+          appCheckToken = tokenResult.token
+        }
+        dispatchGroup.leave()
+      }
+    }
+
     dispatchGroup.notify(queue: .main) {
       let context = FunctionsContext(authToken: authToken,
                                      fcmToken: self.messaging?.fcmToken,
-                                     appCheckToken: appCheckToken)
+                                     appCheckToken: appCheckToken,
+                                     limitedUseAppCheckToken: limitedUseAppCheckToken)
       completion(context, error)
     }
   }

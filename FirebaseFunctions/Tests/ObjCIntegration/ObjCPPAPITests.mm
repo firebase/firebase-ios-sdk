@@ -33,9 +33,10 @@
   func = [FIRFunctions functionsForApp:app region:@"my-region"];
   func = [FIRFunctions functionsForApp:app customDomain:@"my-domain"];
 
-  FIRHTTPSCallable *callable = [func HTTPSCallableWithName:@"name"];
+  FIRHTTPSCallable *callable = [func HTTPSCallableWithName:@"name"
+                                useLimitedUseAppCheckToken:false];
   NSURL *url = [NSURL URLWithString:@"http://host:123/project/location/name"];
-  callable = [func HTTPSCallableWithURL:url];
+  callable = [func HTTPSCallableWithURL:url useLimitedUseAppCheckToken:false];
 
   [func useEmulatorWithHost:@"host" port:123];
 
