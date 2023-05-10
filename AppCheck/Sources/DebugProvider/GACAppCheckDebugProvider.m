@@ -53,7 +53,7 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
   NSArray<NSString *> *missingOptionsFields =
       [GACAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
   if (missingOptionsFields.count > 0) {
-    FIRLogError(kFIRLoggerAppCheck, kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions,
+    FIRLogError(kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions,
                 @"Cannot instantiate `GACAppCheckDebugProvider` for app: %@. The following "
                 @"`FirebaseOptions` fields are missing: %@",
                 app.name, [missingOptionsFields componentsJoinedByString:@", "]);
@@ -119,8 +119,8 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
         return nil;
       })
       .catch(^void(NSError *error) {
-        GACAppCheckDebugLog(kFIRLoggerAppCheckMessageDebugProviderFailedExchange,
-                            @"Failed to exchange debug token to app check token: %@", error);
+        GACLogDebug(kFIRLoggerAppCheckMessageDebugProviderFailedExchange,
+                    @"Failed to exchange debug token to app check token: %@", error);
         handler(nil, error);
       });
 }
