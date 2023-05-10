@@ -66,10 +66,6 @@ class AggregateQueryTest {
 };
 
 namespace {
-TEST(AggregateQuery, TodoDelete) {
-  ASSERT_TRUE(false);
-}
-
 TEST(AggregateQuery, Equality) {
   {
     auto firestore = std::make_shared<Firestore>();
