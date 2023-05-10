@@ -107,6 +107,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 - (void)testInitWithApp {
   NSString *googleAppID = @"testInitWithApp_googleAppID";
   NSString *appName = @"testInitWithApp_appName";
+  NSString *tokenKey = [NSString stringWithFormat:@"app_check_token.%@.%@", appName, googleAppID];
   NSString *appGroupID = @"testInitWithApp_appGroupID";
 
   // 1. Stub FIRApp and validate usage.
@@ -142,8 +143,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   // 3. Stub GACAppCheckStorage and validate usage.
   id mockStorage = OCMClassMock([GACAppCheckStorage class]);
   OCMExpect([mockStorage alloc]).andReturn(mockStorage);
-  OCMExpect([mockStorage initWithAppName:appName appID:googleAppID accessGroup:appGroupID])
-      .andReturn(mockStorage);
+  OCMExpect([mockStorage initWithTokenKey:tokenKey accessGroup:appGroupID]).andReturn(mockStorage);
 
   // 4. Stub attestation provider.
   OCMockObject<GACAppCheckProviderFactory> *mockProviderFactory =
