@@ -20,7 +20,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FIRLoggerService kFIRLoggerAppCheck = @"[FirebaseAppCheck]";
+#pragma mark - Log Message Codes
 
 NSString *const kFIRLoggerAppCheckMessageCodeUnknown = @"I-FAA001001";
 
@@ -45,12 +45,32 @@ NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions
 NSString *const kFIRLoggerAppCheckMessageCodeAppAttestNotSupported = @"I-FAA007001";
 NSString *const kFIRLoggerAppCheckMessageCodeAttestationRejected = @"I-FAA007002";
 
-#pragma mark - Log functions
-void GACAppCheckDebugLog(NSString *messageCode, NSString *message, ...) {
-  va_list args_ptr;
-  va_start(args_ptr, message);
-  FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerAppCheck, messageCode, message, args_ptr);
-  va_end(args_ptr);
-}
+#pragma mark - Logging Functions
+
+/**
+ * Generates the logging functions using macros.
+ *
+ * Calling GACLogError(@"Firebase", @"I-GAC000001", @"Configure %@ failed.", @"blah") shows:
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Error> [Firebase/AppCheck][I-GAC000001] Configure blah
+ * failed. Calling GACLogDebug(@"GoogleSignIn", @"I-GAC000002", @"Configure succeed.") shows:
+ * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [GoogleSignIn/AppCheck][I-COR000002] Configure
+ * succeed.
+ */
+#define GAC_LOGGING_FUNCTION(level)                                                  \
+  void GACLog##level(NSString *messageCode, NSString *format, ...) {                 \
+    va_list args_ptr;                                                                \
+    va_start(args_ptr, format);                                                      \
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args_ptr]; \
+    va_end(args_ptr);                                                                \
+    NSLog(@"<" #level "> [AppCheck][%@] %@", messageCode, message);                  \
+  }
+
+GAC_LOGGING_FUNCTION(Error)
+GAC_LOGGING_FUNCTION(Warning)
+GAC_LOGGING_FUNCTION(Notice)
+GAC_LOGGING_FUNCTION(Info)
+GAC_LOGGING_FUNCTION(Debug)
+
+#undef GAC_LOGGING_FUNCTION
 
 NS_ASSUME_NONNULL_END
