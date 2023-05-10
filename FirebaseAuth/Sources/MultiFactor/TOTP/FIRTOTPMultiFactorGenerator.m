@@ -103,11 +103,6 @@
     completion(nil, error);
   }
 }
-
-+ (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
-                                                    oneTimePassword:(NSString *)oneTimePassword {
-  return nil;
-}
 @end
 
 #endif
