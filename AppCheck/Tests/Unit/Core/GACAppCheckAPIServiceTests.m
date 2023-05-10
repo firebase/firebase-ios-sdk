@@ -209,7 +209,7 @@
 - (void)testAppCheckTokenWithAPIResponseValidResponse {
   // 1. Prepare input parameters.
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
+      [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
@@ -269,7 +269,7 @@
 - (void)assertMissingFieldErrorWithFixture:(NSString *)fixtureName
                               missingField:(NSString *)fieldName {
   // 1. Parse API response.
-  NSData *missingFiledBody = [FIRFixtureLoader loadFixtureNamed:fixtureName];
+  NSData *missingFiledBody = [GACFixtureLoader loadFixtureNamed:fixtureName];
   XCTAssertNotNil(missingFiledBody);
 
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];

@@ -34,8 +34,8 @@
 
 typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
-@interface FIRDeviceCheckAPIServiceTests : XCTestCase
-@property(nonatomic) FIRDeviceCheckAPIService *APIService;
+@interface GACDeviceCheckAPIServiceTests : XCTestCase
+@property(nonatomic) GACDeviceCheckAPIService *APIService;
 
 @property(nonatomic) id mockAPIService;
 
@@ -44,7 +44,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
 @end
 
-@implementation FIRDeviceCheckAPIServiceTests
+@implementation GACDeviceCheckAPIServiceTests
 
 - (void)setUp {
   [super setUp];
@@ -55,7 +55,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
   OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/alpha");
 
-  self.APIService = [[FIRDeviceCheckAPIService alloc] initWithAPIService:self.mockAPIService
+  self.APIService = [[GACDeviceCheckAPIService alloc] initWithAPIService:self.mockAPIService
                                                                projectID:self.projectID
                                                                    appID:self.appID];
 }
@@ -86,7 +86,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
 
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
+      [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
 
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
@@ -137,7 +137,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDeviceToken:deviceTokenData];
 
   NSData *responseBody =
-      [FIRFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
+      [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
 
   NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
