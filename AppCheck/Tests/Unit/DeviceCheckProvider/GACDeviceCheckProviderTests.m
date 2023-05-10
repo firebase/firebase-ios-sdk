@@ -28,40 +28,40 @@
 
 #import "AppCheck/Tests/Utils/AppCheckBackoffWrapperFake/GACAppCheckBackoffWrapperFake.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
-FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
-@interface FIRDeviceCheckProvider (Tests)
+GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
+@interface GACDeviceCheckProvider (Tests)
 
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
+- (instancetype)initWithAPIService:(id<GACDeviceCheckAPIServiceProtocol>)APIService
+              deviceTokenGenerator:(id<GACDeviceCheckTokenGenerator>)deviceTokenGenerator
                     backoffWrapper:(id<GACAppCheckBackoffWrapperProtocol>)backoffWrapper;
 
 @end
 
-FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
-@interface FIRDeviceCheckProviderTests : XCTestCase
+GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
+@interface GACDeviceCheckProviderTests : XCTestCase
 
-@property(nonatomic) FIRDeviceCheckProvider *provider;
+@property(nonatomic) GACDeviceCheckProvider *provider;
 @property(nonatomic) id fakeAPIService;
 @property(nonatomic) id fakeTokenGenerator;
 @property(nonatomic) GACAppCheckBackoffWrapperFake *fakeBackoffWrapper;
 
 @end
 
-@implementation FIRDeviceCheckProviderTests
+@implementation GACDeviceCheckProviderTests
 
 - (void)setUp {
   [super setUp];
 
-  self.fakeAPIService = OCMProtocolMock(@protocol(FIRDeviceCheckAPIServiceProtocol));
-  self.fakeTokenGenerator = OCMProtocolMock(@protocol(FIRDeviceCheckTokenGenerator));
+  self.fakeAPIService = OCMProtocolMock(@protocol(GACDeviceCheckAPIServiceProtocol));
+  self.fakeTokenGenerator = OCMProtocolMock(@protocol(GACDeviceCheckTokenGenerator));
 
   self.fakeBackoffWrapper = [[GACAppCheckBackoffWrapperFake alloc] init];
   // Don't backoff by default.
   self.fakeBackoffWrapper.isNextOperationAllowed = YES;
 
-  self.provider = [[FIRDeviceCheckProvider alloc] initWithAPIService:self.fakeAPIService
+  self.provider = [[GACDeviceCheckProvider alloc] initWithAPIService:self.fakeAPIService
                                                 deviceTokenGenerator:self.fakeTokenGenerator
                                                       backoffWrapper:self.fakeBackoffWrapper];
 }
@@ -79,7 +79,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   options.projectID = @"project_id";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
 
-  XCTAssertNotNil([[FIRDeviceCheckProvider alloc] initWithApp:app]);
+  XCTAssertNotNil([[GACDeviceCheckProvider alloc] initWithApp:app]);
 }
 
 - (void)testInitWithIncompleteApp {
@@ -88,13 +88,13 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   options.projectID = @"project_id";
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
                                                           options:options];
-  XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingAPIKeyApp]);
+  XCTAssertNil([[GACDeviceCheckProvider alloc] initWithApp:missingAPIKeyApp]);
 
   options.projectID = nil;
   options.APIKey = @"api_key";
   FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
                                                              options:options];
-  XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingProjectIDApp]);
+  XCTAssertNil([[GACDeviceCheckProvider alloc] initWithApp:missingProjectIDApp]);
 }
 
 - (void)testGetTokenSuccess {
@@ -142,7 +142,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 }
 
 - (void)testGetTokenWhenDeviceTokenFails {
-  NSError *deviceTokenError = [NSError errorWithDomain:@"FIRDeviceCheckProviderTests"
+  NSError *deviceTokenError = [NSError errorWithDomain:@"GACDeviceCheckProviderTests"
                                                   code:-1
                                               userInfo:nil];
 
@@ -189,7 +189,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 }
 
 - (void)testGetTokenWhenAPIServiceFails {
-  NSError *APIServiceError = [NSError errorWithDomain:@"FIRDeviceCheckProviderTests"
+  NSError *APIServiceError = [NSError errorWithDomain:@"GACDeviceCheckProviderTests"
                                                  code:-1
                                              userInfo:nil];
 
@@ -271,4 +271,4 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 
 @end
 
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
+#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS

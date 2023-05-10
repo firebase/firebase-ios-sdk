@@ -16,7 +16,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRFixtureLoader : NSObject
+@interface GACFixtureLoader : NSObject
 
 + (NSData *)loadFixtureNamed:(NSString *)fileName;
 
