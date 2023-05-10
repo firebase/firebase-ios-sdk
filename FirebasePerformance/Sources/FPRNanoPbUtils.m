@@ -76,7 +76,8 @@ static firebase_perf_v1_NetworkRequestMetric_HttpMethod FPRHTTPMethodForString(
  * format.
  *  @return Current network connection type.
  */
-static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType() {
+static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionInfoNetworkType(
+    void) {
   firebase_perf_v1_NetworkConnectionInfo_NetworkType networkType =
       firebase_perf_v1_NetworkConnectionInfo_NetworkType_NONE;
 
@@ -106,7 +107,7 @@ static firebase_perf_v1_NetworkConnectionInfo_NetworkType FPRNetworkConnectionIn
  * firebase_perf_v1_NetworkConnectionInfo_MobileSubtype format.
  *  @return Current cellular network connection type.
  */
-static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkType() {
+static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkType(void) {
   static NSDictionary<NSString *, NSNumber *> *cellularNetworkToMobileSubtype;
   static dispatch_once_t onceToken = 0;
   dispatch_once(&onceToken, ^{
@@ -206,7 +207,7 @@ firebase_perf_v1_PerfMetric FPRGetPerfMetricMessage(NSString *appID) {
   return perfMetricMessage;
 }
 
-firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage() {
+firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void) {
   firebase_perf_v1_ApplicationInfo appInfoMessage = firebase_perf_v1_ApplicationInfo_init_default;
   firebase_perf_v1_IosApplicationInfo iosAppInfo = firebase_perf_v1_IosApplicationInfo_init_default;
   NSBundle *mainBundle = [NSBundle mainBundle];
@@ -433,7 +434,7 @@ firebase_perf_v1_ApplicationProcessState FPRApplicationProcessState(FPRTraceStat
 }
 
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-CTTelephonyNetworkInfo *FPRNetworkInfo() {
+CTTelephonyNetworkInfo *FPRNetworkInfo(void) {
   static CTTelephonyNetworkInfo *networkInfo;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{

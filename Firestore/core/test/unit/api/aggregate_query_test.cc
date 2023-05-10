@@ -21,11 +21,16 @@
 #include <string>
 #include <utility>
 
-#include "Firestore/core/src/api/aggregate_query.h"
-#include "Firestore/core/src/api/query_core.h"
-#include "Firestore/core/src/util/status.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+
+#include "Firestore/core/src/api/aggregate_query.h"
+#include "Firestore/core/src/api/firestore.h"
+#include "Firestore/core/src/api/query_core.h"
+#include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/util/status.h"
 
 namespace firebase {
 namespace firestore {
@@ -61,6 +66,40 @@ class AggregateQueryTest {
 };
 
 namespace {
+TEST(AggregateQuery, TodoDelete) {
+  ASSERT_TRUE(false);
+}
+
+TEST(AggregateQuery, Equality) {
+  {
+    auto firestore = std::make_shared<Firestore>();
+    AggregateQuery aggregate_query1 =
+        Query{core::Query{model::ResourcePath{"foo"}}, firestore}.Count();
+    AggregateQuery aggregate_query2 =
+        Query{core::Query{model::ResourcePath{"foo"}}, firestore}.Count();
+    AggregateQuery aggregate_query3 =
+        Query{core::Query{model::ResourcePath{"bar"}}, firestore}.Count();
+
+    EXPECT_TRUE(aggregate_query1 == aggregate_query1);
+    EXPECT_TRUE(aggregate_query1 == aggregate_query2);
+    EXPECT_TRUE(aggregate_query1 != aggregate_query3);
+
+    EXPECT_FALSE(aggregate_query1 != aggregate_query1);
+    EXPECT_FALSE(aggregate_query1 != aggregate_query2);
+    EXPECT_FALSE(aggregate_query1 == aggregate_query3);
+  }
+}
+
+TEST(AggregateQuery, GetQuery) {
+  {
+    auto firestore = std::make_shared<Firestore>();
+    Query query1{core::Query{model::ResourcePath{"foo"}}, firestore};
+    Query query2{core::Query{model::ResourcePath{"bar"}}, firestore};
+
+    EXPECT_EQ(query1.Count().query(), query1);
+    EXPECT_NE(query1.Count().query(), query2);
+  }
+}
 
 // Assert that the Get member function calls GetAggregate member function
 // and that the result from GetAggregate is processed
