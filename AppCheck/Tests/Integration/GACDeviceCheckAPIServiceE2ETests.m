@@ -37,6 +37,11 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+static NSString *const kHeartbeatKey = @"X-firebase-client";
+// FIREBASE_APP_CHECK_ONLY_END
+
 @interface GACDeviceCheckAPIServiceE2ETests : XCTestCase
 @property(nonatomic) GACDeviceCheckAPIService *deviceCheckAPIService;
 @property(nonatomic) GACAppCheckAPIService *APIService;
@@ -53,11 +58,16 @@
   FIROptions *options = [self firebaseTestOptions];
   FIRHeartbeatLogger *heartbeatLogger =
       [[FIRHeartbeatLogger alloc] initWithAppID:options.googleAppID];
+  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
+    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
+                          [heartbeatLogger flushHeartbeatsIntoPayload])
+        forHTTPHeaderField:kHeartbeatKey];
+  };
 
   self.APIService = [[GACAppCheckAPIService alloc] initWithURLSession:self.URLSession
                                                                APIKey:options.APIKey
                                                                 appID:options.googleAppID
-                                                      heartbeatLogger:heartbeatLogger];
+                                                         requestHooks:@[ heartbeatLoggerHook ]];
   self.deviceCheckAPIService =
       [[GACDeviceCheckAPIService alloc] initWithAPIService:self.APIService
                                                  projectID:options.projectID
