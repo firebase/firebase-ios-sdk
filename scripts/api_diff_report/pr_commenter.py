@@ -62,7 +62,7 @@ def main():
                                     api_diff_report.API_DIFF_FILE_NAME)
     with open(diff_report_file, 'r') as file:
       report_content = file.read()
-    if report_content: # Diff detected
+    if report_content:  # Diff detected
       report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
           TITLE_END_DIFF, commit, run_id) + report_content
       if comment_id:
@@ -70,7 +70,7 @@ def main():
       else:
         add_comment(token, pr_number, report)
       add_label(token, pr_number, PR_LABEL)
-    else: # No diff
+    else:  # No diff
       if comment_id:
         report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
             TITLE_END_NO_DIFF, commit, run_id)
