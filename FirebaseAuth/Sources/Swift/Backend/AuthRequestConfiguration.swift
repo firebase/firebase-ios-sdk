@@ -14,7 +14,6 @@
 
 import Foundation
 
-// TODO: Prefix with `@_implementationOnly` after port.
 import FirebaseCoreExtension
 import FirebaseAppCheckInterop
 

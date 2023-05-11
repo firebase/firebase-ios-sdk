@@ -17,7 +17,12 @@ import Foundation
 import FirebaseCore
 import FirebaseCoreExtension
 import FirebaseAppCheckInterop
+#if COCOAPODS
 @_implementationOnly import GoogleUtilities
+#else
+@_implementationOnly import GoogleUtilities_AppDelegateSwizzler
+@_implementationOnly import GoogleUtilities_Environment
+#endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
   import UIKit

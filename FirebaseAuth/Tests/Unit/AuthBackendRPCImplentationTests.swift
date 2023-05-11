@@ -594,6 +594,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(try XCTUnwrap(rpcResponse?.receivedDictionary[kTestKey] as? String), kTestValue)
   }
 
+  // TODO: enable heartbeat logger tests for SPM
+  #if COCOAPODS
   private class FakeHeartbeatLogger: NSObject, FIRHeartbeatLoggerProtocol {
     var onFlushHeartbeatsIntoPayloadHandler: (() -> _ObjC_HeartbeatsPayload)?
 
@@ -650,6 +652,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
     XCTAssertEqual(headerValue, expectedHeader)
   }
+  #endif
 
   /** @fn testRequest_IncludesAppCheckHeader
       @brief This test checks the behavior of @c postWithRequest:response:callback:
@@ -674,6 +677,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(headerValue, fakeAppCheck.fakeAppCheckToken)
   }
 
+  // TODO: enable for SPM
+  #if COCOAPODS
   /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
       @brief This test checks the behavior of @c postWithRequest:response:callback:
           to verify that a request header does not contain heartbeat data in the
@@ -701,6 +706,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
     XCTAssertNil(completeRequest.value(forHTTPHeaderField: "X-Firebase-Client"))
   }
+  #endif
 
   private class FakeRequest: NSObject, AuthRPCRequest {
     func requestConfiguration() -> AuthRequestConfiguration {

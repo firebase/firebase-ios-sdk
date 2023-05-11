@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import Foundation
-@_implementationOnly import FirebaseAppCheckInterop
+import FirebaseAppCheckInterop
 import FirebaseCore
 
 // Avoids exposing internal FirebaseCore APIs to Swift users.
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreExtension
 
 @objc(FIRAuthProvider) public protocol AuthProvider {
   @objc func auth() -> Auth

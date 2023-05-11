@@ -16,7 +16,11 @@
 
   import Foundation
   import UIKit
-  @_implementationOnly import GoogleUtilities
+//#if COCOAPODS
+//@_implementationOnly import GoogleUtilities
+//#else
+//@_implementationOnly import GoogleUtilities_Environment
+//#endif
 
   /** @class AuthDefaultUIDelegate
       @brief Class responsible for providing a default FIRAuthUIDelegate.
