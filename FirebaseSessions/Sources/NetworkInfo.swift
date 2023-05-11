@@ -26,24 +26,12 @@ import Foundation
 #endif // SWIFT_PACKAGE
 
 protocol NetworkInfoProtocol {
-  var mobileCountryCode: String? { get }
-
-  var mobileNetworkCode: String? { get }
-
   var networkType: GULNetworkType { get }
 
   var mobileSubtype: String { get }
 }
 
 class NetworkInfo: NetworkInfoProtocol {
-  var mobileCountryCode: String? {
-    return GULNetworkInfo.getNetworkMobileCountryCode()
-  }
-
-  var mobileNetworkCode: String? {
-    return GULNetworkInfo.getNetworkMobileNetworkCode()
-  }
-
   var networkType: GULNetworkType {
     return GULNetworkInfo.getNetworkType()
   }

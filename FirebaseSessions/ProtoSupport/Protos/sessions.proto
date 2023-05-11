@@ -165,7 +165,7 @@ enum DataCollectionState {
 }
 
 // App-level information collected from the device.
-// Next tag: 9
+// Next tag: 10
 message ApplicationInfo {
   // Commonly known as the GMP App Id
   string app_id = 1;
@@ -177,6 +177,8 @@ message ApplicationInfo {
   string development_platform_version = 4;
   // The version of the Firebase-Sessions SDK in use
   string session_sdk_version = 7;
+  // The operating system version
+  string os_version = 9;
   // The destination environment to send the logs to
   LogEnvironment log_environment = 8;
 
@@ -213,10 +215,12 @@ message AndroidApplicationInfo {
 // - os_full_version
 // - model
 // - country
-// Next tag: 6
+// Next tag: 7
 message AppleApplicationInfo {
   // The application's display version, eg. 1.2.3
   string bundle_short_version = 1;
+  // The application's build version. Eg. 123
+  string app_build_version = 6;
   // Describes the network connectivity of the device
   NetworkConnectionInfo network_connection_info = 3;
   // Collects the OS running. Eg. iOS, iPadOs, tvOS, etc.

@@ -327,6 +327,20 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
+- (QueryPurpose)parseQueryPurpose:(NSString *)value {
+  if ([value isEqualToString:@"TargetPurposeListen"]) {
+    return QueryPurpose::Listen;
+  }
+  if ([value isEqualToString:@"TargetPurposeExistenceFilterMismatch"]) {
+    return QueryPurpose::ExistenceFilterMismatch;
+  }
+  if ([value isEqualToString:@"TargetPurposeLimboResolution"]) {
+    return QueryPurpose::LimboResolution;
+  }
+  XCTFail(@"unknown query purpose value: %@", value);
+  return QueryPurpose::Listen;
+}
+
 - (DocumentViewChange)parseChange:(NSDictionary *)jsonDoc ofType:(DocumentViewChange::Type)type {
   NSNumber *version = jsonDoc[@"version"];
   NSDictionary *options = jsonDoc[@"options"];
@@ -465,13 +479,12 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   }
 }
 
-- (void)doWatchFilter:(NSArray *)watchFilter {
-  NSArray<NSNumber *> *targets = watchFilter[0];
+- (void)doWatchFilter:(NSDictionary *)watchFilter {
+  NSArray<NSString *> *keys = watchFilter[@"keys"];
+  NSArray<NSNumber *> *targets = watchFilter[@"targetIds"];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
-  int keyCount = watchFilter.count == 0 ? 0 : (int)watchFilter.count - 1;
-
-  ExistenceFilter filter{keyCount};
+  ExistenceFilter filter{static_cast<int>(keys.count)};
   ExistenceFilterWatchChange change{filter, targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
@@ -782,7 +795,7 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
 
               QueryPurpose purpose = QueryPurpose::Listen;
               if ([queryData objectForKey:@"targetPurpose"] != nil) {
-                purpose = static_cast<QueryPurpose>([queryData[@"targetPurpose"] intValue]);
+                purpose = [self parseQueryPurpose:queryData[@"targetPurpose"]];
               }
 
               TargetData target_data(query.ToTarget(), targetID, 0, purpose);

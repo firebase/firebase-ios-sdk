@@ -219,6 +219,25 @@ static bool FIRCLSMachOSliceIsValid(FIRCLSMachOSliceRef slice) {
   return true;
 }
 
+void FIRCLSMachOSliceEnumerateLoadCommands_f(FIRCLSMachOSliceRef slice,
+                                             void* context,
+                                             FIRCLSMachOLoadCommandIteratorFunc function) {
+  const struct load_command* cmd;
+  uint32_t cmdCount;
+
+  if (!FIRCLSMachOSliceIsValid(slice)) {
+    return;
+  }
+
+  FIRCLSMachOHeaderValues(slice, &cmd, &cmdCount);
+
+  for (uint32_t i = 0; cmd != NULL && i < cmdCount; ++i) {
+    function(cmd->cmd, cmd->cmdsize, cmd, context);
+
+    cmd = (struct load_command*)((uintptr_t)cmd + cmd->cmdsize);
+  }
+}
+
 void FIRCLSMachOSliceEnumerateLoadCommands(FIRCLSMachOSliceRef slice,
                                            FIRCLSMachOLoadCommandIterator block) {
   const struct load_command* cmd;

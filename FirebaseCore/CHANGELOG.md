@@ -1,3 +1,6 @@
+# Firebase 10.10.0
+- [changed] Firebase now requires at least Xcode 14.1.
+
 # Firebase 10.8.1
 - [fixed] Swift Package Manager only release to fix a 10.8.0 Firestore issue
   impacting macCatalyst. (#11119)

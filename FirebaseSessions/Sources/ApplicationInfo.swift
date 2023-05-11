@@ -47,9 +47,6 @@ protocol ApplicationInfoProtocol {
   /// Model of the device
   var deviceModel: String { get }
 
-  /// Validated Mobile Country Code and Mobile Network Code
-  var mccMNC: String { get }
-
   /// Network information for the application
   var networkInfo: NetworkInfoProtocol { get }
 
@@ -91,10 +88,6 @@ class ApplicationInfo: ApplicationInfoProtocol {
 
   var deviceModel: String {
     return GULAppEnvironmentUtil.deviceSimulatorModel() ?? ""
-  }
-
-  var mccMNC: String {
-    return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
 
   var networkInfo: NetworkInfoProtocol {

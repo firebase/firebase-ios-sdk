@@ -49,6 +49,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     proto.application_info.app_id = makeProtoString(appInfo.appID)
     proto.application_info.session_sdk_version = makeProtoString(appInfo.sdkVersion)
+    proto.application_info.os_version = makeProtoString(appInfo.osDisplayVersion)
     proto.application_info.log_environment = convertLogEnvironment(environment: appInfo.environment)
     proto.application_info.device_model = makeProtoString(appInfo.deviceModel)
 //    proto.application_info.development_platform_name;
@@ -58,6 +59,8 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     proto.application_info.which_platform_info = FIRSESGetAppleApplicationInfoTag()
     proto.application_info.apple_app_info
       .bundle_short_version = makeProtoString(appInfo.appDisplayVersion)
+    proto.application_info.apple_app_info
+      .app_build_version = makeProtoString(appInfo.appBuildVersion)
     proto.application_info.apple_app_info.os_name = convertOSName(osName: appInfo.osName)
 
     // Set network info to base values but don't fill them in with the real
@@ -130,7 +133,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     switch subscriber {
     case .Performance:
       let oldString = proto.application_info.apple_app_info.mcc_mnc
-      proto.application_info.apple_app_info.mcc_mnc = makeProtoString(appInfo.mccMNC)
+      proto.application_info.apple_app_info.mcc_mnc = makeProtoString("")
       nanopb_free(oldString)
       proto.application_info.apple_app_info.network_connection_info
         .network_type = convertNetworkType(networkType: appInfo.networkInfo.networkType)

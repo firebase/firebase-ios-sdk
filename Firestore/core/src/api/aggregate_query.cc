@@ -34,6 +34,10 @@ void AggregateQuery::Get(CountQueryCallback&& callback) {
                                               std::move(callback));
 }
 
+bool operator==(const AggregateQuery& lhs, const AggregateQuery& rhs) {
+  return lhs.query() == rhs.query();
+}
+
 }  // namespace api
 }  // namespace firestore
 }  // namespace firebase
