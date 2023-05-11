@@ -1430,7 +1430,7 @@ import FirebaseAppCheckInterop
     kAuthGlobalWorkQueue.async {
       self.requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
       #if os(iOS)
-        self.settings?.isAppVerificationDisabledForTesting = true
+        self.settings?.appVerificationDisabledForTesting = true
       #endif
     }
   }
