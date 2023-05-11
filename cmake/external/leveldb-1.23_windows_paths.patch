@@ -108,7 +108,7 @@ index 449f564..812c728 100644
  
 -  Status RemoveFile(const std::string& filename) override {
 -    if (!::DeleteFileA(filename.c_str())) {
-+  Status RemoveFile(const std::string& filename) override {
++  Status RemoveFile(const std::string& filename) {
 +    auto wFilename = toUtf16(filename);
 +    if (!::DeleteFileW(wFilename.c_str())) {
        return WindowsError(filename, ::GetLastError());
