@@ -26,10 +26,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   s.swift_version = '5.3'
 
-  s.prepare_command = <<-CMD
-    ruby scripts/build_private_module_map.rb FirebaseAuth.podspec
-  CMD
-
   s.ios.deployment_target = ios_deployment_target
   s.osx.deployment_target = osx_deployment_target
   s.tvos.deployment_target = tvos_deployment_target
@@ -40,18 +36,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   source = 'FirebaseAuth/Sources/'
   s.source_files = [
-    'FirebaseAuth/Sources/Swift/**/*.swift',
-    source + '**/*.[mh]',
-    'FirebaseAuth/Interop/*.h',
-    'FirebaseAppCheck/Interop/*.h',
+    source + 'Swift/**/*.swift',
+    source + 'Public/FirebaseAuth/*.h'
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
-
-  # All headers except the ones in the `Public` should be private.
-  s.private_header_files = Dir['FirebaseAuth/Sources/**/*.h']
-    .reject{ |f| f['FirebaseAuth/Sources/Public/'] } + [
-      'FirebaseAuth/Interop/*.h'
-    ]
 
   s.preserve_paths = [
     'FirebaseAuth/README.md',
@@ -61,12 +49,10 @@ supports email and password accounts, as well as several 3rd party authenticatio
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     # The second path is to find FirebaseAuth-Swift.h from a pod gen project
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}" "${OBJECT_FILE_DIR_normal}/${NATIVE_ARCH_ACTUAL}"',
-    # Point to the private module map.
-    'MODULEMAP_PRIVATE_FILE' =>
-        '${PODS_TARGET_SRCROOT}/FirebaseAuth/Sources/FirebaseAuth.private.modulemap'
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
+  s.dependency 'FirebaseAuthInterop', '~> 10.9'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.0'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
