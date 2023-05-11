@@ -17,5 +17,4 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAuthSettings.h"
-#import "FIRAuthUIDelegate.h"
 #import "FIRMultiFactor.h"
