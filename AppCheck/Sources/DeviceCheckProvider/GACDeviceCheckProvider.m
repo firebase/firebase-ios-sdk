@@ -40,6 +40,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+static NSString *const kHeartbeatKey = @"X-firebase-client";
+// FIREBASE_APP_CHECK_ONLY_END
+
 @interface GACDeviceCheckProvider ()
 @property(nonatomic, readonly) id<GACDeviceCheckAPIServiceProtocol> APIService;
 @property(nonatomic, readonly) id<GACDeviceCheckTokenGenerator> deviceTokenGenerator;
@@ -87,11 +92,20 @@ NS_ASSUME_NONNULL_BEGIN
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
+  // TODO(andrewheard): Remove from generic App Check SDK.
+  // FIREBASE_APP_CHECK_ONLY_BEGIN
+  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
+    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
+                          [app.heartbeatLogger flushHeartbeatsIntoPayload])
+        forHTTPHeaderField:kHeartbeatKey];
+  };
+  // FIREBASE_APP_CHECK_ONLY_END
+
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
                                                  APIKey:app.options.APIKey
                                                   appID:app.options.googleAppID
-                                        heartbeatLogger:app.heartbeatLogger];
+                                           requestHooks:@[ heartbeatLoggerHook ]];
 
   GACDeviceCheckAPIService *deviceCheckAPIService =
       [[GACDeviceCheckAPIService alloc] initWithAPIService:APIService
