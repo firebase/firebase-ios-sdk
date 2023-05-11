@@ -34,7 +34,7 @@ TITLE_END_NO_DIFF = "## ✅&nbsp; No API diff detected\n"
 
 COMMENT_HIDDEN_IDENTIFIER = '\r\n<hidden value="diff-report"></hidden>\r\n'
 GITHUB_API_URL = 'https://api.github.com/repos/firebase/firebase-ios-sdk'
-PR_LABLE = "public-api-change"
+PR_LABEL = "public-api-change"
 
 
 def main():
@@ -50,30 +50,32 @@ def main():
   run_id = args.run_id
 
   report = ""
+  comment_id = get_comment_id(token, pr_number, COMMENT_HIDDEN_IDENTIFIER)
   if stage == STAGES_PROGRESS:
-    report = COMMENT_HIDDEN_IDENTIFIER
-    report += generate_markdown_title(TITLE_PROGESS, commit, run_id)
-    delete_label(token, pr_number, PR_LABLE)
+    if comment_id:
+      report = COMMENT_HIDDEN_IDENTIFIER
+      report += generate_markdown_title(TITLE_PROGESS, commit, run_id)
+      update_comment(token, comment_id, report)
+      delete_label(token, pr_number, PR_LABEL)
   elif stage == STAGES_END:
     diff_report_file = os.path.join(os.path.expanduser(args.report),
                                     api_diff_report.API_DIFF_FILE_NAME)
     with open(diff_report_file, 'r') as file:
       report_content = file.read()
-    if report_content:
+    if report_content:  # Diff detected
       report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
           TITLE_END_DIFF, commit, run_id) + report_content
-      add_label(token, pr_number, PR_LABLE)
-    else:
-      report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
-          TITLE_END_NO_DIFF, commit, run_id)
-      delete_label(token, pr_number, PR_LABLE)
-
-  if report:
-    comment_id = get_comment_id(token, pr_number, COMMENT_HIDDEN_IDENTIFIER)
-    if not comment_id:
-      add_comment(token, pr_number, report)
-    else:
-      update_comment(token, comment_id, report)
+      if comment_id:
+        update_comment(token, comment_id, report)
+      else:
+        add_comment(token, pr_number, report)
+      add_label(token, pr_number, PR_LABEL)
+    else:  # No diff
+      if comment_id:
+        report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
+            TITLE_END_NO_DIFF, commit, run_id)
+        update_comment(token, comment_id, report)
+        delete_label(token, pr_number, PR_LABEL)
 
 
 def generate_markdown_title(title, commit, run_id):

@@ -30,7 +30,6 @@ def main():
   # Parse command-line arguments
   args = parse_cmdline_args()
   output_dir = os.path.expanduser(args.output_dir)
-  api_theme_dir = os.path.expanduser(args.api_theme_dir)
   if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
@@ -49,7 +48,7 @@ def main():
   api_container = {}
   for _, module in changed_modules.items():
     api_doc_dir = os.path.join(output_dir, 'doc', module['name'])
-    build_api_doc(module, api_doc_dir, api_theme_dir)
+    build_api_doc(module, api_doc_dir)
 
     if os.path.exists(api_doc_dir):
       module_api_container = parse_module(api_doc_dir)
@@ -74,7 +73,7 @@ def get_api_files(file_list):
   ]
 
 
-def build_api_doc(module, output_dir, api_theme_dir):
+def build_api_doc(module, output_dir):
   """Use Jazzy to build API documentation for a specific module's source
     code."""
   if module['language'] == icore_module.SWIFT:
@@ -84,8 +83,7 @@ def build_api_doc(module, output_dir, api_theme_dir):
         + ' --build-tool-arguments'\
         + f' -scheme,{module["scheme"]}'\
         + ',-destination,generic/platform=iOS,build'\
-        + f' --output {output_dir}'\
-        + f' --theme {api_theme_dir}'
+        + f' --output {output_dir}'
     logging.info(cmd)
     result = subprocess.Popen(cmd,
                               universal_newlines=True,
@@ -97,8 +95,7 @@ def build_api_doc(module, output_dir, api_theme_dir):
     cmd = 'jazzy --objc'\
         + f' --framework-root {module["root_dir"]}'\
         + f' --umbrella-header {module["umbrella_header"]}'\
-        + f' --output {output_dir}'\
-        + f' --theme {api_theme_dir}'
+        + f' --output {output_dir}'
     logging.info(cmd)
     result = subprocess.Popen(cmd,
                               universal_newlines=True,
@@ -215,9 +212,6 @@ def parse_cmdline_args():
   parser = argparse.ArgumentParser()
   parser.add_argument('-f', '--file_list', nargs='+', default=[])
   parser.add_argument('-o', '--output_dir', default='output_dir')
-  parser.add_argument('-t',
-                      '--api_theme_dir',
-                      default='scripts/api_diff_report/theme')
 
   args = parser.parse_args()
   return args
