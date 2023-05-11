@@ -20,9 +20,9 @@
 @class GULURLSessionDataResponse;
 @class GACAppCheckToken;
 
-@protocol FIRHeartbeatLoggerProtocol;
-
 NS_ASSUME_NONNULL_BEGIN
+
+typedef void (^GACAppCheckAPIRequestHook)(NSMutableURLRequest *request);
 
 @protocol GACAppCheckAPIServiceProtocol <NSObject>
 
@@ -46,12 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
  * @param session The URL session used to make network requests.
  * @param APIKey The Firebase project API key (see `FIROptions.APIKey`).
  * @param appID The Firebase app ID (see `FIROptions.googleAppID`).
- * @param heartbeatLogger The heartbeat logger used to populate heartbeat data in request headers.
+ * @param requestHooks Hooks that will be invoked on requests through this service.
  */
 - (instancetype)initWithURLSession:(NSURLSession *)session
                             APIKey:(NSString *)APIKey
                              appID:(NSString *)appID
-                   heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger;
+                      requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
 
 @end
 
