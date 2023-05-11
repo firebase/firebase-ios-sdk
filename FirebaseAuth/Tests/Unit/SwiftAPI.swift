@@ -239,18 +239,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
       obj.present(UIViewController(), animated: true) {}
       obj.dismiss(animated: false) {}
     }
-
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRAuthUIDelegate_hAsync() async {
-      class AuthUIImpl: NSObject, AuthUIDelegate {
-        func present(_ viewControllerToPresent: UIViewController, animated flag: Bool) async {}
-
-        func dismiss(animated flag: Bool) async {}
-      }
-      let obj = AuthUIImpl()
-      await obj.present(UIViewController(), animated: true)
-      await obj.dismiss(animated: false)
-    }
   #endif
 
   func FIREmailAuthProvider_h() {
