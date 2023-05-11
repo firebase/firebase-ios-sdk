@@ -35,6 +35,11 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+static NSString *const kHeartbeatKey = @"X-firebase-client";
+// FIREBASE_APP_CHECK_ONLY_END
+
 #pragma mark - Fakes
 
 /// A fake heartbeat logger used for dependency injection during testing.
@@ -96,10 +101,16 @@
   self.mockURLSession = OCMStrictClassMock([NSURLSession class]);
 
   self.heartbeatLoggerFake = [[FIRHeartbeatLoggerFake alloc] init];
+  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
+    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
+                          [self.heartbeatLoggerFake flushHeartbeatsIntoPayload])
+        forHTTPHeaderField:kHeartbeatKey];
+  };
+
   self.APIService = [[GACAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
                                                                APIKey:self.APIKey
                                                                 appID:self.appID
-                                                      heartbeatLogger:self.heartbeatLoggerFake];
+                                                         requestHooks:@[ heartbeatLoggerHook ]];
 }
 
 - (void)tearDown {
