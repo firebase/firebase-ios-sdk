@@ -33,7 +33,6 @@
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kAPIKeyHeaderKey = @"X-Goog-Api-Key";
-static NSString *const kHeartbeatKey = @"X-firebase-client";
 static NSString *const kBundleIdKey = @"X-Ios-Bundle-Identifier";
 
 static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.com/v1";
@@ -43,7 +42,7 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 @property(nonatomic, readonly) NSURLSession *URLSession;
 @property(nonatomic, readonly) NSString *APIKey;
 @property(nonatomic, readonly) NSString *appID;
-@property(nonatomic, readonly) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
+@property(nonatomic, readonly) NSArray<GACAppCheckAPIRequestHook> *requestHooks;
 
 @end
 
@@ -55,25 +54,25 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 - (instancetype)initWithURLSession:(NSURLSession *)session
                             APIKey:(NSString *)APIKey
                              appID:(NSString *)appID
-                   heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger {
+                      requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
   return [self initWithURLSession:session
                            APIKey:APIKey
                             appID:appID
-                  heartbeatLogger:heartbeatLogger
+                     requestHooks:requestHooks
                           baseURL:kDefaultBaseURL];
 }
 
 - (instancetype)initWithURLSession:(NSURLSession *)session
                             APIKey:(NSString *)APIKey
                              appID:(NSString *)appID
-                   heartbeatLogger:(id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
+                      requestHooks:(NSArray<GACAppCheckAPIRequestHook> *)requestHooks
                            baseURL:(NSString *)baseURL {
   self = [super init];
   if (self) {
     _URLSession = session;
     _APIKey = APIKey;
     _appID = appID;
-    _heartbeatLogger = heartbeatLogger;
+    _requestHooks = requestHooks ? [requestHooks copy] : @[];
     _baseURL = baseURL;
   }
   return self;
@@ -110,9 +109,9 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 
              [request setValue:self.APIKey forHTTPHeaderField:kAPIKeyHeaderKey];
 
-             [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                                   [self.heartbeatLogger flushHeartbeatsIntoPayload])
-                 forHTTPHeaderField:kHeartbeatKey];
+             for (GACAppCheckAPIRequestHook requestHook in self.requestHooks) {
+               requestHook(request);
+             }
 
              [request setValue:[[NSBundle mainBundle] bundleIdentifier]
                  forHTTPHeaderField:kBundleIdKey];
