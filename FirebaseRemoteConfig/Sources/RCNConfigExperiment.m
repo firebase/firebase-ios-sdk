@@ -204,7 +204,7 @@ static NSString *const kMethodNameLatestStartTime =
 
   /// Put current fetched experiment payloads into activated experiment DB.
   for (NSData *data in _experimentPayloads) {
-    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyPayload
+    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
                                        value:data
                            completionHandler:nil];
   }
