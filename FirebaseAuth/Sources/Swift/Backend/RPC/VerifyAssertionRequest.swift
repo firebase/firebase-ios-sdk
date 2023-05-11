@@ -121,7 +121,7 @@ private let kLastNameKey = "lastName"
     @brief Represents the parameters for the verifyAssertion endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
-public class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property requestURI
       @brief The URI to which the IDP redirects the user back. It may contain federated login result
           params added by the IDP.

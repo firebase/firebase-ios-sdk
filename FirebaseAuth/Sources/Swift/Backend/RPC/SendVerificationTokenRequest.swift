@@ -44,7 +44,7 @@ private let kreCAPTCHATokenKey = "recaptchaToken"
  */
 private let kTenantIDKey = "tenantId"
 
-public class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property phoneNumber
       @brief The phone number to which the verification code should be sent.
    */

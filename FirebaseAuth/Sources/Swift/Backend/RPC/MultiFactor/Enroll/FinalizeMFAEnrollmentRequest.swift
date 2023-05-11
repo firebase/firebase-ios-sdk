@@ -21,7 +21,7 @@ private let kFinalizeMFAEnrollmentEndPoint = "accounts/mfaEnrollment:finalize"
  */
 private let kTenantIDKey = "tenantId"
 
-class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   var idToken: String?
 
   var displayName: String?

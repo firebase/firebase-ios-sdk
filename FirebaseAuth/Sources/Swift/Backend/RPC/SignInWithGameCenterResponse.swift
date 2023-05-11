@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class SignInWithGameCenterResponse: NSObject, AuthRPCResponse_NEW_ {
+public class SignInWithGameCenterResponse: NSObject, AuthRPCResponse {
   @objc(IDToken) public var idToken: String?
   @objc public var refreshToken: String?
   @objc public var localID: String?

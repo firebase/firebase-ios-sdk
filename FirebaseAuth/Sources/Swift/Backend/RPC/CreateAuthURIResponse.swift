@@ -19,7 +19,7 @@ import Foundation
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
  */
 
-public class CreateAuthURIResponse: AuthRPCResponse_NEW_ {
+public class CreateAuthURIResponse: AuthRPCResponse {
   /** @property authUri
       @brief The URI used by the IDP to authenticate the user.
    */

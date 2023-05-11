@@ -17,7 +17,7 @@ import Foundation
 /** @class FIRVerifyCustomTokenResponse
     @brief Represents the response from the verifyCustomToken endpoint.
  */
-public class VerifyCustomTokenResponse: AuthRPCResponse_NEW_ {
+public class VerifyCustomTokenResponse: AuthRPCResponse {
   /** @property idToken
    @brief Either an authorization code suitable for performing an STS token exchange, or the
    access token from Secure Token Service, depending on whether @c returnSecureToken is set

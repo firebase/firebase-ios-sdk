@@ -19,7 +19,7 @@ private let kSignInWithGameCenterEndPoint = "signInWithGameCenter"
 /** @class FIRSignInWithGameCenterRequest
     @brief The request to sign in with Game Center account
  */
-public class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property playerID
       @brief The playerID to verify.
    */

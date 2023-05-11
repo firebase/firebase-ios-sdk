@@ -24,7 +24,7 @@ import Foundation
        - FIRAuthErrorCodeInvalidActionCode
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
  */
-public class ResetPasswordResponse: NSObject, AuthRPCResponse_NEW_ {
+public class ResetPasswordResponse: NSObject, AuthRPCResponse {
   /** @property email
    @brief The email address corresponding to the reset password request.
    */

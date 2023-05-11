@@ -43,7 +43,7 @@ private let kIDTokenKey = "idToken"
     @brief Represents the parameters for the verifyPassword endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-public class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property providerID
       @brief The provider that issued the token to revoke.
    */

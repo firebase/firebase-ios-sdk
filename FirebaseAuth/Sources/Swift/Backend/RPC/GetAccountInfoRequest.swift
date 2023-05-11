@@ -29,7 +29,7 @@ private let kIDTokenKey = "idToken"
     @brief Represents the parameters for the getAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
-public class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property accessToken
       @brief The STS Access Token for the authenticated user.
    */

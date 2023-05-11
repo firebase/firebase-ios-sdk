@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class StartMFASignInResponse: NSObject, AuthRPCResponse_NEW_ {
+public class StartMFASignInResponse: NSObject, AuthRPCResponse {
   var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {

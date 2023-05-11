@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class RevokeTokenResponse: NSObject, AuthRPCResponse_NEW_ {
+public class RevokeTokenResponse: NSObject, AuthRPCResponse {
   public func setFields(dictionary: [String: AnyHashable]) throws {
     // Nothing to set or throw.
   }

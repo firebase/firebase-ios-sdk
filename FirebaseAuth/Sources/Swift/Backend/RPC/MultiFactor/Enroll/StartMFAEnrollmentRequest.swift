@@ -21,7 +21,7 @@ private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
  */
 private let kTenantIDKey = "tenantId"
 
-public class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   private(set) var idToken: String?
   private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
 

@@ -78,7 +78,7 @@ private var gAPIHost = "securetoken.googleapis.com"
 /** @class FIRSecureTokenRequest
     @brief Represents the parameters for the token endpoint.
  */
-@objc(FIRSecureTokenRequest) public class SecureTokenRequest: NSObject, AuthRPCRequest {
+public class SecureTokenRequest: AuthRPCRequest {
   /** @property grantType
       @brief The type of grant requested.
       @see FIRSecureTokenRequestGrantType
@@ -93,7 +93,7 @@ private var gAPIHost = "securetoken.googleapis.com"
   /** @property refreshToken
       @brief The client's refresh token.
    */
-  @objc public var refreshToken: String?
+  public var refreshToken: String?
 
   /** @property code
       @brief The client's authorization code (legacy Gitkit "ID Token").
@@ -103,19 +103,19 @@ private var gAPIHost = "securetoken.googleapis.com"
   /** @property APIKey
       @brief The client's API Key.
    */
-  @objc public let apiKey: String
+  public let apiKey: String
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = SecureTokenResponse()
+  var response: SecureTokenResponse = SecureTokenResponse()
 
   let _requestConfiguration: AuthRequestConfiguration
   public func requestConfiguration() -> AuthRequestConfiguration {
     _requestConfiguration
   }
 
-  @objc public static func authCodeRequest(code: String,
+  public static func authCodeRequest(code: String,
                                            requestConfiguration: AuthRequestConfiguration)
     -> SecureTokenRequest {
     SecureTokenRequest(
@@ -127,7 +127,7 @@ private var gAPIHost = "securetoken.googleapis.com"
     )
   }
 
-  @objc public static func refreshRequest(refreshToken: String,
+  public static func refreshRequest(refreshToken: String,
                                           requestConfiguration: AuthRequestConfiguration)
     -> SecureTokenRequest {
     SecureTokenRequest(

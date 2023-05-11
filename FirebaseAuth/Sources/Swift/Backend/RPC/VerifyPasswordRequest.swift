@@ -58,7 +58,7 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the verifyPassword endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-public class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property email
       @brief The email of the user.
    */

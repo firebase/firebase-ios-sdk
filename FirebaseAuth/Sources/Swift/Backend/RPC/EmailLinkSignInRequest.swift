@@ -44,7 +44,7 @@ private let kPostBodyKey = "postBody"
  */
 private let kTenantIDKey = "tenantId"
 
-public class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   public let email: String
 
   /** @property oobCode

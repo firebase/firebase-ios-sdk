@@ -17,7 +17,7 @@ import Foundation
 /** @class FIRVerifyAssertionResponse
     @brief Represents the response from the emailLinkSignin endpoint.
  */
-public class EmailLinkSignInResponse: NSObject, AuthRPCResponse_NEW_ {
+public class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */

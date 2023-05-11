@@ -184,7 +184,7 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
     @brief Represents the response from the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
-public class GetAccountInfoResponse: NSObject, AuthRPCResponse_NEW_ {
+public class GetAccountInfoResponse: NSObject, AuthRPCResponse {
   /** @property providerUserInfo
    @brief The requested users' profiles.
    */

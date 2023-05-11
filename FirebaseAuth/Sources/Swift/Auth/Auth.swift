@@ -204,10 +204,10 @@ import FirebaseAppCheckInterop
       let request = CreateAuthURIRequest(identifier: email,
                                          continueURI: "http:www.google.com",
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
-            completion((response as? CreateAuthURIResponse)?.signinMethods, error)
+            completion(response?.signinMethods, error)
           }
         }
       }
@@ -289,12 +289,12 @@ import FirebaseAppCheckInterop
       callback(nil, AuthErrorUtils.wrongPasswordError(message: nil))
       return
     }
-    AuthBackend.post(withRequest: request) { rawResponse, error in
+    AuthBackend.post(with: request) { rawResponse, error in
       if let error {
         callback(nil, error)
         return
       }
-      guard let response = rawResponse as? VerifyPasswordResponse else {
+      guard let response = rawResponse else {
         fatalError("Internal Auth Error: null response from VerifyPasswordRequest")
       }
       self.completeSignIn(withAccessToken: response.idToken,
@@ -651,12 +651,12 @@ import FirebaseAppCheckInterop
         decoratedCallback(result, nil)
       }
       let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           decoratedCallback(nil, error)
           return
         }
-        guard let response = rawResponse as? SignUpNewUserResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a SignUpNewUserResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -732,12 +732,12 @@ import FirebaseAppCheckInterop
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let request = VerifyCustomTokenRequest(token: token,
                                              requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           decoratedCallback(nil, error)
           return
         }
-        guard let response = rawResponse as? VerifyCustomTokenResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a VerifyCustomTokenResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -837,12 +837,12 @@ import FirebaseAppCheckInterop
                                          password: password,
                                          displayName: nil,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           decoratedCallback(nil, error)
           return
         }
-        guard let response = rawResponse as? SignUpNewUserResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a SignUpNewUserResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -930,7 +930,7 @@ import FirebaseAppCheckInterop
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: newPassword,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { _, error in
+      AuthBackend.post(with: request) { _, error in
         DispatchQueue.main.async {
           if let error {
             completion(error)
@@ -987,13 +987,13 @@ import FirebaseAppCheckInterop
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: nil,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         DispatchQueue.main.async {
           if let error {
             completion(nil, error)
             return
           }
-          guard let response = rawResponse as? ResetPasswordResponse,
+          guard let response = rawResponse,
                 let email = response.email else {
             fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
           }
@@ -1081,7 +1081,7 @@ import FirebaseAppCheckInterop
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
       request.oobCode = code
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         DispatchQueue.main.async {
           completion(error)
         }
@@ -1170,7 +1170,7 @@ import FirebaseAppCheckInterop
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
             completion(error)
@@ -1239,7 +1239,7 @@ import FirebaseAppCheckInterop
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           DispatchQueue.main.async {
             completion(error)
@@ -1455,7 +1455,7 @@ import FirebaseAppCheckInterop
       let request = RevokeTokenRequest(withToken: authorizationCode,
                                        idToken: idToken,
                                        requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let completion {
           if let error {
             completion(error)
@@ -2034,7 +2034,7 @@ import FirebaseAppCheckInterop
               callback(nil, error)
               return
             }
-            guard let response = rawResponse as? VerifyPhoneNumberResponse else {
+            guard let response = rawResponse else {
               fatalError("Internal Auth Error: Failed to get a VerifyPhoneNumberResponse")
             }
             self.completeSignIn(withAccessToken: response.idToken,
@@ -2069,14 +2069,14 @@ import FirebaseAppCheckInterop
                                          requestConfiguration: requestConfiguration)
     request.autoCreate = !isReauthentication
     credential.prepare(request)
-    AuthBackend.post(withRequest: request) { rawResponse, error in
+    AuthBackend.post(with: request) { rawResponse, error in
       if let error {
         if let callback {
           callback(nil, error)
         }
         return
       }
-      guard let response = rawResponse as? VerifyAssertionResponse else {
+      guard let response = rawResponse else {
         fatalError("Internal Auth Error: Failed to get a VerifyAssertionResponse")
       }
       if response.needConfirmation {
@@ -2128,16 +2128,16 @@ import FirebaseAppCheckInterop
         @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
             asynchronously on the global auth work queue in the future.
      */
-    private func signIn(withPhoneCredential credential: PhoneAuthCredential,
+  private func signIn(withPhoneCredential credential: PhoneAuthCredential,
                         operation: AuthOperationType,
-                        callback: @escaping (AuthRPCResponse?, Error?) -> Void) {
+                        callback: @escaping (VerifyPhoneNumberResponse?, Error?) -> Void) {
       if let temporaryProof = credential.temporaryProof, temporaryProof.count > 0,
          let phoneNumber = credential.phoneNumber, phoneNumber.count > 0 {
         let request = VerifyPhoneNumberRequest(temporaryProof: temporaryProof,
                                                phoneNumber: phoneNumber,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        AuthBackend.post(withRequest: request, callback: callback)
+        AuthBackend.post(with: request, callback: callback)
         return
       }
       guard let verificationID = credential.verificationID, verificationID.count > 0 else {
@@ -2152,7 +2152,7 @@ import FirebaseAppCheckInterop
                                              verificationCode: verificationCode,
                                              operation: operation,
                                              requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: request, callback: callback)
+      AuthBackend.post(with: request, callback: callback)
     }
   #endif
 
@@ -2181,14 +2181,14 @@ import FirebaseAppCheckInterop
                                                 timestamp: credential.timestamp,
                                                 displayName: credential.displayName,
                                                 requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           if let callback {
             callback(nil, error)
           }
           return
         }
-        guard let response = rawResponse as? SignInWithGameCenterResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: Failed to get a SignInWithGameCenterResponse")
         }
         self.completeSignIn(withAccessToken: response.idToken,
@@ -2238,14 +2238,14 @@ import FirebaseAppCheckInterop
     let request = EmailLinkSignInRequest(email: email,
                                          oobCode: actionCode,
                                          requestConfiguration: requestConfiguration)
-    AuthBackend.post(withRequest: request) { rawResponse, error in
+    AuthBackend.post(with: request) { rawResponse, error in
       if let error {
         if let callback {
           callback(nil, error)
         }
         return
       }
-      guard let response = rawResponse as? EmailLinkSignInResponse else {
+      guard let response = rawResponse else {
         fatalError("Internal Auth Error: Failed to get a EmailLinkSignInResponse")
       }
       self.completeSignIn(withAccessToken: response.idToken,

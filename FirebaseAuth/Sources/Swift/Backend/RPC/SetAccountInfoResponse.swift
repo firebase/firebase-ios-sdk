@@ -52,7 +52,7 @@ public class SetAccountInfoResponseProviderUserInfo: NSObject {
     @brief Represents the response from the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
  */
-public class SetAccountInfoResponse: AuthRPCResponse_NEW_ {
+public class SetAccountInfoResponse: AuthRPCResponse {
   /** @property email
       @brief The email or the user.
    */

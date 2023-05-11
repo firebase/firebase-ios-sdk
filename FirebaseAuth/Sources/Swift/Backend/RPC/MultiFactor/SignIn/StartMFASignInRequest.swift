@@ -21,7 +21,7 @@ private let kStartMFASignInEndPoint = "accounts/mfaSignIn:start"
  */
 private let kTenantIDKey = "tenantId"
 
-public class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   var MFAPendingCredential: String?
   var MFAEnrollmentID: String?
   var signInInfo: AuthProtoStartMFAPhoneRequestInfo?

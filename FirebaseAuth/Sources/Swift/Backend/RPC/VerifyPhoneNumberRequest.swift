@@ -77,7 +77,7 @@ extension AuthOperationType {
   }
 }
 
-public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property verificationID
        @brief The verification ID obtained from the response of @c sendVerificationCode.
    */

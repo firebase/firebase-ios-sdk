@@ -44,7 +44,7 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
-public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property email
       @brief The email of the user.
    */

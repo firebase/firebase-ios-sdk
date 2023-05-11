@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The endpoint for the verifyClient request.
   private static let verifyClientEndpoint = "verifyClient"
 

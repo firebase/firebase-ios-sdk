@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class SignUpNewUserResponse: AuthRPCResponse_NEW_ {
+public class SignUpNewUserResponse: AuthRPCResponse {
   /** @property IDToken
       @brief Either an authorization code suitable for performing an STS token exchange, or the
           access token from Secure Token Service, depending on whether @c returnSecureToken is set

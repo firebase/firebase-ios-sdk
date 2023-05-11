@@ -34,7 +34,7 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
-public class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   public let token: String
 
   public var returnSecureToken: Bool

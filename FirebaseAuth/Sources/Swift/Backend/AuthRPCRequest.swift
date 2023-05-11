@@ -15,64 +15,30 @@
 import Foundation
 
 /// The generic interface for an RPC request needed by AuthBackend.
-public protocol AuthRPCRequest_NEW_ {
-  associatedtype Response: AuthRPCResponse_NEW_
+protocol AuthRPCRequest {
+  associatedtype Response: AuthRPCResponse
 
   /// Gets the request's full URL.
   func requestURL() -> URL
 
+  /// Returns whether the request contains a post body or not. Requests without a post body are
+  /// GET requests. A default implementation returns `true`.
   var containsPostBody: Bool { get }
 
+  /// Creates unencoded HTTP body representing the request.
+  /// - Throws: Any error which occurred constructing the request.
+  /// - Returns: The HTTP body data representing the request before any encoding.
   func unencodedHTTPRequestBody() throws -> [String: AnyHashable]
 
+  /// The request configuration.
   func requestConfiguration() -> AuthRequestConfiguration
 
+  /// The corresponding response for this request.
   var response: Response { get }
 }
 
 // Default implementation of AuthRPCRequests. This produces similar behaviour to an optional method
 // in Obj-C.
-extension AuthRPCRequest_NEW_ {
+extension AuthRPCRequest {
   public var containsPostBody: Bool { return true }
-}
-
-// TODO: Once this type doesn't need to be @objc, perhaps it would make sense to make the response an
-// associated type of the request protocol and perform all encoding of requests and decoding of responses
-// using Codable.
-
-/** @protocol FIRAuthRPCRequest
-    @brief The generic interface for an RPC request needed by @c FIRAuthBackend.
- */
-@objc(FIRAuthRPCRequest) public protocol AuthRPCRequest: NSObjectProtocol {
-  /** @fn requestURL
-      @brief Gets the request's full URL.
-   */
-
-  func requestURL() -> URL
-
-  /** @fn containsPostBody
-      @brief Returns whether the request contains a post body or not. Requests without a post body
-          are get requests.
-      @remarks The default implementation returns true.
-   */
-  @objc optional func containsPostBody() -> Bool
-
-  /** @fn UnencodedHTTPRequestBodyWithError:
-      @brief Creates unencoded HTTP body representing the request.
-      @param error An out field for an error which occurred constructing the request.
-      @return The HTTP body data representing the request before any encoding, or nil for error.
-   */
-  @objc(unencodedHTTPRequestBodyWithError:)
-  func unencodedHTTPRequestBody() throws -> [String: AnyHashable]
-
-  /** @fn requestConfiguration
-      @brief Obtains the request configurations if available.
-      @return Returns the request configurations.
-   */
-  func requestConfiguration() -> AuthRequestConfiguration
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  var response: AuthRPCResponse { get }
 }

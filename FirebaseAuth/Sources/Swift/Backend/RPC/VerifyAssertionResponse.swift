@@ -18,7 +18,7 @@ import Foundation
  @brief Represents the response from the verifyAssertion endpoint.
  @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
-public class VerifyAssertionResponse: AuthRPCResponse_NEW_ {
+public class VerifyAssertionResponse: AuthRPCResponse {
   /** @property federatedID
    @brief The unique ID identifies the IdP account.
    */

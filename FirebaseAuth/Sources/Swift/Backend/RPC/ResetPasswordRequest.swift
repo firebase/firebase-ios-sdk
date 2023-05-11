@@ -34,7 +34,7 @@ private let kCurrentPasswordKey = "newPassword"
  */
 private let kTenantIDKey = "tenantId"
 
-public class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property oobCode
       @brief The oobCode sent in the request.
    */

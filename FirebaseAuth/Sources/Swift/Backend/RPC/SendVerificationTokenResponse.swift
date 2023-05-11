@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class SendVerificationCodeResponse: NSObject, AuthRPCResponse_NEW_ {
+public class SendVerificationCodeResponse: NSObject, AuthRPCResponse {
   public var verificationID: String?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {

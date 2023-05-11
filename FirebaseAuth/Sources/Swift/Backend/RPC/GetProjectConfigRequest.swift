@@ -19,7 +19,7 @@ import Foundation
  */
 private let kGetProjectConfigEndPoint = "getProjectConfig"
 
-public class GetProjectConfigRequest_NEW_:  IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class GetProjectConfigRequest_NEW_:  IdentityToolkitRequest, AuthRPCRequest {
   /// The corresponding response for this request.
   public var response: GetProjectConfigResponse_NEW_ = GetProjectConfigResponse_NEW_()
 

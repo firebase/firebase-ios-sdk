@@ -21,7 +21,7 @@ import Foundation
        - FIRAuthInternalErrorCodeEmailNotFound
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-public class VerifyPasswordResponse: AuthRPCResponse_NEW_ {
+public class VerifyPasswordResponse: AuthRPCResponse {
   /** @property localID
       @brief The RP local ID if it's already been mapped to the IdP account identified by the
           federated ID.

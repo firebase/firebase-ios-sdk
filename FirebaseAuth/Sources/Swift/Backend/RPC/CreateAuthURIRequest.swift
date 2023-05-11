@@ -63,7 +63,7 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the createAuthUri endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
  */
-public class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property identifier
       @brief The email or federated ID of the user.
    */

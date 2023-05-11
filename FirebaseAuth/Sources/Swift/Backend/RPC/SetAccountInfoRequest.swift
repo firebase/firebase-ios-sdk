@@ -114,7 +114,7 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
  */
-public class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property accessToken
       @brief The STS Access Token of the authenticated user.
    */

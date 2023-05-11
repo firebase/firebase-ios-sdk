@@ -21,16 +21,16 @@ private let kWithdrawMFAEndPoint = "accounts/mfaEnrollment:withdraw"
  */
 private let kTenantIDKey = "tenantId"
 
-public class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
-  public var idToken: String?
-  public var mfaEnrollmentID: String?
+public class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
+  var idToken: String?
+  var mfaEnrollmentID: String?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: WithdrawMFAResponse = WithdrawMFAResponse()
+  var response: WithdrawMFAResponse = WithdrawMFAResponse()
 
-  public init(idToken: String?,
+  init(idToken: String?,
                     mfaEnrollmentID: String?,
                     requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
@@ -38,7 +38,7 @@ public class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
     super.init(endpoint: kWithdrawMFAEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
     if let idToken = idToken {
       postBody["idToken"] = idToken

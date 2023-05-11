@@ -30,7 +30,7 @@ private let kIDTokenKey = "idToken"
  */
 private let kLocalIDKey = "localId"
 
-public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest_NEW_ {
+public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var _accessToken
       @brief The STS Access Token of the authenticated user.
    */

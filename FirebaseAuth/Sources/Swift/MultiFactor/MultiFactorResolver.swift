@@ -57,7 +57,7 @@ import Foundation
         verificationInfo: finalizeMFAPhoneRequestInfo,
         requestConfiguration: auth.requestConfiguration
       )
-      AuthBackend.post(withRequest: request) { rawResponse, error in
+      AuthBackend.post(with: request) { rawResponse, error in
         if let error {
           if let completion {
             completion(nil, error)
