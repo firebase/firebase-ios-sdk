@@ -16,10 +16,6 @@ import Foundation
 import XCTest
 
 @testable import FirebaseAuth
-// TODO(ncooke3): Remove below import after `FIRAuth.[hm]` has been ported.
-// Note– This will break building with SPM. There is a way to achieve the same
-// thing with SPM mixed targets–– I'm just going to port `FIRAuth` next.
-import FirebaseAuth_Private
 
 import FirebaseCore
 

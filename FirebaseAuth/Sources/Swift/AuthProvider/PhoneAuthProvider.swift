@@ -15,12 +15,6 @@
 import Foundation
 import FirebaseCore
 
-// When building for CocoaPods, non-public headers are exposed to Swift via a
-// private module map.
-#if COCOAPODS
-  @_implementationOnly import FirebaseAuth_Private
-#endif // COCOAPODS
-
 /**
  @brief A concrete implementation of `AuthProvider` for phone auth providers.
      This class is available on iOS only.
