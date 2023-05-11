@@ -40,10 +40,8 @@ supports email and password accounts, as well as several 3rd party authenticatio
 
   source = 'FirebaseAuth/Sources/'
   s.source_files = [
-    'FirebaseAuth/Sources/Swift/**/*.swift',
-    source + '**/*.[mh]',
-    'FirebaseAuth/Interop/*.h',
-    'FirebaseAppCheck/Interop/*.h',
+    source + 'Swift/**/*.swift',
+    source + 'Public/FirebaseAuth/*.h'
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'
 
@@ -67,6 +65,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   }
   s.framework = 'Security'
   s.ios.framework = 'SafariServices'
+  s.dependency 'FirebaseAuthInterop', '~> 10.9'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.0'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseCoreExtension', '~> 10.0'
