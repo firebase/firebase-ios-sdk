@@ -41,6 +41,7 @@
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
+- (void)updateActiveExperiments;
 @end
 
 @interface RCNConfigExperimentTest : XCTestCase {
@@ -232,6 +233,7 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
                           @(12345678));
+    OCMVerify([experiment updateActiveExperiments]);
   }];
 }
 
