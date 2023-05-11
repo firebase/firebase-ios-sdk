@@ -26,6 +26,8 @@ options=(
 )
 
 git grep "${options[@]}" -- \
+    ':(exclude)cmake/external/leveldb-1.22_windows_paths.patch' \
+    ':(exclude)cmake/external/leveldb-1.23_windows_paths.patch' \
     ':(exclude)cmake/external/nanopb.patch' \
     ':(exclude)cmake/external/snappy.patch' \
     ':(exclude)Crashlytics/ProtoSupport' \

@@ -21,6 +21,7 @@ import argparse
 import dataclasses
 import os
 import pathlib
+import subprocess
 from typing import Iterable, Sequence
 
 
@@ -28,10 +29,12 @@ def main() -> None:
   arg_parser = argparse.ArgumentParser()
   arg_parser.add_argument("--snappy-source-dir", required=True)
   arg_parser.add_argument("--snappy-binary-dir", required=True)
+  arg_parser.add_argument("--additional-patch-file", required=False)
   parsed_args = arg_parser.parse_args()
   del arg_parser
   snappy_source_dir = pathlib.Path(parsed_args.snappy_source_dir)
   snappy_binary_dir = pathlib.Path(parsed_args.snappy_binary_dir)
+  additional_patch_file = parsed_args.additional_patch_file
   del parsed_args
 
   cmakelists_txt_file = pathlib.Path("CMakeLists.txt")
@@ -49,6 +52,10 @@ def main() -> None:
 
   with cmakelists_txt_file.open("wt", encoding="utf8") as f:
     f.writelines(patched_lines)
+
+  if additional_patch_file:
+    subprocess.run(['git', 'apply', '-v', additional_patch_file],
+                   check=True)
 
 
 @dataclasses.dataclass(frozen=True)
