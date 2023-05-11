@@ -44,6 +44,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+static NSString *const kHeartbeatKey = @"X-firebase-client";
+// FIREBASE_APP_CHECK_ONLY_END
+
 /// A data object that contains all key attest data required for FAC token exchange.
 @interface GACAppAttestKeyAttestationResult : NSObject
 
@@ -143,11 +148,20 @@ NS_ASSUME_NONNULL_BEGIN
   GACAppAttestKeyIDStorage *keyIDStorage =
       [[GACAppAttestKeyIDStorage alloc] initWithAppName:app.name appID:app.options.googleAppID];
 
+  // TODO(andrewheard): Remove from generic App Check SDK.
+  // FIREBASE_APP_CHECK_ONLY_BEGIN
+  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
+    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
+                          [app.heartbeatLogger flushHeartbeatsIntoPayload])
+        forHTTPHeaderField:kHeartbeatKey];
+  };
+  // FIREBASE_APP_CHECK_ONLY_END
+
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
                                                  APIKey:app.options.APIKey
                                                   appID:app.options.googleAppID
-                                        heartbeatLogger:app.heartbeatLogger];
+                                           requestHooks:@[ heartbeatLoggerHook ]];
 
   GACAppAttestAPIService *appAttestAPIService =
       [[GACAppAttestAPIService alloc] initWithAPIService:APIService
