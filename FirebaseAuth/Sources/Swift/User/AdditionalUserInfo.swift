@@ -36,9 +36,7 @@ import Foundation
                               isNewUser: verifyAssertionResponse.isNewUser)
   }
 
-  // TODO: this init should not be public
-  @objc public init(providerID: String?, profile: [String: Any]?, username: String?,
-                    isNewUser: Bool) {
+  init(providerID: String?, profile: [String: Any]?, username: String?, isNewUser: Bool) {
     self.providerID = providerID
     self.profile = profile
     self.username = username
@@ -66,7 +64,7 @@ import Foundation
       of: NSNumber.self,
       forKey: AdditionalUserInfo.newUserKey
     ) {
-      self.newUser = newUser.boolValue
+      self.newUser = newUser.intValue == 1
     } else {
       newUser = false
     }
@@ -76,6 +74,6 @@ import Foundation
     aCoder.encode(providerID, forKey: AdditionalUserInfo.providerIDCodingKey)
     aCoder.encode(profile, forKey: AdditionalUserInfo.profileCodingKey)
     aCoder.encode(username, forKey: AdditionalUserInfo.usernameCodingKey)
-    aCoder.encode(isNewUser ? 1 : 0, forKey: AdditionalUserInfo.newUserKey)
+    aCoder.encode(isNewUser ? NSNumber(1) : NSNumber(0), forKey: AdditionalUserInfo.newUserKey)
   }
 }
