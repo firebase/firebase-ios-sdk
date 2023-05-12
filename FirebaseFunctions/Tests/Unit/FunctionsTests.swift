@@ -127,7 +127,7 @@ class FunctionsTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
-    functions?.callFunction(name: "fake_func", withObject: nil, timeout: 10) { result in
+    functions?.callFunction(name: "fake_func", withObject: nil, options: nil, timeout: 10) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from functions?.callFunction")
@@ -156,7 +156,7 @@ class FunctionsTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
-    functionsCustomDomain?.callFunction(name: "fake_func", withObject: nil, timeout: 10) { result in
+    functionsCustomDomain?.callFunction(name: "fake_func", withObject: nil, options: nil, timeout: 10) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from functions?.callFunction")

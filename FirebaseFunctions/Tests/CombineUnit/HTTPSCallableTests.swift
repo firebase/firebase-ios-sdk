@@ -33,6 +33,7 @@ class MockFunctions: Functions {
   var verifyParameters: ((_ name: String, _ data: Any?, _ timeout: TimeInterval) throws -> Void)?
   override func callFunction(name: String,
                              withObject data: Any?,
+                             options: HTTPSCallableOptions?,
                              timeout: TimeInterval,
                              completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     do {
