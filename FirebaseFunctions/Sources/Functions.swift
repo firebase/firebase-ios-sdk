@@ -147,11 +147,10 @@ internal enum FunctionsConstants {
   ///   - name: The name of the Callable HTTPS trigger.
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithName:options:) public func httpsCallable(
-      _ name: String,
-      options: HTTPSCallableOptions
-  ) -> HTTPSCallable {
-      return HTTPSCallable(functions: self, name: name, options: options)
+  @objc(HTTPSCallableWithName:options:) public func httpsCallable(_ name: String,
+                                                                  options: HTTPSCallableOptions)
+    -> HTTPSCallable {
+    return HTTPSCallable(functions: self, name: name, options: options)
   }
 
   /// Creates a reference to the Callable HTTPS trigger with the given name.
@@ -166,11 +165,10 @@ internal enum FunctionsConstants {
   ///   - url: The URL of the Callable HTTPS trigger.
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   /// - Returns: A reference to a Callable HTTPS trigger.
-  @objc(HTTPSCallableWithURL:options:) public func httpsCallable(
-    _ url: URL,
-    options: HTTPSCallableOptions
-  ) -> HTTPSCallable {
-      return HTTPSCallable(functions: self, url: url, options: options)
+  @objc(HTTPSCallableWithURL:options:) public func httpsCallable(_ url: URL,
+                                                                 options: HTTPSCallableOptions)
+    -> HTTPSCallable {
+    return HTTPSCallable(functions: self, url: url, options: options)
   }
 
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`

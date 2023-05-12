@@ -38,7 +38,7 @@
   callable = [func HTTPSCallableWithName:@"name"];
 
   FIRHTTPSCallableOptions *options =
-    [[FIRHTTPSCallableOptions alloc] initWithLimitedUseAppCheckTokens:YES];
+      [[FIRHTTPSCallableOptions alloc] initWithLimitedUseAppCheckTokens:YES];
   __unused BOOL limitedUseAppCheckTokens = options.limitedUseAppCheckTokens;
   callable = [func HTTPSCallableWithURL:url options:options];
   callable = [func HTTPSCallableWithName:@"name" options:options];

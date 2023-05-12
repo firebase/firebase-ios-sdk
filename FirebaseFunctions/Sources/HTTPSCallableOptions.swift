@@ -16,13 +16,13 @@ import Foundation
 
 /// Configuration options for a ``HTTPSCallable`` instance.
 @objc(FIRHTTPSCallableOptions) public class HTTPSCallableOptions: NSObject {
-    /// Whether or not to protect the callable function with a limited use App Check token.
-    @objc public let limitedUseAppCheckTokens: Bool
+  /// Whether or not to protect the callable function with a limited use App Check token.
+  @objc public let limitedUseAppCheckTokens: Bool
 
-    /// Designated intializer.
-    /// - Parameter limitedUseAppCheckTokens: A boolean used to decide whether or not to
-    /// protect the callable function with a limited use App Check token.
-    @objc public init(limitedUseAppCheckTokens: Bool) {
-        self.limitedUseAppCheckTokens = limitedUseAppCheckTokens
-    }
+  /// Designated intializer.
+  /// - Parameter limitedUseAppCheckTokens: A boolean used to decide whether or not to
+  /// protect the callable function with a limited use App Check token.
+  @objc public init(limitedUseAppCheckTokens: Bool) {
+    self.limitedUseAppCheckTokens = limitedUseAppCheckTokens
+  }
 }
