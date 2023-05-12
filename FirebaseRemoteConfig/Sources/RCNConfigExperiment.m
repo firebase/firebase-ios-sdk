@@ -186,6 +186,8 @@ static NSString *const kMethodNameLatestStartTime =
 
 - (void)updateActiveExperiments {
   /// Put current fetched experiment metadata into activated experiment DB.
+  _activatedExperimentMetadata[kExperimentMetadataKeyLastStartTime] =
+      _experimentMetadata[kExperimentMetadataKeyLastStartTime];
   NSError *error;
   NSData *serializedExperimentMetadata =
       [NSJSONSerialization dataWithJSONObject:_experimentMetadata
@@ -203,9 +205,12 @@ static NSString *const kMethodNameLatestStartTime =
   }
 
   /// Put current fetched experiment payloads into activated experiment DB.
-  for (NSData *data in _experimentPayloads) {
+  [_activatedExperimentPayloads removeAllObjects];
+  [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
+  for (NSData *experiment in _experimentPayloads) {
+    [_activatedExperimentPayloads addObject:experiment];
     [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
-                                       value:data
+                                       value:experiment
                            completionHandler:nil];
   }
 }

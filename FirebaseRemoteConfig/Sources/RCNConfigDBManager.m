@@ -523,6 +523,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   if ([key isEqualToString:@RCNExperimentTableKeyMetadata]) {
     return [self updateExperimentMetadata:dataValue];
   }
+  if ([key isEqualToString:@RCNExperimentTableKeyActiveMetadata]) {
+    return [self updateActivatedExperimentMetadata:dataValue];
+  }
 
   RCN_MUST_NOT_BE_MAIN_THREAD();
   const char *SQL = "INSERT INTO " RCNTableNameExperiment " (key, value) values (?, ?)";
@@ -563,6 +566,35 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   }
 
   if (![self bindStringToStatement:statement index:2 string:@RCNExperimentTableKeyMetadata]) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  if (sqlite3_bind_blob(statement, 3, dataValue.bytes, (int)dataValue.length, NULL) != SQLITE_OK) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
+  if (sqlite3_step(statement) != SQLITE_DONE) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  sqlite3_finalize(statement);
+  return YES;
+}
+
+- (BOOL)updateActivatedExperimentMetadata:(NSData *)dataValue {
+  RCN_MUST_NOT_BE_MAIN_THREAD();
+  const char *SQL = "INSERT OR REPLACE INTO " RCNTableNameExperiment
+                    " (_id, key, value) values ((SELECT _id from " RCNTableNameExperiment
+                    " WHERE key = ?), ?, ?)";
+
+  sqlite3_stmt *statement = [self prepareSQL:SQL];
+  if (!statement) {
+    return NO;
+  }
+
+  if (![self bindStringToStatement:statement index:1 string:@RCNExperimentTableKeyActiveMetadata]) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
+  if (![self bindStringToStatement:statement index:2 string:@RCNExperimentTableKeyActiveMetadata]) {
     return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
   }
   if (sqlite3_bind_blob(statement, 3, dataValue.bytes, (int)dataValue.length, NULL) != SQLITE_OK) {
@@ -827,12 +859,36 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
       experimentMetadata = [[NSMutableDictionary alloc] init];
     }
 
+    /// Load activated experiments payload and metadata.
+    NSMutableArray *activatedExperimentPayloads =
+        [strongSelf loadExperimentTableFromKey:@RCNExperimentTableKeyActivePayload];
+    if (!experimentPayloads) {
+      activatedExperimentPayloads = [[NSMutableArray alloc] init];
+    }
+
+    NSMutableDictionary *activatedExperimentMetadata;
+    NSMutableArray *activatedExperiments =
+        [strongSelf loadExperimentTableFromKey:@RCNExperimentTableKeyActiveMetadata];
+    // There should be only one entry for experiment metadata.
+    if (activatedExperiments.count > 0) {
+      NSError *error;
+      activatedExperimentMetadata =
+          [NSJSONSerialization JSONObjectWithData:activatedExperiments[0]
+                                          options:NSJSONReadingMutableContainers
+                                            error:&error];
+    }
+    if (!activatedExperimentMetadata) {
+      activatedExperimentMetadata = [[NSMutableDictionary alloc] init];
+    }
+
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(
             YES, @{
               @RCNExperimentTableKeyPayload : [experimentPayloads copy],
-              @RCNExperimentTableKeyMetadata : [experimentMetadata copy]
+              @RCNExperimentTableKeyMetadata : [experimentMetadata copy],
+              @RCNExperimentTableKeyActivePayload : [activatedExperimentPayloads copy],
+              @RCNExperimentTableKeyActiveMetadata : [activatedExperimentMetadata copy]
             });
       });
     }
