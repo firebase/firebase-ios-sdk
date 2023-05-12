@@ -218,6 +218,15 @@ if(CXX_CLANG)
   )
 endif()
 
+# Fix up targets included by boringssl (ver: b9232f9e27e5668bc0414879dcdedb2a59ea75f2)
+# We might be able to remove this with newer versions.
+if(CXX_CLANG)
+  target_compile_options(
+    crypto PRIVATE
+    -Wno-unused-but-set-variable
+  )
+endif()
+
 if(MSVC)
   # Disable warnings about unsafe use of std::copy
   target_compile_definitions(
