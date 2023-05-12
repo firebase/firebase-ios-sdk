@@ -70,7 +70,7 @@ internal enum FunctionsConstants {
    * Creates a Cloud Functions client using the default or returns a pre-existing instance if it already exists.
    * - Returns: A shared Functions instance initialized with the default `FirebaseApp`.
    */
-  @objc(functions) open class func functions() -> Functions {
+  @objc(defaultFunctions) open class func functions() -> Functions {
     return functions(
       app: FirebaseApp.app(),
       region: FunctionsConstants.defaultRegion,
