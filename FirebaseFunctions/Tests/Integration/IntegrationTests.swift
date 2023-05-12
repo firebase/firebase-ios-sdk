@@ -87,15 +87,12 @@ class IntegrationTests: XCTestCase {
       array: [5, 6],
       null: nil
     )
-    let byName = functions.httpsCallable("dataTest", useLimitedUseAppCheckToken: false,
+    let byName = functions.httpsCallable("dataTest",
                                          requestAs: DataTestRequest.self,
                                          responseAs: DataTestResponse.self)
-    let byURL = functions.httpsCallable(
-      emulatorURL("dataTest"),
-      useLimitedUseAppCheckToken: false,
-      requestAs: DataTestRequest.self,
-      responseAs: DataTestResponse.self
-    )
+    let byURL = functions.httpsCallable(emulatorURL("dataTest"),
+                                        requestAs: DataTestRequest.self,
+                                        responseAs: DataTestResponse.self)
 
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
@@ -129,15 +126,12 @@ class IntegrationTests: XCTestCase {
         null: nil
       )
 
-      let byName = functions.httpsCallable("dataTest", useLimitedUseAppCheckToken: false,
+      let byName = functions.httpsCallable("dataTest",
                                            requestAs: DataTestRequest.self,
                                            responseAs: DataTestResponse.self)
-      let byUrl = functions.httpsCallable(
-        emulatorURL("dataTest"),
-        useLimitedUseAppCheckToken: false,
-        requestAs: DataTestRequest.self,
-        responseAs: DataTestResponse.self
-      )
+      let byUrl = functions.httpsCallable(emulatorURL("dataTest"),
+                                          requestAs: DataTestRequest.self,
+                                          responseAs: DataTestResponse.self)
 
       for function in [byName, byUrl] {
         let response = try await function.call(data)
@@ -153,12 +147,12 @@ class IntegrationTests: XCTestCase {
 
   func testScalar() {
     let byName = functions.httpsCallable(
-      "scalarTest", useLimitedUseAppCheckToken: false,
+      "scalarTest",
       requestAs: Int16.self,
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("scalarTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("scalarTest"),
       requestAs: Int16.self,
       responseAs: Int.self
     )
@@ -181,12 +175,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testScalarAsync() async throws {
       let byName = functions.httpsCallable(
-        "scalarTest", useLimitedUseAppCheckToken: false,
+        "scalarTest",
         requestAs: Int16.self,
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("scalarTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("scalarTest"),
         requestAs: Int16.self,
         responseAs: Int.self
       )
@@ -199,10 +193,8 @@ class IntegrationTests: XCTestCase {
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testScalarAsyncAlternateSignature() async throws {
-      let byName: Callable<Int16, Int> = functions
-        .httpsCallable("scalarTest", useLimitedUseAppCheckToken: false)
-      let byURL: Callable<Int16, Int> = functions
-        .httpsCallable(emulatorURL("scalarTest"), useLimitedUseAppCheckToken: false)
+      let byName: Callable<Int16, Int> = functions.httpsCallable("scalarTest")
+      let byURL: Callable<Int16, Int> = functions.httpsCallable(emulatorURL("scalarTest"))
       for function in [byName, byURL] {
         let result = try await function.call(17)
         XCTAssertEqual(result, 76)
@@ -224,12 +216,12 @@ class IntegrationTests: XCTestCase {
     functions.useEmulator(withHost: "localhost", port: 5005)
 
     let byName = functions.httpsCallable(
-      "tokenTest", useLimitedUseAppCheckToken: false,
+      "tokenTest",
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("tokenTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("tokenTest"),
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
@@ -264,12 +256,12 @@ class IntegrationTests: XCTestCase {
       functions.useEmulator(withHost: "localhost", port: 5005)
 
       let byName = functions.httpsCallable(
-        "tokenTest", useLimitedUseAppCheckToken: false,
+        "tokenTest",
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("tokenTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("tokenTest"),
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
@@ -283,12 +275,12 @@ class IntegrationTests: XCTestCase {
 
   func testFCMToken() {
     let byName = functions.httpsCallable(
-      "FCMTokenTest", useLimitedUseAppCheckToken: false,
+      "FCMTokenTest",
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("FCMTokenTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("FCMTokenTest"),
       requestAs: [String: Int].self,
       responseAs: [String: Int].self
     )
@@ -311,12 +303,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testFCMTokenAsync() async throws {
       let byName = functions.httpsCallable(
-        "FCMTokenTest", useLimitedUseAppCheckToken: false,
+        "FCMTokenTest",
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("FCMTokenTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("FCMTokenTest"),
         requestAs: [String: Int].self,
         responseAs: [String: Int].self
       )
@@ -330,12 +322,12 @@ class IntegrationTests: XCTestCase {
 
   func testNull() {
     let byName = functions.httpsCallable(
-      "nullTest", useLimitedUseAppCheckToken: false,
+      "nullTest",
       requestAs: Int?.self,
       responseAs: Int?.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("nullTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("nullTest"),
       requestAs: Int?.self,
       responseAs: Int?.self
     )
@@ -358,12 +350,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testNullAsync() async throws {
       let byName = functions.httpsCallable(
-        "nullTest", useLimitedUseAppCheckToken: false,
+        "nullTest",
         requestAs: Int?.self,
         responseAs: Int?.self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("nullTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("nullTest"),
         requestAs: Int?.self,
         responseAs: Int?.self
       )
@@ -377,12 +369,12 @@ class IntegrationTests: XCTestCase {
 
   func testMissingResult() {
     let byName = functions.httpsCallable(
-      "missingResultTest", useLimitedUseAppCheckToken: false,
+      "missingResultTest",
       requestAs: Int?.self,
       responseAs: Int?.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("missingResultTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("missingResultTest"),
       requestAs: Int?.self,
       responseAs: Int?.self
     )
@@ -409,12 +401,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testMissingResultAsync() async {
       let byName = functions.httpsCallable(
-        "missingResultTest", useLimitedUseAppCheckToken: false,
+        "missingResultTest",
         requestAs: Int?.self,
         responseAs: Int?.self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("missingResultTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("missingResultTest"),
         requestAs: Int?.self,
         responseAs: Int?.self
       )
@@ -433,12 +425,12 @@ class IntegrationTests: XCTestCase {
 
   func testUnhandledError() {
     let byName = functions.httpsCallable(
-      "unhandledErrorTest", useLimitedUseAppCheckToken: false,
+      "unhandledErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("unhandledErrorTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("unhandledErrorTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -465,12 +457,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUnhandledErrorAsync() async {
       let byName = functions.httpsCallable(
-        "unhandledErrorTest", useLimitedUseAppCheckToken: false,
+        "unhandledErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        "unhandledErrorTest", useLimitedUseAppCheckToken: false,
+        "unhandledErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -489,12 +481,12 @@ class IntegrationTests: XCTestCase {
 
   func testUnknownError() {
     let byName = functions.httpsCallable(
-      "unknownErrorTest", useLimitedUseAppCheckToken: false,
+      "unknownErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("unknownErrorTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("unknownErrorTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -520,12 +512,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUnknownErrorAsync() async {
       let byName = functions.httpsCallable(
-        "unknownErrorTest", useLimitedUseAppCheckToken: false,
+        "unknownErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("unknownErrorTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("unknownErrorTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -544,12 +536,12 @@ class IntegrationTests: XCTestCase {
 
   func testExplicitError() {
     let byName = functions.httpsCallable(
-      "explicitErrorTest", useLimitedUseAppCheckToken: false,
+      "explicitErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      "explicitErrorTest", useLimitedUseAppCheckToken: false,
+      "explicitErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -577,12 +569,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testExplicitErrorAsync() async {
       let byName = functions.httpsCallable(
-        "explicitErrorTest", useLimitedUseAppCheckToken: false,
+        "explicitErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("explicitErrorTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("explicitErrorTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -603,12 +595,12 @@ class IntegrationTests: XCTestCase {
 
   func testHttpError() {
     let byName = functions.httpsCallable(
-      "httpErrorTest", useLimitedUseAppCheckToken: false,
+      "httpErrorTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("httpErrorTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("httpErrorTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -634,12 +626,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testHttpErrorAsync() async {
       let byName = functions.httpsCallable(
-        "httpErrorTest", useLimitedUseAppCheckToken: false,
+        "httpErrorTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("httpErrorTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("httpErrorTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -657,12 +649,12 @@ class IntegrationTests: XCTestCase {
 
   func testThrowError() {
     let byName = functions.httpsCallable(
-      "throwTest", useLimitedUseAppCheckToken: false,
+      "throwTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("throwTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("throwTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -689,12 +681,12 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testThrowErrorAsync() async {
       let byName = functions.httpsCallable(
-        "throwTest", useLimitedUseAppCheckToken: false,
+        "throwTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
       let byURL = functions.httpsCallable(
-        emulatorURL("throwTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("throwTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -713,12 +705,12 @@ class IntegrationTests: XCTestCase {
 
   func testTimeout() {
     let byName = functions.httpsCallable(
-      "timeoutTest", useLimitedUseAppCheckToken: false,
+      "timeoutTest",
       requestAs: [Int].self,
       responseAs: Int.self
     )
     let byURL = functions.httpsCallable(
-      emulatorURL("timeoutTest"), useLimitedUseAppCheckToken: false,
+      emulatorURL("timeoutTest"),
       requestAs: [Int].self,
       responseAs: Int.self
     )
@@ -746,13 +738,13 @@ class IntegrationTests: XCTestCase {
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testTimeoutAsync() async {
       var byName = functions.httpsCallable(
-        "timeoutTest", useLimitedUseAppCheckToken: false,
+        "timeoutTest",
         requestAs: [Int].self,
         responseAs: Int.self
       )
       byName.timeoutInterval = 0.05
       var byURL = functions.httpsCallable(
-        emulatorURL("timeoutTest"), useLimitedUseAppCheckToken: false,
+        emulatorURL("timeoutTest"),
         requestAs: [Int].self,
         responseAs: Int.self
       )
@@ -780,15 +772,12 @@ class IntegrationTests: XCTestCase {
       array: [5, 6],
       null: nil
     )
-    let byName = functions.httpsCallable("dataTest", useLimitedUseAppCheckToken: false,
+    let byName = functions.httpsCallable("dataTest",
                                          requestAs: DataTestRequest.self,
                                          responseAs: DataTestResponse.self)
-    let byURL = functions.httpsCallable(
-      emulatorURL("dataTest"),
-      useLimitedUseAppCheckToken: false,
-      requestAs: DataTestRequest.self,
-      responseAs: DataTestResponse.self
-    )
+    let byURL = functions.httpsCallable(emulatorURL("dataTest"),
+                                        requestAs: DataTestRequest.self,
+                                        responseAs: DataTestResponse.self)
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
       function(data) { result in
@@ -821,16 +810,13 @@ class IntegrationTests: XCTestCase {
         null: nil
       )
 
-      let byName = functions.httpsCallable("dataTest", useLimitedUseAppCheckToken: false,
+      let byName = functions.httpsCallable("dataTest",
                                            requestAs: DataTestRequest.self,
                                            responseAs: DataTestResponse.self)
 
-      let byURL = functions.httpsCallable(
-        emulatorURL("dataTest"),
-        useLimitedUseAppCheckToken: false,
-        requestAs: DataTestRequest.self,
-        responseAs: DataTestResponse.self
-      )
+      let byURL = functions.httpsCallable(emulatorURL("dataTest"),
+                                          requestAs: DataTestRequest.self,
+                                          responseAs: DataTestResponse.self)
 
       for function in [byName, byURL] {
         let response = try await function(data)
@@ -853,12 +839,9 @@ class IntegrationTests: XCTestCase {
       array: [5, 6],
       null: nil
     )
-    let byName: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable(
-      "dataTest",
-      useLimitedUseAppCheckToken: false
-    )
+    let byName: Callable<DataTestRequest, DataTestResponse> = functions.httpsCallable("dataTest")
     let byURL: Callable<DataTestRequest, DataTestResponse> = functions
-      .httpsCallable(emulatorURL("dataTest"), useLimitedUseAppCheckToken: false)
+      .httpsCallable(emulatorURL("dataTest"))
 
     for function in [byName, byURL] {
       let expectation = expectation(description: #function)
@@ -893,9 +876,9 @@ class IntegrationTests: XCTestCase {
       )
 
       let byName: Callable<DataTestRequest, DataTestResponse> = functions
-        .httpsCallable("dataTest", useLimitedUseAppCheckToken: false)
+        .httpsCallable("dataTest")
       let byURL: Callable<DataTestRequest, DataTestResponse> = functions
-        .httpsCallable(emulatorURL("dataTest"), useLimitedUseAppCheckToken: false)
+        .httpsCallable(emulatorURL("dataTest"))
 
       for function in [byName, byURL] {
         let response = try await function(data)
