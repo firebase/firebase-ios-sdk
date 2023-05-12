@@ -1,18 +1,15 @@
 name: spm
 
 on:
-  #TODO: restore
   pull_request:
-    branches:
-      - none
-    # paths:
-    # - '.github/workflows/spm.yml'
-    # - 'Package.swift'
-    # - '.swiftpm/*'
-    # - 'scripts/build.sh'
-    # - 'SwiftPMTests/*'
-    # - 'SwiftPM-PlatformExclude'
-    # - 'Gemfile*'
+    paths:
+    - '.github/workflows/spm.yml'
+    - 'Package.swift'
+    - '.swiftpm/*'
+    - 'scripts/build.sh'
+    - 'SwiftPMTests/*'
+    - 'SwiftPM-PlatformExclude'
+    - 'Gemfile*'
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
     - cron:  '0 8 * * *'
