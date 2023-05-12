@@ -61,7 +61,7 @@ import Foundation
       of: NSNumber.self,
       forKey: AdditionalUserInfo.newUserKey
     ) {
-      self.isNewUser = newUser.intValue == 1
+      isNewUser = newUser.intValue == 1
     } else {
       isNewUser = false
     }
