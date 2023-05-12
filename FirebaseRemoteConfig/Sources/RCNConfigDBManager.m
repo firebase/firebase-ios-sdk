@@ -862,7 +862,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     /// Load activated experiments payload and metadata.
     NSMutableArray *activatedExperimentPayloads =
         [strongSelf loadExperimentTableFromKey:@RCNExperimentTableKeyActivePayload];
-    if (!experimentPayloads) {
+    if (!activatedExperimentPayloads) {
       activatedExperimentPayloads = [[NSMutableArray alloc] init];
     }
 
