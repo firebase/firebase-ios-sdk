@@ -59,9 +59,6 @@ internal enum FunctionsConstants {
   /// The region to use for all function references.
   internal let region: String
 
-  /// The boolean to decide if getLimitedUseToken() is generated
-  internal var useLimitedUseAppCheckToken: Bool = false
-
   // MARK: - Public APIs
 
   /**
@@ -138,37 +135,57 @@ internal enum FunctionsConstants {
     return functions(app: app, region: FunctionsConstants.defaultRegion, customDomain: customDomain)
   }
 
-  /**
-   * Creates a reference to the Callable HTTPS trigger with the given name.
-   * - Parameter name The name of the Callable HTTPS trigger.
-   */
-  @objc(HTTPSCallableWithName:useLimitedUseAppCheckToken:) open func httpsCallable(_ name: String,
-                                                                                   useLimitedUseAppCheckToken: Bool =
-                                                                                     false)
-    -> HTTPSCallable {
-    self.useLimitedUseAppCheckToken = useLimitedUseAppCheckToken
+  /// Creates a reference to the Callable HTTPS trigger with the given name.
+  /// - Parameter name: The name of the Callable HTTPS trigger.
+  /// - Returns: A reference to a Callable HTTPS trigger.
+  @objc(HTTPSCallableWithName:) open func httpsCallable(_ name: String) -> HTTPSCallable {
     return HTTPSCallable(functions: self, name: name)
   }
 
-  @objc(HTTPSCallableWithURL:useLimitedUseAppCheckToken:) open func httpsCallable(_ url: URL,
-                                                                                  useLimitedUseAppCheckToken: Bool =
-                                                                                    false)
-    -> HTTPSCallable {
-    self.useLimitedUseAppCheckToken = useLimitedUseAppCheckToken
+  /// Creates a reference to the Callable HTTPS trigger with the given name and configuration options.
+  /// - Parameters:
+  ///   - name: The name of the Callable HTTPS trigger.
+  ///   - options: The options with which to customize the Callable HTTPS trigger.
+  /// - Returns: A reference to a Callable HTTPS trigger.
+  @objc(HTTPSCallableWithName:options:) public func httpsCallable(
+      _ name: String,
+      options: HTTPSCallableOptions
+  ) -> HTTPSCallable {
+      return HTTPSCallable(functions: self, name: name, options: options)
+  }
+
+  /// Creates a reference to the Callable HTTPS trigger with the given name.
+  /// - Parameter url: The URL of the Callable HTTPS trigger.
+  /// - Returns: A reference to a Callable HTTPS trigger.
+  @objc(HTTPSCallableWithURL:) open func httpsCallable(_ url: URL) -> HTTPSCallable {
     return HTTPSCallable(functions: self, url: url)
+  }
+
+  /// Creates a reference to the Callable HTTPS trigger with the given name and configuration options.
+  /// - Parameters:
+  ///   - url: The URL of the Callable HTTPS trigger.
+  ///   - options: The options with which to customize the Callable HTTPS trigger.
+  /// - Returns: A reference to a Callable HTTPS trigger.
+  @objc(HTTPSCallableWithURL:options:) public func httpsCallable(
+    _ url: URL,
+    options: HTTPSCallableOptions
+  ) -> HTTPSCallable {
+      return HTTPSCallable(functions: self, url: url, options: options)
   }
 
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
   /// request and the type of a `Decodable` response.
-  /// - Parameter name: The name of the Callable HTTPS trigger
-  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
-  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
-  /// - Parameter encoder: The encoder instance to use to run the encoding.
-  /// - Parameter decoder: The decoder instance to use to run the decoding.
+  /// - Parameters:
+  ///   - name: The name of the Callable HTTPS trigger
+  ///   - options: The options with which to customize the Callable HTTPS trigger.
+  ///   - requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  ///   - responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  ///   - encoder: The encoder instance to use to run the encoding.
+  ///   - decoder: The decoder instance to use to run the decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
   open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ name: String,
-                         useLimitedUseAppCheckToken: Bool,
+                         options: HTTPSCallableOptions,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
                          encoder: FirebaseDataEncoder = FirebaseDataEncoder(
@@ -177,7 +194,7 @@ internal enum FunctionsConstants {
                          ))
     -> Callable<Request, Response> {
     return Callable(
-      callable: httpsCallable(name, useLimitedUseAppCheckToken: useLimitedUseAppCheckToken),
+      callable: httpsCallable(name, options: options),
       encoder: encoder,
       decoder: decoder
     )
@@ -185,15 +202,17 @@ internal enum FunctionsConstants {
 
   /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
   /// request and the type of a `Decodable` response.
-  /// - Parameter url: The url of the Callable HTTPS trigger
-  /// - Parameter requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
-  /// - Parameter responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
-  /// - Parameter encoder: The encoder instance to use to run the encoding.
-  /// - Parameter decoder: The decoder instance to use to run the decoding.
+  /// - Parameters:
+  ///   - url: The url of the Callable HTTPS trigger
+  ///   - options: The options with which to customize the Callable HTTPS trigger.
+  ///   - requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  ///   - responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  ///   - encoder: The encoder instance to use to run the encoding.
+  ///   - decoder: The decoder instance to use to run the decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
   open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ url: URL,
-                         useLimitedUseAppCheckToken: Bool,
+                         options: HTTPSCallableOptions,
                          requestAs: Request.Type = Request.self,
                          responseAs: Response.Type = Response.self,
                          encoder: FirebaseDataEncoder = FirebaseDataEncoder(
@@ -202,7 +221,7 @@ internal enum FunctionsConstants {
                          ))
     -> Callable<Request, Response> {
     return Callable(
-      callable: httpsCallable(url, useLimitedUseAppCheckToken: useLimitedUseAppCheckToken),
+      callable: httpsCallable(url, options: options),
       encoder: encoder,
       decoder: decoder
     )
@@ -294,6 +313,7 @@ internal enum FunctionsConstants {
 
   internal func callFunction(name: String,
                              withObject data: Any?,
+                             options: HTTPSCallableOptions?,
                              timeout: TimeInterval,
                              completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     // Get context first.
@@ -306,6 +326,7 @@ internal enum FunctionsConstants {
         let url = self.urlWithName(name)
         self.callFunction(url: URL(string: url)!,
                           withObject: data,
+                          options: options,
                           timeout: timeout,
                           context: context,
                           completion: completion)
@@ -315,6 +336,7 @@ internal enum FunctionsConstants {
 
   internal func callFunction(url: URL,
                              withObject data: Any?,
+                             options: HTTPSCallableOptions?,
                              timeout: TimeInterval,
                              completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     // Get context first.
@@ -326,6 +348,7 @@ internal enum FunctionsConstants {
       } else {
         self.callFunction(url: url,
                           withObject: data,
+                          options: options,
                           timeout: timeout,
                           context: context,
                           completion: completion)
@@ -335,6 +358,7 @@ internal enum FunctionsConstants {
 
   private func callFunction(url: URL,
                             withObject data: Any?,
+                            options: HTTPSCallableOptions?,
                             timeout: TimeInterval,
                             context: FunctionsContext,
                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
@@ -374,7 +398,7 @@ internal enum FunctionsConstants {
       fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
     }
 
-    if useLimitedUseAppCheckToken == true {
+    if options?.limitedUseAppCheckTokens == true {
       if let appCheckToken = context.limitedUseAppCheckToken {
         fetcher.setRequestValue(
           appCheckToken,
