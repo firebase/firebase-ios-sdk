@@ -365,7 +365,7 @@ internal enum FunctionsConstants {
                              timeout: TimeInterval,
                              completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     // Get context first.
-    contextProvider.getContext { context, error in
+    contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
       if let error = error {
@@ -388,7 +388,7 @@ internal enum FunctionsConstants {
                              timeout: TimeInterval,
                              completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     // Get context first.
-    contextProvider.getContext { context, error in
+    contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
       // there's an error.
       if let error = error {
