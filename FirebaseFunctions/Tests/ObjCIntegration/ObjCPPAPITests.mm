@@ -33,10 +33,15 @@
   func = [FIRFunctions functionsForApp:app region:@"my-region"];
   func = [FIRFunctions functionsForApp:app customDomain:@"my-domain"];
 
-  FIRHTTPSCallable *callable = [func HTTPSCallableWithName:@"name"
-                                useLimitedUseAppCheckToken:false];
+  FIRHTTPSCallable *callable = [func HTTPSCallableWithName:@"name"];
   NSURL *url = [NSURL URLWithString:@"http://host:123/project/location/name"];
-  callable = [func HTTPSCallableWithURL:url useLimitedUseAppCheckToken:false];
+  callable = [func HTTPSCallableWithURL:url];
+
+  FIRHTTPSCallableOptions *options =
+    [[FIRHTTPSCallableOptions alloc] initWithLimitedUseAppCheckTokens:YES];
+  __unused BOOL limitedUseAppCheckTokens = options.limitedUseAppCheckTokens;
+  callable = [func HTTPSCallableWithURL:url options:options];
+  callable = [func HTTPSCallableWithName:@"name" options:options];
 
   [func useEmulatorWithHost:@"host" port:123];
 
