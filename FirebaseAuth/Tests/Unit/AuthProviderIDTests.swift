@@ -22,7 +22,9 @@ final class AuthProviderIDTests: XCTestCase {
     XCTAssertEqual(AuthProviderString.apple.rawValue, "apple.com")
     XCTAssertEqual(AuthProviderString.email.rawValue, EmailAuthProvider.id)
     XCTAssertEqual(AuthProviderString.facebook.rawValue, FacebookAuthProvider.id)
-    XCTAssertEqual(AuthProviderString.gameCenter.rawValue, GameCenterAuthProvider.id)
+    #if !os(watchOS)
+      XCTAssertEqual(AuthProviderString.gameCenter.rawValue, GameCenterAuthProvider.id)
+    #endif
     XCTAssertEqual(AuthProviderString.gitHub.rawValue, GitHubAuthProvider.id)
     XCTAssertEqual(AuthProviderString.google.rawValue, GoogleAuthProvider.id)
     XCTAssertEqual(AuthProviderString.phone.rawValue, PhoneAuthProvider.id)
