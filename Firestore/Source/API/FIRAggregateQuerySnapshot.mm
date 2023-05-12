@@ -72,7 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSNumber *)count {
   return (NSNumber *)[self valueForAggregation:[FIRAggregateField aggregateFieldForCount]];
-  ./
 }
 
 - (FIRAggregateQuery *)query {
