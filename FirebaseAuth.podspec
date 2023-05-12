@@ -39,7 +39,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
     source + 'Swift/**/*.swift',
     source + 'Public/FirebaseAuth/*.h'
   ]
-  s.public_header_files = source + 'Public/FirebaseAuth/*.h'
+  # s.public_header_files = source + 'Public/FirebaseAuth/*.h'
 
   s.preserve_paths = [
     'FirebaseAuth/README.md',
