@@ -17,6 +17,7 @@ import XCTest
 
 @testable import FirebaseAuth
 import FirebaseCoreExtension
+import FirebaseCoreInternal
 import HeartbeatLoggingTestUtils
 
 private let kFakeAPIKey = "kTestAPIKey"
@@ -594,62 +595,65 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(try XCTUnwrap(rpcResponse?.receivedDictionary[kTestKey] as? String), kTestValue)
   }
 
-  private class FakeHeartbeatLogger: NSObject, FIRHeartbeatLoggerProtocol {
-    var onFlushHeartbeatsIntoPayloadHandler: (() -> _ObjC_HeartbeatsPayload)?
+  // TODO: enable heartbeat logger tests for SPM
+  #if COCOAPODS
+    private class FakeHeartbeatLogger: NSObject, FIRHeartbeatLoggerProtocol {
+      var onFlushHeartbeatsIntoPayloadHandler: (() -> _ObjC_HeartbeatsPayload)?
 
-    func log() {
-      // This API should not be used by the below tests because the Auth
-      // SDK does not log heartbeats in it's networking context.
-      fatalError("FakeHeartbeatLogger log should not be used in tests.")
-    }
-
-    func flushHeartbeatsIntoPayload() -> FirebaseCoreInternal._ObjC_HeartbeatsPayload {
-      guard let handler = onFlushHeartbeatsIntoPayloadHandler else {
-        fatalError("Missing Handler")
+      func log() {
+        // This API should not be used by the below tests because the Auth
+        // SDK does not log heartbeats in it's networking context.
+        fatalError("FakeHeartbeatLogger log should not be used in tests.")
       }
-      return handler()
+
+      func flushHeartbeatsIntoPayload() -> FirebaseCoreInternal._ObjC_HeartbeatsPayload {
+        guard let handler = onFlushHeartbeatsIntoPayloadHandler else {
+          fatalError("Missing Handler")
+        }
+        return handler()
+      }
+
+      func heartbeatCodeForToday() -> FIRDailyHeartbeatCode {
+        // This API should not be used by the below tests because the Auth
+        // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
+        // getting heartbeats.
+        return FIRDailyHeartbeatCode.none
+      }
     }
 
-    func heartbeatCodeForToday() -> FIRDailyHeartbeatCode {
-      // This API should not be used by the below tests because the Auth
-      // SDK uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for
-      // getting heartbeats.
-      return FIRDailyHeartbeatCode.none
+    /** @fn testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending
+        @brief This test checks the behavior of @c postWithRequest:response:callback:
+            to verify that a heartbeats payload is attached as a header to an
+            outgoing request when there are stored heartbeats that need sending.
+     */
+    func testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending() throws {
+      // Given
+      let fakeHeartbeatLogger = FakeHeartbeatLogger()
+      let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
+                                                          appID: kFakeAppID,
+                                                          heartbeatLogger: fakeHeartbeatLogger)
+
+      let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
+
+      // When
+      let nonEmptyHeartbeatsPayload = HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
+      fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
+        nonEmptyHeartbeatsPayload
+      }
+      rpcImplementation?.post(withRequest: request) { response, error in
+        // The callback never happens and it's fine since we only need to verify the request.
+        XCTFail("Should not be a callback")
+      }
+
+      // Then
+      let expectedHeader = FIRHeaderValueFromHeartbeatsPayload(
+        HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
+      )
+      let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
+      let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
+      XCTAssertEqual(headerValue, expectedHeader)
     }
-  }
-
-  /** @fn testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending
-      @brief This test checks the behavior of @c postWithRequest:response:callback:
-          to verify that a heartbeats payload is attached as a header to an
-          outgoing request when there are stored heartbeats that need sending.
-   */
-  func testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending() throws {
-    // Given
-    let fakeHeartbeatLogger = FakeHeartbeatLogger()
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
-                                                        appID: kFakeAppID,
-                                                        heartbeatLogger: fakeHeartbeatLogger)
-
-    let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
-
-    // When
-    let nonEmptyHeartbeatsPayload = HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
-    fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
-      nonEmptyHeartbeatsPayload
-    }
-    rpcImplementation?.post(withRequest: request) { response, error in
-      // The callback never happens and it's fine since we only need to verify the request.
-      XCTFail("Should not be a callback")
-    }
-
-    // Then
-    let expectedHeader = FIRHeaderValueFromHeartbeatsPayload(
-      HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
-    )
-    let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
-    let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
-    XCTAssertEqual(headerValue, expectedHeader)
-  }
+  #endif
 
   /** @fn testRequest_IncludesAppCheckHeader
       @brief This test checks the behavior of @c postWithRequest:response:callback:
@@ -674,33 +678,36 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     XCTAssertEqual(headerValue, fakeAppCheck.fakeAppCheckToken)
   }
 
-  /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
-      @brief This test checks the behavior of @c postWithRequest:response:callback:
-          to verify that a request header does not contain heartbeat data in the
-          case that there are no stored heartbeats that need sending.
-   */
-  func testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending() throws {
-    // Given
-    let fakeHeartbeatLogger = FakeHeartbeatLogger()
-    let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
-                                                        appID: kFakeAppID,
-                                                        heartbeatLogger: fakeHeartbeatLogger)
+  // TODO: enable for SPM
+  #if COCOAPODS
+    /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
+        @brief This test checks the behavior of @c postWithRequest:response:callback:
+            to verify that a request header does not contain heartbeat data in the
+            case that there are no stored heartbeats that need sending.
+     */
+    func testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending() throws {
+      // Given
+      let fakeHeartbeatLogger = FakeHeartbeatLogger()
+      let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
+                                                          appID: kFakeAppID,
+                                                          heartbeatLogger: fakeHeartbeatLogger)
 
-    let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
+      let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
 
-    // When
-    let emptyHeartbeatsPayload = HeartbeatLoggingTestUtils.emptyHeartbeatsPayload
-    fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
-      emptyHeartbeatsPayload
+      // When
+      let emptyHeartbeatsPayload = HeartbeatLoggingTestUtils.emptyHeartbeatsPayload
+      fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
+        emptyHeartbeatsPayload
+      }
+      rpcImplementation?.post(withRequest: request) { response, error in
+        // The callback never happens and it's fine since we only need to verify the request.
+      }
+
+      // Then
+      let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
+      XCTAssertNil(completeRequest.value(forHTTPHeaderField: "X-Firebase-Client"))
     }
-    rpcImplementation?.post(withRequest: request) { response, error in
-      // The callback never happens and it's fine since we only need to verify the request.
-    }
-
-    // Then
-    let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
-    XCTAssertNil(completeRequest.value(forHTTPHeaderField: "X-Firebase-Client"))
-  }
+  #endif
 
   private class FakeRequest: NSObject, AuthRPCRequest {
     func requestConfiguration() -> AuthRequestConfiguration {

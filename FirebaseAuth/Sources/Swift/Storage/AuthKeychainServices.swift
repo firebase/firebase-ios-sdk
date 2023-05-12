@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreExtension
 
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.

@@ -29,11 +29,9 @@
 #import <FirebaseAppDistribution/FirebaseAppDistribution.h>
 #import "FirebaseAppDistribution/FirebaseAppDistribution.h"
 #endif
-#import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import <FirebaseDatabase/FirebaseDatabase.h>
-#import "FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/FirebaseCore.h"
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
 #import "FirebaseDatabase/FirebaseDatabase.h"

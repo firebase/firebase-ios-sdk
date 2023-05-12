@@ -20,7 +20,7 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 @import FirebaseAuth;
-#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
+#import "FirebaseAuth/Tests/UnitObjC/FIRApp+FIRAuthUnitTests.h"
 
 /** @var kFirebaseAppName1
     @brief A fake Firebase app name.

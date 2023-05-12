@@ -15,6 +15,7 @@
 #if os(iOS) || os(tvOS)
 
   import Foundation
+  import UIKit
 
   /** @protocol AuthUIDelegate
       @brief A protocol to handle user interface interactions for Firebase Auth.

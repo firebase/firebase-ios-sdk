@@ -227,7 +227,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.malformedJWT
   }
 
-  #if !os(macOS)
+  #if !os(macOS) && !os(watchOS)
     func FIRAuthUIDelegate_h() {
       class AuthUIImpl: NSObject, AuthUIDelegate {
         func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
@@ -250,7 +250,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = FacebookAuthProvider.credential(withAccessToken: "token")
   }
 
-  #if !os(macOS)
+  #if !os(macOS) && !os(watchOS)
     func FIRFedederatedAuthProvider_h() {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -273,15 +273,17 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRGameCenterAuthProvider_h() {
-    GameCenterAuthProvider.getCredential { _, _ in
+  #if !os(watchOS)
+    func FIRGameCenterAuthProvider_h() {
+      GameCenterAuthProvider.getCredential { _, _ in
+      }
     }
-  }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func FIRGameCenterAuthProvider_hAsync() async throws {
-    _ = try await GameCenterAuthProvider.getCredential()
-  }
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    func FIRGameCenterAuthProvider_hAsync() async throws {
+      _ = try await GameCenterAuthProvider.getCredential()
+    }
+  #endif
 
   func FIRGitHubAuthProvider_h() {
     _ = GitHubAuthProvider.credential(withToken: "token")

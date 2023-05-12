@@ -16,7 +16,6 @@
 
   import Foundation
   import UIKit
-  @_implementationOnly import GoogleUtilities
 
   /** @class AuthDefaultUIDelegate
       @brief Class responsible for providing a default FIRAuthUIDelegate.

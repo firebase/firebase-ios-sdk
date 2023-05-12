@@ -14,6 +14,7 @@
 
 #if canImport(Combine) && swift(>=5.0)
 
+  import Foundation
   import Combine
   import FirebaseAuth
 
