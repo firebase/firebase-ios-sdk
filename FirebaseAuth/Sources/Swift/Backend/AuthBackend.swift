@@ -124,12 +124,12 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
     // TODO: Enable for SPM. Can we directly call the Swift library?
     #if COCOAPODS
-    if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-      request.setValue(
-        FIRHeaderValueFromHeartbeatsPayload(heartbeatLogger.flushHeartbeatsIntoPayload()),
-        forHTTPHeaderField: "X-Firebase-Client"
-      )
-    }
+      if let heartbeatLogger = requestConfiguration.heartbeatLogger {
+        request.setValue(
+          FIRHeaderValueFromHeartbeatsPayload(heartbeatLogger.flushHeartbeatsIntoPayload()),
+          forHTTPHeaderField: "X-Firebase-Client"
+        )
+      }
     #endif
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
