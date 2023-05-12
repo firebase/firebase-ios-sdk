@@ -127,15 +127,16 @@ class FunctionsTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
-    functions?.callFunction(name: "fake_func", withObject: nil, options: nil, timeout: 10) { result in
-      switch result {
-      case .success:
-        XCTFail("Unexpected success from functions?.callFunction")
-      case let .failure(error as NSError):
-        XCTAssertEqual(error, networkError)
+    functions?
+      .callFunction(name: "fake_func", withObject: nil, options: nil, timeout: 10) { result in
+        switch result {
+        case .success:
+          XCTFail("Unexpected success from functions?.callFunction")
+        case let .failure(error as NSError):
+          XCTAssertEqual(error, networkError)
+        }
+        completionExpectation.fulfill()
       }
-      completionExpectation.fulfill()
-    }
     waitForExpectations(timeout: 1.5)
   }
 
@@ -156,7 +157,12 @@ class FunctionsTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
-    functionsCustomDomain?.callFunction(name: "fake_func", withObject: nil, options: nil, timeout: 10) { result in
+    functionsCustomDomain?.callFunction(
+      name: "fake_func",
+      withObject: nil,
+      options: nil,
+      timeout: 10
+    ) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from functions?.callFunction")
