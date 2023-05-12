@@ -106,7 +106,25 @@ class FunctionsTests: XCTestCase {
     XCTAssertEqual("http://localhost:1000", functions?.emulatorOrigin)
   }
 
-  // MARK: - App Check integration
+  /// Test that Functions instances get deallocated.
+  func testFunctionsLifecycle() throws {
+    weak var weakApp: FirebaseApp?
+    weak var weakFunctions: Functions?
+    try autoreleasepool {
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      options.projectID = "myProjectID"
+      let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
+      weakApp = try XCTUnwrap(app1)
+      let functions = Functions(app: app1, region: "transitory-region", customDomain: nil)
+      weakFunctions = functions
+      XCTAssertNotNil(weakFunctions)
+    }
+    XCTAssertNil(weakApp)
+    XCTAssertNil(weakFunctions)
+  }
+
+  // MARK: - App Check Integration
 
   func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "valid_token", error: nil)
@@ -172,23 +190,5 @@ class FunctionsTests: XCTestCase {
       completionExpectation.fulfill()
     }
     waitForExpectations(timeout: 1.5)
-  }
-
-  /// Test that Functions instances get deallocated.
-  func testFunctionsLifecycle() throws {
-    weak var weakApp: FirebaseApp?
-    weak var weakFunctions: Functions?
-    try autoreleasepool {
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                    gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.projectID = "myProjectID"
-      let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
-      weakApp = try XCTUnwrap(app1)
-      let functions = Functions(app: app1, region: "transitory-region", customDomain: nil)
-      weakFunctions = functions
-      XCTAssertNotNil(weakFunctions)
-    }
-    XCTAssertNil(weakApp)
-    XCTAssertNil(weakFunctions)
   }
 }
