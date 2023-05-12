@@ -72,13 +72,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSNumber *)count {
   return (NSNumber *)[self valueForAggregation:[FIRAggregateField aggregateFieldForCount]];
+  ./
 }
 
 - (FIRAggregateQuery *)query {
   return _query;
 }
 
-- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation NS_SWIFT_NAME(get(_:)) {
+- (nullable id)valueForAggregation:(FIRAggregateField *)aggregation {
   FIRServerTimestampBehavior serverTimestampBehavior = FIRServerTimestampBehaviorNone;
   AggregateAlias alias = [aggregation createAlias];
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());

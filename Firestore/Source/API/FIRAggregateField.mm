@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-+ (instancetype)aggregateFieldForCount NS_SWIFT_NAME(count()) {
++ (instancetype)aggregateFieldForCount {
   return [[FSTCountAggregateField alloc] initPrivate];
 }
 
@@ -93,8 +93,7 @@ NS_ASSUME_NONNULL_BEGIN
   return [self aggregateFieldForAverageOfFieldPath:[FIRFieldPath pathWithDotSeparatedString:field]];
 }
 
-+ (instancetype)aggregateFieldForAverageOfFieldPath:(FIRFieldPath *)fieldPath
-    NS_SWIFT_NAME(average(_:)) {
++ (instancetype)aggregateFieldForAverageOfFieldPath:(FIRFieldPath *)fieldPath {
   return [[FSTAverageAggregateField alloc] initWithFieldPath:fieldPath];
 }
 
