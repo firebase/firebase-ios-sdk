@@ -18,7 +18,6 @@
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import "FirebaseAppDistribution/FirebaseAppDistribution.h"
 #endif
-#import "FirebaseAuth/FirebaseAuth.h"
 #import "FirebaseCore/FirebaseCore.h"
 #import "FirebaseCrashlytics/FirebaseCrashlytics.h"
 #import "FirebaseDatabase/FirebaseDatabase.h"
@@ -40,7 +39,6 @@
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import <FirebaseAppDistribution/FirebaseAppDistribution.h>
 #endif
-#import <FirebaseAuth/FirebaseAuth.h>
 #import <FirebaseCore/FirebaseCore.h>
 #import <FirebaseCrashlytics/FirebaseCrashlytics.h>
 #import <FirebaseDatabase/FirebaseDatabase.h>

@@ -14,6 +14,7 @@
 
 #if !os(macOS) && !os(watchOS)
   import Foundation
+  import UIKit
 
   /** @class FIRAuthAppCredential
       @brief A class represents a credential that proves the identity of the app.

@@ -78,23 +78,22 @@ jobs:
     - name: BuildAndTest # can be replaced with pod lib lint with CocoaPods 1.10
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Auth iOS)
 
-  # Disable until mixed language support is available or Auth is fully in Swift
-  # spm:
-  #   # Don't run on private repo unless it is a PR.
-  #   if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-  #   runs-on: macos-12
-  #   strategy:
-  #     matrix:
-  #       target: [iOS, tvOS, macOS, catalyst, watchOS]
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-  #     with:
-  #       cache_key: ${{ matrix.os }}
-  #   - name: Initialize xcodebuild
-  #     run: scripts/setup_spm_tests.sh
-  #   - name: Unit Tests
-  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }} spm
+  spm:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-12
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS, catalyst, watchOS]
+    steps:
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Unit Tests
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AuthUnit ${{ matrix.target }} spm
 
   catalyst:
     # Don't run on private repo unless it is a PR.
