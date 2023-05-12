@@ -35,6 +35,10 @@
   });
 }
 
+- (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
+  handler(self.tokenResult);
+}
+
 - (nonnull NSString *)notificationAppNameKey {
   return @"FakeAppCheckTokenDidChangeNotification";
 }
