@@ -25,7 +25,9 @@ import Foundation
   @objc public var username: String?
   @objc public var newUser: Bool
   @objc public var isNewUser: Bool {
-    return newUser
+    get {
+      return newUser
+    }
   }
 
   @objc public static func userInfo(verifyAssertionResponse: VerifyAssertionResponse)
