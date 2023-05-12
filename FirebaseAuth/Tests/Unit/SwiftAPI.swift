@@ -273,7 +273,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
-
   #if !os(watchOS)
     func FIRGameCenterAuthProvider_h() {
       GameCenterAuthProvider.getCredential { _, _ in
