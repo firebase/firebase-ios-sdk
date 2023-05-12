@@ -15,6 +15,7 @@
 import Foundation
 import FirebaseCore
 import FirebaseCoreExtension
+import FirebaseCoreInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else

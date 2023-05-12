@@ -15,7 +15,7 @@
  */
 
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
+#import "FirebaseAuth/Tests/UnitObjC/FIRApp+FIRAuthUnitTests.h"
 
 @import FirebaseAuth;
 
