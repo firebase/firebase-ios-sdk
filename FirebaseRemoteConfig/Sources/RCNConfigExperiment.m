@@ -94,6 +94,7 @@ static NSString *const kMethodNameLatestStartTime =
       strongSelf->_experimentMetadata = [result[@RCNExperimentTableKeyMetadata] mutableCopy];
     }
 
+    /// Load activated experiments payload and metadata.
     if (result[@RCNExperimentTableKeyActivePayload]) {
       [strongSelf->_activatedExperimentPayloads removeAllObjects];
       for (NSData *experiment in result[@RCNExperimentTableKeyActivePayload]) {
