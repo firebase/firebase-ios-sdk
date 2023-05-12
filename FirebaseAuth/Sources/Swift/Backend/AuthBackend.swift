@@ -14,7 +14,8 @@
 
 import Foundation
 import FirebaseCore
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreExtension
+import FirebaseCoreInternal
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -121,12 +122,15 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-      request.setValue(
-        FIRHeaderValueFromHeartbeatsPayload(heartbeatLogger.flushHeartbeatsIntoPayload()),
-        forHTTPHeaderField: "X-Firebase-Client"
-      )
-    }
+    // TODO: Enable for SPM. Can we directly call the Swift library?
+    #if COCOAPODS
+      if let heartbeatLogger = requestConfiguration.heartbeatLogger {
+        request.setValue(
+          FIRHeaderValueFromHeartbeatsPayload(heartbeatLogger.flushHeartbeatsIntoPayload()),
+          forHTTPHeaderField: "X-Firebase-Client"
+        )
+      }
+    #endif
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
       request.setValue(preferredLocalizations.first, forHTTPHeaderField: "Accept-Language")
