@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import Foundation
-@_implementationOnly import FirebaseCoreExtension
+import FirebaseCoreExtension
 
 enum AuthLog {
   static func logInfo(code: String, message: String) {

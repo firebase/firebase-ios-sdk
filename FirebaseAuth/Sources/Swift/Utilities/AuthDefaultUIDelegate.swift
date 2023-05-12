@@ -16,10 +16,9 @@
 
   import Foundation
   import UIKit
-  @_implementationOnly import GoogleUtilities
 
   /** @class AuthDefaultUIDelegate
-      @brief Class responsible for providing a default FIRAuthUIDelegte.
+      @brief Class responsible for providing a default FIRAuthUIDelegate.
       @remarks This class should be used in the case that a UIDelegate was expected and necessary to
           continue a given flow, but none was provided.
    */

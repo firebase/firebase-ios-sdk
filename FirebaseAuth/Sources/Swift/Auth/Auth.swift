@@ -17,7 +17,12 @@ import Foundation
 import FirebaseCore
 import FirebaseCoreExtension
 import FirebaseAppCheckInterop
-@_implementationOnly import GoogleUtilities
+#if COCOAPODS
+  @_implementationOnly import GoogleUtilities
+#else
+  @_implementationOnly import GoogleUtilities_AppDelegateSwizzler
+  @_implementationOnly import GoogleUtilities_Environment
+#endif
 
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
   import UIKit
@@ -68,7 +73,7 @@ import FirebaseAppCheckInterop
   @objc public class func auth(app: FirebaseApp) -> Auth {
     let provider = ComponentType<AuthProvider>.instance(for: AuthProvider.self,
                                                         in: app.container)
-    return provider.auth(app)
+    return provider.auth()
   }
 
   /** @property app
@@ -397,59 +402,59 @@ import FirebaseAppCheckInterop
     }
   }
 
-  @available(tvOS, unavailable)
-  @available(macOS, unavailable)
-  @available(watchOS, unavailable)
-  /** @fn signInWithProvider:UIDelegate:completion:
-   @brief Signs in using the provided auth provider instance.
-   This method is available on iOS, macOS Catalyst, and tvOS only.
+  #if os(iOS)
+    @available(tvOS, unavailable)
+    @available(macOS, unavailable)
+    @available(watchOS, unavailable)
+    /** @fn signInWithProvider:UIDelegate:completion:
+     @brief Signs in using the provided auth provider instance.
+     This method is available on iOS, macOS Catalyst, and tvOS only.
 
-   @param provider An instance of an auth provider used to initiate the sign-in flow.
-   @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
-   protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
-   will be used.
-   @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
-   canceled. Invoked asynchronously on the main thread in the future.
+     @param provider An instance of an auth provider used to initiate the sign-in flow.
+     @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
+     protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
+     will be used.
+     @param completion Optionally; a block which is invoked when the sign in flow finishes, or is
+     canceled. Invoked asynchronously on the main thread in the future.
 
-   @remarks Possible error codes:
-   <ul>
-   <li>@c AuthErrorCodeOperationNotAllowed - Indicates that email and password
-   accounts are not enabled. Enable them in the Auth section of the
-   Firebase console.
-   </li>
-   <li>@c AuthErrorCodeUserDisabled - Indicates the user's account is disabled.
-   </li>
-   <li>@c AuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
-   SFSafariViewController or WKWebView failed.
-   </li>
-   <li>@c AuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
-   SFSafariViewController or WKWebView.
-   </li>
-   <li>@c AuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
-   a web sign-in flow.
-   </li>
-   <li>@c AuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
-   present a new web context while one was already being presented.
-   </li>
-   <li>@c AuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
-   cancelled prematurely by the user.
-   </li>
-   <li>@c AuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
-   by the credential (e.g. the email in a Facebook access token) is already in use by an
-   existing account, that cannot be authenticated with this sign-in method. Call
-   fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
-   the sign-in providers returned. This error will only be thrown if the "One account per
-   email address" setting is enabled in the Firebase console, under Auth settings.
-   </li>
-   </ul>
+     @remarks Possible error codes:
+     <ul>
+     <li>@c AuthErrorCodeOperationNotAllowed - Indicates that email and password
+     accounts are not enabled. Enable them in the Auth section of the
+     Firebase console.
+     </li>
+     <li>@c AuthErrorCodeUserDisabled - Indicates the user's account is disabled.
+     </li>
+     <li>@c AuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
+     SFSafariViewController or WKWebView failed.
+     </li>
+     <li>@c AuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
+     SFSafariViewController or WKWebView.
+     </li>
+     <li>@c AuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
+     a web sign-in flow.
+     </li>
+     <li>@c AuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
+     present a new web context while one was already being presented.
+     </li>
+     <li>@c AuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
+     cancelled prematurely by the user.
+     </li>
+     <li>@c AuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
+     by the credential (e.g. the email in a Facebook access token) is already in use by an
+     existing account, that cannot be authenticated with this sign-in method. Call
+     fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+     the sign-in providers returned. This error will only be thrown if the "One account per
+     email address" setting is enabled in the Firebase console, under Auth settings.
+     </li>
+     </ul>
 
-   @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
-   */
-  @objc(signInWithProvider:UIDelegate:completion:)
-  public func signIn(with provider: FederatedAuthProvider,
-                     uiDelegate: AuthUIDelegate?,
-                     completion: ((AuthDataResult?, Error?) -> Void)?) {
-    #if os(iOS)
+     @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
+     */
+    @objc(signInWithProvider:UIDelegate:completion:)
+    public func signIn(with provider: FederatedAuthProvider,
+                       uiDelegate: AuthUIDelegate?,
+                       completion: ((AuthDataResult?, Error?) -> Void)?) {
       kAuthGlobalWorkQueue.async {
         let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
         provider.getCredentialWith(uiDelegate) { rawCredential, error in
@@ -465,68 +470,68 @@ import FirebaseAppCheckInterop
                                              callback: decoratedCallback)
         }
       }
-    #endif
-  }
+    }
 
-  /** @fn signInWithProvider:UIDelegate:completion:
-   @brief Signs in using the provided auth provider instance.
-   This method is available on iOS, macOS Catalyst, and tvOS only.
+    /** @fn signInWithProvider:UIDelegate:completion:
+     @brief Signs in using the provided auth provider instance.
+     This method is available on iOS, macOS Catalyst, and tvOS only.
 
-   @param provider An instance of an auth provider used to initiate the sign-in flow.
-   @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
-   protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
-   will be used.
+     @param provider An instance of an auth provider used to initiate the sign-in flow.
+     @param uiDelegate Optionally an instance of a class conforming to the AuthUIDelegate
+     protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
+     will be used.
 
-   @remarks Possible error codes:
-   <ul>
-   <li>@c AuthErrorCodeOperationNotAllowed - Indicates that email and password
-   accounts are not enabled. Enable them in the Auth section of the
-   Firebase console.
-   </li>
-   <li>@c AuthErrorCodeUserDisabled - Indicates the user's account is disabled.
-   </li>
-   <li>@c AuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
-   SFSafariViewController or WKWebView failed.
-   </li>
-   <li>@c AuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
-   SFSafariViewController or WKWebView.
-   </li>
-   <li>@c AuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
-   a web sign-in flow.
-   </li>
-   <li>@c AuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
-   present a new web context while one was already being presented.
-   </li>
-   <li>@c AuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
-   cancelled prematurely by the user.
-   </li>
-   <li>@c AuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
-   by the credential (e.g. the email in a Facebook access token) is already in use by an
-   existing account, that cannot be authenticated with this sign-in method. Call
-   fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
-   the sign-in providers returned. This error will only be thrown if the "One account per
-   email address" setting is enabled in the Firebase console, under Auth settings.
-   </li>
-   </ul>
+     @remarks Possible error codes:
+     <ul>
+     <li>@c AuthErrorCodeOperationNotAllowed - Indicates that email and password
+     accounts are not enabled. Enable them in the Auth section of the
+     Firebase console.
+     </li>
+     <li>@c AuthErrorCodeUserDisabled - Indicates the user's account is disabled.
+     </li>
+     <li>@c AuthErrorCodeWebNetworkRequestFailed - Indicates that a network request within a
+     SFSafariViewController or WKWebView failed.
+     </li>
+     <li>@c AuthErrorCodeWebInternalError - Indicates that an internal error occurred within a
+     SFSafariViewController or WKWebView.
+     </li>
+     <li>@c AuthErrorCodeWebSignInUserInteractionFailure - Indicates a general failure during
+     a web sign-in flow.
+     </li>
+     <li>@c AuthErrorCodeWebContextAlreadyPresented - Indicates that an attempt was made to
+     present a new web context while one was already being presented.
+     </li>
+     <li>@c AuthErrorCodeWebContextCancelled - Indicates that the URL presentation was
+     cancelled prematurely by the user.
+     </li>
+     <li>@c AuthErrorCodeAccountExistsWithDifferentCredential - Indicates the email asserted
+     by the credential (e.g. the email in a Facebook access token) is already in use by an
+     existing account, that cannot be authenticated with this sign-in method. Call
+     fetchProvidersForEmail for this user’s email and then prompt them to sign in with any of
+     the sign-in providers returned. This error will only be thrown if the "One account per
+     email address" setting is enabled in the Firebase console, under Auth settings.
+     </li>
+     </ul>
 
-   @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @available(tvOS, unavailable)
-  @available(macOS, unavailable)
-  @available(watchOS, unavailable)
-  public func signIn(with provider: FederatedAuthProvider,
-                     uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
-    return try await withCheckedThrowingContinuation { continuation in
-      self.signIn(with: provider, uiDelegate: uiDelegate) { result, error in
-        if let result {
-          continuation.resume(returning: result)
-        } else {
-          continuation.resume(throwing: error!)
+     @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
+     */
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    @available(tvOS, unavailable)
+    @available(macOS, unavailable)
+    @available(watchOS, unavailable)
+    public func signIn(with provider: FederatedAuthProvider,
+                       uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.signIn(with: provider, uiDelegate: uiDelegate) { result, error in
+          if let result {
+            continuation.resume(returning: result)
+          } else {
+            continuation.resume(throwing: error!)
+          }
         }
       }
     }
-  }
+  #endif // iOS
 
   /** @fn signInWithCredential:completion:
    @brief Asynchronously signs in to Firebase with the given 3rd-party credentials (e.g. a Facebook
@@ -1430,7 +1435,7 @@ import FirebaseAppCheckInterop
     kAuthGlobalWorkQueue.async {
       self.requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
       #if os(iOS)
-        self.settings?.isAppVerificationDisabledForTesting = true
+        self.settings?.appVerificationDisabledForTesting = true
       #endif
     }
   }
@@ -2293,9 +2298,7 @@ import FirebaseAppCheckInterop
        @remarks Typically invoked as part of the complete sign-in flow. For any other uses please
            consider alternative ways of updating the current user.
    */
-  // TODO: internal after MFA
-  @objc(signInFlowAuthDataResultCallbackByDecoratingCallback:)
-  public func signInFlowAuthDataResultCallback(byDecorating callback:
+  func signInFlowAuthDataResultCallback(byDecorating callback:
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
     let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
       { callback, result, error in

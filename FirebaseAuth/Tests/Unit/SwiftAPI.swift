@@ -227,7 +227,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.malformedJWT
   }
 
-  #if !os(macOS)
+  #if !os(macOS) && !os(watchOS)
     func FIRAuthUIDelegate_h() {
       class AuthUIImpl: NSObject, AuthUIDelegate {
         func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
@@ -238,18 +238,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let obj = AuthUIImpl()
       obj.present(UIViewController(), animated: true) {}
       obj.dismiss(animated: false) {}
-    }
-
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRAuthUIDelegate_hAsync() async {
-      class AuthUIImpl: NSObject, AuthUIDelegate {
-        func present(_ viewControllerToPresent: UIViewController, animated flag: Bool) async {}
-
-        func dismiss(animated flag: Bool) async {}
-      }
-      let obj = AuthUIImpl()
-      await obj.present(UIViewController(), animated: true)
-      await obj.dismiss(animated: false)
     }
   #endif
 
@@ -262,7 +250,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = FacebookAuthProvider.credential(withAccessToken: "token")
   }
 
-  #if !os(macOS)
+  #if !os(macOS) && !os(watchOS)
     func FIRFedederatedAuthProvider_h() {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -285,15 +273,17 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRGameCenterAuthProvider_h() {
-    GameCenterAuthProvider.getCredential { _, _ in
+  #if !os(watchOS)
+    func FIRGameCenterAuthProvider_h() {
+      GameCenterAuthProvider.getCredential { _, _ in
+      }
     }
-  }
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func FIRGameCenterAuthProvider_hAsync() async throws {
-    _ = try await GameCenterAuthProvider.getCredential()
-  }
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    func FIRGameCenterAuthProvider_hAsync() async throws {
+      _ = try await GameCenterAuthProvider.getCredential()
+    }
+  #endif
 
   func FIRGitHubAuthProvider_h() {
     _ = GitHubAuthProvider.credential(withToken: "token")
@@ -328,7 +318,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
       let obj = MultiFactor()
-      try await obj.session()
+      _ = try await obj.session()
       try await obj.enroll(
         with: PhoneMultiFactorGenerator.assertion(with: credential),
         displayName: "name"
@@ -342,7 +332,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
-      let obj = MultiFactorResolver()
+      let obj = MultiFactorResolver(with: "", hints: [], auth: FirebaseAuth.Auth.auth())
       obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential)) { _, _ in
       }
     }
@@ -352,8 +342,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
-      let obj = MultiFactorResolver()
-      try await obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential))
+      let obj = MultiFactorResolver(with: "", hints: [], auth: FirebaseAuth.Auth.auth())
+      _ = try await obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential))
     }
   #endif
 
@@ -418,7 +408,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     func FIRPhoneMultiFactorGenerator_h() {
       let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
                                                                verificationCode: "code")
-      PhoneMultiFactorGenerator.assertion(with: credential)
+      _ = PhoneMultiFactorGenerator.assertion(with: credential)
     }
   #endif
 

@@ -21,20 +21,19 @@ private let kFinalizeMFASignInEndPoint = "accounts/mfaSignIn:finalize"
  */
 private let kTenantIDKey = "tenantId"
 
-@objc(FIRFinalizeMFASignInRequest) public class FinalizeMFASignInRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
-  var MFAPendingCredential: String?
+class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+  var mfaPendingCredential: String?
   var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
 
   /** @var response
       @brief The corresponding response for this request
    */
-  @objc public var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
+  var response: AuthRPCResponse = FinalizeMFAEnrollmentResponse()
 
-  @objc public init(MFAPendingCredential: String?,
-                    verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
-                    requestConfiguration: AuthRequestConfiguration) {
-    self.MFAPendingCredential = MFAPendingCredential
+  init(mfaPendingCredential: String?,
+       verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
+       requestConfiguration: AuthRequestConfiguration) {
+    self.mfaPendingCredential = mfaPendingCredential
     self.verificationInfo = verificationInfo
     super.init(endpoint: kFinalizeMFASignInEndPoint,
                requestConfiguration: requestConfiguration,
@@ -42,10 +41,10 @@ private let kTenantIDKey = "tenantId"
                useStaging: false)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var body: [String: AnyHashable] = [:]
-    if let MFAPendingCredential = MFAPendingCredential {
-      body["mfaPendingCredential"] = MFAPendingCredential
+    if let mfaPendingCredential = mfaPendingCredential {
+      body["mfaPendingCredential"] = mfaPendingCredential
     }
     if let verificationInfo = verificationInfo {
       body["phoneVerificationInfo"] = verificationInfo.dictionary
