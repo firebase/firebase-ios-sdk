@@ -453,13 +453,11 @@ internal enum FunctionsConstants {
           forHTTPHeaderField: Constants.appCheckTokenHeader
         )
       }
-    } else {
-      if let appCheckToken = context.appCheckToken {
-        fetcher.setRequestValue(
-          appCheckToken,
-          forHTTPHeaderField: Constants.appCheckTokenHeader
-        )
-      }
+    } else if let appCheckToken = context.appCheckToken {
+      fetcher.setRequestValue(
+        appCheckToken,
+        forHTTPHeaderField: Constants.appCheckTokenHeader
+      )
     }
 
     // Override normal security rules if this is a local test.

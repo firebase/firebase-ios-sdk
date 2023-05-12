@@ -51,7 +51,8 @@ internal class FunctionsContextProvider: NSObject {
 //
 //  }
 
-  internal func getContext(_ completion: @escaping ((FunctionsContext, Error?) -> Void)) {
+  internal func getContext(options: HTTPSCallableOptions? = nil,
+                           _ completion: @escaping ((FunctionsContext, Error?) -> Void)) {
     let dispatchGroup = DispatchGroup()
 
     var authToken: String?
@@ -72,24 +73,22 @@ internal class FunctionsContextProvider: NSObject {
     if let appCheck = appCheck {
       dispatchGroup.enter()
 
-      appCheck.getToken(forcingRefresh: false) { tokenResult in
-        // Send only valid token to functions.
-        if tokenResult.error == nil {
-          appCheckToken = tokenResult.token
+      if options?.limitedUseAppCheckTokens == true {
+        appCheck.getLimitedUseToken? { tokenResult in
+          // Send only valid token to functions.
+          if tokenResult.error == nil {
+            limitedUseAppCheckToken = tokenResult.token
+          }
+          dispatchGroup.leave()
         }
-        dispatchGroup.leave()
-      }
-    }
-
-    if let appCheck = appCheck {
-      dispatchGroup.enter()
-
-      appCheck.getLimitedUseToken? { tokenResult in
-        // Send only valid token to functions.
-        if tokenResult.error == nil {
-          appCheckToken = tokenResult.token
+      } else {
+        appCheck.getToken(forcingRefresh: false) { tokenResult in
+          // Send only valid token to functions.
+          if tokenResult.error == nil {
+            appCheckToken = tokenResult.token
+          }
+          dispatchGroup.leave()
         }
-        dispatchGroup.leave()
       }
     }
 
