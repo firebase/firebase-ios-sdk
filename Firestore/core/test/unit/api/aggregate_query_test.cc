@@ -14,21 +14,58 @@
  * limitations under the License.
  */
 
-#include <memory>
+// TODO(b/280805906) Remove these tests for the count specific API after the c++
+// SDK migrates to the new Aggregate API
 
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 #include "Firestore/core/src/api/aggregate_query.h"
 #include "Firestore/core/src/api/firestore.h"
+#include "Firestore/core/src/api/query_core.h"
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/remote/firebase_metadata_provider.h"
+#include "Firestore/core/src/util/status.h"
 
 namespace firebase {
 namespace firestore {
-namespace api {
-namespace {
 
+using model::AggregateAlias;
+using ::testing::Invoke;
+using util::Status;
+
+namespace api {
+
+class MockAggregateQuery : public AggregateQuery {
+ public:
+  using AggregateQuery::AggregateQuery;
+
+  ~MockAggregateQuery() override = default;
+
+  MOCK_METHOD(void,
+              GetAggregate,
+              (AggregateQueryCallback && callback),
+              (override));
+};
+
+class AggregateQueryTest {
+ public:
+  static const Query& GetQuery(const AggregateQuery& aggregate_query) {
+    return aggregate_query.query_;
+  }
+
+  static const std::vector<AggregateField>& GetAggregates(
+      const AggregateQuery& aggregate_query) {
+    return aggregate_query.aggregates_;
+  }
+};
+
+namespace {
 TEST(AggregateQuery, Equality) {
   {
     auto firestore = std::make_shared<Firestore>();
@@ -58,6 +95,105 @@ TEST(AggregateQuery, GetQuery) {
     EXPECT_EQ(query1.Count().query(), query1);
     EXPECT_NE(query1.Count().query(), query2);
   }
+}
+
+// Assert that the Get member function calls GetAggregate member function
+// and that the result from GetAggregate is processed
+// appropriately
+TEST(AggregateQuery, GetCallsGetAggregateOk) {
+  // Test aggregate field result
+  google_firestore_v1_AggregationResult_AggregateFieldsEntry
+      aggregate_fields_entry[1];
+  aggregate_fields_entry[0].key = nanopb::ByteString("aggregate_0").release();
+  aggregate_fields_entry[0].value.which_value_type =
+      google_firestore_v1_Value_integer_value_tag;
+  aggregate_fields_entry[0].value.integer_value = 10;
+
+  // Test alias map
+  absl::flat_hash_map<std::string, std::string> alias_map;
+  alias_map["aggregate_0"] = "count";
+
+  // Test ObjectValue result
+  ObjectValue object_value_result = ObjectValue::FromAggregateFieldsEntry(
+      aggregate_fields_entry, 1, alias_map);
+
+  // Create an AggregateQuery with mocked GetAggregate function that
+  // invokes the callback with the test results from above
+  AggregateField count_aggregate_field(AggregateField::OpKind::Count,
+                                       AggregateAlias("count"));
+  std::vector<AggregateField> aggregates{count_aggregate_field};
+  MockAggregateQuery mock_aggregate_query({}, std::move(aggregates));
+  EXPECT_CALL(mock_aggregate_query, GetAggregate)
+      .Times(1)
+      .WillOnce(Invoke([object_value_result = std::move(object_value_result)](
+                           AggregateQueryCallback&& callback) {
+        callback(object_value_result);
+      }));
+
+  // Call the Get function, which is the function under test
+  int callback_count = 0;
+  mock_aggregate_query.Get(
+      [&callback_count](const StatusOr<int64_t>& result) mutable {
+        callback_count++;
+        ASSERT_EQ(result.ok(), true);
+        EXPECT_EQ(result.ValueOrDie(), 10);
+      });
+
+  // Assert the callback was invoked
+  EXPECT_EQ(callback_count, 1);
+}
+
+// Assert that the Get member function calls GetAggregate member function
+// and that an error result from GetAggregate is processed
+// appropriately
+TEST(AggregateQuery, GetCallsGetAggregateError) {
+  // Error result
+  Status error_result = Status(Error::kErrorInternal, "foo");
+
+  // Create an AggregateQuery with mocked GetAggregate function that
+  // invokes the callback with the error status from above
+  AggregateField count_aggregate_field(AggregateField::OpKind::Count,
+                                       AggregateAlias("count"));
+  std::vector<AggregateField> aggregates{count_aggregate_field};
+  MockAggregateQuery mock_aggregate_query({}, std::move(aggregates));
+  EXPECT_CALL(mock_aggregate_query, GetAggregate)
+      .Times(1)
+      .WillOnce(Invoke(
+          [error_result = std::move(error_result)](
+              AggregateQueryCallback&& callback) { callback(error_result); }));
+
+  // Call the Get member function
+  int callback_count = 0;
+  mock_aggregate_query.Get(
+      [&callback_count](const StatusOr<int64_t>& result) mutable {
+        callback_count++;
+        ASSERT_EQ(result.ok(), false);
+        EXPECT_EQ(result.status().code(), Error::kErrorInternal);
+        EXPECT_EQ(result.status().error_message(), "foo");
+      });
+
+  // Assert
+  EXPECT_EQ(callback_count, 1);
+}
+
+// Assert that the Query::Count member function creates an AggregateQuery
+// with the expected query and aggregates
+TEST(Query, Count) {
+  // Baseline Query
+  Query query;
+
+  // Testing the Count() function
+  AggregateQuery aggregate_query = query.Count();
+
+  const Query& internal_query = AggregateQueryTest::GetQuery(aggregate_query);
+  const std::vector<AggregateField>& internal_aggregates =
+      AggregateQueryTest::GetAggregates(aggregate_query);
+
+  // Assert
+  EXPECT_EQ(internal_query, query);
+  ASSERT_EQ(internal_aggregates.size(), 1);
+  EXPECT_EQ(internal_aggregates[0].op, AggregateField::OpKind::Count);
+  EXPECT_EQ(internal_aggregates[0].alias.StringValue(), "count");
 }
 
 }  // namespace

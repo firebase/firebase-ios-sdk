@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateQuery.h"
+#include "Firestore/core/src/model/aggregate_alias.h"
 
-#import "FIRAggregateField.h"
-#import "FIRQuery.h"
+#include "Firestore/core/src/util/hashing.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace model {
 
-@interface FIRAggregateQuery (/* init */)
+const std::string& AggregateAlias::StringValue() const {
+  return _alias;
+}
 
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithQueryAndAggregations:(FIRQuery *)query
-                                aggregations:(NSArray<FIRAggregateField *> *)aggregations
-    NS_DESIGNATED_INITIALIZER;
+bool operator==(const AggregateAlias& lhs, const AggregateAlias& rhs) {
+  return lhs._alias == rhs._alias;
+}
 
-@end
+size_t AggregateAlias::Hash() const {
+  return util::Hash(_alias);
+}
 
-NS_ASSUME_NONNULL_END
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase

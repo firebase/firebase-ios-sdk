@@ -21,5 +21,6 @@ firebase_ios_add_test(firestore_api_test ${sources})
 
 target_link_libraries(
   firestore_api_test PRIVATE
+  GMock::GMock
   firestore_core
 )

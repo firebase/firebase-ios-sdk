@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateQuery.h"
+#include <vector>
 
-#import "FIRAggregateField.h"
-#import "FIRQuery.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 
-NS_ASSUME_NONNULL_BEGIN
+namespace firebase {
+namespace firestore {
+namespace model {
 
-@interface FIRAggregateQuery (/* init */)
+size_t AggregateField::Hash() const {
+  return util::Hash(op, alias, fieldPath.CanonicalString());
+}
 
-- (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithQueryAndAggregations:(FIRQuery *)query
-                                aggregations:(NSArray<FIRAggregateField *> *)aggregations
-    NS_DESIGNATED_INITIALIZER;
-
-@end
-
-NS_ASSUME_NONNULL_END
+}  // namespace model
+}  // namespace firestore
+}  // namespace firebase
