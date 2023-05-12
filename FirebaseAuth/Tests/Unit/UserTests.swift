@@ -813,7 +813,7 @@ class UserTests: RPCBaseTests {
           let result = try! XCTUnwrap(rawResult)
           XCTAssertEqual(result.user.uid, user.uid)
           XCTAssertEqual(result.user.email, user.email)
-          XCTAssertEqual(result.additionalUserInfo?.newUser, false)
+          XCTAssertEqual(result.additionalUserInfo?.isNewUser, false)
           // User is still signed in.
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
