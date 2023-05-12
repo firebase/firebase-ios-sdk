@@ -20,15 +20,10 @@ import Foundation
   private static let usernameCodingKey = "username"
   private static let newUserKey = "newUser"
 
-  @objc public var providerID: String?
-  @objc public var profile: [String: Any]?
-  @objc public var username: String?
-  @objc public var newUser: Bool
-  @objc public var isNewUser: Bool {
-    get {
-      return newUser
-    }
-  }
+  @objc public let providerID: String?
+  @objc public let profile: [String: Any]?
+  @objc public let username: String?
+  @objc public let isNewUser: Bool
 
   @objc public static func userInfo(verifyAssertionResponse: VerifyAssertionResponse)
     -> AdditionalUserInfo {
@@ -42,7 +37,7 @@ import Foundation
     self.providerID = providerID
     self.profile = profile
     self.username = username
-    newUser = isNewUser
+    self.isNewUser = isNewUser
   }
 
   public static var supportsSecureCoding: Bool {
@@ -66,9 +61,9 @@ import Foundation
       of: NSNumber.self,
       forKey: AdditionalUserInfo.newUserKey
     ) {
-      self.newUser = newUser.intValue == 1
+      self.isNewUser = newUser.intValue == 1
     } else {
-      newUser = false
+      isNewUser = false
     }
   }
 
