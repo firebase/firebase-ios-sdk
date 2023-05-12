@@ -15,8 +15,6 @@
 import Foundation
 import FirebaseAppCheckInterop
 import FirebaseCore
-
-// Avoids exposing internal FirebaseCore APIs to Swift users.
 import FirebaseCoreExtension
 
 @objc(FIRAuthProvider) public protocol AuthProvider {

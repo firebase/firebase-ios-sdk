@@ -14,6 +14,8 @@
 
 import Foundation
 
+// TODO: Investigate how to directly depend on FIRHeartbeatLogger instead of using a protocol so
+// FirebaseCoreExtension can be an implementation only protocol.
 import FirebaseCoreExtension
 import FirebaseAppCheckInterop
 
