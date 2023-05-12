@@ -1,5 +1,7 @@
 # 10.10.0
 - [fixed] Fixed potential memory leak of Functions instances. (#11248)
+- [added] Callable functions can now opt in to using limited use App Check
+  tokens. (#11270)
 
 # 10.0.0
 - [fixed] Remove unnecessary and unused `encoder` and `decoder` parameters from
