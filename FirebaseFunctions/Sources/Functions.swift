@@ -177,6 +177,31 @@ internal enum FunctionsConstants {
   /// request and the type of a `Decodable` response.
   /// - Parameters:
   ///   - name: The name of the Callable HTTPS trigger
+  ///   - requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  ///   - responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  ///   - encoder: The encoder instance to use to run the encoding.
+  ///   - decoder: The decoder instance to use to run the decoding.
+  /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
+  open func httpsCallable<Request: Encodable,
+    Response: Decodable>(_ name: String,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
+    return Callable(
+      callable: httpsCallable(name),
+      encoder: encoder,
+      decoder: decoder
+    )
+  }
+
+  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
+  /// request and the type of a `Decodable` response.
+  /// - Parameters:
+  ///   - name: The name of the Callable HTTPS trigger
   ///   - options: The options with which to customize the Callable HTTPS trigger.
   ///   - requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
   ///   - responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
@@ -195,6 +220,31 @@ internal enum FunctionsConstants {
     -> Callable<Request, Response> {
     return Callable(
       callable: httpsCallable(name, options: options),
+      encoder: encoder,
+      decoder: decoder
+    )
+  }
+
+  /// Creates a reference to the Callable HTTPS trigger with the given name, the type of an `Encodable`
+  /// request and the type of a `Decodable` response.
+  /// - Parameters:
+  ///   - url: The url of the Callable HTTPS trigger
+  ///   - requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
+  ///   - responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
+  ///   - encoder: The encoder instance to use to run the encoding.
+  ///   - decoder: The decoder instance to use to run the decoding.
+  /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
+  open func httpsCallable<Request: Encodable,
+    Response: Decodable>(_ url: URL,
+                         requestAs: Request.Type = Request.self,
+                         responseAs: Response.Type = Response.self,
+                         encoder: FirebaseDataEncoder = FirebaseDataEncoder(
+                         ),
+                         decoder: FirebaseDataDecoder = FirebaseDataDecoder(
+                         ))
+    -> Callable<Request, Response> {
+    return Callable(
+      callable: httpsCallable(url),
       encoder: encoder,
       decoder: decoder
     )
