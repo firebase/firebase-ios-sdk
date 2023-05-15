@@ -446,7 +446,7 @@ internal enum FunctionsConstants {
       fetcher.setRequestValue(fcmToken, forHTTPHeaderField: Constants.fcmTokenHeader)
     }
 
-    if options?.requireLimitedUseAppCheckTokens {
+    if options?.requireLimitedUseAppCheckTokens == true {
       if let appCheckToken = context.limitedUseAppCheckToken {
         fetcher.setRequestValue(
           appCheckToken,

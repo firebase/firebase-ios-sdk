@@ -168,16 +168,19 @@ class FunctionsTests: XCTestCase {
 
   func testCallFunctionWhenLimitedUseAppCheckTokenDisabledThenCallWithoutToken() {
     // Given
+    let limitedUseDummyToken = "limited use dummy token"
     appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
-      token: "dummy token",
+      token: limitedUseDummyToken,
       error: NSError(domain: #function, code: -1)
     )
 
     let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
     fetcherService.testBlock = { fetcherToTest, testResponse in
       // Assert that header does not contain an AppCheck token.
-      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, _ in
-        XCTAssertNotEqual(key, "X-Firebase-AppCheck")
+      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, value in
+        if key == "X-Firebase-AppCheck" {
+          XCTAssertNotEqual(value, limitedUseDummyToken)
+        }
       }
 
       testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
