@@ -229,8 +229,8 @@ internal enum FunctionsConstants {
   ///   - url: The url of the Callable HTTPS trigger
   ///   - requestAs: The type of the `Encodable` entity to use for requests to this `Callable`
   ///   - responseAs: The type of the `Decodable` entity to use for responses from this `Callable`
-  ///   - encoder: The encoder instance to use to run the encoding.
-  ///   - decoder: The decoder instance to use to run the decoding.
+  ///   - encoder: The encoder instance to use to perform encoding.
+  ///   - decoder: The decoder instance to use to perform decoding.
   /// - Returns: A reference to an HTTPS-callable Cloud Function that can be used to make Cloud Functions invocations.
   open func httpsCallable<Request: Encodable,
     Response: Decodable>(_ url: URL,
