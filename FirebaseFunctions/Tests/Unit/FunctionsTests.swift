@@ -163,7 +163,7 @@ class FunctionsTests: XCTestCase {
         completionExpectation.fulfill()
       }
 
-    waitForExpectations(timeout: 1000.5)
+    waitForExpectations(timeout: 1.5)
   }
 
   func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
