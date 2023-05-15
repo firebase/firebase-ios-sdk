@@ -90,11 +90,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)tearDown {
   [FIRApp resetApps];
 
-  if (@available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)) {
-    // Recover default provider factory.
-    [GACAppCheck setAppCheckProviderFactory:[[GACDeviceCheckProviderFactory alloc] init]];
-  }
-
   [self.mockTokenRefresher stopMocking];
   self.mockTokenRefresher = nil;
   [self.mockProviderFactory stopMocking];
@@ -207,8 +202,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)usageExample {
-  // Set a custom app check provider factory for the default FIRApp.
-  [GACAppCheck setAppCheckProviderFactory:[[AppCheckProviderFactory alloc] init]];
   [FIRApp configure];
 
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:@"path"];
@@ -216,7 +209,8 @@ NS_ASSUME_NONNULL_BEGIN
 
   FIRApp *defaultApp = [FIRApp defaultApp];
 
-  id<GACAppCheckInterop> defaultAppCheck = FIR_COMPONENT(GACAppCheckInterop, defaultApp.container);
+  id<GACAppCheckInterop> defaultAppCheck =
+      [[GACAppCheck alloc] initWithApp:defaultApp appCheckProvider:self.mockAppCheckProvider];
 
   [defaultAppCheck getTokenForcingRefresh:NO
                                completion:^(id<GACAppCheckTokenResultInterop> tokenResult) {
