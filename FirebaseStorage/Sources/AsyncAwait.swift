@@ -63,14 +63,32 @@ import Foundation
     ///   - url: A URL representing the system file path of the object to be uploaded.
     ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
     ///              about the object being uploaded.
+    ///   - onProgress: An optional callback function to return a `Progress` while the upload proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if no file was present at the specified `url`.
     /// - Returns: `StorageMetadata` with additional information about the object being uploaded.
     func putFileAsync(from url: URL,
-                      metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
+                      metadata: StorageMetadata? = nil,
+                      onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
+      guard let onProgress else {
+        return try await withCheckedThrowingContinuation { continuation in
+          self.putFile(from: url, metadata: metadata) { result in
+            continuation.resume(with: result)
+          }
+        }
+      }
+      let downloadTask = putFile(from: url, metadata: metadata)
       return try await withCheckedThrowingContinuation { continuation in
-        _ = self.putFile(from: url, metadata: metadata) { result in
-          continuation.resume(with: result)
+        downloadTask.observe(.progress) {
+          onProgress($0.progress)
+        }
+        downloadTask.observe(.success) { _ in
+          continuation.resume(with: .success(downloadTask.metadata!))
+        }
+        downloadTask.observe(.failure) { snapshot in
+          continuation.resume(with: .failure(
+            snapshot.error ?? StorageError.internalError("Internal Storage Error in putFileAsync")
+          ))
         }
       }
     }
@@ -79,14 +97,33 @@ import Foundation
     ///
     /// - Parameters:
     ///   - fileUrl: A URL representing the system file path of the object to be uploaded.
+    ///   - onProgress: An optional callback function to return a `Progress` while the upload proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if Storage was unreachable
     ///   or `fileURL` did not reference a valid path on disk.
     /// - Returns: A `URL` pointing to the file path of the downloaded file.
-    func writeAsync(toFile fileURL: URL) async throws -> URL {
+    @discardableResult
+    func writeAsync(toFile fileURL: URL,
+                    onProgress: ((Progress?) -> Void)? = nil) async throws -> URL {
+      guard let onProgress else {
+        return try await withCheckedThrowingContinuation { continuation in
+          _ = self.write(toFile: fileURL) { result in
+            continuation.resume(with: result)
+          }
+        }
+      }
+      let downloadTask = write(toFile: fileURL)
       return try await withCheckedThrowingContinuation { continuation in
-        _ = self.write(toFile: fileURL) { result in
-          continuation.resume(with: result)
+        downloadTask.observe(.progress) {
+          onProgress($0.progress)
+        }
+        downloadTask.observe(.success) { _ in
+          continuation.resume(with: .success(fileURL))
+        }
+        downloadTask.observe(.failure) { snapshot in
+          continuation.resume(with: .failure(
+            snapshot.error ?? StorageError.internalError("Internal Storage Error in writeAsync")
+          ))
         }
       }
     }

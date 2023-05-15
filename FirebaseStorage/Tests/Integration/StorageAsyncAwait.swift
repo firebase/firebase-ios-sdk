@@ -178,6 +178,25 @@ import XCTest
       XCTAssertNotNil(result)
     }
 
+    func testSimplePutFileWithAsyncProgress() async throws {
+      var checkedProgress = false
+      let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
+      let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+      let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+      let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+      try data.write(to: fileURL, options: .atomicWrite)
+      var uploadedBytes: Int64 = -1
+      let successMetadata = try await ref.putFileAsync(from: fileURL) { progress in
+        if let completed = progress?.completedUnitCount {
+          checkedProgress = true
+          XCTAssertGreaterThanOrEqual(completed, uploadedBytes)
+          uploadedBytes = completed
+        }
+      }
+      XCTAssertEqual(successMetadata.size, 17)
+      XCTAssertTrue(checkedProgress)
+    }
+
     func testSimpleGetData() async throws {
       let ref = storage.reference(withPath: "ios/public/1mb2")
       let result = try await ref.data(maxSize: 1024 * 1024)
@@ -267,17 +286,38 @@ import XCTest
 
         task.observe(StorageTaskStatus.progress) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
-          guard let progress = snapshot.progress else {
+          guard let _ = snapshot.progress else {
             XCTFail("Missing progress")
             return
           }
-          print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
         }
         task.observe(StorageTaskStatus.failure) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
         }
       }
       waitForExpectations()
+    }
+
+    func testSimpleGetFileWithAsyncProgressCallbackAPI() async throws {
+      var checkedProgress = false
+      let ref = storage.reference().child("ios/public/1mb")
+      let url = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+      let fileURL = url
+      var downloadedBytes: Int64 = 0
+      var resumeAtBytes = 256 * 1024
+      let successURL = try await ref.writeAsync(toFile: fileURL) { progress in
+        if let completed = progress?.completedUnitCount {
+          checkedProgress = true
+          XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+          downloadedBytes = completed
+          if completed > resumeAtBytes {
+            resumeAtBytes = Int.max
+          }
+        }
+      }
+      XCTAssertTrue(checkedProgress)
+      XCTAssertEqual(successURL, url)
+      XCTAssertEqual(resumeAtBytes, Int.max)
     }
 
     private func assertMetadata(actualMetadata: StorageMetadata,
