@@ -25,7 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 NSString *const kFIRLoggerAppCheckMessageCodeUnknown = @"I-FAA001001";
 
 // GACAppCheck.m
-NSString *const kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing = @"I-FAA002001";
 NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing = @"I-FAA002002";
 
 // GACAppCheckAPIService.m
@@ -34,9 +33,6 @@ NSString *const kFIRLoggerAppCheckMessageCodeUnexpectedHTTPCode = @"I-FAA003001"
 // GACAppCheckDebugProvider.m
 NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions = @"I-FAA004001";
 NSString *const kFIRLoggerAppCheckMessageDebugProviderFailedExchange = @"I-FAA004002";
-
-// GACAppCheckDebugProviderFactory.m
-NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
 
 // GACDeviceCheckProvider.m
 NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions = @"I-FAA006001";
