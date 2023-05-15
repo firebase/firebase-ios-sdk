@@ -46,6 +46,7 @@
 static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 @interface GACAppCheck (Tests) <GACAppCheckInterop>
+
 - (instancetype)initWithAppName:(NSString *)appName
                appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                         storage:(id<GACAppCheckStorageProtocol>)storage
@@ -53,7 +54,6 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
              notificationCenter:(NSNotificationCenter *)notificationCenter
                        settings:(id<GACAppCheckSettingsProtocol>)settings;
 
-- (nullable instancetype)initWithApp:(FIRApp *)app;
 @end
 
 @interface GACAppCheckTests : XCTestCase
@@ -146,15 +146,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   OCMExpect([mockStorage initWithTokenKey:tokenKey accessGroup:appGroupID]).andReturn(mockStorage);
 
   // 4. Stub attestation provider.
-  OCMockObject<GACAppCheckProviderFactory> *mockProviderFactory =
-      OCMProtocolMock(@protocol(GACAppCheckProviderFactory));
   OCMockObject<GACAppCheckProvider> *mockProvider = OCMProtocolMock(@protocol(GACAppCheckProvider));
-  OCMExpect([mockProviderFactory createProviderWithApp:mockApp]).andReturn(mockProvider);
-
-  [GACAppCheck setAppCheckProviderFactory:mockProviderFactory];
 
   // 5. Call init.
-  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithApp:mockApp];
+  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithApp:mockApp appCheckProvider:mockProvider];
   XCTAssert([appCheck isKindOfClass:[GACAppCheck class]]);
 
   // 6. Verify mocks.
@@ -162,7 +157,6 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   OCMVerifyAll(mockAppOptions);
   OCMVerifyAll(mockTokenRefresher);
   OCMVerifyAll(mockStorage);
-  OCMVerifyAll(mockProviderFactory);
   OCMVerifyAll(mockProvider);
 
   // 7. Stop mocking real class mocks.
