@@ -39,8 +39,7 @@
 
 @property(nonatomic) id mockAPIService;
 
-@property(nonatomic) NSString *projectID;
-@property(nonatomic) NSString *appID;
+@property(nonatomic) NSString *resourceName;
 
 @end
 
@@ -49,15 +48,13 @@
 - (void)setUp {
   [super setUp];
 
-  self.projectID = @"project_id";
-  self.appID = @"app_id";
+  self.resourceName = @"projects/project_id/apps/app_id";
 
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
   OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/beta");
 
   self.appAttestAPIService = [[GACAppAttestAPIService alloc] initWithAPIService:self.mockAPIService
-                                                                      projectID:self.projectID
-                                                                          appID:self.appID];
+                                                                   resourceName:self.resourceName];
 }
 
 - (void)tearDown {
@@ -435,7 +432,7 @@
 }
 
 - (void)stubMockAPIServiceRequestForChallengeRequestWithResponse:(id)response {
-  id URLValidationArg = [self URLValidationArgumentWithResource:@"generateAppAttestChallenge"];
+  id URLValidationArg = [self URLValidationArgumentWithCustomMethod:@"generateAppAttestChallenge"];
   OCMStub([self.mockAPIService sendRequestWithURL:URLValidationArg
                                        HTTPMethod:@"POST"
                                              body:nil
@@ -446,10 +443,9 @@
       .andReturn([FBLPromise resolvedWith:response]);
 }
 
-- (id)URLValidationArgumentWithResource:(NSString *)resource {
-  NSString *expectedRequestURL =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:%@", [self.mockAPIService baseURL],
-                                 self.projectID, self.appID, resource];
+- (id)URLValidationArgumentWithCustomMethod:(NSString *)customMethod {
+  NSString *expectedRequestURL = [NSString
+      stringWithFormat:@"%@/%@:%@", [self.mockAPIService baseURL], self.resourceName, customMethod];
 
   id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
     XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
@@ -463,7 +459,7 @@
                                 assertion:(NSData *)assertion
                                  response:(nullable GULURLSessionDataResponse *)response
                                     error:(nullable NSError *)error {
-  id URLValidationArg = [self URLValidationArgumentWithResource:@"exchangeAppAttestAssertion"];
+  id URLValidationArg = [self URLValidationArgumentWithCustomMethod:@"exchangeAppAttestAssertion"];
 
   id bodyValidationArg = [OCMArg checkWithBlock:^BOOL(NSData *requestBody) {
     NSDictionary<NSString *, id> *decodedData = [NSJSONSerialization JSONObjectWithData:requestBody
@@ -529,7 +525,8 @@
                                     challenge:(NSData *)challenge
                                      response:(nullable GULURLSessionDataResponse *)response
                                         error:(nullable NSError *)error {
-  id URLValidationArg = [self URLValidationArgumentWithResource:@"exchangeAppAttestAttestation"];
+  id URLValidationArg =
+      [self URLValidationArgumentWithCustomMethod:@"exchangeAppAttestAttestation"];
 
   id bodyValidationArg = [OCMArg checkWithBlock:^BOOL(NSData *requestBody) {
     NSDictionary<NSString *, id> *decodedData = [NSJSONSerialization JSONObjectWithData:requestBody
