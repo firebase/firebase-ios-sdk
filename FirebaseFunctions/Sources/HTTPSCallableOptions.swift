@@ -16,7 +16,7 @@ import Foundation
 
 /// Configuration options for a ``HTTPSCallable`` instance.
 @objc(FIRHTTPSCallableOptions) public class HTTPSCallableOptions: NSObject {
-  /// Whether or not to protect the callable function with a limited use App Check token.
+  /// Whether or not to protect the callable function with a limited-use App Check token.
   @objc public let requireLimitedUseAppCheckTokens: Bool
 
   /// Designated intializer.
