@@ -243,7 +243,13 @@ class FunctionsTests: XCTestCase {
   }
 
   func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
-    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "valid_token", error: nil)
+    // Stub returns of two different kinds of App Check tokens. Only the
+    // shared use token should be present in Functions's request header.
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: "limited_use_valid_token",
+      error: nil
+    )
 
     let networkError = NSError(
       domain: "testCallFunctionWhenAppCheckIsInstalled",
@@ -255,22 +261,24 @@ class FunctionsTests: XCTestCase {
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
         .value(forHTTPHeaderField: "X-Firebase-AppCheck")
-      XCTAssertEqual(appCheckTokenHeader, "valid_token")
+      XCTAssertEqual(appCheckTokenHeader, "shared_valid_token")
       testResponse(nil, nil, networkError)
       httpRequestExpectation.fulfill()
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
     functions?
-      .callFunction(name: "fake_func", withObject: nil, options: nil, timeout: 10) { result in
-        switch result {
-        case .success:
-          XCTFail("Unexpected success from functions?.callFunction")
-        case let .failure(error as NSError):
-          XCTAssertEqual(error, networkError)
+      .httpsCallable("fake_func")
+      .call { result, error in
+        guard let error = error else {
+          return XCTFail("Unexpected success: \(result!).")
         }
+
+        XCTAssertEqual(error as NSError, networkError)
+
         completionExpectation.fulfill()
       }
+
     waitForExpectations(timeout: 1.5)
   }
 
