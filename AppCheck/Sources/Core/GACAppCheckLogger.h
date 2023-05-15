@@ -21,7 +21,6 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeUnknown;
 
 // GACAppCheck.m
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing;
 
 // GACAppCheckAPIService.m
@@ -30,9 +29,6 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeUnexpectedHTTPCod
 // GACAppCheckDebugProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderFailedExchange;
-
-// GACAppCheckDebugProviderFactory.m
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
 
 // GACDeviceCheckProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions;
