@@ -24,10 +24,8 @@
 
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"
-#import "AppCheck/Sources/Public/AppCheck/GACAppCheckProviderFactory.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheck+Internal.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
 #import "AppCheck/Sources/Core/GACAppCheckSettings.h"
 #import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
@@ -64,14 +62,11 @@ NSString *const kGACAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     @"FirebaseAppCheckTokenAutoRefreshEnabled";
 // FIREBASE_APP_CHECK_ONLY_END
 
-static id<GACAppCheckProviderFactory> _providerFactory;
-
 static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
 
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
-@interface GACAppCheck () <GACAppCheckInterop>
-@property(class, nullable) id<GACAppCheckProviderFactory> providerFactory;
+@interface GACAppCheck ()
 
 @property(nonatomic, readonly) NSString *appName;
 @property(nonatomic, readonly) id<GACAppCheckProvider> appCheckProvider;
@@ -83,59 +78,12 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 @property(nonatomic, nullable) FBLPromise<GACAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
 @property(nonatomic, nullable) FBLPromise<GACAppCheckToken *> *ongoingLimitedUseTokenPromise;
+
 @end
 
 @implementation GACAppCheck
 
 #pragma mark - Internal
-
-- (nullable instancetype)initWithApp:(FIRApp *)app {
-  id<GACAppCheckProviderFactory> providerFactory = [GACAppCheck providerFactory];
-
-  if (providerFactory == nil) {
-    GACLogError(kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing,
-                @"Cannot instantiate `GACAppCheck` for app: %@ without a provider factory. "
-                @"Please register a provider factory using "
-                @"`AppCheck.setAppCheckProviderFactory(_ ,forAppName:)` method.",
-                app.name);
-    return nil;
-  }
-
-  id<GACAppCheckProvider> appCheckProvider = [providerFactory createProviderWithApp:app];
-  if (appCheckProvider == nil) {
-    GACLogError(kFIRLoggerAppCheckMessageCodeProviderIsMissing,
-                @"Cannot instantiate `GACAppCheck` for app: %@ without an app check provider. "
-                @"Please make sure the provider factory returns a valid app check provider.",
-                app.name);
-    return nil;
-  }
-
-  id<GACAppCheckSettingsProtocol> settings = [[GACAppCheckSettings alloc]
-                       initWithUserDefaults:[NSUserDefaults standardUserDefaults]
-                                 mainBundle:[NSBundle mainBundle]
-      tokenAutoRefreshPolicyUserDefaultsKey:[kGACAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix
-                                                stringByAppendingString:app.name]
-         tokenAutoRefreshPolicyInfoPListKey:kGACAppCheckTokenAutoRefreshEnabledInfoPlistKey];
-  GACAppCheckTokenRefreshResult *refreshResult =
-      [[GACAppCheckTokenRefreshResult alloc] initWithStatusNever];
-  GACAppCheckTokenRefresher *tokenRefresher =
-      [[GACAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult settings:settings];
-
-  // TODO(andrewheard): Remove from generic App Check SDK.
-  // FIREBASE_APP_CHECK_ONLY_BEGIN
-  NSString *tokenKey =
-      [NSString stringWithFormat:@"app_check_token.%@.%@", app.name, app.options.googleAppID];
-  // FIREBASE_APP_CHECK_ONLY_END
-  GACAppCheckStorage *storage =
-      [[GACAppCheckStorage alloc] initWithTokenKey:tokenKey accessGroup:app.options.appGroupID];
-
-  return [self initWithAppName:app.name
-              appCheckProvider:appCheckProvider
-                       storage:storage
-                tokenRefresher:tokenRefresher
-            notificationCenter:NSNotificationCenter.defaultCenter
-                      settings:settings];
-}
 
 - (instancetype)initWithAppName:(NSString *)appName
                appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
@@ -163,22 +111,33 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 #pragma mark - Public
 
-+ (instancetype)appCheck {
-  FIRApp *defaultApp = [FIRApp defaultApp];
-  if (!defaultApp) {
-    [NSException raise:GACAppCheckErrorDomain
-                format:@"The default FirebaseApp instance must be configured before the default"
-                       @"AppCheck instance can be initialized. One way to ensure this is to "
-                       @"call `FirebaseApp.configure()` in the App Delegate's "
-                       @"`application(_:didFinishLaunchingWithOptions:)` (or the `@main` struct's "
-                       @"initializer in SwiftUI)."];
-  }
-  return [self appCheckWithApp:defaultApp];
-}
+- (instancetype)initWithApp:(FIRApp *)app
+           appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider {
+  id<GACAppCheckSettingsProtocol> settings = [[GACAppCheckSettings alloc]
+                       initWithUserDefaults:[NSUserDefaults standardUserDefaults]
+                                 mainBundle:[NSBundle mainBundle]
+      tokenAutoRefreshPolicyUserDefaultsKey:[kGACAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix
+                                                stringByAppendingString:app.name]
+         tokenAutoRefreshPolicyInfoPListKey:kGACAppCheckTokenAutoRefreshEnabledInfoPlistKey];
+  GACAppCheckTokenRefreshResult *refreshResult =
+      [[GACAppCheckTokenRefreshResult alloc] initWithStatusNever];
+  GACAppCheckTokenRefresher *tokenRefresher =
+      [[GACAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult settings:settings];
 
-+ (nullable instancetype)appCheckWithApp:(FIRApp *)firebaseApp {
-  id<GACAppCheckInterop> appCheck = FIR_COMPONENT(GACAppCheckInterop, firebaseApp.container);
-  return (GACAppCheck *)appCheck;
+  // TODO(andrewheard): Remove from generic App Check SDK.
+  // FIREBASE_APP_CHECK_ONLY_BEGIN
+  NSString *tokenKey =
+      [NSString stringWithFormat:@"app_check_token.%@.%@", app.name, app.options.googleAppID];
+  // FIREBASE_APP_CHECK_ONLY_END
+  GACAppCheckStorage *storage =
+      [[GACAppCheckStorage alloc] initWithTokenKey:tokenKey accessGroup:app.options.appGroupID];
+
+  return [self initWithAppName:app.name
+              appCheckProvider:appCheckProvider
+                       storage:storage
+                tokenRefresher:tokenRefresher
+            notificationCenter:NSNotificationCenter.defaultCenter
+                      settings:settings];
 }
 
 - (void)tokenForcingRefresh:(BOOL)forcingRefresh
@@ -206,30 +165,12 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       });
 }
 
-+ (void)setAppCheckProviderFactory:(nullable id<GACAppCheckProviderFactory>)factory {
-  self.providerFactory = factory;
-}
-
 - (void)setIsTokenAutoRefreshEnabled:(BOOL)isTokenAutoRefreshEnabled {
   self.settings.isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabled;
 }
 
 - (BOOL)isTokenAutoRefreshEnabled {
   return self.settings.isTokenAutoRefreshEnabled;
-}
-
-#pragma mark - App Check Provider Ingestion
-
-+ (void)setProviderFactory:(nullable id<GACAppCheckProviderFactory>)providerFactory {
-  @synchronized(self) {
-    _providerFactory = providerFactory;
-  }
-}
-
-+ (nullable id<GACAppCheckProviderFactory>)providerFactory {
-  @synchronized(self) {
-    return _providerFactory;
-  }
 }
 
 #pragma mark - GACAppCheckInterop
