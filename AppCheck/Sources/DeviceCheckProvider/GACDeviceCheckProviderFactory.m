@@ -20,14 +20,10 @@
 
 #import "AppCheck/Sources/Public/AppCheck/GACDeviceCheckProviderFactory.h"
 
-#import "AppCheck/Sources/Public/AppCheck/GACAppCheck.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"
 #import "AppCheck/Sources/Public/AppCheck/GACDeviceCheckProvider.h"
 
 @implementation GACDeviceCheckProviderFactory
-
-+ (void)load {
-  [GACAppCheck setAppCheckProviderFactory:[[self alloc] init]];
-}
 
 - (nullable id<GACAppCheckProvider>)createProviderWithApp:(nonnull FIRApp *)app {
   return [[GACDeviceCheckProvider alloc] initWithApp:app];

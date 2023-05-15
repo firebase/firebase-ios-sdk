@@ -48,15 +48,13 @@ final class AppCheckAPITests {
         _ = notification.userInfo?[InternalAppCheckAppNameNotificationKey]
       }
 
-    // Retrieving an AppCheck instance
-    _ = InternalAppCheck.appCheck()
+    guard let app = FirebaseApp.app() else { return }
 
-    if let app = FirebaseApp.app() {
-      _ = InternalAppCheck.appCheck(app: app)
-    }
+    // Retrieving an AppCheck instance
+    let appCheck = InternalAppCheck(app: app, appCheckProvider: DummyAppCheckProvider())
 
     // Get token
-    InternalAppCheck.appCheck().token(forcingRefresh: false) { token, error in
+    appCheck.token(forcingRefresh: false) { token, error in
       if let _ /* error */ = error {
         // ...
       } else if let _ /* token */ = token {
@@ -70,7 +68,7 @@ final class AppCheckAPITests {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
           do {
-            try await InternalAppCheck.appCheck().token(forcingRefresh: false)
+            try await appCheck.token(forcingRefresh: false)
           } catch {
             // ...
           }
@@ -78,12 +76,9 @@ final class AppCheckAPITests {
       }
     #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 
-    // Set `AppCheckProviderFactory`
-    InternalAppCheck.setAppCheckProviderFactory(DummyAppCheckProviderFactory())
-
     // Get & Set `isTokenAutoRefreshEnabled`
-    _ = InternalAppCheck.appCheck().isTokenAutoRefreshEnabled
-    InternalAppCheck.appCheck().isTokenAutoRefreshEnabled = false
+    _ = appCheck.isTokenAutoRefreshEnabled
+    appCheck.isTokenAutoRefreshEnabled = false
 
     // MARK: - `AppCheckDebugProvider`
 
@@ -124,7 +119,7 @@ final class AppCheckAPITests {
 
     // MARK: - AppCheckErrors
 
-    InternalAppCheck.appCheck().token(forcingRefresh: false) { _, error in
+    appCheck.token(forcingRefresh: false) { _, error in
       if let error = error {
         switch error {
         case InternalAppCheckErrorCode.unknown:
@@ -148,12 +143,6 @@ final class AppCheckAPITests {
 
     // A protocol implemented by:
     // - `AppAttestDebugProvider`
-    // - `AppCheckDebugProvider`
-    // - `DeviceCheckProvider`
-
-    // MARK: - AppCheckProviderFactory
-
-    // A protocol implemented by:
     // - `AppCheckDebugProvider`
     // - `DeviceCheckProvider`
 
@@ -196,11 +185,5 @@ final class AppCheckAPITests {
 class DummyAppCheckProvider: NSObject, InternalAppCheckProvider {
   func getToken(completion handler: @escaping (InternalAppCheckToken?, Error?) -> Void) {
     handler(InternalAppCheckToken(token: "token", expirationDate: .distantFuture), nil)
-  }
-}
-
-class DummyAppCheckProviderFactory: NSObject, InternalAppCheckProviderFactory {
-  func createProvider(with app: FirebaseApp) -> InternalAppCheckProvider? {
-    return DummyAppCheckProvider()
   }
 }
