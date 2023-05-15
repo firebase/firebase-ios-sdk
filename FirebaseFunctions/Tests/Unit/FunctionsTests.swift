@@ -126,6 +126,46 @@ class FunctionsTests: XCTestCase {
 
   // MARK: - App Check Integration
 
+  func testCallFunctionWhenUsingLimitedUseAppCheckTokenThenTokenSuccess() {
+    // Given
+    // Stub returns of two different kinds of App Check tokens. Only the
+    // limited use token should be present in Functions's request header.
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: "limited_use_valid_token",
+      error: nil
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      let appCheckTokenHeader = fetcherToTest.request?
+        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+      // Assert that header contains limited use token.
+      XCTAssertEqual(appCheckTokenHeader, "limited_use_valid_token")
+      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    // When
+    let options = HTTPSCallableOptions(limitedUseAppCheckTokens: true)
+
+    // Then
+    let completionExpectation = expectation(description: "completionExpectation")
+    functions?
+      .httpsCallable("fake_func", options: options)
+      .call { result, error in
+        guard let result = result else {
+          return XCTFail("Unexpected error: \(error!).")
+        }
+
+        XCTAssertEqual(result.data as! String, "May the force be with you!")
+
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1000.5)
+  }
+
   func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "valid_token", error: nil)
 
