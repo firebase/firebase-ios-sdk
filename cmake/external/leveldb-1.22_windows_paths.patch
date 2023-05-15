@@ -1,5 +1,5 @@
 diff --git a/util/env_windows.cc b/util/env_windows.cc
-index 09e3df6..23d60f1 100644
+index 09e3df6..5d9b2f2 100644
 --- a/util/env_windows.cc
 +++ b/util/env_windows.cc
 @@ -362,9 +362,11 @@ class WindowsEnv : public Env {
@@ -118,7 +118,7 @@ index 09e3df6..23d60f1 100644
      DWORD last_error = ::GetLastError();
      ::FindClose(dir_handle);
      if (last_error != ERROR_NO_MORE_FILES) {
-@@ -482,13 +496,16 @@ class WindowsEnv : public Env {
+@@ -482,21 +496,24 @@ class WindowsEnv : public Env {
    }
  
    Status DeleteFile(const std::string& fname) override {
@@ -131,12 +131,12 @@ index 09e3df6..23d60f1 100644
    }
  
    Status CreateDir(const std::string& name) override {
+-    if (!::CreateDirectoryA(name.c_str(), nullptr)) {
 +    auto wDirname = toUtf16(name);
 +    if (!::CreateDirectoryW(wDirname.c_str(), nullptr)) {
-     if (!::CreateDirectoryA(name.c_str(), nullptr)) {
        return WindowsError(name, ::GetLastError());
      }
-@@ -496,7 +513,8 @@ class WindowsEnv : public Env {
+     return Status::OK();
    }
  
    Status DeleteDir(const std::string& name) override {
@@ -146,7 +146,7 @@ index 09e3df6..23d60f1 100644
        return WindowsError(name, ::GetLastError());
      }
      return Status::OK();
-@@ -504,7 +522,9 @@ class WindowsEnv : public Env {
+@@ -504,7 +521,9 @@ class WindowsEnv : public Env {
  
    Status GetFileSize(const std::string& fname, uint64_t* size) override {
      WIN32_FILE_ATTRIBUTE_DATA attrs;
@@ -157,7 +157,7 @@ index 09e3df6..23d60f1 100644
        return WindowsError(fname, ::GetLastError());
      }
      ULARGE_INTEGER file_size;
-@@ -518,7 +538,9 @@ class WindowsEnv : public Env {
+@@ -518,7 +537,9 @@ class WindowsEnv : public Env {
                      const std::string& target) override {
      // Try a simple move first.  It will only succeed when |to_path| doesn't
      // already exist.
@@ -168,7 +168,7 @@ index 09e3df6..23d60f1 100644
        return Status::OK();
      }
      DWORD move_error = ::GetLastError();
-@@ -527,7 +549,7 @@ class WindowsEnv : public Env {
+@@ -527,7 +548,7 @@ class WindowsEnv : public Env {
      // succeed when |to_path| does exist. When writing to a network share, we
      // may not be able to change the ACLs. Ignore ACL errors then
      // (REPLACEFILE_IGNORE_MERGE_ERRORS).
@@ -177,7 +177,7 @@ index 09e3df6..23d60f1 100644
                         REPLACEFILE_IGNORE_MERGE_ERRORS, nullptr, nullptr)) {
        return Status::OK();
      }
-@@ -546,8 +568,9 @@ class WindowsEnv : public Env {
+@@ -546,8 +567,9 @@ class WindowsEnv : public Env {
    Status LockFile(const std::string& fname, FileLock** lock) override {
      *lock = nullptr;
      Status result;
@@ -189,7 +189,7 @@ index 09e3df6..23d60f1 100644
          /*lpSecurityAttributes=*/nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
          nullptr);
      if (!handle.is_valid()) {
-@@ -584,10 +607,11 @@ class WindowsEnv : public Env {
+@@ -584,10 +606,11 @@ class WindowsEnv : public Env {
        return Status::OK();
      }
  
@@ -203,7 +203,7 @@ index 09e3df6..23d60f1 100644
      std::stringstream ss;
      ss << tmp_path << "leveldbtest-" << std::this_thread::get_id();
      *result = ss.str();
-@@ -598,7 +622,8 @@ class WindowsEnv : public Env {
+@@ -598,7 +621,8 @@ class WindowsEnv : public Env {
    }
  
    Status NewLogger(const std::string& filename, Logger** result) override {
@@ -213,7 +213,7 @@ index 09e3df6..23d60f1 100644
      if (fp == nullptr) {
        *result = nullptr;
        return WindowsError("NewLogger", ::GetLastError());
-@@ -640,6 +665,31 @@ class WindowsEnv : public Env {
+@@ -640,6 +664,31 @@ class WindowsEnv : public Env {
    bool started_bgthread_;
    std::deque<BGItem> queue_;
    Limiter mmap_limiter_;
