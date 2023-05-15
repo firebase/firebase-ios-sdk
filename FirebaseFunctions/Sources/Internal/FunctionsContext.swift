@@ -73,7 +73,7 @@ internal class FunctionsContextProvider: NSObject {
     if let appCheck = appCheck {
       dispatchGroup.enter()
 
-      if options?.limitedUseAppCheckTokens == true {
+      if options?.requireLimitedUseAppCheckTokens {
         appCheck.getLimitedUseToken? { tokenResult in
           // Send only valid token to functions.
           if tokenResult.error == nil {
