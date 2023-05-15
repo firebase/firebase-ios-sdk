@@ -147,7 +147,7 @@ class FunctionsTests: XCTestCase {
     }
 
     // When
-    let options = HTTPSCallableOptions(limitedUseAppCheckTokens: true)
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
 
     // Then
     let completionExpectation = expectation(description: "completionExpectation")
@@ -188,7 +188,7 @@ class FunctionsTests: XCTestCase {
     }
 
     // When
-    let options = HTTPSCallableOptions(limitedUseAppCheckTokens: false)
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: false)
 
     // Then
     let completionExpectation = expectation(description: "completionExpectation")
@@ -226,7 +226,7 @@ class FunctionsTests: XCTestCase {
     }
 
     // When
-    let options = HTTPSCallableOptions(limitedUseAppCheckTokens: true)
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
 
     // Then
     let completionExpectation = expectation(description: "completionExpectation")

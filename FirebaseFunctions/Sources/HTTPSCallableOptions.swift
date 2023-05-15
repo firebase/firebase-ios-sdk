@@ -20,9 +20,9 @@ import Foundation
   @objc public let requireLimitedUseAppCheckTokens: Bool
 
   /// Designated intializer.
-  /// - Parameter limitedUseAppCheckTokens: A boolean used to decide whether or not to
+  /// - Parameter requireLimitedUseAppCheckTokens: A boolean used to decide whether or not to
   /// protect the callable function with a limited use App Check token.
-  @objc public init(limitedUseAppCheckTokens: Bool) {
-    requireLimitedUseAppCheckTokens = limitedUseAppCheckTokens
+  @objc public init(requireLimitedUseAppCheckTokens: Bool) {
+    self.requireLimitedUseAppCheckTokens = requireLimitedUseAppCheckTokens
   }
 }
