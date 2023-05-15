@@ -17,16 +17,13 @@
 #import "GACAppCheck.h"
 #import "GACAppCheckErrors.h"
 #import "GACAppCheckProvider.h"
-#import "GACAppCheckProviderFactory.h"
 #import "GACAppCheckToken.h"
 
 // Debug provider
 #import "GACAppCheckDebugProvider.h"
-#import "GACAppCheckDebugProviderFactory.h"
 
 // DeviceCheck provider
 #import "GACDeviceCheckProvider.h"
-#import "GACDeviceCheckProviderFactory.h"
 
 // App Attest provider.
 #import "GACAppAttestProvider.h"
