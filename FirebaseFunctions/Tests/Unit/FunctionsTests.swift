@@ -166,6 +166,82 @@ class FunctionsTests: XCTestCase {
     waitForExpectations(timeout: 1.5)
   }
 
+  func testCallFunctionWhenLimitedUseAppCheckTokenDisabledThenCallWithoutToken() {
+    // Given
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: "dummy token",
+      error: NSError(domain: #function, code: -1)
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      // Assert that header does not contain an AppCheck token.
+      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, _ in
+        XCTAssertNotEqual(key, "X-Firebase-AppCheck")
+      }
+
+      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    // When
+    let options = HTTPSCallableOptions(limitedUseAppCheckTokens: false)
+
+    // Then
+    let completionExpectation = expectation(description: "completionExpectation")
+    functions?
+      .httpsCallable("fake_func", options: options)
+      .call { result, error in
+        guard let result = result else {
+          return XCTFail("Unexpected error: \(error!).")
+        }
+
+        XCTAssertEqual(result.data as! String, "May the force be with you!")
+
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
+
+  func testCallFunctionWhenLimitedUseAppCheckTokenCannotBeGeneratedThenCallWithoutToken() {
+    // Given
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: "dummy token",
+      error: NSError(domain: #function, code: -1)
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      // Assert that header does not contain an AppCheck token.
+      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, _ in
+        XCTAssertNotEqual(key, "X-Firebase-AppCheck")
+      }
+
+      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    // When
+    let options = HTTPSCallableOptions(limitedUseAppCheckTokens: true)
+
+    // Then
+    let completionExpectation = expectation(description: "completionExpectation")
+    functions?
+      .httpsCallable("fake_func", options: options)
+      .call { result, error in
+        guard let result = result else {
+          return XCTFail("Unexpected error: \(error!).")
+        }
+
+        XCTAssertEqual(result.data as! String, "May the force be with you!")
+
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
+
   func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
     appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "valid_token", error: nil)
 
