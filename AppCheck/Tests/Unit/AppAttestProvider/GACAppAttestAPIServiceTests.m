@@ -33,13 +33,14 @@
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
+static NSString *const kBaseURL = @"https://test.appcheck.url.com/beta";
+static NSString *const kResourceName = @"projects/project_id/apps/app_id";
+
 @interface GACAppAttestAPIServiceTests : XCTestCase
 
 @property(nonatomic) GACAppAttestAPIService *appAttestAPIService;
 
 @property(nonatomic) id mockAPIService;
-
-@property(nonatomic) NSString *resourceName;
 
 @end
 
@@ -48,13 +49,11 @@
 - (void)setUp {
   [super setUp];
 
-  self.resourceName = @"projects/project_id/apps/app_id";
-
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
-  OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/beta");
+  OCMStub([self.mockAPIService baseURL]).andReturn(kBaseURL);
 
   self.appAttestAPIService = [[GACAppAttestAPIService alloc] initWithAPIService:self.mockAPIService
-                                                                   resourceName:self.resourceName];
+                                                                   resourceName:kResourceName];
 }
 
 - (void)tearDown {
@@ -443,9 +442,18 @@
       .andReturn([FBLPromise resolvedWith:response]);
 }
 
+/// Returns an OCMock argument constraint for an App Check URL with the specified custom method.
+///
+/// The expected URL has the format "{`kBaseURL`}/{`kResourceName`}:{`customMethod`}", for example
+/// "https://firebaseappcheck.googleapis.com/v1/projects/project12345/apps/1:12345:ios:hashvalue".
+///
+/// @param customMethod The name of the custom action (e.g., "generateAppAttestChallenge") taken
+/// on the App Check-protected resource (e.g., for a Firebase app,
+/// "projects/project12345/apps/1:12345:ios:hashvalue); see AIP-136 (https://google.aip.dev/136) for
+/// more details on custom methods.
 - (id)URLValidationArgumentWithCustomMethod:(NSString *)customMethod {
   NSString *expectedRequestURL = [NSString
-      stringWithFormat:@"%@/%@:%@", [self.mockAPIService baseURL], self.resourceName, customMethod];
+      stringWithFormat:@"%@/%@:%@", [self.mockAPIService baseURL], kResourceName, customMethod];
 
   id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
     XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
