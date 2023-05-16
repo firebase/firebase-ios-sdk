@@ -234,7 +234,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 }
 
 - (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
-  [self retrieveLimitedUseToken]
+  [self limitedUseToken]
       .then(^id _Nullable(FIRAppCheckToken *token) {
         FIRAppCheckTokenResult *result = [[FIRAppCheckTokenResult alloc] initWithToken:token.token
                                                                                  error:nil];
