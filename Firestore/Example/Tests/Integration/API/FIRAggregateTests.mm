@@ -24,6 +24,8 @@
 #import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
+#include "Firestore/core/src/util/sanitizers.h"
+
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRAggregateTests : FSTIntegrationTestCase
@@ -306,6 +308,7 @@
   XCTAssertTrue([[result localizedDescription] containsString:@"Aggregations can not be empty"]);
 }
 
+#if !defined(THREAD_SANITIZER)
 - (void)testAggregateFieldQuerySnapshotEquality {
   // TODO(sum/avg) remove the check below when sum and avg are supported in production
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator], @"only tested against emulator");
@@ -381,6 +384,7 @@
   XCTAssertNotEqual([snapshot1 hash], [snapshot4 hash]);
   XCTAssertNotEqual([snapshot3 hash], [snapshot4 hash]);
 }
+#endif  // #if !defined(THREAD_SANITIZER)
 
 - (void)testAllowsAliasesLongerThan1500Bytes {
   // TODO(sum/avg) remove the check below when sum and avg are supported in production
