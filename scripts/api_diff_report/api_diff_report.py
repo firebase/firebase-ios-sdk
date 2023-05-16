@@ -139,7 +139,19 @@ def generate_diff_json(new_api, old_api, level='module'):
             [STATUS_REMOVED] + \
             old_api[key]['declaration']
 
-  return diff
+  return sort_diff_json(diff)
+
+def sort_diff_json(diff):
+    if not isinstance(diff, dict):
+        return diff
+    
+    sorted_diff = {}
+    for key in sorted(diff.keys()):
+        if isinstance(diff[key], dict):
+            sorted_diff[key] = sort_diff_json(diff[key])
+        else:
+            sorted_diff[key] = diff[key]
+    return sorted_diff
 
 
 def generate_text_report(diff, level=0, print_key=True):
@@ -169,7 +181,7 @@ def generate_text_report(diff, level=0, print_key=True):
 
 def generate_markdown_report(diff, level=0):
   report = ''
-  header_str = '#' * (level + 3)
+  header_str = '#' * (level + 2)
   for key, value in diff.items():
     if isinstance(value, dict):
       if key in ['api_types', 'apis', 'sub_apis']:
@@ -177,12 +189,15 @@ def generate_markdown_report(diff, level=0):
       else:
         current_status = value.get('status')
         if current_status:
-          # Module level: Always print out module name and class name as title
-          if level in [0, 2]:
+          # Always print out module name, API ty[e] and class name as title
+          if level in [0, 1, 2]:
             report += f'{header_str} [{current_status}] {key}\n'
           if current_status != STATUS_ERROR:  # ADDED,REMOVED,MODIFIED
             report += '<details>\n<summary>\n'
-            report += f'[{current_status}] {key}\n'
+            if level in [0, 1, 2]:
+              report += f'APIs\n'
+            else:
+              report += f'[{current_status}] {key}\n'
             report += '</summary>\n\n'
             declarations = value.get('declaration', [])
             sub_report = generate_text_report(value, level=1, print_key=False)
