@@ -48,6 +48,7 @@ import Foundation
     /// - Throws:
     ///   - An error if the operation failed, for example if Storage was unreachable.
     /// - Returns: StorageMetadata with additional information about the object being uploaded.
+    @discardableResult
     func putDataAsync(_ uploadData: Data,
                       metadata: StorageMetadata? = nil,
                       onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
@@ -85,6 +86,7 @@ import Foundation
     /// - Throws:
     ///   - An error if the operation failed, for example if no file was present at the specified `url`.
     /// - Returns: `StorageMetadata` with additional information about the object being uploaded.
+    @discardableResult
     func putFileAsync(from url: URL,
                       metadata: StorageMetadata? = nil,
                       onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {

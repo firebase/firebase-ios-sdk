@@ -270,7 +270,7 @@ import XCTest
       let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
       Task {
-        _ = try await ref.putDataAsync(data)
+        try await ref.putDataAsync(data)
         let task = ref.write(toFile: fileURL)
 
         task.observe(StorageTaskStatus.success) { snapshot in
@@ -286,7 +286,7 @@ import XCTest
 
         task.observe(StorageTaskStatus.progress) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
-          guard let _ = snapshot.progress else {
+          guard snapshot.progress != nil else {
             XCTFail("Missing progress")
             return
           }
