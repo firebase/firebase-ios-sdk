@@ -29,14 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// Request a random challenge from server.
 - (FBLPromise<NSData *> *)getRandomChallenge;
 
-/// Sends attestation data to Firebase backend for validation.
+/// Sends attestation data to the App Check backend for validation.
 /// @param attestation The App Attest key attestation data obtained from the method
 /// `-[DCAppAttestService attestKey:clientDataHash:completionHandler:]` using the random challenge
-/// received from Firebase backend.
+/// received from App Check backend.
 /// @param keyID The key ID used to generate the attestation.
 /// @param challenge The challenge used to generate the attestation.
 /// @return A promise that is fulfilled with a response object with an encrypted attestation
-/// artifact and an Firebase App Check token or rejected with an error.
+/// artifact and an App Check token or rejected with an error.
 - (FBLPromise<GACAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
                                                                       keyID:(NSString *)keyID
                                                                   challenge:(NSData *)challenge;
@@ -53,12 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Default initializer.
 /// @param APIService An instance implementing `GACAppCheckAPIServiceProtocol` to be used to send
-/// network requests to Firebase App Check backend.
-/// @param projectID A Firebase project ID for the requests (`FIRApp.options.projectID`).
-/// @param appID A Firebase app ID for the requests (`FIRApp.options.googleAppID`).
+/// network requests to the App Check backend.
+/// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
+/// "projects/{project_id}/apps/{app_id}".
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID;
+                      resourceName:(NSString *)resourceName;
 
 @end
 

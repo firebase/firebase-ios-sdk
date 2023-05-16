@@ -33,14 +33,14 @@
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
+static NSString *const kBaseURL = @"https://test.appcheck.url.com/beta";
+static NSString *const kResourceName = @"projects/project_id/apps/app_id";
+
 @interface GACAppAttestAPIServiceTests : XCTestCase
 
 @property(nonatomic) GACAppAttestAPIService *appAttestAPIService;
 
 @property(nonatomic) id mockAPIService;
-
-@property(nonatomic) NSString *projectID;
-@property(nonatomic) NSString *appID;
 
 @end
 
@@ -49,15 +49,11 @@
 - (void)setUp {
   [super setUp];
 
-  self.projectID = @"project_id";
-  self.appID = @"app_id";
-
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
-  OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/beta");
+  OCMStub([self.mockAPIService baseURL]).andReturn(kBaseURL);
 
   self.appAttestAPIService = [[GACAppAttestAPIService alloc] initWithAPIService:self.mockAPIService
-                                                                      projectID:self.projectID
-                                                                          appID:self.appID];
+                                                                   resourceName:kResourceName];
 }
 
 - (void)tearDown {
@@ -435,7 +431,7 @@
 }
 
 - (void)stubMockAPIServiceRequestForChallengeRequestWithResponse:(id)response {
-  id URLValidationArg = [self URLValidationArgumentWithResource:@"generateAppAttestChallenge"];
+  id URLValidationArg = [self URLValidationArgumentWithCustomMethod:@"generateAppAttestChallenge"];
   OCMStub([self.mockAPIService sendRequestWithURL:URLValidationArg
                                        HTTPMethod:@"POST"
                                              body:nil
@@ -446,10 +442,18 @@
       .andReturn([FBLPromise resolvedWith:response]);
 }
 
-- (id)URLValidationArgumentWithResource:(NSString *)resource {
-  NSString *expectedRequestURL =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:%@", [self.mockAPIService baseURL],
-                                 self.projectID, self.appID, resource];
+/// Returns an OCMock argument constraint for an App Check URL with the specified custom method.
+///
+/// The expected URL has the format "{`kBaseURL`}/{`kResourceName`}:{`customMethod`}", for example
+/// "https://firebaseappcheck.googleapis.com/v1/projects/project12345/apps/1:12345:ios:hashvalue".
+///
+/// @param customMethod The name of the custom action (e.g., "generateAppAttestChallenge") taken
+/// on the App Check-protected resource (e.g., for a Firebase app,
+/// "projects/project12345/apps/1:12345:ios:hashvalue); see AIP-136 (https://google.aip.dev/136) for
+/// more details on custom methods.
+- (id)URLValidationArgumentWithCustomMethod:(NSString *)customMethod {
+  NSString *expectedRequestURL = [NSString
+      stringWithFormat:@"%@/%@:%@", [self.mockAPIService baseURL], kResourceName, customMethod];
 
   id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
     XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
@@ -463,7 +467,7 @@
                                 assertion:(NSData *)assertion
                                  response:(nullable GULURLSessionDataResponse *)response
                                     error:(nullable NSError *)error {
-  id URLValidationArg = [self URLValidationArgumentWithResource:@"exchangeAppAttestAssertion"];
+  id URLValidationArg = [self URLValidationArgumentWithCustomMethod:@"exchangeAppAttestAssertion"];
 
   id bodyValidationArg = [OCMArg checkWithBlock:^BOOL(NSData *requestBody) {
     NSDictionary<NSString *, id> *decodedData = [NSJSONSerialization JSONObjectWithData:requestBody
@@ -529,7 +533,8 @@
                                     challenge:(NSData *)challenge
                                      response:(nullable GULURLSessionDataResponse *)response
                                         error:(nullable NSError *)error {
-  id URLValidationArg = [self URLValidationArgumentWithResource:@"exchangeAppAttestAttestation"];
+  id URLValidationArg =
+      [self URLValidationArgumentWithCustomMethod:@"exchangeAppAttestAttestation"];
 
   id bodyValidationArg = [OCMArg checkWithBlock:^BOOL(NSData *requestBody) {
     NSDictionary<NSString *, id> *decodedData = [NSJSONSerialization JSONObjectWithData:requestBody

@@ -48,21 +48,18 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 @property(nonatomic, readonly) id<GACAppCheckAPIServiceProtocol> APIService;
 
-@property(nonatomic, readonly) NSString *projectID;
-@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) NSString *resourceName;
 
 @end
 
 @implementation GACAppAttestAPIService
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID {
+                      resourceName:(NSString *)resourceName {
   self = [super init];
   if (self) {
     _APIService = APIService;
-    _projectID = projectID;
-    _appID = appID;
+    _resourceName = [resourceName copy];
   }
   return self;
 }
@@ -241,15 +238,12 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 - (NSURL *)URLForEndpoint:(NSString *)endpoint {
   NSString *URL = [[self class] URLWithBaseURL:self.APIService.baseURL
-                                     projectID:self.projectID
-                                         appID:self.appID];
+                                  resourceName:self.resourceName];
   return [NSURL URLWithString:[NSString stringWithFormat:@"%@:%@", URL, endpoint]];
 }
 
-+ (NSString *)URLWithBaseURL:(NSString *)baseURL
-                   projectID:(NSString *)projectID
-                       appID:(NSString *)appID {
-  return [NSString stringWithFormat:@"%@/projects/%@/apps/%@", baseURL, projectID, appID];
++ (NSString *)URLWithBaseURL:(NSString *)baseURL resourceName:(NSString *)resourceName {
+  return [NSString stringWithFormat:@"%@/%@", baseURL, resourceName];
 }
 
 - (dispatch_queue_t)backgroundQueue {
