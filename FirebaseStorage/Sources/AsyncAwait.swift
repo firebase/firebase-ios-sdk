@@ -44,7 +44,7 @@ import Foundation
     ///   - uploadData: The Data to upload.
     ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
     ///              about the object being uploaded.
-    ///   - onProgress: An optional callback function to return a `Progress` instance while the upload proceeds.
+    ///   - onProgress: An optional closure function to return a `Progress` instance while the upload proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if Storage was unreachable.
     /// - Returns: StorageMetadata with additional information about the object being uploaded.
@@ -82,7 +82,7 @@ import Foundation
     ///   - url: A URL representing the system file path of the object to be uploaded.
     ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
     ///              about the object being uploaded.
-    ///   - onProgress: An optional callback function to return a `Progress` instance while the upload proceeds.
+    ///   - onProgress: An optional closure function to return a `Progress` instance while the upload proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if no file was present at the specified `url`.
     /// - Returns: `StorageMetadata` with additional information about the object being uploaded.
@@ -117,7 +117,7 @@ import Foundation
     ///
     /// - Parameters:
     ///   - fileUrl: A URL representing the system file path of the object to be uploaded.
-    ///   - onProgress: An optional callback function to return a `Progress` instance while the download proceeds.
+    ///   - onProgress: An optional closure function to return a `Progress` instance while the download proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if Storage was unreachable
     ///   or `fileURL` did not reference a valid path on disk.
