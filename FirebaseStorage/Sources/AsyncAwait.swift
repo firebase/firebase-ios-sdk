@@ -44,14 +44,32 @@ import Foundation
     ///   - uploadData: The Data to upload.
     ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
     ///              about the object being uploaded.
+    ///   - onProgress: An optional callback function to return a `Progress` instance while the upload proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if Storage was unreachable.
     /// - Returns: StorageMetadata with additional information about the object being uploaded.
     func putDataAsync(_ uploadData: Data,
-                      metadata: StorageMetadata? = nil) async throws -> StorageMetadata {
+                      metadata: StorageMetadata? = nil,
+                      onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
+      guard let onProgress else {
+        return try await withCheckedThrowingContinuation { continuation in
+          self.putData(uploadData, metadata: metadata) { result in
+            continuation.resume(with: result)
+          }
+        }
+      }
+      let uploadTask = putData(uploadData, metadata: metadata)
       return try await withCheckedThrowingContinuation { continuation in
-        _ = self.putData(uploadData, metadata: metadata) { result in
-          continuation.resume(with: result)
+        uploadTask.observe(.progress) {
+          onProgress($0.progress)
+        }
+        uploadTask.observe(.success) { _ in
+          continuation.resume(with: .success(uploadTask.metadata!))
+        }
+        uploadTask.observe(.failure) { snapshot in
+          continuation.resume(with: .failure(
+            snapshot.error ?? StorageError.internalError("Internal Storage Error in putDataAsync")
+          ))
         }
       }
     }
@@ -63,7 +81,7 @@ import Foundation
     ///   - url: A URL representing the system file path of the object to be uploaded.
     ///   - metadata: Optional StorageMetadata containing additional information (MIME type, etc.)
     ///              about the object being uploaded.
-    ///   - onProgress: An optional callback function to return a `Progress` while the upload proceeds.
+    ///   - onProgress: An optional callback function to return a `Progress` instance while the upload proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if no file was present at the specified `url`.
     /// - Returns: `StorageMetadata` with additional information about the object being uploaded.
@@ -77,15 +95,15 @@ import Foundation
           }
         }
       }
-      let downloadTask = putFile(from: url, metadata: metadata)
+      let uploadTask = putFile(from: url, metadata: metadata)
       return try await withCheckedThrowingContinuation { continuation in
-        downloadTask.observe(.progress) {
+        uploadTask.observe(.progress) {
           onProgress($0.progress)
         }
-        downloadTask.observe(.success) { _ in
-          continuation.resume(with: .success(downloadTask.metadata!))
+        uploadTask.observe(.success) { _ in
+          continuation.resume(with: .success(uploadTask.metadata!))
         }
-        downloadTask.observe(.failure) { snapshot in
+        uploadTask.observe(.failure) { snapshot in
           continuation.resume(with: .failure(
             snapshot.error ?? StorageError.internalError("Internal Storage Error in putFileAsync")
           ))
@@ -97,7 +115,7 @@ import Foundation
     ///
     /// - Parameters:
     ///   - fileUrl: A URL representing the system file path of the object to be uploaded.
-    ///   - onProgress: An optional callback function to return a `Progress` while the upload proceeds.
+    ///   - onProgress: An optional callback function to return a `Progress` instance while the download proceeds.
     /// - Throws:
     ///   - An error if the operation failed, for example if Storage was unreachable
     ///   or `fileURL` did not reference a valid path on disk.
