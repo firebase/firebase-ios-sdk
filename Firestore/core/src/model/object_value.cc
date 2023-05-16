@@ -21,10 +21,14 @@
 #include <set>
 
 #include "Firestore/Protos/nanopb/google/firestore/v1/document.nanopb.h"
+#include "Firestore/core/src/model/value_util.h"
+#include "Firestore/core/src/nanopb/byte_string.h"
 #include "Firestore/core/src/nanopb/fields_array.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/hashing.h"
+
+#include "absl/strings/str_format.h"
 #include "absl/types/span.h"
 
 namespace firebase {
@@ -33,6 +37,8 @@ namespace model {
 
 namespace {
 
+using model::DeepClone;
+using nanopb::ByteString;
 using nanopb::CheckedSize;
 using nanopb::FreeFieldsArray;
 using nanopb::FreeNanopbMessage;
@@ -221,6 +227,37 @@ ObjectValue ObjectValue::FromFieldsEntry(
   return ObjectValue{std::move(value)};
 }
 
+ObjectValue ObjectValue::FromAggregateFieldsEntry(
+    google_firestore_v1_AggregationResult_AggregateFieldsEntry* fields_entry,
+    pb_size_t count,
+    const absl::flat_hash_map<std::string, std::string>& aliasMap) {
+  Message<google_firestore_v1_Value> value;
+  value->which_value_type = google_firestore_v1_Value_map_value_tag;
+
+  SetRepeatedField(
+      &value->map_value.fields, &value->map_value.fields_count,
+      absl::Span<google_firestore_v1_AggregationResult_AggregateFieldsEntry>(
+          fields_entry, count),
+      [&aliasMap](
+          const google_firestore_v1_AggregationResult_AggregateFieldsEntry&
+              entry) {
+        // Remap the short-form aliases that were sent to the server
+        // to the client-side aliases. Users will access the results
+        // using the client-side alias.
+        ByteString serverAlias(entry.key);
+        std::string serverAliasString = serverAlias.ToString();
+        HARD_ASSERT(aliasMap.contains(serverAliasString),
+                    "%s not present in aliasMap", serverAlias.ToString());
+
+        ByteString clientAlias(aliasMap.find(serverAliasString)->second);
+
+        return google_firestore_v1_MapValue_FieldsEntry{
+            clientAlias.release(), *DeepClone(entry.value).release()};
+      });
+
+  return ObjectValue{std::move(value)};
+}
+
 FieldMask ObjectValue::ToFieldMask() const {
   return ExtractFieldMask(value_->map_value);
 }
@@ -267,6 +304,13 @@ absl::optional<google_firestore_v1_Value> ObjectValue::Get(
     nested_value = entry->value;
   }
   return nested_value;
+}
+
+absl::optional<google_firestore_v1_Value> ObjectValue::Get(
+    const std::string& key) const {
+  google_firestore_v1_MapValue_FieldsEntry* entry = FindEntry(*value_, key);
+  if (!entry) return absl::nullopt;
+  return entry->value;
 }
 
 google_firestore_v1_Value ObjectValue::Get() const {
