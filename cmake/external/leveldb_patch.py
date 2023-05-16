@@ -53,9 +53,13 @@ def main() -> None:
   with cmakelists_txt_file.open("wt", encoding="utf8") as f:
     f.writelines(patched_lines)
 
-  if additional_patch_file:
+  additional_patch_stamp = 'leveldb_additional_patch_stamp'
+  if additional_patch_file and not os.path.exists(additional_patch_stamp):
+    print("Applying patch %s" % additional_patch_file)
     subprocess.run(['git', 'apply', '-v', additional_patch_file],
                    check=True)
+    # Create a stamp file so the patch isn't applied twice.
+    open(additional_patch_stamp, 'a').close()
 
 
 @dataclasses.dataclass(frozen=True)
