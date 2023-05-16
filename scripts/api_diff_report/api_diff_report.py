@@ -177,9 +177,9 @@ def generate_markdown_report(diff, level=0):
       else:
         current_status = value.get('status')
         if current_status:
-          # Module level: Always print out module name as title
-          if level == 0:
-            report += f'{header_str} {key} [{current_status}]\n'
+          # Module level: Always print out module name and class name as title
+          if level in [0, 2]:
+            report += f'{header_str} [{current_status}] {key}\n'
           if current_status != STATUS_ERROR:  # ADDED,REMOVED,MODIFIED
             report += '<details>\n<summary>\n'
             report += f'[{current_status}] {key}\n'
