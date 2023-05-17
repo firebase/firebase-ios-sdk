@@ -344,7 +344,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                             toSource:RCNDBSourceActive
                         forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace withExperimentChanges:[[NSMutableSet alloc] init]];
 
   XCTAssertTrue([update updatedKeys].count == 0);
 }
@@ -368,7 +368,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                     p13nMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace withExperimentChanges:[[NSMutableSet alloc] init]];
 
   XCTAssertTrue([update updatedKeys].count == 1);
   XCTAssertTrue([[update updatedKeys] containsObject:newParam]);
@@ -394,7 +394,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
       [self createFetchResponseWithConfigEntries:@{existingParam : updatedValue} p13nMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace withExperimentChanges:[[NSMutableSet alloc] init]];
 
   XCTAssertTrue([update updatedKeys].count == 1);
   XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
@@ -420,7 +420,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
       [self createFetchResponseWithConfigEntries:@{newParam : value1} p13nMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace withExperimentChanges:[[NSMutableSet alloc] init]];
 
   XCTAssertTrue([update updatedKeys].count == 2);
   XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);  // deleted
@@ -455,7 +455,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                    forKey:RCNFetchResponseKeyPersonalizationMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace withExperimentChanges:[[NSMutableSet alloc] init]];
 
   XCTAssertTrue([update updatedKeys].count == 1);
   XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);
@@ -480,7 +480,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
       [self createFetchResponseWithConfigEntries:@{existingParam : value1} p13nMetadata:nil];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
-  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace withExperimentChanges:[[NSMutableSet alloc] init]];
 
   XCTAssertTrue([update updatedKeys].count == 1);
   XCTAssertTrue([[update updatedKeys] containsObject:existingParam]);

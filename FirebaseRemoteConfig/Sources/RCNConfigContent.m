@@ -399,11 +399,12 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 }
 
 // Compare fetched config with active config and output what has changed
-- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
-  // TODO: handle diff in experiment metadata
-
+- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace
+                                 withExperimentChanges:
+                                     (NSMutableSet<NSString *> *)changedExperimentKeys {
   FIRRemoteConfigUpdate *configUpdate;
   NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
+  updatedKeys = [[updatedKeys setByAddingObjectsFromSet:changedExperimentKeys] mutableCopy];
 
   NSDictionary *fetchedConfig =
       _fetchedConfig[FIRNamespace] ? _fetchedConfig[FIRNamespace] : [[NSDictionary alloc] init];

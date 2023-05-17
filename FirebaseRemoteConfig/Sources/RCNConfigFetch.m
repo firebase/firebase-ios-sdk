@@ -216,8 +216,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (strongSelf->_settings.lastFetchTimeInterval > 0) {
         FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000052",
                     @"A fetch is already in progress. Using previous fetch results.");
-        FIRRemoteConfigUpdate *update =
-            [self->_content getConfigUpdateForNamespace:self->_FIRNamespace];
+        FIRRemoteConfigUpdate *update = [self->_content
+            getConfigUpdateForNamespace:self->_FIRNamespace
+                  withExperimentChanges:[self->_experiment getChangedABTExperiments]];
         return [strongSelf reportCompletionWithStatus:strongSelf->_settings.lastFetchStatus
                                            withUpdate:update
                                             withError:nil
@@ -537,8 +538,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       if (!data) {
         FIRLogInfo(kFIRLoggerRemoteConfig, @"I-RCN000043", @"RCN Fetch: No data in fetch response");
         // There may still be a difference between fetched and active config
-        FIRRemoteConfigUpdate *update =
-            [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
+        FIRRemoteConfigUpdate *update = [strongSelf->_content
+            getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                  withExperimentChanges:[self->_experiment getChangedABTExperiments]];
         return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
                                            withUpdate:update
                                             withError:nil
@@ -615,8 +617,9 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         strongSelf->_settings.lastETag = latestETag;
       }
       // Compute config update after successful fetch
-      FIRRemoteConfigUpdate *update =
-          [strongSelf->_content getConfigUpdateForNamespace:strongSelf->_FIRNamespace];
+      FIRRemoteConfigUpdate *update = [strongSelf->_content
+          getConfigUpdateForNamespace:strongSelf->_FIRNamespace
+                withExperimentChanges:[self->_experiment getChangedABTExperiments]];
 
       [strongSelf->_settings
           updateMetadataWithFetchSuccessStatus:YES
