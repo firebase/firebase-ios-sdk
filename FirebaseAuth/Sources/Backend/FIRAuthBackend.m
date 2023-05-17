@@ -401,13 +401,6 @@ static NSString *const kQuoutaExceededErrorMessage = @"QUOTA_EXCEEDED";
  */
 static NSString *const kAppNotVerifiedErrorMessage = @"APP_NOT_VERIFIED";
 
-/** @var kMissingClientType
-    @brief This is the error message the server will respond with if Firebase could not verify the
-        app during a phone authentication flow when a real phone number is used and app verification
-        is disabled for testing.
- */
-static NSString *const kMissingClientType = @"MISSING_CLIENT_IDENTIFIER";
-
 /** @var kCaptchaCheckFailedErrorMessage
     @brief This is the error message the server will respond with if the reCAPTCHA token provided is
         invalid.
@@ -527,9 +520,10 @@ static NSString *const kInvalidRecaptchaEnforcementState = @"INVALID_RECAPTCHA_E
  */
 static NSString *const kRecaptchaNotEnabled = @"RECAPTCHA_NOT_ENABLED";
 
-/** @var kMissingRecaptchaToken
-    @brief This is the error message the server will respond with if the recaptcha token is missing
-   in the request.
+/** @var kMissingClientType
+    @brief This is the error message the server will respond with if Firebase could not verify the
+        app during a phone authentication flow when a real phone number is used and app verification
+        is disabled for testing.
  */
 static NSString *const kMissingClientType = @"MISSING_CLIENT_TYPE";
 

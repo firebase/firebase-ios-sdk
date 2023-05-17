@@ -86,22 +86,34 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
                                      [self retrieveRecaptchaTokenWithAction:action
                                                                  completion:completion];
                                    } else {
-                                     dispatch_async(dispatch_get_main_queue(), ^{
-                                         id<RCAActionProtocol> action;
-                                         id<RCARecaptchaProtocol> p;
-                                       [id<RCARecaptchaProtocol>
-                                            getClientWithSiteKey:[self siteKey]
-                                        completion:^(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
-                                                                                     NSError *_Nullable error) {
-                                                if (!recaptchaClient) {
-                                                  completion(nil, error);
-                                                  return;
-                                                }
-                                                self->_recaptchaClient = recaptchaClient;
-                                                [self retrieveRecaptchaTokenWithAction:action
-                                                                            completion:completion];
-                                              }];
-                                     });
+                                     //                                     dispatch_async(dispatch_get_main_queue(),
+                                     //                                     ^{
+                                     //                                         id<RCAActionProtocol>
+                                     //                                         action;
+                                     //                                         id<RCARecaptchaProtocol>
+                                     //                                         p;
+                                     //                                       [id<RCARecaptchaProtocol>
+                                     //                                            getClientWithSiteKey:[self
+                                     //                                            siteKey]
+                                     //                                        completion:^(id<RCARecaptchaClientProtocol>
+                                     //                                        _Nullable
+                                     //                                        recaptchaClient,
+                                     //                                                                                     NSError *_Nullable error) {
+                                     //                                                if
+                                     //                                                (!recaptchaClient)
+                                     //                                                {
+                                     //                                                  completion(nil,
+                                     //                                                  error);
+                                     //                                                  return;
+                                     //                                                }
+                                     //                                                self->_recaptchaClient
+                                     //                                                =
+                                     //                                                recaptchaClient;
+                                     //                                                [self
+                                     //                                                retrieveRecaptchaTokenWithAction:action
+                                     //                                                                            completion:completion];
+                                     //                                              }];
+                                     //                                     });
                                    }
                                  }];
 #endif
@@ -157,18 +169,20 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
 
 - (void)retrieveRecaptchaTokenWithAction:(FIRAuthRecaptchaAction)action
                               completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
-//#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-//  [_recaptchaClient
-//                execute:[[RecaptchaAction alloc] initWithCustomAction:actionToStringMap[@(action)]]
-//      completionHandler:^void(RecaptchaToken *_Nullable token, RecaptchaError *_Nullable error) {
-//        if (!token) {
-//          completion(nil, error);
-//          return;
-//        }
-//        completion(token.recaptchaToken, nil);
-//        return;
-//      }];
-//#endif
+  // #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+  //   [_recaptchaClient
+  //                 execute:[[RecaptchaAction alloc]
+  //                 initWithCustomAction:actionToStringMap[@(action)]]
+  //       completionHandler:^void(RecaptchaToken *_Nullable token, RecaptchaError *_Nullable error)
+  //       {
+  //         if (!token) {
+  //           completion(nil, error);
+  //           return;
+  //         }
+  //         completion(token.recaptchaToken, nil);
+  //         return;
+  //       }];
+  // #endif
 }
 
 - (void)injectRecaptchaFields:(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *)request

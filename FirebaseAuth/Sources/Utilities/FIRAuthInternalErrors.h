@@ -492,12 +492,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeRecaptchaNotEnabled = FIRAuthPublicErrorCodeFlag |
                                                 FIRAuthErrorCodeRecaptchaNotEnabled,
 
-/** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
-      @brief Indicates an error encoding the RPC request.
-      @remarks This is typically due to some sort of unexpected input value.
+  /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
+        @brief Indicates an error encoding the RPC request.
+        @remarks This is typically due to some sort of unexpected input value.
 
-          See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details.
-   */
+            See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details.
+     */
   FIRAuthInternalErrorCodeRPCRequestEncodingError = 1,
 
   /** @var FIRAuthInternalErrorCodeJSONSerializationError

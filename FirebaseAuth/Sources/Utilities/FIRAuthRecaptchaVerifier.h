@@ -51,7 +51,7 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
   NSMutableDictionary<NSString *, FIRAuthRecaptchaConfig *> *_tenantConfigs;
 }
 
-@property (nonatomic, strong) id<RCARecaptchaClientProtocol> recaptchaClient;
+@property(nonatomic, strong) id<RCARecaptchaClientProtocol> recaptchaClient;
 
 + (id)sharedRecaptchaVerifier;
 

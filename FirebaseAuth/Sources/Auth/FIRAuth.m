@@ -1635,8 +1635,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                  }
                }];
       }];
+}
 
-    - (void)initializeRecaptchaConfigWithCompletion:
+- (void)initializeRecaptchaConfigWithCompletion:
     (nullable void (^)(NSError *_Nullable error))completion {
 #if TARGET_OS_IOS
   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
@@ -2004,10 +2005,10 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                     return;
                                                   }
                                                   if (error) {
-                                                    // Kicks off exponential back off logic to retry
-                                                    // failed attempt. Starts with one minute delay
-                                                    // (60 seconds) if this is the first failed
-                                                    // attempt.
+                                                    // Kicks off exponential back off logic to
+                                                    // retry failed attempt. Starts with one
+                                                    // minute delay (60 seconds) if this is the
+                                                    // first failed attempt.
                                                     NSTimeInterval rescheduleDelay;
                                                     if (retry) {
                                                       rescheduleDelay =
@@ -2085,9 +2086,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 }
 
 /** @fn signInFlowAuthDataResultCallbackByDecoratingCallback:
-    @brief Creates a FIRAuthDataResultCallback block which wraps another FIRAuthDataResultCallback;
-        trying to update the current user before forwarding it's invocations along to a subject
-        block.
+    @brief Creates a FIRAuthDataResultCallback block which wraps another
+   FIRAuthDataResultCallback; trying to update the current user before forwarding it's invocations
+   along to a subject block.
     @param callback Called when the user has been updated or when an error has occurred. Invoked
         asynchronously on the main thread in the future.
     @return Returns a block that updates the current user.
@@ -2220,8 +2221,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @brief Retrieves the saved user associated, if one exists, from the keychain.
     @param outUser An out parameter which is populated with the saved user, if one exists.
     @param error Return value for any error which occurs.
-    @return YES if the operation was a success (irrespective of whether or not a saved user existed
-        for the given @c firebaseAppId,) NO if an error occurred.
+    @return YES if the operation was a success (irrespective of whether or not a saved user
+   existed for the given @c firebaseAppId,) NO if an error occurred.
  */
 - (BOOL)getUser:(FIRUser *_Nullable *)outUser error:(NSError *_Nullable *_Nullable)error {
   if (!self.userAccessGroup) {
