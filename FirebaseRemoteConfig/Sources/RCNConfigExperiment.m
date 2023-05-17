@@ -27,6 +27,8 @@ static NSString *const kServiceOrigin = @"frc";
 static NSString *const kMethodNameLatestStartTime =
     @"latestExperimentStartTimestampBetweenTimestamp:andPayloads:";
 
+static NSString *const kExperimentIdKey = @"experimentId";
+
 @interface RCNConfigExperiment ()
 @property(nonatomic, strong)
     NSMutableArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
@@ -195,5 +197,39 @@ static NSString *const kMethodNameLatestStartTime =
   return [self.experimentController
       latestExperimentStartTimestampBetweenTimestamp:existingLastStartTime
                                          andPayloads:_experimentPayloads];
+}
+
+- (NSMutableSet<NSString *> *)getChangedABTExperiments {
+    NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
+    
+    NSMutableDictionary<NSString *, NSDictionary *> *fetchedExperiments = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary<NSString *, NSDictionary *> *activeExperiments = [[NSMutableDictionary alloc] init];
+    NSMutableSet<NSString *> *allExperimentIds = [[NSMutableSet alloc] init];
+    
+    for (NSData *experiment in _experimentPayloads) {
+        NSError *error;
+        NSDictionary *experimentJSON = [NSJSONSerialization JSONObjectWithData:experiment
+                                                                   options:NSJSONReadingMutableContainers
+                                                                     error:&error];
+        if (!error) {
+            [fetchedExperiments setObject: experimentJSON forKey:[experimentJSON valueForKey:kExperimentIdKey]];
+        }
+    }
+    [allExperimentIds addObjectsFromArray:[fetchedExperiments allKeys]];
+    
+    for (NSData *experiment in _activatedExperimentPayloads) {
+        NSError *error;
+        NSDictionary *experimentJSON = [NSJSONSerialization JSONObjectWithData:experiment
+                                                                   options:NSJSONReadingMutableContainers
+                                                                     error:&error];
+        if (!error) {
+            [activeExperiments setObject: experimentJSON forKey:[experimentJSON valueForKey:kExperimentIdKey]];
+        }
+    }
+    [allExperimentIds addObjectsFromArray:[activeExperiments allKeys]];
+    
+    
+    
+    return changedKeys;
 }
 @end
