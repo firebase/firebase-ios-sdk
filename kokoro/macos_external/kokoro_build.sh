@@ -15,5 +15,9 @@ set -e
 # Code under repo is checked out to ${KOKORO_ARTIFACTS_DIR}/github.
 # The final directory name in this path is determined by the scm name specified
 # in the job configuration.
+<<<<<<< HEAD
 cd "${KOKORO_ARTIFACTS_DIR}/github/firebase-ios-sdk"
+=======
+cd "${KOKORO_ARTIFACTS_DIR}/github/kokoro-codelab-wuandy"
+>>>>>>> 147f4db081b7809a152a3ef3ab9773a03934d754
 ./scripts/build.sh Firestore iOS xcodebuild
