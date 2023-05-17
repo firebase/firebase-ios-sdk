@@ -106,10 +106,153 @@ class FunctionsTests: XCTestCase {
     XCTAssertEqual("http://localhost:1000", functions?.emulatorOrigin)
   }
 
-  // MARK: - App Check integration
+  /// Test that Functions instances get deallocated.
+  func testFunctionsLifecycle() throws {
+    weak var weakApp: FirebaseApp?
+    weak var weakFunctions: Functions?
+    try autoreleasepool {
+      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
+                                    gcmSenderID: "00000000000000000-00000000000-000000000")
+      options.projectID = "myProjectID"
+      let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
+      weakApp = try XCTUnwrap(app1)
+      let functions = Functions(app: app1, region: "transitory-region", customDomain: nil)
+      weakFunctions = functions
+      XCTAssertNotNil(weakFunctions)
+    }
+    XCTAssertNil(weakApp)
+    XCTAssertNil(weakFunctions)
+  }
+
+  // MARK: - App Check Integration
+
+  func testCallFunctionWhenUsingLimitedUseAppCheckTokenThenTokenSuccess() {
+    // Given
+    // Stub returns of two different kinds of App Check tokens. Only the
+    // limited use token should be present in Functions's request header.
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: "limited_use_valid_token",
+      error: nil
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      let appCheckTokenHeader = fetcherToTest.request?
+        .value(forHTTPHeaderField: "X-Firebase-AppCheck")
+      // Assert that header contains limited use token.
+      XCTAssertEqual(appCheckTokenHeader, "limited_use_valid_token")
+      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    // When
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+
+    // Then
+    let completionExpectation = expectation(description: "completionExpectation")
+    functions?
+      .httpsCallable("fake_func", options: options)
+      .call { result, error in
+        guard let result = result else {
+          return XCTFail("Unexpected error: \(error!).")
+        }
+
+        XCTAssertEqual(result.data as! String, "May the force be with you!")
+
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
+
+  func testCallFunctionWhenLimitedUseAppCheckTokenDisabledThenCallWithoutToken() {
+    // Given
+    let limitedUseDummyToken = "limited use dummy token"
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: limitedUseDummyToken,
+      error: NSError(domain: #function, code: -1)
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      // Assert that header does not contain an AppCheck token.
+      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, value in
+        if key == "X-Firebase-AppCheck" {
+          XCTAssertNotEqual(value, limitedUseDummyToken)
+        }
+      }
+
+      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    // When
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: false)
+
+    // Then
+    let completionExpectation = expectation(description: "completionExpectation")
+    functions?
+      .httpsCallable("fake_func", options: options)
+      .call { result, error in
+        guard let result = result else {
+          return XCTFail("Unexpected error: \(error!).")
+        }
+
+        XCTAssertEqual(result.data as! String, "May the force be with you!")
+
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
+
+  func testCallFunctionWhenLimitedUseAppCheckTokenCannotBeGeneratedThenCallWithoutToken() {
+    // Given
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: "dummy token",
+      error: NSError(domain: #function, code: -1)
+    )
+
+    let httpRequestExpectation = expectation(description: "HTTPRequestExpectation")
+    fetcherService.testBlock = { fetcherToTest, testResponse in
+      // Assert that header does not contain an AppCheck token.
+      fetcherToTest.request?.allHTTPHeaderFields?.forEach { key, _ in
+        XCTAssertNotEqual(key, "X-Firebase-AppCheck")
+      }
+
+      testResponse(nil, "{\"data\":\"May the force be with you!\"}".data(using: .utf8), nil)
+      httpRequestExpectation.fulfill()
+    }
+
+    // When
+    let options = HTTPSCallableOptions(requireLimitedUseAppCheckTokens: true)
+
+    // Then
+    let completionExpectation = expectation(description: "completionExpectation")
+    functions?
+      .httpsCallable("fake_func", options: options)
+      .call { result, error in
+        guard let result = result else {
+          return XCTFail("Unexpected error: \(error!).")
+        }
+
+        XCTAssertEqual(result.data as! String, "May the force be with you!")
+
+        completionExpectation.fulfill()
+      }
+
+    waitForExpectations(timeout: 1.5)
+  }
 
   func testCallFunctionWhenAppCheckIsInstalledAndFACTokenSuccess() {
-    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "valid_token", error: nil)
+    // Stub returns of two different kinds of App Check tokens. Only the
+    // shared use token should be present in Functions's request header.
+    appCheckFake.tokenResult = FIRAppCheckTokenResultFake(token: "shared_valid_token", error: nil)
+    appCheckFake.limitedUseTokenResult = FIRAppCheckTokenResultFake(
+      token: "limited_use_valid_token",
+      error: nil
+    )
 
     let networkError = NSError(
       domain: "testCallFunctionWhenAppCheckIsInstalled",
@@ -121,21 +264,24 @@ class FunctionsTests: XCTestCase {
     fetcherService.testBlock = { fetcherToTest, testResponse in
       let appCheckTokenHeader = fetcherToTest.request?
         .value(forHTTPHeaderField: "X-Firebase-AppCheck")
-      XCTAssertEqual(appCheckTokenHeader, "valid_token")
+      XCTAssertEqual(appCheckTokenHeader, "shared_valid_token")
       testResponse(nil, nil, networkError)
       httpRequestExpectation.fulfill()
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
-    functions?.callFunction(name: "fake_func", withObject: nil, timeout: 10) { result in
-      switch result {
-      case .success:
-        XCTFail("Unexpected success from functions?.callFunction")
-      case let .failure(error as NSError):
-        XCTAssertEqual(error, networkError)
+    functions?
+      .httpsCallable("fake_func")
+      .call { result, error in
+        guard let error = error else {
+          return XCTFail("Unexpected success: \(result!).")
+        }
+
+        XCTAssertEqual(error as NSError, networkError)
+
+        completionExpectation.fulfill()
       }
-      completionExpectation.fulfill()
-    }
+
     waitForExpectations(timeout: 1.5)
   }
 
@@ -156,7 +302,12 @@ class FunctionsTests: XCTestCase {
     }
 
     let completionExpectation = expectation(description: "completionExpectation")
-    functionsCustomDomain?.callFunction(name: "fake_func", withObject: nil, timeout: 10) { result in
+    functionsCustomDomain?.callFunction(
+      name: "fake_func",
+      withObject: nil,
+      options: nil,
+      timeout: 10
+    ) { result in
       switch result {
       case .success:
         XCTFail("Unexpected success from functions?.callFunction")
@@ -166,23 +317,5 @@ class FunctionsTests: XCTestCase {
       completionExpectation.fulfill()
     }
     waitForExpectations(timeout: 1.5)
-  }
-
-  /// Test that Functions instances get deallocated.
-  func testFunctionsLifecycle() throws {
-    weak var weakApp: FirebaseApp?
-    weak var weakFunctions: Functions?
-    try autoreleasepool {
-      let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
-                                    gcmSenderID: "00000000000000000-00000000000-000000000")
-      options.projectID = "myProjectID"
-      let app1 = FirebaseApp(instanceWithName: "transitory app", options: options)
-      weakApp = try XCTUnwrap(app1)
-      let functions = Functions(app: app1, region: "transitory-region", customDomain: nil)
-      weakFunctions = functions
-      XCTAssertNotNil(weakFunctions)
-    }
-    XCTAssertNil(weakApp)
-    XCTAssertNil(weakFunctions)
   }
 }

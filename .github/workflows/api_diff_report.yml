@@ -16,6 +16,8 @@ env:
 jobs:
   diff_report:
     runs-on: macos-latest
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
 
     steps:
       - name: Checkout PR branch
