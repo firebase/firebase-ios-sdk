@@ -77,45 +77,59 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
                 completion:(nullable FIRAuthRecaptchaTokenCallback)completion
     API_AVAILABLE(ios(14)) {
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-  [self retrieveRecaptchaConfigForceRefresh:forceRefresh
-                                 completion:^(NSError *_Nullable error) {
-                                   if (error) {
-                                     completion(nil, error);
-                                   }
-                                   if (self.recaptchaClient) {
-                                     [self retrieveRecaptchaTokenWithAction:action
-                                                                 completion:completion];
+  [self
+      retrieveRecaptchaConfigForceRefresh:forceRefresh
+                               completion:^(NSError *_Nullable error) {
+                                 if (error) {
+                                   completion(nil, error);
+                                 }
+                                 if (!self.recaptchaClient) {
+                                   NSString *siteKey = @"";
+                                   if ([FIRAuth auth].tenantID == nil) {
+                                     siteKey = self->_agentConfig.siteKey;
                                    } else {
-                                     //                                     dispatch_async(dispatch_get_main_queue(),
-                                     //                                     ^{
-                                     //                                         id<RCAActionProtocol>
-                                     //                                         action;
-                                     //                                         id<RCARecaptchaProtocol>
-                                     //                                         p;
-                                     //                                       [id<RCARecaptchaProtocol>
-                                     //                                            getClientWithSiteKey:[self
-                                     //                                            siteKey]
-                                     //                                        completion:^(id<RCARecaptchaClientProtocol>
-                                     //                                        _Nullable
-                                     //                                        recaptchaClient,
-                                     //                                                                                     NSError *_Nullable error) {
-                                     //                                                if
-                                     //                                                (!recaptchaClient)
-                                     //                                                {
-                                     //                                                  completion(nil,
-                                     //                                                  error);
-                                     //                                                  return;
-                                     //                                                }
-                                     //                                                self->_recaptchaClient
-                                     //                                                =
-                                     //                                                recaptchaClient;
-                                     //                                                [self
-                                     //                                                retrieveRecaptchaTokenWithAction:action
-                                     //                                                                            completion:completion];
-                                     //                                              }];
-                                     //                                     });
+                                     siteKey =
+                                         self->_tenantConfigs[[FIRAuth auth].tenantID].siteKey;
                                    }
-                                 }];
+                                   Class RecaptchaClass = NSClassFromString(@"Recaptcha");
+                                   if (RecaptchaClass) {
+                                     SEL selectorWithTimeout = NSSelectorFromString(
+                                         @"getClientWithSiteKey:withTimeout:completion:");
+                                     if ([RecaptchaClass respondsToSelector:selectorWithTimeout]) {
+                                       // Method with timeout
+                                       void (*funcWithTimeout)(
+                                           id, SEL, NSString *, double,
+                                           void (^)(
+                                               id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
+                                               NSError *_Nullable error)) = (void *)[RecaptchaClass
+                                           methodForSelector:selectorWithTimeout];
+                                       funcWithTimeout(
+                                           RecaptchaClass, selectorWithTimeout, siteKey, 10000.0,
+                                           ^(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
+                                             NSError *_Nullable error) {
+                                             if (recaptchaClient) {
+                                               // Do something with recaptchaClient
+                                               NSLog(@"recaptcha client created.");
+                                               self.recaptchaClient = recaptchaClient;
+                                               [self retrieveRecaptchaTokenWithAction:action
+                                                                           completion:completion];
+                                             } else if (error) {
+                                               // Handle the error
+                                               NSLog(@"recaptcha client creatation errored.");
+                                               NSLog(@"Error: %@", error);
+                                             }
+                                           });
+                                     } else {
+                                       NSLog(@"Method not found");
+                                     }
+                                   } else {
+                                     NSLog(@"Recaptcha class not found");
+                                   }
+                                 } else {
+                                   [self retrieveRecaptchaTokenWithAction:action
+                                                               completion:completion];
+                                 }
+                               }];
 #endif
 }
 
@@ -169,20 +183,35 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
 
 - (void)retrieveRecaptchaTokenWithAction:(FIRAuthRecaptchaAction)action
                               completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
-  // #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-  //   [_recaptchaClient
-  //                 execute:[[RecaptchaAction alloc]
-  //                 initWithCustomAction:actionToStringMap[@(action)]]
-  //       completionHandler:^void(RecaptchaToken *_Nullable token, RecaptchaError *_Nullable error)
-  //       {
-  //         if (!token) {
-  //           completion(nil, error);
-  //           return;
-  //         }
-  //         completion(token.recaptchaToken, nil);
-  //         return;
-  //       }];
-  // #endif
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+  Class RecaptchaActionClass = NSClassFromString(@"RecaptchaAction");
+  if (RecaptchaActionClass) {
+    SEL customActionSelector = NSSelectorFromString(@"initWithCustomAction:");
+
+    if ([RecaptchaActionClass instancesRespondToSelector:customActionSelector]) {
+      // Initialize with a custom action
+      id (*funcWithCustomAction)(id, SEL, NSString *) =
+          (id(*)(id, SEL,
+                 NSString *))[RecaptchaActionClass instanceMethodForSelector:customActionSelector];
+
+      id<RCAActionProtocol> customAction = funcWithCustomAction(
+          [[RecaptchaActionClass alloc] init], customActionSelector, actionToStringMap[@(action)]);
+
+      if (customAction) {
+        NSLog(@"Created custom action");
+        [self.recaptchaClient execute:customAction
+                           completion:^(NSString *_Nullable token, NSError *_Nullable error) {
+                             completion(@"token", error);
+                             return;
+                           }];
+      }
+    } else {
+      NSLog(@"Method not found");
+    }
+  } else {
+    NSLog(@"RecaptchaAction class not found");
+  }
+#endif
 }
 
 - (void)injectRecaptchaFields:(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *)request
