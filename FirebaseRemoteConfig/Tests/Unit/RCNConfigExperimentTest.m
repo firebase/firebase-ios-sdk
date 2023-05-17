@@ -38,6 +38,7 @@
 @interface RCNConfigExperiment ()
 @property(nonatomic, copy) NSMutableArray *experimentPayloads;
 @property(nonatomic, copy) NSMutableDictionary *experimentMetadata;
+@property(nonatomic, copy) NSMutableArray *activatedExperimentPayloads;
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
@@ -234,6 +235,7 @@
     XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
                           @(12345678));
     OCMVerify([experiment updateActiveExperiments]);
+    XCTAssertEqualObjects(experiment.activatedExperimentPayloads, @[ payloadData ]);
   }];
 }
 
