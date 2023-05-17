@@ -33,9 +33,7 @@ static NSString *const kMethodNameLatestStartTime =
 @property(nonatomic, strong)
     NSMutableDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
 @property(nonatomic, strong)
-    NSMutableArray<NSData *> *activatedExperimentPayloads;  ///< Activated experiment payloads.
-@property(nonatomic, strong) NSMutableDictionary<NSString *, id>
-    *activatedExperimentMetadata;                            ///< Activated experiment metadata
+    NSMutableArray<NSData *> *activatedExperimentPayloads;   ///< Activated experiment payloads.
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;  ///< Database Manager.
 @property(nonatomic, strong) FIRExperimentController *experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
@@ -110,10 +108,6 @@ static NSString *const kMethodNameLatestStartTime =
         }
       }
     }
-    if (result[@RCNExperimentTableKeyActiveMetadata]) {
-      strongSelf->_activatedExperimentMetadata =
-          [result[@RCNExperimentTableKeyActiveMetadata] mutableCopy];
-    }
   };
   [_DBManager loadExperimentWithCompletionHandler:completionHandler];
 }
@@ -186,25 +180,6 @@ static NSString *const kMethodNameLatestStartTime =
 }
 
 - (void)updateActiveExperiments {
-  /// Put current fetched experiment metadata into activated experiment DB.
-  _activatedExperimentMetadata[kExperimentMetadataKeyLastStartTime] =
-      _experimentMetadata[kExperimentMetadataKeyLastStartTime];
-  NSError *error;
-  NSData *serializedExperimentMetadata =
-      [NSJSONSerialization dataWithJSONObject:_experimentMetadata
-                                      options:NSJSONWritingPrettyPrinted
-                                        error:&error];
-
-  if (error) {
-    FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000092",
-                @"Invalid activated experiment metadata to be serialized.");
-    return;
-  } else {
-    [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActiveMetadata
-                                       value:serializedExperimentMetadata
-                           completionHandler:nil];
-  }
-
   /// Put current fetched experiment payloads into activated experiment DB.
   [_activatedExperimentPayloads removeAllObjects];
   [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];

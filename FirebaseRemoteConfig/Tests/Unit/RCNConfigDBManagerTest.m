@@ -521,39 +521,14 @@
   NSArray *payloads = @[ [[NSData alloc] init], payloadData2, payloadData3 ];
 
   RCNDBCompletion writePayloadCompletion = ^(BOOL success, NSDictionary *result) {
-    NSDictionary *metadata =
-        @{@"last_known_start_time" : @(-11), @"experiment_new_metadata" : @"wonderful"};
     XCTAssertTrue(success);
-    RCNDBCompletion writeMetadataCompletion = ^(BOOL success, NSDictionary *result) {
+    RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *experimentResults) {
       XCTAssertTrue(success);
-      RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *experimentResults) {
-        XCTAssertTrue(success);
-        XCTAssertNotNil(experimentResults[@RCNExperimentTableKeyActivePayload]);
-        XCTAssertEqualObjects(payloads, experimentResults[@RCNExperimentTableKeyActivePayload]);
-
-        XCTAssertNotNil(experimentResults[@RCNExperimentTableKeyActiveMetadata]);
-        XCTAssertEqualWithAccuracy(
-            -11,
-            [experimentResults[@RCNExperimentTableKeyActiveMetadata][@"last_known_start_time"]
-                doubleValue],
-            1.0);
-        XCTAssertEqualObjects(
-            @"wonderful",
-            experimentResults[@RCNExperimentTableKeyActiveMetadata][@"experiment_new_metadata"]);
-        [updateAndLoadExperimentExpectation fulfill];
-      };
-      [self->_DBManager loadExperimentWithCompletionHandler:readCompletion];
+      XCTAssertNotNil(experimentResults[@RCNExperimentTableKeyActivePayload]);
+      XCTAssertEqualObjects(payloads, experimentResults[@RCNExperimentTableKeyActivePayload]);
+      [updateAndLoadExperimentExpectation fulfill];
     };
-
-    NSError *error;
-    XCTAssertTrue([NSJSONSerialization isValidJSONObject:metadata]);
-    NSData *serializedMetadata = [NSJSONSerialization dataWithJSONObject:metadata
-                                                                 options:NSJSONWritingPrettyPrinted
-                                                                   error:&error];
-
-    [self->_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActiveMetadata
-                                             value:serializedMetadata
-                                 completionHandler:writeMetadataCompletion];
+    [self->_DBManager loadExperimentWithCompletionHandler:readCompletion];
   };
   [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
                                      value:[[NSData alloc] init]
@@ -605,52 +580,6 @@
                                                          error:&error];
 
   [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyMetadata
-                                     value:serializedMetadata
-                         completionHandler:nil];
-  [_DBManager loadExperimentWithCompletionHandler:readCompletion];
-
-  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
-}
-
-- (void)testWriteAndLoadActivatedMetadataMultipleTimes {
-  XCTestExpectation *updateAndLoadMetadataExpectation =
-      [self expectationWithDescription:
-                @"Update and load activated experiment metadata in database successfully"];
-
-  RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *experimentResults) {
-    XCTAssertTrue(success);
-    XCTAssertNotNil(experimentResults[@RCNExperimentTableKeyActivePayload]);
-    XCTAssertNotNil(experimentResults[@RCNExperimentTableKeyActiveMetadata]);
-    XCTAssertEqualWithAccuracy(
-        12345678,
-        [experimentResults[@RCNExperimentTableKeyActiveMetadata][@"last_known_start_time"]
-            doubleValue],
-        1.0);
-    XCTAssertEqualObjects(
-        @"wonderful",
-        experimentResults[@RCNExperimentTableKeyActiveMetadata][@"experiment_new_metadata"]);
-
-    [updateAndLoadMetadataExpectation fulfill];
-  };
-  NSDictionary *metadata =
-      @{@"last_known_start_time" : @(-11), @"experiment_new_metadata" : @"wonderful"};
-  NSError *error;
-  XCTAssertTrue([NSJSONSerialization isValidJSONObject:metadata]);
-  NSData *serializedMetadata = [NSJSONSerialization dataWithJSONObject:metadata
-                                                               options:NSJSONWritingPrettyPrinted
-                                                                 error:&error];
-
-  [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActiveMetadata
-                                     value:serializedMetadata
-                         completionHandler:nil];
-
-  metadata = @{@"last_known_start_time" : @(12345678), @"experiment_new_metadata" : @"wonderful"};
-  XCTAssertTrue([NSJSONSerialization isValidJSONObject:metadata]);
-  serializedMetadata = [NSJSONSerialization dataWithJSONObject:metadata
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-
-  [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActiveMetadata
                                      value:serializedMetadata
                          completionHandler:nil];
   [_DBManager loadExperimentWithCompletionHandler:readCompletion];
