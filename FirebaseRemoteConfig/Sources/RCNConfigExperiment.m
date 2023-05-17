@@ -220,6 +220,14 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   return experimentsMap;
 }
 
+- (NSMutableArray *)extractConfigKeysFromExperiment:(NSDictionary *)experiment {
+  if (![experiment objectForKey:kAffectedParameterKeys]) {
+    return [[NSMutableArray alloc] init];
+  }
+
+  return (NSMutableArray *)[experiment objectForKey:kAffectedParameterKeys];
+}
+
 - (bool)isExperimentMetadataSame:(NSDictionary *)activeExperiment
                fetchedExperiment:(NSDictionary *)fetchedExperiment {
   NSMutableDictionary *activeExperimentCopy = [activeExperiment mutableCopy];
@@ -235,8 +243,9 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   return [activeExperimentCopy isEqualToDictionary:fetchedExperimentCopy];
 }
 
-- (NSMutableSet<NSString *> *)compareExperimentConfigKeys:(NSMutableArray *)activeExperimentKeys
-                                    fetchedExperimentKeys:(NSMutableArray *)fetchedExperimentKeys {
+- (NSMutableSet<NSString *> *)getChangedExperimentConfigKeys:(NSMutableArray *)activeExperimentKeys
+                                       fetchedExperimentKeys:
+                                           (NSMutableArray *)fetchedExperimentKeys {
   NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
   NSMutableSet<NSString *> *activeKeys = [[NSMutableSet alloc] init];
   NSMutableSet<NSString *> *fetchedKeys = [[NSMutableSet alloc] init];
@@ -280,32 +289,24 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
         experiment = [fetchedExperiments objectForKey:experimentId];
       }
 
-      if ([experiment objectForKey:kAffectedParameterKeys]) {
-        NSMutableArray *keys = [experiment objectForKey:kAffectedParameterKeys];
-        [changedKeys addObjectsFromArray:keys];
-      }
+      [changedKeys addObjectsFromArray:[self extractConfigKeysFromExperiment:experiment]];
     } else {
-      NSDictionary *activeExperiement = [activeExperiments objectForKey:experimentId];
+      NSDictionary *activeExperiment = [activeExperiments objectForKey:experimentId];
       NSDictionary *fetchedExperiment = [fetchedExperiments objectForKey:experimentId];
 
-      NSMutableArray *activeExperimentKeys = [[NSMutableArray alloc] init];
-      NSMutableArray *fetchedExperimentKeys = [[NSMutableArray alloc] init];
+      NSMutableArray *activeExperimentKeys =
+          [self extractConfigKeysFromExperiment:activeExperiment];
+      NSMutableArray *fetchedExperimentKeys =
+          [self extractConfigKeysFromExperiment:fetchedExperiment];
 
-      if ([activeExperiments objectForKey:kAffectedParameterKeys]) {
-        activeExperimentKeys =
-            (NSMutableArray *)[activeExperiments objectForKey:kAffectedParameterKeys];
-      }
-      if ([fetchedExperiments objectForKey:kAffectedParameterKeys]) {
-        fetchedExperimentKeys =
-            (NSMutableArray *)[fetchedExperiments objectForKey:kAffectedParameterKeys];
-      }
-
-      if ([self isExperimentMetadataSame:activeExperiement fetchedExperiment:fetchedExperiment]) {
+      if ([self isExperimentMetadataSame:activeExperiment fetchedExperiment:fetchedExperiment]) {
         [changedKeys addObjectsFromArray:activeExperimentKeys];
         [changedKeys addObjectsFromArray:fetchedExperimentKeys];
       } else {
-        return [self compareExperimentConfigKeys:activeExperimentKeys
-                           fetchedExperimentKeys:fetchedExperimentKeys];
+        changedKeys = [[changedKeys
+            setByAddingObjectsFromSet:[self getChangedExperimentConfigKeys:activeExperimentKeys
+                                                     fetchedExperimentKeys:fetchedExperimentKeys]]
+            mutableCopy];
       }
     }
   }
