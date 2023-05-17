@@ -17,13 +17,12 @@ import argparse
 import logging
 import os
 import api_info
-import datetime
-import pytz
 
 STATUS_ADD = 'ADDED'
 STATUS_REMOVED = 'REMOVED'
 STATUS_MODIFIED = 'MODIFIED'
 STATUS_ERROR = 'BUILD ERROR'
+API_DIFF_FILE_NAME = 'api_diff_report.markdown'
 
 
 def main():
@@ -31,20 +30,38 @@ def main():
 
   args = parse_cmdline_args()
 
-  pr_branch = os.path.expanduser(args.pr_branch)
-  base_branch = os.path.expanduser(args.base_branch)
-  new_api_json = json.load(
-      open(os.path.join(pr_branch, api_info.API_INFO_FILE_NAME)))
-  old_api_json = json.load(
-      open(os.path.join(base_branch, api_info.API_INFO_FILE_NAME)))
+  new_api_file = os.path.join(os.path.expanduser(args.pr_branch),
+                              api_info.API_INFO_FILE_NAME)
+  old_api_file = os.path.join(os.path.expanduser(args.base_branch),
+                              api_info.API_INFO_FILE_NAME)
+  if os.path.exists(new_api_file):
+    with open(new_api_file) as f:
+      new_api_json = json.load(f)
+  else:
+    new_api_json = {}
+  if os.path.exists(old_api_file):
+    with open(old_api_file) as f:
+      old_api_json = json.load(f)
+  else:
+    old_api_json = {}
 
   diff = generate_diff_json(new_api_json, old_api_json)
   if diff:
     logging.info(f'json diff: \n{json.dumps(diff, indent=2)}')
     logging.info(f'plain text diff report: \n{generate_text_report(diff)}')
-    logging.info(f'markdown diff report: \n{generate_markdown_report(diff)}')
+    report = generate_markdown_report(diff)
+    logging.info(f'markdown diff report: \n{report}')
   else:
     logging.info('No API Diff Detected.')
+    report = ""
+
+  output_dir = os.path.expanduser(args.output_dir)
+  if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+  api_report_path = os.path.join(output_dir, API_DIFF_FILE_NAME)
+  logging.info(f'Writing API diff report to {api_report_path}')
+  with open(api_report_path, 'w') as f:
+    f.write(report)
 
 
 def generate_diff_json(new_api, old_api, level='module'):
@@ -150,17 +167,6 @@ def generate_text_report(diff, level=0, print_key=True):
   return report
 
 
-def generate_markdown_title(commit, run_id):
-  pst_now = datetime.datetime.utcnow().astimezone(
-      pytz.timezone('America/Los_Angeles'))
-  return (
-      '## Apple API Diff Report\n' + 'Commit: %s\n' % commit
-      + 'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G')
-      + '**[View workflow logs & download artifacts]'
-      + '(https://github.com/firebase/firebase-ios-sdk/actions/runs/%s)**\n\n'
-      % run_id + '-----\n')
-
-
 def generate_markdown_report(diff, level=0):
   report = ''
   header_str = '#' * (level + 3)
@@ -171,9 +177,9 @@ def generate_markdown_report(diff, level=0):
       else:
         current_status = value.get('status')
         if current_status:
-          # Module level: Always print out module name as title
-          if level == 0:
-            report += f'{header_str} {key} [{current_status}]\n'
+          # Module level: Always print out module name and class name as title
+          if level in [0, 2]:
+            report += f'{header_str} [{current_status}] {key}\n'
           if current_status != STATUS_ERROR:  # ADDED,REMOVED,MODIFIED
             report += '<details>\n<summary>\n'
             report += f'[{current_status}] {key}\n'
@@ -237,8 +243,7 @@ def parse_cmdline_args():
   parser = argparse.ArgumentParser()
   parser.add_argument('-p', '--pr_branch')
   parser.add_argument('-b', '--base_branch')
-  parser.add_argument('-c', '--commit')
-  parser.add_argument('-i', '--run_id')
+  parser.add_argument('-o', '--output_dir', default='output_dir')
 
   args = parser.parse_args()
   return args
