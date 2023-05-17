@@ -308,6 +308,7 @@
   XCTAssertTrue([[result localizedDescription] containsString:@"Aggregations can not be empty"]);
 }
 
+// (TODO:b/283101111): Try thread sanitizer to see if timeout on Github Actions is gone.
 #if !defined(THREAD_SANITIZER)
 - (void)testAggregateFieldQuerySnapshotEquality {
   // TODO(sum/avg) remove the check below when sum and avg are supported in production
