@@ -29,7 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
     [StaticContentTableViewCell cellWithTitle:@"Sign in Anonymously"
                                       action:^{ [weakSelf signInAnonymously]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign out"
-                                      action:^{ [weakSelf signOut]; }]
+                                      action:^{ [weakSelf signOut]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Initialize Recaptcha Config"
+                                      action:^{ [weakSelf initializeRecaptchaConfig]; }]
     ]];
 }
 
@@ -70,6 +72,16 @@ NS_ASSUME_NONNULL_BEGIN
   [[AuthProviders google] signOut];
   [[AuthProviders facebook] signOut];
   [[AppManager auth] signOut:NULL];
+}
+
+- (void)initializeRecaptchaConfig {
+    [[AppManager auth] initializeRecaptchaConfigWithCompletion:^(NSError * _Nullable error) {
+        if (error) {
+            [self logFailure:@"Initializing Recaptcha config failed" error:error];
+        } else {
+            [self logSuccess:@"Initializing Recaptcha config succeeded."];
+        }
+    }];
 }
 
 @end

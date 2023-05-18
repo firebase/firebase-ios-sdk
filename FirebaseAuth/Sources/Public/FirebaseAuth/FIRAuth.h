@@ -864,7 +864,7 @@ NS_SWIFT_NAME(Auth)
    in the same app and the sign in flow will include ReCAPTCHA only if needed.
  */
 - (void)initializeRecaptchaConfigWithCompletion:
-    (nullable void (^)(NSError *_Nullable error))completion API_AVAILABLE(ios(14));
+    (nullable void (^)(NSError *_Nullable error))completion;
 
 #pragma mark - User sharing
 
