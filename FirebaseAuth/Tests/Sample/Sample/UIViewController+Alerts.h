@@ -81,9 +81,8 @@ typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullab
 		@param completion A block to call when the user taps 'OK' or 'Cancel'.
  */
 - (void)showQRCodePromptWithTextInput:(NSString *)message
-													qrCodeString:(NSString *)qrCodeString
-											 completionBlock:(AlertPromptCompletionBlock)completion;
-
+												 qrCodeString:(NSString *)qrCodeString
+											completionBlock:(AlertPromptCompletionBlock)completion;
 
 /*! @fn showSpinner
     @brief Shows the please wait spinner.
