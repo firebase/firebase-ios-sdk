@@ -37,6 +37,8 @@ static NSString *kFirebaseAuthStagingAPIHost = @"staging-www.sandbox.googleapis.
 static NSString *kIdentityPlatformStagingAPIHost =
     @"staging-identitytoolkit.sandbox.googleapis.com";
 
+static NSString *const kClientType = @"CLIENT_TYPE_IOS";
+
 @implementation FIRIdentityToolkitRequest {
   FIRAuthRequestConfiguration *_requestConfiguration;
 }
@@ -50,6 +52,7 @@ static NSString *kIdentityPlatformStagingAPIHost =
     _requestConfiguration = requestConfiguration;
     _useIdentityPlatform = NO;
     _useStaging = NO;
+    _clientType = kClientType;
 
     // Automatically set the tenant ID. If the request is initialized before FIRAuth is configured,
     // set tenant ID to nil.

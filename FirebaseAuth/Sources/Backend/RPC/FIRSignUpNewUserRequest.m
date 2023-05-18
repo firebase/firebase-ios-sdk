@@ -102,8 +102,8 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_captchaResponse) {
     postBody[kCaptchaResponseKey] = _captchaResponse;
   }
-  if (_clientType) {
-    postBody[kClientType] = _clientType;
+  if (self.clientType) {
+    postBody[kClientType] = self.clientType;
   }
   if (_recaptchaVersion) {
     postBody[kRecaptchaVersion] = _recaptchaVersion;

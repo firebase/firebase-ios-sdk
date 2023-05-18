@@ -56,15 +56,14 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
 + (id)sharedRecaptchaVerifier;
 
 - (void)retrieveRecaptchaConfigForceRefresh:(BOOL)forceRefresh
-                                 completion:(nullable FIRAuthRecaptchaConfigCallback)completion
-    API_AVAILABLE(ios(14));
+                                 completion:(nullable FIRAuthRecaptchaConfigCallback)completion;
 
 - (void)injectRecaptchaFields:(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *)request
-                 forceRefresh:(BOOL)forceRefresh
                      provider:(FIRAuthRecaptchaProvider)provider
                        action:(FIRAuthRecaptchaAction)action
-                   completion:(nullable FIRAuthInjectRequestCallback)completion
-    API_AVAILABLE(ios(14));
+                   completion:(nullable FIRAuthInjectRequestCallback)completion;
+
+- (BOOL)enablementStatusForProvider:(FIRAuthRecaptchaProvider)provider;
 
 @end
 

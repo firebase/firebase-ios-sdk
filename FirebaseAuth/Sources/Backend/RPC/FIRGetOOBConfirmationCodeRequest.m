@@ -291,8 +291,8 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
   if (_captchaResponse) {
     body[kCaptchaResponseKey] = _captchaResponse;
   }
-  if (_clientType) {
-    body[kClientType] = _clientType;
+  if (self.clientType) {
+    body[kClientType] = self.clientType;
   }
   if (_recaptchaVersion) {
     body[kRecaptchaVersion] = _recaptchaVersion;

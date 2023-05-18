@@ -74,9 +74,7 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
 
 - (void)verifyForceRefresh:(BOOL)forceRefresh
                     action:(FIRAuthRecaptchaAction)action
-                completion:(nullable FIRAuthRecaptchaTokenCallback)completion
-    API_AVAILABLE(ios(14)) {
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+                completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
   [self
       retrieveRecaptchaConfigForceRefresh:forceRefresh
                                completion:^(NSError *_Nullable error) {
@@ -96,7 +94,6 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
                                      SEL selectorWithTimeout = NSSelectorFromString(
                                          @"getClientWithSiteKey:withTimeout:completion:");
                                      if ([RecaptchaClass respondsToSelector:selectorWithTimeout]) {
-                                       // Method with timeout
                                        void (*funcWithTimeout)(
                                            id, SEL, NSString *, double,
                                            void (^)(
@@ -108,13 +105,11 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
                                            ^(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
                                              NSError *_Nullable error) {
                                              if (recaptchaClient) {
-                                               // Do something with recaptchaClient
                                                NSLog(@"recaptcha client created.");
                                                self.recaptchaClient = recaptchaClient;
                                                [self retrieveRecaptchaTokenWithAction:action
                                                                            completion:completion];
                                              } else if (error) {
-                                               // Handle the error
                                                NSLog(@"recaptcha client creatation errored.");
                                                NSLog(@"Error: %@", error);
                                              }
@@ -130,7 +125,6 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
                                                                completion:completion];
                                  }
                                }];
-#endif
 }
 
 - (void)retrieveRecaptchaConfigForceRefresh:(BOOL)forceRefresh
@@ -145,10 +139,8 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
       return;
     }
   }
-  FIRGetRecaptchaConfigRequest *request =
-      [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:kClientType
-                                                       version:kRecaptchaVersion
-                                          requestConfiguration:[FIRAuth auth].requestConfiguration];
+  FIRGetRecaptchaConfigRequest *request = [[FIRGetRecaptchaConfigRequest alloc]
+      initWithRequestConfiguration:[FIRAuth auth].requestConfiguration];
   [FIRAuthBackend
       getRecaptchaConfig:request
                 callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,
@@ -201,7 +193,7 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
         NSLog(@"Created custom action");
         [self.recaptchaClient execute:customAction
                            completion:^(NSString *_Nullable token, NSError *_Nullable error) {
-                             completion(@"token", error);
+                             completion(token, error);
                              return;
                            }];
       }
@@ -215,14 +207,13 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
 }
 
 - (void)injectRecaptchaFields:(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *)request
-                 forceRefresh:(BOOL)forceRefresh
                      provider:(FIRAuthRecaptchaProvider)provider
                        action:(FIRAuthRecaptchaAction)action
                    completion:(nullable FIRAuthInjectRequestCallback)completion {
-  [self retrieveRecaptchaConfigForceRefresh:forceRefresh
+  [self retrieveRecaptchaConfigForceRefresh:false
                                  completion:^(NSError *_Nullable error) {
                                    if ([self enablementStatusForProvider:provider]) {
-                                     [self verifyForceRefresh:forceRefresh
+                                     [self verifyForceRefresh:false
                                                        action:action
                                                    completion:^(NSString *_Nullable token,
                                                                 NSError *_Nullable error) {

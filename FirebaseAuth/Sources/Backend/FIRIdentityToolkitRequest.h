@@ -52,6 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic) BOOL useStaging;
 
+/** @property clientType
+    @brief The type of the client that the request sent from, which should be CLIENT_TYPE_IOS;
+ */
+@property(nonatomic, copy, readonly) NSString *clientType;
+
 /** @fn init
     @brief Please use initWithEndpoint:APIKey:
  */
