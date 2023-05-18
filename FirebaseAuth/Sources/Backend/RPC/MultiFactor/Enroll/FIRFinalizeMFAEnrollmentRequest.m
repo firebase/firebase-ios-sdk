@@ -16,6 +16,8 @@
 
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRFinalizeMFAEnrollmentRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 static NSString *const kFinalizeMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:finalize";
 
 /** @var kTenantIDKey
@@ -25,7 +27,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 @implementation FIRFinalizeMFAEnrollmentRequest
 
-- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+- (instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                    phoneVerificationInfo:
                        (nonnull FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
@@ -42,7 +44,7 @@ static NSString *const kTenantIDKey = @"tenantId";
   return self;
 }
 
-- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+- (instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                     TOTPVerificationInfo:
                         (nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)
@@ -60,7 +62,7 @@ static NSString *const kTenantIDKey = @"tenantId";
   return self;
 }
 
-- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
+- (id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_IDToken) {
     postBody[@"idToken"] = _IDToken;
@@ -80,3 +82,5 @@ static NSString *const kTenantIDKey = @"tenantId";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

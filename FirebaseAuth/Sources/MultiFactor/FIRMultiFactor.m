@@ -114,7 +114,7 @@ static NSString *kUserCodingKey = @"user";
     FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *finalizeMFATOTPRequestInfo =
         [[FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo alloc]
             initWithSessionInfo:TOTPAssertion.secret.sessionInfo
-                           code:TOTPAssertion.oneTimePassword];
+                           verificationCode:TOTPAssertion.oneTimePassword];
     FIRFinalizeMFAEnrollmentRequest *request =
         [[FIRFinalizeMFAEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
                                                      displayName:displayName

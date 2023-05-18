@@ -20,11 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo
 
-- (instancetype)initWithSessionInfo:(NSString *)sessionInfo code:(NSString *)code {
+- (instancetype)initWithSessionInfo:(NSString *)sessionInfo verificationCode:(NSString *)verificationCode {
   self = [super init];
   if (self) {
     _sessionInfo = sessionInfo;
-    _code = code;
+    _verificationCode = verificationCode;
   }
   return self;
 }
@@ -34,8 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
   if (_sessionInfo) {
     dict[@"sessionInfo"] = _sessionInfo;
   }
-  if (_code) {
-    dict[@"verificationCode"] = _code;
+  if (_verificationCode) {
+    dict[@"verificationCode"] = _verificationCode;
   }
   return [dict copy];
 }

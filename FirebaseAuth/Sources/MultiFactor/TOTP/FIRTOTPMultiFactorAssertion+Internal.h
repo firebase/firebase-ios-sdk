@@ -25,12 +25,16 @@ NS_ASSUME_NONNULL_BEGIN
  @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
  (Time-based One Time Password). second factor.
  This class is available on iOS only.
- @property secret TOTPSecret
- @property oneTimePassword one time password string
  */
 @interface FIRTOTPMultiFactorAssertion ()
 
+/**
+ @brief secret TOTPSecret
+ */
 @property(nonatomic, copy, readonly, nonnull) FIRTOTPSecret *secret;
+/**
+ @brief one time password string
+ */
 @property(nonatomic, copy, readonly, nonnull) NSString *oneTimePassword;
 
 /**
