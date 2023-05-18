@@ -740,6 +740,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
     return;
   }
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
   if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
           enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
     [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
@@ -815,6 +816,21 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                 }
               }];
   }
+#else
+  [FIRAuthBackend
+      verifyPassword:(FIRVerifyPasswordRequest *)request
+            callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
+              if (error) {
+                callback(nil, error);
+                return;
+              }
+              [self completeSignInWithAccessToken:response.IDToken
+                        accessTokenExpirationDate:response.approximateExpirationDate
+                                     refreshToken:response.refreshToken
+                                        anonymous:NO
+                                         callback:callback];
+            }];
+#endif
 }
 
 /** @fn internalSignInAndRetrieveDataWithEmail:password:callback:
