@@ -23,8 +23,10 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
+#if TARGET_OS_IOS
 #import <RecaptchaInterop/RCAActionProtocol.h>
 #import <RecaptchaInterop/RCARecaptchaProtocol.h>
+#endif
 
 static const NSDictionary *providerToStringMap;
 static const NSDictionary *actionToStringMap;
@@ -75,6 +77,7 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
 - (void)verifyForceRefresh:(BOOL)forceRefresh
                     action:(FIRAuthRecaptchaAction)action
                 completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
+#if TARGET_OS_IOS
   [self
       retrieveRecaptchaConfigForceRefresh:forceRefresh
                                completion:^(NSError *_Nullable error) {
@@ -125,6 +128,7 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
                                                                completion:completion];
                                  }
                                }];
+#endif
 }
 
 - (void)retrieveRecaptchaConfigForceRefresh:(BOOL)forceRefresh

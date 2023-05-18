@@ -16,7 +16,9 @@
 
 #import <Foundation/Foundation.h>
 
+#if TARGET_OS_IOS
 #import <RecaptchaInterop/RCARecaptchaProtocol.h>
+#endif
 
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 
@@ -51,7 +53,9 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
   NSMutableDictionary<NSString *, FIRAuthRecaptchaConfig *> *_tenantConfigs;
 }
 
+#if TARGET_OS_IOS
 @property(nonatomic, strong) id<RCARecaptchaClientProtocol> recaptchaClient;
+#endif
 
 + (id)sharedRecaptchaVerifier;
 
