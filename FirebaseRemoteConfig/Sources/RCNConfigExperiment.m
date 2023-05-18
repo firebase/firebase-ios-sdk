@@ -212,6 +212,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
                                         options:NSJSONReadingMutableContainers
                                           error:&error];
     if (!error && experimentJSON) {
+      /// Map experiments to experiment ID.
       [experimentsMap setObject:experimentJSON
                          forKey:[experimentJSON valueForKey:kExperimentIdKey]];
     }
@@ -228,11 +229,13 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   return (NSMutableArray *)[experiment objectForKey:kAffectedParameterKeys];
 }
 
-- (bool)isExperimentMetadataSame:(NSDictionary *)activeExperiment
-               fetchedExperiment:(NSDictionary *)fetchedExperiment {
+- (bool)isExperimentMetadataUnchanged:(NSDictionary *)activeExperiment
+                    fetchedExperiment:(NSDictionary *)fetchedExperiment {
+  /// Create copies of active and fetched experiments.
   NSMutableDictionary *activeExperimentCopy = [activeExperiment mutableCopy];
   NSMutableDictionary *fetchedExperimentCopy = [fetchedExperiment mutableCopy];
 
+  /// Remove config parameter keys from object since they don't show up in consistent order.
   if ([activeExperimentCopy objectForKey:kAffectedParameterKeys]) {
     [activeExperimentCopy removeObjectForKey:kAffectedParameterKeys];
   }
@@ -246,18 +249,22 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
 - (NSMutableSet<NSString *> *)getChangedExperimentConfigKeys:(NSMutableArray *)activeExperimentKeys
                                        fetchedExperimentKeys:
                                            (NSMutableArray *)fetchedExperimentKeys {
-  NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
+  NSMutableSet<NSString *> *allKeys = [[NSMutableSet alloc] init];
   NSMutableSet<NSString *> *activeKeys = [[NSMutableSet alloc] init];
   NSMutableSet<NSString *> *fetchedKeys = [[NSMutableSet alloc] init];
 
+  /// Init keys set with experiment keys.
   [activeKeys addObjectsFromArray:activeExperimentKeys];
   [fetchedKeys addObjectsFromArray:fetchedExperimentKeys];
-  changedKeys = [[changedKeys setByAddingObjectsFromSet:activeKeys] mutableCopy];
-  changedKeys = [[changedKeys setByAddingObjectsFromSet:fetchedKeys] mutableCopy];
+  /// Add all keys into a single set.
+  allKeys = [[allKeys setByAddingObjectsFromSet:activeKeys] mutableCopy];
+  allKeys = [[allKeys setByAddingObjectsFromSet:fetchedKeys] mutableCopy];
 
-  NSSet<NSString *> *allKeys = [changedKeys copy];
+  NSMutableSet<NSString *> *changedKeys = [allKeys mutableCopy];
 
+  /// Iterate through all possible keys.
   for (NSString *key in allKeys) {
+    /// If keys are present in both active and fetched sets, remove from `changedKeys`.
     if ([activeKeys containsObject:key] && [fetchedKeys containsObject:key]) {
       [changedKeys removeObject:key];
     }
@@ -278,9 +285,13 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   [allExperimentIds addObjectsFromArray:[fetchedExperiments allKeys]];
   [allExperimentIds addObjectsFromArray:[activeExperiments allKeys]];
 
+  /// Iterate through all possible experiment IDs.
   for (NSString *experimentId in allExperimentIds) {
+    /// If an experiment ID doesn't exist one of the maps then an experiment must have been
+    /// added/removed. Add it's keys into `changedKeys`.
     if (![activeExperiments objectForKey:experimentId] ||
         ![fetchedExperiments objectForKey:experimentId]) {
+      /// Get the experiment that was altered.
       NSDictionary *experiment;
       if ([activeExperiments objectForKey:experimentId]) {
         experiment = [activeExperiments objectForKey:experimentId];
@@ -288,20 +299,27 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
         experiment = [fetchedExperiments objectForKey:experimentId];
       }
 
+      /// Add all of it's keys into `changedKeys`.
       [changedKeys addObjectsFromArray:[self extractConfigKeysFromExperiment:experiment]];
     } else {
+      /// Fetched and Active contain the experiment ID. The metadata needs to be compared to see if
+      /// they're still the same.
       NSDictionary *activeExperiment = [activeExperiments objectForKey:experimentId];
       NSDictionary *fetchedExperiment = [fetchedExperiments objectForKey:experimentId];
 
+      /// Extract keys from active and fetched experiments.
       NSMutableArray *activeExperimentKeys =
           [self extractConfigKeysFromExperiment:activeExperiment];
       NSMutableArray *fetchedExperimentKeys =
           [self extractConfigKeysFromExperiment:fetchedExperiment];
 
-      if (![self isExperimentMetadataSame:activeExperiment fetchedExperiment:fetchedExperiment]) {
+      if (![self isExperimentMetadataUnchanged:activeExperiment
+                             fetchedExperiment:fetchedExperiment]) {
+        /// Add in all keys from both sides if the experiments metadata has changed.
         [changedKeys addObjectsFromArray:activeExperimentKeys];
         [changedKeys addObjectsFromArray:fetchedExperimentKeys];
       } else {
+        /// Compare config keys from either experiment.
         changedKeys = [[changedKeys
             setByAddingObjectsFromSet:[self getChangedExperimentConfigKeys:activeExperimentKeys
                                                      fetchedExperimentKeys:fetchedExperimentKeys]]
