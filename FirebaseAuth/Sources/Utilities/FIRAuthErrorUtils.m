@@ -599,7 +599,7 @@ static NSString *const kFIRAuthErrorMessageMissingRecaptchaToken =
 static NSString *const kFIRAuthErrorMessageInvalidRecaptchaToken =
     @"The reCAPTCHA verification token is invalid or has expired.";
 
-static NSString *const kFIAuthErrorMessageInvalidRecaptchaAction =
+static NSString *const kFIRAuthErrorMessageInvalidRecaptchaAction =
     @"The reCAPTCHA verification failed due to an invalid action.";
 
 static NSString *const kFIRAuthErrorMessageMissingClientType =
@@ -650,8 +650,6 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageNetworkError;
     case FIRAuthErrorCodeKeychainError:
       return kFIRAuthErrorMessageKeychainError;
-    case FIRAuthErrorCodeMissingClientType:
-      return kFIRAuthErrorMessageMissingClientType;
     case FIRAuthErrorCodeUserTokenExpired:
       return kFIRAuthErrorMessageUserTokenExpired;
     case FIRAuthErrorCodeUserNotFound:
@@ -787,6 +785,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
     case FIRAuthErrorCodeInvalidRecaptchaToken:
       return kFIRAuthErrorMessageInvalidRecaptchaToken;
     case FIRAuthErrorCodeInvalidRecaptchaAction:
+      return kFIRAuthErrorMessageInvalidRecaptchaAction;
+    case FIRAuthErrorCodeMissingClientType:
       return kFIRAuthErrorMessageMissingClientType;
     case FIRAuthErrorCodeMissingRecaptchaVersion:
       return kFIRAuthErrorMessageMissingRecaptchaVersion;
