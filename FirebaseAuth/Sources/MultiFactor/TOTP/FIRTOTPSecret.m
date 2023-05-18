@@ -53,12 +53,12 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)openInOTPAppWithQRCodeURL:(NSString *)QRCodeURL {
-	NSURL *url = [NSURL URLWithString:QRCodeURL];
-	if ([[UIApplication sharedApplication] canOpenURL:url]) {
-		[[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-	} else {
-		NSLog(@"URL cannot be opened");
-	}
+  NSURL *url = [NSURL URLWithString:QRCodeURL];
+  if ([[UIApplication sharedApplication] canOpenURL:url]) {
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+  } else {
+    NSLog(@"URL cannot be opened");
+  }
 }
 
 @end

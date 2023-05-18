@@ -24,7 +24,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- @brief Identifies the current session to enroll a second factor or to complete sign in when previously enrolled. It contains additional context on the existing user, notably the confirmation that the user passed the first factor challenge.
+ @brief Identifies the current session to enroll a second factor or to complete sign in when
+ previously enrolled. It contains additional context on the existing user, notably the confirmation
+ that the user passed the first factor challenge.
  @brief currentUser
  */
 
@@ -34,7 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 */
 @property(nonatomic, readonly) NSString *IDToken;
 /**
-@brief The pending credential after an enrolled second factor user signs in successfully with the first factor
+@brief The pending credential after an enrolled second factor user signs in successfully with the
+first factor
 */
 @property(nonatomic) NSString *MFAPendingCredential;
 /**

@@ -47,8 +47,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                     TOTPVerificationInfo:
-                        (FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)
-                            TOTPVerificationInfo
+                        (FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)TOTPVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration

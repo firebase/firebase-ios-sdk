@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @implementation FIRAuthProtoStartMFATOTPEnrollmentRequestInfo
 
 - (NSDictionary *)dictionary {
-  // Request to trigger enrollment for TOTP. Since there are no request parameters, we send an empty JSON object to the server
+  // Request to trigger enrollment for TOTP. Since there are no request parameters, we send an empty
+  // JSON object to the server
   return @{};
 }
 @end

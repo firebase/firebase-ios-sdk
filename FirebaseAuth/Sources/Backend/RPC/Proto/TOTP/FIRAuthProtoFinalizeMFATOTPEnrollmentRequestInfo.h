@@ -23,7 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly, nonnull) NSString *sessionInfo;
 @property(nonatomic, copy, readonly, nonnull) NSString *verificationCode;
 
-- (instancetype)initWithSessionInfo:(NSString *)sessionInfo verificationCode:(NSString *)verificationCode;
+- (instancetype)initWithSessionInfo:(NSString *)sessionInfo
+                   verificationCode:(NSString *)verificationCode;
 
 @end
 

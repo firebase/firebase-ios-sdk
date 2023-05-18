@@ -29,26 +29,30 @@ NS_ASSUME_NONNULL_BEGIN
  This class is available on iOS only.
  */
 NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
-@interface FIRTOTPMultiFactorGenerator : NSObject
+    @interface FIRTOTPMultiFactorGenerator : NSObject
 
 /**
  @fn generateSecretWithMultiFactorSession
- @brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a QRCode URL or inputting into a TOTP App. This method uses the auth instance corresponding to the user in the multiFactorSession.
+ @brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a
+ QRCode URL or inputting into a TOTP App. This method uses the auth instance corresponding to the
+ user in the multiFactorSession.
  @param session The multiFactorSession instance.
  @param completion Completion block
  */
 
 + (void)generateSecretWithMultiFactorSession:(FIRMultiFactorSession *)session
-																	completion:(void (^)(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error))completion;
+                                  completion:(void (^)(FIRTOTPSecret *_Nullable secret,
+                                                       NSError *_Nullable error))completion;
 
 /**
  @fn assertionForEnrollmentWithSecret:
- @brief Initializes the MFA assertion to confirm ownership of the TOTP second factor. This assertion is used to complete enrollment of TOTP as a second factor.
+ @brief Initializes the MFA assertion to confirm ownership of the TOTP second factor. This assertion
+ is used to complete enrollment of TOTP as a second factor.
  @param secret The TOTP secret.
  @param oneTimePassword one time password string.
  */
-+ (FIRTOTPMultiFactorAssertion *)assertionForEnrollmentWithSecret: (FIRTOTPSecret *)secret
-																									oneTimePassword: (NSString *)oneTimePassword;
++ (FIRTOTPMultiFactorAssertion *)assertionForEnrollmentWithSecret:(FIRTOTPSecret *)secret
+                                                  oneTimePassword:(NSString *)oneTimePassword;
 
 /**
  @fn assertionForSignInWithenrollmentID:
@@ -58,7 +62,7 @@ NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
  @param oneTimePassword one time password string.
  */
 + (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
-																										oneTimePassword:(NSString *)oneTimePassword;
+                                                    oneTimePassword:(NSString *)oneTimePassword;
 
 @end
 

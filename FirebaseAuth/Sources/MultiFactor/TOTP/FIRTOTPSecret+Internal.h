@@ -51,7 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, readonly) NSInteger codeIntervalSeconds;
 
 /**
- @brief The timestamp by which TOTP enrollment should be completed. This can be used by callers to show a countdown of when to enter OTP code by.
+ @brief The timestamp by which TOTP enrollment should be completed. This can be used by callers to
+ show a countdown of when to enter OTP code by.
  */
 @property(nonatomic, copy, readonly, nullable) NSDate *enrollmentCompletionDeadline;
 
@@ -67,15 +68,16 @@ NS_ASSUME_NONNULL_BEGIN
  @param hashingAlgorithm Hashing algorithm used.
  @param codeLength Length of the one-time passwords to be generated.
  @param codeIntervalSeconds The interval (in seconds) when the OTP codes should change.
- @param enrollmentCompletionDeadline The timestamp by which TOTP enrollment should be completed. This can be used by callers to show a countdown of when to enter OTP code by.
+ @param enrollmentCompletionDeadline The timestamp by which TOTP enrollment should be completed.
+ This can be used by callers to show a countdown of when to enter OTP code by.
  @param sessionInfo Additional session information.
  */
 - (instancetype)initWithSecretKey:(NSString *)secretKey
-								 hashingAlgorithm:(NSString *)hashingAlgorithm
-											 codeLength:(NSInteger)codeLength
-							codeIntervalSeconds:(NSInteger)codeIntervalSeconds
-		 enrollmentCompletionDeadline:(NSDate *)enrollmentCompletionDeadline
-											sessionInfo:(NSString *)sessionInfo;
+                 hashingAlgorithm:(NSString *)hashingAlgorithm
+                       codeLength:(NSInteger)codeLength
+              codeIntervalSeconds:(NSInteger)codeIntervalSeconds
+     enrollmentCompletionDeadline:(NSDate *)enrollmentCompletionDeadline
+                      sessionInfo:(NSString *)sessionInfo;
 @end
 
 NS_ASSUME_NONNULL_END

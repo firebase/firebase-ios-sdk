@@ -87,9 +87,10 @@
   }
 }
 
-+ (FIRTOTPMultiFactorAssertion *)assertionForEnrollmentWithSecret: (FIRTOTPSecret *)secret
-																									oneTimePassword: (NSString *)oneTimePassword {
-		return [[FIRTOTPMultiFactorAssertion alloc] initWithSecret:secret oneTimePassword:oneTimePassword];
++ (FIRTOTPMultiFactorAssertion *)assertionForEnrollmentWithSecret:(FIRTOTPSecret *)secret
+                                                  oneTimePassword:(NSString *)oneTimePassword {
+  return [[FIRTOTPMultiFactorAssertion alloc] initWithSecret:secret
+                                             oneTimePassword:oneTimePassword];
 }
 
 @end

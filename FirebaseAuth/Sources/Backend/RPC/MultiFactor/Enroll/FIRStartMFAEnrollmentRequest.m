@@ -18,7 +18,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneRequestInfo.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentRequestInfo.h"
 
-static NSString *const kStartMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
+phoneEnrollmentInfostatic NSString *const kStartMFAEnrollmentEndPoint =
+    @"accounts/mfaEnrollment:start";
 
 /** @var kTenantIDKey
     @brief The key for the tenant id value in the request.
