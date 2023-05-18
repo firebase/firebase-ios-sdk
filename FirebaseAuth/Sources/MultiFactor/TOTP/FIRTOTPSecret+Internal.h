@@ -25,34 +25,51 @@
 
 NS_ASSUME_NONNULL_BEGIN
 /**
- @interface FIRTOTPSecret
  @brief Internal header extending TOTPSecret class.
- @property secretKey Shared secret key/seed used for enrolling in TOTP MFA and generating OTPs.
- @property hashingAlgorithm Hashing algorithm used.
- @property codeLength Length of the one-time passwords to be generated.
- @property codeIntervalSeconds The interval (in seconds) when the OTP codes should change.
- @property enrollmentCompletionDeadline The timestamp by which TOTP enrollment should be completed. This can be used by callers to show a countdown of when to enter OTP code by.
- @property sessionInfo
  */
 @interface FIRTOTPSecret ()
 
+/**
+ @brief Shared secret key/seed used for enrolling in TOTP MFA and generating OTPs.
+ */
 @property(nonatomic, copy, readonly, nullable) NSString *secretKey;
-@property(nonatomic, copy, readonly, nullable) NSString *hashingAlgorithm;
-@property(nonatomic, readonly) NSInteger codeLength;
-@property(nonatomic, readonly) NSInteger codeIntervalSeconds;
-@property(nonatomic, copy, readonly, nullable) NSDate *enrollmentCompletionDeadline;
-@property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
 
+/**
+ @brief Hashing algorithm used.
+ */
+@property(nonatomic, copy, readonly, nullable) NSString *hashingAlgorithm;
+
+/**
+ @brief Length of the one-time passwords to be generated.
+ */
+@property(nonatomic, readonly) NSInteger codeLength;
+
+/**
+ @brief The interval (in seconds) when the OTP codes should change.
+ */
+@property(nonatomic, readonly) NSInteger codeIntervalSeconds;
+
+/**
+ @brief The timestamp by which TOTP enrollment should be completed. This can be used by callers to
+ show a countdown of when to enter OTP code by.
+ */
+@property(nonatomic, copy, readonly, nullable) NSDate *enrollmentCompletionDeadline;
+
+/**
+ @brief Additional session information.
+ */
+@property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
 
 /**
  @fn initWithSecretKey
- @brief Instan
+ @brief Initializes an instance of FIRTOTPSecret.
  @param secretKey Shared secret key/seed used for enrolling in TOTP MFA and generating OTPs.
  @param hashingAlgorithm Hashing algorithm used.
  @param codeLength Length of the one-time passwords to be generated.
  @param codeIntervalSeconds The interval (in seconds) when the OTP codes should change.
- @param enrollmentCompletionDeadline The timestamp by which TOTP enrollment should be completed. This can be used by callers to show a countdown of when to enter OTP code by.
- @param sessionInfo
+ @param enrollmentCompletionDeadline The timestamp by which TOTP enrollment should be completed.
+ This can be used by callers to show a countdown of when to enter OTP code by.
+ @param sessionInfo Additional session information.
  */
 - (instancetype)initWithSecretKey:(NSString *)secretKey
                  hashingAlgorithm:(NSString *)hashingAlgorithm
@@ -60,7 +77,6 @@ NS_ASSUME_NONNULL_BEGIN
               codeIntervalSeconds:(NSInteger)codeIntervalSeconds
      enrollmentCompletionDeadline:(NSDate *)enrollmentCompletionDeadline
                       sessionInfo:(NSString *)sessionInfo;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -16,6 +16,8 @@
 
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRFinalizeMFAEnrollmentRequest.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 static NSString *const kFinalizeMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:finalize";
 
 /** @var kTenantIDKey
@@ -28,7 +30,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                    phoneVerificationInfo:
-                       (nonnull FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
+                       (FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -45,8 +47,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                     TOTPVerificationInfo:
-                        (nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)
-                            TOTPVerificationInfo
+                        (FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)TOTPVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -80,3 +81,5 @@ static NSString *const kTenantIDKey = @"tenantId";
 }
 
 @end
+
+NS_ASSUME_NONNULL_END

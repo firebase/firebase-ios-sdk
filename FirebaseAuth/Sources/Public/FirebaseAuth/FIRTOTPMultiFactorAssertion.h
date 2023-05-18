@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  This class is available on iOS only.
  */
 NS_SWIFT_NAME(TOTPMultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
-@interface FIRTOTPMultiFactorAssertion : FIRMultiFactorAssertion
+    @interface FIRTOTPMultiFactorAssertion : FIRMultiFactorAssertion
 
 @end
 
