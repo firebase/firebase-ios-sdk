@@ -1641,11 +1641,14 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (void)initializeRecaptchaConfigWithCompletion:
     (nullable void (^)(NSError *_Nullable error))completion {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
-      retrieveRecaptchaConfigForceRefresh:YES
-                               completion:^(NSError *_Nullable error){
-                               }];
+      verifyForceRefresh:YES
+                  action:FIRAuthRecaptchaActionDefault
+              completion:^(NSString *_Nullable token, NSError *_Nullable error){
+                  // Trigger recaptcha verification flow to initialize the recaptcha client and
+                  // config
+              }];
 #endif
 }
 

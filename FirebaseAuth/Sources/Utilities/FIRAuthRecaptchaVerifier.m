@@ -33,6 +33,7 @@ static const NSDictionary *actionToStringMap;
 
 static NSString *const kClientType = @"CLIENT_TYPE_IOS";
 static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
+static NSString *const kFakeToken = @"NO_RECAPTCHA";
 
 @implementation FIRAuthRecaptchaConfig
 
@@ -77,7 +78,7 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
 - (void)verifyForceRefresh:(BOOL)forceRefresh
                     action:(FIRAuthRecaptchaAction)action
                 completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
   [self
       retrieveRecaptchaConfigForceRefresh:forceRefresh
                                completion:^(NSError *_Nullable error) {
@@ -197,8 +198,12 @@ static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
         NSLog(@"Created custom action");
         [self.recaptchaClient execute:customAction
                            completion:^(NSString *_Nullable token, NSError *_Nullable error) {
-                             completion(token, error);
-                             return;
+                             if (!error) {
+                               completion(token, nil);
+                               return;
+                             } else {
+                               completion(kFakeToken, nil);
+                             }
                            }];
       }
     } else {
