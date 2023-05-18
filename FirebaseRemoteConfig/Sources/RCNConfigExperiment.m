@@ -255,11 +255,10 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   changedKeys = [[changedKeys setByAddingObjectsFromSet:activeKeys] mutableCopy];
   changedKeys = [[changedKeys setByAddingObjectsFromSet:fetchedKeys] mutableCopy];
 
-  NSSet<NSString *> *allKeys = [[NSSet alloc] init];
-  allKeys = [allKeys setByAddingObjectsFromSet:changedKeys];
+  NSSet<NSString *> *allKeys = [changedKeys copy];
 
   for (NSString *key in allKeys) {
-    if ([activeKeys valueForKey:key] && [fetchedKeys valueForKey:key]) {
+    if ([activeKeys containsObject:key] && [fetchedKeys containsObject:key]) {
       [changedKeys removeObject:key];
     }
   }
@@ -267,7 +266,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   return changedKeys;
 }
 
-- (NSMutableSet<NSString *> *)getChangedABTExperiments {
+- (NSMutableSet<NSString *> *)getKeysAffectedByChangedExperiments {
   NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
 
   NSMutableDictionary<NSString *, NSDictionary *> *activeExperiments =
@@ -299,7 +298,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
       NSMutableArray *fetchedExperimentKeys =
           [self extractConfigKeysFromExperiment:fetchedExperiment];
 
-      if ([self isExperimentMetadataSame:activeExperiment fetchedExperiment:fetchedExperiment]) {
+      if (![self isExperimentMetadataSame:activeExperiment fetchedExperiment:fetchedExperiment]) {
         [changedKeys addObjectsFromArray:activeExperimentKeys];
         [changedKeys addObjectsFromArray:fetchedExperimentKeys];
       } else {

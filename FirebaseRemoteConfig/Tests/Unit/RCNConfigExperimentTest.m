@@ -43,6 +43,7 @@
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
 - (void)updateActiveExperiments;
+- (NSMutableSet<NSString *> *_Nonnull)getKeysAffectedByChangedExperiments;
 @end
 
 @interface RCNConfigExperimentTest : XCTestCase {
@@ -237,6 +238,119 @@
     OCMVerify([experiment updateActiveExperiments]);
     XCTAssertEqualObjects(experiment.activatedExperimentPayloads, @[ payloadData ]);
   }];
+}
+
+- (void)testExperimentDiff_addedExperiment {
+  FIRExperimentController *experimentController =
+      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  id mockExperimentController = OCMPartialMock(experimentController);
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
+                                experimentController:mockExperimentController];
+
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  NSError *dataError;
+  NSMutableDictionary *payload =
+      [NSJSONSerialization JSONObjectWithData:payloadData1
+                                      options:NSJSONReadingMutableContainers
+                                        error:&dataError];
+  [payload setValue:@"exp_2" forKey:@"experimentId"];
+  NSError *jsonError;
+  NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload
+                                                         options:kNilOptions
+                                                           error:&jsonError];
+  experiment.experimentPayloads = [@[ payloadData1, payloadData2 ] mutableCopy];
+
+  NSMutableSet<NSString *> *changedKeys = [experiment getKeysAffectedByChangedExperiments];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
+}
+
+- (void)testExperimentDiff_changedExperimentMetadata {
+  FIRExperimentController *experimentController =
+      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  id mockExperimentController = OCMPartialMock(experimentController);
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
+                                experimentController:mockExperimentController];
+
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  NSError *dataError;
+  NSMutableDictionary *payload =
+      [NSJSONSerialization JSONObjectWithData:payloadData1
+                                      options:NSJSONReadingMutableContainers
+                                        error:&dataError];
+  [payload setValue:@"var_2" forKey:@"variantId"];
+  NSError *jsonError;
+  NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload
+                                                         options:kNilOptions
+                                                           error:&jsonError];
+  experiment.experimentPayloads = [@[ payloadData2 ] mutableCopy];
+
+  NSMutableSet<NSString *> *changedKeys = [experiment getKeysAffectedByChangedExperiments];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
+}
+
+- (void)testExperimentDiff_changedExperimentKeys {
+  FIRExperimentController *experimentController =
+      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  id mockExperimentController = OCMPartialMock(experimentController);
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
+                                experimentController:mockExperimentController];
+
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  NSError *dataError;
+  NSMutableDictionary *payload =
+      [NSJSONSerialization JSONObjectWithData:payloadData1
+                                      options:NSJSONReadingMutableContainers
+                                        error:&dataError];
+  [payload setValue:@[ @"test_key_1", @"test_key_2" ] forKey:@"affectedParameterKeys"];
+  NSError *jsonError;
+  NSData *payloadData2 = [NSJSONSerialization dataWithJSONObject:payload
+                                                         options:kNilOptions
+                                                           error:&jsonError];
+  experiment.experimentPayloads = [@[ payloadData2 ] mutableCopy];
+
+  NSMutableSet<NSString *> *changedKeys = [experiment getKeysAffectedByChangedExperiments];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_2"]);
+}
+
+- (void)testExperimentDiff_deletedExperiment {
+  FIRExperimentController *experimentController =
+      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  id mockExperimentController = OCMPartialMock(experimentController);
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
+                                experimentController:mockExperimentController];
+
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  experiment.experimentPayloads = [@[] mutableCopy];
+
+  NSMutableSet<NSString *> *changedKeys = [experiment getKeysAffectedByChangedExperiments];
+  XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
+}
+
+- (void)testExperimentDiff_noChange {
+  FIRExperimentController *experimentController =
+      [[FIRExperimentController alloc] initWithAnalytics:nil];
+  id mockExperimentController = OCMPartialMock(experimentController);
+  RCNConfigExperiment *experiment =
+      [[RCNConfigExperiment alloc] initWithDBManager:_DBManagerMock
+                                experimentController:mockExperimentController];
+
+  NSData *payloadData1 = [[self class] payloadDataFromTestFile];
+  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  experiment.experimentPayloads = [@[ payloadData1 ] mutableCopy];
+
+  NSMutableSet<NSString *> *changedKeys = [experiment getKeysAffectedByChangedExperiments];
+  XCTAssertTrue([changedKeys count] == 0);
 }
 
 #pragma mark Helpers.

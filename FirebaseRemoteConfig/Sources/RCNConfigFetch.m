@@ -218,7 +218,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
                     @"A fetch is already in progress. Using previous fetch results.");
         FIRRemoteConfigUpdate *update = [self->_content
             getConfigUpdateForNamespace:self->_FIRNamespace
-                  withExperimentChanges:[self->_experiment getChangedABTExperiments]];
+                  withExperimentChanges:[self->_experiment getKeysAffectedByChangedExperiments]];
         return [strongSelf reportCompletionWithStatus:strongSelf->_settings.lastFetchStatus
                                            withUpdate:update
                                             withError:nil
@@ -540,7 +540,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
         // There may still be a difference between fetched and active config
         FIRRemoteConfigUpdate *update = [strongSelf->_content
             getConfigUpdateForNamespace:strongSelf->_FIRNamespace
-                  withExperimentChanges:[self->_experiment getChangedABTExperiments]];
+                  withExperimentChanges:[self->_experiment getKeysAffectedByChangedExperiments]];
         return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusSuccess
                                            withUpdate:update
                                             withError:nil
@@ -619,7 +619,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
       // Compute config update after successful fetch
       FIRRemoteConfigUpdate *update = [strongSelf->_content
           getConfigUpdateForNamespace:strongSelf->_FIRNamespace
-                withExperimentChanges:[self->_experiment getChangedABTExperiments]];
+                withExperimentChanges:[self->_experiment getKeysAffectedByChangedExperiments]];
 
       [strongSelf->_settings
           updateMetadataWithFetchSuccessStatus:YES
