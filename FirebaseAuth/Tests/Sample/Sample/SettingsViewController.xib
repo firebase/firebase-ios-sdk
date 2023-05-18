@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
-    <device id="retina5_9" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14113" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina5_9" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -20,7 +22,7 @@
             <subviews>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="grouped" separatorStyle="default" rowHeight="44" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="4BU-Kb-3Zx">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
-                    <color key="backgroundColor" systemColor="groupTableViewBackgroundColor"/>
+                    <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                     <connections>
                         <outlet property="dataSource" destination="U72-zk-rRG" id="GFT-r0-uBK"/>
                         <outlet property="delegate" destination="U72-zk-rRG" id="uzl-Rm-2qd"/>
@@ -34,7 +36,6 @@
                 <constraint firstItem="4BU-Kb-3Zx" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="UFV-3K-qEw"/>
                 <constraint firstItem="4BU-Kb-3Zx" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="deo-wi-Nmq"/>
             </constraints>
-            <point key="canvasLocation" x="130" y="-12"/>
         </view>
         <customObject id="U72-zk-rRG" customClass="StaticContentTableViewManager">
             <connections>
@@ -42,9 +43,4 @@
             </connections>
         </customObject>
     </objects>
-    <resources>
-        <systemColor name="groupTableViewBackgroundColor">
-            <color red="0.94901960784313721" green="0.94901960784313721" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
-    </resources>
 </document>

@@ -29,5 +29,5 @@ on the Facebook developer site: https://developers.facebook.com/docs/apps/regist
 to obtain such an id.
 */
 
-#define KFACEBOOK_APP_ID 189710277009416
-#define KCONTINUE_URL @""
+#define KFACEBOOK_APP_ID $KFACEBOOK_APP_ID
+#define KCONTINUE_URL $KCONTINUE_URL

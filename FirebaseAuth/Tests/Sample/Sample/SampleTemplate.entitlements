@@ -8,12 +8,7 @@
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:adminsdkintegrationtest.page.link
-https://adminsdkintegrationtest.page.link/&quot;
-https://adminsdkintegrationtest.page.link/
-https://adminsdkintegrationtest.page.link
-https://adminsdkintegrationtest.page.link/&quot;
-https://adminsdkintegrationtest.page.link/</string>
+		<string>applinks:$KAPP_LINKS_DOMAIN</string>
 	</array>
 </dict>
 </plist>
