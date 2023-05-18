@@ -117,11 +117,6 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property(nonatomic, copy, nullable) NSString *captchaResponse;
 
-/** @property clientType
-    @brief The reCAPTCHA client type.
- */
-@property(nonatomic, copy, nullable) NSString *clientType;
-
 /** @property captchaResponse
     @brief The reCAPTCHA version.
  */

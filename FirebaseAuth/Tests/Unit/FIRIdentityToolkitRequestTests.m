@@ -170,9 +170,8 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration
-                                      useIdentityPlatform:YES
-                                               useStaging:NO];
+                                     requestConfiguration:requestConfiguration];
+  request.useIdentityPlatform = YES;
 
   XCTAssertEqualObjects(@"tenant-id", request.tenantID);
 }
