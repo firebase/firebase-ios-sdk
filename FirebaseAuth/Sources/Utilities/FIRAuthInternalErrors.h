@@ -492,6 +492,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeRecaptchaNotEnabled = FIRAuthPublicErrorCodeFlag |
                                                 FIRAuthErrorCodeRecaptchaNotEnabled,
 
+  /** Indicates that the recaptcha sdk is not linked to the app.
+   */
+  FIRAuthInternalErrorCodeRecaptchaSDKNotLinked = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeRecaptchaSDKNotLinked,
+
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
         @brief Indicates an error encoding the RPC request.
         @remarks This is typically due to some sort of unexpected input value.

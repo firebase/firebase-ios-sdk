@@ -450,6 +450,10 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeInvalidReqType = 17207,
 
+    /** Indicates that the recaptcha sdk is not linked.
+     */
+    FIRAuthErrorCodeRecaptchaSDKNotLinked = 17208,
+
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,

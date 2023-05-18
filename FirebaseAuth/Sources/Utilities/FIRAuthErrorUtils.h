@@ -608,6 +608,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSError *)blockingCloudFunctionServerResponseWithMessage:(nullable NSString *)message;
 
+/** @fn recaptchaSDKNotLinkedError
+   @brief Constructs an @c NSError with the @c FIRAuthErrorCodeRecaptchaSDKNotLinked code.
+   @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)recaptchaSDKNotLinkedError;
+
 @end
 
 NS_ASSUME_NONNULL_END

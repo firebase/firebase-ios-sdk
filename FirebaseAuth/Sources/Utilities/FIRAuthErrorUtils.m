@@ -614,6 +614,9 @@ static NSString *const kFIRAuthErrorMessageInvalidRecaptchaVersion =
 static NSString *const kFIRAuthErrorMessageInvalidReqType =
     @"The request is not supported or is invalid.";
 
+static NSString *const kFIRAuthErrorMessageRecaptchaSDKNotLinked =
+    @"The recaptcha SDK is not linked to your app.";
+
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
@@ -794,6 +797,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidRecaptchaVersion;
     case FIRAuthErrorCodeInvalidReqType:
       return kFIRAuthErrorMessageInvalidReqType;
+    case FIRAuthErrorCodeRecaptchaSDKNotLinked:
+      return kFIRAuthErrorMessageRecaptchaSDKNotLinked;
   }
 }
 
@@ -977,6 +982,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_RECAPTCHA_VERSION";
     case FIRAuthErrorCodeInvalidReqType:
       return @"ERROR_INVALID_REQ_TYPE";
+    case FIRAuthErrorCodeRecaptchaSDKNotLinked:
+      return @"ERROR_RECAPTCHA_SDK_NOT_LINKED";
   }
 }
 
@@ -1486,6 +1493,11 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
   NSString *errorMessage = errorDict[@"message"];
 
   return [self errorWithCode:FIRAuthInternalErrorBlockingCloudFunctionError message:errorMessage];
+}
+
++ (NSError *)recaptchaSDKNotLinkedError {
+  return [self errorWithCode:FIRAuthInternalErrorCodeRecaptchaSDKNotLinked
+                     message:kFIRAuthErrorMessageRecaptchaSDKNotLinked];
 }
 
 @end

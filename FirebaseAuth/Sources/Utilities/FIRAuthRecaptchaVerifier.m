@@ -22,6 +22,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
 #if TARGET_OS_IOS
 #import <RecaptchaInterop/RCAActionProtocol.h>
@@ -109,20 +110,20 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                            ^(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
                                              NSError *_Nullable error) {
                                              if (recaptchaClient) {
-                                               NSLog(@"recaptcha client created.");
                                                self.recaptchaClient = recaptchaClient;
                                                [self retrieveRecaptchaTokenWithAction:action
                                                                            completion:completion];
                                              } else if (error) {
-                                               NSLog(@"recaptcha client creatation errored.");
-                                               NSLog(@"Error: %@", error);
+                                               completion(nil, error);
                                              }
                                            });
                                      } else {
-                                       NSLog(@"Method not found");
+                                       completion(nil,
+                                                  [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
                                      }
                                    } else {
-                                     NSLog(@"Recaptcha class not found");
+                                     completion(nil,
+                                                [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
                                    }
                                  } else {
                                    [self retrieveRecaptchaTokenWithAction:action
@@ -195,7 +196,6 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
           [[RecaptchaActionClass alloc] init], customActionSelector, actionToStringMap[@(action)]);
 
       if (customAction) {
-        NSLog(@"Created custom action");
         [self.recaptchaClient execute:customAction
                            completion:^(NSString *_Nullable token, NSError *_Nullable error) {
                              if (!error) {
@@ -207,10 +207,10 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                            }];
       }
     } else {
-      NSLog(@"Method not found");
+      completion(nil, [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
     }
   } else {
-    NSLog(@"RecaptchaAction class not found");
+    completion(nil, [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
   }
 #endif
 }
