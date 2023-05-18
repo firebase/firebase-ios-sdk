@@ -27,10 +27,10 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 @implementation FIRFinalizeMFAEnrollmentRequest
 
-- (instancetype)initWithIDToken:(NSString *)IDToken
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                    phoneVerificationInfo:
-                       (nonnull FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
+                       (FIRAuthProtoFinalizeMFAPhoneRequestInfo *)phoneVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -44,10 +44,10 @@ static NSString *const kTenantIDKey = @"tenantId";
   return self;
 }
 
-- (instancetype)initWithIDToken:(NSString *)IDToken
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
                              displayName:(NSString *)displayName
                     TOTPVerificationInfo:
-                        (nonnull FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)
+                        (FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *)
                             TOTPVerificationInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFAEnrollmentEndPoint
@@ -62,7 +62,7 @@ static NSString *const kTenantIDKey = @"tenantId";
   return self;
 }
 
-- (id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
+- (nullable id)unencodedHTTPRequestBodyWithError:(NSError *__autoreleasing _Nullable *)error {
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   if (_IDToken) {
     postBody[@"idToken"] = _IDToken;

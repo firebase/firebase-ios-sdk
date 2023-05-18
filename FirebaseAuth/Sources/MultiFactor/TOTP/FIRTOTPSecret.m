@@ -23,14 +23,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRTOTPSecret
 
-// explicity synthesize
-@synthesize secretKey = _secretKey;
-@synthesize hashingAlgorithm = _hashingAlgorithm;
-@synthesize enrollmentCompletionDeadline = _enrollmentCompletionDeadline;
-@synthesize codeLength = _codeLength;
-@synthesize codeIntervalSeconds = _codeIntervalSeconds;
-@synthesize sessionInfo = _sessionInfo;
-
 - (instancetype)initWithSecretKey:(NSString *)secretKey
                  hashingAlgorithm:(NSString *)hashingAlgorithm
                        codeLength:(NSInteger)codeLength
@@ -61,13 +53,14 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (void)openInOTPAppWithQRCodeURL:(NSString *)QRCodeURL {
-  NSURL *url = [NSURL URLWithString:QRCodeURL];
-  if ([[UIApplication sharedApplication] canOpenURL:url]) {
-    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-  } else {
-    NSLog(@"Cannot open URL");
-  }
+	NSURL *url = [NSURL URLWithString:QRCodeURL];
+	if ([[UIApplication sharedApplication] canOpenURL:url]) {
+		[[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+	} else {
+		NSLog(@"URL cannot be opened");
+	}
 }
+
 @end
 
 NS_ASSUME_NONNULL_END
