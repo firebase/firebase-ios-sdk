@@ -21,12 +21,24 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
+/**
+ @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
+ (Time-based One Time Password). second factor.
+ This class is available on iOS only.
+ @property secret TOTPSecret
+ @property oneTimePassword one time password string
+ */
 @interface FIRTOTPMultiFactorAssertion ()
 
-@property(nonatomic, copy, readonly) FIRTOTPSecret *secret;
-@property(nonatomic, copy, readonly) NSString *oneTimePassword;
+@property(nonatomic, copy, readonly, nonnull) FIRTOTPSecret *secret;
+@property(nonatomic, copy, readonly, nonnull) NSString *oneTimePassword;
 
+/**
+ @fn initWithSecret
+ @brief initializing function
+ @param secret TOTPSecret
+ @param oneTimePassword one time password string
+ */
 - (instancetype)initWithSecret:(FIRTOTPSecret *)secret oneTimePassword:(NSString *)oneTimePassword;
 
 @end

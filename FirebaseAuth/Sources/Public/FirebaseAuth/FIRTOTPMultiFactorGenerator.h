@@ -21,47 +21,44 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class FIRTOTPMultiFactorGenerator
-    @brief The data structure used to help initialize an assertion for a second factor entity to the
-        Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
-        the assertion.
-        This class is available on iOS only.
-*/
+/**
+ @class FIRTOTPMultiFactorGenerator
+ @brief The data structure used to help initialize an assertion for a second factor entity to the
+ Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
+ the assertion.
+ This class is available on iOS only.
+ */
 NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
-    @interface FIRTOTPMultiFactorGenerator : NSObject
+@interface FIRTOTPMultiFactorGenerator : NSObject
 
-/** @fn generateSecretWithMultiFactorSession
-                @brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for
-   generating a QRCode URL or inputting into a TOTP App. This method uses the auth instance
-   corresponding to the user in the multiFactorSession.
-                @param session The multiFactorSession instance.
-                @param completion Completion block
-*/
+/**
+ @fn generateSecretWithMultiFactorSession
+ @brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a QRCode URL or inputting into a TOTP App. This method uses the auth instance corresponding to the user in the multiFactorSession.
+ @param session The multiFactorSession instance.
+ @param completion Completion block
+ */
 
 + (void)generateSecretWithMultiFactorSession:(FIRMultiFactorSession *)session
-                                  completion:(void (^)(FIRTOTPSecret *_Nullable secret,
-                                                       NSError *_Nullable error))completion;
+																	completion:(void (^)(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error))completion;
 
-/** @fn assertionForEnrollmentWithSecret:
-                @brief Initializes the MFA assertion to confirm ownership of the TOTP second factor.
-   This assertion is used to complete enrollment of TOTP as a second factor.
-                @param secret The TOTP secret.
-                @param oneTimePassword one time password string.
-                @param completion completion block
-*/
-+ (void)assertionForEnrollmentWithSecret:(FIRTOTPSecret *)secret
-                         oneTimePassword:(NSString *)oneTimePassword
-                              completion:(void (^)(FIRTOTPMultiFactorAssertion *_Nullable,
-                                                   NSError *_Nullable))completion;
+/**
+ @fn assertionForEnrollmentWithSecret:
+ @brief Initializes the MFA assertion to confirm ownership of the TOTP second factor. This assertion is used to complete enrollment of TOTP as a second factor.
+ @param secret The TOTP secret.
+ @param oneTimePassword one time password string.
+ */
++ (FIRTOTPMultiFactorAssertion *)assertionForEnrollmentWithSecret: (FIRTOTPSecret *)secret
+																									oneTimePassword: (NSString *)oneTimePassword;
 
-/** @fn assertionForSignInWithenrollmentID:
-    @brief Initializes the MFA assertion to confirm ownership of the totp second factor. This
-   assertion is used to complete signIn with TOTP as a second factor.
-    @param enrollmentID The id that identifies the enrolled TOTP second factor.
-    @param oneTimePassword one time password string.
-*/
+/**
+ @fn assertionForSignInWithenrollmentID:
+ @brief Initializes the MFA assertion to confirm ownership of the totp second factor. This
+ assertion is used to complete signIn with TOTP as a second factor.
+ @param enrollmentID The id that identifies the enrolled TOTP second factor.
+ @param oneTimePassword one time password string.
+ */
 + (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
-                                                    oneTimePassword:(NSString *)oneTimePassword;
+																										oneTimePassword:(NSString *)oneTimePassword;
 
 @end
 

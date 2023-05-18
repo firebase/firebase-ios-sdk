@@ -20,7 +20,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/** @class TOTPSecret
+/**
+ @class TOTPSecret
  */
 NS_SWIFT_NAME(TOTPSecret)
 @interface FIRTOTPSecret : NSObject
@@ -29,26 +30,6 @@ NS_SWIFT_NAME(TOTPSecret)
  @brief Returns the shared secret key/seed used to generate time-based one-time passwords.
  */
 - (NSString *)sharedSecretKey;
-
-/**
- @brief Returns the hashing algorithm used to generate time-based one-time passwords.
- */
-- (NSString *)hashAlgorithm;
-
-/**
- @brief Returns the length of the OTP codes to be generated.
- */
-- (NSInteger)codeLength;
-
-/**
- @brief Returns the interval(in seconds) when the OTP codes should change.
- */
-- (NSInteger)codeIntervalSeconds;
-
-/**
- @brief Returns the timestamp by which enrollment should complete.
- */
-- (NSDate *)enrollmentCompletionDeadline;
 
 /**
  @brief Returns a QRCode URL as described in

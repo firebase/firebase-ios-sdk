@@ -87,22 +87,11 @@
   }
 }
 
-+ (void)assertionForEnrollmentWithSecret:(FIRTOTPSecret *)secret
-                         oneTimePassword:(NSString *)oneTimePassword
-                              completion:(void (^)(FIRTOTPMultiFactorAssertion *_Nullable,
-                                                   NSError *_Nullable))completion {
-  FIRTOTPMultiFactorAssertion *assertion =
-      [[FIRTOTPMultiFactorAssertion alloc] initWithSecret:secret oneTimePassword:oneTimePassword];
-  if (assertion) {
-    completion(assertion, nil);
-  } else {
-    NSError *error =
-        [NSError errorWithDomain:@"com.example.totp"
-                            code:0
-                        userInfo:@{NSLocalizedDescriptionKey : @"Error creating TOTP assertion."}];
-    completion(nil, error);
-  }
++ (FIRTOTPMultiFactorAssertion *)assertionForEnrollmentWithSecret: (FIRTOTPSecret *)secret
+																									oneTimePassword: (NSString *)oneTimePassword {
+		return [[FIRTOTPMultiFactorAssertion alloc] initWithSecret:secret oneTimePassword:oneTimePassword];
 }
+
 @end
 
 #endif

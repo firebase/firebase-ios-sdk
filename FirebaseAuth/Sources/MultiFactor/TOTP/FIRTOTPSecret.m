@@ -53,27 +53,10 @@ NS_ASSUME_NONNULL_BEGIN
   return _secretKey;
 }
 
-- (NSString *)hashAlgorithm {
-  return _hashingAlgorithm;
-}
-
-- (NSInteger)codeLength {
-  return _codeLength;
-}
-
-- (NSInteger)codeIntervalSeconds {
-  return _codeIntervalSeconds;
-}
-
-- (NSDate *)enrollmentCompletionDeadline {
-  return _enrollmentCompletionDeadline;
-}
-
 - (NSString *)generateQRCodeURLWithAccountName:(NSString *)accountName issuer:(NSString *)issuer {
   NSString *urlString = [NSString
       stringWithFormat:@"otpauth://totp/%@:%@?secret=%@&issuer=%@&algorithm=%@&digits=%ld", issuer,
                        accountName, self.secretKey, issuer, self.hashingAlgorithm, self.codeLength];
-  printf(@"%s", [NSString stringWithFormat:@"urlstring look s like = %@", urlString]);
   return urlString;
 }
 
