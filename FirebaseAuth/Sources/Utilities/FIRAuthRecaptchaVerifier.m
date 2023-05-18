@@ -48,7 +48,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
   dispatch_once(&onceToken, ^{
     sharedRecaptchaVerifier = [[self alloc] init];
 
-    providerToStringMap = @{@(FIRAuthRecaptchaProviderPassword) : @"password"};
+    providerToStringMap = @{@(FIRAuthRecaptchaProviderPassword) : @"EMAIL_PASSWORD_PROVIDER"};
 
     actionToStringMap = @{
       @(FIRAuthRecaptchaActionSignInWithPassword) : @"signInWithPassword",
@@ -156,13 +156,21 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                   }
                   FIRAuthRecaptchaConfig *config = [[FIRAuthRecaptchaConfig alloc] init];
                   config.siteKey = [response.recaptchaKey componentsSeparatedByString:@"/"][3];
-
-                  // TODO(chuanr@): retrieve provider enablement status when backend is ready
-                  if (!forceRefresh) {
-                    config.enablementStatus = @{@"password" : @NO};
-                  } else {
-                    config.enablementStatus = @{@"password" : @YES};
+                  NSMutableDictionary *tmpEnablementStatus = [NSMutableDictionary dictionary];
+                  for (NSDictionary *state in response.enforcementState) {
+                    if ([state[@"provider"]
+                            isEqualToString:providerToStringMap[
+                                                @(FIRAuthRecaptchaProviderPassword)]]) {
+                      if ([state[@"enforcementState"] isEqualToString:@"ENFORCE"]) {
+                        tmpEnablementStatus[state[@"provider"]] = @YES;
+                      } else if ([state[@"enforcementState"] isEqualToString:@"AUDIT"]) {
+                        tmpEnablementStatus[state[@"provider"]] = @YES;
+                      } else if ([state[@"enforcementState"] isEqualToString:@"OFF"]) {
+                        tmpEnablementStatus[state[@"provider"]] = @NO;
+                      }
+                    }
                   }
+                  config.enablementStatus = tmpEnablementStatus;
 
                   if ([FIRAuth auth].tenantID == nil) {
                     self->_agentConfig = config;

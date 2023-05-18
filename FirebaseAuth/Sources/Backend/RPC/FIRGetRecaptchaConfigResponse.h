@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *recaptchaKey;
 
+/** @property enforcementState
+    @brief The enforcement state array.
+ */
+@property(nonatomic, nullable) NSArray *enforcementState;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
   _recaptchaKey = [dictionary[@"recaptchaKey"] copy];
-
+  _enforcementState = dictionary[@"recaptchaEnforcementState"];
   return YES;
 }
 
