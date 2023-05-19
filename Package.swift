@@ -675,7 +675,7 @@ let package = Package(
     .binaryTarget(
       name: "FirebaseFirestore",
       url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/11.0.0/FirebaseFirestore.zip",
-      checksum: "3421b49a6a6973d3ba24ccbef570d10a716dd9e2505e58c55b6840b7bee40d4e"
+      checksum: "abcdd6d769e9ff333da429837d0c4b7e6a06540789e92c80c5fa987a577d6923"
     ),
 
     .target(
