@@ -620,14 +620,13 @@ let package = Package(
       dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
       path: "FirebaseDatabaseSwift/Tests/"
     ),
-    .target(
+
+    .binaryTarget(
       name: "FirebaseSharedSwift",
-      path: "FirebaseSharedSwift/Sources",
-      exclude: [
-        "third_party/FirebaseDataEncoder/LICENSE",
-        "third_party/FirebaseDataEncoder/METADATA",
-      ]
+      url: "https://dl.google.com/firebase/ios/experimental/bin/sharedswift/11.0.0/FirebaseSharedSwift.zip",
+      checksum: "e59fb2b25245b907599b8c667b859f2e9ffbf12dfd2c4353d218a812d6beae76"
     ),
+
     .testTarget(
       name: "FirebaseSharedSwiftTests",
       dependencies: ["FirebaseSharedSwift"],
@@ -667,14 +666,16 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseCore",
         "leveldb",
+        "FirebaseCoreExtension",
+        "FirebaseSharedSwift",
       ],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     ),
 
     .binaryTarget(
       name: "FirebaseFirestore",
-      url: "https://dl.google.com/firebase/ios/bin/firestore/10.10.0/FirebaseFirestore.zip",
-      checksum: "4a0070c4bf7e5ab59359dd8a0e68f402f3ec6c1e189fc39cc44ca88418f26ac4"
+      url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/11.0.0/FirebaseFirestore.zip",
+      checksum: "3421b49a6a6973d3ba24ccbef570d10a716dd9e2505e58c55b6840b7bee40d4e"
     ),
 
     .target(
