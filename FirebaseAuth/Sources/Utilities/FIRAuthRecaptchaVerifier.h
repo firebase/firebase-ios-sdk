@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,16 +49,20 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
   FIRAuthRecaptchaActionSignUpPassword
 };
 
-@interface FIRAuthRecaptchaVerifier : NSObject {
-  FIRAuthRecaptchaConfig *_agentConfig;
-  NSMutableDictionary<NSString *, FIRAuthRecaptchaConfig *> *_tenantConfigs;
-}
+@interface FIRAuthRecaptchaVerifier : NSObject
 
-#if TARGET_OS_IOS
+@property(nonatomic, weak, nullable) FIRAuth *auth;
+
+@property(nonatomic, strong, nullable) FIRAuthRecaptchaConfig *agentConfig;
+
+@property(nonatomic, strong, nullable)
+    NSMutableDictionary<NSString *, FIRAuthRecaptchaConfig *> *tenantConfigs;
+
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 @property(nonatomic, strong) id<RCARecaptchaClientProtocol> recaptchaClient;
 #endif
 
-+ (id)sharedRecaptchaVerifier;
++ (id)sharedRecaptchaVerifier:(nullable FIRAuth *)auth;
 
 - (void)verifyForceRefresh:(BOOL)forceRefresh
                     action:(FIRAuthRecaptchaAction)action

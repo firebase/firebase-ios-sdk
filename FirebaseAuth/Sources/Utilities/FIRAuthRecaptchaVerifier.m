@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
 
 @implementation FIRAuthRecaptchaVerifier
 
-+ (id)sharedRecaptchaVerifier {
++ (id)sharedRecaptchaVerifier:(nullable FIRAuth *)auth {
   static FIRAuthRecaptchaVerifier *sharedRecaptchaVerifier = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -56,6 +56,11 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
       @(FIRAuthRecaptchaActionSignUpPassword) : @"signUpPassword"
     };
   });
+  if (sharedRecaptchaVerifier.auth != auth) {
+    sharedRecaptchaVerifier.agentConfig = nil;
+    sharedRecaptchaVerifier.tenantConfigs = nil;
+    sharedRecaptchaVerifier.auth = auth;
+  }
   return sharedRecaptchaVerifier;
 }
 
@@ -76,10 +81,10 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
   }
 }
 
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 - (void)verifyForceRefresh:(BOOL)forceRefresh
                     action:(FIRAuthRecaptchaAction)action
                 completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
   [self
       retrieveRecaptchaConfigForceRefresh:forceRefresh
                                completion:^(NSError *_Nullable error) {
@@ -130,8 +135,8 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                                                completion:completion];
                                  }
                                }];
-#endif
 }
+#endif
 
 - (void)retrieveRecaptchaConfigForceRefresh:(BOOL)forceRefresh
                                  completion:(nullable FIRAuthRecaptchaConfigCallback)completion {
@@ -187,9 +192,9 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                 }];
 }
 
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 - (void)retrieveRecaptchaTokenWithAction:(FIRAuthRecaptchaAction)action
                               completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
   Class RecaptchaActionClass = NSClassFromString(@"RecaptchaAction");
   if (RecaptchaActionClass) {
     SEL customActionSelector = NSSelectorFromString(@"initWithCustomAction:");
@@ -220,8 +225,8 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
   } else {
     completion(nil, [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
   }
-#endif
 }
+#endif
 
 - (void)injectRecaptchaFields:(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *)request
                      provider:(FIRAuthRecaptchaProvider)provider

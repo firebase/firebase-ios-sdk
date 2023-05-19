@@ -741,15 +741,16 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-  if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
+  if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
           enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
-    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
+    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
         injectRecaptchaFields:request
                      provider:FIRAuthRecaptchaProviderPassword
                        action:FIRAuthRecaptchaActionSignInWithPassword
-                   completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *request) {
+                   completion:^(
+                       FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
                      [FIRAuthBackend
-                         verifyPassword:(FIRVerifyPasswordRequest *)request
+                         verifyPassword:(FIRVerifyPasswordRequest *)requestWithRecaptchaToken
                                callback:^(FIRVerifyPasswordResponse *_Nullable response,
                                           NSError *_Nullable error) {
                                  if (error) {
@@ -774,7 +775,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                       [[underlyingError.userInfo
                           objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey][@"message"]
                           hasPrefix:@"MISSING_RECAPTCHA_TOKEN"]) {
-                    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
+                    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
                         injectRecaptchaFields:request
                                      provider:FIRAuthRecaptchaProviderPassword
                                        action:FIRAuthRecaptchaActionSignInWithPassword
@@ -1639,19 +1640,18 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       }];
 }
 
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 - (void)initializeRecaptchaConfigWithCompletion:
     (nullable void (^)(NSError *_Nullable error))completion {
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-  [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier]
+  [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
       verifyForceRefresh:YES
                   action:FIRAuthRecaptchaActionDefault
-              completion:^(NSString *_Nullable token, NSError *_Nullable error) {
-                // Trigger recaptcha verification flow to initialize the recaptcha client and
-                // config
-                NSLog(@"Recapthca token: %@", token);
+              completion:^(NSString *_Nullable token, NSError *_Nullable error){
+                  // Trigger recaptcha verification flow to initialize the recaptcha client and
+                  // config. Recaptcha token will be thrown.
               }];
-#endif
 }
+#endif
 
 #if TARGET_OS_IOS
 #pragma clang diagnostic push

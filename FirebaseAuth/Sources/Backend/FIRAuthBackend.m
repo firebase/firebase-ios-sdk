@@ -1156,10 +1156,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
       return;
     }
 
-    //    NSLog(@"!!!!!!!!!!!!!!");
-    //    NSLog([[request requestURL] description]);
-    //    NSLog([NSString stringWithFormat:@"%@", postBody]);
-
     NSJSONWritingOptions JSONWritingOptions = 0;
 #if DEBUG
     JSONWritingOptions |= NSJSONWritingPrettyPrinted;
