@@ -29,8 +29,7 @@ static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.GACAppAtt
 
 @interface GACAppAttestKeyIDStorage ()
 
-@property(nonatomic, readonly) NSString *appName;
-@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) NSString *keySuffix;
 
 /// The app attest key ID is stored using `NSUserDefaults` .
 @property(nonatomic, readonly) NSUserDefaults *userDefaults;
@@ -39,11 +38,10 @@ static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.GACAppAtt
 
 @implementation GACAppAttestKeyIDStorage
 
-- (instancetype)initWithAppName:(NSString *)appName appID:(NSString *)appID {
+- (instancetype)initWithKeySuffix:(NSString *)keySuffix {
   self = [super init];
   if (self) {
-    _appName = [appName copy];
-    _appID = [appID copy];
+    _keySuffix = [keySuffix copy];
     _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:kKeyIDStorageDefaultsSuiteName];
   }
   return self;
@@ -83,11 +81,7 @@ static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.GACAppAtt
 }
 
 - (NSString *)keyIDStorageKey {
-  return [[self class] keyIDStorageKeyForAppName:self.appName appID:self.appID];
-}
-
-+ (NSString *)keyIDStorageKeyForAppName:(NSString *)appName appID:(NSString *)appID {
-  return [NSString stringWithFormat:@"app_attest_keyID.%@.%@", appName, appID];
+  return [NSString stringWithFormat:@"app_attest_keyID.%@", self.keySuffix];
 }
 
 @end
