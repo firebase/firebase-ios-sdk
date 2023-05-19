@@ -230,13 +230,13 @@ internal func FunctionsErrorForResponse(status: NSInteger,
       } else {
         description = code.descriptionForErrorCode
       }
-      
+
       // If the code in the body is invalid, treat the whole response as malformed.
       guard code != .internal else {
         return code.generatedError(userInfo: [NSLocalizedDescriptionKey: description])
       }
     }
-    
+
     details = errorDetails["details"] as AnyObject?
     if let innerDetails = details {
       // Just ignore the details if there an error decoding them.
