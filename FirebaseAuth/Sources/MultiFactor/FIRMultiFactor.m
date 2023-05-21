@@ -67,7 +67,7 @@ static NSString *kUserCodingKey = @"user";
         [[FIRAuthProtoFinalizeMFAPhoneRequestInfo alloc]
             initWithSessionInfo:phoneAssertion.authCredential.verificationID
                verificationCode:phoneAssertion.authCredential.verificationCode];
-    FIRFinalizeMFAEnrollmentRequest *request =
+    request =
         [[FIRFinalizeMFAEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
                                                      displayName:displayName
                                            phoneVerificationInfo:finalizeMFAPhoneRequestInfo
@@ -79,7 +79,7 @@ static NSString *kUserCodingKey = @"user";
         [[FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo alloc]
             initWithSessionInfo:TOTPAssertion.secret.sessionInfo
                verificationCode:TOTPAssertion.oneTimePassword];
-    FIRFinalizeMFAEnrollmentRequest *request =
+    request =
         [[FIRFinalizeMFAEnrollmentRequest alloc] initWithIDToken:self.user.rawAccessToken
                                                      displayName:displayName
                                             TOTPVerificationInfo:finalizeMFATOTPRequestInfo

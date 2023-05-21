@@ -27,7 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
  @brief Identifies the current session to enroll a second factor or to complete sign in when
  previously enrolled. It contains additional context on the existing user, notably the confirmation
  that the user passed the first factor challenge.
- @brief currentUser
  */
 
 @interface FIRMultiFactorSession ()
@@ -41,11 +40,11 @@ first factor
 */
 @property(nonatomic) NSString *MFAPendingCredential;
 /**
-@brief
+@brief Multi factor info for the current user.
 */
 @property(nonatomic) FIRMultiFactorInfo *multiFactorInfo;
 /**
-@brief
+@brief Current user object
 */
 @property(nonatomic) FIRUser *currentUser;
 

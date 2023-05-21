@@ -25,7 +25,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 /**
- @interface FIRTOTPSecret
  @brief Internal header extending TOTPSecret class.
  */
 @interface FIRTOTPSecret ()
