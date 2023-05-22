@@ -36,6 +36,7 @@ FOUNDATION_EXPORT NSString *const kGACAppCheckTokenNotificationKey NS_SWIFT_NAME
 /// `userInfo` key for the `AppCheckToken` in `AppCheckTokenDidChangeNotification`.
 FOUNDATION_EXPORT NSString *const kGACAppCheckAppNameNotificationKey NS_SWIFT_NAME(InternalAppCheckAppNameNotificationKey);
 
+/// A class used to manage App Check tokens for a given resource.
 NS_SWIFT_NAME(InternalAppCheck)
 @interface GACAppCheck : NSObject <GACAppCheckInterop>
 
