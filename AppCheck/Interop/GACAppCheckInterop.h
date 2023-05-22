@@ -43,6 +43,14 @@ NS_SWIFT_NAME(InternalAppCheckInterop) @protocol GACAppCheckInterop
 /// `tokenDidChangeNotificationName`.
 - (NSString *)notificationAppNameKey;
 
+// MARK: - Optional API
+
+@optional
+
+/// Retrieve a new limited-use App Check token
+- (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandlerInterop)handler
+    NS_SWIFT_NAME(getLimitedUseToken(completion:));
+
 @end
 
 NS_ASSUME_NONNULL_END
