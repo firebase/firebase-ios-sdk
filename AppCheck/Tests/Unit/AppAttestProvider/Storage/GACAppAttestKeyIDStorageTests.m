@@ -22,9 +22,11 @@
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 
+static NSString *const kAppName = @"GACAppAttestKeyIDStorageTestsApp";
+static NSString *const kAppID = @"app_id";
+
 @interface GACAppAttestKeyIDStorageTests : XCTestCase
-@property(nonatomic) NSString *appName;
-@property(nonatomic) NSString *appID;
+@property(nonatomic) NSString *keySuffix;
 @property(nonatomic) GACAppAttestKeyIDStorage *storage;
 @end
 
@@ -33,9 +35,8 @@
 - (void)setUp {
   [super setUp];
 
-  self.appName = @"GACAppAttestKeyIDStorageTestsApp";
-  self.appID = @"app_id";
-  self.storage = [[GACAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID];
+  self.keySuffix = [NSString stringWithFormat:@"%@.%@", kAppName, kAppID];
+  self.storage = [[GACAppAttestKeyIDStorage alloc] initWithKeySuffix:self.keySuffix];
 }
 
 - (void)tearDown {
@@ -48,7 +49,7 @@
 }
 
 - (void)testInitWithApp {
-  XCTAssertNotNil([[GACAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID]);
+  XCTAssertNotNil([[GACAppAttestKeyIDStorage alloc] initWithKeySuffix:self.keySuffix]);
 }
 
 - (void)testSetAndGetAppAttestKeyID {
@@ -81,15 +82,15 @@
 
 - (void)testSetGetAppAttestKeyIDPerApp {
   // Assert storages for apps with the same name can independently set/get app attest key ID.
-  [self assertIndependentSetGetForStoragesWithAppName1:self.appName
-                                                appID1:@"app_id"
-                                              appName2:self.appName
+  [self assertIndependentSetGetForStoragesWithAppName1:kAppName
+                                                appID1:@"app_id_1"
+                                              appName2:kAppName
                                                 appID2:@"app_id_2"];
   // Assert storages for apps with the same app ID can independently set/get app attest key ID.
   [self assertIndependentSetGetForStoragesWithAppName1:@"app_1"
-                                                appID1:self.appID
+                                                appID1:kAppID
                                               appName2:@"app_2"
-                                                appID2:self.appID];
+                                                appID2:kAppID];
   // Assert storages for apps with different info can independently set/get app attest key ID.
   [self assertIndependentSetGetForStoragesWithAppName1:@"app_1"
                                                 appID1:@"app_id_1"
@@ -103,11 +104,16 @@
                                                 appID1:(NSString *)appID1
                                               appName2:(NSString *)appName2
                                                 appID2:(NSString *)appID2 {
+  NSString *keySuffix1 = [GACAppAttestKeyIDStorageTests storageKeySuffixForAppName:appName1
+                                                                             appID:appID1];
+  NSString *keySuffix2 = [GACAppAttestKeyIDStorageTests storageKeySuffixForAppName:appName2
+                                                                             appID:appID2];
+
   // Create two storages.
-  GACAppAttestKeyIDStorage *storage1 = [[GACAppAttestKeyIDStorage alloc] initWithAppName:appName1
-                                                                                   appID:appID1];
-  GACAppAttestKeyIDStorage *storage2 = [[GACAppAttestKeyIDStorage alloc] initWithAppName:appName2
-                                                                                   appID:appID2];
+  GACAppAttestKeyIDStorage *storage1 =
+      [[GACAppAttestKeyIDStorage alloc] initWithKeySuffix:keySuffix1];
+  GACAppAttestKeyIDStorage *storage2 =
+      [[GACAppAttestKeyIDStorage alloc] initWithKeySuffix:keySuffix2];
   // 1. Independently set app attest key IDs for the two storages.
   NSString *appAttestKeyID1 = @"app_attest_key_ID1";
   FBLPromise *setPromise1 = [storage1 setAppAttestKeyID:appAttestKeyID1];
@@ -141,5 +147,14 @@
   [storage2 setAppAttestKeyID:nil];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 }
+
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+
++ (NSString *)storageKeySuffixForAppName:(NSString *)appName appID:(NSString *)appID {
+  return [NSString stringWithFormat:@"%@.%@", appName, appID];
+}
+
+// FIREBASE_APP_CHECK_ONLY_END
 
 @end
