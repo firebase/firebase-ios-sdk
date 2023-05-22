@@ -145,8 +145,8 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
-  GACAppAttestKeyIDStorage *keyIDStorage =
-      [[GACAppAttestKeyIDStorage alloc] initWithAppName:app.name appID:app.options.googleAppID];
+  GACAppAttestKeyIDStorage *keyIDStorage = [[GACAppAttestKeyIDStorage alloc]
+      initWithKeySuffix:[GACAppAttestProvider storageKeySuffixForApp:app]];
 
   // TODO(andrewheard): Remove from generic App Check SDK.
   // FIREBASE_APP_CHECK_ONLY_BEGIN
@@ -507,6 +507,10 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
 + (NSString *)resourceNameFromApp:(FIRApp *)app {
   return [NSString
       stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
+}
+
++ (NSString *)storageKeySuffixForApp:(FIRApp *)app {
+  return [NSString stringWithFormat:@"%@.%@", app.name, app.options.googleAppID];
 }
 
 // FIREBASE_APP_CHECK_ONLY_END
