@@ -60,9 +60,6 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
 
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 @property(nonatomic, strong) id<RCARecaptchaClientProtocol> recaptchaClient;
-#endif
-
-+ (id)sharedRecaptchaVerifier:(nullable FIRAuth *)auth;
 
 - (void)verifyForceRefresh:(BOOL)forceRefresh
                     action:(FIRAuthRecaptchaAction)action
@@ -74,6 +71,9 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
                    completion:(nullable FIRAuthInjectRequestCallback)completion;
 
 - (BOOL)enablementStatusForProvider:(FIRAuthRecaptchaProvider)provider;
+#endif
+
++ (id)sharedRecaptchaVerifier:(nullable FIRAuth *)auth;
 
 @end
 

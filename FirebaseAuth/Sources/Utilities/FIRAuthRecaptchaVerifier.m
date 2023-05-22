@@ -72,6 +72,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
   }
 }
 
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 - (BOOL)enablementStatusForProvider:(FIRAuthRecaptchaProvider)provider {
   if ([FIRAuth auth].tenantID == nil) {
     return [self->_agentConfig.enablementStatus[providerToStringMap[@(provider)]] boolValue];
@@ -81,7 +82,6 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
   }
 }
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 - (void)verifyForceRefresh:(BOOL)forceRefresh
                     action:(FIRAuthRecaptchaAction)action
                 completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
@@ -136,7 +136,6 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                  }
                                }];
 }
-#endif
 
 - (void)retrieveRecaptchaConfigForceRefresh:(BOOL)forceRefresh
                                  completion:(nullable FIRAuthRecaptchaConfigCallback)completion {
@@ -192,7 +191,6 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                 }];
 }
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 - (void)retrieveRecaptchaTokenWithAction:(FIRAuthRecaptchaAction)action
                               completion:(nullable FIRAuthRecaptchaTokenCallback)completion {
   Class RecaptchaActionClass = NSClassFromString(@"RecaptchaAction");
@@ -226,7 +224,6 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
     completion(nil, [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
   }
 }
-#endif
 
 - (void)injectRecaptchaFields:(FIRIdentityToolkitRequest<FIRAuthRPCRequest> *)request
                      provider:(FIRAuthRecaptchaProvider)provider
@@ -253,5 +250,6 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                    }
                                  }];
 }
+#endif
 
 @end
