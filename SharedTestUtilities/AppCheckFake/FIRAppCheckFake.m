@@ -24,6 +24,9 @@
   self = [super init];
   if (self) {
     _tokenResult = [[FIRAppCheckTokenResultFake alloc] initWithToken:@"fake_valid_token" error:nil];
+    _limitedUseTokenResult =
+        [[FIRAppCheckTokenResultFake alloc] initWithToken:@"fake_limited_use_valid_token"
+                                                    error:nil];
   }
   return self;
 }
@@ -32,6 +35,12 @@
                     completion:(nonnull FIRAppCheckTokenHandlerInterop)handler {
   dispatch_async(dispatch_get_main_queue(), ^{
     handler(self.tokenResult);
+  });
+}
+
+- (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    handler(self.limitedUseTokenResult);
   });
 }
 

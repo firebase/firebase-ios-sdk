@@ -43,6 +43,14 @@ NS_SWIFT_NAME(AppCheckInterop) @protocol FIRAppCheckInterop
 /// `tokenDidChangeNotificationName`.
 - (NSString *)notificationAppNameKey;
 
+// MARK: - Optional API
+
+@optional
+
+/// Retrieve a new limited-use Firebase App Check token
+- (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler
+    NS_SWIFT_NAME(getLimitedUseToken(completion:));
+
 @end
 
 NS_ASSUME_NONNULL_END
