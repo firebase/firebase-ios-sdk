@@ -77,7 +77,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly, nullable) id<GACAppCheckTokenRefresherProtocol> tokenRefresher;
 
 @property(nonatomic, nullable) FBLPromise<GACAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
-@property(nonatomic, nullable) FBLPromise<GACAppCheckToken *> *ongoingLimitedUseTokenPromise;
 
 @end
 
@@ -155,7 +154,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 - (void)limitedUseTokenWithCompletion:(void (^)(GACAppCheckToken *_Nullable token,
                                                 NSError *_Nullable error))handler {
-  [self retrieveLimitedUseToken]
+  [self limitedUseToken]
       .then(^id _Nullable(GACAppCheckToken *token) {
         handler(token, nil);
         return token;
@@ -178,6 +177,21 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(GACAppCheckTokenHandlerInterop)handler {
   [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
+      .then(^id _Nullable(GACAppCheckToken *token) {
+        GACAppCheckTokenResult *result = [[GACAppCheckTokenResult alloc] initWithToken:token.token
+                                                                                 error:nil];
+        handler(result);
+        return result;
+      })
+      .catch(^(NSError *_Nonnull error) {
+        GACAppCheckTokenResult *result =
+            [[GACAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
+        handler(result);
+      });
+}
+
+- (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandlerInterop)handler {
+  [self limitedUseToken]
       .then(^id _Nullable(GACAppCheckToken *token) {
         GACAppCheckTokenResult *result = [[GACAppCheckTokenResult alloc] initWithToken:token.token
                                                                                  error:nil];
@@ -254,26 +268,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
     return token;
   });
-}
-
-- (FBLPromise<GACAppCheckToken *> *)retrieveLimitedUseToken {
-  return [FBLPromise do:^id _Nullable {
-    if (self.ongoingLimitedUseTokenPromise == nil) {
-      // Kick off a new operation only when there is not an ongoing one.
-      self.ongoingLimitedUseTokenPromise =
-          [self limitedUseToken]
-              // Release the ongoing operation promise on completion.
-              .then(^GACAppCheckToken *(GACAppCheckToken *token) {
-                self.ongoingLimitedUseTokenPromise = nil;
-                return token;
-              })
-              .recover(^NSError *(NSError *error) {
-                self.ongoingLimitedUseTokenPromise = nil;
-                return error;
-              });
-    }
-    return self.ongoingLimitedUseTokenPromise;
-  }];
 }
 
 - (FBLPromise<GACAppCheckToken *> *)refreshToken {
