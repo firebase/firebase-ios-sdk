@@ -114,7 +114,7 @@ static FIRApp *sDefaultApp;
   if (!options) {
 #if DEBUG
     [self findMisnamedGoogleServiceInfoPlist];
-#endif // DEBUG
+#endif  // DEBUG
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"`FirebaseApp.configure()` could not find "
                        @"a valid GoogleService-Info.plist in your project. Please download one "
@@ -913,6 +913,6 @@ static FIRApp *sDefaultApp;
     }
   }
 }
-#endif // DEBUG
+#endif  // DEBUG
 
 @end
