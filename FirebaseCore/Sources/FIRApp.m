@@ -891,7 +891,6 @@ static FIRApp *sDefaultApp;
   for (NSBundle *bundle in [NSBundle allBundles]) {
     // Not recursive, but we're looking for misnames, not people accidentally
     // hiding their config file in a subdirectory of their bundle.
-    // This is only really designed for iOS.
     NSArray *plistPaths = [bundle pathsForResourcesOfType:@"plist" inDirectory:nil];
     for (NSString *path in plistPaths) {
       @autoreleasepool {
