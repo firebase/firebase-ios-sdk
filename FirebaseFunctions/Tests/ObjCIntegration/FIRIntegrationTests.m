@@ -226,7 +226,7 @@ static NSString *const kDefaultProjectID = @"functions-integration-test";
                 completion:^(FIRHTTPSCallableResult *_Nullable result, NSError *_Nullable error) {
                   XCTAssertNotNil(error);
                   XCTAssertEqual(FIRFunctionsErrorCodeInternal, error.code);
-                  XCTAssertNotEqualObjects(@"INTERNAL", error.localizedDescription);
+                  XCTAssertEqualObjects(@"invalid response", error.localizedDescription);
                   [expectation fulfill];
                 }];
   [self waitForExpectations:@[ expectation ] timeout:10];

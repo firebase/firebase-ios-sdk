@@ -1,3 +1,6 @@
+# 10.11.0
+- [fixed] Provide more detail for internal errors. (#11310)
+
 # 10.10.0
 - [fixed] Fixed potential memory leak of Functions instances. (#11248)
 - [added] Callable functions can now opt in to using limited-use App Check

@@ -78,7 +78,7 @@ exports.unknownErrorTest = functions.https.onRequest((request, response) => {
   response.status(400).send({
     error: {
       status: 'THIS_IS_NOT_VALID',
-      message: 'this should be ignored',
+      message: 'invalid response',
     },
   });
 });
