@@ -44,13 +44,11 @@ typedef void (^GACAppCheckAPIRequestHook)(NSMutableURLRequest *request);
 /**
  * The default initializer.
  * @param session The URL session used to make network requests.
- * @param APIKey The Firebase project API key (see `FIROptions.APIKey`).
- * @param appID The Firebase app ID (see `FIROptions.googleAppID`).
+ * @param APIKey The Google Cloud Platform API key, if needed, or nil.
  * @param requestHooks Hooks that will be invoked on requests through this service.
  */
 - (instancetype)initWithURLSession:(NSURLSession *)session
-                            APIKey:(NSString *)APIKey
-                             appID:(NSString *)appID
+                            APIKey:(nullable NSString *)APIKey
                       requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
 
 @end
