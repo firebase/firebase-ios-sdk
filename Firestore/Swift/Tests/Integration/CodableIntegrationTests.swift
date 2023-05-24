@@ -16,7 +16,6 @@
 
 import Foundation
 import FirebaseFirestore
-@testable import FirebaseFirestoreSwift
 
 class CodableIntegrationTests: FSTIntegrationTestCase {
   private enum WriteFlavor {

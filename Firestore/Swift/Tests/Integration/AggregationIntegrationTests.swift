@@ -15,7 +15,6 @@
  */
 
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import Foundation
 
 // TODO(sum/avg) remove `sumAvgIsPublic` from the directive below to enable these tests when sum/avg is public

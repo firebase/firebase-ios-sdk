@@ -16,7 +16,6 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseFirestoreSwift
 import XCTest
 
 class FirestoreEncoderTests: XCTestCase {
