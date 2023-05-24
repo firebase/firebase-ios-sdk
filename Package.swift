@@ -92,10 +92,6 @@ let package = Package(
       targets: ["FirebaseFirestoreTarget"]
     ),
     .library(
-      name: "FirebaseFirestoreSwift",
-      targets: ["FirebaseFirestoreSwiftTarget"]
-    ),
-    .library(
       name: "FirebaseFunctions",
       targets: ["FirebaseFunctions"]
     ),
@@ -482,7 +478,6 @@ let package = Package(
       name: "FirebaseFirestoreCombineSwift",
       dependencies: [
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
       ],
       path: "FirebaseCombineSwift/Sources/Firestore"
     ),
@@ -676,43 +671,6 @@ let package = Package(
       name: "FirebaseFirestore",
       url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/11.0.0/FirebaseFirestore.zip",
       checksum: "c8b4fc9fa0d0e5eca3f0d598fab2696d95687311ec5882db58b6268ab4c3c20f"
-    ),
-
-    .target(
-      name: "FirebaseFirestoreSwiftTarget",
-      dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS]))],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
-    ),
-
-    .target(
-      name: "FirebaseFirestoreSwift",
-      dependencies: [
-        "FirebaseCore",
-        "FirebaseCoreExtension",
-        "FirebaseFirestoreTarget",
-        "FirebaseSharedSwift",
-      ],
-      path: "Firestore",
-      exclude: [
-        "CHANGELOG.md",
-        "CMakeLists.txt",
-        "Example/",
-        "LICENSE",
-        "Protos/",
-        "README.md",
-        "Source/",
-        "core/",
-        "fuzzing/",
-        "test.sh",
-        "Swift/CHANGELOG.md",
-        "Swift/README.md",
-        "Swift/Tests/",
-        "third_party/nlohmann_json",
-      ],
-      sources: [
-        "Swift/Source/",
-      ]
     ),
 
     // MARK: - Firebase Functions
@@ -1180,7 +1138,6 @@ let package = Package(
         "FirebaseDatabase",
         "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
-        "FirebaseFirestoreSwift",
         "FirebaseFunctions",
         "FirebaseInAppMessaging",
         .target(name: "FirebaseInAppMessagingSwift",
