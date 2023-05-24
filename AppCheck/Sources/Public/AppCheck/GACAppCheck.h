@@ -21,6 +21,7 @@
 @class FIRApp;
 @class GACAppCheckToken;
 @protocol GACAppCheckProvider;
+@protocol GACAppCheckSettingsProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,7 +48,8 @@ NS_SWIFT_NAME(InternalAppCheck)
 /// @param appCheckProvider  An `InternalAppCheckProvider` instance that provides App Check tokens.
 /// @return An instance of `AppCheck` corresponding to the provided `app`.
 - (instancetype)initWithApp:(FIRApp *)app
-           appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider;
+           appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                   settings:(id<GACAppCheckSettingsProtocol>)settings;
 
 /// Requests Firebase app check token. This method should *only* be used if you need to authorize
 /// requests to a non-Firebase backend. Requests to Firebase backend are authorized automatically if

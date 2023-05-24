@@ -160,7 +160,6 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
                                                  APIKey:app.options.APIKey
-                                                  appID:app.options.googleAppID
                                            requestHooks:@[ heartbeatLoggerHook ]];
 
   GACAppAttestAPIService *appAttestAPIService = [[GACAppAttestAPIService alloc]
