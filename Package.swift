@@ -624,7 +624,7 @@ let package = Package(
     .binaryTarget(
       name: "FirebaseSharedSwift",
       url: "https://dl.google.com/firebase/ios/experimental/bin/sharedswift/11.0.0/FirebaseSharedSwift.zip",
-      checksum: "e59fb2b25245b907599b8c667b859f2e9ffbf12dfd2c4353d218a812d6beae76"
+      checksum: "c9f6699932bba781457363daff279b452ac6322283d250cfb5dd860f48c889c7"
     ),
 
     .testTarget(
@@ -675,7 +675,7 @@ let package = Package(
     .binaryTarget(
       name: "FirebaseFirestore",
       url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/11.0.0/FirebaseFirestore.zip",
-      checksum: "abcdd6d769e9ff333da429837d0c4b7e6a06540789e92c80c5fa987a577d6923"
+      checksum: "c8b4fc9fa0d0e5eca3f0d598fab2696d95687311ec5882db58b6268ab4c3c20f"
     ),
 
     .target(
