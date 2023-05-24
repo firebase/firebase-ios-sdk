@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "AppCheck/Sources/Core/GACAppCheckSettings.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,6 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
     _tokenAutoRefreshPolicyInfoPListKey = [tokenAutoRefreshPolicyInfoPListKey copy];
   }
   return self;
+}
+
+- (instancetype)
+    initWitTokenAutoRefreshPolicyUserDefaultsKey:(NSString *)tokenAutoRefreshPolicyUserDefaultsKey
+              tokenAutoRefreshPolicyInfoPListKey:(NSString *)tokenAutoRefreshPolicyInfoPListKey {
+  return [self initWithUserDefaults:[NSUserDefaults standardUserDefaults]
+                                 mainBundle:[NSBundle mainBundle]
+      tokenAutoRefreshPolicyUserDefaultsKey:tokenAutoRefreshPolicyUserDefaultsKey
+         tokenAutoRefreshPolicyInfoPListKey:tokenAutoRefreshPolicyInfoPListKey];
 }
 
 - (BOOL)isTokenAutoRefreshEnabled {

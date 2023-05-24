@@ -80,7 +80,6 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
                                                  APIKey:app.options.APIKey
-                                                  appID:app.options.googleAppID
                                            requestHooks:@[ heartbeatLoggerHook ]];
 
   GACAppCheckDebugProviderAPIService *debugAPIService =
