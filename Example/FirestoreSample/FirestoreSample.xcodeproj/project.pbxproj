@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		8817084426B9593E009E9281 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8817084326B9593E009E9281 /* GoogleService-Info.plist */; };
 		8817084726B95A63009E9281 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084626B95A63009E9281 /* FirebaseFirestore */; };
-		8817084926B95A63009E9281 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084826B95A63009E9281 /* FirebaseFirestoreSwift */; };
 		88327B8826D62908002AA6D9 /* FavouriteFruitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */; };
 		8844BA6126E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */; };
 		88D5E37826EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */; };
@@ -38,7 +37,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8817084726B95A63009E9281 /* FirebaseFirestore in Frameworks */,
-				8817084926B95A63009E9281 /* FirebaseFirestoreSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -135,7 +133,6 @@
 			name = FirestoreSample;
 			packageProductDependencies = (
 				8817084626B95A63009E9281 /* FirebaseFirestore */,
-				8817084826B95A63009E9281 /* FirebaseFirestoreSwift */,
 			);
 			productName = FirestoreSample;
 			productReference = 88FBD98426B9485F00982BF2 /* FirestoreSample.app */;
@@ -406,10 +403,6 @@
 		8817084626B95A63009E9281 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseFirestore;
-		};
-		8817084826B95A63009E9281 /* FirebaseFirestoreSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = "FirebaseFirestoreSwift";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
