@@ -19,8 +19,6 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-@import HeartbeatLoggingTestUtils;
-
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
 
@@ -35,45 +33,11 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-// TODO(andrewheard): Remove from generic App Check SDK.
-// FIREBASE_APP_CHECK_ONLY_BEGIN
-static NSString *const kHeartbeatKey = @"X-firebase-client";
-// FIREBASE_APP_CHECK_ONLY_END
-
-#pragma mark - Fakes
-
-/// A fake heartbeat logger used for dependency injection during testing.
-@interface FIRHeartbeatLoggerFake : NSObject <FIRHeartbeatLoggerProtocol>
-@property(nonatomic, copy, nullable) FIRHeartbeatsPayload * (^onFlushHeartbeatsIntoPayloadHandler)
-    (void);
-@property(nonatomic, copy, nullable) FIRDailyHeartbeatCode (^onHeartbeatCodeForTodayHandler)(void);
-@end
-
-@implementation FIRHeartbeatLoggerFake
-
-- (nonnull FIRHeartbeatsPayload *)flushHeartbeatsIntoPayload {
-  if (self.onFlushHeartbeatsIntoPayloadHandler) {
-    return self.onFlushHeartbeatsIntoPayloadHandler();
-  } else {
-    return nil;
-  }
-}
-
-- (FIRDailyHeartbeatCode)heartbeatCodeForToday {
-  // This API should not be used by the below tests because the AppCheck SDK
-  // uses only the V2 heartbeat API (`flushHeartbeatsIntoPayload`) for getting
-  // heartbeats.
-  [self doesNotRecognizeSelector:_cmd];
-  return FIRDailyHeartbeatCodeNone;
-}
-
-- (void)log {
-  // This API should not be used by the below tests because the AppCheck SDK
-  // does not log heartbeats in it's networking context.
-  [self doesNotRecognizeSelector:_cmd];
-}
-
-@end
+static NSString *const kAPIKeyHeaderKey = @"X-Goog-Api-Key";
+static NSString *const kAPIKeyHeaderValue = @"Test-API-Key";
+static NSString *const kBundleIDHeaderKey = @"X-Ios-Bundle-Identifier";
+static NSString *const kTestHeaderKey = @"X-test-header";
+static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
 
 #pragma mark - GACAppCheckAPIServiceTests
 
@@ -83,10 +47,7 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
 
 @property(nonatomic) id mockURLSession;
 
-@property(nonatomic) NSString *APIKey;
-@property(nonatomic) NSString *appID;
-
-@property(nonatomic) FIRHeartbeatLoggerFake *heartbeatLoggerFake;
+@property(nonatomic) NSMutableDictionary<NSString *, NSString *> *expectedHTTPHeaderFields;
 
 @end
 
@@ -95,22 +56,14 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
 - (void)setUp {
   [super setUp];
 
-  self.APIKey = @"api_key";
-  self.appID = @"app_id";
-
   self.mockURLSession = OCMStrictClassMock([NSURLSession class]);
 
-  self.heartbeatLoggerFake = [[FIRHeartbeatLoggerFake alloc] init];
-  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
-    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                          [self.heartbeatLoggerFake flushHeartbeatsIntoPayload])
-        forHTTPHeaderField:kHeartbeatKey];
-  };
+  self.expectedHTTPHeaderFields = [NSMutableDictionary
+      dictionaryWithDictionary:@{kBundleIDHeaderKey : [[NSBundle mainBundle] bundleIdentifier]}];
 
   self.APIService = [[GACAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
-                                                               APIKey:self.APIKey
-                                                                appID:self.appID
-                                                         requestHooks:@[ heartbeatLoggerHook ]];
+                                                               APIKey:nil
+                                                         requestHooks:nil];
 }
 
 - (void)tearDown {
@@ -119,30 +72,6 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   self.APIService = nil;
   [self.mockURLSession stopMocking];
   self.mockURLSession = nil;
-}
-
-- (void)testDataRequestSuccessWhenNoHeartbeatsNeedSending {
-  // Given
-  FIRHeartbeatsPayload *emptyHeartbeatsPayload =
-      [FIRHeartbeatLoggingTestUtils emptyHeartbeatsPayload];
-  // When
-  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
-    return emptyHeartbeatsPayload;
-  };
-  // Then
-  [self assertDataRequestSuccessWhenSendingHeartbeatsPayload:emptyHeartbeatsPayload];
-}
-
-- (void)testDataRequestSuccessWhenHeartbeatsNeedSending {
-  // Given
-  FIRHeartbeatsPayload *nonEmptyHeartbeatsPayload =
-      [FIRHeartbeatLoggingTestUtils nonEmptyHeartbeatsPayload];
-  // When
-  self.heartbeatLoggerFake.onFlushHeartbeatsIntoPayloadHandler = ^FIRHeartbeatsPayload * {
-    return nonEmptyHeartbeatsPayload;
-  };
-  // Then
-  [self assertDataRequestSuccessWhenSendingHeartbeatsPayload:nonEmptyHeartbeatsPayload];
 }
 
 - (void)testDataRequestNetworkError {
@@ -211,6 +140,158 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   XCTAssertNotNil(failureReason);
   XCTAssertTrue([failureReason containsString:@"300"]);
   XCTAssertTrue([failureReason containsString:responseBodyString]);
+
+  OCMVerifyAll(self.mockURLSession);
+}
+
+- (void)testDataRequestWithRequestHooks {
+  NSURL *URL = [NSURL URLWithString:@"https://some.url.com"];
+  NSString *HTTPMethod = @"POST";
+  NSData *requestBody = [@"Request body" dataUsingEncoding:NSUTF8StringEncoding];
+  NSTimeInterval requestTimeout = 5.0;
+  [self.expectedHTTPHeaderFields setObject:kTestHeaderValue forKey:kTestHeaderKey];
+
+  GACAppCheckAPIRequestHook headerRequestHook = ^(NSMutableURLRequest *request) {
+    [request addValue:kTestHeaderValue forHTTPHeaderField:kTestHeaderKey];
+  };
+  GACAppCheckAPIRequestHook timeoutRequestHook = ^(NSMutableURLRequest *request) {
+    request.timeoutInterval = requestTimeout;
+  };
+  GACAppCheckAPIRequestHook cellularAccessRequestHook = ^(NSMutableURLRequest *request) {
+    request.allowsCellularAccess = NO;
+  };
+
+  self.APIService = [[GACAppCheckAPIService alloc]
+      initWithURLSession:self.mockURLSession
+                  APIKey:nil
+            requestHooks:@[ headerRequestHook, timeoutRequestHook, cellularAccessRequestHook ]];
+
+  // 1. Stub URL session.
+  FIRRequestValidationBlock requestValidation = ^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(request.URL, URL);
+    XCTAssertEqualObjects(request.HTTPMethod, HTTPMethod);
+    XCTAssertEqualObjects(request.HTTPBody, requestBody);
+
+    XCTAssertEqualObjects(request.allHTTPHeaderFields, self.expectedHTTPHeaderFields);
+    XCTAssertEqual(request.timeoutInterval, requestTimeout);
+    XCTAssertEqual(request.allowsCellularAccess, NO);
+
+    return YES;
+  };
+
+  NSData *HTTPResponseBody = [@"A response" dataUsingEncoding:NSUTF8StringEncoding];
+  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
+                                             body:HTTPResponseBody
+                                            error:nil
+                                   URLSessionMock:self.mockURLSession
+                           requestValidationBlock:requestValidation];
+
+  // 2. Send request.
+  __auto_type requestPromise = [self.APIService sendRequestWithURL:URL
+                                                        HTTPMethod:HTTPMethod
+                                                              body:requestBody
+                                                 additionalHeaders:nil];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(requestPromise.isFulfilled);
+  XCTAssertNil(requestPromise.error);
+
+  XCTAssertEqualObjects(requestPromise.value.HTTPResponse, HTTPResponse);
+  XCTAssertEqualObjects(requestPromise.value.HTTPBody, HTTPResponseBody);
+
+  OCMVerifyAll(self.mockURLSession);
+}
+
+- (void)testDataRequestWithAdditionalHeaders {
+  NSURL *URL = [NSURL URLWithString:@"https://some.url.com"];
+  NSString *HTTPMethod = @"POST";
+  NSData *requestBody = [@"Request body" dataUsingEncoding:NSUTF8StringEncoding];
+  NSDictionary<NSString *, NSString *> *additionalHeaders = @{kTestHeaderKey : kTestHeaderValue};
+  [self.expectedHTTPHeaderFields addEntriesFromDictionary:additionalHeaders];
+
+  // 1. Stub URL session.
+  FIRRequestValidationBlock requestValidation = ^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(request.URL, URL);
+    XCTAssertEqualObjects(request.HTTPMethod, HTTPMethod);
+    XCTAssertEqualObjects(request.HTTPBody, requestBody);
+
+    XCTAssertEqualObjects(request.allHTTPHeaderFields, self.expectedHTTPHeaderFields);
+
+    return YES;
+  };
+
+  NSData *HTTPResponseBody = [@"A response" dataUsingEncoding:NSUTF8StringEncoding];
+  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
+                                             body:HTTPResponseBody
+                                            error:nil
+                                   URLSessionMock:self.mockURLSession
+                           requestValidationBlock:requestValidation];
+
+  // 2. Send request.
+  __auto_type requestPromise = [self.APIService sendRequestWithURL:URL
+                                                        HTTPMethod:HTTPMethod
+                                                              body:requestBody
+                                                 additionalHeaders:additionalHeaders];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(requestPromise.isFulfilled);
+  XCTAssertNil(requestPromise.error);
+
+  XCTAssertEqualObjects(requestPromise.value.HTTPResponse, HTTPResponse);
+  XCTAssertEqualObjects(requestPromise.value.HTTPBody, HTTPResponseBody);
+
+  OCMVerifyAll(self.mockURLSession);
+}
+
+- (void)testDataRequestWithAPIKey {
+  NSURL *URL = [NSURL URLWithString:@"https://some.url.com"];
+  NSString *HTTPMethod = @"POST";
+  NSData *requestBody = [@"Request body" dataUsingEncoding:NSUTF8StringEncoding];
+  [self.expectedHTTPHeaderFields setObject:kAPIKeyHeaderValue forKey:kAPIKeyHeaderKey];
+
+  self.APIService = [[GACAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
+                                                               APIKey:kAPIKeyHeaderValue
+                                                         requestHooks:nil];
+
+  // 1. Stub URL session.
+  FIRRequestValidationBlock requestValidation = ^BOOL(NSURLRequest *request) {
+    XCTAssertEqualObjects(request.URL, URL);
+    XCTAssertEqualObjects(request.HTTPMethod, HTTPMethod);
+    XCTAssertEqualObjects(request.HTTPBody, requestBody);
+
+    XCTAssertEqualObjects(request.allHTTPHeaderFields, self.expectedHTTPHeaderFields);
+
+    return YES;
+  };
+
+  NSData *HTTPResponseBody = [@"A response" dataUsingEncoding:NSUTF8StringEncoding];
+  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
+                                             body:HTTPResponseBody
+                                            error:nil
+                                   URLSessionMock:self.mockURLSession
+                           requestValidationBlock:requestValidation];
+
+  // 2. Send request.
+  __auto_type requestPromise = [self.APIService sendRequestWithURL:URL
+                                                        HTTPMethod:HTTPMethod
+                                                              body:requestBody
+                                                 additionalHeaders:nil];
+
+  // 3. Verify.
+  XCTAssert(FBLWaitForPromisesWithTimeout(1));
+
+  XCTAssertTrue(requestPromise.isFulfilled);
+  XCTAssertNil(requestPromise.error);
+
+  XCTAssertEqualObjects(requestPromise.value.HTTPResponse, HTTPResponse);
+  XCTAssertEqualObjects(requestPromise.value.HTTPBody, HTTPResponseBody);
 
   OCMVerifyAll(self.mockURLSession);
 }
@@ -309,63 +390,6 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
 }
 
 #pragma mark - Helpers
-
-- (void)assertDataRequestSuccessWhenSendingHeartbeatsPayload:
-    (nullable FIRHeartbeatsPayload *)heartbeatsPayload {
-  NSURL *URL = [NSURL URLWithString:@"https://some.url.com"];
-  NSDictionary *additionalHeaders = @{@"header1" : @"value1"};
-  NSData *requestBody = [@"Request body" dataUsingEncoding:NSUTF8StringEncoding];
-
-  // 1. Stub URL session.
-  FIRRequestValidationBlock requestValidation = ^BOOL(NSURLRequest *request) {
-    XCTAssertEqualObjects(request.URL, URL);
-
-    NSMutableDictionary<NSString *, NSString *> *expectedHTTPHeaderFields = @{
-      @"X-Goog-Api-Key" : self.APIKey,
-      @"X-Ios-Bundle-Identifier" : [[NSBundle mainBundle] bundleIdentifier],
-      @"header1" : @"value1",
-    }
-                                                                                .mutableCopy;
-
-    NSString *_Nullable heartbeatHeaderValue =
-        FIRHeaderValueFromHeartbeatsPayload(heartbeatsPayload);
-    if (heartbeatHeaderValue) {
-      expectedHTTPHeaderFields[@"X-firebase-client"] = heartbeatHeaderValue;
-    }
-
-    XCTAssertEqualObjects(request.allHTTPHeaderFields, expectedHTTPHeaderFields);
-
-    XCTAssertEqualObjects(request.HTTPMethod, @"POST");
-    XCTAssertEqualObjects(request.HTTPBody, requestBody);
-
-    return YES;
-  };
-
-  NSData *HTTPResponseBody = [@"A response" dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
-  [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
-                                             body:HTTPResponseBody
-                                            error:nil
-                                   URLSessionMock:self.mockURLSession
-                           requestValidationBlock:requestValidation];
-
-  // 2. Send request.
-  __auto_type requestPromise = [self.APIService sendRequestWithURL:URL
-                                                        HTTPMethod:@"POST"
-                                                              body:requestBody
-                                                 additionalHeaders:additionalHeaders];
-
-  // 3. Verify.
-  XCTAssert(FBLWaitForPromisesWithTimeout(1));
-
-  XCTAssertTrue(requestPromise.isFulfilled);
-  XCTAssertNil(requestPromise.error);
-
-  XCTAssertEqualObjects(requestPromise.value.HTTPResponse, HTTPResponse);
-  XCTAssertEqualObjects(requestPromise.value.HTTPBody, HTTPResponseBody);
-
-  OCMVerifyAll(self.mockURLSession);
-}
 
 - (void)stubURLSessionDataTaskPromiseWithResponse:(NSHTTPURLResponse *)HTTPResponse
                                              body:(NSData *)body
