@@ -24,6 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRPersistentCacheSettings (Internal)
 
+@property(nonatomic, getter=isautoCacheIndexEnabled) BOOL autoCacheIndexEnabled;
+
 - (const firebase::firestore::api::PersistentCacheSettings&)internalSettings;
 
 @end

@@ -53,6 +53,12 @@ import FirebaseFirestore
       XCTAssertNil(result)
     }
 
+    func testCanUseAutoIndexing() async throws {
+      let settings = db.settings
+      settings.cacheSettings = PersistentCacheSettings().enableAutomaticCacheIndexing(true)
+      db.settings = settings
+    }
+
     func testCanGetDocumentWithMemoryLruGCEnabled() async throws {
       let settings = db.settings
       settings

@@ -54,6 +54,7 @@ using firebase::firestore::util::ThrowInvalidArgument;
 - (id)copyWithZone:(__unused NSZone *_Nullable)zone {
   FIRPersistentCacheSettings *copy = [[FIRPersistentCacheSettings alloc] init];
   copy.internalSettings = self.internalSettings;
+  copy.autoCacheIndexEnabled = self.autoCacheIndexEnabled;
   return copy;
 }
 
@@ -65,14 +66,21 @@ using firebase::firestore::util::ThrowInvalidArgument;
   return _internalSettings;
 }
 
+- (instancetype)enableAutomaticCacheIndexing:(BOOL)val {
+  self.autoCacheIndexEnabled = val;
+  return self;
+}
+
 - (instancetype)init {
   self = [super init];
   self.internalSettings = PersistentCacheSettings{};
+  self.autoCacheIndexEnabled = false;
   return self;
 }
 
 - (instancetype)initWithSizeBytes:(NSNumber *)size {
   self = [super init];
+  self.autoCacheIndexEnabled = false;
   if (size.longLongValue < Settings::MinimumCacheSizeBytes) {
     ThrowInvalidArgument("Cache size must be set to at least %s bytes",
                          Settings::MinimumCacheSizeBytes);

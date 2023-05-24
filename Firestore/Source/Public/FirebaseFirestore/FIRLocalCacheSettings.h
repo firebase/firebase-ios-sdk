@@ -55,6 +55,8 @@ NS_SWIFT_NAME(PersistentCacheSettings)
  */
 - (instancetype)initWithSizeBytes:(NSNumber *)size;
 
+- (instancetype)enableAutomaticCacheIndexing:(BOOL)val;
+
 @end
 
 /**
