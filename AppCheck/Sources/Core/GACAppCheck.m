@@ -24,10 +24,10 @@
 
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
-#import "AppCheck/Sources/Core/GACAppCheckSettings.h"
 #import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 #import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
@@ -111,13 +111,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 #pragma mark - Public
 
 - (instancetype)initWithApp:(FIRApp *)app
-           appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider {
-  id<GACAppCheckSettingsProtocol> settings = [[GACAppCheckSettings alloc]
-                       initWithUserDefaults:[NSUserDefaults standardUserDefaults]
-                                 mainBundle:[NSBundle mainBundle]
-      tokenAutoRefreshPolicyUserDefaultsKey:[kGACAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix
-                                                stringByAppendingString:app.name]
-         tokenAutoRefreshPolicyInfoPListKey:kGACAppCheckTokenAutoRefreshEnabledInfoPlistKey];
+           appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                   settings:(id<GACAppCheckSettingsProtocol>)settings {
   GACAppCheckTokenRefreshResult *refreshResult =
       [[GACAppCheckTokenRefreshResult alloc] initWithStatusNever];
   GACAppCheckTokenRefresher *tokenRefresher =

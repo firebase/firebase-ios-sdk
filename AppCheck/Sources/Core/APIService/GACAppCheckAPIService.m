@@ -25,8 +25,6 @@
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
 
@@ -40,8 +38,7 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 @interface GACAppCheckAPIService ()
 
 @property(nonatomic, readonly) NSURLSession *URLSession;
-@property(nonatomic, readonly) NSString *APIKey;
-@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly, nullable) NSString *APIKey;
 @property(nonatomic, readonly) NSArray<GACAppCheckAPIRequestHook> *requestHooks;
 
 @end
@@ -52,26 +49,22 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 @synthesize baseURL = _baseURL;
 
 - (instancetype)initWithURLSession:(NSURLSession *)session
-                            APIKey:(NSString *)APIKey
-                             appID:(NSString *)appID
+                            APIKey:(nullable NSString *)APIKey
                       requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
   return [self initWithURLSession:session
                            APIKey:APIKey
-                            appID:appID
                      requestHooks:requestHooks
                           baseURL:kDefaultBaseURL];
 }
 
 - (instancetype)initWithURLSession:(NSURLSession *)session
-                            APIKey:(NSString *)APIKey
-                             appID:(NSString *)appID
+                            APIKey:(nullable NSString *)APIKey
                       requestHooks:(NSArray<GACAppCheckAPIRequestHook> *)requestHooks
                            baseURL:(NSString *)baseURL {
   self = [super init];
   if (self) {
     _URLSession = session;
     _APIKey = APIKey;
-    _appID = appID;
     _requestHooks = requestHooks ? [requestHooks copy] : @[];
     _baseURL = baseURL;
   }
@@ -107,10 +100,8 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
              request.HTTPMethod = HTTPMethod;
              request.HTTPBody = body;
 
-             [request setValue:self.APIKey forHTTPHeaderField:kAPIKeyHeaderKey];
-
-             for (GACAppCheckAPIRequestHook requestHook in self.requestHooks) {
-               requestHook(request);
+             if (self.APIKey) {
+               [request setValue:self.APIKey forHTTPHeaderField:kAPIKeyHeaderKey];
              }
 
              [request setValue:[[NSBundle mainBundle] bundleIdentifier]
@@ -121,6 +112,10 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
                                                      BOOL *_Nonnull stop) {
                    [request setValue:obj forHTTPHeaderField:key];
                  }];
+
+             for (GACAppCheckAPIRequestHook requestHook in self.requestHooks) {
+               requestHook(request);
+             }
 
              return [request copy];
            }];
