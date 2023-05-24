@@ -198,14 +198,14 @@ def parse_sub_api(api_link, sub_api_data_container):
 
   # Parse the HTML content
   soup = BeautifulSoup(html_content, 'html.parser')
-  for s_api in soup.find('div', class_='task-group').find_all('li',
-                                                              class_='item'):
-    api_name = s_api.find('a', class_='token').text
-    sub_api_data_container[api_name] = {'declaration': []}
-    for api_declaration in s_api.find_all('div', class_='language'):
-      api_declaration_text = ' '.join(api_declaration.stripped_strings)
-      sub_api_data_container[api_name]['declaration'].append(
-          api_declaration_text)
+  for s_api_group in soup.find_all('div', class_='task-group'):
+    for s_api in s_api_group.find_all('li', class_='item'):
+      api_name = s_api.find('a', class_='token').text
+      sub_api_data_container[api_name] = {'declaration': []}
+      for api_declaration in s_api.find_all('div', class_='language'):
+        api_declaration_text = ' '.join(api_declaration.stripped_strings)
+        sub_api_data_container[api_name]['declaration'].append(
+            api_declaration_text)
 
 
 def parse_cmdline_args():
