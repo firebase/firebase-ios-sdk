@@ -30,7 +30,6 @@
 		EA7DF59929EF3326005664A7 /* FirebaseDynamicLinks in Frameworks */ = {isa = PBXBuildFile; platformFilter = ios; productRef = EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */; };
 		EA7DF59B29EF3326005664A7 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59A29EF3326005664A7 /* FirebaseFirestore */; };
 		EA7DF59D29EF3326005664A7 /* FirebaseFirestoreCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */; };
-		EA7DF59F29EF3327005664A7 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF59E29EF3327005664A7 /* FirebaseFirestoreSwift */; };
 		EA7DF5A129EF3327005664A7 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5A029EF3327005664A7 /* FirebaseFunctions */; };
 		EA7DF5A329EF3327005664A7 /* FirebaseFunctionsCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5A229EF3327005664A7 /* FirebaseFunctionsCombine-Community */; };
 		EA7DF5A529EF3327005664A7 /* FirebaseInAppMessaging-Beta in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, maccatalyst, tvos, ); productRef = EA7DF5A429EF3327005664A7 /* FirebaseInAppMessaging-Beta */; };
@@ -71,7 +70,6 @@
 				EA7DF58729EF3326005664A7 /* FirebaseAnalyticsSwift in Frameworks */,
 				EA0BC0FF29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion in Frameworks */,
 				EA7DF58329EF3326005664A7 /* FirebaseAnalytics in Frameworks */,
-				EA7DF59F29EF3327005664A7 /* FirebaseFirestoreSwift in Frameworks */,
 				EA7DF5AD29EF3327005664A7 /* FirebaseMLModelDownloader in Frameworks */,
 				EA7DF58B29EF3326005664A7 /* FirebaseAppCheck in Frameworks */,
 				EA7DF58929EF3326005664A7 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
@@ -186,7 +184,6 @@
 				EA7DF59829EF3326005664A7 /* FirebaseDynamicLinks */,
 				EA7DF59A29EF3326005664A7 /* FirebaseFirestore */,
 				EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */,
-				EA7DF59E29EF3327005664A7 /* FirebaseFirestoreSwift */,
 				EA7DF5A029EF3327005664A7 /* FirebaseFunctions */,
 				EA7DF5A229EF3327005664A7 /* FirebaseFunctionsCombine-Community */,
 				EA7DF5A429EF3327005664A7 /* FirebaseInAppMessaging-Beta */,
@@ -550,10 +547,6 @@
 		EA7DF59C29EF3326005664A7 /* FirebaseFirestoreCombine-Community */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = "FirebaseFirestoreCombine-Community";
-		};
-		EA7DF59E29EF3327005664A7 /* FirebaseFirestoreSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseFirestoreSwift;
 		};
 		EA7DF5A029EF3327005664A7 /* FirebaseFunctions */ = {
 			isa = XCSwiftPackageProductDependency;
