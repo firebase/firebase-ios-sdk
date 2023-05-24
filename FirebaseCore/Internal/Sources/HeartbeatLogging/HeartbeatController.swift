@@ -36,7 +36,7 @@ public final class HeartbeatController {
     self.init(id: id, dateProvider: Date.init)
   }
 
-  /// Convenience initializer. Mirrors the semantics of the public intializer with the added benefit of
+  /// Convenience initializer. Mirrors the semantics of the public initializer with the added benefit of
   /// injecting a custom date provider for improved testability.
   /// - Parameters:
   ///   - id: The id to associate this controller's heartbeat storage with.
