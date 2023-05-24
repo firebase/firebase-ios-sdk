@@ -91,101 +91,101 @@
       }
     }
 
-      /// Encodes an instance of `Encodable` and overwrites the encoded data to the document referred
-      ///  by this `DocumentReference`. If no document exists, it is created. If a document already
-      ///  exists, it is overwritten.
-      ///
-      /// - Parameters:
-      ///   - value: An instance of `Encodable` to be encoded to a document.
-      ///   - encoder: An encoder instance to use to run the encoding.
-      /// - Returns: A publisher emitting a `Void` value once the document has been successfully
-      ///   written to the server. This publisher will not emit while the client is offline, though
-      ///   local changes will be visible immediately.
-      func setData<T: Encodable>(from value: T,
-                                 encoder: Firestore.Encoder = Firestore.Encoder()) -> Future<
-        Void,
-        Error
-      > {
-        Future { promise in
-          do {
-            try self.setData(from: value, encoder: encoder) { error in
-              if let error = error {
-                promise(.failure(error))
-              } else {
-                promise(.success(()))
-              }
+    /// Encodes an instance of `Encodable` and overwrites the encoded data to the document referred
+    ///  by this `DocumentReference`. If no document exists, it is created. If a document already
+    ///  exists, it is overwritten.
+    ///
+    /// - Parameters:
+    ///   - value: An instance of `Encodable` to be encoded to a document.
+    ///   - encoder: An encoder instance to use to run the encoding.
+    /// - Returns: A publisher emitting a `Void` value once the document has been successfully
+    ///   written to the server. This publisher will not emit while the client is offline, though
+    ///   local changes will be visible immediately.
+    func setData<T: Encodable>(from value: T,
+                               encoder: Firestore.Encoder = Firestore.Encoder()) -> Future<
+      Void,
+      Error
+    > {
+      Future { promise in
+        do {
+          try self.setData(from: value, encoder: encoder) { error in
+            if let error = error {
+              promise(.failure(error))
+            } else {
+              promise(.success(()))
             }
-          } catch {
-            promise(.failure(error))
           }
+        } catch {
+          promise(.failure(error))
         }
       }
+    }
 
-      /// Encodes an instance of `Encodable` and overwrites the encoded data to the document referred
-      ///  by this `DocumentReference`. If no document exists, it is created. If a document already
-      ///  exists, it is overwritten. If you pass `merge: true`, the provided Encodable will be merged
-      ///   into any existing document.
-      ///
-      /// - Parameters:
-      ///   - value: An instance of `Encodable` to be encoded to a document.
-      ///   - merge: Whether to merge the provided data into any existing document.
-      ///   - encoder: An encoder instance to use to run the encoding.
-      /// - Returns: A publisher emitting a `Void` value once the document has been successfully
-      ///   written to the server. This publisher will not emit while the client is offline, though
-      ///   local changes will be visible immediately.
-      func setData<T: Encodable>(from value: T, merge: Bool,
-                                 encoder: Firestore.Encoder = Firestore.Encoder()) -> Future<
-        Void,
-        Error
-      > {
-        Future { promise in
-          do {
-            try self.setData(from: value, merge: merge, encoder: encoder) { error in
-              if let error = error {
-                promise(.failure(error))
-              } else {
-                promise(.success(()))
-              }
+    /// Encodes an instance of `Encodable` and overwrites the encoded data to the document referred
+    ///  by this `DocumentReference`. If no document exists, it is created. If a document already
+    ///  exists, it is overwritten. If you pass `merge: true`, the provided Encodable will be merged
+    ///   into any existing document.
+    ///
+    /// - Parameters:
+    ///   - value: An instance of `Encodable` to be encoded to a document.
+    ///   - merge: Whether to merge the provided data into any existing document.
+    ///   - encoder: An encoder instance to use to run the encoding.
+    /// - Returns: A publisher emitting a `Void` value once the document has been successfully
+    ///   written to the server. This publisher will not emit while the client is offline, though
+    ///   local changes will be visible immediately.
+    func setData<T: Encodable>(from value: T, merge: Bool,
+                               encoder: Firestore.Encoder = Firestore.Encoder()) -> Future<
+      Void,
+      Error
+    > {
+      Future { promise in
+        do {
+          try self.setData(from: value, merge: merge, encoder: encoder) { error in
+            if let error = error {
+              promise(.failure(error))
+            } else {
+              promise(.success(()))
             }
-          } catch {
-            promise(.failure(error))
           }
+        } catch {
+          promise(.failure(error))
         }
       }
+    }
 
-      /// Encodes an instance of `Encodable` and writes the encoded data to the document referred by
-      /// this `DocumentReference` by only replacing the fields specified under mergeFields. Any field
-      /// that is not specified in mergeFields is ignored and remains untouched. If the document
-      /// doesn’t yet exist, this method creates it and then sets the data.
-      ///
-      /// - Parameters:
-      ///   - value: An instance of `Encodable` to be encoded to a document.
-      ///   - mergeFields: An `Array` that contains a list of `String` or `FieldPath` elements
-      ///   specifying which fields to merge. Fields can contain dots to reference nested fields
-      ///   within the document.
-      ///   - encoder: An encoder instance to use to run the encoding.
-      /// - Returns: A publisher emitting a `Void` value once the document has been successfully
-      ///   written to the server. This publisher will not emit while the client is offline, though
-      ///   local changes will be visible immediately.
-      func setData<T: Encodable>(from value: T, mergeFields: [Any],
-                                 encoder: Firestore.Encoder = Firestore.Encoder()) -> Future<
-        Void,
-        Error
-      > {
-        Future { promise in
-          do {
-            try self.setData(from: value, mergeFields: mergeFields, encoder: encoder) { error in
-              if let error = error {
-                promise(.failure(error))
-              } else {
-                promise(.success(()))
-              }
+    /// Encodes an instance of `Encodable` and writes the encoded data to the document referred by
+    /// this `DocumentReference` by only replacing the fields specified under mergeFields. Any field
+    /// that is not specified in mergeFields is ignored and remains untouched. If the document
+    /// doesn’t yet exist, this method creates it and then sets the data.
+    ///
+    /// - Parameters:
+    ///   - value: An instance of `Encodable` to be encoded to a document.
+    ///   - mergeFields: An `Array` that contains a list of `String` or `FieldPath` elements
+    ///   specifying which fields to merge. Fields can contain dots to reference nested fields
+    ///   within the document.
+    ///   - encoder: An encoder instance to use to run the encoding.
+    /// - Returns: A publisher emitting a `Void` value once the document has been successfully
+    ///   written to the server. This publisher will not emit while the client is offline, though
+    ///   local changes will be visible immediately.
+    func setData<T: Encodable>(from value: T, mergeFields: [Any],
+                               encoder: Firestore.Encoder = Firestore.Encoder()) -> Future<
+      Void,
+      Error
+    > {
+      Future { promise in
+        do {
+          try self.setData(from: value, mergeFields: mergeFields, encoder: encoder) { error in
+            if let error = error {
+              promise(.failure(error))
+            } else {
+              promise(.success(()))
             }
-          } catch {
-            promise(.failure(error))
           }
+        } catch {
+          promise(.failure(error))
         }
       }
+    }
 
     // MARK: - Update Data
 
