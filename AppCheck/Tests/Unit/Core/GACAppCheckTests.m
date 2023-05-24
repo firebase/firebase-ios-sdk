@@ -25,12 +25,12 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheck.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
 
 #import "AppCheck/Interop/GACAppCheckInterop.h"
 #import "AppCheck/Interop/GACAppCheckTokenResultInterop.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheckSettings.h"
 #import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
@@ -131,7 +131,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
       }];
 
   id settingsValidator = [OCMArg checkWithBlock:^BOOL(id obj) {
-    XCTAssert([obj isKindOfClass:[GACAppCheckSettings class]]);
+    XCTAssert([obj conformsToProtocol:@protocol(GACAppCheckSettingsProtocol)]);
     return YES;
   }];
 
@@ -141,25 +141,33 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   OCMExpect([mockTokenRefresher setTokenRefreshHandler:[OCMArg any]]);
 
   // 3. Stub GACAppCheckStorage and validate usage.
-  id mockStorage = OCMClassMock([GACAppCheckStorage class]);
+  id mockStorage = OCMStrictClassMock([GACAppCheckStorage class]);
   OCMExpect([mockStorage alloc]).andReturn(mockStorage);
   OCMExpect([mockStorage initWithTokenKey:tokenKey accessGroup:appGroupID]).andReturn(mockStorage);
 
   // 4. Stub attestation provider.
-  OCMockObject<GACAppCheckProvider> *mockProvider = OCMProtocolMock(@protocol(GACAppCheckProvider));
+  OCMockObject<GACAppCheckProvider> *mockProvider =
+      OCMStrictProtocolMock(@protocol(GACAppCheckProvider));
 
-  // 5. Call init.
-  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithApp:mockApp appCheckProvider:mockProvider];
+  // 5. Stub GACAppCheckSettingsProtocol.
+  OCMockObject<GACAppCheckSettingsProtocol> *mockSettings =
+      OCMStrictProtocolMock(@protocol(GACAppCheckSettingsProtocol));
+
+  // 6. Call init.
+  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithApp:mockApp
+                                          appCheckProvider:mockProvider
+                                                  settings:mockSettings];
   XCTAssert([appCheck isKindOfClass:[GACAppCheck class]]);
 
-  // 6. Verify mocks.
+  // 7. Verify mocks.
   OCMVerifyAll(mockApp);
   OCMVerifyAll(mockAppOptions);
   OCMVerifyAll(mockTokenRefresher);
   OCMVerifyAll(mockStorage);
   OCMVerifyAll(mockProvider);
+  OCMVerifyAll(mockSettings);
 
-  // 7. Stop mocking real class mocks.
+  // 8. Stop mocking real class mocks.
   [mockApp stopMocking];
   mockApp = nil;
   [mockAppOptions stopMocking];
