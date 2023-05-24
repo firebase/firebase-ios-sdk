@@ -16,7 +16,8 @@
 
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
 
-#import "AppCheck/Sources/Core/GACAppCheckSettings.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
+
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTimer.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
 
