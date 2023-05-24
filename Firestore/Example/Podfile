@@ -116,7 +116,6 @@ if is_platform(:ios)
       inherit! :search_paths
 
       pod 'FirebaseSharedSwift', :path => '../../'
-      pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
@@ -153,7 +152,6 @@ if is_platform(:osx)
       inherit! :search_paths
 
       pod 'FirebaseSharedSwift', :path => '../../'
-      pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
@@ -183,7 +181,6 @@ if is_platform(:tvos)
       inherit! :search_paths
 
       pod 'FirebaseSharedSwift', :path => '../../'
-      pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
       pod 'ProtobufCpp', :podspec => 'ProtobufCpp.podspec'
