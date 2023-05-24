@@ -190,13 +190,6 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     runs-on: macos-12
     needs: check
-    strategy:
-      matrix:
-        podspec: [
-          'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
-        ]
-
     steps:
     - uses: actions/checkout@v3
 
@@ -207,7 +200,7 @@ jobs:
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
       run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
             --platforms=ios \
             --allow-warnings \
             --no-analyze
@@ -219,10 +212,6 @@ jobs:
     needs: check
     strategy:
       matrix:
-        podspec: [
-          'FirebaseFirestore.podspec',
-          'FirebaseFirestoreSwift.podspec',
-        ]
         platforms: [
           'macos',
           'tvos',
@@ -242,7 +231,7 @@ jobs:
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
       run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFirestore.podspec \
             ${{ matrix.flags }} \
             --platforms=${{ matrix.platforms }} \
             --allow-warnings \
@@ -262,8 +251,6 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
 
   spm-cron:
     # Don't run on private repo.
@@ -281,8 +268,6 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    - name: Swift Build
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
   # Firebase UI 12
