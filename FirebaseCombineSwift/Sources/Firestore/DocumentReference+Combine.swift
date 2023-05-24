@@ -17,12 +17,6 @@
   import Combine
   import FirebaseFirestore
 
-  #if canImport(FirebaseFirestoreSwift)
-
-    import FirebaseFirestoreSwift
-
-  #endif
-
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   public extension DocumentReference {
@@ -96,8 +90,6 @@
         }
       }
     }
-
-    #if canImport(FirebaseFirestoreSwift)
 
       /// Encodes an instance of `Encodable` and overwrites the encoded data to the document referred
       ///  by this `DocumentReference`. If no document exists, it is created. If a document already
@@ -194,8 +186,6 @@
           }
         }
       }
-
-    #endif
 
     // MARK: - Update Data
 

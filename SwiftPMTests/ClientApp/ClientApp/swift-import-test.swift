@@ -34,7 +34,6 @@ import FirebaseDatabaseSwift
 #endif
 import FirebaseFirestore
 import FirebaseFirestoreCombineSwift
-import FirebaseFirestoreSwift
 import FirebaseFunctions
 import FirebaseFunctionsCombineSwift
 #if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)

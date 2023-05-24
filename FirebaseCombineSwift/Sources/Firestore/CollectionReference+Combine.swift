@@ -17,12 +17,6 @@
   import Combine
   import FirebaseFirestore
 
-  #if canImport(FirebaseFirestoreSwift)
-
-    import FirebaseFirestoreSwift
-
-  #endif
-
   @available(swift 5.0)
   @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *)
   public extension CollectionReference {
@@ -48,8 +42,6 @@
         }
       }
     }
-
-    #if canImport(FirebaseFirestoreSwift)
 
       /// Adds a new document to this collection with the specified data, assigning it a document ID
       /// automatically.
@@ -81,8 +73,6 @@
           }
         }
       }
-
-    #endif
   }
 
 #endif
