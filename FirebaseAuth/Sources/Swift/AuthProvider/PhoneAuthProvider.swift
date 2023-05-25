@@ -274,7 +274,7 @@ import FirebaseCore
                                               callback: callback)
               return
             }
-            callback((response as? SendVerificationCodeResponse)?.verificationID, nil)
+            callback(response?.verificationID, nil)
           }
         }
       }
