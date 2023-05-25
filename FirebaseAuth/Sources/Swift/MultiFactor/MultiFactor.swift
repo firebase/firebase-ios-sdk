@@ -85,7 +85,7 @@ import Foundation
           if let completion {
             completion(error)
           }
-        } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
+        } else if let response = rawResponse {
           user.auth?.completeSignIn(withAccessToken: response.idToken,
                                     accessTokenExpirationDate: nil,
                                     refreshToken: response.refreshToken,
@@ -161,7 +161,7 @@ import Foundation
             completion(error)
           }
         } else {
-          guard let response = rawResponse as? WithdrawMFAResponse else {
+          guard let response = rawResponse else {
             fatalError("TODO")
           }
           user.auth?.completeSignIn(withAccessToken: response.idToken,
