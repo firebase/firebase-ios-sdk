@@ -56,7 +56,7 @@
         @param callback The block to be called either immediately or in future, either when a token
             becomes available, or when timeout occurs, whichever happens earlier.
      */
-    @objc public  func getToken(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
+    @objc public func getToken(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
       if failFastForTesting {
         let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
         callback(nil, error)
