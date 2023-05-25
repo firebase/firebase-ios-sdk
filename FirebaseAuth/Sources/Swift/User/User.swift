@@ -752,7 +752,7 @@ import Foundation
               completeWithError(nil, error)
               return
             }
-            guard let response = rawResponse as? VerifyAssertionResponse else {
+            guard let response = rawResponse else {
               fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
             }
             let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
@@ -933,7 +933,7 @@ import Foundation
               self.phoneNumber = nil
             }
           #endif
-          if let response = rawResponse as? SetAccountInfoResponse,
+          if let response = rawResponse,
              let idToken = response.idToken,
              let refreshToken = response.refreshToken {
             let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
@@ -1309,7 +1309,7 @@ import Foundation
           callback(nil, error)
           return
         }
-        guard let response = rawResponse as? GetAccountInfoResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal FirebaseAuthError: Response should be a GetAccountInfoResponse")
         }
         user.isAnonymous = anonymous
@@ -1419,7 +1419,7 @@ import Foundation
                   callback(error)
                   return
                 }
-                guard let accountInfoResponse = response as? GetAccountInfoResponse else {
+                guard let accountInfoResponse = response else {
                   fatalError("Auth Internal Error: Response is not an GetAccountInfoResponse")
                 }
                 if let users = accountInfoResponse.users {
@@ -1498,7 +1498,7 @@ import Foundation
                 callback(error)
                 return
               }
-              if let accountInfoResponse = response as? SetAccountInfoResponse {
+              if let accountInfoResponse = response {
                 if let idToken = accountInfoResponse.idToken,
                    let refreshToken = accountInfoResponse.refreshToken {
                   let tokenService = SecureTokenService(
@@ -1572,7 +1572,7 @@ import Foundation
           callback(nil, error)
           return
         }
-        guard let accountInfoResponse = response as? GetAccountInfoResponse else {
+        guard let accountInfoResponse = response else {
           fatalError("Internal Error: wrong response type")
         }
         self.update(withGetAccountInfoResponse: accountInfoResponse)
@@ -1661,7 +1661,7 @@ import Foundation
             return
           }
           // Update the new token and refresh user info again.
-          if let verifyResponse = response as? VerifyPhoneNumberResponse {
+          if let verifyResponse = response {
             if let idToken = verifyResponse.idToken,
                let refreshToken = verifyResponse.refreshToken {
               self.tokenService = SecureTokenService(
@@ -1740,7 +1740,7 @@ import Foundation
                                                             error: error)
             return
           }
-          guard let response = rawResponse as? EmailLinkSignInResponse else {
+          guard let response = rawResponse else {
             fatalError("Internal Auth Error: response type is not an EmailLinkSignInResponse")
           }
           guard let idToken = response.idToken,
@@ -1789,7 +1789,7 @@ import Foundation
                                                             error: error)
             return
           }
-          guard let response = rawResponse as? SignInWithGameCenterResponse else {
+          guard let response = rawResponse else {
             fatalError("Internal Auth Error: response type is not an SignInWithGameCenterResponse")
           }
           guard let idToken = response.idToken,
@@ -1867,7 +1867,7 @@ import Foundation
           User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
           return
         }
-        guard let response = rawResponse as? GetAccountInfoResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: response is not a GetAccountInfoResponse")
         }
         self.isAnonymous = false
