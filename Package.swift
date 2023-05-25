@@ -668,7 +668,12 @@ let package = Package(
         "FirebaseCore",
         "leveldb",
       ],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedLibrary("c++"),
+      ]
     ),
 
     .binaryTarget(
