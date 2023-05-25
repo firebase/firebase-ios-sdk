@@ -38,14 +38,14 @@
         @brief The timeout for registering for remote notification.
         @remarks Only tests should access this property.
      */
-    @objc public var timeout = 5
+    @objc public var timeout: TimeInterval = 5
 
     /** @fn initWithApplication:
         @brief Initializes the instance.
         @param application The @c UIApplication to request the token from.
         @return The initialized instance.
      */
-    @objc public init(withApplication application: UIApplication) {
+    @objc public init(withApplication application: AuthAPNSTokenApplication) {
       self.application = application
     }
 
@@ -74,7 +74,7 @@
         self.application.registerForRemoteNotifications()
       }
       let applicableCallbacks = pendingCallbacks
-      let deadline = DispatchTime.now() + .seconds(timeout)
+      let deadline = DispatchTime.now() + timeout
       kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
         // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
         if applicableCallbacks.count == self.pendingCallbacks.count {
@@ -130,8 +130,6 @@
     private func callback(withToken token: AuthAPNSToken?, error: Error?) {
       let pendingCallbacks = self.pendingCallbacks
       self.pendingCallbacks = []
-      let i = pendingCallbacks.count
-      print("starting callbacks \(i)")
       for callback in pendingCallbacks {
         callback(token, error)
       }
