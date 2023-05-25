@@ -78,9 +78,9 @@ class SignUpNewUserTests: RPCBaseTests {
     var rpcResponse: SignUpNewUserResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeSignUpNewUserRequest()) { response, error in
+    AuthBackend.post(with: makeSignUpNewUserRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? SignUpNewUserResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

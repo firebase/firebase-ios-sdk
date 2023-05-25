@@ -87,7 +87,7 @@ class SendVerificationCodeTests: RPCBaseTests {
     var rpcResponse: SendVerificationCodeResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeSendVerificationCodeRequest()) { response, error in
+    AuthBackend.post(with: makeSendVerificationCodeRequest()) { response, error in
       callbackInvoked = true
       rpcResponse = response as? SendVerificationCodeResponse
       rpcError = error as? NSError

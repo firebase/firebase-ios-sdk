@@ -75,9 +75,9 @@ class CreateAuthURITests: RPCBaseTests {
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeAuthURIRequest()) { response, error in
+    AuthBackend.post(with: makeAuthURIRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? CreateAuthURIResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 
@@ -96,9 +96,9 @@ class CreateAuthURITests: RPCBaseTests {
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeAuthURIRequest()) { response, error in
+    AuthBackend.post(with: makeAuthURIRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? CreateAuthURIResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

@@ -81,9 +81,9 @@ class ResetPasswordTests: RPCBaseTests {
     var rpcResponse: ResetPasswordResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeResetPasswordRequest()) { response, error in
+    AuthBackend.post(with: makeResetPasswordRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? ResetPasswordResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

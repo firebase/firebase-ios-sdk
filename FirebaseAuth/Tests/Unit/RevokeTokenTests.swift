@@ -54,9 +54,9 @@ class RevokeTokenTests: RPCBaseTests {
     var rpcResponse: RevokeTokenResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeRevokeTokenRequest()) { response, error in
+    AuthBackend.post(with: makeRevokeTokenRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? RevokeTokenResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 
