@@ -756,7 +756,7 @@ extension User: NSSecureCoding {}
               completeWithError(nil, error)
               return
             }
-            guard let response = rawResponse as? VerifyAssertionResponse else {
+            guard let response = rawResponse else {
               fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
             }
             let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
@@ -937,7 +937,7 @@ extension User: NSSecureCoding {}
               self.phoneNumber = nil
             }
           #endif
-          if let response = rawResponse as? SetAccountInfoResponse,
+          if let response = rawResponse,
              let idToken = response.idToken,
              let refreshToken = response.refreshToken {
             let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
@@ -1314,7 +1314,7 @@ extension User: NSSecureCoding {}
           callback(nil, error)
           return
         }
-        guard let response = rawResponse as? GetAccountInfoResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal FirebaseAuthError: Response should be a GetAccountInfoResponse")
         }
         user.isAnonymous = anonymous
@@ -1424,7 +1424,7 @@ extension User: NSSecureCoding {}
                   callback(error)
                   return
                 }
-                guard let accountInfoResponse = response as? GetAccountInfoResponse else {
+                guard let accountInfoResponse = response else {
                   fatalError("Auth Internal Error: Response is not an GetAccountInfoResponse")
                 }
                 if let users = accountInfoResponse.users {
@@ -1503,7 +1503,7 @@ extension User: NSSecureCoding {}
                 callback(error)
                 return
               }
-              if let accountInfoResponse = response as? SetAccountInfoResponse {
+              if let accountInfoResponse = response {
                 if let idToken = accountInfoResponse.idToken,
                    let refreshToken = accountInfoResponse.refreshToken {
                   let tokenService = SecureTokenService(
@@ -1577,7 +1577,7 @@ extension User: NSSecureCoding {}
           callback(nil, error)
           return
         }
-        guard let accountInfoResponse = response as? GetAccountInfoResponse else {
+        guard let accountInfoResponse = response else {
           fatalError("Internal Error: wrong response type")
         }
         self.update(withGetAccountInfoResponse: accountInfoResponse)
@@ -1746,7 +1746,7 @@ extension User: NSSecureCoding {}
                                                             error: error)
             return
           }
-          guard let response = rawResponse as? EmailLinkSignInResponse else {
+          guard let response = rawResponse else {
             fatalError("Internal Auth Error: response type is not an EmailLinkSignInResponse")
           }
           guard let idToken = response.idToken,
@@ -1795,7 +1795,7 @@ extension User: NSSecureCoding {}
                                                             error: error)
             return
           }
-          guard let response = rawResponse as? SignInWithGameCenterResponse else {
+          guard let response = rawResponse else {
             fatalError("Internal Auth Error: response type is not an SignInWithGameCenterResponse")
           }
           guard let idToken = response.idToken,
@@ -1873,7 +1873,7 @@ extension User: NSSecureCoding {}
           User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
           return
         }
-        guard let response = rawResponse as? GetAccountInfoResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: response is not a GetAccountInfoResponse")
         }
         self.isAnonymous = false
