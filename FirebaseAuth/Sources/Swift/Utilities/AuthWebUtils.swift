@@ -93,7 +93,7 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
       return
     }
 
-    let request = GetProjectConfigRequest_NEW_(requestConfiguration: requestConfiguration)
+    let request = GetProjectConfigRequest(requestConfiguration: requestConfiguration)
     AuthBackend.post(with: request) { response, error in
       if let error = error {
         completion(nil, error)

@@ -14,7 +14,7 @@
 
 import Foundation
 
-public class GetProjectConfigResponse_NEW_: AuthRPCResponse {
+public class GetProjectConfigResponse: AuthRPCResponse {
   
   public var projectID: String?
 
