@@ -67,9 +67,9 @@ class VerifyClientTests: RPCBaseTests {
     var rpcResponse: VerifyClientResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeVerifyClientRequest()) { response, error in
+    AuthBackend.post(with: makeVerifyClientRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? VerifyClientResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

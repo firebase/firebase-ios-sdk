@@ -109,9 +109,9 @@ import XCTest
       var rpcResponse: VerifyPhoneNumberResponse?
       var rpcError: NSError?
 
-      AuthBackend.post(withRequest: makeVerifyPhoneNumberRequest()) { response, error in
+      AuthBackend.post(with: makeVerifyPhoneNumberRequest()) { response, error in
         callbackInvoked = true
-        rpcResponse = response as? VerifyPhoneNumberResponse
+        rpcResponse = response
         rpcError = error as? NSError
       }
 
@@ -141,9 +141,9 @@ import XCTest
       var rpcError: NSError?
 
       AuthBackend
-        .post(withRequest: makeVerifyPhoneNumberRequestWithTemporaryProof()) { response, error in
+        .post(with: makeVerifyPhoneNumberRequestWithTemporaryProof()) { response, error in
           callbackInvoked = true
-          rpcResponse = response as? VerifyPhoneNumberResponse
+          rpcResponse = response
           rpcError = error as? NSError
         }
 

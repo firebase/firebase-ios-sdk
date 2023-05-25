@@ -154,9 +154,9 @@ class VerifyPasswordTests: RPCBaseTests {
     var rpcResponse: VerifyPasswordResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeVerifyPasswordRequest()) { response, error in
+    AuthBackend.post(with: makeVerifyPasswordRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? VerifyPasswordResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

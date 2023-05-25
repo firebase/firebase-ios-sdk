@@ -83,19 +83,18 @@ class RPCBaseTests: XCTestCase {
   /** @fn checkRequest
       @brief Tests the encoding of a request.
    */
-  @discardableResult func checkRequest(request: AuthRPCRequest,
+  @discardableResult func checkRequest(request: any AuthRPCRequest,
                                        expected: String,
                                        key: String,
                                        value: String?,
                                        checkPostBody: Bool = false) throws -> FakeBackendRPCIssuer {
-    AuthBackend.post(withRequest: request) { response, error in
+    AuthBackend.post(with: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
     let rpcIssuer = try XCTUnwrap(rpcIssuer)
     XCTAssertEqual(rpcIssuer.requestURL?.absoluteString, expected)
-    if checkPostBody,
-       let containsPostBody = request.containsPostBody?() {
-      XCTAssertFalse(containsPostBody)
+    if checkPostBody {
+      XCTAssertFalse(request.containsPostBody)
     } else if let requestDictionary = rpcIssuer.decodedRequest as? [String: AnyHashable] {
       XCTAssertEqual(requestDictionary[key], value)
     } else {
@@ -107,7 +106,7 @@ class RPCBaseTests: XCTestCase {
   /** @fn checkBackendError
       @brief This test checks error messagess from the backend map to the expected error codes
    */
-  func checkBackendError(request: AuthRPCRequest,
+  func checkBackendError(request: any AuthRPCRequest,
                          message: String = "",
                          reason: String? = nil,
                          json: [String: AnyHashable]? = nil,
@@ -119,7 +118,7 @@ class RPCBaseTests: XCTestCase {
     var rpcResponse: CreateAuthURIResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: request) { response, error in
+    AuthBackend.post(with: request) { response, error in
       callbackInvoked = true
       rpcResponse = response as? CreateAuthURIResponse
       rpcError = error as? NSError

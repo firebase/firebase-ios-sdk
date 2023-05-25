@@ -154,9 +154,9 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       getEmailVerificationRequest,
     ] {
       let request = try request()
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         callbackInvoked = true
-        rpcResponse = response as? GetOOBConfirmationCodeResponse
+        rpcResponse = response
         rpcError = error as? NSError
       }
 
@@ -184,9 +184,9 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       getEmailVerificationRequest,
     ] {
       let request = try request()
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         callbackInvoked = true
-        rpcResponse = response as? GetOOBConfirmationCodeResponse
+        rpcResponse = response
         rpcError = error as? NSError
       }
 

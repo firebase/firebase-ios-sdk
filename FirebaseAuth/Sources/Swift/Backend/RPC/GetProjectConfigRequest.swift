@@ -27,17 +27,8 @@ public class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  override public func requestURL() -> URL {
-    return URL(string: "")!
-  }
-
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     // TODO: Probably nicer to throw, but what should we throw?
-    fatalError()
-  }
-
-  override public func requestConfiguration() -> AuthRequestConfiguration {
-    // TODO: Figure it out
     fatalError()
   }
 

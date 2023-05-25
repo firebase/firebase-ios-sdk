@@ -58,9 +58,9 @@ class GetProjectConfigTests: RPCBaseTests {
     var rpcResponse: GetProjectConfigResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeGetProjectConfigRequest()) { response, error in
+    AuthBackend.post(with: makeGetProjectConfigRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? GetProjectConfigResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

@@ -17,6 +17,7 @@ import XCTest
 
 @testable import FirebaseAuth
 
+// TODO: Investigate making this class support generics for the `request`.
 /** @class FakeBackendRPCIssuer
     @brief An implementation of @c AuthBackendRPCIssuer which is used to test backend request,
         response, and glue logic.
@@ -45,7 +46,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   /** @property request
       @brief Save the request for validation.
    */
-  var request: AuthRPCRequest?
+  var request: (any AuthRPCRequest)?
 
   /** @property completeRequest
       @brief The last request to be processed by the backend.
@@ -75,15 +76,16 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
   var secureTokenNetworkError: NSError?
 
-  func asyncPostToURL(withRequest request: AuthRPCRequest,
-                      body: Data?,
-                      contentType: String,
-                      completionHandler: @escaping ((Data?, Error?) -> Void)) {
+  func asyncPostToURL<T: AuthRPCRequest>(with request: T,
+                                         body: Data?,
+                                         contentType: String,
+                                         completionHandler: @escaping ((Data?, Error?) -> Void)) {
     self.contentType = contentType
     handler = completionHandler
     self.request = request
     requestURL = request.requestURL()
 
+    // TODO: See if we can use the above generics to avoid all this.
     if let verifyRequester,
        let verifyRequest = request as? SendVerificationCodeRequest {
       verifyRequester(verifyRequest)

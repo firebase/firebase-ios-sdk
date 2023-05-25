@@ -53,7 +53,7 @@ class EmailLinkSignInTests: RPCBaseTests {
       @brief Tests the email link sign-in request with mandatory parameters.
    */
   func testEmailLinkRequest() {
-    AuthBackend.post(withRequest: makeEmailLinkSignInRequest()) { response, error in
+    AuthBackend.post(with: makeEmailLinkSignInRequest()) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
     XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
@@ -73,7 +73,7 @@ class EmailLinkSignInTests: RPCBaseTests {
     let kTestIDToken = "testIDToken"
     let request = makeEmailLinkSignInRequest()
     request.idToken = kTestIDToken
-    AuthBackend.post(withRequest: request) { response, error in
+    AuthBackend.post(with: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
     XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
@@ -108,7 +108,7 @@ class EmailLinkSignInTests: RPCBaseTests {
     var rpcResponse: EmailLinkSignInResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeEmailLinkSignInRequest()) { response, error in
+    AuthBackend.post(with: makeEmailLinkSignInRequest()) { response, error in
       callbackInvoked = true
       rpcResponse = response as? EmailLinkSignInResponse
       rpcError = error as? NSError

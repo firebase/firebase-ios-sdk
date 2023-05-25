@@ -170,9 +170,9 @@ class VerifyAssertionTests: RPCBaseTests {
     var rpcResponse: VerifyAssertionResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeVerifyAssertionRequest()) { response, error in
+    AuthBackend.post(with: makeVerifyAssertionRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? VerifyAssertionResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 
@@ -211,9 +211,9 @@ class VerifyAssertionTests: RPCBaseTests {
     var rpcResponse: VerifyAssertionResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeVerifyAssertionRequest()) { response, error in
+    AuthBackend.post(with: makeVerifyAssertionRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? VerifyAssertionResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 
