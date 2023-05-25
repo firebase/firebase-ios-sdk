@@ -16,6 +16,7 @@
   import Foundation
   import UIKit
 
+  // TODO: This may be needed for extension detecting support
   // @_implementationOnly import FirebaseCoreExtension
 
   #if SWIFT_PACKAGE
@@ -30,7 +31,7 @@
 
   extension UIApplication: AuthAPNSTokenApplication {}
 
-  // TODO: remove objc public after Sample ported.
+  // TODO: remove objc public here and below after Sample ported.
   /** @class AuthAPNSToken
       @brief A data structure for an APNs token.
    */
@@ -55,7 +56,7 @@
         @param callback The block to be called either immediately or in future, either when a token
             becomes available, or when timeout occurs, whichever happens earlier.
      */
-    func getToken(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
+    @objc public  func getToken(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
       if failFastForTesting {
         let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
         callback(nil, error)
@@ -89,7 +90,7 @@
         @remarks Setting a token with AuthAPNSTokenTypeUnknown will automatically converts it to
             a token with the automatically detected type.
      */
-    var token: AuthAPNSToken? {
+    @objc public var token: AuthAPNSToken? {
       get {
         return tokenStore
       }
