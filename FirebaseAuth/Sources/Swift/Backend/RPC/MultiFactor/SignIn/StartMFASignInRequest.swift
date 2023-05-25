@@ -29,7 +29,7 @@ public class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: StartMFASignInResponse = StartMFASignInResponse()
+  public var response: StartMFASignInResponse = .init()
 
   init(MFAPendingCredential: String?, MFAEnrollmentID: String?,
        signInInfo: AuthProtoStartMFAPhoneRequestInfo?,

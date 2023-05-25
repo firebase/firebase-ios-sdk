@@ -42,7 +42,7 @@ public class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: VerifyCustomTokenResponse = VerifyCustomTokenResponse()
+  public var response: VerifyCustomTokenResponse = .init()
 
   public init(token: String, requestConfiguration: AuthRequestConfiguration) {
     self.token = token

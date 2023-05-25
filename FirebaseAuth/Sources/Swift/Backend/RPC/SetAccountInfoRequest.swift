@@ -196,7 +196,7 @@ public class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: SetAccountInfoResponse = SetAccountInfoResponse()
+  public var response: SetAccountInfoResponse = .init()
 
   public init(requestConfiguration: AuthRequestConfiguration) {
     returnSecureToken = true

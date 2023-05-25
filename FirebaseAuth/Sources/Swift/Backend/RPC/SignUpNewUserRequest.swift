@@ -69,7 +69,7 @@ public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: SignUpNewUserResponse = SignUpNewUserResponse()
+  public var response: SignUpNewUserResponse = .init()
 
   public init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
@@ -80,9 +80,9 @@ public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param requestConfiguration An object containing configurations to be added to the request.
    */
   public init(email: String?,
-                    password: String?,
-                    displayName: String?,
-                    requestConfiguration: AuthRequestConfiguration) {
+              password: String?,
+              displayName: String?,
+              requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.password = password
     self.displayName = displayName

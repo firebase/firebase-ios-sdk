@@ -27,7 +27,7 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: VerifyClientResponse = VerifyClientResponse()
+  public var response: VerifyClientResponse = .init()
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody = [String: AnyHashable]()

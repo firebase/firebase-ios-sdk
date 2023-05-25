@@ -68,7 +68,7 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: SignInWithGameCenterResponse = SignInWithGameCenterResponse()
+  public var response: SignInWithGameCenterResponse = .init()
 
   /** @fn initWithPlayerID:publicKeyURL:signature:salt:timestamp:displayName:requestConfiguration:
       @brief Designated initializer.
@@ -82,10 +82,10 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest
       @param displayName The display name of the Game Center player.
    */
   public init(playerID: String, teamPlayerID: String?, gamePlayerID: String?,
-                    publicKeyURL: URL,
-                    signature: Data, salt: Data,
-                    timestamp: UInt64, displayName: String?,
-                    requestConfiguration: AuthRequestConfiguration) {
+              publicKeyURL: URL,
+              signature: Data, salt: Data,
+              timestamp: UInt64, displayName: String?,
+              requestConfiguration: AuthRequestConfiguration) {
     self.playerID = playerID
     self.teamPlayerID = teamPlayerID
     self.gamePlayerID = gamePlayerID

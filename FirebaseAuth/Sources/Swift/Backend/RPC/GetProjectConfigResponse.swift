@@ -15,12 +15,11 @@
 import Foundation
 
 public class GetProjectConfigResponse: AuthRPCResponse {
-  
   public var projectID: String?
 
   public var authorizedDomains: [String]?
 
-  public func setFields(dictionary: [String : AnyHashable]) throws {
+  public func setFields(dictionary: [String: AnyHashable]) throws {
     projectID = dictionary["projectId"] as? String
     if let authorizedDomains = dictionary["authorizedDomains"] as? String,
        let data = authorizedDomains.data(using: .utf8) {

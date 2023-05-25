@@ -67,7 +67,7 @@ public class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: RevokeTokenResponse = RevokeTokenResponse()
+  public var response: RevokeTokenResponse = .init()
 
   public enum TokenType: Int {
     case unspecified = 0, refreshToken = 1, accessToken = 2, authorizationCode = 3
@@ -79,8 +79,8 @@ public class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   }
 
   public init(withToken token: String,
-                    idToken: String,
-                    requestConfiguration: AuthRequestConfiguration) {
+              idToken: String,
+              requestConfiguration: AuthRequestConfiguration) {
     // Apple and authorization code are the only provider and token type we support for now.
     // Generalize this initializer to accept other providers and token types once supported.
     providerID = AuthProviderString.apple.rawValue

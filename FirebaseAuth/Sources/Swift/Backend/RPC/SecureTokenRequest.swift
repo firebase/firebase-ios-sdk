@@ -108,7 +108,7 @@ public class SecureTokenRequest: AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  var response: SecureTokenResponse = SecureTokenResponse()
+  var response: SecureTokenResponse = .init()
 
   let _requestConfiguration: AuthRequestConfiguration
   public func requestConfiguration() -> AuthRequestConfiguration {
@@ -116,7 +116,7 @@ public class SecureTokenRequest: AuthRPCRequest {
   }
 
   public static func authCodeRequest(code: String,
-                                           requestConfiguration: AuthRequestConfiguration)
+                                     requestConfiguration: AuthRequestConfiguration)
     -> SecureTokenRequest {
     SecureTokenRequest(
       grantType: .authorizationCode,
@@ -128,7 +128,7 @@ public class SecureTokenRequest: AuthRPCRequest {
   }
 
   public static func refreshRequest(refreshToken: String,
-                                          requestConfiguration: AuthRequestConfiguration)
+                                    requestConfiguration: AuthRequestConfiguration)
     -> SecureTokenRequest {
     SecureTokenRequest(
       grantType: .refreshToken,
