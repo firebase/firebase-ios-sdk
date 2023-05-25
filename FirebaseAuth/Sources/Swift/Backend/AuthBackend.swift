@@ -34,9 +34,9 @@ public protocol AuthBackendRPCIssuer: NSObjectProtocol {
           work queue in the future.
    */
   func asyncPostToURL<T: AuthRPCRequest>(with request: T,
-                      body: Data?,
-                      contentType: String,
-                      completionHandler: @escaping ((Data?, Error?) -> Void))
+                                         body: Data?,
+                                         contentType: String,
+                                         completionHandler: @escaping ((Data?, Error?) -> Void))
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -54,9 +54,10 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
   }
 
   func asyncPostToURL<T: AuthRPCRequest>(with request: T,
-                                                     body: Data?,
-                                                     contentType: String,
-                                                     completionHandler: @escaping ((Data?, Error?) -> Void)) {
+                                         body: Data?,
+                                         contentType: String,
+                                         completionHandler: @escaping ((Data?, Error?)
+                                           -> Void)) {
     let requestConfiguration = request.requestConfiguration()
     AuthBackend.request(withURL: request.requestURL(),
                         contentType: contentType,
@@ -104,7 +105,8 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
   ///        @see FIRAuthInternalErrorCodeUnexpectedResponse
   ///        @see FIRAuthInternalErrorCodeRPCResponseDecodingError
   class func post<T: AuthRPCRequest>(with request: T,
-                                                 callback: @escaping ((T.Response?, Error?) -> Void)) {
+                                     callback: @escaping ((T.Response?, Error?)
+                                       -> Void)) {
     implementation().post(with: request, callback: callback)
   }
 
@@ -157,10 +159,10 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendImplementation {
   func post<T: AuthRPCRequest>(with request: T,
-                                    callback: @escaping ((T.Response?, Error?) -> Void))
+                               callback: @escaping ((T.Response?, Error?) -> Void))
   func post<T: AuthRPCRequest>(with request: T,
-                                    response: T.Response,
-                                    callback: @escaping (Error?) -> Void)
+                               response: T.Response,
+                               callback: @escaping (Error?) -> Void)
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -184,7 +186,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param callback The callback for both success and failure.
    */
   fileprivate func post<T: AuthRPCRequest>(with request: T,
-                                                callback: @escaping ((T.Response?, Error?) -> Void)) {
+                                           callback: @escaping ((T.Response?, Error?)
+                                             -> Void)) {
     let response = request.response
     post(with: request, response: response) { error in
       if let error = error {
@@ -264,8 +267,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param callback The callback for both success and failure.
    */
   fileprivate func post<T: AuthRPCRequest>(with request: T,
-                                    response: T.Response,
-                                    callback: @escaping (Error?) -> Void) {
+                                           response: T.Response,
+                                           callback: @escaping (Error?) -> Void) {
     var bodyData: Data?
     if request.containsPostBody {
       do {

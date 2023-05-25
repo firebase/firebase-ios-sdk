@@ -65,10 +65,10 @@ public class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: SendVerificationCodeResponse = SendVerificationCodeResponse()
+  public var response: SendVerificationCodeResponse = .init()
 
   public init(phoneNumber: String, appCredential: AuthAppCredential?,
-                    reCAPTCHAToken: String?, requestConfiguration: AuthRequestConfiguration) {
+              reCAPTCHAToken: String?, requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
     self.appCredential = appCredential
     self.reCAPTCHAToken = reCAPTCHAToken

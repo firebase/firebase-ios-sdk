@@ -62,10 +62,10 @@ public class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: EmailLinkSignInResponse = EmailLinkSignInResponse()
+  public var response: EmailLinkSignInResponse = .init()
 
   public init(email: String, oobCode: String,
-                    requestConfiguration: AuthRequestConfiguration) {
+              requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.oobCode = oobCode
     super.init(endpoint: kEmailLinkSigninEndpoint, requestConfiguration: requestConfiguration)

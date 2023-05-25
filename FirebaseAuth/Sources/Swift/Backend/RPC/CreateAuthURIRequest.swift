@@ -106,10 +106,10 @@ public class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: CreateAuthURIResponse = CreateAuthURIResponse()
+  public var response: CreateAuthURIResponse = .init()
 
   public init(identifier: String, continueURI: String,
-                    requestConfiguration: AuthRequestConfiguration) {
+              requestConfiguration: AuthRequestConfiguration) {
     self.identifier = identifier
     self.continueURI = continueURI
     super.init(endpoint: kCreateAuthURIEndpoint, requestConfiguration: requestConfiguration)

@@ -200,7 +200,7 @@ public class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: VerifyAssertionResponse = VerifyAssertionResponse()
+  public var response: VerifyAssertionResponse = .init()
 
   public init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
     self.providerID = providerID

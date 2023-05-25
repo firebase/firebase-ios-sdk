@@ -29,11 +29,11 @@ public class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  var response: WithdrawMFAResponse = WithdrawMFAResponse()
+  var response: WithdrawMFAResponse = .init()
 
   init(idToken: String?,
-                    mfaEnrollmentID: String?,
-                    requestConfiguration: AuthRequestConfiguration) {
+       mfaEnrollmentID: String?,
+       requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
     self.mfaEnrollmentID = mfaEnrollmentID
     super.init(endpoint: kWithdrawMFAEndPoint, requestConfiguration: requestConfiguration)

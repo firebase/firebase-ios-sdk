@@ -22,7 +22,7 @@ private let kGetProjectConfigEndPoint = "getProjectConfig"
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The corresponding response for this request.
-  public var response: GetProjectConfigResponse = GetProjectConfigResponse()
+  public var response: GetProjectConfigResponse = .init()
 
   public init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
@@ -32,7 +32,7 @@ public class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
     return URL(string: "")!
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String : AnyHashable] {
+  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     // TODO: Probably nicer to throw, but what should we throw?
     fatalError()
   }

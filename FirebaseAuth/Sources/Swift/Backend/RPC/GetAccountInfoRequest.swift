@@ -39,7 +39,7 @@ public class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: GetAccountInfoResponse = GetAccountInfoResponse()
+  public var response: GetAccountInfoResponse = .init()
 
   /** @fn initWithAccessToken:requestConfiguration
       @brief Designated initializer.

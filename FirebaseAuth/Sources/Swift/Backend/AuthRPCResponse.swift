@@ -33,9 +33,9 @@ public protocol AuthRPCResponse {
   func clientError(shortErrorMessage: String, detailedErrorMessage: String?) -> Error?
 }
 
-extension AuthRPCResponse {
+public extension AuthRPCResponse {
   // Default implementation.
-  public func clientError(shortErrorMessage: String, detailedErrorMessage: String? = nil) -> Error? {
+  func clientError(shortErrorMessage: String, detailedErrorMessage: String? = nil) -> Error? {
     return nil
   }
 }

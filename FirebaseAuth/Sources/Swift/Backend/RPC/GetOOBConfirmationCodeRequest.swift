@@ -198,7 +198,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
   /** @var response
       @brief The corresponding response for this request
    */
-  public var response: GetOOBConfirmationCodeResponse = GetOOBConfirmationCodeResponse()
+  public var response: GetOOBConfirmationCodeResponse = .init()
 
   /** @fn initWithRequestType:email:APIKey:
       @brief Designated initializer.
@@ -235,8 +235,8 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
   }
 
   public static func passwordResetRequest(email: String,
-                                                actionCodeSettings: ActionCodeSettings?,
-                                                requestConfiguration: AuthRequestConfiguration) ->
+                                          actionCodeSettings: ActionCodeSettings?,
+                                          requestConfiguration: AuthRequestConfiguration) ->
     GetOOBConfirmationCodeRequest {
     Self(requestType: .passwordReset,
          email: email,
@@ -247,8 +247,8 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
   }
 
   public static func verifyEmailRequest(accessToken: String,
-                                              actionCodeSettings: ActionCodeSettings?,
-                                              requestConfiguration: AuthRequestConfiguration) ->
+                                        actionCodeSettings: ActionCodeSettings?,
+                                        requestConfiguration: AuthRequestConfiguration) ->
     GetOOBConfirmationCodeRequest {
     Self(requestType: .verifyEmail,
          email: nil,
@@ -259,8 +259,8 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
   }
 
   public static func signInWithEmailLinkRequest(_ email: String,
-                                                      actionCodeSettings: ActionCodeSettings?,
-                                                      requestConfiguration: AuthRequestConfiguration)
+                                                actionCodeSettings: ActionCodeSettings?,
+                                                requestConfiguration: AuthRequestConfiguration)
     -> Self {
     Self(requestType: .emailLink,
          email: email,
@@ -271,9 +271,9 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
   }
 
   public static func verifyBeforeUpdateEmail(accessToken: String,
-                                                   newEmail: String,
-                                                   actionCodeSettings: ActionCodeSettings?,
-                                                   requestConfiguration: AuthRequestConfiguration)
+                                             newEmail: String,
+                                             actionCodeSettings: ActionCodeSettings?,
+                                             requestConfiguration: AuthRequestConfiguration)
     -> Self {
     Self(requestType: .verifyBeforeUpdateEmail,
          email: nil,

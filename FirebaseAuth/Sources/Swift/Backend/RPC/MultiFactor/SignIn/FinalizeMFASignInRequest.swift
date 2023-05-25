@@ -29,7 +29,7 @@ class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @var response
       @brief The corresponding response for this request
    */
-  var response: FinalizeMFAEnrollmentResponse = FinalizeMFAEnrollmentResponse()
+  var response: FinalizeMFAEnrollmentResponse = .init()
 
   init(mfaPendingCredential: String?,
        verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
