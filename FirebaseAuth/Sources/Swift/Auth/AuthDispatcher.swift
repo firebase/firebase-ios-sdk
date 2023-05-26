@@ -14,19 +14,16 @@
 
 import Foundation
 
-// TODO: Get rid of public's and @objc's once FirebaseAuth.m is in Swift.
-
 /** @class AuthDispatcher
     @brief A utility class used to facilitate scheduling tasks to be executed in the future.
  */
-@objc(FIRAuthDispatcher) public class AuthDispatcher: NSObject {
-  @objc(sharedInstance) public static let shared = AuthDispatcher()
+class AuthDispatcher {
+  static let shared = AuthDispatcher()
 
   /** @property dispatchAfterImplementation
       @brief Allows custom implementation of dispatchAfterDelay:queue:callback:.
       @remarks Set to nil to restore default implementation.
    */
-  @objc public
   var dispatchAfterImplementation: ((TimeInterval, DispatchQueue, @escaping () -> Void) -> Void)?
 
   /** @fn dispatchAfterDelay:queue:callback:
@@ -36,7 +33,6 @@ import Foundation
       @param queue The dispatch queue on which the task will be submitted.
       @param task The task (block) to be scheduled for future execution.
    */
-  @objc public
   func dispatch(afterDelay delay: TimeInterval, queue: DispatchQueue, task: @escaping () -> Void) {
     if let dispatchAfterImplementation {
       dispatchAfterImplementation(delay, queue, task)
