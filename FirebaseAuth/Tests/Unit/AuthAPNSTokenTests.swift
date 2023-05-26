@@ -26,7 +26,7 @@
       let data = try XCTUnwrap("asdf".data(using: .utf8))
       let token = AuthAPNSToken(withData: data, type: .prod)
       XCTAssertEqual(token.data, data)
-      XCTAssertEqual(token.string, "61736466")
+      XCTAssertEqual(token.string, "61736466") // hex string representation of "asdf"
       XCTAssertEqual(token.type, .prod)
     }
   }
