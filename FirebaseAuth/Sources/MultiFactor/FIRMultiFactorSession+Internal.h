@@ -31,21 +31,21 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRMultiFactorSession ()
 /**
-@brief The ID token for an enroll flow. This has to be retrieved after recent authentication.
-*/
+ @brief The ID token for an enroll flow. This has to be retrieved after recent authentication.
+ */
 @property(nonatomic, readonly) NSString *IDToken;
 /**
-@brief The pending credential after an enrolled second factor user signs in successfully with the
-first factor
-*/
+ @brief The pending credential after an enrolled second factor user signs in successfully with the
+ first factor
+ */
 @property(nonatomic) NSString *MFAPendingCredential;
 /**
-@brief Multi factor info for the current user.
-*/
+ @brief Multi factor info for the current user.
+ */
 @property(nonatomic) FIRMultiFactorInfo *multiFactorInfo;
 /**
-@brief Current user object
-*/
+ @brief Current user object
+ */
 @property(nonatomic) FIRUser *currentUser;
 
 + (FIRMultiFactorSession *)sessionForCurrentUser;
