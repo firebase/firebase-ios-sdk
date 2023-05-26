@@ -55,8 +55,8 @@ final class AppCheckAPITests {
       app: app,
       appCheckProvider: DummyAppCheckProvider(),
       settings: GACAppCheckSettings(
-        tokenAutoRefreshPolicyUserDefaultsKey: "token-refresh-key",
-        tokenAutoRefreshPolicyInfoPListKey: "token-refresh-key"
+        tokenAutoRefreshPolicyUserDefaultsKey: "token-refresh-user-defaults-key",
+        tokenAutoRefreshPolicyInfoPListKey: "token-refresh-info-plist-key"
       )
     )
 
