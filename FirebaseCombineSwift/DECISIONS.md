@@ -5,7 +5,7 @@ This file documents some of the decisions we made when developing Combine suppor
 # Module structure
 
 ## Discussion
-The general idea is to keep all Combine-related code in a separate module (`FirebaseCombineSwift`, to match the naming scheme used for `FirebaseFirestoreSwift` and `FirebaseStorage`).
+The general idea is to keep all Combine-related code in a separate module, `FirebaseCombineSwift`.
 
 By using the `#if canImport(moduleName)` directive, we can make sure to only enable the publishers for a module that developers have imported into a build target.
 
