@@ -15,6 +15,8 @@
 #if !os(macOS)
   import Foundation
 
+  // TODO: Eliminate objc public after Sample app port.
+
   /** @class AuthAPNSToken
       @brief A data structure for an APNs token.
    */
@@ -28,7 +30,7 @@
         @param type The APNs token type.
         @return The initialized instance.
      */
-    @objc public init(withData data: Data, type: AuthAPNSTokenType) {
+    init(withData data: Data, type: AuthAPNSTokenType) {
       self.data = data
       self.type = type
     }
