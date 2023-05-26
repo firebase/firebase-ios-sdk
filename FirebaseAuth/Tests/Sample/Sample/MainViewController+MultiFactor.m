@@ -132,6 +132,10 @@ NS_ASSUME_NONNULL_BEGIN
       NSString *issuer = FIRAuth.auth.app.name;
       dispatch_async(dispatch_get_main_queue(), ^{
         NSString *url = [secret generateQRCodeURLWithAccountName:accountName issuer:issuer];
+        if(!url.length) {
+          [self logFailure: @"Multi factor finalize enroll failed. Could not generate url." error:nil];
+          return;
+        }
         [secret openInOTPAppWithQRCodeURL:url];
         [self showQRCodePromptWithTextInput:@"Scan this QR Code and enter OTP:"
                                qrCodeString:url

@@ -72,8 +72,7 @@ static NSString *kUserCodingKey = @"user";
                                                      displayName:displayName
                                            phoneVerificationInfo:finalizeMFAPhoneRequestInfo
                                             requestConfiguration:self.user.requestConfiguration];
-  }
-  if ([assertion.factorID isEqualToString:FIRTOTPMultiFactorID]) {
+  } else if ([assertion.factorID isEqualToString:FIRTOTPMultiFactorID]) {
     FIRTOTPMultiFactorAssertion *TOTPAssertion = (FIRTOTPMultiFactorAssertion *)assertion;
     FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo *finalizeMFATOTPRequestInfo =
         [[FIRAuthProtoFinalizeMFATOTPEnrollmentRequestInfo alloc]
@@ -84,6 +83,9 @@ static NSString *kUserCodingKey = @"user";
                                                      displayName:displayName
                                             TOTPVerificationInfo:finalizeMFATOTPRequestInfo
                                             requestConfiguration:self.user.requestConfiguration];
+  }
+  if (request == nil) {
+    return;
   }
   [FIRAuthBackend
       finalizeMultiFactorEnrollment:request

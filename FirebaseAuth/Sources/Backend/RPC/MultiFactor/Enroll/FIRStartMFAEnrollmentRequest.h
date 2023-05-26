@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
     FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *TOTPEnrollmentInfo;
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                     phoneEnrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
+                          enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken

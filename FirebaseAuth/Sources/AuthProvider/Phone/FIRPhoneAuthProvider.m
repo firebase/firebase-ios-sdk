@@ -484,7 +484,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                           FIRStartMFAEnrollmentRequest *request =
                               [[FIRStartMFAEnrollmentRequest alloc]
                                        initWithIDToken:IDToken
-                                   phoneEnrollmentInfo:startMFARequestInfo
+                                        enrollmentInfo:startMFARequestInfo
                                   requestConfiguration:self->_auth.requestConfiguration];
                           [FIRAuthBackend
                               startMultiFactorEnrollment:request
