@@ -16,6 +16,7 @@
   import Foundation
   import UIKit
 
+  // TODO: This may be needed for extension detecting support
   // @_implementationOnly import FirebaseCoreExtension
 
   #if SWIFT_PACKAGE
@@ -30,6 +31,7 @@
 
   extension UIApplication: AuthAPNSTokenApplication {}
 
+  // TODO: remove objc public here and below after Sample ported.
   /** @class AuthAPNSToken
       @brief A data structure for an APNs token.
    */
@@ -38,14 +40,14 @@
         @brief The timeout for registering for remote notification.
         @remarks Only tests should access this property.
      */
-    @objc public var timeout = 5
+    var timeout: TimeInterval = 5
 
     /** @fn initWithApplication:
         @brief Initializes the instance.
         @param application The @c UIApplication to request the token from.
         @return The initialized instance.
      */
-    @objc public init(withApplication application: UIApplication) {
+    init(withApplication application: AuthAPNSTokenApplication) {
       self.application = application
     }
 
@@ -74,7 +76,7 @@
         self.application.registerForRemoteNotifications()
       }
       let applicableCallbacks = pendingCallbacks
-      let deadline = DispatchTime.now() + .seconds(timeout)
+      let deadline = DispatchTime.now() + timeout
       kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
         // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
         if applicableCallbacks.count == self.pendingCallbacks.count {
@@ -92,10 +94,9 @@
       get {
         return tokenStore
       }
-      @objc(setToken:)
       set(setToken) {
         guard let setToken else {
-          self.tokenStore = nil
+          tokenStore = nil
           return
         }
         var newToken = setToken
@@ -104,8 +105,8 @@
             .sandbox
           newToken = AuthAPNSToken(withData: setToken.data, type: detectedTokenType)
         }
-        self.tokenStore = newToken
-        self.callback(withToken: newToken, error: nil)
+        tokenStore = newToken
+        callback(withToken: newToken, error: nil)
       }
     }
 
@@ -116,22 +117,19 @@
         @brief Cancels any pending `getTokenWithCallback:` request.
         @param error The error to return.
      */
-    @objc public func cancel(withError error: Error) {
+    func cancel(withError error: Error) {
       callback(withToken: nil, error: error)
     }
 
     var failFastForTesting: Bool = false
 
-    // TODO: remove public.
     // `application` is a var to enable unit test faking.
-    public var application: AuthAPNSTokenApplication
+    var application: AuthAPNSTokenApplication
     private var pendingCallbacks: [(AuthAPNSToken?, Error?) -> Void] = []
 
     private func callback(withToken token: AuthAPNSToken?, error: Error?) {
       let pendingCallbacks = self.pendingCallbacks
       self.pendingCallbacks = []
-      let i = pendingCallbacks.count
-      print("starting callbacks \(i)")
       for callback in pendingCallbacks {
         callback(token, error)
       }
