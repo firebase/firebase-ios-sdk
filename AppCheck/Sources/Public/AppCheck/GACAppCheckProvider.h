@@ -20,6 +20,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// A block to be called before sending API requests.
+/// @param request The request that is about to be sent.
+typedef void (^GACAppCheckAPIRequestHook)(NSMutableURLRequest *request);
+
 /// Defines the methods required to be implemented by a specific Firebase App Check
 /// provider.
 NS_SWIFT_NAME(InternalAppCheckProvider)
