@@ -36,10 +36,12 @@
 #import "AppCheck/Sources/AppAttestProvider/Storage/GACAppAttestArtifactStorage.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 
+static NSString *const kAppName = @"GACAppAttestArtifactStorageTests";
+static NSString *const kAppID = @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa";
+
 @interface GACAppAttestArtifactStorageTests : XCTestCase
 
-@property(nonatomic) NSString *appName;
-@property(nonatomic) NSString *appID;
+@property(nonatomic) NSString *keySuffix;
 @property(nonatomic) GACAppAttestArtifactStorage *storage;
 
 @end
@@ -49,12 +51,11 @@
 - (void)setUp {
   [super setUp];
 
-  self.appName = @"GACAppAttestArtifactStorageTests";
-  self.appID = @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa";
+  self.keySuffix = [GACAppAttestArtifactStorageTests artifactKeySuffixForAppName:kAppName
+                                                                           appID:kAppID];
 
-  self.storage = [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
-                                                                appID:self.appID
-                                                          accessGroup:nil];
+  self.storage = [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:self.keySuffix
+                                                            accessGroup:nil];
 }
 
 - (void)tearDown {
@@ -87,15 +88,15 @@
 
 - (void)testSetAndGetPerApp {
   // Assert storages for apps with the same name can independently set/get artifact.
-  [self assertIndependentSetGetForStoragesWithAppName1:self.appName
-                                                appID1:@"app_id"
-                                              appName2:self.appName
+  [self assertIndependentSetGetForStoragesWithAppName1:kAppName
+                                                appID1:@"app_id_1"
+                                              appName2:kAppName
                                                 appID2:@"app_id_2"];
   // Assert storages for apps with the same app ID can independently set/get artifact.
   [self assertIndependentSetGetForStoragesWithAppName1:@"app_1"
-                                                appID1:self.appID
+                                                appID1:kAppID
                                               appName2:@"app_2"
-                                                appID2:self.appID];
+                                                appID2:kAppID];
   // Assert storages for apps with different info can independently set/get artifact.
   [self assertIndependentSetGetForStoragesWithAppName1:@"app_1"
                                                 appID1:@"app_id_1"
@@ -134,10 +135,9 @@
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
   GACAppAttestArtifactStorage *artifactStorage =
-      [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
-                                                     appID:self.appID
-                                           keychainStorage:mockKeychainStorage
-                                               accessGroup:nil];
+      [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:self.keySuffix
+                                             keychainStorage:mockKeychainStorage
+                                                 accessGroup:nil];
 
   // 2. Create and expect keychain error.
   NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
@@ -161,10 +161,9 @@
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
   GACAppAttestArtifactStorage *artifactStorage =
-      [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
-                                                     appID:self.appID
-                                           keychainStorage:mockKeychainStorage
-                                               accessGroup:nil];
+      [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:self.keySuffix
+                                             keychainStorage:mockKeychainStorage
+                                                 accessGroup:nil];
   // 2. Create and expect keychain error.
   NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
   OCMExpect([mockKeychainStorage setObject:[OCMArg any]
@@ -188,10 +187,9 @@
   // 1. Set up storage mock.
   id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
   GACAppAttestArtifactStorage *artifactStorage =
-      [[GACAppAttestArtifactStorage alloc] initWithAppName:self.appName
-                                                     appID:self.appID
-                                           keychainStorage:mockKeychainStorage
-                                               accessGroup:nil];
+      [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:self.keySuffix
+                                             keychainStorage:mockKeychainStorage
+                                                 accessGroup:nil];
 
   // 2. Create and expect keychain error.
   NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
@@ -242,12 +240,16 @@
                                               appName2:(NSString *)appName2
                                                 appID2:(NSString *)appID2 {
   NSString *keyID = [NSUUID UUID].UUIDString;
+  NSString *keySuffix1 = [GACAppAttestArtifactStorageTests artifactKeySuffixForAppName:appName1
+                                                                                 appID:appID1];
+  NSString *keySuffix2 = [GACAppAttestArtifactStorageTests artifactKeySuffixForAppName:appName2
+                                                                                 appID:appID2];
 
   // Create two storages.
   GACAppAttestArtifactStorage *storage1 =
-      [[GACAppAttestArtifactStorage alloc] initWithAppName:appName1 appID:appID1 accessGroup:nil];
+      [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:keySuffix1 accessGroup:nil];
   GACAppAttestArtifactStorage *storage2 =
-      [[GACAppAttestArtifactStorage alloc] initWithAppName:appName2 appID:appID2 accessGroup:nil];
+      [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:keySuffix2 accessGroup:nil];
   // 1. Independently set artifacts for the two storages.
   NSData *artifact1 = [@"app_attest_artifact1" dataUsingEncoding:NSUTF8StringEncoding];
   FBLPromise *setPromise1 = [storage1 setArtifact:artifact1 forKey:keyID];
@@ -280,6 +282,15 @@
   [storage2 setArtifact:nil forKey:keyID];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
 }
+
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+
++ (NSString *)artifactKeySuffixForAppName:(NSString *)appName appID:(NSString *)appID {
+  return [NSString stringWithFormat:@"%@.%@", appName, appID];
+}
+
+// FIREBASE_APP_CHECK_ONLY_END
 
 @end
 
