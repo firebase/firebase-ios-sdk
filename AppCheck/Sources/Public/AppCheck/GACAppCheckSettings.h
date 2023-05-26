@@ -66,8 +66,9 @@ typedef NS_CLOSED_ENUM(NSInteger, GACAppCheckTokenAutoRefreshPolicy) {
 ///   - tokenAutoRefreshPolicyInfoPListKey: The Info.plist key for the token auto-refresh
 ///   configuration value.
 - (instancetype)
-    initWitTokenAutoRefreshPolicyUserDefaultsKey:(NSString *)tokenAutoRefreshPolicyUserDefaultsKey
-              tokenAutoRefreshPolicyInfoPListKey:(NSString *)tokenAutoRefreshPolicyInfoPListKey;
+    initWithTokenAutoRefreshPolicyUserDefaultsKey:(NSString *)tokenAutoRefreshPolicyUserDefaultsKey
+               tokenAutoRefreshPolicyInfoPListKey:(NSString *)tokenAutoRefreshPolicyInfoPListKey
+    NS_SWIFT_NAME(init(tokenAutoRefreshPolicyUserDefaultsKey:tokenAutoRefreshPolicyInfoPListKey:));
 
 - (instancetype)init NS_UNAVAILABLE;
 
