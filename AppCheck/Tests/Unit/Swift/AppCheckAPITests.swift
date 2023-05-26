@@ -51,7 +51,14 @@ final class AppCheckAPITests {
     guard let app = FirebaseApp.app() else { return }
 
     // Retrieving an AppCheck instance
-    let appCheck = InternalAppCheck(app: app, appCheckProvider: DummyAppCheckProvider())
+    let appCheck = InternalAppCheck(
+      app: app,
+      appCheckProvider: DummyAppCheckProvider(),
+      settings: GACAppCheckSettings(
+        tokenAutoRefreshPolicyUserDefaultsKey: "token-refresh-key",
+        tokenAutoRefreshPolicyInfoPListKey: "token-refresh-key"
+      )
+    )
 
     // Get token
     appCheck.token(forcingRefresh: false) { token, error in
