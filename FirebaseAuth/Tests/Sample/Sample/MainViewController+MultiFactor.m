@@ -36,8 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
                                        action:^{ [weakSelf phoneEnroll]; }],
     [StaticContentTableViewCell cellWithTitle:@"Phone Unenroll"
                                        action:^{ [weakSelf phoneUnenroll]; }],
-		[StaticContentTableViewCell cellWithTitle:@"TOTP Enroll"
-																			 action:^{ [weakSelf TOTPEnroll]; }],
+    [StaticContentTableViewCell cellWithTitle:@"TOTP Enroll"
+                                       action:^{ [weakSelf TOTPEnroll]; }],
   ]];
 }
 
