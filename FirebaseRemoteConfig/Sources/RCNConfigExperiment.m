@@ -36,7 +36,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
 @property(nonatomic, strong)
     NSMutableDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
 @property(nonatomic, strong)
-    NSMutableArray<NSData *> *activatedExperimentPayloads;   ///< Activated experiment payloads.
+    NSMutableArray<NSData *> *activeExperimentPayloads;   ///< Activated experiment payloads.
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;  ///< Database Manager.
 @property(nonatomic, strong) FIRExperimentController *experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
@@ -97,7 +97,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
 
     /// Load activated experiments payload and metadata.
     if (result[@RCNExperimentTableKeyActivePayload]) {
-      [strongSelf->_activatedExperimentPayloads removeAllObjects];
+      [strongSelf->_activeExperimentPayloads removeAllObjects];
       for (NSData *experiment in result[@RCNExperimentTableKeyActivePayload]) {
         NSError *error;
         id experimentPayloadJSON = [NSJSONSerialization JSONObjectWithData:experiment
@@ -107,7 +107,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
           FIRLogWarning(kFIRLoggerRemoteConfig, @"I-RCN000031",
                         @"Activated experiment payload could not be parsed as JSON.");
         } else {
-          [strongSelf->_activatedExperimentPayloads addObject:experiment];
+          [strongSelf->_activeExperimentPayloads addObject:experiment];
         }
       }
     }
@@ -184,10 +184,10 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
 
 - (void)updateActiveExperiments {
   /// Put current fetched experiment payloads into activated experiment DB.
-  [_activatedExperimentPayloads removeAllObjects];
+  [_activeExperimentPayloads removeAllObjects];
   [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
   for (NSData *experiment in _experimentPayloads) {
-    [_activatedExperimentPayloads addObject:experiment];
+    [_activeExperimentPayloads addObject:experiment];
     [_DBManager insertExperimentTableWithKey:@RCNExperimentTableKeyActivePayload
                                        value:experiment
                            completionHandler:nil];
@@ -277,7 +277,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
 
   NSMutableDictionary<NSString *, NSDictionary *> *activeExperiments =
-      [self getExperimentsMap:_activatedExperimentPayloads];
+      [self getExperimentsMap:_activeExperimentPayloads];
   NSMutableDictionary<NSString *, NSDictionary *> *fetchedExperiments =
       [self getExperimentsMap:_experimentPayloads];
 

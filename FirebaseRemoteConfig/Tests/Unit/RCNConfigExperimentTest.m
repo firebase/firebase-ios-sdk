@@ -38,7 +38,7 @@
 @interface RCNConfigExperiment ()
 @property(nonatomic, copy) NSMutableArray *experimentPayloads;
 @property(nonatomic, copy) NSMutableDictionary *experimentMetadata;
-@property(nonatomic, copy) NSMutableArray *activatedExperimentPayloads;
+@property(nonatomic, copy) NSMutableArray *activeExperimentPayloads;
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;
 - (NSTimeInterval)updateExperimentStartTime;
 - (void)loadExperimentFromTable;
@@ -236,7 +236,7 @@
     XCTAssertEqualObjects(experiment.experimentMetadata[@"last_experiment_start_time"],
                           @(12345678));
     OCMVerify([experiment updateActiveExperiments]);
-    XCTAssertEqualObjects(experiment.activatedExperimentPayloads, @[ payloadData ]);
+    XCTAssertEqualObjects(experiment.activeExperimentPayloads, @[ payloadData ]);
   }];
 }
 
@@ -249,7 +249,7 @@
                                 experimentController:mockExperimentController];
 
   NSData *payloadData1 = [[self class] payloadDataFromTestFile];
-  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  experiment.activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
 
   NSError *dataError;
   NSMutableDictionary *payload =
@@ -276,7 +276,7 @@
                                 experimentController:mockExperimentController];
 
   NSData *payloadData1 = [[self class] payloadDataFromTestFile];
-  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  experiment.activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
 
   NSError *dataError;
   NSMutableDictionary *payload =
@@ -303,7 +303,7 @@
                                 experimentController:mockExperimentController];
 
   NSData *payloadData1 = [[self class] payloadDataFromTestFile];
-  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  experiment.activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
 
   NSError *dataError;
   NSMutableDictionary *payload =
@@ -330,7 +330,7 @@
                                 experimentController:mockExperimentController];
 
   NSData *payloadData1 = [[self class] payloadDataFromTestFile];
-  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  experiment.activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
   experiment.experimentPayloads = [@[] mutableCopy];
 
   NSMutableSet<NSString *> *changedKeys = [experiment getKeysAffectedByChangedExperiments];
@@ -346,7 +346,7 @@
                                 experimentController:mockExperimentController];
 
   NSData *payloadData1 = [[self class] payloadDataFromTestFile];
-  experiment.activatedExperimentPayloads = [@[ payloadData1 ] mutableCopy];
+  experiment.activeExperimentPayloads = [@[ payloadData1 ] mutableCopy];
   experiment.experimentPayloads = [@[ payloadData1 ] mutableCopy];
 
   NSMutableSet<NSString *> *changedKeys = [experiment getKeysAffectedByChangedExperiments];

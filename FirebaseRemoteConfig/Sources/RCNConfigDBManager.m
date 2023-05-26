@@ -828,10 +828,10 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     }
 
     /// Load activated experiments payload.
-    NSMutableArray *activatedExperimentPayloads =
+    NSMutableArray *activeExperimentPayloads =
         [strongSelf loadExperimentTableFromKey:@RCNExperimentTableKeyActivePayload];
-    if (!activatedExperimentPayloads) {
-      activatedExperimentPayloads = [[NSMutableArray alloc] init];
+    if (!activeExperimentPayloads) {
+      activeExperimentPayloads = [[NSMutableArray alloc] init];
     }
 
     if (handler) {
@@ -840,7 +840,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
             YES, @{
               @RCNExperimentTableKeyPayload : [experimentPayloads copy],
               @RCNExperimentTableKeyMetadata : [experimentMetadata copy],
-              @RCNExperimentTableKeyActivePayload : [activatedExperimentPayloads copy]
+              @RCNExperimentTableKeyActivePayload : [activeExperimentPayloads copy]
             });
       });
     }
