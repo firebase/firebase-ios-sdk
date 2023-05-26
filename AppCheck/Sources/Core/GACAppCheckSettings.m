@@ -47,8 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)
-    initWitTokenAutoRefreshPolicyUserDefaultsKey:(NSString *)tokenAutoRefreshPolicyUserDefaultsKey
-              tokenAutoRefreshPolicyInfoPListKey:(NSString *)tokenAutoRefreshPolicyInfoPListKey {
+    initWithTokenAutoRefreshPolicyUserDefaultsKey:(NSString *)tokenAutoRefreshPolicyUserDefaultsKey
+               tokenAutoRefreshPolicyInfoPListKey:(NSString *)tokenAutoRefreshPolicyInfoPListKey {
   return [self initWithUserDefaults:[NSUserDefaults standardUserDefaults]
                                  mainBundle:[NSBundle mainBundle]
       tokenAutoRefreshPolicyUserDefaultsKey:tokenAutoRefreshPolicyUserDefaultsKey
