@@ -39,7 +39,6 @@ NS_SWIFT_NAME(TOTPMultiFactorGenerator) API_UNAVAILABLE(macos, tvos, watchos)
  @param session The multiFactorSession instance.
  @param completion Completion block
  */
-
 + (void)generateSecretWithMultiFactorSession:(FIRMultiFactorSession *)session
                                   completion:(void (^)(FIRTOTPSecret *_Nullable secret,
                                                        NSError *_Nullable error))completion;
