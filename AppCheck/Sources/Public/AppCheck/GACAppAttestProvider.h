@@ -20,8 +20,6 @@
 
 #import "GACAppCheckAvailability.h"
 
-@class FIRApp;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// Firebase App Check provider that verifies app integrity using the
@@ -35,10 +33,20 @@ NS_SWIFT_NAME(InternalAppAttestProvider)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// The default initializer.
-/// @param app A `FirebaseApp` instance.
-/// @return An instance of `AppAttestProvider` if the provided `FirebaseApp` instance contains all
-/// required parameters.
-- (nullable instancetype)initWithApp:(FIRApp *)app;
+/// @param storageID A unique identifier to differentiate storage keys corresponding to the same
+/// `resourceName`; may be a Firebase App Name or an SDK name.
+/// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
+/// "projects/{project_id}/apps/{app_id}".
+/// @param APIKey The Google Cloud Platform API key, if needed, or nil.
+/// @param accessGroup The Keychain Access Group.
+/// @param requestHooks Hooks that will be invoked on requests through this service.
+/// @return An instance of `AppAttestProvider` if App Attest is supported or `nil`.
+- (nullable instancetype)initWithStorageID:(NSString *)storageID
+                              resourceName:(NSString *)resourceName
+                                    APIKey:(nullable NSString *)APIKey
+                       keychainAccessGroup:(nullable NSString *)accessGroup
+                              requestHooks:
+                                  (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
 
 @end
 
