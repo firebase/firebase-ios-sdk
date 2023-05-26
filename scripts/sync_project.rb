@@ -63,7 +63,6 @@ end
 def sync_firestore(test_only)
   project = Xcodeproj::Project.open('Firestore/Example/Firestore.xcodeproj')
   spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
-  swift_spec = Pod::Spec.from_file('FirebaseFirestoreSwift.podspec')
 
   # Enable warnings after opening the project to avoid the warnings in
   # xcodeproj itself
@@ -145,7 +144,7 @@ def sync_firestore(test_only)
   xcconfig_swift = {
     'SWIFT_OBJC_BRIDGING_HEADER' =>
         '${PODS_ROOT}/../../../Firestore/Swift/Tests/BridgingHeader.h',
-    'SWIFT_VERSION' => pick_swift_version(swift_spec),
+    'SWIFT_VERSION' => pick_swift_version(spec),
   }
 
   ['iOS', 'macOS', 'tvOS'].each do |platform|
