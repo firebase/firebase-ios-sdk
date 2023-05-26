@@ -37,38 +37,46 @@
                                                        NSError *_Nullable error))completion {
   if (session.IDToken) {
     FIRStartMFAEnrollmentRequest *request = [[FIRStartMFAEnrollmentRequest alloc]
-                                             initWithIDToken:session.IDToken
-                                             TOTPEnrollmentInfo:[[FIRAuthProtoStartMFATOTPEnrollmentRequestInfo alloc] init]
-                                             requestConfiguration:session.currentUser.auth.requestConfiguration];
+             initWithIDToken:session.IDToken
+          TOTPEnrollmentInfo:[[FIRAuthProtoStartMFATOTPEnrollmentRequestInfo alloc] init]
+        requestConfiguration:session.currentUser.auth.requestConfiguration];
     [FIRAuthBackend
-     startMultiFactorEnrollment:request
-     callback:^(FIRStartMFAEnrollmentResponse *_Nullable response,
-                NSError *_Nullable error) {
-      if (error) {
-        if (completion) {
-          completion(nil, error);
-        }
-      } else if (response.TOTPSessionInfo) {
-        FIRTOTPSecret *secret = [[FIRTOTPSecret alloc]
-                                 initWithSecretKey:response.TOTPSessionInfo.sharedSecretKey
-                                 hashingAlgorithm:response.TOTPSessionInfo.hashingAlgorithm
-                                 codeLength:response.TOTPSessionInfo.verificationCodeLength
-                                 codeIntervalSeconds:response.TOTPSessionInfo.periodSec
-                                 enrollmentCompletionDeadline:response.TOTPSessionInfo.finalizeEnrollmentTime
-                                 sessionInfo:response.TOTPSessionInfo.sessionInfo];
-        if (completion) {
-          completion(secret, nil);
-        }
-      } else {
-        NSError *error =
-        [NSError errorWithDomain:FIRAuthErrorDomain
-                            code:FIRAuthErrorCodeInternalError
-                        userInfo:@{NSLocalizedDescriptionKey : @"Error generating TOTP secret."}];
-        if (completion) {
-          completion(nil, error);
-        }
-      }
-    }];
+        startMultiFactorEnrollment:request
+                          callback:^(FIRStartMFAEnrollmentResponse *_Nullable response,
+                                     NSError *_Nullable error) {
+                            if (error) {
+                              if (completion) {
+                                completion(nil, error);
+                              }
+                            } else if (response.TOTPSessionInfo) {
+                              FIRTOTPSecret *secret = [[FIRTOTPSecret alloc]
+                                             initWithSecretKey:response.TOTPSessionInfo
+                                                                   .sharedSecretKey
+                                              hashingAlgorithm:response.TOTPSessionInfo
+                                                                   .hashingAlgorithm
+                                                    codeLength:response.TOTPSessionInfo
+                                                                   .verificationCodeLength
+                                           codeIntervalSeconds:response.TOTPSessionInfo.periodSec
+                                  enrollmentCompletionDeadline:response.TOTPSessionInfo
+                                                                   .finalizeEnrollmentTime
+                                                   sessionInfo:response.TOTPSessionInfo
+                                                                   .sessionInfo];
+                              if (completion) {
+                                completion(secret, nil);
+                              }
+                            } else {
+                              NSError *error =
+                                  [NSError errorWithDomain:FIRAuthErrorDomain
+                                                      code:FIRAuthErrorCodeInternalError
+                                                  userInfo:@{
+                                                    NSLocalizedDescriptionKey :
+                                                        @"Error generating TOTP secret."
+                                                  }];
+                              if (completion) {
+                                completion(nil, error);
+                              }
+                            }
+                          }];
   } else {
     NSError *error = [NSError errorWithDomain:FIRAuthErrorDomain
                                          code:FIRAuthErrorCodeInternalError
