@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.10.0"
+let firebaseVersion = "10.11.0"
 
 let package = Package(
   name: "Firebase",
@@ -668,7 +668,12 @@ let package = Package(
         "FirebaseCore",
         "leveldb",
       ],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
+      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedLibrary("c++"),
+      ]
     ),
 
     .binaryTarget(
