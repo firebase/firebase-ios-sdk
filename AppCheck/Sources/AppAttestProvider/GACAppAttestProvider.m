@@ -166,10 +166,9 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
       initWithAPIService:APIService
             resourceName:[GACAppAttestProvider resourceNameFromApp:app]];
 
-  GACAppAttestArtifactStorage *artifactStorage =
-      [[GACAppAttestArtifactStorage alloc] initWithAppName:app.name
-                                                     appID:app.options.googleAppID
-                                               accessGroup:app.options.appGroupID];
+  GACAppAttestArtifactStorage *artifactStorage = [[GACAppAttestArtifactStorage alloc]
+      initWithKeySuffix:[GACAppAttestProvider storageKeySuffixForApp:app]
+            accessGroup:app.options.appGroupID];
 
   GACAppCheckBackoffWrapper *backoffWrapper = [[GACAppCheckBackoffWrapper alloc] init];
 
