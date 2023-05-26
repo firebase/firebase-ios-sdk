@@ -48,26 +48,20 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Default convenience initializer.
-/// @param appName A Firebase App name (`FirebaseApp.name`). The app name will be used as a part of
-/// the key to store the token for the storage instance.
-/// @param appID A Firebase App identifier (`FirebaseOptions.googleAppID`). The app ID will be used
-/// as a part of the key to store the token for the storage instance.
+/// @param keySuffix A unique suffix that will be used as a part of the key to store the token for
+/// the storage instance.
 /// @param accessGroup The Keychain Access Group.
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                    accessGroup:(nullable NSString *)accessGroup;
+- (instancetype)initWithKeySuffix:(NSString *)keySuffix
+                      accessGroup:(nullable NSString *)accessGroup;
 
 /// Designated initializer.
-/// @param appName A Firebase App name (`FirebaseApp.name`). The app name will be used as a part of
-/// the key to store the token for the storage instance.
-/// @param appID A Firebase App identifier (`FirebaseOptions.googleAppID`). The app ID will be used
-/// as a part of the key to store the token for the storage instance.
+/// @param keySuffix A unique suffix that will be used as a part of the key to store the token for
+/// the storage instance.
 /// @param keychainStorage An instance of `GULKeychainStorage` used as an underlying secure storage.
 /// @param accessGroup The Keychain Access Group.
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                keychainStorage:(GULKeychainStorage *)keychainStorage
-                    accessGroup:(nullable NSString *)accessGroup NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithKeySuffix:(NSString *)keySuffix
+                  keychainStorage:(GULKeychainStorage *)keychainStorage
+                      accessGroup:(nullable NSString *)accessGroup NS_DESIGNATED_INITIALIZER;
 
 @end
 
