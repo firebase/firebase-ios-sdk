@@ -110,8 +110,13 @@ GAC_APP_ATTEST_PROVIDER_AVAILABILITY
   options.APIKey = @"api_key";
   options.projectID = @"project_id";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
+  NSString *resourceName = [GACAppAttestProviderTests resourceNameFromApp:app];
 
-  XCTAssertNotNil([[GACAppAttestProvider alloc] initWithApp:app]);
+  XCTAssertNotNil([[GACAppAttestProvider alloc] initWithStorageID:app.name
+                                                     resourceName:resourceName
+                                                           APIKey:app.options.APIKey
+                                              keychainAccessGroup:nil
+                                                     requestHooks:nil]);
 }
 #endif  // !TARGET_OS_MACCATALYST
 
@@ -1087,6 +1092,16 @@ GAC_APP_ATTEST_PROVIDER_AVAILABILITY
   OCMExpect([self.mockArtifactStorage setArtifact:nil forKey:@""])
       .andReturn([FBLPromise resolvedWith:nil]);
 }
+
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+
++ (NSString *)resourceNameFromApp:(FIRApp *)app {
+  return [NSString
+      stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
+}
+
+// FIREBASE_APP_CHECK_ONLY_END
 
 @end
 

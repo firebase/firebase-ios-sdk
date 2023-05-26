@@ -16,13 +16,13 @@
 
 #import <Foundation/Foundation.h>
 
+#import "AppCheck/Sources/Public/AppCheck/GACAppAttestProvider.h"
+
 @class FBLPromise<Result>;
 @class GULURLSessionDataResponse;
 @class GACAppCheckToken;
 
 NS_ASSUME_NONNULL_BEGIN
-
-typedef void (^GACAppCheckAPIRequestHook)(NSMutableURLRequest *request);
 
 @protocol GACAppCheckAPIServiceProtocol <NSObject>
 
