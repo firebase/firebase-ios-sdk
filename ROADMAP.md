@@ -60,9 +60,6 @@ improvements:
 Continue to evolve the Firebase API surface to be more
 Swift-friendly. This is generally done with Swift specific extension libraries.
 
-[FirebaseFirestoreSwift](Firestore/Swift) is a larger library that adds
-Codable support for Firestore.
-
 Add more such APIs to improve the Firebase Swift API.
 
 More examples in the
