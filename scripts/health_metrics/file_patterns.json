@@ -85,7 +85,7 @@
   },
   {
     "sdk": "firestore",
-    "podspecs": ["FirebaseFirestore.podspec", "FirebaseFirestoreSwift.podspec"],
+    "podspecs": ["FirebaseFirestore.podspec"],
     "filePatterns": [
       "^Firestore/.*",
       "FirebaseAppCheck/Interop/[^/]+\\.h",
