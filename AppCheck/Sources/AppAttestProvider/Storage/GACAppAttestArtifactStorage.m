@@ -33,8 +33,7 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
 
 @interface GACAppAttestArtifactStorage ()
 
-@property(nonatomic, readonly) NSString *appName;
-@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) NSString *keySuffix;
 @property(nonatomic, readonly) GULKeychainStorage *keychainStorage;
 @property(nonatomic, readonly, nullable) NSString *accessGroup;
 
@@ -42,29 +41,23 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
 
 @implementation GACAppAttestArtifactStorage
 
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                keychainStorage:(GULKeychainStorage *)keychainStorage
-                    accessGroup:(nullable NSString *)accessGroup {
+- (instancetype)initWithKeySuffix:(NSString *)keySuffix
+                  keychainStorage:(GULKeychainStorage *)keychainStorage
+                      accessGroup:(nullable NSString *)accessGroup {
   self = [super init];
   if (self) {
-    _appName = [appName copy];
-    _appID = [appID copy];
+    _keySuffix = [keySuffix copy];
     _keychainStorage = keychainStorage;
     _accessGroup = [accessGroup copy];
   }
   return self;
 }
 
-- (instancetype)initWithAppName:(NSString *)appName
-                          appID:(NSString *)appID
-                    accessGroup:(nullable NSString *)accessGroup {
+- (instancetype)initWithKeySuffix:(NSString *)keySuffix
+                      accessGroup:(nullable NSString *)accessGroup {
   GULKeychainStorage *keychainStorage =
       [[GULKeychainStorage alloc] initWithService:kKeychainService];
-  return [self initWithAppName:appName
-                         appID:appID
-               keychainStorage:keychainStorage
-                   accessGroup:accessGroup];
+  return [self initWithKeySuffix:keySuffix keychainStorage:keychainStorage accessGroup:accessGroup];
 }
 
 - (FBLPromise<NSData *> *)getArtifactForKey:(NSString *)keyID {
@@ -116,8 +109,7 @@ static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_ar
 }
 
 - (NSString *)artifactKey {
-  return
-      [NSString stringWithFormat:@"app_check_app_attest_artifact.%@.%@", self.appName, self.appID];
+  return [NSString stringWithFormat:@"app_check_app_attest_artifact.%@", self.keySuffix];
 }
 
 @end
