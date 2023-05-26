@@ -40,8 +40,6 @@
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckHTTPError.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 // TODO(andrewheard): Remove from generic App Check SDK.
@@ -140,35 +138,33 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   return self;
 }
 
-- (nullable instancetype)initWithApp:(FIRApp *)app {
+- (nullable instancetype)initWithStorageID:(NSString *)storageID
+                              resourceName:(NSString *)resourceName
+                                    APIKey:(nullable NSString *)APIKey
+                       keychainAccessGroup:(nullable NSString *)accessGroup
+                              requestHooks:
+                                  (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
 #if GAC_APP_ATTEST_SUPPORTED_TARGETS
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
-  GACAppAttestKeyIDStorage *keyIDStorage = [[GACAppAttestKeyIDStorage alloc]
-      initWithKeySuffix:[GACAppAttestProvider storageKeySuffixForApp:app]];
+  NSString *storageKeySuffix = [GACAppAttestProvider storageKeySuffixWithID:storageID
+                                                               resourceName:resourceName];
 
-  // TODO(andrewheard): Remove from generic App Check SDK.
-  // FIREBASE_APP_CHECK_ONLY_BEGIN
-  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
-    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                          [app.heartbeatLogger flushHeartbeatsIntoPayload])
-        forHTTPHeaderField:kHeartbeatKey];
-  };
-  // FIREBASE_APP_CHECK_ONLY_END
+  GACAppAttestKeyIDStorage *keyIDStorage =
+      [[GACAppAttestKeyIDStorage alloc] initWithKeySuffix:storageKeySuffix];
 
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
-                                                 APIKey:app.options.APIKey
-                                           requestHooks:@[ heartbeatLoggerHook ]];
+                                                 APIKey:APIKey
+                                           requestHooks:requestHooks];
 
-  GACAppAttestAPIService *appAttestAPIService = [[GACAppAttestAPIService alloc]
-      initWithAPIService:APIService
-            resourceName:[GACAppAttestProvider resourceNameFromApp:app]];
+  GACAppAttestAPIService *appAttestAPIService =
+      [[GACAppAttestAPIService alloc] initWithAPIService:APIService resourceName:resourceName];
 
-  GACAppAttestArtifactStorage *artifactStorage = [[GACAppAttestArtifactStorage alloc]
-      initWithKeySuffix:[GACAppAttestProvider storageKeySuffixForApp:app]
-            accessGroup:app.options.appGroupID];
+  GACAppAttestArtifactStorage *artifactStorage =
+      [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:storageKeySuffix
+                                                 accessGroup:accessGroup];
 
   GACAppCheckBackoffWrapper *backoffWrapper = [[GACAppCheckBackoffWrapper alloc] init];
 
@@ -499,19 +495,9 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
       });
 }
 
-// TODO(andrewheard): Remove from generic App Check SDK.
-// FIREBASE_APP_CHECK_ONLY_BEGIN
-
-+ (NSString *)resourceNameFromApp:(FIRApp *)app {
-  return [NSString
-      stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
++ (NSString *)storageKeySuffixWithID:(NSString *)storageID resourceName:(NSString *)resourceName {
+  return [NSString stringWithFormat:@"%@.%@", storageID, resourceName];
 }
-
-+ (NSString *)storageKeySuffixForApp:(FIRApp *)app {
-  return [NSString stringWithFormat:@"%@.%@", app.name, app.options.googleAppID];
-}
-
-// FIREBASE_APP_CHECK_ONLY_END
 
 @end
 
