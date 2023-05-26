@@ -36,7 +36,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
 @property(nonatomic, strong)
     NSMutableDictionary<NSString *, id> *experimentMetadata;  ///< Experiment metadata
 @property(nonatomic, strong)
-    NSMutableArray<NSData *> *activeExperimentPayloads;   ///< Activated experiment payloads.
+    NSMutableArray<NSData *> *activeExperimentPayloads;      ///< Activated experiment payloads.
 @property(nonatomic, strong) RCNConfigDBManager *DBManager;  ///< Database Manager.
 @property(nonatomic, strong) FIRExperimentController *experimentController;
 @property(nonatomic, strong) NSDateFormatter *experimentStartTimeDateFormatter;
