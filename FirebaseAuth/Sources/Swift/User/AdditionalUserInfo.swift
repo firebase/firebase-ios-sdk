@@ -20,10 +20,30 @@ import Foundation
   private static let usernameCodingKey = "username"
   private static let newUserKey = "newUser"
 
+  /** @property providerID
+      @brief The provider identifier.
+   */
   @objc public let providerID: String?
+
+  /** @property profile
+      @brief Dictionary containing the additional IdP specific information.
+   */
   @objc public let profile: [String: Any]?
+
+  /** @property username
+      @brief username The name of the user.
+   */
   @objc public let username: String?
+
+  /** @property isMewUser
+      @brief Indicates whether or not the current user was signed in for the first time.
+   */
   @objc public let isNewUser: Bool
+
+  // Maintain newUser for Objective C API.
+  @objc public func newUser() -> Bool {
+    return isNewUser
+  }
 
   @objc public static func userInfo(verifyAssertionResponse: VerifyAssertionResponse)
     -> AdditionalUserInfo {
