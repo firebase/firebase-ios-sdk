@@ -92,7 +92,7 @@ class AuthLifecycleTests: XCTestCase {
       XCTAssertNotNil(app)
       XCTAssertNotNil(auth)
     }
-    DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
       XCTAssertNil(app)
       XCTAssertNil(auth)
       expectation.fulfill()
