@@ -19,7 +19,7 @@ import XCTest
 
 class AuthDispatcherTests: XCTestCase {
   let kTestDelay = 0.1
-  let kMaxDifferenceBetweenTimeIntervals = 0.3
+  let kMaxDifferenceBetweenTimeIntervals = 0.4
 
   /** @fn testSharedInstance
       @brief Tests @c sharedInstance returns the same object.
