@@ -54,7 +54,7 @@ import Foundation
   /// Get the user access group stored locally.
   /// - Returns: The stored user access group; otherwise, `nil`.
   @objc public func getStoredUserAccessGroup() -> String? {
-    if let data = try? userDefaults.data(forKey: Self.storedUserAccessGroupKey).data {
+    if let data = try? userDefaults.data(forKey: Self.storedUserAccessGroupKey) {
       let userAccessGroup = String(data: data, encoding: .utf8)
       return userAccessGroup
     } else {
@@ -94,7 +94,7 @@ import Foundation
       projectIdentifier: projectIdentifier
     )
 
-    guard let data = try? keychainServices.getItem(query: query).data else {
+    guard let data = try? keychainServices.getItem(query: query) else {
       return UserWrapper(user: nil)
     }
 

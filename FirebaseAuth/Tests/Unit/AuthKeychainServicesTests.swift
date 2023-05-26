@@ -36,13 +36,13 @@
       setPassword(nil, account: Self.account, service: Self.service)
       setPassword(nil, account: Self.key, service: nil) // Legacy form.
       let keychain = AuthKeychainServices(service: Self.service)
-      XCTAssertNil(try keychain.data(forKey: Self.key).data)
+      XCTAssertNil(try keychain.data(forKey: Self.key))
     }
 
     func testReadExisting() throws {
       setPassword(Self.data, account: Self.account, service: Self.service)
       let keychain = AuthKeychainServices(service: Self.service)
-      XCTAssertEqual(try keychain.data(forKey: Self.key).data, Self.data.data(using: .utf8))
+      XCTAssertEqual(try keychain.data(forKey: Self.key), Self.data.data(using: .utf8))
       deletePassword(account: Self.account, service: Self.service)
     }
 
@@ -50,7 +50,7 @@
       setPassword(nil, account: Self.account, service: Self.service)
       setPassword(Self.data, account: Self.account, service: Self.otherService)
       let keychain = AuthKeychainServices(service: Self.service)
-      XCTAssertNil(try keychain.data(forKey: Self.key).data)
+      XCTAssertNil(try keychain.data(forKey: Self.key))
       deletePassword(account: Self.account, service: Self.otherService)
     }
 
@@ -89,7 +89,7 @@
       setPassword(Self.data, account: Self.key, service: nil) // Legacy form.
       let keychain = AuthKeychainServices(service: Self.service)
       XCTAssertEqual(
-        try keychain.data(forKey: Self.key).data, Self.data.data(using: .utf8)
+        try keychain.data(forKey: Self.key), Self.data.data(using: .utf8)
       )
       // Legacy item should have been moved to current form.
       XCTAssertEqual(
@@ -104,7 +104,7 @@
       setPassword(Self.data, account: Self.account, service: Self.service)
       setPassword(Self.otherData, account: Self.key, service: nil) // Legacy form.
       let keychain = AuthKeychainServices(service: Self.service)
-      XCTAssertEqual(try keychain.data(forKey: Self.key).data, Self.data.data(using: .utf8)!)
+      XCTAssertEqual(try keychain.data(forKey: Self.key), Self.data.data(using: .utf8)!)
       // Legacy item should have leave untouched.
       XCTAssertEqual(password(for: Self.account, service: Self.service), Self.data)
       XCTAssertEqual(password(for: Self.key, service: nil), Self.otherData)
