@@ -840,6 +840,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
             YES, @{
               @RCNExperimentTableKeyPayload : [experimentPayloads copy],
               @RCNExperimentTableKeyMetadata : [experimentMetadata copy],
+              /// Activated experiments only need ExperimentsDescriptions data, which
+              /// experimentPayloads contains.
               @RCNExperimentTableKeyActivePayload : [activeExperimentPayloads copy]
             });
       });

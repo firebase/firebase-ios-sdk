@@ -50,6 +50,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   if (self) {
     _experimentPayloads = [[NSMutableArray alloc] init];
     _experimentMetadata = [[NSMutableDictionary alloc] init];
+    _activeExperimentPayloads = [[NSMutableArray alloc] init];
     _experimentStartTimeDateFormatter = [[NSDateFormatter alloc] init];
     [_experimentStartTimeDateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"];
     [_experimentStartTimeDateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
@@ -155,7 +156,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
                        completionHandler:handler];
 
   /// Update activated experiments payload and metadata in DB.
-  [self updateActiveExperiments];
+  [self updateActiveExperimentsInDB];
 }
 
 - (void)updateExperimentStartTime {
@@ -182,7 +183,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
                          completionHandler:nil];
 }
 
-- (void)updateActiveExperiments {
+- (void)updateActiveExperimentsInDB {
   /// Put current fetched experiment payloads into activated experiment DB.
   [_activeExperimentPayloads removeAllObjects];
   [_DBManager deleteExperimentTableForKey:@RCNExperimentTableKeyActivePayload];
