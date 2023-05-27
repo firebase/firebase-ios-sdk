@@ -1540,7 +1540,7 @@ import FirebaseAppCheckInterop
       ).user
     } else {
       let userKey = "\(firebaseAppName)\(kUserKey)"
-      if let encodedUserData = try keychainServices.data(forKey: userKey).data {
+      if let encodedUserData = try keychainServices.data(forKey: userKey) {
         let unarchiver = try NSKeyedUnarchiver(forReadingFrom: encodedUserData)
         user = unarchiver.decodeObject(of: User.self, forKey: userKey)
       }
@@ -1725,7 +1725,7 @@ import FirebaseAppCheckInterop
       ).user
     } else {
       let userKey = "\(firebaseAppName)\(kUserKey)"
-      guard let encodedUserData = try keychainServices.data(forKey: userKey).data else {
+      guard let encodedUserData = try keychainServices.data(forKey: userKey) else {
         return nil
       }
       let unarchiver = try NSKeyedUnarchiver(forReadingFrom: encodedUserData)

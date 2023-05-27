@@ -46,27 +46,27 @@ final class AuthKeychainServices: NSObject, AuthStorage {
     self.service = service
   }
 
-  func data(forKey key: String) throws -> DataWrapper {
+  func data(forKey key: String) throws -> Data? {
     if key.isEmpty {
       fatalError("The key cannot be empty.")
     }
-    if let data = try item(query: genericPasswordQuery(key: key)).data {
-      return DataWrapper(data: data)
+    if let data = try item(query: genericPasswordQuery(key: key)) {
+      return data
     }
 
     // Check for legacy form.
     if legacyEntryDeletedForKey.contains(key) {
-      return DataWrapper(data: nil)
+      return nil
     }
-    if let data = try item(query: legacyGenericPasswordQuery(key: key)).data {
+    if let data = try item(query: legacyGenericPasswordQuery(key: key)) {
       // Move the data to current form.
       try setData(data, forKey: key)
       deleteLegacyItem(key: key)
-      return DataWrapper(data: data)
+      return data
     } else {
       // Mark legacy data as non-existing so we don't have to query it again.
       legacyEntryDeletedForKey.insert(key)
-      return DataWrapper(data: nil)
+      return nil
     }
   }
 
@@ -93,7 +93,7 @@ final class AuthKeychainServices: NSObject, AuthStorage {
 
   // MARK: - Private methods for non-sharing keychain operations
 
-  private func item(query: [String: Any]) throws -> DataWrapper {
+  private func item(query: [String: Any]) throws -> Data? {
     var returningQuery = query
     returningQuery[kSecReturnData as String] = true
     returningQuery[kSecReturnAttributes as String] = true
@@ -123,18 +123,18 @@ final class AuthKeychainServices: NSObject, AuthStorage {
       // Return the non-legacy item.
       for item in items {
         if item[kSecAttrService as String] != nil {
-          return DataWrapper(data: item[kSecValueData as String] as? Data)
+          return item[kSecValueData as String] as? Data
         }
       }
 
       // If they were all legacy items, just return the first one.
       // This should not happen, since only one account should be
       // stored.
-      return DataWrapper(data: items[0][kSecValueData as String] as? Data)
+      return items[0][kSecValueData as String] as? Data
     }
 
     if status == errSecItemNotFound {
-      return DataWrapper(data: nil)
+      return nil
     } else {
       throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
     }

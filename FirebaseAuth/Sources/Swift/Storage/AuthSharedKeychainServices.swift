@@ -15,7 +15,7 @@
 import Foundation
 
 // TODO(ncooke3): Reshape API to conform to `AuthStorage`.
-@objc(FIRAuthSharedKeychainServices) public class AuthSharedKeychainServices: NSObject {
+class AuthSharedKeychainServices: NSObject {
   // MARK: - Private methods for shared keychain operations
 
   /** @fn getItemWithQuery:error:
@@ -23,7 +23,7 @@ import Foundation
    @param query The query to query the keychain.
    @return The item of the given query. `nil`` if not exist.
    */
-  @objc public func getItem(query: [String: Any]) throws -> DataWrapper {
+  func getItem(query: [String: Any]) throws -> Data? {
     var mutableQuery = query
     mutableQuery[kSecReturnData as String] = true
     mutableQuery[kSecReturnAttributes as String] = true
@@ -40,11 +40,11 @@ import Foundation
         throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
       }
 
-      return DataWrapper(data: items[0][kSecValueData as String] as? Data)
+      return items[0][kSecValueData as String] as? Data
     }
 
     if status == errSecItemNotFound {
-      return DataWrapper(data: nil)
+      return nil
     } else {
       throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
     }
@@ -59,7 +59,7 @@ import Foundation
   @objc public func setItem(_ item: Data, withQuery query: [String: Any]) throws {
     let status: OSStatus
     let function: String
-    if (try getItem(query: query)).data != nil {
+    if (try getItem(query: query)) != nil {
       let attributes: [String: Any] = [kSecValueData as String: item]
       status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
       function = "SecItemUpdate"
