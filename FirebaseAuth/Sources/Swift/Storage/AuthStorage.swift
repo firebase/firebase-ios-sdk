@@ -24,7 +24,7 @@ protocol AuthStorage: NSObjectProtocol {
   /// - Parameter key: The key to use.
   /// - Returns: The data stored in the storage for the given key.
   /// - Throws: An error if the operation is not successful.
-  func data(forKey key: String) throws -> DataWrapper
+  func data(forKey key: String) throws -> Data?
 
   /// Sets the data for the given key from storage.
   /// - Parameters:

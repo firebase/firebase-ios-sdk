@@ -33,13 +33,13 @@ final class FakeAuthKeychainServices: NSObject, AuthStorage {
     }
   }
 
-  func data(forKey key: String) throws -> FirebaseAuth.DataWrapper {
+  func data(forKey key: String) throws -> Data? {
     if key.isEmpty {
       fatalError("The key cannot be empty.")
     }
 
     if let data = fakeKeychain[key] as? Data {
-      return DataWrapper(data: data)
+      return data
     } else {
       throw AuthErrorUtils.keychainError(
         function: "SecItemCopyMatching",

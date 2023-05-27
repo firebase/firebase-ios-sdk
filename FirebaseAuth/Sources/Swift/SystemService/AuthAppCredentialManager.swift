@@ -38,7 +38,7 @@
 
     init(withKeychain keychain: AuthStorage) {
       keychainServices = keychain
-      if let encodedData = try? keychain.data(forKey: kKeychainDataKey).data,
+      if let encodedData = try? keychain.data(forKey: kKeychainDataKey),
          let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: encodedData) {
         if let credential = unarchiver.decodeObject(of: AuthAppCredential.self,
                                                     forKey: kFullCredentialKey) {
