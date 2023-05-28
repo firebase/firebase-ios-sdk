@@ -74,7 +74,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
       unit_tests.source_files = 'FirebaseAuth/Tests/Unit*/**/*.{m,h,swift}'
       # app_host is needed for tests with keychain
       unit_tests.requires_app_host = true
-      unit_tests.dependency 'OCMock'
       unit_tests.dependency 'HeartbeatLoggingTestUtils'
     end
   end
