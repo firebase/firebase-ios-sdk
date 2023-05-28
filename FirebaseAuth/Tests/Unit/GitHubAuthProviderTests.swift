@@ -21,7 +21,6 @@ import XCTest
     @brief Tests for @c FIRGitHubAuthProvider
  */
 class GitHubAuthProviderTests: XCTestCase {
-
   /** @fn testCredentialWithToken
       @brief Tests the @c credentialWithToken method to make sure the credential it produces populates
           the appropriate fields in a verify assertion request.

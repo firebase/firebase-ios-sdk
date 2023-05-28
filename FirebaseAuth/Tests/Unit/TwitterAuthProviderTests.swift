@@ -21,7 +21,6 @@ import XCTest
     @brief Tests for @c FIRTwitterAuthProvider
  */
 class TwitterAuthProviderTests: XCTestCase {
-
   /** @fn testCredentialWithToken
       @brief Tests the @c credentialWithToken method to make sure the credential it produces populates
           the appropriate fields in a verify assertion request.
@@ -30,7 +29,10 @@ class TwitterAuthProviderTests: XCTestCase {
     let kTwitterToken = "Token"
     let kTwitterSecret = "Secret"
     let requestConfiguration = AuthRequestConfiguration(apiKey: "APIKey", appID: "appID")
-    let credential = TwitterAuthProvider.credential(withToken: kTwitterToken, secret: kTwitterSecret)
+    let credential = TwitterAuthProvider.credential(
+      withToken: kTwitterToken,
+      secret: kTwitterSecret
+    )
     let request = VerifyAssertionRequest(providerID: TwitterAuthProvider.id,
                                          requestConfiguration: requestConfiguration)
     credential.prepare(request)
