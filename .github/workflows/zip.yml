@@ -1,6 +1,5 @@
 name: zip
 
-
 on:
   pull_request:
     paths:
