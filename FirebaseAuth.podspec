@@ -72,34 +72,6 @@ supports email and password accounts, as well as several 3rd party authenticatio
         :tvos => tvos_deployment_target
       }
       unit_tests.source_files = 'FirebaseAuth/Tests/Unit*/**/*.{m,h,swift}'
-      unit_tests.osx.exclude_files = [
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthAPNSTokenManagerTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthAPNSTokenTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthAppCredentialManagerTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthNotificationManagerTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthURLPresenterTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIREmailLink*',
-        'FirebaseAuth/Tests/UnitObjC/FIRPhoneAuthProviderTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRSendVerificationCode*',
-        'FirebaseAuth/Tests/UnitObjC/FIRSignInWithGameCenterTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRVerifyClient*',
-        'FirebaseAuth/Tests/UnitObjC/FIRVerifyPhoneNumber*',
-        'FirebaseAuth/Tests/UnitObjC/FIROAuthProviderTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRMultiFactorResolverTests.m',
-      ]
-      unit_tests.tvos.exclude_files = [
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthAPNSTokenManagerTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthNotificationManagerTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRAuthURLPresenterTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIREmailLink*',
-        'FirebaseAuth/Tests/UnitObjC/FIRPhoneAuthProviderTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRSendVerificationCode*',
-        'FirebaseAuth/Tests/UnitObjC/FIRSignInWithGameCenterTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRVerifyClient*',
-        'FirebaseAuth/Tests/UnitObjC/FIRVerifyPhoneNumber*',
-        'FirebaseAuth/Tests/UnitObjC/FIROAuthProviderTests.m',
-        'FirebaseAuth/Tests/UnitObjC/FIRMultiFactorResolverTests.m',
-      ]
       # app_host is needed for tests with keychain
       unit_tests.requires_app_host = true
       unit_tests.dependency 'OCMock'
