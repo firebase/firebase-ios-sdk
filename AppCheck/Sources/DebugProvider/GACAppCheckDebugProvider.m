@@ -24,21 +24,16 @@
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
-#import "AppCheck/Sources/Core/GACAppCheckValidator.h"
 #import "AppCheck/Sources/DebugProvider/API/GACAppCheckDebugProviderAPIService.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO(andrewheard): Remove from generic App Check SDK.
+// TODO(andrewheard): Parameterize the following Firebase-specific keys.
 // FIREBASE_APP_CHECK_ONLY_BEGIN
-static NSString *const kHeartbeatKey = @"X-firebase-client";
-// FIREBASE_APP_CHECK_ONLY_END
-
 static NSString *const kDebugTokenEnvKey = @"FIRAAppCheckDebugToken";
 static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
+// FIREBASE_APP_CHECK_ONLY_END
 
 @interface GACAppCheckDebugProvider ()
 @property(nonatomic, readonly) id<GACAppCheckDebugProviderAPIServiceProtocol> APIService;
@@ -54,38 +49,21 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
   return self;
 }
 
-- (nullable instancetype)initWithApp:(FIRApp *)app {
-  NSArray<NSString *> *missingOptionsFields =
-      [GACAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
-  if (missingOptionsFields.count > 0) {
-    GACLogError(kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions,
-                @"Cannot instantiate `GACAppCheckDebugProvider` for app: %@. The following "
-                @"`FirebaseOptions` fields are missing: %@",
-                app.name, [missingOptionsFields componentsJoinedByString:@", "]);
-    return nil;
-  }
-
+- (instancetype)initWithStorageID:(NSString *)storageID
+                     resourceName:(NSString *)resourceName
+                           APIKey:(nullable NSString *)APIKey
+                     requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
-  // TODO(andrewheard): Remove from generic App Check SDK.
-  // FIREBASE_APP_CHECK_ONLY_BEGIN
-  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
-    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                          [app.heartbeatLogger flushHeartbeatsIntoPayload])
-        forHTTPHeaderField:kHeartbeatKey];
-  };
-  // FIREBASE_APP_CHECK_ONLY_END
-
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
-                                                 APIKey:app.options.APIKey
-                                           requestHooks:@[ heartbeatLoggerHook ]];
+                                                 APIKey:APIKey
+                                           requestHooks:requestHooks];
 
   GACAppCheckDebugProviderAPIService *debugAPIService =
       [[GACAppCheckDebugProviderAPIService alloc] initWithAPIService:APIService
-                                                           projectID:app.options.projectID
-                                                               appID:app.options.googleAppID];
+                                                        resourceName:resourceName];
 
   return [self initWithAPIService:debugAPIService];
 }

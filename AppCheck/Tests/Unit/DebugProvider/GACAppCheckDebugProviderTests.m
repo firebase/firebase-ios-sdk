@@ -69,22 +69,11 @@ typedef void (^GACAppCheckTokenValidationBlock)(GACAppCheckToken *_Nullable toke
   options.projectID = @"project_id";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
 
-  XCTAssertNotNil([[GACAppCheckDebugProvider alloc] initWithApp:app]);
-}
-
-- (void)testInitWithIncompleteApp {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
-
-  options.projectID = @"project_id";
-  FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
-                                                          options:options];
-  XCTAssertNil([[GACAppCheckDebugProvider alloc] initWithApp:missingAPIKeyApp]);
-
-  options.projectID = nil;
-  options.APIKey = @"api_key";
-  FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
-                                                             options:options];
-  XCTAssertNil([[GACAppCheckDebugProvider alloc] initWithApp:missingProjectIDApp]);
+  XCTAssertNotNil([[GACAppCheckDebugProvider alloc]
+      initWithStorageID:options.googleAppID
+           resourceName:[GACAppCheckDebugProviderTests resourceNameFromApp:app]
+                 APIKey:app.options.APIKey
+           requestHooks:nil]);
 }
 
 #pragma mark - Debug token generating/storing
@@ -178,5 +167,15 @@ typedef void (^GACAppCheckTokenValidationBlock)(GACAppCheckToken *_Nullable toke
 
   [self waitForExpectations:@[ expectation ] timeout:0.5];
 }
+
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+
++ (NSString *)resourceNameFromApp:(FIRApp *)app {
+  return [NSString
+      stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
+}
+
+// FIREBASE_APP_CHECK_ONLY_END
 
 @end
