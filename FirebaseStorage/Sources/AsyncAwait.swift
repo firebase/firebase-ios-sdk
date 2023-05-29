@@ -51,7 +51,7 @@ import Foundation
     func putDataAsync(_ uploadData: Data,
                       metadata: StorageMetadata? = nil,
                       onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
-      guard let onProgress else {
+      guard let onProgress = onProgress else {
         return try await withCheckedThrowingContinuation { continuation in
           self.putData(uploadData, metadata: metadata) { result in
             continuation.resume(with: result)
@@ -88,7 +88,7 @@ import Foundation
     func putFileAsync(from url: URL,
                       metadata: StorageMetadata? = nil,
                       onProgress: ((Progress?) -> Void)? = nil) async throws -> StorageMetadata {
-      guard let onProgress else {
+      guard let onProgress = onProgress else {
         return try await withCheckedThrowingContinuation { continuation in
           self.putFile(from: url, metadata: metadata) { result in
             continuation.resume(with: result)
@@ -122,7 +122,7 @@ import Foundation
     /// - Returns: A `URL` pointing to the file path of the downloaded file.
     func writeAsync(toFile fileURL: URL,
                     onProgress: ((Progress?) -> Void)? = nil) async throws -> URL {
-      guard let onProgress else {
+      guard let onProgress = onProgress else {
         return try await withCheckedThrowingContinuation { continuation in
           _ = self.write(toFile: fileURL) { result in
             continuation.resume(with: result)

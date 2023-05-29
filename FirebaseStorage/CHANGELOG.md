@@ -1,4 +1,4 @@
-# Unreleased
+# 10.11.0
 - [added] Add progress tracking capability for `putDataAsync`, `putFileAsync`, and
   `writeAsync`. (#10574)
 
