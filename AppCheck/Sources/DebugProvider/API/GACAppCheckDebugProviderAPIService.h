@@ -31,9 +31,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface GACAppCheckDebugProviderAPIService
     : NSObject <GACAppCheckDebugProviderAPIServiceProtocol>
 
+/// Default initializer.
+/// @param APIService An instance implementing `GACAppCheckAPIServiceProtocol` to be used to send
+/// network requests to the App Check backend.
+/// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
+/// "projects/{project_id}/apps/{app_id}". See https://google.aip.dev/122 for more details about
+/// resource names.
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID;
+                      resourceName:(NSString *)resourceName;
 
 @end
 
