@@ -174,32 +174,36 @@ final class AppCheckAPITests {
     // `DeviceCheckProvider` initializer
     #if !os(watchOS)
       if #available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *) {
-        if let app = FirebaseApp.app(),
-           let deviceCheckProvider = InternalDeviceCheckProvider(app: app) {
-          // Get token
-          deviceCheckProvider.getToken { token, error in
-            if let _ /* error */ = error {
-              // ...
-            } else if let _ /* token */ = token {
-              // ...
-            }
+        // TODO(andrewheard): Add `requestHooks` in API tests.
+        let deviceCheckProvider = InternalDeviceCheckProvider(
+          storageID: app.name,
+          resourceName: resourceName,
+          apiKey: app.options.apiKey,
+          requestHooks: nil
+        )
+        // Get token
+        deviceCheckProvider.getToken { token, error in
+          if let _ /* error */ = error {
+            // ...
+          } else if let _ /* token */ = token {
+            // ...
           }
-          // Get token (async/await)
-          #if compiler(>=5.5.2) && canImport(_Concurrency)
-            if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-              // async/await is a Swift 5.5+ feature available on iOS 15+
-              Task {
-                do {
-                  _ = try await deviceCheckProvider.getToken()
-                } catch InternalAppCheckErrorCode.unsupported {
-                  // ...
-                } catch {
-                  // ...
-                }
+        }
+        // Get token (async/await)
+        #if compiler(>=5.5.2) && canImport(_Concurrency)
+          if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+            // async/await is a Swift 5.5+ feature available on iOS 15+
+            Task {
+              do {
+                _ = try await deviceCheckProvider.getToken()
+              } catch InternalAppCheckErrorCode.unsupported {
+                // ...
+              } catch {
+                // ...
               }
             }
-          #endif // compiler(>=5.5.2) && canImport(_Concurrency)
-        }
+          }
+        #endif // compiler(>=5.5.2) && canImport(_Concurrency)
       }
     #endif // !os(watchOS)
   }

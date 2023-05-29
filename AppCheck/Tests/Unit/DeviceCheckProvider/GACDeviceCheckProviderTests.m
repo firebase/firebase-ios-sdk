@@ -79,22 +79,11 @@ GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
   options.projectID = @"project_id";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
 
-  XCTAssertNotNil([[GACDeviceCheckProvider alloc] initWithApp:app]);
-}
-
-- (void)testInitWithIncompleteApp {
-  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
-
-  options.projectID = @"project_id";
-  FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
-                                                          options:options];
-  XCTAssertNil([[GACDeviceCheckProvider alloc] initWithApp:missingAPIKeyApp]);
-
-  options.projectID = nil;
-  options.APIKey = @"api_key";
-  FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp"
-                                                             options:options];
-  XCTAssertNil([[GACDeviceCheckProvider alloc] initWithApp:missingProjectIDApp]);
+  XCTAssertNotNil([[GACDeviceCheckProvider alloc]
+      initWithStorageID:app.name
+           resourceName:[GACDeviceCheckProviderTests resourceNameFromApp:app]
+                 APIKey:app.options.APIKey
+           requestHooks:nil]);
 }
 
 - (void)testGetTokenSuccess {
@@ -268,6 +257,18 @@ GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
   OCMVerifyAll(self.fakeAPIService);
   OCMVerifyAll(self.fakeTokenGenerator);
 }
+
+#pragma mark - Helpers
+
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+
++ (NSString *)resourceNameFromApp:(FIRApp *)app {
+  return [NSString
+      stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
+}
+
+// FIREBASE_APP_CHECK_ONLY_END
 
 @end
 

@@ -31,19 +31,11 @@
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
 #import "AppCheck/Sources/Core/Backoff/GACAppCheckBackoffWrapper.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
-#import "AppCheck/Sources/Core/GACAppCheckValidator.h"
 #import "AppCheck/Sources/DeviceCheckProvider/API/GACDeviceCheckAPIService.h"
 #import "AppCheck/Sources/DeviceCheckProvider/DCDevice+GACDeviceCheckTokenGenerator.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 NS_ASSUME_NONNULL_BEGIN
-
-// TODO(andrewheard): Remove from generic App Check SDK.
-// FIREBASE_APP_CHECK_ONLY_BEGIN
-static NSString *const kHeartbeatKey = @"X-firebase-client";
-// FIREBASE_APP_CHECK_ONLY_END
 
 @interface GACDeviceCheckProvider ()
 @property(nonatomic, readonly) id<GACDeviceCheckAPIServiceProtocol> APIService;
@@ -78,38 +70,20 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
                    backoffWrapper:backoffWrapper];
 }
 
-- (nullable instancetype)initWithApp:(FIRApp *)app {
-  NSArray<NSString *> *missingOptionsFields =
-      [GACAppCheckValidator tokenExchangeMissingFieldsInOptions:app.options];
-  if (missingOptionsFields.count > 0) {
-    GACLogError(kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions,
-                @"Cannot instantiate `GACDeviceCheckProvider` for app: %@. The following "
-                @"`FirebaseOptions` fields are missing: %@",
-                app.name, [missingOptionsFields componentsJoinedByString:@", "]);
-    return nil;
-  }
-
+- (instancetype)initWithStorageID:(NSString *)storageID
+                     resourceName:(NSString *)resourceName
+                           APIKey:(nullable NSString *)APIKey
+                     requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
-  // TODO(andrewheard): Remove from generic App Check SDK.
-  // FIREBASE_APP_CHECK_ONLY_BEGIN
-  GACAppCheckAPIRequestHook heartbeatLoggerHook = ^(NSMutableURLRequest *request) {
-    [request setValue:FIRHeaderValueFromHeartbeatsPayload(
-                          [app.heartbeatLogger flushHeartbeatsIntoPayload])
-        forHTTPHeaderField:kHeartbeatKey];
-  };
-  // FIREBASE_APP_CHECK_ONLY_END
-
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
-                                                 APIKey:app.options.APIKey
-                                           requestHooks:@[ heartbeatLoggerHook ]];
+                                                 APIKey:APIKey
+                                           requestHooks:requestHooks];
 
   GACDeviceCheckAPIService *deviceCheckAPIService =
-      [[GACDeviceCheckAPIService alloc] initWithAPIService:APIService
-                                                 projectID:app.options.projectID
-                                                     appID:app.options.googleAppID];
+      [[GACDeviceCheckAPIService alloc] initWithAPIService:APIService resourceName:resourceName];
 
   return [self initWithAPIService:deviceCheckAPIService];
 }
