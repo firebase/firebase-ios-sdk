@@ -16,8 +16,6 @@
 
 #import <Foundation/Foundation.h>
 
-@class FIRApp;
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface GACAppCheckStoredToken : NSObject <NSSecureCoding>

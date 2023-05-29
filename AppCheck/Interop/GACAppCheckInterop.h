@@ -41,7 +41,7 @@ NS_SWIFT_NAME(InternalAppCheckInterop) @protocol GACAppCheckInterop
 - (NSString *)notificationTokenKey;
 /// `userInfo` key for the `FirebaseApp.name` in a notification for
 /// `tokenDidChangeNotificationName`.
-- (NSString *)notificationAppNameKey;
+- (NSString *)notificationInstanceNameKey;
 
 // MARK: - Optional API
 
