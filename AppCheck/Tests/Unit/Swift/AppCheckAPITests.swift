@@ -23,11 +23,22 @@ import AppCheck
 
 final class AppCheckAPITests {
   func usage() {
+    let app = FirebaseApp.app()!
+    let projectID = app.options.projectID!
+    let resourceName = "projects/\(projectID)/\(app.options.googleAppID)"
+
     // MARK: - AppAttestProvider
 
     #if TARGET_OS_IOS
       if #available(iOS 14.0, *) {
-        if let app = FirebaseApp.app(), let provider = AppAttestProvider(app: app) {
+        // TODO(andrewheard): Add `requestHooks` in API tests.
+        if let provider = InternalAppAttestProvider(
+          storageID: app.name,
+          resourceName: resourceName,
+          apiKey: app.options.apiKey,
+          keychainAccessGroup: nil,
+          requestHooks: nil
+        ) {
           provider.getToken { token, error in
             // ...
           }
@@ -90,33 +101,38 @@ final class AppCheckAPITests {
     // MARK: - `AppCheckDebugProvider`
 
     // `AppCheckDebugProvider` initializer
-    if let app = FirebaseApp.app(), let debugProvider = InternalAppCheckDebugProvider(app: app) {
-      // Get token
-      debugProvider.getToken { token, error in
-        if let _ /* error */ = error {
-          // ...
-        } else if let _ /* token */ = token {
-          // ...
-        }
+    // TODO(andrewheard): Add `requestHooks` in API tests.
+    let debugProvider = InternalAppCheckDebugProvider(
+      storageID: app.name,
+      resourceName: resourceName,
+      apiKey: app.options.apiKey,
+      requestHooks: nil
+    )
+    // Get token
+    debugProvider.getToken { token, error in
+      if let _ /* error */ = error {
+        // ...
+      } else if let _ /* token */ = token {
+        // ...
       }
+    }
 
-      // Get token (async/await)
-      #if compiler(>=5.5.2) && canImport(_Concurrency)
-        if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-          // async/await is a Swift 5.5+ feature available on iOS 15+
-          Task {
-            do {
-              _ = try await debugProvider.getToken()
-            } catch {
-              // ...
-            }
+    // Get token (async/await)
+    #if compiler(>=5.5.2) && canImport(_Concurrency)
+      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+        // async/await is a Swift 5.5+ feature available on iOS 15+
+        Task {
+          do {
+            _ = try await debugProvider.getToken()
+          } catch {
+            // ...
           }
         }
-      #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+      }
+    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 
-      _ = debugProvider.localDebugToken()
-      _ = debugProvider.currentDebugToken()
-    }
+    _ = debugProvider.localDebugToken()
+    _ = debugProvider.currentDebugToken()
 
     // MARK: - AppCheckToken
 
