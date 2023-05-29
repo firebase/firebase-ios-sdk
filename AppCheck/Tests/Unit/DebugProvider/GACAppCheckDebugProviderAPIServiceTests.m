@@ -28,13 +28,15 @@
 
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
+static NSString *const kProjectID = @"project_id";
+static NSString *const kAppID = @"app_id";
+
 @interface GACAppCheckDebugProviderAPIServiceTests : XCTestCase
 @property(nonatomic) GACAppCheckDebugProviderAPIService *debugAPIService;
 
 @property(nonatomic) id mockAPIService;
 
-@property(nonatomic) NSString *projectID;
-@property(nonatomic) NSString *appID;
+@property(nonatomic) NSString *resourceName;
 @end
 
 @implementation GACAppCheckDebugProviderAPIServiceTests
@@ -42,16 +44,14 @@
 - (void)setUp {
   [super setUp];
 
-  self.projectID = @"project_id";
-  self.appID = @"app_id";
+  self.resourceName = [NSString stringWithFormat:@"projects/%@/apps/%@", kProjectID, kAppID];
 
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
   OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/alpha");
 
   self.debugAPIService =
       [[GACAppCheckDebugProviderAPIService alloc] initWithAPIService:self.mockAPIService
-                                                           projectID:self.projectID
-                                                               appID:self.appID];
+                                                        resourceName:self.resourceName];
 }
 
 - (void)tearDown {

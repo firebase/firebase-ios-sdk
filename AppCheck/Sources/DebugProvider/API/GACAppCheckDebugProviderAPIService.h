@@ -32,8 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
     : NSObject <GACAppCheckDebugProviderAPIServiceProtocol>
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID;
+                      resourceName:(NSString *)resourceName;
 
 @end
 
