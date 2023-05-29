@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/model/target_index_matcher.h"
 
+#include <unordered_set>
+
 #include "Firestore/core/src/util/hard_assert.h"
 
 namespace firebase {
@@ -59,19 +61,19 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   }
 
   std::vector<Segment> segments = index.GetDirectionalSegments();
+  std::unordered_set<std::string> equality_segments;
   size_t segment_index = 0;
   // Process all equalities first. Equalities can appear out of order.
   for (; segment_index < segments.size(); ++segment_index) {
     // We attempt to greedily match all segments to equality filters. If a
-    // filter matches an index segment, we can mark the segment as used. Since
-    // it is not possible to use the same field path in both an equality and
-    // inequality/oderBy clause, we do not have to consider the possibility that
-    // a matching equality segment should instead be used to map to an
-    // inequality filter or orderBy clause.
-    if (!HasMatchingEqualityFilter(segments[segment_index])) {
+    // filter matches an index segment, we can mark the segment as used.
+    if (HasMatchingEqualityFilter(segments[segment_index])) {
       // If we cannot find a matching filter, we need to verify whether the
       // remaining segments map to the target's inequality and its orderBy
       // clauses.
+      equality_segments.emplace(
+          segments[segment_index].field_path().CanonicalString());
+    } else {
       break;
     }
   }
@@ -86,14 +88,18 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   // `order_bys_` has at least one element.
   auto order_by_iter = order_bys_.begin();
 
-  // If there is an inequality filter, the next segment must match both the
-  // filter and the first OrderBy clause.
   if (inequality_filter_.has_value()) {
-    if (!MatchesFilter(inequality_filter_, segments[segment_index]) ||
-        !MatchesOrderBy(*order_by_iter, segments[segment_index])) {
-      return false;
+    // If there is an inequality filter and the field was not in one of the
+    // equality filters above, the next segment must match both the filter
+    // and the first orderBy clause.
+    if (equality_segments.count(
+            inequality_filter_.value().field().CanonicalString()) == 0) {
+      if (!MatchesFilter(inequality_filter_, segments[segment_index]) ||
+          !MatchesOrderBy(*(order_by_iter++), segments[segment_index])) {
+        return false;
+      }
     }
-    ++order_by_iter;
+
     ++segment_index;
   }
 
