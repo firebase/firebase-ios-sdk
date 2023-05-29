@@ -17,8 +17,7 @@
 import FirebaseFirestore
 
 /// Property wrapper @FirestoreObjectReference,
-/// Indicates that the specified property value should be stored by reference instead of by value,  inline
-/// with the parent object.
+/// Indicates that the specified property value should be stored by reference instead of by value
 ///
 /// When loading a parent object, any references are not loaded by default and can be loaded on demand
 /// using the projected value of the wrapper.

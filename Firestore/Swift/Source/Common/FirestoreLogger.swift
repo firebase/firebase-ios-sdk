@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Aashish Patil on 5/29/23.
 //
@@ -10,7 +10,7 @@ import OSLog
 
 /// Base FirestoreLogger class
 /// Logging categories can be created by extending FirestoreLogger and defining a static FirestoreLogger var with your category
-/// 
+///
 /// ```
 /// extension FirestoreLogger {
 ///  static var myCategory = FirestoreLogger(category: "myCategory")
@@ -25,7 +25,6 @@ import OSLog
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 class FirestoreLogger: OSLog {
-
   private let firestoreSubsystem = "com.google.firebase.firestore"
 
   init(category: String) {
@@ -51,5 +50,4 @@ class FirestoreLogger: OSLog {
   func fault(_ message: StaticString, _ args: CVarArg) {
     os_log(message, log: self, type: .fault, args)
   }
-
 }

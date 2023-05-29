@@ -54,7 +54,6 @@ public class ReferenceableObjectManager {
         try await db.collection(T.parentCollection()).document(docId).setData(json)
         await objectCache.add(object: object, digest: currentDigest)
       } else {
-
         let documentReference = db.collection(T.parentCollection()).document()
         try documentReference.setData(from: object)
       }
@@ -67,7 +66,7 @@ public class ReferenceableObjectManager {
     do {
       // first check cache
       if let cacheEntry = await objectCache.get(for: T.objectPath(objectId: objectId)) {
-        return cacheEntry.object as! T
+        return cacheEntry.object as? T
       }
 
       // get from db
@@ -102,7 +101,11 @@ public class ReferenceableObjectManager {
       }
     }
 
-    FirestoreLogger.objectReference.debug("%@ fetchObjects found %ld objects",logPrefix, foundObjects.count)
+    FirestoreLogger.objectReference.debug(
+      "%@ fetchObjects found %ld objects",
+      logPrefix,
+      foundObjects.count
+    )
 
     return foundObjects
   }
