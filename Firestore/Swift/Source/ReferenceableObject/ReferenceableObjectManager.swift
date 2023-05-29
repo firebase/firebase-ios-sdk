@@ -36,38 +36,43 @@ public class ReferenceableObjectManager {
 
   private var objectCache = ReferenceableObjectCache()
 
+  private let logPrefix = "ReferenceableObjectManager:"
+
   public func save<T: ReferenceableObject>(object: T) async throws {
     do {
-      let encoder = Firestore.Encoder()
-      let json = try encoder.encode(object)
+      if let docId = object.id,
+         await objectCache.contains(for: docId) {
+        let encoder = Firestore.Encoder()
+        let json = try encoder.encode(object)
 
-      if let docId = object.id {
         guard let currentDigest = computeHash(obj: json),
               await needsSave(object: object, currentDigest: currentDigest) else {
-          OSLog.storeByReference.debug("Object doesn't need to be saved")
+          FirestoreLogger.objectReference.debug("%@ Object doesn't need to be saved", logPrefix)
           return
         }
 
         try await db.collection(T.parentCollection()).document(docId).setData(json)
         await objectCache.add(object: object, digest: currentDigest)
       } else {
-        try await db.collection(T.parentCollection()).document().setData(json)
+
+        let documentReference = db.collection(T.parentCollection()).document()
+        try documentReference.setData(from: object)
       }
 
-      print("Save complete")
+      FirestoreLogger.objectReference.debug("%@ save object complete", logPrefix)
     }
   }
 
-  public func getObject<T: ReferenceableObject>(objId: String) async throws -> T? {
+  public func getObject<T: ReferenceableObject>(objectId: String) async throws -> T? {
     do {
       // first check cache
-      if let cacheEntry = await objectCache.get(for: T.objectPath(objectId: objId)) {
+      if let cacheEntry = await objectCache.get(for: T.objectPath(objectId: objectId)) {
         return cacheEntry.object as! T
       }
 
       // get from db
-      let docRef = db.collection(T.parentCollection()).document(objId)
-      let doc = try await docRef.getDocument()
+      let documentReference = db.collection(T.parentCollection()).document(objectId)
+      let doc = try await documentReference.getDocument()
       let obj = try doc.data(as: T.self)
 
       // cache the doc since we just fetched it from store
@@ -80,7 +85,7 @@ public class ReferenceableObjectManager {
     }
   }
 
-  public func fetchObjects<T: ReferenceableObject>(type: T.Type) async throws -> [T] {
+  public func getObjects<T: ReferenceableObject>(type: T.Type) async throws -> [T] {
     var foundObjects = [T]()
     do {
       let collectionRef = db.collection(type.parentCollection())
@@ -97,12 +102,12 @@ public class ReferenceableObjectManager {
       }
     }
 
-    OSLog.storeByReference.debug("fetchObjects found %ld objects", foundObjects.count)
+    FirestoreLogger.objectReference.debug("%@ fetchObjects found %ld objects",logPrefix, foundObjects.count)
 
     return foundObjects
   }
 
-  public func fetchObjects<T: ReferenceableObject>(predicates: [QueryPredicate]) async throws
+  public func getObjects<T: ReferenceableObject>(predicates: [QueryPredicate]) async throws
     -> [T] {
     var query: Query = db.collection(T.parentCollection())
 
@@ -110,6 +115,7 @@ public class ReferenceableObjectManager {
 
     var foundObjects = [T]()
     let snapshot = try await query.getDocuments()
+
     for document in snapshot.documents {
       let refObj = try document.data(as: T.self)
       foundObjects.append(refObj)
@@ -163,7 +169,7 @@ public class ReferenceableObjectManager {
       return digest
     } catch {
       // this doesn't prevent functionality so not erroring here.
-      OSLog.storeByReference.info("Failed to compute hash")
+      FirestoreLogger.objectReference.info("Failed to compute hash")
       return nil
     }
   }
@@ -230,8 +236,7 @@ private actor ReferenceableObjectCache {
         object: object,
         insertTime: Date().timeIntervalSince1970
       )
-      // print("Added object to cache \(docId)")
-      OSLog.storeByReference.info("Added object to cache %@", docId)
+      FirestoreLogger.objectReference.debug("Added object to cache %@", docId)
     }
   }
 
@@ -249,6 +254,14 @@ private actor ReferenceableObjectCache {
     }
 
     return cache[docId]
+  }
+
+  func contains(for docId: String) -> Bool {
+    guard cache[docId] != nil else {
+      return false
+    }
+
+    return true
   }
 
   func removeAll() {

@@ -23,9 +23,9 @@ import FirebaseFirestore
 /// When loading a parent object, any references are not loaded by default and can be loaded on demand
 /// using the projected value of the wrapper.
 ///
-/// structs that can be stored as a reference must implement the `ReferenceableObject` protocol
+/// Structs that can be stored as a reference must implement the `ReferenceableObject` protocol
 ///
-/// variables that are annotated with the propertyWrapper should be marked as `Optional` since they can be nil when not loaded or set
+/// Variables that are annotated with the propertyWrapper should be marked as `Optional` since they can be nil when not loaded or set
 ///
 /// Example:
 /// We have three structs representing a simplified UserProfile model -
@@ -40,36 +40,36 @@ import FirebaseFirestore
 ///
 /// ```
 /// struct UserProfile: ReferenceableObject {
-///     var username: String
+///   var username: String
 ///
-///     @FirestoreObjRef
-///     var employer: Employer?
+///   @FirestoreObjectReference
+///   var employer: Employer?
 ///
-///     @FirestoreObjRef
-///     var workLocation: WorkLocation?
+///   @FirestoreObjectReference
+///   var workLocation: WorkLocation?
 ///
 /// }
 ///
 /// struct Employer: ReferenceableObject {
-///     var name: String
+///   var name: String
 ///
-///     @FirestoreObjRef
-///     var headquarters: WorkLocation?
+///   @FirestoreObjectReference
+///   var headquarters: WorkLocation?
 /// }
 ///
 /// struct WorkLocation: ReferenceableObject {
-///     var locationName: String
-///     var moreInfo: String //
+///   var locationName: String
+///   var moreInfo: String
 ///
 /// }
 ///
 /// var userProfile = ...
 ///
 /// // use projected value to load referenced employer
-/// try await userProfile.$employer?.loadObject()
+/// try await userProfile.$employer?.loadReferencedObject()
 ///
 /// // use projected value to load referenced workLocation
-/// try await prof.$workLocation?.loadObject()
+/// try await prof.$workLocation?.loadReferencedObject()
 ///
 ///
 ///
@@ -77,67 +77,66 @@ import FirebaseFirestore
 ///
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 @propertyWrapper
-public struct FirestoreObjRef<T> where T: ReferenceableObject {
-  private var objReference: ObjReference<T>?
+public struct FirestoreObjectReference<T> where T: ReferenceableObject {
+  private var objectReference: ObjectReference<T>?
 
   public init(wrappedValue initialValue: T?) {
     updateInitialValue(initialValue: initialValue)
   }
 
   private mutating func updateInitialValue(initialValue: T?) {
-    if var initialValue {
-      var oid = initialValue.id
-      if oid == nil {
+    if let initialValue {
+      let objId = initialValue.id ?? {
         let docRef = Firestore.firestore().collection(T.parentCollection()).document()
-        oid = docRef.documentID
-        initialValue.id = oid
-      }
-      objReference = ObjReference(
-        documentId: oid!,
+        return docRef.documentID
+      }()
+
+      objectReference = ObjectReference(
+        objectId: objId,
         collection: T.parentCollection(),
-        referencedObj: initialValue
+        referencedObject: initialValue
       )
     }
   }
 
   public var wrappedValue: T? {
     get {
-      return objReference?.referencedObj
+      return objectReference?.referencedObject
     }
 
     set {
-      if objReference != nil {
-        objReference?.referencedObj = newValue
+      if objectReference != nil {
+        objectReference?.referencedObject = newValue
       } else {
         updateInitialValue(initialValue: newValue)
       }
     }
   }
 
-  public var projectedValue: ObjReference<T>? {
+  public var projectedValue: ObjectReference<T>? {
     get {
-      return objReference
+      return objectReference
     }
     set {
-      objReference = newValue
+      objectReference = newValue
     }
   }
 }
 
 @available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
-extension FirestoreObjRef: Codable {
+extension FirestoreObjectReference: Codable {
   public init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
-    let objRef = try container.decode(ObjReference<T>.self)
-    objReference = objRef
+    let objRef = try container.decode(ObjectReference<T>.self)
+    objectReference = objRef
   }
 
   public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
-    if let objReference {
-      try container.encode(objReference)
+    if let objectReference {
+      try container.encode(objectReference)
 
-      if let value = objReference.referencedObj {
+      if let value = objectReference.referencedObject {
         Task {
           try await ReferenceableObjectManager.instance.save(object: value)
         }
