@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyCknOdQgyCC-tjZHMoJ_ZmyCNTT7alMOVQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>886171983875</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>TheAbbottsandandthejackman</string>
+	<key>PROJECT_ID</key>
+	<string>project-benny</string>
+	<key>STORAGE_BUCKET</key>
+	<string>project-benny.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:886171983875:ios:c39bbe8ed54e6247f06e36</string>
+</dict>
+</plist>
