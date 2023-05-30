@@ -186,7 +186,7 @@ final class AppCheckAPITests {
           }
         }
         // Get token (async/await)
-        if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+        if #available(iOS 13.0, tvOS 13.0, *) {
           // async/await is only available on iOS 13+
           Task {
             do {
