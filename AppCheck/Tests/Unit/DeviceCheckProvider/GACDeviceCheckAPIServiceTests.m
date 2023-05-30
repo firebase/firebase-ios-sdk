@@ -32,15 +32,14 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+static NSString *const kResourceName = @"projects/project_id/apps/app_id";
+
 typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 
 @interface GACDeviceCheckAPIServiceTests : XCTestCase
 @property(nonatomic) GACDeviceCheckAPIService *APIService;
 
 @property(nonatomic) id mockAPIService;
-
-@property(nonatomic) NSString *projectID;
-@property(nonatomic) NSString *appID;
 
 @end
 
@@ -49,15 +48,11 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
 - (void)setUp {
   [super setUp];
 
-  self.projectID = @"project_id";
-  self.appID = @"app_id";
-
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
   OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/alpha");
 
   self.APIService = [[GACDeviceCheckAPIService alloc] initWithAPIService:self.mockAPIService
-                                                               projectID:self.projectID
-                                                                   appID:self.appID];
+                                                            resourceName:kResourceName];
 }
 
 - (void)tearDown {
