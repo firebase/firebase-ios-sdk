@@ -95,6 +95,7 @@ import Foundation
     request.requestURI = OAuthResponseURLString
     request.sessionID = sessionID
     request.providerOAuthTokenSecret = secret
+    request.fullName = fullName
     request.pendingToken = pendingToken
   }
 

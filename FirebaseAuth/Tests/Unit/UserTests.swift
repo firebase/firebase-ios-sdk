@@ -20,11 +20,6 @@ import FirebaseCore
 
 class UserTests: RPCBaseTests {
   static let kFakeAPIKey = "FAKE_API_KEY"
-  let kGoogleIDToken = "GOOGLE_ID_TOKEN"
-  let kGoogleAccessToken = "GOOGLE_ACCESS_TOKEN"
-  let kGoogleID = "GOOGLE_ID"
-  let kGoogleEmail = "usergmail.com"
-  let kGoogleDisplayName = "Google Doe"
   let kFacebookAccessToken = "FACEBOOK_ACCESS_TOKEN"
   let kFacebookID = "FACEBOOK_ID"
   let kFacebookEmail = "user@facebook.com"
@@ -33,8 +28,6 @@ class UserTests: RPCBaseTests {
   let kNewEmail = "newuser@company.com"
   let kNewPassword = "newpassword"
   let kNewDisplayName = "New User Doe"
-  let kUserName = "User Doe"
-  let kGoogleProfile = ["email": "usergmail.com", "given_name": "MyFirst", "family_name": "MyLast"]
   let kVerificationCode = "12345678"
   let kVerificationID = "55432"
   let kPhoneNumber = "555-1234"
@@ -869,7 +862,7 @@ class UserTests: RPCBaseTests {
                                                "federatedId": self.kGoogleID,
                                                "providerId": GoogleAuthProvider.id,
                                                "localId": self.kLocalID,
-                                               "displayName": self.kDisplayName,
+                                               "displayName": self.kGoogleDisplayName,
                                                "rawUserInfo": self.kGoogleProfile,
                                                "username": self.kUserName])
       } catch {
@@ -955,9 +948,7 @@ class UserTests: RPCBaseTests {
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
-        self.setFakeGetAccountProvider(withProviderID: GoogleAuthProvider.id,
-                                       withFederatedID: self.kGoogleID,
-                                       withEmail: self.kGoogleEmail)
+        self.setFakeGoogleGetAccountProvider()
         let group = self.createGroup()
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
@@ -988,7 +979,7 @@ class UserTests: RPCBaseTests {
                                                "federatedId": self.kGoogleID,
                                                "providerId": GoogleAuthProvider.id,
                                                "localId": self.kLocalID,
-                                               "displayName": self.kDisplayName,
+                                               "displayName": self.kGoogleDisplayName,
                                                "rawUserInfo": self.kGoogleProfile,
                                                "username": self.kUserName])
       } catch {
@@ -1241,15 +1232,13 @@ class UserTests: RPCBaseTests {
 
   #if os(iOS)
     private class FakeOAuthProvider: OAuthProvider {
-      static let kOAuthSessionID = "sessionID"
-      static let kOAuthRequestURI = "requestURI"
       override func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
                                       completion: ((AuthCredential?, Error?) -> Void)? = nil) {
         if let completion {
           let credential = OAuthCredential(
             withProviderID: GoogleAuthProvider.id,
-            sessionID: UserTests.FakeOAuthProvider.kOAuthSessionID,
-            OAuthResponseURLString: UserTests.FakeOAuthProvider.kOAuthRequestURI
+            sessionID: UserTests.kOAuthSessionID,
+            OAuthResponseURLString: UserTests.kOAuthRequestURI
           )
           completion(credential, nil)
         }
@@ -1672,9 +1661,7 @@ class UserTests: RPCBaseTests {
 
   private func signInWithGoogleCredential(completion: @escaping (User) -> Void) {
     setFakeSecureTokenService(fakeAccessToken: RPCBaseTests.kFakeAccessToken)
-    setFakeGetAccountProvider(withProviderID: GoogleAuthProvider.id,
-                              withFederatedID: kGoogleID,
-                              withEmail: kGoogleEmail)
+    setFakeGoogleGetAccountProvider()
 
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
@@ -1800,18 +1787,6 @@ class UserTests: RPCBaseTests {
     } catch {
       XCTFail("Throw in \(#function): \(error)")
     }
-  }
-
-  private func assertUserGoogle(_ user: User?) throws {
-    let user = try XCTUnwrap(user)
-    XCTAssertEqual(user.uid, kLocalID)
-    XCTAssertEqual(user.displayName, kGoogleDisplayName)
-    XCTAssertEqual(user.providerData.count, 1)
-    let googleUserInfo = user.providerData[0]
-    XCTAssertEqual(googleUserInfo.providerID, GoogleAuthProvider.id)
-    XCTAssertEqual(googleUserInfo.uid, kGoogleID)
-    XCTAssertEqual(googleUserInfo.displayName, kGoogleDisplayName)
-    XCTAssertEqual(googleUserInfo.email, kGoogleEmail)
   }
 
   // TODO: For testUpdateEmailWithAuthLinkAccountSuccess. Revisit after auth.swift. Should be able to

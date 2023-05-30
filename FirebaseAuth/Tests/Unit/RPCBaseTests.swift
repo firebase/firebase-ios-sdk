@@ -20,7 +20,7 @@ import XCTest
 class RPCBaseTests: XCTestCase {
   let kEmail = "user@company.com"
   let kFakePassword = "!@#$%^"
-  let kDisplayName = "Google Doe"
+  let kDisplayName = "User Doe"
   let kLocalID = "testLocalId"
   let kFakeOobCode = "fakeOobCode"
   let kRefreshToken = "fakeRefreshToken"
@@ -34,13 +34,22 @@ class RPCBaseTests: XCTestCase {
     "https://example.domain.com/?apiKey=testAPIKey&oobCode=testoobcode&mode=signIn"
   let kContinueURL = "continueURL"
   let kIosBundleID = "testBundleID"
-  let kAndroidPackageName = "adroidpackagename"
+  let kAndroidPackageName = "androidpackagename"
   let kAndroidMinimumVersion = "3.0"
   let kDynamicLinkDomain = "test.page.link"
   let kTestPhotoURL = "https://host.domain/image"
   let kCreationDateTimeIntervalInSeconds = 1_505_858_500.0
   let kLastSignInDateTimeIntervalInSeconds = 1_505_858_583.0
   let kTestPhoneNumber = "415-555-1234"
+  static let kOAuthSessionID = "sessionID"
+  static let kOAuthRequestURI = "requestURI"
+  let kGoogleIDToken = "GOOGLE_ID_TOKEN"
+  let kGoogleAccessToken = "GOOGLE_ACCESS_TOKEN"
+  let kGoogleID = "GOOGLE_ID"
+  let kGoogleEmail = "usergmail.com"
+  let kGoogleDisplayName = "Google Doe"
+  let kGoogleProfile = ["email": "usergmail.com", "given_name": "MyFirst", "family_name": "MyLast"]
+  let kUserName = "User Doe"
 
   /** @var kTestAPIKey
       @brief Fake API key used for testing.
@@ -236,7 +245,7 @@ class RPCBaseTests: XCTestCase {
     rpcIssuer?.fakeSecureTokenServiceJSON = ["access_token": fakeAccessToken]
   }
 
-  func setFakeGetAccountProvider(withNewDisplayName displayName: String = "Google Doe",
+  func setFakeGetAccountProvider(withNewDisplayName displayName: String = "User Doe",
                                  withLocalID localID: String = "testLocalId",
                                  withProviderID providerID: String = "testProviderID",
                                  withFederatedID federatedID: String = "testFederatedId",
@@ -271,6 +280,13 @@ class RPCBaseTests: XCTestCase {
     ]]
   }
 
+  func setFakeGoogleGetAccountProvider() {
+    setFakeGetAccountProvider(withNewDisplayName: kGoogleDisplayName,
+                              withProviderID: GoogleAuthProvider.id,
+                              withFederatedID: kGoogleID,
+                              withEmail: kGoogleEmail)
+  }
+
   func setFakeGetAccountProviderAnonymous() {
     let kPasswordHashKey = "passwordHash"
     let kTestPasswordHash = "testPasswordHash"
@@ -299,5 +315,17 @@ class RPCBaseTests: XCTestCase {
     settings.url = URL(string: kContinueURL)
     settings.dynamicLinkDomain = kDynamicLinkDomain
     return settings
+  }
+
+  func assertUserGoogle(_ user: User?) throws {
+    let user = try XCTUnwrap(user)
+    XCTAssertEqual(user.uid, kLocalID)
+    XCTAssertEqual(user.displayName, kGoogleDisplayName)
+    XCTAssertEqual(user.providerData.count, 1)
+    let googleUserInfo = user.providerData[0]
+    XCTAssertEqual(googleUserInfo.providerID, GoogleAuthProvider.id)
+    XCTAssertEqual(googleUserInfo.uid, kGoogleID)
+    XCTAssertEqual(googleUserInfo.displayName, kGoogleDisplayName)
+    XCTAssertEqual(googleUserInfo.email, kGoogleEmail)
   }
 }

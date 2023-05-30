@@ -17,7 +17,7 @@ import XCTest
 
 @testable import FirebaseAuth
 
-class AdditionaUserInfoTests: XCTestCase {
+class AdditionalUserInfoTests: XCTestCase {
   let kFakeProfile = ["email": "user@mail.com", "given_name": "User", "family_name": "Doe"]
   let kUserName = "User Doe"
   let kProviderID = "PROVIDER_ID"
