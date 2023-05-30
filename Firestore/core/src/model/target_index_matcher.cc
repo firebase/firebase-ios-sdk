@@ -71,7 +71,7 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
       equality_segments.emplace(
           segments[segment_index].field_path().CanonicalString());
     } else {
-// If we cannot find a matching filter, we need to verify whether the
+      // If we cannot find a matching filter, we need to verify whether the
       // remaining segments map to the target's inequality and its orderBy
       // clauses.
       break;
