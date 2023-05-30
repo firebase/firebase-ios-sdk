@@ -30,8 +30,6 @@
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 static NSString *const kContentTypeKey = @"Content-Type";
@@ -42,21 +40,18 @@ static NSString *const kDeviceTokenField = @"device_token";
 
 @property(nonatomic, readonly) id<GACAppCheckAPIServiceProtocol> APIService;
 
-@property(nonatomic, readonly) NSString *projectID;
-@property(nonatomic, readonly) NSString *appID;
+@property(nonatomic, readonly) NSString *resourceName;
 
 @end
 
 @implementation GACDeviceCheckAPIService
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID {
+                      resourceName:(NSString *)resourceName {
   self = [super init];
   if (self) {
     _APIService = APIService;
-    _projectID = projectID;
-    _appID = appID;
+    _resourceName = resourceName;
   }
   return self;
 }
@@ -64,9 +59,8 @@ static NSString *const kDeviceTokenField = @"device_token";
 #pragma mark - Public API
 
 - (FBLPromise<GACAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken {
-  NSString *URLString =
-      [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDeviceCheckToken",
-                                 self.APIService.baseURL, self.projectID, self.appID];
+  NSString *URLString = [NSString stringWithFormat:@"%@/%@:exchangeDeviceCheckToken",
+                                                   self.APIService.baseURL, self.resourceName];
   NSURL *URL = [NSURL URLWithString:URLString];
 
   return [self HTTPBodyWithDeviceToken:deviceToken]
