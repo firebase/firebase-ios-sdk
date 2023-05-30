@@ -21,7 +21,6 @@
 
 #if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
-@class FIRApp;
 @protocol GACDeviceCheckAPIServiceProtocol;
 @protocol GACDeviceCheckTokenGenerator;
 
@@ -38,10 +37,17 @@ NS_SWIFT_NAME(InternalDeviceCheckProvider)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// The default initializer.
-/// @param app A `FirebaseApp` instance.
-/// @return An instance of `DeviceCheckProvider` if the provided `FirebaseApp` instance contains all
-/// required parameters.
-- (nullable instancetype)initWithApp:(FIRApp *)app;
+/// @param storageID A unique identifier to differentiate storage keys corresponding to the same
+/// `resourceName`; may be a Firebase App Name or an SDK name.
+/// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
+/// "projects/{project_id}/apps/{app_id}".
+/// @param APIKey The Google Cloud Platform API key, if needed, or nil.
+/// @param requestHooks Hooks that will be invoked on requests through this service.
+/// @return An instance of `DeviceCheckProvider` .
+- (instancetype)initWithStorageID:(NSString *)storageID
+                     resourceName:(NSString *)resourceName
+                           APIKey:(nullable NSString *)APIKey
+                     requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
 
 @end
 
