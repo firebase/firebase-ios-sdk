@@ -2026,23 +2026,32 @@ import Foundation
   }
 
   public required init?(coder: NSCoder) {
-    guard let userID = coder.decodeObject(of:NSString.self, forKey: kUserIDCodingKey) as? String,
-          let apiKey = coder.decodeObject(of:NSString.self, forKey: kAPIKeyCodingKey) as? String,
-          let appID = coder.decodeObject(of:NSString.self, forKey: kFirebaseAppIDCodingKey) as? String,
+    guard let userID = coder.decodeObject(of: NSString.self, forKey: kUserIDCodingKey) as? String,
+          let apiKey = coder.decodeObject(of: NSString.self, forKey: kAPIKeyCodingKey) as? String,
+          let appID = coder.decodeObject(
+            of: NSString.self,
+            forKey: kFirebaseAppIDCodingKey
+          ) as? String,
           let tokenService = coder.decodeObject(forKey: kTokenServiceCodingKey)
           as? SecureTokenService else {
       return nil
     }
     let anonymous = coder.decodeBool(forKey: kAnonymousCodingKey)
     let hasEmailPasswordCredential = coder.decodeBool(forKey: kHasEmailPasswordCredentialCodingKey)
-    let displayName = coder.decodeObject(of:NSString.self, forKey: kDisplayNameCodingKey) as? String
+    let displayName = coder.decodeObject(
+      of: NSString.self,
+      forKey: kDisplayNameCodingKey
+    ) as? String
     let photoURL = coder.decodeObject(forKey: kPhotoURLCodingKey) as? URL
-    let email = coder.decodeObject(of:NSString.self, forKey: kEmailCodingKey) as? String
-    let phoneNumber = coder.decodeObject(of:NSString.self, forKey: kPhoneNumberCodingKey) as? String
+    let email = coder.decodeObject(of: NSString.self, forKey: kEmailCodingKey) as? String
+    let phoneNumber = coder.decodeObject(
+      of: NSString.self,
+      forKey: kPhoneNumberCodingKey
+    ) as? String
     let emailVerified = coder.decodeBool(forKey: kEmailVerifiedCodingKey)
     let providerData = coder.decodeObject(forKey: kProviderDataKey) as? [String: UserInfoImpl]
     let metadata = coder.decodeObject(forKey: kMetadataCodingKey) as? UserMetadata
-    let tenantID = coder.decodeObject(of:NSString.self, forKey: kTenantIDCodingKey) as? String
+    let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
     #if os(iOS)
       let multiFactor = coder.decodeObject(forKey: kMultiFactorCodingKey) as? MultiFactor
     #endif

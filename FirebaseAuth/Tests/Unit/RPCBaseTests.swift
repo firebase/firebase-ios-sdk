@@ -283,7 +283,7 @@ class RPCBaseTests: XCTestCase {
   func setFakeGoogleGetAccountProvider() {
     setFakeGetAccountProvider(withNewDisplayName: kGoogleDisplayName,
                               withProviderID: GoogleAuthProvider.id,
-                              withFederatedID:kGoogleID,
+                              withFederatedID: kGoogleID,
                               withEmail: kGoogleEmail)
   }
 

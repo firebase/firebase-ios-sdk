@@ -119,101 +119,101 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-#if os(iOS)
-  /** @fn testPhoneAuthSuccess
-      @brief Tests the flow of a successful @c signInWithCredential:completion for phone auth.
-   */
-  func testPhoneAuthSuccess() throws {
-    let kVerificationID = "55432"
-    let kVerificationCode = "12345678"
-    let expectation = self.expectation(description: #function)
-    setFakeGetAccountProvider()
-    setFakeSecureTokenService()
+  #if os(iOS)
+    /** @fn testPhoneAuthSuccess
+        @brief Tests the flow of a successful @c signInWithCredential:completion for phone auth.
+     */
+    func testPhoneAuthSuccess() throws {
+      let kVerificationID = "55432"
+      let kVerificationCode = "12345678"
+      let expectation = self.expectation(description: #function)
+      setFakeGetAccountProvider()
+      setFakeSecureTokenService()
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
+      // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+      let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
-      .credential(withVerificationID: kVerificationID,
-                                                             verificationCode: kVerificationCode)
-    AuthTests.auth?.signIn(with: credential) { authResult, error in
-      // 4. After the response triggers the callback, verify the returned result.
-      XCTAssertTrue(Thread.isMainThread)
-      guard let user = authResult?.user,
-        let additionalUserInfo = authResult?.additionalUserInfo else {
-        XCTFail("authResult.user or additionalUserInfo is missing")
-        return
+      try AuthTests.auth?.signOut()
+      let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
+        .credential(withVerificationID: kVerificationID,
+                    verificationCode: kVerificationCode)
+      AuthTests.auth?.signIn(with: credential) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        guard let user = authResult?.user,
+              let additionalUserInfo = authResult?.additionalUserInfo else {
+          XCTFail("authResult.user or additionalUserInfo is missing")
+          return
+        }
+        XCTAssertEqual(user.refreshToken, self.kRefreshToken)
+        XCTAssertFalse(user.isAnonymous)
+        XCTAssertTrue(additionalUserInfo.isNewUser)
+        XCTAssertNil(error)
+        expectation.fulfill()
       }
-      XCTAssertEqual(user.refreshToken, self.kRefreshToken)
-      XCTAssertFalse(user.isAnonymous)
-      XCTAssertTrue(additionalUserInfo.isNewUser)
-      XCTAssertNil(error)
-      expectation.fulfill()
+      group.wait()
+
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPhoneNumberRequest)
+      XCTAssertEqual(request.verificationCode, kVerificationCode)
+      XCTAssertEqual(request.verificationID, kVerificationID)
+
+      // 3. Send the response from the fake backend.
+      try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                        "isNewUser": true,
+                                        "refreshToken": kRefreshToken])
+
+      waitForExpectations(timeout: 5)
+      assertUser(AuthTests.auth?.currentUser)
     }
-    group.wait()
 
-    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPhoneNumberRequest)
-    XCTAssertEqual(request.verificationCode, kVerificationCode)
-    XCTAssertEqual(request.verificationID, kVerificationID)
+    /** @fn testPhoneAuthMissingVerificationCode
+        @brief Tests the flow of an unsuccessful @c signInWithCredential:completion for phone auth due
+            to an empty verification code
+     */
+    func testPhoneAuthMissingVerificationCode() throws {
+      let kVerificationID = "55432"
+      let kVerificationCode = ""
+      let expectation = self.expectation(description: #function)
+      setFakeGetAccountProvider()
+      setFakeSecureTokenService()
 
-    // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "isNewUser": true,
-                                      "refreshToken": kRefreshToken])
-
-    waitForExpectations(timeout: 5)
-    assertUser(AuthTests.auth?.currentUser)
-  }
-
-  /** @fn testPhoneAuthMissingVerificationCode
-      @brief Tests the flow of an unsuccessful @c signInWithCredential:completion for phone auth due
-          to an empty verification code
-   */
-  func testPhoneAuthMissingVerificationCode() throws {
-    let kVerificationID = "55432"
-    let kVerificationCode = ""
-    let expectation = self.expectation(description: #function)
-    setFakeGetAccountProvider()
-    setFakeSecureTokenService()
-
-    try AuthTests.auth?.signOut()
-    let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
-      .credential(withVerificationID: kVerificationID,
-                                                             verificationCode: kVerificationCode)
-    AuthTests.auth?.signIn(with: credential) { authResult, error in
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(authResult)
-      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingVerificationCode.rawValue)
-      expectation.fulfill()
+      try AuthTests.auth?.signOut()
+      let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
+        .credential(withVerificationID: kVerificationID,
+                    verificationCode: kVerificationCode)
+      AuthTests.auth?.signIn(with: credential) { authResult, error in
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(authResult)
+        XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingVerificationCode.rawValue)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
-  }
 
-  /** @fn testPhoneAuthMissingVerificationID
-      @brief Tests the flow of an unsuccessful @c signInWithCredential:completion for phone auth due
-          to an empty verification ID.
-   */
-  func testPhoneAuthMissingVerificationID() throws {
-    let kVerificationID = ""
-    let kVerificationCode = "123"
-    let expectation = self.expectation(description: #function)
-    setFakeGetAccountProvider()
-    setFakeSecureTokenService()
+    /** @fn testPhoneAuthMissingVerificationID
+        @brief Tests the flow of an unsuccessful @c signInWithCredential:completion for phone auth due
+            to an empty verification ID.
+     */
+    func testPhoneAuthMissingVerificationID() throws {
+      let kVerificationID = ""
+      let kVerificationCode = "123"
+      let expectation = self.expectation(description: #function)
+      setFakeGetAccountProvider()
+      setFakeSecureTokenService()
 
-    try AuthTests.auth?.signOut()
-    let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
-      .credential(withVerificationID: kVerificationID,
-                                                             verificationCode: kVerificationCode)
-    AuthTests.auth?.signIn(with: credential) { authResult, error in
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(authResult)
-      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingVerificationID.rawValue)
-      expectation.fulfill()
+      try AuthTests.auth?.signOut()
+      let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
+        .credential(withVerificationID: kVerificationID,
+                    verificationCode: kVerificationCode)
+      AuthTests.auth?.signIn(with: credential) { authResult, error in
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(authResult)
+        XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingVerificationID.rawValue)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
     }
-    waitForExpectations(timeout: 5)
-  }
   #endif
 
   /** @fn testSignInWithEmailLinkSuccess
@@ -613,7 +613,10 @@ class AuthTests: RPCBaseTests {
     let group = createGroup()
 
     try AuthTests.auth?.signOut()
-    let emailCredential = EmailAuthProvider.credential(withEmail: kEmail, link: kFakeEmailSignInLink)
+    let emailCredential = EmailAuthProvider.credential(
+      withEmail: kEmail,
+      link: kFakeEmailSignInLink
+    )
     AuthTests.auth?.signIn(with: emailCredential) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
@@ -653,7 +656,10 @@ class AuthTests: RPCBaseTests {
     let group = createGroup()
 
     try AuthTests.auth?.signOut()
-    let emailCredential = EmailAuthProvider.credential(withEmail: kEmail, link: kFakeEmailSignInLink)
+    let emailCredential = EmailAuthProvider.credential(
+      withEmail: kEmail,
+      link: kFakeEmailSignInLink
+    )
     AuthTests.auth?.signIn(with: emailCredential) { authResult, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
@@ -759,194 +765,194 @@ class AuthTests: RPCBaseTests {
   }
 
   #if os(iOS)
-  class FakeProvider: NSObject, FederatedAuthProvider {
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    func credential(with UIDelegate: FirebaseAuth.AuthUIDelegate?) async throws ->
-    FirebaseAuth.AuthCredential {
-      fatalError("Should not use this async method yet")
-    }
-
-    func getCredentialWith(_ UIDelegate: FirebaseAuth.AuthUIDelegate?,
-                           completion: ((FirebaseAuth.AuthCredential?, Error?) -> Void)?) {
-      let credential = OAuthCredential.init(withProviderID: GoogleAuthProvider.id,
-                                            sessionID: kOAuthSessionID,
-                                            OAuthResponseURLString: kOAuthRequestURI)
-      XCTAssertEqual(credential.OAuthResponseURLString, kOAuthRequestURI)
-      XCTAssertEqual(credential.sessionID, kOAuthSessionID)
-      completion?(credential, nil)
-    }
-  }
-
-  /** @fn testSignInWithProviderSuccess
-      @brief Tests a successful @c signInWithProvider:UIDelegate:completion: call with an OAuth
-          provider configured for Google.
-   */
-  func testSignInWithProviderSuccess() throws {
-    let expectation = self.expectation(description: #function)
-    setFakeGoogleGetAccountProvider()
-    setFakeSecureTokenService()
-
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
-
-    try AuthTests.auth.signOut()
-    AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
-      // 4. After the response triggers the callback, verify the returned result.
-      XCTAssertTrue(Thread.isMainThread)
-      do {
-        try self.assertUserGoogle(authResult?.user)
-      } catch {
-        XCTFail("\(error)")
+    class FakeProvider: NSObject, FederatedAuthProvider {
+      @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+      func credential(with UIDelegate: FirebaseAuth.AuthUIDelegate?) async throws ->
+        FirebaseAuth.AuthCredential {
+        fatalError("Should not use this async method yet")
       }
-      XCTAssertNil(error)
-      expectation.fulfill()
-    }
-    group.wait()
 
-    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-    XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
-    XCTAssertTrue(request.returnSecureToken)
-
-    // 3. Send the response from the fake backend.
-    try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                           "refreshToken": self.kRefreshToken,
-                                           "federatedId": self.kGoogleID,
-                                           "providerId": GoogleAuthProvider.id,
-                                           "localId": self.kLocalID,
-                                           "displayName": self.kDisplayName,
-                                           "rawUserInfo": self.kGoogleProfile,
-                                           "username": self.kUserName])
-    waitForExpectations(timeout: 5)
-    try self.assertUserGoogle(AuthTests.auth.currentUser)
-  }
-
-  /** @fn testSignInWithProviderFailure
-      @brief Tests a failed @c signInWithProvider:UIDelegate:completion: call with the error code
-          FIRAuthErrorCodeWebSignInUserInteractionFailure.
-   */
-  func testSignInWithProviderFailure() throws {
-    let expectation = self.expectation(description: #function)
-    setFakeGoogleGetAccountProvider()
-    setFakeSecureTokenService()
-
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
-
-    try AuthTests.auth.signOut()
-    AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
-      // 4. After the response triggers the callback, verify the returned result.
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(authResult)
-      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.userDisabled.rawValue)
-      expectation.fulfill()
-    }
-    group.wait()
-
-    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-    XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
-    XCTAssertTrue(request.returnSecureToken)
-
-    // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
-    waitForExpectations(timeout: 5)
-  }
-
-  /** @fn testSignInWithGoogleAccountExistsError
-      @brief Tests the flow of a failed @c signInWithCredential:completion: with a Google credential
-          where the backend returns a needs @needConfirmation equal to true. An
-          FIRAuthErrorCodeAccountExistsWithDifferentCredential error should be thrown.
-   */
-  func testSignInWithGoogleAccountExistsError() throws {
-    let expectation = self.expectation(description: #function)
-    setFakeGoogleGetAccountProvider()
-    setFakeSecureTokenService()
-
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
-
-    try AuthTests.auth.signOut()
-    let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
-                                                         accessToken: kGoogleAccessToken)
-    AuthTests.auth.signIn(with: googleCredential) { authResult, error in
-      // 4. After the response triggers the callback, verify the returned result.
-      XCTAssertTrue(Thread.isMainThread)
-      XCTAssertNil(authResult)
-      XCTAssertEqual((error as? NSError)?.code,
-                     AuthErrorCode.accountExistsWithDifferentCredential.rawValue)
-      expectation.fulfill()
-    }
-    group.wait()
-
-    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-    XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
-    XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
-    XCTAssertEqual(request.providerAccessToken, kGoogleAccessToken)
-    XCTAssertTrue(request.returnSecureToken)
-
-    // 3. Send the response from the fake backend.
-    try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                           "refreshToken": self.kRefreshToken,
-                                           "federatedId": self.kGoogleID,
-                                           "providerId": GoogleAuthProvider.id,
-                                           "localId": self.kLocalID,
-                                           "displayName": self.kGoogleDisplayName,
-                                           "rawUserInfo": self.kGoogleProfile,
-                                           "username": self.kUserName,
-                                          "needConfirmation": true])
-    waitForExpectations(timeout: 5)
-  }
-
-  /** @fn testSignInWithOAuthCredentialSuccess
-      @brief Tests the flow of a successful @c signInWithCredential:completion: call with a generic
-          OAuth credential (In this case, configured for the Google IDP).
-   */
-  func testSignInWithOAuthCredentialSuccess() throws {
-    let expectation = self.expectation(description: #function)
-    setFakeGoogleGetAccountProvider()
-    setFakeSecureTokenService()
-
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
-
-    try AuthTests.auth.signOut()
-    AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
-      // 4. After the response triggers the callback, verify the returned result.
-      do {
-        try self.assertUserGoogle(authResult?.user)
-      } catch {
-        XCTFail("\(error)")
+      func getCredentialWith(_ UIDelegate: FirebaseAuth.AuthUIDelegate?,
+                             completion: ((FirebaseAuth.AuthCredential?, Error?) -> Void)?) {
+        let credential = OAuthCredential(withProviderID: GoogleAuthProvider.id,
+                                         sessionID: kOAuthSessionID,
+                                         OAuthResponseURLString: kOAuthRequestURI)
+        XCTAssertEqual(credential.OAuthResponseURLString, kOAuthRequestURI)
+        XCTAssertEqual(credential.sessionID, kOAuthSessionID)
+        completion?(credential, nil)
       }
-      XCTAssertNil(error)
-      expectation.fulfill()
     }
-    group.wait()
 
-    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-    XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
-    XCTAssertEqual(request.requestURI, AuthTests.kOAuthRequestURI)
-    XCTAssertEqual(request.sessionID, AuthTests.kOAuthSessionID)
-    XCTAssertTrue(request.returnSecureToken)
+    /** @fn testSignInWithProviderSuccess
+        @brief Tests a successful @c signInWithProvider:UIDelegate:completion: call with an OAuth
+            provider configured for Google.
+     */
+    func testSignInWithProviderSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      setFakeGoogleGetAccountProvider()
+      setFakeSecureTokenService()
 
-    // 3. Send the response from the fake backend.
-    try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                           "refreshToken": self.kRefreshToken,
-                                           "federatedId": self.kGoogleID,
-                                           "providerId": GoogleAuthProvider.id,
-                                           "localId": self.kLocalID,
-                                           "displayName": self.kGoogleDisplayName,
-                                           "rawUserInfo": self.kGoogleProfile,
-                                           "username": self.kUserName])
-    waitForExpectations(timeout: 5)
-    try self.assertUserGoogle(AuthTests.auth.currentUser)
-  }
+      // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+      let group = createGroup()
+
+      try AuthTests.auth.signOut()
+      AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        do {
+          try self.assertUserGoogle(authResult?.user)
+        } catch {
+          XCTFail("\(error)")
+        }
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      group.wait()
+
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
+      XCTAssertTrue(request.returnSecureToken)
+
+      // 3. Send the response from the fake backend.
+      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                        "refreshToken": kRefreshToken,
+                                        "federatedId": kGoogleID,
+                                        "providerId": GoogleAuthProvider.id,
+                                        "localId": kLocalID,
+                                        "displayName": kDisplayName,
+                                        "rawUserInfo": kGoogleProfile,
+                                        "username": kUserName])
+      waitForExpectations(timeout: 5)
+      try assertUserGoogle(AuthTests.auth.currentUser)
+    }
+
+    /** @fn testSignInWithProviderFailure
+        @brief Tests a failed @c signInWithProvider:UIDelegate:completion: call with the error code
+            FIRAuthErrorCodeWebSignInUserInteractionFailure.
+     */
+    func testSignInWithProviderFailure() throws {
+      let expectation = self.expectation(description: #function)
+      setFakeGoogleGetAccountProvider()
+      setFakeSecureTokenService()
+
+      // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+      let group = createGroup()
+
+      try AuthTests.auth.signOut()
+      AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(authResult)
+        XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.userDisabled.rawValue)
+        expectation.fulfill()
+      }
+      group.wait()
+
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
+      XCTAssertTrue(request.returnSecureToken)
+
+      // 3. Send the response from the fake backend.
+      try rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testSignInWithGoogleAccountExistsError
+        @brief Tests the flow of a failed @c signInWithCredential:completion: with a Google credential
+            where the backend returns a needs @needConfirmation equal to true. An
+            FIRAuthErrorCodeAccountExistsWithDifferentCredential error should be thrown.
+     */
+    func testSignInWithGoogleAccountExistsError() throws {
+      let expectation = self.expectation(description: #function)
+      setFakeGoogleGetAccountProvider()
+      setFakeSecureTokenService()
+
+      // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+      let group = createGroup()
+
+      try AuthTests.auth.signOut()
+      let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
+                                                           accessToken: kGoogleAccessToken)
+      AuthTests.auth.signIn(with: googleCredential) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(authResult)
+        XCTAssertEqual((error as? NSError)?.code,
+                       AuthErrorCode.accountExistsWithDifferentCredential.rawValue)
+        expectation.fulfill()
+      }
+      group.wait()
+
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
+      XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
+      XCTAssertEqual(request.providerAccessToken, kGoogleAccessToken)
+      XCTAssertTrue(request.returnSecureToken)
+
+      // 3. Send the response from the fake backend.
+      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                        "refreshToken": kRefreshToken,
+                                        "federatedId": kGoogleID,
+                                        "providerId": GoogleAuthProvider.id,
+                                        "localId": kLocalID,
+                                        "displayName": kGoogleDisplayName,
+                                        "rawUserInfo": kGoogleProfile,
+                                        "username": kUserName,
+                                        "needConfirmation": true])
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testSignInWithOAuthCredentialSuccess
+        @brief Tests the flow of a successful @c signInWithCredential:completion: call with a generic
+            OAuth credential (In this case, configured for the Google IDP).
+     */
+    func testSignInWithOAuthCredentialSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      setFakeGoogleGetAccountProvider()
+      setFakeSecureTokenService()
+
+      // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+      let group = createGroup()
+
+      try AuthTests.auth.signOut()
+      AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        do {
+          try self.assertUserGoogle(authResult?.user)
+        } catch {
+          XCTFail("\(error)")
+        }
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      group.wait()
+
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
+      XCTAssertEqual(request.requestURI, AuthTests.kOAuthRequestURI)
+      XCTAssertEqual(request.sessionID, AuthTests.kOAuthSessionID)
+      XCTAssertTrue(request.returnSecureToken)
+
+      // 3. Send the response from the fake backend.
+      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                        "refreshToken": kRefreshToken,
+                                        "federatedId": kGoogleID,
+                                        "providerId": GoogleAuthProvider.id,
+                                        "localId": kLocalID,
+                                        "displayName": kGoogleDisplayName,
+                                        "rawUserInfo": kGoogleProfile,
+                                        "username": kUserName])
+      waitForExpectations(timeout: 5)
+      try assertUserGoogle(AuthTests.auth.currentUser)
+    }
   #endif
 
   /** @fn testSignInWithCredentialSuccess
@@ -970,13 +976,13 @@ class AuthTests: RPCBaseTests {
       do {
         try self.assertUserGoogle(authResult?.user)
         guard let additionalUserInfo = authResult?.additionalUserInfo,
-        let profile = additionalUserInfo.profile as? [String: String] else {
+              let profile = additionalUserInfo.profile as? [String: String] else {
           XCTFail("authResult.additionalUserInfo is missing")
           return
         }
         XCTAssertEqual(profile, self.kGoogleProfile)
         XCTAssertEqual(additionalUserInfo.username, self.kGoogleDisplayName)
-                   XCTAssertEqual(additionalUserInfo.providerID, GoogleAuthProvider.id)
+        XCTAssertEqual(additionalUserInfo.providerID, GoogleAuthProvider.id)
       } catch {
         XCTFail("\(error)")
       }
@@ -994,16 +1000,119 @@ class AuthTests: RPCBaseTests {
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                           "refreshToken": self.kRefreshToken,
-                                           "federatedId": self.kGoogleID,
-                                           "providerId": GoogleAuthProvider.id,
-                                           "localId": self.kLocalID,
-                                           "displayName": self.kGoogleDisplayName,
-                                           "rawUserInfo": self.kGoogleProfile,
-                                           "username": self.kGoogleDisplayName])
+    try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                      "refreshToken": kRefreshToken,
+                                      "federatedId": kGoogleID,
+                                      "providerId": GoogleAuthProvider.id,
+                                      "localId": kLocalID,
+                                      "displayName": kGoogleDisplayName,
+                                      "rawUserInfo": kGoogleProfile,
+                                      "username": kGoogleDisplayName])
     waitForExpectations(timeout: 5)
-    try self.assertUserGoogle(AuthTests.auth.currentUser)
+    try assertUserGoogle(AuthTests.auth.currentUser)
+  }
+
+  /** @fn testSignInWithGoogleCredentialFailure
+      @brief Tests the flow of a failed @c signInWithCredential:completion: call with an
+          Google Sign-In credential.
+   */
+  func testSignInWithGoogleCredentialFailure() throws {
+    let expectation = self.expectation(description: #function)
+    setFakeGoogleGetAccountProvider()
+    setFakeSecureTokenService()
+
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth.signOut()
+    let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
+                                                         accessToken: kGoogleAccessToken)
+    AuthTests.auth.signIn(with: googleCredential) { authResult, error in
+      // 4. After the response triggers the callback, verify the returned result.
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertNil(authResult)
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.emailAlreadyInUse.rawValue)
+      XCTAssertEqual((error as? NSError)?.userInfo[NSLocalizedDescriptionKey] as? String,
+                     "The email address is already in use by another account.")
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
+    XCTAssertTrue(request.returnSecureToken)
+
+    // 3. Send the response from the fake backend.
+    try rpcIssuer?.respond(serverErrorMessage: "EMAIL_EXISTS")
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testSignInWithAppleCredentialFullNameInRequest
+      @brief Tests the flow of a successful @c signInWithCredential:completion: call
+          with an Apple Sign-In credential with a full name. This test differentiates from
+          @c testSignInWithCredentialSuccess only in verifying the full name.
+   */
+  func testSignInWithAppleCredentialFullNameInRequest() throws {
+    let expectation = self.expectation(description: #function)
+    let kAppleIDToken = "APPLE_ID_TOKEN"
+    let kFirst = "First"
+    let kLast = "Last"
+    var fullName = PersonNameComponents()
+    fullName.givenName = kFirst
+    fullName.familyName = kLast
+    setFakeGoogleGetAccountProvider()
+    setFakeSecureTokenService()
+
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+    let group = createGroup()
+
+    try AuthTests.auth.signOut()
+    let appleCredential = OAuthProvider.appleCredential(withIDToken: kAppleIDToken,
+                                                        rawNonce: nil,
+                                                        fullName: fullName)
+    AuthTests.auth.signIn(with: appleCredential) { authResult, error in
+      // 4. After the response triggers the callback, verify the returned result.
+      do {
+        try self.assertUserGoogle(authResult?.user)
+        guard let additionalUserInfo = authResult?.additionalUserInfo,
+              let profile = additionalUserInfo.profile as? [String: String] else {
+          XCTFail("authResult.additionalUserInfo is missing")
+          return
+        }
+        XCTAssertEqual(profile, self.kGoogleProfile)
+        XCTAssertEqual(additionalUserInfo.username, self.kGoogleDisplayName)
+        XCTAssertEqual(additionalUserInfo.providerID, AuthProviderString.apple.rawValue)
+      } catch {
+        XCTFail("\(error)")
+      }
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
+    XCTAssertEqual(request.providerIDToken, kAppleIDToken)
+    XCTAssertEqual(request.fullName, fullName)
+    XCTAssertTrue(request.returnSecureToken)
+
+    // 3. Send the response from the fake backend.
+    try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                      "refreshToken": kRefreshToken,
+                                      "federatedId": kGoogleID,
+                                      "providerId": AuthProviderString.apple.rawValue,
+                                      "localId": kLocalID,
+                                      "displayName": kGoogleDisplayName,
+                                      "rawUserInfo": kGoogleProfile,
+                                      "firstName": kFirst,
+                                      "lastName": kLast,
+                                      "username": kGoogleDisplayName])
+    waitForExpectations(timeout: 5)
+    XCTAssertNotNil(AuthTests.auth.currentUser)
   }
 
   /** @fn testSignInAnonymouslySuccess
