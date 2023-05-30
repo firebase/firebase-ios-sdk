@@ -26,6 +26,10 @@ let package = Package(
   platforms: [.iOS(.v11), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
+      name: "AppCheckCore",
+      targets: ["AppCheckCore"]
+    ),
+    .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
@@ -1306,6 +1310,67 @@ let package = Package(
       ]
     ),
 
+    // MARK: - App Check Core
+
+    .target(name: "AppCheckCore",
+            dependencies: [
+              "AppCheckCoreInterop",
+              "FirebaseCore",
+              .product(name: "FBLPromises", package: "Promises"),
+              .product(name: "GULEnvironment", package: "GoogleUtilities"),
+            ],
+            path: "AppCheck/Sources",
+            publicHeadersPath: "Public",
+            cSettings: [
+              .headerSearchPath("../.."),
+            ],
+            linkerSettings: [
+              .linkedFramework(
+                "DeviceCheck",
+                .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+              ),
+            ]),
+    // Internal headers only for consuming from Swift.
+    .target(
+      name: "AppCheckCoreInterop",
+      path: "AppCheck/Interop",
+      exclude: [
+        "CMakeLists.txt",
+      ],
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .testTarget(
+      name: "AppCheckCoreUnit",
+      dependencies: [
+        "AppCheckCore",
+        "SharedTestUtilities",
+        "HeartbeatLoggingTestUtils",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
+      path: "AppCheck/Tests",
+      exclude: [
+        // Disable Swift tests as mixed targets are not supported (Xcode 14.3).
+        "Unit/Swift",
+      ],
+      resources: [
+        .process("Fixture"),
+      ],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppCheckCoreUnitSwift",
+      dependencies: ["AppCheckCore"],
+      path: "AppCheck/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+
     // MARK: Testing support
 
     .target(
@@ -1355,5 +1420,5 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.10.0")
+  return .package(url: appMeasurementURL, branch: "main")
 }
