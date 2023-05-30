@@ -55,76 +55,76 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
                                    token:(NSString *)token
                               appVersion:(NSString *)appVersion
                            firebaseAppID:(NSString *)firebaseAppID {
-    self = [super init];
-    if (self) {
-        _authorizedEntity = [authorizedEntity copy];
-        _scope = [scope copy];
-        _token = [token copy];
-        _appVersion = [appVersion copy];
-        _firebaseAppID = [firebaseAppID copy];
-    }
-    return self;
+  self = [super init];
+  if (self) {
+    _authorizedEntity = [authorizedEntity copy];
+    _scope = [scope copy];
+    _token = [token copy];
+    _appVersion = [appVersion copy];
+    _firebaseAppID = [firebaseAppID copy];
+  }
+  return self;
 }
 
 - (BOOL)isFreshWithIID:(NSString *)IID {
-    // Last fetch token cache time could be null if token is from legacy storage format. Then token is
-    // considered not fresh and should be refreshed and overwrite with the latest storage format.
-    if (!IID) {
-        return NO;
-    }
-    if (!_cacheTime) {
-        return NO;
-    }
-    
-    // Check if it's consistent with IID
-    if (![self.token hasPrefix:IID]) {
-        return NO;
-    }
-    
-    if ([self hasBlacklistedScope]){
-        return NO;
-    }
-    
-    // Check if app has just been updated to a new version.
-    NSString *currentAppVersion = FIRMessagingCurrentAppVersion();
-    if (!_appVersion || ![_appVersion isEqualToString:currentAppVersion]) {
-        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager004,
-                                @"Invalidating cached token for %@ (%@) due to app version change.",
-                                _authorizedEntity, _scope);
-        return NO;
-    }
-    
-    // Check if GMP App ID has changed
-    NSString *currentFirebaseAppID = FIRMessagingFirebaseAppID();
-    if (!_firebaseAppID || ![_firebaseAppID isEqualToString:currentFirebaseAppID]) {
-        FIRMessagingLoggerDebug(
-                                kFIRMessagingMessageCodeTokenInfoFirebaseAppIDChanged,
-                                @"Invalidating cached token due to Firebase App IID change from %@ to %@", _firebaseAppID,
-                                currentFirebaseAppID);
-        return NO;
-    }
-    
-    // Check whether locale has changed, if yes, token needs to be updated with server for locale
-    // information.
-    if (FIRMessagingHasLocaleChanged()) {
-        FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenInfoLocaleChanged,
-                                @"Invalidating cached token due to locale change");
-        return NO;
-    }
-    
-    // Locale is not changed, check whether token has been fetched within 7 days.
-    NSTimeInterval lastFetchTokenTimestamp = [_cacheTime timeIntervalSince1970];
-    NSTimeInterval currentTimestamp = FIRMessagingCurrentTimestampInSeconds();
-    NSTimeInterval timeSinceLastFetchToken = currentTimestamp - lastFetchTokenTimestamp;
-    return (timeSinceLastFetchToken < kDefaultFetchTokenInterval);
+  // Last fetch token cache time could be null if token is from legacy storage format. Then token is
+  // considered not fresh and should be refreshed and overwrite with the latest storage format.
+  if (!IID) {
+    return NO;
+  }
+  if (!_cacheTime) {
+    return NO;
+  }
+
+  // Check if it's consistent with IID
+  if (![self.token hasPrefix:IID]) {
+    return NO;
+  }
+
+  if ([self hasBlacklistedScope]) {
+    return NO;
+  }
+
+  // Check if app has just been updated to a new version.
+  NSString *currentAppVersion = FIRMessagingCurrentAppVersion();
+  if (!_appVersion || ![_appVersion isEqualToString:currentAppVersion]) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenManager004,
+                            @"Invalidating cached token for %@ (%@) due to app version change.",
+                            _authorizedEntity, _scope);
+    return NO;
+  }
+
+  // Check if GMP App ID has changed
+  NSString *currentFirebaseAppID = FIRMessagingFirebaseAppID();
+  if (!_firebaseAppID || ![_firebaseAppID isEqualToString:currentFirebaseAppID]) {
+    FIRMessagingLoggerDebug(
+        kFIRMessagingMessageCodeTokenInfoFirebaseAppIDChanged,
+        @"Invalidating cached token due to Firebase App IID change from %@ to %@", _firebaseAppID,
+        currentFirebaseAppID);
+    return NO;
+  }
+
+  // Check whether locale has changed, if yes, token needs to be updated with server for locale
+  // information.
+  if (FIRMessagingHasLocaleChanged()) {
+    FIRMessagingLoggerDebug(kFIRMessagingMessageCodeTokenInfoLocaleChanged,
+                            @"Invalidating cached token due to locale change");
+    return NO;
+  }
+
+  // Locale is not changed, check whether token has been fetched within 7 days.
+  NSTimeInterval lastFetchTokenTimestamp = [_cacheTime timeIntervalSince1970];
+  NSTimeInterval currentTimestamp = FIRMessagingCurrentTimestampInSeconds();
+  NSTimeInterval timeSinceLastFetchToken = currentTimestamp - lastFetchTokenTimestamp;
+  return (timeSinceLastFetchToken < kDefaultFetchTokenInterval);
 }
 
 - (BOOL)hasBlacklistedScope {
-    if ([self.scope isEqualToString:kFIRMessagingFIAMTokenScope]){
-        return YES;
-    }
-    
-    return NO;
+  if ([self.scope isEqualToString:kFIRMessagingFIAMTokenScope]) {
+    return YES;
+  }
+
+  return NO;
 }
 
 - (BOOL)isDefaultToken {
