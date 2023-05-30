@@ -298,8 +298,8 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
     uniqueAggregates.insert(std::move(pair));
   }
 
-  auto count = uniqueAggregates.size();
-  size_t aggregationNum = 0;
+  pb_size_t count = static_cast<pb_size_t>(uniqueAggregates.size());
+  pb_size_t aggregationNum = 0;
   result->query_type.structured_aggregation_query.aggregations_count = count;
   result->query_type.structured_aggregation_query.aggregations =
       MakeArray<_google_firestore_v1_StructuredAggregationQuery_Aggregation>(
