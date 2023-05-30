@@ -67,6 +67,7 @@ NSString *const kFIRMessagingDefaultGCMTokenFailNotification =
 // Miscellaneous
 NSString *const kFIRMessagingAllScopeIdentifier = @"iid-all";
 NSString *const kFIRMessagingDefaultTokenScope = @"*";
+NSString *const kFIRMessagingFIAMTokenScope = @"fiam";
 NSString *const kFIRMessagingInstanceIDSubDirectoryName = @"Google/FirebaseInstanceID";
 
 // Registration Options
