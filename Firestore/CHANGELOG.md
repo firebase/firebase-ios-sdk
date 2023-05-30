@@ -1,3 +1,6 @@
+# Unreleased
+- [fixed] Fixed a compilation warning related to integer casting. (#11332)
+
 # 10.9.0
 - [feature] Add new cache config API to customize SDK cache settings.
 - [feature] Add LRU garbage collector as an option to memory cache.
