@@ -67,10 +67,9 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   self.APIService = [[GACAppCheckAPIService alloc] initWithURLSession:self.URLSession
                                                                APIKey:options.APIKey
                                                          requestHooks:@[ heartbeatLoggerHook ]];
-  self.deviceCheckAPIService =
-      [[GACDeviceCheckAPIService alloc] initWithAPIService:self.APIService
-                                                 projectID:options.projectID
-                                                     appID:options.googleAppID];
+  self.deviceCheckAPIService = [[GACDeviceCheckAPIService alloc]
+      initWithAPIService:self.APIService
+            resourceName:[GACDeviceCheckAPIServiceE2ETests resourceNameFromOptions:options]];
 }
 
 - (void)tearDown {
@@ -102,6 +101,15 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:plistPath];
   return options;
 }
+
+// TODO(andrewheard): Remove from generic App Check SDK.
+// FIREBASE_APP_CHECK_ONLY_BEGIN
+
++ (NSString *)resourceNameFromOptions:(FIROptions *)options {
+  return [NSString stringWithFormat:@"projects/%@/apps/%@", options.projectID, options.googleAppID];
+}
+
+// FIREBASE_APP_CHECK_ONLY_END
 
 @end
 
