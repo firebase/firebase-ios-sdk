@@ -68,12 +68,12 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
     // We attempt to greedily match all segments to equality filters. If a
     // filter matches an index segment, we can mark the segment as used.
     if (HasMatchingEqualityFilter(segments[segment_index])) {
-      // If we cannot find a matching filter, we need to verify whether the
-      // remaining segments map to the target's inequality and its orderBy
-      // clauses.
       equality_segments.emplace(
           segments[segment_index].field_path().CanonicalString());
     } else {
+// If we cannot find a matching filter, we need to verify whether the
+      // remaining segments map to the target's inequality and its orderBy
+      // clauses.
       break;
     }
   }
