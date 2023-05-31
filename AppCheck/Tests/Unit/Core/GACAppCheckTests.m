@@ -29,6 +29,7 @@
 #import "AppCheck/Interop/GACAppCheckTokenResultInterop.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
+#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 #import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
@@ -43,20 +44,23 @@
 // The FAC token value returned when an error occurs.
 static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
+static NSString *const kResourceName = @"projects/test_project_id/apps/test_app_id";
+static NSString *const kAppName = @"GACAppCheckTests";
+static NSString *const kAppGroupID = @"app_group_id";
+
 @interface GACAppCheck (Tests) <GACAppCheckInterop>
 
-- (instancetype)initWithAppName:(NSString *)appName
-               appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
-                        storage:(id<GACAppCheckStorageProtocol>)storage
-                 tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
-             notificationCenter:(NSNotificationCenter *)notificationCenter
-                       settings:(id<GACAppCheckSettingsProtocol>)settings;
+- (instancetype)initWithInstanceName:(NSString *)instanceName
+                    appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                             storage:(id<GACAppCheckStorageProtocol>)storage
+                      tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
+                  notificationCenter:(NSNotificationCenter *)notificationCenter
+                            settings:(id<GACAppCheckSettingsProtocol>)settings;
 
 @end
 
 @interface GACAppCheckTests : XCTestCase
 
-@property(nonatomic) NSString *appName;
 @property(nonatomic) OCMockObject<GACAppCheckStorageProtocol> *mockStorage;
 @property(nonatomic) OCMockObject<GACAppCheckProvider> *mockAppCheckProvider;
 @property(nonatomic) OCMockObject<GACAppCheckTokenRefresherProtocol> *mockTokenRefresher;
@@ -73,21 +77,20 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 - (void)setUp {
   [super setUp];
 
-  self.appName = @"GACAppCheckTests";
-  self.mockStorage = OCMProtocolMock(@protocol(GACAppCheckStorageProtocol));
-  self.mockAppCheckProvider = OCMProtocolMock(@protocol(GACAppCheckProvider));
-  self.mockTokenRefresher = OCMProtocolMock(@protocol(GACAppCheckTokenRefresherProtocol));
+  self.mockStorage = OCMStrictProtocolMock(@protocol(GACAppCheckStorageProtocol));
+  self.mockAppCheckProvider = OCMStrictProtocolMock(@protocol(GACAppCheckProvider));
+  self.mockTokenRefresher = OCMStrictProtocolMock(@protocol(GACAppCheckTokenRefresherProtocol));
   self.mockSettings = OCMProtocolMock(@protocol(GACAppCheckSettingsProtocol));
   self.notificationCenter = [[NSNotificationCenter alloc] init];
 
   [self stubSetTokenRefreshHandler];
 
-  self.appCheck = [[GACAppCheck alloc] initWithAppName:self.appName
-                                      appCheckProvider:self.mockAppCheckProvider
-                                               storage:self.mockStorage
-                                        tokenRefresher:self.mockTokenRefresher
-                                    notificationCenter:self.notificationCenter
-                                              settings:self.mockSettings];
+  self.appCheck = [[GACAppCheck alloc] initWithInstanceName:kAppName
+                                           appCheckProvider:self.mockAppCheckProvider
+                                                    storage:self.mockStorage
+                                             tokenRefresher:self.mockTokenRefresher
+                                         notificationCenter:self.notificationCenter
+                                                   settings:self.mockSettings];
 }
 
 - (void)tearDown {
@@ -102,21 +105,13 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [super tearDown];
 }
 
-- (void)testInitWithApp {
-  NSString *googleAppID = @"testInitWithApp_googleAppID";
-  NSString *appName = @"testInitWithApp_appName";
-  NSString *tokenKey = [NSString stringWithFormat:@"app_check_token.%@.%@", appName, googleAppID];
-  NSString *appGroupID = @"testInitWithApp_appGroupID";
+#pragma mark - Public Init
 
-  // 1. Stub FIRApp and validate usage.
-  id mockApp = OCMStrictClassMock([FIRApp class]);
-  id mockAppOptions = OCMStrictClassMock([FIROptions class]);
-  OCMStub([mockApp name]).andReturn(appName);
-  OCMStub([(FIRApp *)mockApp options]).andReturn(mockAppOptions);
-  OCMExpect([mockAppOptions googleAppID]).andReturn(googleAppID);
-  OCMExpect([mockAppOptions appGroupID]).andReturn(appGroupID);
+- (void)testAppCheckInit {
+  NSString *tokenKey =
+      [NSString stringWithFormat:@"app_check_token.%@.%@", kAppName, kResourceName];
 
-  // 2. Stub GACAppCheckTokenRefresher and validate usage.
+  // 1. Stub GACAppCheckTokenRefresher and validate usage.
   id mockTokenRefresher = OCMClassMock([GACAppCheckTokenRefresher class]);
   OCMExpect([mockTokenRefresher alloc]).andReturn(mockTokenRefresher);
 
@@ -138,82 +133,39 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
       .andReturn(mockTokenRefresher);
   OCMExpect([mockTokenRefresher setTokenRefreshHandler:[OCMArg any]]);
 
-  // 3. Stub GACAppCheckStorage and validate usage.
+  // 2. Stub GACAppCheckStorage and validate usage.
   id mockStorage = OCMStrictClassMock([GACAppCheckStorage class]);
   OCMExpect([mockStorage alloc]).andReturn(mockStorage);
-  OCMExpect([mockStorage initWithTokenKey:tokenKey accessGroup:appGroupID]).andReturn(mockStorage);
+  OCMExpect([mockStorage initWithTokenKey:tokenKey accessGroup:kAppGroupID]).andReturn(mockStorage);
 
-  // 4. Stub attestation provider.
+  // 3. Stub attestation provider.
   OCMockObject<GACAppCheckProvider> *mockProvider =
       OCMStrictProtocolMock(@protocol(GACAppCheckProvider));
 
-  // 5. Stub GACAppCheckSettingsProtocol.
+  // 4. Stub GACAppCheckSettingsProtocol.
   OCMockObject<GACAppCheckSettingsProtocol> *mockSettings =
       OCMStrictProtocolMock(@protocol(GACAppCheckSettingsProtocol));
 
-  // 6. Call init.
-  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithApp:mockApp
-                                          appCheckProvider:mockProvider
-                                                  settings:mockSettings];
+  // 5. Call init.
+  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithInstanceName:kAppName
+                                                   appCheckProvider:mockProvider
+                                                           settings:mockSettings
+                                                       resourceName:kResourceName
+                                                keychainAccessGroup:kAppGroupID];
   XCTAssert([appCheck isKindOfClass:[GACAppCheck class]]);
 
-  // 7. Verify mocks.
-  OCMVerifyAll(mockApp);
-  OCMVerifyAll(mockAppOptions);
+  // 6. Verify mocks.
   OCMVerifyAll(mockTokenRefresher);
   OCMVerifyAll(mockStorage);
   OCMVerifyAll(mockProvider);
   OCMVerifyAll(mockSettings);
 
-  // 8. Stop mocking real class mocks.
-  [mockApp stopMocking];
-  mockApp = nil;
-  [mockAppOptions stopMocking];
-  mockAppOptions = nil;
+  // 7. Stop mocking real class mocks.
   [mockTokenRefresher stopMocking];
   mockTokenRefresher = nil;
   [mockStorage stopMocking];
   mockStorage = nil;
 }
-
-// TODO(andrewheard): Remove section from generic App Check SDK.
-#ifdef FIREBASE_APP_CHECK_ONLY
-
-- (void)testAppCheckDefaultInstance {
-  // Should throw an exception when the default app is not configured.
-  XCTAssertThrows([GACAppCheck appCheck]);
-
-  // Configure default FIRApp.
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
-                                  GCMSenderID:@"sender_id"];
-  options.APIKey = @"api_key";
-  options.projectID = @"project_id";
-  [FIRApp configureWithOptions:options];
-
-  // Check.
-  XCTAssertNotNil([GACAppCheck appCheck]);
-
-  [FIRApp resetApps];
-}
-
-- (void)testAppCheckInstanceForApp {
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
-                                  GCMSenderID:@"sender_id"];
-  options.APIKey = @"api_key";
-  options.projectID = @"project_id";
-
-  [FIRApp configureWithName:@"testAppCheckInstanceForApp" options:options];
-  FIRApp *app = [FIRApp appNamed:@"testAppCheckInstanceForApp"];
-  XCTAssertNotNil(app);
-
-  XCTAssertNotNil([GACAppCheck appCheckWithApp:app]);
-
-  [FIRApp resetApps];
-}
-
-#endif  // FIREBASE_APP_CHECK_ONLY
 
 #pragma mark - Public Get Token
 
@@ -505,6 +457,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   // 3. Expect new token to be stored.
   OCMExpect([self.mockStorage setToken:tokenToReturn])
       .andReturn([FBLPromise resolvedWith:tokenToReturn]);
+  OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
   XCTestExpectation *notificationExpectation =
@@ -626,8 +579,8 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 - (void)testTokenUpdateNotificationKeys {
   XCTAssertEqualObjects([self.appCheck tokenDidChangeNotificationName],
                         @"GACAppCheckAppCheckTokenDidChangeNotification");
-  XCTAssertEqualObjects([self.appCheck notificationAppNameKey],
-                        @"GACAppCheckAppNameNotificationKey");
+  XCTAssertEqualObjects([self.appCheck notificationInstanceNameKey],
+                        @"GACAppCheckInstanceNameNotificationKey");
   XCTAssertEqualObjects([self.appCheck notificationTokenKey], @"GACAppCheckTokenNotificationKey");
 }
 
@@ -662,6 +615,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
       [self expectTokenRequestFromAppCheckProvider];
   GACAppCheckToken *expectedToken = expectedTokenAndPromise.firstObject;
   FBLPromise *storeTokenPromise = expectedTokenAndPromise.lastObject;
+  OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 2. Expect token update notification to be sent.
   XCTestExpectation *notificationExpectation =
@@ -759,6 +713,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
       [self expectTokenRequestFromAppCheckProvider];
   GACAppCheckToken *expectedToken = expectedTokenAndPromise.firstObject;
   FBLPromise *storeTokenPromise = expectedTokenAndPromise.lastObject;
+  OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 2. Expect token update notification to be sent.
   XCTestExpectation *notificationExpectation =
@@ -876,20 +831,20 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 - (XCTestExpectation *)tokenUpdateNotificationWithExpectedToken:(NSString *)expectedToken
                                                      isInverted:(BOOL)isInverted {
-  XCTestExpectation *expectation =
-      [self expectationForNotification:[self.appCheck tokenDidChangeNotificationName]
-                                object:nil
-                    notificationCenter:self.notificationCenter
-                               handler:^BOOL(NSNotification *_Nonnull notification) {
-                                 XCTAssertEqualObjects(
-                                     notification.userInfo[[self.appCheck notificationAppNameKey]],
-                                     self.appName);
-                                 XCTAssertEqualObjects(
-                                     notification.userInfo[[self.appCheck notificationTokenKey]],
-                                     expectedToken);
-                                 XCTAssertEqualObjects(notification.object, self.appCheck);
-                                 return YES;
-                               }];
+  XCTestExpectation *expectation = [self
+      expectationForNotification:[self.appCheck tokenDidChangeNotificationName]
+                          object:nil
+              notificationCenter:self.notificationCenter
+                         handler:^BOOL(NSNotification *_Nonnull notification) {
+                           XCTAssertEqualObjects(
+                               notification.userInfo[[self.appCheck notificationInstanceNameKey]],
+                               kAppName);
+                           XCTAssertEqualObjects(
+                               notification.userInfo[[self.appCheck notificationTokenKey]],
+                               expectedToken);
+                           XCTAssertEqualObjects(notification.object, self.appCheck);
+                           return YES;
+                         }];
   expectation.inverted = isInverted;
   return expectation;
 }
@@ -949,6 +904,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   // 3. Expect new token to be stored.
   OCMExpect([self.mockStorage setToken:expectedToken])
       .andReturn([FBLPromise resolvedWith:expectedToken]);
+  OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
   XCTestExpectation *tokenNotificationExpectation =
@@ -992,6 +948,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   // 3. Expect new token to be stored.
   OCMExpect([self.mockStorage setToken:expectedToken])
       .andReturn([FBLPromise resolvedWith:expectedToken]);
+  OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
   XCTestExpectation *notificationExpectation =
@@ -1018,6 +975,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   // 3. Expect new token to be stored.
   OCMExpect([self.mockStorage setToken:expectedToken])
       .andReturn([FBLPromise resolvedWith:expectedToken]);
+  OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
   XCTestExpectation *notificationExpectation =

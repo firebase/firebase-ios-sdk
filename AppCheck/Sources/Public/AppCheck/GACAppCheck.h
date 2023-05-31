@@ -18,7 +18,6 @@
 
 @import AppCheckInterop;
 
-@class FIRApp;
 @class GACAppCheckToken;
 @protocol GACAppCheckProvider;
 @protocol GACAppCheckSettingsProtocol;
@@ -35,7 +34,7 @@ FOUNDATION_EXPORT const NSNotificationName
 /// `userInfo` key for the `FirebaseApp.name` in `AppCheckTokenDidChangeNotification`.
 FOUNDATION_EXPORT NSString *const kGACAppCheckTokenNotificationKey NS_SWIFT_NAME(InternalAppCheckTokenNotificationKey);
 /// `userInfo` key for the `AppCheckToken` in `AppCheckTokenDidChangeNotification`.
-FOUNDATION_EXPORT NSString *const kGACAppCheckAppNameNotificationKey NS_SWIFT_NAME(InternalAppCheckAppNameNotificationKey);
+FOUNDATION_EXPORT NSString *const kGACAppCheckInstanceNameNotificationKey NS_SWIFT_NAME(InternalAppCheckInstanceNameNotificationKey);
 
 /// A class used to manage App Check tokens for a given resource.
 NS_SWIFT_NAME(InternalAppCheck)
@@ -44,12 +43,13 @@ NS_SWIFT_NAME(InternalAppCheck)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Returns an instance of `AppCheck` for an application.
-/// @param app A configured `FirebaseApp` instance.
 /// @param appCheckProvider  An `InternalAppCheckProvider` instance that provides App Check tokens.
 /// @return An instance of `AppCheck` corresponding to the provided `app`.
-- (instancetype)initWithApp:(FIRApp *)app
-           appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
-                   settings:(id<GACAppCheckSettingsProtocol>)settings;
+- (instancetype)initWithInstanceName:(NSString *)instanceName
+                    appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                            settings:(id<GACAppCheckSettingsProtocol>)settings
+                        resourceName:(NSString *)resourceName
+                 keychainAccessGroup:(nullable NSString *)accessGroup;
 
 /// Requests Firebase app check token. This method should *only* be used if you need to authorize
 /// requests to a non-Firebase backend. Requests to Firebase backend are authorized automatically if
