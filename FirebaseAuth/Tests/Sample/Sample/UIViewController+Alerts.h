@@ -74,6 +74,16 @@ typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullab
 - (void)showTextInputPromptWithMessage:(NSString *)message
                        completionBlock:(AlertPromptCompletionBlock)completion;
 
+/*! @fn showQRCodePromptWithTextInput:message:qrCodeString:completionBlock:
+    @brief Shows a prompt with a QR code image, text message, text field for input, and 'OK'/'Cancel' buttons.
+    @param message The message to display.
+    @param qrCodeString The string to encode as a QR code and display as an image.
+    @param completion A block to call when the user taps 'OK' or 'Cancel'.
+ */
+- (void)showQRCodePromptWithTextInput:(NSString *)message
+                         qrCodeString:(NSString *)qrCodeString
+                      completionBlock:(AlertPromptCompletionBlock)completion;
+
 /*! @fn showSpinner
     @brief Shows the please wait spinner.
     @param completion Called after the spinner has been hidden.

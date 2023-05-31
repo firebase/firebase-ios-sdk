@@ -15,8 +15,8 @@
  */
 
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentRequest.h"
-
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneRequestInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentRequestInfo.h"
 
 static NSString *const kStartMFAEnrollmentEndPoint = @"accounts/mfaEnrollment:start";
 
@@ -28,7 +28,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 @implementation FIRStartMFAEnrollmentRequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                          enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)enrollmentInfo
+                          enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
             requestConfiguration:requestConfiguration
@@ -36,7 +36,22 @@ static NSString *const kTenantIDKey = @"tenantId";
                       useStaging:NO];
   if (self) {
     _IDToken = IDToken;
-    _enrollmentInfo = enrollmentInfo;
+    _phoneEnrollmentInfo = phoneEnrollmentInfo;
+  }
+  return self;
+}
+
+- (nullable instancetype)initWithIDToken:(NSString *)IDToken
+                      TOTPEnrollmentInfo:
+                          (FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+  self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
+  if (self) {
+    _IDToken = IDToken;
+    _TOTPEnrollmentInfo = TOTPEnrollmentInfo;
   }
   return self;
 }
@@ -46,10 +61,10 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_IDToken) {
     postBody[@"idToken"] = _IDToken;
   }
-  if (_enrollmentInfo) {
-    if ([_enrollmentInfo isKindOfClass:[FIRAuthProtoStartMFAPhoneRequestInfo class]]) {
-      postBody[@"phoneEnrollmentInfo"] = [_enrollmentInfo dictionary];
-    }
+  if (_phoneEnrollmentInfo) {
+    postBody[@"phoneEnrollmentInfo"] = [_phoneEnrollmentInfo dictionary];
+  } else if (_TOTPEnrollmentInfo) {
+    postBody[@"totpEnrollmentInfo"] = [_TOTPEnrollmentInfo dictionary];
   }
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
