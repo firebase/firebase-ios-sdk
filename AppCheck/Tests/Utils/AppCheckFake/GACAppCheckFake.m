@@ -44,7 +44,7 @@
   });
 }
 
-- (nonnull NSString *)notificationAppNameKey {
+- (nonnull NSString *)notificationInstanceNameKey {
   return @"FakeAppCheckTokenDidChangeNotification";
 }
 
