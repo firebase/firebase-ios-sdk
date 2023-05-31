@@ -120,6 +120,8 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
 }
 
 - (BOOL)hasBlacklistedScope {
+  /// The token with fiam scope is set by old FIAM SDK(s) which will remain in keychain for ever. So
+  /// we need to remove these tokens to deny its usage.
   if ([self.scope isEqualToString:kFIRMessagingFIAMTokenScope]) {
     return YES;
   }
