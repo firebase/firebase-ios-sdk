@@ -22,27 +22,31 @@ import FirebaseCore
 class AuthTests: RPCBaseTests {
   static let kAccessToken = "TEST_ACCESS_TOKEN"
   static let kFakeAPIKey = "FAKE_API_KEY"
-  static var auth: Auth!
+  var auth: Auth!
 
-  override class func setUp() {
+  override class func setUp() {}
+
+  static var testNum = 0
+
+  override func setUp() {
+    super.setUp()
     let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",
                                   gcmSenderID: "00000000000000000-00000000000-000000000")
-    options.apiKey = kFakeAPIKey
+    options.apiKey = AuthTests.kFakeAPIKey
     options.projectID = "myProjectID"
-    FirebaseApp.configure(name: "test-AuthTests", options: options)
+    let name = "test-AuthTests\(AuthTests.testNum)"
+    AuthTests.testNum = AuthTests.testNum + 1
+    FirebaseApp.configure(name: name, options: options)
     #if os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
       let keychainStorageProvider = FakeAuthKeychainServices.self
     #else
       let keychainStorageProvider = AuthKeychainServices.self
     #endif // os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
     auth = Auth(
-      app: FirebaseApp.app(name: "test-AuthTests")!,
+      app: FirebaseApp.app(name: name)!,
       keychainStorageProvider: keychainStorageProvider
     )
-  }
 
-  override func setUp() {
-    super.setUp()
     // Set FIRAuthDispatcher implementation in order to save the token refresh task for later
     // execution.
     AuthDispatcher.shared.dispatchAfterImplementation = { delay, queue, task in
@@ -76,7 +80,7 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
     let group = createGroup()
 
-    AuthTests.auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
+    auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
       // 4. After the response triggers the callback, verify the returned signInMethods.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual(signInMethods, allSignInMethods)
@@ -104,7 +108,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     let group = createGroup()
 
-    AuthTests.auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
+    auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(signInMethods)
       let rpcError = (error as? NSError)!
@@ -133,11 +137,11 @@ class AuthTests: RPCBaseTests {
       // 1. Create a group to synchronize request creation by the fake rpcIssuer.
       let group = createGroup()
 
-      try AuthTests.auth?.signOut()
-      let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
+      try auth?.signOut()
+      let credential = PhoneAuthProvider.provider(auth: auth)
         .credential(withVerificationID: kVerificationID,
                     verificationCode: kVerificationCode)
-      AuthTests.auth?.signIn(with: credential) { authResult, error in
+      auth?.signIn(with: credential) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         guard let user = authResult?.user,
@@ -164,7 +168,7 @@ class AuthTests: RPCBaseTests {
                                         "refreshToken": kRefreshToken])
 
       waitForExpectations(timeout: 5)
-      assertUser(AuthTests.auth?.currentUser)
+      assertUser(auth?.currentUser)
     }
 
     /** @fn testPhoneAuthMissingVerificationCode
@@ -178,11 +182,11 @@ class AuthTests: RPCBaseTests {
       setFakeGetAccountProvider()
       setFakeSecureTokenService()
 
-      try AuthTests.auth?.signOut()
-      let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
+      try auth?.signOut()
+      let credential = PhoneAuthProvider.provider(auth: auth)
         .credential(withVerificationID: kVerificationID,
                     verificationCode: kVerificationCode)
-      AuthTests.auth?.signIn(with: credential) { authResult, error in
+      auth?.signIn(with: credential) { authResult, error in
         XCTAssertTrue(Thread.isMainThread)
         XCTAssertNil(authResult)
         XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingVerificationCode.rawValue)
@@ -202,11 +206,11 @@ class AuthTests: RPCBaseTests {
       setFakeGetAccountProvider()
       setFakeSecureTokenService()
 
-      try AuthTests.auth?.signOut()
-      let credential = PhoneAuthProvider.provider(auth: AuthTests.auth)
+      try auth?.signOut()
+      let credential = PhoneAuthProvider.provider(auth: auth)
         .credential(withVerificationID: kVerificationID,
                     verificationCode: kVerificationCode)
-      AuthTests.auth?.signIn(with: credential) { authResult, error in
+      auth?.signIn(with: credential) { authResult, error in
         XCTAssertTrue(Thread.isMainThread)
         XCTAssertNil(authResult)
         XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingVerificationID.rawValue)
@@ -239,8 +243,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signIn(withEmail: kEmail, link: link) { authResult, error in
+    try auth?.signOut()
+    auth?.signIn(withEmail: kEmail, link: link) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       guard let user = authResult?.user else {
@@ -268,7 +272,7 @@ class AuthTests: RPCBaseTests {
                                       "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 5)
-    assertUser(AuthTests.auth?.currentUser)
+    assertUser(auth?.currentUser)
   }
 
   /** @fn testSignInWithEmailLinkFailure
@@ -280,8 +284,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signIn(withEmail: kEmail, link: kFakeEmailSignInLink) { authResult, error in
+    try auth?.signOut()
+    auth?.signIn(withEmail: kEmail, link: kFakeEmailSignInLink) { authResult, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult)
@@ -293,7 +297,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testSignInAndRetrieveDataWithEmailPasswordSuccess
@@ -309,8 +313,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
+    try auth?.signOut()
+    auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       guard let user = authResult?.user else {
@@ -345,7 +349,7 @@ class AuthTests: RPCBaseTests {
                                       "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 5)
-    assertUser(AuthTests.auth?.currentUser)
+    assertUser(auth?.currentUser)
   }
 
   /** @fn testSignInWithEmailPasswordFailure
@@ -357,8 +361,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
+    try auth?.signOut()
+    auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult)
@@ -371,7 +375,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "INVALID_PASSWORD")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testResetPasswordSuccess
@@ -384,8 +388,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?
+    try auth?.signOut()
+    auth?
       .confirmPasswordReset(withCode: kFakeOobCode, newPassword: kFakePassword) { error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
@@ -416,8 +420,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?
+    try auth?.signOut()
+    auth?
       .confirmPasswordReset(withCode: kFakeOobCode, newPassword: kFakePassword) { error in
         // 3. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
@@ -430,7 +434,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testCheckActionCodeSuccess
@@ -444,8 +448,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.checkActionCode(kFakeOobCode) { info, error in
+    try auth?.signOut()
+    auth?.checkActionCode(kFakeOobCode) { info, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(error)
@@ -476,8 +480,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.checkActionCode(kFakeOobCode) { info, error in
+    try auth?.signOut()
+    auth?.checkActionCode(kFakeOobCode) { info, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.expiredActionCode.rawValue)
@@ -489,7 +493,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "EXPIRED_OOB_CODE")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testApplyActionCodeSuccess
@@ -501,8 +505,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.applyActionCode(kFakeOobCode) { error in
+    try auth?.signOut()
+    auth?.applyActionCode(kFakeOobCode) { error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(error)
@@ -528,8 +532,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.applyActionCode(kFakeOobCode) { error in
+    try auth?.signOut()
+    auth?.applyActionCode(kFakeOobCode) { error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.invalidActionCode.rawValue)
@@ -541,7 +545,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testVerifyPasswordResetCodeSuccess
@@ -553,8 +557,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
+    try auth?.signOut()
+    auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertEqual(email, self.kEmail)
@@ -582,8 +586,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
+    try auth?.signOut()
+    auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(email)
@@ -596,7 +600,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testSignInWithEmailLinkCredentialSuccess
@@ -612,12 +616,12 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
+    try auth?.signOut()
     let emailCredential = EmailAuthProvider.credential(
       withEmail: kEmail,
       link: kFakeEmailSignInLink
     )
-    AuthTests.auth?.signIn(with: emailCredential) { authResult, error in
+    auth?.signIn(with: emailCredential) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       guard let user = authResult?.user else {
@@ -655,12 +659,12 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
+    try auth?.signOut()
     let emailCredential = EmailAuthProvider.credential(
       withEmail: kEmail,
       link: kFakeEmailSignInLink
     )
-    AuthTests.auth?.signIn(with: emailCredential) { authResult, error in
+    auth?.signIn(with: emailCredential) { authResult, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult)
@@ -673,7 +677,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testSignInWithEmailCredentialSuccess
@@ -688,9 +692,9 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
+    try auth?.signOut()
     let emailCredential = EmailAuthProvider.credential(withEmail: kEmail, password: kFakePassword)
-    AuthTests.auth?.signIn(with: emailCredential) { authResult, error in
+    auth?.signIn(with: emailCredential) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       guard let user = authResult?.user else {
@@ -728,9 +732,9 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
+    try auth?.signOut()
     let emailCredential = EmailAuthProvider.credential(withEmail: kEmail, password: kFakePassword)
-    AuthTests.auth?.signIn(with: emailCredential) { authResult, error in
+    auth?.signIn(with: emailCredential) { authResult, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult)
@@ -743,7 +747,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testSignInWithEmailCredentialEmptyPassword
@@ -754,7 +758,7 @@ class AuthTests: RPCBaseTests {
   func testSignInWithEmailCredentialEmptyPassword() throws {
     let expectation = self.expectation(description: #function)
     let emailCredential = EmailAuthProvider.credential(withEmail: kEmail, password: "")
-    AuthTests.auth?.signIn(with: emailCredential) { authResult, error in
+    auth?.signIn(with: emailCredential) { authResult, error in
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult)
       XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.wrongPassword.rawValue)
@@ -795,8 +799,8 @@ class AuthTests: RPCBaseTests {
       // 1. Create a group to synchronize request creation by the fake rpcIssuer.
       let group = createGroup()
 
-      try AuthTests.auth.signOut()
-      AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
+      try auth.signOut()
+      auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         do {
@@ -825,7 +829,7 @@ class AuthTests: RPCBaseTests {
                                         "rawUserInfo": kGoogleProfile,
                                         "username": kUserName])
       waitForExpectations(timeout: 5)
-      try assertUserGoogle(AuthTests.auth.currentUser)
+      try assertUserGoogle(auth.currentUser)
     }
 
     /** @fn testSignInWithProviderFailure
@@ -840,8 +844,8 @@ class AuthTests: RPCBaseTests {
       // 1. Create a group to synchronize request creation by the fake rpcIssuer.
       let group = createGroup()
 
-      try AuthTests.auth.signOut()
-      AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
+      try auth.signOut()
+      auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         XCTAssertNil(authResult)
@@ -874,10 +878,10 @@ class AuthTests: RPCBaseTests {
       // 1. Create a group to synchronize request creation by the fake rpcIssuer.
       let group = createGroup()
 
-      try AuthTests.auth.signOut()
+      try auth.signOut()
       let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
                                                            accessToken: kGoogleAccessToken)
-      AuthTests.auth.signIn(with: googleCredential) { authResult, error in
+      auth.signIn(with: googleCredential) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         XCTAssertTrue(Thread.isMainThread)
         XCTAssertNil(authResult)
@@ -920,8 +924,8 @@ class AuthTests: RPCBaseTests {
       // 1. Create a group to synchronize request creation by the fake rpcIssuer.
       let group = createGroup()
 
-      try AuthTests.auth.signOut()
-      AuthTests.auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
+      try auth.signOut()
+      auth.signIn(with: FakeProvider(), uiDelegate: nil) { authResult, error in
         // 4. After the response triggers the callback, verify the returned result.
         do {
           try self.assertUserGoogle(authResult?.user)
@@ -951,7 +955,7 @@ class AuthTests: RPCBaseTests {
                                         "rawUserInfo": kGoogleProfile,
                                         "username": kUserName])
       waitForExpectations(timeout: 5)
-      try assertUserGoogle(AuthTests.auth.currentUser)
+      try assertUserGoogle(auth.currentUser)
     }
   #endif
 
@@ -968,10 +972,10 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth.signOut()
+    try auth.signOut()
     let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
                                                          accessToken: kGoogleAccessToken)
-    AuthTests.auth.signIn(with: googleCredential) { authResult, error in
+    auth.signIn(with: googleCredential) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       do {
         try self.assertUserGoogle(authResult?.user)
@@ -1009,7 +1013,7 @@ class AuthTests: RPCBaseTests {
                                       "rawUserInfo": kGoogleProfile,
                                       "username": kGoogleDisplayName])
     waitForExpectations(timeout: 5)
-    try assertUserGoogle(AuthTests.auth.currentUser)
+    try assertUserGoogle(auth.currentUser)
   }
 
   /** @fn testSignInWithGoogleCredentialFailure
@@ -1024,10 +1028,10 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth.signOut()
+    try auth.signOut()
     let googleCredential = GoogleAuthProvider.credential(withIDToken: kGoogleIDToken,
                                                          accessToken: kGoogleAccessToken)
-    AuthTests.auth.signIn(with: googleCredential) { authResult, error in
+    auth.signIn(with: googleCredential) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult)
@@ -1068,11 +1072,11 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth.signOut()
+    try auth.signOut()
     let appleCredential = OAuthProvider.appleCredential(withIDToken: kAppleIDToken,
                                                         rawNonce: nil,
                                                         fullName: fullName)
-    AuthTests.auth.signIn(with: appleCredential) { authResult, error in
+    auth.signIn(with: appleCredential) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       do {
         try self.assertUserGoogle(authResult?.user)
@@ -1112,7 +1116,7 @@ class AuthTests: RPCBaseTests {
                                       "lastName": kLast,
                                       "username": kGoogleDisplayName])
     waitForExpectations(timeout: 5)
-    XCTAssertNotNil(AuthTests.auth.currentUser)
+    XCTAssertNotNil(auth.currentUser)
   }
 
   /** @fn testSignInAnonymouslySuccess
@@ -1126,8 +1130,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signInAnonymously { authResult, error in
+    try auth?.signOut()
+    auth?.signInAnonymously { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertNil(error)
       XCTAssertTrue(Thread.isMainThread)
@@ -1157,7 +1161,7 @@ class AuthTests: RPCBaseTests {
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
-    assertUserAnonymous(try XCTUnwrap(AuthTests.auth?.currentUser))
+    assertUserAnonymous(try XCTUnwrap(auth?.currentUser))
   }
 
   /** @fn testSignInAnonymouslyFailure
@@ -1169,8 +1173,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
+    try auth?.signOut()
+    auth?.verifyPasswordResetCode(kFakeOobCode) { email, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(email)
@@ -1183,7 +1187,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testSignInWithCustomTokenSuccess
@@ -1197,8 +1201,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signIn(withCustomToken: kCustomToken) { authResult, error in
+    try auth?.signOut()
+    auth?.signIn(withCustomToken: kCustomToken) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       self.assertUser(authResult?.user)
@@ -1227,7 +1231,7 @@ class AuthTests: RPCBaseTests {
                                       "isNewUser": false,
                                       "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
-    assertUser(AuthTests.auth?.currentUser)
+    assertUser(auth?.currentUser)
   }
 
   /** @fn testSignInWithCustomTokenFailure
@@ -1239,8 +1243,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signIn(withCustomToken: kCustomToken) { authResult, error in
+    try auth?.signOut()
+    auth?.signIn(withCustomToken: kCustomToken) { authResult, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult?.user)
@@ -1253,7 +1257,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "INVALID_CUSTOM_TOKEN")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testCreateUserWithEmailPasswordSuccess
@@ -1267,8 +1271,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
+    try auth?.signOut()
+    auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       self.assertUser(authResult?.user)
@@ -1298,7 +1302,7 @@ class AuthTests: RPCBaseTests {
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
-    assertUser(AuthTests.auth?.currentUser)
+    assertUser(auth?.currentUser)
   }
 
   /** @fn testCreateUserWithEmailPasswordFailure
@@ -1311,8 +1315,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
+    try auth?.signOut()
+    auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 3. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult?.user)
@@ -1325,7 +1329,7 @@ class AuthTests: RPCBaseTests {
     // 2. Send the response from the fake backend.
     try rpcIssuer?.respond(serverErrorMessage: "WEAK_PASSWORD")
     waitForExpectations(timeout: 5)
-    XCTAssertNil(AuthTests.auth?.currentUser)
+    XCTAssertNil(auth?.currentUser)
   }
 
   /** @fn testCreateUserEmptyPasswordFailure
@@ -1335,8 +1339,8 @@ class AuthTests: RPCBaseTests {
    */
   func testCreateUserEmptyPasswordFailure() throws {
     let expectation = self.expectation(description: #function)
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.createUser(withEmail: kEmail, password: "") { authResult, error in
+    try auth?.signOut()
+    auth?.createUser(withEmail: kEmail, password: "") { authResult, error in
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult?.user)
       XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.weakPassword.rawValue)
@@ -1352,8 +1356,8 @@ class AuthTests: RPCBaseTests {
    */
   func testCreateUserEmptyEmailFailure() throws {
     let expectation = self.expectation(description: #function)
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.createUser(withEmail: "", password: kFakePassword) { authResult, error in
+    try auth?.signOut()
+    auth?.createUser(withEmail: "", password: kFakePassword) { authResult, error in
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(authResult?.user)
       XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.missingEmail.rawValue)
@@ -1371,7 +1375,7 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
     let group = createGroup()
 
-    AuthTests.auth?.sendPasswordReset(withEmail: kEmail) { error in
+    auth?.sendPasswordReset(withEmail: kEmail) { error in
       // 4. After the response triggers the callback, verify success.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(error)
@@ -1397,7 +1401,7 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     let group = createGroup()
 
-    AuthTests.auth?.sendPasswordReset(withEmail: kEmail) { error in
+    auth?.sendPasswordReset(withEmail: kEmail) { error in
       XCTAssertTrue(Thread.isMainThread)
       let rpcError = (error as? NSError)!
       XCTAssertEqual(rpcError.code, AuthErrorCode.appNotAuthorized.rawValue)
@@ -1420,8 +1424,8 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
     let group = createGroup()
 
-    AuthTests.auth?.sendSignInLink(toEmail: kEmail,
-                                   actionCodeSettings: fakeActionCodeSettings()) { error in
+    auth?.sendSignInLink(toEmail: kEmail,
+                         actionCodeSettings: fakeActionCodeSettings()) { error in
       // 4. After the response triggers the callback, verify success.
       XCTAssertTrue(Thread.isMainThread)
       XCTAssertNil(error)
@@ -1449,12 +1453,12 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     let group = createGroup()
 
-    AuthTests.auth?.sendSignInLink(toEmail: kEmail,
-                                   actionCodeSettings: fakeActionCodeSettings()) { error in
+    auth?.sendSignInLink(toEmail: kEmail,
+                         actionCodeSettings: fakeActionCodeSettings()) { error in
       XCTAssertTrue(Thread.isMainThread)
-      let rpcError = (error as? NSError)!
-      XCTAssertEqual(rpcError.code, AuthErrorCode.appNotAuthorized.rawValue)
-      XCTAssertNotNil(rpcError.userInfo[NSLocalizedDescriptionKey])
+      let rpcError = error as? NSError
+      XCTAssertEqual(rpcError?.code, AuthErrorCode.appNotAuthorized.rawValue)
+      XCTAssertNotNil(rpcError?.userInfo[NSLocalizedDescriptionKey])
       expectation.fulfill()
     }
     group.wait()
@@ -1468,35 +1472,308 @@ class AuthTests: RPCBaseTests {
           call.
    */
   func testUpdateCurrentUserFailure() throws {
-    let kTestAccessToken = "fakeAccessToken"
-    // try waitForSignInWithAccessToken(fakeAccessToken: kTestAccessToken)
+    try waitForSignInWithAccessToken()
+    let expectation = self.expectation(description: #function)
     let kTestAPIKey2 = "fakeAPIKey2"
-    // TODO: next line deadlocks
-    let user2 = AuthTests.auth?.currentUser
-
-    // TODO: requestConfiguration not visible in FIRUser yet.
-//    user2?.requestConfiguration = AuthRequestConfiguration(APIKey: kTestAPIKey2, appID: kTestFirebaseAppID)
+    let auth = try XCTUnwrap(auth)
+    let user2 = auth.currentUser
+    user2?.requestConfiguration = AuthRequestConfiguration(apiKey: kTestAPIKey2,
+                                                           appID: kTestFirebaseAppID)
+    let group = createGroup()
+    // Clear fake so we can inject error
+    rpcIssuer?.fakeGetAccountProviderJSON = nil
+    auth.updateCurrentUser(user2) { error in
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.invalidAPIKey.rawValue)
+      expectation.fulfill()
+    }
+    group.wait()
+    try rpcIssuer?.respond(underlyingErrorMessage: "keyInvalid")
+    waitForExpectations(timeout: 5)
   }
 
-//  - (void)testUpdateCurrentUserFailure {
-//    NSString *kTestAccessToken = @"fakeAccessToken";
-//    NSString *kTestAPIKey = @"fakeAPIKey";
-//    [self waitForSignInWithAccessToken:kTestAccessToken APIKey:kTestAPIKey completion:nil];
-//    NSString *kTestAPIKey2 = @"fakeAPIKey2";
-//    FIRUser *user2 = [FIRAuth auth].currentUser;
-//    user2.requestConfiguration = [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey2
-//                                                                               appID:kFirebaseAppID];
-//    OCMExpect([_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
-//        .andDispatchError2([FIRAuthErrorUtils invalidAPIKeyError]);
-//    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
-//    [[FIRAuth auth] updateCurrentUser:user2
-//                           completion:^(NSError *_Nullable error) {
-//                             XCTAssertEqual(error.code, FIRAuthErrorCodeInvalidAPIKey);
-//                             [expectation fulfill];
-//                           }];
-//    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
-//    OCMVerifyAll(_mockBackend);
-//  }
+  /** @fn testUpdateCurrentUserFailureNetworkError
+      @brief Tests the flow of a failed @c updateCurrentUser:completion:
+          call with a network error.
+   */
+  func testUpdateCurrentUserFailureNetworkError() throws {
+    try waitForSignInWithAccessToken()
+    let expectation = self.expectation(description: #function)
+    let kTestAPIKey2 = "fakeAPIKey2"
+    let auth = try XCTUnwrap(auth)
+    let user2 = auth.currentUser
+    user2?.requestConfiguration = AuthRequestConfiguration(apiKey: kTestAPIKey2,
+                                                           appID: kTestFirebaseAppID)
+    let group = createGroup()
+    // Clear fake so we can inject error
+    rpcIssuer?.fakeGetAccountProviderJSON = nil
+    auth.updateCurrentUser(user2) { error in
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.networkError.rawValue)
+      expectation.fulfill()
+    }
+    group.wait()
+    let kFakeErrorDomain = "fakeDomain"
+    let kFakeErrorCode = -1
+    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
+    try rpcIssuer?.respond(withData: nil, error: responseError)
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testUpdateCurrentUserFailureNullUser
+      @brief Tests the flow of a failed @c updateCurrentUser:completion:
+          call with FIRAuthErrorCodeNullUser.
+   */
+  func testUpdateCurrentUserFailureNullUser() throws {
+    try waitForSignInWithAccessToken()
+    let expectation = self.expectation(description: #function)
+    auth.updateCurrentUser(nil) { error in
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.nullUser.rawValue)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testUpdateCurrentUserFailureTenantIDMismatch
+   @brief Tests the flow of a failed @c updateCurrentUser:completion:
+   call with FIRAuthErrorCodeTenantIDMismatch.
+   */
+  func testUpdateCurrentUserFailureTenantIDMismatch() throws {
+    // User without tenant id
+    try waitForSignInWithAccessToken()
+    let auth = try XCTUnwrap(auth)
+    let user1 = auth.currentUser
+    try auth.signOut()
+
+    // User with tenant id "tenant-id"
+    auth.tenantID = "tenant-id-1"
+    let kTestAccessToken2 = "fakeAccessToken2"
+    try waitForSignInWithAccessToken(fakeAccessToken: kTestAccessToken2)
+    let user2 = auth.currentUser
+
+    try auth.signOut()
+    auth.tenantID = "tenant-id-2"
+    let expectation = self.expectation(description: #function)
+
+    auth.updateCurrentUser(user1) { error in
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.tenantIDMismatch.rawValue)
+      expectation.fulfill()
+    }
+
+    try auth.signOut()
+    auth.tenantID = "tenant-id-2"
+    let expectation2 = self.expectation(description: "tenant-id-test2")
+
+    auth.updateCurrentUser(user2) { error in
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.tenantIDMismatch.rawValue)
+      expectation2.fulfill()
+    }
+
+    try auth.signOut()
+    auth.tenantID = nil
+    let expectation3 = self.expectation(description: "tenant-id-test3")
+
+    auth.updateCurrentUser(user2) { error in
+      XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.tenantIDMismatch.rawValue)
+      expectation3.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testUpdateCurrentUserSuccess
+      @brief Tests the flow of a successful @c updateCurrentUser:completion:
+          call with a network error.
+   */
+  func testUpdateCurrentUserSuccess() throws {
+    // Sign in with the first user.
+    try waitForSignInWithAccessToken()
+    let auth = try XCTUnwrap(auth)
+    let user1 = auth.currentUser
+    let kTestAPIKey = "fakeAPIKey"
+    user1?.requestConfiguration = AuthRequestConfiguration(apiKey: kTestAPIKey,
+                                                           appID: kTestFirebaseAppID)
+    try auth.signOut()
+
+    let kTestAccessToken2 = "fakeAccessToken2"
+    try waitForSignInWithAccessToken(fakeAccessToken: kTestAccessToken2)
+    let user2 = auth.currentUser
+
+    let expectation = self.expectation(description: #function)
+    // Current user should now be user2.
+    XCTAssertEqual(auth.currentUser, user2)
+
+    auth.updateCurrentUser(user1) { error in
+      XCTAssertNil(error)
+      // Current user should now be user1.
+      XCTAssertEqual(auth.currentUser, user1)
+      XCTAssertNotEqual(auth.currentUser, user2)
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testSignOut
+      @brief Tests the @c signOut: method.
+   */
+  func testSignOut() throws {
+    try waitForSignInWithAccessToken()
+    // Verify signing out succeeds and clears the current user.
+    let auth = try XCTUnwrap(auth)
+    try auth.signOut()
+    XCTAssertNil(auth.currentUser)
+  }
+
+  /** @fn testIsSignInWithEmailLink
+       @brief Tests the @c isSignInWithEmailLink: method.
+   */
+  func testIsSignInWithEmailLink() throws {
+    let auth = try XCTUnwrap(auth)
+    let kBadSignInEmailLink = "http://www.facebook.com"
+    XCTAssertTrue(auth.isSignIn(withEmailLink: kFakeEmailSignInLink))
+    XCTAssertTrue(auth.isSignIn(withEmailLink: kFakeEmailSignInDeeplink))
+    XCTAssertFalse(auth.isSignIn(withEmailLink: kBadSignInEmailLink))
+    XCTAssertFalse(auth.isSignIn(withEmailLink: ""))
+  }
+
+  /** @fn testAuthStateChanges
+      @brief Tests @c addAuthStateDidChangeListener: and @c removeAuthStateDidChangeListener: methods.
+   */
+  func testAuthStateChanges() throws {
+    // Set up listener.
+    let auth = try XCTUnwrap(auth)
+    var shouldHaveUser = false
+    var expectation: XCTestExpectation?
+    let listener = { listenerAuth, user in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertEqual(auth, listenerAuth)
+      XCTAssertEqual(user, auth.currentUser)
+      if shouldHaveUser {
+        XCTAssertNotNil(user)
+      } else {
+        XCTAssertNil(user)
+      }
+      // `expectation` being nil means the listener is not expected to be fired at this moment.
+      XCTAssertNotNil(expectation)
+      expectation?.fulfill()
+    }
+    try auth.signOut()
+
+    // Listener should fire immediately when attached.
+    expectation = self.expectation(description: "initial")
+    shouldHaveUser = false
+    let handle = auth.addStateDidChangeListener(listener)
+    waitForExpectations(timeout: 5)
+    expectation = nil
+
+    // Listener should fire for signing in.
+    expectation = self
+      .expectation(description: "sign-in") // waited on in waitForSignInWithAccessToken
+    shouldHaveUser = true
+    try waitForSignInWithAccessToken()
+
+    // Listener should not fire for signing in again.
+    expectation = nil
+    shouldHaveUser = true
+    try waitForSignInWithAccessToken()
+
+    // Listener should fire for signing out.
+    expectation = self.expectation(description: "sign-out")
+    shouldHaveUser = false
+    try auth.signOut()
+    waitForExpectations(timeout: 5)
+
+    // Listener should no longer fire once detached.
+    expectation = nil
+    auth.removeStateDidChangeListener(handle)
+    try waitForSignInWithAccessToken()
+  }
+
+  /** @fn testIDTokenChanges
+      @brief Tests @c addIDTokenDidChangeListener: and @c removeIDTokenDidChangeListener: methods.
+   */
+  func testIDTokenChanges() throws {
+    // Set up listener.
+    let auth = try XCTUnwrap(auth)
+    var shouldHaveUser = false
+    var expectation: XCTestExpectation?
+    let listener = { listenerAuth, user in
+      XCTAssertTrue(Thread.isMainThread)
+      XCTAssertEqual(auth, listenerAuth)
+      XCTAssertEqual(user, auth.currentUser)
+      if shouldHaveUser {
+        XCTAssertNotNil(user)
+      } else {
+        XCTAssertNil(user)
+      }
+      // `expectation` being nil means the listener is not expected to be fired at this moment.
+      XCTAssertNotNil(expectation)
+      expectation?.fulfill()
+    }
+    try auth.signOut()
+
+    // Listener should fire immediately when attached.
+    expectation = self.expectation(description: "initial")
+    shouldHaveUser = false
+    let handle = auth.addIDTokenDidChangeListener(listener)
+    waitForExpectations(timeout: 5)
+    expectation = nil
+
+    // Listener should fire for signing in.
+    expectation = self
+      .expectation(description: "sign-in") // waited on in waitForSignInWithAccessToken
+    shouldHaveUser = true
+    try waitForSignInWithAccessToken()
+
+    // Listener should not fire for signing in again.
+    expectation = nil
+    shouldHaveUser = true
+    try waitForSignInWithAccessToken()
+
+    // Listener should fire for signing out.
+    expectation = self.expectation(description: "sign-out")
+    shouldHaveUser = false
+    try auth.signOut()
+    waitForExpectations(timeout: 5)
+
+    // Listener should no longer fire once detached.
+    expectation = nil
+    auth.removeStateDidChangeListener(handle)
+    try waitForSignInWithAccessToken()
+  }
+
+  /** @fn testUseEmulator
+      @brief Tests the @c useEmulatorWithHost:port: method.
+   */
+  func testUseEmulator() throws {
+    auth.useEmulator(withHost: "host", port: 12345)
+    XCTAssertEqual("host:12345", auth.requestConfiguration.emulatorHostAndPort)
+    #if os(iOS)
+      let settings = try XCTUnwrap(auth.settings)
+      XCTAssertTrue(settings.isAppVerificationDisabledForTesting)
+    #endif
+  }
+
+  /** @fn testUseEmulatorNeverCalled
+      @brief Tests that the emulatorHostAndPort stored in @c FIRAuthRequestConfiguration is nil if the
+     @c useEmulatorWithHost:port: is not called.
+   */
+  func testUseEmulatorNeverCalled() throws {
+    XCTAssertNil(auth.requestConfiguration.emulatorHostAndPort)
+    #if os(iOS)
+      let settings = try XCTUnwrap(auth.settings)
+      XCTAssertFalse(settings.isAppVerificationDisabledForTesting)
+    #endif
+  }
+
+  /** @fn testUseEmulatorIPv6Address
+      @brief Tests the @c useEmulatorWithHost:port: method with an IPv6 host address.
+   */
+  func testUseEmulatorIPv6Address() throws {
+    auth.useEmulator(withHost: "::1", port: 12345)
+    XCTAssertEqual("[::1]:12345", auth.requestConfiguration.emulatorHostAndPort)
+    #if os(iOS)
+      let settings = try XCTUnwrap(auth.settings)
+      XCTAssertTrue(settings.isAppVerificationDisabledForTesting)
+    #endif
+  }
 
   // MARK: Helper Functions
 
@@ -1509,8 +1786,7 @@ class AuthTests: RPCBaseTests {
     // 1. Create a group to synchronize request creation by the fake rpcIssuer.
     let group = createGroup()
 
-    try AuthTests.auth?.signOut()
-    AuthTests.auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
+    auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
       guard let user = authResult?.user else {
@@ -1545,7 +1821,7 @@ class AuthTests: RPCBaseTests {
                                       "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 5)
-    assertUser(AuthTests.auth?.currentUser)
+    assertUser(auth?.currentUser)
   }
 
   private func assertUser(_ user: User?) {

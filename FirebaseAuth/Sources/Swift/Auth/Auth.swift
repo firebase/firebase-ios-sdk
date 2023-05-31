@@ -1432,7 +1432,7 @@ import FirebaseAppCheckInterop
     }
     // If host is an IPv6 address, it should be formatted with surrounding brackets.
     let formattedHost = host.contains(":") ? "[\(host)]" : host
-    kAuthGlobalWorkQueue.async {
+    kAuthGlobalWorkQueue.sync {
       self.requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
       #if os(iOS)
         self.settings?.appVerificationDisabledForTesting = true
@@ -1794,7 +1794,7 @@ import FirebaseAppCheckInterop
     }
     internalNotificationParameters[FIRAuthStateDidChangeInternalNotificationUIDKey] = currentUser?
       .uid
-    let notifications = NotificationCenter()
+    let notifications = NotificationCenter.default
     DispatchQueue.main.async {
       notifications.post(name: NSNotification.Name.FIRAuthStateDidChangeInternal,
                          object: self,
