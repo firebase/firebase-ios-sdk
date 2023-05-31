@@ -99,7 +99,10 @@
             self.fiid = [newFIID copy];
           }];
         } else {
-          FIRCLSWarningLog(@"Crashlytics skipped rotating the Install ID during urgent mode because it is run on the main thread, which can't succeed. This can happen if the app crashed the last run and Crashlytics is uploading urgently.");
+          FIRCLSWarningLog(
+              @"Crashlytics skipped rotating the Install ID during urgent mode because it is run "
+              @"on the main thread, which can't succeed. This can happen if the app crashed the "
+              @"last run and Crashlytics is uploading urgently.");
         }
 
         // Run on-device symbolication before packaging if we should process
