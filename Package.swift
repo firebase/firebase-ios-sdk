@@ -1277,7 +1277,7 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnit",
+      name: "FirebaseAppCheckUnit",
       dependencies: [
         "FirebaseAppCheck",
         "SharedTestUtilities",
@@ -1286,7 +1286,8 @@ let package = Package(
       ],
       path: "FirebaseAppCheck/Tests",
       exclude: [
-        // Disable Swift tests as mixed targets are not supported (Xcode 12.3).
+        // Swift tests are in the target `FirebaseAppCheckUnitSwift` since mixed language targets
+        // are not supported (as of Xcode 14.3).
         "Unit/Swift",
       ],
       resources: [
@@ -1297,7 +1298,7 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnitSwift",
+      name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       cSettings: [
