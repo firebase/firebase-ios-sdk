@@ -16,8 +16,6 @@
 
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
 
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Log Message Codes
