@@ -56,19 +56,21 @@ final class AppCheckAPITests {
         queue: .main
       ) { notification in
         _ = notification.userInfo?[InternalAppCheckTokenNotificationKey]
-        _ = notification.userInfo?[InternalAppCheckAppNameNotificationKey]
+        _ = notification.userInfo?[InternalAppCheckInstanceNameNotificationKey]
       }
 
     guard let app = FirebaseApp.app() else { return }
 
     // Retrieving an AppCheck instance
     let appCheck = InternalAppCheck(
-      app: app,
+      instanceName: app.name,
       appCheckProvider: DummyAppCheckProvider(),
       settings: GACAppCheckSettings(
         tokenAutoRefreshPolicyUserDefaultsKey: "token-refresh-user-defaults-key",
         tokenAutoRefreshPolicyInfoPListKey: "token-refresh-info-plist-key"
-      )
+      ),
+      resourceName: resourceName,
+      keychainAccessGroup: app.options.appGroupID
     )
 
     // Get token

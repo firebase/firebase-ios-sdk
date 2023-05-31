@@ -37,7 +37,6 @@ Pod::Spec.new do |s|
   s.source_files = [
     base_dir + 'Sources/**/*.[mh]',
     base_dir + 'Interop/*.h',
-    'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/AppCheck/*.h'
 
@@ -46,7 +45,6 @@ Pod::Spec.new do |s|
   s.tvos.weak_framework = 'DeviceCheck'
 
   s.dependency 'AppCheckInterop', '~> 10.11'
-  s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
 
@@ -72,6 +70,7 @@ Pod::Spec.new do |s|
       ]
 
       unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
+      unit_tests.dependency 'FirebaseCore', '~> 10.0'
       unit_tests.dependency 'OCMock'
       unit_tests.dependency 'HeartbeatLoggingTestUtils'
       unit_tests.requires_app_host = true
@@ -89,6 +88,7 @@ Pod::Spec.new do |s|
       base_dir + 'Tests/Integration/**/*.[mh]',
     ]
     integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
+    integration_tests.dependency 'FirebaseCore', '~> 10.0'
     integration_tests.requires_app_host = true
   end
 
@@ -102,6 +102,7 @@ Pod::Spec.new do |s|
       base_dir + 'Tests/Unit/Swift/**/*.swift',
       base_dir + 'Tests/Unit/Swift/**/*.h',
     ]
+    swift_unit_tests.dependency 'FirebaseCore', '~> 10.0'
   end
 
 end
