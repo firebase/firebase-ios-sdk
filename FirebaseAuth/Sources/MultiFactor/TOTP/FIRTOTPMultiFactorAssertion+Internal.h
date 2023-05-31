@@ -14,21 +14,39 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import <TargetConditionals.h>
+#if TARGET_OS_IOS
 
-#import "FIRMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
 /**
- @class TOTPMultiFactorAssertion
  @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
  (Time-based One Time Password). second factor.
  This class is available on iOS only.
  */
-NS_SWIFT_NAME(TOTPMultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)
-    @interface FIRTOTPMultiFactorAssertion : FIRMultiFactorAssertion
+@interface FIRTOTPMultiFactorAssertion ()
+
+/**
+ @brief secret TOTPSecret
+ */
+@property(nonatomic, copy, readonly, nonnull) FIRTOTPSecret *secret;
+/**
+ @brief one time password string
+ */
+@property(nonatomic, copy, readonly, nonnull) NSString *oneTimePassword;
+
+/**
+ @fn initWithSecret
+ @brief initializing function
+ @param secret TOTPSecret
+ @param oneTimePassword one time password string
+ */
+- (instancetype)initWithSecret:(FIRTOTPSecret *)secret oneTimePassword:(NSString *)oneTimePassword;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

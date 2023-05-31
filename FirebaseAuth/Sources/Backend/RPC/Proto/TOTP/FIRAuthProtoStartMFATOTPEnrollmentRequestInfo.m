@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentRequestInfo.h"
 
-#import <Foundation/Foundation.h>
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - Multi Factor ID constants
+@implementation FIRAuthProtoStartMFATOTPEnrollmentRequestInfo
 
-NSString *const FIRPhoneMultiFactorID = @"phone";
-NSString *const FIRTOTPMultiFactorID = @"totp";
+- (NSDictionary *)dictionary {
+  // Request to trigger enrollment for TOTP. Since there are no request parameters, we send an empty
+  // JSON object to the server
+  return @{};
+}
+@end
 
-#endif
+NS_ASSUME_NONNULL_END
