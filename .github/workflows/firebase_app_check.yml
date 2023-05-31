@@ -1,10 +1,10 @@
-name: app_check
+name: firebase_app_check
 
 on:
   pull_request:
     paths:
     - 'FirebaseAppCheck**'
-    - '.github/workflows/app_check.yml'
+    - '.github/workflows/firebase_app_check.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -65,7 +65,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm ${{ matrix.diagnostic }}
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckUnit iOS spm ${{ matrix.diagnostic }}
     - name: Upload raw logs if failed
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
@@ -107,6 +107,6 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckUnit ${{ matrix.target }} spm
     - name: Swift Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnitSwift ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckUnitSwift ${{ matrix.target }} spm
