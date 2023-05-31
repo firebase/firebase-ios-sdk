@@ -1,10 +1,10 @@
-name: app_check_core
+name: app_check
 
 on:
   pull_request:
     paths:
     - 'AppCheck**'
-    - '.github/workflows/app_check_core.yml'
+    - '.github/workflows/app_check.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -32,8 +32,8 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
-    - name: AppCheckCore
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb AppCheckCore.podspec --platforms=${{ matrix.target }}
+    - name: AppCheck
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb AppCheck.podspec --platforms=${{ matrix.target }}
 
   catalyst:
     # Don't run on private repo unless it is a PR.
@@ -48,7 +48,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh AppCheckCore test AppCheckCore-Unit-unit
+      run: scripts/test_catalyst.sh AppCheck test AppCheck-Unit-unit
 
   diagnostics:
     # Don't run on private repo unless it is a PR.
@@ -65,7 +65,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckCoreUnit iOS spm ${{ matrix.diagnostic }}
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit iOS spm ${{ matrix.diagnostic }}
     - name: Upload raw logs if failed
       if: ${{ failure() }}
       uses: actions/upload-artifact@v2
@@ -88,9 +88,9 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
-    - name: PodLibLint AppCheckCore Cron
+    - name: PodLibLint AppCheck Cron
       # TODO: Remove --allow-warnings when stabilized.
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb AppCheckCore.podspec --platforms=ios ${{ matrix.flags }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb AppCheck.podspec --platforms=ios ${{ matrix.flags }}
 
   spm:
     # Don't run on private repo unless it is a PR.
@@ -107,6 +107,6 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckCoreUnit ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnit ${{ matrix.target }} spm
     - name: Swift Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckCoreUnitSwift ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh AppCheckUnitSwift ${{ matrix.target }} spm

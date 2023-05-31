@@ -26,8 +26,8 @@ let package = Package(
   platforms: [.iOS(.v11), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
-      name: "AppCheckCore",
-      targets: ["AppCheckCore"]
+      name: "AppCheck",
+      targets: ["AppCheck"]
     ),
     .library(
       name: "FirebaseAnalytics",
@@ -1310,11 +1310,11 @@ let package = Package(
       ]
     ),
 
-    // MARK: - App Check Core
+    // MARK: - App Check
 
-    .target(name: "AppCheckCore",
+    .target(name: "AppCheck",
             dependencies: [
-              "AppCheckCoreInterop",
+              "AppCheckInterop",
               "FirebaseCore",
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -1332,7 +1332,7 @@ let package = Package(
             ]),
     // Internal headers only for consuming from Swift.
     .target(
-      name: "AppCheckCoreInterop",
+      name: "AppCheckInterop",
       path: "AppCheck/Interop",
       exclude: [
         "CMakeLists.txt",
@@ -1343,16 +1343,17 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckCoreUnit",
+      name: "AppCheckUnit",
       dependencies: [
-        "AppCheckCore",
+        "AppCheck",
         "SharedTestUtilities",
         "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "AppCheck/Tests",
       exclude: [
-        // Disable Swift tests as mixed targets are not supported (Xcode 14.3).
+        // Swift tests are in the target `AppCheckUnitSwift` since mixed language targets are not
+        // supported (as of Xcode 14.3).
         "Unit/Swift",
       ],
       resources: [
@@ -1363,8 +1364,8 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckCoreUnitSwift",
-      dependencies: ["AppCheckCore"],
+      name: "AppCheckUnitSwift",
+      dependencies: ["AppCheck"],
       path: "AppCheck/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
