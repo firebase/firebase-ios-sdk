@@ -74,11 +74,12 @@ NSString *const TestFIID = @"TestFIID";
 
 - (void)tearDown {
   self.uploader = nil;
+  [FIRApp resetApps];
 
   [super tearDown];
 }
 
-- (void)setupUploaderWithInstallations:(FIRMockInstallations *)installations {
+- (void)setupUploaderWithInstallations:(FIRInstallations *)installations {
   // Allow nil values only in tests
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wnonnull"
@@ -95,17 +96,33 @@ NSString *const TestFIID = @"TestFIID";
   self.uploader = [[FIRCLSReportUploader alloc] initWithManagerData:self.managerData];
 }
 
+- (NSString *)resourcePath {
+#if SWIFT_PACKAGE
+  NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+  return [bundle.resourcePath stringByAppendingPathComponent:@"Data"];
+#else
+  NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+  return bundle.resourcePath;
+#endif
+}
+
+- (FIRCLSInternalReport *)createReport {
+  NSString *path = [self.fileManager.activePath stringByAppendingPathComponent:@"pkg_uuid"];
+  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:path];
+  self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
+  return report;
+}
+
 #pragma mark - Tests
 
 - (void)testPrepareReport {
-  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:[self packagePath]];
-  self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
+  FIRCLSInternalReport *report = [self createReport];
 
   XCTAssertNil(self.uploader.fiid);
 
   [self.uploader prepareAndSubmitReport:report
                     dataCollectionToken:FIRCLSDataCollectionToken.validToken
-                               asUrgent:YES
+                               asUrgent:NO
                          withProcessing:YES];
 
   XCTAssertEqual(self.uploader.fiid, TestFIID);
@@ -115,9 +132,64 @@ NSString *const TestFIID = @"TestFIID";
       [self.fileManager.moveItemAtPath_destDir containsString:self.fileManager.preparedPath]);
 }
 
+- (void)testPrepareReportOnMainThread {
+  NSString *pathToPlist =
+      [[self resourcePath] stringByAppendingPathComponent:@"GoogleService-Info.plist"];
+  FIROptions *options = [[FIROptions alloc] initWithContentsOfFile:pathToPlist];
+
+  [FIRApp configureWithName:@"__FIRAPP_DEFAULT" options:options];
+  XCTAssertNotNil([FIRApp defaultApp], @"configureWithName must have been initialized");
+
+  FIRInstallations *installations = [FIRInstallations installationsWithApp:[FIRApp defaultApp]];
+  FIRCLSInternalReport *report = [self createReport];
+  [self setupUploaderWithInstallations:installations];
+
+  /*
+   if a report is urgent report will be processed on the Main Thread
+   otherwise, it will be dispatched to a NSOperationQueue (see `FIRCLSExistingReportManager.m:230`)
+
+   This test checks if `prepareAndSubmitReport` finishes in a reasonable time.
+   */
+
+  NSOperationQueue *queue = [NSOperationQueue new];
+
+  // target call will block the main thread, so we need a background thread
+  // that will wait on a semaphore for a timeout
+  dispatch_semaphore_t backgroundWaiter = dispatch_semaphore_create(0);
+  [queue addOperationWithBlock:^{
+    intptr_t result = dispatch_semaphore_wait(backgroundWaiter,
+                                              dispatch_time(DISPATCH_TIME_NOW, 1 * NSEC_PER_SEC));
+    BOOL exitBecauseOfTimeout = result != 0;
+    XCTAssertFalse(exitBecauseOfTimeout, @"Main Thread was blocked for more than 1 second");
+  }];
+
+  // Urgent (on the Main thread)
+  [self.uploader prepareAndSubmitReport:report
+                    dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                               asUrgent:YES
+                         withProcessing:YES];
+  dispatch_semaphore_signal(backgroundWaiter);
+
+  // Not urgent (on a background thread)
+  XCTestExpectation *expectation =
+      [self expectationWithDescription:@"wait for a preparation to complete"];
+
+  [queue addOperationWithBlock:^{
+    [self.uploader prepareAndSubmitReport:report
+                      dataCollectionToken:FIRCLSDataCollectionToken.validToken
+                                 asUrgent:YES
+                           withProcessing:YES];
+    [expectation fulfill];
+  }];
+
+  [self waitForExpectationsWithTimeout:1
+                               handler:^(NSError *_Nullable error) {
+                                 XCTAssertNil(error, @"expectations failed: %@", error);
+                               }];
+}
+
 - (void)test_NilFIID_DoesNotCrash {
-  FIRCLSInternalReport *report = [[FIRCLSInternalReport alloc] initWithPath:[self packagePath]];
-  self.fileManager.moveItemAtPathResult = [NSNumber numberWithInt:1];
+  FIRCLSInternalReport *report = [self createReport];
 
   self.mockInstallations = [[FIRMockInstallations alloc]
       initWithError:[NSError errorWithDomain:@"TestDomain" code:-1 userInfo:nil]];
