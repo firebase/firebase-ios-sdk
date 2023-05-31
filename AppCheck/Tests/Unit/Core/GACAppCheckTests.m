@@ -20,8 +20,6 @@
 
 #import "FBLPromise+Testing.h"
 
-#import <AppCheck/AppCheck.h>
-
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheck.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"

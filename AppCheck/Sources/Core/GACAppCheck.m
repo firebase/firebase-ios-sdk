@@ -56,9 +56,9 @@ NSString *const kGACAppCheckAppNameNotificationKey = @"GACAppCheckAppNameNotific
 
 // TODO(andrewheard): Remove from generic App Check SDK.
 // FIREBASE_APP_CHECK_ONLY_BEGIN
-NSString *const kGACAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix =
+static NSString *const kGACAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix =
     @"GACAppCheckTokenAutoRefreshEnabled_";
-NSString *const kGACAppCheckTokenAutoRefreshEnabledInfoPlistKey =
+static NSString *const kGACAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     @"FirebaseAppCheckTokenAutoRefreshEnabled";
 // FIREBASE_APP_CHECK_ONLY_END
 
