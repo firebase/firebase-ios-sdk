@@ -19,13 +19,13 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import <AppCheck/AppCheck.h>
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/DeviceCheckProvider/API/GACDeviceCheckAPIService.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 #import "AppCheck/Tests/Unit/Utils/GACFixtureLoader.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
