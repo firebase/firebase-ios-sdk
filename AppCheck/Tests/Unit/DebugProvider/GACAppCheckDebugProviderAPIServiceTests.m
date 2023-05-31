@@ -19,7 +19,9 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import <AppCheck/AppCheck.h>
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheck.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
+
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
@@ -28,15 +30,12 @@
 
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
-static NSString *const kProjectID = @"project_id";
-static NSString *const kAppID = @"app_id";
+static NSString *const kResourceName = @"projects/test_project_id/apps/test_app_id";
 
 @interface GACAppCheckDebugProviderAPIServiceTests : XCTestCase
 @property(nonatomic) GACAppCheckDebugProviderAPIService *debugAPIService;
 
 @property(nonatomic) id mockAPIService;
-
-@property(nonatomic) NSString *resourceName;
 @end
 
 @implementation GACAppCheckDebugProviderAPIServiceTests
@@ -44,14 +43,12 @@ static NSString *const kAppID = @"app_id";
 - (void)setUp {
   [super setUp];
 
-  self.resourceName = [NSString stringWithFormat:@"projects/%@/apps/%@", kProjectID, kAppID];
-
   self.mockAPIService = OCMProtocolMock(@protocol(GACAppCheckAPIServiceProtocol));
   OCMStub([self.mockAPIService baseURL]).andReturn(@"https://test.appcheck.url.com/alpha");
 
   self.debugAPIService =
       [[GACAppCheckDebugProviderAPIService alloc] initWithAPIService:self.mockAPIService
-                                                        resourceName:self.resourceName];
+                                                        resourceName:kResourceName];
 }
 
 - (void)tearDown {
@@ -70,7 +67,7 @@ static NSString *const kAppID = @"app_id";
   // 1.1. Stub API response.
   NSString *expectedRequestURL =
       [NSString stringWithFormat:@"%@%@", [self.mockAPIService baseURL],
-                                 @"/projects/project_id/apps/app_id:exchangeDebugToken"];
+                                 @"/projects/test_project_id/apps/test_app_id:exchangeDebugToken"];
   id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
     XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
     return YES;
@@ -117,7 +114,7 @@ static NSString *const kAppID = @"app_id";
   // 1.1. Stub API response.
   NSString *expectedRequestURL =
       [NSString stringWithFormat:@"%@%@", [self.mockAPIService baseURL],
-                                 @"/projects/project_id/apps/app_id:exchangeDebugToken"];
+                                 @"/projects/test_project_id/apps/test_app_id:exchangeDebugToken"];
   id URLValidationArg = [OCMArg checkWithBlock:^BOOL(NSURL *URL) {
     XCTAssertEqualObjects(URL.absoluteString, expectedRequestURL);
     return YES;
