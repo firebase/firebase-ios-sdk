@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <AppCheckInterop/GACAppCheckInterop.h>
+@import AppCheckInterop;
 
 @class FIRApp;
 @class GACAppCheckToken;
