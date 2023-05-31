@@ -17,6 +17,7 @@ import Foundation
 import FirebaseCore
 import FirebaseCoreExtension
 import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 #if COCOAPODS
   @_implementationOnly import GoogleUtilities
 #else
@@ -42,6 +43,62 @@ import FirebaseAppCheckInterop
   @available(iOS 13.0, *)
   extension Auth: UISceneDelegate {}
 #endif
+
+extension Auth: AuthInterop {
+  @objc(getTokenForcingRefresh:withCallback:)
+  public func getToken(forcingRefresh forceRefresh: Bool,
+                       completion callback: @escaping (String?, Error?) -> Void) {
+    kAuthGlobalWorkQueue.async { [weak self] in
+      if let strongSelf = self {
+        // Enable token auto-refresh if not already enabled.
+        if !strongSelf.autoRefreshTokens {
+          AuthLog.logInfo(code: "I-AUT000002", message: "Token auto-refresh enabled.")
+          strongSelf.autoRefreshTokens = true
+          strongSelf.scheduleAutoTokenRefresh()
+
+#if os(iOS) || os(tvOS) // TODO: Is a similar mechanism needed on macOS?
+          strongSelf.applicationDidBecomeActiveObserver =
+          NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil, queue: nil) { notification in
+              if let strongSelf = self {
+                strongSelf.isAppInBackground = false
+                if !strongSelf.autoRefreshScheduled {
+                  strongSelf.scheduleAutoTokenRefresh()
+                }
+              }
+            }
+          strongSelf.applicationDidEnterBackgroundObserver =
+          NotificationCenter.default.addObserver(
+            forName: UIApplication.didEnterBackgroundNotification,
+            object: nil, queue: nil) { notification in
+              if let strongSelf = self {
+                strongSelf.isAppInBackground = true
+              }
+            }
+#endif
+        }
+      }
+        // Call back with 'nil' if there is no current user.
+      guard let strongSelf = self, let currentUser = strongSelf.currentUser else {
+        DispatchQueue.main.async {
+          callback(nil, nil)
+        }
+        return
+      }
+      // Call back with current user token.
+      currentUser.internalGetToken(forceRefresh: forceRefresh) { token, error in
+        DispatchQueue.main.async {
+          callback(token, error)
+        }
+      }
+    }
+  }
+
+  public func getUserID() -> String? {
+    return currentUser?.uid
+  }
+}
 
 /** @class Auth
     @brief Manages authentication for Firebase apps.
@@ -1758,10 +1815,6 @@ import FirebaseAppCheckInterop
     return nil
   }
 
-  internal func getUserID() -> String? {
-    return currentUser?.uid
-  }
-
   internal func signOutByForce(withUserID userID: String) throws {
     guard currentUser?.uid == userID else {
       return
@@ -1841,8 +1894,7 @@ import FirebaseAppCheckInterop
         return
       }
       guard strongSelf.currentUser?.rawAccessToken() == accessToken else {
-        // Another auto refresh must have been scheduled, so keep
-        // _autoRefreshScheduled unchanged.
+        // Another auto refresh must have been scheduled, so keep _autoRefreshScheduled unchanged.
         return
       }
       strongSelf.autoRefreshScheduled = false
@@ -1851,7 +1903,7 @@ import FirebaseAppCheckInterop
       }
       let uid = strongSelf.currentUser?.uid
       strongSelf.currentUser?.internalGetToken(forceRefresh: true) { token, error in
-        if strongSelf.currentUser?.uid == uid {
+        if strongSelf.currentUser?.uid != uid {
           return
         }
         if error != nil {
