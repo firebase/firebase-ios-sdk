@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Expose MultiDb API for public preview. (#10465)
+
 # 10.9.0
 - [feature] Add new cache config API to customize SDK cache settings.
 - [feature] Add LRU garbage collector as an option to memory cache.
