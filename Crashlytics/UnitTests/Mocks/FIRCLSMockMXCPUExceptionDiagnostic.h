@@ -23,6 +23,7 @@
 #import "Crashlytics/UnitTests/Mocks/FIRCLSMockMXMetadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
+// Hello
 
 API_AVAILABLE(ios(14))
 @interface FIRCLSMockMXCPUExceptionDiagnostic : MXCPUExceptionDiagnostic
