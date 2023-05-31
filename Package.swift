@@ -26,6 +26,10 @@ let package = Package(
   platforms: [.iOS(.v11), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
+      name: "AppCheck",
+      targets: ["AppCheck"]
+    ),
+    .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
@@ -1301,6 +1305,68 @@ let package = Package(
       name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+
+    // MARK: - App Check
+
+    .target(name: "AppCheck",
+            dependencies: [
+              "AppCheckInterop",
+              "FirebaseCore",
+              .product(name: "FBLPromises", package: "Promises"),
+              .product(name: "GULEnvironment", package: "GoogleUtilities"),
+            ],
+            path: "AppCheck/Sources",
+            publicHeadersPath: "Public",
+            cSettings: [
+              .headerSearchPath("../.."),
+            ],
+            linkerSettings: [
+              .linkedFramework(
+                "DeviceCheck",
+                .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
+              ),
+            ]),
+    // Internal headers only for consuming from Swift.
+    .target(
+      name: "AppCheckInterop",
+      path: "AppCheck/Interop",
+      exclude: [
+        "CMakeLists.txt",
+      ],
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
+      ]
+    ),
+    .testTarget(
+      name: "AppCheckUnit",
+      dependencies: [
+        "AppCheck",
+        "SharedTestUtilities",
+        "HeartbeatLoggingTestUtils",
+        .product(name: "OCMock", package: "ocmock"),
+      ],
+      path: "AppCheck/Tests",
+      exclude: [
+        // Swift tests are in the target `AppCheckUnitSwift` since mixed language targets are not
+        // supported (as of Xcode 14.3).
+        "Unit/Swift",
+      ],
+      resources: [
+        .process("Fixture"),
+      ],
+      cSettings: [
+        .headerSearchPath("../.."),
+      ]
+    ),
+    .testTarget(
+      name: "AppCheckUnitSwift",
+      dependencies: ["AppCheck"],
+      path: "AppCheck/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
       ]
