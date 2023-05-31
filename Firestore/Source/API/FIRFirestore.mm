@@ -169,12 +169,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
   if (!app) {
     ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
-        "to use the default FirebaseApp instance.");
+                         "to use the default FirebaseApp instance.");
   }
   if (!database) {
     ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
-        "database",
-        DatabaseId::kDefault);
+                         "database",
+                         DatabaseId::kDefault);
   }
 
   id<FSTFirestoreMultiDBProvider> provider =
@@ -186,7 +186,7 @@ NS_ASSUME_NONNULL_BEGIN
   FIRApp *app = [FIRApp defaultApp];
   if (!app) {
     ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
-        "before using Firestore");
+                      "before using Firestore");
   }
   return [self firestoreForApp:app database:database];
 }
