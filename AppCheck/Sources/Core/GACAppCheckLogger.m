@@ -20,24 +20,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Log Message Codes
 
-NSString *const kFIRLoggerAppCheckMessageCodeUnknown = @"I-FAA001001";
+NSString *const kGACLoggerAppCheckMessageCodeUnknown = @"I-FAA001001";
 
 // GACAppCheck.m
-NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing = @"I-FAA002002";
+NSString *const kGACLoggerAppCheckMessageCodeProviderIsMissing = @"I-FAA002002";
 
 // GACAppCheckAPIService.m
-NSString *const kFIRLoggerAppCheckMessageCodeUnexpectedHTTPCode = @"I-FAA003001";
+NSString *const kGACLoggerAppCheckMessageCodeUnexpectedHTTPCode = @"I-FAA003001";
 
 // GACAppCheckDebugProvider.m
-NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions = @"I-FAA004001";
-NSString *const kFIRLoggerAppCheckMessageDebugProviderFailedExchange = @"I-FAA004002";
-
-// GACDeviceCheckProvider.m
-NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions = @"I-FAA006001";
+NSString *const kGACLoggerAppCheckMessageDebugProviderFailedExchange = @"I-FAA004002";
 
 // GACAppAttestProvider.m
-NSString *const kFIRLoggerAppCheckMessageCodeAppAttestNotSupported = @"I-FAA007001";
-NSString *const kFIRLoggerAppCheckMessageCodeAttestationRejected = @"I-FAA007002";
+NSString *const kGACLoggerAppCheckMessageCodeAppAttestNotSupported = @"I-FAA007001";
+NSString *const kGACLoggerAppCheckMessageCodeAttestationRejected = @"I-FAA007002";
 
 #pragma mark - Logging Functions
 
