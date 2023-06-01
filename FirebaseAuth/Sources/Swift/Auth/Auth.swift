@@ -56,30 +56,32 @@ extension Auth: AuthInterop {
           strongSelf.autoRefreshTokens = true
           strongSelf.scheduleAutoTokenRefresh()
 
-#if os(iOS) || os(tvOS) // TODO: Is a similar mechanism needed on macOS?
-          strongSelf.applicationDidBecomeActiveObserver =
-          NotificationCenter.default.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil, queue: nil) { notification in
-              if let strongSelf = self {
-                strongSelf.isAppInBackground = false
-                if !strongSelf.autoRefreshScheduled {
-                  strongSelf.scheduleAutoTokenRefresh()
+          #if os(iOS) || os(tvOS) // TODO: Is a similar mechanism needed on macOS?
+            strongSelf.applicationDidBecomeActiveObserver =
+              NotificationCenter.default.addObserver(
+                forName: UIApplication.didBecomeActiveNotification,
+                object: nil, queue: nil
+              ) { notification in
+                if let strongSelf = self {
+                  strongSelf.isAppInBackground = false
+                  if !strongSelf.autoRefreshScheduled {
+                    strongSelf.scheduleAutoTokenRefresh()
+                  }
                 }
               }
-            }
-          strongSelf.applicationDidEnterBackgroundObserver =
-          NotificationCenter.default.addObserver(
-            forName: UIApplication.didEnterBackgroundNotification,
-            object: nil, queue: nil) { notification in
-              if let strongSelf = self {
-                strongSelf.isAppInBackground = true
+            strongSelf.applicationDidEnterBackgroundObserver =
+              NotificationCenter.default.addObserver(
+                forName: UIApplication.didEnterBackgroundNotification,
+                object: nil, queue: nil
+              ) { notification in
+                if let strongSelf = self {
+                  strongSelf.isAppInBackground = true
+                }
               }
-            }
-#endif
+          #endif
         }
       }
-        // Call back with 'nil' if there is no current user.
+      // Call back with 'nil' if there is no current user.
       guard let strongSelf = self, let currentUser = strongSelf.currentUser else {
         DispatchQueue.main.async {
           callback(nil, nil)

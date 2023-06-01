@@ -693,7 +693,7 @@ class UserTests: RPCBaseTests {
     signInWithEmailPasswordReturnFakeUser(fakeAccessToken: RPCBaseTests.kFakeAccessToken) { user in
       let underlying = NSError(domain: "Test Error", code: 1)
       self.rpcIssuer?.secureTokenNetworkError =
-            AuthErrorUtils.networkError(underlyingError: underlying) as NSError
+        AuthErrorUtils.networkError(underlyingError: underlying) as NSError
       user.getIDTokenResult(forcingRefresh: true) { tokenResult, rawError in
         do {
           XCTAssertTrue(Thread.isMainThread)
