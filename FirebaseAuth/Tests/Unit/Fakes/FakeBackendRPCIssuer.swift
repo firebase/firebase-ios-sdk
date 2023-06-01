@@ -73,7 +73,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
 
   var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
-  var secureTokenNetworkError: Bool = false
+  var secureTokenNetworkError: NSError?
 
   func asyncPostToURL(withRequest request: AuthRPCRequest,
                       body: Data?,
@@ -108,11 +108,9 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       }
       return
     } else if let _ = request as? SecureTokenRequest {
-      if secureTokenNetworkError {
-        let underlying = NSError(domain: "Test Error", code: 1)
-        let networkError = AuthErrorUtils.networkError(underlyingError: underlying) as NSError
+      if let secureTokenNetworkError {
         guard let _ = try? respond(withData: nil,
-                                   error: networkError) else {
+                                   error: secureTokenNetworkError) else {
           fatalError("Failed to generate secureTokenNetworkError")
         }
         return

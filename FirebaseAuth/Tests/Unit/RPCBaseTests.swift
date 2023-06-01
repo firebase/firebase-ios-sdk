@@ -242,7 +242,8 @@ class RPCBaseTests: XCTestCase {
     "jTOqZGYJlTsI5oRMehphoVnYnEedJga28r4mqVkPbWlddL4dVVm85FYmQcRc0b2CLMnSevBDlwu754ZUZmRgnuvDA"
 
   func setFakeSecureTokenService(fakeAccessToken: String = RPCBaseTests.kFakeAccessToken) {
-    rpcIssuer?.fakeSecureTokenServiceJSON = ["access_token": fakeAccessToken]
+    rpcIssuer?.fakeSecureTokenServiceJSON = ["access_token": fakeAccessToken,
+                                             "expires_in": "3600"]
   }
 
   func setFakeGetAccountProvider(withNewDisplayName displayName: String = "User Doe",
