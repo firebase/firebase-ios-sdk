@@ -18,12 +18,28 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ @brief FIRAuthProtoFinalizeMFATOTPSignInRequestInfo class.  This class is used to compose
+ finalizeMFASignInRequest for TOTP case.
+ */
 @interface FIRAuthProtoFinalizeMFATOTPSignInRequestInfo : NSObject <FIRAuthProto>
 
+/**
+ @brief Multifactor enrollment ID.
+ */
 @property(nonatomic, strong, readonly, nullable) NSString *mfaEnrollmentID;
 
+/**
+ @brief Verification code.
+ */
 @property(nonatomic, strong, readonly, nullable) NSString *verificationCode;
 
+/**
+ @fn initWithMfaEnrollmentID:verificationCode
+ @brief initialize function for FIRAuthProtoFinalizeMFATOTPSignInRequestInfo.
+ @param mfaEnrollmentID Multifactor enrollment ID.
+ @param verificationCode One time verification code.
+ */
 - (instancetype)initWithMfaEnrollmentID:(NSString *)mfaEnrollmentID
                        verificationCode:(NSString *)verificationCode;
 @end

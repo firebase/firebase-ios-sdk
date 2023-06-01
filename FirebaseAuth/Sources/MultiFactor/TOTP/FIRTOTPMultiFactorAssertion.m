@@ -45,6 +45,17 @@ extern NSString *const _Nonnull FIRTOTPMultiFactorID;
   return self;
 }
 
+- (instancetype)initWithEnrollmentID:(NSString *)enrollmentID
+                     oneTimePassword:(NSString *)oneTimePassword {
+  self = [super init];
+  if (self) {
+    _factorID = FIRTOTPMultiFactorID;
+    _enrollmentID = enrollmentID;
+    _oneTimePassword = oneTimePassword;
+  }
+  return self;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

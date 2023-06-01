@@ -93,6 +93,12 @@
                                              oneTimePassword:oneTimePassword];
 }
 
++ (FIRTOTPMultiFactorAssertion *)assertionForSignInWithEnrollmentID:(NSString *)enrollmentID
+                                                    oneTimePassword:(NSString *)oneTimePassword {
+  return [[FIRTOTPMultiFactorAssertion alloc] initWithEnrollmentID:enrollmentID
+                                                   oneTimePassword:oneTimePassword];
+}
+
 @end
 
 #endif
