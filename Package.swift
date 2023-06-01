@@ -214,7 +214,6 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseCore/Tests/Unit",
@@ -248,16 +247,10 @@ let package = Package(
       ],
       path: "FirebaseCore/Internal/Sources"
     ),
-    .target(
-      name: "HeartbeatLoggingTestUtils",
-      dependencies: ["FirebaseCoreInternal"],
-      path: "HeartbeatLoggingTestUtils/Sources"
-    ),
     .testTarget(
       name: "FirebaseCoreInternalTests",
       dependencies: [
         "FirebaseCoreInternal",
-        "HeartbeatLoggingTestUtils",
       ],
       path: "FirebaseCore/Internal/Tests"
     ),
@@ -460,7 +453,6 @@ let package = Package(
       name: "AuthUnit",
       dependencies: [
         "FirebaseAuth",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseAuth/Tests/Unit",
@@ -1281,7 +1273,6 @@ let package = Package(
       dependencies: [
         "FirebaseAppCheck",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseAppCheck/Tests",
