@@ -16,7 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <AppCheck/AppCheck.h>
+@import AppCheck;
+
 #import <OCMock/OCMock.h>
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"

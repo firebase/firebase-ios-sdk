@@ -16,7 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 
-#import <AppCheck/AppCheck.h>
+@import AppCheck;
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTimer.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
