@@ -1,0 +1,6 @@
+
+// In module.modulemap
+module CxxTest {
+    header "CxxTest.hpp"
+    requires cplusplus
+}
