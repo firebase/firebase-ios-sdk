@@ -21,12 +21,11 @@ import FirebaseCore
 
 class AuthTests: RPCBaseTests {
   static let kAccessToken = "TEST_ACCESS_TOKEN"
+  static let kNewAccessToken = "NEW_ACCESS_TOKEN"
   static let kFakeAPIKey = "FAKE_API_KEY"
   var auth: Auth!
-
-  override class func setUp() {}
-
   static var testNum = 0
+  var authDispatcherCallback: (() -> Void)?
 
   override func setUp() {
     super.setUp()
@@ -47,16 +46,13 @@ class AuthTests: RPCBaseTests {
       keychainStorageProvider: keychainStorageProvider
     )
 
-    // Set FIRAuthDispatcher implementation in order to save the token refresh task for later
+    // Set authDispatcherCallback implementation in order to save the token refresh task for later
     // execution.
     AuthDispatcher.shared.dispatchAfterImplementation = { delay, queue, task in
       XCTAssertNotNil(task)
       XCTAssertGreaterThan(delay, 0)
-      // TODO:
-      XCTFail("implement this")
-      // XCTAssertEqual(FIRAuthGlobalWorkQueue(), queue)
-      //          XCTAssertEqualObjects(FIRAuthGlobalWorkQueue(), queue);
-      //          self->_FIRAuthDispatcherCallback = task;
+      XCTAssertEqual(kAuthGlobalWorkQueue, queue)
+      self.authDispatcherCallback = task
     }
     // Wait until Auth initialization completes
     waitForAuthGlobalWorkQueueDrain()
@@ -1716,9 +1712,8 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
     expectation = nil
 
-    // Listener should fire for signing in.
-    expectation = self
-      .expectation(description: "sign-in") // waited on in waitForSignInWithAccessToken
+    // Listener should fire for signing in. Expectation is waited on in waitForSignInWithAccessToken.
+    expectation = self.expectation(description: "sign-in")
     shouldHaveUser = true
     try waitForSignInWithAccessToken()
 
@@ -1726,6 +1721,11 @@ class AuthTests: RPCBaseTests {
     expectation = nil
     shouldHaveUser = true
     try waitForSignInWithAccessToken()
+
+    // Listener should fire for signing in again as the same user with another access token.
+    expectation = self.expectation(description: "sign-in")
+    shouldHaveUser = true
+    try waitForSignInWithAccessToken(fakeAccessToken: AuthTests.kNewAccessToken)
 
     // Listener should fire for signing out.
     expectation = self.expectation(description: "sign-out")
@@ -1775,7 +1775,85 @@ class AuthTests: RPCBaseTests {
     #endif
   }
 
+  // MARK: Automatic Token Refresh Tests.
+
+  /** @fn testAutomaticTokenRefresh
+      @brief Tests a successful flow to automatically refresh tokens for a signed in user.
+   */
+  func testAutomaticTokenRefresh() throws {
+    try auth.signOut()
+    // Enable auto refresh
+    enableAutoTokenRefresh()
+
+    // Sign in a user.
+    try waitForSignInWithAccessToken()
+
+    setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
+
+    // Verify that the current user's access token is the "old" access token before automatic token
+    // refresh.
+    XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
+
+    // Execute saved token refresh task.
+    let expectation = self.expectation(description: #function)
+    kAuthGlobalWorkQueue.async {
+      XCTAssertNotNil(self.authDispatcherCallback)
+      self.authDispatcherCallback?()
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+
+    waitForAuthGlobalWorkQueueDrain()
+
+    // Verify that current user's access token is the "new" access token provided in the mock secure
+    // token response during automatic token refresh.
+    XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
+  }
+
+  /** @fn testAutomaticTokenRefreshInvalidTokenFailure
+      @brief Tests an unsuccessful flow to auto refresh tokens with an "invalid token" error.
+          This error should cause the user to be signed out.
+   */
+  func SKIPtestAutomaticTokenRefreshInvalidTokenFailure() throws {
+    try auth.signOut()
+    // Enable auto refresh
+    enableAutoTokenRefresh()
+
+    // Sign in a user.
+    try waitForSignInWithAccessToken()
+
+    // Set up expectation for secureToken RPC made by a failed attempt to refresh tokens.
+    rpcIssuer?.secureTokenNetworkError =
+      AuthErrorUtils.invalidUserTokenError(message: nil) as NSError
+
+    // Verify that the current user's access token is the "old" access token before automatic token
+    // refresh.
+    XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
+
+    // Execute saved token refresh task.
+    let expectation = self.expectation(description: #function)
+    kAuthGlobalWorkQueue.async {
+      XCTAssertNotNil(self.authDispatcherCallback)
+      self.authDispatcherCallback?()
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+
+    waitForAuthGlobalWorkQueueDrain()
+
+    // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
+    XCTAssertNil(auth.currentUser)
+  }
+
   // MARK: Helper Functions
+
+  private func enableAutoTokenRefresh() {
+    let expectation = self.expectation(description: #function)
+    auth.getToken(forcingRefresh: false) { token, error in
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+  }
 
   private func waitForSignInWithAccessToken(fakeAccessToken: String = kAccessToken) throws {
     let kRefreshToken = "fakeRefreshToken"
@@ -1818,6 +1896,7 @@ class AuthTests: RPCBaseTests {
     try rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
                                       "email": kEmail,
                                       "isNewUser": true,
+                                      "expiresIn": "3600",
                                       "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 5)
