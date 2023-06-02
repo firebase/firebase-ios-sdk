@@ -110,7 +110,7 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
         return nil;
       })
       .catch(^void(NSError *error) {
-        GACLogDebug(kFIRLoggerAppCheckMessageDebugProviderFailedExchange,
+        GACLogDebug(kGACLoggerAppCheckMessageDebugProviderFailedExchange,
                     @"Failed to exchange debug token to app check token: %@", error);
         handler(nil, error);
       });
