@@ -87,7 +87,7 @@ app update.
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true
   end
-  
+
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|
     swift_api.scheme = { :code_coverage => true }
