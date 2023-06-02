@@ -15,7 +15,9 @@
  */
 
 import Foundation
-import FirebaseRemoteConfig
+#if SWIFT_PACKAGE
+@_exported import FirebaseRemoteConfigInternal
+#endif  // SWIFT_PACKAGE
 import FirebaseSharedSwift
 
 public enum RemoteConfigValueCodableError: Error {

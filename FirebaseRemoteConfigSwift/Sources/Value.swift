@@ -15,7 +15,9 @@
  */
 
 import Foundation
-import FirebaseRemoteConfig
+#if SWIFT_PACKAGE
+@_exported import FirebaseRemoteConfigInternal
+#endif  // SWIFT_PACKAGE
 
 /// Implements subscript overloads to enable Remote Config values to be accessed
 /// in a type-safe way directly from the current config.
