@@ -32,10 +32,16 @@ NS_ASSUME_NONNULL_BEGIN
  @brief secret TOTPSecret
  */
 @property(nonatomic, copy, readonly, nonnull) FIRTOTPSecret *secret;
+
 /**
  @brief one time password string
  */
 @property(nonatomic, copy, readonly, nonnull) NSString *oneTimePassword;
+
+/**
+ @brief the enrollment ID
+ */
+@property(nonatomic, copy, readonly, nonnull) NSString *enrollmentID;
 
 /**
  @fn initWithSecret
@@ -44,6 +50,15 @@ NS_ASSUME_NONNULL_BEGIN
  @param oneTimePassword one time password string
  */
 - (instancetype)initWithSecret:(FIRTOTPSecret *)secret oneTimePassword:(NSString *)oneTimePassword;
+
+/**
+ @fn initWithEnrollmentID:oneTimePassword
+ @brief initializing function
+ @param enrollmentID enrollment ID
+ @param oneTimePassword one time password string
+ */
+- (instancetype)initWithEnrollmentID:(NSString *)enrollmentID
+                     oneTimePassword:(NSString *)oneTimePassword;
 
 @end
 
