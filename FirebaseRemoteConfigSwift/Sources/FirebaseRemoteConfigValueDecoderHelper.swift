@@ -16,8 +16,8 @@
 
 import Foundation
 #if SWIFT_PACKAGE
-@_exported import FirebaseRemoteConfigInternal
-#endif  // SWIFT_PACKAGE
+  @_exported import FirebaseRemoteConfigInternal
+#endif // SWIFT_PACKAGE
 import FirebaseSharedSwift
 
 /// Implement the FirebaseRemoteConfigValueDecoding protocol for the shared Firebase decoder to
