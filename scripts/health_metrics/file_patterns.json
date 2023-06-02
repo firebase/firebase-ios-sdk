@@ -160,7 +160,7 @@
   },
   {
     "sdk": "remoteconfig",
-    "podspecs": ["FirebaseRemoteConfig.podspec", "FirebaseRemoteConfigSwift.podspec"],
+    "podspecs": ["FirebaseRemoteConfig.podspec"],
     "filePatterns": [
       "^FirebaseRemoteConfig.*",
       "Interop/Analytics/Public/[^/]+\\.h",

@@ -44,7 +44,6 @@ MODULE_LIST = [
     'FirebaseMLModelDownloader',
     'FirebasePerformance',
     'FirebaseRemoteConfig',
-    'FirebaseRemoteConfigSwift',
     # Not buildable. No scheme named "FirebaseSharedSwift"
     'FirebaseSharedSwift',
     'FirebaseStorage',

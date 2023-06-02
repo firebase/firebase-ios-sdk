@@ -14,7 +14,6 @@ target 'SwiftUISample' do
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseRemoteConfig', :path => '../../../'
-  pod 'FirebaseRemoteConfigSwift', :path => '../../../'
   pod 'FirebaseSharedSwift', :path => '../../..'
   pod 'FirebaseABTesting', :path => '../../..'
 

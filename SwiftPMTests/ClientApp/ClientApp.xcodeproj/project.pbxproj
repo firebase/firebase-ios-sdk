@@ -40,7 +40,6 @@
 		EA7DF5AD29EF3327005664A7 /* FirebaseMLModelDownloader in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5AC29EF3327005664A7 /* FirebaseMLModelDownloader */; };
 		EA7DF5AF29EF3328005664A7 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; platformFilters = (ios, tvos, ); productRef = EA7DF5AE29EF3328005664A7 /* FirebasePerformance */; };
 		EA7DF5B129EF3328005664A7 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */; };
-		EA7DF5B329EF3328005664A7 /* FirebaseRemoteConfigSwift in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */; };
 		EA7DF5B529EF3328005664A7 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B429EF3328005664A7 /* FirebaseStorage */; };
 		EA7DF5B729EF3328005664A7 /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */; };
 /* End PBXBuildFile section */
@@ -77,7 +76,6 @@
 				EA7DF58929EF3326005664A7 /* FirebaseAnalyticsWithoutAdIdSupport in Frameworks */,
 				EA7DF5AB29EF3327005664A7 /* FirebaseMessaging in Frameworks */,
 				EA7DF58F29EF3326005664A7 /* FirebaseAuth in Frameworks */,
-				EA7DF5B329EF3328005664A7 /* FirebaseRemoteConfigSwift in Frameworks */,
 				EA7DF59329EF3326005664A7 /* FirebaseCrashlytics in Frameworks */,
 				EA7DF5A529EF3327005664A7 /* FirebaseInAppMessaging-Beta in Frameworks */,
 				EA7DF59729EF3326005664A7 /* FirebaseDatabaseSwift in Frameworks */,
@@ -196,7 +194,6 @@
 				EA7DF5AC29EF3327005664A7 /* FirebaseMLModelDownloader */,
 				EA7DF5AE29EF3328005664A7 /* FirebasePerformance */,
 				EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */,
-				EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */,
 				EA7DF5B429EF3328005664A7 /* FirebaseStorage */,
 				EA7DF5B629EF3328005664A7 /* FirebaseStorageCombine-Community */,
 				EA0BC0FE29F06D5B005B8AEE /* FirebaseAnalyticsOnDeviceConversion */,
@@ -590,10 +587,6 @@
 		EA7DF5B029EF3328005664A7 /* FirebaseRemoteConfig */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = FirebaseRemoteConfig;
-		};
-		EA7DF5B229EF3328005664A7 /* FirebaseRemoteConfigSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = FirebaseRemoteConfigSwift;
 		};
 		EA7DF5B429EF3328005664A7 /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;

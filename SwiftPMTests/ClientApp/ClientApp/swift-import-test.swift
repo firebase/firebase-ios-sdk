@@ -48,6 +48,5 @@ import FirebaseMLModelDownloader
   import FirebasePerformance
 #endif
 import FirebaseRemoteConfig
-import FirebaseRemoteConfigSwift
 import FirebaseStorage
 import FirebaseStorageCombineSwift

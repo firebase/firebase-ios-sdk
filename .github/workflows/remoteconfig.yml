@@ -60,7 +60,6 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
-        podspec: [FirebaseRemoteConfig.podspec, FirebaseRemoteConfigSwift.podspec --skip-tests]
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
@@ -68,7 +67,7 @@ jobs:
       run: scripts/setup_bundler.sh
     - name: Build and test
       run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }}
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseRemoteConfig.podspec --platforms=${{ matrix.target }}
 
   spm:
     # Don't run on private repo unless it is a PR.
