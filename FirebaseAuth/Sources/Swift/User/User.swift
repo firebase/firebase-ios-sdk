@@ -1910,6 +1910,7 @@ import Foundation
                                callback: @escaping (String?, Error?) -> Void) {
     tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
       if let error {
+        self.signOutIfTokenIsInvalid(withError: error)
         callback(nil, error)
         return
       }
