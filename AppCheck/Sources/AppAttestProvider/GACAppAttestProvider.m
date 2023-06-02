@@ -228,7 +228,7 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
   return [self attestationState].thenOn(self.queue, ^id(GACAppAttestProviderState *attestState) {
     switch (attestState.state) {
       case GACAppAttestAttestationStateUnsupported:
-        GACLogDebug(kFIRLoggerAppCheckMessageCodeAppAttestNotSupported,
+        GACLogDebug(kGACLoggerAppCheckMessageCodeAppAttestNotSupported,
                     @"App Attest is not supported.");
         return attestState.appAttestUnsupportedError;
         break;
@@ -348,7 +348,7 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
         GACAppCheckHTTPError *HTTPError = (GACAppCheckHTTPError *)error;
         if ([HTTPError isKindOfClass:[GACAppCheckHTTPError class]] &&
             HTTPError.HTTPResponse.statusCode == 403) {
-          GACLogDebug(kFIRLoggerAppCheckMessageCodeAttestationRejected,
+          GACLogDebug(kGACLoggerAppCheckMessageCodeAttestationRejected,
                       @"App Attest attestation was rejected by backend. The existing "
                       @"attestation will be reset.");
           // Reset the attestation.
