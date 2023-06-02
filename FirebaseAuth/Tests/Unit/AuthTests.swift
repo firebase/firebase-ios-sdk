@@ -1802,7 +1802,6 @@ class AuthTests: RPCBaseTests {
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
-
     waitForAuthGlobalWorkQueueDrain()
 
     // Verify that current user's access token is the "new" access token provided in the mock secure
@@ -1814,7 +1813,7 @@ class AuthTests: RPCBaseTests {
       @brief Tests an unsuccessful flow to auto refresh tokens with an "invalid token" error.
           This error should cause the user to be signed out.
    */
-  func SKIPtestAutomaticTokenRefreshInvalidTokenFailure() throws {
+  func testAutomaticTokenRefreshInvalidTokenFailure() throws {
     try auth.signOut()
     // Enable auto refresh
     enableAutoTokenRefresh()
@@ -1823,8 +1822,7 @@ class AuthTests: RPCBaseTests {
     try waitForSignInWithAccessToken()
 
     // Set up expectation for secureToken RPC made by a failed attempt to refresh tokens.
-    rpcIssuer?.secureTokenNetworkError =
-      AuthErrorUtils.invalidUserTokenError(message: nil) as NSError
+    rpcIssuer?.secureTokenErrorString = "INVALID_ID_TOKEN"
 
     // Verify that the current user's access token is the "old" access token before automatic token
     // refresh.
@@ -1838,12 +1836,100 @@ class AuthTests: RPCBaseTests {
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
-
     waitForAuthGlobalWorkQueueDrain()
 
     // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
     XCTAssertNil(auth.currentUser)
   }
+
+  /** @fn testAutomaticTokenRefreshRetry
+      @brief Tests that a retry is attempted for a automatic token refresh task (which is not due to
+          invalid tokens). The initial attempt to refresh the access token fails, but the second
+          attempt is successful.
+   */
+  func testAutomaticTokenRefreshRetry() throws {
+    try auth.signOut()
+    // Enable auto refresh
+    enableAutoTokenRefresh()
+
+    // Sign in a user.
+    try waitForSignInWithAccessToken()
+
+    // Set up expectation for secureToken RPC made by a failed attempt to refresh tokens.
+    rpcIssuer?.secureTokenNetworkError = NSError(domain: "ERROR", code: -1)
+
+    // Execute saved token refresh task.
+    let expectation = self.expectation(description: #function)
+    kAuthGlobalWorkQueue.async {
+      XCTAssertNotNil(self.authDispatcherCallback)
+      self.authDispatcherCallback?()
+      self.authDispatcherCallback = nil
+      expectation.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+    waitForAuthGlobalWorkQueueDrain()
+
+    rpcIssuer?.secureTokenNetworkError = nil
+    setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
+
+    // The old access token should still be the current user's access token and not the new access
+    // token (kNewAccessToken).
+    XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
+
+    // Execute saved token refresh task.
+    let expectation2 = self.expectation(description: "dispatchAfterExpectation")
+    kAuthGlobalWorkQueue.async {
+      XCTAssertNotNil(self.authDispatcherCallback)
+      self.authDispatcherCallback?()
+      expectation2.fulfill()
+    }
+    waitForExpectations(timeout: 5)
+    waitForAuthGlobalWorkQueueDrain()
+
+    // Verify that current user's access token is the "new" access token provided in the mock secure
+    // token response during automatic token refresh.
+    XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
+  }
+
+  #if os(iOS)
+    /** @fn testAutoRefreshAppForegroundedNotification
+        @brief Tests that app foreground notification triggers the scheduling of an automatic token
+            refresh task.
+     */
+    func testAutoRefreshAppForegroundedNotification() throws {
+      try auth.signOut()
+      // Enable auto refresh
+      enableAutoTokenRefresh()
+
+      // Sign in a user.
+      try waitForSignInWithAccessToken()
+
+      // Post "UIApplicationDidBecomeActiveNotification" to trigger scheduling token refresh task.
+      NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+
+      setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
+
+      // Verify that the current user's access token is the "old" access token before automatic token
+      // refresh.
+      XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
+
+      // Execute saved token refresh task.
+      let expectation = self.expectation(description: #function)
+      kAuthGlobalWorkQueue.async {
+        XCTAssertNotNil(self.authDispatcherCallback)
+        self.authDispatcherCallback?()
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
+      waitForAuthGlobalWorkQueueDrain()
+
+      // Verify that current user's access token is the "new" access token provided in the mock secure
+      // token response during automatic token refresh.
+      XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
+    }
+  #endif
+
+  // MARK: Application Delegate tests.
 
   // MARK: Helper Functions
 
