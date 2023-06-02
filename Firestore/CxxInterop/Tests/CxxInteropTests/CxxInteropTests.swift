@@ -1,5 +1,5 @@
-import XCTest
 @testable import CxxInterop
+import XCTest
 
 final class CxxInteropTests: XCTestCase {
     func testExample() throws {

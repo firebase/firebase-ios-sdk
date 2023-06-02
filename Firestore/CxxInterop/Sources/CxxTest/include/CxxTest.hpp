@@ -8,6 +8,7 @@
 #ifndef CxxTest_hpp
 #define CxxTest_hpp
 
+#include "Firestore/core/src/api/settings.h"
 int cxxFunction(int n);
 
 #endif

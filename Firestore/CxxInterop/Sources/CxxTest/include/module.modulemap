@@ -2,5 +2,6 @@
 // In module.modulemap
 module CxxTest {
     header "CxxTest.hpp"
+    header "../../../../core/src/api/firestore.h"
     requires cplusplus
 }
