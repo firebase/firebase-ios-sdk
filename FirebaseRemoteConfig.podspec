@@ -40,6 +40,7 @@ app update.
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
+    'FirebaseRemoteConfigSwift/Sources/**/*.swift',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.pod_target_xcconfig = {
@@ -47,6 +48,7 @@ app update.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.dependency 'FirebaseABTesting', '~> 10.0'
+  s.dependency 'FirebaseSharedSwift', '~> 10.0'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
@@ -84,6 +86,53 @@ app update.
     unit_tests.requires_app_host = true
     unit_tests.dependency 'OCMock'
     unit_tests.requires_arc = true
+  end
+  
+  # Run Swift API tests on a real backend.
+  s.test_spec 'swift-api-tests' do |swift_api|
+    swift_api.scheme = { :code_coverage => true }
+    swift_api.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    swift_api.source_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/*.swift',
+                              'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
+                              'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
+                             ]
+    # Excludes tests that cannot be include in API tests because it requires fetch remote values from
+    # a real console but only one test can be run without poluting other tests' remote values.
+    swift_api.exclude_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/PropertyWrapperTests.swift']
+    swift_api.resources = 'FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist'
+    swift_api.requires_app_host = true
+    swift_api.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfigSwift/Tests/ObjC/Bridging-Header.h',
+      'OTHER_SWIFT_FLAGS' => '$(inherited) -D USE_REAL_CONSOLE',
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    }
+    swift_api.dependency 'OCMock'
+  end
+
+  # Run Swift API tests and tests requiring console changes on a Fake Console.
+  s.test_spec 'fake-console-tests' do |fake_console|
+    fake_console.scheme = { :code_coverage => true }
+    fake_console.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    fake_console.source_files = ['FirebaseRemoteConfigSwift/Tests/SwiftAPI/*.swift',
+                                 'FirebaseRemoteConfigSwift/Tests/FakeUtils/*.swift',
+                                 'FirebaseRemoteConfigSwift/Tests/FakeConsole/*.swift',
+                                 'FirebaseRemoteConfigSwift/Tests/ObjC/*.[hm]',
+                                ]
+    fake_console.resources = 'FirebaseRemoteConfigSwift/Tests/Defaults-testInfo.plist'
+    fake_console.requires_app_host = true
+    fake_console.pod_target_xcconfig = {
+      'SWIFT_OBJC_BRIDGING_HEADER' => '$(PODS_TARGET_SRCROOT)/FirebaseRemoteConfigSwift/Tests/ObjC/Bridging-Header.h',
+      'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
+    }
+    fake_console.dependency 'OCMock'
   end
 
 end
