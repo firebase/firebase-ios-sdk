@@ -51,6 +51,7 @@ NS_ASSUME_NONNULL_BEGIN
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
     [user.multiFactor
      getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
+      // this is the step verfication code has been send to the phone number along with validating the number
       [FIRPhoneAuthProvider.provider verifyPhoneNumber:phoneNumber
                                             UIDelegate:nil
                                     multiFactorSession:session
