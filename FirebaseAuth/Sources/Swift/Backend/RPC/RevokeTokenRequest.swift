@@ -63,7 +63,7 @@ private let kIDTokenKey = "idToken"
   /** @property idToken
       @brief The ID Token associated with this credential.
    */
-  @objc public var idToken: String
+  @objc public var idToken: String?
 
   /** @var response
       @brief The corresponding response for this request
@@ -80,7 +80,7 @@ private let kIDTokenKey = "idToken"
   }
 
   @objc public init(withToken token: String,
-                    idToken: String,
+                    idToken: String?,
                     requestConfiguration: AuthRequestConfiguration) {
     // Apple and authorization code are the only provider and token type we support for now.
     // Generalize this initializer to accept other providers and token types once supported.

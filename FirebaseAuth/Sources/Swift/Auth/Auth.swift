@@ -1534,25 +1534,27 @@ extension Auth: AuthInterop {
    */
   @objc public func revokeToken(withAuthorizationCode authorizationCode: String,
                                 completion: ((Error?) -> Void)? = nil) {
-    currentUser?.getIDToken { idToken, error in
+    currentUser?.internalGetToken { idToken, error in
       if let error {
         if let completion {
-          completion(error)
+          DispatchQueue.main.async {
+            completion(error)
+          }
+          return
         }
-        return
       }
-      guard let idToken else {
-        fatalError("Internal Auth Error: Both idToken and error are nil")
-      }
+      // Note: If both idToken and error are nil, we still want to proceed.
       let request = RevokeTokenRequest(withToken: authorizationCode,
                                        idToken: idToken,
                                        requestConfiguration: self.requestConfiguration)
       AuthBackend.post(withRequest: request) { response, error in
         if let completion {
-          if let error {
-            completion(error)
-          } else {
-            completion(nil)
+          DispatchQueue.main.async {
+            if let error {
+              completion(error)
+            } else {
+              completion(nil)
+            }
           }
         }
       }
