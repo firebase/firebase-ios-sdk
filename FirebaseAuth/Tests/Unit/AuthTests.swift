@@ -16,6 +16,7 @@ import Foundation
 import XCTest
 
 @testable import FirebaseAuth
+import FirebaseAuthInterop
 
 import FirebaseCore
 
@@ -1930,6 +1931,90 @@ class AuthTests: RPCBaseTests {
   #endif
 
   // MARK: Application Delegate tests.
+
+  #if os(iOS)
+    func testAppDidRegisterForRemoteNotifications_APNSTokenUpdated() {
+      class FakeAuthTokenManager: AuthAPNSTokenManager {
+        override var token: AuthAPNSToken? {
+          get {
+            return tokenStore
+          }
+          set(setToken) {
+            tokenStore = setToken
+          }
+        }
+      }
+      let apnsToken = Data()
+      auth.tokenManager = FakeAuthTokenManager(withApplication: UIApplication.shared)
+      auth.application(UIApplication.shared,
+                       didRegisterForRemoteNotificationsWithDeviceToken: apnsToken)
+      XCTAssertEqual(auth.tokenManager.token?.data, apnsToken)
+      XCTAssertEqual(auth.tokenManager.token?.type, .unknown)
+    }
+
+    func testAppDidFailToRegisterForRemoteNotifications_TokenManagerCancels() {
+      class FakeAuthTokenManager: AuthAPNSTokenManager {
+        var cancelled = false
+        override func cancel(withError error: Error) {
+          cancelled = true
+        }
+      }
+      let error = NSError(domain: "AuthTests", code: -1)
+      let fakeTokenManager = FakeAuthTokenManager(withApplication: UIApplication.shared)
+      auth.tokenManager = fakeTokenManager
+      XCTAssertFalse(fakeTokenManager.cancelled)
+      auth.application(UIApplication.shared,
+                       didFailToRegisterForRemoteNotificationsWithError: error)
+      XCTAssertTrue(fakeTokenManager.cancelled)
+    }
+
+    func testAppDidReceiveRemoteNotificationWithCompletion_NotificationManagerHandleCanNotification() {
+      class FakeNotificationManager: AuthNotificationManager {
+        var canHandled = false
+        override func canHandle(notification: [AnyHashable: Any]) -> Bool {
+          canHandled = true
+          return true
+        }
+      }
+      let notification = ["test": ""]
+      let fakeKeychain = FakeAuthKeychainServices(service: "FakeAuthNotificationManagerTests")
+      let appCredentialManager = AuthAppCredentialManager(withKeychain: fakeKeychain)
+      let fakeNotificationManager = FakeNotificationManager(withApplication: UIApplication.shared,
+                                                            appCredentialManager: appCredentialManager)
+      auth.notificationManager = fakeNotificationManager
+      XCTAssertFalse(fakeNotificationManager.canHandled)
+      auth.application(UIApplication.shared,
+                       didReceiveRemoteNotification: notification) { _ in
+      }
+      XCTAssertTrue(fakeNotificationManager.canHandled)
+    }
+
+    func testAppOpenURL_AuthPresenterCanHandleURL() throws {
+      class FakeURLPresenter: AuthURLPresenter {
+        var canHandled = false
+        override func canHandle(url: URL) -> Bool {
+          canHandled = true
+          return true
+        }
+      }
+      let url = try XCTUnwrap(URL(string: "https://localhost"))
+      let fakeURLPresenter = FakeURLPresenter()
+      auth.authURLPresenter = fakeURLPresenter
+      XCTAssertFalse(fakeURLPresenter.canHandled)
+      XCTAssertTrue(auth.application(UIApplication.shared, open: url, options: [:]))
+      XCTAssertTrue(fakeURLPresenter.canHandled)
+    }
+  #endif // os(iOS)
+
+  // MARK: Interoperability Tests
+
+  func testComponentsRegistered() throws {
+    // Verify that the components are registered properly. Check the count, because any time a new
+    // component is added it should be added to the test suite as well.
+    XCTAssertEqual(AuthComponent.componentsToRegister().count, 1)
+    // TODO: Can/should we do something like?
+    //  XCTAssert(component.protocol == @protocol(FIRAuthInterop));
+  }
 
   // MARK: Helper Functions
 

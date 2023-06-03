@@ -47,9 +47,7 @@ import FirebaseCoreExtension
     let appCheckInterop = Dependency(with: AppCheckInterop.self, isRequired: false)
     return [Component(AuthProvider.self,
                       instantiationTiming: .alwaysEager,
-                      dependencies: [
-                        appCheckInterop,
-                      ]) { container, isCacheable in
+                      dependencies: [appCheckInterop]) { container, isCacheable in
         guard let app = container.app else { return nil }
         isCacheable.pointee = true
         return self.init(app: app)
@@ -70,5 +68,24 @@ import FirebaseCoreExtension
     let newInstance = FirebaseAuth.Auth(app: app)
     instances[app.name] = newInstance
     return newInstance
+  }
+
+  // MARK: - ComponentLifecycleMaintainer conformance
+
+  func appWillBeDeleted(_ app: FirebaseApp) {
+    kAuthGlobalWorkQueue.async {
+      // This doesn't stop any request already issued, see b/27704535
+
+      if let keychainServiceName = Auth.keychainServiceName(forAppName: app.name) {
+        Auth.deleteKeychainServiceNameForAppName(app.name)
+        let keychain = AuthKeychainServices(service: keychainServiceName)
+        let userKey = "\(app.name)_firebase_user"
+        try? keychain.removeData(forKey: userKey)
+      }
+      DispatchQueue.main.async {
+        // TODO: Move over to fire an event instead, once ready.
+        NotificationCenter.default.post(name: Auth.authStateDidChangeNotification, object: nil)
+      }
+    }
   }
 }
