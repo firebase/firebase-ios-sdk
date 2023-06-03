@@ -34,6 +34,7 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneMultiFactorAssertion.h"
 
 #import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorAssertion+Internal.h"
+#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorInfo.h"
 #import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorAssertion.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPMultiFactorGenerator.h"
@@ -183,6 +184,11 @@ static NSString *kUserCodingKey = @"user";
       if (MFAEnrollment.phoneInfo) {
         FIRMultiFactorInfo *multiFactorInfo =
             [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+        [multiFactorInfoArray addObject:multiFactorInfo];
+      }
+      if (MFAEnrollment.TOTPInfo) {
+        FIRMultiFactorInfo *multiFactorInfo =
+            [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
         [multiFactorInfoArray addObject:multiFactorInfo];
       }
     }
