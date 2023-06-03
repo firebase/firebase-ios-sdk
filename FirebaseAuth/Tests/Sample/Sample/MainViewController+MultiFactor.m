@@ -34,10 +34,10 @@ NS_ASSUME_NONNULL_BEGIN
   return [StaticContentTableViewSection sectionWithTitle:@"Multi Factor" cells:@[
     [StaticContentTableViewCell cellWithTitle:@"Phone Enroll"
                                        action:^{ [weakSelf phoneEnroll]; }],
-    [StaticContentTableViewCell cellWithTitle:@"Phone Unenroll"
-                                       action:^{ [weakSelf phoneUnenroll]; }],
     [StaticContentTableViewCell cellWithTitle:@"TOTP Enroll"
                                        action:^{ [weakSelf TOTPEnroll]; }],
+    [StaticContentTableViewCell cellWithTitle:@"MultiFactor Unenroll"
+                                       action:^{ [weakSelf mfaUnenroll]; }],
   ]];
 }
 
@@ -84,31 +84,6 @@ NS_ASSUME_NONNULL_BEGIN
           }];
         }
       }];
-    }];
-  }];
-}
-
-- (void)phoneUnenroll {
-  NSMutableString *displayNameString = [NSMutableString string];
-  for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
-    [displayNameString appendString:tmpFactorInfo.displayName];
-    [displayNameString appendString:@" "];
-  }
-  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Multifactor Unenroll\n%@", displayNameString]
-                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
-    FIRMultiFactorInfo *factorInfo;
-    for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
-      if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
-        factorInfo = tmpFactorInfo;
-      }
-    }
-    [FIRAuth.auth.currentUser.multiFactor unenrollWithInfo:factorInfo
-                                                completion:^(NSError * _Nullable error) {
-      if (error) {
-        [self logFailure:@"Multi factor unenroll failed." error:error];
-      } else {
-        [self logSuccess:@"Multi factor unenroll succeeded."];
-      }
     }];
   }];
 }
@@ -160,6 +135,32 @@ NS_ASSUME_NONNULL_BEGIN
     }];
   }];
 }
+
+- (void)mfaUnenroll {
+  NSMutableString *displayNameString = [NSMutableString string];
+  for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
+    [displayNameString appendString:tmpFactorInfo.displayName];
+    [displayNameString appendString:@" "];
+  }
+  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Enter multi factor to unenroll\n%@", displayNameString]
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
+    FIRMultiFactorInfo *factorInfo;
+    for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
+      if ([displayName isEqualToString:tmpFactorInfo.displayName]) {
+        factorInfo = tmpFactorInfo;
+      }
+    }
+    [FIRAuth.auth.currentUser.multiFactor unenrollWithInfo:factorInfo
+                                                completion:^(NSError * _Nullable error) {
+      if (error) {
+        [self logFailure:@"Multi factor unenroll failed." error:error];
+      } else {
+        [self logSuccess:@"Multi factor unenroll succeeded."];
+      }
+    }];
+  }];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
