@@ -42,6 +42,34 @@ import FirebaseAuthInterop
 #if os(iOS)
   @available(iOS 13.0, *)
   extension Auth: UISceneDelegate {}
+
+  extension Auth: UIApplicationDelegate {
+    public func application(_ application: UIApplication,
+                            didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+      setAPNSToken(deviceToken, type: .unknown)
+    }
+
+    public func application(_ application: UIApplication,
+                            didFailToRegisterForRemoteNotificationsWithError error: Error) {
+      kAuthGlobalWorkQueue.sync {
+        self.tokenManager.cancel(withError: error)
+      }
+    }
+
+    public func application(_ application: UIApplication,
+                            didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                            fetchCompletionHandler completionHandler:
+                            @escaping (UIBackgroundFetchResult) -> Void) {
+      _ = canHandleNotification(userInfo)
+      completionHandler(UIBackgroundFetchResult.noData)
+    }
+
+    public func application(_ application: UIApplication,
+                            open url: URL,
+                            options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool {
+      return canHandle(url)
+    }
+  }
 #endif
 
 extension Auth: AuthInterop {
@@ -1447,7 +1475,7 @@ extension Auth: AuthInterop {
   func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
     let handle = NotificationCenter.default.addObserver(
-      forName: authStateDidChangeNotification,
+      forName: Auth.authStateDidChangeNotification,
       object: self,
       queue: OperationQueue.main
     ) { notification in
@@ -1623,7 +1651,10 @@ extension Auth: AuthInterop {
 
     @objc public func canHandle(_ url: URL) -> Bool {
       kAuthGlobalWorkQueue.sync {
-        (self.authURLPresenter as? AuthURLPresenter)!.canHandle(url: url)
+        guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
+          return false
+        }
+        return authURLPresenter.canHandle(url: url)
       }
     }
   #endif
@@ -1631,13 +1662,14 @@ extension Auth: AuthInterop {
   // TODO: Need to manage breaking change for
   // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
   // Move to FIRApp with other Auth notifications?
-  public let authStateDidChangeNotification =
+  public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
 
   // MARK: Internal methods
 
   init<T: AuthStorage>(app: FirebaseApp,
                        keychainStorageProvider: T.Type = AuthKeychainServices.self) {
+    Auth.setKeychainServiceNameForApp(app)
     self.app = app
     mainBundleUrlTypes = Bundle.main
       .object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
@@ -1649,10 +1681,6 @@ extension Auth: AuthInterop {
     }
 
     firebaseAppName = app.name
-    let keychainServiceName = Auth.keychainServiceForAppID(app.options.googleAppID)
-    keychainServices = keychainStorageProvider.init(service: keychainServiceName)
-    // TODO: storedUserManager needs to know keychainServices.
-    storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
 
     #if os(iOS)
       authURLPresenter = AuthURLPresenter()
@@ -1668,10 +1696,11 @@ extension Auth: AuthInterop {
     super.init()
     requestConfiguration.auth = self
 
-    protectedDataInitialization()
+    protectedDataInitialization(keychainStorageProvider)
   }
 
-  private func protectedDataInitialization() {
+  private func protectedDataInitialization<T: AuthStorage>(_ keychainStorageProvider: T
+    .Type = AuthKeychainServices.self) {
     // Continue with the rest of initialization in the work thread.
     weak var weakSelf = self
     kAuthGlobalWorkQueue.async {
@@ -1679,6 +1708,12 @@ extension Auth: AuthInterop {
       guard let strongSelf = weakSelf else {
         return
       }
+      if let keychainServiceName = Auth
+        .keychainServiceName(forAppName: strongSelf.firebaseAppName) {
+        strongSelf.keychainServices = keychainStorageProvider.init(service: keychainServiceName)
+        strongSelf.storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
+      }
+
       do {
         if let storedUserAccessGroup = strongSelf.storedUserManager.getStoredUserAccessGroup() {
           try strongSelf.internalUseUserAccessGroup(storedUserAccessGroup)
@@ -1817,6 +1852,44 @@ extension Auth: AuthInterop {
     return nil
   }
 
+  /** @var gKeychainServiceNameForAppName
+      @brief A map from Firebase app name to keychain service names.
+      @remarks This map is needed for looking up the keychain service name after the FIRApp instance
+          is deleted, to remove the associated keychain item. Accessing should occur within a
+          @syncronized([FIRAuth class]) context.""
+   */
+  fileprivate static var gKeychainServiceNameForAppName: [String: String] = [:]
+
+  /** @fn setKeychainServiceNameForApp
+      @brief Sets the keychain service name global data for the particular app.
+      @param app The Firebase app to set keychain service name for.
+   */
+  class func setKeychainServiceNameForApp(_ app: FirebaseApp) {
+    objc_sync_enter(Auth.self)
+    gKeychainServiceNameForAppName[app.name] = "firebase_auth_\(app.options.googleAppID)"
+    objc_sync_exit(Auth.self)
+  }
+
+  /** @fn keychainServiceNameForAppName:
+      @brief Gets the keychain service name global data for the particular app by name.
+      @param appName The name of the Firebase app to get keychain service name for.
+   */
+  class func keychainServiceName(forAppName appName: String) -> String? {
+    objc_sync_enter(Auth.self)
+    defer { objc_sync_exit(Auth.self) }
+    return gKeychainServiceNameForAppName[appName]
+  }
+
+  /** @fn deleteKeychainServiceNameForAppName:
+      @brief Deletes the keychain service name global data for the particular app by name.
+      @param appName The name of the Firebase app to delete keychain service name for.
+   */
+  class func deleteKeychainServiceNameForAppName(_ appName: String) {
+    objc_sync_enter(Auth.self)
+    gKeychainServiceNameForAppName.removeValue(forKey: appName)
+    objc_sync_exit(Auth.self)
+  }
+
   internal func signOutByForce(withUserID userID: String) throws {
     guard currentUser?.uid == userID else {
       return
@@ -1854,7 +1927,7 @@ extension Auth: AuthInterop {
       notifications.post(name: NSNotification.Name.FIRAuthStateDidChangeInternal,
                          object: self,
                          userInfo: internalNotificationParameters)
-      notifications.post(name: self.authStateDidChangeNotification, object: self)
+      notifications.post(name: Auth.authStateDidChangeNotification, object: self)
     }
   }
 
@@ -2431,7 +2504,7 @@ extension Auth: AuthInterop {
   /** @var _keychainServices
       @brief The keychain service.
    */
-  private var keychainServices: AuthStorage
+  private var keychainServices: AuthStorage!
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.
