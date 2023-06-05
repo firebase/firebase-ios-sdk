@@ -27,56 +27,65 @@
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPSignInRequestInfo.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
-/** @var kTestAPIKey
-    @brief Fake API key used for testing.
+/**
+ @var kTestAPIKey
+ @brief Fake API key used for testing.
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kTestFirebaseAppID
-    @brief Fake Firebase app ID used for testing.
+/**
+ @var kTestFirebaseAppID
+ @brief Fake Firebase app ID used for testing.
  */
 static NSString *const kTestFirebaseAppID = @"appID";
 
-/** @var kExpectedAPIURL
-    @brief The expected URL for the test calls.
+/**
+ @var kExpectedAPIURL
+ @brief The expected URL for the test calls.
  */
 static NSString *const kExpectedAPIURL =
     @"https://identitytoolkit.googleapis.com/v2/accounts/mfaSignIn:finalize?key=APIKey";
 
-/** @var kMfaPendingCredential
-    @brief Fake MFA Pending Credential for tesing.
+/**
+ @var kMfaPendingCredential
+ @brief Fake MFA Pending Credential for tesing.
  */
 static NSString *const kMfaPendingCredential = @"mfaPendingCredential";
 
-/** @var kVerificationCode
-    @brief Fake totp verification code for tesing.
+/**
+ @var kVerificationCode
+ @brief Fake totp verification code for tesing.
  */
 static NSString *const kVerificationCode = @"verificationCode";
 
-/** @var kMfaEnrollmentID
-    @brief Fake MFA Enrollment ID for tesing.
+/**
+ @var kMfaEnrollmentID
+ @brief Fake MFA Enrollment ID for tesing.
  */
 static NSString *const kMfaEnrollmentID = @"mfaEnrollmentId";
 
-/** @var kTotpVerificationInfo
-    @brief Fake TOTP verification info for tesing.
+/**
+ @var kTotpVerificationInfo
+ @brief Fake TOTP verification info for tesing.
  */
 static NSString *const kTotpVerificationInfo = @"totpVerificationInfo";
 
-/** @class FIRFinalizeMFASignInRequestTest
-    @brief Tests for @c FIRFinalizeMFASignInRequestTest.
+/**
+ @class FIRFinalizeMFASignInRequestTests
+ @brief Tests for @c FIRFinalizeMFASignInRequest.
  */
 @interface FIRFinalizeMFASignInRequestTests : XCTestCase
 @end
+
 @implementation FIRFinalizeMFASignInRequestTests {
-  /** @var _RPCIssuer
-      @brief This backend RPC issuer is used to fake network responses for each test in the suite.
-          In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
+  /**
+   @brief This backend RPC issuer is used to fake network responses for each test in the suite.
+   In the @c setUp method we initialize this and set @c FIRAuthBackend's RPC issuer to it.
    */
   FIRFakeBackendRPCIssuer *_RPCIssuer;
 
-  /** @var _requestConfiguration
-      @brief This is the request configuration used for testing.
+  /**
+   @brief This is the request configuration used for testing.
    */
   FIRAuthRequestConfiguration *_requestConfiguration;
 }
@@ -97,8 +106,9 @@ static NSString *const kTotpVerificationInfo = @"totpVerificationInfo";
   [super tearDown];
 }
 
-/** @fn testTOTPFinalizeMFASignInRequest
-    @brief Tests the Finalize MFA Sign in using TOTP request.
+/**
+ @fn testTOTPFinalizeMFASignInRequest
+ @brief Tests the Finalize MFA Sign in using TOTP request.
  */
 - (void)testTOTPFinalizeMFASignInRequest {
   FIRAuthProtoFinalizeMFATOTPSignInRequestInfo *requestInfo =
