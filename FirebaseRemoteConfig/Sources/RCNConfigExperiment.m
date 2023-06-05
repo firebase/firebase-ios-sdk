@@ -240,7 +240,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   NSMutableDictionary *activeExperimentsMap = [self createExperimentsMap:_activeExperimentPayloads];
   NSMutableDictionary *fetchedExperimentsMap = [self createExperimentsMap:_experimentPayloads];
 
-  /// Iterate through active experiement's keys and compare them to fetched experiment's keys.
+  /// Iterate through active experiment's keys and compare them to fetched experiment's keys.
   for (NSString *key in [activeExperimentsMap allKeys]) {
     if (![fetchedExperimentsMap objectForKey:key]) {
       [changedKeys addObject:key];
@@ -252,7 +252,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
     }
   }
 
-  /// Iterate through active experiement's keys and compare them to fetched experiment's keys.
+  /// Iterate through fetched experiment's keys and compare them to active experiment's keys.
   for (NSString *key in [fetchedExperimentsMap allKeys]) {
     if (![activeExperimentsMap objectForKey:key]) {
       [changedKeys addObject:key];
