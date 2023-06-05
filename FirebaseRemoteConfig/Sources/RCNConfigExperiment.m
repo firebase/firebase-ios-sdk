@@ -201,6 +201,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
                                          andPayloads:_experimentPayloads];
 }
 
+/// Creates a map where the key is the config key and the value if the experiment description.
 - (NSMutableDictionary *)createExperimentsMap:(NSMutableArray<NSData *> *)experiments {
   NSMutableDictionary<NSString *, NSMutableDictionary *> *experimentsMap =
       [[NSMutableDictionary alloc] init];
@@ -232,11 +233,14 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   return experimentsMap;
 }
 
+/// Returns keys that were affected by experiment changes.
 - (NSMutableSet<NSString *> *)getKeysAffectedByChangedExperiments {
   NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
+  /// Create config keys to experiments map.
   NSMutableDictionary *activeExperimentsMap = [self createExperimentsMap:_activeExperimentPayloads];
   NSMutableDictionary *fetchedExperimentsMap = [self createExperimentsMap:_experimentPayloads];
 
+  /// Iterate through active experiement's keys and compare them to fetched experiment's keys.
   for (NSString *key in [activeExperimentsMap allKeys]) {
     if (![fetchedExperimentsMap objectForKey:key]) {
       [changedKeys addObject:key];
@@ -248,7 +252,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
     }
   }
 
-  ///
+  /// Iterate through active experiement's keys and compare them to fetched experiment's keys.
   for (NSString *key in [fetchedExperimentsMap allKeys]) {
     if (![activeExperimentsMap objectForKey:key]) {
       [changedKeys addObject:key];
