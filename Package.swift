@@ -16,8 +16,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import PackageDescription
 import class Foundation.ProcessInfo
+import PackageDescription
 
 let firebaseVersion = "10.11.0"
 
@@ -135,6 +135,10 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
+    .executable(
+      name: "CxxInterop",
+      targets: ["CxxInterop"]
+    ),
   ],
   dependencies: [
     .package(
@@ -163,12 +167,12 @@ let package = Package(
       "2.30909.0" ..< "2.30910.0"
     ),
     .package(
-      url: "https://github.com/google/abseil-cpp-binary.git",
-      "1.2022062300.0" ..< "1.2022062400.0"
+      url: "https://github.com/firebase/abseil-cpp-SwiftPM.git",
+      "0.20220203.1" ..< "0.20220204.0"
     ),
     .package(
-      url: "https://github.com/google/grpc-binary.git",
-      "1.50.1" ..< "1.51.0"
+      url: "https://github.com/grpc/grpc-ios.git",
+      "1.44.0-grpc" ..< "1.45.0-grpc"
     ),
     .package(
       url: "https://github.com/erikdoe/ocmock.git",
@@ -284,7 +288,8 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWrapper",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
+                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS,
+                                                          .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWrap"
     ),
 
@@ -322,7 +327,8 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
       dependencies: [.target(name: "FirebaseAnalyticsSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
+                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS,
+                                                          .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsSwiftWrap"
     ),
     .target(
@@ -344,7 +350,8 @@ let package = Package(
     .target(
       name: "FirebaseAnalyticsWithoutAdIdSupportTarget",
       dependencies: [.target(name: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS]))],
+                             condition: .when(platforms: [.iOS, .macCatalyst, .macOS,
+                                                          .tvOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseAnalyticsWithoutAdIdSupportWrap"
     ),
     .target(
@@ -529,7 +536,11 @@ let package = Package(
           .when(platforms: [.macOS, .macCatalyst])
         ),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+        .define(
+          "CLS_SDK_NAME",
+          to: "Crashlytics watchOS SDK",
+          .when(platforms: [.watchOS])
+        ),
         .define("PB_FIELD_32BIT", to: "1"),
         .define("PB_NO_PACKED_STRUCTS", to: "1"),
         .define("PB_ENABLE_MALLOC", to: "1"),
@@ -557,7 +568,11 @@ let package = Package(
           .when(platforms: [.macOS, .macCatalyst])
         ),
         .define("CLS_SDK_NAME", to: "Crashlytics tvOS SDK", .when(platforms: [.tvOS])),
-        .define("CLS_SDK_NAME", to: "Crashlytics watchOS SDK", .when(platforms: [.watchOS])),
+        .define(
+          "CLS_SDK_NAME",
+          to: "Crashlytics watchOS SDK",
+          .when(platforms: [.watchOS])
+        ),
       ]
     ),
     .target(
@@ -662,8 +677,8 @@ let package = Package(
           name: "FirebaseFirestore",
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
         ),
-        .product(name: "abseil", package: "abseil-cpp-binary"),
-        .product(name: "gRPC-C++", package: "grpc-binary"),
+        .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
+        .product(name: "gRPC-cpp", package: "grpc-ios"),
         .product(name: "nanopb", package: "nanopb"),
         "FirebaseCore",
         "leveldb",
@@ -685,7 +700,8 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreSwiftTarget",
       dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS]))],
+                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS,
+                                                          .macOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
     ),
 
@@ -1302,6 +1318,32 @@ let package = Package(
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
+      ]
+    ),
+
+    .target(
+      name: "CxxTest",
+      dependencies: [
+        .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
+      ],
+      path: "CxxInterop/Sources/CxxTest",
+      cSettings: [
+      ]
+    ),
+    .executableTarget(
+      name: "CxxInterop",
+      dependencies: ["CxxTest", "FirebaseFirestoreTarget"],
+      path: "CxxInterop/Sources/CxxInterop",
+      sources: ["main.swift"],
+      swiftSettings: [.unsafeFlags([
+        "-I", "CxxInterop/Sources/CxxTest",
+        "-I", "Firestore/core/src/api",
+        "-enable-experimental-cxx-interop",
+      ])],
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedLibrary("c++"),
       ]
     ),
 

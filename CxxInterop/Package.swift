@@ -39,8 +39,8 @@ let package = Package(
             name: "CxxTest",
             dependencies: [],
             cSettings: [
-              .headerSearchPath("../.."),
-      ]
+                .headerSearchPath("../.."),
+            ]
         ),
         .target(
             name: "FirebaseFirestoreTarget",

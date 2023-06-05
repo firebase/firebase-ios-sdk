@@ -4,10 +4,16 @@
 
 import CxxTest
 import FirebaseFirestoreTarget
+import FirestoreCore
 
 public struct CxxInterop {
     public func callCxxFunction(n: Int32) -> Int32 {
-        return cxxFunction(n)
+        let sm = firebase.firestore.api.SnapshotMetadata()
+        if !sm.from_cache() {
+            return cxxFunction(n)
+        } else {
+            return cxxFunction(n + 1)
+        }
     }
 }
 
