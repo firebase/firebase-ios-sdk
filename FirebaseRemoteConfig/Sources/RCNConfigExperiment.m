@@ -218,7 +218,7 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
         NSMutableArray *configKeys =
             (NSMutableArray *)[experimentJSON objectForKey:kAffectedParameterKeys];
         NSMutableDictionary *experimentCopy = [experimentJSON mutableCopy];
-        /// Remote `affectedParameterKeys` because it comes out of order and could affect the
+        /// Remove `affectedParameterKeys` because the values come out of order and could affect the
         /// diffing.
         [experimentCopy removeObjectForKey:kAffectedParameterKeys];
 
