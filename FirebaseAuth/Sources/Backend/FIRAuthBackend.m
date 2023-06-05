@@ -800,15 +800,23 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                } else {
                  if (!response.IDToken && response.MFAInfo) {
 #if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
+                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray =
+                       [[NSMutableArray alloc] init];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     FIRPhoneMultiFactorInfo *info =
-                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                     [multiFactorInfo addObject:info];
+                     if (MFAEnrollment.phoneInfo) {
+                       FIRMultiFactorInfo *multiFactorInfo =
+                           [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfoArray addObject:multiFactorInfo];
+                     }
+                     if (MFAEnrollment.TOTPInfo) {
+                       FIRMultiFactorInfo *multiFactorInfo =
+                           [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfoArray addObject:multiFactorInfo];
+                     }
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo
+                                                                hints:multiFactorInfoArray
                                                                  auth:request.requestConfiguration
                                                                           .auth];
                    callback(nil, multiFactorRequiredError);
@@ -886,15 +894,23 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                } else {
                  if (!response.IDToken && response.MFAInfo) {
 #if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
+                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray =
+                       [[NSMutableArray alloc] init];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     FIRPhoneMultiFactorInfo *info =
-                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                     [multiFactorInfo addObject:info];
+                     if (MFAEnrollment.phoneInfo) {
+                       FIRMultiFactorInfo *multiFactorInfo =
+                           [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfoArray addObject:multiFactorInfo];
+                     }
+                     if (MFAEnrollment.TOTPInfo) {
+                       FIRMultiFactorInfo *multiFactorInfo =
+                           [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                       [multiFactorInfoArray addObject:multiFactorInfo];
+                     }
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfo
+                                                                hints:multiFactorInfoArray
                                                                  auth:request.requestConfiguration
                                                                           .auth];
                    callback(nil, multiFactorRequiredError);
