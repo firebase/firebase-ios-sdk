@@ -27,7 +27,6 @@ static NSString *const kServiceOrigin = @"frc";
 static NSString *const kMethodNameLatestStartTime =
     @"latestExperimentStartTimestampBetweenTimestamp:andPayloads:";
 
-static NSString *const kExperimentIdKey = @"experimentId";
 static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
 
 @interface RCNConfigExperiment ()
