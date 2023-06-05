@@ -702,7 +702,6 @@ let package = Package(
         "fuzzing/",
         "test.sh",
         "Swift/CHANGELOG.md",
-        "Swift/README.md",
         "Swift/Tests/",
         "third_party/nlohmann_json",
       ],
