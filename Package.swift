@@ -214,7 +214,6 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseCore/Tests/Unit",
@@ -248,16 +247,10 @@ let package = Package(
       ],
       path: "FirebaseCore/Internal/Sources"
     ),
-    .target(
-      name: "HeartbeatLoggingTestUtils",
-      dependencies: ["FirebaseCoreInternal"],
-      path: "HeartbeatLoggingTestUtils/Sources"
-    ),
     .testTarget(
       name: "FirebaseCoreInternalTests",
       dependencies: [
         "FirebaseCoreInternal",
-        "HeartbeatLoggingTestUtils",
       ],
       path: "FirebaseCore/Internal/Tests"
     ),
@@ -316,8 +309,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.10.0/FirebaseAnalytics.zip",
-      checksum: "335d26f7cc88f2bb9196826344ff772f762ce0cc8a1918dfaa79282424bbab5c"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.11.0/FirebaseAnalytics.zip",
+      checksum: "986032391d024536568c028890debdd1a175715be7c778863bc88a7e5a0edf7d"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -460,7 +453,6 @@ let package = Package(
       name: "AuthUnit",
       dependencies: [
         "FirebaseAuth",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseAuth/Tests/Unit",
@@ -1277,16 +1269,16 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnit",
+      name: "FirebaseAppCheckUnit",
       dependencies: [
         "FirebaseAppCheck",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseAppCheck/Tests",
       exclude: [
-        // Disable Swift tests as mixed targets are not supported (Xcode 12.3).
+        // Swift tests are in the target `FirebaseAppCheckUnitSwift` since mixed language targets
+        // are not supported (as of Xcode 14.3).
         "Unit/Swift",
       ],
       resources: [
@@ -1297,7 +1289,7 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnitSwift",
+      name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       cSettings: [
@@ -1354,5 +1346,5 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.10.0")
+  return .package(url: appMeasurementURL, exact: "10.11.0")
 }

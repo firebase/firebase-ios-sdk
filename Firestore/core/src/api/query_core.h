@@ -204,7 +204,7 @@ class Query {
   // to the new Aggregate API
   /**
    * Creates a new `AggregateQuery` counting the number of documents matching
-   * this query. This API is preserved for backward-compatability with
+   * this query. This API is preserved for backward-compatibility with
    * the c++ SDK.
    *
    * @return The created `AggregateQuery`.

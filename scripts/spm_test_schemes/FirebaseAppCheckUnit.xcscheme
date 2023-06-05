@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AppCheckUnit"
-               BuildableName = "AppCheckUnit"
-               BlueprintName = "AppCheckUnit"
+               BlueprintIdentifier = "FirebaseAppCheckUnit"
+               BuildableName = "FirebaseAppCheckUnit"
+               BlueprintName = "FirebaseAppCheckUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "AppCheckUnit"
-               BuildableName = "AppCheckUnit"
-               BlueprintName = "AppCheckUnit"
+               BlueprintIdentifier = "FirebaseAppCheckUnit"
+               BuildableName = "FirebaseAppCheckUnit"
+               BlueprintName = "FirebaseAppCheckUnit"
                ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>

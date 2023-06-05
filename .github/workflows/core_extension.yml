@@ -21,9 +21,6 @@ jobs:
     strategy:
       matrix:
         target: [ios, tvos, macos]
-    env:
-      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
-      POD_LIB_LINT_ONLY: 1
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
