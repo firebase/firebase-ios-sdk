@@ -1813,4 +1813,10 @@ using firebase::firestore::util::TimerId;
                           NSException);
 }
 
+- (void)testUnlimitedCacheSize {
+  FIRPersistentCacheSettings *settings =
+      [[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(Settings::CacheSizeUnlimited)];
+  XCTAssertEqual(settings.internalSettings.size_bytes(), Settings::CacheSizeUnlimited);
+}
+
 @end
