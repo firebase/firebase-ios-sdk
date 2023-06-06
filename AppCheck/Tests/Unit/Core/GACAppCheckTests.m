@@ -25,9 +25,6 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
 
-#import "AppCheck/Interop/GACAppCheckInterop.h"
-#import "AppCheck/Interop/GACAppCheckTokenResultInterop.h"
-
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 #import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"

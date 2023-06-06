@@ -25,6 +25,8 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '12.0'
   s.watchos.deployment_target = '6.0'
 
-  s.source_files = 'AppCheck/Interop/*.[hm]'
-  s.public_header_files = 'AppCheck/Interop/*.h'
+  base_dir = "AppCheck/Interop/"
+
+  s.source_files = base_dir + '**/*.[mh]'
+  s.public_header_files = base_dir + 'Public/AppCheckInterop/*.h'
 end
