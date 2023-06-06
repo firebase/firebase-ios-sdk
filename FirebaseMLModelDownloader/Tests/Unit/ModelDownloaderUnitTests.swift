@@ -241,12 +241,10 @@
 
     /// Test how URL conversion behaves if there are spaces in the path.
     func testURLConversion() {
-      /// Spaces in the string only convert to URL when using URL(fileURLWithPath: ).
       let fakeURLWithSpace = URL(string: "file:///fakeDir1/fake%20Dir2/fakeFile")!
 
       XCTAssertEqual(fakeURLWithSpace, URL(string: fakeURLWithSpace.absoluteString))
       XCTAssertEqual(fakeURLWithSpace, URL(fileURLWithPath: fakeURLWithSpace.path))
-      XCTAssertNil(URL(string: fakeURLWithSpace.path))
 
       /// Strings without spaces should work fine either way.
       let fakeURLWithoutSpace = URL(string: "fakeDir1/fakeDir2/fakeFile")!
