@@ -22,6 +22,8 @@
 #import "FBLPromises.h"
 #endif
 
+#import <AppCheckInterop/AppCheckInterop.h>
+
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
@@ -33,9 +35,6 @@
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
-
-#import "AppCheck/Interop/GACAppCheckInterop.h"
-#import "AppCheck/Interop/GACAppCheckTokenResultInterop.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
