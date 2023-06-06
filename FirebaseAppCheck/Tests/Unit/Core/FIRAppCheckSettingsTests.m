@@ -19,7 +19,6 @@
 #import <OCMock/OCMock.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
-#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
