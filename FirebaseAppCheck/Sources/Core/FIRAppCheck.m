@@ -37,7 +37,6 @@
 #import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
-#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
