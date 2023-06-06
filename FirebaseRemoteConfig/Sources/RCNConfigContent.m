@@ -455,15 +455,10 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 }
 
 /// Returns keys that were affected by experiment changes.
-- (NSMutableSet<NSString *> *)getKeysAffectedByChangedExperiments {
+- (NSMutableSet<NSString *> *)
+    getKeysAffectedByChangedExperiments:(NSMutableArray *)activeExperimentPayloads
+              fetchedExperimentPayloads:(NSMutableArray *)experimentPayloads {
   NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
-
-  /// Load experiments from DB.
-  NSDictionary *allExperimentPayloads = [self loadExperimentsPayloads];
-  NSMutableArray *activeExperimentPayloads =
-      [allExperimentPayloads objectForKey:@RCNExperimentTableKeyActivePayload];
-  NSMutableArray *experimentPayloads =
-      [allExperimentPayloads objectForKey:@RCNExperimentTableKeyPayload];
 
   /// Create config keys to experiments map.
   NSMutableDictionary *activeExperimentsMap = [self createExperimentsMap:activeExperimentPayloads];
@@ -500,7 +495,12 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 - (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
   FIRRemoteConfigUpdate *configUpdate;
   NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
-  updatedKeys = [[self getKeysAffectedByChangedExperiments] mutableCopy];
+
+  NSDictionary *experiments = [self loadExperimentsPayloads];
+  NSMutableSet *changedExperimentKeys = [self
+      getKeysAffectedByChangedExperiments:[experiments
+                                              objectForKey:@RCNExperimentTableKeyActivePayload]
+                fetchedExperimentPayloads:[experiments objectForKey:@RCNExperimentTableKeyPayload]];
 
   NSDictionary *fetchedConfig =
       _fetchedConfig[FIRNamespace] ? _fetchedConfig[FIRNamespace] : [[NSDictionary alloc] init];
@@ -534,6 +534,11 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     if (fetchedP13n[key] == nil) {
       [updatedKeys addObject:key];
     }
+  }
+
+  // Add params affected by changed experiments.
+  for (NSString *key in changedExperimentKeys) {
+    [updatedKeys addObject:key];
   }
 
   configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:updatedKeys];

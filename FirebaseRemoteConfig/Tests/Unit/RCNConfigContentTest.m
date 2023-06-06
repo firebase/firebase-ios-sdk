@@ -26,8 +26,9 @@
 #import "FirebaseRemoteConfig/Tests/Unit/RCNTestUtilities.h"
 
 @interface RCNConfigContent (Testing)
-- (NSDictionary<NSString *, NSMutableArray<NSData *> *> *)loadExperimentsPayloads;
-- (NSMutableSet<NSString *> *)getKeysAffectedByChangedExperiments;
+- (NSMutableSet<NSString *> *)
+    getKeysAffectedByChangedExperiments:(NSMutableArray *)activeExperimentPayloads
+              fetchedExperimentPayloads:(NSMutableArray *)experimentPayloads;
 - (BOOL)checkAndWaitForInitialDatabaseLoad;
 @end
 
@@ -357,7 +358,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSMutableSet<NSString *> *experimentKeys = [[NSMutableSet alloc] init];
   [experimentKeys addObject:@"key_2"];
   id configMock = OCMPartialMock(configContent);
-  OCMStub([configMock getKeysAffectedByChangedExperiments]).andReturn(experimentKeys);
+  OCMStub([configMock getKeysAffectedByChangedExperiments:OCMOCK_ANY
+                                fetchedExperimentPayloads:OCMOCK_ANY])
+      .andReturn(experimentKeys);
 
   // populate fetched config
   NSMutableDictionary *fetchResponse =
@@ -373,7 +376,6 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                         toSource:RCNDBSourceActive
                     forNamespace:namespace];
 
-  NSMutableSet *experimentKey = [[NSMutableSet alloc] init];
   FIRRemoteConfigUpdate *update = [configMock getConfigUpdateForNamespace:namespace];
 
   XCTAssertTrue([update updatedKeys].count == 1);
@@ -397,12 +399,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSMutableArray *experimentPayloads = [@[ payloadData1, payloadData2 ] mutableCopy];
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
-  id configMock = OCMPartialMock(configContent);
-  OCMStub([configMock loadExperimentsPayloads]).andReturn((@{
-    @"experiment_payload" : experimentPayloads,
-    @"experiment_active_payload" : activeExperimentPayloads
-  }));
-  NSMutableSet<NSString *> *changedKeys = [configMock getKeysAffectedByChangedExperiments];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
   XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
 }
 
@@ -423,12 +422,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSMutableArray *experimentPayloads = [@[ payloadData1, payloadData2 ] mutableCopy];
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
-  id configMock = OCMPartialMock(configContent);
-  OCMStub([configMock loadExperimentsPayloads]).andReturn((@{
-    @"experiment_payload" : experimentPayloads,
-    @"experiment_active_payload" : activeExperimentPayloads
-  }));
-  NSMutableSet<NSString *> *changedKeys = [configMock getKeysAffectedByChangedExperiments];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
   XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
 }
 
@@ -449,12 +445,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSMutableArray *experimentPayloads = [@[ payloadData1, payloadData2 ] mutableCopy];
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
-  id configMock = OCMPartialMock(configContent);
-  OCMStub([configMock loadExperimentsPayloads]).andReturn((@{
-    @"experiment_payload" : experimentPayloads,
-    @"experiment_active_payload" : activeExperimentPayloads
-  }));
-  NSMutableSet<NSString *> *changedKeys = [configMock getKeysAffectedByChangedExperiments];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
   XCTAssertTrue([changedKeys containsObject:@"test_key_2"]);
 }
 
@@ -464,12 +457,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSMutableArray *experimentPayloads = [@[] mutableCopy];
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
-  id configMock = OCMPartialMock(configContent);
-  OCMStub([configMock loadExperimentsPayloads]).andReturn((@{
-    @"experiment_payload" : experimentPayloads,
-    @"experiment_active_payload" : activeExperimentPayloads
-  }));
-  NSMutableSet<NSString *> *changedKeys = [configMock getKeysAffectedByChangedExperiments];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
   XCTAssertTrue([changedKeys containsObject:@"test_key_1"]);
 }
 
@@ -479,12 +469,9 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSMutableArray *experimentPayloads = [@[ payloadData1 ] mutableCopy];
 
   RCNConfigContent *configContent = [[RCNConfigContent alloc] initWithDBManager:nil];
-  id configMock = OCMPartialMock(configContent);
-  OCMStub([configMock loadExperimentsPayloads]).andReturn((@{
-    @"experiment_payload" : experimentPayloads,
-    @"experiment_active_payload" : activeExperimentPayloads
-  }));
-  NSMutableSet<NSString *> *changedKeys = [configMock getKeysAffectedByChangedExperiments];
+  NSMutableSet<NSString *> *changedKeys =
+      [configContent getKeysAffectedByChangedExperiments:activeExperimentPayloads
+                               fetchedExperimentPayloads:experimentPayloads];
   XCTAssertTrue([changedKeys count] == 0);
 }
 
