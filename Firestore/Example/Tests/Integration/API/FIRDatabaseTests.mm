@@ -28,6 +28,7 @@
 #import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
+#include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/string_apple.h"
