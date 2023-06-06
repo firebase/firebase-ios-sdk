@@ -35,5 +35,4 @@
 
 /// Update experiments to Firebase Analytics when `activateWithCompletion:` happens.
 - (void)updateExperimentsWithHandler:(nullable void (^)(NSError *_Nullable error))handler;
-
 @end
