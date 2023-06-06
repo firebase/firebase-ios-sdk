@@ -27,8 +27,6 @@ static NSString *const kServiceOrigin = @"frc";
 static NSString *const kMethodNameLatestStartTime =
     @"latestExperimentStartTimestampBetweenTimestamp:andPayloads:";
 
-static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
-
 @interface RCNConfigExperiment ()
 @property(nonatomic, strong)
     NSMutableArray<NSData *> *experimentPayloads;  ///< Experiment payloads.
@@ -198,71 +196,5 @@ static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
   return [self.experimentController
       latestExperimentStartTimestampBetweenTimestamp:existingLastStartTime
                                          andPayloads:_experimentPayloads];
-}
-
-/// Creates a map where the key is the config key and the value if the experiment description.
-- (NSMutableDictionary *)createExperimentsMap:(NSMutableArray<NSData *> *)experiments {
-  NSMutableDictionary<NSString *, NSMutableDictionary *> *experimentsMap =
-      [[NSMutableDictionary alloc] init];
-
-  /// Iterate through all the experiments and check if they contain `affectedParameterKeys`.
-  for (NSData *experiment in experiments) {
-    NSError *error;
-    NSDictionary *experimentJSON =
-        [NSJSONSerialization JSONObjectWithData:experiment
-                                        options:NSJSONReadingMutableContainers
-                                          error:&error];
-    if (!error && experimentJSON) {
-      if ([experimentJSON objectForKey:kAffectedParameterKeys]) {
-        NSMutableArray *configKeys =
-            (NSMutableArray *)[experimentJSON objectForKey:kAffectedParameterKeys];
-        NSMutableDictionary *experimentCopy = [experimentJSON mutableCopy];
-        /// Remove `affectedParameterKeys` because the values come out of order and could affect the
-        /// diffing.
-        [experimentCopy removeObjectForKey:kAffectedParameterKeys];
-
-        /// Map experiments to config keys.
-        for (NSString *key in configKeys) {
-          [experimentsMap setObject:experimentCopy forKey:key];
-        }
-      }
-    }
-  }
-
-  return experimentsMap;
-}
-
-/// Returns keys that were affected by experiment changes.
-- (NSMutableSet<NSString *> *)getKeysAffectedByChangedExperiments {
-  NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
-  /// Create config keys to experiments map.
-  NSMutableDictionary *activeExperimentsMap = [self createExperimentsMap:_activeExperimentPayloads];
-  NSMutableDictionary *fetchedExperimentsMap = [self createExperimentsMap:_experimentPayloads];
-
-  /// Iterate through active experiment's keys and compare them to fetched experiment's keys.
-  for (NSString *key in [activeExperimentsMap allKeys]) {
-    if (![fetchedExperimentsMap objectForKey:key]) {
-      [changedKeys addObject:key];
-    } else {
-      if (![[activeExperimentsMap objectForKey:key]
-              isEqualToDictionary:[fetchedExperimentsMap objectForKey:key]]) {
-        [changedKeys addObject:key];
-      }
-    }
-  }
-
-  /// Iterate through fetched experiment's keys and compare them to active experiment's keys.
-  for (NSString *key in [fetchedExperimentsMap allKeys]) {
-    if (![activeExperimentsMap objectForKey:key]) {
-      [changedKeys addObject:key];
-    } else {
-      if (![[fetchedExperimentsMap objectForKey:key]
-              isEqualToDictionary:[activeExperimentsMap objectForKey:key]]) {
-        [changedKeys addObject:key];
-      }
-    }
-  }
-
-  return changedKeys;
 }
 @end

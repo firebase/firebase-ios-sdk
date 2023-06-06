@@ -66,8 +66,6 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 - (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace;
 
 /// Returns the updated parameters between fetched and active config.
-- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace
-                                 withExperimentChanges:
-                                     (NSMutableSet<NSString *> *)changedExperimentKeys;
+- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace;
 
 @end

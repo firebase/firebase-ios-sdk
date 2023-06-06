@@ -25,6 +25,8 @@
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+static NSString *const kAffectedParameterKeys = @"affectedParameterKeys";
+
 @implementation RCNConfigContent {
   /// Active config data that is currently used.
   NSMutableDictionary *_activeConfig;
@@ -398,13 +400,107 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return true;
 }
 
+/// Load active and fetched experiment payloads and return them in a map.
+- (NSDictionary<NSString *, NSMutableArray<NSData *> *> *)loadExperimentsPayloads {
+  __block NSMutableArray *activeExperimentPayloads = [[NSMutableArray alloc] init];
+  __block NSMutableArray *experimentPayloads = [[NSMutableArray alloc] init];
+
+  /// Load experiments from DB.
+  RCNDBCompletion completionHandler = ^(BOOL success, NSDictionary<NSString *, id> *result) {
+    if (result[@RCNExperimentTableKeyPayload]) {
+      experimentPayloads = [result[@RCNExperimentTableKeyPayload] mutableCopy];
+    }
+    if (result[@RCNExperimentTableKeyActivePayload]) {
+      activeExperimentPayloads = [result[@RCNExperimentTableKeyActivePayload] mutableCopy];
+    }
+  };
+  [_DBManager loadExperimentWithCompletionHandler:completionHandler];
+
+  return @{
+    @RCNExperimentTableKeyPayload : experimentPayloads,
+    @RCNExperimentTableKeyActivePayload : activeExperimentPayloads
+  };
+}
+
+/// Creates a map where the key is the config key and the value if the experiment description.
+- (NSMutableDictionary *)createExperimentsMap:(NSMutableArray<NSData *> *)experiments {
+  NSMutableDictionary<NSString *, NSMutableDictionary *> *experimentsMap =
+      [[NSMutableDictionary alloc] init];
+
+  /// Iterate through all the experiments and check if they contain `affectedParameterKeys`.
+  for (NSData *experiment in experiments) {
+    NSError *error;
+    NSDictionary *experimentJSON =
+        [NSJSONSerialization JSONObjectWithData:experiment
+                                        options:NSJSONReadingMutableContainers
+                                          error:&error];
+    if (!error && experimentJSON) {
+      if ([experimentJSON objectForKey:kAffectedParameterKeys]) {
+        NSMutableArray *configKeys =
+            (NSMutableArray *)[experimentJSON objectForKey:kAffectedParameterKeys];
+        NSMutableDictionary *experimentCopy = [experimentJSON mutableCopy];
+        /// Remove `affectedParameterKeys` because the values come out of order and could affect the
+        /// diffing.
+        [experimentCopy removeObjectForKey:kAffectedParameterKeys];
+
+        /// Map experiments to config keys.
+        for (NSString *key in configKeys) {
+          [experimentsMap setObject:experimentCopy forKey:key];
+        }
+      }
+    }
+  }
+
+  return experimentsMap;
+}
+
+/// Returns keys that were affected by experiment changes.
+- (NSMutableSet<NSString *> *)getKeysAffectedByChangedExperiments {
+  NSMutableSet<NSString *> *changedKeys = [[NSMutableSet alloc] init];
+
+  /// Load experiments from DB.
+  NSDictionary *allExperimentPayloads = [self loadExperimentsPayloads];
+  NSMutableArray *activeExperimentPayloads =
+      [allExperimentPayloads objectForKey:@RCNExperimentTableKeyActivePayload];
+  NSMutableArray *experimentPayloads =
+      [allExperimentPayloads objectForKey:@RCNExperimentTableKeyPayload];
+
+  /// Create config keys to experiments map.
+  NSMutableDictionary *activeExperimentsMap = [self createExperimentsMap:activeExperimentPayloads];
+  NSMutableDictionary *fetchedExperimentsMap = [self createExperimentsMap:experimentPayloads];
+
+  /// Iterate through active experiment's keys and compare them to fetched experiment's keys.
+  for (NSString *key in [activeExperimentsMap allKeys]) {
+    if (![fetchedExperimentsMap objectForKey:key]) {
+      [changedKeys addObject:key];
+    } else {
+      if (![[activeExperimentsMap objectForKey:key]
+              isEqualToDictionary:[fetchedExperimentsMap objectForKey:key]]) {
+        [changedKeys addObject:key];
+      }
+    }
+  }
+
+  /// Iterate through fetched experiment's keys and compare them to active experiment's keys.
+  for (NSString *key in [fetchedExperimentsMap allKeys]) {
+    if (![activeExperimentsMap objectForKey:key]) {
+      [changedKeys addObject:key];
+    } else {
+      if (![[fetchedExperimentsMap objectForKey:key]
+              isEqualToDictionary:[activeExperimentsMap objectForKey:key]]) {
+        [changedKeys addObject:key];
+      }
+    }
+  }
+
+  return changedKeys;
+}
+
 // Compare fetched config with active config and output what has changed
-- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace
-                                 withExperimentChanges:
-                                     (NSMutableSet<NSString *> *)changedExperimentKeys {
+- (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
   FIRRemoteConfigUpdate *configUpdate;
   NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
-  updatedKeys = [[updatedKeys setByAddingObjectsFromSet:changedExperimentKeys] mutableCopy];
+  updatedKeys = [[self getKeysAffectedByChangedExperiments] mutableCopy];
 
   NSDictionary *fetchedConfig =
       _fetchedConfig[FIRNamespace] ? _fetchedConfig[FIRNamespace] : [[NSDictionary alloc] init];

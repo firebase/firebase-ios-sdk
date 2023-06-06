@@ -36,6 +36,4 @@
 /// Update experiments to Firebase Analytics when `activateWithCompletion:` happens.
 - (void)updateExperimentsWithHandler:(nullable void (^)(NSError *_Nullable error))handler;
 
-/// Return config keys from experiments that have changed.
-- (NSMutableSet<NSString *> *_Nonnull)getKeysAffectedByChangedExperiments;
 @end
