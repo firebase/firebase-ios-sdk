@@ -22,29 +22,31 @@
 #import "FBLPromises.h"
 #endif
 
-#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
+#import <AppCheck/AppCheck.h>
+
+#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
-#import "FirebaseAppCheck/Sources/DebugProvider/API/FIRAppCheckDebugProviderAPIService.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kDebugTokenEnvKey = @"FIRAAppCheckDebugToken";
-static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
-
 @interface FIRAppCheckDebugProvider ()
-@property(nonatomic, readonly) id<FIRAppCheckDebugProviderAPIServiceProtocol> APIService;
+
+@property(nonatomic, readonly) GACAppCheckDebugProvider *debugProvider;
+@property(nonatomic, readonly) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
+
 @end
 
 @implementation FIRAppCheckDebugProvider
 
-- (instancetype)initWithAPIService:(id<FIRAppCheckDebugProviderAPIServiceProtocol>)APIService {
+- (instancetype)initWithDebugProvider:(GACAppCheckDebugProvider *)debugProvider {
   self = [super init];
   if (self) {
-    _APIService = APIService;
+    _debugProvider = debugProvider;
   }
   return self;
 }
@@ -60,69 +62,38 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
     return nil;
   }
 
-  NSURLSession *URLSession = [NSURLSession
-      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+  GACAppCheckDebugProvider *debugProvider =
+      [[GACAppCheckDebugProvider alloc] initWithStorageID:app.name
+                                             resourceName:app.resourceName
+                                                   APIKey:app.options.APIKey
+                                             requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
-  FIRAppCheckAPIService *APIService =
-      [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession
-                                                 APIKey:app.options.APIKey
-                                                  appID:app.options.googleAppID
-                                        heartbeatLogger:app.heartbeatLogger];
-
-  FIRAppCheckDebugProviderAPIService *debugAPIService =
-      [[FIRAppCheckDebugProviderAPIService alloc] initWithAPIService:APIService
-                                                           projectID:app.options.projectID
-                                                               appID:app.options.googleAppID];
-
-  return [self initWithAPIService:debugAPIService];
+  return [self initWithDebugProvider:debugProvider];
 }
 
 - (NSString *)currentDebugToken {
-  NSString *envVariableValue = [[NSProcessInfo processInfo] environment][kDebugTokenEnvKey];
-  if (envVariableValue.length > 0) {
-    return envVariableValue;
-  } else {
-    return [self localDebugToken];
-  }
+  return [self.debugProvider currentDebugToken];
 }
 
 - (NSString *)localDebugToken {
-  return [self storedDebugToken] ?: [self generateAndStoreDebugToken];
-}
-
-- (nullable NSString *)storedDebugToken {
-  return [[NSUserDefaults standardUserDefaults] stringForKey:kDebugTokenUserDefaultsKey];
-}
-
-- (void)storeDebugToken:(nullable NSString *)token {
-  [[NSUserDefaults standardUserDefaults] setObject:token forKey:kDebugTokenUserDefaultsKey];
-}
-
-- (NSString *)generateAndStoreDebugToken {
-  NSString *token = [NSUUID UUID].UUIDString;
-  [self storeDebugToken:token];
-  return token;
+  return [self.debugProvider localDebugToken];
 }
 
 #pragma mark - FIRAppCheckProvider
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
                                          NSError *_Nullable error))handler {
-  [FBLPromise do:^NSString * {
-    return [self currentDebugToken];
-  }]
-      .then(^FBLPromise<FIRAppCheckToken *> *(NSString *debugToken) {
-        return [self.APIService appCheckTokenWithDebugToken:debugToken];
-      })
-      .then(^id(FIRAppCheckToken *appCheckToken) {
-        handler(appCheckToken, nil);
-        return nil;
-      })
-      .catch(^void(NSError *error) {
-        FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageDebugProviderFailedExchange,
-                            @"Failed to exchange debug token to app check token: %@", error);
-        handler(nil, error);
-      });
+  [self.debugProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
+                                               NSError *_Nullable error) {
+    if (error) {
+      FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageDebugProviderFailedExchange,
+                          @"Failed to exchange debug token to app check token: %@", error);
+      handler(nil, error);
+      return;
+    }
+
+    handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+  }];
 }
 
 @end

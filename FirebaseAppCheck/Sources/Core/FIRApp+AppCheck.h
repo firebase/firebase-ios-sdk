@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,15 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-@class FBLPromise<Result>;
-@class FIRAppCheckToken;
-@protocol FIRAppCheckAPIServiceProtocol;
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRAppCheckDebugProviderAPIServiceProtocol <NSObject>
+@interface FIRApp (AppCheck)
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDebugToken:(NSString *)debugToken;
-
-@end
-
-@interface FIRAppCheckDebugProviderAPIService
-    : NSObject <FIRAppCheckDebugProviderAPIServiceProtocol>
-
-- (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID;
+/// The resource name for the Firebase App in the format "projects/{project_id}/apps/{app_id}".
+/// See https://google.aip.dev/122 for more details about resource names.
+@property(nonatomic, readonly, copy) NSString *resourceName;
 
 @end
 

@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import <AppCheck/AppCheck.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithToken:(NSString *)token
                expirationDate:(NSDate *)expirationDate
                receivedAtDate:(NSDate *)receivedAtDate NS_DESIGNATED_INITIALIZER;
+
+/// Instantiates a `FIRAppCheckToken` token from a `GACAppCheckToken`.
+/// @param token The internal App Check token to be converted into a Firebase App Check token.
+- (instancetype)initWithInternalToken:(GACAppCheckToken *)token;
 
 @end
 

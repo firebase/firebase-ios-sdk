@@ -28,6 +28,9 @@ NS_SWIFT_NAME(InternalAppCheckToken)
 /// The App Check token's expiration date in the device's local time.
 @property(nonatomic, readonly) NSDate *expirationDate;
 
+/// The date when the App Check token was received in the device's local time.
+@property(nonatomic, readonly) NSDate *receivedAtDate;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 /// The default initializer.
