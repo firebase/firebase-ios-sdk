@@ -1,4 +1,4 @@
-# Unreleased
+# 10.11.0
 - [fixed] Fixed a threading-related hang during initialization in urgent mode (#11216)
 
 # 10.10.0

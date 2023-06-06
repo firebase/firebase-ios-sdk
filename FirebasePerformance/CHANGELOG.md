@@ -1,4 +1,4 @@
-# Unreleased
+# 10.11.0
 - [fixed] Fixed a bug to disable data collection if the data collection was disabled before Firebase application was configured.
 
 # 10.9.0
