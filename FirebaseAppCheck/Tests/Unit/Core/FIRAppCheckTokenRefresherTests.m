@@ -16,11 +16,12 @@
 
 #import <XCTest/XCTest.h>
 
+@import AppCheck;
+
 #import <OCMock/OCMock.h>
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
-#import "FirebaseAppCheck/Sources/GAC/Core/GACAppCheckSettings.h"
 #import "FirebaseAppCheck/Tests/Unit/Utils/FIRFakeTimer.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
 
