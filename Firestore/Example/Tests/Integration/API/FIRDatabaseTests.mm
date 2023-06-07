@@ -1820,9 +1820,9 @@ using firebase::firestore::util::TimerId;
       [[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(Settings::CacheSizeUnlimited)];
   XCTAssertEqual(cacheSettings.internalSettings.size_bytes(), Settings::CacheSizeUnlimited);
 
-  this.db.settings.cacheSettings = cacheSettings;
+  self.db.settings.cacheSettings = cacheSettings;
 
-  FIRDocumentReference *doc = [db documentWithPath:@"rooms/eros"];
+  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
   NSDictionary<NSString *, id> *data = @{@"value" : @"foo"};
   [self writeDocumentRef:doc data:data];
   FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
