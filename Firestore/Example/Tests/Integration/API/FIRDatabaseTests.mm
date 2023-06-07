@@ -34,6 +34,7 @@
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
+using api::Settings;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::util::MakeNSString;
