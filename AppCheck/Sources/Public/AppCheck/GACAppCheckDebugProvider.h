@@ -18,8 +18,6 @@
 
 #import "GACAppCheckProvider.h"
 
-@protocol GACAppCheckDebugProviderAPIServiceProtocol;
-
 NS_ASSUME_NONNULL_BEGIN
 
 /// A Firebase App Check provider that can exchange a debug token registered

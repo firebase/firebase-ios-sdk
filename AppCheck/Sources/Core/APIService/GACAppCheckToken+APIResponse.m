@@ -15,7 +15,6 @@
  */
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckToken+APIResponse.h"
-#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>

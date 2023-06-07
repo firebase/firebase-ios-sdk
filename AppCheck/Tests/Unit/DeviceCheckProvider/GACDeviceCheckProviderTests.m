@@ -19,9 +19,9 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 #import "AppCheck/Sources/DeviceCheckProvider/API/GACDeviceCheckAPIService.h"
 #import "AppCheck/Sources/DeviceCheckProvider/GACDeviceCheckTokenGenerator.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 #import "AppCheck/Sources/Public/AppCheck/GACDeviceCheckProvider.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
