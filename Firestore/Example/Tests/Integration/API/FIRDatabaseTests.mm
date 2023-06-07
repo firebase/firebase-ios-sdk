@@ -1816,9 +1816,17 @@ using firebase::firestore::util::TimerId;
 }
 
 - (void)testUnlimitedCacheSize {
-  FIRPersistentCacheSettings *settings =
+  FIRPersistentCacheSettings *cacheSettings =
       [[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(Settings::CacheSizeUnlimited)];
-  XCTAssertEqual(settings.internalSettings.size_bytes(), Settings::CacheSizeUnlimited);
+  XCTAssertEqual(cacheSettings.internalSettings.size_bytes(), Settings::CacheSizeUnlimited);
+
+  this.db.settings.cacheSettings = cacheSettings;
+
+  FIRDocumentReference *doc = [db documentWithPath:@"rooms/eros"];
+  NSDictionary<NSString *, id> *data = @{@"value" : @"foo"};
+  [self writeDocumentRef:doc data:data];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(result.data, data);
 }
 
 @end
