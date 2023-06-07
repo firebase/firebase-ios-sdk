@@ -16,7 +16,7 @@
 
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStoredToken+GACAppCheckToken.h"
 
-#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 @implementation GACAppCheckStoredToken (GACAppCheckToken)
 

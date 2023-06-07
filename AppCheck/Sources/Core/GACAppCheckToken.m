@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
