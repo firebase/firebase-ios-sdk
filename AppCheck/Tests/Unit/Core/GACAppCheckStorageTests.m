@@ -36,7 +36,7 @@
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 static NSString *const kAppName = @"GACAppCheckStorageTestsApp";
 static NSString *const kGoogleAppID = @"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa";

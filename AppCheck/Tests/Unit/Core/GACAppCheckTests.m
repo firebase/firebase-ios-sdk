@@ -26,11 +26,11 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 #import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
