@@ -33,10 +33,19 @@ NS_SWIFT_NAME(InternalAppCheckToken)
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/// The default initializer.
+/// Convenience initializer that uses the current device local time to set `receivedAtDate`.
 /// @param token A Firebase App Check token.
 /// @param expirationDate A Firebase App Check token expiration date in the device local time.
 - (instancetype)initWithToken:(NSString *)token expirationDate:(NSDate *)expirationDate;
+
+/// The designated initializer.
+/// @param token A Firebase App Check token.
+/// @param expirationDate A Firebase App Check token expiration date in the device local time.
+/// @param receivedAtDate A date when the Firebase App Check token was received in the device's
+/// local time.
+- (instancetype)initWithToken:(NSString *)token
+               expirationDate:(NSDate *)expirationDate
+               receivedAtDate:(NSDate *)receivedAtDate NS_DESIGNATED_INITIALIZER;
 
 @end
 

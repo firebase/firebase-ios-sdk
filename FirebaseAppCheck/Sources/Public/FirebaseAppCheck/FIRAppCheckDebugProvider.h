@@ -19,7 +19,6 @@
 #import "FIRAppCheckProvider.h"
 
 @class FIRApp;
-@protocol FIRAppCheckDebugProviderAPIServiceProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
