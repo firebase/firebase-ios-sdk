@@ -26,8 +26,8 @@
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckHTTPError.h"
-#import "AppCheck/Sources/Core/GACAppCheckToken+Internal.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 #import "AppCheck/Tests/Unit/Utils/GACFixtureLoader.h"
 #import "SharedTestUtilities/Date/FIRDateTestUtils.h"
