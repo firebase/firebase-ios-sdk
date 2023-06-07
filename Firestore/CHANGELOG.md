@@ -1,6 +1,7 @@
 # 10.11.0
 - [feature] Expose MultiDb API for public preview. (#10465)
 - [fixed] Fixed a compilation warning related to integer casting. (#11332)
+- [fixed] Allow initializing FIRLocalCacheSettings with unlimited size. (#11405)
 
 # 10.9.0
 - [feature] Add new cache config API to customize SDK cache settings.
