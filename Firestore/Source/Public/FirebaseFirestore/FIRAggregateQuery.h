@@ -39,6 +39,21 @@ NS_SWIFT_NAME(AggregateQuery)
 /**
  * Executes this query.
  *
+ * This method attempts to provide up-to-date data when possible by waiting for
+ * data from the server, but it may return cached data or fail if you are
+ * offline and the server cannot be reached. See the
+ * `getAggregation(source:completion:)` method to change this behavior.
+ *
+ * @param completion a block to execute once the results have been successfully read.
+ *     snapshot will be `nil` only if error is `non-nil`.
+ */
+- (void)aggregationWithCompletion:
+    (void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))completion
+    NS_SWIFT_NAME(getAggregation(completion:));
+
+/**
+ * Executes this query.
+ *
  * @param source The source from which to acquire the aggregate results.
  * @param completion a block to execute once the results have been successfully read.
  *     snapshot will be `nil` only if error is `non-nil`.

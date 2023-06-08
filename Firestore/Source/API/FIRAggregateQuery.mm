@@ -73,6 +73,11 @@ NS_ASSUME_NONNULL_BEGIN
   return _query;
 }
 
+- (void)aggregationWithCompletion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
+                                            NSError *_Nullable error))completion {
+  throw [NSException exceptionWithName:@"NotImpelemented" reason:@"Not impelemented" userInfo:nil];
+}
+
 - (void)aggregationWithSource:(FIRAggregateSource)source
                    completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                         NSError *_Nullable error))completion {
@@ -84,6 +89,19 @@ NS_ASSUME_NONNULL_BEGIN
       completion(nil, MakeNSError(result.status()));
     }
   });
+}
+
+- (id<FIRListenerRegistration>)addSnapshotListener:
+    (void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener {
+  throw [NSException exceptionWithName:@"NotImpelemented" reason:@"Not impelemented" userInfo:nil];
+}
+
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                         listener:(void (^)(
+                                                      FIRAggregateQuerySnapshot *_Nullable snapshot,
+                                                      NSError *_Nullable error))listener {
+  throw [NSException exceptionWithName:@"NotImpelemented" reason:@"Not impelemented" userInfo:nil];
 }
 
 @end
