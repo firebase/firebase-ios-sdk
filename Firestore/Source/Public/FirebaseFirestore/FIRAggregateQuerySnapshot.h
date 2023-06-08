@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FIRSnapshotMetadata.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRAggregateQuery;
@@ -35,6 +37,9 @@ NS_SWIFT_NAME(AggregateQuerySnapshot)
 
 /** The number of documents in the result set of the underlying query. */
 @property(nonatomic, readonly) NSNumber* count;
+
+/** Metadata about this snapshot concerning its source and if it has local modifications. */
+@property(nonatomic, strong, readonly) FIRSnapshotMetadata* metadata;
 
 @end
 

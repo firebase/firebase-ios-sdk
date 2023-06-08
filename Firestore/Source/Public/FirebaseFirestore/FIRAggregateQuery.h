@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 #import "FIRAggregateSource.h"
+#import "FIRListenerRegistration.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,6 +47,34 @@ NS_SWIFT_NAME(AggregateQuery)
                    completion:(void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot,
                                         NSError *_Nullable error))completion
     NS_SWIFT_NAME(getAggregation(source:completion:));
+
+/**
+ * Attaches a listener for `AggregateQuerySnapshot` events.
+ *
+ * @param listener The listener to attach.
+ *
+ * @return A `ListenerRegistration` object that can be used to remove this listener.
+ */
+- (id<FIRListenerRegistration>)addSnapshotListener:
+    (void (^)(FIRAggregateQuerySnapshot *_Nullable snapshot, NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(_:));
+
+/**
+ * Attaches a listener for `AggregateQuerySnapshot` events.
+ *
+ * @param includeMetadataChanges Whether metadata-only changes (i.e. only
+ *     `AggregateQuerySnapshot.metadata` changed) should trigger snapshot events.
+ * @param listener The listener to attach.
+ *
+ * @return A `ListenerRegistration` that can be used to remove this listener.
+ */
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
+                                         listener:(void (^)(
+                                                      FIRAggregateQuerySnapshot *_Nullable snapshot,
+                                                      NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
+
 @end
 
 NS_ASSUME_NONNULL_END
