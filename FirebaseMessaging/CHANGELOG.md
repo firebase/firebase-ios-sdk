@@ -1,4 +1,4 @@
-# 10.11.0
+# 10.12.0
 - [changed] Removing fiam scoped tokens set by old FIAM SDK(s) from keychain if exisits (b/284207019).
 
 # 10.6.0
