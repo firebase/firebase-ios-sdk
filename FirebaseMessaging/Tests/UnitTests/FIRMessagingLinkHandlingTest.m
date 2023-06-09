@@ -82,14 +82,6 @@ NSString *const kFIRMessagingTestsLinkHandlingSuiteName = @"com.messaging.test_l
   XCTAssertNil(url);
 }
 
-- (void)testInvalidURLStringLinkInMessage {
-  NSMutableDictionary *notification =
-      [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];
-  notification[kFIRMessagingMessageLinkKey] = @"This is not a valid url string";
-  NSURL *url = [_messaging linkURLFromMessage:notification];
-  XCTAssertNil(url);
-}
-
 - (void)testValidURLStringLinkInMessage {
   NSMutableDictionary *notification =
       [FIRMessagingTestNotificationUtilities createBasicNotificationWithUniqueMessageID];

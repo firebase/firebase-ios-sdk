@@ -73,7 +73,8 @@ using firebase::firestore::util::ThrowInvalidArgument;
 
 - (instancetype)initWithSizeBytes:(NSNumber *)size {
   self = [super init];
-  if (size.longLongValue < Settings::MinimumCacheSizeBytes) {
+  if (size.longLongValue != Settings::CacheSizeUnlimited &&
+      size.longLongValue < Settings::MinimumCacheSizeBytes) {
     ThrowInvalidArgument("Cache size must be set to at least %s bytes",
                          Settings::MinimumCacheSizeBytes);
   }

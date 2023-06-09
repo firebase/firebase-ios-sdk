@@ -1,4 +1,7 @@
-# Unreleased
+# 10.11.0
+- [fixed] Fixed a threading-related hang during initialization in urgent mode (#11216)
+
+# 10.10.0
 - [changed] Removed references to deprecated CTCarrier API in FirebaseSessions. (#11144)
 - [fixed] Fix Xcode 14.3 Analyzer issue. (#11228)
 

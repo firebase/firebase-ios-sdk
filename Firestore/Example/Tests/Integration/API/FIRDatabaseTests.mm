@@ -28,11 +28,13 @@
 #import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
+#include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
+using api::Settings;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::util::MakeNSString;
@@ -1811,6 +1813,20 @@ using firebase::firestore::util::TimerId;
 - (void)testMinimumCacheSize {
   XCTAssertThrowsSpecific([[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(1024 * 1024 - 1)],
                           NSException);
+}
+
+- (void)testUnlimitedCacheSize {
+  FIRPersistentCacheSettings *cacheSettings =
+      [[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(Settings::CacheSizeUnlimited)];
+  XCTAssertEqual(cacheSettings.internalSettings.size_bytes(), Settings::CacheSizeUnlimited);
+
+  self.db.settings.cacheSettings = cacheSettings;
+
+  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
+  NSDictionary<NSString *, id> *data = @{@"value" : @"foo"};
+  [self writeDocumentRef:doc data:data];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(result.data, data);
 }
 
 @end

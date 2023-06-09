@@ -26,7 +26,7 @@
 
 #import <XCTest/XCTest.h>
 
-@import HeartbeatLoggingTestUtils;
+@import FirebaseCoreInternal;
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 

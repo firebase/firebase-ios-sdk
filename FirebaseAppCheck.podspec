@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '10.10.0'
+  s.version          = '10.11.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC
@@ -54,29 +54,24 @@ Pod::Spec.new do |s|
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
 
-  # Using environment variable because of the dependency on the unpublished
-  # HeartbeatLoggingTestUtils.
-  if ENV['POD_LIB_LINT_ONLY'] && ENV['POD_LIB_LINT_ONLY'] == '1' then
-    s.test_spec 'unit' do |unit_tests|
-      unit_tests.platforms = {
-        :ios => ios_deployment_target,
-        :osx => osx_deployment_target,
-        :tvos => tvos_deployment_target
-      }
-      unit_tests.source_files = [
-        base_dir + 'Tests/Unit/**/*.[mh]',
-        base_dir + 'Tests/Utils/**/*.[mh]',
-        'SharedTestUtilities/AppCheckFake/*',
-        'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
-        'SharedTestUtilities/Date/*',
-        'SharedTestUtilities/URLSession/*',
-      ]
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = [
+      base_dir + 'Tests/Unit/**/*.[mh]',
+      base_dir + 'Tests/Utils/**/*.[mh]',
+      'SharedTestUtilities/AppCheckFake/*',
+      'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
+      'SharedTestUtilities/Date/*',
+      'SharedTestUtilities/URLSession/*',
+    ]
 
-      unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
-      unit_tests.dependency 'OCMock'
-      unit_tests.dependency 'HeartbeatLoggingTestUtils'
-      unit_tests.requires_app_host = true
-    end
+    unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
+    unit_tests.dependency 'OCMock'
+    unit_tests.requires_app_host = true
   end
 
   s.test_spec 'integration' do |integration_tests|

@@ -198,7 +198,7 @@ class SerializerTests: XCTestCase {
       1 as Int32,
       "two",
       [3 as Int32, ["@type": "type.googleapis.com/google.protobuf.Int64Value",
-                    "value": "9876543210"]],
+                    "value": "9876543210"]] as [Any],
     ] as NSArray
     XCTAssertEqual(input, try serializer.encode(input) as? NSArray)
   }
@@ -209,9 +209,9 @@ class SerializerTests: XCTestCase {
       1 as Int64,
       "two",
       [3 as Int32, ["@type": "type.googleapis.com/google.protobuf.Int64Value",
-                    "value": "9876543210"]],
+                    "value": "9876543210"]] as [Any],
     ] as NSArray
-    let expected = [1 as Int64, "two", [3 as Int32, 9_876_543_210 as Int64]] as NSArray
+    let expected = [1 as Int64, "two", [3 as Int32, 9_876_543_210 as Int64] as [Any]] as NSArray
     XCTAssertEqual(expected, try serializer.decode(input) as? NSArray)
   }
 
@@ -219,13 +219,13 @@ class SerializerTests: XCTestCase {
     let input = [
       "foo": 1 as Int32,
       "bar": "hello",
-      "baz": [3 as Int32, 9_876_543_210 as Int64],
+      "baz": [3 as Int32, 9_876_543_210 as Int64] as [Any],
     ] as NSDictionary
     let expected = [
       "foo": 1,
       "bar": "hello",
       "baz": [3, ["@type": "type.googleapis.com/google.protobuf.Int64Value",
-                  "value": "9876543210"]],
+                  "value": "9876543210"]] as [Any],
     ] as NSDictionary
     let serializer = FUNSerializer()
     XCTAssertEqual(expected, try serializer.encode(input) as? NSDictionary)
