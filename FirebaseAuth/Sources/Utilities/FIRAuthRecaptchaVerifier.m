@@ -68,7 +68,12 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
   if ([FIRAuth auth].tenantID == nil) {
     return self->_agentConfig.siteKey;
   } else {
-    return self->_tenantConfigs[[FIRAuth auth].tenantID].siteKey;
+    FIRAuthRecaptchaConfig *config = self->_tenantConfigs[[FIRAuth auth].tenantID];
+    if (config) {
+      return config.siteKey;
+    } else {
+      return nil;
+    }
   }
 }
 
@@ -92,13 +97,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                    completion(nil, error);
                                  }
                                  if (!self.recaptchaClient) {
-                                   NSString *siteKey = @"";
-                                   if ([FIRAuth auth].tenantID == nil) {
-                                     siteKey = self->_agentConfig.siteKey;
-                                   } else {
-                                     siteKey =
-                                         self->_tenantConfigs[[FIRAuth auth].tenantID].siteKey;
-                                   }
+                                   NSString *siteKey = [self siteKey];
                                    Class RecaptchaClass = NSClassFromString(@"Recaptcha");
                                    if (RecaptchaClass) {
                                      SEL selectorWithTimeout = NSSelectorFromString(
@@ -238,14 +237,12 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                                                 NSError *_Nullable error) {
                                                      [request
                                                          injectRecaptchaFields:token
-                                                              recaptchaVersion:kRecaptchaVersion
-                                                                    clientType:kClientType];
+                                                              recaptchaVersion:kRecaptchaVersion];
                                                      completion(request);
                                                    }];
                                    } else {
                                      [request injectRecaptchaFields:nil
-                                                   recaptchaVersion:kRecaptchaVersion
-                                                         clientType:kClientType];
+                                                   recaptchaVersion:kRecaptchaVersion];
                                      completion(request);
                                    }
                                  }];

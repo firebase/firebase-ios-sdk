@@ -502,6 +502,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message;
 
+/** @fn missingClientIdentifierErrorWithMessage:
+    @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingClientIdentifier code.
+    @param message Error message from the backend, if any.
+    @return The NSError instance associated with the given FIRAuthError.
+ */
++ (NSError *)missingClientIdentifierErrorWithMessage:(nullable NSString *)message;
+
 /** @fn missingClientTypeErrorWithMessage:
     @brief Constructs an @c NSError with the @c FIRAuthErrorCodeMissingClientType code.
     @param message Error message from the backend, if any.

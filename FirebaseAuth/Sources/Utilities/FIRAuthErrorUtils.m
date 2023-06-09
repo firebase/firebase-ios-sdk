@@ -564,6 +564,12 @@ static NSString *const kFIRAuthErrorMessageDynamicLinkNotActivated =
 static NSString *const kFIRAuthErrorMessageRejectedCredential =
     @"The request contains malformed or mismatching credentials.";
 
+/** @var kFIRAuthErrorMessageMissingClientIdentifier
+    @brief Error message constant describing @c FIRAuthErrorCodeMissingClientIdentifier errors.
+ */
+static NSString *const kFIRAuthErrorMessageMissingClientIdentifier =
+    @"The request does not contain any client identifier.";
+
 /** @var kFIRAuthErrorMessageMissingOrInvalidNonce
     @brief Error message constant describing @c FIRAuthErrorCodeMissingOrInvalidNonce errors.
  */
@@ -615,7 +621,9 @@ static NSString *const kFIRAuthErrorMessageInvalidReqType =
     @"The request is not supported or is invalid.";
 
 static NSString *const kFIRAuthErrorMessageRecaptchaSDKNotLinked =
-    @"The recaptcha SDK is not linked to your app.";
+    @"The recaptcha SDK is not linked to your app. Please follow "
+    @"https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps to add Recaptcha "
+    @"Enterprise SDK to your app.";
 
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
@@ -773,6 +781,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageDynamicLinkNotActivated;
     case FIRAuthErrorCodeRejectedCredential:
       return kFIRAuthErrorMessageRejectedCredential;
+    case FIRAuthErrorCodeMissingClientIdentifier:
+      return kFIRAuthErrorMessageMissingClientIdentifier;
     case FIRAuthErrorCodeMissingOrInvalidNonce:
       return kFIRAuthErrorMessageMissingOrInvalidNonce;
     case FIRAuthErrorCodeTenantIDMismatch:
@@ -960,6 +970,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_DYNAMIC_LINK_NOT_ACTIVATED";
     case FIRAuthErrorCodeRejectedCredential:
       return @"ERROR_REJECTED_CREDENTIAL";
+    case FIRAuthErrorCodeMissingClientIdentifier:
+      return @"ERROR_MISSING_CLIENT_IDENTIFIER";
     case FIRAuthErrorCodeMissingOrInvalidNonce:
       return @"ERROR_MISSING_OR_INVALID_NONCE";
     case FIRAuthErrorCodeTenantIDMismatch:
@@ -1383,6 +1395,10 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
 
 + (NSError *)appNotVerifiedErrorWithMessage:(nullable NSString *)message {
   return [self errorWithCode:FIRAuthInternalErrorCodeAppNotVerified message:message];
+}
+
++ (NSError *)missingClientIdentifierErrorWithMessage:(nullable NSString *)message {
+  return [self errorWithCode:FIRAuthInternalErrorCodeMissingClientIdentifier message:message];
 }
 
 + (NSError *)missingClientTypeErrorWithMessage:(nullable NSString *)message {

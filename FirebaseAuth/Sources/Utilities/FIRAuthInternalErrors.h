@@ -441,6 +441,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeEmailChangeNeedsVerification =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailChangeNeedsVerification,
 
+  /** Indicates that the request does not contain any client identifier.
+   */
+  FIRAuthInternalErrorCodeMissingClientIdentifier = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeMissingClientIdentifier,
+
   /** Indicates that the nonce is missing or invalid.
    */
   FIRAuthInternalErrorCodeMissingOrInvalidNonce = FIRAuthPublicErrorCodeFlag |

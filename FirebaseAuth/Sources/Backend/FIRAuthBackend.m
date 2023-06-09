@@ -520,6 +520,13 @@ static NSString *const kInvalidRecaptchaEnforcementState = @"INVALID_RECAPTCHA_E
  */
 static NSString *const kRecaptchaNotEnabled = @"RECAPTCHA_NOT_ENABLED";
 
+/** @var kMissingClientIdentifier
+    @brief This is the error message the server will respond with if Firebase could not verify the
+        app during a phone authentication flow when a real phone number is used and app verification
+        is disabled for testing.
+ */
+static NSString *const kMissingClientIdentifier = @"MISSING_CLIENT_IDENTIFIER";
+
 /** @var kMissingClientType
     @brief This is the error message the server will respond with if Firebase could not verify the
         app during a phone authentication flow when a real phone number is used and app verification
@@ -1514,6 +1521,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kAppNotVerifiedErrorMessage]) {
     return [FIRAuthErrorUtils appNotVerifiedErrorWithMessage:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kMissingClientIdentifier]) {
+    return [FIRAuthErrorUtils missingClientIdentifierErrorWithMessage:serverErrorMessage];
   }
 
   if ([shortErrorMessage isEqualToString:kMissingClientType]) {

@@ -409,6 +409,10 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeEmailChangeNeedsVerification = 17090,
 
+    /** Indicates that the request does not contain any client identifier.
+     */
+    FIRAuthErrorCodeMissingClientIdentifier = 17093,
+
     /** Indicates that the nonce is missing or invalid.
      */
     FIRAuthErrorCodeMissingOrInvalidNonce = 17094,

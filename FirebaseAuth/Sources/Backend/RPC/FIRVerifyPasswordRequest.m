@@ -115,8 +115,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 }
 
 - (void)injectRecaptchaFields:(NSString *_Nullable)recaptchaResponse
-             recaptchaVersion:(NSString *)recaptchaVersion
-                   clientType:(NSString *)clientType {
+             recaptchaVersion:(NSString *)recaptchaVersion {
   _captchaResponse = recaptchaResponse;
   _recaptchaVersion = recaptchaVersion;
 }
