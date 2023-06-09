@@ -1607,6 +1607,59 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  /** @fn testRevokeTokenSuccess
+      @brief Tests the flow of a successful @c revokeToken:completion.
+   */
+  func testRevokeTokenSuccess() throws {
+    try waitForSignInWithAccessToken()
+    let expectation = self.expectation(description: #function)
+
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+    let group = createGroup()
+    let code = "code"
+    auth?.revokeToken(withAuthorizationCode: code) { error in
+      // 4. Verify callback success.
+      XCTAssertNil(error)
+      expectation.fulfill()
+    }
+    group.wait()
+
+    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(rpcIssuer?.request as? RevokeTokenRequest)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
+    XCTAssertEqual(request.token, code)
+    XCTAssertEqual(request.tokenType, .authorizationCode)
+
+    // 3. Send the response from the fake backend.
+    _ = try rpcIssuer?.respond(withJSON: [:])
+
+    waitForExpectations(timeout: 5)
+  }
+
+  /** @fn testRevokeTokenMissingCallback
+      @brief Tests the flow of  @c revokeToken:completion with a nil callback.
+   */
+  func testRevokeTokenMissingCallback() throws {
+    try waitForSignInWithAccessToken()
+
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+    let group = createGroup()
+    let code = "code"
+    auth?.revokeToken(withAuthorizationCode: code)
+    group.wait()
+
+    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+    let request = try XCTUnwrap(rpcIssuer?.request as? RevokeTokenRequest)
+    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
+    XCTAssertEqual(request.token, code)
+    XCTAssertEqual(request.tokenType, .authorizationCode)
+
+    // 3. Send the response from the fake backend.
+    _ = try rpcIssuer?.respond(withJSON: [:])
+  }
+
   /** @fn testSignOut
       @brief Tests the @c signOut: method.
    */
