@@ -1543,7 +1543,9 @@ extension Auth: AuthInterop {
           return
         }
       }
-      // Note: If both idToken and error are nil, we still want to proceed.
+      guard let idToken else {
+        fatalError("Internal Auth Error: Both idToken and error are nil")
+      }
       let request = RevokeTokenRequest(withToken: authorizationCode,
                                        idToken: idToken,
                                        requestConfiguration: self.requestConfiguration)
