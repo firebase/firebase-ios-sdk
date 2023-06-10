@@ -79,6 +79,9 @@ class UserTests: RPCBaseTests {
     let kFacebookEmail = "user@facebook.com"
     let kUserArchiverKey = "userArchiverKey"
     let kEnrollmentID = "fakeEnrollment"
+    let kPhoneInfo = "+15555555555"
+    let kEnrolledAt = "2022-08-01T18:31:15.426458Z"
+    let kEnrolledAtMatch = "2022-08-01 18:31:15 +0000"
 
     var providerUserInfos = [[
       kProviderIDkey: EmailAuthProvider.id,
@@ -117,6 +120,12 @@ class UserTests: RPCBaseTests {
       "phoneNumber": kPhoneNumber,
       "createdAt": String(Int(kCreationDateTimeIntervalInSeconds) * 1000), // to nanoseconds
       "lastLoginAt": String(Int(kLastSignInDateTimeIntervalInSeconds) * 1000),
+      "mfaInfo": [[
+        "phoneInfo": kPhoneInfo,
+        "mfaEnrollmentId": kEnrollmentID,
+        "displayName": kDisplayName,
+        "enrolledAt": kEnrolledAt,
+      ]],
     ]]
 
     let expectation = self.expectation(description: #function)
@@ -164,7 +173,7 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(facebookUserInfo.email, kFacebookEmail)
 
         #if os(iOS)
-          // Verify FIRUserInfo properties from the phone auth provider.
+          // Verify UserInfo properties from the phone auth provider.
           let phoneUserInfo = try XCTUnwrap(providerMap[PhoneAuthProvider.id])
           XCTAssertEqual(phoneUserInfo.phoneNumber, self.kPhoneNumber)
         #endif
@@ -225,24 +234,17 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(unarchivedFacebookUserInfo.email, facebookUserInfo.email)
 
         #if os(iOS)
-          // Verify FIRUserInfo properties from the phone auth provider.
+          // Verify NSSecureCoding properties from the phone auth provider.
           let unarchivedPhoneUserInfo = try XCTUnwrap(unarchivedProviderMap[PhoneAuthProvider.id])
           XCTAssertEqual(unarchivedPhoneUserInfo.phoneNumber, phoneUserInfo.phoneNumber)
 
-          // TODO: Finish multifactor
-          // Verify FIRMultiFactorInfo properties.
-//        XCTAssertEqual(user.multiFactor.enrolledFactors[0].factorID, PhoneMultiFactorID)
-//        XCTAssertEqual(user.multiFactor.enrolledFactors[0].UID, kEnrollmentID)
-//        XCTAssertEqual(user.multiFactor.enrolledFactors[0].displayName, self.kDisplayName)
-//        NSDateFormatter *dateFormatter =
-//            [[NSDateFormatter alloc] init];
-//        [dateFormatter
-//            setDateFormat:@"yyyy-MM-dd'T'HH:mm:ss.SSSZ"];
-//        NSDate *date =
-//            [dateFormatter dateFromString:kEnrolledAt];
-//        XCTAssertEqual(
-//            user.multiFactor.enrolledFactors[0].enrollmentDate,
-//            date);
+          // Verify MultiFactorInfo properties.
+          let enrolledFactors = try XCTUnwrap(user.multiFactor.enrolledFactors)
+          XCTAssertEqual(enrolledFactors[0].factorID, PhoneMultiFactorInfo.PhoneMultiFactorID)
+          XCTAssertEqual(enrolledFactors[0].uid, kEnrollmentID)
+          XCTAssertEqual(enrolledFactors[0].displayName, self.kDisplayName)
+          let date = try XCTUnwrap(enrolledFactors[0].enrollmentDate)
+          XCTAssertEqual("\(date)", kEnrolledAtMatch)
         #endif
       } catch {
         XCTFail("Caught an error in \(#function): \(error)")
@@ -259,23 +261,22 @@ class UserTests: RPCBaseTests {
     setFakeGetAccountProvider(withPasswordHash: kFakePassword)
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
-      self.changeUserEmail(user: user, expectation: expectation)
+      self.changeUserEmail(user: user, changeEmail: true, expectation: expectation)
     }
     waitForExpectations(timeout: 5)
   }
 
-  // TODO: revisit after Auth.swift
   /** @fn testUpdateEmailWithAuthLinkAccountSuccess
       @brief Tests a successful @c updateEmail:completion: call updates provider info.
    */
-//  func testUpdateEmailWithAuthLinkAccountSuccess() {
-//    setFakeGetAccountProvider()
-//    let expectation = self.expectation(description: #function)
-//    self.signInWithEmailPasswordReturnFakeUserLink() { user in
-//      self.changeUserEmail(user: user, expectation: expectation)
-//    }
-//    waitForExpectations(timeout: 5)
-//  }
+  func testUpdateEmailWithAuthLinkAccountSuccess() {
+    setFakeGetAccountProvider()
+    let expectation = self.expectation(description: #function)
+    signInWithEmailPasswordReturnFakeUserLink { user in
+      self.changeUserEmail(user: user, expectation: expectation)
+    }
+    waitForExpectations(timeout: 5)
+  }
 
   /** @fn testUpdateEmailFailure
       @brief Tests the flow of a failed @c updateEmail:completion: call.
@@ -453,7 +454,7 @@ class UserTests: RPCBaseTests {
     setFakeGetAccountProvider()
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
-      self.changeUserEmail(user: user, changePassword: true, expectation: expectation)
+      self.changeUserEmail(user: user, expectation: expectation)
     }
     waitForExpectations(timeout: 5)
   }
@@ -1428,7 +1429,7 @@ class UserTests: RPCBaseTests {
           XCTFail("Caught an error in \(#function): \(error)")
         }
       }
-      waitForExpectations(timeout: 555)
+      waitForExpectations(timeout: 5)
     }
 
     /** @fn testlinkPhoneAuthCredentialFailure
@@ -1461,8 +1462,8 @@ class UserTests: RPCBaseTests {
 
     /** @fn testlinkPhoneCredentialAlreadyExistsError
         @brief Tests the flow of @c linkWithCredential:completion:
-            call using a phoneAuthCredential and a credential already exisits error. In this case we
-            should get a FIRAuthCredential in the error object.
+            call using a phoneAuthCredential and a credential already exists error. In this case we
+            should get a AuthCredential in the error object.
      */
     func testlinkPhoneCredentialAlreadyExistsError() throws {
       setFakeGetAccountProvider()
@@ -1553,7 +1554,7 @@ class UserTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
-  private func changeUserEmail(user: User, changePassword: Bool = false,
+  private func changeUserEmail(user: User, changeEmail: Bool = false,
                                expectation: XCTestExpectation) {
     do {
       XCTAssertEqual(user.providerID, "Firebase")
@@ -1566,17 +1567,17 @@ class UserTests: RPCBaseTests {
       setFakeGetAccountProvider(withNewDisplayName: kNewDisplayName)
 
       let group = createGroup()
-      if changePassword {
-        user.updatePassword(to: kNewPassword) { error in
+      if changeEmail {
+        user.updateEmail(to: kNewEmail) { error in
           XCTAssertNil(error)
+          XCTAssertEqual(user.email, self.kNewEmail)
           XCTAssertEqual(user.displayName, self.kNewDisplayName)
           XCTAssertFalse(user.isAnonymous)
           expectation.fulfill()
         }
       } else {
-        user.updateEmail(to: kNewEmail) { error in
+        user.updatePassword(to: kNewPassword) { error in
           XCTAssertNil(error)
-          XCTAssertEqual(user.email, self.kNewEmail)
           XCTAssertEqual(user.displayName, self.kNewDisplayName)
           XCTAssertFalse(user.isAnonymous)
           expectation.fulfill()
@@ -1587,12 +1588,12 @@ class UserTests: RPCBaseTests {
       let request = try XCTUnwrap(rpcIssuer?.request as? SetAccountInfoRequest)
       XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
-      if changePassword {
-        XCTAssertEqual(request.password, kNewPassword)
-        XCTAssertNil(request.email)
-      } else {
+      if changeEmail {
         XCTAssertEqual(request.email, kNewEmail)
         XCTAssertNil(request.password)
+      } else {
+        XCTAssertEqual(request.password, kNewPassword)
+        XCTAssertNil(request.email)
       }
       XCTAssertNil(request.localID)
       XCTAssertNil(request.displayName)
@@ -1791,54 +1792,52 @@ class UserTests: RPCBaseTests {
     }
   }
 
-  // TODO: For testUpdateEmailWithAuthLinkAccountSuccess. Revisit after auth.swift. Should be able to
-  // TODO: parameterize with signInWithEmailPasswordReturnFakeUser
-//  private func signInWithEmailPasswordReturnFakeUserLink(completion: @escaping (User) -> Void) {
-//    let kRefreshToken = "fakeRefreshToken"
-//    setFakeSecureTokenService()
-//
-//    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-//    let group = createGroup()
-//
-//    do {
-//      try UserTests.auth?.signOut()
-//      UserTests.auth?.signIn(withEmail: kEmail, link:"https://www.google.com?oobCode=aCode&mode=signIn") { authResult, error in
-//        // 4. After the response triggers the callback, verify the returned result.
-//        XCTAssertTrue(Thread.isMainThread)
-//        guard let user = authResult?.user else {
-//          XCTFail("authResult.user is missing")
-//          return
-//        }
-//        XCTAssertEqual(user.refreshToken, kRefreshToken)
-//        XCTAssertFalse(user.isAnonymous)
-//        XCTAssertEqual(user.email, self.kEmail)
-//        guard let additionalUserInfo = authResult?.additionalUserInfo else {
-//          XCTFail("authResult.additionalUserInfo is missing")
-//          return
-//        }
-//        XCTAssertFalse(additionalUserInfo.isNewUser)
-//        XCTAssertEqual(additionalUserInfo.providerID, EmailAuthProvider.id)
-//        XCTAssertNil(error)
-//        completion(user)
-//      }
-//      group.wait()
-//
-//      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-  ////      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
-  ////      XCTAssertEqual(request.email, kEmail)
-  ////      XCTAssertEqual(request.password, kFakePassword)
-  ////      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-  ////      XCTAssertTrue(request.returnSecureToken)
-  ////
-  ////      // 3. Send the response from the fake backend.
-  ////      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-  ////                                        "isNewUser": true,
-  ////                                        "refreshToken": kRefreshToken])
-//
-//      // waitForExpectations(timeout: 10)
-//      // assertUser(AuthTests.auth?.currentUser)
-//    } catch {
-//      XCTFail("Throw in \(#function): \(error)")
-//    }
-//  }
+  private func signInWithEmailPasswordReturnFakeUserLink(completion: @escaping (User) -> Void) {
+    let kRefreshToken = "fakeRefreshToken"
+    setFakeSecureTokenService()
+
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
+    let group = createGroup()
+
+    do {
+      try UserTests.auth?.signOut()
+      UserTests.auth?.signIn(
+        withEmail: kEmail,
+        link: "https://www.google.com?oobCode=aCode&mode=signIn"
+      ) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        guard let user = authResult?.user else {
+          XCTFail("authResult.user is missing")
+          return
+        }
+        XCTAssertEqual(user.refreshToken, kRefreshToken)
+        XCTAssertFalse(user.isAnonymous)
+        XCTAssertEqual(user.email, self.kEmail)
+        guard let additionalUserInfo = authResult?.additionalUserInfo else {
+          XCTFail("authResult.additionalUserInfo is missing")
+          return
+        }
+        XCTAssertTrue(additionalUserInfo.isNewUser)
+        XCTAssertEqual(additionalUserInfo.providerID, EmailAuthProvider.id)
+        XCTAssertNil(error)
+        completion(user)
+      }
+      group.wait()
+
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(rpcIssuer?.request as? EmailLinkSignInRequest)
+      XCTAssertEqual(request.email, kEmail)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.oobCode, "aCode")
+      XCTAssertNil(request.idToken)
+
+      // 3. Send the response from the fake backend.
+      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                        "isNewUser": true,
+                                        "refreshToken": kRefreshToken])
+    } catch {
+      XCTFail("Throw in \(#function): \(error)")
+    }
+  }
 }

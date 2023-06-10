@@ -22,7 +22,7 @@ import Foundation
        This class is available on iOS only.
    */
   @objc(FIRPhoneMultiFactorInfo) public class PhoneMultiFactorInfo: MultiFactorInfo {
-    @objc public static let FIRPhoneMultiFactorID = "FIRPhoneMultiFactorID"
+    @objc(FIRPhoneMultiFactorID) public static let PhoneMultiFactorID = "FIRPhoneMultiFactorID"
 
     /**
         @brief This is the phone number associated with the current second factor.
@@ -34,12 +34,24 @@ import Foundation
       }
       phoneNumber = phoneInfo
       super.init(proto: proto)
-      factorID = Self.FIRPhoneMultiFactorID
+      factorID = Self.PhoneMultiFactorID
     }
 
-    @available(*, unavailable)
+    // MARK: NSSecureCoding
+
+    private let kPhoneNumberCodingKey = "phoneNumber"
+
     public required init?(coder: NSCoder) {
-      fatalError("init(coder:) has not been implemented")
+      guard let phoneNumber = coder.decodeObject(forKey: kPhoneNumberCodingKey) as? String else {
+        return nil
+      }
+      self.phoneNumber = phoneNumber
+      super.init(coder: coder)
+    }
+
+    override public func encode(with coder: NSCoder) {
+      super.encode(with: coder)
+      coder.encode(phoneNumber, forKey: kPhoneNumberCodingKey)
     }
   }
 

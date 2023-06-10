@@ -131,7 +131,7 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
    */
   @objc public let phoneNumber: String?
 
-  @objc public let MFAEnrollments: [AuthProtoMFAEnrollment]?
+  @objc(MFAEnrollments) public let mfaEnrollments: [AuthProtoMFAEnrollment]?
 
   /** @fn initWithAPIKey:
    @brief Designated initializer.
@@ -171,11 +171,11 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
     emailVerified = dictionary["emailVerified"] as? Bool ?? false
     passwordHash = dictionary["passwordHash"] as? String
     phoneNumber = dictionary["phoneNumber"] as? String
-    if let MFAEnrollmentData = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
-      MFAEnrollments = MFAEnrollmentData.map { AuthProtoMFAEnrollment(dictionary: $0)
+    if let mfaEnrollmentData = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
+      mfaEnrollments = mfaEnrollmentData.map { AuthProtoMFAEnrollment(dictionary: $0)
       }
     } else {
-      MFAEnrollments = nil
+      mfaEnrollments = nil
     }
   }
 }
