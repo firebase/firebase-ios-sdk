@@ -46,7 +46,7 @@ import Foundation
     /**
         @brief The identifier of the second factor.
      */
-    @objc public var factorID: String?
+    var factorID: String?
 
     @objc public init(proto: AuthProtoMFAEnrollment) {
       guard let uid = proto.mfaEnrollmentID else {

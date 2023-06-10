@@ -25,7 +25,7 @@ import Foundation
     var authCredential: PhoneAuthCredential?
 
     init() {
-      super.init(factorID: PhoneMultiFactorInfo.FIRPhoneMultiFactorID)
+      super.init(factorID: PhoneMultiFactorInfo.PhoneMultiFactorID)
     }
   }
 
