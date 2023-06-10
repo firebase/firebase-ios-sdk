@@ -1612,11 +1612,10 @@ import Foundation
     }
     providerDataRaw = providerData
     #if os(iOS)
-      if let enrollments = user.MFAEnrollments {
+      if let enrollments = user.mfaEnrollments {
         multiFactor = MultiFactor(withMFAEnrollments: enrollments)
       }
-      // TODO: Revisit after port of Multifactor_internal.h
-      // self.multiFactor.user = self
+      multiFactor.user = self
     #endif
   }
 
