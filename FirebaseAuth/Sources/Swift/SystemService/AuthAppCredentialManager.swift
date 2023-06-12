@@ -88,11 +88,11 @@
 
     private func saveData() {
       let archiveData = NSMutableData()
-      let archiver = NSKeyedArchiver(forWritingWith: archiveData)
+      let archiver = NSKeyedArchiver(requiringSecureCoding: true)
       archiver.encode(credential, forKey: kFullCredentialKey)
       archiver.encode(pendingReceipts, forKey: kPendingReceiptsKey)
       archiver.finishEncoding()
-      try? keychainServices.setData(archiveData as Data, forKey: kKeychainDataKey)
+      try? keychainServices.setData(archiver.encodedData, forKey: kKeychainDataKey)
     }
 
     private func callbackWithReceipt(_ receipt: String) {

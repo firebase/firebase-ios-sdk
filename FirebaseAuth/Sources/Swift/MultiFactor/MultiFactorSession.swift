@@ -20,6 +20,7 @@ import Foundation
           complete sign in when previously enrolled.
           This class is available on iOS only.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorSession) public class MultiFactorSession: NSObject {
     var idToken: String?
 

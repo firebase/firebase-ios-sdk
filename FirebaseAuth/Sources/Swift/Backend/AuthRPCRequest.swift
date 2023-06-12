@@ -21,6 +21,7 @@ import Foundation
 /** @protocol FIRAuthRPCRequest
     @brief The generic interface for an RPC request needed by @c FIRAuthBackend.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthRPCRequest) public protocol AuthRPCRequest: NSObjectProtocol {
   /** @fn requestURL
       @brief Gets the request's full URL.

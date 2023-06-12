@@ -20,6 +20,7 @@ import XCTest
 /** @class FIRUserMetadataTests
     @brief Tests for @c FIRUserMetadata.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class UserMetadataTests: XCTestCase {
   let kCreationDateTimeIntervalInSeconds: TimeInterval = 1_505_858_500
   let kLastSignInDateTimeIntervalInSeconds: TimeInterval = 1_505_858_583
@@ -43,9 +44,11 @@ class UserMetadataTests: XCTestCase {
     let lastSignInDate = Date(timeIntervalSince1970: kLastSignInDateTimeIntervalInSeconds)
     let userMetadata = UserMetadata(withCreationDate: creationDate, lastSignInDate: lastSignInDate)
 
-    let data = NSKeyedArchiver.archivedData(withRootObject: userMetadata)
-    let unarchivedUserMetadata = try XCTUnwrap(NSKeyedUnarchiver.unarchiveObject(with: data)
-      as? UserMetadata)
+    let data = try NSKeyedArchiver.archivedData(withRootObject: userMetadata,
+                                                requiringSecureCoding: true)
+    let unarchivedUserMetadata = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+      ofClass: UserMetadata.self, from: data
+    ))
     XCTAssertEqual(creationDate, unarchivedUserMetadata.creationDate)
     XCTAssertEqual(lastSignInDate, unarchivedUserMetadata.lastSignInDate)
   }

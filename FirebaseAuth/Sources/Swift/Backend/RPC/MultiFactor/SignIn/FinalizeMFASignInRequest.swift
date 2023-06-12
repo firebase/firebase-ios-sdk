@@ -21,6 +21,7 @@ private let kFinalizeMFASignInEndPoint = "accounts/mfaSignIn:finalize"
  */
 private let kTenantIDKey = "tenantId"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   var mfaPendingCredential: String?
   var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?

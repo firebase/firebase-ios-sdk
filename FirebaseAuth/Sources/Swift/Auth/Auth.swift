@@ -43,6 +43,7 @@ import FirebaseAuthInterop
   @available(iOS 13.0, *)
   extension Auth: UISceneDelegate {}
 
+  @available(iOS 13, *)
   extension Auth: UIApplicationDelegate {
     public func application(_ application: UIApplication,
                             didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -72,6 +73,7 @@ import FirebaseAuthInterop
   }
 #endif
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension Auth: AuthInterop {
   @objc(getTokenForcingRefresh:withCallback:)
   public func getToken(forcingRefresh forceRefresh: Bool,
@@ -134,6 +136,7 @@ extension Auth: AuthInterop {
     @brief Manages authentication for Firebase apps.
     @remarks This class is thread-safe.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuth) open class Auth: NSObject {
   /** @fn auth
    @brief Gets the auth object for the default Firebase app.
@@ -1764,9 +1767,7 @@ extension Auth: AuthInterop {
         )
 
         // TODO: Does this swizzling still work?
-        if #available(iOS 13.0, *) {
-          GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
-        }
+        GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
       #endif
     }
   }
@@ -2053,18 +2054,10 @@ extension Auth: AuthInterop {
     } else {
       let userKey = "\(firebaseAppName)\(kUserKey)"
       if let user {
-        #if os(watchOS)
-          let archiver = NSKeyedArchiver(requiringSecureCoding: false)
-        #else
-          // Encode the user object.
-          let archiveData = NSMutableData()
-          let archiver = NSKeyedArchiver(forWritingWith: archiveData)
-        #endif
+        let archiver = NSKeyedArchiver(requiringSecureCoding: true)
         archiver.encode(user, forKey: userKey)
         archiver.finishEncoding()
-        #if os(watchOS)
-          let archiveData = archiver.encodedData
-        #endif
+        let archiveData = archiver.encodedData
         // Save the user object's encoded value.
         try keychainServices.setData(archiveData as Data, forKey: userKey)
       } else {

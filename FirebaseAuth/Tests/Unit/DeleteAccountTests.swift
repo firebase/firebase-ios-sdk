@@ -17,6 +17,7 @@ import XCTest
 
 @testable import FirebaseAuth
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class DeleteAccountTests: RPCBaseTests {
   /** @var kLocalIDKey
       @brief The name of the "localID" property in the request.

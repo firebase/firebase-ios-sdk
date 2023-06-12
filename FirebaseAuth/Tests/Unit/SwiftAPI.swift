@@ -27,6 +27,7 @@ import FirebaseCore
 /// This file tests public methods and enums. Properties are not included.
 /// Each function maps to a public header file.
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthAPI_hOnlyTests: XCTestCase {
   // Each function corresponds with a public header.
   func FIRActionCodeSettings_h() {

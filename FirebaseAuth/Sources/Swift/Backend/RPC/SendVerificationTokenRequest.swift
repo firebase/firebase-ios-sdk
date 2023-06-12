@@ -44,6 +44,7 @@ private let kreCAPTCHATokenKey = "recaptchaToken"
  */
 private let kTenantIDKey = "tenantId"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSendVerificationCodeRequest)
 public class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property phoneNumber

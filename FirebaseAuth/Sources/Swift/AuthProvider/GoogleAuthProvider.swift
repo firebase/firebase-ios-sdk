@@ -17,6 +17,7 @@ import Foundation
 /**
  @brief Utility class for constructing Google Sign In credentials.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGoogleAuthProvider) open class GoogleAuthProvider: NSObject {
   @objc public static let id = "google.com"
 
@@ -38,6 +39,7 @@ import Foundation
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGoogleAuthCredential) private class GoogleAuthCredential: AuthCredential, NSSecureCoding {
   private let idToken: String
   private let accessToken: String

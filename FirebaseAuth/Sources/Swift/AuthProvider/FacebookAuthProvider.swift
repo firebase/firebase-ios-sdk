@@ -17,6 +17,7 @@ import Foundation
 /**
  @brief Utility class for constructing Facebook Sign In credentials.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRFacebookAuthProvider) open class FacebookAuthProvider: NSObject {
   @objc public static let id = "facebook.com"
 
@@ -36,6 +37,7 @@ import Foundation
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRFacebookAuthCredential) private class FacebookAuthCredential: AuthCredential,
   NSSecureCoding {
   private let accessToken: String
