@@ -107,8 +107,8 @@ NS_ASSUME_NONNULL_BEGIN
                 // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
                 // The searching ends once the first valid suportedAuthDomain is found.
                 NSString *authDomain;
-                for (NSString *domain in response.authorizedDomains) {
-                  for (NSString *suportedAuthDomain in [self supportedAuthDomains]) {
+                for (NSString *suportedAuthDomain in [self supportedAuthDomains]) {
+                  for (NSString *domain in response.authorizedDomains) {
                     NSInteger index = domain.length - suportedAuthDomain.length;
                     if (index >= 2) {
                       if ([domain hasSuffix:suportedAuthDomain] &&
