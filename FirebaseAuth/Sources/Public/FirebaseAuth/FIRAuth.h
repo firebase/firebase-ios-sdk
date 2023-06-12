@@ -858,6 +858,16 @@ NS_SWIFT_NAME(Auth)
 - (void)revokeTokenWithAuthorizationCode:(NSString *)authorizationCode
                               completion:(nullable void (^)(NSError *_Nullable error))completion;
 
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+/** @fn initializeRecaptchaConfigWithCompletion:completion:
+    @brief Calling initializeRecaptchaConfig method will update the ReCAPTCHA config for the
+   project/tenant tied to the Auth instance. The tenantId can be toggled for the same auth instance
+   in the same app and the sign in flow will include ReCAPTCHA only if needed.
+ */
+- (void)initializeRecaptchaConfigWithCompletion:
+    (nullable void (^)(NSError *_Nullable error))completion;
+#endif
+
 #pragma mark - User sharing
 
 /** @fn useUserAccessGroup:error:

@@ -14,18 +14,4 @@
  * limitations under the License.
  */
 
-#import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigResponse.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-@implementation FIRGetRecaptchaConfigResponse
-
-- (BOOL)setWithDictionary:(NSDictionary *)dictionary error:(NSError *_Nullable *_Nullable)error {
-  _recaptchaKey = [dictionary[@"recaptchaKey"] copy];
-  _enforcementState = dictionary[@"recaptchaEnforcementState"];
-  return YES;
-}
-
-@end
-
-NS_ASSUME_NONNULL_END
+import Foundation

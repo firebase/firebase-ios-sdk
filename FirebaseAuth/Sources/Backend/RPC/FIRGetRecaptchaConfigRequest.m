@@ -18,6 +18,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+static NSString *const kRecaptchaVersion = @"RECAPTCHA_ENTERPRISE";
+
 /** @var kGetRecaptchaConfigEndpoint
     @brief The "getRecaptchaConfig" endpoint.
  */
@@ -40,18 +42,12 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 @implementation FIRGetRecaptchaConfigRequest
 
-- (nullable instancetype)initWithClientType:(NSString *)clientType
-                                    version:(NSString *)version
-                       requestConfiguration:
-                           (nonnull FIRAuthRequestConfiguration *)requestConfiguration {
+- (nullable instancetype)initWithRequestConfiguration:
+    (nonnull FIRAuthRequestConfiguration *)requestConfiguration {
   requestConfiguration.HTTPMethod = @"GET";
   self = [super initWithEndpoint:kGetRecaptchaConfigEndpoint
             requestConfiguration:requestConfiguration];
   self.useIdentityPlatform = YES;
-  if (self) {
-    _clientType = [clientType copy];
-    _version = [version copy];
-  }
   return self;
 }
 
@@ -61,7 +57,8 @@ static NSString *const kTenantIDKey = @"tenantId";
 
 - (nullable NSString *)queryParams {
   NSMutableString *queryParams = [[NSMutableString alloc] init];
-  [queryParams appendFormat:@"&%@=%@&%@=%@", kClientTypeKey, _clientType, kVersionKey, _version];
+  [queryParams appendFormat:@"&%@=%@&%@=%@", kClientTypeKey, self.clientType, kVersionKey,
+                            kRecaptchaVersion];
   if (self.tenantID) {
     [queryParams appendFormat:@"&%@=%@", kTenantIDKey, self.tenantID];
   }

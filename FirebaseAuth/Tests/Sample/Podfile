@@ -2,9 +2,9 @@
 #source 'sso://cpdc-internal/firebase'
 #source 'https://cdn.cocoapods.org/'
 
+source 'https://cdn.cocoapods.org/'
 source 'https://github.com/firebase/SpecsDev.git'
 source 'https://github.com/firebase/SpecsStaging.git'
-source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 
@@ -17,6 +17,7 @@ target 'AuthSample' do
   pod 'FBSDKLoginKit', '< 13'
   pod 'GoogleSignIn', '~> 6'
   pod 'GTMSessionFetcher/Core'
+  pod 'RecaptchaEnterprise', '~> 18.2.0'
 
   target 'Auth_ApiTests' do
     inherit! :search_paths

@@ -409,6 +409,10 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeEmailChangeNeedsVerification = 17090,
 
+    /** Indicates that the request does not contain any client identifier.
+     */
+    FIRAuthErrorCodeMissingClientIdentifier = 17093,
+
     /** Indicates that the nonce is missing or invalid.
      */
     FIRAuthErrorCodeMissingOrInvalidNonce = 17094,
@@ -449,6 +453,10 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
     /** Indicates that the request type sent to backend is invalid.
      */
     FIRAuthErrorCodeInvalidReqType = 17207,
+
+    /** Indicates that the recaptcha sdk is not linked.
+     */
+    FIRAuthErrorCodeRecaptchaSDKNotLinked = 17208,
 
     /** Indicates an error occurred while attempting to access the keychain.
      */

@@ -77,9 +77,7 @@ static NSString *gAPIHost = @"www.googleapis.com";
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetRecaptchaConfigRequest *request =
-      [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:@"CLIENT_TYPE_IOS"
-                                                       version:@"RECAPTCHA_ENTERPRISE"
-                                          requestConfiguration:requestConfiguration];
+      [[FIRGetRecaptchaConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 
   [FIRAuthBackend getRecaptchaConfig:request
                             callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,

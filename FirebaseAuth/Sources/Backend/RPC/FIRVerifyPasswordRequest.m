@@ -99,9 +99,6 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (_captchaResponse) {
     postBody[kCaptchaResponseKey] = _captchaResponse;
   }
-  if (_clientType) {
-    postBody[kClientType] = _clientType;
-  }
   if (_recaptchaVersion) {
     postBody[kRecaptchaVersion] = _recaptchaVersion;
   }
@@ -111,7 +108,16 @@ static NSString *const kTenantIDKey = @"tenantId";
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
   }
+  if (self.clientType) {
+    postBody[kClientType] = self.clientType;
+  }
   return [postBody copy];
+}
+
+- (void)injectRecaptchaFields:(NSString *_Nullable)recaptchaResponse
+             recaptchaVersion:(NSString *)recaptchaVersion {
+  _captchaResponse = recaptchaResponse;
+  _recaptchaVersion = recaptchaVersion;
 }
 
 @end

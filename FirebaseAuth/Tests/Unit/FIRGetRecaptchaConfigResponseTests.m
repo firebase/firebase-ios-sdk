@@ -70,9 +70,7 @@ static NSString *const kTestRecaptchaKey = @"projects/123/keys/456";
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kTestAPIKey appID:kTestFirebaseAppID];
   FIRGetRecaptchaConfigRequest *request =
-      [[FIRGetRecaptchaConfigRequest alloc] initWithClientType:@"CLIENT_TYPE_IOS"
-                                                       version:@"RECAPTCHA_ENTERPRISE"
-                                          requestConfiguration:requestConfiguration];
+      [[FIRGetRecaptchaConfigRequest alloc] initWithRequestConfiguration:requestConfiguration];
 
   __block BOOL callbackInvoked;
   __block FIRGetRecaptchaConfigResponse *RPCResponse;

@@ -441,6 +441,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeEmailChangeNeedsVerification =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailChangeNeedsVerification,
 
+  /** Indicates that the request does not contain any client identifier.
+   */
+  FIRAuthInternalErrorCodeMissingClientIdentifier = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeMissingClientIdentifier,
+
   /** Indicates that the nonce is missing or invalid.
    */
   FIRAuthInternalErrorCodeMissingOrInvalidNonce = FIRAuthPublicErrorCodeFlag |
@@ -492,12 +497,17 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeRecaptchaNotEnabled = FIRAuthPublicErrorCodeFlag |
                                                 FIRAuthErrorCodeRecaptchaNotEnabled,
 
-  /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
-      @brief Indicates an error encoding the RPC request.
-      @remarks This is typically due to some sort of unexpected input value.
-
-          See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details.
+  /** Indicates that the recaptcha sdk is not linked to the app.
    */
+  FIRAuthInternalErrorCodeRecaptchaSDKNotLinked = FIRAuthPublicErrorCodeFlag |
+                                                  FIRAuthErrorCodeRecaptchaSDKNotLinked,
+
+  /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
+        @brief Indicates an error encoding the RPC request.
+        @remarks This is typically due to some sort of unexpected input value.
+
+            See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details.
+     */
   FIRAuthInternalErrorCodeRPCRequestEncodingError = 1,
 
   /** @var FIRAuthInternalErrorCodeJSONSerializationError

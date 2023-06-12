@@ -485,7 +485,7 @@ static NSString *const kTestValue = @"TestValue";
 
   __block NSError *callbackError;
   __block BOOL callbackInvoked;
-  [_RPCImplementation postWithRequest:request
+  [_RPCImplementation callWithRequest:request
                              response:response
                              callback:^(NSError *error) {
                                callbackInvoked = YES;

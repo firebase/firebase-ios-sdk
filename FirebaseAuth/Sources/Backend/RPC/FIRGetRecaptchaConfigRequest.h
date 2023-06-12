@@ -26,16 +26,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface FIRGetRecaptchaConfigRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
-/** @property clientType
-    @brief The client type should always be "ios".
- */
-@property(nonatomic, copy, nullable) NSString *clientType;
-
-/** @property version
-    @brief The version of the reCAPTCHA service should be always be "enterprise".
- */
-@property(nonatomic, copy, nullable) NSString *version;
-
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithClientType:version:requestConfiguration:
  */
@@ -45,14 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /** @fn initWithEmail:password:requestConfiguration:
     @brief Designated initializer.
-    @param clientType The client type.
-    @param version The version of the reCAPTCHA service.
     @param requestConfiguration The config.
  */
-- (nullable instancetype)initWithClientType:(NSString *)clientType
-                                    version:(NSString *)version
-                       requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
-    NS_DESIGNATED_INITIALIZER;
+- (nullable instancetype)initWithRequestConfiguration:
+    (FIRAuthRequestConfiguration *)requestConfiguration NS_DESIGNATED_INITIALIZER;
 
 @end
 
