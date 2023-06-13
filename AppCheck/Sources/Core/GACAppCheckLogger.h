@@ -18,21 +18,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeUnknown;
-
-// GACAppCheck.m
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeProviderIsMissing;
-
-// GACAppCheckAPIService.m
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeUnexpectedHTTPCode;
-
-// GACAppCheckDebugProvider.m
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageDebugProviderFailedExchange;
-
-// GACAppAttestProvider.m
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeAppAttestNotSupported;
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeAttestationRejected;
-
 #define GAC_LOGGING_FUNCTION(level) \
   void GACLog##level(NSString *messageCode, NSString *format, ...);
 
