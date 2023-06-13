@@ -187,11 +187,17 @@ class UserTests: RPCBaseTests {
           requiringSecureCoding: false
         )
 
+        var encodedClasses = [User.self, NSDictionary.self, NSURL.self, SecureTokenService.self,
+                              UserInfoImpl.self, NSDate.self,
+                              UserMetadata.self, NSString.self,
+                              NSArray.self]
+        #if os(iOS)
+          encodedClasses.append(MultiFactor.self)
+          encodedClasses.append(PhoneMultiFactorInfo.self)
+        #endif
+
         let unarchivedUser = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
-          ofClasses: [User.self, NSDictionary.self, NSURL.self, SecureTokenService.self,
-                      UserInfoImpl.self, NSDate.self,
-                      UserMetadata.self, NSString.self, MultiFactor.self, NSArray.self,
-                      PhoneMultiFactorInfo.self], from: data
+          ofClasses: encodedClasses, from: data
         )
           as? User)
 

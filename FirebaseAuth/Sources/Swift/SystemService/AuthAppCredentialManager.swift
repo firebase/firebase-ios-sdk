@@ -87,7 +87,6 @@
     // MARK: Internal methods
 
     private func saveData() {
-      let archiveData = NSMutableData()
       let archiver = NSKeyedArchiver(requiringSecureCoding: true)
       archiver.encode(credential, forKey: kFullCredentialKey)
       archiver.encode(pendingReceipts, forKey: kPendingReceiptsKey)
