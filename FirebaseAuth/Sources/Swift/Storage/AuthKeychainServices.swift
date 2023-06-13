@@ -24,6 +24,7 @@ private let kAccountPrefix = "firebase_auth_1_"
 /** @class FIRAuthKeychain
     @brief The utility class to manipulate data in iOS Keychain.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthKeychainServices: NSObject, AuthStorage {
   /** @var _service
       @brief The name of the keychain service.
@@ -188,11 +189,7 @@ final class AuthKeychainServices: NSObject, AuthStorage {
       kSecAttrAccount as String: kAccountPrefix + key,
       kSecAttrService as String: service,
     ]
-
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
-      query[kSecUseDataProtectionKeychain as String] = true
-    }
-
+    query[kSecUseDataProtectionKeychain as String] = true
     return query
   }
 

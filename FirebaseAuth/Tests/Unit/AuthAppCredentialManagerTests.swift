@@ -18,6 +18,7 @@
 
   @testable import FirebaseAuth
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAppCredentialManagerTests: XCTestCase {
     let kReceipt = "FAKE_RECEIPT"
     let kVerificationTimeout = 1.0
@@ -183,7 +184,6 @@
       XCTAssertNil(manager2.credential)
 
       // Finish verification.
-      // XCTAssertTrue(manager.canFinishVerification(withReceipt: kReceipt, secret: kSecret))
       XCTAssertTrue(manager2.canFinishVerification(withReceipt: kReceipt, secret: kSecret))
       XCTAssertEqual(manager2.credential?.receipt, kReceipt)
       XCTAssertEqual(manager2.credential?.secret, kSecret)

@@ -20,6 +20,7 @@ import FirebaseAuthInterop
 
 import FirebaseCore
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthTests: RPCBaseTests {
   static let kAccessToken = "TEST_ACCESS_TOKEN"
   static let kNewAccessToken = "NEW_ACCESS_TOKEN"

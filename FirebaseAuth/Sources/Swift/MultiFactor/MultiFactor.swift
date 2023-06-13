@@ -21,6 +21,7 @@ import Foundation
        user.
        This class is available on iOS only.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactor) public class MultiFactor: NSObject, NSSecureCoding {
     @objc public var enrolledFactors: [MultiFactorInfo]?
 

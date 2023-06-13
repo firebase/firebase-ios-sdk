@@ -21,6 +21,7 @@ import XCTest
     @brief An implementation of @c AuthBackendRPCIssuer which is used to test backend request,
         response, and glue logic.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   /** @property requestURL
       @brief The URL which was requested.

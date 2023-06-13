@@ -21,6 +21,7 @@ private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
  */
 private let kTenantIDKey = "tenantId"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStartMFAEnrollmentRequest) public class StartMFAEnrollmentRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   private(set) var idToken: String?
