@@ -17,6 +17,7 @@ import XCTest
 
 @testable import FirebaseAuth
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthAppCredentialTests: XCTestCase {
   private let kReceipt = "RECEIPT"
   private let kSecret = "SECRET"
@@ -39,8 +40,10 @@ class AuthAppCredentialTests: XCTestCase {
       withRootObject: credential,
       requiringSecureCoding: true
     )
-    let otherCredential = NSKeyedUnarchiver.unarchiveObject(with: data) as? AuthAppCredential
-    XCTAssertEqual(otherCredential?.receipt, kReceipt)
-    XCTAssertEqual(otherCredential?.secret, kSecret)
+    let otherCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+      ofClass: AuthAppCredential.self, from: data
+    ))
+    XCTAssertEqual(otherCredential.receipt, kReceipt)
+    XCTAssertEqual(otherCredential.secret, kSecret)
   }
 }

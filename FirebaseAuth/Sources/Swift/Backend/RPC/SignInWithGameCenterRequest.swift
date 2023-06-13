@@ -19,6 +19,7 @@ private let kSignInWithGameCenterEndPoint = "signInWithGameCenter"
 /** @class FIRSignInWithGameCenterRequest
     @brief The request to sign in with Game Center account
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSignInWithGameCenterRequest)
 public class SignInWithGameCenterRequest: IdentityToolkitRequest,
   AuthRPCRequest {

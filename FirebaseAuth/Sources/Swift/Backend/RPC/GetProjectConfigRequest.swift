@@ -19,6 +19,7 @@ import Foundation
  */
 private let kGetProjectConfigEndPoint = "getProjectConfig"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGetProjectConfigRequest) public class GetProjectConfigRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   /** @var response

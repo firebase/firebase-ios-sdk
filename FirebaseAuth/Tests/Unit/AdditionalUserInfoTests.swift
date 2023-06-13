@@ -17,6 +17,7 @@ import XCTest
 
 @testable import FirebaseAuth
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AdditionalUserInfoTests: XCTestCase {
   let kFakeProfile = ["email": "user@mail.com", "given_name": "User", "family_name": "Doe"]
   let kUserName = "User Doe"
@@ -66,8 +67,9 @@ class AdditionalUserInfoTests: XCTestCase {
       withRootObject: userInfo,
       requiringSecureCoding: true
     )
-    let unarchivedUserInfo = try XCTUnwrap(NSKeyedUnarchiver.unarchiveObject(with: data)
-      as? AdditionalUserInfo)
+    let unarchivedUserInfo = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+      ofClass: AdditionalUserInfo.self, from: data
+    ))
     XCTAssertEqual(unarchivedUserInfo.providerID, kProviderID)
     XCTAssertEqual(unarchivedUserInfo.profile as? [String: String], kFakeProfile)
     XCTAssertEqual(unarchivedUserInfo.username, kUserName)

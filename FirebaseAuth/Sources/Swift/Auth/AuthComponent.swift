@@ -17,10 +17,12 @@ import FirebaseAppCheckInterop
 import FirebaseCore
 import FirebaseCoreExtension
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthProvider) public protocol AuthProvider {
   @objc func auth() -> Auth
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthComponent) class AuthComponent: NSObject, Library, AuthProvider {
   // MARK: - Private Variables
 

@@ -20,6 +20,7 @@ import Foundation
        second factor.
        This class is available on iOS only.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorResolver)
   public class MultiFactorResolver: NSObject {
     /**

@@ -18,6 +18,7 @@ import XCTest
 @testable import FirebaseAuth
 import FirebaseCore
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class UserTests: RPCBaseTests {
   static let kFakeAPIKey = "FAKE_API_KEY"
   let kFacebookAccessToken = "FACEBOOK_ACCESS_TOKEN"
@@ -181,17 +182,24 @@ class UserTests: RPCBaseTests {
         // Test NSSecureCoding
         XCTAssertTrue(User.supportsSecureCoding)
 
-        let data = NSMutableData()
-        let archiver = NSKeyedArchiver(forWritingWith: data)
-        archiver.encode(user, forKey: kUserArchiverKey)
-        archiver.finishEncoding()
+        let data = try NSKeyedArchiver.archivedData(
+          withRootObject: user,
+          requiringSecureCoding: false
+        )
 
-        let unarchiver = try NSKeyedUnarchiver(forReadingFrom: data as Data)
-        // TODO: The unarchive will fail without this, because of FIRUser not being in the allowed classes.
-        // Meanwhile the unarchive in FIRAuth.m getUser method.
-        unarchiver.requiresSecureCoding = false
-        let unarchivedUser = try XCTUnwrap(unarchiver
-          .decodeObject(forKey: kUserArchiverKey) as? User)
+        var encodedClasses = [User.self, NSDictionary.self, NSURL.self, SecureTokenService.self,
+                              UserInfoImpl.self, NSDate.self,
+                              UserMetadata.self, NSString.self,
+                              NSArray.self]
+        #if os(iOS)
+          encodedClasses.append(MultiFactor.self)
+          encodedClasses.append(PhoneMultiFactorInfo.self)
+        #endif
+
+        let unarchivedUser = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+          ofClasses: encodedClasses, from: data
+        )
+          as? User)
 
         // Verify NSSecureCoding for FIRUser
         XCTAssertEqual(unarchivedUser.providerID, user.providerID)

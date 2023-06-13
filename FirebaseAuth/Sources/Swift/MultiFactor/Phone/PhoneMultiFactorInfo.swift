@@ -41,6 +41,9 @@ import Foundation
 
     private let kPhoneNumberCodingKey = "phoneNumber"
 
+    private static var secureCodingWorkaround = true
+    override public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
+
     public required init?(coder: NSCoder) {
       guard let phoneNumber = coder.decodeObject(forKey: kPhoneNumberCodingKey) as? String else {
         return nil

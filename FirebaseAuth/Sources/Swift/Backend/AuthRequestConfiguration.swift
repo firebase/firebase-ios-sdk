@@ -22,6 +22,7 @@ import FirebaseAppCheckInterop
 /** @class FIRAuthRequestConfiguration
    @brief Defines configurations to be added to a request to Firebase Auth's backend.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthRequestConfiguration) public class AuthRequestConfiguration: NSObject {
   /** @property APIKey
    @brief The Firebase Auth API key used in the request.

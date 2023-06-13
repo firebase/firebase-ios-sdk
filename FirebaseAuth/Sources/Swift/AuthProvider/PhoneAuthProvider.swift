@@ -19,6 +19,7 @@ import FirebaseCore
  @brief A concrete implementation of `AuthProvider` for phone auth providers.
      This class is available on iOS only.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthProvider) open class PhoneAuthProvider: NSObject {
   @objc public static let id = "phone"
   #if os(iOS)

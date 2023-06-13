@@ -14,6 +14,9 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+extension User: NSSecureCoding {}
+
 /** @class User
     @brief Represents a user. Firebase Auth does not attempt to validate users
         when loading them from the keychain. Invalidated users (such as those
@@ -22,7 +25,8 @@ import Foundation
         ID token is automatically refreshed.
     @remarks This class is thread-safe.
  */
-@objc(FIRUser) public class User: NSObject, UserInfo, NSSecureCoding {
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@objc(FIRUser) public class User: NSObject, UserInfo {
   /** @property anonymous
       @brief Indicates the user represents an anonymous user.
    */
@@ -1274,6 +1278,7 @@ import Foundation
   }
 
   // TODO: internal Swift
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc public class func retrieveUser(withAuth auth: Auth,
                                        accessToken: String?,
                                        accessTokenExpirationDate: Date?,

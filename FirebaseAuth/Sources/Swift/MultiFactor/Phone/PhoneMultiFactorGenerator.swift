@@ -22,6 +22,7 @@ import Foundation
        the assertion.
        This class is available on iOS only.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRPhoneMultiFactorGenerator)
   public class PhoneMultiFactorGenerator: NSObject {
     /** @fn assertionWithCredential:
