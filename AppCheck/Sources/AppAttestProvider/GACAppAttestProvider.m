@@ -39,6 +39,7 @@
 #import "AppCheck/Sources/AppAttestProvider/Errors/GACAppAttestRejectionError.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckHTTPError.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
