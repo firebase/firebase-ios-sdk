@@ -75,20 +75,6 @@ Pod::Spec.new do |s|
     unit_tests.requires_app_host = true
   end
 
-  s.test_spec 'integration' do |integration_tests|
-    integration_tests.platforms = {
-      :ios => ios_deployment_target,
-      :osx => osx_deployment_target,
-      :tvos => tvos_deployment_target
-    }
-    integration_tests.source_files = [
-      base_dir + 'Tests/Integration/**/*.[mh]',
-      base_dir + 'Tests/Integration/**/*.[mh]',
-    ]
-    integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
-    integration_tests.requires_app_host = true
-  end
-
   s.test_spec 'swift-unit' do |swift_unit_tests|
     swift_unit_tests.platforms = {
       :ios => ios_deployment_target,
