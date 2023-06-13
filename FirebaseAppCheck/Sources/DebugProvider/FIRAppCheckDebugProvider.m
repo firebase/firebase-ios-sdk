@@ -86,7 +86,7 @@ NS_ASSUME_NONNULL_BEGIN
   [self.debugProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
                                                NSError *_Nullable error) {
     if (error) {
-      FIRAppCheckDebugLog(kFIRLoggerAppCheckMessageDebugProviderFailedExchange,
+      FIRAppCheckDebugLog(kGACLoggerAppCheckMessageDebugProviderFailedExchange,
                           @"Failed to exchange debug token to app check token: %@", error);
       handler(nil, error);
       return;

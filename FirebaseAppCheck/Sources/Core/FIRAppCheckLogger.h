@@ -20,27 +20,17 @@
 
 extern FIRLoggerService kFIRLoggerAppCheck;
 
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeUnknown;
-
 // FIRAppCheck.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderFactoryIsMissing;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeProviderIsMissing;
 
-// FIRAppCheckAPIService.m
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeUnexpectedHTTPCode;
-
 // FIRAppCheckDebugProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderIncompleteFIROptions;
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDebugProviderFailedExchange;
 
 // FIRAppCheckDebugProviderFactory.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
 
 // FIRDeviceCheckProvider.m
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions;
-
-// FIRAppAttestProvider.m
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeAppAttestNotSupported;
-FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeAttestationRejected;
 
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
