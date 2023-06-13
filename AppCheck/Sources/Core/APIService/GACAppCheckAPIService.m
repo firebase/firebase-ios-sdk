@@ -24,6 +24,7 @@
 #import "AppCheck/Sources/Core/APIService/GACAppCheckToken+APIResponse.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
