@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 /** @property providerID
     @brief The provider that issued the token to revoke.
  */
-@property(nonatomic, copy, nullable) NSString *providerID;
+@property(nonatomic, copy) NSString *providerID;
 
 /** @property tokenType
     @brief The type of the token to revoke.
@@ -34,12 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
 /** @property token
     @brief The token to be revoked.
  */
-@property(nonatomic, copy, nullable) NSString *token;
+@property(nonatomic, copy) NSString *token;
 
 /** @property idToken
     @brief The ID Token associated with this credential.
  */
-@property(nonatomic, copy, nullable) NSString *idToken;
+@property(nonatomic, copy) NSString *idToken;
 
 /** @fn initWithEndpoint:requestConfiguration:
     @brief Please use initWithToken:requestConfiguration: instead.

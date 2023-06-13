@@ -22,9 +22,6 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macos-12
-    env:
-      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
-      POD_LIB_LINT_ONLY: 1
     strategy:
       matrix:
         target: [ios, tvos, macos, watchos]
@@ -45,8 +42,6 @@ jobs:
 
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
-      POD_LIB_LINT_ONLY: 1
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v3
@@ -98,9 +93,6 @@ jobs:
   catalyst:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    env:
-      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
-      POD_LIB_LINT_ONLY: 1
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v3

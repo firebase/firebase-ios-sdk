@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import "FIRAggregateField.h"
 #import "FIRQuery.h"
 
 #include <memory>
@@ -43,6 +44,29 @@ NS_ASSUME_NONNULL_BEGIN
 - (const core::Query &)query;
 
 - (const api::Query &)apiQuery;
+
+@end
+
+// TODO(sum/avg) move the contents of this FuturePublicApi category to
+// ../Public/FirebaseFirestore/FIRAggregateQuerySnapshot.h
+@interface FIRQuery (FuturePublicApi)
+
+/**
+ * Creates and returns a new `AggregateQuery` that aggregates the documents in the result set
+ * of this query, without actually downloading the documents.
+ *
+ * Using an `AggregateQuery` to perform aggregations is efficient because only the final aggregation
+ * values, not the documents' data, is downloaded. The query can even aggregate the documents if the
+ * result set would be prohibitively large to download entirely (e.g. thousands of documents).
+ *
+ * @param aggregations Specifies the aggregation operations to perform on the result set of this
+ * query.
+ *
+ * @return An `AggregateQuery` encapsulating this `Query` and `AggregateField`s, which can be used
+ * to query the server for the aggregation results.
+ */
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations
+    NS_SWIFT_NAME(aggregate(_:));
 
 @end
 

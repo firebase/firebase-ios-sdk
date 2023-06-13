@@ -15,6 +15,8 @@
  */
 
 #import "FIRAggregateQuery.h"
+
+#import "FIRAggregateField.h"
 #import "FIRQuery.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -22,7 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAggregateQuery (/* init */)
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithQuery:(FIRQuery *)query NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithQueryAndAggregations:(FIRQuery *)query
+                                aggregations:(NSArray<FIRAggregateField *> *)aggregations
+    NS_DESIGNATED_INITIALIZER;
 
 @end
 

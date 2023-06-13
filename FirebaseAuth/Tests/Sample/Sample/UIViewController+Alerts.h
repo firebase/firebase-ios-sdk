@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void (^AlertPromptCompletionBlock)(BOOL userPressedOK, NSString *_Nullable userInput);
 
 /*! @category UIViewController(Alerts)
-    @brief Wrapper for @c UIAlertController and @c UIAlertView for backwards compatability with
+    @brief Wrapper for @c UIAlertController and @c UIAlertView for backwards compatibility with
         iOS 6+.
  */
 @interface UIViewController (Alerts)

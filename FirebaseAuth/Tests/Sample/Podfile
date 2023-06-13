@@ -20,8 +20,6 @@ target 'AuthSample' do
 
   target 'Auth_ApiTests' do
     inherit! :search_paths
-    # `HeartbeatLoggingTestUtils` is unpublished.
-    pod 'HeartbeatLoggingTestUtils', :path => '../../../'
   end
 
   target 'SwiftApiTests' do

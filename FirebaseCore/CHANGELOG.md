@@ -1,3 +1,6 @@
+# Firebase 10.11.0
+- [changed] Improved error reporting for misnamed configuration plist files (#11317).
+
 # Firebase 10.10.0
 - [changed] Firebase now requires at least Xcode 14.1.
 

@@ -63,6 +63,34 @@ NS_SWIFT_NAME(Firestore)
 + (instancetype)firestoreForApp:(FIRApp *)app NS_SWIFT_NAME(firestore(app:));
 
 /**
+ * This method is in preview. API signature and functionality are subject to change.
+ *
+ * Creates, caches, and returns named `Firestore` object for the specified `FirebaseApp`. Each
+ * subsequent invocation returns the same `Firestore` object.
+ *
+ * @param app The `FirebaseApp` instance to use for authentication and as a source of the Google
+ * Cloud Project ID for your Firestore Database. If you want the default instance, you should
+ * explicitly set it to `FirebaseApp.app()`.
+ * @param database The database name.
+ *
+ * @return The named `Firestore` instance.
+ */
++ (instancetype)firestoreForApp:(FIRApp *)app
+                       database:(NSString *)database NS_SWIFT_NAME(firestore(app:database:));
+
+/**
+ * This method is in preview. API signature and functionality are subject to change.
+ *
+ * Creates, caches, and returns named `Firestore` object for the default _app_. Each subsequent
+ * invocation returns the same `Firestore` object.
+ *
+ * @param database The database name.
+ *
+ * @return The named `Firestore` instance.
+ */
++ (instancetype)firestoreForDatabase:(NSString *)database NS_SWIFT_NAME(firestore(database:));
+
+/**
  * Custom settings used to configure this `Firestore` object.
  */
 @property(nonatomic, copy) FIRFirestoreSettings *settings;

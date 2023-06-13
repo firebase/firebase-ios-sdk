@@ -48,7 +48,7 @@ typedef NS_OPTIONS(NSUInteger, FIRMessagingInvalidTokenReason) {
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- *  Designated intializer.
+ *  Designated initializer.
  *
  *  @param heartbeatLogger The heartbeat logger that is injected into token operations.
  */

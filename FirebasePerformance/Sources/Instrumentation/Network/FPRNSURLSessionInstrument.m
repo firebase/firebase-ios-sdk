@@ -51,7 +51,7 @@
 @end
 
 /** Returns the dispatch queue for all instrumentation to occur on. */
-static dispatch_queue_t GetInstrumentationQueue() {
+static dispatch_queue_t GetInstrumentationQueue(void) {
   static dispatch_queue_t queue = nil;
   static dispatch_once_t token = 0;
   dispatch_once(&token, ^{

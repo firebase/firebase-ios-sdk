@@ -1,3 +1,6 @@
+# 10.12.0
+- [changed] Removing fiam scoped tokens set by old FIAM SDK(s) from keychain if exisits (b/284207019).
+
 # 10.6.0
 - [fixed] Configure flow validates existence of an APNS token before fetching an FCM token (#10742). This also addresses the scenario 1 mentioned in the comment - https://github.com/firebase/firebase-ios-sdk/issues/10679#issuecomment-1402776795
 

@@ -42,6 +42,10 @@ namespace local {
 class LocalStore;
 }  // namespace local
 
+namespace model {
+class AggregateField;
+}  // namespace model
+
 namespace remote {
 
 class ConnectivityMonitor;
@@ -195,8 +199,9 @@ class RemoteStore : public TargetMetadataProvider,
       model::TargetId target_id) const override;
   const model::DatabaseId& GetDatabaseId() const override;
 
-  void RunCountQuery(const core::Query& query,
-                     api::CountQueryCallback&& result_callback);
+  void RunAggregateQuery(const core::Query& query,
+                         const std::vector<model::AggregateField>& aggregates,
+                         api::AggregateQueryCallback&& result_callback);
 
   void OnWatchStreamOpen() override;
   void OnWatchStreamChange(
