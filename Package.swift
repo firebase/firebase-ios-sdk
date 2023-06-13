@@ -1285,9 +1285,6 @@ let package = Package(
         // are not supported (as of Xcode 14.3).
         "Unit/Swift",
       ],
-      resources: [
-        .process("Fixture"),
-      ],
       cSettings: [
         .headerSearchPath("../.."),
       ]
@@ -1338,7 +1335,6 @@ let package = Package(
       dependencies: [
         "AppCheck",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "AppCheck/Tests",
