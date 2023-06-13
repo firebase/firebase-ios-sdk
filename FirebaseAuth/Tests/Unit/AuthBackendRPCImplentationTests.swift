@@ -23,6 +23,7 @@ import HeartbeatLoggingTestUtils
 private let kFakeAPIKey = "kTestAPIKey"
 private let kFakeAppID = "kTestFirebaseAppID"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthBackendRPCImplementationTests: RPCBaseTests {
   let kFakeErrorDomain = "fakeDomain"
   let kFakeErrorCode = -1

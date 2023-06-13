@@ -22,6 +22,7 @@ import FirebaseCoreInternal
   import GTMSessionFetcherCore
 #endif
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public protocol AuthBackendRPCIssuer: NSObjectProtocol {
   /** @fn
       @brief Asynchronously sends a POST request.
@@ -38,6 +39,7 @@ public protocol AuthBackendRPCIssuer: NSObjectProtocol {
                       completionHandler: @escaping ((Data?, Error?) -> Void))
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
   let fetcherService: GTMSessionFetcherService
 
@@ -70,6 +72,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthBackend2) public class AuthBackend: NSObject {
   static func authUserAgent() -> String {
     return "FirebaseAuth.iOS/\(FirebaseVersion()) \(GTMFetcherStandardUserAgentString(nil))"
@@ -155,6 +158,7 @@ public class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer 
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendImplementation {
   func post(withRequest request: AuthRPCRequest,
             callback: @escaping ((AuthRPCResponse?, Error?) -> Void))
@@ -163,6 +167,7 @@ protocol AuthBackendImplementation {
             callback: @escaping ((Error?) -> Void))
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation {
   var rpcIssuer: AuthBackendRPCIssuer
   override init() {

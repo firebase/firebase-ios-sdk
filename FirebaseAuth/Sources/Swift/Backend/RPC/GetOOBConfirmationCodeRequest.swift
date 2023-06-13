@@ -134,6 +134,7 @@ private let kVerifyBeforeUpdateEmailRequestTypeValue = "VERIFY_AND_CHANGE_EMAIL"
  */
 private let kTenantIDKey = "tenantId"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGetOOBConfirmationCodeRequest)
 public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest,
   AuthRPCRequest {

@@ -59,9 +59,8 @@ import Foundation
 
     // MARK: - NSSecureCoding
 
-    public static var supportsSecureCoding: Bool {
-      true
-    }
+    private static var secureCodingWorkaround = true
+    public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
 
     public required init?(coder: NSCoder) {
       guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String,
@@ -76,7 +75,7 @@ import Foundation
         forKey: kDisplayNameCodingKey
       ) as? String
       enrollmentDate = coder.decodeObject(
-        of: [NSString.self],
+        of: [NSDate.self],
         forKey: kEnrollmentDateCodingKey
       ) as? Date
     }

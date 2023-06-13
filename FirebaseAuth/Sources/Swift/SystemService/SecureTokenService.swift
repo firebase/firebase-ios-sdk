@@ -29,6 +29,7 @@ private let kFiveMinutes = 5 * 60.0
 /** @class FIRAuthAppCredential
     @brief A class represents a credential that proves the identity of the app.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSecureTokenService) public class SecureTokenService: NSObject, NSSecureCoding {
   /** @property requestConfiguration
       @brief The configuration for making requests to server.

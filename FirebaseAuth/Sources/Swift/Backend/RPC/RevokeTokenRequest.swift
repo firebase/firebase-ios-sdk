@@ -43,6 +43,7 @@ private let kIDTokenKey = "idToken"
     @brief Represents the parameters for the verifyPassword endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRRevokeTokenRequest) public class RevokeTokenRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   /** @property providerID

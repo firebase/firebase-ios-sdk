@@ -21,6 +21,7 @@
   @testable import FirebaseAuth
   import SafariServices
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class PhoneAuthProviderTests: RPCBaseTests {
     static let kFakeAuthorizedDomain = "test.firebaseapp.com"
     static let kFakeAPIKey = "asdfghjkl"

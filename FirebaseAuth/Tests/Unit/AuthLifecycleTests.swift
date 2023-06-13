@@ -18,6 +18,7 @@ import XCTest
 @testable import FirebaseAuth
 import FirebaseCore
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthLifecycleTests: XCTestCase {
   private let kFakeAPIKey = "FAKE_API_KEY"
   private let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",

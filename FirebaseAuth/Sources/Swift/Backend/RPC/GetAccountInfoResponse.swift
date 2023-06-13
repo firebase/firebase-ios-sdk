@@ -184,6 +184,7 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
     @brief Represents the response from the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGetAccountInfoResponse) public class GetAccountInfoResponse: NSObject, AuthRPCResponse {
   /** @property providerUserInfo
    @brief The requested users' profiles.

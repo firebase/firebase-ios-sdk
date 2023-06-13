@@ -44,6 +44,7 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSignUpNewUserRequest) public class SignUpNewUserRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   /** @property email

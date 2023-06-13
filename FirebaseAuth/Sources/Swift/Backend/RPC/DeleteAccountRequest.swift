@@ -30,6 +30,7 @@ private let kIDTokenKey = "idToken"
  */
 private let kLocalIDKey = "localId"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRDeleteAccountRequest) public class DeleteAccountRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   /** @var _accessToken

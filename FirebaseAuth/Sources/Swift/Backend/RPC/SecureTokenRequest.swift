@@ -78,6 +78,7 @@ private var gAPIHost = "securetoken.googleapis.com"
 /** @class FIRSecureTokenRequest
     @brief Represents the parameters for the token endpoint.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSecureTokenRequest) public class SecureTokenRequest: NSObject, AuthRPCRequest {
   /** @property grantType
       @brief The type of grant requested.

@@ -21,6 +21,7 @@ private let kStartMFASignInEndPoint = "accounts/mfaSignIn:start"
  */
 private let kTenantIDKey = "tenantId"
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRStartMFASignInRequest) public class StartMFASignInRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   var MFAPendingCredential: String?

@@ -20,6 +20,7 @@ import XCTest
 /** @class FIRGitHubAuthProviderTests
     @brief Tests for @c FIRGitHubAuthProvider
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GitHubAuthProviderTests: XCTestCase {
   /** @fn testCredentialWithToken
       @brief Tests the @c credentialWithToken method to make sure the credential it produces populates

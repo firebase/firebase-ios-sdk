@@ -121,6 +121,7 @@ private let kLastNameKey = "lastName"
     @brief Represents the parameters for the verifyAssertion endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRVerifyAssertionRequest) public class VerifyAssertionRequest: IdentityToolkitRequest,
   AuthRPCRequest {
   /** @property requestURI
@@ -247,7 +248,9 @@ private let kLastNameKey = "lastName"
       }
       let userDict = [kNameKey: nameDict]
       do {
-        let userJson = try JSONEncoder().encode(userDict)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        let userJson = try encoder.encode(userDict)
         let jsonString = String(data: userJson, encoding: .utf8)
         queryItems.append(URLQueryItem(name: kUserKey, value: jsonString))
       } catch {

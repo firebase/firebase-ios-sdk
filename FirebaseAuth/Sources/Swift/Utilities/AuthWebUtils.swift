@@ -21,6 +21,7 @@ import Foundation
  */
 typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthWebUtils) public class AuthWebUtils: NSObject {
   static func randomString(withLength length: Int) -> String {
     var randomString = ""

@@ -35,6 +35,7 @@
   /** @class AuthAPNSToken
       @brief A data structure for an APNs token.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRAuthAPNSTokenManager) public class AuthAPNSTokenManager: NSObject {
     /** @property timeout
         @brief The timeout for registering for remote notification.

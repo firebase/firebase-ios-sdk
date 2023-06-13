@@ -31,6 +31,7 @@ private let kIdentityPlatformStagingAPIHost =
 /** @class FIRIdentityToolkitRequest
  @brief Represents a request to an identity toolkit endpoint.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRIdentityToolkitRequest) open class IdentityToolkitRequest: NSObject {
   /** @property endpoint
    @brief Gets the RPC's endpoint.

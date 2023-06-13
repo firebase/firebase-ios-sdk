@@ -19,6 +19,7 @@ import Foundation
     @remarks Properties are marked as being part of a profile update when they are set. Setting a
         property value to nil is not the same as leaving the property unassigned.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserProfileChangeRequest) public class UserProfileChangeRequest: NSObject {
   /** @property displayName
    @brief The name of the user.

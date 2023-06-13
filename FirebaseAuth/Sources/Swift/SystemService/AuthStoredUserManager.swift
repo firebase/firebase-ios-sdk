@@ -18,6 +18,7 @@ import Foundation
 // This is added since a throwing function returning Optional values in Swift cannot be
 // exposed to Objective-C due to convention and meaning of nil values in Objective-C.
 // This wrapper allows us to always return a value, thus allowing us to expose Objective-C api.
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserWrapper) public class UserWrapper: NSObject {
   @objc public let user: User?
   @objc public init(user: User?) {
@@ -25,6 +26,7 @@ import Foundation
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthStoredUserManager) public class AuthStoredUserManager: NSObject {
   /// Key of user access group stored in user defaults. Used for retrieve the
   /// user access group at launch.
@@ -183,10 +185,7 @@ import Foundation
       kSecAttrService as String: projectIdentifier,
       kSecAttrAccount as String: Self.sharedKeychainAccountValue,
     ]
-
-    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 6.0, *) {
-      query[kSecUseDataProtectionKeychain as String] = true
-    }
+    query[kSecUseDataProtectionKeychain as String] = true
 
     return query
   }

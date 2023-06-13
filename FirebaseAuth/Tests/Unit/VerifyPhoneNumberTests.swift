@@ -18,6 +18,7 @@ import XCTest
 @testable import FirebaseAuth
 
 #if os(iOS)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class VerifyPhoneNumberTests: RPCBaseTests {
     private let kVerificationCode = "12345678"
     private let kVerificationID = "55432"

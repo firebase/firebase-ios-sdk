@@ -18,6 +18,7 @@ import Foundation
     @brief Implementation of FIRAuthCredential for Phone Auth credentials.
         This class is available on iOS only.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthCredential) public class PhoneAuthCredential: AuthCredential, NSSecureCoding {
   // TODO: delete objc's and public's below
   @objc public let temporaryProof: String?

@@ -17,6 +17,7 @@ import Foundation
 /**
  @brief Utility class for constructing Twitter Sign In credentials.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRTwitterAuthProvider) open class TwitterAuthProvider: NSObject {
   @objc public static let id = "twitter.com"
 
@@ -37,8 +38,9 @@ import Foundation
   }
 }
 
-@objc(FIRTwitterAuthCredential) private class TwitterAuthCredential: AuthCredential,
-  NSSecureCoding {
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@objc(FIRTwitterAuthCredential)
+private class TwitterAuthCredential: AuthCredential, NSSecureCoding {
   private let token: String
   private let secret: String
 

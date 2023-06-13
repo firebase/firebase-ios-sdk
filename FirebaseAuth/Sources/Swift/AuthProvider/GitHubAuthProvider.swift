@@ -17,6 +17,7 @@ import Foundation
 /**
  @brief Utility class for constructing GitHub Sign In credentials.
  */
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGitHubAuthProvider) open class GitHubAuthProvider: NSObject {
   @objc public static let id = "github.com"
 
@@ -36,6 +37,7 @@ import Foundation
   }
 }
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGitHubAuthCredential) private class GitHubAuthCredential: AuthCredential, NSSecureCoding {
   private let token: String
 
