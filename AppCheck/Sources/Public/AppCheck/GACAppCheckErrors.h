@@ -37,3 +37,17 @@ typedef NS_ERROR_ENUM(GACAppCheckErrorDomain, GACAppCheckErrorCode){
     GACAppCheckErrorCodeUnsupported = 4
 
 } NS_SWIFT_NAME(InternalAppCheckErrorCode);
+
+#pragma mark - Error Message Codes
+
+FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeUnknown;
+
+// App Check
+FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeUnexpectedHTTPCode;
+
+// Debug Provider
+FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageDebugProviderFailedExchange;
+
+// App Attest Provider
+FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeAppAttestNotSupported;
+FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeAttestationRejected;
