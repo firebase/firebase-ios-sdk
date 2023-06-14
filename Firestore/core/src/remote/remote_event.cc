@@ -212,6 +212,19 @@ std::vector<TargetId> WatchChangeAggregator::GetTargetIds(
   return result;
 }
 
+namespace {
+
+TestingHooks::ExistenceFilterMismatchInfo
+create_existence_filter_mismatch_info_for_testing_hooks(
+    BloomFilterApplicationStatus status,
+    int local_cache_count,
+    const ExistenceFilterWatchChange& existence_filter) {
+  (void)status;
+  return {local_cache_count, existence_filter.filter().count()};
+}
+
+}  // namespace
+
 void WatchChangeAggregator::HandleExistenceFilter(
     const ExistenceFilterWatchChange& existence_filter) {
   TargetId target_id = existence_filter.target_id();
@@ -255,7 +268,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
         }
 
         TestingHooks::GetInstance().NotifyOnExistenceFilterMismatch(
-            {current_size, expected_count});
+            create_existence_filter_mismatch_info_for_testing_hooks(
+                status, current_size, existence_filter));
       }
     }
   }
