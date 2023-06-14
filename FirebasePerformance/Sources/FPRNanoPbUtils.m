@@ -139,17 +139,17 @@ static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkTy
       return cellularNetworkType.intValue;
     }
   } else {
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
     NSString *networkString = FPRNetworkInfo().currentRadioAccessTechnology;
-    
-    #pragma clang diagnostic pop
-    
+
+#pragma clang diagnostic pop
+
     NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
     return cellularNetworkType.intValue;
   }
-  
+
   return firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE;
 }
 #endif
