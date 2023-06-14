@@ -1,4 +1,8 @@
-// Copyright 2023 Google LLC
+//
+// FavouriteFruitsNoAnimationsView.swift
+// FirestoreSample
+//
+// Created by Peter Friese on 14.06.23.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,16 +45,14 @@ extension Fruit {
 }
 
 
-/// This view demostrates how to use the ``FirestoreQuery`` property wrapper,
-/// using the `animation` parameter to make sure list items are animated when
-/// being added or removed.
-struct FavouriteFruitsAnimationView: View {
+/// This view demonstrates how to use the `FirestoreQuery` property wrapper.
+/// It uses **no animations**, so adding and removing elements is a bit jarring.
+struct FavouriteFruitsNoAnimationsView: View {
   @FirestoreQuery(
     collectionPath: "fruits",
     predicates: [
       .where("isFavourite", isEqualTo: true),
-    ],
-    animation: .default
+    ]
   ) fileprivate var fruitResults: Result<[Fruit], Error>
 
   @State var showOnlyFavourites = true
@@ -122,9 +124,8 @@ struct FavouriteFruitsAnimationView: View {
   }
 }
 
-struct FavouriteFruitsAnimationView_Previews: PreviewProvider {
-  static var previews: some View {
-    FavouriteFruitsAnimationView()
-  }
+struct FavouriteFruitsNoAnimationsView_Previews: PreviewProvider {
+    static var previews: some View {
+        FavouriteFruitsNoAnimationsView()
+    }
 }
-

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import SwiftUI
+import FirebaseFirestore
 import FirebaseFirestoreSwift
 
 private struct Fruit: Codable, Identifiable, Equatable {
