@@ -39,8 +39,8 @@ using firebase::firestore::local::Persistence;
 @implementation FSTMemorySpecTests
 
 /** Overrides -[FSTSpecTests persistence] */
-- (std::unique_ptr<Persistence>)persistenceWithGCEnabled:(BOOL)GCEnabled {
-  if (GCEnabled) {
+- (std::unique_ptr<Persistence>)persistenceWithEagerGCForMemory:(BOOL)eagerGC {
+  if (eagerGC) {
     return MemoryPersistenceWithEagerGcForTesting();
   } else {
     return MemoryPersistenceWithLruGcForTesting();

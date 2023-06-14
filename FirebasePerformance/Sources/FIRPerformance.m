@@ -86,10 +86,7 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
 }
 
 - (void)setDataCollectionEnabled:(BOOL)dataCollectionEnabled {
-  BOOL performanceDataCollectionEnabled = self.dataCollectionEnabled;
-  if (performanceDataCollectionEnabled != dataCollectionEnabled) {
-    [[FPRConfigurations sharedInstance] setDataCollectionEnabled:dataCollectionEnabled];
-  }
+  [[FPRConfigurations sharedInstance] setDataCollectionEnabled:dataCollectionEnabled];
 }
 
 - (BOOL)isInstrumentationEnabled {

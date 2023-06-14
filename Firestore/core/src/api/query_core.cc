@@ -33,6 +33,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/operator.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -57,6 +58,8 @@ using core::IsDisjunctiveOperator;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
+using model::AggregateAlias;
+using model::AggregateField;
 using model::DocumentKey;
 using model::FieldPath;
 using model::GetTypeOrder;
@@ -77,30 +80,24 @@ namespace {
  * Given an operator, returns the set of operators that cannot be used with
  * it.
  *
- * Operators in a query must adhere to the following set of rules:
- * 1. Only one array operator is allowed.
- * 2. Only one disjunctive operator is allowed.
- * 3. NOT_EQUAL cannot be used with another NOT_EQUAL operator.
- * 4. NOT_IN cannot be used with array, disjunctive, or NOT_EQUAL operators.
+ * This is not a comprehensive check, and this function should be removed in the
+ * long term.
+ * Validations should occur in the Firestore backend.
  *
- * Array operators: ARRAY_CONTAINS, ARRAY_CONTAINS_ANY
- * Disjunctive operators: IN, ARRAY_CONTAINS_ANY, NOT_IN
+ * Operators in a query must adhere to the following set of rules:
+ * 1. Only one inequality per query.
+ * 2. NOT_IN cannot be used with array, disjunctive, or NOT_EQUAL operators.
  */
 static std::vector<Operator> ConflictingOps(Operator op) {
   switch (op) {
     case Operator::NotEqual:
       return {Operator::NotEqual, Operator::NotIn};
-    case Operator::ArrayContains:
-      return {Operator::ArrayContains, Operator::ArrayContainsAny,
-              Operator::NotIn};
-    case Operator::In:
-      return {Operator::ArrayContainsAny, Operator::In, Operator::NotIn};
     case Operator::ArrayContainsAny:
-      return {Operator::ArrayContains, Operator::ArrayContainsAny, Operator::In,
-              Operator::NotIn};
+    case Operator::In:
+      return {Operator::NotIn};
     case Operator::NotIn:
-      return {Operator::ArrayContains, Operator::ArrayContainsAny, Operator::In,
-              Operator::NotIn, Operator::NotEqual};
+      return {Operator::ArrayContainsAny, Operator::In, Operator::NotIn,
+              Operator::NotEqual};
     default:
       return {};
   }
@@ -413,12 +410,6 @@ void Query::ValidateDisjunctiveFilterElements(
         " filters.",
         Describe(op));
   }
-  if (value.array_value.values_count > 10) {
-    ThrowInvalidArgument(
-        "Invalid Query. '%s' filters support a maximum of 10"
-        " elements in the value array.",
-        Describe(op));
-  }
 }
 
 Message<google_firestore_v1_Value> Query::ParseExpectedReferenceValue(
@@ -485,8 +476,17 @@ std::string Query::Describe(Operator op) const {
   UNREACHABLE();
 }
 
+AggregateQuery Query::Aggregate(
+    std::vector<AggregateField>&& aggregations) const {
+  return AggregateQuery(*this, std::move(aggregations));
+}
+
+// TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+// to the new Aggregate API
 AggregateQuery Query::Count() const {
-  return AggregateQuery(*this);
+  return AggregateQuery(
+      *this, std::vector<AggregateField>{AggregateField(
+                 AggregateField::OpKind::Count, AggregateAlias("count"))});
 }
 
 }  // namespace api

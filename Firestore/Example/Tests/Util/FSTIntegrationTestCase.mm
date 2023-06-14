@@ -25,7 +25,9 @@
 #import <FirebaseFirestore/FIRQuerySnapshot.h>
 #import <FirebaseFirestore/FIRSnapshotMetadata.h>
 #import <FirebaseFirestore/FIRTransaction.h>
+#import <FirebaseFirestore/FIRWriteBatch.h>
 
+#include <exception>
 #include <memory>
 #include <string>
 #include <utility>
@@ -183,12 +185,34 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   if (defaultSettings) return;
 
   defaultSettings = [[FIRFirestoreSettings alloc] init];
-  defaultSettings.persistenceEnabled = YES;
 
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
   NSString *project = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
-  NSString *host = [[NSProcessInfo processInfo] environment][@"DATASTORE_HOST"];
+  NSString *targetBackend = [[NSProcessInfo processInfo] environment][@"TARGET_BACKEND"];
+  NSString *host;
+  if (targetBackend) {
+    if ([targetBackend isEqualToString:@"emulator"]) {
+      [self setUpEmulatorDefault];
+      return;
+    } else if ([targetBackend isEqualToString:@"qa"]) {
+      host = @"staging-firestore.sandbox.googleapis.com";
+    } else if ([targetBackend isEqualToString:@"nightly"]) {
+      host = @"test-firestore.sandbox.googleapis.com";
+    } else if ([targetBackend isEqualToString:@"prod"]) {
+      host = @"firestore.googleapis.com";
+    } else {
+      @throw [[NSException alloc]
+          initWithName:@"InvalidArgumentError"
+                reason:[NSString stringWithFormat:
+                                     @"Unexpected TARGET_BACKEND environment variable \"%@\"",
+                                     targetBackend]
+              userInfo:nil];
+    }
+  } else {
+    host = [[NSProcessInfo processInfo] environment][@"DATASTORE_HOST"];
+  }
+
   if (project && host) {
     defaultProjectId = project;
     defaultSettings.host = host;
@@ -211,6 +235,10 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   }
 
   // Otherwise fall back on assuming the emulator or localhost.
+  [self setUpEmulatorDefault];
+}
+
++ (void)setUpEmulatorDefault {
   defaultProjectId = @"test-db";
 
   defaultSettings.host = @"localhost:8080";
@@ -366,11 +394,48 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
 - (void)writeAllDocuments:(NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)documents
              toCollection:(FIRCollectionReference *)collection {
+  NSMutableArray<XCTestExpectation *> *commits = [[NSMutableArray alloc] init];
+  __block FIRWriteBatch *writeBatch = nil;
+  __block int writeBatchSize = 0;
+
   [documents enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary<NSString *, id> *value,
                                                  BOOL *) {
-    FIRDocumentReference *ref = [collection documentWithPath:key];
-    [self writeDocumentRef:ref data:value];
+    if (writeBatch == nil) {
+      writeBatch = [collection.firestore batch];
+    }
+
+    [writeBatch setData:value forDocument:[collection documentWithPath:key]];
+    writeBatchSize++;
+
+    // Write batches are capped at 500 writes. Use 400 just to be safe.
+    if (writeBatchSize == 400) {
+      XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
+      [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
+        [commitExpectation fulfill];
+        if (error != nil) {
+          XCTFail(@"WriteBatch commit failed: %@", error);
+        }
+      }];
+      [commits addObject:commitExpectation];
+      writeBatch = nil;
+      writeBatchSize = 0;
+    }
   }];
+
+  if (writeBatch != nil) {
+    XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
+    [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
+      [commitExpectation fulfill];
+      if (error != nil) {
+        XCTFail(@"WriteBatch commit failed: %@", error);
+      }
+    }];
+    [commits addObject:commitExpectation];
+  }
+
+  for (XCTestExpectation *commitExpectation in commits) {
+    [self awaitExpectation:commitExpectation];
+  }
 }
 
 - (void)readerAndWriterOnDocumentRef:(void (^)(FIRDocumentReference *readerRef,
@@ -561,6 +626,16 @@ extern "C" NSArray<NSArray<id> *> *FIRQuerySnapshotGetDocChangesData(FIRQuerySna
     [result addObject:docChangeData];
   }
   return result;
+}
+
+extern "C" NSArray<FIRDocumentReference *> *FIRDocumentReferenceArrayFromQuerySnapshot(
+    FIRQuerySnapshot *docs) {
+  NSMutableArray<FIRDocumentReference *> *documentReferenceAccumulator =
+      [[NSMutableArray alloc] init];
+  for (FIRDocumentSnapshot *documentSnapshot in docs.documents) {
+    [documentReferenceAccumulator addObject:documentSnapshot.reference];
+  }
+  return [documentReferenceAccumulator copy];
 }
 
 @end

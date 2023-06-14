@@ -18,12 +18,21 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFilter+Internal.h"
-#import "Firestore/Source/API/FIRQuery+Internal.h"
-
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+
+#include "Firestore/core/test/unit/testutil/testing_hooks_util.h"
+
+namespace {
+
+NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *> *remove) {
+  NSMutableSet<NSString *> *mutableSet = [NSMutableSet setWithSet:set];
+  [mutableSet minusSet:remove];
+  return [mutableSet.allObjects sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+}
+
+}  // namespace
 
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
@@ -884,16 +893,8 @@
   [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
                      matchesResult:@[ @"doc1", @"doc2", @"doc4", @"doc5" ]];
 
-  // with one inequality: a>2 || b==1.
-  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
-                                                                          isEqualTo:@1]
-  ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
-                     matchesResult:@[ @"doc5", @"doc2", @"doc3" ]];
-
   // (a==1 && b==0) || (a==3 && b==2)
-  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter andFilterWithFilters:@[
       [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b" isEqualTo:@0]
     ]],
@@ -901,20 +902,20 @@
       [FIRFilter filterWhereField:@"a" isEqualTo:@3], [FIRFilter filterWhereField:@"b" isEqualTo:@2]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
                      matchesResult:@[ @"doc1", @"doc3" ]];
 
   // a==1 && (b==0 || b==3).
-  FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
+  FIRFilter *filter3 = [FIRFilter andFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter orFilterWithFilters:@[
       [FIRFilter filterWhereField:@"b" isEqualTo:@0], [FIRFilter filterWhereField:@"b" isEqualTo:@3]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4]
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
                      matchesResult:@[ @"doc1", @"doc4" ]];
 
   // (a==2 || b==2) && (a==3 || b==3)
-  FIRFilter *filter5 = [FIRFilter andFilterWithFilters:@[
+  FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
     [FIRFilter orFilterWithFilters:@[
       [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@2]
     ]],
@@ -922,51 +923,74 @@
       [FIRFilter filterWhereField:@"a" isEqualTo:@3], [FIRFilter filterWhereField:@"b" isEqualTo:@3]
     ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter5] matchesResult:@[ @"doc3" ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4] matchesResult:@[ @"doc3" ]];
+
+  // Test with limits without orderBy (the __name__ ordering is the tie breaker).
+  FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter5] queryLimitedTo:1]
+                     matchesResult:@[ @"doc2" ]];
+}
+
+- (void)testOrQueriesWithCompositeIndexes {
+  // TODO(orquery): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because order-by-equality is not "
+            "supported yet.");
+
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @0},
+    @"doc2" : @{@"a" : @2, @"b" : @1},
+    @"doc3" : @{@"a" : @3, @"b" : @2},
+    @"doc4" : @{@"a" : @1, @"b" : @3},
+    @"doc5" : @{@"a" : @1, @"b" : @1}
+  }];
+
+  // with one inequality: a>2 || b==1.
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
+                                                                          isEqualTo:@1]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc5", @"doc2", @"doc3" ]];
 
   // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
-  FIRFilter *filter6 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
                                                                   isGreaterThan:@0]
   ]];
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter6] queryLimitedTo:2]
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter2] queryLimitedTo:2]
                      matchesResult:@[ @"doc1", @"doc2" ]];
 
   // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
   // Note: The public query API does not allow implicit ordering when limitToLast is used.
-  FIRFilter *filter7 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
                                                                   isGreaterThan:@0]
   ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter7] queryLimitedToLast:2]
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter3] queryLimitedToLast:2]
                                        queryOrderedByField:@"b"]
                      matchesResult:@[ @"doc3", @"doc4" ]];
 
   // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
-  FIRFilter *filter8 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter4 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
   ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter8] queryLimitedTo:1]
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter4] queryLimitedTo:1]
                                        queryOrderedByField:@"a"]
                      matchesResult:@[ @"doc5" ]];
 
   // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
-  FIRFilter *filter9 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
   ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter9] queryLimitedToLast:1]
+  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter5] queryLimitedToLast:1]
                                        queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc2" ]];
-
-  // Test with limits without orderBy (the __name__ ordering is the tie breaker).
-  FIRFilter *filter10 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter10] queryLimitedTo:1]
                      matchesResult:@[ @"doc2" ]];
 }
 
-- (void)testOrQueriesWithInAndNotIn {
+- (void)testOrQueriesWithIn {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
     @"doc2" : @{@"b" : @1},
@@ -977,19 +1001,35 @@
   }];
 
   // a==2 || b in [2,3]
-  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" in:@[ @2, @3 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter]
                      matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+}
+
+- (void)testOrQueriesWithNotIn {
+  // TODO(orquery): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because it results in a 'missing index' "
+            "error. The Firestore Emulator, however, does serve these queries");
+
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @0},
+    @"doc2" : @{@"b" : @1},
+    @"doc3" : @{@"a" : @3, @"b" : @2},
+    @"doc4" : @{@"a" : @1, @"b" : @3},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2}
+  }];
 
   // a==2 || b not-in [2,3]
   // Has implicit orderBy b.
-  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
+  FIRFilter *filter = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
                                                                           notIn:@[ @2, @3 ]]
   ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter]
                      matchesResult:@[ @"doc1", @"doc2" ]];
 }
 
@@ -1018,6 +1058,246 @@
   ]];
   [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
                      matchesResult:@[ @"doc1", @"doc4", @"doc6" ]];
+}
+
+- (void)testMultipleInOps {
+  // TODO(orquery): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because it's not yet supported.");
+
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @0},
+    @"doc2" : @{@"b" : @1},
+    @"doc3" : @{@"a" : @3, @"b" : @2},
+    @"doc4" : @{@"a" : @1, @"b" : @3},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2}
+  }];
+
+  // Two IN operations on different fields with disjunction.
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                               in:@[ @0, @2 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc1", @"doc3", @"doc6" ]];
+
+  // Two IN operations on the same field with disjunction.
+  // a IN [0,3] || a IN [0,2] should union them (similar to: a IN [0,2,3]).
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @0, @3 ]], [FIRFilter filterWhereField:@"a"
+                                                                               in:@[ @0, @2 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
+                     matchesResult:@[ @"doc3", @"doc6" ]];
+}
+
+- (void)testUsingInWithArrayContainsAny {
+  // TODO(orquery): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because it's not yet supported.");
+
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
+    @"doc2" : @{@"b" : @[ @1 ]},
+    @"doc3" : @{@"a" : @3, @"b" : @[ @2, @7 ], @"c" : @10},
+    @"doc4" : @{@"a" : @1, @"b" : @[ @3, @7 ]},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2, @"c" : @20}
+  }];
+
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                 arrayContainsAny:@[ @0, @7 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc1", @"doc3", @"doc4", @"doc6" ]];
+
+  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"c"
+                                                                          isEqualTo:@10]
+    ]],
+    [FIRFilter filterWhereField:@"b" arrayContainsAny:@[ @0, @7 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2]
+                     matchesResult:@[ @"doc1", @"doc3", @"doc4" ]];
+}
+
+- (void)testUseInWithArrayContains {
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
+    @"doc2" : @{@"b" : @[ @1 ]},
+    @"doc3" : @{@"a" : @3, @"b" : @[ @2, @7 ]},
+    @"doc4" : @{@"a" : @1, @"b" : @[ @3, @7 ]},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2}
+  }];
+
+  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                 arrayContainsAny:@[ @3 ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
+                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+
+  FIRFilter *filter2 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter filterWhereField:@"b"
+                                                                    arrayContains:@7]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter2] matchesResult:@[ @"doc3" ]];
+
+  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"b" arrayContains:@3], [FIRFilter filterWhereField:@"a"
+                                                                            isEqualTo:@1]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter3]
+                     matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
+
+  FIRFilter *filter4 = [FIRFilter andFilterWithFilters:@[
+    [FIRFilter filterWhereField:@"a" in:@[ @2, @3 ]], [FIRFilter orFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"b" arrayContains:@7], [FIRFilter filterWhereField:@"a"
+                                                                            isEqualTo:@1]
+    ]]
+  ]];
+  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter4] matchesResult:@[ @"doc3" ]];
+}
+
+- (void)testOrderByEquality {
+  // TODO(orquery): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because order-by-equality is not "
+            "supported yet.");
+
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
+    @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
+    @"doc2" : @{@"b" : @[ @1 ]},
+    @"doc3" : @{@"a" : @3, @"b" : @[ @2, @7 ], @"c" : @10},
+    @"doc4" : @{@"a" : @1, @"b" : @[ @3, @7 ]},
+    @"doc5" : @{@"a" : @1},
+    @"doc6" : @{@"a" : @2, @"c" : @20}
+  }];
+
+  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:[FIRFilter filterWhereField:@"a"
+                                                                                isEqualTo:@1]]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc1", @"doc4", @"doc5" ]];
+
+  [self checkOnlineAndOfflineQuery:[[collRef
+                                       queryWhereFilter:[FIRFilter filterWhereField:@"a"
+                                                                                 in:@[ @2, @3 ]]]
+                                       queryOrderedByField:@"a"]
+                     matchesResult:@[ @"doc6", @"doc3" ]];
+}
+
+- (void)testResumingAQueryShouldUseExistenceFilterToDetectDeletes {
+  // Set this test to stop when the first failure occurs because some test assertion failures make
+  // the rest of the test not applicable or will even crash.
+  [self setContinueAfterFailure:NO];
+
+  // Prepare the names and contents of the 100 documents to create.
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs =
+      [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < 100; i++) {
+    [testDocs setValue:@{@"key" : @42} forKey:[NSString stringWithFormat:@"doc%@", @(1000 + i)]];
+  }
+
+  // Create 100 documents in a new collection.
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:testDocs];
+
+  // Run a query to populate the local cache with the 100 documents and a resume token.
+  FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
+                                                          source:FIRFirestoreSourceDefault];
+  XCTAssertEqual(querySnapshot1.count, 100, @"querySnapshot1.count has an unexpected value");
+  NSArray<FIRDocumentReference *> *createdDocuments =
+      FIRDocumentReferenceArrayFromQuerySnapshot(querySnapshot1);
+
+  // Delete 50 of the 100 documents. Do this in a transaction, rather than
+  // [FIRDocumentReference deleteDocument], to avoid affecting the local cache.
+  NSSet<NSString *> *deletedDocumentIds;
+  {
+    NSMutableArray<NSString *> *deletedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"DeleteTransaction"];
+    [collRef.firestore
+        runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
+          for (decltype(createdDocuments.count) i = 0; i < createdDocuments.count; i += 2) {
+            FIRDocumentReference *documentToDelete = createdDocuments[i];
+            [transaction deleteDocument:documentToDelete];
+            [deletedDocumentIdsAccumulator addObject:documentToDelete.documentID];
+          }
+          return @"document deletion successful";
+        }
+        completion:^(id, NSError *) {
+          [expectation fulfill];
+        }];
+    [self awaitExpectation:expectation];
+    deletedDocumentIds = [NSSet setWithArray:deletedDocumentIdsAccumulator];
+  }
+  XCTAssertEqual(deletedDocumentIds.count, 50u, @"deletedDocumentIds has the wrong size");
+
+  // Wait for 10 seconds, during which Watch will stop tracking the query and will send an existence
+  // filter rather than "delete" events when the query is resumed.
+  [NSThread sleepForTimeInterval:10.0f];
+
+  // Resume the query and save the resulting snapshot for verification.
+  // Use some internal testing hooks to "capture" the existence filter mismatches to verify them.
+  FIRQuerySnapshot *querySnapshot2;
+  std::vector<firebase::firestore::util::TestingHooks::ExistenceFilterMismatchInfo>
+      existence_filter_mismatches =
+          firebase::firestore::testutil::CaptureExistenceFilterMismatches([&] {
+            querySnapshot2 = [self readDocumentSetForRef:collRef source:FIRFirestoreSourceDefault];
+          });
+
+  // Verify that the snapshot from the resumed query contains the expected documents; that is,
+  // that it contains the 50 documents that were _not_ deleted.
+  // TODO(b/270731363): Remove the "if" condition below once the Firestore Emulator is fixed to
+  // send an existence filter. At the time of writing, the Firestore emulator fails to send an
+  // existence filter, resulting in the client including the deleted documents in the snapshot
+  // of the resumed query.
+  if (!([FSTIntegrationTestCase isRunningAgainstEmulator] && querySnapshot2.count == 100)) {
+    NSSet<NSString *> *actualDocumentIds =
+        [NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)];
+    NSSet<NSString *> *expectedDocumentIds;
+    {
+      NSMutableArray<NSString *> *expectedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (FIRDocumentReference *documentRef in createdDocuments) {
+        if (![deletedDocumentIds containsObject:documentRef.documentID]) {
+          [expectedDocumentIdsAccumulator addObject:documentRef.documentID];
+        }
+      }
+      expectedDocumentIds = [NSSet setWithArray:expectedDocumentIdsAccumulator];
+    }
+    if (![actualDocumentIds isEqualToSet:expectedDocumentIds]) {
+      NSArray<NSString *> *unexpectedDocumentIds =
+          SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
+      NSArray<NSString *> *missingDocumentIds =
+          SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
+      XCTFail(@"querySnapshot2 contained %lu documents (expected %lu): "
+              @"%lu unexpected and %lu missing; "
+              @"unexpected documents: %@; missing documents: %@",
+              (unsigned long)actualDocumentIds.count, (unsigned long)expectedDocumentIds.count,
+              (unsigned long)unexpectedDocumentIds.count, (unsigned long)missingDocumentIds.count,
+              [unexpectedDocumentIds componentsJoinedByString:@", "],
+              [missingDocumentIds componentsJoinedByString:@", "]);
+    }
+  }
+
+  // Skip the verification of the existence filter mismatch when testing against the Firestore
+  // emulator because the Firestore emulator fails to to send an existence filter at all.
+  // TODO(b/270731363): Enable the verification of the existence filter mismatch once the Firestore
+  // emulator is fixed to send an existence filter.
+  if ([FSTIntegrationTestCase isRunningAgainstEmulator]) {
+    return;
+  }
+
+  // Verify that Watch sent an existence filter with the correct counts when the query was resumed.
+  XCTAssertEqual(static_cast<int>(existence_filter_mismatches.size()), 1);
+  firebase::firestore::util::TestingHooks::ExistenceFilterMismatchInfo &info =
+      existence_filter_mismatches[0];
+  XCTAssertEqual(info.local_cache_count, 100);
+  XCTAssertEqual(info.existence_filter_count, 50);
 }
 
 @end

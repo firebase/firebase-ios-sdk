@@ -7,7 +7,7 @@
     "config": {
       "maxConcurrentLimboResolutions": 1,
       "numClients": 1,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -47,6 +47,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection1/doc",
               "options": {
                 "hasCommittedMutations": false,
@@ -81,6 +82,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection1/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -141,6 +143,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection1/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -234,7 +237,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -279,7 +283,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -322,6 +327,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection2/doc",
               "options": {
                 "hasCommittedMutations": false,
@@ -356,6 +362,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection2/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -403,7 +410,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -445,6 +453,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection2/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -485,7 +494,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -567,7 +577,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -629,6 +640,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection2/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -669,7 +681,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "10": {
               "queries": [
@@ -768,7 +781,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "10": {
               "queries": [
@@ -858,7 +872,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -931,7 +946,8 @@
                   "path": "collection1/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -965,7 +981,7 @@
     "config": {
       "maxConcurrentLimboResolutions": 1,
       "numClients": 1,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -1005,6 +1021,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection1/doc1",
               "options": {
                 "hasCommittedMutations": false,
@@ -1039,6 +1056,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection1/doc1",
                 "options": {
                   "hasCommittedMutations": false,
@@ -1099,6 +1117,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection1/doc1",
                 "options": {
                   "hasCommittedMutations": false,
@@ -1192,7 +1211,8 @@
                   "path": "collection1/doc1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -1237,7 +1257,8 @@
                   "path": "collection1/doc1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -1280,6 +1301,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection2/doc2",
               "options": {
                 "hasCommittedMutations": false,
@@ -1314,6 +1336,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection2/doc2",
                 "options": {
                   "hasCommittedMutations": false,
@@ -1361,7 +1384,8 @@
                   "path": "collection1/doc1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -1403,6 +1427,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection2/doc2",
                 "options": {
                   "hasCommittedMutations": false,
@@ -1443,7 +1468,8 @@
                   "path": "collection1/doc1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -1525,7 +1551,8 @@
                   "path": "collection1/doc1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -1587,6 +1614,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection2/doc2",
                 "options": {
                   "hasCommittedMutations": false,
@@ -1627,7 +1655,8 @@
                   "path": "collection1/doc1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "10": {
               "queries": [
@@ -1726,7 +1755,8 @@
                   "path": "collection1/doc1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "10": {
               "queries": [
@@ -1794,7 +1824,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -1834,6 +1864,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/doc",
               "options": {
                 "hasCommittedMutations": false,
@@ -1868,6 +1899,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -1928,6 +1960,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2021,7 +2054,8 @@
                   "path": "collection/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -2065,6 +2099,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/doc",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2105,7 +2140,8 @@
                   "path": "collection/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -2187,7 +2223,8 @@
                   "path": "collection/doc"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -2237,7 +2274,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -2277,6 +2314,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -2288,6 +2326,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -2322,6 +2361,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2333,6 +2373,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2400,7 +2441,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -2450,6 +2492,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2491,7 +2534,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -2541,6 +2584,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -2575,6 +2619,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2618,6 +2663,7 @@
             "hasPendingWrites": true,
             "modified": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2681,6 +2727,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2778,6 +2825,7 @@
             "hasPendingWrites": false,
             "modified": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2813,7 +2861,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -2860,6 +2909,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -2902,7 +2952,7 @@
     ],
     "config": {
       "numClients": 2,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -2976,6 +3026,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -2987,6 +3038,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -3027,6 +3079,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3038,6 +3091,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3097,7 +3151,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -3194,6 +3249,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3217,7 +3273,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -3257,6 +3313,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -3291,6 +3348,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3363,7 +3421,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -3386,11 +3445,13 @@
         ]
       },
       {
-        "watchFilter": [
-          [
+        "watchFilter": {
+          "keys": [
+          ],
+          "targetIds": [
             1
           ]
-        ]
+        }
       },
       {
         "watchCurrent": [
@@ -3420,6 +3481,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3461,7 +3523,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -3501,6 +3563,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -3535,6 +3598,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3607,7 +3671,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -3657,6 +3722,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3699,7 +3765,7 @@
     ],
     "config": {
       "numClients": 2,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -3773,6 +3839,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -3784,6 +3851,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -3824,6 +3892,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3835,6 +3904,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -3894,7 +3964,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -4009,7 +4080,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -4062,6 +4134,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -4103,7 +4176,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -4153,6 +4226,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -4187,6 +4261,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -4269,7 +4344,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -4300,6 +4376,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -4349,6 +4426,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -4395,7 +4473,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -4445,6 +4523,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -4479,6 +4558,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -4616,7 +4696,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -4669,6 +4750,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -4719,6 +4801,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -4734,6 +4817,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -4827,7 +4911,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -4889,6 +4973,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": true,
@@ -4900,6 +4985,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": true,
@@ -4949,6 +5035,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -4994,7 +5081,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -5031,6 +5119,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5042,6 +5131,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": true,
@@ -5082,7 +5172,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -5166,6 +5257,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5177,6 +5269,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": true,
@@ -5244,7 +5337,7 @@
     ],
     "config": {
       "numClients": 2,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -5294,6 +5387,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -5305,6 +5399,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -5316,6 +5411,7 @@
               "version": 1001
             },
             {
+              "createTime": 0,
               "key": "collection/c",
               "options": {
                 "hasCommittedMutations": false,
@@ -5352,6 +5448,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5363,6 +5460,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5374,6 +5472,7 @@
                 "version": 1001
               },
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5453,7 +5552,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -5477,7 +5577,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           }
         }
@@ -5588,7 +5689,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -5612,7 +5714,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           }
         }
@@ -5666,7 +5769,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           }
         }
@@ -5688,6 +5792,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5784,7 +5889,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           }
         }
@@ -5825,6 +5931,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5866,7 +5973,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -5906,6 +6013,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -5918,6 +6026,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -5953,6 +6062,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -5965,6 +6075,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6028,6 +6139,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6092,6 +6204,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -6156,6 +6269,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6187,6 +6301,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6216,7 +6331,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -6249,6 +6365,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -6292,6 +6409,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -6313,6 +6431,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -6392,7 +6511,7 @@
     ],
     "config": {
       "numClients": 1,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -6432,6 +6551,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -6444,6 +6564,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -6479,6 +6600,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6491,6 +6613,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6554,6 +6677,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6618,6 +6742,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -6682,6 +6807,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6713,6 +6839,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6742,7 +6869,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "4": {
               "queries": [
@@ -6813,6 +6941,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6857,6 +6986,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -6891,7 +7021,7 @@
     "config": {
       "maxConcurrentLimboResolutions": 1,
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -6931,6 +7061,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -6942,6 +7073,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -6976,6 +7108,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -6987,6 +7120,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7068,7 +7202,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -7111,6 +7246,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7151,7 +7287,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -7181,6 +7318,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7225,7 +7363,7 @@
     "config": {
       "maxConcurrentLimboResolutions": 2,
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -7265,6 +7403,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -7276,6 +7415,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -7287,6 +7427,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/c",
               "options": {
                 "hasCommittedMutations": false,
@@ -7298,6 +7439,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/d",
               "options": {
                 "hasCommittedMutations": false,
@@ -7309,6 +7451,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/e",
               "options": {
                 "hasCommittedMutations": false,
@@ -7343,6 +7486,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7354,6 +7498,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7365,6 +7510,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7376,6 +7522,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/d",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7387,6 +7534,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/e",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7469,7 +7617,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -7493,7 +7642,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -7549,6 +7699,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7560,6 +7711,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7601,7 +7753,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "7": {
               "queries": [
@@ -7613,7 +7766,8 @@
                   "path": "collection/d"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -7667,6 +7821,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7678,6 +7833,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/d",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7718,7 +7874,8 @@
                   "path": "collection/e"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -7758,6 +7915,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/e",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7794,15 +7952,16 @@
       }
     ]
   },
-  "Limbo resolution throttling with existence filter mismatch": {
+  "Limbo resolution throttling with bloom filter application": {
     "describeName": "Limbo Documents:",
-    "itName": "Limbo resolution throttling with existence filter mismatch",
+    "itName": "Limbo resolution throttling with bloom filter application",
     "tags": [
+      "no-ios"
     ],
     "config": {
       "maxConcurrentLimboResolutions": 2,
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -7842,6 +8001,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a1",
               "options": {
                 "hasCommittedMutations": false,
@@ -7853,6 +8013,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/a2",
               "options": {
                 "hasCommittedMutations": false,
@@ -7864,6 +8025,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/a3",
               "options": {
                 "hasCommittedMutations": false,
@@ -7898,6 +8060,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a1",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7909,6 +8072,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/a2",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7920,6 +8084,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/a3",
                 "options": {
                   "hasCommittedMutations": false,
@@ -7997,6 +8162,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/b1",
               "options": {
                 "hasCommittedMutations": false,
@@ -8008,6 +8174,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b2",
               "options": {
                 "hasCommittedMutations": false,
@@ -8019,6 +8186,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b3",
               "options": {
                 "hasCommittedMutations": false,
@@ -8036,14 +8204,23 @@
         }
       },
       {
-        "watchFilter": [
-          [
-            2
+        "watchFilter": {
+          "bloomFilter": {
+            "bits": {
+              "bitmap": "yABCEAeZURNRGAkgAQ==",
+              "padding": 4
+            },
+            "hashCount": 10
+          },
+          "keys": [
+            "collection/b1",
+            "collection/b2",
+            "collection/b3"
           ],
-          "collection/b1",
-          "collection/b2",
-          "collection/b3"
-        ]
+          "targetIds": [
+            2
+          ]
+        }
       },
       {
         "watchSnapshot": {
@@ -8055,6 +8232,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/b1",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8066,6 +8244,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b2",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8077,6 +8256,394 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
+                "key": "collection/b3",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "b3"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1002"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1002
+        },
+        "expectedState": {
+          "activeLimboDocs": [
+            "collection/a1",
+            "collection/a2"
+          ],
+          "activeTargets": {
+            "1": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/a1"
+                }
+              ],
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
+            },
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": "resume-token-1000"
+            },
+            "3": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection/a2"
+                }
+              ],
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
+            }
+          },
+          "enqueuedLimboDocs": [
+            "collection/a3"
+          ]
+        }
+      }
+    ]
+  },
+  "Limbo resolution throttling with existence filter mismatch": {
+    "describeName": "Limbo Documents:",
+    "itName": "Limbo resolution throttling with existence filter mismatch",
+    "tags": [
+    ],
+    "config": {
+      "maxConcurrentLimboResolutions": 2,
+      "numClients": 1,
+      "useEagerGCForMemory": true
+    },
+    "steps": [
+      {
+        "userListen": {
+          "query": {
+            "filters": [
+            ],
+            "orderBys": [
+            ],
+            "path": "collection"
+          },
+          "targetId": 2
+        },
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": ""
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/a1",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a1"
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/a2",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a2"
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/a3",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "a3"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1000"
+        ]
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1000
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/a1",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a1"
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/a2",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a2"
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/a3",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "a3"
+                },
+                "version": 1000
+              }
+            ],
+            "errorCode": 0,
+            "fromCache": false,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ]
+      },
+      {
+        "enableNetwork": false,
+        "expectedSnapshotEvents": [
+          {
+            "errorCode": 0,
+            "fromCache": true,
+            "hasPendingWrites": false,
+            "query": {
+              "filters": [
+              ],
+              "orderBys": [
+              ],
+              "path": "collection"
+            }
+          }
+        ],
+        "expectedState": {
+          "activeLimboDocs": [
+          ],
+          "activeTargets": {
+          },
+          "enqueuedLimboDocs": [
+          ]
+        }
+      },
+      {
+        "enableNetwork": true,
+        "expectedState": {
+          "activeTargets": {
+            "2": {
+              "queries": [
+                {
+                  "filters": [
+                  ],
+                  "orderBys": [
+                  ],
+                  "path": "collection"
+                }
+              ],
+              "resumeToken": "resume-token-1000"
+            }
+          }
+        }
+      },
+      {
+        "watchAck": [
+          2
+        ]
+      },
+      {
+        "watchEntity": {
+          "docs": [
+            {
+              "createTime": 0,
+              "key": "collection/b1",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "b1"
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/b2",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "b2"
+              },
+              "version": 1000
+            },
+            {
+              "createTime": 0,
+              "key": "collection/b3",
+              "options": {
+                "hasCommittedMutations": false,
+                "hasLocalMutations": false
+              },
+              "value": {
+                "key": "b3"
+              },
+              "version": 1000
+            }
+          ],
+          "targets": [
+            2
+          ]
+        }
+      },
+      {
+        "watchFilter": {
+          "keys": [
+            "collection/b1",
+            "collection/b2",
+            "collection/b3"
+          ],
+          "targetIds": [
+            2
+          ]
+        }
+      },
+      {
+        "watchSnapshot": {
+          "targetIds": [
+          ],
+          "version": 1001
+        },
+        "expectedSnapshotEvents": [
+          {
+            "added": [
+              {
+                "createTime": 0,
+                "key": "collection/b1",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "b1"
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
+                "key": "collection/b2",
+                "options": {
+                  "hasCommittedMutations": false,
+                  "hasLocalMutations": false
+                },
+                "value": {
+                  "key": "b2"
+                },
+                "version": 1000
+              },
+              {
+                "createTime": 0,
                 "key": "collection/b3",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8112,7 +8679,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeExistenceFilterMismatch"
             }
           }
         }
@@ -8133,6 +8701,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/b1",
               "options": {
                 "hasCommittedMutations": false,
@@ -8144,6 +8713,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b2",
               "options": {
                 "hasCommittedMutations": false,
@@ -8155,6 +8725,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b3",
               "options": {
                 "hasCommittedMutations": false,
@@ -8201,7 +8772,8 @@
                   "path": "collection/a1"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -8213,7 +8785,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeExistenceFilterMismatch"
             },
             "3": {
               "queries": [
@@ -8225,7 +8798,8 @@
                   "path": "collection/a2"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -8279,6 +8853,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a1",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8290,6 +8865,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/a2",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8318,7 +8894,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeExistenceFilterMismatch"
             },
             "5": {
               "queries": [
@@ -8330,7 +8907,8 @@
                   "path": "collection/a3"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -8370,6 +8948,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a3",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8397,7 +8976,8 @@
                   "path": "collection"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeExistenceFilterMismatch"
             }
           },
           "enqueuedLimboDocs": [
@@ -8414,7 +8994,7 @@
     "config": {
       "maxConcurrentLimboResolutions": 2,
       "numClients": 1,
-      "useGarbageCollection": true
+      "useEagerGCForMemory": true
     },
     "steps": [
       {
@@ -8454,6 +9034,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -8465,6 +9046,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -8476,6 +9058,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/c",
               "options": {
                 "hasCommittedMutations": false,
@@ -8487,6 +9070,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/d",
               "options": {
                 "hasCommittedMutations": false,
@@ -8498,6 +9082,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/e",
               "options": {
                 "hasCommittedMutations": false,
@@ -8532,6 +9117,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8543,6 +9129,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8554,6 +9141,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8565,6 +9153,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/d",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8576,6 +9165,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/e",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8658,7 +9248,8 @@
                   "path": "collection/a"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -8682,7 +9273,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -8730,6 +9322,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8771,7 +9364,8 @@
                   "path": "collection/b"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "5": {
               "queries": [
@@ -8783,7 +9377,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -8825,6 +9420,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8866,7 +9462,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "7": {
               "queries": [
@@ -8878,7 +9475,8 @@
                   "path": "collection/d"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -8919,6 +9517,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -8960,7 +9559,8 @@
                   "path": "collection/d"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "9": {
               "queries": [
@@ -8972,7 +9572,8 @@
                   "path": "collection/e"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -9012,6 +9613,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/d",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9052,7 +9654,8 @@
                   "path": "collection/e"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             }
           },
           "enqueuedLimboDocs": [
@@ -9087,6 +9690,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/e",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9131,7 +9735,7 @@
     ],
     "config": {
       "numClients": 2,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -9226,6 +9830,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -9237,6 +9842,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -9248,6 +9854,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/c",
               "options": {
                 "hasCommittedMutations": false,
@@ -9288,6 +9895,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9299,6 +9907,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9310,6 +9919,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9354,6 +9964,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -9365,6 +9976,7 @@
               "version": 2000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -9376,6 +9988,7 @@
               "version": 2000
             },
             {
+              "createTime": 0,
               "key": "collection/d",
               "options": {
                 "hasCommittedMutations": false,
@@ -9423,7 +10036,8 @@
                   "path": "collection/c"
                 }
               ],
-              "resumeToken": ""
+              "resumeToken": "",
+              "targetPurpose": "TargetPurposeLimboResolution"
             },
             "2": {
               "queries": [
@@ -9480,7 +10094,7 @@
     ],
     "config": {
       "numClients": 2,
-      "useGarbageCollection": false
+      "useEagerGCForMemory": false
     },
     "steps": [
       {
@@ -9575,6 +10189,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -9586,6 +10201,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -9597,6 +10213,7 @@
               "version": 1000
             },
             {
+              "createTime": 0,
               "key": "collection/c",
               "options": {
                 "hasCommittedMutations": false,
@@ -9637,6 +10254,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9648,6 +10266,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9659,6 +10278,7 @@
                 "version": 1000
               },
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9703,6 +10323,7 @@
         "watchEntity": {
           "docs": [
             {
+              "createTime": 0,
               "key": "collection/a",
               "options": {
                 "hasCommittedMutations": false,
@@ -9714,6 +10335,7 @@
               "version": 2000
             },
             {
+              "createTime": 0,
               "key": "collection/b",
               "options": {
                 "hasCommittedMutations": false,
@@ -9725,6 +10347,7 @@
               "version": 2000
             },
             {
+              "createTime": 0,
               "key": "collection/d",
               "options": {
                 "hasCommittedMutations": false,
@@ -9765,6 +10388,7 @@
           {
             "added": [
               {
+                "createTime": 0,
                 "key": "collection/d",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9781,6 +10405,7 @@
             "hasPendingWrites": false,
             "modified": [
               {
+                "createTime": 0,
                 "key": "collection/b",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9792,6 +10417,7 @@
                 "version": 2000
               },
               {
+                "createTime": 0,
                 "key": "collection/a",
                 "options": {
                   "hasCommittedMutations": false,
@@ -9818,6 +10444,7 @@
             },
             "removed": [
               {
+                "createTime": 0,
                 "key": "collection/c",
                 "options": {
                   "hasCommittedMutations": false,

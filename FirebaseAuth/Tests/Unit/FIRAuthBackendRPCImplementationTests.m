@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-@import HeartbeatLoggingTestUtils;
+@import FirebaseCoreInternal;
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
@@ -24,6 +24,8 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
+#import "FirebaseAuth/Tests/Unit/FIRApp+FIRAuthUnitTests.h"
+#import "FirebaseAuth/Tests/Unit/FIRFakeAppCheck.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
@@ -424,10 +426,15 @@ static NSString *const kTestValue = @"TestValue";
 - (void)testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending {
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
+  FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"app"];
+  FIRAuth *auth = [FIRAuth authWithApp:app];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
                                                     appID:kFakeFirebaseAppID
-                                          heartbeatLogger:fakeHeartbeatLogger];
+                                                     auth:auth
+                                          heartbeatLogger:fakeHeartbeatLogger
+                                                 appCheck:fakeAppCheck];
   FIRFakeRequest *request =
       [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
   FIRFakeResponse *response = [FIRFakeResponse fakeResponse];
@@ -455,6 +462,41 @@ static NSString *const kTestValue = @"TestValue";
                         expectedHeader);
 }
 
+/** @fn testRequest_IncludesAppCheckHeader
+    @brief This test checks the behavior of @c postWithRequest:response:callback:
+        to verify that a appCheck token is attached as a header to an
+        outgoing request.
+ */
+- (void)testRequest_IncludesAppCheckHeader {
+  // Given
+  FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
+  FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"app"];
+  FIRAuth *auth = [FIRAuth authWithApp:app];
+  FIRAuthRequestConfiguration *requestConfiguration =
+      [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
+                                                    appID:kFakeFirebaseAppID
+                                                     auth:auth
+                                          heartbeatLogger:fakeHeartbeatLogger
+                                                 appCheck:fakeAppCheck];
+  FIRFakeRequest *request =
+      [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
+  FIRFakeResponse *response = [FIRFakeResponse fakeResponse];
+
+  __block NSError *callbackError;
+  __block BOOL callbackInvoked;
+  [_RPCImplementation postWithRequest:request
+                             response:response
+                             callback:^(NSError *error) {
+                               callbackInvoked = YES;
+                               callbackError = error;
+                             }];
+
+  // Then
+  XCTAssertEqualObjects([_RPCIssuer.completeRequest valueForHTTPHeaderField:@"X-Firebase-AppCheck"],
+                        kFakeAppCheckToken);
+}
+
 /** @fn testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending
     @brief This test checks the behavior of @c postWithRequest:response:callback:
         to verify that a request header does not contain heartbeat data in the
@@ -463,10 +505,15 @@ static NSString *const kTestValue = @"TestValue";
 - (void)testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending {
   // Given
   FIRFakeHeartbeatLogger *fakeHeartbeatLogger = [[FIRFakeHeartbeatLogger alloc] init];
+  FIRFakeAppCheck *fakeAppCheck = [[FIRFakeAppCheck alloc] init];
+  FIRApp *app = [FIRApp appForAuthUnitTestsWithName:@"app"];
+  FIRAuth *auth = [FIRAuth authWithApp:app];
   FIRAuthRequestConfiguration *requestConfiguration =
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kFakeAPIkey
                                                     appID:kFakeFirebaseAppID
-                                          heartbeatLogger:fakeHeartbeatLogger];
+                                                     auth:auth
+                                          heartbeatLogger:fakeHeartbeatLogger
+                                                 appCheck:fakeAppCheck];
   FIRFakeRequest *request =
       [FIRFakeRequest fakeRequestWithRequestConfiguration:requestConfiguration];
   FIRFakeResponse *response = [FIRFakeResponse fakeResponse];

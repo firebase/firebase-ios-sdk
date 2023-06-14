@@ -10,11 +10,11 @@ Each Firebase component requires several xcframeworks in order to function
 properly. Each section below lists the xcframeworks you'll need to include
 in your project in order to use that Firebase SDK in your application.
 
-Xcode 13.3.1 or newer is required.
+Xcode 14.1 or newer is required.
 
 To integrate a Firebase SDK with your app:
 
-1. Find the desired SDK in the list below.
+1. Find the desired SDK from the list within `METADATA.md`.
 2. Make sure you have an Xcode project open in Xcode.
 3. In Xcode, hit `⌘-1` to open the Project Navigator pane. It will open on
    left side of the Xcode window if it wasn't already open.
@@ -88,11 +88,6 @@ frameworks and libraries listed in each Firebase framework's
 indicator that not all system libraries are being brought into your build
 automatically.
 
-"(~> X)" below means that the SDK requires all of the xcframeworks from X. You
-should make sure to include all of the xcframeworks from X when including the
-SDK.
-
-__INTEGRATION__
 # Samples
 
 You can get samples for Firebase from https://github.com/firebase/quickstart-ios:
@@ -104,10 +99,3 @@ this archive; for example, FirebaseUI. For the samples that depend on SDKs not
 included in this archive, you'll need to use CocoaPods or use the
 [ZipBuilder](https://github.com/firebase/firebase-ios-sdk/tree/master/ReleaseTooling)
 to create your own custom binary frameworks.
-
-# Versions
-
-The xcframeworks in this directory map to these versions of the Firebase SDKs in
-CocoaPods.
-
-__VERSIONS__

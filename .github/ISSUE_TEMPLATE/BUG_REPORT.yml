@@ -39,14 +39,14 @@ body:
     attributes:
       label: Firebase SDK Version
       description: What version of Firebase has this issue?
-      placeholder: "9.4.1"
+      placeholder: "10.9"
     validations:
       required: true
   - type: input
     attributes:
       label: Xcode Version
       description: What version of Xcode is being used?
-      placeholder: "13.3.1"
+      placeholder: "14.3"
     validations:
       required: true
   - type: dropdown
@@ -58,6 +58,7 @@ body:
         - CocoaPods
         - Zip
         - Carthage
+        - N/A
     validations:
       required: true
   - type: dropdown
@@ -99,6 +100,8 @@ body:
         - macOS
         - macCatalyst
         - App Extensions
+        - All
+        - N/A
     validations:
       required: true
   - type: textarea

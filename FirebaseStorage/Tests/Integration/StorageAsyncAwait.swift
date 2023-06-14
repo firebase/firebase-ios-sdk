@@ -55,7 +55,12 @@ import XCTest
         _ = try await ref.delete()
       } catch {
         caughtError = true
-        XCTAssertEqual((error as NSError).code, StorageErrorCode.objectNotFound.rawValue)
+        let nsError = error as NSError
+        XCTAssertEqual(nsError.code, StorageErrorCode.objectNotFound.rawValue)
+        XCTAssertEqual(nsError.userInfo["ResponseErrorCode"] as? Int, 404)
+        let underlyingError = try XCTUnwrap(nsError.userInfo[NSUnderlyingErrorKey] as? NSError)
+        XCTAssertEqual(underlyingError.code, 404)
+        XCTAssertEqual(underlyingError.domain, "com.google.HTTPStatus")
       }
       XCTAssertTrue(caughtError)
     }
@@ -132,8 +137,11 @@ import XCTest
       do {
         _ = try await ref.putFileAsync(from: fileURL)
         XCTFail("Unexpected success from putFile of a directory")
-      } catch StorageError.unknown {
-        XCTAssertTrue(true)
+      } catch let StorageError.unknown(reason) {
+        XCTAssertTrue(reason.starts(with: "File at URL:"))
+        XCTAssertTrue(reason.hasSuffix(
+          "is not reachable. Ensure file URL is not a directory, symbolic link, or invalid url."
+        ))
       } catch {
         XCTFail("error failed to convert to StorageError.unknown")
       }
@@ -168,6 +176,25 @@ import XCTest
       try data.write(to: fileURL, options: .atomicWrite)
       let result = try await ref.putFileAsync(from: fileURL)
       XCTAssertNotNil(result)
+    }
+
+    func testSimplePutFileWithAsyncProgress() async throws {
+      var checkedProgress = false
+      let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
+      let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
+      let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+      let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+      try data.write(to: fileURL, options: .atomicWrite)
+      var uploadedBytes: Int64 = -1
+      let successMetadata = try await ref.putFileAsync(from: fileURL) { progress in
+        if let completed = progress?.completedUnitCount {
+          checkedProgress = true
+          XCTAssertGreaterThanOrEqual(completed, uploadedBytes)
+          uploadedBytes = completed
+        }
+      }
+      XCTAssertEqual(successMetadata.size, 17)
+      XCTAssertTrue(checkedProgress)
     }
 
     func testSimpleGetData() async throws {
@@ -259,17 +286,38 @@ import XCTest
 
         task.observe(StorageTaskStatus.progress) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
-          guard let progress = snapshot.progress else {
+          guard snapshot.progress != nil else {
             XCTFail("Missing progress")
             return
           }
-          print("\(progress.completedUnitCount) of \(progress.totalUnitCount)")
         }
         task.observe(StorageTaskStatus.failure) { snapshot in
           XCTAssertNil(snapshot.error, "Error should be nil")
         }
       }
       waitForExpectations()
+    }
+
+    func testSimpleGetFileWithAsyncProgressCallbackAPI() async throws {
+      var checkedProgress = false
+      let ref = storage.reference().child("ios/public/1mb")
+      let url = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
+      let fileURL = url
+      var downloadedBytes: Int64 = 0
+      var resumeAtBytes = 256 * 1024
+      let successURL = try await ref.writeAsync(toFile: fileURL) { progress in
+        if let completed = progress?.completedUnitCount {
+          checkedProgress = true
+          XCTAssertGreaterThanOrEqual(completed, downloadedBytes)
+          downloadedBytes = completed
+          if completed > resumeAtBytes {
+            resumeAtBytes = Int.max
+          }
+        }
+      }
+      XCTAssertTrue(checkedProgress)
+      XCTAssertEqual(successURL, url)
+      XCTAssertEqual(resumeAtBytes, Int.max)
     }
 
     private func assertMetadata(actualMetadata: StorageMetadata,

@@ -27,7 +27,7 @@
 #import <GoogleUtilities/GULOriginalIMPConvenienceMacros.h>
 
 /** Returns the dispatch queue for all instrumentation to occur on. */
-static dispatch_queue_t GetInstrumentationQueue() {
+static dispatch_queue_t GetInstrumentationQueue(void) {
   static dispatch_queue_t queue = nil;
   static dispatch_once_t token = 0;
   dispatch_once(&token, ^{
@@ -40,7 +40,7 @@ static dispatch_queue_t GetInstrumentationQueue() {
 // Returns the singleton UIApplication of the application this is currently running in or nil if
 // it's in an app extension.
 NS_EXTENSION_UNAVAILABLE("Firebase Performance is not supported for extensions.")
-static UIApplication *FPRSharedApplication() {
+static UIApplication *FPRSharedApplication(void) {
   if ([GULAppEnvironmentUtil isAppExtension]) {
     return nil;
   }

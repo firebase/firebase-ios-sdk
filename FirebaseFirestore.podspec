@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '10.5.0'
+  s.version          = '10.11.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -90,7 +90,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.dependency 'FirebaseCore', '~> 10.0'
 
-  abseil_version = '~> 1.20211102.0'
+  abseil_version = '~> 1.20220623.0'
   s.dependency 'abseil/algorithm', abseil_version
   s.dependency 'abseil/base', abseil_version
   s.dependency 'abseil/container/flat_hash_map', abseil_version
@@ -100,7 +100,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'abseil/time', abseil_version
   s.dependency 'abseil/types', abseil_version
 
-  s.dependency 'gRPC-C++', '~> 1.44.0'
+  s.dependency 'gRPC-C++', '~> 1.50.1'
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
@@ -110,7 +110,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.library = 'c++'
   s.pod_target_xcconfig = {
-    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++0x',
+    'CLANG_CXX_LANGUAGE_STANDARD' => 'c++14',
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'GCC_PREPROCESSOR_DEFINITIONS' =>
       "FIRFirestore_VERSION=#{s.version} " +

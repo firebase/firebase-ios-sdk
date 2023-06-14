@@ -20,9 +20,11 @@
 #include <utility>
 #include <vector>
 
-#import "FIRAggregateQuery+Internal.h"
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
+
+#import "Firestore/Source/API/FIRAggregateField+Internal.h"
+#import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRDocumentSnapshot+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
@@ -58,10 +60,8 @@
 #include "Firestore/core/src/nanopb/nanopb_util.h"
 #include "Firestore/core/src/util/error_apple.h"
 #include "Firestore/core/src/util/exception.h"
-#include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/statusor.h"
 #include "Firestore/core/src/util/string_apple.h"
-#include "absl/memory/memory.h"
 #include "absl/strings/match.h"
 
 namespace nanopb = firebase::firestore::nanopb;
@@ -226,6 +226,15 @@ int32_t SaturatedLimitValue(NSInteger limit) {
       initWithRegistration:absl::make_unique<QueryListenerRegistration>(firestore->client(),
                                                                         std::move(async_listener),
                                                                         std::move(query_listener))];
+}
+
+- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter {
+  Filter parsedFilter = [self parseFilter:filter];
+  if (parsedFilter.IsEmpty()) {
+    // Return the existing query if not adding any more filters (e.g. an empty composite filter).
+    return self;
+  }
+  return Wrap(_query.AddNewFilter(std::move(parsedFilter)));
 }
 
 - (FIRQuery *)queryWhereField:(NSString *)field isEqualTo:(id)value {
@@ -475,7 +484,12 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 }
 
 - (FIRAggregateQuery *)count {
-  return [[FIRAggregateQuery alloc] initWithQuery:self];
+  FIRAggregateField *countAF = [FIRAggregateField aggregateFieldForCount];
+  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:@[ countAF ]];
+}
+
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations {
+  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:aggregations];
 }
 
 #pragma mark - Private Methods
@@ -666,15 +680,6 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (const api::Query &)apiQuery {
   return _query;
-}
-
-- (FIRQuery *)queryWhereFilter:(FIRFilter *)filter {
-  Filter parsedFilter = [self parseFilter:filter];
-  if (parsedFilter.IsEmpty()) {
-    // Return the existing query if not adding any more filters (e.g. an empty composite filter).
-    return self;
-  }
-  return Wrap(_query.AddNewFilter(std::move(parsedFilter)));
 }
 
 @end

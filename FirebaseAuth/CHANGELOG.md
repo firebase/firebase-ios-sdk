@@ -1,3 +1,10 @@
+# 10.8.0
+- [added] Added Firebase App Check support to Firebase Auth. (#11056)
+- [added] Added Sign in with Apple token revocation support. (#9906)
+
+# 10.7.0
+- [added] Added an API for developers to pass the fullName from the Sign in with Apple credential to Firebase. (#10068)
+
 # 10.6.0
 - [fixed] Fixed a bug where user is created in a specific tenant although tenantID was not specified. (#10748)
 - [fixed] Fixed a bug where the resolver exposed in MFA is not associated to the correct app. (#10690)

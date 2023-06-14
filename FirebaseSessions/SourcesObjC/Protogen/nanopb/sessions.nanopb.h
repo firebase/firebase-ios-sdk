@@ -150,6 +150,7 @@ typedef struct _firebase_appquality_sessions_AppleApplicationInfo {
     firebase_appquality_sessions_NetworkConnectionInfo network_connection_info;
     firebase_appquality_sessions_OsName os_name;
     pb_bytes_array_t *mcc_mnc;
+    pb_bytes_array_t *app_build_version;
 /* @@protoc_insertion_point(struct:firebase_appquality_sessions_AppleApplicationInfo) */
 } firebase_appquality_sessions_AppleApplicationInfo;
 
@@ -175,6 +176,7 @@ typedef struct _firebase_appquality_sessions_ApplicationInfo {
     };
     pb_bytes_array_t *session_sdk_version;
     firebase_appquality_sessions_LogEnvironment log_environment;
+    pb_bytes_array_t *os_version;
 /* @@protoc_insertion_point(struct:firebase_appquality_sessions_ApplicationInfo) */
 } firebase_appquality_sessions_ApplicationInfo;
 
@@ -192,16 +194,16 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 #define firebase_appquality_sessions_NetworkConnectionInfo_init_default {_firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MIN, _firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_MIN}
 #define firebase_appquality_sessions_SessionInfo_init_default {NULL, NULL, 0, firebase_appquality_sessions_DataCollectionStatus_init_default, NULL, 0}
 #define firebase_appquality_sessions_DataCollectionStatus_init_default {_firebase_appquality_sessions_DataCollectionState_MIN, _firebase_appquality_sessions_DataCollectionState_MIN, 0}
-#define firebase_appquality_sessions_ApplicationInfo_init_default {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_default}, NULL, _firebase_appquality_sessions_LogEnvironment_MIN}
+#define firebase_appquality_sessions_ApplicationInfo_init_default {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_default}, NULL, _firebase_appquality_sessions_LogEnvironment_MIN, NULL}
 #define firebase_appquality_sessions_AndroidApplicationInfo_init_default {NULL, NULL}
-#define firebase_appquality_sessions_AppleApplicationInfo_init_default {NULL, firebase_appquality_sessions_NetworkConnectionInfo_init_default, _firebase_appquality_sessions_OsName_MIN, NULL}
+#define firebase_appquality_sessions_AppleApplicationInfo_init_default {NULL, firebase_appquality_sessions_NetworkConnectionInfo_init_default, _firebase_appquality_sessions_OsName_MIN, NULL, NULL}
 #define firebase_appquality_sessions_SessionEvent_init_zero {_firebase_appquality_sessions_EventType_MIN, firebase_appquality_sessions_SessionInfo_init_zero, firebase_appquality_sessions_ApplicationInfo_init_zero}
 #define firebase_appquality_sessions_NetworkConnectionInfo_init_zero {_firebase_appquality_sessions_NetworkConnectionInfo_NetworkType_MIN, _firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_MIN}
 #define firebase_appquality_sessions_SessionInfo_init_zero {NULL, NULL, 0, firebase_appquality_sessions_DataCollectionStatus_init_zero, NULL, 0}
 #define firebase_appquality_sessions_DataCollectionStatus_init_zero {_firebase_appquality_sessions_DataCollectionState_MIN, _firebase_appquality_sessions_DataCollectionState_MIN, 0}
-#define firebase_appquality_sessions_ApplicationInfo_init_zero {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_zero}, NULL, _firebase_appquality_sessions_LogEnvironment_MIN}
+#define firebase_appquality_sessions_ApplicationInfo_init_zero {NULL, NULL, NULL, NULL, 0, {firebase_appquality_sessions_AndroidApplicationInfo_init_zero}, NULL, _firebase_appquality_sessions_LogEnvironment_MIN, NULL}
 #define firebase_appquality_sessions_AndroidApplicationInfo_init_zero {NULL, NULL}
-#define firebase_appquality_sessions_AppleApplicationInfo_init_zero {NULL, firebase_appquality_sessions_NetworkConnectionInfo_init_zero, _firebase_appquality_sessions_OsName_MIN, NULL}
+#define firebase_appquality_sessions_AppleApplicationInfo_init_zero {NULL, firebase_appquality_sessions_NetworkConnectionInfo_init_zero, _firebase_appquality_sessions_OsName_MIN, NULL, NULL}
 
 /* Field tags (for use in manual encoding/decoding) */
 #define firebase_appquality_sessions_AndroidApplicationInfo_package_name_tag 1
@@ -212,6 +214,7 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 #define firebase_appquality_sessions_NetworkConnectionInfo_network_type_tag 1
 #define firebase_appquality_sessions_NetworkConnectionInfo_mobile_subtype_tag 2
 #define firebase_appquality_sessions_AppleApplicationInfo_bundle_short_version_tag 1
+#define firebase_appquality_sessions_AppleApplicationInfo_app_build_version_tag 6
 #define firebase_appquality_sessions_AppleApplicationInfo_network_connection_info_tag 3
 #define firebase_appquality_sessions_AppleApplicationInfo_os_name_tag 4
 #define firebase_appquality_sessions_AppleApplicationInfo_mcc_mnc_tag 5
@@ -228,6 +231,7 @@ typedef struct _firebase_appquality_sessions_SessionEvent {
 #define firebase_appquality_sessions_ApplicationInfo_development_platform_name_tag 3
 #define firebase_appquality_sessions_ApplicationInfo_development_platform_version_tag 4
 #define firebase_appquality_sessions_ApplicationInfo_session_sdk_version_tag 7
+#define firebase_appquality_sessions_ApplicationInfo_os_version_tag 9
 #define firebase_appquality_sessions_ApplicationInfo_log_environment_tag 8
 #define firebase_appquality_sessions_SessionEvent_event_type_tag 1
 #define firebase_appquality_sessions_SessionEvent_session_data_tag 2
@@ -238,9 +242,9 @@ extern const pb_field_t firebase_appquality_sessions_SessionEvent_fields[4];
 extern const pb_field_t firebase_appquality_sessions_NetworkConnectionInfo_fields[3];
 extern const pb_field_t firebase_appquality_sessions_SessionInfo_fields[7];
 extern const pb_field_t firebase_appquality_sessions_DataCollectionStatus_fields[4];
-extern const pb_field_t firebase_appquality_sessions_ApplicationInfo_fields[9];
+extern const pb_field_t firebase_appquality_sessions_ApplicationInfo_fields[10];
 extern const pb_field_t firebase_appquality_sessions_AndroidApplicationInfo_fields[3];
-extern const pb_field_t firebase_appquality_sessions_AppleApplicationInfo_fields[5];
+extern const pb_field_t firebase_appquality_sessions_AppleApplicationInfo_fields[6];
 
 /* Maximum encoded size of messages (where known) */
 /* firebase_appquality_sessions_SessionEvent_size depends on runtime parameters */

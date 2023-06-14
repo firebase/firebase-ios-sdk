@@ -105,9 +105,19 @@ class SessionStartEventTests: XCTestCase {
         fieldName: "session_sdk_version"
       )
       assertEqualProtoString(
+        proto.application_info.os_version,
+        expected: MockApplicationInfo.testOsDisplayVersion,
+        fieldName: "os_version"
+      )
+      assertEqualProtoString(
         proto.application_info.apple_app_info.bundle_short_version,
         expected: MockApplicationInfo.testAppDisplayVersion,
         fieldName: "bundle_short_version"
+      )
+      assertEqualProtoString(
+        proto.application_info.apple_app_info.app_build_version,
+        expected: MockApplicationInfo.testAppBuildVersion,
+        fieldName: "app_build_version"
       )
       assertEqualProtoString(
         proto.application_info.device_model,
@@ -268,7 +278,7 @@ class SessionStartEventTests: XCTestCase {
       #endif
       assertEqualProtoString(
         proto.application_info.apple_app_info.mcc_mnc,
-        expected: MockApplicationInfo.testMCCMNC,
+        expected: "",
         fieldName: "mcc_mnc"
       )
     }

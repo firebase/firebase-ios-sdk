@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// TODO(wuandy): Delete this once isPersistenceEnabled and cacheSizeBytes are removed.
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -22,13 +25,16 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRLocalCacheSettings+Internal.h"
 
 #include "Firestore/core/src/api/query_snapshot.h"
+#include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/util/string_apple.h"
 #include "Firestore/core/test/unit/testutil/app_testing.h"
 
+using api::Settings;
 using firebase::firestore::model::DatabaseId;
 using firebase::firestore::testutil::AppForUnitTesting;
 using firebase::firestore::util::MakeNSString;
@@ -1784,6 +1790,43 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotIdentical(db1, db2);
   XCTAssertNotIdentical(db1, db3);
   XCTAssertNotIdentical(db2, db3);
+}
+
+- (void)testCannotMixCacheConfigAPIs {
+  [FIRApp configure];
+  FIRFirestore *db1 = [FIRFirestore firestore];
+
+  FIRFirestoreSettings *settings = db1.settings;
+  settings.cacheSizeBytes = 10000000;
+  settings.cacheSettings = [[FIRPersistentCacheSettings alloc] init];
+
+  XCTAssertThrowsSpecific(db1.settings = settings, NSException);
+
+  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"db2"];
+  settings = db2.settings;
+  settings.cacheSettings = [[FIRMemoryCacheSettings alloc] init];
+  settings.persistenceEnabled = NO;
+
+  XCTAssertThrowsSpecific(db2.settings = settings, NSException);
+}
+
+- (void)testMinimumCacheSize {
+  XCTAssertThrowsSpecific([[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(1024 * 1024 - 1)],
+                          NSException);
+}
+
+- (void)testUnlimitedCacheSize {
+  FIRPersistentCacheSettings *cacheSettings =
+      [[FIRPersistentCacheSettings alloc] initWithSizeBytes:@(Settings::CacheSizeUnlimited)];
+  XCTAssertEqual(cacheSettings.internalSettings.size_bytes(), Settings::CacheSizeUnlimited);
+
+  self.db.settings.cacheSettings = cacheSettings;
+
+  FIRDocumentReference *doc = [self.db documentWithPath:@"rooms/eros"];
+  NSDictionary<NSString *, id> *data = @{@"value" : @"foo"};
+  [self writeDocumentRef:doc data:data];
+  FIRDocumentSnapshot *result = [self readDocumentForRef:doc];
+  XCTAssertEqualObjects(result.data, data);
 }
 
 @end

@@ -1,5 +1,21 @@
-# Unreleased
-- [added] Added dependency on Firebase Sessions SDK to power future metrics and debugging features in Crashlytics
+# 10.11.0
+- [fixed] Fixed a threading-related hang during initialization in urgent mode (#11216)
+
+# 10.10.0
+- [changed] Removed references to deprecated CTCarrier API in FirebaseSessions. (#11144)
+- [fixed] Fix Xcode 14.3 Analyzer issue. (#11228)
+
+# 10.9.0
+- [fixed] Updated upload-symbols to 3.15. Disabled dSYM uploads for Flutter
+  apps building with --obfuscate and added instructions for uploading through
+  the Crashlytics dashboard. (#11136)
+- [fixed] Fixed a memory leak when generating session events (#11027).
+
+# 10.7.0
+- [fixed] Updated upload-symbols to 3.14 with an improvement to upload all dSYM files for Flutter apps
+
+# 10.6.0
+- [added] Integrated with Firebase sessions library to enable upcoming features related to session-based crash metrics. If your app uses the Crashlytics SDK, review Firebase's [data disclosure page](https://firebase.google.com/docs/ios/app-store-data-collection) to make sure that your app's privacy details in the App Store are accurate and complete.
 
 # 10.4.0
 - [added] Updated Crashlytics to include the Firebase Installation ID for consistency with other products (#10645).

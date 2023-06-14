@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
+#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
@@ -47,6 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The heartbeat logger used to add heartbeats to the corresponding request's header.
  */
 @property(nonatomic, copy, nullable) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
+/** @property appCheck
+    @brief The appCheck is used to generate a token.
+ */
+@property(nonatomic, copy, nullable) id<FIRAppCheckInterop> appCheck;
 
 /** @property LanguageCode
     @brief The language code used in the request.
@@ -72,37 +77,29 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey appID:(NSString *)appID;
 
-/** @fn initWithAPIKey:appID:
+/** @fn initWithAPIKey:appID:auth:
     @brief Convenience initializer.
     @param APIKey The API key to be used in the request.
- @param appID The Firebase app ID to be passed in the request header.
- @param auth The FIRAuth instance used in the request.
+    @param appID The Firebase app ID to be passed in the request header.
+    @param auth The FIRAuth instance used in the request.
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
                                    auth:(nullable FIRAuth *)auth;
 
-/** @fn initWithAPIKey:appID:heartbeatLogger:
+/** @fn initWithAPIKey:appID:auth:heartbeatLogger:appCheck:
     @brief Designated initializer.
     @param APIKey The API key to be used in the request.
- @param appID The Firebase app ID to be passed in the request header.
+    @param appID The Firebase app ID to be passed in the request header.
+    @param auth The FIRAuth instance used in the request.
     @param heartbeatLogger The heartbeat logger used to add heartbeats to the request header.
- */
-- (nullable instancetype)initWithAPIKey:(NSString *)APIKey
-                                  appID:(NSString *)appID
-                        heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger;
-
-/** @fn initWithAPIKey:appID:heartbeatLogger:
-    @brief Designated initializer.
-    @param APIKey The API key to be used in the request.
- @param appID The Firebase app ID to be passed in the request header.
- @param auth The FIRAuth instance used in the request.
-    @param heartbeatLogger The heartbeat logger used to add heartbeats to the request header.
+    @param appCheck The appCheck interop is a library to generate app check token.
  */
 - (nullable instancetype)initWithAPIKey:(NSString *)APIKey
                                   appID:(NSString *)appID
                                    auth:(nullable FIRAuth *)auth
                         heartbeatLogger:(nullable id<FIRHeartbeatLoggerProtocol>)heartbeatLogger
+                               appCheck:(nullable id<FIRAppCheckInterop>)appCheck
     NS_DESIGNATED_INITIALIZER;
 
 @end

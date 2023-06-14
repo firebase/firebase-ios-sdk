@@ -15,91 +15,14 @@
  */
 
 #import <Foundation/Foundation.h>
-#include "Firestore/Protos/nanopb/google/firestore/v1/query.nanopb.h"
-#import "Firestore/core/src/core/composite_filter.h"
-#import "Firestore/core/src/core/field_filter.h"
 
-// TODO(orquery): This class will become public API. Change visibility and add documentation.
+#import "FIRFilter.h"
+#include "Firestore/core/src/core/composite_filter.h"
+#include "Firestore/core/src/core/field_filter.h"
 
 @class FIRFieldPath;
 
 NS_ASSUME_NONNULL_BEGIN
-
-NS_SWIFT_NAME(Filter)
-@interface FIRFilter : NSObject
-
-#pragma mark - Public Methods
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                      isEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isEqualTo:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                          isEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isEqualTo:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                   isNotEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isNotEqualTo:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                       isNotEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isNotEqualTo:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                  isGreaterThan:(nonnull id)value NS_SWIFT_NAME(whereField(_:isGreaterThan:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                      isGreaterThan:(nonnull id)value NS_SWIFT_NAME(whereField(_:isGreaterThan:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-         isGreaterThanOrEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isGreaterOrEqualTo:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-             isGreaterThanOrEqualTo:(nonnull id)value
-    NS_SWIFT_NAME(whereField(_:isGreaterOrEqualTo:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                     isLessThan:(nonnull id)value NS_SWIFT_NAME(whereField(_:isLessThan:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                         isLessThan:(nonnull id)value NS_SWIFT_NAME(whereField(_:isLessThan:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-            isLessThanOrEqualTo:(nonnull id)value NS_SWIFT_NAME(whereField(_:isLessThanOrEqualTo:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                isLessThanOrEqualTo:(nonnull id)value
-    NS_SWIFT_NAME(whereField(_:isLessThanOrEqualTo:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                  arrayContains:(nonnull id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                      arrayContains:(nonnull id)value NS_SWIFT_NAME(whereField(_:arrayContains:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-               arrayContainsAny:(nonnull NSArray<id> *)values
-    NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                   arrayContainsAny:(nonnull NSArray<id> *)values
-    NS_SWIFT_NAME(whereField(_:arrayContainsAny:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                             in:(nonnull NSArray<id> *)values NS_SWIFT_NAME(whereField(_:in:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                                 in:(nonnull NSArray<id> *)values NS_SWIFT_NAME(whereField(_:in:));
-
-+ (FIRFilter *)filterWhereField:(nonnull NSString *)field
-                          notIn:(nonnull NSArray<id> *)values NS_SWIFT_NAME(whereField(_:notIn:));
-
-+ (FIRFilter *)filterWhereFieldPath:(nonnull FIRFieldPath *)field
-                              notIn:(nonnull NSArray<id> *)values
-    NS_SWIFT_NAME(whereField(_:notIn:));
-
-+ (FIRFilter *)orFilterWithFilters:(NSArray<FIRFilter *> *)filters NS_SWIFT_NAME(orFilter(_:));
-
-+ (FIRFilter *)andFilterWithFilters:(NSArray<FIRFilter *> *)filters NS_SWIFT_NAME(andFilter(_:));
-
-@end
 
 /** Exposed internally */
 @interface FSTUnaryFilter : FIRFilter

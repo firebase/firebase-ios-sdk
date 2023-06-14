@@ -27,7 +27,7 @@
 static NSInteger const SuccessHTTPStatusCode = 200;
 
 @interface FIRIAMMessageContentDataWithImageURL ()
-@property(nonatomic, readwrite, nonnull, copy) NSString *titleText;
+@property(nonatomic, readwrite, nullable, copy) NSString *titleText;
 @property(nonatomic, readwrite, nonnull, copy) NSString *bodyText;
 @property(nonatomic, copy, nullable) NSString *actionButtonText;
 @property(nonatomic, copy, nullable) NSString *secondaryActionButtonText;
@@ -39,7 +39,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 @end
 
 @implementation FIRIAMMessageContentDataWithImageURL
-- (instancetype)initWithMessageTitle:(NSString *)title
+- (instancetype)initWithMessageTitle:(nullable NSString *)title
                          messageBody:(NSString *)body
                     actionButtonText:(nullable NSString *)actionButtonText
            secondaryActionButtonText:(nullable NSString *)secondaryActionButtonText

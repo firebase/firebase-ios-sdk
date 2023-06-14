@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppDistribution'
-  s.version          = '10.5.0-beta'
+  s.version          = '10.11.0-beta'
   s.summary          = 'App Distribution for Firebase iOS SDK.'
 
   s.description      = <<-DESC
@@ -46,6 +46,7 @@ iOS SDK for App Distribution for Firebase.
      'FirebaseAppDistribution/Tests/Unit*/*.[mh]',
      'FirebaseAppDistribution/Tests/Unit/Swift*/*.swift',
    ]
+   unit_tests.requires_app_host = true
    unit_tests.resources = 'FirebaseAppDistribution/Tests/Unit/Resources/*'
    unit_tests.dependency 'OCMock'
   end

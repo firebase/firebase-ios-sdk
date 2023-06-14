@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
  *  topics and perform the operation safely and correctly.
  *
  *  When a topic fails to subscribe or unsubscribe due to a network error, it is considered a
- *  recoverable error, and so it remains in the current batch until it is succesfully completed.
+ *  recoverable error, and so it remains in the current batch until it is successfully completed.
  *  Topic updates are completed when they either (a) succeed, (b) are cancelled, or (c) result in an
  *  unrecoverable error. Any error outside of `NSURLErrorDomain` is considered an unrecoverable
  *  error.

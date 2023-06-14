@@ -112,6 +112,9 @@ static FIRApp *sDefaultApp;
 + (void)configure {
   FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
+#if DEBUG
+    [self findMisnamedGoogleServiceInfoPlist];
+#endif  // DEBUG
     [NSException raise:kFirebaseCoreErrorDomain
                 format:@"`FirebaseApp.configure()` could not find "
                        @"a valid GoogleService-Info.plist in your project. Please download one "
@@ -876,8 +879,39 @@ static FIRApp *sDefaultApp;
 
 - (void)appDidBecomeActive:(NSNotification *)notification {
   if ([self isDataCollectionDefaultEnabled]) {
+    // If changing the below line, consult with the Games team to ensure they
+    // are not negatively impacted. For more details, see
+    // go/firebase-game-sdk-user-agent-register-timing.
     [self.heartbeatLogger log];
   }
 }
+
+#if DEBUG
++ (void)findMisnamedGoogleServiceInfoPlist {
+  for (NSBundle *bundle in [NSBundle allBundles]) {
+    // Not recursive, but we're looking for misnames, not people accidentally
+    // hiding their config file in a subdirectory of their bundle.
+    NSArray *plistPaths = [bundle pathsForResourcesOfType:@"plist" inDirectory:nil];
+    for (NSString *path in plistPaths) {
+      @autoreleasepool {
+        NSDictionary<NSString *, id> *contents = [NSDictionary dictionaryWithContentsOfFile:path];
+        if (contents == nil) {
+          continue;
+        }
+
+        NSString *projectID = contents[@"PROJECT_ID"];
+        if (projectID != nil) {
+          [NSException raise:kFirebaseCoreErrorDomain
+                      format:@"`FirebaseApp.configure()` could not find the default "
+                             @"configuration plist in your project, but did find one at "
+                             @"%@. Please rename this file to GoogleService-Info.plist to "
+                             @"use it as the default configuration.",
+                             path];
+        }
+      }
+    }
+  }
+}
+#endif  // DEBUG
 
 @end

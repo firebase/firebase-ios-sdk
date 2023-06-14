@@ -1,3 +1,13 @@
+# 10.11.0
+- [added] Add progress tracking capability for `putDataAsync`, `putFileAsync`, and
+  `writeAsync`. (#10574)
+
+# 10.10.0
+- [fixed] Fixed potential memory leak of Storage instances. (#11248)
+
+# 10.7.0
+- [added] Provide server errors via the `NSUnderlyingErrorKey`.
+
 # 10.5.0
 - [added] Added Storage API to limit upload chunk size. (#10137)
 - [fixed] Run `pod update` or `File -> Packages -> Update to latest Packages` to update the `GTMSessionFetcher` dependency to at least version `3.1.0`.

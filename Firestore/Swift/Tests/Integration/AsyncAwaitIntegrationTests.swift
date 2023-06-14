@@ -74,11 +74,24 @@ let emptyBundle = """
       XCTAssertNil(value, "value should be nil on success")
     }
 
-    func testCount() async throws {
-      let collection = collectionRef()
-      try await collection.addDocument(data: [:])
-      let snapshot = try await collection.count.getAggregation(source: .server)
-      XCTAssertEqual(snapshot.count, 1)
+    func testQuery() async throws {
+      let collRef = collectionRef(
+        withDocuments: ["doc1": ["a": 1, "b": 0],
+                        "doc2": ["a": 2, "b": 1],
+                        "doc3": ["a": 3, "b": 2],
+                        "doc4": ["a": 1, "b": 3],
+                        "doc5": ["a": 1, "b": 1]]
+      )
+
+      // Two equalities: a==1 || b==1.
+      let filter = Filter.orFilter(
+        [Filter.whereField("a", isEqualTo: 1),
+         Filter.whereField("b", isEqualTo: 1)]
+      )
+      let query = collRef.whereFilter(filter)
+      let snapshot = try await query.getDocuments(source: FirestoreSource.server)
+      XCTAssertEqual(FIRQuerySnapshotGetIDs(snapshot),
+                     ["doc1", "doc2", "doc4", "doc5"])
     }
   }
 #endif

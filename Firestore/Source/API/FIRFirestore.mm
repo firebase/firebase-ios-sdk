@@ -166,6 +166,31 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
++ (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
+  if (!app) {
+    ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
+                         "to use the default FirebaseApp instance.");
+  }
+  if (!database) {
+    ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
+                         "database",
+                         DatabaseId::kDefault);
+  }
+
+  id<FSTFirestoreMultiDBProvider> provider =
+      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
+  return [provider firestoreForDatabase:database];
+}
+
++ (instancetype)firestoreForDatabase:(NSString *)database {
+  FIRApp *app = [FIRApp defaultApp];
+  if (!app) {
+    ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
+                      "before using Firestore");
+  }
+  return [self firestoreForApp:app database:database];
+}
+
 - (FIRFirestoreSettings *)settings {
   // Disallow mutation of our internal settings
   return [_settings copy];
@@ -512,37 +537,23 @@ NS_ASSUME_NONNULL_BEGIN
   return _firestore->database_id();
 }
 
-+ (instancetype)firestoreForApp:(FIRApp *)app database:(NSString *)database {
-  if (!app) {
-    ThrowInvalidArgument("FirebaseApp instance may not be nil. Use FirebaseApp.app() if you'd like "
-                         "to use the default FirebaseApp instance.");
-  }
-  if (!database) {
-    ThrowInvalidArgument("Database identifier may not be nil. Use '%s' if you want the default "
-                         "database",
-                         DatabaseId::kDefault);
-  }
-
-  id<FSTFirestoreMultiDBProvider> provider =
-      FIR_COMPONENT(FSTFirestoreMultiDBProvider, app.container);
-  return [provider firestoreForDatabase:database];
-}
-
-+ (instancetype)firestoreForDatabase:(NSString *)database {
-  FIRApp *app = [FIRApp defaultApp];
-  if (!app) {
-    ThrowIllegalState("Failed to get FirebaseApp instance. Please call FirebaseApp.configure() "
-                      "before using Firestore");
-  }
-  return [self firestoreForApp:app database:database];
-}
-
 + (FIRFirestore *)recoverFromFirestore:(std::shared_ptr<Firestore>)firestore {
   return (__bridge FIRFirestore *)firestore->extension();
 }
 
 - (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion {
   _firestore->Terminate(MakeCallback(completion));
+}
+
+#pragma mark - Force Link Unreferenced Symbols
+
+extern void FSTIncludeFSTFirestoreComponent(void);
+
+/// This method forces the linker to include all the Analytics categories without requiring app
+/// developers to include the '-ObjC' linker flag in their projects. DO NOT CALL THIS METHOD.
++ (void)notCalled {
+  NSAssert(NO, @"+notCalled should never be called");
+  FSTIncludeFSTFirestoreComponent();
 }
 
 @end

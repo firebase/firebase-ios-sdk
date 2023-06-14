@@ -47,9 +47,6 @@ protocol ApplicationInfoProtocol {
   /// Model of the device
   var deviceModel: String { get }
 
-  /// Validated Mobile Country Code and Mobile Network Code
-  var mccMNC: String { get }
-
   /// Network information for the application
   var networkInfo: NetworkInfoProtocol { get }
 
@@ -70,12 +67,15 @@ class ApplicationInfo: ApplicationInfoProtocol {
 
   private let networkInformation: NetworkInfoProtocol
   private let envParams: [String: String]
+  private let infoDict: [String: Any]?
 
   init(appID: String, networkInfo: NetworkInfoProtocol = NetworkInfo(),
-       envParams: [String: String] = ProcessInfo.processInfo.environment) {
+       envParams: [String: String] = ProcessInfo.processInfo.environment,
+       infoDict: [String: Any]? = Bundle.main.infoDictionary) {
     self.appID = appID
     networkInformation = networkInfo
     self.envParams = envParams
+    self.infoDict = infoDict
   }
 
   var sdkVersion: String {
@@ -88,10 +88,6 @@ class ApplicationInfo: ApplicationInfoProtocol {
 
   var deviceModel: String {
     return GULAppEnvironmentUtil.deviceSimulatorModel() ?? ""
-  }
-
-  var mccMNC: String {
-    return FIRSESValidateMccMnc(networkInfo.mobileCountryCode, networkInfo.mobileNetworkCode) ?? ""
   }
 
   var networkInfo: NetworkInfoProtocol {
@@ -107,11 +103,11 @@ class ApplicationInfo: ApplicationInfoProtocol {
   }
 
   var appBuildVersion: String {
-    return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+    return infoDict?["CFBundleVersion"] as? String ?? ""
   }
 
   var appDisplayVersion: String {
-    return Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+    return infoDict?["CFBundleShortVersionString"] as? String ?? ""
   }
 
   var osBuildVersion: String {

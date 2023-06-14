@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseAnalyticsSwift'
-  s.version                 = '10.5.0'
+  s.version                 = '10.11.0'
   s.summary                 = 'Swift Extensions for Firebase Analytics'
 
   s.description      = <<-DESC
@@ -44,6 +44,17 @@ Firebase Analytics is a free, out-of-the-box analytics solution that inspires ac
     }
     swift_unit_tests.source_files = [
       'FirebaseAnalyticsSwift/Tests/SwiftUnit/**/*.swift',
+    ]
+  end
+
+  s.test_spec 'objc-api-coverage' do |objc_api_tests|
+    objc_api_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    objc_api_tests.source_files = [
+      'FirebaseAnalyticsSwift/Tests/ObjCAPI/*.[hm]',
     ]
   end
 end

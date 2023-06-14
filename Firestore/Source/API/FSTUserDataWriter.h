@@ -35,6 +35,6 @@ namespace api = firebase::firestore::api;
 - (instancetype)initWithFirestore:(std::shared_ptr<api::Firestore>)firestore
           serverTimestampBehavior:(FIRServerTimestampBehavior)serverTimestampBehavior;
 
-- (id)convertedValue:(const firebase::firestore::google_firestore_v1_Value&)value;
+- (id)convertedValue:(const firebase::firestore::google_firestore_v1_Value &)value;
 
 @end

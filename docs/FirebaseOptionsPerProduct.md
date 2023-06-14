@@ -51,6 +51,8 @@ Proposal: Deprecate these in the SDK and stop generating them for GoogleService-
 Proposal: Stop generating these for GoogleService-Info.plist.
 
  * PLIST_VERSION
+   * Note: This is different from the `<plist version="1.0">` declaration that is part of the
+     [Property List XML Schema](https://www.apple.com/DTDs/PropertyList-1.0.dtd).
  * IS_ADS_ENABLED
  * IS_ANALYTICS_ENABLED
  * IS_APPINVITE_ENABLED
