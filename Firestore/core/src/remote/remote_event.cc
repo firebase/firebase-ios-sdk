@@ -219,8 +219,18 @@ create_existence_filter_mismatch_info_for_testing_hooks(
     BloomFilterApplicationStatus status,
     int local_cache_count,
     const ExistenceFilterWatchChange& existence_filter) {
-  (void)status;
-  return {local_cache_count, existence_filter.filter().count()};
+  absl::optional<TestingHooks::BloomFilterInfo> bloom_filter;
+  if (existence_filter.filter().bloom_filter_parameters().has_value()) {
+    const BloomFilterParameters& bloom_filter_parameters =
+        existence_filter.filter().bloom_filter_parameters().value();
+    bloom_filter = {status == BloomFilterApplicationStatus::kSuccess,
+                    bloom_filter_parameters.hash_count,
+                    static_cast<int>(bloom_filter_parameters.bitmap.size()),
+                    bloom_filter_parameters.padding};
+  }
+
+  return {local_cache_count, existence_filter.filter().count(),
+          std::move(bloom_filter)};
 }
 
 }  // namespace

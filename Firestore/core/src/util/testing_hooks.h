@@ -24,6 +24,7 @@
 
 #include "Firestore/core/src/api/listener_registration.h"
 #include "Firestore/core/src/util/no_destructor.h"
+#include "absl/types/optional.h"
 
 namespace firebase {
 namespace firestore {
@@ -40,6 +41,28 @@ class TestingHooks final {
   static TestingHooks& GetInstance();
 
   /**
+   * Information about the bloom filter provided by Watch in the ExistenceFilter
+   * message's `unchangedNames` field.
+   */
+  struct BloomFilterInfo {
+    /**
+     * Whether a full requery was averted by using the bloom filter. If false,
+     * then something happened, such as a false positive, to prevent using the
+     * bloom filter to avoid a full requery.
+     */
+    bool applied = false;
+
+    /** The number of hash functions used in the bloom filter. */
+    int hash_count = -1;
+
+    /** The number of bytes in the bloom filter's bitmask. */
+    int bitmap_length = -1;
+
+    /** The number of bits of padding in the last byte of the bloom filter. */
+    int padding = -1;
+  };
+
+  /**
    * Information about an existence filter mismatch, as specified to callbacks
    * registered with `OnExistenceFilterMismatch()`.
    */
@@ -52,6 +75,13 @@ class TestingHooks final {
      * specified in the `ExistenceFilter` message's `count` field.
      */
     int existence_filter_count = -1;
+
+    /**
+     * Information about the bloom filter provided by Watch in the
+     * ExistenceFilter message's `unchangedNames` field. If empty, then that
+     * means that Watch did _not_ provide a bloom filter.
+     */
+    absl::optional<BloomFilterInfo> bloom_filter;
   };
 
   using ExistenceFilterMismatchCallback =
