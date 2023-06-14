@@ -124,16 +124,3 @@ NSString *FPRTruncatedURLString(NSString *URLString) {
   }
   return truncatedURLString;
 }
-
-NSString *FPRValidatedMccMnc(NSString *mcc, NSString *mnc) {
-  if ([mcc length] != 3 || [mnc length] < 2 || [mnc length] > 3) return nil;
-
-  static NSCharacterSet *notDigits;
-  static dispatch_once_t token;
-  dispatch_once(&token, ^{
-    notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-  });
-  NSString *mccMnc = [mcc stringByAppendingString:mnc];
-  if ([mccMnc rangeOfCharacterFromSet:notDigits].location != NSNotFound) return nil;
-  return mccMnc;
-}

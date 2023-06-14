@@ -129,9 +129,13 @@ static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkTy
     };
   });
 
-  NSString *networkString = FPRNetworkInfo().currentRadioAccessTechnology;
-  NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
-  return cellularNetworkType.intValue;
+  NSDictionary<NSString *, NSString *> *radioAccessors = FPRNetworkInfo().serviceCurrentRadioAccessTechnology;
+  if (radioAccessors.count > 0) {
+    NSString *networkString = [radioAccessors.allValues objectAtIndex:0];
+    NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
+    return cellularNetworkType.intValue;
+  }
+  return firebase_perf_v1_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE;
 }
 #endif
 
@@ -218,12 +222,6 @@ firebase_perf_v1_ApplicationInfo FPRGetApplicationInfoMessage(void) {
   iosAppInfo.has_network_connection_info = true;
   iosAppInfo.network_connection_info.has_network_type = true;
 #ifdef TARGET_HAS_MOBILE_CONNECTIVITY
-  CTTelephonyNetworkInfo *networkInfo = FPRNetworkInfo();
-  CTCarrier *provider = networkInfo.subscriberCellularProvider;
-  NSString *mccMnc = FPRValidatedMccMnc(provider.mobileCountryCode, provider.mobileNetworkCode);
-  if (mccMnc) {
-    iosAppInfo.mcc_mnc = FPREncodeString(mccMnc);
-  }
   if (iosAppInfo.network_connection_info.network_type ==
       firebase_perf_v1_NetworkConnectionInfo_NetworkType_MOBILE) {
     iosAppInfo.network_connection_info.mobile_subtype = FPRCellularNetworkType();
