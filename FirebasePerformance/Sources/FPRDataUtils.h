@@ -46,11 +46,3 @@ FOUNDATION_EXTERN NSString *FPRValidatedAttributeValue(NSString *value);
  *  @return The unchanged url string or a truncated version if the length goes beyond the limit.
  */
 FOUNDATION_EXTERN NSString *FPRTruncatedURLString(NSString *URLString);
-
-/** Ensures proper length and numerals and returns a concatenated version if valid.
- *
- *  @param mcc 3 digit MCC code.
- *  @param mnc 2 or 3 digit MNC code.
- *  @return Concatenated mcc and mnc codes if valid. Otherwise nil.
- */
-FOUNDATION_EXTERN NSString *FPRValidatedMccMnc(NSString *mcc, NSString *mnc);
