@@ -44,7 +44,6 @@ extension Fruit {
   }
 }
 
-
 /// This view demonstrates how to use the `FirestoreQuery` property wrapper.
 /// It uses **no animations**, so adding and removing elements is a bit jarring.
 struct FavouriteFruitsNoAnimationsView: View {
@@ -71,8 +70,7 @@ struct FavouriteFruitsNoAnimationsView: View {
   private func add(fruit: Fruit) {
     do {
       try Firestore.firestore().collection("fruits").addDocument(from: fruit)
-    }
-    catch {
+    } catch {
       print(error)
     }
   }
@@ -82,7 +80,7 @@ struct FavouriteFruitsNoAnimationsView: View {
       List(fruits) { fruit in
         Text(fruit.name)
           .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button() {
+            Button {
               delete(fruit: fruit)
             } label: {
               Label("Delete", systemImage: "trash")
@@ -92,7 +90,7 @@ struct FavouriteFruitsNoAnimationsView: View {
       .navigationTitle("Fruits")
       .toolbar {
         ToolbarItem(placement: .bottomBar) {
-          Button() {
+          Button {
             addRandomFruit()
           } label: {
             Label("Add", systemImage: "plus")
@@ -101,8 +99,8 @@ struct FavouriteFruitsNoAnimationsView: View {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(action: toggleFilter) {
             Image(systemName: showOnlyFavourites
-                  ? "line.3.horizontal.decrease.circle.fill"
-                  : "line.3.horizontal.decrease.circle")
+              ? "line.3.horizontal.decrease.circle.fill"
+              : "line.3.horizontal.decrease.circle")
           }
         }
       }
@@ -125,7 +123,7 @@ struct FavouriteFruitsNoAnimationsView: View {
 }
 
 struct FavouriteFruitsNoAnimationsView_Previews: PreviewProvider {
-    static var previews: some View {
-        FavouriteFruitsNoAnimationsView()
-    }
+  static var previews: some View {
+    FavouriteFruitsNoAnimationsView()
+  }
 }

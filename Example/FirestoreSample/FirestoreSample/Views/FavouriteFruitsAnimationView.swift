@@ -40,7 +40,6 @@ extension Fruit {
   }
 }
 
-
 /// This view demostrates how to use the ``FirestoreQuery`` property wrapper,
 /// using the `animation` parameter to make sure list items are animated when
 /// being added or removed.
@@ -69,8 +68,7 @@ struct FavouriteFruitsAnimationView: View {
   private func add(fruit: Fruit) {
     do {
       try Firestore.firestore().collection("fruits").addDocument(from: fruit)
-    }
-    catch {
+    } catch {
       print(error)
     }
   }
@@ -80,7 +78,7 @@ struct FavouriteFruitsAnimationView: View {
       List(fruits) { fruit in
         Text(fruit.name)
           .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button() {
+            Button {
               delete(fruit: fruit)
             } label: {
               Label("Delete", systemImage: "trash")
@@ -90,7 +88,7 @@ struct FavouriteFruitsAnimationView: View {
       .navigationTitle("Fruits")
       .toolbar {
         ToolbarItem(placement: .bottomBar) {
-          Button() {
+          Button {
             addRandomFruit()
           } label: {
             Label("Add", systemImage: "plus")
@@ -99,8 +97,8 @@ struct FavouriteFruitsAnimationView: View {
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(action: toggleFilter) {
             Image(systemName: showOnlyFavourites
-                  ? "line.3.horizontal.decrease.circle.fill"
-                  : "line.3.horizontal.decrease.circle")
+              ? "line.3.horizontal.decrease.circle.fill"
+              : "line.3.horizontal.decrease.circle")
           }
         }
       }
@@ -127,4 +125,3 @@ struct FavouriteFruitsAnimationView_Previews: PreviewProvider {
     FavouriteFruitsAnimationView()
   }
 }
-
