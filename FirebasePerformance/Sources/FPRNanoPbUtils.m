@@ -129,7 +129,8 @@ static firebase_perf_v1_NetworkConnectionInfo_MobileSubtype FPRCellularNetworkTy
     };
   });
 
-  NSDictionary<NSString *, NSString *> *radioAccessors = FPRNetworkInfo().serviceCurrentRadioAccessTechnology;
+  NSDictionary<NSString *, NSString *> *radioAccessors =
+      FPRNetworkInfo().serviceCurrentRadioAccessTechnology;
   if (radioAccessors.count > 0) {
     NSString *networkString = [radioAccessors.allValues objectAtIndex:0];
     NSNumber *cellularNetworkType = cellularNetworkToMobileSubtype[networkString];
