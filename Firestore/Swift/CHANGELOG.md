@@ -1,3 +1,7 @@
+# unreleased
+- [added] Added support animations on the `@FirestoreQuery` property wrapper.
+
+
 # 10.4.0
 - [fixed] Restore 9.x Codable behavior of encoding `Data` types as an `NSData`
   blob instead of a String.
