@@ -1192,7 +1192,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
                      matchesResult:@[ @"doc6", @"doc3" ]];
 }
 
-- (void)testResumingAQueryShouldUseExistenceFilterToDetectDeletes {
+- (void)testResumingAQueryShouldUseBloomFilterToAvoidFullRequery {
   // Set this test to stop when the first failure occurs because some test assertion failures make
   // the rest of the test not applicable or will even crash.
   [self setContinueAfterFailure:NO];
