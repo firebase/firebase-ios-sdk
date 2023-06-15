@@ -37,6 +37,10 @@ import Foundation
    */
   @objc public let credential: OAuthCredential?
 
+  private let kAdditionalUserInfoCodingKey = "additionalUserInfo"
+  private let kUserCodingKey = "user"
+  private let kCredentialCodingKey = "credential"
+
   // TODO: All below here should be internal
 
   /** @fn initWithUser:additionalUserInfo:
@@ -58,17 +62,18 @@ import Foundation
   }
 
   public func encode(with coder: NSCoder) {
-    coder.encode(user)
-    coder.encode(additionalUserInfo)
-    coder.encode(credential)
+    coder.encode(user, forKey: kUserCodingKey)
+    coder.encode(additionalUserInfo, forKey: kAdditionalUserInfoCodingKey)
+    coder.encode(credential, forKey: kCredentialCodingKey)
   }
 
   public required init?(coder: NSCoder) {
-    guard let user = coder.decodeObject(forKey: "user") as? User else {
+    guard let user = coder.decodeObject(forKey: kUserCodingKey) as? User else {
       return nil
     }
     self.user = user
-    additionalUserInfo = coder.decodeObject(forKey: "additionalUserInfo") as? AdditionalUserInfo
-    credential = coder.decodeObject(forKey: "credential") as? OAuthCredential
+    additionalUserInfo = coder.decodeObject(forKey: kAdditionalUserInfoCodingKey)
+      as? AdditionalUserInfo
+    credential = coder.decodeObject(forKey: kCredentialCodingKey) as? OAuthCredential
   }
 }

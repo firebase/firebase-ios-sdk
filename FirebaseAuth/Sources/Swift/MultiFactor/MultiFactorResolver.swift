@@ -49,32 +49,37 @@ import Foundation
     public func resolveSignIn(with assertion: MultiFactorAssertion,
                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
       let phoneAssertion = assertion as? PhoneMultiFactorAssertion
-      let finalizeMFAPhoneRequestInfo = AuthProtoFinalizeMFAPhoneRequestInfo(
-        sessionInfo: phoneAssertion?.authCredential?.verificationID,
-        verificationCode: phoneAssertion?.authCredential?.verificationCode
-      )
-      let request = FinalizeMFASignInRequest(
-        mfaPendingCredential: mfaPendingCredential,
-        verificationInfo: finalizeMFAPhoneRequestInfo,
-        requestConfiguration: auth.requestConfiguration
-      )
-      AuthBackend.post(withRequest: request) { rawResponse, error in
-        if let error {
-          if let completion {
-            completion(nil, error)
-          }
-        } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
-          self.auth.completeSignIn(withAccessToken: response.idToken,
-                                   accessTokenExpirationDate: nil,
-                                   refreshToken: response.refreshToken,
-                                   anonymous: false) { user, error in
-            guard let user else {
-              fatalError("Internal Auth Error: completeSignIn didn't pass back a user")
+      guard let credential = phoneAssertion?.authCredential else {
+        fatalError("Internal Error: Missing credential")
+      }
+      switch credential.credentialKind {
+      case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
+      case let .verification(verificationID, code):
+        let finalizeMFAPhoneRequestInfo =
+          AuthProtoFinalizeMFAPhoneRequestInfo(sessionInfo: verificationID, verificationCode: code)
+        let request = FinalizeMFASignInRequest(
+          mfaPendingCredential: mfaPendingCredential,
+          verificationInfo: finalizeMFAPhoneRequestInfo,
+          requestConfiguration: auth.requestConfiguration
+        )
+        AuthBackend.post(withRequest: request) { rawResponse, error in
+          if let error {
+            if let completion {
+              completion(nil, error)
             }
-            let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
-            let decoratedCallback = self.auth
-              .signInFlowAuthDataResultCallback(byDecorating: completion)
-            decoratedCallback(result, nil)
+          } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
+            self.auth.completeSignIn(withAccessToken: response.idToken,
+                                     accessTokenExpirationDate: nil,
+                                     refreshToken: response.refreshToken,
+                                     anonymous: false) { user, error in
+              guard let user else {
+                fatalError("Internal Auth Error: completeSignIn didn't pass back a user")
+              }
+              let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
+              let decoratedCallback = self.auth
+                .signInFlowAuthDataResultCallback(byDecorating: completion)
+              decoratedCallback(result, nil)
+            }
           }
         }
       }

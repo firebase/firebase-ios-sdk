@@ -53,10 +53,12 @@
       let provider = PhoneAuthProvider.provider(auth: auth)
       let credential = provider.credential(withVerificationID: kTestVerificationID,
                                            verificationCode: kTestVerificationCode)
-      XCTAssertEqual(credential.verificationID, kTestVerificationID)
-      XCTAssertEqual(credential.verificationCode, kTestVerificationCode)
-      XCTAssertNil(credential.temporaryProof)
-      XCTAssertNil(credential.phoneNumber)
+      switch credential.credentialKind {
+      case .phoneNumber: XCTFail("Should be verification case")
+      case let .verification(id, code):
+        XCTAssertEqual(id, kTestVerificationID)
+        XCTAssertEqual(code, kTestVerificationCode)
+      }
     }
 
     /** @fn testVerifyEmptyPhoneNumber
@@ -284,6 +286,58 @@
      */
     func testSendVerificationCodeSuccessfulRetry() throws {
       try internalFlowRetry(function: #function, goodRetry: true)
+    }
+
+    /** @fn testPhoneAuthCredentialCoding
+        @brief Tests successful archiving and unarchiving of @c PhoneAuthCredential.
+     */
+    func testPhoneAuthCredentialCoding() throws {
+      let kVerificationID = "My verificationID"
+      let kVerificationCode = "1234"
+      let credential = PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
+                                           verificationID: kVerificationID,
+                                           verificationCode: kVerificationCode)
+      XCTAssertTrue(PhoneAuthCredential.supportsSecureCoding)
+      let data = try NSKeyedArchiver.archivedData(
+        withRootObject: credential,
+        requiringSecureCoding: true
+      )
+      let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+        ofClass: PhoneAuthCredential.self, from: data
+      ))
+      switch unarchivedCredential.credentialKind {
+      case .phoneNumber: XCTFail("Should be verification case")
+      case let .verification(id, code):
+        XCTAssertEqual(id, kVerificationID)
+        XCTAssertEqual(code, kVerificationCode)
+      }
+      XCTAssertEqual(unarchivedCredential.provider, PhoneAuthProvider.id)
+    }
+
+    /** @fn testPhoneAuthCredentialCodingPhone
+        @brief Tests successful archiving and unarchiving of @c PhoneAuthCredential after other constructor.
+     */
+    func testPhoneAuthCredentialCodingPhone() throws {
+      let kTemporaryProof = "Proof"
+      let kPhoneNumber = "123457"
+      let credential = PhoneAuthCredential(withTemporaryProof: kTemporaryProof,
+                                           phoneNumber: kPhoneNumber,
+                                           providerID: PhoneAuthProvider.id)
+      XCTAssertTrue(PhoneAuthCredential.supportsSecureCoding)
+      let data = try NSKeyedArchiver.archivedData(
+        withRootObject: credential,
+        requiringSecureCoding: true
+      )
+      let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+        ofClass: PhoneAuthCredential.self, from: data
+      ))
+      switch unarchivedCredential.credentialKind {
+      case let .phoneNumber(phoneNumber, temporaryProof):
+        XCTAssertEqual(temporaryProof, kTemporaryProof)
+        XCTAssertEqual(phoneNumber, kPhoneNumber)
+      case .verification: XCTFail("Should be phoneNumber case")
+      }
+      XCTAssertEqual(unarchivedCredential.provider, PhoneAuthProvider.id)
     }
 
     private func internalFlowRetry(function: String, goodRetry: Bool = false) throws {
