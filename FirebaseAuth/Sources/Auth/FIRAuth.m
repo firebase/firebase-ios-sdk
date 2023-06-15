@@ -1867,7 +1867,52 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     completion(nil, [FIRAuthErrorUtils missingEmailErrorWithMessage:nil]);
     return;
   }
+    
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+  if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
+          enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
+    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
+        injectRecaptchaFields:request
+                     provider:FIRAuthRecaptchaProviderPassword
+                       action:FIRAuthRecaptchaActionSignInWithPassword
+                   completion:^(
+                       FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
+                           [FIRAuthBackend signUpNewUser:(FIRSignUpNewUserRequest *)requestWithRecaptchaToken callback:completion];
+                   }];
+  } else {
+    [FIRAuthBackend
+     signUpNewUser:(FIRSignUpNewUserRequest *)request
+              callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+                if (error) {
+                  NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+                  if (error.code == FIRAuthErrorCodeInternalError &&
+                      [[underlyingError.userInfo
+                          objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey][@"message"]
+                          hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
+                    [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
+                        injectRecaptchaFields:request
+                                     provider:FIRAuthRecaptchaProviderPassword
+                                       action:FIRAuthRecaptchaActionSignInWithPassword
+                                   completion:^(
+                                       FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
+                                           [FIRAuthBackend signUpNewUser:(FIRSignUpNewUserRequest *)requestWithRecaptchaToken callback:completion];
+                                   }];
+                  } else {
+                      completion(nil, error);
+                    return;
+                  }
+                } else {
+                  if (error) {
+                      completion(nil, error);
+                    return;
+                  }
+                    completion(nil, error);
+                }
+              }];
+  }
+#else
   [FIRAuthBackend signUpNewUser:request callback:completion];
+#endif
 }
 
 /** @fn internalSignInAnonymouslyWithCompletion:
