@@ -1653,11 +1653,6 @@ extension User: NSSecureCoding {}
         switch credential.credentialKind {
         case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
         case let .verification(verificationID, code):
-          let finalizeMFAPhoneRequestInfo =
-            AuthProtoFinalizeMFAPhoneRequestInfo(
-              sessionInfo: verificationID,
-              verificationCode: code
-            )
           let operation = isLinkOperation ? AuthOperationType.link : AuthOperationType.update
           let request = VerifyPhoneNumberRequest(verificationID: verificationID,
                                                  verificationCode: code,
