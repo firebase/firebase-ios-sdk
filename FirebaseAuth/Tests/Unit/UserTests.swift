@@ -78,11 +78,13 @@ class UserTests: RPCBaseTests {
     let kGooglePhotoURL = "https://googleusercontents.com/user/profile"
     let kFacebookID = "FACEBOOK_ID"
     let kFacebookEmail = "user@facebook.com"
-    let kUserArchiverKey = "userArchiverKey"
     let kEnrollmentID = "fakeEnrollment"
     let kPhoneInfo = "+15555555555"
     let kEnrolledAt = "2022-08-01T18:31:15.426458Z"
     let kEnrolledAtMatch = "2022-08-01 18:31:15 +0000"
+    let kTwitterID = "TwitterID"
+    let kGitHubID = "GitHubID"
+    let kGameCenterID = "GameCenterID"
 
     var providerUserInfos = [[
       kProviderIDkey: EmailAuthProvider.id,
@@ -99,6 +101,21 @@ class UserTests: RPCBaseTests {
     [
       kProviderIDkey: FacebookAuthProvider.id,
       kFederatedIDKey: kFacebookID,
+      kEmailKey: kFacebookEmail,
+    ],
+    [
+      kProviderIDkey: GameCenterAuthProvider.id,
+      kFederatedIDKey: kGameCenterID,
+      kEmailKey: kFacebookEmail,
+    ],
+    [
+      kProviderIDkey: GitHubAuthProvider.id,
+      kFederatedIDKey: kGitHubID,
+      kEmailKey: kGoogleEmail,
+    ],
+    [
+      kProviderIDkey: TwitterAuthProvider.id,
+      kFederatedIDKey: kTwitterID,
       kEmailKey: kFacebookEmail,
     ]]
 
@@ -173,6 +190,27 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(facebookUserInfo.photoURL)
         XCTAssertEqual(facebookUserInfo.email, kFacebookEmail)
 
+        // Verify FIRUserInfo properties from the Game Center auth provider.
+        let gameCenterUserInfo = try XCTUnwrap(providerMap[GameCenterAuthProvider.id])
+        XCTAssertEqual(gameCenterUserInfo.uid, kGameCenterID)
+        XCTAssertNil(gameCenterUserInfo.displayName)
+        XCTAssertNil(gameCenterUserInfo.photoURL)
+        XCTAssertEqual(gameCenterUserInfo.email, kFacebookEmail)
+
+        // Verify FIRUserInfo properties from the GitHub auth provider.
+        let gitHubUserInfo = try XCTUnwrap(providerMap[GitHubAuthProvider.id])
+        XCTAssertEqual(gitHubUserInfo.uid, kGitHubID)
+        XCTAssertNil(gitHubUserInfo.displayName)
+        XCTAssertNil(gitHubUserInfo.photoURL)
+        XCTAssertEqual(gitHubUserInfo.email, kGoogleEmail)
+
+        // Verify FIRUserInfo properties from the Twitter auth provider.
+        let twitterUserInfo = try XCTUnwrap(providerMap[TwitterAuthProvider.id])
+        XCTAssertEqual(twitterUserInfo.uid, kTwitterID)
+        XCTAssertNil(twitterUserInfo.displayName)
+        XCTAssertNil(twitterUserInfo.photoURL)
+        XCTAssertEqual(twitterUserInfo.email, kFacebookEmail)
+
         #if os(iOS)
           // Verify UserInfo properties from the phone auth provider.
           let phoneUserInfo = try XCTUnwrap(providerMap[PhoneAuthProvider.id])
@@ -184,12 +222,11 @@ class UserTests: RPCBaseTests {
 
         let data = try NSKeyedArchiver.archivedData(
           withRootObject: user,
-          requiringSecureCoding: false
+          requiringSecureCoding: true
         )
 
         var encodedClasses = [User.self, NSDictionary.self, NSURL.self, SecureTokenService.self,
-                              UserInfoImpl.self, NSDate.self,
-                              UserMetadata.self, NSString.self,
+                              UserInfoImpl.self, NSDate.self, UserMetadata.self, NSString.self,
                               NSArray.self]
         #if os(iOS)
           encodedClasses.append(MultiFactor.self)
@@ -219,6 +256,36 @@ class UserTests: RPCBaseTests {
         let unarchivedProviderMap = unarchivedUser.providerData.reduce(into: [String: UserInfo]()) {
           $0[$1.providerID] = $1
         }
+
+        // Verify NSSecureCoding properties for AuthDataResult
+        let kFakeProfile = ["email": "user@mail.com", "given_name": "User", "family_name": "Doe"]
+        let kUserName = "User Doe"
+        let kProviderID = "PROVIDER_ID"
+        let userInfo = AdditionalUserInfo(providerID: kProviderID,
+                                          profile: kFakeProfile,
+                                          username: kUserName,
+                                          isNewUser: true)
+        let authDataResult = AuthDataResult(withUser: user, additionalUserInfo: userInfo)
+        XCTAssertTrue(AuthDataResult.supportsSecureCoding)
+        let authDataResultData = try NSKeyedArchiver.archivedData(
+          withRootObject: authDataResult,
+          requiringSecureCoding: true
+        )
+        encodedClasses.append(AuthDataResult.self)
+        encodedClasses.append(AdditionalUserInfo.self)
+        let unarchivedDataResult = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+          ofClasses: encodedClasses, from: authDataResultData
+        ) as? AuthDataResult)
+        XCTAssertEqual(unarchivedDataResult.user.providerID, user.providerID)
+        XCTAssertEqual(unarchivedDataResult.user.uid, user.uid)
+        XCTAssertEqual(unarchivedDataResult.user.email, user.email)
+        XCTAssertEqual(unarchivedDataResult.user.photoURL, user.photoURL)
+        XCTAssertEqual(unarchivedDataResult.user.displayName, user.displayName)
+        XCTAssertEqual(unarchivedDataResult.additionalUserInfo?.providerID, kProviderID)
+        XCTAssertEqual(unarchivedDataResult.additionalUserInfo?.profile as? [String: String],
+                       kFakeProfile)
+        XCTAssertEqual(unarchivedDataResult.additionalUserInfo?.username, kUserName)
+
         // Verify NSSecureCoding properties from email/password.
         let unarchivedPasswordUserInfo = try XCTUnwrap(unarchivedProviderMap[EmailAuthProvider.id])
         XCTAssertEqual(unarchivedPasswordUserInfo.uid, passwordUserInfo.uid)
@@ -240,6 +307,30 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(unarchivedFacebookUserInfo.displayName, facebookUserInfo.displayName)
         XCTAssertEqual(unarchivedFacebookUserInfo.photoURL, facebookUserInfo.photoURL)
         XCTAssertEqual(unarchivedFacebookUserInfo.email, facebookUserInfo.email)
+
+        // Verify NSSecureCoding properties from the GameCenter auth provider.
+        let unarchivedGameCenterUserInfo =
+          try XCTUnwrap(unarchivedProviderMap[GameCenterAuthProvider.id])
+        XCTAssertEqual(unarchivedGameCenterUserInfo.uid, gameCenterUserInfo.uid)
+        XCTAssertEqual(unarchivedGameCenterUserInfo.displayName, gameCenterUserInfo.displayName)
+        XCTAssertEqual(unarchivedGameCenterUserInfo.photoURL, gameCenterUserInfo.photoURL)
+        XCTAssertEqual(unarchivedGameCenterUserInfo.email, gameCenterUserInfo.email)
+
+        // Verify NSSecureCoding properties from the GitHub auth provider.
+        let unarchivedGitHubUserInfo =
+          try XCTUnwrap(unarchivedProviderMap[GitHubAuthProvider.id])
+        XCTAssertEqual(unarchivedGitHubUserInfo.uid, gitHubUserInfo.uid)
+        XCTAssertEqual(unarchivedGitHubUserInfo.displayName, gitHubUserInfo.displayName)
+        XCTAssertEqual(unarchivedGitHubUserInfo.photoURL, gitHubUserInfo.photoURL)
+        XCTAssertEqual(unarchivedGitHubUserInfo.email, gitHubUserInfo.email)
+
+        // Verify NSSecureCoding properties from the Twitter auth provider.
+        let unarchivedTwitterUserInfo =
+          try XCTUnwrap(unarchivedProviderMap[TwitterAuthProvider.id])
+        XCTAssertEqual(unarchivedTwitterUserInfo.uid, twitterUserInfo.uid)
+        XCTAssertEqual(unarchivedTwitterUserInfo.displayName, twitterUserInfo.displayName)
+        XCTAssertEqual(unarchivedTwitterUserInfo.photoURL, twitterUserInfo.photoURL)
+        XCTAssertEqual(unarchivedTwitterUserInfo.email, twitterUserInfo.email)
 
         #if os(iOS)
           // Verify NSSecureCoding properties from the phone auth provider.
@@ -1495,8 +1586,12 @@ class UserTests: RPCBaseTests {
               XCTAssertEqual((error as NSError).code, AuthErrorCode.credentialAlreadyInUse.rawValue)
               let credential = try XCTUnwrap((error as NSError)
                 .userInfo[AuthErrors.userInfoUpdatedCredentialKey] as? PhoneAuthCredential)
-              XCTAssertEqual(credential.phoneNumber, self.kTestPhoneNumber)
-              XCTAssertEqual(credential.temporaryProof, "Fake Temporary Proof")
+              switch credential.credentialKind {
+              case let .phoneNumber(phoneNumber, temporaryProof):
+                XCTAssertEqual(temporaryProof, "Fake Temporary Proof")
+                XCTAssertEqual(phoneNumber, self.kTestPhoneNumber)
+              case .verification: XCTFail("Should be phoneNumber case")
+              }
             } catch {
               XCTFail("Did not throw expected error \(error)")
             }

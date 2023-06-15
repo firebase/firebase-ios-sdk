@@ -67,35 +67,40 @@ import Foundation
                        displayName: String?,
                        completion: ((Error?) -> Void)?) {
       let phoneAssertion = assertion as? PhoneMultiFactorAssertion
-      let finalizeMFAPhoneRequestInfo = AuthProtoFinalizeMFAPhoneRequestInfo(
-        sessionInfo: phoneAssertion?.authCredential?.verificationID,
-        verificationCode: phoneAssertion?.authCredential?.verificationCode
-      )
-      guard let user = user else {
-        fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
+      guard let credential = phoneAssertion?.authCredential else {
+        fatalError("Internal Error: Missing credential")
       }
-      let request = FinalizeMFAEnrollmentRequest(
-        idToken: self.user?.rawAccessToken(),
-        displayName: displayName,
-        verificationInfo: finalizeMFAPhoneRequestInfo,
-        requestConfiguration: user.requestConfiguration
-      )
+      switch credential.credentialKind {
+      case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
+      case let .verification(verificationID, code):
+        let finalizeMFAPhoneRequestInfo =
+          AuthProtoFinalizeMFAPhoneRequestInfo(sessionInfo: verificationID, verificationCode: code)
+        guard let user = user else {
+          fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
+        }
+        let request = FinalizeMFAEnrollmentRequest(
+          idToken: self.user?.rawAccessToken(),
+          displayName: displayName,
+          verificationInfo: finalizeMFAPhoneRequestInfo,
+          requestConfiguration: user.requestConfiguration
+        )
 
-      AuthBackend.post(withRequest: request) { rawResponse, error in
-        if let error {
-          if let completion {
-            completion(error)
-          }
-        } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
-          user.auth?.completeSignIn(withAccessToken: response.idToken,
-                                    accessTokenExpirationDate: nil,
-                                    refreshToken: response.refreshToken,
-                                    anonymous: false) { _, error in
-            if error != nil {
-              try? user.auth?.signOut()
-            }
+        AuthBackend.post(withRequest: request) { rawResponse, error in
+          if let error {
             if let completion {
               completion(error)
+            }
+          } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
+            user.auth?.completeSignIn(withAccessToken: response.idToken,
+                                      accessTokenExpirationDate: nil,
+                                      refreshToken: response.refreshToken,
+                                      anonymous: false) { _, error in
+              if error != nil {
+                try? user.auth?.signOut()
+              }
+              if let completion {
+                completion(error)
+              }
             }
           }
         }

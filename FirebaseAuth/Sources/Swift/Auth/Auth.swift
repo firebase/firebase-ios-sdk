@@ -2260,28 +2260,29 @@ extension Auth: AuthInterop {
     private func signIn(withPhoneCredential credential: PhoneAuthCredential,
                         operation: AuthOperationType,
                         callback: @escaping (AuthRPCResponse?, Error?) -> Void) {
-      if let temporaryProof = credential.temporaryProof, temporaryProof.count > 0,
-         let phoneNumber = credential.phoneNumber, phoneNumber.count > 0 {
+      switch credential.credentialKind {
+      case let .phoneNumber(phoneNumber, temporaryProof):
         let request = VerifyPhoneNumberRequest(temporaryProof: temporaryProof,
                                                phoneNumber: phoneNumber,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
         AuthBackend.post(withRequest: request, callback: callback)
         return
+      case let .verification(verificationID, code):
+        guard verificationID.count > 0 else {
+          callback(nil, AuthErrorUtils.missingVerificationIDError(message: nil))
+          return
+        }
+        guard code.count > 0 else {
+          callback(nil, AuthErrorUtils.missingVerificationCodeError(message: nil))
+          return
+        }
+        let request = VerifyPhoneNumberRequest(verificationID: verificationID,
+                                               verificationCode: code,
+                                               operation: operation,
+                                               requestConfiguration: requestConfiguration)
+        AuthBackend.post(withRequest: request, callback: callback)
       }
-      guard let verificationID = credential.verificationID, verificationID.count > 0 else {
-        callback(nil, AuthErrorUtils.missingVerificationIDError(message: nil))
-        return
-      }
-      guard let verificationCode = credential.verificationCode, verificationCode.count > 0 else {
-        callback(nil, AuthErrorUtils.missingVerificationCodeError(message: nil))
-        return
-      }
-      let request = VerifyPhoneNumberRequest(verificationID: verificationID,
-                                             verificationCode: verificationCode,
-                                             operation: operation,
-                                             requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: request, callback: callback)
     }
   #endif
 
