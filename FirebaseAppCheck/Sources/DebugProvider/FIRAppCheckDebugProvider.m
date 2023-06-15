@@ -37,7 +37,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAppCheckDebugProvider ()
 
 @property(nonatomic, readonly) GACAppCheckDebugProvider *debugProvider;
-@property(nonatomic, readonly) id<FIRHeartbeatLoggerProtocol> heartbeatLogger;
 
 @end
 
