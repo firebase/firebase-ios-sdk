@@ -20,7 +20,7 @@ private struct Fruit: Codable, Identifiable, Equatable {
   var name: String
 }
 
-/// This view demonstrates how to use the ``FirestoreQuery`` property wrapper's
+/// This view demonstrates how to use the `FirestoreQuery` property wrapper's
 /// error handling. When any of the documents can't be mapped, this view will
 /// just show an error message.
 struct FavouriteFruitsMappingErrorView: View {
