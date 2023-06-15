@@ -19,7 +19,7 @@ import FirebaseFirestore
 
 @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
 internal class FirestoreQueryObservable<T>: ObservableObject {
-  @Published var items: T
+  @Published var result: T
 
   private let firestore = Firestore.firestore()
   private var listener: ListenerRegistration?
@@ -37,12 +37,74 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
     }
   }
 
+  init<U: FirestoreDocumentReferable & Codable>(configuration: FirestoreQuery<T>.Configuration)
+    where T == FirestoreQueryResult<U> {
+    result = FirestoreQueryResult()
+    self.configuration = configuration
+
+    setupListener = createListener { [weak self] querySnapshot, error in
+      if let error = error {
+        self?.result.items = []
+
+        self?.result.error = error
+        self?.result.results = .failure(error)
+        self?.projectError(error)
+        return
+      } else {
+        self?.result.error = nil
+        self?.projectError(nil)
+      }
+
+      guard let documents = querySnapshot?.documents else {
+        self?.result.items = []
+        self?.result.results = .success([])
+        return
+      }
+
+      let decodedDocuments: [U] = documents.compactMap { queryDocumentSnapshot in
+        let result = Result { try queryDocumentSnapshot.decode(as: U.self) }
+        switch result {
+        case let .success(decodedDocument):
+          return decodedDocument
+        case let .failure(error):
+          self?.result.error = error
+          self?.projectError(error)
+          return nil
+        }
+      }
+
+      if let error = self?.result.error,
+        self?.configuration.decodingFailureStrategy == .raise {
+        self?.result.items = []
+        self?.result.results = .failure(error)
+      } else {
+        self?.result.items = decodedDocuments
+        self?.result.results = .success(decodedDocuments)
+      }
+
+      self?.result.delete = { [weak self] documentID in
+        guard let self = self else { return }
+
+        self.firestore.collection(self.configuration.path).document(documentID).delete()
+      }
+      self?.result.add = { [weak self] document in
+        guard let self = self else { return }
+
+        _ = try? self.firestore.collection(self.configuration.path)
+          .addDocument(from: document)
+      }
+
+      self?.objectWillChange.send()
+    }
+    setupListener()
+  }
+
   init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == [U] {
-    items = []
+    result = []
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
-        self?.items = []
+        self?.result = []
         self?.projectError(error)
         return
       } else {
@@ -50,7 +112,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.items = []
+        self?.result = []
         return
       }
 
@@ -67,24 +129,25 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
       if self?.configuration.error != nil {
         if configuration.decodingFailureStrategy == .raise {
-          self?.items = []
+          self?.result = []
         } else {
-          self?.items = decodedDocuments
+          self?.result = decodedDocuments
         }
       } else {
-        self?.items = decodedDocuments
+        self?.result = decodedDocuments
       }
     }
 
     setupListener()
   }
 
-  init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration) where T == Result<[U], Error> {
-    items = .success([])
+  init<U: Decodable>(configuration: FirestoreQuery<T>.Configuration)
+    where T == Result<[U], Error> {
+    result = .success([])
     self.configuration = configuration
     setupListener = createListener { [weak self] querySnapshot, error in
       if let error = error {
-        self?.items = .failure(error)
+        self?.result = .failure(error)
         self?.projectError(error)
         return
       } else {
@@ -92,7 +155,7 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
       }
 
       guard let documents = querySnapshot?.documents else {
-        self?.items = .success([])
+        self?.result = .success([])
         return
       }
 
@@ -109,12 +172,12 @@ internal class FirestoreQueryObservable<T>: ObservableObject {
 
       if let error = self?.configuration.error {
         if configuration.decodingFailureStrategy == .raise {
-          self?.items = .failure(error)
+          self?.result = .failure(error)
         } else {
-          self?.items = .success(decodedDocuments)
+          self?.result = .success(decodedDocuments)
         }
       } else {
-        self?.items = .success(decodedDocuments)
+        self?.result = .success(decodedDocuments)
       }
     }
 

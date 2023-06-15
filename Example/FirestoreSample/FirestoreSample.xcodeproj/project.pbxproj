@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0490FAA62721772000CC2480 /* FavouriteVegetableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0490FAA52721772000CC2480 /* FavouriteVegetableView.swift */; };
 		8817084426B9593E009E9281 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8817084326B9593E009E9281 /* GoogleService-Info.plist */; };
 		8817084726B95A63009E9281 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084626B95A63009E9281 /* FirebaseFirestore */; };
 		8817084926B95A63009E9281 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084826B95A63009E9281 /* FirebaseFirestoreSwift */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0490FAA52721772000CC2480 /* FavouriteVegetableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteVegetableView.swift; sourceTree = "<group>"; };
 		8809D0AE26B9520B00DE7864 /* firebase-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "firebase-ios-sdk"; path = ../..; sourceTree = "<group>"; };
 		8817084326B9593E009E9281 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsView.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */,
 				8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */,
 				88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */,
+				0490FAA52721772000CC2480 /* FavouriteVegetableView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -192,6 +195,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0490FAA62721772000CC2480 /* FavouriteVegetableView.swift in Sources */,
 				88FBD99826B948E200982BF2 /* MenuView.swift in Sources */,
 				88327B8826D62908002AA6D9 /* FavouriteFruitsView.swift in Sources */,
 				88FBD98826B9485F00982BF2 /* FirestoreSampleApp.swift in Sources */,
