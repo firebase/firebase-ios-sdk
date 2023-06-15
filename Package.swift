@@ -1410,5 +1410,5 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, branch: "main")
+  return .package(url: appMeasurementURL, branch: "10.11.0")
 }
