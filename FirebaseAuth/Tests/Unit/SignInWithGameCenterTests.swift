@@ -119,43 +119,44 @@ class SignInWithGameCenterTests: RPCBaseTests {
     XCTAssertTrue(try XCTUnwrap(rpcResponse?.isNewUser))
   }
 
-  /** @fn testGameCenterAuthCredentialCoding
-      @brief Tests successful archiving and unarchiving of @c GameCenterAuthCredential.
-   */
-  func testGameCenterAuthCredentialCoding() throws {
-    let kGameCenterToken = "Token"
-    let credential = try makeGameCenterCredential()
-    XCTAssertTrue(GameCenterAuthCredential.supportsSecureCoding)
-    let data = try NSKeyedArchiver.archivedData(
-      withRootObject: credential,
-      requiringSecureCoding: true
-    )
-    let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
-      ofClasses: [NSURL.self, GameCenterAuthCredential.self], from: data
-    ) as? GameCenterAuthCredential)
-    XCTAssertEqual(unarchivedCredential.playerID, kPlayerID)
-    XCTAssertEqual(unarchivedCredential.teamPlayerID, kTeamPlayerID)
-    XCTAssertEqual(unarchivedCredential.gamePlayerID, kGamePlayerID)
-    XCTAssertEqual(unarchivedCredential.publicKeyURL, URL(string: kPublicKeyURL))
-    XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.signature),
-                          encoding: .utf8), kSignature)
-    XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.salt), encoding: .utf8), kSalt)
-    XCTAssertEqual(unarchivedCredential.timestamp, kTimestamp)
-    XCTAssertEqual(unarchivedCredential.displayName, kDisplayName)
-  }
+  #if !os(watchOS)
+    /** @fn testGameCenterAuthCredentialCoding
+        @brief Tests successful archiving and unarchiving of @c GameCenterAuthCredential.
+     */
+    func testGameCenterAuthCredentialCoding() throws {
+      let credential = try makeGameCenterCredential()
+      XCTAssertTrue(GameCenterAuthCredential.supportsSecureCoding)
+      let data = try NSKeyedArchiver.archivedData(
+        withRootObject: credential,
+        requiringSecureCoding: true
+      )
+      let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+        ofClasses: [NSURL.self, GameCenterAuthCredential.self], from: data
+      ) as? GameCenterAuthCredential)
+      XCTAssertEqual(unarchivedCredential.playerID, kPlayerID)
+      XCTAssertEqual(unarchivedCredential.teamPlayerID, kTeamPlayerID)
+      XCTAssertEqual(unarchivedCredential.gamePlayerID, kGamePlayerID)
+      XCTAssertEqual(unarchivedCredential.publicKeyURL, URL(string: kPublicKeyURL))
+      XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.signature),
+                            encoding: .utf8), kSignature)
+      XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.salt), encoding: .utf8), kSalt)
+      XCTAssertEqual(unarchivedCredential.timestamp, kTimestamp)
+      XCTAssertEqual(unarchivedCredential.displayName, kDisplayName)
+    }
 
-  private func makeGameCenterCredential() throws -> GameCenterAuthCredential {
-    let signature = try XCTUnwrap(kSignature.data(using: .utf8))
-    let salt = try XCTUnwrap(kSalt.data(using: .utf8))
-    return GameCenterAuthCredential(withPlayerID: kPlayerID,
-                                    teamPlayerID: kTeamPlayerID,
-                                    gamePlayerID: kGamePlayerID,
-                                    publicKeyURL: try XCTUnwrap(
-                                      URL(string: kPublicKeyURL)
-                                    ),
-                                    signature: signature,
-                                    salt: salt,
-                                    timestamp: kTimestamp,
-                                    displayName: kDisplayName)
-  }
+    private func makeGameCenterCredential() throws -> GameCenterAuthCredential {
+      let signature = try XCTUnwrap(kSignature.data(using: .utf8))
+      let salt = try XCTUnwrap(kSalt.data(using: .utf8))
+      return GameCenterAuthCredential(withPlayerID: kPlayerID,
+                                      teamPlayerID: kTeamPlayerID,
+                                      gamePlayerID: kGamePlayerID,
+                                      publicKeyURL: try XCTUnwrap(
+                                        URL(string: kPublicKeyURL)
+                                      ),
+                                      signature: signature,
+                                      salt: salt,
+                                      timestamp: kTimestamp,
+                                      displayName: kDisplayName)
+    }
+  #endif
 }
