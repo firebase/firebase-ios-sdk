@@ -227,6 +227,42 @@ import FirebaseCore
       OAuthProviderTests.testAppCheck = false
     }
 
+    /** @fn testOAuthCredentialCoding
+        @brief Tests successful archiving and unarchiving of @c GoogleAuthCredential.
+     */
+    func testOAuthCredentialCoding() throws {
+      let kAccessToken = "accessToken"
+      let kIDToken = "idToken"
+      let kRawNonce = "nonce"
+      let kSecret = "sEcret"
+      let kFullName = PersonNameComponents()
+      let kPendingToken = "pendingToken"
+
+      let credential = OAuthCredential(withProviderID: "dummyProvider",
+                                       idToken: kIDToken,
+                                       rawNonce: kRawNonce,
+                                       accessToken: kAccessToken,
+                                       secret: kSecret,
+                                       fullName: kFullName,
+                                       pendingToken: kPendingToken)
+
+      XCTAssertTrue(OAuthCredential.supportsSecureCoding)
+      let data = try NSKeyedArchiver.archivedData(
+        withRootObject: credential,
+        requiringSecureCoding: true
+      )
+      let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+        ofClasses: [OAuthCredential.self, NSPersonNameComponents.self], from: data
+      ) as? OAuthCredential)
+      XCTAssertEqual(unarchivedCredential.idToken, kIDToken)
+      XCTAssertEqual(unarchivedCredential.rawNonce, kRawNonce)
+      XCTAssertEqual(unarchivedCredential.accessToken, kAccessToken)
+      XCTAssertEqual(unarchivedCredential.secret, kSecret)
+      XCTAssertEqual(unarchivedCredential.fullName, kFullName)
+      XCTAssertEqual(unarchivedCredential.pendingToken, kPendingToken)
+      XCTAssertEqual(unarchivedCredential.provider, OAuthProvider.id)
+    }
+
     private func initApp(_ functionName: String, useAppID: Bool = false, omitClientID: Bool = false,
                          scheme: String = OAuthProviderTests.kFakeReverseClientID) {
       let options = FirebaseOptions(googleAppID: "0:0000000000000:ios:0000000000000000",

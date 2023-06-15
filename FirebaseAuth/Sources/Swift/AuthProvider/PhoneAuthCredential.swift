@@ -21,8 +21,8 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthCredential) public class PhoneAuthCredential: AuthCredential, NSSecureCoding {
   enum CredentialKind {
-    case phoneNumber(String, String) // phoneNumber, temporaryProof
-    case verification(String, String) // id, code
+    case phoneNumber(_ phoneNumber: String, _ temporaryProof: String)
+    case verification(_ id: String, _ code: String)
   }
 
   let credentialKind: CredentialKind

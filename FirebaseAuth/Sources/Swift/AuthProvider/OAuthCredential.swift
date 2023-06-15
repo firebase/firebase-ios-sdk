@@ -33,14 +33,13 @@ import Foundation
    */
   @objc public let secret: String?
 
-  // TODO: delete objc's and public's below
   // internal
-  @objc public let OAuthResponseURLString: String?
-  @objc public let sessionID: String?
-  @objc public let pendingToken: String?
+  let OAuthResponseURLString: String?
+  let sessionID: String?
+  let pendingToken: String?
   let fullName: PersonNameComponents?
   // private
-  @objc public let rawNonce: String?
+  let rawNonce: String?
 
   // TODO: Remove public objc
   @objc public init(withProviderID providerID: String,
