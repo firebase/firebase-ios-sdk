@@ -149,14 +149,14 @@
     public static var supportsSecureCoding = true
 
     public func encode(with coder: NSCoder) {
-      coder.encode("playerID")
-      coder.encode("teamPlayerID")
-      coder.encode("gamePlayerID")
-      coder.encode("publicKeyURL")
-      coder.encode("signature")
-      coder.encode("salt")
-      coder.encode("timestamp")
-      coder.encode("displayName")
+      coder.encode(playerID, forKey: "playerID")
+      coder.encode(teamPlayerID, forKey: "teamPlayerID")
+      coder.encode(gamePlayerID, forKey: "gamePlayerID")
+      coder.encode(publicKeyURL, forKey: "publicKeyURL")
+      coder.encode(signature, forKey: "signature")
+      coder.encode(salt, forKey: "salt")
+      coder.encode(timestamp, forKey: "timestamp")
+      coder.encode(displayName, forKey: "displayName")
     }
 
     public required init?(coder: NSCoder) {
