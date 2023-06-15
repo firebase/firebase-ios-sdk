@@ -1267,9 +1267,6 @@ let package = Package(
         // are not supported (as of Xcode 15.0).
         "Swift",
       ],
-      resources: [
-        .process("Fixture"),
-      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1277,10 +1274,7 @@ let package = Package(
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
-      path: "FirebaseAppCheck/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ]
+      path: "FirebaseAppCheck/Tests/Unit/Swift"
     ),
 
     // MARK: - App Check
@@ -1320,7 +1314,6 @@ let package = Package(
       dependencies: [
         "AppCheck",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "AppCheck/Tests",
