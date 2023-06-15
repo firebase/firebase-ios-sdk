@@ -35,4 +35,21 @@ class GitHubAuthProviderTests: XCTestCase {
     credential.prepare(request)
     XCTAssertEqual(kGitHubToken, request.providerAccessToken)
   }
+
+  /** @fn testGitHubAuthCredentialCoding
+      @brief Tests successful archiving and unarchiving of @c GitHubAuthCredential.
+   */
+  func testGitHubAuthCredentialCoding() throws {
+    let kGitHubToken = "Token"
+    let credential = GitHubAuthProvider.credential(withToken: kGitHubToken)
+    XCTAssertTrue(GitHubAuthCredential.supportsSecureCoding)
+    let data = try NSKeyedArchiver.archivedData(
+      withRootObject: credential,
+      requiringSecureCoding: true
+    )
+    let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+      ofClass: GitHubAuthCredential.self, from: data
+    ))
+    XCTAssertEqual(unarchivedCredential.token, kGitHubToken)
+  }
 }

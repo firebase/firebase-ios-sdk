@@ -70,7 +70,7 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
   public static var supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
-    coder.encode(email)
+    coder.encode(email, forKey: "email")
     switch emailType {
     case let .password(password): coder.encode(password, forKey: "password")
     case let .link(link): coder.encode(link, forKey: "link")

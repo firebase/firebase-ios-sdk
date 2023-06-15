@@ -40,4 +40,26 @@ class TwitterAuthProviderTests: XCTestCase {
     XCTAssertEqual(kTwitterToken, request.providerAccessToken)
     XCTAssertEqual(kTwitterSecret, request.providerOAuthTokenSecret)
   }
+
+  /** @fn testTwitterAuthCredentialCoding
+      @brief Tests successful archiving and unarchiving of @c TwitterAuthCredential.
+   */
+  func testTwitterAuthCredentialCoding() throws {
+    let kTwitterToken = "Token"
+    let kTwitterSecret = "Secret"
+    let credential = TwitterAuthProvider.credential(
+      withToken: kTwitterToken,
+      secret: kTwitterSecret
+    )
+    XCTAssertTrue(TwitterAuthCredential.supportsSecureCoding)
+    let data = try NSKeyedArchiver.archivedData(
+      withRootObject: credential,
+      requiringSecureCoding: true
+    )
+    let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+      ofClass: TwitterAuthCredential.self, from: data
+    ))
+    XCTAssertEqual(unarchivedCredential.token, kTwitterToken)
+    XCTAssertEqual(unarchivedCredential.secret, kTwitterSecret)
+  }
 }

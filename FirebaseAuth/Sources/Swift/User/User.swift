@@ -1647,48 +1647,55 @@ extension User: NSSecureCoding {}
         guard let accessToken = accessToken else {
           fatalError("Auth Internal Error: Both accessToken and error are nil")
         }
-        guard let configuration = self.auth?.requestConfiguration,
-              let verificationID = credential.verificationID,
-              let verificationCode = credential.verificationCode else {
+        guard let configuration = self.auth?.requestConfiguration else {
           fatalError("Auth Internal Error: nil value for VerifyPhoneNumberRequest initializer")
         }
-        let operation = isLinkOperation ? AuthOperationType.link : AuthOperationType.update
-        let request = VerifyPhoneNumberRequest(verificationID: verificationID,
-                                               verificationCode: verificationCode,
-                                               operation: operation,
-                                               requestConfiguration: configuration)
-        request.accessToken = accessToken
-        AuthBackend.post(withRequest: request) { response, error in
-          if let error {
-            self.signOutIfTokenIsInvalid(withError: error)
-            completion(error)
-            return
-          }
-          // Update the new token and refresh user info again.
-          if let verifyResponse = response as? VerifyPhoneNumberResponse {
-            if let idToken = verifyResponse.idToken,
-               let refreshToken = verifyResponse.refreshToken {
-              self.tokenService = SecureTokenService(
-                withRequestConfiguration: configuration,
-                accessToken: idToken,
-                accessTokenExpirationDate: verifyResponse.approximateExpirationDate,
-                refreshToken: refreshToken
-              )
-            }
-          }
-          // Get account info to update cached user info.
-          self.getAccountInfoRefreshingCache { user, error in
+        switch credential.credentialKind {
+        case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
+        case let .verification(verificationID, code):
+          let finalizeMFAPhoneRequestInfo =
+            AuthProtoFinalizeMFAPhoneRequestInfo(
+              sessionInfo: verificationID,
+              verificationCode: code
+            )
+          let operation = isLinkOperation ? AuthOperationType.link : AuthOperationType.update
+          let request = VerifyPhoneNumberRequest(verificationID: verificationID,
+                                                 verificationCode: code,
+                                                 operation: operation,
+                                                 requestConfiguration: configuration)
+          request.accessToken = accessToken
+          AuthBackend.post(withRequest: request) { response, error in
             if let error {
               self.signOutIfTokenIsInvalid(withError: error)
               completion(error)
               return
             }
-            self.isAnonymous = false
-            if let error = self.updateKeychain() {
-              completion(error)
-              return
+            // Update the new token and refresh user info again.
+            if let verifyResponse = response as? VerifyPhoneNumberResponse {
+              if let idToken = verifyResponse.idToken,
+                 let refreshToken = verifyResponse.refreshToken {
+                self.tokenService = SecureTokenService(
+                  withRequestConfiguration: configuration,
+                  accessToken: idToken,
+                  accessTokenExpirationDate: verifyResponse.approximateExpirationDate,
+                  refreshToken: refreshToken
+                )
+              }
             }
-            completion(nil)
+            // Get account info to update cached user info.
+            self.getAccountInfoRefreshingCache { user, error in
+              if let error {
+                self.signOutIfTokenIsInvalid(withError: error)
+                completion(error)
+                return
+              }
+              self.isAnonymous = false
+              if let error = self.updateKeychain() {
+                completion(error)
+                return
+              }
+              completion(nil)
+            }
           }
         }
       }
