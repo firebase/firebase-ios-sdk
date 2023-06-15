@@ -40,7 +40,7 @@ extension Fruit {
   }
 }
 
-/// This view demostrates how to use the ``FirestoreQuery`` property wrapper,
+/// This view demonstrates how to use the ``FirestoreQuery`` property wrapper,
 /// using the `animation` parameter to make sure list items are animated when
 /// being added or removed.
 struct FavouriteFruitsAnimationView: View {
