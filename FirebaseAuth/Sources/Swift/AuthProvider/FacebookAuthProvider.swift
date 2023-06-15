@@ -38,9 +38,8 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRFacebookAuthCredential) private class FacebookAuthCredential: AuthCredential,
-  NSSecureCoding {
-  private let accessToken: String
+@objc class FacebookAuthCredential: AuthCredential, NSSecureCoding {
+  let accessToken: String
 
   init(withAccessToken accessToken: String) {
     self.accessToken = accessToken
@@ -54,7 +53,7 @@ import Foundation
   static var supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
-    coder.encode(accessToken)
+    coder.encode(accessToken, forKey: "accessToken")
   }
 
   required init?(coder: NSCoder) {

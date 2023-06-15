@@ -28,34 +28,33 @@ class SignInWithGameCenterTests: RPCBaseTests {
   private let kReturnSecureTokenKey = "returnSecureToken"
   private let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signInWithGameCenter?key=APIKey"
+  let kIDToken = "IDTOKEN"
+  let kPlayerIDKey = "playerId"
+  let kPlayerID = "PLAYERID"
+  let kTeamPlayerIDKey = "teamPlayerId"
+  let kTeamPlayerID = "TEAMPLAYERID"
+  let kGamePlayerIDKey = "gamePlayerId"
+  let kGamePlayerID = "GAMEPLAYERID"
+  let kApproximateExpirationDate = "3600"
+  let kPublicKeyURLKey = "publicKeyUrl"
+  let kPublicKeyURL = "PUBLICKEYURL"
+  let kSignatureKey = "signature"
+  let kSignature = "AAAABBBBCCCC"
+  let kSaltKey = "salt"
+  let kSalt = "AAAA"
+  let kTimestampKey = "timestamp"
+  let kTimestamp = UInt64(12_345_678)
+  let kAccessTokenKey = "idToken"
+  let kAccessToken = "ACCESSTOKEN"
 
   /** @fn testSignInWithGameCenterRequestAnonymous
       @brief Tests the encoding of a sign up new user request when user is signed in anonymously.
    */
   func testRequestResponseEncoding() throws {
-    let kIDToken = "IDTOKEN"
     let kRefreshToken = "PUBLICKEYURL"
     let kLocalID = "LOCALID"
-    let kPlayerIDKey = "playerId"
-    let kPlayerID = "PLAYERID"
-    let kTeamPlayerIDKey = "teamPlayerId"
-    let kTeamPlayerID = "TEAMPLAYERID"
-    let kGamePlayerIDKey = "gamePlayerId"
-    let kGamePlayerID = "GAMEPLAYERID"
-    let kApproximateExpirationDate = "3600"
     let kDisplayNameKey = "displayName"
     let kDisplayName = "DISPLAYNAME"
-    let kPublicKeyURLKey = "publicKeyUrl"
-    let kPublicKeyURL = "PUBLICKEYURL"
-    let kSignatureKey = "signature"
-    let kSignature = "AAAABBBBCCCC"
-    let kSaltKey = "salt"
-    let kSalt = "AAAA"
-    let kTimestampKey = "timestamp"
-    let kTimestamp = UInt64(12_345_678)
-    let kAccessTokenKey = "idToken"
-    let kAccessToken = "ACCESSTOKEN"
-
     var callbackInvoked = false
     var rpcResponse: SignInWithGameCenterResponse?
     var rpcError: NSError?
@@ -118,5 +117,45 @@ class SignInWithGameCenterTests: RPCBaseTests {
     XCTAssertEqual(rpcResponse?.gamePlayerID, kGamePlayerID)
     XCTAssertEqual(rpcResponse?.displayName, kDisplayName)
     XCTAssertTrue(try XCTUnwrap(rpcResponse?.isNewUser))
+  }
+
+  /** @fn testGameCenterAuthCredentialCoding
+      @brief Tests successful archiving and unarchiving of @c GameCenterAuthCredential.
+   */
+  func testGameCenterAuthCredentialCoding() throws {
+    let kGameCenterToken = "Token"
+    let credential = try makeGameCenterCredential()
+    XCTAssertTrue(GameCenterAuthCredential.supportsSecureCoding)
+    let data = try NSKeyedArchiver.archivedData(
+      withRootObject: credential,
+      requiringSecureCoding: true
+    )
+    let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
+      ofClasses: [NSURL.self, GameCenterAuthCredential.self], from: data
+    ) as? GameCenterAuthCredential)
+    XCTAssertEqual(unarchivedCredential.playerID, kPlayerID)
+    XCTAssertEqual(unarchivedCredential.teamPlayerID, kTeamPlayerID)
+    XCTAssertEqual(unarchivedCredential.gamePlayerID, kGamePlayerID)
+    XCTAssertEqual(unarchivedCredential.publicKeyURL, URL(string: kPublicKeyURL))
+    XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.signature),
+                          encoding: .utf8), kSignature)
+    XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.salt), encoding: .utf8), kSalt)
+    XCTAssertEqual(unarchivedCredential.timestamp, kTimestamp)
+    XCTAssertEqual(unarchivedCredential.displayName, kDisplayName)
+  }
+
+  private func makeGameCenterCredential() throws -> GameCenterAuthCredential {
+    let signature = try XCTUnwrap(kSignature.data(using: .utf8))
+    let salt = try XCTUnwrap(kSalt.data(using: .utf8))
+    return GameCenterAuthCredential(withPlayerID: kPlayerID,
+                                    teamPlayerID: kTeamPlayerID,
+                                    gamePlayerID: kGamePlayerID,
+                                    publicKeyURL: try XCTUnwrap(
+                                      URL(string: kPublicKeyURL)
+                                    ),
+                                    signature: signature,
+                                    salt: salt,
+                                    timestamp: kTimestamp,
+                                    displayName: kDisplayName)
   }
 }
