@@ -63,6 +63,7 @@ class AdditionalUserInfoTests: XCTestCase {
                                       profile: kFakeProfile,
                                       username: kUserName,
                                       isNewUser: true)
+    XCTAssertTrue(AdditionalUserInfo.supportsSecureCoding)
     let data = try NSKeyedArchiver.archivedData(
       withRootObject: userInfo,
       requiringSecureCoding: true

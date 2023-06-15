@@ -20,57 +20,45 @@ import Foundation
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRPhoneAuthCredential) public class PhoneAuthCredential: AuthCredential, NSSecureCoding {
-  // TODO: delete objc's and public's below
-  @objc public let temporaryProof: String?
-  @objc public let phoneNumber: String?
-  @objc public let verificationID: String?
-  @objc public let verificationCode: String?
+  enum CredentialKind {
+    case phoneNumber(String, String) // phoneNumber, temporaryProof
+    case verification(String, String) // id, code
+  }
 
-  // TODO: Remove public objc
-  @objc public init(withTemporaryProof temporaryProof: String, phoneNumber: String,
-                    providerID: String) {
-    self.temporaryProof = temporaryProof
-    self.phoneNumber = phoneNumber
-    verificationID = nil
-    verificationCode = nil
+  let credentialKind: CredentialKind
+
+  init(withTemporaryProof temporaryProof: String, phoneNumber: String,
+       providerID: String) {
+    credentialKind = .phoneNumber(phoneNumber, temporaryProof)
     super.init(provider: providerID)
   }
 
   init(withProviderID providerID: String, verificationID: String, verificationCode: String) {
-    self.verificationID = verificationID
-    self.verificationCode = verificationCode
-    temporaryProof = nil
-    phoneNumber = nil
+    credentialKind = .verification(verificationID, verificationCode)
     super.init(provider: providerID)
   }
 
   public static var supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
-    coder.encode(verificationID)
-    coder.encode(verificationCode)
-    coder.encode(temporaryProof)
-    coder.encode(phoneNumber)
+    switch credentialKind {
+    case let .phoneNumber(phoneNumber, temporaryProof):
+      coder.encode(phoneNumber, forKey: "phoneNumber")
+      coder.encode(temporaryProof, forKey: "temporaryProof")
+    case let .verification(id, code):
+      coder.encode(id, forKey: "verificationID")
+      coder.encode(code, forKey: "verificationCode")
+    }
   }
 
   public required init?(coder: NSCoder) {
-    let verificationID = coder.decodeObject(forKey: "verificationID") as? String
-    let verificationCode = coder.decodeObject(forKey: "verificationCode") as? String
-    let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String
-    let phoneNumber = coder.decodeObject(forKey: "phoneNumber") as? String
-    if let temporaryProof = temporaryProof,
-       let phoneNumber = phoneNumber {
-      self.temporaryProof = temporaryProof
-      self.phoneNumber = phoneNumber
-      self.verificationID = nil
-      self.verificationCode = nil
+    if let verificationID = coder.decodeObject(forKey: "verificationID") as? String,
+       let verificationCode = coder.decodeObject(forKey: "verificationCode") as? String {
+      credentialKind = .verification(verificationID, verificationCode)
       super.init(provider: PhoneAuthProvider.id)
-    } else if let verificationID = verificationID,
-              let verificationCode = verificationCode {
-      self.verificationID = verificationID
-      self.verificationCode = verificationCode
-      self.temporaryProof = nil
-      self.phoneNumber = nil
+    } else if let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String,
+              let phoneNumber = coder.decodeObject(forKey: "phoneNumber") as? String {
+      credentialKind = .phoneNumber(phoneNumber, temporaryProof)
       super.init(provider: PhoneAuthProvider.id)
     } else {
       return nil

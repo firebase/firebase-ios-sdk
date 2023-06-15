@@ -157,8 +157,12 @@ import XCTest
       XCTAssertNil(rpcResponse)
       let credential = try XCTUnwrap(rpcError?
         .userInfo[AuthErrors.userInfoUpdatedCredentialKey] as? PhoneAuthCredential)
-      XCTAssertEqual(credential.temporaryProof, kTemporaryProof)
-      XCTAssertEqual(credential.phoneNumber, kPhoneNumber)
+      switch credential.credentialKind {
+      case let .phoneNumber(phoneNumber, temporaryProof):
+        XCTAssertEqual(temporaryProof, kTemporaryProof)
+        XCTAssertEqual(phoneNumber, kPhoneNumber)
+      case .verification: XCTFail("Should be phoneNumber case")
+      }
     }
 
     private func makeVerifyPhoneNumberRequest() -> VerifyPhoneNumberRequest {
