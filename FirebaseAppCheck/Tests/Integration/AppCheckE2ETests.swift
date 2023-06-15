@@ -23,7 +23,7 @@ final class AppCheckE2ETests: XCTestCase {
   let appName = "test_app_name"
   var app: FirebaseApp!
 
-  override func setUpWithError() throws {
+  override func setUp() {
     let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "123456789")
     options.projectID = "test_project_id"
     options.apiKey = "test_api_key"
@@ -32,8 +32,12 @@ final class AppCheckE2ETests: XCTestCase {
     app = FirebaseApp.app(name: appName)
   }
 
-  override func tearDown() async throws {
-    await app.delete()
+  override func tearDown() {
+    let semaphore = DispatchSemaphore(value: 0)
+    app.delete { _ in
+      semaphore.signal()
+    }
+    semaphore.wait()
   }
 
   func testInitAppCheck() throws {
