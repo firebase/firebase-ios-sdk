@@ -1279,26 +1279,25 @@ let package = Package(
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
-      path: "FirebaseAppCheck/Tests",
+      path: "FirebaseAppCheck/Tests/Unit",
       exclude: [
         // Swift tests are in the target `FirebaseAppCheckUnitSwift` since mixed language targets
         // are not supported (as of Xcode 14.3).
-        "Unit/Swift",
-      ],
-      resources: [
-        .process("Fixture"),
+        "Swift",
       ],
       cSettings: [
-        .headerSearchPath("../.."),
+        .headerSearchPath("../../.."),
       ]
     ),
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
-      path: "FirebaseAppCheck/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ]
+      path: "FirebaseAppCheck/Tests/Unit/Swift"
+    ),
+    .testTarget(
+      name: "FirebaseAppCheckIntegration",
+      dependencies: ["FirebaseAppCheck"],
+      path: "FirebaseAppCheck/Tests/Integration"
     ),
 
     // MARK: - App Check
@@ -1338,7 +1337,6 @@ let package = Package(
       dependencies: [
         "AppCheck",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "AppCheck/Tests",
@@ -1412,5 +1410,5 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.11.0")
+  return .package(url: appMeasurementURL, branch: "10.11.0")
 }

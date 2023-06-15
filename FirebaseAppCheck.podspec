@@ -82,10 +82,8 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     integration_tests.source_files = [
-      base_dir + 'Tests/Integration/**/*.[mh]',
-      base_dir + 'Tests/Integration/**/*.[mh]',
+      base_dir + 'Tests/Integration/**/*.swift',
     ]
-    integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
     integration_tests.requires_app_host = true
   end
 
