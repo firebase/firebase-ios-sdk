@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Tests/Unit/Utils/FIRFakeTimer.h"
+#import <Foundation/Foundation.h>
 
-@implementation FIRFakeTimer
+#import <AppCheck/AppCheck.h>
 
-- (FIRTimerProvider)fakeTimerProvider {
-  return ^id<FIRAppCheckTimerProtocol> _Nullable(NSDate *fireDate, dispatch_queue_t queue,
-                                                 dispatch_block_t handler) {
-    self.handler = handler;
-    if (self.createHandler) {
-      self.createHandler(fireDate);
-    }
+NS_ASSUME_NONNULL_BEGIN
 
-    return self;
-  };
-}
+@protocol FIRAppCheckProvider;
 
-- (void)invalidate {
-  if (self.invalidationHandler) {
-    self.invalidationHandler();
-  }
-}
+@interface FIRInternalAppCheckProvider : NSObject <GACAppCheckProvider>
+
+- (instancetype)initWithAppCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider;
 
 @end
+
+NS_ASSUME_NONNULL_END

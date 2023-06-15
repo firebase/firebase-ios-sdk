@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param token The internal App Check token to be converted into a Firebase App Check token.
 - (instancetype)initWithInternalToken:(GACAppCheckToken *)token;
 
+- (GACAppCheckToken *)internalToken;
+
 @end
 
 NS_ASSUME_NONNULL_END

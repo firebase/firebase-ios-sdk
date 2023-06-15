@@ -24,6 +24,7 @@
 @implementation FIRAppCheckErrorUtil
 
 + (NSError *)publicDomainErrorWithError:(NSError *)error {
+  // TODO(andrewheard): Convert errors to GACAppCheckErrorDomain.
   if ([error.domain isEqualToString:FIRAppCheckErrorDomain]) {
     return error;
   }

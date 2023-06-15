@@ -31,22 +31,6 @@ NS_SWIFT_NAME(InternalAppCheckInterop) @protocol GACAppCheckInterop
                     completion:(GACAppCheckTokenHandlerInterop)handler
     NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
 
-/// A notification with the specified name is sent to the default notification center
-/// (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
-/// The user info dictionary contains `-[self notificationTokenKey]` and
-/// `-[self notificationAppNameKey]` keys.
-- (NSString *)tokenDidChangeNotificationName;
-
-/// `userInfo` key for the FAC token in a notification for `tokenDidChangeNotificationName`.
-- (NSString *)notificationTokenKey;
-/// `userInfo` key for the `FirebaseApp.name` in a notification for
-/// `tokenDidChangeNotificationName`.
-- (NSString *)notificationInstanceNameKey;
-
-// MARK: - Optional API
-
-@optional
-
 /// Retrieve a new limited-use App Check token
 - (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandlerInterop)handler
     NS_SWIFT_NAME(getLimitedUseToken(completion:));

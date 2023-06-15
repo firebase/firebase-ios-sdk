@@ -37,6 +37,8 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 
 @implementation FIRAppCheckSettings
 
+@dynamic isTokenAutoRefreshEnabled;
+
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
                 userDefault:(NSUserDefaults *)userDefaults
                  mainBundle:(NSBundle *)mainBundle {
