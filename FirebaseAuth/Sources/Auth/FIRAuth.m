@@ -1412,41 +1412,45 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      }];
     } else {
       [FIRAuthBackend
-          signUpNewUser:(FIRSignUpNewUserRequest *)request
-               callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
-                 if (!error) {
-                   completion(nil);
-                   return;
-                 }
-                 NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-                 if (error.code == FIRAuthErrorCodeInternalError &&
-                     [[underlyingError.userInfo
-                         objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey][@"message"]
-                         hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
-                   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
-                       injectRecaptchaFields:request
-                                    provider:FIRAuthRecaptchaProviderPassword
-                                      action:FIRAuthRecaptchaActionSignInWithPassword
-                                  completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
-                                                   *requestWithRecaptchaToken) {
-                                    [FIRAuthBackend
-                                        getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)
-                                                                   requestWithRecaptchaToken
-                                                      callback:^(FIRGetOOBConfirmationCodeResponse
-                                                                     *_Nullable response,
-                                                                 NSError *_Nullable error) {
-                                                        if (completion) {
-                                                          dispatch_async(dispatch_get_main_queue(),
-                                                                         ^{
-                                                                           completion(error);
-                                                                         });
-                                                        }
-                                                      }];
-                                  }];
-                 } else {
-                   completion(error);
-                 }
-               }];
+          getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
+                        callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                   NSError *_Nullable error) {
+                          if (!error) {
+                            completion(nil);
+                            return;
+                          }
+                          NSError *underlyingError =
+                              [error.userInfo objectForKey:NSUnderlyingErrorKey];
+                          if (error.code == FIRAuthErrorCodeInternalError &&
+                              [[underlyingError.userInfo
+                                  objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey]
+                                      [@"message"] hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
+                            [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
+                                injectRecaptchaFields:request
+                                             provider:FIRAuthRecaptchaProviderPassword
+                                               action:FIRAuthRecaptchaActionSignInWithPassword
+                                           completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
+                                                            *requestWithRecaptchaToken) {
+                                             [FIRAuthBackend
+                                                 getOOBConfirmationCode:
+                                                     (FIRGetOOBConfirmationCodeRequest *)
+                                                         requestWithRecaptchaToken
+                                                               callback:^(
+                                                                   FIRGetOOBConfirmationCodeResponse
+                                                                       *_Nullable response,
+                                                                   NSError *_Nullable error) {
+                                                                 if (completion) {
+                                                                   dispatch_async(
+                                                                       dispatch_get_main_queue(), ^{
+                                                                         completion(error);
+                                                                       });
+                                                                 }
+                                                               }];
+                                           }];
+                          } else {
+                            completion(error);
+                          }
+                        }];
     }
 #else
     [FIRAuthBackend getOOBConfirmationCode:request
@@ -1503,41 +1507,45 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      }];
     } else {
       [FIRAuthBackend
-          signUpNewUser:(FIRSignUpNewUserRequest *)request
-               callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
-                 if (!error) {
-                   completion(nil);
-                   return;
-                 }
-                 NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-                 if (error.code == FIRAuthErrorCodeInternalError &&
-                     [[underlyingError.userInfo
-                         objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey][@"message"]
-                         hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
-                   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
-                       injectRecaptchaFields:request
-                                    provider:FIRAuthRecaptchaProviderPassword
-                                      action:FIRAuthRecaptchaActionSignInWithPassword
-                                  completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
-                                                   *requestWithRecaptchaToken) {
-                                    [FIRAuthBackend
-                                        getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)
-                                                                   requestWithRecaptchaToken
-                                                      callback:^(FIRGetOOBConfirmationCodeResponse
-                                                                     *_Nullable response,
-                                                                 NSError *_Nullable error) {
-                                                        if (completion) {
-                                                          dispatch_async(dispatch_get_main_queue(),
-                                                                         ^{
-                                                                           completion(error);
-                                                                         });
-                                                        }
-                                                      }];
-                                  }];
-                 } else {
-                   completion(error);
-                 }
-               }];
+          getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
+                        callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
+                                   NSError *_Nullable error) {
+                          if (!error) {
+                            completion(nil);
+                            return;
+                          }
+                          NSError *underlyingError =
+                              [error.userInfo objectForKey:NSUnderlyingErrorKey];
+                          if (error.code == FIRAuthErrorCodeInternalError &&
+                              [[underlyingError.userInfo
+                                  objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey]
+                                      [@"message"] hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
+                            [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
+                                injectRecaptchaFields:request
+                                             provider:FIRAuthRecaptchaProviderPassword
+                                               action:FIRAuthRecaptchaActionSignInWithPassword
+                                           completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
+                                                            *requestWithRecaptchaToken) {
+                                             [FIRAuthBackend
+                                                 getOOBConfirmationCode:
+                                                     (FIRGetOOBConfirmationCodeRequest *)
+                                                         requestWithRecaptchaToken
+                                                               callback:^(
+                                                                   FIRGetOOBConfirmationCodeResponse
+                                                                       *_Nullable response,
+                                                                   NSError *_Nullable error) {
+                                                                 if (completion) {
+                                                                   dispatch_async(
+                                                                       dispatch_get_main_queue(), ^{
+                                                                         completion(error);
+                                                                       });
+                                                                 }
+                                                               }];
+                                           }];
+                          } else {
+                            completion(error);
+                          }
+                        }];
     }
 #else
     [FIRAuthBackend getOOBConfirmationCode:request

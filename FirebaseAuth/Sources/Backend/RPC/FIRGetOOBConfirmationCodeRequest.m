@@ -304,6 +304,12 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
   return body;
 }
 
+- (void)injectRecaptchaFields:(NSString *_Nullable)recaptchaResponse
+             recaptchaVersion:(NSString *)recaptchaVersion {
+  _captchaResponse = recaptchaResponse;
+  _recaptchaVersion = recaptchaVersion;
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
