@@ -1883,7 +1883,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [FIRAuthBackend
      signUpNewUser:(FIRSignUpNewUserRequest *)request
               callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
-                if (error) {
+        if (!error) {
+            completion(response, nil);
+          return;
+
+        }
                   NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
                   if (error.code == FIRAuthErrorCodeInternalError &&
                       [[underlyingError.userInfo
@@ -1899,15 +1903,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                    }];
                   } else {
                       completion(nil, error);
-                    return;
                   }
-                } else {
-                  if (error) {
-                      completion(nil, error);
-                    return;
-                  }
-                    completion(nil, error);
-                }
               }];
   }
 #else
