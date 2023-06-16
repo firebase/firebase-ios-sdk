@@ -88,7 +88,7 @@ import Foundation
               pendingToken: response.pendingToken)
   }
 
-  override public func prepare(_ request: VerifyAssertionRequest) {
+  override func prepare(_ request: VerifyAssertionRequest) {
     request.providerIDToken = idToken
     request.providerRawNonce = rawNonce
     request.providerAccessToken = accessToken

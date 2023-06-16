@@ -184,12 +184,14 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
     @brief Represents the response from the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
-public class GetAccountInfoResponse: NSObject, AuthRPCResponse {
+class GetAccountInfoResponse: AuthRPCResponse {
+  public required init() {}
+
   /** @property providerUserInfo
    @brief The requested users' profiles.
    */
-  public var users: [GetAccountInfoResponseUser]?
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  var users: [GetAccountInfoResponseUser]?
+  func setFields(dictionary: [String: AnyHashable]) throws {
     guard let usersData = dictionary["users"] as? [[String: AnyHashable]] else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }

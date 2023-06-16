@@ -31,15 +31,17 @@ private let kAccessTokenKey = "access_token"
  */
 private let kIDTokenKey = "id_token"
 
-class SecureTokenResponse: NSObject, AuthRPCResponse {
-  public var approximateExpirationDate: Date?
-  public var refreshToken: String?
-  public var accessToken: String?
-  public var idToken: String?
+class SecureTokenResponse: AuthRPCResponse {
+  required init() {}
+
+  var approximateExpirationDate: Date?
+  var refreshToken: String?
+  var accessToken: String?
+  var idToken: String?
 
   var expectedKind: String? { nil }
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  func setFields(dictionary: [String: AnyHashable]) throws {
     refreshToken = dictionary[kRefreshTokenKey] as? String
     self.accessToken = dictionary[kAccessTokenKey] as? String
     idToken = dictionary[kIDTokenKey] as? String

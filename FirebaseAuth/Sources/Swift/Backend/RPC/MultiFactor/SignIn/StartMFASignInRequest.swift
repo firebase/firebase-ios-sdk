@@ -21,15 +21,12 @@ private let kStartMFASignInEndPoint = "accounts/mfaSignIn:start"
  */
 private let kTenantIDKey = "tenantId"
 
-public class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = StartMFASignInResponse
+
   var MFAPendingCredential: String?
   var MFAEnrollmentID: String?
   var signInInfo: AuthProtoStartMFAPhoneRequestInfo?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: StartMFASignInResponse = .init()
 
   init(MFAPendingCredential: String?, MFAEnrollmentID: String?,
        signInInfo: AuthProtoStartMFAPhoneRequestInfo?,
@@ -45,7 +42,7 @@ public class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var body: [String: AnyHashable] = [:]
     if let MFAPendingCredential = MFAPendingCredential {
       body["mfaPendingCredential"] = MFAPendingCredential

@@ -77,41 +77,38 @@ extension AuthOperationType {
   }
 }
 
-public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
+class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = VerifyPhoneNumberResponse
+
   /** @property verificationID
        @brief The verification ID obtained from the response of @c sendVerificationCode.
    */
-  public var verificationID: String?
+  var verificationID: String?
 
   /** @property verificationCode
        @brief The verification code provided by the user.
    */
-  public var verificationCode: String?
+  var verificationCode: String?
 
   /** @property accessToken
       @brief The STS Access Token for the authenticated user.
    */
-  public var accessToken: String?
+  var accessToken: String?
 
   /** @var temporaryProof
       @brief The temporary proof code, previously returned from the backend.
    */
-  public var temporaryProof: String?
+  var temporaryProof: String?
 
   /** @var phoneNumber
       @brief The phone number to be verified in the request.
    */
-  public var phoneNumber: String?
+  var phoneNumber: String?
 
   /** @var operation
       @brief The type of operation triggering this verify phone number request.
    */
-  public var operation: AuthOperationType
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: VerifyPhoneNumberResponse = .init()
+  var operation: AuthOperationType
 
   /** @fn initWithTemporaryProof:phoneNumberAPIKey
       @brief Designated initializer.
@@ -120,7 +117,7 @@ public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param operation Indicates what operation triggered the verify phone number request.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  public init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
+  init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
               requestConfiguration: AuthRequestConfiguration) {
     self.temporaryProof = temporaryProof
     self.phoneNumber = phoneNumber
@@ -135,7 +132,7 @@ public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param operation Indicates what operation triggered the verify phone number request.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  public init(verificationID: String,
+  init(verificationID: String,
               verificationCode: String,
               operation: AuthOperationType,
               requestConfiguration: AuthRequestConfiguration) {
@@ -145,7 +142,7 @@ public class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kVerifyPhoneNumberEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
     if let verificationID {
       postBody[kVerificationIDKey] = verificationID

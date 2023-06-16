@@ -110,7 +110,7 @@ class EmailLinkSignInTests: RPCBaseTests {
 
     AuthBackend.post(with: makeEmailLinkSignInRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? EmailLinkSignInResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

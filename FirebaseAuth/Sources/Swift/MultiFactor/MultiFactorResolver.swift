@@ -62,7 +62,7 @@ import Foundation
           if let completion {
             completion(nil, error)
           }
-        } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
+        } else if let response = rawResponse {
           self.auth.completeSignIn(withAccessToken: response.idToken,
                                    accessTokenExpirationDate: nil,
                                    refreshToken: response.refreshToken,

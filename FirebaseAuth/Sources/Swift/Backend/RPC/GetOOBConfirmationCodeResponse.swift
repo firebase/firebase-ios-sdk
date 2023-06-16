@@ -16,10 +16,12 @@ import Foundation
 
 private let kOOBCodeKey = "oobCode"
 
-public class GetOOBConfirmationCodeResponse: NSObject, AuthRPCResponse {
-  public var OOBCode: String?
+class GetOOBConfirmationCodeResponse: AuthRPCResponse {
+  required init() {}
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  var OOBCode: String?
+
+  func setFields(dictionary: [String: AnyHashable]) throws {
     OOBCode = dictionary[kOOBCodeKey] as? String
   }
 }

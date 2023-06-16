@@ -34,23 +34,20 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
-public class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
-  public let token: String
+class VerifyCustomTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = VerifyCustomTokenResponse
 
-  public var returnSecureToken: Bool
+  let token: String
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: VerifyCustomTokenResponse = .init()
+  var returnSecureToken: Bool
 
-  public init(token: String, requestConfiguration: AuthRequestConfiguration) {
+  init(token: String, requestConfiguration: AuthRequestConfiguration) {
     self.token = token
     returnSecureToken = true
     super.init(endpoint: kVerifyCustomTokenEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [
       kTokenKey: token,
     ]

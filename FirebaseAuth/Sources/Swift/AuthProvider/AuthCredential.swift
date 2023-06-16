@@ -23,7 +23,6 @@ import Foundation
     self.provider = provider
   }
 
-  // TODO: remove public after FIRUser port
   func prepare(_ request: VerifyAssertionRequest) {
     fatalError("This method must be overridden by a subclass.")
   }

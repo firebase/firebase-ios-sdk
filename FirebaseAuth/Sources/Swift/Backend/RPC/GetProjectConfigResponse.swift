@@ -14,12 +14,14 @@
 
 import Foundation
 
-public class GetProjectConfigResponse: AuthRPCResponse {
-  public var projectID: String?
+class GetProjectConfigResponse: AuthRPCResponse {
+  required init() {}
 
-  public var authorizedDomains: [String]?
+  var projectID: String?
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  var authorizedDomains: [String]?
+
+  func setFields(dictionary: [String: AnyHashable]) throws {
     projectID = dictionary["projectId"] as? String
     if let authorizedDomains = dictionary["authorizedDomains"] as? String,
        let data = authorizedDomains.data(using: .utf8) {

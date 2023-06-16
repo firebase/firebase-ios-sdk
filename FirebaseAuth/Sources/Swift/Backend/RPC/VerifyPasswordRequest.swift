@@ -58,44 +58,41 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the verifyPassword endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-public class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
+class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = VerifyPasswordResponse
+
   /** @property email
       @brief The email of the user.
    */
-  public var email: String
+  var email: String
 
   /** @property password
       @brief The password inputed by the user.
    */
-  public var password: String
+  var password: String
 
   /** @property pendingIDToken
       @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
    */
-  public var pendingIDToken: String?
+  var pendingIDToken: String?
 
   /** @property captchaChallenge
       @brief The captcha challenge.
    */
-  public var captchaChallenge: String?
+  var captchaChallenge: String?
 
   /** @property captchaResponse
       @brief Response to the captcha.
    */
-  public var captchaResponse: String?
+  var captchaResponse: String?
 
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
       @remarks The default value is @c YES .
    */
-  public var returnSecureToken: Bool
+  var returnSecureToken: Bool
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: VerifyPasswordResponse = .init()
-
-  public init(email: String, password: String,
+  init(email: String, password: String,
               requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.password = password
@@ -103,7 +100,7 @@ public class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kVerifyPasswordEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var body: [String: AnyHashable] = [
       kEmailKey: email,
       kPasswordKey: password,

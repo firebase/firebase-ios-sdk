@@ -135,6 +135,8 @@ private let kVerifyBeforeUpdateEmailRequestTypeValue = "VERIFY_AND_CHANGE_EMAIL"
 private let kTenantIDKey = "tenantId"
 
 public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = GetOOBConfirmationCodeResponse
+
   /** @property requestType
       @brief The types of OOB Confirmation Code to request.
    */
@@ -192,12 +194,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
   /** @property dynamicLinkDomain
       @brief The Firebase Dynamic Link domain used for out of band code flow.
    */
-  public var dynamicLinkDomain: String?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: GetOOBConfirmationCodeResponse = .init()
+public var dynamicLinkDomain: String?
 
   /** @fn initWithRequestType:email:APIKey:
       @brief Designated initializer.

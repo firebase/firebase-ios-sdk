@@ -21,50 +21,52 @@ import Foundation
        - FIRAuthInternalErrorCodeEmailNotFound
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-public class VerifyPasswordResponse: AuthRPCResponse {
+class VerifyPasswordResponse: AuthRPCResponse {
+  required init() {}
+
   /** @property localID
       @brief The RP local ID if it's already been mapped to the IdP account identified by the
           federated ID.
    */
-  public var localID: String?
+  var localID: String?
 
   /** @property email
       @brief The email returned by the IdP. NOTE: The federated login user may not own the email.
    */
-  public var email: String?
+  var email: String?
 
   /** @property displayName
       @brief The display name of the user.
    */
-  public var displayName: String?
+  var displayName: String?
 
   /** @property IDToken
       @brief Either an authorization code suitable for performing an STS token exchange, or the
           access token from Secure Token Service, depending on whether @c returnSecureToken is set
           on the request.
    */
-  public var idToken: String?
+  var idToken: String?
 
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
    */
-  public var approximateExpirationDate: Date?
+  var approximateExpirationDate: Date?
 
   /** @property refreshToken
       @brief The refresh token from Secure Token Service.
    */
-  public var refreshToken: String?
+  var refreshToken: String?
 
   /** @property photoURL
-      @brief The URI of the public accessible profile picture.
+      @brief The URI of the accessible profile picture.
    */
-  public var photoURL: URL?
+  var photoURL: URL?
 
-  public var mfaPendingCredential: String?
+  var mfaPendingCredential: String?
 
-  public var mfaInfo: [AuthProtoMFAEnrollment]?
+  var mfaInfo: [AuthProtoMFAEnrollment]?
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  func setFields(dictionary: [String: AnyHashable]) throws {
     localID = dictionary["localId"] as? String
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String

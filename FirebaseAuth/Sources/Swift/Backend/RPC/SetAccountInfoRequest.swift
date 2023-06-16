@@ -114,96 +114,92 @@ private let kTenantIDKey = "tenantId"
     @brief Represents the parameters for the setAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/setAccountInfo
  */
-public class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
+class SetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = SetAccountInfoResponse
   /** @property accessToken
       @brief The STS Access Token of the authenticated user.
    */
-  public var accessToken: String?
+  var accessToken: String?
 
   /** @property displayName
       @brief The name of the user.
    */
-  public var displayName: String?
+  var displayName: String?
 
   /** @property localID
       @brief The local ID of the user.
    */
-  public var localID: String?
+  var localID: String?
 
   /** @property email
       @brief The email of the user.
    */
-  public var email: String?
+  var email: String?
 
   /** @property photoURL
       @brief The photoURL of the user.
    */
-  public var photoURL: URL?
+  var photoURL: URL?
 
   /** @property password
       @brief The new password of the user.
    */
-  public var password: String?
+  var password: String?
 
   /** @property providers
       @brief The associated identity providers of the user.
    */
-  public var providers: [String]?
+  var providers: [String]?
 
   /** @property OOBCode
       @brief The out-of-band code of the change email request.
    */
-  public var oobCode: String?
+  var oobCode: String?
 
   /** @property emailVerified
       @brief Whether to mark the email as verified or not.
    */
-  public var emailVerified: Bool = false
+  var emailVerified: Bool = false
 
   /** @property upgradeToFederatedLogin
       @brief Whether to mark the user to upgrade to federated login.
    */
-  public var upgradeToFederatedLogin: Bool = false
+  var upgradeToFederatedLogin: Bool = false
 
   /** @property captchaChallenge
       @brief The captcha challenge.
    */
-  public var captchaChallenge: String?
+  var captchaChallenge: String?
 
   /** @property captchaResponse
       @brief Response to the captcha.
    */
-  public var captchaResponse: String?
+  var captchaResponse: String?
 
   /** @property deleteAttributes
       @brief The list of user attributes to delete.
       @remarks Every element of the list must be one of the predefined constant starts with
           "FIRSetAccountInfoUserAttribute".
    */
-  public var deleteAttributes: [String]?
+  var deleteAttributes: [String]?
 
   /** @property deleteProviders
       @brief The list of identity providers to delete.
    */
-  public var deleteProviders: [String]?
+  var deleteProviders: [String]?
 
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
       @remarks The default value is @c YES .
    */
-  public var returnSecureToken: Bool = false
+  var returnSecureToken: Bool = false
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: SetAccountInfoResponse = .init()
-
-  public init(requestConfiguration: AuthRequestConfiguration) {
+  init(requestConfiguration: AuthRequestConfiguration) {
     returnSecureToken = true
     super.init(endpoint: kSetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
     if let accessToken {
       postBody[kIDTokenKey] = accessToken

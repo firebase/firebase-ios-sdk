@@ -31,6 +31,9 @@ private let kIDTokenKey = "idToken"
 private let kLocalIDKey = "localId"
 
 public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
+
+  typealias Response = DeleteAccountResponse
+
   /** @var _accessToken
       @brief The STS Access Token of the authenticated user.
    */
@@ -40,11 +43,6 @@ public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
       @brief The localID of the user.
    */
   public let localID: String
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: DeleteAccountResponse = .init()
 
   @objc(initWithLocalID:accessToken:requestConfiguration:) public init(localID: String,
                                                                        accessToken: String,

@@ -14,10 +14,12 @@
 
 import Foundation
 
-public class StartMFASignInResponse: NSObject, AuthRPCResponse {
+class StartMFASignInResponse: AuthRPCResponse {
+  required init() {}
+
   var responseInfo: AuthProtoStartMFAPhoneResponseInfo?
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  func setFields(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneResponseInfo"] as? [String: AnyHashable] {
       responseInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
     } else {

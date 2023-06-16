@@ -19,18 +19,17 @@ import Foundation
  */
 private let kGetProjectConfigEndPoint = "getProjectConfig"
 
-public class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
-  /// The corresponding response for this request.
-  public var response: GetProjectConfigResponse = .init()
+class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = GetProjectConfigResponse
 
-  public init(requestConfiguration: AuthRequestConfiguration) {
+  init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     // TODO: Probably nicer to throw, but what should we throw?
     fatalError()
   }
 
-  public var containsPostBody: Bool { false }
+  var containsPostBody: Bool { false }
 }

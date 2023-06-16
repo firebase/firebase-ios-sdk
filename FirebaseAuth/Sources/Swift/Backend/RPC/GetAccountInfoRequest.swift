@@ -30,15 +30,12 @@ private let kIDTokenKey = "idToken"
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
 public class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = GetAccountInfoResponse
+
   /** @property accessToken
       @brief The STS Access Token for the authenticated user.
    */
   public let accessToken: String
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: GetAccountInfoResponse = .init()
 
   /** @fn initWithAccessToken:requestConfiguration
       @brief Designated initializer.

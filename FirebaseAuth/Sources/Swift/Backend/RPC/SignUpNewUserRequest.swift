@@ -44,34 +44,31 @@ private let kReturnSecureTokenKey = "returnSecureToken"
  */
 private let kTenantIDKey = "tenantId"
 
-public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
+class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = SignUpNewUserResponse
+
   /** @property email
       @brief The email of the user.
    */
-  public var email: String?
+  var email: String?
 
   /** @property password
       @brief The password inputed by the user.
    */
-  public var password: String?
+  var password: String?
 
   /** @property displayName
       @brief The password inputed by the user.
    */
-  public var displayName: String?
+  var displayName: String?
 
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
       @remarks The default value is @c YES .
    */
-  public var returnSecureToken: Bool = true
+  var returnSecureToken: Bool = true
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: SignUpNewUserResponse = .init()
-
-  public init(requestConfiguration: AuthRequestConfiguration) {
+  init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
   }
 
@@ -79,7 +76,7 @@ public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
       @brief Designated initializer.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  public init(email: String?,
+  init(email: String?,
               password: String?,
               displayName: String?,
               requestConfiguration: AuthRequestConfiguration) {
@@ -89,7 +86,7 @@ public class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
     if let email {
       postBody[kEmailKey] = email

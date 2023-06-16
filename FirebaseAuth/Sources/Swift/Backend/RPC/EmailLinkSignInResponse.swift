@@ -18,6 +18,8 @@ import Foundation
     @brief Represents the response from the emailLinkSignin endpoint.
  */
 public class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
+  public override required init() {}
+
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */
