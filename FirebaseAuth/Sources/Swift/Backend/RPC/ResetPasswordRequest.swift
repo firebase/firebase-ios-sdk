@@ -35,21 +35,18 @@ private let kCurrentPasswordKey = "newPassword"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
+class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = ResetPasswordResponse
+
   /** @property oobCode
       @brief The oobCode sent in the request.
    */
-  public let oobCode: String
+  let oobCode: String
 
   /** @property updatedPassword
       @brief The new password sent in the request.
    */
-  public let updatedPassword: String?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: ResetPasswordResponse = .init()
+  let updatedPassword: String?
 
   /** @fn initWithOobCode:newPassword:requestConfiguration:
       @brief Designated initializer.
@@ -57,14 +54,14 @@ public class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param newPassword The new password.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  public init(oobCode: String, newPassword: String?,
+  init(oobCode: String, newPassword: String?,
               requestConfiguration: AuthRequestConfiguration) {
     self.oobCode = oobCode
     updatedPassword = newPassword
     super.init(endpoint: kResetPasswordEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
 
     postBody[kOOBCodeKey] = oobCode

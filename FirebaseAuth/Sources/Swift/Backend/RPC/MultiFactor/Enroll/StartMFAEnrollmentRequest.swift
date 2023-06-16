@@ -22,14 +22,11 @@ private let kStartMFAEnrollmentEndPoint = "accounts/mfaEnrollment:start"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
+class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = StartMFAEnrollmentResponse
+
   private(set) var idToken: String?
   private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: StartMFAEnrollmentResponse = .init()
 
   init(idToken: String?,
        enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
@@ -44,7 +41,7 @@ public class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     )
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var body: [String: AnyHashable] = [:]
     if let idToken = idToken {
       body["idToken"] = idToken

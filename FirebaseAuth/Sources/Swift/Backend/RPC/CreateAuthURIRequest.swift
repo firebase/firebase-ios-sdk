@@ -65,6 +65,8 @@ private let kTenantIDKey = "tenantId"
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = CreateAuthURIResponse
+
   /** @property identifier
       @brief The email or federated ID of the user.
    */
@@ -102,11 +104,6 @@ public class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
       @brief The iOS client application's bundle identifier.
    */
   public var appID: String?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: CreateAuthURIResponse = .init()
 
   public init(identifier: String, continueURI: String,
               requestConfiguration: AuthRequestConfiguration) {

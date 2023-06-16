@@ -50,6 +50,9 @@ public class CreateAuthURIResponse: AuthRPCResponse {
    */
   public var signinMethods: [String]?
 
+  /// Bare initializer.
+  public required init() {}
+
   public func setFields(dictionary: [String: AnyHashable]) throws {
     providerID = dictionary["providerId"] as? String
     authURI = dictionary["authUri"] as? String

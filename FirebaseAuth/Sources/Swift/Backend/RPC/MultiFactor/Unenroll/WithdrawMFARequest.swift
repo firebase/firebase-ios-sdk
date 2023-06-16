@@ -22,14 +22,11 @@ private let kWithdrawMFAEndPoint = "accounts/mfaEnrollment:withdraw"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
+class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = WithdrawMFAResponse
+
   var idToken: String?
   var mfaEnrollmentID: String?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  var response: WithdrawMFAResponse = .init()
 
   init(idToken: String?,
        mfaEnrollmentID: String?,

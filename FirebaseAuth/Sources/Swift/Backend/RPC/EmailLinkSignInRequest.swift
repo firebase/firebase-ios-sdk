@@ -46,6 +46,8 @@ private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = EmailLinkSignInResponse
+
   public let email: String
 
   /** @property oobCode
@@ -58,11 +60,6 @@ public class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
    */
 
   @objc(IDToken) public var idToken: String?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: EmailLinkSignInResponse = .init()
 
   public init(email: String, oobCode: String,
               requestConfiguration: AuthRequestConfiguration) {

@@ -15,7 +15,9 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
+class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = VerifyClientResponse
+
   /// The endpoint for the verifyClient request.
   private static let verifyClientEndpoint = "verifyClient"
 
@@ -25,12 +27,7 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The key for the isSandbox request parameter.
   private static let isSandboxKey = "isSandbox"
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: VerifyClientResponse = .init()
-
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody = [String: AnyHashable]()
     if let appToken = appToken {
       postBody[Self.appTokenKey] = appToken
@@ -40,14 +37,14 @@ public class VerifyClientRequest: IdentityToolkitRequest, AuthRPCRequest {
   }
 
   /// The APNS device token.
-  @objc public private(set) var appToken: String?
+  private(set) var appToken: String?
 
   /// The flag that denotes if the appToken  pertains to Sandbox or Production.
-  @objc public private(set) var isSandbox: Bool
+  private(set) var isSandbox: Bool
 
-  @objc public init(withAppToken: String?,
-                    isSandbox: Bool,
-                    requestConfiguration: AuthRequestConfiguration) {
+  init(withAppToken: String?,
+       isSandbox: Bool,
+       requestConfiguration: AuthRequestConfiguration) {
     appToken = withAppToken
     self.isSandbox = isSandbox
     self.isSandbox = isSandbox

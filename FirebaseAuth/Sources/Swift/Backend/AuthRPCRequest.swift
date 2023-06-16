@@ -33,9 +33,6 @@ protocol AuthRPCRequest {
 
   /// The request configuration.
   func requestConfiguration() -> AuthRequestConfiguration
-
-  /// The corresponding response for this request.
-  var response: Response { get }
 }
 
 // Default implementation of AuthRPCRequests. This produces similar behaviour to an optional method

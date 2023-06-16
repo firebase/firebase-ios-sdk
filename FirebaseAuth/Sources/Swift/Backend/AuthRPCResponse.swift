@@ -15,6 +15,9 @@
 import Foundation
 
 public protocol AuthRPCResponse {
+  /// Bare initializer for a response.
+  init()
+
   /** @fn setFieldsWithDictionary:error:
       @brief Sets the response instance from the decoded JSON response.
       @param dictionary The dictionary decoded from HTTP JSON response.

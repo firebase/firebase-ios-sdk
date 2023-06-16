@@ -79,7 +79,9 @@ private var gAPIHost = "securetoken.googleapis.com"
     @brief Represents the parameters for the token endpoint.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class SecureTokenRequest: AuthRPCRequest {
+class SecureTokenRequest: AuthRPCRequest {
+  typealias Response = SecureTokenResponse
+
   /** @property grantType
       @brief The type of grant requested.
       @see FIRSecureTokenRequestGrantType
@@ -105,11 +107,6 @@ public class SecureTokenRequest: AuthRPCRequest {
       @brief The client's API Key.
    */
   public let apiKey: String
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  var response: SecureTokenResponse = .init()
 
   let _requestConfiguration: AuthRequestConfiguration
   public func requestConfiguration() -> AuthRequestConfiguration {

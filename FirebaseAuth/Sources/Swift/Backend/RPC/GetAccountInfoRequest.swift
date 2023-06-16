@@ -31,15 +31,12 @@ private let kIDTokenKey = "idToken"
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = GetAccountInfoResponse
+
   /** @property accessToken
       @brief The STS Access Token for the authenticated user.
    */
   public let accessToken: String
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: GetAccountInfoResponse = .init()
 
   /** @fn initWithAccessToken:requestConfiguration
       @brief Designated initializer.

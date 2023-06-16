@@ -32,6 +32,9 @@ private let kLocalIDKey = "localId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
+
+  typealias Response = DeleteAccountResponse
+
   /** @var _accessToken
       @brief The STS Access Token of the authenticated user.
    */
@@ -41,11 +44,6 @@ public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
       @brief The localID of the user.
    */
   public let localID: String
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  public var response: DeleteAccountResponse = .init()
 
   @objc(initWithLocalID:accessToken:requestConfiguration:) public init(localID: String,
                                                                        accessToken: String,

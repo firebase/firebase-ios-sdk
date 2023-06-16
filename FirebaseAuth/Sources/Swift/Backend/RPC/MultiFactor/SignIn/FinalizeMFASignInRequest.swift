@@ -23,13 +23,10 @@ private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = FinalizeMFAEnrollmentResponse
+
   var mfaPendingCredential: String?
   var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
-
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  var response: FinalizeMFAEnrollmentResponse = .init()
 
   init(mfaPendingCredential: String?,
        verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,

@@ -188,7 +188,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
   fileprivate func post<T: AuthRPCRequest>(with request: T,
                                            callback: @escaping ((T.Response?, Error?)
                                              -> Void)) {
-    let response = request.response
+    let response = T.Response()
     post(with: request, response: response) { error in
       if let error = error {
         callback(nil, error)
