@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAuthInterop'
-  s.version          = '10.11.0'
+  s.version          = '10.12.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use Auth functionality.'
 
   s.description      = <<-DESC

@@ -95,30 +95,6 @@
   [performance removeAttribute:@"foo2"];
 }
 
-/** Tests if mccMnc validation is catching non numerals. */
-- (void)testMccMncOnlyHasNumbers {
-  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"MKV");
-  XCTAssertNil(mccMnc);
-  mccMnc = FPRValidatedMccMnc(@"ABC", @"123");
-  XCTAssertNil(mccMnc);
-}
-
-/** Tests if mccMnc validation is working. */
-- (void)testMccMnc {
-  NSString *mccMnc = FPRValidatedMccMnc(@"123", @"22");
-  XCTAssertNotNil(mccMnc);
-  mccMnc = FPRValidatedMccMnc(@"123", @"223");
-  XCTAssertNotNil(mccMnc);
-}
-
-/** Tests if mccMnc validation catches improper lengths. */
-- (void)testMccMncLength {
-  NSString *mccMnc = FPRValidatedMccMnc(@"12", @"22");
-  XCTAssertNil(mccMnc);
-  mccMnc = FPRValidatedMccMnc(@"123", @"2");
-  XCTAssertNil(mccMnc);
-}
-
 /** Validates that a valid FIRTrace object to firebase_perf_v1_TraceMetric conversion is successful.
  */
 - (void)testTraceMetricMessageCreation {
