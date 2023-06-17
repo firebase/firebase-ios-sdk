@@ -19,7 +19,7 @@ private let kPersistentDomainNamePrefix = "com.google.Firebase.Auth."
 /** @class AuthUserDefaults
     @brief The utility class to storage data in NSUserDefaults.
  */
-class AuthUserDefaults: NSObject, AuthStorage {
+class AuthUserDefaults: NSObject {
   /** @var _persistentDomainName
       @brief The name of the persistent domain in user defaults.
    */
