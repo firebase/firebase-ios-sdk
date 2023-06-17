@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class AuthStoredUserManager: NSObject {
+class AuthStoredUserManager {
   /// Key of user access group stored in user defaults. Used for retrieve the
   /// user access group at launch.
   private static let storedUserAccessGroupKey = "firebase_auth_stored_user_access_group"

@@ -19,8 +19,8 @@ import Foundation
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthKeychainStorage {
-  func get(query: [String: Any], result: inout AnyObject?) -> Int32
-  func add(query: [String: Any]) -> Int32
-  func update(query: [String: Any], attributes: [String: Any]) -> Int32
-  func delete(query: [String: Any]) -> Int32
+  func get(query: [String: Any], result: inout AnyObject?) -> OSStatus
+  func add(query: [String: Any]) -> OSStatus
+  func update(query: [String: Any], attributes: [String: Any]) -> OSStatus
+  @discardableResult func delete(query: [String: Any]) -> OSStatus
 }

@@ -31,7 +31,7 @@ class AuthKeychainStorageReal: AuthKeychainStorage {
     SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
   }
 
-  func delete(query: [String: Any]) -> OSStatus {
+  @discardableResult func delete(query: [String: Any]) -> OSStatus {
     return SecItemDelete(query as CFDictionary)
   }
 }

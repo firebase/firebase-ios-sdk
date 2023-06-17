@@ -42,7 +42,7 @@ class FakeAuthKeychainStorage: AuthKeychainStorage {
     return noErr
   }
 
-  func delete(query: [String: Any]) -> OSStatus {
+  @discardableResult func delete(query: [String: Any]) -> OSStatus {
     fakeKeychain[queryKey(query)] = nil
     return noErr
   }
