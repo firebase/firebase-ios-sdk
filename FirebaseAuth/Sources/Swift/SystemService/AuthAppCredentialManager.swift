@@ -20,6 +20,7 @@
   /** @class FIRAuthAppCredentialManager
       @brief A class to manage app credentials backed by iOS Keychain.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRAuthAppCredentialManager) public class AuthAppCredentialManager: NSObject {
     let kKeychainDataKey = "app_credentials"
     let kFullCredentialKey = "full_credential"
