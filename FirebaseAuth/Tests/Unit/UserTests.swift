@@ -41,11 +41,11 @@ class UserTests: RPCBaseTests {
     options.apiKey = kFakeAPIKey
     options.projectID = "myUserProjectID"
     FirebaseApp.configure(name: "test-UserTests", options: options)
-    #if os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+    #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
       let keychainStorageProvider = FakeAuthKeychainStorage()
     #else
       let keychainStorageProvider = AuthKeychainStorageReal()
-    #endif // os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+    #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: "test-UserTests")!,
       keychainStorageProvider: keychainStorageProvider
@@ -1724,7 +1724,7 @@ class UserTests: RPCBaseTests {
       // 2. Validate the created Request instance.
       XCTAssertEqual(request.email, self.kEmail)
       XCTAssertEqual(request.password, self.kFakePassword)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertTrue(request.returnSecureToken)
       do {
         // 3. Send the response from the fake backend.
@@ -1822,7 +1822,7 @@ class UserTests: RPCBaseTests {
     XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
     XCTAssertEqual(request.providerAccessToken, kGoogleAccessToken)
     XCTAssertTrue(request.returnSecureToken)
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
     XCTAssertTrue(request.returnSecureToken)
   }
 
@@ -1877,7 +1877,7 @@ class UserTests: RPCBaseTests {
       XCTAssertEqual(request.providerIDToken, kFacebookIDToken)
       XCTAssertEqual(request.providerAccessToken, kFacebookAccessToken)
       XCTAssertTrue(request.returnSecureToken)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
@@ -1931,7 +1931,7 @@ class UserTests: RPCBaseTests {
       // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
       let request = try XCTUnwrap(rpcIssuer?.request as? EmailLinkSignInRequest)
       XCTAssertEqual(request.email, kEmail)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertEqual(request.oobCode, "aCode")
       XCTAssertNil(request.idToken)
 

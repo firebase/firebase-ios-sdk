@@ -38,11 +38,11 @@ class AuthTests: RPCBaseTests {
     let name = "test-AuthTests\(AuthTests.testNum)"
     AuthTests.testNum = AuthTests.testNum + 1
     FirebaseApp.configure(name: name, options: options)
-    #if os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+    #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
       let keychainStorageProvider = FakeAuthKeychainStorage()
     #else
       let keychainStorageProvider = AuthKeychainStorageReal()
-    #endif // os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+    #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: name)!,
       keychainStorageProvider: keychainStorageProvider

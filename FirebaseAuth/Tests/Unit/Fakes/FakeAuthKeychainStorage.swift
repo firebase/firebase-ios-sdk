@@ -21,29 +21,48 @@ import XCTest
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FakeAuthKeychainStorage: AuthKeychainStorage {
-  private var fakeKeychain: [String: Any] = [:]
+  // Fake Keychain. It's a dictionary, keyed by service name, for each key-value store dictionary
+  private var fakeKeychain: [String: [String: Any]] = [:]
+
+  private var fakeLegacyKeychain: [String: Any] = [:]
 
   func get(query: [String: Any], result: inout AnyObject?) -> OSStatus {
-    guard let value = fakeKeychain[queryKey(query)] else {
-      return errSecItemNotFound
+    if let service = queryService(query) {
+      guard let value = fakeKeychain[service]?[queryKey(query)] else {
+        return errSecItemNotFound
+      }
+      let returnArrayofDictionary = [[kSecValueData as String: value]]
+      result = returnArrayofDictionary as AnyObject
+      return noErr
+    } else {
+      guard let value = fakeLegacyKeychain[queryKey(query)] else {
+        return errSecItemNotFound
+      }
+      let returnArrayofDictionary = [[kSecValueData as String: value]]
+      result = returnArrayofDictionary as AnyObject
+      return noErr
     }
-    let returnArrayofDictionary = [[kSecValueData as String: value]]
-    result = returnArrayofDictionary as AnyObject
-    return noErr
   }
 
   func add(query: [String: Any]) -> OSStatus {
-    fakeKeychain[queryKey(query)] = query[kSecValueData as String]
+    if let service = queryService(query) {
+      fakeKeychain[service]?[queryKey(query)] = query[kSecValueData as String]
+    } else {
+      fakeLegacyKeychain[queryKey(query)] = query[kSecValueData as String]
+    }
     return noErr
   }
 
   func update(query: [String: Any], attributes: [String: Any]) -> OSStatus {
-    fakeKeychain[queryKey(query)] = query[kSecValueData as String]
-    return noErr
+    return add(query: query)
   }
 
   @discardableResult func delete(query: [String: Any]) -> OSStatus {
-    fakeKeychain[queryKey(query)] = nil
+    if let service = queryService(query) {
+      fakeKeychain[service]?[queryKey(query)] = nil
+    } else {
+      fakeLegacyKeychain[queryKey(query)] = nil
+    }
     return noErr
   }
 
@@ -54,5 +73,15 @@ class FakeAuthKeychainStorage: AuthKeychainStorage {
       XCTFail("\(error)")
       return ""
     }
+  }
+
+  private func queryService(_ query: [String: Any]) -> String? {
+    guard let service = query[kSecAttrService as String] as? String else {
+      return nil
+    }
+    if fakeKeychain[service] == nil {
+      fakeKeychain[service] = [:]
+    }
+    return service
   }
 }
