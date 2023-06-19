@@ -488,7 +488,7 @@ static NSInteger const gMaxRetries = 7;
                                            code:FIRRemoteConfigUpdateErrorNotFetched
                                        userInfo:@{
                                          NSLocalizedDescriptionKey :
-                                             @"Unable to fetch the latest version of the template.."
+                                             @"Unable to fetch the latest version of the template."
                                        }];
       FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
                   @"Ran out of fetch attempts, cannot find target config version.");
