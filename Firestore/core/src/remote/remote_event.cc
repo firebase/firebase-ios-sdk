@@ -212,6 +212,29 @@ std::vector<TargetId> WatchChangeAggregator::GetTargetIds(
   return result;
 }
 
+namespace {
+
+TestingHooks::ExistenceFilterMismatchInfo
+create_existence_filter_mismatch_info_for_testing_hooks(
+    BloomFilterApplicationStatus status,
+    int local_cache_count,
+    const ExistenceFilterWatchChange& existence_filter) {
+  absl::optional<TestingHooks::BloomFilterInfo> bloom_filter;
+  if (existence_filter.filter().bloom_filter_parameters().has_value()) {
+    const BloomFilterParameters& bloom_filter_parameters =
+        existence_filter.filter().bloom_filter_parameters().value();
+    bloom_filter = {status == BloomFilterApplicationStatus::kSuccess,
+                    bloom_filter_parameters.hash_count,
+                    static_cast<int>(bloom_filter_parameters.bitmap.size()),
+                    bloom_filter_parameters.padding};
+  }
+
+  return {local_cache_count, existence_filter.filter().count(),
+          std::move(bloom_filter)};
+}
+
+}  // namespace
+
 void WatchChangeAggregator::HandleExistenceFilter(
     const ExistenceFilterWatchChange& existence_filter) {
   TargetId target_id = existence_filter.target_id();
@@ -255,7 +278,8 @@ void WatchChangeAggregator::HandleExistenceFilter(
         }
 
         TestingHooks::GetInstance().NotifyOnExistenceFilterMismatch(
-            {current_size, expected_count});
+            create_existence_filter_mismatch_info_for_testing_hooks(
+                status, current_size, existence_filter));
       }
     }
   }
