@@ -20,8 +20,7 @@
   /** @class FIRAuthAppCredentialManager
       @brief A class to manage app credentials backed by iOS Keychain.
    */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public class AuthAppCredentialManager: NSObject {
+  @objc(FIRAuthAppCredentialManager) public class AuthAppCredentialManager: NSObject {
     let kKeychainDataKey = "app_credentials"
     let kFullCredentialKey = "full_credential"
     let kPendingReceiptsKey = "pending_receipts"
@@ -29,13 +28,13 @@
     /** @property credential
         @brief The full credential (which has a secret) to be used by the app, if one is available.
      */
-    var credential: AuthAppCredential?
+    @objc public var credential: AuthAppCredential?
 
     /** @property maximumNumberOfPendingReceipts
         @brief The maximum (but not necessarily the minimum) number of pending receipts to be kept.
         @remarks Only tests should access this property.
      */
-    let maximumNumberOfPendingReceipts = 32
+    @objc public let maximumNumberOfPendingReceipts = 32
 
     init(withKeychain keychain: AuthKeychainServices) {
       keychainServices = keychain
@@ -54,9 +53,9 @@
       }
     }
 
-    func didStartVerification(withReceipt receipt: String,
-                              timeout: TimeInterval,
-                              callback: @escaping (AuthAppCredential) -> Void) {
+    @objc public func didStartVerification(withReceipt receipt: String,
+                                           timeout: TimeInterval,
+                                           callback: @escaping (AuthAppCredential) -> Void) {
       pendingReceipts = pendingReceipts.filter { $0 != receipt }
       if pendingReceipts.count >= maximumNumberOfPendingReceipts {
         pendingReceipts.remove(at: 0)
@@ -69,7 +68,7 @@
       }
     }
 
-    func canFinishVerification(withReceipt receipt: String, secret: String) -> Bool {
+    @objc public func canFinishVerification(withReceipt receipt: String, secret: String) -> Bool {
       guard pendingReceipts.contains(receipt) else {
         return false
       }
@@ -80,7 +79,7 @@
       return true
     }
 
-    func clearCredential() {
+    @objc public func clearCredential() {
       credential = nil
       saveData()
     }

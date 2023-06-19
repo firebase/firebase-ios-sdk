@@ -104,11 +104,6 @@ class UserTests: RPCBaseTests {
       kEmailKey: kFacebookEmail,
     ],
     [
-      kProviderIDkey: GameCenterAuthProvider.id,
-      kFederatedIDKey: kGameCenterID,
-      kEmailKey: kFacebookEmail,
-    ],
-    [
       kProviderIDkey: GitHubAuthProvider.id,
       kFederatedIDKey: kGitHubID,
       kEmailKey: kGoogleEmail,
@@ -118,6 +113,14 @@ class UserTests: RPCBaseTests {
       kFederatedIDKey: kTwitterID,
       kEmailKey: kFacebookEmail,
     ]]
+
+    #if !os(watchOS)
+      providerUserInfos.append([
+        kProviderIDkey: GameCenterAuthProvider.id,
+        kFederatedIDKey: kGameCenterID,
+        kEmailKey: kFacebookEmail,
+      ])
+    #endif
 
     #if os(iOS)
       providerUserInfos.append([
@@ -190,13 +193,6 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(facebookUserInfo.photoURL)
         XCTAssertEqual(facebookUserInfo.email, kFacebookEmail)
 
-        // Verify FIRUserInfo properties from the Game Center auth provider.
-        let gameCenterUserInfo = try XCTUnwrap(providerMap[GameCenterAuthProvider.id])
-        XCTAssertEqual(gameCenterUserInfo.uid, kGameCenterID)
-        XCTAssertNil(gameCenterUserInfo.displayName)
-        XCTAssertNil(gameCenterUserInfo.photoURL)
-        XCTAssertEqual(gameCenterUserInfo.email, kFacebookEmail)
-
         // Verify FIRUserInfo properties from the GitHub auth provider.
         let gitHubUserInfo = try XCTUnwrap(providerMap[GitHubAuthProvider.id])
         XCTAssertEqual(gitHubUserInfo.uid, kGitHubID)
@@ -215,6 +211,15 @@ class UserTests: RPCBaseTests {
           // Verify UserInfo properties from the phone auth provider.
           let phoneUserInfo = try XCTUnwrap(providerMap[PhoneAuthProvider.id])
           XCTAssertEqual(phoneUserInfo.phoneNumber, self.kPhoneNumber)
+        #endif
+
+        #if !os(watchOS)
+          // Verify FIRUserInfo properties from the Game Center auth provider.
+          let gameCenterUserInfo = try XCTUnwrap(providerMap[GameCenterAuthProvider.id])
+          XCTAssertEqual(gameCenterUserInfo.uid, kGameCenterID)
+          XCTAssertNil(gameCenterUserInfo.displayName)
+          XCTAssertNil(gameCenterUserInfo.photoURL)
+          XCTAssertEqual(gameCenterUserInfo.email, kFacebookEmail)
         #endif
 
         // Test NSSecureCoding
@@ -308,13 +313,15 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(unarchivedFacebookUserInfo.photoURL, facebookUserInfo.photoURL)
         XCTAssertEqual(unarchivedFacebookUserInfo.email, facebookUserInfo.email)
 
-        // Verify NSSecureCoding properties from the GameCenter auth provider.
-        let unarchivedGameCenterUserInfo =
-          try XCTUnwrap(unarchivedProviderMap[GameCenterAuthProvider.id])
-        XCTAssertEqual(unarchivedGameCenterUserInfo.uid, gameCenterUserInfo.uid)
-        XCTAssertEqual(unarchivedGameCenterUserInfo.displayName, gameCenterUserInfo.displayName)
-        XCTAssertEqual(unarchivedGameCenterUserInfo.photoURL, gameCenterUserInfo.photoURL)
-        XCTAssertEqual(unarchivedGameCenterUserInfo.email, gameCenterUserInfo.email)
+        #if !os(watchOS)
+          // Verify NSSecureCoding properties from the GameCenter auth provider.
+          let unarchivedGameCenterUserInfo =
+            try XCTUnwrap(unarchivedProviderMap[GameCenterAuthProvider.id])
+          XCTAssertEqual(unarchivedGameCenterUserInfo.uid, gameCenterUserInfo.uid)
+          XCTAssertEqual(unarchivedGameCenterUserInfo.displayName, gameCenterUserInfo.displayName)
+          XCTAssertEqual(unarchivedGameCenterUserInfo.photoURL, gameCenterUserInfo.photoURL)
+          XCTAssertEqual(unarchivedGameCenterUserInfo.email, gameCenterUserInfo.email)
+        #endif
 
         // Verify NSSecureCoding properties from the GitHub auth provider.
         let unarchivedGitHubUserInfo =
