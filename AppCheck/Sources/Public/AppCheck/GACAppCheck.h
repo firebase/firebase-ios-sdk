@@ -81,13 +81,6 @@ NS_SWIFT_NAME(InternalAppCheck)
 - (void)limitedUseTokenWithCompletion:(void (^)(GACAppCheckToken *_Nullable token,
                                                 NSError *_Nullable error))handler;
 
-/// If this flag is disabled then Firebase app check will not periodically auto-refresh the app
-/// check token. The default value of the flag is equal to
-/// `FirebaseApp.dataCollectionDefaultEnabled`. To disable the flag by default set
-/// `FirebaseAppCheckTokenAutoRefreshEnabled` flag in the app Info.plist to `NO`. Once the flag is
-/// set explicitly, the value will be persisted and used as a default value on next app launches.
-@property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
-
 @end
 
 NS_ASSUME_NONNULL_END
