@@ -65,10 +65,7 @@ final class AppCheckAPITests {
     let appCheck = InternalAppCheck(
       instanceName: app.name,
       appCheckProvider: DummyAppCheckProvider(),
-      settings: GACAppCheckSettings(
-        tokenAutoRefreshPolicyUserDefaultsKey: "token-refresh-user-defaults-key",
-        tokenAutoRefreshPolicyInfoPListKey: "token-refresh-info-plist-key"
-      ),
+      settings: DummyAppCheckSettings(),
       resourceName: resourceName,
       keychainAccessGroup: app.options.appGroupID
     )
@@ -93,10 +90,6 @@ final class AppCheckAPITests {
         }
       }
     }
-
-    // Get & Set `isTokenAutoRefreshEnabled`
-    _ = appCheck.isTokenAutoRefreshEnabled
-    appCheck.isTokenAutoRefreshEnabled = false
 
     // MARK: - `AppCheckDebugProvider`
 
@@ -209,4 +202,8 @@ class DummyAppCheckProvider: NSObject, InternalAppCheckProvider {
   func getToken(completion handler: @escaping (InternalAppCheckToken?, Error?) -> Void) {
     handler(InternalAppCheckToken(token: "token", expirationDate: .distantFuture), nil)
   }
+}
+
+class DummyAppCheckSettings: NSObject, GACAppCheckSettingsProtocol {
+  var isTokenAutoRefreshEnabled: Bool = true
 }
