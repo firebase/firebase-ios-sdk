@@ -67,7 +67,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly) id<FIRAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<FIRAppCheckStorageProtocol> storage;
 @property(nonatomic, readonly) NSNotificationCenter *notificationCenter;
-@property(nonatomic, readonly) id<GACAppCheckSettingsProtocol> settings;
+@property(nonatomic, readonly) FIRAppCheckSettings *settings;
 
 @property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
 
@@ -99,7 +99,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     return nil;
   }
 
-  id<GACAppCheckSettingsProtocol> settings =
+  FIRAppCheckSettings *settings =
       [[FIRAppCheckSettings alloc] initWithApp:app
                                    userDefault:[NSUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
@@ -125,7 +125,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                         storage:(id<FIRAppCheckStorageProtocol>)storage
                  tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
              notificationCenter:(NSNotificationCenter *)notificationCenter
-                       settings:(id<GACAppCheckSettingsProtocol>)settings {
+                       settings:(FIRAppCheckSettings *)settings {
   self = [super init];
   if (self) {
     _appName = appName;

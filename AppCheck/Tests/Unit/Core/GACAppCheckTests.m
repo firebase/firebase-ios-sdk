@@ -581,29 +581,6 @@ static NSString *const kAppGroupID = @"app_group_id";
   XCTAssertEqualObjects([self.appCheck notificationTokenKey], @"GACAppCheckTokenNotificationKey");
 }
 
-#pragma mark - Auto-refresh enabled
-
-- (void)testIsTokenAutoRefreshEnabled {
-  // Expect value from settings to be used.
-  [[[self.mockSettings expect] andReturnValue:@(NO)] isTokenAutoRefreshEnabled];
-  XCTAssertFalse(self.appCheck.isTokenAutoRefreshEnabled);
-
-  [[[self.mockSettings expect] andReturnValue:@(YES)] isTokenAutoRefreshEnabled];
-  XCTAssertTrue(self.appCheck.isTokenAutoRefreshEnabled);
-
-  OCMVerifyAll(self.mockSettings);
-}
-
-- (void)testSetIsTokenAutoRefreshEnabled {
-  OCMExpect([self.mockSettings setIsTokenAutoRefreshEnabled:YES]);
-  self.appCheck.isTokenAutoRefreshEnabled = YES;
-
-  OCMExpect([self.mockSettings setIsTokenAutoRefreshEnabled:NO]);
-  self.appCheck.isTokenAutoRefreshEnabled = NO;
-
-  OCMVerifyAll(self.mockSettings);
-}
-
 #pragma mark - Merging multiple get token requests
 
 - (void)testGetToken_WhenCalledSeveralTimesSuccess_ThenThereIsOnlyOneOperation {
