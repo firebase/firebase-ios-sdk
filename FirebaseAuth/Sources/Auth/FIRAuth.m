@@ -1404,7 +1404,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                              FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
                                            if (completion) {
-                                             completion(error);
+                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                               completion(error);
+                                             });
                                            }
                                          }];
                      }];
@@ -1414,7 +1416,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                         callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                    NSError *_Nullable error) {
                           if (!error) {
-                            completion(nil);
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                              completion(nil);
+                            });
                             return;
                           }
                           NSError *underlyingError =
@@ -1438,12 +1442,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                                        *_Nullable response,
                                                                    NSError *_Nullable error) {
                                                                  if (completion) {
-                                                                   completion(error);
+                                                                   dispatch_async(
+                                                                       dispatch_get_main_queue(), ^{
+                                                                         completion(error);
+                                                                       });
                                                                  }
                                                                }];
                                            }];
                           } else {
-                            completion(error);
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                              completion(error);
+                            });
                           }
                         }];
     }
@@ -1494,7 +1503,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                              FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
                                            if (completion) {
-                                             completion(error);
+                                             dispatch_async(dispatch_get_main_queue(), ^{
+                                               completion(error);
+                                             });
                                            }
                                          }];
                      }];
@@ -1504,7 +1515,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                         callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                    NSError *_Nullable error) {
                           if (!error) {
-                            completion(nil);
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                              completion(nil);
+                            });
                             return;
                           }
                           NSError *underlyingError =
@@ -1528,12 +1541,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                                        *_Nullable response,
                                                                    NSError *_Nullable error) {
                                                                  if (completion) {
-                                                                   completion(error);
+                                                                   dispatch_async(
+                                                                       dispatch_get_main_queue(), ^{
+                                                                         completion(error);
+                                                                       });
                                                                  }
                                                                }];
                                            }];
                           } else {
-                            completion(error);
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                              completion(error);
+                            });
                           }
                         }];
     }
