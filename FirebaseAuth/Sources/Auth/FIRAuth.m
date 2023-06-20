@@ -1404,9 +1404,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                              FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
                                            if (completion) {
-                                             dispatch_async(dispatch_get_main_queue(), ^{
-                                               completion(error);
-                                             });
+                                             completion(error);
                                            }
                                          }];
                      }];
@@ -1440,10 +1438,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                                        *_Nullable response,
                                                                    NSError *_Nullable error) {
                                                                  if (completion) {
-                                                                   dispatch_async(
-                                                                       dispatch_get_main_queue(), ^{
-                                                                         completion(error);
-                                                                       });
+                                                                   completion(error);
                                                                  }
                                                                }];
                                            }];
@@ -1499,9 +1494,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                              FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                              NSError *_Nullable error) {
                                            if (completion) {
-                                             dispatch_async(dispatch_get_main_queue(), ^{
-                                               completion(error);
-                                             });
+                                             completion(error);
                                            }
                                          }];
                      }];
@@ -1535,10 +1528,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                                        *_Nullable response,
                                                                    NSError *_Nullable error) {
                                                                  if (completion) {
-                                                                   dispatch_async(
-                                                                       dispatch_get_main_queue(), ^{
-                                                                         completion(error);
-                                                                       });
+                                                                   completion(error);
                                                                  }
                                                                }];
                                            }];
