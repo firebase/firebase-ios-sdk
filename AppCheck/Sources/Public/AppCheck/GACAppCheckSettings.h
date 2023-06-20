@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @protocol GACAppCheckSettingsProtocol <NSObject>
 
 /// If App Check token auto-refresh is enabled.
-@property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
+@property(nonatomic, readonly) BOOL isTokenAutoRefreshEnabled;
 
 @end
 
