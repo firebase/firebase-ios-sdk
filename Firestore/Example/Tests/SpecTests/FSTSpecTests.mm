@@ -56,6 +56,7 @@
 #include "Firestore/core/src/model/types.h"
 #include "Firestore/core/src/nanopb/message.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
+#include "Firestore/core/src/remote/bloom_filter.h"
 #include "Firestore/core/src/remote/existence_filter.h"
 #include "Firestore/core/src/remote/serializer.h"
 #include "Firestore/core/src/remote/watch_change.h"
@@ -71,6 +72,7 @@
 #include "Firestore/core/src/util/to_string.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/escaping.h"
 #include "absl/types/optional.h"
 
 namespace objc = firebase::firestore::objc;
@@ -98,6 +100,8 @@ using firebase::firestore::model::TargetId;
 using firebase::firestore::nanopb::ByteString;
 using firebase::firestore::nanopb::MakeByteString;
 using firebase::firestore::nanopb::Message;
+using firebase::firestore::remote::BloomFilter;
+using firebase::firestore::remote::BloomFilterParameters;
 using firebase::firestore::remote::DocumentWatchChange;
 using firebase::firestore::remote::ExistenceFilter;
 using firebase::firestore::remote::ExistenceFilterWatchChange;
@@ -115,6 +119,7 @@ using firebase::firestore::util::MakeString;
 using firebase::firestore::util::MakeStringPtr;
 using firebase::firestore::util::Path;
 using firebase::firestore::util::Status;
+using firebase::firestore::util::StatusOr;
 using firebase::firestore::util::TimerId;
 using firebase::firestore::util::ToString;
 using firebase::firestore::util::WrapCompare;
@@ -327,12 +332,35 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   return Version(version.longLongValue);
 }
 
+- (absl::optional<BloomFilterParameters>)parseBloomFilterParameter:
+    (NSDictionary *_Nullable)bloomFilterProto {
+  if (bloomFilterProto == nil) {
+    return absl::nullopt;
+  }
+  NSDictionary *bitsData = bloomFilterProto[@"bits"];
+
+  // Decode base64 string into uint8_t vector. If bitmap is not specified in proto, use default
+  // empty string.
+  NSString *bitmapEncoded = bitsData[@"bitmap"];
+  std::string bitmapDecoded;
+  absl::Base64Unescape([bitmapEncoded cStringUsingEncoding:NSASCIIStringEncoding], &bitmapDecoded);
+  ByteString bitmap(bitmapDecoded);
+
+  // If not specified in proto, default padding and hashCount to 0.
+  int32_t padding = [bitsData[@"padding"] intValue];
+  int32_t hashCount = [bloomFilterProto[@"hashCount"] intValue];
+  return BloomFilterParameters{std::move(bitmap), padding, hashCount};
+}
+
 - (QueryPurpose)parseQueryPurpose:(NSString *)value {
   if ([value isEqualToString:@"TargetPurposeListen"]) {
     return QueryPurpose::Listen;
   }
   if ([value isEqualToString:@"TargetPurposeExistenceFilterMismatch"]) {
     return QueryPurpose::ExistenceFilterMismatch;
+  }
+  if ([value isEqualToString:@"TargetPurposeExistenceFilterMismatchBloom"]) {
+    return QueryPurpose::ExistenceFilterMismatchBloom;
   }
   if ([value isEqualToString:@"TargetPurposeLimboResolution"]) {
     return QueryPurpose::LimboResolution;
@@ -484,8 +512,11 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
   NSArray<NSNumber *> *targets = watchFilter[@"targetIds"];
   HARD_ASSERT(targets.count == 1, "ExistenceFilters currently support exactly one target only.");
 
-  ExistenceFilter filter{static_cast<int>(keys.count)};
-  ExistenceFilterWatchChange change{filter, targets[0].intValue};
+  absl::optional<BloomFilterParameters> bloomFilterParameters =
+      [self parseBloomFilterParameter:watchFilter[@"bloomFilter"]];
+
+  ExistenceFilter filter{static_cast<int>(keys.count), std::move(bloomFilterParameters)};
+  ExistenceFilterWatchChange change{std::move(filter), targets[0].intValue};
   [self.driver receiveWatchChange:change snapshotVersion:SnapshotVersion::None()];
 }
 
@@ -702,8 +733,18 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     }
 
     XCTAssertEqual(actual.viewSnapshot.value().document_changes().size(), expectedChanges.size());
-    for (size_t i = 0; i != expectedChanges.size(); ++i) {
-      XCTAssertTrue((actual.viewSnapshot.value().document_changes()[i] == expectedChanges[i]));
+
+    auto comparator = [](const DocumentViewChange &lhs, const DocumentViewChange &rhs) {
+      return lhs.document()->key() < rhs.document()->key();
+    };
+
+    std::vector<DocumentViewChange> expectedChangesSorted = expectedChanges;
+    std::sort(expectedChangesSorted.begin(), expectedChangesSorted.end(), comparator);
+    std::vector<DocumentViewChange> actualChangesSorted =
+        actual.viewSnapshot.value().document_changes();
+    std::sort(actualChangesSorted.begin(), actualChangesSorted.end(), comparator);
+    for (size_t i = 0; i != expectedChangesSorted.size(); ++i) {
+      XCTAssertTrue((actualChangesSorted[i] == expectedChangesSorted[i]));
     }
 
     BOOL expectedHasPendingWrites =
@@ -805,6 +846,10 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
               } else {
                 target_data = target_data.WithResumeToken(
                     ByteString(), [self parseVersion:queryData[@"readTime"]]);
+              }
+
+              if ([queryData objectForKey:@"expectedCount"] != nil) {
+                target_data = target_data.WithExpectedCount([queryData[@"expectedCount"] intValue]);
               }
               queries.push_back(std::move(target_data));
             }
@@ -924,7 +969,13 @@ NSString *ToTargetIdListString(const ActiveTargetMap &map) {
     XCTAssertEqual(actual.target_id(), targetData.target_id());
     XCTAssertEqual(actual.snapshot_version(), targetData.snapshot_version());
     XCTAssertEqual(actual.resume_token(), targetData.resume_token());
-
+    if (targetData.expected_count().has_value()) {
+      if (!actual.expected_count().has_value()) {
+        XCTFail(@"Actual target data doesn't have an expected_count.");
+      } else {
+        XCTAssertEqual(actual.expected_count().value(), targetData.expected_count().value());
+      }
+    }
     actualTargets.erase(targetID);
   }
 

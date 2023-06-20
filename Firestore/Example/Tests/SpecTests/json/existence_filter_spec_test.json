@@ -3,7 +3,6 @@
     "describeName": "Existence Filters:",
     "itName": "Bloom filter can process special characters in document name",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -207,7 +206,6 @@
     "describeName": "Existence Filters:",
     "itName": "Bloom filter fills in default values for undefined padding and hashCount",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -394,7 +392,6 @@
     "describeName": "Existence Filters:",
     "itName": "Bloom filter is handled at global snapshot",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -633,7 +630,6 @@
     "describeName": "Existence Filters:",
     "itName": "Bloom filter limbo resolution is denied",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -893,7 +889,6 @@
     "describeName": "Existence Filters:",
     "itName": "Bloom filter with large size works as expected",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -6517,7 +6512,6 @@
     "describeName": "Existence Filters:",
     "itName": "Full re-query is skipped when bloom filter can identify documents deleted",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -6977,7 +6971,6 @@
     "describeName": "Existence Filters:",
     "itName": "Full re-query is triggered when bloom filter can not identify documents deleted",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -7190,7 +7183,6 @@
     "describeName": "Existence Filters:",
     "itName": "Full re-query is triggered when bloom filter hashCount is invalid",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -7379,7 +7371,6 @@
     "describeName": "Existence Filters:",
     "itName": "Full re-query is triggered when bloom filter is empty",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -7568,7 +7559,6 @@
     "describeName": "Existence Filters:",
     "itName": "Same documents can have different bloom filters",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,

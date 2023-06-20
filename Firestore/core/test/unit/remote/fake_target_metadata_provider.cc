@@ -102,6 +102,10 @@ absl::optional<TargetData> FakeTargetMetadataProvider::GetTargetDataForTarget(
   return it->second;
 }
 
+const model::DatabaseId& FakeTargetMetadataProvider::GetDatabaseId() const {
+  return database_id_;
+}
+
 }  // namespace remote
 }  // namespace firestore
 }  // namespace firebase

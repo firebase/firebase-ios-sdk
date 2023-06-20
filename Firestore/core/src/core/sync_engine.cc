@@ -113,7 +113,6 @@ TargetId SyncEngine::Listen(Query query) {
   TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
   TargetId target_id = target_data.target_id();
   nanopb::ByteString resume_token = target_data.resume_token();
-  remote_store_->Listen(std::move(target_data));
 
   ViewSnapshot view_snapshot = InitializeViewAndComputeSnapshot(
       query, target_id, std::move(resume_token));
@@ -122,6 +121,7 @@ TargetId SyncEngine::Listen(Query query) {
   snapshots.push_back(std::move(view_snapshot));
   sync_engine_callback_->OnViewSnapshots(std::move(snapshots));
 
+  remote_store_->Listen(std::move(target_data));
   return target_id;
 }
 
@@ -345,7 +345,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     // copy-initialization" error.
     DocumentKeySet limbo_documents{limbo_key};
     RemoteEvent::TargetChangeMap target_changes;
-    RemoteEvent::TargetSet target_mismatches;
+    RemoteEvent::TargetMismatchMap target_mismatches;
     DocumentUpdateMap document_updates{{limbo_key, doc}};
 
     RemoteEvent event{SnapshotVersion::None(), std::move(target_changes),

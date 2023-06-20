@@ -105,6 +105,10 @@ class RemoteEventTest : public testing::Test {
       DocumentKeySet existing_keys,
       const std::vector<std::unique_ptr<WatchChange>>& watch_changes);
 
+  void OverrideDefaultDatabaseId(model::DatabaseId database_id) {
+    target_metadata_provider_.SetDatabaseId(std::move(database_id));
+  }
+
   ByteString resume_token1_;
   FakeTargetMetadataProvider target_metadata_provider_;
   std::unordered_map<TargetId, int> no_outstanding_responses_;
@@ -547,7 +551,117 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchClearsTarget) {
 
   // The existence filter mismatch will remove the document from target 1,
   // but not synthesize a document delete.
-  ExistenceFilterWatchChange change4{ExistenceFilter{1}, 1};
+  ExistenceFilterWatchChange change4{
+      ExistenceFilter{1, /*bloom_filter=*/absl::nullopt}, 1};
+  aggregator.HandleExistenceFilter(change4);
+
+  event = aggregator.CreateRemoteEvent(testutil::Version(4));
+
+  TargetChange target_change3{ByteString(), false, DocumentKeySet{},
+                              DocumentKeySet{},
+                              DocumentKeySet{doc1.key(), doc2.key()}};
+  ASSERT_TRUE(event.target_changes().at(1) == target_change3);
+
+  ASSERT_EQ(event.target_changes().size(), 1);
+  ASSERT_EQ(event.target_mismatches().size(), 1);
+  ASSERT_EQ(event.document_updates().size(), 0);
+}
+
+TEST_F(RemoteEventTest, ExistenceFilterMismatchWithBloomFilterSuccess) {
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
+
+  MutableDocument doc1 = Doc("docs/1", 1, Map("value", 1));
+  auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
+  MutableDocument doc2 = Doc("docs/2", 2, Map("value", 2));
+  auto change2 = MakeDocChange({1}, {}, doc2.key(), doc2);
+  auto change3 =
+      MakeTargetChange(WatchTargetChangeState::Current, {1}, resume_token1_);
+
+  WatchChangeAggregator aggregator = CreateAggregator(
+      target_map, no_outstanding_responses_,
+      DocumentKeySet{doc1.key(), doc2.key()},
+      Changes(std::move(change1), std::move(change2), std::move(change3)));
+
+  // The BloomFilterParameters value below is created based on the document
+  // paths that are constructed using the following pattern:
+  // "projects/test-project/databases/test-database/documents/"+document_key.
+  // Override the database ID to ensure that the document path matches the
+  // pattern above.
+  OverrideDefaultDatabaseId(model::DatabaseId("test-project", "test-database"));
+
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
+
+  ASSERT_EQ(event.snapshot_version(), testutil::Version(3));
+  ASSERT_EQ(event.document_updates().size(), 2);
+  ASSERT_EQ(event.document_updates().at(doc1.key()), doc1);
+  ASSERT_EQ(event.document_updates().at(doc2.key()), doc2);
+
+  ASSERT_EQ(event.target_changes().size(), 2);
+
+  TargetChange target_change1{resume_token1_, true, DocumentKeySet{},
+                              DocumentKeySet{doc1.key(), doc2.key()},
+                              DocumentKeySet{}};
+  ASSERT_TRUE(event.target_changes().at(1) == target_change1);
+
+  TargetChange target_change2{resume_token1_, false, DocumentKeySet{},
+                              DocumentKeySet{}, DocumentKeySet{}};
+  ASSERT_TRUE(event.target_changes().at(2) == target_change2);
+
+  // The given BloomFilter will return false on MightContain(doc1) and true on
+  // MightContain(doc2).
+  ExistenceFilterWatchChange change4{
+      ExistenceFilter{1, BloomFilterParameters{{0x0E, 0x0F}, 1, 7}}, 1};
+  // The existence filter identifies that doc1 is deleted, and skips the full
+  // re-query.
+  aggregator.HandleExistenceFilter(change4);
+
+  event = aggregator.CreateRemoteEvent(testutil::Version(4));
+
+  ASSERT_EQ(event.target_changes().size(), 1);
+  ASSERT_EQ(event.target_mismatches().size(), 0);
+  ASSERT_EQ(event.document_updates().size(), 0);
+}
+
+TEST_F(RemoteEventTest,
+       ExistenceFilterMismatchWithBloomFilterFalsePositiveResult) {
+  std::unordered_map<TargetId, TargetData> target_map = ActiveQueries({1, 2});
+
+  MutableDocument doc1 = Doc("docs/1", 1, Map("value", 1));
+  auto change1 = MakeDocChange({1}, {}, doc1.key(), doc1);
+  MutableDocument doc2 = Doc("docs/2", 2, Map("value", 2));
+  auto change2 = MakeDocChange({1}, {}, doc2.key(), doc2);
+  auto change3 =
+      MakeTargetChange(WatchTargetChangeState::Current, {1}, resume_token1_);
+
+  WatchChangeAggregator aggregator = CreateAggregator(
+      target_map, no_outstanding_responses_,
+      DocumentKeySet{doc1.key(), doc2.key()},
+      Changes(std::move(change1), std::move(change2), std::move(change3)));
+
+  RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));
+
+  ASSERT_EQ(event.snapshot_version(), testutil::Version(3));
+  ASSERT_EQ(event.document_updates().size(), 2);
+  ASSERT_EQ(event.document_updates().at(doc1.key()), doc1);
+  ASSERT_EQ(event.document_updates().at(doc2.key()), doc2);
+
+  ASSERT_EQ(event.target_changes().size(), 2);
+
+  TargetChange target_change1{resume_token1_, true, DocumentKeySet{},
+                              DocumentKeySet{doc1.key(), doc2.key()},
+                              DocumentKeySet{}};
+  ASSERT_TRUE(event.target_changes().at(1) == target_change1);
+
+  TargetChange target_change2{resume_token1_, false, DocumentKeySet{},
+                              DocumentKeySet{}, DocumentKeySet{}};
+  ASSERT_TRUE(event.target_changes().at(2) == target_change2);
+
+  // The given BloomFilter will return true on both MightContain(doc1) and
+  // MightContain(doc2).
+  ExistenceFilterWatchChange change4{
+      ExistenceFilter{1, BloomFilterParameters{{0x42, 0xFE}, 2, 7}}, 1};
+  // The existence filter cannot identify which doc is deleted. It will remove
+  // the document from target 1, but not synthesize a document delete.
   aggregator.HandleExistenceFilter(change4);
 
   event = aggregator.CreateRemoteEvent(testutil::Version(4));
@@ -578,7 +692,8 @@ TEST_F(RemoteEventTest, ExistenceFilterMismatchRemovesCurrentChanges) {
 
   // The existence filter mismatch will remove the document from target 1, but
   // not synthesize a document delete.
-  ExistenceFilterWatchChange existence_filter{ExistenceFilter{0}, 1};
+  ExistenceFilterWatchChange existence_filter{
+      ExistenceFilter{0, /*bloom_filter=*/absl::nullopt}, 1};
   aggregator.HandleExistenceFilter(existence_filter);
 
   RemoteEvent event = aggregator.CreateRemoteEvent(testutil::Version(3));

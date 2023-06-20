@@ -49,6 +49,7 @@
 #include <google/protobuf/extension_set.h>  // IWYU pragma: export
 #include <google/protobuf/generated_enum_reflection.h>
 #include <google/protobuf/unknown_field_set.h>
+#include "google/firestore/v1/bloom_filter.pb.h"
 #include "google/firestore/v1/common.pb.h"
 #include "google/firestore/v1/document.pb.h"
 #include <google/protobuf/timestamp.pb.h>
@@ -1659,9 +1660,25 @@ class ExistenceFilter :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kUnchangedNamesFieldNumber = 3,
     kTargetIdFieldNumber = 1,
     kCountFieldNumber = 2,
   };
+  // .google.firestore.v1.BloomFilter unchanged_names = 3;
+  bool has_unchanged_names() const;
+  private:
+  bool _internal_has_unchanged_names() const;
+  public:
+  void clear_unchanged_names();
+  const ::google::firestore::v1::BloomFilter& unchanged_names() const;
+  ::google::firestore::v1::BloomFilter* release_unchanged_names();
+  ::google::firestore::v1::BloomFilter* mutable_unchanged_names();
+  void set_allocated_unchanged_names(::google::firestore::v1::BloomFilter* unchanged_names);
+  private:
+  const ::google::firestore::v1::BloomFilter& _internal_unchanged_names() const;
+  ::google::firestore::v1::BloomFilter* _internal_mutable_unchanged_names();
+  public:
+
   // int32 target_id = 1;
   void clear_target_id();
   ::PROTOBUF_NAMESPACE_ID::int32 target_id() const;
@@ -1685,6 +1702,7 @@ class ExistenceFilter :
   class _Internal;
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::firestore::v1::BloomFilter* unchanged_names_;
   ::PROTOBUF_NAMESPACE_ID::int32 target_id_;
   ::PROTOBUF_NAMESPACE_ID::int32 count_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
@@ -3199,6 +3217,60 @@ inline void ExistenceFilter::_internal_set_count(::PROTOBUF_NAMESPACE_ID::int32 
 inline void ExistenceFilter::set_count(::PROTOBUF_NAMESPACE_ID::int32 value) {
   _internal_set_count(value);
   // @@protoc_insertion_point(field_set:google.firestore.v1.ExistenceFilter.count)
+}
+
+// .google.firestore.v1.BloomFilter unchanged_names = 3;
+inline bool ExistenceFilter::_internal_has_unchanged_names() const {
+  return this != internal_default_instance() && unchanged_names_ != nullptr;
+}
+inline bool ExistenceFilter::has_unchanged_names() const {
+  return _internal_has_unchanged_names();
+}
+inline const ::google::firestore::v1::BloomFilter& ExistenceFilter::_internal_unchanged_names() const {
+  const ::google::firestore::v1::BloomFilter* p = unchanged_names_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::google::firestore::v1::BloomFilter*>(
+      &::google::firestore::v1::_BloomFilter_default_instance_);
+}
+inline const ::google::firestore::v1::BloomFilter& ExistenceFilter::unchanged_names() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.ExistenceFilter.unchanged_names)
+  return _internal_unchanged_names();
+}
+inline ::google::firestore::v1::BloomFilter* ExistenceFilter::release_unchanged_names() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.ExistenceFilter.unchanged_names)
+  
+  ::google::firestore::v1::BloomFilter* temp = unchanged_names_;
+  unchanged_names_ = nullptr;
+  return temp;
+}
+inline ::google::firestore::v1::BloomFilter* ExistenceFilter::_internal_mutable_unchanged_names() {
+  
+  if (unchanged_names_ == nullptr) {
+    auto* p = CreateMaybeMessage<::google::firestore::v1::BloomFilter>(GetArenaNoVirtual());
+    unchanged_names_ = p;
+  }
+  return unchanged_names_;
+}
+inline ::google::firestore::v1::BloomFilter* ExistenceFilter::mutable_unchanged_names() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.ExistenceFilter.unchanged_names)
+  return _internal_mutable_unchanged_names();
+}
+inline void ExistenceFilter::set_allocated_unchanged_names(::google::firestore::v1::BloomFilter* unchanged_names) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(unchanged_names_);
+  }
+  if (unchanged_names) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = nullptr;
+    if (message_arena != submessage_arena) {
+      unchanged_names = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, unchanged_names, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  unchanged_names_ = unchanged_names;
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.ExistenceFilter.unchanged_names)
 }
 
 #ifdef __GNUC__

@@ -16,9 +16,11 @@
 
 #include "Firestore/core/src/remote/remote_event.h"
 
+#include <string>
 #include <utility>
 
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/util/log.h"
 #include "Firestore/core/src/util/testing_hooks.h"
 
 namespace firebase {
@@ -29,6 +31,7 @@ using core::DocumentViewChange;
 using core::Target;
 using local::QueryPurpose;
 using local::TargetData;
+using model::DatabaseId;
 using model::DocumentKey;
 using model::DocumentKeySet;
 using model::MutableDocument;
@@ -209,6 +212,29 @@ std::vector<TargetId> WatchChangeAggregator::GetTargetIds(
   return result;
 }
 
+namespace {
+
+TestingHooks::ExistenceFilterMismatchInfo
+create_existence_filter_mismatch_info_for_testing_hooks(
+    BloomFilterApplicationStatus status,
+    int local_cache_count,
+    const ExistenceFilterWatchChange& existence_filter) {
+  absl::optional<TestingHooks::BloomFilterInfo> bloom_filter;
+  if (existence_filter.filter().bloom_filter_parameters().has_value()) {
+    const BloomFilterParameters& bloom_filter_parameters =
+        existence_filter.filter().bloom_filter_parameters().value();
+    bloom_filter = {status == BloomFilterApplicationStatus::kSuccess,
+                    bloom_filter_parameters.hash_count,
+                    static_cast<int>(bloom_filter_parameters.bitmap.size()),
+                    bloom_filter_parameters.padding};
+  }
+
+  return {local_cache_count, existence_filter.filter().count(),
+          std::move(bloom_filter)};
+}
+
+}  // namespace
+
 void WatchChangeAggregator::HandleExistenceFilter(
     const ExistenceFilterWatchChange& existence_filter) {
   TargetId target_id = existence_filter.target_id();
@@ -237,15 +263,80 @@ void WatchChangeAggregator::HandleExistenceFilter(
     } else {
       int current_size = GetCurrentDocumentCountForTarget(target_id);
       if (current_size != expected_count) {
-        // Existence filter mismatch: We reset the mapping and raise a new
-        // snapshot with `isFromCache:true`.
-        ResetTarget(target_id);
-        pending_target_resets_.insert(target_id);
+        // Apply bloom filter to identify and mark removed documents.
+        BloomFilterApplicationStatus status =
+            ApplyBloomFilter(existence_filter, current_size);
+        if (status != BloomFilterApplicationStatus::kSuccess) {
+          // If bloom filter application fails, we reset the mapping and
+          // trigger re-run of the query.
+          ResetTarget(target_id);
+          const QueryPurpose purpose =
+              status == BloomFilterApplicationStatus::kFalsePositive
+                  ? QueryPurpose::ExistenceFilterMismatchBloom
+                  : QueryPurpose::ExistenceFilterMismatch;
+          pending_target_resets_.insert({target_id, purpose});
+        }
+
         TestingHooks::GetInstance().NotifyOnExistenceFilterMismatch(
-            {current_size, expected_count});
+            create_existence_filter_mismatch_info_for_testing_hooks(
+                status, current_size, existence_filter));
       }
     }
   }
+}
+
+BloomFilterApplicationStatus WatchChangeAggregator::ApplyBloomFilter(
+    const ExistenceFilterWatchChange& existence_filter, int current_count) {
+  const absl::optional<BloomFilterParameters>& bloom_filter_parameters =
+      existence_filter.filter().bloom_filter_parameters();
+  if (!bloom_filter_parameters.has_value()) {
+    return BloomFilterApplicationStatus::kSkipped;
+  }
+
+  util::StatusOr<BloomFilter> maybe_bloom_filter =
+      BloomFilter::Create(bloom_filter_parameters.value().bitmap,
+                          bloom_filter_parameters.value().padding,
+                          bloom_filter_parameters.value().hash_count);
+  if (!maybe_bloom_filter.ok()) {
+    LOG_WARN("Creating BloomFilter failed: %s",
+             maybe_bloom_filter.status().error_message());
+    return BloomFilterApplicationStatus::kSkipped;
+  }
+
+  BloomFilter bloom_filter = std::move(maybe_bloom_filter).ValueOrDie();
+
+  if (bloom_filter.bit_count() == 0) {
+    return BloomFilterApplicationStatus::kSkipped;
+  }
+
+  int removed_document_count =
+      FilterRemovedDocuments(bloom_filter, existence_filter.target_id());
+
+  int expected_count = existence_filter.filter().count();
+  if (expected_count != (current_count - removed_document_count)) {
+    return BloomFilterApplicationStatus::kFalsePositive;
+  }
+  return BloomFilterApplicationStatus::kSuccess;
+}
+
+int WatchChangeAggregator::FilterRemovedDocuments(
+    const BloomFilter& bloom_filter, int target_id) {
+  const DocumentKeySet existing_keys =
+      target_metadata_provider_->GetRemoteKeysForTarget(target_id);
+  int removalCount = 0;
+  for (const DocumentKey& key : existing_keys) {
+    const DatabaseId& database_id = target_metadata_provider_->GetDatabaseId();
+    std::string document_path = util::StringFormat(
+        "projects/%s/databases/%s/documents/%s", database_id.project_id(),
+        database_id.database_id(), key.ToString());
+
+    if (!bloom_filter.MightContain(document_path)) {
+      RemoveDocumentFromTarget(target_id, key,
+                               /*updatedDocument=*/absl::nullopt);
+      removalCount++;
+    }
+  }
+  return removalCount;
 }
 
 RemoteEvent WatchChangeAggregator::CreateRemoteEvent(

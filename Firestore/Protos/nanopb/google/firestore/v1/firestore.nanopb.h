@@ -37,6 +37,8 @@
 
 #include "google/protobuf/timestamp.nanopb.h"
 
+#include "google/protobuf/wrappers.nanopb.h"
+
 #include "google/rpc/status.nanopb.h"
 
 #include <string>
@@ -373,6 +375,8 @@ typedef struct _google_firestore_v1_Target {
     } resume_type;
     int32_t target_id;
     bool once;
+    bool has_expected_count;
+    google_protobuf_Int32Value expected_count;
 
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_Target) */
@@ -418,7 +422,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_ListenRequest_init_default {NULL, 0, {google_firestore_v1_Target_init_default}, 0, NULL}
 #define google_firestore_v1_ListenRequest_LabelsEntry_init_default {NULL, NULL}
 #define google_firestore_v1_ListenResponse_init_default {0, {google_firestore_v1_TargetChange_init_default}}
-#define google_firestore_v1_Target_init_default  {0, {google_firestore_v1_Target_QueryTarget_init_default}, 0, {NULL}, 0, 0}
+#define google_firestore_v1_Target_init_default  {0, {google_firestore_v1_Target_QueryTarget_init_default}, 0, {NULL}, 0, 0, false, google_protobuf_Int32Value_init_default}
 #define google_firestore_v1_Target_DocumentsTarget_init_default {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_default {NULL, 0, {google_firestore_v1_StructuredQuery_init_default}}
 #define google_firestore_v1_TargetChange_init_default {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_default, NULL, google_protobuf_Timestamp_init_default}
@@ -447,7 +451,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_ListenRequest_init_zero {NULL, 0, {google_firestore_v1_Target_init_zero}, 0, NULL}
 #define google_firestore_v1_ListenRequest_LabelsEntry_init_zero {NULL, NULL}
 #define google_firestore_v1_ListenResponse_init_zero {0, {google_firestore_v1_TargetChange_init_zero}}
-#define google_firestore_v1_Target_init_zero     {0, {google_firestore_v1_Target_QueryTarget_init_zero}, 0, {NULL}, 0, 0}
+#define google_firestore_v1_Target_init_zero     {0, {google_firestore_v1_Target_QueryTarget_init_zero}, 0, {NULL}, 0, 0, false, google_protobuf_Int32Value_init_zero}
 #define google_firestore_v1_Target_DocumentsTarget_init_zero {0, NULL}
 #define google_firestore_v1_Target_QueryTarget_init_zero {NULL, 0, {google_firestore_v1_StructuredQuery_init_zero}}
 #define google_firestore_v1_TargetChange_init_zero {_google_firestore_v1_TargetChange_TargetChangeType_MIN, 0, NULL, false, google_rpc_Status_init_zero, NULL, google_protobuf_Timestamp_init_zero}
@@ -555,6 +559,7 @@ typedef struct _google_firestore_v1_ListenRequest {
 #define google_firestore_v1_Target_read_time_tag 11
 #define google_firestore_v1_Target_target_id_tag 5
 #define google_firestore_v1_Target_once_tag      6
+#define google_firestore_v1_Target_expected_count_tag 12
 #define google_firestore_v1_ListenRequest_add_target_tag 2
 #define google_firestore_v1_ListenRequest_remove_target_tag 3
 #define google_firestore_v1_ListenRequest_database_tag 1
@@ -584,7 +589,7 @@ extern const pb_field_t google_firestore_v1_WriteResponse_fields[5];
 extern const pb_field_t google_firestore_v1_ListenRequest_fields[5];
 extern const pb_field_t google_firestore_v1_ListenRequest_LabelsEntry_fields[3];
 extern const pb_field_t google_firestore_v1_ListenResponse_fields[6];
-extern const pb_field_t google_firestore_v1_Target_fields[7];
+extern const pb_field_t google_firestore_v1_Target_fields[8];
 extern const pb_field_t google_firestore_v1_Target_DocumentsTarget_fields[2];
 extern const pb_field_t google_firestore_v1_Target_QueryTarget_fields[3];
 extern const pb_field_t google_firestore_v1_TargetChange_fields[6];

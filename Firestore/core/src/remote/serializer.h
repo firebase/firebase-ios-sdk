@@ -341,6 +341,9 @@ class Serializer {
       util::ReadContext* context,
       const google_firestore_v1_ExistenceFilter& filter) const;
 
+  ExistenceFilter DecodeExistenceFilter(
+      const google_firestore_v1_ExistenceFilter& filter) const;
+
   model::DatabaseId database_id_;
   // TODO(varconst): Android caches the result of calling `EncodeDatabaseName`
   // as well, consider implementing that.

@@ -75,6 +75,7 @@ namespace {
 
 namespace v1 = google::firestore::v1;
 using core::Bound;
+using google::protobuf::Int32Value;
 using google::protobuf::util::MessageDifferencer;
 using local::QueryPurpose;
 using local::TargetData;
@@ -1525,7 +1526,7 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
   core::Query q = Query("docs");
   TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
                    SnapshotVersion::None(), SnapshotVersion::None(),
-                   Bytes({1, 2, 3}));
+                   Bytes({1, 2, 3}), /*expected_count=*/absl::nullopt);
 
   v1::Target proto;
   proto.mutable_query()->set_parent(ResourceName(""));
@@ -1545,6 +1546,63 @@ TEST_F(SerializerTest, EncodesResumeTokens) {
   proto.set_resume_token("\001\002\003");
 
   SCOPED_TRACE("EncodesResumeTokens");
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodesExpectedCount) {
+  core::Query q = Query("docs");
+  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
+                   SnapshotVersion::None(), SnapshotVersion::None(),
+                   Bytes({1, 2, 3}), /*expected_count=*/1234);
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(ResourceName(""));
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  proto.set_resume_token("\001\002\003");
+
+  google::protobuf::Int32Value int32_value;
+  google::protobuf::Int32Value* expected_count = int32_value.New();
+  expected_count->set_value(1234);
+  proto.set_allocated_expected_count(expected_count);
+
+  EXPECT_TRUE(proto.has_expected_count());
+  ExpectRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest, EncodeExpectedCountSkippedWithoutResumeToken) {
+  core::Query q = Query("docs");
+  TargetData model(q.ToTarget(), 1, 0, QueryPurpose::Listen,
+                   SnapshotVersion::None(), SnapshotVersion::None(),
+                   ByteString(), /*expected_count=*/1234);
+
+  v1::Target proto;
+  proto.mutable_query()->set_parent(ResourceName(""));
+  proto.set_target_id(1);
+
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("docs");
+  *proto.mutable_query()->mutable_structured_query()->add_from() =
+      std::move(from);
+
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *proto.mutable_query()->mutable_structured_query()->add_order_by() =
+      std::move(order);
+
+  EXPECT_FALSE(proto.has_expected_count());
   ExpectRoundTrip(model, proto);
 }
 
@@ -1716,7 +1774,8 @@ TEST_F(SerializerTest, DecodesListenResponseWithDocumentRemove) {
 }
 
 TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
-  ExistenceFilterWatchChange model(ExistenceFilter(2), 100);
+  ExistenceFilterWatchChange model(
+      ExistenceFilter(2, /*bloom_filter=*/absl::nullopt), 100);
 
   v1::ListenResponse proto;
 
@@ -1724,6 +1783,26 @@ TEST_F(SerializerTest, DecodesListenResponseWithExistenceFilter) {
   proto.mutable_filter()->set_target_id(100);
 
   SCOPED_TRACE("DecodesListenResponseWithExistenceFilter");
+  ExpectDeserializationRoundTrip(model, proto);
+}
+
+TEST_F(SerializerTest,
+       DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull) {
+  ExistenceFilterWatchChange model(
+      ExistenceFilter(555, BloomFilterParameters{{0x42, 0xFE}, 7, 33}), 999);
+
+  v1::ListenResponse proto;
+  proto.mutable_filter()->set_count(555);
+  proto.mutable_filter()->set_target_id(999);
+
+  v1::BloomFilter* bloom_filter =
+      proto.mutable_filter()->mutable_unchanged_names();
+  bloom_filter->set_hash_count(33);
+  bloom_filter->mutable_bits()->set_padding(7);
+  bloom_filter->mutable_bits()->set_bitmap("\x42\xFE");
+
+  SCOPED_TRACE(
+      "DecodesListenResponseWithExistenceFilterWhenBloomFilterNotNull");
   ExpectDeserializationRoundTrip(model, proto);
 }
 

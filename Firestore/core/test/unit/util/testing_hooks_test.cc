@@ -52,6 +52,18 @@ class TestingHooksTest : public ::testing::Test, public AsyncTest {
     TestingHooks::ExistenceFilterMismatchInfo info = accumulator->Shift();
     EXPECT_EQ(info.local_cache_count, expected.local_cache_count);
     EXPECT_EQ(info.existence_filter_count, expected.existence_filter_count);
+    EXPECT_EQ(info.bloom_filter.has_value(), expected.bloom_filter.has_value());
+    if (info.bloom_filter.has_value() && expected.bloom_filter.has_value()) {
+      const TestingHooks::BloomFilterInfo& info_bloom_filter =
+          info.bloom_filter.value();
+      const TestingHooks::BloomFilterInfo& expected_bloom_filter =
+          expected.bloom_filter.value();
+      EXPECT_EQ(info_bloom_filter.applied, expected_bloom_filter.applied);
+      EXPECT_EQ(info_bloom_filter.hash_count, expected_bloom_filter.hash_count);
+      EXPECT_EQ(info_bloom_filter.bitmap_length,
+                expected_bloom_filter.bitmap_length);
+      EXPECT_EQ(info_bloom_filter.padding, expected_bloom_filter.padding);
+    }
   }
 
   std::future<void> NotifyOnExistenceFilterMismatchAsync(
@@ -74,10 +86,11 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchCallbackShouldGetNotified) {
       TestingHooks::GetInstance().OnExistenceFilterMismatch(
           accumulator->AsCallback());
   Defer unregister_listener([=] { listener_registration->Remove(); });
+  TestingHooks::BloomFilterInfo bloom_filter_info{true, 10, 11, 12};
 
-  NotifyOnExistenceFilterMismatchAsync({123, 456});
+  NotifyOnExistenceFilterMismatchAsync({123, 456, bloom_filter_info});
 
-  AssertAccumulatedObject(accumulator, {123, 456});
+  AssertAccumulatedObject(accumulator, {123, 456, bloom_filter_info});
 }
 
 TEST_F(TestingHooksTest,
@@ -87,13 +100,14 @@ TEST_F(TestingHooksTest,
       TestingHooks::GetInstance().OnExistenceFilterMismatch(
           accumulator->AsCallback());
   Defer unregister_listener([=] { listener_registration->Remove(); });
+  TestingHooks::BloomFilterInfo bloom_filter_info{true, 10, 11, 12};
 
-  NotifyOnExistenceFilterMismatchAsync({111, 222});
-  AssertAccumulatedObject(accumulator, {111, 222});
-  NotifyOnExistenceFilterMismatchAsync({333, 444});
-  AssertAccumulatedObject(accumulator, {333, 444});
-  NotifyOnExistenceFilterMismatchAsync({555, 666});
-  AssertAccumulatedObject(accumulator, {555, 666});
+  NotifyOnExistenceFilterMismatchAsync({111, 222, bloom_filter_info});
+  AssertAccumulatedObject(accumulator, {111, 222, bloom_filter_info});
+  NotifyOnExistenceFilterMismatchAsync({333, 444, bloom_filter_info});
+  AssertAccumulatedObject(accumulator, {333, 444, bloom_filter_info});
+  NotifyOnExistenceFilterMismatchAsync({555, 666, bloom_filter_info});
+  AssertAccumulatedObject(accumulator, {555, 666, bloom_filter_info});
 }
 
 TEST_F(TestingHooksTest,
@@ -108,11 +122,12 @@ TEST_F(TestingHooksTest,
       TestingHooks::GetInstance().OnExistenceFilterMismatch(
           accumulator2->AsCallback());
   Defer unregister_listener2([=] { listener_registration2->Remove(); });
+  TestingHooks::BloomFilterInfo bloom_filter_info{true, 10, 11, 12};
 
-  NotifyOnExistenceFilterMismatchAsync({123, 456});
+  NotifyOnExistenceFilterMismatchAsync({123, 456, bloom_filter_info});
 
-  AssertAccumulatedObject(accumulator1, {123, 456});
-  AssertAccumulatedObject(accumulator2, {123, 456});
+  AssertAccumulatedObject(accumulator1, {123, 456, bloom_filter_info});
+  AssertAccumulatedObject(accumulator2, {123, 456, bloom_filter_info});
 }
 
 TEST_F(TestingHooksTest,
@@ -126,11 +141,12 @@ TEST_F(TestingHooksTest,
       TestingHooks::GetInstance().OnExistenceFilterMismatch(
           accumulator->AsCallback());
   Defer unregister_listener2([=] { listener_registration1->Remove(); });
+  TestingHooks::BloomFilterInfo bloom_filter_info{true, 10, 11, 12};
 
-  NotifyOnExistenceFilterMismatchAsync({123, 456});
+  NotifyOnExistenceFilterMismatchAsync({123, 456, bloom_filter_info});
 
-  AssertAccumulatedObject(accumulator, {123, 456});
-  AssertAccumulatedObject(accumulator, {123, 456});
+  AssertAccumulatedObject(accumulator, {123, 456, bloom_filter_info});
+  AssertAccumulatedObject(accumulator, {123, 456, bloom_filter_info});
   std::this_thread::sleep_for(250ms);
   EXPECT_TRUE(accumulator->IsEmpty());
 }
@@ -142,8 +158,9 @@ TEST_F(TestingHooksTest,
       TestingHooks::GetInstance().OnExistenceFilterMismatch(
           accumulator->AsCallback());
   registration->Remove();
+  TestingHooks::BloomFilterInfo bloom_filter_info{true, 10, 11, 12};
 
-  NotifyOnExistenceFilterMismatchAsync({123, 456});
+  NotifyOnExistenceFilterMismatchAsync({123, 456, bloom_filter_info});
 
   std::this_thread::sleep_for(250ms);
   EXPECT_TRUE(accumulator->IsEmpty());
@@ -165,13 +182,14 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchRemoveShouldOnlyRemoveOne) {
       TestingHooks::GetInstance().OnExistenceFilterMismatch(
           accumulator3->AsCallback());
   Defer unregister_listener3([=] { listener_registration3->Remove(); });
+  TestingHooks::BloomFilterInfo bloom_filter_info{true, 10, 11, 12};
 
   listener_registration2->Remove();
 
-  NotifyOnExistenceFilterMismatchAsync({123, 456});
+  NotifyOnExistenceFilterMismatchAsync({123, 456, bloom_filter_info});
 
-  AssertAccumulatedObject(accumulator1, {123, 456});
-  AssertAccumulatedObject(accumulator3, {123, 456});
+  AssertAccumulatedObject(accumulator1, {123, 456, bloom_filter_info});
+  AssertAccumulatedObject(accumulator3, {123, 456, bloom_filter_info});
   std::this_thread::sleep_for(250ms);
   EXPECT_TRUE(accumulator2->IsEmpty());
 }
@@ -185,8 +203,9 @@ TEST_F(TestingHooksTest, OnExistenceFilterMismatchMultipleRemovesHaveNoEffect) {
   listener_registration->Remove();
   listener_registration->Remove();
   listener_registration->Remove();
+  TestingHooks::BloomFilterInfo bloom_filter_info{true, 10, 11, 12};
 
-  NotifyOnExistenceFilterMismatchAsync({123, 456});
+  NotifyOnExistenceFilterMismatchAsync({123, 456, bloom_filter_info});
 
   std::this_thread::sleep_for(250ms);
   EXPECT_TRUE(accumulator->IsEmpty());

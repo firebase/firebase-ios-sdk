@@ -41,6 +41,12 @@ enum class QueryPurpose {
    */
   ExistenceFilterMismatch,
 
+  /**
+   * The query was used refill a query if there is an existence filter mismatch
+   * and the bloom filter application returned a false positive result.
+   */
+  ExistenceFilterMismatchBloom,
+
   /** The query was used to resolve a limbo document. */
   LimboResolution,
 };
@@ -67,6 +73,9 @@ class TargetData {
    *     target to be resumed after disconnecting without retransmitting all the
    *     data that matches the query. The resume token essentially identifies a
    *     point in time from which the server should resume sending results.
+   * @param expected_count The number of documents that last matched the query
+   * at the resume token or read time. Documents are counted only when making a
+   * listen request with resume token or read time, otherwise, keep it null.
    */
   TargetData(core::Target target,
              model::TargetId target_id,
@@ -74,7 +83,8 @@ class TargetData {
              QueryPurpose purpose,
              model::SnapshotVersion snapshot_version,
              model::SnapshotVersion last_limbo_free_snapshot_version,
-             nanopb::ByteString resume_token);
+             nanopb::ByteString resume_token,
+             absl::optional<int32_t> expected_count);
 
   /**
    * Convenience constructor for use when creating a TargetData for the first
@@ -142,6 +152,15 @@ class TargetData {
     return resume_token_;
   }
 
+  /**
+   * The number of documents that last matched the query at the resume token or
+   * read time. Documents are counted only when making a listen request with
+   * resume token or read time, otherwise, keep it null.
+   */
+  const absl::optional<int32_t>& expected_count() const {
+    return expected_count_;
+  }
+
   /** Creates a new target data instance with an updated sequence number. */
   TargetData WithSequenceNumber(
       model::ListenSequenceNumber sequence_number) const;
@@ -152,6 +171,9 @@ class TargetData {
    */
   TargetData WithResumeToken(nanopb::ByteString resume_token,
                              model::SnapshotVersion snapshot_version) const;
+
+  /** Creates a new target data instance with an updated expected count. */
+  TargetData WithExpectedCount(absl::optional<int32_t> expected_count) const;
 
   /**
    * Creates a new target data instance with an updated last limbo free snapshot
@@ -176,6 +198,7 @@ class TargetData {
   model::SnapshotVersion snapshot_version_;
   model::SnapshotVersion last_limbo_free_snapshot_version_;
   nanopb::ByteString resume_token_;
+  absl::optional<int32_t> expected_count_;
 };
 
 inline bool operator!=(const TargetData& lhs, const TargetData& rhs) {
