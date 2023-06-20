@@ -155,14 +155,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       });
 }
 
-- (void)setIsTokenAutoRefreshEnabled:(BOOL)isTokenAutoRefreshEnabled {
-  self.settings.isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabled;
-}
-
-- (BOOL)isTokenAutoRefreshEnabled {
-  return self.settings.isTokenAutoRefreshEnabled;
-}
-
 #pragma mark - GACAppCheckInterop
 
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
