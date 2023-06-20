@@ -91,10 +91,6 @@ final class AppCheckAPITests {
       }
     }
 
-    // Get & Set `isTokenAutoRefreshEnabled`
-    _ = appCheck.isTokenAutoRefreshEnabled
-    appCheck.isTokenAutoRefreshEnabled = false
-
     // MARK: - `AppCheckDebugProvider`
 
     // `AppCheckDebugProvider` initializer
