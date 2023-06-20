@@ -461,13 +461,7 @@ let package = Package(
         "FirebaseAuth",
         "HeartbeatLoggingTestUtils",
       ],
-      path: "FirebaseAuth/Tests/Unit",
-      exclude: [
-        "AuthKeychainServicesTests.swift", // TODO: figure out SPM keychain testing
-        "AuthTests.swift",
-        "UserTests.swift",
-        "AuthUseUserAccessGroupTests.swift",
-      ]
+      path: "FirebaseAuth/Tests/Unit"
     ),
     .target(
       name: "FirebaseAuthCombineSwift",

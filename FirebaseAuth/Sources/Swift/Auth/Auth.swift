@@ -1631,7 +1631,7 @@ extension Auth: AuthInterop {
         accessGroup: accessGroup,
         shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
         projectIdentifier: apiKey
-      ).user
+      )
     } else {
       let userKey = "\(firebaseAppName)\(kUserKey)"
       if let encodedUserData = try keychainServices.data(forKey: userKey) {
@@ -1674,8 +1674,7 @@ extension Auth: AuthInterop {
 
   // MARK: Internal methods
 
-  init<T: AuthStorage>(app: FirebaseApp,
-                       keychainStorageProvider: T.Type = AuthKeychainServices.self) {
+  init(app: FirebaseApp, keychainStorageProvider: AuthKeychainStorage = AuthKeychainStorageReal()) {
     Auth.setKeychainServiceNameForApp(app)
     self.app = app
     mainBundleUrlTypes = Bundle.main
@@ -1706,30 +1705,31 @@ extension Auth: AuthInterop {
     protectedDataInitialization(keychainStorageProvider)
   }
 
-  private func protectedDataInitialization<T: AuthStorage>(_ keychainStorageProvider: T
-    .Type = AuthKeychainServices.self) {
+  private func protectedDataInitialization(_ keychainStorageProvider: AuthKeychainStorage) {
     // Continue with the rest of initialization in the work thread.
-    weak var weakSelf = self
-    kAuthGlobalWorkQueue.async {
+    kAuthGlobalWorkQueue.async { [weak self] in
       // Load current user from Keychain.
-      guard let strongSelf = weakSelf else {
+      guard let self else {
         return
       }
-      if let keychainServiceName = Auth
-        .keychainServiceName(forAppName: strongSelf.firebaseAppName) {
-        strongSelf.keychainServices = keychainStorageProvider.init(service: keychainServiceName)
-        strongSelf.storedUserManager = AuthStoredUserManager(serviceName: keychainServiceName)
+      if let keychainServiceName = Auth.keychainServiceName(forAppName: self.firebaseAppName) {
+        self.keychainServices = AuthKeychainServices(service: keychainServiceName,
+                                                     storage: keychainStorageProvider)
+        self.storedUserManager = AuthStoredUserManager(
+          serviceName: keychainServiceName,
+          keychainServices: self.keychainServices
+        )
       }
 
       do {
-        if let storedUserAccessGroup = strongSelf.storedUserManager.getStoredUserAccessGroup() {
-          try strongSelf.internalUseUserAccessGroup(storedUserAccessGroup)
+        if let storedUserAccessGroup = self.storedUserManager.getStoredUserAccessGroup() {
+          try self.internalUseUserAccessGroup(storedUserAccessGroup)
         } else {
           let user = try self.getUser()
-          try strongSelf.updateCurrentUser(user, byForce: false, savingToDisk: false)
+          try self.updateCurrentUser(user, byForce: false, savingToDisk: false)
           if let user {
-            strongSelf.tenantID = user.tenantID
-            strongSelf.lastNotifiedUserToken = user.rawAccessToken()
+            self.tenantID = user.tenantID
+            self.lastNotifiedUserToken = user.rawAccessToken()
           }
         }
       } catch {
@@ -1738,7 +1738,7 @@ extension Auth: AuthInterop {
             // If there's a keychain error, assume it is due to the keychain being accessed
             // before the device is unlocked as a result of prewarming, and listen for the
             // UIApplicationProtectedDataDidBecomeAvailable notification.
-            strongSelf.addProtectedDataDidBecomeAvailableObserver()
+            self.addProtectedDataDidBecomeAvailableObserver()
           }
         #endif
         AuthLog.logError(code: "I-AUT000001",
@@ -1757,17 +1757,15 @@ extension Auth: AuthInterop {
 //      }
         let application = UIApplication.shared
         // Initialize for phone number auth.
-        strongSelf.tokenManager = AuthAPNSTokenManager(withApplication: application)
-        strongSelf
-          .appCredentialManager = AuthAppCredentialManager(withKeychain: strongSelf
-            .keychainServices)
-        strongSelf.notificationManager = AuthNotificationManager(
+        self.tokenManager = AuthAPNSTokenManager(withApplication: application)
+        self.appCredentialManager = AuthAppCredentialManager(withKeychain: self.keychainServices)
+        self.notificationManager = AuthNotificationManager(
           withApplication: application,
-          appCredentialManager: strongSelf.appCredentialManager
+          appCredentialManager: self.appCredentialManager
         )
 
         // TODO: Does this swizzling still work?
-        GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(strongSelf)
+        GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(self)
       #endif
     }
   }
@@ -1821,7 +1819,7 @@ extension Auth: AuthInterop {
         accessGroup: userAccessGroup,
         shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
         projectIdentifier: apiKey
-      ).user
+      )
     } else {
       let userKey = "\(firebaseAppName)\(kUserKey)"
       guard let encodedUserData = try keychainServices.data(forKey: userKey) else {
@@ -2502,7 +2500,7 @@ extension Auth: AuthInterop {
   /** @var _keychainServices
       @brief The keychain service.
    */
-  private var keychainServices: AuthStorage!
+  private var keychainServices: AuthKeychainServices!
 
   /** @var _lastNotifiedUserToken
       @brief The user access (ID) token used last time for posting auth state changed notification.

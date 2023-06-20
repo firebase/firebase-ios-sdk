@@ -25,11 +25,90 @@ private let kAccountPrefix = "firebase_auth_1_"
     @brief The utility class to manipulate data in iOS Keychain.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-final class AuthKeychainServices: NSObject, AuthStorage {
+final class AuthKeychainServices {
   /** @var _service
       @brief The name of the keychain service.
    */
-  private let service: String
+  let service: String
+
+  let keychainStorage: AuthKeychainStorage
+
+  // MARK: - Internal methods for shared keychain operations
+
+  required init(service: String = "Unset service",
+                storage: AuthKeychainStorage = AuthKeychainStorageReal()) {
+    self.service = service
+    keychainStorage = storage
+  }
+
+  /** @fn getItemWithQuery:error:
+   @brief Get the item from keychain by given query.
+   @param query The query to query the keychain.
+   @return The item of the given query. `nil`` if not exist.
+   */
+  func getItem(query: [String: Any]) throws -> Data? {
+    var mutableQuery = query
+    mutableQuery[kSecReturnData as String] = true
+    mutableQuery[kSecReturnAttributes as String] = true
+    // Using a match limit of 2 means that we can check whether more than one
+    // item is returned by the query.
+    mutableQuery[kSecMatchLimit as String] = 2
+
+    var result: AnyObject?
+    let status = keychainStorage.get(query: mutableQuery, result: &result)
+
+    if let items = result as? [[String: Any]], status == noErr {
+      if items.count != 1 {
+        throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
+      }
+
+      return items[0][kSecValueData as String] as? Data
+    }
+    if status == errSecItemNotFound {
+      return nil
+    } else {
+      throw AuthErrorUtils.keychainError(function: "SecItemCopyMatching", status: status)
+    }
+  }
+
+  /** @fn setItem:withQuery:error:
+   @brief Set the item into keychain with given query.
+   @param item The item to be added into keychain.
+   @param query The query to query the keychain.
+   @return Whether the operation succeed.
+   */
+  func setItem(_ item: Data, withQuery query: [String: Any]) throws {
+    let status: OSStatus
+    let function: String
+    if (try getItem(query: query)) != nil {
+      let attributes: [String: Any] = [kSecValueData as String: item]
+      status = keychainStorage.update(query: query, attributes: attributes)
+      function = "SecItemUpdate"
+    } else {
+      var queryWithItem = query
+      queryWithItem[kSecValueData as String] = item
+      status = keychainStorage.add(query: queryWithItem)
+      function = "SecItemAdd"
+    }
+
+    if status == noErr {
+      return
+    }
+    throw AuthErrorUtils.keychainError(function: function, status: status)
+  }
+
+  /** @fn removeItemWithQuery:error:
+   @brief Remove the item with given queryfrom keychain.
+   @param query The query to query the keychain.
+   @return Whether the operation succeed.
+   */
+  func removeItem(query: [String: Any]) throws {
+    let status = keychainStorage.delete(query: query)
+    if status == noErr || status == errSecItemNotFound {
+      return
+    }
+    throw AuthErrorUtils.keychainError(function: "SecItemDelete", status: status)
+  }
 
   /** @var _legacyItemDeletedForKey
       @brief Indicates whether or not this class knows that the legacy item for a particular key has
@@ -43,15 +122,8 @@ final class AuthKeychainServices: NSObject, AuthStorage {
     return Self(service: identifier)
   }
 
-  init(service: String) {
-    self.service = service
-  }
-
   func data(forKey key: String) throws -> Data? {
-    if key.isEmpty {
-      fatalError("The key cannot be empty.")
-    }
-    if let data = try item(query: genericPasswordQuery(key: key)) {
+    if let data = try getItemLegacy(query: genericPasswordQuery(key: key)) {
       return data
     }
 
@@ -59,7 +131,7 @@ final class AuthKeychainServices: NSObject, AuthStorage {
     if legacyEntryDeletedForKey.contains(key) {
       return nil
     }
-    if let data = try item(query: legacyGenericPasswordQuery(key: key)) {
+    if let data = try getItemLegacy(query: legacyGenericPasswordQuery(key: key)) {
       // Move the data to current form.
       try setData(data, forKey: key)
       deleteLegacyItem(key: key)
@@ -72,29 +144,21 @@ final class AuthKeychainServices: NSObject, AuthStorage {
   }
 
   func setData(_ data: Data, forKey key: String) throws {
-    if key.isEmpty {
-      fatalError("The key cannot be empty.")
-    }
-    let attributes: [String: Any] = [
-      kSecValueData as String: data,
-      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-    ]
-    try setItem(query: genericPasswordQuery(key: key), attributes: attributes)
+    try setItemLegacy(data, withQuery: genericPasswordQuery(key: key))
   }
 
   func removeData(forKey key: String) throws {
-    if key.isEmpty {
-      fatalError("The key cannot be empty.")
-    }
-    try deleteItem(query: genericPasswordQuery(key: key))
+    try removeItem(query: genericPasswordQuery(key: key))
+
     // Legacy form item, if exists, also needs to be removed, otherwise it will be exposed when
     // current form item is removed, leading to incorrect semantics.
     deleteLegacyItem(key: key)
   }
 
-  // MARK: - Private methods for non-sharing keychain operations
+  // MARK: - Internal methods for non-sharing keychain operations
 
-  private func item(query: [String: Any]) throws -> Data? {
+  // TODO: This function can go away in favor of `getItem` if we can delete the legacy processing.
+  func getItemLegacy(query: [String: Any]) throws -> Data? {
     var returningQuery = query
     returningQuery[kSecReturnData as String] = true
     returningQuery[kSecReturnAttributes as String] = true
@@ -104,8 +168,7 @@ final class AuthKeychainServices: NSObject, AuthStorage {
     returningQuery[kSecMatchLimit as String] = 2
 
     var result: AnyObject?
-    let status =
-      SecItemCopyMatching(returningQuery as CFDictionary, &result)
+    let status = keychainStorage.get(query: returningQuery, result: &result)
 
     if let items = result as? [[String: Any]], status == noErr {
       if items.isEmpty {
@@ -141,29 +204,25 @@ final class AuthKeychainServices: NSObject, AuthStorage {
     }
   }
 
-  private func setItem(query: [String: Any], attributes: [String: Any]) throws {
+  // TODO: This function can go away in favor of `setItem` if we can delete the legacy processing.
+  func setItemLegacy(_ item: Data, withQuery query: [String: Any]) throws {
+    let attributes: [String: Any] = [
+      kSecValueData as String: item,
+      kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+    ]
     let combined = attributes.merging(query, uniquingKeysWith: { _, last in last })
     var hasItem = false
 
-    var status = SecItemAdd(combined as CFDictionary, nil)
-
+    var status = keychainStorage.add(query: combined)
     if status == errSecDuplicateItem {
       hasItem = true
-      status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+      status = keychainStorage.update(query: query, attributes: attributes)
     }
     if status == noErr {
       return
     }
     let function = hasItem ? "SecItemUpdate" : "SecItemAdd"
     throw AuthErrorUtils.keychainError(function: function, status: status)
-  }
-
-  private func deleteItem(query: [String: Any]) throws {
-    let status = SecItemDelete(query as CFDictionary)
-    if status == noErr || status == errSecItemNotFound {
-      return
-    }
-    throw AuthErrorUtils.keychainError(function: "SecItemDelete", status: status)
   }
 
   /** @fn deleteLegacyItemsWithKey:
@@ -175,7 +234,7 @@ final class AuthKeychainServices: NSObject, AuthStorage {
       return
     }
     let query = legacyGenericPasswordQuery(key: key)
-    SecItemDelete(query as CFDictionary)
+    keychainStorage.delete(query: query)
     legacyEntryDeletedForKey.insert(key)
   }
 
@@ -184,6 +243,9 @@ final class AuthKeychainServices: NSObject, AuthStorage {
       @param key The key for the value being manipulated, used as the account field in the query.
    */
   private func genericPasswordQuery(key: String) -> [String: Any] {
+    if key.isEmpty {
+      fatalError("The key cannot be empty.")
+    }
     var query: [String: Any] = [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: kAccountPrefix + key,

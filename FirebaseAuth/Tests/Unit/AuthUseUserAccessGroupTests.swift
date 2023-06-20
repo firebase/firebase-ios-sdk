@@ -29,8 +29,7 @@ class UseUserAccessGroupTests: RPCBaseTests {
     options.apiKey = kFakeAPIKey
     options.projectID = "myUserProjectID"
     FirebaseApp.configure(name: "testUseUserAccessGroupTests", options: options)
-    // TODO: Use FakeAuthKeychainServices.self instead.
-    let keychainStorageProvider = AuthKeychainServices.self
+    let keychainStorageProvider = FakeAuthKeychainStorage()
     auth = Auth(
       app: FirebaseApp.app(name: "testUseUserAccessGroupTests")!,
       keychainStorageProvider: keychainStorageProvider
@@ -39,11 +38,8 @@ class UseUserAccessGroupTests: RPCBaseTests {
 
   func testUseUserAccessGroup() throws {
     let auth = try XCTUnwrap(UseUserAccessGroupTests.auth)
-    #if !os(macOS)
-      // TODO: reenable with FakeAuthKeychainServices
-      XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group1"))
-      XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group2"))
-    #endif
+    XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group1"))
+    XCTAssertNoThrow(try auth.useUserAccessGroup("id.com.example.group2"))
     XCTAssertNoThrow(try auth.useUserAccessGroup(nil))
   }
 }

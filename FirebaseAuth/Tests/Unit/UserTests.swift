@@ -41,11 +41,11 @@ class UserTests: RPCBaseTests {
     options.apiKey = kFakeAPIKey
     options.projectID = "myUserProjectID"
     FirebaseApp.configure(name: "test-UserTests", options: options)
-    #if os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
-      let keychainStorageProvider = FakeAuthKeychainServices.self
+    #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
+      let keychainStorageProvider = FakeAuthKeychainStorage()
     #else
-      let keychainStorageProvider = AuthKeychainServices.self
-    #endif // os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+      let keychainStorageProvider = AuthKeychainStorageReal()
+    #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: "test-UserTests")!,
       keychainStorageProvider: keychainStorageProvider
@@ -104,11 +104,6 @@ class UserTests: RPCBaseTests {
       kEmailKey: kFacebookEmail,
     ],
     [
-      kProviderIDkey: GameCenterAuthProvider.id,
-      kFederatedIDKey: kGameCenterID,
-      kEmailKey: kFacebookEmail,
-    ],
-    [
       kProviderIDkey: GitHubAuthProvider.id,
       kFederatedIDKey: kGitHubID,
       kEmailKey: kGoogleEmail,
@@ -118,6 +113,14 @@ class UserTests: RPCBaseTests {
       kFederatedIDKey: kTwitterID,
       kEmailKey: kFacebookEmail,
     ]]
+
+    #if !os(watchOS)
+      providerUserInfos.append([
+        kProviderIDkey: GameCenterAuthProvider.id,
+        kFederatedIDKey: kGameCenterID,
+        kEmailKey: kFacebookEmail,
+      ])
+    #endif
 
     #if os(iOS)
       providerUserInfos.append([
@@ -190,13 +193,6 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(facebookUserInfo.photoURL)
         XCTAssertEqual(facebookUserInfo.email, kFacebookEmail)
 
-        // Verify FIRUserInfo properties from the Game Center auth provider.
-        let gameCenterUserInfo = try XCTUnwrap(providerMap[GameCenterAuthProvider.id])
-        XCTAssertEqual(gameCenterUserInfo.uid, kGameCenterID)
-        XCTAssertNil(gameCenterUserInfo.displayName)
-        XCTAssertNil(gameCenterUserInfo.photoURL)
-        XCTAssertEqual(gameCenterUserInfo.email, kFacebookEmail)
-
         // Verify FIRUserInfo properties from the GitHub auth provider.
         let gitHubUserInfo = try XCTUnwrap(providerMap[GitHubAuthProvider.id])
         XCTAssertEqual(gitHubUserInfo.uid, kGitHubID)
@@ -215,6 +211,15 @@ class UserTests: RPCBaseTests {
           // Verify UserInfo properties from the phone auth provider.
           let phoneUserInfo = try XCTUnwrap(providerMap[PhoneAuthProvider.id])
           XCTAssertEqual(phoneUserInfo.phoneNumber, self.kPhoneNumber)
+        #endif
+
+        #if !os(watchOS)
+          // Verify FIRUserInfo properties from the Game Center auth provider.
+          let gameCenterUserInfo = try XCTUnwrap(providerMap[GameCenterAuthProvider.id])
+          XCTAssertEqual(gameCenterUserInfo.uid, kGameCenterID)
+          XCTAssertNil(gameCenterUserInfo.displayName)
+          XCTAssertNil(gameCenterUserInfo.photoURL)
+          XCTAssertEqual(gameCenterUserInfo.email, kFacebookEmail)
         #endif
 
         // Test NSSecureCoding
@@ -308,13 +313,15 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(unarchivedFacebookUserInfo.photoURL, facebookUserInfo.photoURL)
         XCTAssertEqual(unarchivedFacebookUserInfo.email, facebookUserInfo.email)
 
-        // Verify NSSecureCoding properties from the GameCenter auth provider.
-        let unarchivedGameCenterUserInfo =
-          try XCTUnwrap(unarchivedProviderMap[GameCenterAuthProvider.id])
-        XCTAssertEqual(unarchivedGameCenterUserInfo.uid, gameCenterUserInfo.uid)
-        XCTAssertEqual(unarchivedGameCenterUserInfo.displayName, gameCenterUserInfo.displayName)
-        XCTAssertEqual(unarchivedGameCenterUserInfo.photoURL, gameCenterUserInfo.photoURL)
-        XCTAssertEqual(unarchivedGameCenterUserInfo.email, gameCenterUserInfo.email)
+        #if !os(watchOS)
+          // Verify NSSecureCoding properties from the GameCenter auth provider.
+          let unarchivedGameCenterUserInfo =
+            try XCTUnwrap(unarchivedProviderMap[GameCenterAuthProvider.id])
+          XCTAssertEqual(unarchivedGameCenterUserInfo.uid, gameCenterUserInfo.uid)
+          XCTAssertEqual(unarchivedGameCenterUserInfo.displayName, gameCenterUserInfo.displayName)
+          XCTAssertEqual(unarchivedGameCenterUserInfo.photoURL, gameCenterUserInfo.photoURL)
+          XCTAssertEqual(unarchivedGameCenterUserInfo.email, gameCenterUserInfo.email)
+        #endif
 
         // Verify NSSecureCoding properties from the GitHub auth provider.
         let unarchivedGitHubUserInfo =
@@ -1724,7 +1731,7 @@ class UserTests: RPCBaseTests {
       // 2. Validate the created Request instance.
       XCTAssertEqual(request.email, self.kEmail)
       XCTAssertEqual(request.password, self.kFakePassword)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertTrue(request.returnSecureToken)
       do {
         // 3. Send the response from the fake backend.
@@ -1822,7 +1829,7 @@ class UserTests: RPCBaseTests {
     XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
     XCTAssertEqual(request.providerAccessToken, kGoogleAccessToken)
     XCTAssertTrue(request.returnSecureToken)
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+    XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
     XCTAssertTrue(request.returnSecureToken)
   }
 
@@ -1877,7 +1884,7 @@ class UserTests: RPCBaseTests {
       XCTAssertEqual(request.providerIDToken, kFacebookIDToken)
       XCTAssertEqual(request.providerAccessToken, kFacebookAccessToken)
       XCTAssertTrue(request.returnSecureToken)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
@@ -1931,7 +1938,7 @@ class UserTests: RPCBaseTests {
       // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
       let request = try XCTUnwrap(rpcIssuer?.request as? EmailLinkSignInRequest)
       XCTAssertEqual(request.email, kEmail)
-      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
       XCTAssertEqual(request.oobCode, "aCode")
       XCTAssertNil(request.idToken)
 

@@ -329,8 +329,8 @@
         requiringSecureCoding: true
       )
       let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
-        ofClass: PhoneAuthCredential.self, from: data
-      ))
+        ofClasses: [PhoneAuthCredential.self, NSString.self], from: data
+      ) as? PhoneAuthCredential)
       switch unarchivedCredential.credentialKind {
       case let .phoneNumber(phoneNumber, temporaryProof):
         XCTAssertEqual(temporaryProof, kTemporaryProof)

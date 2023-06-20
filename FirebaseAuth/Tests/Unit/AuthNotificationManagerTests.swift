@@ -46,7 +46,10 @@
     private var appCredentialManager: AuthAppCredentialManager?
 
     override func setUp() {
-      let fakeKeychain = FakeAuthKeychainServices(service: "FakeAuthNotificationManagerTests")
+      let fakeKeychain = AuthKeychainServices(
+        service: "AuthNotificationManagerTests",
+        storage: FakeAuthKeychainStorage()
+      )
       appCredentialManager = AuthAppCredentialManager(withKeychain: fakeKeychain)
       let application = FakeApplication()
       notificationManager = AuthNotificationManager(withApplication: application,
