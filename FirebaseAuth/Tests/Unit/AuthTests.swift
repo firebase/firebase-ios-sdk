@@ -38,11 +38,11 @@ class AuthTests: RPCBaseTests {
     let name = "test-AuthTests\(AuthTests.testNum)"
     AuthTests.testNum = AuthTests.testNum + 1
     FirebaseApp.configure(name: name, options: options)
-    #if os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
-      let keychainStorageProvider = FakeAuthKeychainServices.self
+    #if (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
+      let keychainStorageProvider = FakeAuthKeychainStorage()
     #else
-      let keychainStorageProvider = AuthKeychainServices.self
-    #endif // os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN
+      let keychainStorageProvider = AuthKeychainStorageReal()
+    #endif // (os(macOS) && !FIREBASE_AUTH_TESTING_USE_MACOS_KEYCHAIN) || SWIFT_PACKAGE
     auth = Auth(
       app: FirebaseApp.app(name: name)!,
       keychainStorageProvider: keychainStorageProvider
@@ -2031,7 +2031,10 @@ class AuthTests: RPCBaseTests {
         }
       }
       let notification = ["test": ""]
-      let fakeKeychain = FakeAuthKeychainServices(service: "FakeAuthNotificationManagerTests")
+      let fakeKeychain = AuthKeychainServices(
+        service: "AuthTests",
+        storage: FakeAuthKeychainStorage()
+      )
       let appCredentialManager = AuthAppCredentialManager(withKeychain: fakeKeychain)
       let fakeNotificationManager = FakeNotificationManager(withApplication: UIApplication.shared,
                                                             appCredentialManager: appCredentialManager)

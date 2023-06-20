@@ -14,20 +14,8 @@
 
 import Foundation
 
-// TODO(ncooke3): Remove this type after all tests and internal call sites are converted to Swift
-// This is added since a throwing function returning Optional values in Swift cannot be
-// exposed to Objective-C due to convention and meaning of nil values in Objective-C.
-// This wrapper allows us to always return a value, thus allowing us to expose Objective-C api.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRUserWrapper) public class UserWrapper: NSObject {
-  @objc public let user: User?
-  @objc public init(user: User?) {
-    self.user = user
-  }
-}
-
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthStoredUserManager) public class AuthStoredUserManager: NSObject {
+class AuthStoredUserManager {
   /// Key of user access group stored in user defaults. Used for retrieve the
   /// user access group at launch.
   private static let storedUserAccessGroupKey = "firebase_auth_stored_user_access_group"
@@ -38,24 +26,23 @@ import Foundation
   /// The key to encode and decode the stored user.
   private static let storedUserCoderKey = "firebase_auth_stored_user_coder_key"
 
-  // TODO: Should keychainServices be AuthStorage
   /// Mediator object used to access the keychain.
-  private let keychainServices: AuthSharedKeychainServices
+  private let keychainServices: AuthKeychainServices
 
   /// Mediator object used to access user defaults.
   private let userDefaults: AuthUserDefaults
 
   /// Designated initializer.
   /// - Parameter serviceName: The service name to initialize with.
-  @objc public init(serviceName: String) {
-    // TODO: keychainServices should be set by parameter.
-    keychainServices = AuthSharedKeychainServices()
+  /// - Parameter keychainServices: The keychain manager (or a fake in unit tests)
+  init(serviceName: String, keychainServices: AuthKeychainServices) {
     userDefaults = AuthUserDefaults(service: serviceName)
+    self.keychainServices = keychainServices
   }
 
   /// Get the user access group stored locally.
   /// - Returns: The stored user access group; otherwise, `nil`.
-  @objc public func getStoredUserAccessGroup() -> String? {
+  func getStoredUserAccessGroup() -> String? {
     if let data = try? userDefaults.data(forKey: Self.storedUserAccessGroupKey) {
       let userAccessGroup = String(data: data, encoding: .utf8)
       return userAccessGroup
@@ -66,8 +53,7 @@ import Foundation
 
   /// The setter of the user access group stored locally.
   /// - Parameter accessGroup: The access group to be store.
-  @objc(setStoredUserAccessGroup:)
-  public func setStoredUserAccessGroup(accessGroup: String?) {
+  func setStoredUserAccessGroup(accessGroup: String?) {
     if let data = accessGroup?.data(using: .utf8) {
       try? userDefaults.setData(data, forKey: Self.storedUserAccessGroupKey)
     } else {
@@ -86,29 +72,19 @@ import Foundation
   ///   associates with.
   /// - Returns: The stored user for the given attributes.
   /// - Throws: An error if the operation failed.
-  @objc(getStoredUserForAccessGroup:shareAuthStateAcrossDevices:projectIdentifier:error:)
-  public func getStoredUser(accessGroup: String,
-                            shareAuthStateAcrossDevices: Bool,
-                            projectIdentifier: String) throws -> UserWrapper {
+  func getStoredUser(accessGroup: String,
+                     shareAuthStateAcrossDevices: Bool,
+                     projectIdentifier: String) throws -> User? {
     let query = keychainQuery(
       accessGroup: accessGroup,
       shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
       projectIdentifier: projectIdentifier
     )
-
-    guard let data = try? keychainServices.getItem(query: query) else {
-      return UserWrapper(user: nil)
+    guard let data = try keychainServices.getItem(query: query) else {
+      return nil
     }
-
-    // TODO(ncooke3): The Objective-C code has an #if for watchOS here.
-    // Does this work for watchOS?
-
-    guard let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: data) else {
-      return UserWrapper(user: nil)
-    }
-
-    let user = unarchiver.decodeObject(of: User.self, forKey: Self.storedUserCoderKey)
-    return UserWrapper(user: user)
+    let unarchiver = try NSKeyedUnarchiver(forReadingFrom: data)
+    return unarchiver.decodeObject(of: User.self, forKey: Self.storedUserCoderKey)
   }
 
   /// The setter of the user stored locally.
@@ -120,11 +96,10 @@ import Foundation
   ///   - projectIdentifier: An identifier of the project that the user
   ///   associates with.
   /// - Throws: An error if the operation failed.
-  @objc(setStoredUser:forAccessGroup:shareAuthStateAcrossDevices:projectIdentifier:error:)
-  public func setStoredUser(user: User,
-                            accessGroup: String,
-                            shareAuthStateAcrossDevices: Bool,
-                            projectIdentifier: String) throws {
+  func setStoredUser(user: User,
+                     accessGroup: String,
+                     shareAuthStateAcrossDevices: Bool,
+                     projectIdentifier: String) throws {
     var query = keychainQuery(
       accessGroup: accessGroup,
       shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,
@@ -155,10 +130,9 @@ import Foundation
   ///   - projectIdentifier: An identifier of the project that the user
   ///   associates with.
   /// - Throws: An error if the operation failed.
-  @objc(removeStoredUserForAccessGroup:shareAuthStateAcrossDevices:projectIdentifier:error:)
-  public func removeStoredUser(accessGroup: String,
-                               shareAuthStateAcrossDevices: Bool,
-                               projectIdentifier: String) throws {
+  func removeStoredUser(accessGroup: String,
+                        shareAuthStateAcrossDevices: Bool,
+                        projectIdentifier: String) throws {
     var query = keychainQuery(
       accessGroup: accessGroup,
       shareAuthStateAcrossDevices: shareAuthStateAcrossDevices,

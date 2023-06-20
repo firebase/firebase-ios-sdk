@@ -20,6 +20,7 @@
   /** @class FIRAuthAppCredentialManager
       @brief A class to manage app credentials backed by iOS Keychain.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRAuthAppCredentialManager) public class AuthAppCredentialManager: NSObject {
     let kKeychainDataKey = "app_credentials"
     let kFullCredentialKey = "full_credential"
@@ -36,7 +37,7 @@
      */
     @objc public let maximumNumberOfPendingReceipts = 32
 
-    init(withKeychain keychain: AuthStorage) {
+    init(withKeychain keychain: AuthKeychainServices) {
       keychainServices = keychain
       if let encodedData = try? keychain.data(forKey: kKeychainDataKey),
          let unarchiver = try? NSKeyedUnarchiver(forReadingFrom: encodedData) {
@@ -111,7 +112,7 @@
     /** @var _keychainServices
         @brief The keychain for app credentials to load from and to save to.
      */
-    private let keychainServices: AuthStorage
+    private let keychainServices: AuthKeychainServices
 
     /** @var pendingReceipts
         @brief A list of pending receipts sorted in the order they were recorded.
