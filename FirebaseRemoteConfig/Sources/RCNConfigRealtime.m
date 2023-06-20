@@ -688,16 +688,17 @@ static NSInteger const gMaxRetries = 7;
   if (listener == nil) {
     return nil;
   }
+  __block id listenerCopy = listener;
 
   __weak RCNConfigRealtime *weakSelf = self;
   dispatch_async(_realtimeLockQueue, ^{
     __strong RCNConfigRealtime *strongSelf = weakSelf;
-    [strongSelf->_listeners addObject:listener];
+    [strongSelf->_listeners addObject:listenerCopy];
     [strongSelf beginRealtimeStream];
   });
 
   return [[FIRConfigUpdateListenerRegistration alloc] initWithClient:self
-                                                   completionHandler:listener];
+                                                   completionHandler:listenerCopy];
 }
 
 - (void)removeConfigUpdateListener:(void (^_Nonnull)(FIRRemoteConfigUpdate *configUpdate,
