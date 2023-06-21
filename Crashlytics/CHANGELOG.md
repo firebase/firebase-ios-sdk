@@ -1,4 +1,6 @@
 # Unreleased
+- [changed] Updated upload-symbols to version 3.16 with better support for Xcode 15 defaults.
+- [changed]
 - [added] Added a `CrashlyticsInputFiles.xcfilelist`. Instead of using "Input Files", the path to this file can be specified in the "Input File Lists" section of your Crashlytics `run` / `upload-symbols` script in your Build Phases to keep it up to date (#11428)
 
 # 10.11.0
