@@ -32,6 +32,12 @@ NS_SWIFT_NAME(AppCheckProvider)
     (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
     NS_SWIFT_NAME(getToken(completion:));
 
+@optional
+
+- (void)getLimitedUseTokenWithCompletion:
+    (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
+    NS_SWIFT_NAME(getToken(completion:));
+
 @end
 
 NS_ASSUME_NONNULL_END

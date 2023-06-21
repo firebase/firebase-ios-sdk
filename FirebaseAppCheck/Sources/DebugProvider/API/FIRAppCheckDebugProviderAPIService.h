@@ -24,7 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol FIRAppCheckDebugProviderAPIServiceProtocol <NSObject>
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDebugToken:(NSString *)debugToken;
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDebugToken:(NSString *)debugToken
+                                                     limitedUse:(BOOL)limitedUse;
 
 @end
 

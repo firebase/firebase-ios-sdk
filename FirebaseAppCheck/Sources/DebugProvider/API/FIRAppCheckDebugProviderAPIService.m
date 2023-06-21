@@ -64,13 +64,14 @@ static NSString *const kDebugTokenField = @"debug_token";
 
 #pragma mark - Public API
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDebugToken:(NSString *)debugToken {
+- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDebugToken:(NSString *)debugToken
+                                                     limitedUse:(BOOL)limitedUse {
   NSString *URLString =
       [NSString stringWithFormat:@"%@/projects/%@/apps/%@:exchangeDebugToken",
                                  self.APIService.baseURL, self.projectID, self.appID];
   NSURL *URL = [NSURL URLWithString:URLString];
 
-  return [self HTTPBodyWithDebugToken:debugToken]
+  return [self HTTPBodyWithDebugToken:debugToken limitedUse:limitedUse]
       .then(^FBLPromise<GULURLSessionDataResponse *> *(NSData *HTTPBody) {
         return [self.APIService sendRequestWithURL:URL
                                         HTTPMethod:@"POST"
@@ -84,7 +85,8 @@ static NSString *const kDebugTokenField = @"debug_token";
 
 #pragma mark - Helpers
 
-- (FBLPromise<NSData *> *)HTTPBodyWithDebugToken:(NSString *)debugToken {
+- (FBLPromise<NSData *> *)HTTPBodyWithDebugToken:(NSString *)debugToken
+                                      limitedUse:(BOOL)limitedUse {
   if (debugToken.length <= 0) {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
     [rejectedPromise
@@ -95,10 +97,13 @@ static NSString *const kDebugTokenField = @"debug_token";
   return [FBLPromise onQueue:[self backgroundQueue]
                           do:^id _Nullable {
                             NSError *encodingError;
-                            NSData *payloadJSON = [NSJSONSerialization
-                                dataWithJSONObject:@{kDebugTokenField : debugToken}
-                                           options:0
-                                             error:&encodingError];
+                            NSData *payloadJSON =
+                                [NSJSONSerialization dataWithJSONObject:@{
+                                  kDebugTokenField : debugToken,
+                                  @"limited_use" : @(limitedUse)
+                                }
+                                                                options:0
+                                                                  error:&encodingError];
 
                             if (payloadJSON != nil) {
                               return payloadJSON;

@@ -219,22 +219,17 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(FIRAppCheckTokenHandlerInterop)handler {
-  [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
-      .then(^id _Nullable(FIRAppCheckToken *token) {
-        FIRAppCheckTokenResult *result = [[FIRAppCheckTokenResult alloc] initWithToken:token.token
-                                                                                 error:nil];
-        handler(result);
-        return result;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        FIRAppCheckTokenResult *result =
-            [[FIRAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
-        handler(result);
-      });
+  [self getTokenResultWithToken:[self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
+                     completion:handler];
 }
 
 - (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
-  [self limitedUseToken]
+  [self getTokenResultWithToken:[self limitedUseToken] completion:handler];
+}
+
+- (void)getTokenResultWithToken:(FBLPromise<FIRAppCheckToken *> *)tokenPromise
+                     completion:(FIRAppCheckTokenHandlerInterop)handler {
+  tokenPromise
       .then(^id _Nullable(FIRAppCheckToken *token) {
         FIRAppCheckTokenResult *result = [[FIRAppCheckTokenResult alloc] initWithToken:token.token
                                                                                  error:nil];
@@ -338,7 +333,12 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   return
       [FBLPromise wrapObjectOrErrorCompletion:^(
                       FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-        [self.appCheckProvider getTokenWithCompletion:handler];
+        if ([self.appCheckProvider
+                respondsToSelector:@selector(getLimitedUseTokenWithCompletion:)]) {
+          [self.appCheckProvider getLimitedUseTokenWithCompletion:handler];
+        } else {
+          [self.appCheckProvider getTokenWithCompletion:handler];
+        }
       }].then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
         return token;
       });
