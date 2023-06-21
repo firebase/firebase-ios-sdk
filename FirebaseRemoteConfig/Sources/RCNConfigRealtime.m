@@ -61,7 +61,7 @@ static NSString *const kTemplateVersionNumberKey = @"latestTemplateVersionNumber
 static NSString *const kIsFeatureDisabled = @"featureDisabled";
 
 static NSTimeInterval gTimeoutSeconds = 330;
-static NSInteger const gFetchAttempts = 3;
+static NSInteger const gFetchAttempts = 5;
 
 // Retry parameters
 static NSInteger const gMaxRetries = 7;
