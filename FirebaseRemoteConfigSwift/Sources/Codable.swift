@@ -20,6 +20,21 @@ import Foundation
 #endif // SWIFT_PACKAGE
 import FirebaseSharedSwift
 
+#if SWIFT_PACKAGE
+  // This is a trick to force generate a `FirebaseRemoteConfig-Swift.h` header
+  // that re-exports `FirebaseRemoteConfigInternal` for Objective-C clients. It
+  // is important for the below code to reference a Remote Config symbol defined
+  // in Objective-C as that will import the symbol's module
+  // (`FirebaseRemoteConfigInternal`) in the generated header. This allows
+  // Objective-C clients to import Remote Config's Objective-C API using
+  // `@import FirebaseRemoteConfig;`. This API is not needed for Swift clients
+  // and is therefore hidden for them for the foreseeable future.
+  @available(iOS 100, *)
+  @objc public extension RemoteConfig {
+    var __do_not_call: String { "" }
+  }
+#endif // SWIFT_PACKAGE
+
 public enum RemoteConfigValueCodableError: Error {
   case unsupportedType(String)
 }
