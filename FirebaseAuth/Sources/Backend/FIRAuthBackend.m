@@ -863,11 +863,13 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                        FIRPhoneMultiFactorInfo *info =
                            [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
                        [multiFactorInfo addObject:info];
-                     }
-                     if (MFAEnrollment.TOTPInfo != nil) {
+                     } else if (MFAEnrollment.TOTPInfo != nil) {
                        FIRTOTPMultiFactorInfo *info =
                            [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
                        [multiFactorInfo addObject:info];
+                     } else {
+                       FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                                   @"Multifactor type is not supported");
                      }
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
@@ -903,11 +905,13 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                        FIRMultiFactorInfo *multiFactorInfo =
                            [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
                        [multiFactorInfoArray addObject:multiFactorInfo];
-                     }
-                     if (MFAEnrollment.TOTPInfo) {
+                     } else if (MFAEnrollment.TOTPInfo) {
                        FIRMultiFactorInfo *multiFactorInfo =
                            [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
                        [multiFactorInfoArray addObject:multiFactorInfo];
+                     } else {
+                       FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                                   @"Multifactor type is not supported");
                      }
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
