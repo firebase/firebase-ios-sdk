@@ -44,6 +44,7 @@ Pod::Spec.new do |s|
     'Crashlytics/README.md',
     'run',
     'upload-symbols',
+    'CrashlyticsInputFiles.xcfilelist',
   ]
 
   # Ensure the run script and upload-symbols are callable via
