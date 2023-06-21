@@ -17,8 +17,10 @@
 #if TARGET_OS_IOS
 
 #import <UIKit/UIKit.h>
+#import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRTOTPSecret.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRTOTPSecret
@@ -61,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([[UIApplication sharedApplication] canOpenURL:url]) {
     [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
   } else {
-    NSLog(@"URL cannot be opened");
+    FIRLogError(kFIRLoggerAuth, @"I-AUT000001", @"URL cannot be opened");
   }
 }
 
