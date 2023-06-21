@@ -502,6 +502,7 @@ let package = Package(
         "UnitTests/",
         "generate_project.sh",
         "upload-symbols",
+        "CrashlyticsInputFiles.xcfilelist",
         "third_party/libunwind/LICENSE",
       ],
       sources: [
