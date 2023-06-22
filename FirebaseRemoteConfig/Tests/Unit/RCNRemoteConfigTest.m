@@ -1652,7 +1652,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
         .andDo(nil);
     OCMStub([_configRealtime[i] scheduleFetch:1 targetVersion:1]).andDo(nil);
 
-    [_configRealtime[i] fetchLatestConfig:5 targetVersion:1];
+    [_configRealtime[i] fetchLatestConfig:3 targetVersion:1];
 
     dispatch_after(
         dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_checkCompletionTimeout * NSEC_PER_SEC)),
