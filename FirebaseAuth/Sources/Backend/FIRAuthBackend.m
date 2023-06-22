@@ -812,7 +812,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                            [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
                        [multiFactorInfoArray addObject:multiFactorInfo];
                      } else {
-                       FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                       FIRLogError(kFIRLoggerAuth, @"I-AUT000020",
                                    @"Multifactor type is not supported");
                      }
                    }
@@ -868,7 +868,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                            [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
                        [multiFactorInfo addObject:info];
                      } else {
-                       FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                       FIRLogError(kFIRLoggerAuth, @"I-AUT000021",
                                    @"Multifactor type is not supported");
                      }
                    }
@@ -910,7 +910,7 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                            [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
                        [multiFactorInfoArray addObject:multiFactorInfo];
                      } else {
-                       FIRLogError(kFIRLoggerAuth, @"I-AUT000001",
+                       FIRLogError(kFIRLoggerAuth, @"I-AUT000022",
                                    @"Multifactor type is not supported");
                      }
                    }

@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
   if ([[UIApplication sharedApplication] canOpenURL:url]) {
     [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
   } else {
-    FIRLogError(kFIRLoggerAuth, @"I-AUT000001", @"URL cannot be opened");
+    FIRLogError(kFIRLoggerAuth, @"I-AUT000019", @"URL cannot be opened");
   }
 }
 
