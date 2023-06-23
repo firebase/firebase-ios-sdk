@@ -33,6 +33,8 @@
 #if TARGET_OS_WATCH
 #import <Network/Network.h>
 #import <WatchKit/WatchKit.h>
+#elif TARGET_OS_XR
+#import <Network/Network.h>
 #endif // TARGET_OS_WATCH
 
 static NSString *const kAppCheckTokenHeader = @"X-Firebase-AppCheck";
@@ -50,7 +52,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 - (void)onClosed;
 - (void)closeIfNeverConnected;
 
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
 @property(nonatomic, strong) NSURLSessionWebSocketTask *webSocketTask;
 #else
 @property(nonatomic, strong) FSRWebSocket *webSocket;
@@ -68,7 +70,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 @implementation FWebSocketConnection
 
 @synthesize delegate;
-#if !TARGET_OS_WATCH
+#if !TARGET_OS_WATCH && !TARGET_OS_XR
 @synthesize webSocket;
 #endif // !TARGET_OS_WATCH
 @synthesize connectionId;
@@ -98,7 +100,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                                                      userAgent:userAgent
                                                    googleAppID:googleAppID
                                                  appCheckToken:appCheckToken];
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
         // Regular NSURLSession websocket.
         NSOperationQueue *opQueue = [[NSOperationQueue alloc] init];
         opQueue.underlyingQueue = queue;
@@ -111,6 +113,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
             [session webSocketTaskWithRequest:req];
         self.webSocketTask = task;
 
+#if TARGET_OS_WATCH
         if (@available(watchOS 7.0, *)) {
             [[NSNotificationCenter defaultCenter]
                 addObserverForName:WKApplicationWillResignActiveNotification
@@ -123,6 +126,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
                           [self onClosed];
                         }];
         }
+#endif
 #else
         // TODO(mmaksym): Remove googleAppID and userAgent from FSRWebSocket as
         // they are passed via NSURLRequest.
@@ -191,7 +195,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     assert(delegate);
     everConnected = NO;
     // TODO Assert url
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
     [self.webSocketTask resume];
     // We need to request data from the web socket in order for it to start
     // sending data.
@@ -210,7 +214,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     FFLog(@"I-RDB083003", @"(wsc:%@) FWebSocketConnection is being closed.",
           self.connectionId);
     isClosed = YES;
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
     [self.webSocketTask
         cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNormalClosure
                      reason:nil];
@@ -319,7 +323,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
 #pragma mark -
 #pragma mark URLSessionWebSocketDelegate watchOS implementation
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
 
 - (void)URLSession:(NSURLSession *)session
           webSocketTask:(NSURLSessionWebSocketTask *)webSocketTask
@@ -409,7 +413,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
 /** Sends a string through the open web socket. */
 - (void)sendStringToWebSocket:(NSString *)string {
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
     // Use built-in URLSessionWebSocket functionality.
     [self.webSocketTask sendMessage:[[NSURLSessionWebSocketMessage alloc]
                                         initWithString:string]
@@ -442,7 +446,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
     if (!everConnected) {
         FFLog(@"I-RDB083012", @"(wsc:%@) Websocket timed out on connect",
               self.connectionId);
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
         [self.webSocketTask
             cancelWithCloseCode:NSURLSessionWebSocketCloseCodeNoStatusReceived
                          reason:nil];
@@ -464,7 +468,7 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
         FFLog(@"I-RDB083013", @"Websocket is closing itself");
         [self shutdown];
     }
-#if TARGET_OS_WATCH
+#if TARGET_OS_WATCH || TARGET_OS_XR
     self.webSocketTask = nil;
 #else
     self.webSocket = nil;

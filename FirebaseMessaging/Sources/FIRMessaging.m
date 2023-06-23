@@ -446,7 +446,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // Similarly, |application:openURL:sourceApplication:annotation:| will also always be called,
     // due to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_XR
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application

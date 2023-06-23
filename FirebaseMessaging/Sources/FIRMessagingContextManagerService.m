@@ -209,11 +209,12 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
+  // TODO: Take the implementation from the iOS10 impl and move it here.
   if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
     [self scheduleiOS10LocalNotificationForMessage:message atDate:date];
     return;
   }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_XR
   NSDictionary *apsDictionary = message;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"

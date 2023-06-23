@@ -76,7 +76,6 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   UIViewController *topViewController;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
   if (@available(iOS 13.0, tvOS 13.0, *)) {
     UIApplication *application = [applicationClass sharedApplication];
     NSSet<UIScene *> *connectedScenes = application.connectedScenes;
@@ -91,17 +90,15 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }
   } else {
+#if !TARGET_OS_XR
     UIApplication *application = [applicationClass sharedApplication];
 // iOS 13 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     topViewController = application.keyWindow.rootViewController;
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_XR
   }
-#else
-  UIApplication *application = [applicationClass sharedApplication];
-  topViewController = application.keyWindow.rootViewController;
-#endif
 
   while (true) {
     if (topViewController.presentedViewController) {

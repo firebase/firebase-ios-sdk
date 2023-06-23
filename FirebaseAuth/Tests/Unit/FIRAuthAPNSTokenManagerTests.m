@@ -36,28 +36,6 @@ static const NSTimeInterval kRegistrationTimeout = .5;
  */
 static const NSTimeInterval kExpectationTimeout = 2;
 
-/** @class FIRAuthLegacyUIApplication
-    @brief A fake legacy (< iOS 7) UIApplication class.
-    @remarks A custom class is needed because `respondsToSelector:` itself cannot be mocked.
- */
-@interface FIRAuthLegacyUIApplication : NSObject
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)registerForRemoteNotificationTypes:(UIRemoteNotificationType)types;
-#pragma clang diagnostic pop
-
-@end
-@implementation FIRAuthLegacyUIApplication
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (void)registerForRemoteNotificationTypes:(UIRemoteNotificationType)types {
-}
-#pragma clang diagnostic pop
-
-@end
-
 /** @class FIRAuthAPNSTokenManagerTests
     @brief Unit tests for @c FIRAuthAPNSTokenManager .
  */
@@ -235,41 +213,6 @@ static const NSTimeInterval kExpectationTimeout = 2;
   // Time out.
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockApplication);
-}
-
-/** @fn testLegacyRegistration
-    @brief Tests remote notification registration on legacy systems.
- */
-- (void)testLegacyRegistration {
-  // Use a custom class for `respondsToSelector:` to work.
-  _mockApplication = OCMClassMock([FIRAuthLegacyUIApplication class]);
-  _manager = [[FIRAuthAPNSTokenManager alloc] initWithApplication:_mockApplication];
-
-  // Add callback.
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [[[_mockApplication expect] ignoringNonObjectArgs] registerForRemoteNotificationTypes:0];
-#pragma clang diagnostic pop
-  __block BOOL callbackCalled = NO;
-  [_manager getTokenWithCallback:^(FIRAuthAPNSToken *_Nullable token, NSError *_Nullable error) {
-    XCTAssertEqualObjects(token.data, self->_data);
-    XCTAssertNotEqual(token.type, FIRAuthAPNSTokenTypeUnknown);
-    XCTAssertNil(error);
-    callbackCalled = YES;
-  }];
-  XCTAssertFalse(callbackCalled);
-
-  // Set the token.
-  _manager.token = [[FIRAuthAPNSToken alloc] initWithData:_data type:FIRAuthAPNSTokenTypeUnknown];
-  XCTAssertTrue(callbackCalled);
-
-  // Verify the mock in the main thread.
-  XCTestExpectation *expectation = [self expectationWithDescription:@"verify mock"];
-  dispatch_async(dispatch_get_main_queue(), ^{
-    OCMVerifyAll(self->_mockApplication);
-    [expectation fulfill];
-  });
-  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
 @end

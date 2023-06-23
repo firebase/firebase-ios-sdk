@@ -79,7 +79,9 @@ static const NSTimeInterval kLegacyRegistrationTimeout = 30;
     } else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#if TARGET_OS_IOS
+      // TODO: Evaluate if this should be migrated to a different call (for iOS as well).
+      // Looks like we should migrate to use UNNotificationCenter.
+#if TARGET_OS_IOS && !TARGET_OS_XR
       [self->_application registerForRemoteNotificationTypes:UIRemoteNotificationTypeAlert];
 #endif  // TARGET_OS_IOS
 #pragma clang diagnostic pop

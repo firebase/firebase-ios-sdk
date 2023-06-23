@@ -111,7 +111,9 @@ static NSTimeInterval kExpectationTimeout = 2;
 #else
         SFSafariViewController *viewController = presentViewController;
         XCTAssertTrue([viewController isKindOfClass:[SFSafariViewController class]]);
+#if !TARGET_OS_XR
         XCTAssertEqual(viewController.delegate, presenter);
+#endif // !TARGET_OS_XR
 #endif
         [UIPresentationExpectation fulfill];
       });
