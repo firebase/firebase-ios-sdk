@@ -34,7 +34,7 @@ NS_SWIFT_NAME(TOTPSecret)
 /**
  @brief Returns a QRCode URL as described in
  https://github.com/google/google-authenticator/wiki/Key-Uri-Format
- This can be displayed to the user as a QRCode to be scanned into a TOTP App like Google
+ This can be displayed to the user as a QRCode to be scanned into a TOTP app like Google
  Authenticator.
 
  @param accountName the name of the account/app.

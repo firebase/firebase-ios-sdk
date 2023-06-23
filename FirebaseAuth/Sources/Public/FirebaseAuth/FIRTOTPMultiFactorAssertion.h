@@ -23,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  @class TOTPMultiFactorAssertion
  @brief The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
- (Time-based One Time Password). second factor.
+ (Time-based One Time Password) second factor.
  This class is available on iOS only.
  */
 NS_SWIFT_NAME(TOTPMultiFactorAssertion) API_UNAVAILABLE(macos, tvos, watchos)

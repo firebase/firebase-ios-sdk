@@ -328,8 +328,8 @@ static NSString *const kFIRAuthErrorMessageMissingVerificationCode =
     @brief Message for @c FIRAuthErrorCodeInvalidVerificationCode error code.
  */
 static NSString *const kFIRAuthErrorMessageInvalidVerificationCode =
-    @"The multifactor verification code used to create the auth credential is invalid. Please "
-    @"recollect the verification code and be sure to use the verification code provided by the "
+    @"The multifactor verification code used to create the auth credential is invalid."
+    @"Re-collect the verification code and be sure to use the verification code provided by the "
     @"user.";
 
 /** @var kFIRAuthErrorMessageMissingVerificationID
