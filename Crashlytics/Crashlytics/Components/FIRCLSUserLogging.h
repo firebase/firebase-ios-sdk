@@ -81,7 +81,9 @@ void FIRCLSUserLoggingRecordUserKeysAndValues(NSDictionary* keysAndValues);
 void FIRCLSUserLoggingRecordInternalKeyValue(NSString* key, id value);
 void FIRCLSUserLoggingWriteInternalKeyValue(NSString* key, NSString* value);
 
-void FIRCLSUserLoggingRecordError(NSError* error, NSDictionary<NSString*, id>* additionalUserInfo);
+void FIRCLSUserLoggingRecordError(NSError* error,
+                                  NSDictionary<NSString*, id>* additionalUserInfo,
+                                  NSUInteger skipStacks);
 
 NSDictionary* FIRCLSUserLoggingGetCompactedKVEntries(FIRCLSUserLoggingKVStorage* storage,
                                                      bool decodeHex);

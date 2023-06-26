@@ -94,6 +94,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 // Dependencies common to each of the Controllers
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
+@property(nonatomic) NSUInteger *frameStacksToSkip;
 @end
 
 @implementation FIRCrashlytics
@@ -129,6 +130,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     _fileManager = [[FIRCLSFileManager alloc] init];
     _googleAppID = app.options.googleAppID;
     _dataArbiter = [[FIRCLSDataCollectionArbiter alloc] initWithApp:app withAppInfo:appInfo];
+    _frameStacksToSkip = 0;
 
     FIRCLSApplicationIdentifierModel *appModel = [[FIRCLSApplicationIdentifierModel alloc] init];
     FIRCLSSettings *settings = [[FIRCLSSettings alloc] initWithFileManager:_fileManager
@@ -377,7 +379,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  FIRCLSUserLoggingRecordError(error, userInfo);
+    FIRCLSUserLoggingRecordError(error, userInfo, self.frameStacksToSkip);
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
@@ -389,6 +391,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       recordOnDemandExceptionIfQuota:exceptionModel
            withDataCollectionEnabled:[self.dataArbiter isCrashlyticsCollectionEnabled]
           usingExistingReportManager:self.existingReportManager];
+}
+
+- (void)setNumberOfStackFramesToSkipForNotFatalErrors:(NSUInteger)frames {
+  self.frameStacksToSkip = frames;
 }
 
 #pragma mark - FIRSessionsSubscriber
