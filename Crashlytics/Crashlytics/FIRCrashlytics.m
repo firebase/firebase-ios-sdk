@@ -379,7 +379,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
-    FIRCLSUserLoggingRecordError(error, userInfo, self.frameStacksToSkip);
+  FIRCLSUserLoggingRecordError(error, userInfo, self.frameStacksToSkip);
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
