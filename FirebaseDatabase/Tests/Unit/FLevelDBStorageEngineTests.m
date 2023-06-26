@@ -469,29 +469,6 @@
                         NODE((@{@"deep" : @"deep-value"})));
 }
 
-// Well this is awkward, but NSJSONSerialization fails to deserialize JSON with tiny/huge doubles
-// It is kind of bad we raise "invalid" data, but at least we don't crash *trollface*
-- (void)testExtremeDoublesAsServerCache {
-#ifdef TARGET_OS_IOS
-  if ([[NSProcessInfo processInfo] operatingSystemVersion].majorVersion >= 11) {
-    // NSJSONSerialization on iOS 11 correctly serializes small and large doubles.
-    return;
-  }
-#endif
-#if TARGET_OS_MACCATALYST || TARGET_OS_OSX || TARGET_OS_WATCH
-  return;
-#endif
-
-  FLevelDBStorageEngine *engine = [self cleanStorageEngine];
-  [engine updateServerCache:NODE((@{@"works" : @"value", @"fails" : @(2.225073858507201e-308)}))
-                     atPath:PATH(@"foo")
-                      merge:NO];
-
-  // Will drop the tiny double
-  XCTAssertEqualObjects([engine serverCacheAtPath:PATH(@"foo")], NODE(@{@"works" : @"value"}));
-  XCTAssertEqualObjects([engine serverCacheAtPath:PATH(@"foo/fails")], [FEmptyNode emptyNode]);
-}
-
 - (void)testLongValuesDontLosePrecision {
   id longValue = @1542405709418655810;
   id floatValue = @2.47;
