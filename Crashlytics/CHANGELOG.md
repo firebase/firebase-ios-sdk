@@ -1,8 +1,8 @@
 # Unreleased
-- [fixed] Updated upload-symbols to version 3.16 with support for Xcode 15 defaults (#11463)
-- [fixed] `upload-symbols` / `run` now support apps with the `User Script Sandboxing` set to `YES` when all input files are present in the build phase. Please see the Pull Request for the full list of input files (#11463)
+- [fixed] Updated `upload-symbols` to version 3.16 with support for new default build settings in Xcode 15 (#11463)
+- [fixed] `upload-symbols` / `run` now support apps with `User Script Sandboxing` set to `YES` when all input files are present in the build phase. Please see the Pull Request for the full list of input files (#11463)
 - [fixed] `upload-symbols` / `run` no longer read from the app's Info.plist and supports apps with `Generate Info.plist File` set to `NO` (#11463)
-- [added] Added a `CrashlyticsInputFiles.xcfilelist`. Instead of using "Input Files", the path to this file can be specified in the "Input File Lists" section of your Crashlytics `run` / `upload-symbols` script in your Build Phases to keep it up to date (#11428)
+- [added] Added a `CrashlyticsInputFiles.xcfilelist`. Instead of using "Input Files", developers can specify the path to this file in the Build Phase's "Input File Lists" section of your Crashlytics `run` / `upload-symbols` script to keep it up to date (#11428)
 
 # 10.11.0
 - [fixed] Fixed a threading-related hang during initialization in urgent mode (#11216)
