@@ -315,9 +315,10 @@ static NSInteger const gMaxRetries = 7;
   NSString *namespace = [_namespace substringToIndex:[_namespace rangeOfString:@":"].location];
   NSString *postBody = [NSString
       stringWithFormat:@"{project:'%@', namespace:'%@', lastKnownVersionNumber:'%@', appId:'%@', "
-                       @"sdkVersion:'%@'}",
+                       @"sdkVersion:'%@', appInstanceId:'%@'}",
                        [self->_options GCMSenderID], namespace, _configFetch.templateVersionNumber,
-                       _options.googleAppID, FIRRemoteConfigPodVersion()];
+                       _options.googleAppID, FIRRemoteConfigPodVersion(),
+                       _settings.configInstallationsIdentifier];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;
   NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
