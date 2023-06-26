@@ -91,6 +91,10 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
   public func headerValue() -> String {
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
+#if DEBUG
+    // Sort keys in debug builds to simplify output comparisons in unit tests.
+    encoder.outputFormatting = .sortedKeys
+#endif
 
     guard let data = try? encoder.encode(self) else {
       // If encoding fails, fall back to encoding with an empty payload.
