@@ -1,4 +1,4 @@
-// Copyright 2021 Google LLC
+// Copyright 2023 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,27 @@ private struct Fruit: Codable, Identifiable, Equatable {
   var isFavourite: Bool
 }
 
+extension Fruit {
+  static let fruits = [
+    Fruit(name: "Apple", isFavourite: true),
+    Fruit(name: "Banana", isFavourite: true),
+    Fruit(name: "Orange", isFavourite: true),
+    Fruit(name: "Pineapple", isFavourite: true),
+    Fruit(name: "Dragonfruit", isFavourite: true),
+    Fruit(name: "Mangosteen", isFavourite: true),
+    Fruit(name: "Lychee", isFavourite: true),
+    Fruit(name: "Passionfruit", isFavourite: true),
+    Fruit(name: "Starfruit", isFavourite: true),
+  ]
+
+  static func randomFruit() -> Fruit {
+    return Fruit.fruits.randomElement()!
+  }
+}
+
 /// This view demonstrates how to use the `FirestoreQuery` property wrapper.
-struct FavouriteFruitsView: View {
+/// It uses **no animations**, so adding and removing elements is a bit jarring.
+struct FavouriteFruitsNoAnimationsView: View {
   @FirestoreQuery(
     collectionPath: "fruits",
     predicates: [
@@ -33,14 +52,46 @@ struct FavouriteFruitsView: View {
 
   @State var showOnlyFavourites = true
 
+  private func delete(fruit: Fruit) {
+    if let id = fruit.id {
+      Firestore.firestore().collection("fruits").document(id).delete()
+    }
+  }
+
+  private func addRandomFruit() {
+    let fruit = Fruit.randomFruit()
+    add(fruit: fruit)
+  }
+
+  private func add(fruit: Fruit) {
+    do {
+      try Firestore.firestore().collection("fruits").addDocument(from: fruit)
+    } catch {
+      print(error)
+    }
+  }
+
   var body: some View {
     if case let .success(fruits) = fruitResults {
       List(fruits) { fruit in
         Text(fruit.name)
+          .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button {
+              delete(fruit: fruit)
+            } label: {
+              Label("Delete", systemImage: "trash")
+            }
+          }
       }
-      .animation(.default, value: fruits)
       .navigationTitle("Fruits")
       .toolbar {
+        ToolbarItem(placement: .bottomBar) {
+          Button {
+            addRandomFruit()
+          } label: {
+            Label("Add", systemImage: "plus")
+          }
+        }
         ToolbarItem(placement: .navigationBarTrailing) {
           Button(action: toggleFilter) {
             Image(systemName: showOnlyFavourites
@@ -67,8 +118,8 @@ struct FavouriteFruitsView: View {
   }
 }
 
-struct FavouriteFruitsView_Previews: PreviewProvider {
+struct FavouriteFruitsNoAnimationsView_Previews: PreviewProvider {
   static var previews: some View {
-    FavouriteFruitsView()
+    FavouriteFruitsNoAnimationsView()
   }
 }
