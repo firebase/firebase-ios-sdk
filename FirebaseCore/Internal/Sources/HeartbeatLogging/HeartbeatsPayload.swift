@@ -92,6 +92,8 @@ extension HeartbeatsPayload: HTTPHeaderRepresentable {
     let encoder = JSONEncoder()
     encoder.dateEncodingStrategy = .formatted(Self.dateFormatter)
     #if DEBUG
+      // TODO: Remove the following #available check when FirebaseCore's minimum deployment target
+      // is iOS 11+; all other supported platforms already meet the minimum for `.sortedKeys`.
       if #available(iOS 11, *) {
         // Sort keys in debug builds to simplify output comparisons in unit tests.
         encoder.outputFormatting = .sortedKeys
