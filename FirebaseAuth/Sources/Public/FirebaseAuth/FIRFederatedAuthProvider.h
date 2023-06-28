@@ -47,7 +47,11 @@ typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credentia
 - (void)getCredentialWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                          completion:(nullable void (^)(FIRAuthCredential *_Nullable credential,
                                                        NSError *_Nullable error))completion
-    API_UNAVAILABLE(macos, tvos, watchos);
+    API_UNAVAILABLE(macos, tvos, watchos
+#if defined(TARGET_OS_XR)
+                    , xros
+#endif  // defined(TARGET_OS_XR)
+                    );
 
 @end
 
