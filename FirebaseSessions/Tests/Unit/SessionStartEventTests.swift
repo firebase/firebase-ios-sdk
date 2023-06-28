@@ -222,11 +222,11 @@ class SessionStartEventTests: XCTestCase {
     mockNetworkInfo.networkType = .mobile
     // Mobile Subtypes are always empty on non-iOS platforms, and
     // Performance doesn't support those platforms anyways
-    #if os(iOS) && !targetEnvironment(macCatalyst)
+    #if os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
       mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
-    #else
+    #else // os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
       mockNetworkInfo.mobileSubtype = ""
-    #endif
+    #endif // os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
     appInfo.networkInfo = mockNetworkInfo
 
     let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
@@ -265,17 +265,17 @@ class SessionStartEventTests: XCTestCase {
       )
       // Mobile Subtypes are always empty on non-iOS platforms, and
       // Performance doesn't support those platforms anyways
-      #if os(iOS) && !targetEnvironment(macCatalyst)
+      #if os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
         XCTAssertEqual(
           event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
           firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
         )
-      #else
+      #else // os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
         XCTAssertEqual(
           event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
           firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
         )
-      #endif
+      #endif // os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
       assertEqualProtoString(
         proto.application_info.apple_app_info.mcc_mnc,
         expected: "",
@@ -330,7 +330,7 @@ class SessionStartEventTests: XCTestCase {
   }
 
   /// Following tests can be run only in iOS environment
-  #if os(iOS) && !targetEnvironment(macCatalyst)
+  #if os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
     func test_convertMobileSubtype_convertsCorrectlyPreOS14() {
       let expectations: [(
         given: String,
@@ -412,9 +412,9 @@ class SessionStartEventTests: XCTestCase {
           }
         }
     }
-  #endif
+  #endif // os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
 
-  #if os(iOS) && !targetEnvironment(macCatalyst)
+  #if os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
     @available(iOS 14.1, *)
     func test_convertMobileSubtype_convertsCorrectlyPostOS14() {
       let expectations: [(
@@ -505,5 +505,5 @@ class SessionStartEventTests: XCTestCase {
           }
         }
     }
-  #endif
+  #endif // os(iOS) && !targetEnvironment(macCatalyst) && (compiler(<5.9) || !os(xrOS))
 }
