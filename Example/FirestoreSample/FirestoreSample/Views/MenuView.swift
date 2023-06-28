@@ -28,6 +28,14 @@ struct MenuView: View {
           Label("Mapping failure 2", systemImage: "shippingbox")
         }
       }
+      Section(header: Text("Animations")) {
+        NavigationLink(destination: FavouriteFruitsNoAnimationsView()) {
+          Label("Without Animations", systemImage: "shippingbox")
+        }
+        NavigationLink(destination: FavouriteFruitsAnimationView()) {
+          Label("With Animations", systemImage: "shippingbox")
+        }
+      }
     }
     .listStyle(InsetGroupedListStyle())
     .navigationTitle("Firestore")

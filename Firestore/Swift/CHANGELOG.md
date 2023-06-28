@@ -1,3 +1,6 @@
+# unreleased
+- [added] Added support animations on the `@FirestoreQuery` property wrapper.
+
 # 10.9.0
 - [changed] The async `CollectionReference.addDocument(data:)` API now returns
   a discardable result. (#10640)
