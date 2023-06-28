@@ -298,7 +298,7 @@ static NSInteger const gMaxRetries = 7;
   [installations authTokenWithCompletion:installationsTokenHandler];
 }
 
-- (void)setRequestBody {
+- (NSData *)createRequestBody {
   [self refreshInstallationsTokenWithCompletionHandler:^(FIRRemoteConfigFetchStatus status,
                                                          NSError *_Nullable error) {
     if (status != FIRRemoteConfigFetchStatusSuccess) {
@@ -321,9 +321,7 @@ static NSInteger const gMaxRetries = 7;
                        _settings.configInstallationsIdentifier];
   NSData *postData = [postBody dataUsingEncoding:NSUTF8StringEncoding];
   NSError *compressionError;
-  NSData *compressedContent = [NSData gul_dataByGzippingData:postData error:&compressionError];
-
-  [_request setHTTPBody:compressedContent];
+  return [NSData gul_dataByGzippingData:postData error:&compressionError];
 }
 
 /// Creates request.
@@ -666,7 +664,8 @@ static NSInteger const gMaxRetries = 7;
 
     if (canMakeConnection) {
       strongSelf->_isRequestInProgress = true;
-      [strongSelf setRequestBody];
+      NSData *compressedContent = [strongSelf createRequestBody];
+      [strongSelf->_request setHTTPBody:compressedContent];
       strongSelf->_dataTask = [strongSelf->_session dataTaskWithRequest:strongSelf->_request];
       [strongSelf->_dataTask resume];
     }
