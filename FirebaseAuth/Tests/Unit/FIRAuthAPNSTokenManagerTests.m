@@ -36,6 +36,8 @@ static const NSTimeInterval kRegistrationTimeout = .5;
  */
 static const NSTimeInterval kExpectationTimeout = 2;
 
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+
 /** @class FIRAuthLegacyUIApplication
     @brief A fake legacy (< iOS 7) UIApplication class.
     @remarks A custom class is needed because `respondsToSelector:` itself cannot be mocked.
@@ -57,6 +59,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
 #pragma clang diagnostic pop
 
 @end
+
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 
 /** @class FIRAuthAPNSTokenManagerTests
     @brief Unit tests for @c FIRAuthAPNSTokenManager .
@@ -237,6 +241,8 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockApplication);
 }
 
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+
 /** @fn testLegacyRegistration
     @brief Tests remote notification registration on legacy systems.
  */
@@ -272,8 +278,10 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+
 @end
 
 NS_ASSUME_NONNULL_END
 
-#endif
+#endif  // TARGET_OS_IOS

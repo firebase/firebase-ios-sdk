@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 
 #import <Foundation/Foundation.h>
 #import <OCMock/OCMock.h>
@@ -146,4 +146,4 @@ static NSTimeInterval kExpectationTimeout = 2;
 
 @end
 
-#endif
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)

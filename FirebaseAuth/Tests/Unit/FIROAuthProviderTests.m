@@ -198,10 +198,12 @@ static NSString *const kUnknownErrorString =
    */
   id _mockAuth;
 
+#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
   /** @var _mockURLPresenter
       @brief The mock @c FIRAuthURLPresenter instance associated with @c _mockAuth.
    */
   id _mockURLPresenter;
+#endif  // !defined(TARGET_OS_XR) || !TARGET_OS_XR
 
   /** @var _mockApp
       @brief The mock @c FIRApp instance associated with @c _mockAuth.
@@ -229,8 +231,10 @@ static NSString *const kUnknownErrorString =
   _mockOptions = OCMClassMock([FIROptions class]);
   OCMStub([(FIRApp *)_mockApp options]).andReturn(_mockOptions);
   OCMStub([_mockOptions googleAppID]).andReturn(kFakeFirebaseAppID);
+#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
   _mockURLPresenter = OCMClassMock([FIRAuthURLPresenter class]);
   OCMStub([_mockAuth authURLPresenter]).andReturn(_mockURLPresenter);
+#endif  // !defined(TARGET_OS_XR) || !TARGET_OS_XR
   _mockRequestConfiguration = OCMClassMock([FIRAuthRequestConfiguration class]);
   OCMStub([_mockAuth requestConfiguration]).andReturn(_mockRequestConfiguration);
   OCMStub([_mockRequestConfiguration APIKey]).andReturn(kFakeAPIKey);
@@ -298,6 +302,8 @@ static NSString *const kUnknownErrorString =
   XCTAssertTrue([OAuthProvider isKindOfClass:[FIROAuthProvider class]]);
   XCTAssertEqualObjects(OAuthProvider.providerID, kFakeProviderID);
 }
+
+#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
 
 /** @fn testGetCredentialWithUIDelegateWithClientID
     @brief Tests a successful invocation of @c getCredentialWithUIDelegte:completion:
@@ -1439,6 +1445,8 @@ static NSString *const kUnknownErrorString =
   OCMVerifyAll(_mockBackend);
 }
 
+#endif  // !defined(TARGET_OS_XR) || !TARGET_OS_XR
+
 @end
 
-#endif
+#endif  // TARGET_OS_IOS
