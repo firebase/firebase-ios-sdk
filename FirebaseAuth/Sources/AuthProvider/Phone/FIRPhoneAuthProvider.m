@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorResolver.h"
@@ -789,4 +789,4 @@ extern NSString *const FIRPhoneMultiFactorID;
 
 NS_ASSUME_NONNULL_END
 
-#endif
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
