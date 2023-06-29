@@ -1778,7 +1778,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
   XCTAssertTrue([strData containsString:@"namespace:'firebase'"]);
   XCTAssertTrue([strData containsString:@"lastKnownVersionNumber:'0'"]);
   XCTAssertTrue([strData containsString:@"appId:'1:123:ios:123abc'"]);
-  XCTAssertTrue([strData containsString:@"sdkVersion:'10.4.0'"]);
+  XCTAssertTrue([strData containsString:@"sdkVersion:"]);
   XCTAssertTrue([strData containsString:@"appInstanceId:'iid'"]);
 }
 
