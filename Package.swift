@@ -646,7 +646,8 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreSwiftTarget",
       dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS, .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS,
+                                                          .firebaseVisionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
     ),
 
@@ -1314,9 +1315,9 @@ func abseilDependency() -> Package.Dependency {
   }
 
   return .package(
-      url: "https://github.com/google/abseil-cpp-binary.git",
-      "1.2022062300.0" ..< "1.2022062400.0"
-    )
+    url: "https://github.com/google/abseil-cpp-binary.git",
+    "1.2022062300.0" ..< "1.2022062400.0"
+  )
 }
 
 func grpcDependency() -> Package.Dependency {
@@ -1338,7 +1339,8 @@ func firestoreWrapperTarget() -> Target {
     return .target(
       name: "FirebaseFirestoreTarget",
       dependencies: [.target(name: "FirebaseFirestore",
-                             condition: .when(platforms: [.iOS, .tvOS, .macOS, .firebaseVisionOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .macOS,
+                                                          .firebaseVisionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
     )
   }
@@ -1425,7 +1427,10 @@ func firestoreTarget() -> Target {
         .define("FIRFirestore_VERSION", to: firebaseVersion),
       ],
       linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])),
+        .linkedFramework(
+          "SystemConfiguration",
+          .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
+        ),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
         .linkedLibrary("c++"),
       ]
@@ -1452,12 +1457,12 @@ extension Platform {
   // arise as the manifest APIs should be confined to the `Package.swift`).
   static var firebaseVisionOS: Self {
     #if swift(>=5.9)
-    // For Xcode 15, return the available `visionOS` platform.
-    return .visionOS
+      // For Xcode 15, return the available `visionOS` platform.
+      return .visionOS
     #else
-    // For Xcode 14, return `iOS` as visionOS is unavailable. Since all targets
-    // support iOS, this acts as a no-op.
-    return .iOS
-    #endif  // swift(>=5.9)
+      // For Xcode 14, return `iOS` as visionOS is unavailable. Since all targets
+      // support iOS, this acts as a no-op.
+      return .iOS
+    #endif // swift(>=5.9)
   }
 }
