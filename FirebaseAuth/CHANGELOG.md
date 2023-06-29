@@ -1,5 +1,6 @@
 # 10.12.0
-- [added] Added support to Firebase Auth to enroll and sign in a user with TOTP second factor.(#11261)
+- [added] Added support to Firebase Auth to enroll and sign in a user with
+  TOTP second factor. (#11261)
 
 # 10.8.0
 - [added] Added Firebase App Check support to Firebase Auth. (#11056)
