@@ -72,6 +72,7 @@
 - (void)autoFetch:(NSInteger)remainingAttempts targetVersion:(NSInteger)targetVersion;
 - (void)beginRealtimeStream;
 - (void)pauseRealtimeStream;
+- (NSData *)createRequestBody;
 
 - (FIRConfigUpdateListenerRegistration *_Nonnull)addConfigUpdateListener:
     (RCNConfigUpdateCompletion _Nonnull)listener;
@@ -243,6 +244,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                                                                settings:_settings
                                                               namespace:_fullyQualifiedNamespace
                                                                 options:currentOptions]);
+    _settings.configInstallationsIdentifier = @"iid";
 
     OCMStubRecorder *mock = OCMStub([_configFetch[i] fetchConfigWithExpirationDuration:0
                                                                      completionHandler:OCMOCK_ANY]);
@@ -1763,6 +1765,18 @@ static NSString *UTCToLocal(NSString *utcTime) {
 
     [self waitForExpectationsWithTimeout:_expectationTimeout handler:nil];
   }
+}
+
+- (void)testRealtimeStreamRequestBody {
+  NSError *error;
+  NSData *requestBody = [_configRealtime[0] createRequestBody];
+  NSData *uncompressedRequest = [NSData gul_dataByInflatingGzippedData:requestBody error:&error];
+  NSString *strData = [[NSString alloc] initWithData:uncompressedRequest
+                                            encoding:NSUTF8StringEncoding];
+  NSString *expectedString =
+      @"{project:'correct_gcm_sender_id', namespace:'firebase', lastKnownVersionNumber:'0', "
+      @"appId:'1:123:ios:123abc', sdkVersion:'10.4.0', appInstanceId:'iid'}";
+  XCTAssertTrue([strData isEqualToString:expectedString]);
 }
 
 #pragma mark - Test Helpers
