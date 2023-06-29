@@ -3,6 +3,15 @@
   that reduces the number of billed document reads when documents were deleted
   on the server while the client was not actively listening to the query
   (e.g. while the client was offline). (#11457)
+- [added] Developers using Firestore on **visionOS** must use a source
+  Firestore distribution rather than the default binary distribution. To do
+  this, quit Xcode and open the desired project from the command line
+  with the `FIREBASE_SOURCE_FIRESTORE` environment variable:
+  ```
+  open --env FIREBASE_SOURCE_FIRESTORE /path/to/project.xcodeproj
+  ```
+  To go back to using the binary distribution of Firestore, quit Xcode and
+  open Xcode like normal, without the environment variable. (#11492)
 
 # 10.11.0
 - [feature] Expose MultiDb API for public preview. (#10465)
