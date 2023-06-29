@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAuthProtoMFAEnrollment : NSObject <FIRAuthProto>
+@interface FIRAuthProtoStartMFATOTPEnrollmentResponseInfo : NSObject <FIRAuthProto>
 
-@property(nonatomic, copy, readonly, nullable) NSString *phoneInfo;
-
-@property(nonatomic, copy, readonly, nullable) NSObject *TOTPInfo;
-
-@property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
-
-@property(nonatomic, copy, readonly, nullable) NSString *displayName;
-
-@property(nonatomic, copy, readonly, nullable) NSDate *enrolledAt;
+@property(nonatomic, copy, readonly, nonnull) NSString *sharedSecretKey;
+@property(nonatomic, readonly) NSInteger verificationCodeLength;
+@property(nonatomic, copy, readonly, nullable) NSString *hashingAlgorithm;
+@property(nonatomic, readonly) NSInteger periodSec;
+@property(nonatomic, copy, readonly, nullable) NSString *sessionInfo;
+@property(nonatomic, copy, readonly, nullable) NSDate *finalizeEnrollmentTime;
 
 @end
 

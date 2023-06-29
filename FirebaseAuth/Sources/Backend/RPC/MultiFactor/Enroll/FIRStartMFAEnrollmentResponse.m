@@ -17,6 +17,7 @@
 #import "FirebaseAuth/Sources/Backend/RPC/MultiFactor/Enroll/FIRStartMFAEnrollmentResponse.h"
 
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
 
 @implementation FIRStartMFAEnrollmentResponse
 
@@ -24,7 +25,11 @@
                     error:(NSError *__autoreleasing _Nullable *_Nullable)error {
   if (dictionary[@"phoneSessionInfo"] != nil) {
     NSDictionary *data = dictionary[@"phoneSessionInfo"];
-    _enrollmentResponse = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
+    _phoneSessionInfo = [[FIRAuthProtoStartMFAPhoneResponseInfo alloc] initWithDictionary:data];
+  } else if (dictionary[@"totpSessionInfo"] != nil) {
+    NSDictionary *data = dictionary[@"totpSessionInfo"];
+    _TOTPSessionInfo =
+        [[FIRAuthProtoStartMFATOTPEnrollmentResponseInfo alloc] initWithDictionary:data];
   } else {
     return NO;
   }
