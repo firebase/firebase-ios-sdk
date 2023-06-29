@@ -149,7 +149,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
   return [[self alloc] initWithProviderID:providerID auth:auth];
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 - (void)getCredentialWithUIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                          completion:(nullable FIRAuthCredentialCallback)completion {
   if (![FIRAuthWebUtils isCallbackSchemeRegisteredForCustomURLScheme:self->_callbackScheme]) {
@@ -216,7 +216,7 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
                           }];
   });
 }
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 
 #pragma mark - Internal Methods
 
