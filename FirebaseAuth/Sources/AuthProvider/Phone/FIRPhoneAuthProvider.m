@@ -528,7 +528,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                   } else {
                                                     if (callback) {
                                                       callback(
-                                                          response.phoneSessionInfo.sessionInfo,
+                                                          response.enrollmentResponse.sessionInfo,
                                                           nil);
                                                     }
                                                   }

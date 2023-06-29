@@ -20,10 +20,7 @@
 #import "FirebaseAuth/Sources/User/FIRUser_Internal.h"
 #import <FirebaseAuth/FIRMultiFactorInfo.h>
 #import <FirebaseAuth/FIRPhoneAuthProvider.h>
-#import <FirebaseAuth/FIRTOTPMultiFactorGenerator.h>
-#import <FirebaseAuth/FIRTOTPMultiFactorAssertion.h>
 #import "MainViewController+Internal.h"
-#import <FirebaseCore/FIRApp.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,10 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
   return [StaticContentTableViewSection sectionWithTitle:@"Multi Factor" cells:@[
     [StaticContentTableViewCell cellWithTitle:@"Phone Enroll"
                                        action:^{ [weakSelf phoneEnroll]; }],
-    [StaticContentTableViewCell cellWithTitle:@"TOTP Enroll"
-                                       action:^{ [weakSelf TOTPEnroll]; }],
-    [StaticContentTableViewCell cellWithTitle:@"MultiFactor Unenroll"
-                                       action:^{ [weakSelf mfaUnenroll]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Phone Unenroll"
+                                       action:^{ [weakSelf phoneUnenroll]; }],
   ]];
 }
 
@@ -51,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable phoneNumber) {
     [user.multiFactor
      getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
-      // this is the step verfication code has been send to the phone number along with validating the number
       [FIRPhoneAuthProvider.provider verifyPhoneNumber:phoneNumber
                                             UIDelegate:nil
                                     multiFactorSession:session
@@ -88,61 +82,13 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
-- (void)TOTPEnroll {
-  FIRUser *user = FIRAuth.auth.currentUser;
-  if (!user) {
-    [self logFailure:@"Please sign in first." error:nil];
-    return;
-  }
-  [user.multiFactor getSessionWithCompletion:^(FIRMultiFactorSession *_Nullable session, NSError *_Nullable error) {
-    if (error) {
-      [self logFailure:@"Error getting multi-factor session." error:error];
-      return;
-    }
-    [FIRTOTPMultiFactorGenerator generateSecretWithMultiFactorSession:session completion:^(FIRTOTPSecret *_Nullable secret, NSError *_Nullable error) {
-      if (error) {
-        [self logFailure:@"Error generating TOTP secret." error:error];
-        return;
-      }
-      NSString *accountName = user.email;
-      NSString *issuer = FIRAuth.auth.app.name;
-      dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *url = [secret generateQRCodeURLWithAccountName:accountName issuer:issuer];
-        if(!url.length) {
-          [self logFailure: @"Multi factor finalize enroll failed. Could not generate url." error:nil];
-          return;
-        }
-        [secret openInOTPAppWithQRCodeURL:url];
-        [self showQRCodePromptWithTextInput:@"Scan this QR Code and enter OTP:"
-                               qrCodeString:url
-                            completionBlock:^(BOOL userPressedOK, NSString *_Nullable oneTimePassword) {
-          FIRTOTPMultiFactorAssertion *assertion = [FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:oneTimePassword];
-          [self showTextInputPromptWithMessage:@"Display name"
-                               completionBlock:^(BOOL userPressedOK,
-                                                 NSString *_Nullable displayName) {
-            [user.multiFactor enrollWithAssertion:assertion
-                                      displayName:displayName
-                                       completion:^(NSError *_Nullable error) {
-              if (error) {
-                [self logFailure:@"Multi factor finalize enroll failed." error:error];
-              } else {
-                [self logSuccess:@"Multi factor finalize enroll succeeded."];
-              }
-            }];
-          }];
-        }];
-      });
-    }];
-  }];
-}
-
-- (void)mfaUnenroll {
+- (void)phoneUnenroll {
   NSMutableString *displayNameString = [NSMutableString string];
   for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {
     [displayNameString appendString:tmpFactorInfo.displayName];
     [displayNameString appendString:@" "];
   }
-  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Enter multi factor to unenroll\n%@", displayNameString]
+  [self showTextInputPromptWithMessage:[NSString stringWithFormat:@"Multifactor Unenroll\n%@", displayNameString]
                        completionBlock:^(BOOL userPressedOK, NSString *_Nullable displayName) {
     FIRMultiFactorInfo *factorInfo;
     for (FIRMultiFactorInfo *tmpFactorInfo in FIRAuth.auth.currentUser.multiFactor.enrolledFactors) {

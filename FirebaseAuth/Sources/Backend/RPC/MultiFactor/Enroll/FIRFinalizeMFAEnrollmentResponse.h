@@ -16,7 +16,6 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoFinalizeMFAPhoneResponseInfo.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,10 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly, nullable) NSString *IDToken;
 
 @property(nonatomic, copy, readonly, nullable) NSString *refreshToken;
-@property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoFinalizeMFAPhoneResponseInfo *phoneAuthInfo;
-@property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoFinalizeMFATOTPEnrollmentResponseInfo *TOTPAuthInfo;
 
 @end
 

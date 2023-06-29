@@ -17,25 +17,17 @@
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneRequestInfo.h"
-#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentRequestInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRStartMFAEnrollmentRequest : FIRIdentityToolkitRequest <FIRAuthRPCRequest>
 
 @property(nonatomic, copy, readonly, nullable) NSString *IDToken;
-@property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoStartMFAPhoneRequestInfo *phoneEnrollmentInfo;
-@property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *TOTPEnrollmentInfo;
+
+@property(nonatomic, copy, readonly, nullable) FIRAuthProtoStartMFAPhoneRequestInfo *enrollmentInfo;
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                          enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
-                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
-
-- (nullable instancetype)initWithIDToken:(NSString *)IDToken
-                      TOTPEnrollmentInfo:
-                          (FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
+                          enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)enrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration;
 
 @end

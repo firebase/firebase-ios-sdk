@@ -74,8 +74,6 @@
 
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/Phone/FIRPhoneMultiFactorInfo+Internal.h"
-#import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPMultiFactorInfo.h"
-
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -800,25 +798,15 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                } else {
                  if (!response.IDToken && response.MFAInfo) {
 #if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray =
-                       [[NSMutableArray alloc] init];
+                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     if (MFAEnrollment.phoneInfo) {
-                       FIRMultiFactorInfo *multiFactorInfo =
-                           [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfoArray addObject:multiFactorInfo];
-                     } else if (MFAEnrollment.TOTPInfo) {
-                       FIRMultiFactorInfo *multiFactorInfo =
-                           [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfoArray addObject:multiFactorInfo];
-                     } else {
-                       FIRLogError(kFIRLoggerAuth, @"I-AUT000020",
-                                   @"Multifactor type is not supported");
-                     }
+                     FIRPhoneMultiFactorInfo *info =
+                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                     [multiFactorInfo addObject:info];
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfoArray
+                                                                hints:multiFactorInfo
                                                                  auth:request.requestConfiguration
                                                                           .auth];
                    callback(nil, multiFactorRequiredError);
@@ -858,19 +846,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 #if TARGET_OS_IOS
                    NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     // check which MFA factors are enabled.
-                     if (MFAEnrollment.phoneInfo != nil) {
-                       FIRPhoneMultiFactorInfo *info =
-                           [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfo addObject:info];
-                     } else if (MFAEnrollment.TOTPInfo != nil) {
-                       FIRTOTPMultiFactorInfo *info =
-                           [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfo addObject:info];
-                     } else {
-                       FIRLogError(kFIRLoggerAuth, @"I-AUT000021",
-                                   @"Multifactor type is not supported");
-                     }
+                     FIRPhoneMultiFactorInfo *info =
+                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                     [multiFactorInfo addObject:info];
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
@@ -898,25 +876,15 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                } else {
                  if (!response.IDToken && response.MFAInfo) {
 #if TARGET_OS_IOS
-                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfoArray =
-                       [[NSMutableArray alloc] init];
+                   NSMutableArray<FIRMultiFactorInfo *> *multiFactorInfo = [NSMutableArray array];
                    for (FIRAuthProtoMFAEnrollment *MFAEnrollment in response.MFAInfo) {
-                     if (MFAEnrollment.phoneInfo) {
-                       FIRMultiFactorInfo *multiFactorInfo =
-                           [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfoArray addObject:multiFactorInfo];
-                     } else if (MFAEnrollment.TOTPInfo) {
-                       FIRMultiFactorInfo *multiFactorInfo =
-                           [[FIRTOTPMultiFactorInfo alloc] initWithProto:MFAEnrollment];
-                       [multiFactorInfoArray addObject:multiFactorInfo];
-                     } else {
-                       FIRLogError(kFIRLoggerAuth, @"I-AUT000022",
-                                   @"Multifactor type is not supported");
-                     }
+                     FIRPhoneMultiFactorInfo *info =
+                         [[FIRPhoneMultiFactorInfo alloc] initWithProto:MFAEnrollment];
+                     [multiFactorInfo addObject:info];
                    }
                    NSError *multiFactorRequiredError = [FIRAuthErrorUtils
                        secondFactorRequiredErrorWithPendingCredential:response.MFAPendingCredential
-                                                                hints:multiFactorInfoArray
+                                                                hints:multiFactorInfo
                                                                  auth:request.requestConfiguration
                                                                           .auth];
                    callback(nil, multiFactorRequiredError);

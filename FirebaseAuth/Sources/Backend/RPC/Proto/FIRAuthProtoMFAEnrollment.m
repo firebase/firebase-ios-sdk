@@ -25,8 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
   if (self) {
     if (dictionary[@"phoneInfo"]) {
       _phoneInfo = dictionary[@"phoneInfo"];
-    } else if (dictionary[@"totpInfo"]) {
-      _TOTPInfo = dictionary[@"totpInfo"];
     }
     _MFAEnrollmentID = dictionary[@"mfaEnrollmentId"];
     _displayName = dictionary[@"displayName"];
