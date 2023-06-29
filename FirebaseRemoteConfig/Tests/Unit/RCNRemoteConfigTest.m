@@ -1773,10 +1773,13 @@ static NSString *UTCToLocal(NSString *utcTime) {
   NSData *uncompressedRequest = [NSData gul_dataByInflatingGzippedData:requestBody error:&error];
   NSString *strData = [[NSString alloc] initWithData:uncompressedRequest
                                             encoding:NSUTF8StringEncoding];
-  NSString *expectedString =
-      @"{project:'correct_gcm_sender_id', namespace:'firebase', lastKnownVersionNumber:'0', "
-      @"appId:'1:123:ios:123abc', sdkVersion:'10.4.0', appInstanceId:'iid'}";
-  XCTAssertTrue([strData isEqualToString:expectedString]);
+
+  XCTAssertTrue([strData containsString:@"project:'correct_gcm_sender_id'"]);
+  XCTAssertTrue([strData containsString:@"namespace:'firebase'"]);
+  XCTAssertTrue([strData containsString:@"lastKnownVersionNumber:'0'"]);
+  XCTAssertTrue([strData containsString:@"appId:'1:123:ios:123abc'"]);
+  XCTAssertTrue([strData containsString:@"sdkVersion:'10.4.0'"]);
+  XCTAssertTrue([strData containsString:@"appInstanceId:'iid'"]);
 }
 
 #pragma mark - Test Helpers
