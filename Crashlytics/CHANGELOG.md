@@ -1,4 +1,4 @@
-# Unreleased
+# 10.12.0
 - [changed] Updated `upload-symbols` to version 3.16 with support for new default build settings in Xcode 15 (#11463)
 - [changed] Re-enabled dSYM uploads for Flutter apps building with `--obfuscate` and updated instructions for de-obfuscating Dart stacktraces
 - [fixed] `upload-symbols` / `run` now support apps with `User Script Sandboxing` set to `YES` when all input files are present in the build phase. Please see the Pull Request for the full list of input files (#11463)
