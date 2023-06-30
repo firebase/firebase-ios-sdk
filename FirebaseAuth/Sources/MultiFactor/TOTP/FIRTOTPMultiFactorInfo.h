@@ -20,6 +20,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class FIRAuthProtoMFAEnrollment;
+
 /**
  @class FIRTotpMultiFactorInfo
  @brief Extends the MultiFactorInfo class for time based one-time password second factors.
