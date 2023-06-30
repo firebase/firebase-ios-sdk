@@ -91,12 +91,14 @@ NS_ASSUME_NONNULL_BEGIN
       }
     }
   } else {
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
     UIApplication *application = [applicationClass sharedApplication];
 // iOS 13 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     topViewController = application.keyWindow.rootViewController;
 #pragma clang diagnostic pop
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   }
 #else
   UIApplication *application = [applicationClass sharedApplication];
