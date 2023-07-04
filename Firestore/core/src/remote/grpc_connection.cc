@@ -15,6 +15,7 @@
  */
 
 #include "Firestore/core/src/remote/grpc_connection.h"
+#include <grpc/compression.h>
 
 #include <cstdlib>
 
@@ -305,6 +306,7 @@ std::shared_ptr<grpc::Channel> GrpcConnection::CreateChannel() const {
   // the OS will usually notify gRPC when a connection dies. But not always.
   // This acts as a failsafe.)
   args.SetInt(GRPC_ARG_KEEPALIVE_TIME_MS, 30 * 1000);
+  args.SetCompressionAlgorithm(GRPC_COMPRESS_GZIP);
 
   const HostConfig* host_config = Config().find(host);
   if (!host_config) {
