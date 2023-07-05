@@ -36,6 +36,11 @@ struct MenuView: View {
           Label("With Animations", systemImage: "shippingbox")
         }
       }
+      Section(header: Text("Async")) {
+        NavigationLink(destination: FavouriteFruitsAsyncSequenceView()) {
+          Label("AsyncSequence", systemImage: "shippingbox")
+        }
+      }
     }
     .listStyle(InsetGroupedListStyle())
     .navigationTitle("Firestore")
@@ -47,3 +52,5 @@ struct MenuView_Previews: PreviewProvider {
     MenuView()
   }
 }
+
+
