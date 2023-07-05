@@ -20,10 +20,10 @@ import Foundation
 #if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public extension Query {
-    func addSnapshotListener<T>(_ type: T.Type) -> AsyncThrowingStream<[T], Error>
-      where T: Decodable {
-      addSnapshotListener(type, includeMetadataChanges: false)
-    }
+//    func addSnapshotListener<T>(_ type: T.Type) -> AsyncThrowingStream<[T], Error>
+//      where T: Decodable {
+//      addSnapshotListener(type, includeMetadataChanges: false)
+//    }
 
     func addSnapshotListener<T>(_ type: T.Type,
                                 includeMetadataChanges: Bool = false) -> AsyncThrowingStream<
