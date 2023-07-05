@@ -20,34 +20,35 @@ import Foundation
 #if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public extension Query {
-    func addSnapshotListener<T>(_ type: T.Type) -> AsyncThrowingStream<[T], Error> where T: Decodable {
+    func addSnapshotListener<T>(_ type: T.Type) -> AsyncThrowingStream<[T], Error>
+      where T: Decodable {
       addSnapshotListener(type, includeMetadataChanges: false)
     }
 
-    func addSnapshotListener<T>(
-      _ type: T.Type,
-      includeMetadataChanges: Bool = false
-    ) -> AsyncThrowingStream<[T], Error> where T: Decodable {
+    func addSnapshotListener<T>(_ type: T.Type,
+                                includeMetadataChanges: Bool = false) -> AsyncThrowingStream<
+      [T],
+      Error
+    > where T: Decodable {
       .init { continuation in
-        let listener = addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { querySnapshot, error in
-          do {
-            guard let documents = querySnapshot?.documents else {
-              continuation.yield([])
-              return
+        let listener =
+          addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { querySnapshot, error in
+            do {
+              guard let documents = querySnapshot?.documents else {
+                continuation.yield([])
+                return
+              }
+              let results = try documents.map { try $0.data(as: T.self) }
+              continuation.yield(results)
+            } catch {
+              continuation.finish(throwing: error)
             }
-            let results = try documents.map { try $0.data(as: T.self) }
-            continuation.yield(results)
           }
-          catch {
-            continuation.finish(throwing: error)
-          }
-        }
 
         continuation.onTermination = { @Sendable _ in
           listener.remove()
         }
       }
-
     }
   }
 #endif

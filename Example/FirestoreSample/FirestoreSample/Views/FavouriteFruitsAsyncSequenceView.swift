@@ -41,8 +41,7 @@ struct FavouriteFruitsAsyncSequenceView: View {
         for try await fruits in collection.addSnapshotListener(Fruit.self) {
           self.fruits = fruits
         }
-      }
-      catch {
+      } catch {
         print(error)
       }
     }
@@ -52,8 +51,8 @@ struct FavouriteFruitsAsyncSequenceView: View {
       ToolbarItem(placement: .navigationBarTrailing) {
         Button(action: toggleFilter) {
           Image(systemName: showOnlyFavourites
-                ? "line.3.horizontal.decrease.circle.fill"
-                : "line.3.horizontal.decrease.circle")
+            ? "line.3.horizontal.decrease.circle.fill"
+            : "line.3.horizontal.decrease.circle")
         }
       }
     }
@@ -69,4 +68,3 @@ struct FavouriteFruitsAsyncSequenceView_Previews: PreviewProvider {
     FavouriteFruitsAsyncSequenceView()
   }
 }
-
