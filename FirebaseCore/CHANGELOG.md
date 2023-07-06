@@ -3,6 +3,8 @@
   (e.g. FirebaseAuth) may fail to access the keychain on the visionOS
   simulator. To workaround this, add the Keychain Sharing capability to the
   visionOS target and explicitly add a keychain group (e.g. the bundle ID).
+- Firebase's Swift Package Manager distribution does not support
+  Xcode 15 Beta 1. Please use Xcode 15 Beta 2 or later.
 
 # Firebase 10.11.0
 - [changed] Improved error reporting for misnamed configuration plist files (#11317).
