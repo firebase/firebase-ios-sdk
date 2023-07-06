@@ -15,4 +15,4 @@
  */
 
 #import "GACAppCheckInterop.h"
-#import "GACAppCheckTokenResultInterop.h"
+#import "GACAppCheckTokenInterop.h"

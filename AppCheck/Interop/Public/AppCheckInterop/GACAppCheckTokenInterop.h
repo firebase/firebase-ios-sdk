@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-#import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@implementation GACAppCheckTokenResult
+@protocol GACAppCheckTokenInterop <NSObject>
 
-@synthesize token = _token;
-@synthesize error = _error;
+/// A Firebase App Check token.
+@property(nonatomic, readonly) NSString *token;
 
-- (instancetype)initWithToken:(NSString *)token error:(nullable NSError *)error {
-  self = [super init];
-  if (self) {
-    _token = token;
-    _error = error;
-  }
-  return self;
-}
+/// The App Check token's expiration date in the device's local time.
+@property(nonatomic, readonly) NSDate *expirationDate;
+
+/// The date when the App Check token was received in the device's local time.
+@property(nonatomic, readonly) NSDate *receivedAtDate;
 
 @end
 

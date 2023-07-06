@@ -31,7 +31,6 @@
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
-#import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
@@ -130,61 +129,28 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                            settings:settings];
 }
 
-- (void)tokenForcingRefresh:(BOOL)forcingRefresh
-                 completion:(void (^)(GACAppCheckToken *_Nullable token,
-                                      NSError *_Nullable error))handler {
-  [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
-      .then(^id _Nullable(GACAppCheckToken *token) {
-        handler(token, nil);
-        return token;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        handler(nil, [GACAppCheckErrorUtil publicDomainErrorWithError:error]);
-      });
-}
-
-- (void)limitedUseTokenWithCompletion:(void (^)(GACAppCheckToken *_Nullable token,
-                                                NSError *_Nullable error))handler {
-  [self limitedUseToken]
-      .then(^id _Nullable(GACAppCheckToken *token) {
-        handler(token, nil);
-        return token;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        handler(nil, [GACAppCheckErrorUtil publicDomainErrorWithError:error]);
-      });
-}
-
 #pragma mark - GACAppCheckInterop
 
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(GACAppCheckTokenHandlerInterop)handler {
   [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
       .then(^id _Nullable(GACAppCheckToken *token) {
-        GACAppCheckTokenResult *result = [[GACAppCheckTokenResult alloc] initWithToken:token.token
-                                                                                 error:nil];
-        handler(result);
-        return result;
+        handler(token, nil);
+        return token;
       })
       .catch(^(NSError *_Nonnull error) {
-        GACAppCheckTokenResult *result =
-            [[GACAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
-        handler(result);
+        handler(nil, error);
       });
 }
 
 - (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandlerInterop)handler {
   [self limitedUseToken]
       .then(^id _Nullable(GACAppCheckToken *token) {
-        GACAppCheckTokenResult *result = [[GACAppCheckTokenResult alloc] initWithToken:token.token
-                                                                                 error:nil];
-        handler(result);
-        return result;
+        handler(token, nil);
+        return token;
       })
       .catch(^(NSError *_Nonnull error) {
-        GACAppCheckTokenResult *result =
-            [[GACAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
-        handler(result);
+        handler(nil, error);
       });
 }
 
