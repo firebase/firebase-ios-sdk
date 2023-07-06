@@ -16,20 +16,35 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol GACAppCheckTokenResultInterop;
+@protocol GACAppCheckTokenInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 
 NS_SWIFT_NAME(InternalAppCheckTokenHandlerInterop)
-typedef void (^GACAppCheckTokenHandlerInterop)(id<GACAppCheckTokenResultInterop> tokenResult);
+typedef void (^GACAppCheckTokenHandlerInterop)(id<GACAppCheckTokenInterop> _Nullable token,
+                                               NSError *_Nullable error);
 
 NS_SWIFT_NAME(InternalAppCheckInterop) @protocol GACAppCheckInterop
 
-/// Retrieve a cached or generate a new FAA Token. If forcingRefresh == YES always generates a new
-/// token and updates the cache.
+/// Requests Firebase app check token.
+///
+/// @param forcingRefresh If `YES`,  a new Firebase app check token is requested and the token
+/// cache is ignored. If `NO`, the cached token is used if it exists and has not expired yet. In
+/// most cases, `NO` should be used. `YES` should only be used if the server explicitly returns an
+/// error, indicating a revoked token.
+/// @param handler The completion handler. Includes the app check token if the request succeeds,
+/// or an error if the request fails.
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(GACAppCheckTokenHandlerInterop)handler
-    NS_SWIFT_NAME(getToken(forcingRefresh:completion:));
+                    completion:(void (^)(id<GACAppCheckTokenInterop> _Nullable token,
+                                         NSError *_Nullable error))handler
+    NS_SWIFT_NAME(token(forcingRefresh:completion:));
+
+/// Retrieve a new limited-use App Check token
+///
+/// This method does not affect the token generation behavior of the
+/// ``tokenForcingRefresh()`` method.
+- (void)getLimitedUseTokenWithCompletion:(void (^)(id<GACAppCheckTokenInterop> _Nullable token,
+                                                   NSError *_Nullable error))handler;
 
 /// A notification with the specified name is sent to the default notification center
 /// (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
@@ -42,14 +57,6 @@ NS_SWIFT_NAME(InternalAppCheckInterop) @protocol GACAppCheckInterop
 /// `userInfo` key for the `FirebaseApp.name` in a notification for
 /// `tokenDidChangeNotificationName`.
 - (NSString *)notificationInstanceNameKey;
-
-// MARK: - Optional API
-
-@optional
-
-/// Retrieve a new limited-use App Check token
-- (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandlerInterop)handler
-    NS_SWIFT_NAME(getLimitedUseToken(completion:));
 
 @end
 
