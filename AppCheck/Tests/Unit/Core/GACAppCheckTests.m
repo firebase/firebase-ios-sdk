@@ -26,17 +26,12 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheckTokenResult.h"
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-
-// Since DeviceCheck is the default attestation provider for AppCheck, disable
-// test cases that may be dependent on DeviceCheck being available.
-#if GAC_DEVICE_CHECK_SUPPORTED_TARGETS
 
 // The FAC token value returned when an error occurs.
 static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
@@ -166,182 +161,8 @@ static NSString *const kAppGroupID = @"app_group_id";
 
 #pragma mark - Public Get Token
 
-- (void)testGetToken_WhenNoCache_Success {
-  // 1. Create expected token and configure expectations.
-  GACAppCheckToken *expectedToken = [self validToken];
-
-  NSArray * /*[tokenNotification, getToken]*/ expectations =
-      [self configuredExpectations_GetTokenWhenNoCache_withExpectedToken:expectedToken];
-
-  // 2. Request token and verify result.
-  [self.appCheck
-      tokenForcingRefresh:NO
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [expectations.lastObject fulfill];
-                 XCTAssertNotNil(token);
-                 XCTAssertEqualObjects(token.token, expectedToken.token);
-                 XCTAssertNil(error);
-               }];
-
-  // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
-}
-
 - (void)testGetToken_WhenCachedTokenIsValid_Success {
   [self assertGetToken_WhenCachedTokenIsValid_Success];
-}
-
-- (void)testGetTokenForcingRefresh_WhenCachedTokenIsValid_Success {
-  // 1. Create expected token and configure expectations.
-  GACAppCheckToken *expectedToken = [self validToken];
-
-  NSArray * /*[tokenNotification, getToken]*/ expectations =
-      [self configuredExpectations_GetTokenForcingRefreshWhenCacheIsValid_withExpectedToken:
-                expectedToken];
-
-  // 2. Request token and verify result.
-  [self.appCheck
-      tokenForcingRefresh:YES
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [expectations.lastObject fulfill];
-                 XCTAssertNotNil(token);
-                 XCTAssertEqualObjects(token.token, expectedToken.token);
-                 XCTAssertNil(error);
-               }];
-
-  // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
-}
-
-- (void)testGetToken_WhenCachedTokenExpired_Success {
-  // 1. Create expected token and configure expectations.
-  GACAppCheckToken *expectedToken = [self validToken];
-
-  NSArray * /*[tokenNotification, getToken]*/ expectations =
-      [self configuredExpectations_GetTokenWhenCachedTokenExpired_withExpectedToken:expectedToken];
-
-  // 2. Request token and verify result.
-  [self.appCheck
-      tokenForcingRefresh:NO
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [expectations.lastObject fulfill];
-                 XCTAssertNotNil(token);
-                 XCTAssertEqualObjects(token.token, expectedToken.token);
-                 XCTAssertNil(error);
-               }];
-
-  // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
-}
-
-- (void)testGetToken_AppCheckProviderError {
-  // 1. Create expected token and error and configure expectations.
-  GACAppCheckToken *cachedToken = [self soonExpiringToken];
-  NSError *providerError = [NSError errorWithDomain:@"GACAppCheckTests" code:-1 userInfo:nil];
-
-  NSArray * /*[tokenNotification, getToken]*/ expectations =
-      [self configuredExpectations_GetTokenWhenError_withError:providerError andToken:cachedToken];
-
-  // 2. Request token and verify result.
-  [self.appCheck
-      tokenForcingRefresh:NO
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [expectations.lastObject fulfill];
-                 XCTAssertNil(token);
-                 XCTAssertNotNil(error);
-                 XCTAssertNotEqualObjects(error, providerError);
-                 XCTAssertEqualObjects(error.domain, GACAppCheckErrorDomain);
-                 XCTAssertEqualObjects(error.userInfo[NSUnderlyingErrorKey], providerError);
-               }];
-
-  // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
-}
-
-- (void)testGetToken_ServerUnreachableError {
-  // 1. Create expected error and configure expectations.
-  NSError *serverError = [GACAppCheckErrorUtil APIErrorWithNetworkError:[self internalError]];
-
-  NSArray * /*[tokenNotification, getToken]*/ expectations =
-      [self configuredExpectations_GetTokenWhenError_withError:serverError andToken:nil];
-
-  // 2. Request token and verify result.
-  [self.appCheck
-      tokenForcingRefresh:NO
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [expectations.lastObject fulfill];
-                 XCTAssertNil(token);
-                 XCTAssertNotNil(error);
-                 XCTAssertEqualObjects(error, serverError);
-                 XCTAssertEqualObjects(error.domain, GACAppCheckErrorDomain);
-               }];
-
-  // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
-}
-
-- (void)testGetToken_KeychainError {
-  // 1. Expect token to be requested from storage.
-  NSError *keychainError = [GACAppCheckErrorUtil keychainErrorWithError:[self internalError]];
-  OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:keychainError]);
-
-  // 2. Expect token requested from app check provider.
-  GACAppCheckToken *expectedToken = [self validToken];
-  id completionArg = [OCMArg invokeBlockWithArgs:expectedToken, [NSNull null], nil];
-  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
-
-  // 3. Expect new token to be stored.
-  OCMExpect([self.mockStorage setToken:expectedToken])
-      .andReturn([FBLPromise resolvedWith:keychainError]);
-
-  // 4. Don't expect token update notification to be sent.
-  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""
-                                                                                   isInverted:YES];
-
-  // 5. Request token and verify result.
-  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
-  [self.appCheck
-      tokenForcingRefresh:NO
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [getTokenExpectation fulfill];
-                 XCTAssertNil(token);
-                 XCTAssertNotNil(error);
-                 XCTAssertEqualObjects(error, keychainError);
-                 XCTAssertEqualObjects(error.domain, GACAppCheckErrorDomain);
-               }];
-
-  // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
-  [self verifyAllMocks];
-}
-
-- (void)testGetToken_UnsupportedError {
-  // 1. Create expected error and configure expectations.
-  NSError *providerError =
-      [GACAppCheckErrorUtil unsupportedAttestationProvider:@"AppAttestProvider"];
-
-  NSArray * /*[tokenNotification, getToken]*/ expectations =
-      [self configuredExpectations_GetTokenWhenError_withError:providerError andToken:nil];
-
-  // 2. Request token and verify result.
-  [self.appCheck
-      tokenForcingRefresh:NO
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [expectations.lastObject fulfill];
-                 XCTAssertNil(token);
-                 XCTAssertNotNil(error);
-                 XCTAssertEqualObjects(error, providerError);
-                 XCTAssertEqualObjects(error.domain, GACAppCheckErrorDomain);
-               }];
-
-  // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
 }
 
 #pragma mark - GACAppCheckInterop Get Token
@@ -354,13 +175,14 @@ static NSString *const kAppGroupID = @"app_group_id";
       [self configuredExpectations_GetTokenWhenNoCache_withExpectedToken:expectedToken];
 
   // 2. Request token and verify result.
-  [self.appCheck getTokenForcingRefresh:NO
-                             completion:^(id<GACAppCheckTokenResultInterop> tokenResult) {
-                               [expectations.lastObject fulfill];
-                               XCTAssertNotNil(tokenResult);
-                               XCTAssertEqualObjects(tokenResult.token, expectedToken.token);
-                               XCTAssertNil(tokenResult.error);
-                             }];
+  [self.appCheck
+      getTokenForcingRefresh:NO
+                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                    [expectations.lastObject fulfill];
+                    XCTAssertNotNil(token);
+                    XCTAssertEqualObjects(token.token, expectedToken.token);
+                    XCTAssertNil(error);
+                  }];
 
   // 3. Wait for expectations and validate mocks.
   [self waitForExpectations:expectations timeout:0.5];
@@ -379,13 +201,14 @@ static NSString *const kAppGroupID = @"app_group_id";
                 expectedToken];
 
   // 2. Request token and verify result.
-  [self.appCheck getTokenForcingRefresh:YES
-                             completion:^(id<GACAppCheckTokenResultInterop> tokenResult) {
-                               [expectations.lastObject fulfill];
-                               XCTAssertNotNil(tokenResult);
-                               XCTAssertEqualObjects(tokenResult.token, expectedToken.token);
-                               XCTAssertNil(tokenResult.error);
-                             }];
+  [self.appCheck
+      getTokenForcingRefresh:YES
+                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                    [expectations.lastObject fulfill];
+                    XCTAssertNotNil(token);
+                    XCTAssertEqualObjects(token.token, expectedToken.token);
+                    XCTAssertNil(error);
+                  }];
 
   // 3. Wait for expectations and validate mocks.
   [self waitForExpectations:expectations timeout:0.5];
@@ -400,13 +223,14 @@ static NSString *const kAppGroupID = @"app_group_id";
       [self configuredExpectations_GetTokenWhenCachedTokenExpired_withExpectedToken:expectedToken];
 
   // 2. Request token and verify result.
-  [self.appCheck getTokenForcingRefresh:NO
-                             completion:^(id<GACAppCheckTokenResultInterop> tokenResult) {
-                               [expectations.lastObject fulfill];
-                               XCTAssertNotNil(tokenResult);
-                               XCTAssertEqualObjects(tokenResult.token, expectedToken.token);
-                               XCTAssertNil(tokenResult.error);
-                             }];
+  [self.appCheck
+      getTokenForcingRefresh:NO
+                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                    [expectations.lastObject fulfill];
+                    XCTAssertNotNil(token);
+                    XCTAssertEqualObjects(token.token, expectedToken.token);
+                    XCTAssertNil(error);
+                  }];
 
   // 3. Wait for expectations and validate mocks.
   [self waitForExpectations:expectations timeout:0.5];
@@ -424,13 +248,12 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 2. Request token and verify result.
   [self.appCheck
       getTokenForcingRefresh:NO
-                  completion:^(id<GACAppCheckTokenResultInterop> result) {
+                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
                     [expectations.lastObject fulfill];
-                    XCTAssertNotNil(result);
-                    XCTAssertEqualObjects(result.token, kDummyToken);
-                    XCTAssertEqualObjects(result.error, providerError);
+                    XCTAssertNil(token);
+                    XCTAssertEqualObjects(error, providerError);
                     // Interop API does not wrap errors in public domain.
-                    XCTAssertNotEqualObjects(result.error.domain, GACAppCheckErrorDomain);
+                    XCTAssertNotEqualObjects(error.domain, GACAppCheckErrorDomain);
                   }];
 
   // 3. Wait for expectations and validate mocks.
@@ -529,13 +352,13 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
 
-  [self.appCheck
-      limitedUseTokenWithCompletion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-        [getTokenExpectation fulfill];
-        XCTAssertNotNil(token);
-        XCTAssertEqualObjects(token.token, expectedToken.token);
-        XCTAssertNil(error);
-      }];
+  [self.appCheck getLimitedUseTokenWithCompletion:^(id<GACAppCheckTokenInterop> _Nullable token,
+                                                    NSError *_Nullable error) {
+    [getTokenExpectation fulfill];
+    XCTAssertNotNil(token);
+    XCTAssertEqualObjects(token.token, expectedToken.token);
+    XCTAssertNil(error);
+  }];
   [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   [self verifyAllMocks];
 }
@@ -558,14 +381,14 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
 
-  [self.appCheck
-      limitedUseTokenWithCompletion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-        [getTokenExpectation fulfill];
-        XCTAssertNotNil(error);
-        XCTAssertNil(token.token);
-        XCTAssertEqualObjects(error, providerError);
-        XCTAssertEqualObjects(error.domain, GACAppCheckErrorDomain);
-      }];
+  [self.appCheck getLimitedUseTokenWithCompletion:^(id<GACAppCheckTokenInterop> _Nullable token,
+                                                    NSError *_Nullable error) {
+    [getTokenExpectation fulfill];
+    XCTAssertNotNil(error);
+    XCTAssertNil(token.token);
+    XCTAssertEqualObjects(error, providerError);
+    XCTAssertEqualObjects(error.domain, GACAppCheckErrorDomain);
+  }];
 
   [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
   [self verifyAllMocks];
@@ -582,104 +405,6 @@ static NSString *const kAppGroupID = @"app_group_id";
 }
 
 #pragma mark - Merging multiple get token requests
-
-- (void)testGetToken_WhenCalledSeveralTimesSuccess_ThenThereIsOnlyOneOperation {
-  // 1. Expect a token to be requested and stored.
-  NSArray * /*[expectedToken, storeTokenPromise]*/ expectedTokenAndPromise =
-      [self expectTokenRequestFromAppCheckProvider];
-  GACAppCheckToken *expectedToken = expectedTokenAndPromise.firstObject;
-  FBLPromise *storeTokenPromise = expectedTokenAndPromise.lastObject;
-  OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
-
-  // 2. Expect token update notification to be sent.
-  XCTestExpectation *notificationExpectation =
-      [self tokenUpdateNotificationWithExpectedToken:expectedToken.token];
-
-  // 3. Request token several times.
-  NSInteger getTokenCallsCount = 10;
-  NSMutableArray *getTokenCompletionExpectations =
-      [NSMutableArray arrayWithCapacity:getTokenCallsCount];
-
-  for (NSInteger i = 0; i < getTokenCallsCount; i++) {
-    // 3.1. Expect a completion to be called for each method call.
-    XCTestExpectation *getTokenExpectation =
-        [self expectationWithDescription:[NSString stringWithFormat:@"getToken%@", @(i)]];
-    [getTokenCompletionExpectations addObject:getTokenExpectation];
-
-    // 3.2. Request token and verify result.
-    [self.appCheck
-        tokenForcingRefresh:NO
-                 completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                   [getTokenExpectation fulfill];
-                   XCTAssertNotNil(token);
-                   XCTAssertEqualObjects(token.token, expectedToken.token);
-                   XCTAssertNil(error);
-                 }];
-  }
-
-  // 3.3. Fulfill the pending promise to finish the get token operation.
-  [storeTokenPromise fulfill:expectedToken];
-
-  // 4. Wait for expectations and validate mocks.
-  NSArray *expectations =
-      [getTokenCompletionExpectations arrayByAddingObject:notificationExpectation];
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
-
-  // 5. Check a get token call after.
-  [self assertGetToken_WhenCachedTokenIsValid_Success];
-}
-
-- (void)testGetToken_WhenCalledSeveralTimesError_ThenThereIsOnlyOneOperation {
-  // 1. Expect a token to be requested and stored.
-  NSArray * /*[expectedToken, storeTokenPromise]*/ expectedTokenAndPromise =
-      [self expectTokenRequestFromAppCheckProvider];
-  GACAppCheckToken *expectedToken = expectedTokenAndPromise.firstObject;
-  FBLPromise *storeTokenPromise = expectedTokenAndPromise.lastObject;
-
-  // 1.1. Create an expected error to be rejected with later.
-  NSError *storageError = [NSError errorWithDomain:self.name code:0 userInfo:nil];
-
-  // 2. Don't expect token update notification to be sent.
-  XCTestExpectation *notificationExpectation =
-      [self tokenUpdateNotificationWithExpectedToken:expectedToken.token isInverted:YES];
-
-  // 3. Request token several times.
-  NSInteger getTokenCallsCount = 10;
-  NSMutableArray *getTokenCompletionExpectations =
-      [NSMutableArray arrayWithCapacity:getTokenCallsCount];
-
-  for (NSInteger i = 0; i < getTokenCallsCount; i++) {
-    // 3.1. Expect a completion to be called for each method call.
-    XCTestExpectation *getTokenExpectation =
-        [self expectationWithDescription:[NSString stringWithFormat:@"getToken%@", @(i)]];
-    [getTokenCompletionExpectations addObject:getTokenExpectation];
-
-    // 3.2. Request token and verify result.
-    [self.appCheck
-        tokenForcingRefresh:NO
-                 completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                   [getTokenExpectation fulfill];
-                   XCTAssertNil(token);
-                   XCTAssertNotNil(error);
-                   XCTAssertNotEqualObjects(error, storageError);
-                   XCTAssertEqualObjects(error.domain, GACAppCheckErrorDomain);
-                   XCTAssertEqualObjects(error.userInfo[NSUnderlyingErrorKey], storageError);
-                 }];
-  }
-
-  // 3.3. Reject the pending promise to finish the get token operation.
-  [storeTokenPromise reject:storageError];
-
-  // 4. Wait for expectations and validate mocks.
-  NSArray *expectations =
-      [getTokenCompletionExpectations arrayByAddingObject:notificationExpectation];
-  [self waitForExpectations:expectations timeout:0.5];
-  [self verifyAllMocks];
-
-  // 5. Check a get token call after.
-  [self assertGetToken_WhenCachedTokenIsValid_Success];
-}
 
 - (void)testInteropGetToken_WhenCalledSeveralTimesSuccess_ThenThereIsOnlyOneOperation {
   // 1. Expect a token to be requested and stored.
@@ -705,13 +430,14 @@ static NSString *const kAppGroupID = @"app_group_id";
     [getTokenCompletionExpectations addObject:getTokenExpectation];
 
     // 3.2. Request token and verify result.
-    [self.appCheck getTokenForcingRefresh:NO
-                               completion:^(id<GACAppCheckTokenResultInterop> tokenResult) {
-                                 [getTokenExpectation fulfill];
-                                 XCTAssertNotNil(tokenResult);
-                                 XCTAssertEqualObjects(tokenResult.token, expectedToken.token);
-                                 XCTAssertNil(tokenResult.error);
-                               }];
+    [self.appCheck
+        getTokenForcingRefresh:NO
+                    completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                      [getTokenExpectation fulfill];
+                      XCTAssertNotNil(token);
+                      XCTAssertEqualObjects(token.token, expectedToken.token);
+                      XCTAssertNil(error);
+                    }];
   }
 
   // 3.3. Fulfill the pending promise to finish the get token operation.
@@ -753,13 +479,13 @@ static NSString *const kAppGroupID = @"app_group_id";
     [getTokenCompletionExpectations addObject:getTokenExpectation];
 
     // 3.2. Request token and verify result.
-    [self.appCheck getTokenForcingRefresh:NO
-                               completion:^(id<GACAppCheckTokenResultInterop> tokenResult) {
-                                 [getTokenExpectation fulfill];
-                                 XCTAssertNotNil(tokenResult);
-                                 XCTAssertEqualObjects(tokenResult.error, storageError);
-                                 XCTAssertEqualObjects(tokenResult.token, kDummyToken);
-                               }];
+    [self.appCheck
+        getTokenForcingRefresh:NO
+                    completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                      [getTokenExpectation fulfill];
+                      XCTAssertNil(token);
+                      XCTAssertEqualObjects(error, storageError);
+                    }];
   }
 
   // 3.3. Reject the pending promise to finish the get token operation.
@@ -831,14 +557,14 @@ static NSString *const kAppGroupID = @"app_group_id";
       [self configuredExpectations_GetTokenWhenCacheTokenIsValid_withExpectedToken:cachedToken];
 
   // 2. Request token and verify result.
-  [self.appCheck
-      tokenForcingRefresh:NO
-               completion:^(GACAppCheckToken *_Nullable token, NSError *_Nullable error) {
-                 [expectations.lastObject fulfill];
-                 XCTAssertNotNil(token);
-                 XCTAssertEqualObjects(token.token, cachedToken.token);
-                 XCTAssertNil(error);
-               }];
+  [self.appCheck getTokenForcingRefresh:NO
+                             completion:^(id<GACAppCheckTokenInterop> _Nullable token,
+                                          NSError *_Nullable error) {
+                               [expectations.lastObject fulfill];
+                               XCTAssertNotNil(token);
+                               XCTAssertEqualObjects(token.token, cachedToken.token);
+                               XCTAssertNil(error);
+                             }];
 
   // 3. Wait for expectations and validate mocks.
   [self waitForExpectations:expectations timeout:0.5];
@@ -853,13 +579,14 @@ static NSString *const kAppGroupID = @"app_group_id";
       [self configuredExpectations_GetTokenWhenCacheTokenIsValid_withExpectedToken:cachedToken];
 
   // 2. Request token and verify result.
-  [self.appCheck getTokenForcingRefresh:NO
-                             completion:^(id<GACAppCheckTokenResultInterop> tokenResult) {
-                               [expectations.lastObject fulfill];
-                               XCTAssertNotNil(tokenResult);
-                               XCTAssertEqualObjects(tokenResult.token, cachedToken.token);
-                               XCTAssertNil(tokenResult.error);
-                             }];
+  [self.appCheck
+      getTokenForcingRefresh:NO
+                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                    [expectations.lastObject fulfill];
+                    XCTAssertNotNil(token);
+                    XCTAssertEqualObjects(token.token, cachedToken.token);
+                    XCTAssertNil(error);
+                  }];
 
   // 3. Wait for expectations and validate mocks.
   [self waitForExpectations:expectations timeout:0.5];
@@ -1010,5 +737,3 @@ static NSString *const kAppGroupID = @"app_group_id";
 }
 
 @end
-
-#endif  // GAC_DEVICE_CHECK_SUPPORTED_TARGETS
