@@ -1,7 +1,7 @@
 # Firebase 10.12.0
 - For developers building for visionOS, using products that use the Keychain
   (e.g. FirebaseAuth) may fail to access the keychain on the visionOS
-  simulator. To workaround this, add the Keychain Sharing capability to the
+  simulator. To work around this, add the Keychain Sharing capability to the
   visionOS target and explicitly add a keychain group (e.g. the bundle ID).
 - Firebase's Swift Package Manager distribution does not support
   Xcode 15 Beta 1. Please use Xcode 15 Beta 2 or later.
