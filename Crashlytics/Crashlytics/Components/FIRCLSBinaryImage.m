@@ -241,7 +241,7 @@ static FIRCLSMachOSegmentCommand FIRCLSBinaryImageMachOGetSegmentCommand(
 
   return segmentCommand;
 }
-
+#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
 static bool FIRCLSBinaryImageMachOSliceInitSectionByName(FIRCLSMachOSliceRef slice,
                                                          const char* segName,
                                                          const char* sectionName,
@@ -279,6 +279,7 @@ static bool FIRCLSBinaryImageMachOSliceInitSectionByName(FIRCLSMachOSliceRef sli
 
   return true;
 }
+#endif
 
 static void FIRCLSPopulateImageDetailWithLoadCommand(uint32_t type,
                                                      uint32_t size,
@@ -343,23 +344,41 @@ static bool FIRCLSBinaryImageFillInImageDetails(FIRCLSBinaryImageDetails* detail
   FIRCLSMachOSection section;
 
 #if CLS_COMPACT_UNWINDING_SUPPORTED
+#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
   if (FIRCLSBinaryImageMachOSliceInitSectionByName(&details->slice, SEG_TEXT, "__unwind_info",
                                                    &section)) {
     details->node.unwindInfo = (void*)(section.addr + details->vmaddr_slide);
   }
+#else
+  unsigned long unwindInfoSize;
+  details->node.unwindInfo = (void*)getsectiondata(details->slice.startAddress, "__TEXT",
+                                                   "__unwind_info", &unwindInfoSize);
+#endif
 #endif
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
+#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
   if (FIRCLSBinaryImageMachOSliceInitSectionByName(&details->slice, SEG_TEXT, "__eh_frame",
                                                    &section)) {
     details->node.ehFrame = (void*)(section.addr + details->vmaddr_slide);
   }
+#else
+  unsigned long ehFrameSize;
+  details->node.ehFrame =
+      (void*)getsectiondata(details->slice.startAddress, "__TEXT", "__eh_frame", &ehFrameSize);
+#endif
 #endif
 
+#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
   if (FIRCLSBinaryImageMachOSliceInitSectionByName(&details->slice, SEG_DATA, "__crash_info",
                                                    &section)) {
     details->node.crashInfo = (void*)(section.addr + details->vmaddr_slide);
   }
+#else
+  unsigned long crashInfoSize;
+  details->node.crashInfo =
+      (void*)getsectiondata(details->slice.startAddress, "__TEXT", "__crash_info", &crashInfoSize);
+#endif
 
   return true;
 }
