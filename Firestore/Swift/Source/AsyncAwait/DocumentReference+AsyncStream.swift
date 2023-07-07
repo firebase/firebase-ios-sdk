@@ -23,7 +23,7 @@ public extension DocumentReference {
                            includeMetadataChanges: Bool = false)
     -> AsyncThrowingStream<T, Error> where T: Decodable {
     .init { continuation in
-      let listener = addSnapshotListener(includeMetadataChanges: false) { documentSnapshot, error in
+      let listener = addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { documentSnapshot, error in
         do {
           if let result = try documentSnapshot?.data(as: T.self) {
             continuation.yield(result)
