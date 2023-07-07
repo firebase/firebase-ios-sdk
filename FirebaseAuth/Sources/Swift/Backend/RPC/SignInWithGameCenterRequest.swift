@@ -23,11 +23,6 @@ private let kSignInWithGameCenterEndPoint = "signInWithGameCenter"
 @objc(FIRSignInWithGameCenterRequest)
 public class SignInWithGameCenterRequest: IdentityToolkitRequest,
   AuthRPCRequest {
-  /** @property playerID
-      @brief The playerID to verify.
-   */
-  @objc public var playerID: String
-
   /** @property teamPlayerID
       @brief The team player ID of the Game Center local player.
    */
@@ -84,12 +79,11 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest,
       @param timestamp The date and time that the signature was created.
       @param displayName The display name of the Game Center player.
    */
-  @objc public init(playerID: String, teamPlayerID: String?, gamePlayerID: String?,
+  @objc public init(teamPlayerID: String?, gamePlayerID: String?,
                     publicKeyURL: URL,
                     signature: Data, salt: Data,
                     timestamp: UInt64, displayName: String?,
                     requestConfiguration: AuthRequestConfiguration) {
-    self.playerID = playerID
     self.teamPlayerID = teamPlayerID
     self.gamePlayerID = gamePlayerID
     self.publicKeyURL = publicKeyURL
@@ -105,7 +99,7 @@ public class SignInWithGameCenterRequest: IdentityToolkitRequest,
 
   public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [
-      "playerId": playerID,
+      "playerId": "", // teamPlayerID or gamePlayerID should be used instead.
       "publicKeyUrl": publicKeyURL.absoluteString,
       "signature": signature.base64URLEncodedString(),
       "salt": salt.base64URLEncodedString(),

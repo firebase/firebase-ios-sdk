@@ -2300,8 +2300,7 @@ extension Auth: AuthInterop {
           "Internal Auth Error: Game Center credential missing publicKeyURL, signature, or salt"
         )
       }
-      let request = SignInWithGameCenterRequest(playerID: credential.playerID,
-                                                teamPlayerID: credential.teamPlayerID,
+      let request = SignInWithGameCenterRequest(teamPlayerID: credential.teamPlayerID,
                                                 gamePlayerID: credential.gamePlayerID,
                                                 publicKeyURL: publicKeyURL,
                                                 signature: signature,

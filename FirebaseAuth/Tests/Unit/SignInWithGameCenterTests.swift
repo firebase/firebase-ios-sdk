@@ -29,8 +29,6 @@ class SignInWithGameCenterTests: RPCBaseTests {
   private let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signInWithGameCenter?key=APIKey"
   let kIDToken = "IDTOKEN"
-  let kPlayerIDKey = "playerId"
-  let kPlayerID = "PLAYERID"
   let kTeamPlayerIDKey = "teamPlayerId"
   let kTeamPlayerID = "TEAMPLAYERID"
   let kGamePlayerIDKey = "gamePlayerId"
@@ -61,8 +59,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
 
     let signature = try XCTUnwrap(Data(base64Encoded: kSignature))
     let salt = try XCTUnwrap(Data(base64URLEncoded: kSalt))
-    let request = SignInWithGameCenterRequest(playerID: kPlayerID,
-                                              teamPlayerID: kTeamPlayerID,
+    let request = SignInWithGameCenterRequest(teamPlayerID: kTeamPlayerID,
                                               gamePlayerID: kGamePlayerID,
                                               publicKeyURL: try XCTUnwrap(
                                                 URL(string: kPublicKeyURL)
@@ -76,11 +73,10 @@ class SignInWithGameCenterTests: RPCBaseTests {
     let issuer = try checkRequest(
       request: request,
       expected: kExpectedAPIURL,
-      key: kPlayerIDKey,
-      value: kPlayerID
+      key: kTeamPlayerIDKey,
+      value: kTeamPlayerID
     )
     let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
-    XCTAssertEqual(requestDictionary[kTeamPlayerIDKey], kTeamPlayerID)
     XCTAssertEqual(requestDictionary[kGamePlayerIDKey], kGamePlayerID)
     XCTAssertEqual(requestDictionary[kPublicKeyURLKey], kPublicKeyURL)
     XCTAssertEqual(requestDictionary[kSignatureKey], kSignature)
@@ -99,7 +95,6 @@ class SignInWithGameCenterTests: RPCBaseTests {
       "idToken": kIDToken,
       "refreshToken": kRefreshToken,
       "localId": kLocalID,
-      "playerId": kPlayerID,
       "teamPlayerId": kTeamPlayerID,
       "gamePlayerId": kGamePlayerID,
       "expiresIn": kApproximateExpirationDate,
@@ -112,7 +107,6 @@ class SignInWithGameCenterTests: RPCBaseTests {
     XCTAssertEqual(rpcResponse?.idToken, kIDToken)
     XCTAssertEqual(rpcResponse?.refreshToken, kRefreshToken)
     XCTAssertEqual(rpcResponse?.localID, kLocalID)
-    XCTAssertEqual(rpcResponse?.playerID, kPlayerID)
     XCTAssertEqual(rpcResponse?.teamPlayerID, kTeamPlayerID)
     XCTAssertEqual(rpcResponse?.gamePlayerID, kGamePlayerID)
     XCTAssertEqual(rpcResponse?.displayName, kDisplayName)
@@ -133,7 +127,6 @@ class SignInWithGameCenterTests: RPCBaseTests {
       let unarchivedCredential = try XCTUnwrap(NSKeyedUnarchiver.unarchivedObject(
         ofClasses: [NSURL.self, GameCenterAuthCredential.self], from: data
       ) as? GameCenterAuthCredential)
-      XCTAssertEqual(unarchivedCredential.playerID, kPlayerID)
       XCTAssertEqual(unarchivedCredential.teamPlayerID, kTeamPlayerID)
       XCTAssertEqual(unarchivedCredential.gamePlayerID, kGamePlayerID)
       XCTAssertEqual(unarchivedCredential.publicKeyURL, URL(string: kPublicKeyURL))
@@ -147,8 +140,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
     private func makeGameCenterCredential() throws -> GameCenterAuthCredential {
       let signature = try XCTUnwrap(kSignature.data(using: .utf8))
       let salt = try XCTUnwrap(kSalt.data(using: .utf8))
-      return GameCenterAuthCredential(withPlayerID: kPlayerID,
-                                      teamPlayerID: kTeamPlayerID,
+      return GameCenterAuthCredential(teamPlayerID: kTeamPlayerID,
                                       gamePlayerID: kGamePlayerID,
                                       publicKeyURL: try XCTUnwrap(
                                         URL(string: kPublicKeyURL)

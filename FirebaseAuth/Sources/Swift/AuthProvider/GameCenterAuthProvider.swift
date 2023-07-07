@@ -49,8 +49,7 @@
           if let error = error {
             completion(nil, error)
           } else {
-            let credential = GameCenterAuthCredential(withPlayerID: localPlayer.playerID,
-                                                      teamPlayerID: localPlayer.teamPlayerID,
+            let credential = GameCenterAuthCredential(teamPlayerID: localPlayer.teamPlayerID,
                                                       gamePlayerID: localPlayer.gamePlayerID,
                                                       publicKeyURL: publicKeyURL,
                                                       signature: signature,
@@ -72,8 +71,7 @@
                https://developer.apple.com/documentation/gamekit/gkplayer
                **/
               let displayName = localPlayer.alias
-              let credential = GameCenterAuthCredential(withPlayerID: localPlayer.playerID,
-                                                        teamPlayerID: nil,
+              let credential = GameCenterAuthCredential(teamPlayerID: nil,
                                                         gamePlayerID: nil,
                                                         publicKeyURL: publicKeyURL,
                                                         signature: signature,
@@ -112,7 +110,6 @@
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRGameCenterAuthCredential)
   public class GameCenterAuthCredential: AuthCredential, NSSecureCoding {
-    @objc public let playerID: String
     @objc public let teamPlayerID: String?
     @objc public let gamePlayerID: String?
     @objc public let publicKeyURL: URL?
@@ -132,10 +129,9 @@
         @param timestamp The date and time that the signature was created.
         @param displayName The display name of the Game Center player.
      */
-    init(withPlayerID playerID: String, teamPlayerID: String?, gamePlayerID: String?,
+    init(teamPlayerID: String?, gamePlayerID: String?,
          publicKeyURL: URL?, signature: Data?, salt: Data?,
          timestamp: UInt64, displayName: String) {
-      self.playerID = playerID
       self.teamPlayerID = teamPlayerID
       self.gamePlayerID = gamePlayerID
       self.publicKeyURL = publicKeyURL
@@ -149,7 +145,6 @@
     public static var supportsSecureCoding = true
 
     public func encode(with coder: NSCoder) {
-      coder.encode(playerID, forKey: "playerID")
       coder.encode(teamPlayerID, forKey: "teamPlayerID")
       coder.encode(gamePlayerID, forKey: "gamePlayerID")
       coder.encode(publicKeyURL, forKey: "publicKeyURL")
@@ -160,14 +155,12 @@
     }
 
     public required init?(coder: NSCoder) {
-      guard let playerID = coder.decodeObject(forKey: "playerID") as? String,
-            let teamPlayerID = coder.decodeObject(forKey: "teamPlayerID") as? String,
+      guard let teamPlayerID = coder.decodeObject(forKey: "teamPlayerID") as? String,
             let gamePlayerID = coder.decodeObject(forKey: "gamePlayerID") as? String,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? UInt64,
             let displayName = coder.decodeObject(forKey: "displayName") as? String else {
         return nil
       }
-      self.playerID = playerID
       self.teamPlayerID = teamPlayerID
       self.gamePlayerID = gamePlayerID
       self.timestamp = timestamp

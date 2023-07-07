@@ -1778,8 +1778,7 @@ extension User: NSSecureCoding {}
               let salt = gameCenterCredential.salt else {
           fatalError("Internal Auth Error: Nil value field for SignInWithGameCenterRequest")
         }
-        let request = SignInWithGameCenterRequest(playerID: gameCenterCredential.playerID,
-                                                  teamPlayerID: gameCenterCredential.teamPlayerID,
+        let request = SignInWithGameCenterRequest(teamPlayerID: gameCenterCredential.teamPlayerID,
                                                   gamePlayerID: gameCenterCredential.gamePlayerID,
                                                   publicKeyURL: publicKeyURL,
                                                   signature: signature,
