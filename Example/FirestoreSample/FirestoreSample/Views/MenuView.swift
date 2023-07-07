@@ -40,6 +40,9 @@ struct MenuView: View {
         NavigationLink(destination: FavouriteFruitsAsyncSequenceView()) {
           Label("AsyncSequence (Collection)", systemImage: "shippingbox")
         }
+        NavigationLink(destination: FavouriteFruitsAsyncSequenceViewModelView()) {
+          Label("AsyncSequence (Collection) / view model", systemImage: "shippingbox")
+        }
         NavigationLink(destination: FavouriteFruitView()) {
           Label("AsyncSequence (Document)", systemImage: "shippingbox")
         }
