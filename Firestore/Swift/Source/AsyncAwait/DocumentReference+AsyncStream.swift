@@ -23,15 +23,16 @@ public extension DocumentReference {
                            includeMetadataChanges: Bool = false)
     -> AsyncThrowingStream<T, Error> where T: Decodable {
     .init { continuation in
-      let listener = addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { documentSnapshot, error in
-        do {
-          if let result = try documentSnapshot?.data(as: T.self) {
-            continuation.yield(result)
+      let listener =
+        addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { documentSnapshot, error in
+          do {
+            if let result = try documentSnapshot?.data(as: T.self) {
+              continuation.yield(result)
+            }
+          } catch {
+            continuation.finish(throwing: error)
           }
-        } catch {
-          continuation.finish(throwing: error)
         }
-      }
 
       continuation.onTermination = { @Sendable _ in
         listener.remove()

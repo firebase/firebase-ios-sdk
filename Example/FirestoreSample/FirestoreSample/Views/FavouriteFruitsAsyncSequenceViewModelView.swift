@@ -35,12 +35,10 @@ class ViewModel: ObservableObject {
       for try await fruits in collection.snapshotSequence(Fruit.self) {
         self.fruits = fruits
       }
-    }
-    catch {
+    } catch {
       print(error)
     }
   }
-
 }
 
 struct FavouriteFruitsAsyncSequenceViewModelView: View {
