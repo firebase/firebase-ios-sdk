@@ -62,8 +62,8 @@ class TwitterAuthCredential: AuthCredential, NSSecureCoding {
   }
 
   required init?(coder: NSCoder) {
-    guard let token = coder.decodeObject(forKey: "token") as? String,
-          let secret = coder.decodeObject(forKey: "secret") as? String else {
+    guard let token = coder.decodeObject(of: NSString.self, forKey: "token") as? String,
+          let secret = coder.decodeObject(of: NSString.self, forKey: "secret") as? String else {
       return nil
     }
     self.token = token

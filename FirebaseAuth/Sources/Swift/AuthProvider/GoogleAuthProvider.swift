@@ -63,8 +63,9 @@ import Foundation
   }
 
   required init?(coder: NSCoder) {
-    guard let idToken = coder.decodeObject(forKey: "idToken") as? String,
-          let accessToken = coder.decodeObject(forKey: "accessToken") as? String else {
+    guard let idToken = coder.decodeObject(of: NSString.self, forKey: "idToken") as? String,
+          let accessToken = coder.decodeObject(of: NSString.self, forKey: "accessToken") as? String
+    else {
       return nil
     }
     self.idToken = idToken
