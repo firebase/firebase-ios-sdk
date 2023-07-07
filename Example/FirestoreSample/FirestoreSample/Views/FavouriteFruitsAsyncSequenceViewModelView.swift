@@ -29,6 +29,7 @@ class ViewModel: ObservableObject {
 
   private var firestore = Firestore.firestore()
 
+  @MainActor
   func subscribe() async {
     let collection = Firestore.firestore().collection("fruits")
     do {
