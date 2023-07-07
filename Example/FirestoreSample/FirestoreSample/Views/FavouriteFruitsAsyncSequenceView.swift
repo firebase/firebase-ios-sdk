@@ -36,7 +36,7 @@ struct FavouriteFruitsAsyncSequenceView: View {
     .task {
       do {
         let collection = Firestore.firestore().collection("fruits")
-        for try await fruits in collection.addSnapshotListener(Fruit.self) {
+        for try await fruits in collection.snapshotSequence(Fruit.self) {
           self.fruits = fruits
         }
       } catch {

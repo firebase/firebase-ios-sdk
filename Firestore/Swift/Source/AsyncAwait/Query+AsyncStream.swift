@@ -19,8 +19,8 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 public extension Query {
-  func addSnapshotListener<T>(_ type: T.Type,
-                              includeMetadataChanges: Bool = false) -> AsyncThrowingStream<
+  func snapshotSequence<T>(_ type: T.Type,
+                           includeMetadataChanges: Bool = false) -> AsyncThrowingStream<
     [T],
     Error
   > where T: Decodable {

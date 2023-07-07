@@ -41,7 +41,7 @@ struct FavouriteFruitView: View {
     .task {
       do {
         let doc = Firestore.firestore().collection("fruits").document("1uxSAlCvYWmfrXN7rn2s")
-        for try await fruit in doc.addSnapshotListener(Fruit.self) {
+        for try await fruit in doc.snapshotSequence(Fruit.self) {
           self.fruit = fruit
         }
       } catch {
