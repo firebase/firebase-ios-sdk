@@ -18,26 +18,20 @@ import FirebaseFirestore
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public extension Query {
+public extension DocumentReference {
   func addSnapshotListener<T>(_ type: T.Type,
-                              includeMetadataChanges: Bool = false) -> AsyncThrowingStream<
-    [T],
-    Error
-  > where T: Decodable {
+                              includeMetadataChanges: Bool = false)
+    -> AsyncThrowingStream<T, Error> where T: Decodable {
     .init { continuation in
-      let listener =
-        addSnapshotListener(includeMetadataChanges: includeMetadataChanges) { querySnapshot, error in
-          do {
-            guard let documents = querySnapshot?.documents else {
-              continuation.yield([])
-              return
-            }
-            let results = try documents.map { try $0.data(as: T.self) }
-            continuation.yield(results)
-          } catch {
-            continuation.finish(throwing: error)
+      let listener = addSnapshotListener(includeMetadataChanges: false) { documentSnapshot, error in
+        do {
+          if let result = try documentSnapshot?.data(as: T.self) {
+            continuation.yield(result)
           }
+        } catch {
+          continuation.finish(throwing: error)
         }
+      }
 
       continuation.onTermination = { @Sendable _ in
         listener.remove()
