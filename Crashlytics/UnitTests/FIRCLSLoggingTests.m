@@ -365,7 +365,7 @@
                                        code:-1
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
 
-  FIRCLSUserLoggingRecordError(error, @{@"additional" : @"key"});
+  FIRCLSUserLoggingRecordError(error, @{@"additional" : @"key"}, 0);
 
   NSArray* errors = [self errorAContents];
 
@@ -405,7 +405,7 @@
                                    userInfo:@{@"key1" : @"value", @"key2" : @"value2"}];
 
   for (size_t i = 0; i < _firclsContext.readonly->logging.errorStorage.maxEntries; ++i) {
-    FIRCLSUserLoggingRecordError(error, nil);
+    FIRCLSUserLoggingRecordError(error, nil, 0);
   }
 
   NSArray* errors = [self errorAContents];
@@ -414,7 +414,7 @@
 
   // at this point, if we log one more, we should expect a roll over to the next file
 
-  FIRCLSUserLoggingRecordError(error, nil);
+  FIRCLSUserLoggingRecordError(error, nil, 0);
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 1, @"");
@@ -422,7 +422,7 @@
 
   // and our next entry should continue into the B file
 
-  FIRCLSUserLoggingRecordError(error, nil);
+  FIRCLSUserLoggingRecordError(error, nil, 0);
 
   XCTAssertEqual([[self errorAContents] count], 8, @"");
   XCTAssertEqual([[self errorBContents] count], 2, @"");
@@ -432,7 +432,7 @@
 - (void)testLoggedErrorWithNullsInAdditionalInfo {
   NSError* error = [NSError errorWithDomain:@"Domain" code:-1 userInfo:nil];
 
-  FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]});
+  FIRCLSUserLoggingRecordError(error, @{@"null-key" : [NSNull null]}, 0);
 
   NSArray* errors = [self errorAContents];
 
