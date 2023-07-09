@@ -455,4 +455,25 @@
   XCTAssertEqualObjects(additionalEntries[0], entryOne, @"");
 }
 
+- (void)testSkippingFramesInStackTrace {
+  NSError* error = [NSError errorWithDomain:@"Domain" code:-1 userInfo:nil];
+  FIRCLSUserLoggingRecordError(error, @{}, 0);
+
+  NSUInteger numberOfStacksToSkip = 2;
+  FIRCLSUserLoggingRecordError(error, @{}, numberOfStacksToSkip);
+
+  NSArray* errors = [self errorAContents];
+
+  NSArray* firstTrace = [errors[0] valueForKeyPath:@"error.stacktrace"];
+  NSArray* secondTrace = [errors[1] valueForKeyPath:@"error.stacktrace"];
+
+  XCTAssertEqual([secondTrace count], [firstTrace count] - 2,
+                 @"second error should have have 2 frames less");
+  XCTAssertEqual(secondTrace[0], firstTrace[2], @"should have same stack traces starting with 2");
+  XCTAssertEqual(secondTrace[1], firstTrace[3], @"should have same stack traces starting with 2");
+  XCTAssertEqualObjects(secondTrace,
+                        [firstTrace subarrayWithRange:NSMakeRange(2, [secondTrace count])],
+                        @"should have same stack traces with first 2 removed");
+}
+
 @end
