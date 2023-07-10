@@ -20,6 +20,7 @@
   /** @class AuthWebView
       @brief A class responsible for creating a WKWebView for use within Firebase Auth.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRAuthWebView) public class AuthWebView: UIView {
     public lazy var webView: WKWebView = createWebView()
     public lazy var spinner: UIActivityIndicatorView = createSpinner()
@@ -73,11 +74,7 @@
     }
 
     private func createSpinner() -> UIActivityIndicatorView {
-      if #available(iOS 13.0, macCatalyst 13.0, *) {
-        return UIActivityIndicatorView(style: .medium)
-      } else {
-        return UIActivityIndicatorView(style: .gray)
-      }
+      return UIActivityIndicatorView(style: .medium)
     }
   }
 #endif
