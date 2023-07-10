@@ -346,58 +346,62 @@ struct FrameworkBuilder {
         "\(error)")
     }
 
-    // Find the location of the public headers, any platform will do.
-    guard let anyPlatform = targetPlatforms.first,
-          let archivePath = slicedFrameworks[anyPlatform] else {
+//    // Find the location of the public headers, any platform will do.
+//    // NOTE(ncooke3): The `any platform will do` is not true.
+    guard let anyPlatform = targetPlatforms.first//,
+//          let archivePath = slicedFrameworks[anyPlatform]
+    else {
       fatalError("Could not get a path to an archive to fetch headers in \(frameworkName).")
     }
 
-    // Get the framework Headers directory. On macOS, it's a symbolic link.
-    let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
+//      // Get the framework Headers directory. On macOS, it's a symbolic link.
+//    let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
 
-    // The macOS Headers directory can have a Headers file in it symbolically linked to nowhere.
-    // Delete it here to avoid putting it in the zip or crashing the Carthage hash generation.
-    // For example,in the 8.0.0 zip distribution see
-    // Firebase/FirebaseAnalytics/PromisesObjC.xcframework/macos-arm64_x86_64/PromisesObjc
-    //  .framework/Headers/Headers
-    do {
-      try fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
-    } catch {
-      // Ignore
-    }
+//    // The macOS Headers directory can have a Headers file in it symbolically linked to nowhere.
+//    // Delete it here to avoid putting it in the zip or crashing the Carthage hash generation.
+//    // For example,in the 8.0.0 zip distribution see
+//    // Firebase/FirebaseAnalytics/PromisesObjC.xcframework/macos-arm64_x86_64/PromisesObjc
+//    //  .framework/Headers/Headers
+//    do {
+//      try fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
+//    } catch {
+//      // Ignore
+//    }
 
     // Find CocoaPods generated umbrella header.
     var umbrellaHeader = ""
+    // TODO(ncooke3): Evaluate if `TensorFlowLiteObjC` is needed?
     if framework == "gRPC-Core" || framework == "TensorFlowLiteObjC" {
       // TODO: Proper handling of podspec-specified module.modulemap files with customized umbrella
       // headers. This is good enough for Firebase since it doesn't need these modules.
+      // TODO(ncooke3): Is this needed for gRPC-Core still– I expect not?
       umbrellaHeader = "\(framework)-umbrella.h"
     } else {
-      var umbrellaHeaderURL: URL
-      do {
-        let files = try fileManager.contentsOfDirectory(at: headersDir,
-                                                        includingPropertiesForKeys: nil)
-          .compactMap { $0.path }
-        let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
-        if umbrellas.count != 1 {
-          fatalError("Did not find exactly one umbrella header in \(headersDir).")
-        }
-        guard let firstUmbrella = umbrellas.first else {
-          fatalError("Failed to get umbrella header in \(headersDir).")
-        }
-        umbrellaHeaderURL = URL(fileURLWithPath: firstUmbrella)
-      } catch {
-        fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
-      }
-      umbrellaHeader = umbrellaHeaderURL.lastPathComponent
-    }
-    // Copy the Headers over.
-    let headersDestination = frameworkDir.appendingPathComponent("Headers")
-    do {
-      try fileManager.copyItem(at: headersDir, to: headersDestination)
-    } catch {
-      fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
-        "\(headersDestination): \(error)")
+//      var umbrellaHeaderURL: URL
+//      do {
+//        let files = try fileManager.contentsOfDirectory(at: headersDir,
+//                                                        includingPropertiesForKeys: nil)
+//          .compactMap { $0.path }
+//        let umbrellas = files.filter { $0.hasSuffix("umbrella.h") }
+//        if umbrellas.count != 1 {
+//          fatalError("Did not find exactly one umbrella header in \(headersDir).")
+//        }
+//        guard let firstUmbrella = umbrellas.first else {
+//          fatalError("Failed to get umbrella header in \(headersDir).")
+//        }
+//        umbrellaHeaderURL = URL(fileURLWithPath: firstUmbrella)
+//      } catch {
+//        fatalError("Error while enumerating files \(headersDir): \(error.localizedDescription)")
+//      }
+//      umbrellaHeader = umbrellaHeaderURL.lastPathComponent
+//    }
+//    // Copy the Headers over.
+//    let headersDestination = frameworkDir.appendingPathComponent("Headers")
+//    do {
+//      try fileManager.copyItem(at: headersDir, to: headersDestination)
+//    } catch {
+//      fatalError("Could not copy headers from \(headersDir) to Headers directory in " +
+//        "\(headersDestination): \(error)")
     }
     // Add an Info.plist. Required by Carthage and SPM binary xcframeworks.
     CarthageUtils.generatePlistContents(forName: frameworkName,
@@ -603,27 +607,54 @@ struct FrameworkBuilder {
     // `Both ios-arm64 and ios-armv7 represent two equivalent library definitions`
     var frameworksBuilt: [URL] = []
     for (platform, frameworkPath) in slicedFrameworks {
-      let platformDir = platformFrameworksDir.appendingPathComponent(platform.buildName)
+      // Create the following structure in the platform frameworks directory:
+      // - platform_frameworks
+      //   └── $(platform)
+      //       └── $(framework name).framework
+      let platformFrameworkDir = platformFrameworksDir
+        .appendingPathComponent(platform.buildName)
+        .appendingPathComponent(fromFolder.lastPathComponent)
       do {
-        try fileManager.createDirectory(at: platformDir, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: platformFrameworkDir, withIntermediateDirectories: true)
       } catch {
         fatalError("Could not create directory for architecture slices on \(platform) for " +
           "\(framework): \(error)")
       }
 
-      // Package a normal .framework given the `fromFolder` and the binary from `slicedFrameworks`.
-      let destination = platformDir.appendingPathComponent(fromFolder.lastPathComponent)
+      // Headers from slice
       do {
-        try fileManager.copyItem(at: fromFolder, to: destination)
+        try fileManager.copyItem(at: frameworkPath.appendingPathComponent("Headers").resolvingSymlinksInPath(), to: platformFrameworkDir.appendingPathComponent("Headers"))
+
       } catch {
         fatalError("Could not create framework directory needed to build \(framework): \(error)")
       }
+
+      // Info.plist from `fromFolder`
+      do {
+        let infoPlistSrc = fromFolder.appendingPathComponent("Info.plist").resolvingSymlinksInPath()
+        let infoPlistDst = platformFrameworkDir.appendingPathComponent("Info.plist")
+        try fileManager.copyItem(at: infoPlistSrc, to: infoPlistDst)
+      } catch {
+        fatalError("Could not create framework directory needed to build \(framework): \(error)")
+      }
+
+      // Note(ncooke3): Commenting this out, but we:
+      // - need to get info.plist in there
+      // - handle macCatalyst builds which may be different
+//      do {
+//        // NOTE(ncooke3): This line is problematic because the same directory
+//        // `$(PRODUCT).framework` is being copied into each platform slice's
+//        // directory.
+//        try fileManager.copyItem(at: fromFolder, to: destination)
+//      } catch {
+//        fatalError("Could not create framework directory needed to build \(framework): \(error)")
+//      }
 
       // Copy the binary to the right location.
       let binaryName = frameworkPath.lastPathComponent.replacingOccurrences(of: ".framework",
                                                                             with: "")
       let fatBinary = frameworkPath.appendingPathComponent(binaryName).resolvingSymlinksInPath()
-      let fatBinaryDestination = destination.appendingPathComponent(framework)
+      let fatBinaryDestination = platformFrameworkDir.appendingPathComponent(framework)
       do {
         try fileManager.copyItem(at: fatBinary, to: fatBinaryDestination)
       } catch {
@@ -633,9 +664,9 @@ struct FrameworkBuilder {
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
                         moduleMapContents: moduleMapContents,
-                        destination: destination)
+                        destination: platformFrameworkDir)
 
-      frameworksBuilt.append(destination)
+      frameworksBuilt.append(platformFrameworkDir)
     }
     return frameworksBuilt
   }

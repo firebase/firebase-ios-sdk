@@ -17,6 +17,8 @@
 import Foundation
 import Utils
 
+// How is the frameworkmaker xcode proj used?
+
 /// Convenience
 struct Zip {
   /// Compresses the contents of the directory into a Zip file that resides beside the directory
