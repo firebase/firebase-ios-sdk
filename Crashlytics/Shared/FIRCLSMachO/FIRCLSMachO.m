@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 
 #include <Foundation/Foundation.h>
 
@@ -266,7 +267,7 @@ struct FIRCLSMachOSlice FIRCLSMachOSliceGetCurrent(void) {
   void* executableSymbol;
   Dl_info dlinfo;
 
-#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
+#if !CLS_TARGET_OS_XR
   const NXArchInfo* archInfo;
   archInfo = NXGetLocalArchInfo();
 
@@ -341,7 +342,7 @@ const char* FIRCLSMachOSliceGetArchitectureName(FIRCLSMachOSliceRef slice) {
     return "armv7k";
   }
 
-#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
+#if !CLS_TARGET_OS_XR
   const NXArchInfo* archInfo;
 
   archInfo = NXGetArchInfoFromCpuType(slice->cputype, slice->cpusubtype);

@@ -17,8 +17,9 @@
 #include <mach-o/getsect.h>
 #include <mach-o/utils.h>
 
-#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 
+#import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSdSYM.h"
@@ -316,7 +317,7 @@
   XCTAssert(ptr != NULL);
 }
 
-#if !defined(TARGET_OS_XR) || !TARGET_OS_XR
+#if !CLS_TARGET_OS_XR
 - (void)testReadArm64Section {
   NSString* path = [[self resourcePath] stringByAppendingPathComponent:@"armv7-armv7s-arm64.dylib"];
   struct FIRCLSMachOFile file;
@@ -339,7 +340,7 @@
 }
 #endif
 
-#if defined(TARGET_OS_XR) && TARGET_OS_XR
+#if CLS_TARGET_OS_XR
 
 - (void)testVisionProGetSlice {
   struct FIRCLSMachOSlice slice = FIRCLSMachOSliceGetCurrent();

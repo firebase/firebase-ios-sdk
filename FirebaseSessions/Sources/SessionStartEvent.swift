@@ -257,6 +257,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     var subtype: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
 
     // swift(>=5.9) implies Xcode 15+
+    // Need to have this swift version check to use os(xrOS) macro, VisionOS support.
     #if swift(>=5.9)
       #if os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
         switch mobileSubtype {
