@@ -20,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol GACAppCheckTokenDelegate <NSObject>
 
+/// Called each time an App Check token is refreshed.
+///
+/// @param token The updated App Check token.
+/// @param instanceName A unique identifier for the App Check instance, may be a Firebase App Name
+/// or an SDK name.
 - (void)tokenDidUpdate:(GACAppCheckToken *)token instanceName:(NSString *)instanceName;
 
 @end
