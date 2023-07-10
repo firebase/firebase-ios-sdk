@@ -57,7 +57,7 @@ class GitHubAuthCredential: AuthCredential, NSSecureCoding {
   }
 
   required init?(coder: NSCoder) {
-    guard let token = coder.decodeObject(forKey: "token") as? String else {
+    guard let token = coder.decodeObject(of: NSString.self, forKey: "token") as? String else {
       return nil
     }
     self.token = token

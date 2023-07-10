@@ -52,8 +52,12 @@ import Foundation
   }
 
   public required init?(coder: NSCoder) {
-    if let verificationID = coder.decodeObject(forKey: "verificationID") as? String,
-       let verificationCode = coder.decodeObject(forKey: "verificationCode") as? String {
+    if let verificationID = coder.decodeObject(
+      of: NSString.self,
+      forKey: "verificationID"
+    ) as? String,
+      let verificationCode = coder.decodeObject(of: NSString.self, forKey: "verificationCode")
+      as? String {
       credentialKind = .verification(verificationID, verificationCode)
       super.init(provider: PhoneAuthProvider.id)
     } else if let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String,

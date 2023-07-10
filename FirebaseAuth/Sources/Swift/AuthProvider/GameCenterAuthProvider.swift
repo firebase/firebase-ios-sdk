@@ -160,11 +160,20 @@
     }
 
     public required init?(coder: NSCoder) {
-      guard let playerID = coder.decodeObject(forKey: "playerID") as? String,
-            let teamPlayerID = coder.decodeObject(forKey: "teamPlayerID") as? String,
-            let gamePlayerID = coder.decodeObject(forKey: "gamePlayerID") as? String,
+      guard let playerID = coder.decodeObject(of: NSString.self, forKey: "playerID") as? String,
+            let teamPlayerID = coder.decodeObject(
+              of: NSString.self,
+              forKey: "teamPlayerID"
+            ) as? String,
+            let gamePlayerID = coder.decodeObject(
+              of: NSString.self,
+              forKey: "gamePlayerID"
+            ) as? String,
             let timestamp = coder.decodeObject(forKey: "timestamp") as? UInt64,
-            let displayName = coder.decodeObject(forKey: "displayName") as? String else {
+            let displayName = coder.decodeObject(
+              of: NSString.self,
+              forKey: "displayName"
+            ) as? String else {
         return nil
       }
       self.playerID = playerID
@@ -173,8 +182,8 @@
       self.timestamp = timestamp
       self.displayName = displayName
       publicKeyURL = coder.decodeObject(forKey: "publicKeyURL") as? URL
-      signature = coder.decodeObject(forKey: "signature") as? Data
-      salt = coder.decodeObject(forKey: "salt") as? Data
+      signature = coder.decodeObject(of: NSData.self, forKey: "signature") as? Data
+      salt = coder.decodeObject(of: NSData.self, forKey: "salt") as? Data
       super.init(provider: GameCenterAuthProvider.id)
     }
   }

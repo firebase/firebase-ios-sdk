@@ -21,6 +21,7 @@
   /** @protocol AuthWebViewControllerDelegate
       @brief Defines a delegate for AuthWebViewController
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   protocol AuthWebViewControllerDelegate: AnyObject {
     /** @fn webViewControllerDidCancel:
         @brief Notifies the delegate that the web view controller is being cancelled by the user.
@@ -55,6 +56,7 @@
                  completion: @escaping (URL?, Error?) -> Void)
   }
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthWebViewController: UIViewController,
     WKNavigationDelegate {
     // MARK: - Properties
