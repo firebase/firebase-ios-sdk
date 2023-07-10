@@ -222,11 +222,19 @@ class SessionStartEventTests: XCTestCase {
     mockNetworkInfo.networkType = .mobile
     // Mobile Subtypes are always empty on non-iOS platforms, and
     // Performance doesn't support those platforms anyways
-    #if os(iOS) && !targetEnvironment(macCatalyst)
-      mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
-    #else
-      mockNetworkInfo.mobileSubtype = ""
-    #endif
+    #if swift(>=5.9)
+      #if os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+        mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
+      #else // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+        mockNetworkInfo.mobileSubtype = ""
+      #endif // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+    #else // swift(>=5.9)
+      #if os(iOS) && !targetEnvironment(macCatalyst)
+        mockNetworkInfo.mobileSubtype = CTRadioAccessTechnologyHSUPA
+      #else // os(iOS) && !targetEnvironment(macCatalyst)
+        mockNetworkInfo.mobileSubtype = ""
+      #endif // os(iOS) && !targetEnvironment(macCatalyst)
+    #endif // os(iOS) && !targetEnvironment(macCatalyst)
     appInfo.networkInfo = mockNetworkInfo
 
     let event = SessionStartEvent(sessionInfo: defaultSessionInfo, appInfo: appInfo, time: time)
@@ -265,17 +273,31 @@ class SessionStartEventTests: XCTestCase {
       )
       // Mobile Subtypes are always empty on non-iOS platforms, and
       // Performance doesn't support those platforms anyways
-      #if os(iOS) && !targetEnvironment(macCatalyst)
-        XCTAssertEqual(
-          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
-        )
-      #else
-        XCTAssertEqual(
-          event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
-        )
-      #endif
+      #if swift(>=5.9)
+        #if os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+          XCTAssertEqual(
+            event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+          )
+        #else // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+          XCTAssertEqual(
+            event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+          )
+        #endif // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+      #else // swift(>=5.9)
+        #if os(iOS) && !targetEnvironment(macCatalyst)
+          XCTAssertEqual(
+            event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+          )
+        #else // os(iOS) && !targetEnvironment(macCatalyst)
+          XCTAssertEqual(
+            event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+          )
+        #endif // os(iOS) && !targetEnvironment(macCatalyst)
+      #endif // swift(>=5.9)
       assertEqualProtoString(
         proto.application_info.apple_app_info.mcc_mnc,
         expected: "",
@@ -330,180 +352,361 @@ class SessionStartEventTests: XCTestCase {
   }
 
   /// Following tests can be run only in iOS environment
-  #if os(iOS) && !targetEnvironment(macCatalyst)
-    func test_convertMobileSubtype_convertsCorrectlyPreOS14() {
-      let expectations: [(
-        given: String,
-        expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
-      )] = [
-        (
-          CTRadioAccessTechnologyGPRS,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
-        ),
-        (
-          CTRadioAccessTechnologyEdge,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
-        ),
-        (
-          CTRadioAccessTechnologyWCDMA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
-        ),
-        (
-          CTRadioAccessTechnologyCDMA1x,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
-        ),
-        (
-          CTRadioAccessTechnologyHSDPA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
-        ),
-        (
-          CTRadioAccessTechnologyHSUPA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
-        ),
-        (
-          CTRadioAccessTechnologyCDMAEVDORev0,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
-        ),
-        (
-          CTRadioAccessTechnologyCDMAEVDORevA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
-        ),
-        (
-          CTRadioAccessTechnologyCDMAEVDORevB,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
-        ),
-        (
-          CTRadioAccessTechnologyeHRPD,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
-        ),
-        (
-          CTRadioAccessTechnologyLTE,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
-        ),
-        (
-          "random",
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
-        ),
-      ]
-
-      expectations
-        .forEach { (
+  #if swift(>=5.9)
+    #if os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+      func test_convertMobileSubtype_convertsCorrectlyPreOS14() {
+        let expectations: [(
           given: String,
           expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
-        ) in
-          let mockNetworkInfo = MockNetworkInfo()
-          mockNetworkInfo.mobileSubtype = given
-          appInfo.networkInfo = mockNetworkInfo
+        )] = [
+          (
+            CTRadioAccessTechnologyGPRS,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
+          ),
+          (
+            CTRadioAccessTechnologyEdge,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
+          ),
+          (
+            CTRadioAccessTechnologyWCDMA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyCDMA1x,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyHSDPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
+          ),
+          (
+            CTRadioAccessTechnologyHSUPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORev0,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevB,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
+          ),
+          (
+            CTRadioAccessTechnologyeHRPD,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
+          ),
+          (
+            CTRadioAccessTechnologyLTE,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
+          ),
+          (
+            "random",
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+          ),
+        ]
 
-          let event = SessionStartEvent(
-            sessionInfo: self.defaultSessionInfo,
-            appInfo: appInfo,
-            time: time
-          )
+        expectations
+          .forEach { (
+            given: String,
+            expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
+          ) in
+            let mockNetworkInfo = MockNetworkInfo()
+            mockNetworkInfo.mobileSubtype = given
+            appInfo.networkInfo = mockNetworkInfo
 
-          // These fields will only be filled in when the Perf SDK is installed
-          event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
-
-          testProtoAndDecodedProto(sessionEvent: event) { proto in
-            XCTAssertEqual(
-              event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
-              expected
+            let event = SessionStartEvent(
+              sessionInfo: self.defaultSessionInfo,
+              appInfo: appInfo,
+              time: time
             )
+
+            // These fields will only be filled in when the Perf SDK is installed
+            event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
+
+            testProtoAndDecodedProto(sessionEvent: event) { proto in
+              XCTAssertEqual(
+                event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+                expected
+              )
+            }
           }
-        }
-    }
-  #endif
-
-  #if os(iOS) && !targetEnvironment(macCatalyst)
-    @available(iOS 14.1, *)
-    func test_convertMobileSubtype_convertsCorrectlyPostOS14() {
-      let expectations: [(
-        given: String,
-        expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
-      )] = [
-        (
-          CTRadioAccessTechnologyGPRS,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
-        ),
-        (
-          CTRadioAccessTechnologyEdge,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
-        ),
-        (
-          CTRadioAccessTechnologyWCDMA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
-        ),
-        (
-          CTRadioAccessTechnologyCDMA1x,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
-        ),
-        (
-          CTRadioAccessTechnologyHSDPA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
-        ),
-        (
-          CTRadioAccessTechnologyHSUPA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
-        ),
-        (
-          CTRadioAccessTechnologyCDMAEVDORev0,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
-        ),
-        (
-          CTRadioAccessTechnologyCDMAEVDORevA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
-        ),
-        (
-          CTRadioAccessTechnologyCDMAEVDORevB,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
-        ),
-        (
-          CTRadioAccessTechnologyeHRPD,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
-        ),
-        (
-          CTRadioAccessTechnologyLTE,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
-        ),
-        (
-          CTRadioAccessTechnologyNRNSA,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
-        ),
-        (
-          CTRadioAccessTechnologyNR,
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
-        ),
-        (
-          "random",
-          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
-        ),
-      ]
-
-      expectations
-        .forEach { (
+      }
+    #endif // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+  #else // swift(>=5.9)
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+      func test_convertMobileSubtype_convertsCorrectlyPreOS14() {
+        let expectations: [(
           given: String,
           expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
-        ) in
-          let mockNetworkInfo = MockNetworkInfo()
-          mockNetworkInfo.mobileSubtype = given
-          appInfo.networkInfo = mockNetworkInfo
+        )] = [
+          (
+            CTRadioAccessTechnologyGPRS,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
+          ),
+          (
+            CTRadioAccessTechnologyEdge,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
+          ),
+          (
+            CTRadioAccessTechnologyWCDMA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyCDMA1x,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyHSDPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
+          ),
+          (
+            CTRadioAccessTechnologyHSUPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORev0,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevB,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
+          ),
+          (
+            CTRadioAccessTechnologyeHRPD,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
+          ),
+          (
+            CTRadioAccessTechnologyLTE,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
+          ),
+          (
+            "random",
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+          ),
+        ]
 
-          let event = SessionStartEvent(
-            sessionInfo: self.defaultSessionInfo,
-            appInfo: appInfo,
-            time: time
-          )
+        expectations
+          .forEach { (
+            given: String,
+            expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
+          ) in
+            let mockNetworkInfo = MockNetworkInfo()
+            mockNetworkInfo.mobileSubtype = given
+            appInfo.networkInfo = mockNetworkInfo
 
-          // These fields will only be filled in when the Perf SDK is installed
-          event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
-
-          testProtoAndDecodedProto(sessionEvent: event) { proto in
-            XCTAssertEqual(
-              event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
-              expected
+            let event = SessionStartEvent(
+              sessionInfo: self.defaultSessionInfo,
+              appInfo: appInfo,
+              time: time
             )
+
+            // These fields will only be filled in when the Perf SDK is installed
+            event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
+
+            testProtoAndDecodedProto(sessionEvent: event) { proto in
+              XCTAssertEqual(
+                event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+                expected
+              )
+            }
           }
-        }
-    }
-  #endif
+      }
+    #endif // os(iOS) && !targetEnvironment(macCatalyst)
+  #endif // swift(>=5.9)
+
+  #if swift(>=5.9)
+    #if os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+      @available(iOS 14.1, *)
+      func test_convertMobileSubtype_convertsCorrectlyPostOS14() {
+        let expectations: [(
+          given: String,
+          expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
+        )] = [
+          (
+            CTRadioAccessTechnologyGPRS,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
+          ),
+          (
+            CTRadioAccessTechnologyEdge,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
+          ),
+          (
+            CTRadioAccessTechnologyWCDMA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyCDMA1x,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyHSDPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
+          ),
+          (
+            CTRadioAccessTechnologyHSUPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORev0,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevB,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
+          ),
+          (
+            CTRadioAccessTechnologyeHRPD,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
+          ),
+          (
+            CTRadioAccessTechnologyLTE,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
+          ),
+          (
+            CTRadioAccessTechnologyNRNSA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+          ),
+          (
+            CTRadioAccessTechnologyNR,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+          ),
+          (
+            "random",
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+          ),
+        ]
+
+        expectations
+          .forEach { (
+            given: String,
+            expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
+          ) in
+            let mockNetworkInfo = MockNetworkInfo()
+            mockNetworkInfo.mobileSubtype = given
+            appInfo.networkInfo = mockNetworkInfo
+
+            let event = SessionStartEvent(
+              sessionInfo: self.defaultSessionInfo,
+              appInfo: appInfo,
+              time: time
+            )
+
+            // These fields will only be filled in when the Perf SDK is installed
+            event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
+
+            testProtoAndDecodedProto(sessionEvent: event) { proto in
+              XCTAssertEqual(
+                event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+                expected
+              )
+            }
+          }
+      }
+    #endif // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+  #else // swift(>=5.9)
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+      @available(iOS 14.1, *)
+      func test_convertMobileSubtype_convertsCorrectlyPostOS14() {
+        let expectations: [(
+          given: String,
+          expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
+        )] = [
+          (
+            CTRadioAccessTechnologyGPRS,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
+          ),
+          (
+            CTRadioAccessTechnologyEdge,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
+          ),
+          (
+            CTRadioAccessTechnologyWCDMA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyCDMA1x,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+          ),
+          (
+            CTRadioAccessTechnologyHSDPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
+          ),
+          (
+            CTRadioAccessTechnologyHSUPA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORev0,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
+          ),
+          (
+            CTRadioAccessTechnologyCDMAEVDORevB,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
+          ),
+          (
+            CTRadioAccessTechnologyeHRPD,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
+          ),
+          (
+            CTRadioAccessTechnologyLTE,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
+          ),
+          (
+            CTRadioAccessTechnologyNRNSA,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+          ),
+          (
+            CTRadioAccessTechnologyNR,
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+          ),
+          (
+            "random",
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+          ),
+        ]
+
+        expectations
+          .forEach { (
+            given: String,
+            expected: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
+          ) in
+            let mockNetworkInfo = MockNetworkInfo()
+            mockNetworkInfo.mobileSubtype = given
+            appInfo.networkInfo = mockNetworkInfo
+
+            let event = SessionStartEvent(
+              sessionInfo: self.defaultSessionInfo,
+              appInfo: appInfo,
+              time: time
+            )
+
+            // These fields will only be filled in when the Perf SDK is installed
+            event.set(subscriber: .Performance, isDataCollectionEnabled: true, appInfo: appInfo)
+
+            testProtoAndDecodedProto(sessionEvent: event) { proto in
+              XCTAssertEqual(
+                event.proto.application_info.apple_app_info.network_connection_info.mobile_subtype,
+                expected
+              )
+            }
+          }
+      }
+    #endif // os(iOS) && !targetEnvironment(macCatalyst)
+  #endif // swift(>=5.9)
 }
