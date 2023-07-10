@@ -256,44 +256,88 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     -> firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype {
     var subtype: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
 
-    #if os(iOS) && !targetEnvironment(macCatalyst)
-      switch mobileSubtype {
-      case CTRadioAccessTechnologyGPRS:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
-      case CTRadioAccessTechnologyEdge:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
-      case CTRadioAccessTechnologyWCDMA:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
-      case CTRadioAccessTechnologyCDMA1x:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
-      case CTRadioAccessTechnologyHSDPA:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
-      case CTRadioAccessTechnologyHSUPA:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
-      case CTRadioAccessTechnologyCDMAEVDORev0:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
-      case CTRadioAccessTechnologyCDMAEVDORevA:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
-      case CTRadioAccessTechnologyCDMAEVDORevB:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
-      case CTRadioAccessTechnologyeHRPD:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
-      case CTRadioAccessTechnologyLTE:
-        subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
-      default:
+    // swift(>=5.9) implies Xcode 15+
+    // Need to have this swift version check to use os(xrOS) macro, VisionOS support.
+    #if swift(>=5.9)
+      #if os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+        switch mobileSubtype {
+        case CTRadioAccessTechnologyGPRS:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
+        case CTRadioAccessTechnologyEdge:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
+        case CTRadioAccessTechnologyWCDMA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+        case CTRadioAccessTechnologyCDMA1x:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+        case CTRadioAccessTechnologyHSDPA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
+        case CTRadioAccessTechnologyHSUPA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+        case CTRadioAccessTechnologyCDMAEVDORev0:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
+        case CTRadioAccessTechnologyCDMAEVDORevA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
+        case CTRadioAccessTechnologyCDMAEVDORevB:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
+        case CTRadioAccessTechnologyeHRPD:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
+        case CTRadioAccessTechnologyLTE:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
+        default:
+          subtype =
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+        }
+
+        if #available(iOS 14.1, *) {
+          if mobileSubtype == CTRadioAccessTechnologyNRNSA || mobileSubtype ==
+            CTRadioAccessTechnologyNR {
+            subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+          }
+        }
+      #else // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
         subtype =
           firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
-      }
-
-      if #available(iOS 14.1, *) {
-        if mobileSubtype == CTRadioAccessTechnologyNRNSA || mobileSubtype ==
-          CTRadioAccessTechnologyNR {
-          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+      #endif // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+    #else // swift(>=5.9)
+      #if os(iOS) && !targetEnvironment(macCatalyst)
+        switch mobileSubtype {
+        case CTRadioAccessTechnologyGPRS:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
+        case CTRadioAccessTechnologyEdge:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EDGE
+        case CTRadioAccessTechnologyWCDMA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+        case CTRadioAccessTechnologyCDMA1x:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_CDMA
+        case CTRadioAccessTechnologyHSDPA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSDPA
+        case CTRadioAccessTechnologyHSUPA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_HSUPA
+        case CTRadioAccessTechnologyCDMAEVDORev0:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_0
+        case CTRadioAccessTechnologyCDMAEVDORevA:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_A
+        case CTRadioAccessTechnologyCDMAEVDORevB:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EVDO_B
+        case CTRadioAccessTechnologyeHRPD:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_EHRPD
+        case CTRadioAccessTechnologyLTE:
+          subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_LTE
+        default:
+          subtype =
+            firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
         }
-      }
-    #else
-      subtype =
-        firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+
+        if #available(iOS 14.1, *) {
+          if mobileSubtype == CTRadioAccessTechnologyNRNSA || mobileSubtype ==
+            CTRadioAccessTechnologyNR {
+            subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
+          }
+        }
+      #else // os(iOS) && !targetEnvironment(macCatalyst)
+        subtype =
+          firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
+      #endif // os(iOS) && !targetEnvironment(macCatalyst)
     #endif
 
     return subtype
