@@ -28,6 +28,7 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckProvider.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckSettings.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckTokenDelegate.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/Core/GACAppCheckLogger.h"
@@ -36,19 +37,6 @@
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-/// A notification with the specified name is sent to the default notification center
-/// (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
-/// The user info dictionary contains `kGACAppCheckTokenNotificationKey` and
-/// `kGACAppCheckAppNameNotificationKey` keys.
-const NSNotificationName GACAppCheckAppCheckTokenDidChangeNotification =
-    @"GACAppCheckAppCheckTokenDidChangeNotification";
-
-/// `userInfo` key for the `AppCheckToken` in `appCheckTokenRefreshNotification`.
-NSString *const kGACAppCheckTokenNotificationKey = @"GACAppCheckTokenNotificationKey";
-
-/// `userInfo` key for the instance name in `appCheckTokenRefreshNotification`.
-NSString *const kGACAppCheckInstanceNameNotificationKey = @"GACAppCheckInstanceNameNotificationKey";
 
 // TODO(andrewheard): Remove from generic App Check SDK.
 // FIREBASE_APP_CHECK_ONLY_BEGIN
@@ -67,8 +55,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly) NSString *instanceName;
 @property(nonatomic, readonly) id<GACAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<GACAppCheckStorageProtocol> storage;
-@property(nonatomic, readonly) NSNotificationCenter *notificationCenter;
 @property(nonatomic, readonly) id<GACAppCheckSettingsProtocol> settings;
+@property(nonatomic, readonly, weak) id<GACAppCheckTokenDelegate> tokenDelegate;
 
 @property(nonatomic, readonly, nullable) id<GACAppCheckTokenRefresherProtocol> tokenRefresher;
 
@@ -84,16 +72,16 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                              storage:(id<GACAppCheckStorageProtocol>)storage
                       tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
-                  notificationCenter:(NSNotificationCenter *)notificationCenter
-                            settings:(id<GACAppCheckSettingsProtocol>)settings {
+                            settings:(id<GACAppCheckSettingsProtocol>)settings
+                       tokenDelegate:(id<GACAppCheckTokenDelegate>)tokenDelegate {
   self = [super init];
   if (self) {
     _instanceName = instanceName;
     _appCheckProvider = appCheckProvider;
     _storage = storage;
     _tokenRefresher = tokenRefresher;
-    _notificationCenter = notificationCenter;
     _settings = settings;
+    _tokenDelegate = tokenDelegate;
 
     __auto_type __weak weakSelf = self;
     tokenRefresher.tokenRefreshHandler = ^(GACAppCheckTokenRefreshCompletion _Nonnull completion) {
@@ -109,6 +97,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 - (instancetype)initWithInstanceName:(NSString *)instanceName
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                             settings:(id<GACAppCheckSettingsProtocol>)settings
+                       tokenDelegate:(id<GACAppCheckTokenDelegate>)tokenDelegate
                         resourceName:(NSString *)resourceName
                  keychainAccessGroup:(nullable NSString *)accessGroup {
   GACAppCheckTokenRefreshResult *refreshResult =
@@ -125,8 +114,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                    appCheckProvider:appCheckProvider
                             storage:storage
                      tokenRefresher:tokenRefresher
-                 notificationCenter:NSNotificationCenter.defaultCenter
-                           settings:settings];
+                           settings:settings
+                      tokenDelegate:tokenDelegate];
 }
 
 #pragma mark - GACAppCheckInterop
@@ -152,18 +141,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       .catch(^(NSError *_Nonnull error) {
         handler(nil, error);
       });
-}
-
-- (nonnull NSString *)tokenDidChangeNotificationName {
-  return GACAppCheckAppCheckTokenDidChangeNotification;
-}
-
-- (nonnull NSString *)notificationInstanceNameKey {
-  return kGACAppCheckInstanceNameNotificationKey;
-}
-
-- (nonnull NSString *)notificationTokenKey {
-  return kGACAppCheckTokenNotificationKey;
 }
 
 #pragma mark - FAA token cache
@@ -235,7 +212,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
             initWithStatusSuccessAndExpirationDate:token.expirationDate
                                     receivedAtDate:token.receivedAtDate];
         [self.tokenRefresher updateWithRefreshResult:refreshResult];
-        [self postTokenUpdateNotificationWithToken:token];
+        [self.tokenDelegate tokenDidUpdate:token instanceName:self.instanceName];
         return token;
       });
 }
@@ -265,17 +242,6 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
         __auto_type refreshResult = [[GACAppCheckTokenRefreshResult alloc] initWithStatusFailure];
         completion(refreshResult);
       });
-}
-
-#pragma mark - Token update notification
-
-- (void)postTokenUpdateNotificationWithToken:(GACAppCheckToken *)token {
-  [self.notificationCenter postNotificationName:GACAppCheckAppCheckTokenDidChangeNotification
-                                         object:self
-                                       userInfo:@{
-                                         kGACAppCheckTokenNotificationKey : token.token,
-                                         kGACAppCheckInstanceNameNotificationKey : self.instanceName
-                                       }];
 }
 
 @end
