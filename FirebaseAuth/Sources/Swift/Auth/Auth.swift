@@ -1746,15 +1746,11 @@ extension Auth: AuthInterop {
       }
 
       #if os(iOS)
-        // TODO: escape for app extensions
-        // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-        // responds to it.
-//      if (![GULAppEnvironmentUtil isAppExtension]) {
-//        Class cls = NSClassFromString(@"UIApplication");
-//        if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
-//          applicationClass = cls;
-//        }
-//      }
+        if GULAppEnvironmentUtil.isAppExtension() {
+          // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+          // responds to it.
+          return
+        }
         let application = UIApplication.shared
         // Initialize for phone number auth.
         self.tokenManager = AuthAPNSTokenManager(withApplication: application)
