@@ -113,11 +113,11 @@ import Foundation
   }
 
   public required init?(coder: NSCoder) {
-    idToken = coder.decodeObject(forKey: "IDToken") as? String
-    rawNonce = coder.decodeObject(forKey: "rawNonce") as? String
-    accessToken = coder.decodeObject(forKey: "accessToken") as? String
-    pendingToken = coder.decodeObject(forKey: "pendingToken") as? String
-    secret = coder.decodeObject(forKey: "secret") as? String
+    idToken = coder.decodeObject(of: NSString.self, forKey: "IDToken") as? String
+    rawNonce = coder.decodeObject(of: NSString.self, forKey: "rawNonce") as? String
+    accessToken = coder.decodeObject(of: NSString.self, forKey: "accessToken") as? String
+    pendingToken = coder.decodeObject(of: NSString.self, forKey: "pendingToken") as? String
+    secret = coder.decodeObject(of: NSString.self, forKey: "secret") as? String
     fullName = coder.decodeObject(forKey: "fullName") as? PersonNameComponents
     OAuthResponseURLString = nil
     sessionID = nil

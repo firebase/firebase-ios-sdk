@@ -78,13 +78,13 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
   }
 
   public required init?(coder: NSCoder) {
-    guard let email = coder.decodeObject(forKey: "email") as? String else {
+    guard let email = coder.decodeObject(of: NSString.self, forKey: "email") as? String else {
       return nil
     }
     self.email = email
-    if let password = coder.decodeObject(forKey: "password") as? String {
+    if let password = coder.decodeObject(of: NSString.self, forKey: "password") as? String {
       emailType = .password(password)
-    } else if let link = coder.decodeObject(forKey: "link") as? String {
+    } else if let link = coder.decodeObject(of: NSString.self, forKey: "link") as? String {
       emailType = .link(link)
     } else {
       return nil
