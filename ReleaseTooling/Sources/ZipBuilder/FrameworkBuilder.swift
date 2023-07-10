@@ -614,7 +614,6 @@ struct FrameworkBuilder {
           at: frameworkPath.appendingPathComponent("Headers").resolvingSymlinksInPath(),
           to: platformFrameworkDir.appendingPathComponent("Headers")
         )
-
       } catch {
         fatalError("Could not create framework directory needed to build \(framework): \(error)")
       }
