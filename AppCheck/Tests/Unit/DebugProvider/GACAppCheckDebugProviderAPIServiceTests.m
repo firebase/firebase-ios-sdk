@@ -28,7 +28,7 @@
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
 #import "AppCheck/Sources/DebugProvider/API/GACAppCheckDebugProviderAPIService.h"
 
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "AppCheck/Tests/Utils/URLSession/GACURLSessionOCMockStub.h"
 
 static NSString *const kResourceName = @"projects/test_project_id/apps/test_app_id";
 
@@ -75,7 +75,7 @@ static NSString *const kResourceName = @"projects/test_project_id/apps/test_app_
 
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDebugToken:debugToken];
   NSData *fakeResponseData = [@"fake response" dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:fakeResponseData];
 
@@ -122,7 +122,7 @@ static NSString *const kResourceName = @"projects/test_project_id/apps/test_app_
 
   id HTTPBodyValidationArg = [self HTTPBodyValidationArgWithDebugToken:debugToken];
   NSData *fakeResponseData = [@"fake response" dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:fakeResponseData];
 

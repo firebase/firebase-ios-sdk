@@ -30,8 +30,8 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 #import "AppCheck/Tests/Unit/Utils/GACFixtureLoader.h"
-#import "SharedTestUtilities/Date/FIRDateTestUtils.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "AppCheck/Tests/Utils/Date/GACDateTestUtils.h"
+#import "AppCheck/Tests/Utils/URLSession/GACURLSessionOCMockStub.h"
 
 static NSString *const kBaseURL = @"https://test.appcheck.url.com/beta";
 static NSString *const kResourceName = @"projects/project_id/apps/app_id";
@@ -349,7 +349,7 @@ static NSString *const kResourceName = @"projects/project_id/apps/app_id";
 
   XCTAssertEqualObjects(promise.value.artifact, expectedArtifact);
   XCTAssertEqualObjects(promise.value.token.token, @"valid_app_check_token");
-  XCTAssertTrue([FIRDateTestUtils isDate:promise.value.token.expirationDate
+  XCTAssertTrue([GACDateTestUtils isDate:promise.value.token.expirationDate
       approximatelyEqualCurrentPlusTimeInterval:1800
                                       precision:10]);
 
@@ -424,7 +424,7 @@ static NSString *const kResourceName = @"projects/project_id/apps/app_id";
 - (GULURLSessionDataResponse *)APIResponseWithCode:(NSInteger)code
                                       responseBody:(NSData *)responseBody {
   XCTAssertNotNil(responseBody);
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:code];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:code];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
   return APIResponse;
