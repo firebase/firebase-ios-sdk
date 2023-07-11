@@ -167,8 +167,7 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter actionCodeSettings: An `FIRActionCodeSettings` object containing settings
-    /// related to
-    ///   handling action codes.
+    ///    related to handling action codes.
     /// - Returns: A publisher that emits no type when the verification flow completed
     ///   successfully, or an error otherwise.
     ///
