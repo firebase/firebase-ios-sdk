@@ -29,7 +29,7 @@
 
 #import "AppCheck/Tests/Unit/Utils/GACFixtureLoader.h"
 #import "AppCheck/Tests/Utils/Date/GACDateTestUtils.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "AppCheck/Tests/Utils/URLSession/GACURLSessionOCMockStub.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -112,7 +112,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   NSString *responseBodyString = @"Token verification failed.";
 
   NSData *HTTPResponseBody = [responseBodyString dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:300];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:300];
   [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
                                              body:HTTPResponseBody
                                             error:nil
@@ -180,7 +180,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   };
 
   NSData *HTTPResponseBody = [@"A response" dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
                                              body:HTTPResponseBody
                                             error:nil
@@ -224,7 +224,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   };
 
   NSData *HTTPResponseBody = [@"A response" dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
                                              body:HTTPResponseBody
                                             error:nil
@@ -271,7 +271,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   };
 
   NSData *HTTPResponseBody = [@"A response" dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   [self stubURLSessionDataTaskPromiseWithResponse:HTTPResponse
                                              body:HTTPResponseBody
                                             error:nil
@@ -303,7 +303,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   NSData *responseBody =
       [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
 
@@ -329,7 +329,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   // 1. Prepare input parameters.
   NSString *responseBodyString = @"Token verification failed.";
   NSData *responseBody = [responseBodyString dataUsingEncoding:NSUTF8StringEncoding];
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
 
@@ -364,7 +364,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   NSData *missingFiledBody = [GACFixtureLoader loadFixtureNamed:fixtureName];
   XCTAssertNotNil(missingFiledBody);
 
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:missingFiledBody];
 
