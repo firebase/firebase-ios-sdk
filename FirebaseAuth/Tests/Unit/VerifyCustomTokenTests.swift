@@ -102,9 +102,9 @@ class VerifyCustomTokenTests: RPCBaseTests {
     var rpcResponse: VerifyCustomTokenResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeVerifyCustomTokenRequest()) { response, error in
+    AuthBackend.post(with: makeVerifyCustomTokenRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? VerifyCustomTokenResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

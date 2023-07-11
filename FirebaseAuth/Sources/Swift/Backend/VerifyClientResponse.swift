@@ -14,15 +14,16 @@
 
 import Foundation
 
-@objc(FIRVerifyClientResponse)
-public class VerifyClientResponse: NSObject, AuthRPCResponse {
+class VerifyClientResponse: AuthRPCResponse {
+  required init() {}
+
   /// Receipt that the APNS token was successfully validated with APNS.
-  @objc public private(set) var receipt: String?
+  private(set) var receipt: String?
 
   /// The date after which delivery of the silent push notification is considered to have failed.
-  @objc public private(set) var suggestedTimeOutDate: Date?
+  private(set) var suggestedTimeOutDate: Date?
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  func setFields(dictionary: [String: AnyHashable]) throws {
     receipt = dictionary["receipt"] as? String
     let suggestedTimeout = dictionary["suggestedTimeout"]
     if let string = suggestedTimeout as? String,

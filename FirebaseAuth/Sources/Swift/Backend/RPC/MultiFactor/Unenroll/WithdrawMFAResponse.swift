@@ -14,7 +14,9 @@
 
 import Foundation
 
-class WithdrawMFAResponse: NSObject, AuthRPCResponse {
+class WithdrawMFAResponse: AuthRPCResponse {
+  required init() {}
+
   var idToken: String?
   var refreshToken: String?
 

@@ -20,21 +20,17 @@ import Foundation
 private let kGetProjectConfigEndPoint = "getProjectConfig"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRGetProjectConfigRequest) public class GetProjectConfigRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  @objc public var response: AuthRPCResponse = GetProjectConfigResponse()
+class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = GetProjectConfigResponse
 
-  @objc public init(requestConfiguration: AuthRequestConfiguration) {
+  init(requestConfiguration: AuthRequestConfiguration) {
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-    // XXX TODO: Probably nicer to throw, but what should we throw?
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    // TODO: Probably nicer to throw, but what should we throw?
     fatalError()
   }
 
-  override public func containsPostBody() -> Bool { false }
+  var containsPostBody: Bool { false }
 }

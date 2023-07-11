@@ -64,7 +64,7 @@ class DeleteAccountTests: RPCBaseTests {
     var callbackInvoked = false
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: makeDeleteAccountRequest()) { response, error in
+    AuthBackend.post(with: makeDeleteAccountRequest()) { response, error in
       callbackInvoked = true
       rpcError = error as? NSError
     }

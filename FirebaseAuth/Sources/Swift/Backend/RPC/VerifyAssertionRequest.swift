@@ -122,88 +122,84 @@ private let kLastNameKey = "lastName"
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRVerifyAssertionRequest) public class VerifyAssertionRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+class VerifyAssertionRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = VerifyAssertionResponse
+
   /** @property requestURI
       @brief The URI to which the IDP redirects the user back. It may contain federated login result
           params added by the IDP.
    */
-  @objc public var requestURI: String?
+  var requestURI: String?
 
   /** @property pendingToken
       @brief The Firebase ID Token for the IDP pending to be confirmed by the user.
    */
-  @objc public var pendingToken: String?
+  var pendingToken: String?
 
   /** @property accessToken
       @brief The STS Access Token for the authenticated user, only needed for linking the user.
    */
-  @objc public var accessToken: String?
+  var accessToken: String?
 
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
       @remarks The default value is @c YES .
    */
-  @objc public var returnSecureToken: Bool = false
+  var returnSecureToken: Bool = false
 
   // MARK: - Components of "postBody"
 
   /** @property providerID
       @brief The ID of the IDP whose credentials are being presented to the endpoint.
    */
-  @objc public let providerID: String
+  let providerID: String
 
   /** @property providerAccessToken
       @brief An access token from the IDP.
    */
-  @objc public var providerAccessToken: String?
+  var providerAccessToken: String?
 
   /** @property providerIDToken
       @brief An ID Token from the IDP.
    */
-  @objc public var providerIDToken: String?
+  var providerIDToken: String?
 
   /** @property providerRawNonce
       @brief An raw nonce from the IDP.
    */
-  @objc public var providerRawNonce: String?
+  var providerRawNonce: String?
 
   /** @property returnIDPCredential
       @brief Whether the response should return the IDP credential directly.
    */
-  @objc public var returnIDPCredential: Bool = false
+  var returnIDPCredential: Bool = false
 
   /** @property providerOAuthTokenSecret
       @brief A session ID used to map this request to a headful-lite flow.
    */
-  @objc public var sessionID: String?
+  var sessionID: String?
 
   /** @property providerOAuthTokenSecret
       @brief An OAuth client secret from the IDP.
    */
-  @objc public var providerOAuthTokenSecret: String?
+  var providerOAuthTokenSecret: String?
 
   /** @property inputEmail
       @brief The originally entered email in the UI.
    */
-  @objc public var inputEmail: String?
+  var inputEmail: String?
 
   /** @property autoCreate
       @brief A flag that indicates whether or not the user should be automatically created.
    */
-  @objc public var autoCreate: Bool = false
+  var autoCreate: Bool = false
 
   /** @property fullName
       @brief A full name from the IdP.
    */
-  @objc public var fullName: PersonNameComponents?
+  var fullName: PersonNameComponents?
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  @objc public var response: AuthRPCResponse = VerifyAssertionResponse()
-
-  @objc public init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
+  init(providerID: String, requestConfiguration: AuthRequestConfiguration) {
     self.providerID = providerID
     returnSecureToken = true
     autoCreate = true
@@ -212,7 +208,7 @@ private let kLastNameKey = "lastName"
     super.init(endpoint: kVerifyAssertionEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var components = URLComponents()
     var queryItems: [URLQueryItem] = [URLQueryItem(name: kProviderIDKey, value: providerID)]
     if let providerIDToken = providerIDToken {

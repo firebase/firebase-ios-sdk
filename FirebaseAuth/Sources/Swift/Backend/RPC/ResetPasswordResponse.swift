@@ -24,23 +24,25 @@ import Foundation
        - FIRAuthErrorCodeInvalidActionCode
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/resetPassword
  */
-@objc(FIRResetPasswordResponse) public class ResetPasswordResponse: NSObject, AuthRPCResponse {
+class ResetPasswordResponse: AuthRPCResponse {
+  required init() {}
+
   /** @property email
    @brief The email address corresponding to the reset password request.
    */
-  @objc public var email: String?
+  var email: String?
 
   /** @property verifiedEmail
    @brief The verified email returned from the backend.
    */
-  @objc public var verifiedEmail: String?
+  var verifiedEmail: String?
 
   /** @property requestType
    @brief The type of request as returned by the backend.
    */
-  @objc public var requestType: String?
+  var requestType: String?
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     requestType = dictionary["requestType"] as? String
     verifiedEmail = dictionary["newEmail"] as? String

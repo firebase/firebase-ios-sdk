@@ -163,9 +163,9 @@ private let kFiveMinutes = 5 * 60.0
 
     let request = SecureTokenRequest.refreshRequest(refreshToken: refreshToken,
                                                     requestConfiguration: requestConfiguration)
-    AuthBackend.post(withRequest: request) { rawResponse, error in
+    AuthBackend.post(with: request) { rawResponse, error in
       var tokenUpdated = false
-      if let response = rawResponse as? SecureTokenResponse {
+      if let response = rawResponse {
         if let newAccessToken = response.accessToken,
            newAccessToken.count > 0,
            newAccessToken != self.accessToken {

@@ -32,18 +32,20 @@ private let kAccessTokenKey = "access_token"
 private let kIDTokenKey = "id_token"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRSecureTokenResponse) public class SecureTokenResponse: NSObject, AuthRPCResponse {
-  @objc public var approximateExpirationDate: Date?
-  @objc public var refreshToken: String?
-  @objc public var accessToken: String?
-  @objc public var IDToken: String?
+class SecureTokenResponse: AuthRPCResponse {
+  required init() {}
+
+  var approximateExpirationDate: Date?
+  var refreshToken: String?
+  var accessToken: String?
+  var idToken: String?
 
   var expectedKind: String? { nil }
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  func setFields(dictionary: [String: AnyHashable]) throws {
     refreshToken = dictionary[kRefreshTokenKey] as? String
     self.accessToken = dictionary[kAccessTokenKey] as? String
-    IDToken = dictionary[kIDTokenKey] as? String
+    idToken = dictionary[kIDTokenKey] as? String
 
     guard let accessToken = accessToken else {
       throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)

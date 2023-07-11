@@ -94,8 +94,7 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
     }
 
     let request = GetProjectConfigRequest(requestConfiguration: requestConfiguration)
-
-    AuthBackend.post(withRequest: request) { response, error in
+    AuthBackend.post(with: request) { response, error in
       if let error = error {
         completion(nil, error)
         return
@@ -104,7 +103,7 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
       // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
       // The searching ends once the first valid suportedAuthDomain is found.
       var authDomain: String?
-      if let response = response as? GetProjectConfigResponse {
+      if let response = response {
         for domain in response.authorizedDomains ?? [] {
           for supportedAuthDomain in Self.supportedAuthDomains {
             let index = domain.count - supportedAuthDomain.count
