@@ -32,8 +32,7 @@
     ///   - `FIRAuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
     ///      type already linked to this account.
     ///   - `FIRAuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
-    /// credential
-    ///     that has already been linked with a different Firebase account.
+    ///     credential that has already been linked with a different Firebase account.
     ///   - `FIRAuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
     /// provider
     ///     represented by the credential are not enabled. Enable them in the Auth section of the
