@@ -33,9 +33,8 @@
     ///
     /// - Parameter data: A `Dictionary` containing the data for the new document.
     /// - Returns: A publisher emitting a `DocumentReference` value once the document has been
-    /// successfully
-    ///   written to the server. This publisher will not emit while the client is offline, though
-    ///   local changes will be visible immediately.
+    ///    successfully written to the server. This publisher will not emit while the client is offline,
+    ///    though local changes will be visible immediately.
     func addDocument(data: [String: Any])
       -> Future<DocumentReference, Error> {
       var reference: DocumentReference?
