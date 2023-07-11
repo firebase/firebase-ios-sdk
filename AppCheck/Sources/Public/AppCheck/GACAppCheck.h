@@ -21,20 +21,9 @@
 @class GACAppCheckToken;
 @protocol GACAppCheckProvider;
 @protocol GACAppCheckSettingsProtocol;
+@protocol GACAppCheckTokenDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
-
-/// A notification with the specified name is sent to the default notification center
-/// (`NotificationCenter.default`) each time a Firebase app check token is refreshed.
-/// The user info dictionary contains `kGACAppCheckTokenNotificationKey` and
-/// `kGACAppCheckAppNameNotificationKey` keys.
-FOUNDATION_EXPORT const NSNotificationName
-    GACAppCheckAppCheckTokenDidChangeNotification NS_SWIFT_NAME(InternalAppCheckTokenDidChange);
-
-/// `userInfo` key for the `FirebaseApp.name` in `AppCheckTokenDidChangeNotification`.
-FOUNDATION_EXPORT NSString *const kGACAppCheckTokenNotificationKey NS_SWIFT_NAME(InternalAppCheckTokenNotificationKey);
-/// `userInfo` key for the `AppCheckToken` in `AppCheckTokenDidChangeNotification`.
-FOUNDATION_EXPORT NSString *const kGACAppCheckInstanceNameNotificationKey NS_SWIFT_NAME(InternalAppCheckInstanceNameNotificationKey);
 
 /// A class used to manage App Check tokens for a given resource.
 NS_SWIFT_NAME(InternalAppCheck)
@@ -48,6 +37,7 @@ NS_SWIFT_NAME(InternalAppCheck)
 - (instancetype)initWithInstanceName:(NSString *)instanceName
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                             settings:(id<GACAppCheckSettingsProtocol>)settings
+                       tokenDelegate:(id<GACAppCheckTokenDelegate>)tokenDelegate
                         resourceName:(NSString *)resourceName
                  keychainAccessGroup:(nullable NSString *)accessGroup;
 

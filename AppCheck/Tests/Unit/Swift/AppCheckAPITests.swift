@@ -48,17 +48,6 @@ final class AppCheckAPITests {
 
     // MARK: - AppCheck
 
-    // `AppCheckTokenDidChange` & associated notification keys
-    _ = NotificationCenter.default
-      .addObserver(
-        forName: .InternalAppCheckTokenDidChange,
-        object: nil,
-        queue: .main
-      ) { notification in
-        _ = notification.userInfo?[InternalAppCheckTokenNotificationKey]
-        _ = notification.userInfo?[InternalAppCheckInstanceNameNotificationKey]
-      }
-
     guard let app = FirebaseApp.app() else { return }
 
     // Retrieving an AppCheck instance
@@ -66,6 +55,7 @@ final class AppCheckAPITests {
       instanceName: app.name,
       appCheckProvider: DummyAppCheckProvider(),
       settings: DummyAppCheckSettings(),
+      tokenDelegate: DummyAppCheckTokenDelegate(),
       resourceName: resourceName,
       keychainAccessGroup: app.options.appGroupID
     )
@@ -206,4 +196,8 @@ class DummyAppCheckProvider: NSObject, InternalAppCheckProvider {
 
 class DummyAppCheckSettings: NSObject, GACAppCheckSettingsProtocol {
   var isTokenAutoRefreshEnabled: Bool = true
+}
+
+class DummyAppCheckTokenDelegate: NSObject, GACAppCheckTokenDelegate {
+  func tokenDidUpdate(_ token: InternalAppCheckToken, instanceName: String) {}
 }
