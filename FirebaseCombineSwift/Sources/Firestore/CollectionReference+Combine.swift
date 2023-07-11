@@ -33,8 +33,8 @@
     ///
     /// - Parameter data: A `Dictionary` containing the data for the new document.
     /// - Returns: A publisher emitting a `DocumentReference` value once the document has been
-    ///    successfully written to the server. This publisher will not emit while the client is offline,
-    ///    though local changes will be visible immediately.
+    ///            successfully written to the server. This publisher will not emit while the
+    ///            client is offline, though local changes will be visible immediately.
     func addDocument(data: [String: Any])
       -> Future<DocumentReference, Error> {
       var reference: DocumentReference?
@@ -58,8 +58,8 @@
       ///   - value: An instance of `Encodable` to be encoded to a document.
       ///   - encoder: An encoder instance to use to run the encoding.
       /// - Returns: A publisher emitting a `DocumentReference` value once the document has been
-      ///    successfully written to the server. This publisher will not emit while the client is offline,
-      ///    though local changes will be visible immediately.
+      ///            successfully written to the server. This publisher will not emit while the
+      ///            client is offline, though local changes will be visible immediately.
       func addDocument<T: Encodable>(from value: T,
                                      encoder: Firestore.Encoder = Firestore
                                        .Encoder()) -> Future<
