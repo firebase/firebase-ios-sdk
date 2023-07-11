@@ -30,7 +30,8 @@
       /// The publisher will emit events on the **main** thread.
       ///
       /// - Returns: A publisher that emits a `MultiFactorSession` for a second factor
-      ///   enrollment operation. This is used to identify the current user trying to enroll a second factor. The publisher will emit on
+      ///   enrollment operation. This is used to identify the current user trying to enroll a
+      /// second factor. The publisher will emit on
       ///   the *main* thread.
       @discardableResult
       func getSession() -> Future<MultiFactorSession, Error> {
@@ -54,7 +55,8 @@
       ///     - assertion: The base class for asserting ownership of a second factor.
       ///     - displayName: An optional display name associated with the multi factor to enroll.
       ///
-      /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
+      /// - Returns: A publisher that emits whether the call was successful or not. The publisher
+      /// will emit on the *main* thread.
       @discardableResult
       func enroll(with assertion: MultiFactorAssertion,
                   displayName: String?) -> Future<Void, Error> {
@@ -73,8 +75,10 @@
       ///
       /// The publisher will emit events on the **main** thread.
       ///
-      /// - Parameter factorInfo: The structure used to represent a second factor entity from a client perspective.
-      /// - Returns: A publisher that emits when the request to send the unenrollment verification email is complete. The publisher
+      /// - Parameter factorInfo: The structure used to represent a second factor entity from a
+      /// client perspective.
+      /// - Returns: A publisher that emits when the request to send the unenrollment verification
+      /// email is complete. The publisher
       /// will emit on the *main* thread.
       @discardableResult
       func unenroll(with factorInfo: MultiFactorInfo) -> Future<Void, Error> {
@@ -93,7 +97,8 @@
       ///
       /// The publisher will emit events on the **main** thread.
       ///
-      /// - Returns: A publisher that emits when the request to send the unenrollment verification email is complete.
+      /// - Returns: A publisher that emits when the request to send the unenrollment verification
+      /// email is complete.
       /// The publisher will emit on the *main* thread.
       @discardableResult
       func unenroll(withFactorUID factorUID: String) -> Future<Void, Error> {

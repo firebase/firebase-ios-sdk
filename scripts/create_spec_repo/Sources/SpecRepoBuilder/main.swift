@@ -328,7 +328,7 @@ struct SpecRepoBuilder: ParsableCommand {
       )
       print("Found following unhidden dirs: \(dirs)")
       for dir in dirs {
-        guard let isDir = (try dir.resourceValues(forKeys: [.isDirectoryKey])).isDirectory else {
+        guard let isDir = try (dir.resourceValues(forKeys: [.isDirectoryKey])).isDirectory else {
           print("Error: cannot determine if \(dir.path) is a directory or not.")
           Self
             .exit(withError: SpecRepoBuilderError

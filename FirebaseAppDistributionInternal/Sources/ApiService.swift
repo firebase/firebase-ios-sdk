@@ -122,8 +122,10 @@ struct FeedbackReport: Codable {
     })
   }
 
-  @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping (_ releases: [Any]?,
-                                                                                              _ error: Error?)
+  @objc(fetchReleasesWithCompletion:) public static func fetchReleases(completion: @escaping (_ releases: [
+      Any,
+    ]?,
+    _ error: Error?)
       -> Void) {
     guard let app = FirebaseApp.app() else {
       return

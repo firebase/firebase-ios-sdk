@@ -56,7 +56,7 @@ class GameCenterAuthProviderTests: XCTestCase {
     override func generateIdentityVerificationSignature(completionHandler: ((URL?, Data?, Data?,
                                                                              UInt64,
                                                                              Error?) -> Void)? =
-      nil) {
+        nil) {
       let url = URL(string: GameCenterAuthProviderTests.publicKeyURL)
       let signature = Data(base64Encoded: GameCenterAuthProviderTests.signature)
       let salt = Data(base64Encoded: GameCenterAuthProviderTests.salt)

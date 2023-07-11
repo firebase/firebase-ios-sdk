@@ -44,7 +44,8 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public extension View {
-  /// Overrides the default display of an image only in-app message as defined on the Firebase console.
+  /// Overrides the default display of an image only in-app message as defined on the Firebase
+  /// console.
   func imageOnlyInAppMessage<Content: View>(closure: @escaping (InAppMessagingImageOnlyDisplay,
                                                                 InAppMessagingDisplayDelegate)
       -> Content)

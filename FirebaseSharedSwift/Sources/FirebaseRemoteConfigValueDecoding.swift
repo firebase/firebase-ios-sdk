@@ -14,7 +14,8 @@
 
 import Foundation
 
-/// Conform to this protocol for the Firebase Decoder to extract values as from a RemoteConfigValue object.
+/// Conform to this protocol for the Firebase Decoder to extract values as from a RemoteConfigValue
+/// object.
 public protocol FirebaseRemoteConfigValueDecoding {
   func numberValue() -> NSNumber
   func boolValue() -> Bool

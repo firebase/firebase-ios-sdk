@@ -18,7 +18,8 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import Foundation
 
-// TODO(sum/avg) remove `sumAvgIsPublic` from the directive below to enable these tests when sum/avg is public
+// TODO(sum/avg) remove `sumAvgIsPublic` from the directive below to enable these tests when sum/avg
+// is public
 #if sumAvgIsPublic && swift(>=5.5.2)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 
@@ -386,7 +387,8 @@ import Foundation
         .aggregate([AggregateField.count(), AggregateField.sum("notInMyDocs"),
                     AggregateField.average("notInMyDocs")]).getAggregation(source: .server)
 
-      // Count  - 0 because aggregation is performed on documents matching the query AND documents that have all aggregated fields
+      // Count  - 0 because aggregation is performed on documents matching the query AND documents
+      // that have all aggregated fields
       XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 0)
 
       // Sum
