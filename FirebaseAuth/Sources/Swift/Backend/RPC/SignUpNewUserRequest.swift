@@ -78,9 +78,9 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param requestConfiguration An object containing configurations to be added to the request.
    */
   init(email: String?,
-              password: String?,
-              displayName: String?,
-              requestConfiguration: AuthRequestConfiguration) {
+       password: String?,
+       displayName: String?,
+       requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.password = password
     self.displayName = displayName

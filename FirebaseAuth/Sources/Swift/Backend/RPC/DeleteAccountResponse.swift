@@ -19,7 +19,7 @@ import Foundation
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/deleteAccount
  */
 public class DeleteAccountResponse: NSObject, AuthRPCResponse {
-  public override required init() {}
+  override public required init() {}
 
   public func setFields(dictionary: [String: AnyHashable]) throws {}
 }

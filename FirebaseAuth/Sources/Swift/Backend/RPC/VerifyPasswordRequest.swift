@@ -94,7 +94,7 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   var returnSecureToken: Bool
 
   init(email: String, password: String,
-              requestConfiguration: AuthRequestConfiguration) {
+       requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.password = password
     returnSecureToken = true

@@ -119,7 +119,7 @@ class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param requestConfiguration An object containing configurations to be added to the request.
    */
   init(temporaryProof: String, phoneNumber: String, operation: AuthOperationType,
-              requestConfiguration: AuthRequestConfiguration) {
+       requestConfiguration: AuthRequestConfiguration) {
     self.temporaryProof = temporaryProof
     self.phoneNumber = phoneNumber
     self.operation = operation
@@ -134,9 +134,9 @@ class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param requestConfiguration An object containing configurations to be added to the request.
    */
   init(verificationID: String,
-              verificationCode: String,
-              operation: AuthOperationType,
-              requestConfiguration: AuthRequestConfiguration) {
+       verificationCode: String,
+       operation: AuthOperationType,
+       requestConfiguration: AuthRequestConfiguration) {
     self.verificationID = verificationID
     self.verificationCode = verificationCode
     self.operation = operation

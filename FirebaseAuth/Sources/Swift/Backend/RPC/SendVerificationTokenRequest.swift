@@ -65,7 +65,7 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   let reCAPTCHAToken: String?
 
   init(phoneNumber: String, appCredential: AuthAppCredential?,
-              reCAPTCHAToken: String?, requestConfiguration: AuthRequestConfiguration) {
+       reCAPTCHAToken: String?, requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
     self.appCredential = appCredential
     self.reCAPTCHAToken = reCAPTCHAToken

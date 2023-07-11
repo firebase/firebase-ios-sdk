@@ -80,10 +80,10 @@ class SignInWithGameCenterRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param displayName The display name of the Game Center player.
    */
   init(playerID: String, teamPlayerID: String?, gamePlayerID: String?,
-              publicKeyURL: URL,
-              signature: Data, salt: Data,
-              timestamp: UInt64, displayName: String?,
-              requestConfiguration: AuthRequestConfiguration) {
+       publicKeyURL: URL,
+       signature: Data, salt: Data,
+       timestamp: UInt64, displayName: String?,
+       requestConfiguration: AuthRequestConfiguration) {
     self.playerID = playerID
     self.teamPlayerID = teamPlayerID
     self.gamePlayerID = gamePlayerID

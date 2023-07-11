@@ -195,7 +195,7 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
   /** @property dynamicLinkDomain
       @brief The Firebase Dynamic Link domain used for out of band code flow.
    */
-public var dynamicLinkDomain: String?
+  public var dynamicLinkDomain: String?
 
   /** @fn initWithRequestType:email:APIKey:
       @brief Designated initializer.

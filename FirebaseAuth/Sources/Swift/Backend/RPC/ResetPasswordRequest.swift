@@ -55,7 +55,7 @@ class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
       @param requestConfiguration An object containing configurations to be added to the request.
    */
   init(oobCode: String, newPassword: String?,
-              requestConfiguration: AuthRequestConfiguration) {
+       requestConfiguration: AuthRequestConfiguration) {
     self.oobCode = oobCode
     updatedPassword = newPassword
     super.init(endpoint: kResetPasswordEndpoint, requestConfiguration: requestConfiguration)
