@@ -59,8 +59,7 @@
     ///   This can be a successful third-party identity provider sign-in, or an email address and
     ///   password.
     /// - Returns: A publisher that emits an `AuthDataResult` when the reauthentication flow
-    /// completed
-    ///   successfully, or an error otherwise.
+    ///   completed successfully, or an error otherwise.
     /// - Remark: If the user associated with the supplied credential is different from the current
     ///   user, or if the validation of the supplied credentials fails; an error is returned and the
     ///   current user remains signed in.
