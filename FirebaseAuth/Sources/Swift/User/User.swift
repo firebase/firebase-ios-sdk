@@ -1666,7 +1666,7 @@ extension User: NSSecureCoding {}
               return
             }
             // Update the new token and refresh user info again.
-            if let verifyResponse = response as? VerifyPhoneNumberResponse {
+            if let verifyResponse = response {
               if let idToken = verifyResponse.idToken,
                  let refreshToken = verifyResponse.refreshToken {
                 self.tokenService = SecureTokenService(

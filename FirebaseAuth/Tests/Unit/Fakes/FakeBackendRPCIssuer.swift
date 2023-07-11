@@ -47,7 +47,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   /** @property request
       @brief Save the request for validation.
    */
-  var request: any AuthRPCRequest?
+  var request: (any AuthRPCRequest)?
 
   /** @property completeRequest
       @brief The last request to be processed by the backend.
