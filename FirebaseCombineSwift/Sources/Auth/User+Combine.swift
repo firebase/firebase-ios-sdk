@@ -56,8 +56,8 @@
     /// The publisher will emit events on the **main** thread.
     ///
     /// - Parameter credential: A user-supplied credential, which will be validated by the server.
-    /// This can be
-    ///   a successful third-party identity provider sign-in, or an email address and password.
+    ///   This can be a successful third-party identity provider sign-in, or an email address and
+    ///   password.
     /// - Returns: A publisher that emits an `AuthDataResult` when the reauthentication flow
     /// completed
     ///   successfully, or an error otherwise.
