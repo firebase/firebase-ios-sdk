@@ -36,8 +36,7 @@
       /// - Parameters:
       ///     - phoneNumber: The phone number to be verified.
       ///     - uiDelegate: An object used to present the `SFSafariViewController`. The object is
-      /// retained
-      ///       by this method until the completion block is executed.
+      ///        retained by this method until the completion block is executed.
       ///
       /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
       ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
