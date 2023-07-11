@@ -121,8 +121,10 @@ struct ModuleMapBuilder {
 
   // MARK: - Internal Functions
 
-  /// Build a module map for a single framework. A CocoaPod install is run to extract the required frameworks
-  /// and libraries from the generated xcconfig. All previously installed dependent pods are put into the Podfile
+  /// Build a module map for a single framework. A CocoaPod install is run to extract the required
+  /// frameworks
+  /// and libraries from the generated xcconfig. All previously installed dependent pods are put
+  /// into the Podfile
   /// to make sure we install the right version and from the right location.
   private func generate(framework: FrameworkInfo) {
     let podName = framework.versionedPod.name
@@ -142,7 +144,8 @@ struct ModuleMapBuilder {
       .moduleMapContents = makeModuleMap(forFramework: framework, withXcconfigFile: xcconfigFile)
   }
 
-  /// Convert a list of versioned pods to a list of versioned pods specified with all needed subspecs.
+  /// Convert a list of versioned pods to a list of versioned pods specified with all needed
+  /// subspecs.
   private func allSubspecList(framework: FrameworkInfo) -> [CocoaPodUtils.VersionedPod] {
     let name = framework.versionedPod.name
     let version = framework.versionedPod.version

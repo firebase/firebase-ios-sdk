@@ -45,7 +45,8 @@ public protocol HTTPHeaderRepresentable {
 ///     }
 ///
 public struct HeartbeatsPayload: Codable {
-  /// The version of the payload. See go/firebase-apple-heartbeats for details regarding current version.
+  /// The version of the payload. See go/firebase-apple-heartbeats for details regarding current
+  /// version.
   static let version: Int = 2
 
   /// A payload component composed of a user agent and array of dates (heartbeats).

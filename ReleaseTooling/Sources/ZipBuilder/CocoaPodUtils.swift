@@ -163,7 +163,8 @@ enum CocoaPodUtils {
                                       localPodspecPath: localPodspecPath)
   }
 
-  /// Install an array of pods in a specific directory, returning a dictionary of PodInfo for each pod
+  /// Install an array of pods in a specific directory, returning a dictionary of PodInfo for each
+  /// pod
   /// that was installed.
   /// - Parameters:
   ///   - pods: List of VersionedPods to install
@@ -413,10 +414,12 @@ enum CocoaPodUtils {
   /// - Returns: A tuple of the framework and version, if it can be parsed.
   private static func detectVersion(fromLine input: String)
     -> (framework: String, version: String)? {
-    // Get the components of the line to parse them individually. Ignore any whitespace only Strings.
+    // Get the components of the line to parse them individually. Ignore any whitespace only
+    // Strings.
     let components = input.components(separatedBy: " ").filter { !$0.isEmpty }
 
-    // Expect three components: the `-`, the pod name, and the version in parens. This will filter out
+    // Expect three components: the `-`, the pod name, and the version in parens. This will filter
+    // out
     // dependencies that have version requirements like `(~> 3.2.1)` in it.
     guard components.count == 3 else { return nil }
 

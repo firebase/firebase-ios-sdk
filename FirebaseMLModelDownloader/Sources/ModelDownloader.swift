@@ -18,11 +18,14 @@ import FirebaseInstallations
 
 /// Possible ways to get a custom model.
 public enum ModelDownloadType {
-  /// Get local model stored on device if available. If no local model on device, this is the same as `latestModel`.
+  /// Get local model stored on device if available. If no local model on device, this is the same
+  /// as `latestModel`.
   case localModel
-  /// Get local model on device if available and update to latest model from server in the background. If no local model on device, this is the same as `latestModel`.
+  /// Get local model on device if available and update to latest model from server in the
+  /// background. If no local model on device, this is the same as `latestModel`.
   case localModelUpdateInBackground
-  /// Get latest model from server. Does not make a network call for model file download if local model matches the latest version on server.
+  /// Get latest model from server. Does not make a network call for model file download if local
+  /// model matches the latest version on server.
   case latestModel
 }
 
@@ -120,13 +123,16 @@ public class ModelDownloader {
     }
   }
 
-  /// Downloads a custom model to device or gets a custom model already on device, with an optional handler for progress.
+  /// Downloads a custom model to device or gets a custom model already on device, with an optional
+  /// handler for progress.
   /// - Parameters:
   ///   - modelName: The name of the model, matching Firebase console.
   ///   - downloadType: ModelDownloadType used to get the model.
   ///   - conditions: Conditions needed to perform a model download.
-  ///   - progressHandler: Optional. Returns a float in [0.0, 1.0] that can be used to monitor model download progress.
-  ///   - completion: Returns either a `CustomModel` on success, or a `DownloadError` on failure, at the end of a model download.
+  ///   - progressHandler: Optional. Returns a float in [0.0, 1.0] that can be used to monitor model
+  /// download progress.
+  ///   - completion: Returns either a `CustomModel` on success, or a `DownloadError` on failure, at
+  /// the end of a model download.
   public func getModel(name modelName: String,
                        downloadType: ModelDownloadType,
                        conditions: ModelDownloadConditions,
@@ -219,7 +225,8 @@ public class ModelDownloader {
   }
 
   /// Gets the set of all downloaded models saved on device.
-  /// - Parameter completion: Returns either a set of `CustomModel` models on success, or a `DownloadedModelError` on failure.
+  /// - Parameter completion: Returns either a set of `CustomModel` models on success, or a
+  /// `DownloadedModelError` on failure.
   public func listDownloadedModels(completion: @escaping (Result<Set<CustomModel>,
     DownloadedModelError>) -> Void) {
     do {
@@ -279,14 +286,17 @@ public class ModelDownloader {
     }
   }
 
-  /// Deletes a custom model file from device as well as corresponding model information saved in UserDefaults.
+  /// Deletes a custom model file from device as well as corresponding model information saved in
+  /// UserDefaults.
   /// - Parameters:
-  ///   - modelName: The name of the model, matching Firebase console and already downloaded to device.
+  ///   - modelName: The name of the model, matching Firebase console and already downloaded to
+  /// device.
   ///   - completion: Returns a `DownloadedModelError` on failure.
   public func deleteDownloadedModel(name modelName: String,
                                     completion: @escaping (Result<Void, DownloadedModelError>)
                                       -> Void) {
-    // Ensure that there is a matching model file on device, with corresponding model information in UserDefaults.
+    // Ensure that there is a matching model file on device, with corresponding model information in
+    // UserDefaults.
     guard let modelURL = ModelFileManager.getDownloadedModelFileURL(
       appName: appName,
       modelName: modelName
@@ -474,7 +484,8 @@ extension ModelDownloader {
             }
           }
           self.taskSerialQueue.sync {
-            // Merge duplicate requests if there is already a download in progress for the same model.
+            // Merge duplicate requests if there is already a download in progress for the same
+            // model.
             if let downloadTask = self.currentDownloadTask[modelName],
                downloadTask.canMergeRequests() {
               downloadTask.merge(
@@ -507,7 +518,8 @@ extension ModelDownloader {
         /// Local model info is the latest model info.
         case .notModified:
           guard let localModel = self.getLocalModel(modelName: modelName) else {
-            // This can only happen if either local model info or the model file was wiped out after model info request but before server response.
+            // This can only happen if either local model info or the model file was wiped out after
+            // model info request but before server response.
             self
               .asyncOnMainQueue(completion(.failure(.internalError(description: ModelDownloader
                   .ErrorDescription.deletedLocalModelInfoOrFile))))
@@ -557,7 +569,7 @@ public enum DownloadedModelError: Error {
 extension DownloadError {
   /// Model download URL expired before model download.
   // Model info retrieval and download is retried `numberOfRetries` times before failing.
-  static let expiredDownloadURL: DownloadError = DownloadError
+  static let expiredDownloadURL: DownloadError =
     .internalError(description: "Expired model download URL.")
 }
 

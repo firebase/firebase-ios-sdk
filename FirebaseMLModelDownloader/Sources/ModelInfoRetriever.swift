@@ -371,7 +371,8 @@ class ModelInfoRetriever {
                                                                  .statusCode))
               completion(.failure(.invalidArgument))
             case 401, 403:
-              // Error could be due to FirebaseML API not enabled for project, or invalid permissions.
+              // Error could be due to FirebaseML API not enabled for project, or invalid
+              // permissions.
               let errorMessage = self.getErrorFromResponse(data)
               let description = errorMessage ?? ModelInfoRetriever.ErrorDescription.permissionDenied
               DeviceLogger.logEvent(level: .debug,
