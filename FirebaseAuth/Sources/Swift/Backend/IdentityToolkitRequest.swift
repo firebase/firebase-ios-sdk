@@ -28,25 +28,17 @@ private let kFirebaseAuthStagingAPIHost = "staging-www.sandbox.googleapis.com"
 private let kIdentityPlatformStagingAPIHost =
   "staging-identitytoolkit.sandbox.googleapis.com"
 
-/** @class FIRIdentityToolkitRequest
- @brief Represents a request to an identity toolkit endpoint.
- */
+/// Represents a request to an identity toolkit endpoint.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRIdentityToolkitRequest) open class IdentityToolkitRequest: NSObject {
-  /** @property endpoint
-   @brief Gets the RPC's endpoint.
-   */
-  @objc public let endpoint: String
+open class IdentityToolkitRequest {
+  /// Gets the RPC's endpoint.
+  public let endpoint: String
 
-  /** @property APIKey
-   @brief Gets the client's API key used for the request.
-   */
-  @objc(APIKey) public var apiKey: String
+  /// Gets the client's API key used for the request.
+  public var apiKey: String
 
-  /** @property tenantID
-   @brief The tenant ID of the request. nil if none is available.
-   */
-  @objc public let tenantID: String?
+  /// The tenant ID of the request. nil if none is available.
+  public let tenantID: String?
 
   let _requestConfiguration: AuthRequestConfiguration
 
@@ -54,8 +46,8 @@ private let kIdentityPlatformStagingAPIHost =
 
   let _useStaging: Bool
 
-  @objc public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
-                    useIdentityPlatform: Bool = false, useStaging: Bool = false) {
+  public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
+              useIdentityPlatform: Bool = false, useStaging: Bool = false) {
     self.endpoint = endpoint
     apiKey = requestConfiguration.apiKey
     _requestConfiguration = requestConfiguration
@@ -64,14 +56,12 @@ private let kIdentityPlatformStagingAPIHost =
     tenantID = requestConfiguration.auth?.tenantID
   }
 
-  @objc public func containsPostBody() -> Bool {
+  public func containsPostBody() -> Bool {
     true
   }
 
-  /** @fn requestURL
-   @brief Gets the request's full URL.
-   */
-  @objc public func requestURL() -> URL {
+  /// Returns the request's full URL.
+  public func requestURL() -> URL {
     let apiProtocol: String
     let apiHostAndPathPrefix: String
     let urlString: String
@@ -106,10 +96,8 @@ private let kIdentityPlatformStagingAPIHost =
     return URL(string: urlString)!
   }
 
-  /** @fn requestConfiguration
-   @brief Gets the request's configuration.
-   */
-  @objc public func requestConfiguration() -> AuthRequestConfiguration {
+  /// Returns the request's configuration.
+  public func requestConfiguration() -> AuthRequestConfiguration {
     _requestConfiguration
   }
 }

@@ -89,9 +89,9 @@ class SignInWithGameCenterTests: RPCBaseTests {
     XCTAssertEqual(requestDictionary[kAccessTokenKey], kAccessToken)
     XCTAssertEqual(requestDictionary[kDisplayNameKey], kDisplayName)
 
-    AuthBackend.post(withRequest: request) { response, error in
+    AuthBackend.post(with: request) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? SignInWithGameCenterResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

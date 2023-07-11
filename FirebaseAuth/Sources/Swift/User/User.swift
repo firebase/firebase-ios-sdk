@@ -750,13 +750,13 @@ extension User: NSSecureCoding {}
                                                requestConfiguration: requestConfiguration)
           credential.prepare(request)
           request.accessToken = accessToken
-          AuthBackend.post(withRequest: request) { rawResponse, error in
+          AuthBackend.post(with: request) { rawResponse, error in
             if let error {
               self.signOutIfTokenIsInvalid(withError: error)
               completeWithError(nil, error)
               return
             }
-            guard let response = rawResponse as? VerifyAssertionResponse else {
+            guard let response = rawResponse else {
               fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
             }
             let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
@@ -917,7 +917,7 @@ extension User: NSSecureCoding {}
           return
         }
         request.deleteProviders = [provider]
-        AuthBackend.post(withRequest: request) { rawResponse, error in
+        AuthBackend.post(with: request) { rawResponse, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
             completeAndCallbackWithError(error)
@@ -937,7 +937,7 @@ extension User: NSSecureCoding {}
               self.phoneNumber = nil
             }
           #endif
-          if let response = rawResponse as? SetAccountInfoResponse,
+          if let response = rawResponse,
              let idToken = response.idToken,
              let refreshToken = response.refreshToken {
             let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
@@ -1057,7 +1057,7 @@ extension User: NSSecureCoding {}
           actionCodeSettings: actionCodeSettings,
           requestConfiguration: requestConfiguration
         )
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { response, error in
           if let error {
             self.signOutIfTokenIsInvalid(withError: error)
           }
@@ -1135,7 +1135,7 @@ extension User: NSSecureCoding {}
         }
         let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
                                            requestConfiguration: requestConfiguration)
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { response, error in
           if let error {
             User.callInMainThreadWithError(callback: completion, error: error)
             return
@@ -1222,7 +1222,7 @@ extension User: NSSecureCoding {}
           actionCodeSettings: actionCodeSettings,
           requestConfiguration: requestConfiguration
         )
-        AuthBackend.post(withRequest: request) { response, error in
+        AuthBackend.post(with: request) { response, error in
           User.callInMainThreadWithError(callback: completion, error: error)
         }
       }
@@ -1308,13 +1308,13 @@ extension User: NSSecureCoding {}
       let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                         requestConfiguration: user
                                                           .requestConfiguration)
-      AuthBackend.post(withRequest: getAccountInfoRequest) { rawResponse, error in
+      AuthBackend.post(with: getAccountInfoRequest) { rawResponse, error in
         if let error {
           // No need to sign out user here for errors because the user hasn't been signed in yet.
           callback(nil, error)
           return
         }
-        guard let response = rawResponse as? GetAccountInfoResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal FirebaseAuthError: Response should be a GetAccountInfoResponse")
         }
         user.isAnonymous = anonymous
@@ -1418,13 +1418,13 @@ extension User: NSSecureCoding {}
             if let requestConfiguration = self.auth?.requestConfiguration {
               let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                                 requestConfiguration: requestConfiguration)
-              AuthBackend.post(withRequest: getAccountInfoRequest) { response, error in
+              AuthBackend.post(with: getAccountInfoRequest) { response, error in
                 if let error {
                   self.signOutIfTokenIsInvalid(withError: error)
                   callback(error)
                   return
                 }
-                guard let accountInfoResponse = response as? GetAccountInfoResponse else {
+                guard let accountInfoResponse = response else {
                   fatalError("Auth Internal Error: Response is not an GetAccountInfoResponse")
                 }
                 if let users = accountInfoResponse.users {
@@ -1496,14 +1496,14 @@ extension User: NSSecureCoding {}
             setAccountInfoRequest.accessToken = accessToken
             changeBlock(user, setAccountInfoRequest)
             // Execute request:
-            AuthBackend.post(withRequest: setAccountInfoRequest) { response, error in
+            AuthBackend.post(with: setAccountInfoRequest) { response, error in
               if let error {
                 self.signOutIfTokenIsInvalid(withError: error)
                 complete()
                 callback(error)
                 return
               }
-              if let accountInfoResponse = response as? SetAccountInfoResponse {
+              if let accountInfoResponse = response {
                 if let idToken = accountInfoResponse.idToken,
                    let refreshToken = accountInfoResponse.refreshToken {
                   let tokenService = SecureTokenService(
@@ -1571,13 +1571,13 @@ extension User: NSSecureCoding {}
       }
       let request = GetAccountInfoRequest(accessToken: token,
                                           requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: request) { response, error in
+      AuthBackend.post(with: request) { response, error in
         if let error {
           self.signOutIfTokenIsInvalid(withError: error)
           callback(nil, error)
           return
         }
-        guard let accountInfoResponse = response as? GetAccountInfoResponse else {
+        guard let accountInfoResponse = response else {
           fatalError("Internal Error: wrong response type")
         }
         self.update(withGetAccountInfoResponse: accountInfoResponse)
@@ -1659,14 +1659,14 @@ extension User: NSSecureCoding {}
                                                  operation: operation,
                                                  requestConfiguration: configuration)
           request.accessToken = accessToken
-          AuthBackend.post(withRequest: request) { response, error in
+          AuthBackend.post(with: request) { response, error in
             if let error {
               self.signOutIfTokenIsInvalid(withError: error)
               completion(error)
               return
             }
             // Update the new token and refresh user info again.
-            if let verifyResponse = response as? VerifyPhoneNumberResponse {
+            if let verifyResponse = response {
               if let idToken = verifyResponse.idToken,
                  let refreshToken = verifyResponse.refreshToken {
                 self.tokenService = SecureTokenService(
@@ -1739,14 +1739,14 @@ extension User: NSSecureCoding {}
                                              oobCode: actionCode,
                                              requestConfiguration: requestConfiguration)
         request.idToken = accessToken
-        AuthBackend.post(withRequest: request) { rawResponse, error in
+        AuthBackend.post(with: request) { rawResponse, error in
           if let error {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
                                                             error: error)
             return
           }
-          guard let response = rawResponse as? EmailLinkSignInResponse else {
+          guard let response = rawResponse else {
             fatalError("Internal Auth Error: response type is not an EmailLinkSignInResponse")
           }
           guard let idToken = response.idToken,
@@ -1788,14 +1788,14 @@ extension User: NSSecureCoding {}
                                                   displayName: gameCenterCredential.displayName,
                                                   requestConfiguration: requestConfiguration)
         request.accessToken = accessToken
-        AuthBackend.post(withRequest: request) { rawResponse, error in
+        AuthBackend.post(with: request) { rawResponse, error in
           if let error {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
                                                             error: error)
             return
           }
-          guard let response = rawResponse as? SignInWithGameCenterResponse else {
+          guard let response = rawResponse else {
             fatalError("Internal Auth Error: response type is not an SignInWithGameCenterResponse")
           }
           guard let idToken = response.idToken,
@@ -1867,13 +1867,13 @@ extension User: NSSecureCoding {}
       }
       let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                         requestConfiguration: requestConfiguration)
-      AuthBackend.post(withRequest: getAccountInfoRequest) { rawResponse, error in
+      AuthBackend.post(with: getAccountInfoRequest) { rawResponse, error in
         if let error {
           self.signOutIfTokenIsInvalid(withError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
           return
         }
-        guard let response = rawResponse as? GetAccountInfoResponse else {
+        guard let response = rawResponse else {
           fatalError("Internal Auth Error: response is not a GetAccountInfoResponse")
         }
         self.isAnonymous = false

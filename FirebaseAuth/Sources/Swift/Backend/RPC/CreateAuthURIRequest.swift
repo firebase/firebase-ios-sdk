@@ -64,53 +64,49 @@ private let kTenantIDKey = "tenantId"
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRCreateAuthURIRequest) public class CreateAuthURIRequest: IdentityToolkitRequest,
-  AuthRPCRequest {
+public class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
+  typealias Response = CreateAuthURIResponse
+
   /** @property identifier
       @brief The email or federated ID of the user.
    */
-  @objc public let identifier: String
+  public let identifier: String
 
   /** @property continueURI
       @brief The URI to which the IDP redirects the user after the federated login flow.
    */
-  @objc public let continueURI: String
+  public let continueURI: String
 
   /** @property openIDRealm
       @brief Optional realm for OpenID protocol. The sub string "scheme://domain:port" of the param
           "continueUri" is used if this is not set.
    */
-  @objc public var openIDRealm: String?
+  public var openIDRealm: String?
 
   /** @property providerID
       @brief The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,
           live.net and yahoo.com. For other OpenID IdPs it's the OP identifier.
    */
-  @objc public var providerID: String?
+  public var providerID: String?
 
   /** @property clientID
       @brief The relying party OAuth client ID.
    */
-  @objc public var clientID: String?
+  public var clientID: String?
 
   /** @property context
       @brief The opaque value used by the client to maintain context info between the authentication
           request and the IDP callback.
    */
-  @objc public var context: String?
+  public var context: String?
 
   /** @property appID
       @brief The iOS client application's bundle identifier.
    */
-  @objc public var appID: String?
+  public var appID: String?
 
-  /** @var response
-      @brief The corresponding response for this request
-   */
-  @objc public var response: AuthRPCResponse = CreateAuthURIResponse()
-
-  @objc public init(identifier: String, continueURI: String,
-                    requestConfiguration: AuthRequestConfiguration) {
+  public init(identifier: String, continueURI: String,
+              requestConfiguration: AuthRequestConfiguration) {
     self.identifier = identifier
     self.continueURI = continueURI
     super.init(endpoint: kCreateAuthURIEndpoint, requestConfiguration: requestConfiguration)

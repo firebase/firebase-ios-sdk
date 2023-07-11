@@ -209,9 +209,9 @@ class SetAccountInfoTests: RPCBaseTests {
     var rpcResponse: SetAccountInfoResponse?
     var rpcError: NSError?
 
-    AuthBackend.post(withRequest: setAccountInfoRequest()) { response, error in
+    AuthBackend.post(with: setAccountInfoRequest()) { response, error in
       callbackInvoked = true
-      rpcResponse = response as? SetAccountInfoResponse
+      rpcResponse = response
       rpcError = error as? NSError
     }
 

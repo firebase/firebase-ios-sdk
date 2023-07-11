@@ -14,12 +14,13 @@
 
 import Foundation
 
-@objc(FIRFinalizeMFASignInResponse) public class FinalizeMFASignInResponse: NSObject,
-  AuthRPCResponse {
-  @objc public var IDToken: String?
-  @objc public var refreshToken: String?
+class FinalizeMFASignInResponse: AuthRPCResponse {
+  required init() {}
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  var IDToken: String?
+  var refreshToken: String?
+
+  func setFields(dictionary: [String: AnyHashable]) throws {
     IDToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
   }
