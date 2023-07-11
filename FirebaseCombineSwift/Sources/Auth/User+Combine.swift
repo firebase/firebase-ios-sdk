@@ -30,8 +30,7 @@
     ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
     /// - Remark: Possible error codes:
     ///   - `FIRAuthErrorCodeProviderAlreadyLinked` - Indicates an attempt to link a provider of a
-    /// type
-    ///     already linked to this account.
+    ///      type already linked to this account.
     ///   - `FIRAuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
     /// credential
     ///     that has already been linked with a different Firebase account.
