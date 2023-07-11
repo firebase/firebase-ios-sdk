@@ -100,9 +100,8 @@
     #if canImport(FirebaseFirestoreSwift)
 
       /// Encodes an instance of `Encodable` and overwrites the encoded data to the document
-      /// referred
-      ///  by this `DocumentReference`. If no document exists, it is created. If a document already
-      ///  exists, it is overwritten.
+      ///  referred by this `DocumentReference`. If no document exists, it is created. If a
+      ///  document already exists, it is overwritten.
       ///
       /// - Parameters:
       ///   - value: An instance of `Encodable` to be encoded to a document.
