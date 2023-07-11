@@ -28,7 +28,7 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 #import "AppCheck/Tests/Unit/Utils/GACFixtureLoader.h"
-#import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
+#import "AppCheck/Tests/Utils/URLSession/GACURLSessionOCMockStub.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -84,7 +84,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
       [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
 
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
 
@@ -135,7 +135,7 @@ typedef BOOL (^FIRRequestValidationBlock)(NSURLRequest *request);
       [GACFixtureLoader loadFixtureNamed:@"FACTokenExchangeResponseSuccess.json"];
   XCTAssertNotNil(responseBody);
 
-  NSHTTPURLResponse *HTTPResponse = [FIRURLSessionOCMockStub HTTPResponseWithCode:200];
+  NSHTTPURLResponse *HTTPResponse = [GACURLSessionOCMockStub HTTPResponseWithCode:200];
   GULURLSessionDataResponse *APIResponse =
       [[GULURLSessionDataResponse alloc] initWithResponse:HTTPResponse HTTPBody:responseBody];
 
