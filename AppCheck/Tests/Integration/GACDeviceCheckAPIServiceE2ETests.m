@@ -30,12 +30,11 @@
 #import "FBLPromise+Testing.h"
 
 #import <FirebaseCore/FirebaseCore.h>
+#import <FirebaseCoreExtension/FirebaseCoreInternal.h>
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
 #import "AppCheck/Sources/DeviceCheckProvider/API/GACDeviceCheckAPIService.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
-
-#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 // TODO(andrewheard): Remove from generic App Check SDK.
 // FIREBASE_APP_CHECK_ONLY_BEGIN
