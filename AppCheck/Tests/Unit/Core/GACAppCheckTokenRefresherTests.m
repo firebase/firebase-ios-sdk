@@ -23,7 +23,7 @@
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
 #import "AppCheck/Tests/Unit/Utils/GACFakeTimer.h"
-#import "SharedTestUtilities/Date/FIRDateTestUtils.h"
+#import "AppCheck/Tests/Utils/Date/GACDateTestUtils.h"
 
 @interface GACAppCheckTokenRefresherTests : XCTestCase
 
@@ -452,7 +452,7 @@
     weakSelf.fakeTimer.createHandler = nil;
 
     // 1 minute is the minimal interval between successful refreshes.
-    XCTAssert([FIRDateTestUtils isDate:fireDate
+    XCTAssert([GACDateTestUtils isDate:fireDate
         approximatelyEqualCurrentPlusTimeInterval:60
                                         precision:1]);
     [timerCreateExpectation fulfill];
