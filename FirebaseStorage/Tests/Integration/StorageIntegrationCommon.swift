@@ -55,7 +55,7 @@ class StorageIntegrationCommon: XCTestCase {
         let bundle = Bundle(for: StorageIntegrationCommon.self)
         let filePath = try XCTUnwrap(bundle.path(forResource: "1mb", ofType: "dat"),
                                      "Failed to get filePath")
-        let data = try XCTUnwrap(try Data(contentsOf: URL(fileURLWithPath: filePath)),
+        let data = try XCTUnwrap(Data(contentsOf: URL(fileURLWithPath: filePath)),
                                  "Failed to load file")
 
         for largeFile in largeFiles {

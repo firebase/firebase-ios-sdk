@@ -32,7 +32,8 @@
     ///   - uploadData: The Data to upload.
     ///   - metadata: metadata `StorageMetadata` containing additional information (MIME type, etc.)
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the
+    /// *main* thread.
     @discardableResult
     func putData(_ data: Data,
                  metadata: StorageMetadata? = nil) -> Future<StorageMetadata, Error> {
@@ -54,9 +55,11 @@
     ///
     /// - Parameters:
     ///   - fileURL: A `URL` representing the system file path of the object to be uploaded.
-    ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.) about the object being uploaded.
+    ///   - metadata: `StorageMetadata` containing additional information (MIME type, etc.) about
+    /// the object being uploaded.
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the
+    /// *main* thread.
     @discardableResult
     func putFile(from fileURL: URL,
                  metadata: StorageMetadata? = nil)
@@ -76,8 +79,10 @@
     // MARK: - Downloads
 
     /// Asynchronously downloads the object at the `StorageReference` to an `Data` object in memory.
-    /// An `Data` of the provided max size will be allocated, so ensure that the device has enough free
-    /// memory to complete the download. For downloading large files, `writeToFile` may be a better option.
+    /// An `Data` of the provided max size will be allocated, so ensure that the device has enough
+    /// free
+    /// memory to complete the download. For downloading large files, `writeToFile` may be a better
+    /// option.
     ///
     /// The publisher will emit events on the **main** thread.
     ///
@@ -85,7 +90,8 @@
     ///   - size: The maximum size in bytes to download. If the download exceeds this size,
     ///     the task will be cancelled and an error will be returned.
     ///
-    /// - Returns: A publisher emitting a `Data` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `Data` instance. The publisher will emit on the *main*
+    /// thread.
     @discardableResult
     func getData(maxSize size: Int64) -> Future<Data, Error> {
       var task: StorageDownloadTask?
@@ -129,7 +135,8 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting a `URL` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `URL` instance. The publisher will emit on the *main*
+    /// thread.
     @discardableResult
     func downloadURL() -> Future<URL, Error> {
       Future<URL, Error> { promise in
@@ -152,7 +159,8 @@
     /// - Remark:
     ///    `listAll` is only available for projects using Firebase Rules Version 2.
     ///
-    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on
+    /// the *main* thread.
     @discardableResult
     func listAll() -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
@@ -164,8 +172,10 @@
 
     /// List up to `maxResults` items (files) and prefixes (folders) under this `StorageReference`.
     ///
-    /// Note that "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
-    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase Storage will be
+    /// Note that "/" is treated as a path delimiter. Firebase Storage does not support unsupported
+    /// object
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase
+    /// Storage will be
     /// filtered.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -177,7 +187,8 @@
     /// - Remark:
     ///    `list(maxResults:)` is only available for projects using Firebase Rules Version 2.
     ///
-    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on
+    /// the *main* thread.
     @discardableResult
     func list(maxResults: Int64) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
@@ -190,8 +201,10 @@
     /// Resumes a previous call to `list(maxResults:)`, starting after a pagination token.
     /// Returns the next set of items (files) and prefixes (folders) under this `StorageReference.
     ///
-    /// Note that "/" is treated as a path delimiter. Firebase Storage does not support unsupported object
-    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase Storage
+    /// Note that "/" is treated as a path delimiter. Firebase Storage does not support unsupported
+    /// object
+    /// paths that end with "/" or contain two consecutive "/"s. All invalid objects in Firebase
+    /// Storage
     /// will be filtered out.
     ///
     /// The publisher will emit events on the **main** thread.
@@ -202,9 +215,11 @@
     ///   - pageToken: A page token from a previous call to list.
     ///
     /// - Remark:
-    ///    `list(maxResults:pageToken:)` is only available for projects using Firebase Rules Version 2.
+    ///    `list(maxResults:pageToken:)` is only available for projects using Firebase Rules Version
+    /// 2.
     ///
-    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageListResult` instance. The publisher will emit on
+    /// the *main* thread.
     @discardableResult
     func list(maxResults: Int64, pageToken: String) -> Future<StorageListResult, Error> {
       Future<StorageListResult, Error> { promise in
@@ -220,7 +235,8 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the
+    /// *main* thread.
     @discardableResult
     func getMetadata() -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
@@ -237,7 +253,8 @@
     /// - Parameters:
     ///   - metadata: A `StorageMetadata` object with the metadata to update.
     ///
-    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher emitting a `StorageMetadata` instance. The publisher will emit on the
+    /// *main* thread.
     @discardableResult
     func updateMetadata(_ metadata: StorageMetadata) -> Future<StorageMetadata, Error> {
       Future<StorageMetadata, Error> { promise in
@@ -253,7 +270,8 @@
     ///
     /// The publisher will emit events on the **main** thread.
     ///
-    /// - Returns: A publisher that emits whether the call was successful or not. The publisher will emit on the *main* thread.
+    /// - Returns: A publisher that emits whether the call was successful or not. The publisher will
+    /// emit on the *main* thread.
     @discardableResult
     func delete() -> Future<Bool, Error> {
       Future<Bool, Error> { promise in

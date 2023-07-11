@@ -15,7 +15,8 @@
 
 import Foundation
 
-/// Extends ApplicationInfoProtocol to string-format a combined appDisplayVersion and appBuildVersion
+/// Extends ApplicationInfoProtocol to string-format a combined appDisplayVersion and
+/// appBuildVersion
 extension ApplicationInfoProtocol {
   var synthesizedVersion: String { return "\(appDisplayVersion) (\(appBuildVersion))" }
 }

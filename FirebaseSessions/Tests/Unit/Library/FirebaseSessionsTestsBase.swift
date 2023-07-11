@@ -65,7 +65,8 @@ class FirebaseSessionsTestsBase: XCTestCase {
   /// It has 4 parts:
   ///  - `subscriberSDKs` tells the test to expect the list of subscriber SDKs
   ///  - `preSessionsInit`  is before Sessions or any Subscriber SDKs start up. This is a good
-  /// place to mock variables in any dependencies (eg. Settings, or mocking any Subscribers themselves)
+  /// place to mock variables in any dependencies (eg. Settings, or mocking any Subscribers
+  /// themselves)
   ///  - `postSessionsInit` is after Sessions has started up, but before logging any events. This
   /// is a good place for Subscribers to call register on the Sessions SDK
   ///  - `postLogEvent` is called whenever an event is logged via the Sessions SDK. This is where

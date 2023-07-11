@@ -88,7 +88,7 @@ public struct ServerTimestamp<Value>: Codable
     if container.decodeNil() {
       value = nil
     } else {
-      value = try Value.wrap(try container.decode(Timestamp.self))
+      value = try Value.wrap(container.decode(Timestamp.self))
     }
   }
 
