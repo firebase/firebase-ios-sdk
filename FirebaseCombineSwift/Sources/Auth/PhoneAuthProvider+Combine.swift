@@ -75,10 +75,8 @@
       ///     - uiDelegate: An object used to present the `SFSafariViewController`. The object is
       ///       retained by this method until the completion block is executed.
       ///     - session: A session to identify the MFA flow. For enrollment, this identifies the
-      /// user
-      ///       trying to enroll. For sign-in, this identifies that the user already passed the
-      /// first
-      ///       factor challenge.
+      ///       user trying to enroll. For sign-in, this identifies that the user already passed the
+      ///       first factor challenge.
       ///
       /// - Returns: A publisher that emits an `VerificationID` when the verification flow completed
       ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
