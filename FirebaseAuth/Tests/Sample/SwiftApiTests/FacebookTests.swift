@@ -113,9 +113,8 @@ import XCTest
 //    }
 //  #endif
 //
-//  /// ** Creates a Facebook testing account using Facebook Graph API and return a dictionary that
-//  // * constains "id", "access_token", "login_url", "email" and "password" of the created account.
-//  // */
+//  /// Creates a Facebook testing account using Facebook Graph API and return a dictionary that
+//  /// constrains "id", "access_token", "login_url", "email" and "password" of the created account.
 //  func createFacebookTestingAccount() -> [String: Any] {
 //    var returnValue: [String: Any] = [:]
 //    let urltoCreateTestUser = "https://graph.facebook.com/\(Credentials.kFacebookAppID)" +
@@ -154,11 +153,9 @@ import XCTest
 //
 //  #if compiler(>=5.5.2) && canImport(_Concurrency)
 //    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-//    /// ** Creates a Facebook testing account using Facebook Graph API and return a dictionary
-//    /that
-//    // * constains "id", "access_token", "login_url", "email" and "password" of the created
-//    /account.
-//    // */
+//    /// Creates a Facebook testing account using Facebook Graph API and return a dictionary that
+//    /// constains "id", "access_token", "login_url", "email" and "password" of the created
+//    /// account.
 //    func createFacebookTestingAccountAsync() async throws -> [String: Any] {
 //      let urltoCreateTestUser = "https://graph.facebook.com/\(Credentials.kFacebookAppID)" +
 //        "/accounts/test-users"
