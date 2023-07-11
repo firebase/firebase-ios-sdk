@@ -85,23 +85,12 @@ import Foundation
           requestConfiguration: user.requestConfiguration
         )
 
-      AuthBackend.post(with: request) { rawResponse, error in
-        if let error {
-          if let completion {
-            completion(error)
-          }
-        } else if let response = rawResponse {
-          user.auth?.completeSignIn(withAccessToken: response.idToken,
-                                    accessTokenExpirationDate: nil,
-                                    refreshToken: response.refreshToken,
-                                    anonymous: false) { _, error in
-            if error != nil {
-              try? user.auth?.signOut()
-            }
+        AuthBackend.post(with: request) { rawResponse, error in
+          if let error {
             if let completion {
               completion(error)
             }
-          } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
+          } else if let response = rawResponse {
             user.auth?.completeSignIn(withAccessToken: response.idToken,
                                       accessTokenExpirationDate: nil,
                                       refreshToken: response.refreshToken,

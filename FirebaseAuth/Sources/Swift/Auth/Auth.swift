@@ -2253,14 +2253,14 @@ extension Auth: AuthInterop {
      */
     private func signIn(withPhoneCredential credential: PhoneAuthCredential,
                         operation: AuthOperationType,
-                        callback: @escaping (AuthRPCResponse?, Error?) -> Void) {
+                        callback: @escaping (VerifyPhoneNumberResponse?, Error?) -> Void) {
       switch credential.credentialKind {
       case let .phoneNumber(phoneNumber, temporaryProof):
         let request = VerifyPhoneNumberRequest(temporaryProof: temporaryProof,
                                                phoneNumber: phoneNumber,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        AuthBackend.post(withRequest: request, callback: callback)
+        AuthBackend.post(with: request, callback: callback)
         return
       case let .verification(verificationID, code):
         guard verificationID.count > 0 else {

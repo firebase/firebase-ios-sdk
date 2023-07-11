@@ -23,7 +23,7 @@ import FirebaseCoreInternal
 #endif
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public protocol AuthBackendRPCIssuer: NSObjectProtocol {
+protocol AuthBackendRPCIssuer: NSObjectProtocol {
   /** @fn
       @brief Asynchronously sends a POST request.
       @param requestConfiguration The request to be made.
