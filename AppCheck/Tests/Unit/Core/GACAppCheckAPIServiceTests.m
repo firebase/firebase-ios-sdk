@@ -28,7 +28,7 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
 
 #import "AppCheck/Tests/Unit/Utils/GACFixtureLoader.h"
-#import "SharedTestUtilities/Date/FIRDateTestUtils.h"
+#import "AppCheck/Tests/Utils/Date/GACDateTestUtils.h"
 #import "SharedTestUtilities/URLSession/FIRURLSessionOCMockStub.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
@@ -320,7 +320,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   XCTAssertNil(tokenPromise.error);
 
   XCTAssertEqualObjects(tokenPromise.value.token, expectedFACToken);
-  XCTAssertTrue([FIRDateTestUtils isDate:tokenPromise.value.expirationDate
+  XCTAssertTrue([GACDateTestUtils isDate:tokenPromise.value.expirationDate
       approximatelyEqualCurrentPlusTimeInterval:1800
                                       precision:10]);
 }
