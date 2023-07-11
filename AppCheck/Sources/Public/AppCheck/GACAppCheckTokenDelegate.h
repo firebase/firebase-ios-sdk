@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-#import "GACAppCheck.h"
-#import "GACAppCheckErrors.h"
-#import "GACAppCheckProvider.h"
-#import "GACAppCheckSettings.h"
-#import "GACAppCheckToken.h"
-#import "GACAppCheckTokenDelegate.h"
+#import <Foundation/Foundation.h>
 
-// Debug provider
-#import "GACAppCheckDebugProvider.h"
+NS_ASSUME_NONNULL_BEGIN
 
-// DeviceCheck provider
-#import "GACDeviceCheckProvider.h"
+@protocol GACAppCheckTokenDelegate <NSObject>
 
-// App Attest provider.
-#import "GACAppAttestProvider.h"
+/// Called each time an App Check token is refreshed.
+///
+/// @param token The updated App Check token.
+/// @param instanceName A unique identifier for the App Check instance, may be a Firebase App Name
+/// or an SDK name.
+- (void)tokenDidUpdate:(GACAppCheckToken *)token instanceName:(NSString *)instanceName;
+
+@end
+
+NS_ASSUME_NONNULL_END
