@@ -34,9 +34,8 @@
     ///   - `FIRAuthErrorCodeCredentialAlreadyInUse` - Indicates an attempt to link with a
     ///     credential that has already been linked with a different Firebase account.
     ///   - `FIRAuthErrorCodeOperationNotAllowed` - Indicates that accounts with the identity
-    /// provider
-    ///     represented by the credential are not enabled. Enable them in the Auth section of the
-    /// Firebase console.
+    ///     provider represented by the credential are not enabled. Enable them in the Auth
+    ///     section of the Firebase console.
     ///
     ///   See `FIRAuthErrors` for a list of error codes that are common to all FIRUser methods.
     func link(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
