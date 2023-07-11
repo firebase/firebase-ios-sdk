@@ -73,8 +73,7 @@
       /// - Parameters:
       ///     - phoneNumber: The phone number to be verified.
       ///     - uiDelegate: An object used to present the `SFSafariViewController`. The object is
-      /// retained
-      ///       by this method until the completion block is executed.
+      ///       retained by this method until the completion block is executed.
       ///     - session: A session to identify the MFA flow. For enrollment, this identifies the
       /// user
       ///       trying to enroll. For sign-in, this identifies that the user already passed the
