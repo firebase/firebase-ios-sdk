@@ -52,6 +52,7 @@ Pod::Spec.new do |s|
   s.prepare_command = <<-PREPARE_COMMAND_END
     cp -f ./Crashlytics/run ./run
     cp -f ./Crashlytics/upload-symbols ./upload-symbols
+    cp -f ./Crashlytics/CrashlyticsInputFiles.xcfilelist ./CrashlyticsInputFiles.xcfilelist
   PREPARE_COMMAND_END
 
   s.dependency 'FirebaseCore', '~> 10.5'
