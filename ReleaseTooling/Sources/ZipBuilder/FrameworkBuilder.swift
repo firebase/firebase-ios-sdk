@@ -361,9 +361,9 @@ struct FrameworkBuilder {
       umbrellaHeader = "\(framework)-umbrella.h"
     } else {
       var umbrellaHeaderURL: URL
+      // Get the framework Headers directory. On macOS, it's a symbolic link.
+      let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
       do {
-        // Get the framework Headers directory. On macOS, it's a symbolic link.
-        let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
         let files = try fileManager.contentsOfDirectory(at: headersDir,
                                                         includingPropertiesForKeys: nil)
           .compactMap { $0.path }
