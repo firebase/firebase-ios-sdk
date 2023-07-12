@@ -351,18 +351,6 @@ struct FrameworkBuilder {
       fatalError("Could not get a path to an archive to fetch headers in \(frameworkName).")
     }
 
-    // Get the framework Headers directory. On macOS, it's a symbolic link.
-    let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
-
-    // The macOS slice's `Headers` directory may have a `Headers` file in it
-    // that symbolically links to nowhere. For example, in the 8.0.0 zip
-    // distribution, see `Firebase/FirebaseAnalytics/PromisesObjC.xcframework/
-    // macos-arm64_x86_64/PromisesObjc.framework/Headers/Headers`. Delete it
-    // here to avoid putting it in the zip or crashing the Carthage hash
-    // generation. Because this will throw an error for cases where the file
-    // does not exist, the error is ignored.
-    try? fileManager.removeItem(at: headersDir.appendingPathComponent("Headers"))
-
     // Find CocoaPods generated umbrella header.
     var umbrellaHeader = ""
     // TODO(ncooke3): Evaluate if `TensorFlowLiteObjC` is needed?
@@ -374,6 +362,8 @@ struct FrameworkBuilder {
     } else {
       var umbrellaHeaderURL: URL
       do {
+        // Get the framework Headers directory. On macOS, it's a symbolic link.
+        let headersDir = archivePath.appendingPathComponent("Headers").resolvingSymlinksInPath()
         let files = try fileManager.contentsOfDirectory(at: headersDir,
                                                         includingPropertiesForKeys: nil)
           .compactMap { $0.path }
@@ -610,8 +600,19 @@ struct FrameworkBuilder {
 
       // Headers from slice
       do {
+        let headersSrc: URL = frameworkPath.appendingPathComponent("Headers")
+          .resolvingSymlinksInPath()
+        // The macOS slice's `Headers` directory may have a `Headers` file in
+        // it that symbolically links to nowhere. For example, in the 8.0.0
+        // zip distribution, see the `Headers` directory in the macOS slice
+        // of the `PromisesObjC.xcframework`. Delete it here to avoid putting
+        // it in the zip or crashing the Carthage hash generation. Because
+        // this will throw an error for cases where the file does not exist,
+        // the error is ignored.
+        try? fileManager.removeItem(at: headersSrc.appendingPathComponent("Headers"))
+
         try fileManager.copyItem(
-          at: frameworkPath.appendingPathComponent("Headers").resolvingSymlinksInPath(),
+          at: headersSrc,
           to: platformFrameworkDir.appendingPathComponent("Headers")
         )
       } catch {
