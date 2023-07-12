@@ -32,8 +32,10 @@ import FirebaseAuthInterop
 // TODO: What should this be?
 // extension NSNotification.Name {
 //    /**
-//        @brief The name of the `NSNotificationCenter` notification which is posted when the auth state
-//            changes (for example, a new token has been produced, a user signs in or signs out). The
+//        @brief The name of the `NSNotificationCenter` notification which is posted when the auth
+//        state
+//            changes (for example, a new token has been produced, a user signs in or signs out).
+//            The
 //            object parameter of the notification is the sender `Auth` instance.
 //     */
 //    public static let AuthStateDidChange: NSNotification.Name
@@ -1667,7 +1669,8 @@ extension Auth: AuthInterop {
   #endif
 
   // TODO: Need to manage breaking change for
-  // const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";
+  // const NSNotificationName FIRAuthStateDidChangeNotification =
+  // @"FIRAuthStateDidChangeNotification";
   // Move to FIRApp with other Auth notifications?
   public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
@@ -1747,8 +1750,8 @@ extension Auth: AuthInterop {
 
       #if os(iOS)
         if GULAppEnvironmentUtil.isAppExtension() {
-          // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-          // responds to it.
+          // iOS App extensions should not call [UIApplication sharedApplication], even if
+          // UIApplication responds to it.
           return
         }
         let application = UIApplication.shared
@@ -1981,8 +1984,8 @@ extension Auth: AuthInterop {
           return
         }
         if error != nil {
-          // Kicks off exponential back off logic to retry failed attempt. Starts with one minute delay
-          // (60 seconds) if this is the first failed attempt.
+          // Kicks off exponential back off logic to retry failed attempt. Starts with one minute
+          // delay (60 seconds) if this is the first failed attempt.
           let rescheduleDelay = retry ? min(delay * 2, 16 * 60) : 60
           strongSelf.scheduleAutoTokenRefresh(withDelay: rescheduleDelay, retry: true)
         }

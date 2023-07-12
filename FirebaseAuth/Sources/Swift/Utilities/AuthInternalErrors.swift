@@ -105,10 +105,11 @@ enum SharedErrorCode {
 //           unreachable host.)
 //       @remarks These types of errors are often recoverable with a retry.
 //
-//           See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details about
-//           the network error which occurred.
+//           See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details
+//           about the network error which occurred.
 //    */
-//   FIRAuthInternalErrorCodeNetworkError = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeNetworkError,
+//   FIRAuthInternalErrorCodeNetworkError = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeNetworkError,
 //
 //   /** @var FIRAuthInternalErrorCodeEmailAlreadyInUse
 //       @brief The email used to attempt a sign-up already exists.
@@ -119,7 +120,8 @@ enum SharedErrorCode {
 //   /** @var FIRAuthInternalErrorCodeUserDisabled
 //       @brief Indicates the user's account is disabled on the server side.
 //    */
-//   FIRAuthInternalErrorCodeUserDisabled = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserDisabled,
+//   FIRAuthInternalErrorCodeUserDisabled = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeUserDisabled,
 //
 //   /** @var FIRAuthInternalErrorCodeWrongPassword
 //       @brief Indicates the user attempted sign in with a wrong password
@@ -129,7 +131,8 @@ enum SharedErrorCode {
 //
 //   /** @var FIRAuthInternalErrorCodeKeychainError
 //       @brief Indicates an error occurred accessing the keychain.
-//       @remarks The @c NSLocalizedFailureReasonErrorKey field in the @c NSError.userInfo dictionary
+//       @remarks The @c NSLocalizedFailureReasonErrorKey field in the @c NSError.userInfo
+//       dictionary
 //           will contain more information about the error encountered.
 //    */
 //   FIRAuthInternalErrorCodeKeychainError = FIRAuthPublicErrorCodeFlag |
@@ -174,7 +177,8 @@ enum SharedErrorCode {
 //                                               FIRAuthErrorCodeInvalidCredential,
 //
 //   /** @var FIRAuthInternalErrorCodeRequiresRecentLogin
-//       @brief Indicates the user has attemped to change email or password more than 5 minutes after
+//       @brief Indicates the user has attemped to change email or password more than 5 minutes
+//       after
 //           signing in.
 //    */
 //   FIRAuthInternalErrorCodeRequiresRecentLogin = FIRAuthPublicErrorCodeFlag |
@@ -189,7 +193,8 @@ enum SharedErrorCode {
 //   /** @var FIRAuthInternalErrorCodeInvalidEmail
 //      @brief Indicates the email identifier is invalid.
 //   */
-//   FIRAuthInternalErrorCodeInvalidEmail = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeInvalidEmail,
+//   FIRAuthInternalErrorCodeInvalidEmail = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeInvalidEmail,
 //
 //   /** @var FIRAuthInternalErrorCodeAccountExistsWithDifferentCredential
 //       @brief Indicates account linking is needed.
@@ -218,7 +223,8 @@ enum SharedErrorCode {
 //   /** @var FIRAuthInternalErrorCodeUserNotFound
 //       @brief Indicates the user account was been found.
 //    */
-//   FIRAuthInternalErrorCodeUserNotFound = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserNotFound,
+//   FIRAuthInternalErrorCodeUserNotFound = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeUserNotFound,
 //
 //   /** @var FIRAuthInternalErrorCodeInvalidAPIKey
 //       @brief Indicates an invalid API Key was supplied in the request.
@@ -236,7 +242,8 @@ enum SharedErrorCode {
 //       @brief Indicates that user attempted to reauthenticate with a user other than the current
 //           user.
 //    */
-//   FIRAuthInternalErrorCodeUserMismatch = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeUserMismatch,
+//   FIRAuthInternalErrorCodeUserMismatch = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeUserMismatch,
 //
 //   /** @var FIRAuthInternalErrorCodeCredentialAlreadyInUse
 //       @brief Indicates an attempt to link with a credential that has already been linked with a
@@ -248,7 +255,8 @@ enum SharedErrorCode {
 //   /** @var FIRAuthInternalErrorCodeWeakPassword
 //       @brief Indicates an attempt to set a password that is considered too weak.
 //    */
-//   FIRAuthInternalErrorCodeWeakPassword = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeWeakPassword,
+//   FIRAuthInternalErrorCodeWeakPassword = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeWeakPassword,
 //
 //   /** @var FIRAuthInternalErrorCodeAppNotAuthorized
 //       @brief Indicates the App is not authorized to use Firebase Authentication with the
@@ -269,7 +277,8 @@ enum SharedErrorCode {
 //   FIRAuthInternalErrorCodeInvalidActionCode = FIRAuthPublicErrorCodeFlag |
 //                                               FIRAuthErrorCodeInvalidActionCode,
 //
-//   /** Indicates that there are invalid parameters in the payload during a "send password reset email
+//   /** Indicates that there are invalid parameters in the payload during a "send password reset
+//   /email
 //    *  " attempt.
 //    */
 //   FIRAuthInternalErrorCodeInvalidMessagePayload = FIRAuthPublicErrorCodeFlag |
@@ -290,7 +299,8 @@ enum SharedErrorCode {
 //   FIRAuthinternalErrorCodeMissingIosBundleID = FIRAuthPublicErrorCodeFlag |
 //                                                FIRAuthErrorCodeMissingIosBundleID,
 //
-//   /** Indicates that the android package name is missing when the @c androidInstallApp flag is set
+//   /** Indicates that the android package name is missing when the @c androidInstallApp flag is
+//   /set
 //         to true.
 //    */
 //   FIRAuthInternalErrorCodeMissingAndroidPackageName = FIRAuthPublicErrorCodeFlag |
@@ -315,9 +325,11 @@ enum SharedErrorCode {
 //
 //   /** Indicates that an email address was expected but one was not provided.
 //    */
-//   FIRAuthInternalErrorCodeMissingEmail = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMissingEmail,
+//   FIRAuthInternalErrorCodeMissingEmail = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeMissingEmail,
 //
-//   /** Indicates that a phone number was not provided in a call to @c verifyPhoneNumber:completion:.
+//   /** Indicates that a phone number was not provided in a call to @c
+//   /verifyPhoneNumber:completion:.
 //    */
 //   FIRAuthInternalErrorCodeMissingPhoneNumber = FIRAuthPublicErrorCodeFlag |
 //                                                FIRAuthErrorCodeMissingPhoneNumber,
@@ -502,14 +514,16 @@ enum SharedErrorCode {
 //                                               FIRAuthErrorCodeInvalidProviderID,
 //
 //   /** @var FIRAuthInternalErrorCodeTenantIDMismatch
-//       @brief Indicates an error occurred when an attempt is made to update the current user with a
+//       @brief Indicates an error occurred when an attempt is made to update the current user with
+//       a
 //           tenantId that differs from the current FirebaseAuth instance's tenantId.
 //    */
 //   FIRAuthInternalErrorCodeTenantIDMismatch = FIRAuthPublicErrorCodeFlag |
 //                                              FIRAuthErrorCodeTenantIDMismatch,
 //
 //   /** @var FIRAuthInternalErrorCodeUnsupportedTenantOperation
-//       @brief Indicates an error occurred when operation is not supported in a multi-tenant context.
+//       @brief Indicates an error occurred when operation is not supported in a multi-tenant
+//       context.
 //    */
 //   FIRAuthInternalErrorCodeUnsupportedTenantOperation = FIRAuthPublicErrorCodeFlag |
 //                                                        FIRAuthErrorCodeUnsupportedTenantOperation,
@@ -520,7 +534,8 @@ enum SharedErrorCode {
 //   FIRAuthInternalErrorCodeInvalidDynamicLinkDomain = FIRAuthPublicErrorCodeFlag |
 //                                                      FIRAuthErrorCodeInvalidDynamicLinkDomain,
 //
-//   FIRAuthInternalErrorCodeMalformedJWT = FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeMalformedJWT,
+//   FIRAuthInternalErrorCodeMalformedJWT = FIRAuthPublicErrorCodeFlag |
+//   FIRAuthErrorCodeMalformedJWT,
 //
 //   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
 //       @brief Indicates an error encoding the RPC request.
@@ -543,16 +558,20 @@ enum SharedErrorCode {
 //   FIRAuthInternalErrorCodeJSONSerializationError = 2,
 //
 //   /** @var FIRAuthInternalErrorCodeUnexpectedErrorResponse
-//       @brief Indicates an HTTP error occurred and the data returned either couldn't be deserialized
+//       @brief Indicates an HTTP error occurred and the data returned either couldn't be
+//       deserialized
 //           or couldn't be decoded.
-//       @remarks See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details
+//       @remarks See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for
+//       details
 //           about the HTTP error which occurred.
 //
-//           If the response could be deserialized as JSON then the @c NSError.userInfo dictionary will
+//           If the response could be deserialized as JSON then the @c NSError.userInfo dictionary
+//           will
 //           contain a value for the key @c FIRAuthErrorUserInfoDeserializedResponseKey which is the
 //           deserialized response value.
 //
-//           If the response could not be deserialized as JSON then the @c NSError.userInfo dictionary
+//           If the response could not be deserialized as JSON then the @c NSError.userInfo
+//           dictionary
 //           will contain values for the @c NSUnderlyingErrorKey and @c FIRAuthErrorUserInfoDataKey
 //           keys.
 //    */
@@ -560,7 +579,8 @@ enum SharedErrorCode {
 //
 //   /** @var FIRAuthInternalErrorCodeUnexpectedResponse
 //       @brief Indicates the HTTP response indicated the request was a successes, but the response
-//           contains something other than a JSON-encoded dictionary, or the data type of the response
+//           contains something other than a JSON-encoded dictionary, or the data type of the
+//           response
 //           indicated it is different from the type of response we expected.
 //       @remarks See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary.
 //           If this key is present in the dictionary, it may contain an error from
@@ -568,8 +588,10 @@ enum SharedErrorCode {
 //               type).
 //
 //           See the @c FIRAuthErrorUserInfoDeserializedResponseKey value in the @c NSError.userInfo
-//           dictionary. If the response could be deserialized, it's deserialized representation will
-//           be associated with this key. If the @c NSUnderlyingError value in the @c NSError.userInfo
+//           dictionary. If the response could be deserialized, it's deserialized representation
+//           will
+//           be associated with this key. If the @c NSUnderlyingError value in the @c
+//           NSError.userInfo
 //           dictionary is @c nil, this indicates the JSON didn't represent a dictionary.
 //    */
 //   FIRAuthInternalErrorCodeUnexpectedResponse = 4,
@@ -577,9 +599,11 @@ enum SharedErrorCode {
 //   /** @var FIRAuthInternalErrorCodeRPCResponseDecodingError
 //       @brief Indicates an error decoding the RPC response.
 //           This is typically due to some sort of unexpected response value from the server.
-//       @remarks See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details.
+//       @remarks See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for
+//       details.
 //
-//           See the @c FIRErrorUserInfoDecodedResponseKey value in the @c NSError.userInfo dictionary.
+//           See the @c FIRErrorUserInfoDecodedResponseKey value in the @c NSError.userInfo
+//           dictionary.
 //           The deserialized representation of the response will be associated with this key.
 //    */
 //   FIRAuthInternalErrorCodeRPCResponseDecodingError = 5,

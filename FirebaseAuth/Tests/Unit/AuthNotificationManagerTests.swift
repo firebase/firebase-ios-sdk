@@ -62,14 +62,14 @@
         @brief Tests checking notification forwarding on modern fake delegate.
      */
     func testForwardingModernDelegate() throws {
-      try verify(forwarding: true, delegate: try XCTUnwrap(modernDelegate))
+      try verify(forwarding: true, delegate: XCTUnwrap(modernDelegate))
     }
 
     /** @fn testNotForwardingModernDelegate
         @brief Tests checking notification not forwarding on modern fake delegate.
      */
     func testNotForwardingModernDelegate() throws {
-      try verify(forwarding: false, delegate: try XCTUnwrap(modernDelegate))
+      try verify(forwarding: false, delegate: XCTUnwrap(modernDelegate))
     }
 
     private func verify(forwarding: Bool, delegate: FakeForwardingDelegate) throws {

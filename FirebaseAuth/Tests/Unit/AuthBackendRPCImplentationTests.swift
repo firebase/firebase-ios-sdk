@@ -18,7 +18,6 @@ import XCTest
 @testable import FirebaseAuth
 import FirebaseCoreExtension
 import FirebaseCoreInternal
-import HeartbeatLoggingTestUtils
 
 private let kFakeAPIKey = "kTestAPIKey"
 private let kFakeAppID = "kTestFirebaseAppID"
@@ -226,10 +225,10 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcResponse = response
       rpcError = error as? NSError
     }
-    // We are responding with a JSON-encoded string value representing an array - which is unexpected.
-    // It should normally be a dictionary, and we need to check for this sort of thing. Because we can
-    // successfully decode this value, however, we do return it in the error results. We check for
-    // this array later in the test.
+    // We are responding with a JSON-encoded string value representing an array - which is
+    // unexpected. It should normally be a dictionary, and we need to check for this sort
+    // of thing. Because we can successfully decode this value, however, we do return it
+    // in the error results. We check for this array later in the test.
     let data = "[]".data(using: .utf8)
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     try rpcIssuer?.respond(withData: data, error: responseError)
@@ -273,10 +272,10 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcResponse = response
       rpcError = error as? NSError
     }
-    // We are responding with a JSON-encoded string value representing an array - which is unexpected.
-    // It should normally be a dictionary, and we need to check for this sort of thing. Because we can
-    // successfully decode this value, however, we do return it in the error results. We check for
-    // this array later in the test.
+    // We are responding with a JSON-encoded string value representing an array - which is
+    // unexpected. It should normally be a dictionary, and we need to check for this sort
+    // of thing. Because we can successfully decode this value, however, we do return it
+    // in the error results. We check for this array later in the test.
     let data = "[]".data(using: .utf8)
     try rpcIssuer?.respond(withData: data, error: nil)
 
@@ -435,8 +434,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcResponse = response
       rpcError = error as? NSError
     }
-    // We need to return a valid "error" response here, but we are going to intentionally use a bogus
-    // error message.
+    // We need to return a valid "error" response here, but we are going to intentionally use a
+    // bogus error message.
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     try rpcIssuer?.respond(serverErrorMessage: kUnknownServerErrorMessage, error: responseError)
 
@@ -592,8 +591,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       rpcError = error as? NSError
     }
     // It doesn't matter what we respond with here, as long as it's not an error response. The fake
-    // response will deterministicly simulate a decoding error regardless of the response value it was
-    // given.
+    // response will deterministicly simulate a decoding error regardless of the response value it
+    // was given.
     try rpcIssuer?.respond(withJSON: [kTestKey: kTestValue])
 
     XCTAssert(callbackInvoked)

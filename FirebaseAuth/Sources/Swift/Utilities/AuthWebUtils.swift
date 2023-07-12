@@ -87,8 +87,8 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
   static func fetchAuthDomain(withRequestConfiguration requestConfiguration: AuthRequestConfiguration,
                               completion: @escaping FIRFetchAuthDomainCallback) {
     if let emulatorHostAndPort = requestConfiguration.emulatorHostAndPort {
-      // If we are using the auth emulator, we do not want to call the GetProjectConfig endpoint. The
-      // widget is hosted on the emulator host and port, so we can return that directly.
+      // If we are using the auth emulator, we do not want to call the GetProjectConfig endpoint.
+      // The widget is hosted on the emulator host and port, so we can return that directly.
       completion(emulatorHostAndPort, nil)
       return
     }

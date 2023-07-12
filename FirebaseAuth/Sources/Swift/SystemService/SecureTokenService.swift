@@ -128,8 +128,8 @@ private let kFiveMinutes = 5 * 60.0
   }
 
   public func encode(with coder: NSCoder) {
-    // The API key is encoded even it is not used in decoding to be compatible with previous versions
-    // of the library.
+    // The API key is encoded even it is not used in decoding to be compatible with previous
+    // versions of the library.
     coder.encode(requestConfiguration?.apiKey, forKey: kAPIKeyCodingKey)
     // Authorization code is not encoded because it is not long-lived.
     coder.encode(refreshToken, forKey: SecureTokenService.kRefreshTokenKey)

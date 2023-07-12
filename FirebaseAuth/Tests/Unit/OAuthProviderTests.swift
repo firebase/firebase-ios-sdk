@@ -115,7 +115,8 @@ import FirebaseCore
     func testGetCredentialWithUIDelegateWithTenantID() throws {
       initApp(#function)
 
-      // Update tenantID on workqueue to enable _protectedDataDidBecomeAvailableObserver to finish init.
+      // Update tenantID on workqueue to enable _protectedDataDidBecomeAvailableObserver to finish
+      // init.
       kAuthGlobalWorkQueue.sync {
         OAuthProviderTests.auth?.tenantID = OAuthProviderTests.kFakeTenantID
       }

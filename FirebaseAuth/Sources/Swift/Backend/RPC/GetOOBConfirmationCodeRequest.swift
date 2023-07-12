@@ -285,14 +285,14 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
       kRequestTypeKey: requestType.value,
     ]
 
-    // For password reset requests, we only need an email address in addition to the already required
-    // fields.
+    // For password reset requests, we only need an email address in addition to the already
+    // required fields.
     if case .passwordReset = requestType {
       body[kEmailKey] = email
     }
 
-    // For verify email requests, we only need an STS Access Token in addition to the already required
-    // fields.
+    // For verify email requests, we only need an STS Access Token in addition to the already
+    // required fields.
     if case .verifyEmail = requestType {
       body[kIDTokenKey] = accessToken
     }

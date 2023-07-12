@@ -75,7 +75,8 @@ class AuthTests: RPCBaseTests {
     let allSignInMethods = ["emailLink", "facebook.com"]
     let expectation = self.expectation(description: #function)
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer in
+    // `fetchSignInMethods`.
     let group = createGroup()
 
     auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
@@ -1159,7 +1160,7 @@ class AuthTests: RPCBaseTests {
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
-    assertUserAnonymous(try XCTUnwrap(auth?.currentUser))
+    try assertUserAnonymous(XCTUnwrap(auth?.currentUser))
   }
 
   /** @fn testSignInAnonymouslyFailure
@@ -1370,7 +1371,8 @@ class AuthTests: RPCBaseTests {
   func testSendPasswordResetEmailSuccess() throws {
     let expectation = self.expectation(description: #function)
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer in
+    // `fetchSignInMethods`.
     let group = createGroup()
 
     auth?.sendPasswordReset(withEmail: kEmail) { error in
@@ -1419,7 +1421,8 @@ class AuthTests: RPCBaseTests {
   func testSendSignInLinkToEmailSuccess() throws {
     let expectation = self.expectation(description: #function)
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer in `fetchSignInMethods`.
+    // 1. Create a group to synchronize request creation by the fake rpcIssuer in
+    // `fetchSignInMethods`.
     let group = createGroup()
 
     auth?.sendSignInLink(toEmail: kEmail,
@@ -1767,7 +1770,8 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
     expectation = nil
 
-    // Listener should fire for signing in. Expectation is waited on in waitForSignInWithAccessToken.
+    // Listener should fire for signing in. Expectation is waited on in
+    // waitForSignInWithAccessToken.
     expectation = self.expectation(description: "sign-in")
     shouldHaveUser = true
     try waitForSignInWithAccessToken()
@@ -1964,8 +1968,8 @@ class AuthTests: RPCBaseTests {
 
       setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
 
-      // Verify that the current user's access token is the "old" access token before automatic token
-      // refresh.
+      // Verify that the current user's access token is the "old" access token before automatic
+      // token refresh.
       XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
 
       // Execute saved token refresh task.
@@ -1978,8 +1982,8 @@ class AuthTests: RPCBaseTests {
       waitForExpectations(timeout: 5)
       waitForAuthGlobalWorkQueueDrain()
 
-      // Verify that current user's access token is the "new" access token provided in the mock secure
-      // token response during automatic token refresh.
+      // Verify that current user's access token is the "new" access token provided in the mock
+      // secure token response during automatic token refresh.
       XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
     }
   #endif

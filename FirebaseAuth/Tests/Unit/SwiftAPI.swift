@@ -413,27 +413,28 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRTOTPSecret_h() {
-    let obj = TOTPSecret()
-    obj.sharedSecretKey()
-    obj.generateQRCodeURL(withAccountName: "name", issuer: "issuer")
-    obj.openInOTPApp(withQRCodeURL: "url")
-  }
-
-  func FIRTOTPMultiFactorGenerator_h() {
-    TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession()) { _, _ in
-    }
-    TOTPMultiFactorGenerator.assertionForEnrollment(with: TOTPSecret(), oneTimePassword: "code")
-    TOTPMultiFactorGenerator.assertionForSignIn(withEnrollmentID: "id",
-                                                oneTimePassword: "code")
-  }
-
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRTOTPMultiFactorGenerator_hAsync() async throws {
-      try await TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession())
-    }
-  #endif
+  // TODO: reenable with TOTP
+//  func FIRTOTPSecret_h() {
+//    let obj = TOTPSecret()
+//    obj.sharedSecretKey()
+//    obj.generateQRCodeURL(withAccountName: "name", issuer: "issuer")
+//    obj.openInOTPApp(withQRCodeURL: "url")
+//  }
+//
+//  func FIRTOTPMultiFactorGenerator_h() {
+//    TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession()) { _, _ in
+//    }
+//    TOTPMultiFactorGenerator.assertionForEnrollment(with: TOTPSecret(), oneTimePassword: "code")
+//    TOTPMultiFactorGenerator.assertionForSignIn(withEnrollmentID: "id",
+//                                                oneTimePassword: "code")
+//  }
+//
+//  #if compiler(>=5.5.2) && canImport(_Concurrency)
+//    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+//    func FIRTOTPMultiFactorGenerator_hAsync() async throws {
+//      try await TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession())
+//    }
+//  #endif
 
   func FIRTwitterAuthProvider_h() {
     _ = TwitterAuthProvider.credential(withToken: "token", secret: "secret")
