@@ -61,17 +61,17 @@ class SignInWithGameCenterTests: RPCBaseTests {
 
     let signature = try XCTUnwrap(Data(base64Encoded: kSignature))
     let salt = try XCTUnwrap(Data(base64URLEncoded: kSalt))
-    let request = SignInWithGameCenterRequest(playerID: kPlayerID,
-                                              teamPlayerID: kTeamPlayerID,
-                                              gamePlayerID: kGamePlayerID,
-                                              publicKeyURL: try XCTUnwrap(
-                                                URL(string: kPublicKeyURL)
-                                              ),
-                                              signature: signature,
-                                              salt: salt,
-                                              timestamp: kTimestamp,
-                                              displayName: kDisplayName,
-                                              requestConfiguration: makeRequestConfiguration())
+    let request = try SignInWithGameCenterRequest(playerID: kPlayerID,
+                                                  teamPlayerID: kTeamPlayerID,
+                                                  gamePlayerID: kGamePlayerID,
+                                                  publicKeyURL: XCTUnwrap(
+                                                    URL(string: kPublicKeyURL)
+                                                  ),
+                                                  signature: signature,
+                                                  salt: salt,
+                                                  timestamp: kTimestamp,
+                                                  displayName: kDisplayName,
+                                                  requestConfiguration: makeRequestConfiguration())
     request.accessToken = kAccessToken
     let issuer = try checkRequest(
       request: request,
@@ -137,9 +137,9 @@ class SignInWithGameCenterTests: RPCBaseTests {
       XCTAssertEqual(unarchivedCredential.teamPlayerID, kTeamPlayerID)
       XCTAssertEqual(unarchivedCredential.gamePlayerID, kGamePlayerID)
       XCTAssertEqual(unarchivedCredential.publicKeyURL, URL(string: kPublicKeyURL))
-      XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.signature),
-                            encoding: .utf8), kSignature)
-      XCTAssertEqual(String(data: try XCTUnwrap(unarchivedCredential.salt), encoding: .utf8), kSalt)
+      XCTAssertEqual(try String(data: XCTUnwrap(unarchivedCredential.signature),
+                                encoding: .utf8), kSignature)
+      XCTAssertEqual(try String(data: XCTUnwrap(unarchivedCredential.salt), encoding: .utf8), kSalt)
       XCTAssertEqual(unarchivedCredential.timestamp, kTimestamp)
       XCTAssertEqual(unarchivedCredential.displayName, kDisplayName)
     }
@@ -147,16 +147,16 @@ class SignInWithGameCenterTests: RPCBaseTests {
     private func makeGameCenterCredential() throws -> GameCenterAuthCredential {
       let signature = try XCTUnwrap(kSignature.data(using: .utf8))
       let salt = try XCTUnwrap(kSalt.data(using: .utf8))
-      return GameCenterAuthCredential(withPlayerID: kPlayerID,
-                                      teamPlayerID: kTeamPlayerID,
-                                      gamePlayerID: kGamePlayerID,
-                                      publicKeyURL: try XCTUnwrap(
-                                        URL(string: kPublicKeyURL)
-                                      ),
-                                      signature: signature,
-                                      salt: salt,
-                                      timestamp: kTimestamp,
-                                      displayName: kDisplayName)
+      return try GameCenterAuthCredential(withPlayerID: kPlayerID,
+                                          teamPlayerID: kTeamPlayerID,
+                                          gamePlayerID: kGamePlayerID,
+                                          publicKeyURL: XCTUnwrap(
+                                            URL(string: kPublicKeyURL)
+                                          ),
+                                          signature: signature,
+                                          salt: salt,
+                                          timestamp: kTimestamp,
+                                          displayName: kDisplayName)
     }
   #endif
 }

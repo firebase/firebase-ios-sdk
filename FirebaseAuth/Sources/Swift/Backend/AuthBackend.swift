@@ -93,7 +93,7 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
     if gBackendImplementation == nil {
       gBackendImplementation = AuthBackendRPCImplementation()
     }
-    return (gBackendImplementation)!
+    return gBackendImplementation!
   }
 
   /// Calls the RPC using HTTP POST.
@@ -425,8 +425,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     case "MISSING_CONTINUE_URI": return AuthErrorUtils
       .missingContinueURIError(message: serverDetailErrorMessage)
     // "INVALID_IDENTIFIER" can be returned by createAuthURI RPC. Considering email addresses are
-    //  currently the only identifiers, we surface the FIRAuthErrorCodeInvalidEmail error code in this
-    //  case.
+    // currently the only identifiers, we surface the FIRAuthErrorCodeInvalidEmail error code in
+    // this case.
     case "INVALID_IDENTIFIER": return AuthErrorUtils
       .invalidEmailError(message: serverDetailErrorMessage)
     case "INVALID_ID_TOKEN": return AuthErrorUtils

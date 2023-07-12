@@ -62,12 +62,12 @@ import Foundation
           verificationInfo: finalizeMFAPhoneRequestInfo,
           requestConfiguration: auth.requestConfiguration
         )
-        AuthBackend.post(with: request) { rawResponse, error in
+        AuthBackend.post(with: request) { response, error in
           if let error {
             if let completion {
               completion(nil, error)
             }
-          } else if let response = rawResponse as? FinalizeMFAEnrollmentResponse {
+          } else if let response {
             self.auth.completeSignIn(withAccessToken: response.idToken,
                                      accessTokenExpirationDate: nil,
                                      refreshToken: response.refreshToken,

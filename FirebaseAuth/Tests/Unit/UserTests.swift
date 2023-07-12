@@ -1650,7 +1650,8 @@ class UserTests: RPCBaseTests {
         XCTAssertNotNil(tokenResult.expirationDate)
         XCTAssertNotNil(tokenResult.signInProvider)
 
-        // The lowercased is for the base64 test which seems to be an erroneously uppercased "Password"?
+        // The lowercased is for the base64 test which seems to be an erroneously uppercased
+        // "Password"?
         XCTAssertEqual(tokenResult.signInProvider.lowercased(), EmailAuthProvider.id)
         XCTAssertEqual(tokenResult.claims["email"] as! String, emailMatch)
         XCTAssertEqual(tokenResult.claims["aud"] as! String, audMatch)
@@ -1808,7 +1809,7 @@ class UserTests: RPCBaseTests {
       group.wait()
 
       // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      verifyGoogleAssertionRequest(try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest))
+      try verifyGoogleAssertionRequest(XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest))
 
       // 3. Send the response from the fake backend.
       try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,

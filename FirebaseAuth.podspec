@@ -60,18 +60,16 @@ supports email and password accounts, as well as several 3rd party authenticatio
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GTMSessionFetcher/Core', '>= 2.1', '< 4.0'
 
-    s.test_spec 'unit' do |unit_tests|
-      unit_tests.scheme = { :code_coverage => true }
-      # Unit tests can't run on watchOS.
-      unit_tests.platforms = {
-        :ios => ios_deployment_target,
-        :osx => osx_deployment_target,
-        :tvos => tvos_deployment_target
-      }
-      unit_tests.source_files = 'FirebaseAuth/Tests/Unit*/**/*.{m,h,swift}'
-      # app_host is needed for tests with keychain
-      unit_tests.requires_app_host = true
-      unit_tests.dependency 'HeartbeatLoggingTestUtils'
-    end
+  s.test_spec 'unit' do |unit_tests|
+    unit_tests.scheme = { :code_coverage => true }
+    # Unit tests can't run on watchOS.
+    unit_tests.platforms = {
+      :ios => ios_deployment_target,
+      :osx => osx_deployment_target,
+      :tvos => tvos_deployment_target
+    }
+    unit_tests.source_files = 'FirebaseAuth/Tests/Unit*/**/*.{m,h,swift}'
+    # app_host is needed for tests with keychain
+    unit_tests.requires_app_host = true
   end
 end

@@ -161,9 +161,9 @@
       do {
         let profileData = try Data(contentsOf: url)
 
-        // The "embedded.mobileprovision" sometimes contains characters with value 0, which signals the
-        // end of a c-string and halts the ASCII parser, or with value > 127, which violates strict 7-bit
-        // ASCII. Replace any 0s or invalid characters in the input.
+        // The "embedded.mobileprovision" sometimes contains characters with value 0, which signals
+        // the end of a c-string and halts the ASCII parser, or with value > 127, which violates
+        // strict 7-bit ASCII. Replace any 0s or invalid characters in the input.
         let byteArray = [UInt8](profileData)
         var outBytes: [UInt8] = []
         for byte in byteArray {

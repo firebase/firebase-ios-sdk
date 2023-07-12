@@ -80,7 +80,7 @@ final class AuthKeychainServices {
   func setItem(_ item: Data, withQuery query: [String: Any]) throws {
     let status: OSStatus
     let function: String
-    if (try getItem(query: query)) != nil {
+    if try (getItem(query: query)) != nil {
       let attributes: [String: Any] = [kSecValueData as String: item]
       status = keychainStorage.update(query: query, attributes: attributes)
       function = "SecItemUpdate"

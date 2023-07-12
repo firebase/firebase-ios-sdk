@@ -162,14 +162,8 @@ let package = Package(
       url: "https://github.com/firebase/nanopb.git",
       "2.30909.0" ..< "2.30910.0"
     ),
-    .package(
-      url: "https://github.com/google/abseil-cpp-binary.git",
-      "1.2022062300.0" ..< "1.2022062400.0"
-    ),
-    .package(
-      url: "https://github.com/google/grpc-binary.git",
-      "1.50.1" ..< "1.51.0"
-    ),
+    abseilDependency(),
+    grpcDependency(),
     .package(
       url: "https://github.com/erikdoe/ocmock.git",
       revision: "c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110"
@@ -214,7 +208,6 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseCore/Tests/Unit",
@@ -248,16 +241,10 @@ let package = Package(
       ],
       path: "FirebaseCore/Internal/Sources"
     ),
-    .target(
-      name: "HeartbeatLoggingTestUtils",
-      dependencies: ["FirebaseCoreInternal"],
-      path: "HeartbeatLoggingTestUtils/Sources"
-    ),
     .testTarget(
       name: "FirebaseCoreInternalTests",
       dependencies: [
         "FirebaseCoreInternal",
-        "HeartbeatLoggingTestUtils",
       ],
       path: "FirebaseCore/Internal/Tests"
     ),
@@ -316,8 +303,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.9.0/FirebaseAnalytics.zip",
-      checksum: "b0a16eef8caf30eadc496ab24fef5216798c8ec360addb6af53806957950c300"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.12.0/FirebaseAnalytics.zip",
+      checksum: "46bf2b6cd96fb84aafe80c96087384fd60e4944c970fe2f465d96ffb524ac324"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -459,7 +446,6 @@ let package = Package(
       name: "AuthUnit",
       dependencies: [
         "FirebaseAuth",
-        "HeartbeatLoggingTestUtils",
       ],
       path: "FirebaseAuth/Tests/Unit"
     ),
@@ -500,6 +486,7 @@ let package = Package(
         "UnitTests/",
         "generate_project.sh",
         "upload-symbols",
+        "CrashlyticsInputFiles.xcfilelist",
         "third_party/libunwind/LICENSE",
       ],
       sources: [
@@ -645,32 +632,14 @@ let package = Package(
       ]
     ),
 
-    .target(
-      name: "FirebaseFirestoreTarget",
-      dependencies: [
-        .target(
-          name: "FirebaseFirestore",
-          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
-        ),
-        .product(name: "abseil", package: "abseil-cpp-binary"),
-        .product(name: "gRPC-C++", package: "grpc-binary"),
-        .product(name: "nanopb", package: "nanopb"),
-        "FirebaseCore",
-        "leveldb",
-      ],
-      path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
-    ),
-
-    .binaryTarget(
-      name: "FirebaseFirestore",
-      url: "https://dl.google.com/firebase/ios/bin/firestore/10.10.0/FirebaseFirestore.zip",
-      checksum: "4a0070c4bf7e5ab59359dd8a0e68f402f3ec6c1e189fc39cc44ca88418f26ac4"
-    ),
+    firestoreWrapperTarget(),
+    firestoreTarget(),
 
     .target(
       name: "FirebaseFirestoreSwiftTarget",
       dependencies: [.target(name: "FirebaseFirestoreSwift",
-                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS]))],
+                             condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS,
+                                                          .firebaseVisionOS]))],
       path: "SwiftPM-PlatformExclude/FirebaseFirestoreSwiftWrap"
     ),
 
@@ -695,7 +664,6 @@ let package = Package(
         "fuzzing/",
         "test.sh",
         "Swift/CHANGELOG.md",
-        "Swift/README.md",
         "Swift/Tests/",
         "third_party/nlohmann_json",
       ],
@@ -1262,16 +1230,16 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnit",
+      name: "FirebaseAppCheckUnit",
       dependencies: [
         "FirebaseAppCheck",
         "SharedTestUtilities",
-        "HeartbeatLoggingTestUtils",
         .product(name: "OCMock", package: "ocmock"),
       ],
       path: "FirebaseAppCheck/Tests",
       exclude: [
-        // Disable Swift tests as mixed targets are not supported (Xcode 12.3).
+        // Swift tests are in the target `FirebaseAppCheckUnitSwift` since mixed language targets
+        // are not supported (as of Xcode 14.3).
         "Unit/Swift",
       ],
       resources: [
@@ -1282,7 +1250,7 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnitSwift",
+      name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
       path: "FirebaseAppCheck/Tests/Unit/Swift",
       cSettings: [

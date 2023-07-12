@@ -660,7 +660,7 @@
           settings.appVerificationDisabledForTesting = true
           auth.settings = settings
         }
-        auth.notificationManager.immediateCallbackForTestFaking = { return forwardingNotification }
+        auth.notificationManager.immediateCallbackForTestFaking = { forwardingNotification }
         auth.mainBundleUrlTypes = [["CFBundleURLSchemes": [scheme]]]
 
         if fakeToken {

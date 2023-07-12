@@ -1976,10 +1976,10 @@ extension User: NSSecureCoding {}
    */
   private class func callInMainThreadWithAuthDataResultAndError(callback: ((AuthDataResult?,
                                                                             Error?) -> Void)?,
-  complete: FIRAuthSerialTaskCompletionBlock? =
-    nil,
-  result: AuthDataResult? = nil,
-  error: Error? = nil) {
+                                                                complete: FIRAuthSerialTaskCompletionBlock? =
+                                                                  nil,
+                                                                result: AuthDataResult? = nil,
+                                                                error: Error? = nil) {
     if let callback {
       DispatchQueue.main.async {
         if let complete {
