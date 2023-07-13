@@ -1394,7 +1394,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
           injectRecaptchaFields:request
                        provider:FIRAuthRecaptchaProviderPassword
-                         action:FIRAuthRecaptchaActionSignInWithPassword
+                         action:FIRAuthRecaptchaActionGetOobCode
                      completion:^(
                          FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
                        [FIRAuthBackend
@@ -1430,7 +1430,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                             [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
                                 injectRecaptchaFields:request
                                              provider:FIRAuthRecaptchaProviderPassword
-                                               action:FIRAuthRecaptchaActionSignInWithPassword
+                                               action:FIRAuthRecaptchaActionGetOobCode
                                            completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
                                                             *requestWithRecaptchaToken) {
                                              [FIRAuthBackend
@@ -1493,7 +1493,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
           injectRecaptchaFields:request
                        provider:FIRAuthRecaptchaProviderPassword
-                         action:FIRAuthRecaptchaActionSignInWithPassword
+                         action:FIRAuthRecaptchaActionGetOobCode
                      completion:^(
                          FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
                        [FIRAuthBackend
@@ -1529,7 +1529,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                             [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
                                 injectRecaptchaFields:request
                                              provider:FIRAuthRecaptchaProviderPassword
-                                               action:FIRAuthRecaptchaActionSignInWithPassword
+                                               action:FIRAuthRecaptchaActionGetOobCode
                                            completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
                                                             *requestWithRecaptchaToken) {
                                              [FIRAuthBackend
@@ -2014,7 +2014,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
         injectRecaptchaFields:request
                      provider:FIRAuthRecaptchaProviderPassword
-                       action:FIRAuthRecaptchaActionSignInWithPassword
+                       action:FIRAuthRecaptchaActionSignUpPassword
                    completion:^(
                        FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
                      [FIRAuthBackend
@@ -2037,7 +2037,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                  [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
                      injectRecaptchaFields:request
                                   provider:FIRAuthRecaptchaProviderPassword
-                                    action:FIRAuthRecaptchaActionSignInWithPassword
+                                    action:FIRAuthRecaptchaActionSignUpPassword
                                 completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
                                                  *requestWithRecaptchaToken) {
                                   [FIRAuthBackend signUpNewUser:(FIRSignUpNewUserRequest *)
