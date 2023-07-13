@@ -25,7 +25,7 @@
       @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRAuthURLPresenter) public class AuthURLPresenter: NSObject,
+  class AuthURLPresenter: NSObject,
     SFSafariViewControllerDelegate, AuthWebViewControllerDelegate {
     /** @fn
         @brief Presents an URL to interact with user.
@@ -34,7 +34,6 @@
         @param completion A block to be called either synchronously if the presentation fails to start,
             or asynchronously in future on an unspecified thread once the presentation finishes.
      */
-    @objc(presentURL:UIDelegate:callbackMatcher:completion:) public
     func present(_ url: URL,
                  uiDelegate: AuthUIDelegate?,
                  callbackMatcher: @escaping (URL?) -> Bool,
@@ -82,7 +81,7 @@
         @param url The URL to handle.
         @return Whether the URL could be handled or not.
      */
-    @objc(canHandleURL:) public func canHandle(url: URL) -> Bool {
+    func canHandle(url: URL) -> Bool {
       if isPresenting,
          let callbackMatcher = callbackMatcher,
          callbackMatcher(url) {

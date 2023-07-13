@@ -14,13 +14,6 @@
 
 import Foundation
 
-/** @typedef FIRFetchAuthDomainCallback
-    @brief The callback invoked at the end of the flow to fetch the Auth domain.
-    @param authDomain The Auth domain.
-    @param error The error that occurred while fetching the auth domain, if any.
- */
-typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthWebUtils) public class AuthWebUtils: NSObject {
   static func randomString(withLength length: Int) -> String {
@@ -84,50 +77,38 @@ typealias FIRFetchAuthDomainCallback = (String?, Error?) -> Void
     return false
   }
 
-  static func fetchAuthDomain(withRequestConfiguration requestConfiguration: AuthRequestConfiguration,
-                              completion: @escaping FIRFetchAuthDomainCallback) {
+  static func fetchAuthDomain(withRequestConfiguration requestConfiguration: AuthRequestConfiguration)
+    async throws -> String {
     if let emulatorHostAndPort = requestConfiguration.emulatorHostAndPort {
       // If we are using the auth emulator, we do not want to call the GetProjectConfig endpoint.
       // The widget is hosted on the emulator host and port, so we can return that directly.
-      completion(emulatorHostAndPort, nil)
-      return
+      return emulatorHostAndPort
     }
 
     let request = GetProjectConfigRequest(requestConfiguration: requestConfiguration)
-    AuthBackend.post(with: request) { response, error in
-      if let error = error {
-        completion(nil, error)
-        return
-      }
-      // Look up an authorized domain ends with one of the supportedAuthDomains.
-      // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
-      // The searching ends once the first valid suportedAuthDomain is found.
-      var authDomain: String?
-      if let response = response {
-        for domain in response.authorizedDomains ?? [] {
-          for supportedAuthDomain in Self.supportedAuthDomains {
-            let index = domain.count - supportedAuthDomain.count
-            if index >= 2, domain.hasSuffix(supportedAuthDomain),
-               domain.count >= supportedAuthDomain.count + 2 {
-              authDomain = domain
-              break
-            }
-          }
-          if authDomain != nil {
-            break
-          }
+    let response = try await AuthBackend.postAA(with: request)
+
+    // Look up an authorized domain ends with one of the supportedAuthDomains.
+    // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
+    // The searching ends once the first valid suportedAuthDomain is found.
+    var authDomain: String?
+    for domain in response.authorizedDomains ?? [] {
+      for supportedAuthDomain in Self.supportedAuthDomains {
+        let index = domain.count - supportedAuthDomain.count
+        if index >= 2, domain.hasSuffix(supportedAuthDomain),
+           domain.count >= supportedAuthDomain.count + 2 {
+          authDomain = domain
+          break
         }
       }
-
-      if authDomain == nil || authDomain!.isEmpty {
-        completion(
-          nil,
-          AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: response)
-        )
-        return
+      if authDomain != nil {
+        break
       }
-      completion(authDomain, nil)
     }
+    guard let authDomain = authDomain, !authDomain.isEmpty else {
+      throw AuthErrorUtils.unexpectedErrorResponse(deserializedResponse: response)
+    }
+    return authDomain
   }
 
   static func queryItemValue(name: String, from queryList: [URLQueryItem]) -> String? {
