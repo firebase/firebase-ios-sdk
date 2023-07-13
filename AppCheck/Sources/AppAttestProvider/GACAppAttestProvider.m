@@ -141,6 +141,7 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
 
 - (nullable instancetype)initWithStorageID:(NSString *)storageID
                               resourceName:(NSString *)resourceName
+                                   baseURL:(nullable NSString *)baseURL
                                     APIKey:(nullable NSString *)APIKey
                        keychainAccessGroup:(nullable NSString *)accessGroup
                               requestHooks:
@@ -157,6 +158,7 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
 
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
+                                                baseURL:baseURL
                                                  APIKey:APIKey
                                            requestHooks:requestHooks];
 

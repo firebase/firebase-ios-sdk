@@ -74,6 +74,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   OCMExpect([self.appAttestProviderMock alloc]).andReturn(self.appAttestProviderMock);
   OCMExpect([self.appAttestProviderMock initWithStorageID:kAppName
                                              resourceName:self.resourceName
+                                                  baseURL:nil
                                                    APIKey:kAPIKey
                                       keychainAccessGroup:OCMOCK_ANY
                                              requestHooks:OCMOCK_ANY])

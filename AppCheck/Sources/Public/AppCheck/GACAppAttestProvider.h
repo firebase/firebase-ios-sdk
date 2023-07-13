@@ -37,12 +37,15 @@ NS_SWIFT_NAME(InternalAppAttestProvider)
 /// `resourceName`; may be a Firebase App Name or an SDK name.
 /// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
 /// "projects/{project_id}/apps/{app_id}".
+/// @param baseURL The base URL for the App Check service; defaults to
+/// `https://firebaseappcheck.googleapis.com/v1` if nil.
 /// @param APIKey The Google Cloud Platform API key, if needed, or nil.
 /// @param accessGroup The Keychain Access Group.
 /// @param requestHooks Hooks that will be invoked on requests through this service.
 /// @return An instance of `AppAttestProvider` if App Attest is supported or `nil`.
 - (nullable instancetype)initWithStorageID:(NSString *)storageID
                               resourceName:(NSString *)resourceName
+                                   baseURL:(nullable NSString *)baseURL
                                     APIKey:(nullable NSString *)APIKey
                        keychainAccessGroup:(nullable NSString *)accessGroup
                               requestHooks:
