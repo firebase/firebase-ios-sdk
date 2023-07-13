@@ -62,6 +62,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
       dictionaryWithDictionary:@{kBundleIDHeaderKey : [[NSBundle mainBundle] bundleIdentifier]}];
 
   self.APIService = [[GACAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
+                                                              baseURL:nil
                                                                APIKey:nil
                                                          requestHooks:nil];
 }
@@ -73,6 +74,34 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   [self.mockURLSession stopMocking];
   self.mockURLSession = nil;
 }
+
+#pragma mark - Init
+
+- (void)testInitDefaultBaseURL {
+  GACAppCheckAPIService *APIService =
+      [[GACAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
+                                                baseURL:nil
+                                                 APIKey:nil
+                                           requestHooks:nil];
+
+  XCTAssertNotNil(APIService);
+  XCTAssertEqualObjects(APIService.baseURL, @"https://firebaseappcheck.googleapis.com/v1");
+}
+
+- (void)testInitCustomBaseURL {
+  NSString *customBaseURL = @"https://custom.example.com/v1beta";
+
+  GACAppCheckAPIService *APIService =
+      [[GACAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
+                                                baseURL:customBaseURL
+                                                 APIKey:nil
+                                           requestHooks:nil];
+
+  XCTAssertNotNil(APIService);
+  XCTAssertEqualObjects(APIService.baseURL, customBaseURL);
+}
+
+#pragma mark - Send Requests
 
 - (void)testDataRequestNetworkError {
   NSURL *URL = [NSURL URLWithString:@"https://some.url.com"];
@@ -163,6 +192,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
 
   self.APIService = [[GACAppCheckAPIService alloc]
       initWithURLSession:self.mockURLSession
+                 baseURL:nil
                   APIKey:nil
             requestHooks:@[ headerRequestHook, timeoutRequestHook, cellularAccessRequestHook ]];
 
@@ -256,6 +286,7 @@ static NSString *const kTestHeaderValue = @"TEST_HEADER_VALUE";
   [self.expectedHTTPHeaderFields setObject:kAPIKeyHeaderValue forKey:kAPIKeyHeaderKey];
 
   self.APIService = [[GACAppCheckAPIService alloc] initWithURLSession:self.mockURLSession
+                                                              baseURL:nil
                                                                APIKey:kAPIKeyHeaderValue
                                                          requestHooks:nil];
 
