@@ -117,6 +117,7 @@ GAC_APP_ATTEST_PROVIDER_AVAILABILITY
                                                           baseURL:nil
                                                            APIKey:app.options.APIKey
                                               keychainAccessGroup:nil
+                                                       limitedUse:NO
                                                      requestHooks:nil]);
 }
 #endif  // !TARGET_OS_MACCATALYST
