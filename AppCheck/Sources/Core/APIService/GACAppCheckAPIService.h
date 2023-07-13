@@ -44,12 +44,18 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * The default initializer.
  * @param session The URL session used to make network requests.
+ * @param baseURL The base URL for the App Check service, e.g.,
+ * `https://firebaseappcheck.googleapis.com/v1`.
  * @param APIKey The Google Cloud Platform API key, if needed, or nil.
  * @param requestHooks Hooks that will be invoked on requests through this service.
  */
 - (instancetype)initWithURLSession:(NSURLSession *)session
+                           baseURL:(nullable NSString *)baseURL
                             APIKey:(nullable NSString *)APIKey
-                      requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
+                      requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks
+    NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 
