@@ -146,6 +146,23 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
                        keychainAccessGroup:(nullable NSString *)accessGroup
                               requestHooks:
                                   (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
+  return [self initWithStorageID:storageID
+                    resourceName:resourceName
+                         baseURL:baseURL
+                          APIKey:APIKey
+             keychainAccessGroup:accessGroup
+                      limitedUse:NO
+                    requestHooks:requestHooks];
+}
+
+- (nullable instancetype)initWithStorageID:(NSString *)storageID
+                              resourceName:(NSString *)resourceName
+                                   baseURL:(nullable NSString *)baseURL
+                                    APIKey:(nullable NSString *)APIKey
+                       keychainAccessGroup:(nullable NSString *)accessGroup
+                                limitedUse:(BOOL)limitedUse
+                              requestHooks:
+                                  (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
 #if GAC_APP_ATTEST_SUPPORTED_TARGETS
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
@@ -163,7 +180,9 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
                                            requestHooks:requestHooks];
 
   GACAppAttestAPIService *appAttestAPIService =
-      [[GACAppAttestAPIService alloc] initWithAPIService:APIService resourceName:resourceName];
+      [[GACAppAttestAPIService alloc] initWithAPIService:APIService
+                                            resourceName:resourceName
+                                              limitedUse:limitedUse];
 
   GACAppAttestArtifactStorage *artifactStorage =
       [[GACAppAttestArtifactStorage alloc] initWithKeySuffix:storageKeySuffix
