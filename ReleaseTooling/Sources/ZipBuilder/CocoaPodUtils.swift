@@ -136,8 +136,9 @@ enum CocoaPodUtils {
     let result = Shell.executeCommandFromScript("pod cache clean --all", outputToConsole: false)
     switch result {
     case let .error(code, _):
-      fatalError("Could not clean the pod cache, the command exited with \(code). Try running the" +
-        "command in Terminal to see what's wrong.")
+      fatalError("Could not clean the pod cache, the command exited with " +
+        "\(code). Try running the command in Terminal to see " +
+        "what's wrong.")
     case .success:
       // No need to do anything else, continue on.
       print("Successfully cleaned pod cache.")
