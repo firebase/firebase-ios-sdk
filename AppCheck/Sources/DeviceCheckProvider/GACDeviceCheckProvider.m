@@ -79,6 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
+                                                baseURL:nil
                                                  APIKey:APIKey
                                            requestHooks:requestHooks];
 
