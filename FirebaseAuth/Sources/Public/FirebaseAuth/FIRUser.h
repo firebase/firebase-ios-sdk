@@ -19,6 +19,7 @@
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
 #import "FIRMultiFactor.h"
+#import "FIRPasskey.h"
 #import "FIRUserInfo.h"
 
 @class FIRAuthTokenResult;
@@ -122,6 +123,12 @@ NS_SWIFT_NAME(User)
 */
 @property(nonatomic, readonly, nonnull)
     FIRMultiFactor *multiFactor API_UNAVAILABLE(macos, tvos, watchos);
+
+/** @property passkey
+    @brief passkey object associated with the user.
+        This property is available on iOS only.
+*/
+@property(nonatomic, readonly, nonnull) FIRPasskey *passkey API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn init
     @brief This class should not be instantiated.

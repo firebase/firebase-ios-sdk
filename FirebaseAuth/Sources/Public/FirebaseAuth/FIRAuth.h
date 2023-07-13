@@ -17,6 +17,7 @@
 #import <AvailabilityMacros.h>
 #import <Foundation/Foundation.h>
 
+#import <AuthenticationServices/AuthenticationServices.h>
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthErrors.h"
 
@@ -877,6 +878,40 @@ NS_SWIFT_NAME(Auth)
                                             error:(NSError *_Nullable *_Nullable)outError
     __attribute__((swift_error(nonnull_error)));  // This method can return `nil` on success.
 
+/**
+ @fn passkeySignInWithPlatformCredential:completion
+ @brief sign in with passkey
+ */
+- (void)passkeySignInWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential
+                                 completion:
+                                     (nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error))completion
+    API_AVAILABLE(ios(15.0))API_UNAVAILABLE(macosx, watchos);
+
+/**
+ @fn getPasskeyAssertionRequestWithCompletion
+ @brief create key assertion request for sign in
+ */
+- (void)getPasskeyAssertionRequestWithCompletion:
+    (nullable void (^)(
+        ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+        NSError *_Nullable error))completion API_AVAILABLE(ios(15.0))
+        API_UNAVAILABLE(macosx, watchos);
+
+/**
+ @fn getPasskeySignUpRequestWithCompletion
+ @brief sign up  with passkey as first factor.
+ This method will create an anonymous user first and then retrieve challange and rpID from GCIP to
+ create a creation request. To finish up the sign up, enrollPasskeyWithPlatformCredential:completion
+ needs to be called in the ASController delegation.
+ */
+- (void)getPasskeySignUpRequestWithName:(NSString *)name
+                             completion:
+                                 (nullable void (^)(
+                                     ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
+                                         *_Nullable request,
+                                     NSError *_Nullable error))completion API_AVAILABLE(ios(15.0));
 @end
 
 NS_ASSUME_NONNULL_END
