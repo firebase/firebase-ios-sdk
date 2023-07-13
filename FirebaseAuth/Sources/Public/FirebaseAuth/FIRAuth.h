@@ -878,6 +878,7 @@ NS_SWIFT_NAME(Auth)
                                             error:(NSError *_Nullable *_Nullable)outError
     __attribute__((swift_error(nonnull_error)));  // This method can return `nil` on success.
 
+#if TARGET_OS_IOS
 /**
  @fn passkeySignInWithPlatformCredential:completion
  @brief sign in with passkey
@@ -887,7 +888,7 @@ NS_SWIFT_NAME(Auth)
                                  completion:
                                      (nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                                         NSError *_Nullable error))completion
-    API_AVAILABLE(ios(15.0))API_UNAVAILABLE(macosx, watchos);
+    API_AVAILABLE(ios(15.0));
 
 /**
  @fn getPasskeyAssertionRequestWithCompletion
@@ -896,8 +897,7 @@ NS_SWIFT_NAME(Auth)
 - (void)getPasskeyAssertionRequestWithCompletion:
     (nullable void (^)(
         ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
-        NSError *_Nullable error))completion API_AVAILABLE(ios(15.0))
-        API_UNAVAILABLE(macosx, watchos);
+        NSError *_Nullable error))completion API_AVAILABLE(ios(15.0));
 
 /**
  @fn getPasskeySignUpRequestWithCompletion
@@ -912,6 +912,7 @@ NS_SWIFT_NAME(Auth)
                                      ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
                                          *_Nullable request,
                                      NSError *_Nullable error))completion API_AVAILABLE(ios(15.0));
+#endif
 @end
 
 NS_ASSUME_NONNULL_END
