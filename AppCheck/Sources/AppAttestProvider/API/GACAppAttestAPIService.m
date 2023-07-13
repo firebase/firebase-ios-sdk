@@ -35,6 +35,7 @@ static NSString *const kRequestFieldAssertion = @"assertion";
 static NSString *const kRequestFieldAttestation = @"attestation_statement";
 static NSString *const kRequestFieldChallenge = @"challenge";
 static NSString *const kRequestFieldKeyID = @"key_id";
+static NSString *const kRequestFieldLimitedUse = @"limited_use";
 
 static NSString *const kExchangeAppAttestAssertionEndpoint = @"exchangeAppAttestAssertion";
 static NSString *const kExchangeAppAttestAttestationEndpoint = @"exchangeAppAttestAttestation";
@@ -43,6 +44,11 @@ static NSString *const kGenerateAppAttestChallengeEndpoint = @"generateAppAttest
 static NSString *const kContentTypeKey = @"Content-Type";
 static NSString *const kJSONContentType = @"application/json";
 static NSString *const kHTTPMethodPost = @"POST";
+
+// TODO(andrewheard): Remove constant when limited-use token feature is implemented.
+// Value for `kRequestFieldLimitedUse` parameter. When `limited_use` is `YES`, forces a short-lived
+// token with a 5 minute TTL.
+static const BOOL kLimitedUseValue = YES;
 
 @interface GACAppAttestAPIService ()
 
@@ -187,7 +193,8 @@ static NSString *const kHTTPMethodPost = @"POST";
                             id JSONObject = @{
                               kRequestFieldArtifact : [self base64StringWithData:artifact],
                               kRequestFieldChallenge : [self base64StringWithData:challenge],
-                              kRequestFieldAssertion : [self base64StringWithData:assertion]
+                              kRequestFieldAssertion : [self base64StringWithData:assertion],
+                              kRequestFieldLimitedUse : @(kLimitedUseValue)
                             };
 
                             return [self HTTPBodyWithJSONObject:JSONObject];
@@ -209,7 +216,8 @@ static NSString *const kHTTPMethodPost = @"POST";
                             id JSONObject = @{
                               kRequestFieldKeyID : keyID,
                               kRequestFieldAttestation : [self base64StringWithData:attestation],
-                              kRequestFieldChallenge : [self base64StringWithData:challenge]
+                              kRequestFieldChallenge : [self base64StringWithData:challenge],
+                              kRequestFieldLimitedUse : @(kLimitedUseValue)
                             };
 
                             return [self HTTPBodyWithJSONObject:JSONObject];
