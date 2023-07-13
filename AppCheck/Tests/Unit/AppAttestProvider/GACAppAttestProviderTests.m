@@ -114,6 +114,7 @@ GAC_APP_ATTEST_PROVIDER_AVAILABILITY
 
   XCTAssertNotNil([[GACAppAttestProvider alloc] initWithStorageID:app.name
                                                      resourceName:resourceName
+                                                          baseURL:nil
                                                            APIKey:app.options.APIKey
                                               keychainAccessGroup:nil
                                                      requestHooks:nil]);
