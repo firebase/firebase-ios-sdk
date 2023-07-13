@@ -45,27 +45,28 @@ static NSString *const kContentTypeKey = @"Content-Type";
 static NSString *const kJSONContentType = @"application/json";
 static NSString *const kHTTPMethodPost = @"POST";
 
-// TODO(andrewheard): Remove constant when limited-use token feature is implemented.
-// Value for `kRequestFieldLimitedUse` parameter. When `limited_use` is `YES`, forces a short-lived
-// token with a 5 minute TTL.
-static const BOOL kLimitedUseValue = YES;
-
 @interface GACAppAttestAPIService ()
 
 @property(nonatomic, readonly) id<GACAppCheckAPIServiceProtocol> APIService;
 
 @property(nonatomic, readonly) NSString *resourceName;
 
+// TODO(andrewheard): Remove or refactor property when short-lived token feature is implemented.
+// When `YES`, forces a short-lived token with a 5 minute TTL.
+@property(nonatomic, readonly) BOOL limitedUse;
+
 @end
 
 @implementation GACAppAttestAPIService
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
-                      resourceName:(NSString *)resourceName {
+                      resourceName:(NSString *)resourceName
+                        limitedUse:(BOOL)limitedUse {
   self = [super init];
   if (self) {
     _APIService = APIService;
     _resourceName = [resourceName copy];
+    _limitedUse = limitedUse;
   }
   return self;
 }
@@ -194,7 +195,7 @@ static const BOOL kLimitedUseValue = YES;
                               kRequestFieldArtifact : [self base64StringWithData:artifact],
                               kRequestFieldChallenge : [self base64StringWithData:challenge],
                               kRequestFieldAssertion : [self base64StringWithData:assertion],
-                              kRequestFieldLimitedUse : @(kLimitedUseValue)
+                              kRequestFieldLimitedUse : @(self.limitedUse)
                             };
 
                             return [self HTTPBodyWithJSONObject:JSONObject];
@@ -217,7 +218,7 @@ static const BOOL kLimitedUseValue = YES;
                               kRequestFieldKeyID : keyID,
                               kRequestFieldAttestation : [self base64StringWithData:attestation],
                               kRequestFieldChallenge : [self base64StringWithData:challenge],
-                              kRequestFieldLimitedUse : @(kLimitedUseValue)
+                              kRequestFieldLimitedUse : @(self.limitedUse)
                             };
 
                             return [self HTTPBodyWithJSONObject:JSONObject];
