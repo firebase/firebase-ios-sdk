@@ -23,7 +23,7 @@ enum Constants {
   enum ProjectPath {
     // Required for building.
     static let infoPlist = "Info.plist"
-    // TODO(ncooke3): Unused –– make `FrameworkMaker.xcodeproj` refs use it.
+
     static let projectFile = "FrameworkMaker.xcodeproj"
 
     /// All required files for building the Zip file.
