@@ -59,6 +59,7 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
 
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
+                                                baseURL:nil
                                                  APIKey:APIKey
                                            requestHooks:requestHooks];
 

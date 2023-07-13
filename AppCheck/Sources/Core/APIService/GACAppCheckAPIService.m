@@ -50,24 +50,15 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
 @synthesize baseURL = _baseURL;
 
 - (instancetype)initWithURLSession:(NSURLSession *)session
+                           baseURL:(nullable NSString *)baseURL
                             APIKey:(nullable NSString *)APIKey
                       requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
-  return [self initWithURLSession:session
-                           APIKey:APIKey
-                     requestHooks:requestHooks
-                          baseURL:kDefaultBaseURL];
-}
-
-- (instancetype)initWithURLSession:(NSURLSession *)session
-                            APIKey:(nullable NSString *)APIKey
-                      requestHooks:(NSArray<GACAppCheckAPIRequestHook> *)requestHooks
-                           baseURL:(NSString *)baseURL {
   self = [super init];
   if (self) {
     _URLSession = session;
     _APIKey = APIKey;
     _requestHooks = requestHooks ? [requestHooks copy] : @[];
-    _baseURL = baseURL;
+    _baseURL = baseURL ?: kDefaultBaseURL;
   }
   return self;
 }

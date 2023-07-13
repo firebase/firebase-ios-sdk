@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
   GACAppAttestProvider *appAttestProvider =
       [[GACAppAttestProvider alloc] initWithStorageID:app.name
                                          resourceName:app.resourceName
+                                              baseURL:nil
                                                APIKey:app.options.APIKey
                                   keychainAccessGroup:app.options.appGroupID
                                          requestHooks:@[ [app.heartbeatLogger requestHook] ]];
