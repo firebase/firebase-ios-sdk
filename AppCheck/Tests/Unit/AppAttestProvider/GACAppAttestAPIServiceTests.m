@@ -53,7 +53,8 @@ static NSString *const kResourceName = @"projects/project_id/apps/app_id";
   OCMStub([self.mockAPIService baseURL]).andReturn(kBaseURL);
 
   self.appAttestAPIService = [[GACAppAttestAPIService alloc] initWithAPIService:self.mockAPIService
-                                                                   resourceName:kResourceName];
+                                                                   resourceName:kResourceName
+                                                                     limitedUse:NO];
 }
 
 - (void)tearDown {
