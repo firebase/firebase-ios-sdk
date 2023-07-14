@@ -25,6 +25,7 @@ NS_SWIFT_NAME(Passkey) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRPassk
  */
 @property(nonatomic, readonly) NSArray<FIRPasskeyInfo *> *enrolledPasskeys;
 
+#if TARGET_OS_IOS
 /**
  @fn getKeyCreationRequestWithCompletion:completion
  @brief Create an registration request for enroll.
@@ -54,6 +55,8 @@ NS_SWIFT_NAME(Passkey) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRPassk
 - (void)unenrollPasskeyWithCredentialID:(NSData *)credentialID
                              completion:(nullable void (^)(NSError *_Nullable error))completion
     API_AVAILABLE(ios(15.0));
+
+#endif
 
 @end
 NS_ASSUME_NONNULL_END
