@@ -2457,30 +2457,28 @@ extension Auth: AuthInterop {
           Auth's backend.
    */
   // TODO: internal
-  @objc public var requestConfiguration: AuthRequestConfiguration
+  var requestConfiguration: AuthRequestConfiguration
 
   #if os(iOS)
-
-    // TODO: the next three should be internal after Sample is ported.
     /** @property tokenManager
         @brief The manager for APNs tokens used by phone number auth.
      */
-    @objc public var tokenManager: AuthAPNSTokenManager!
+    var tokenManager: AuthAPNSTokenManager!
 
     /** @property appCredentailManager
         @brief The manager for app credentials used by phone number auth.
      */
-    @objc public var appCredentialManager: AuthAppCredentialManager!
+    var appCredentialManager: AuthAppCredentialManager!
 
     /** @property notificationManager
         @brief The manager for remote notifications used by phone number auth.
      */
-    @objc public var notificationManager: AuthNotificationManager!
+    var notificationManager: AuthNotificationManager!
 
     /** @property authURLPresenter
         @brief An object that takes care of presenting URLs via the auth instance.
      */
-    internal var authURLPresenter: AuthWebViewControllerDelegate
+    var authURLPresenter: AuthWebViewControllerDelegate
 
   #endif // TARGET_OS_IOS
 

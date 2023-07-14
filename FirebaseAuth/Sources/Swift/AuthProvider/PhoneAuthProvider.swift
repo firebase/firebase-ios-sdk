@@ -442,37 +442,37 @@ import FirebaseCore
                                              completion: @escaping (AuthAppCredential?, String?,
                                                                     Error?) -> Void) {
       let eventID = AuthWebUtils.randomString(withLength: 10)
-      reCAPTCHAURL(withEventID: eventID) { reCAPTCHAURL, error in
-        if let error = error {
+      Task {
+        do {
+          guard let url = try await reCAPTCHAURL(withEventID: eventID) else {
+            fatalError(
+              "Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue"
+            )
+          }
+          let callbackMatcher: (URL?) -> Bool = { callbackURL in
+            AuthWebUtils.isExpectedCallbackURL(
+              callbackURL,
+              eventID: eventID,
+              authType: self.kAuthTypeVerifyApp,
+              callbackScheme: self.callbackScheme
+            )
+          }
+          self.auth.authURLPresenter.present(url,
+                                             uiDelegate: uiDelegate,
+                                             callbackMatcher: callbackMatcher) { callbackURL, error in
+            if let error = error {
+              completion(nil, nil, error)
+              return
+            }
+            do {
+              let reCAPTHAtoken = try self.reCAPTCHAToken(forURL: callbackURL)
+              completion(nil, reCAPTHAtoken, nil)
+            } catch {
+              completion(nil, nil, error)
+            }
+          }
+        } catch {
           completion(nil, nil, error)
-          return
-        }
-        guard let reCAPTCHAURL = reCAPTCHAURL else {
-          fatalError(
-            "Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue"
-          )
-        }
-        let callbackMatcher: (URL?) -> Bool = { callbackURL in
-          AuthWebUtils.isExpectedCallbackURL(
-            callbackURL,
-            eventID: eventID,
-            authType: self.kAuthTypeVerifyApp,
-            callbackScheme: self.callbackScheme
-          )
-        }
-        self.auth.authURLPresenter.present(reCAPTCHAURL,
-                                           uiDelegate: uiDelegate,
-                                           callbackMatcher: callbackMatcher) { callbackURL, error in
-          if let error = error {
-            completion(nil, nil, error)
-            return
-          }
-          do {
-            let reCAPTHAtoken = try self.reCAPTCHAToken(forURL: callbackURL)
-            completion(nil, reCAPTHAtoken, nil)
-          } catch {
-            completion(nil, nil, error)
-          }
         }
       }
     }
@@ -529,52 +529,41 @@ import FirebaseCore
      @param completion The callback invoked after the URL has been constructed or an error
      has been encountered.
      */
-    private func reCAPTCHAURL(withEventID eventID: String,
-                              completion: @escaping ((URL?, Error?) -> Void)) {
-      AuthWebUtils
-        .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration) { authDomain, error in
-          if let error = error {
-            completion(nil, error)
-            return
-          }
-          if let authDomain = authDomain {
-            let bundleID = Bundle.main.bundleIdentifier
-            let clientID = self.auth.app?.options.clientID
-            let appID = self.auth.app?.options.googleAppID
-            let apiKey = self.auth.requestConfiguration.apiKey
-            let appCheck = self.auth.requestConfiguration.appCheck
-            var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
-                              URLQueryItem(name: "authType", value: self.kAuthTypeVerifyApp),
-                              URLQueryItem(name: "ibi", value: bundleID ?? ""),
-                              URLQueryItem(name: "v", value: AuthBackend.authUserAgent()),
-                              URLQueryItem(name: "eventId", value: eventID)]
-            if self.usingClientIDScheme {
-              queryItems.append(URLQueryItem(name: "clientId", value: clientID))
-            } else {
-              queryItems.append(URLQueryItem(name: "appId", value: appID))
-            }
-            if let languageCode = self.auth.requestConfiguration.languageCode {
-              queryItems.append(URLQueryItem(name: "hl", value: languageCode))
-            }
-            var components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
-            components?.queryItems = queryItems
+    private func reCAPTCHAURL(withEventID eventID: String) async throws -> URL? {
+      let authDomain = try await AuthWebUtils
+        .fetchAuthDomain(withRequestConfiguration: auth.requestConfiguration)
+      let bundleID = Bundle.main.bundleIdentifier
+      let clientID = auth.app?.options.clientID
+      let appID = auth.app?.options.googleAppID
+      let apiKey = auth.requestConfiguration.apiKey
+      let appCheck = auth.requestConfiguration.appCheck
+      var queryItems = [URLQueryItem(name: "apiKey", value: apiKey),
+                        URLQueryItem(name: "authType", value: kAuthTypeVerifyApp),
+                        URLQueryItem(name: "ibi", value: bundleID ?? ""),
+                        URLQueryItem(name: "v", value: AuthBackend.authUserAgent()),
+                        URLQueryItem(name: "eventId", value: eventID)]
+      if usingClientIDScheme {
+        queryItems.append(URLQueryItem(name: "clientId", value: clientID))
+      } else {
+        queryItems.append(URLQueryItem(name: "appId", value: appID))
+      }
+      if let languageCode = auth.requestConfiguration.languageCode {
+        queryItems.append(URLQueryItem(name: "hl", value: languageCode))
+      }
+      var components = URLComponents(string: "https://\(authDomain)/__/auth/handler?")
+      components?.queryItems = queryItems
 
-            if let appCheck {
-              appCheck.getToken(forcingRefresh: false) { tokenResult in
-                if let error = tokenResult.error {
-                  AuthLog.logWarning(code: "I-AUT000018",
-                                     message: "Error getting App Check token; using placeholder " +
-                                       "token instead. Error: \(error)")
-                }
-                let appCheckTokenFragment = "fac=\(tokenResult.token)"
-                components?.fragment = appCheckTokenFragment
-                completion(components?.url, nil)
-              }
-            } else {
-              completion(components?.url, nil)
-            }
-          }
+      if let appCheck {
+        let tokenResult = await appCheck.getToken(forcingRefresh: false)
+        if let error = tokenResult.error {
+          AuthLog.logWarning(code: "I-AUT000018",
+                             message: "Error getting App Check token; using placeholder " +
+                               "token instead. Error: \(error)")
         }
+        let appCheckTokenFragment = "fac=\(tokenResult.token)"
+        components?.fragment = appCheckTokenFragment
+      }
+      return components?.url
     }
 
     private let auth: Auth
