@@ -11,6 +11,7 @@
 		880B69702A5829D2005F7798 /* FavouriteFruitsAsyncSequenceViewModelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 880B696F2A5829D2005F7798 /* FavouriteFruitsAsyncSequenceViewModelView.swift */; };
 		8817084726B95A63009E9281 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084626B95A63009E9281 /* FirebaseFirestore */; };
 		8817084926B95A63009E9281 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8817084826B95A63009E9281 /* FirebaseFirestoreSwift */; };
+		882247932A61803F00A2574F /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 882247922A61803F00A2574F /* AuthenticationView.swift */; };
 		88327B8826D62908002AA6D9 /* FavouriteFruitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */; };
 		8844BA6126E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */; };
 		887FEFE32A5574EB00FB2756 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 887FEFE22A5574EA00FB2756 /* GoogleService-Info.plist */; };
@@ -29,6 +30,7 @@
 		8809D0AE26B9520B00DE7864 /* firebase-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "firebase-ios-sdk"; path = ../..; sourceTree = "<group>"; };
 		880B696D2A581B71005F7798 /* FavouriteFruitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitView.swift; sourceTree = "<group>"; };
 		880B696F2A5829D2005F7798 /* FavouriteFruitsAsyncSequenceViewModelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsAsyncSequenceViewModelView.swift; sourceTree = "<group>"; };
+		882247922A61803F00A2574F /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
 		88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsView.swift; sourceTree = "<group>"; };
 		8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteFruitsMappingErrorView.swift; sourceTree = "<group>"; };
 		887FEFE22A5574EA00FB2756 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
@@ -70,6 +72,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		882247912A61802800A2574F /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				882247922A61803F00A2574F /* AuthenticationView.swift */,
+			);
+			path = Authentication;
 			sourceTree = "<group>";
 		};
 		88FBD97B26B9485F00982BF2 = {
@@ -121,6 +131,7 @@
 		88FBD99626B948A900982BF2 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				882247912A61802800A2574F /* Authentication */,
 				88327B8726D62908002AA6D9 /* FavouriteFruitsView.swift */,
 				8844BA6026E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift */,
 				88D5E37726EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift */,
@@ -217,6 +228,7 @@
 				88D9354A2A39CB3E00FD8AFF /* FavouriteFruitsAnimationView.swift in Sources */,
 				880B696E2A581B71005F7798 /* FavouriteFruitView.swift in Sources */,
 				88FBD98826B9485F00982BF2 /* FirestoreSampleApp.swift in Sources */,
+				882247932A61803F00A2574F /* AuthenticationView.swift in Sources */,
 				887FEFE52A5576FA00FB2756 /* FavouriteFruitsAsyncSequenceView.swift in Sources */,
 				88D5E37826EBD2F200808AFF /* FavouriteFruitsMappingErrorView2.swift in Sources */,
 				8844BA6126E0DD3F000786F0 /* FavouriteFruitsMappingErrorView.swift in Sources */,

@@ -44,4 +44,29 @@ public extension Query {
       }
     }
   }
+
+  func documents<T>(as: T.Type) -> AsyncThrowingStream<T?, Error> where T: Decodable {
+    .init { continuation in
+      let listener =
+        addSnapshotListener() { querySnapshot, error in
+          do {
+            guard let documents = querySnapshot?.documents else {
+              continuation.yield(nil)
+              return
+            }
+            let results = try documents.map { try $0.data(as: T.self) }
+            for document in results {
+              continuation.yield(document)
+            }
+//            continuation.finish()
+          } catch {
+            continuation.finish(throwing: error)
+          }
+        }
+
+      continuation.onTermination = { @Sendable _ in
+        listener.remove()
+      }
+    }
+  }
 }
