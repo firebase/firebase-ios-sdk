@@ -80,8 +80,8 @@ private let kFiveMinutes = 5 * 60.0
       @param callback Callback block that will be called to return either the token or an error.
           Invoked asyncronously on the auth global work queue in the future.
    */
-  @objc public func fetchAccessToken(forcingRefresh forceRefresh: Bool,
-                                     callback: @escaping (String?, Error?, Bool) -> Void) {
+  func fetchAccessToken(forcingRefresh forceRefresh: Bool,
+                        callback: @escaping (String?, Error?, Bool) -> Void) {
     taskQueue.enqueueTask { complete in
       if !forceRefresh, self.hasValidAccessToken() {
         complete()
