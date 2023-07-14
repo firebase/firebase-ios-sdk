@@ -91,15 +91,17 @@ import Foundation
               completion(error)
             }
           } else if let response = rawResponse {
-            user.auth?.completeSignIn(withAccessToken: response.idToken,
-                                      accessTokenExpirationDate: nil,
-                                      refreshToken: response.refreshToken,
-                                      anonymous: false) { _, error in
-              if error != nil {
+            Task {
+              do {
+                try await user.auth?.completeSignIn(withAccessToken: response.idToken,
+                                                    accessTokenExpirationDate: nil,
+                                                    refreshToken: response.refreshToken,
+                                                    anonymous: false)
                 try? user.auth?.signOut()
-              }
-              if let completion {
-                completion(error)
+              } catch {
+                if let completion {
+                  completion(error)
+                }
               }
             }
           }
@@ -155,28 +157,37 @@ import Foundation
     @objc(unenrollWithFactorUID:completion:)
     public func unenroll(withFactorUID factorUID: String,
                          completion: ((Error?) -> Void)?) {
-      guard let user = user else {
+      guard let user = user, let auth = user.auth else {
         fatalError("Internal Auth error: failed to get user unenrolling in MultiFactor")
       }
       let request = WithdrawMFARequest(idToken: user.rawAccessToken(),
                                        mfaEnrollmentID: factorUID,
                                        requestConfiguration: user.requestConfiguration)
-      AuthBackend.post(with: request) { rawResponse, error in
-        if let error {
+      Task {
+        do {
+          let response = try await AuthBackend.postAA(with: request)
+          do {
+            let user = try await auth.completeSignIn(withAccessToken: response.idToken,
+                                                     accessTokenExpirationDate: nil,
+                                                     refreshToken: response.refreshToken,
+                                                     anonymous: false)
+            try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+            if let completion {
+              DispatchQueue.main.async {
+                completion(nil)
+              }
+            }
+          } catch {
+            DispatchQueue.main.async {
+              try? auth.signOut()
+              if let completion {
+                completion(error)
+              }
+            }
+          }
+        } catch {
           if let completion {
             completion(error)
-          }
-        } else {
-          guard let response = rawResponse else {
-            fatalError("TODO")
-          }
-          user.auth?.completeSignIn(withAccessToken: response.idToken,
-                                    accessTokenExpirationDate: nil,
-                                    refreshToken: response.refreshToken,
-                                    anonymous: false) { signInUser, error in
-            if let completion {
-              completion(error)
-            }
           }
         }
       }

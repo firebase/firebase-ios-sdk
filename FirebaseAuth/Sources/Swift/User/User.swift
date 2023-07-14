@@ -393,12 +393,28 @@ extension User: NSSecureCoding {}
   public func reauthenticate(with credential: AuthCredential,
                              completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
-      self.auth?.internalSignInAndRetrieveData(
-        withCredential: credential,
-        isReauthentication: true
-      ) {
-        authResult, error in
-        if let error {
+      Task {
+        do {
+          let authResult = try await self.auth?.internalSignInAndRetrieveData(
+            withCredential: credential,
+            isReauthentication: true
+          )
+          guard let user = authResult?.user,
+                user.uid == self.auth?.getUserID() else {
+            User.callInMainThreadWithAuthDataResultAndError(
+              callback: completion,
+              result: authResult,
+              error: AuthErrorUtils.userMismatchError()
+            )
+            return
+          }
+          // Successful reauthenticate
+          self.setTokenService(tokenService: user.tokenService) { error in
+            User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                            result: authResult,
+                                                            error: error)
+          }
+        } catch {
           // If "user not found" error returned by backend,
           // translate to user mismatch error which is more
           // accurate.
@@ -407,24 +423,8 @@ extension User: NSSecureCoding {}
             reportError = AuthErrorUtils.userMismatchError()
           }
           User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          result: authResult,
+                                                          result: nil,
                                                           error: reportError)
-          return
-        }
-        guard let user = authResult?.user,
-              user.uid == self.auth?.getUserID() else {
-          User.callInMainThreadWithAuthDataResultAndError(
-            callback: completion,
-            result: authResult,
-            error: AuthErrorUtils.userMismatchError()
-          )
-          return
-        }
-        // Successful reauthenticate
-        self.setTokenService(tokenService: user.tokenService) { error in
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          result: authResult,
-                                                          error: error)
         }
       }
     }
@@ -1277,14 +1277,11 @@ extension User: NSSecureCoding {}
     requestConfiguration = AuthRequestConfiguration(apiKey: "", appID: "")
   }
 
-  // TODO: internal Swift
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc public class func retrieveUser(withAuth auth: Auth,
-                                       accessToken: String?,
-                                       accessTokenExpirationDate: Date?,
-                                       refreshToken: String?,
-                                       anonymous: Bool,
-                                       callback: @escaping (User?, Error?) -> Void) {
+  class func retrieveUser(withAuth auth: Auth,
+                          accessToken: String?,
+                          accessTokenExpirationDate: Date?,
+                          refreshToken: String?,
+                          anonymous: Bool) async throws -> User {
     guard let accessToken = accessToken,
           let refreshToken = refreshToken else {
       fatalError("Internal FirebaseAuth Error: nil token")
@@ -1297,31 +1294,15 @@ extension User: NSSecureCoding {}
     user.auth = auth
     user.tenantID = auth.tenantID
     user.requestConfiguration = auth.requestConfiguration
-    user.internalGetToken { accessToken, error in
-      if let error {
-        callback(nil, error)
-        return
-      }
-      guard let accessToken else {
-        fatalError("Internal FirebaseAuthError: Both error and accessToken are nil")
-      }
-      let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
-                                                        requestConfiguration: user
-                                                          .requestConfiguration)
-      AuthBackend.post(with: getAccountInfoRequest) { rawResponse, error in
-        if let error {
-          // No need to sign out user here for errors because the user hasn't been signed in yet.
-          callback(nil, error)
-          return
-        }
-        guard let response = rawResponse else {
-          fatalError("Internal FirebaseAuthError: Response should be a GetAccountInfoResponse")
-        }
-        user.isAnonymous = anonymous
-        user.update(withGetAccountInfoResponse: response)
-        callback(user, nil)
-      }
-    }
+    let accessToken2 = try await user.internalGetTokenAA()
+    let getAccountInfoRequest = GetAccountInfoRequest(
+      accessToken: accessToken2,
+      requestConfiguration: user.requestConfiguration
+    )
+    let response = try await AuthBackend.postAA(with: getAccountInfoRequest)
+    user.isAnonymous = anonymous
+    user.update(withGetAccountInfoResponse: response)
+    return user
   }
 
   @objc public var providerID: String {
@@ -1910,10 +1891,8 @@ extension User: NSSecureCoding {}
       @param callback The block to invoke when the token is available. Invoked asynchronously on the
           global work thread in the future.
    */
-  // TODO: internal
-  @objc(internalGetTokenForcingRefresh:callback:)
-  public func internalGetToken(forceRefresh: Bool = false,
-                               callback: @escaping (String?, Error?) -> Void) {
+  func internalGetToken(forceRefresh: Bool = false,
+                        callback: @escaping (String?, Error?) -> Void) {
     tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
       if let error {
         self.signOutIfTokenIsInvalid(withError: error)
@@ -1927,6 +1906,27 @@ extension User: NSSecureCoding {}
         }
       }
       callback(token, nil)
+    }
+  }
+
+  func internalGetTokenAA(forceRefresh: Bool = false) async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
+        if let error {
+          continuation.resume(throwing: error)
+          return
+        }
+        if tokenUpdated {
+          if let error = self.updateKeychain() {
+            continuation.resume(throwing: error)
+            return
+          }
+        }
+        guard let token else {
+          fatalError("Internal Auth Error: missing token without error")
+        }
+        continuation.resume(returning: token)
+      }
     }
   }
 

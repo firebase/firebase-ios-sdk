@@ -62,23 +62,20 @@ import Foundation
           verificationInfo: finalizeMFAPhoneRequestInfo,
           requestConfiguration: auth.requestConfiguration
         )
-        AuthBackend.post(with: request) { response, error in
-          if let error {
+        Task {
+          do {
+            let response = try await AuthBackend.postAA(with: request)
+            let user = try await self.auth.completeSignIn(withAccessToken: response.idToken,
+                                                          accessTokenExpirationDate: nil,
+                                                          refreshToken: response.refreshToken,
+                                                          anonymous: false)
+            let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
+            let decoratedCallback = self.auth
+              .signInFlowAuthDataResultCallback(byDecorating: completion)
+            decoratedCallback(result, nil)
+          } catch {
             if let completion {
               completion(nil, error)
-            }
-          } else if let response {
-            self.auth.completeSignIn(withAccessToken: response.idToken,
-                                     accessTokenExpirationDate: nil,
-                                     refreshToken: response.refreshToken,
-                                     anonymous: false) { user, error in
-              guard let user else {
-                fatalError("Internal Auth Error: completeSignIn didn't pass back a user")
-              }
-              let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
-              let decoratedCallback = self.auth
-                .signInFlowAuthDataResultCallback(byDecorating: completion)
-              decoratedCallback(result, nil)
             }
           }
         }
