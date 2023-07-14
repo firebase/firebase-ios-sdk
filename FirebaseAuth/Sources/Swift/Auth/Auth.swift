@@ -301,11 +301,12 @@ extension Auth: AuthInterop {
       let request = CreateAuthURIRequest(identifier: email,
                                          continueURI: "http:www.google.com",
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(with: request) { response, error in
-        if let completion {
-          DispatchQueue.main.async {
-            completion(response?.signinMethods, error)
-          }
+      Task {
+        do {
+          let response = try await AuthBackend.postAA(with: request)
+          self.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
+        } catch {
+          self.wrapMainAsync(callback: completion, withParam: nil, error: error)
         }
       }
     }
@@ -1012,14 +1013,8 @@ extension Auth: AuthInterop {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: newPassword,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(with: request) { _, error in
-        DispatchQueue.main.async {
-          if let error {
-            completion(error)
-            return
-          }
-          completion(nil)
-        }
+      self.taskWrap(completion) {
+        let _ = try await AuthBackend.postAA(with: request)
       }
     }
   }
@@ -1748,7 +1743,7 @@ extension Auth: AuthInterop {
           appCredentialManager: self.appCredentialManager
         )
 
-        // TODO: Does this swizzling still work?
+        GULAppDelegateSwizzler.registerAppDelegateInterceptor(self)
         GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(self)
       #endif
     }
@@ -2312,6 +2307,36 @@ extension Auth: AuthInterop {
         return
       }
       authDataCallback(callback, authResult, nil)
+    }
+  }
+
+  private func taskWrap(_ callback: ((Error?) -> Void)?,
+                        block: @escaping () async throws -> Void) {
+    Task {
+      do {
+        try await block()
+        self.wrapMainAsync(callback, nil)
+      } catch {
+        self.wrapMainAsync(callback, error)
+      }
+    }
+  }
+
+  private func wrapMainAsync(_ callback: ((Error?) -> Void)?, _ error: Error?) {
+    if let callback {
+      DispatchQueue.main.async {
+        callback(error)
+      }
+    }
+  }
+
+  private func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
+                                     withParam param: T?,
+                                     error: Error?) -> Void {
+    if let callback {
+      DispatchQueue.main.async {
+        callback(param, error)
+      }
     }
   }
 
