@@ -17,6 +17,7 @@
 import SwiftUI
 import FirebaseFirestore
 import FirebaseFirestoreSwift
+import FirebaseAuth
 
 private struct Fruit: Codable, Identifiable, Equatable {
   @DocumentID var id: String?
@@ -35,8 +36,21 @@ struct FavouriteFruitsAsyncSequenceView: View {
     }
     .task {
       do {
+
         let collection = Firestore.firestore().collection("fruits")
-        for try await fruits in collection.snapshotSequence(Fruit.self) {
+        let auth = Auth.auth()
+        let fruitsSequence = auth
+          .authDidChangeSequence()
+          .compactMap { user in
+            user?.uid
+          }
+          .flatMap { userId in
+            collection
+              .whereField("userId", isEqualTo: userId)
+              .snapshotSequence(Fruit.self)
+          }
+
+        for try await fruits in fruitsSequence {
           self.fruits = fruits
         }
       } catch {
