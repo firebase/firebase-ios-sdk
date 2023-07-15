@@ -218,27 +218,16 @@ extension Auth: AuthInterop {
   @objc public func updateCurrentUser(_ user: User?, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       guard let user else {
-        if let completion {
-          DispatchQueue.main.async {
-            completion(AuthErrorUtils.nullUserError(message: nil))
-          }
-        }
+        let error = AuthErrorUtils.nullUserError(message: nil)
+        self.wrapMainAsync(completion, error)
         return
       }
       let updateUserBlock: (User) -> Void = { user in
         do {
           try self.updateCurrentUser(user, byForce: true, savingToDisk: true)
-          if let completion {
-            DispatchQueue.main.async {
-              completion(nil)
-            }
-          }
+          self.wrapMainAsync(completion, nil)
         } catch {
-          if let completion {
-            DispatchQueue.main.async {
-              completion(error)
-            }
-          }
+          self.wrapMainAsync(completion, error)
         }
       }
       if user.requestConfiguration.apiKey != self.requestConfiguration.apiKey {
@@ -247,11 +236,7 @@ extension Auth: AuthInterop {
         user.requestConfiguration = self.requestConfiguration
         user.reload { error in
           if let error {
-            if let completion {
-              DispatchQueue.main.async {
-                completion(error)
-              }
-            }
+            self.wrapMainAsync(completion, error)
             return
           }
           updateUserBlock(user)
@@ -301,11 +286,12 @@ extension Auth: AuthInterop {
       let request = CreateAuthURIRequest(identifier: email,
                                          continueURI: "http:www.google.com",
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(with: request) { response, error in
-        if let completion {
-          DispatchQueue.main.async {
-            completion(response?.signinMethods, error)
-          }
+      Task {
+        do {
+          let response = try await AuthBackend.postAA(with: request)
+          self.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
+        } catch {
+          self.wrapMainAsync(callback: completion, withParam: nil, error: error)
         }
       }
     }
@@ -1012,15 +998,7 @@ extension Auth: AuthInterop {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: newPassword,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(with: request) { _, error in
-        DispatchQueue.main.async {
-          if let error {
-            completion(error)
-            return
-          }
-          completion(nil)
-        }
-      }
+      self.wrapAsyncRPCTask(request, completion)
     }
   }
 
@@ -1069,23 +1047,20 @@ extension Auth: AuthInterop {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: nil,
                                          requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(with: request) { rawResponse, error in
-        DispatchQueue.main.async {
-          if let error {
-            completion(nil, error)
-            return
-          }
-          guard let response = rawResponse,
-                let email = response.email else {
+      Task {
+        do {
+          let response = try await AuthBackend.postAA(with: request)
+
+          let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
+          guard let email = response.email else {
             fatalError("Internal Auth Error: Failed to get a ResetPasswordResponse")
           }
-          let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
           let actionCodeInfo = ActionCodeInfo(withOperation: operation,
                                               email: email,
                                               newEmail: response.verifiedEmail)
-          DispatchQueue.main.async {
-            completion(actionCodeInfo, nil)
-          }
+          self.wrapMainAsync(callback: completion, withParam: actionCodeInfo, error: nil)
+        } catch {
+          self.wrapMainAsync(callback: completion, withParam: nil, error: error)
         }
       }
     }
@@ -1164,9 +1139,7 @@ extension Auth: AuthInterop {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
       request.oobCode = code
       AuthBackend.post(with: request) { rawResponse, error in
-        DispatchQueue.main.async {
-          completion(error)
-        }
+        self.wrapMainAsync(completion, error)
       }
     }
   }
@@ -1253,11 +1226,7 @@ extension Auth: AuthInterop {
         requestConfiguration: self.requestConfiguration
       )
       AuthBackend.post(with: request) { response, error in
-        if let completion {
-          DispatchQueue.main.async {
-            completion(error)
-          }
-        }
+        self.wrapMainAsync(completion, error)
       }
     }
   }
@@ -1322,11 +1291,7 @@ extension Auth: AuthInterop {
         requestConfiguration: self.requestConfiguration
       )
       AuthBackend.post(with: request) { response, error in
-        if let completion {
-          DispatchQueue.main.async {
-            completion(error)
-          }
-        }
+        self.wrapMainAsync(completion, error)
       }
     }
   }
@@ -1526,12 +1491,8 @@ extension Auth: AuthInterop {
                                 completion: ((Error?) -> Void)? = nil) {
     currentUser?.internalGetToken { idToken, error in
       if let error {
-        if let completion {
-          DispatchQueue.main.async {
-            completion(error)
-          }
-          return
-        }
+        self.wrapMainAsync(completion, error)
+        return
       }
       guard let idToken else {
         fatalError("Internal Auth Error: Both idToken and error are nil")
@@ -1539,17 +1500,7 @@ extension Auth: AuthInterop {
       let request = RevokeTokenRequest(withToken: authorizationCode,
                                        idToken: idToken,
                                        requestConfiguration: self.requestConfiguration)
-      AuthBackend.post(with: request) { response, error in
-        if let completion {
-          DispatchQueue.main.async {
-            if let error {
-              completion(error)
-            } else {
-              completion(nil)
-            }
-          }
-        }
-      }
+      self.wrapAsyncRPCTask(request, completion)
     }
   }
 
@@ -1748,7 +1699,7 @@ extension Auth: AuthInterop {
           appCredentialManager: self.appCredentialManager
         )
 
-        // TODO: Does this swizzling still work?
+        GULAppDelegateSwizzler.registerAppDelegateInterceptor(self)
         GULSceneDelegateSwizzler.registerSceneDelegateInterceptor(self)
       #endif
     }
@@ -2294,11 +2245,7 @@ extension Auth: AuthInterop {
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
     let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
       { callback, result, error in
-        if let callback {
-          DispatchQueue.main.async {
-            callback(result, error)
-          }
-        }
+        self.wrapMainAsync(callback: callback, withParam: result, error: error)
       }
     return { authResult, error in
       if let error {
@@ -2312,6 +2259,35 @@ extension Auth: AuthInterop {
         return
       }
       authDataCallback(callback, authResult, nil)
+    }
+  }
+
+  private func wrapAsyncRPCTask(_ request: any AuthRPCRequest, _ callback: ((Error?) -> Void)?) {
+    Task {
+      do {
+        let _ = try await AuthBackend.postAA(with: request)
+        self.wrapMainAsync(callback, nil)
+      } catch {
+        self.wrapMainAsync(callback, error)
+      }
+    }
+  }
+
+  private func wrapMainAsync(_ callback: ((Error?) -> Void)?, _ error: Error?) {
+    if let callback {
+      DispatchQueue.main.async {
+        callback(error)
+      }
+    }
+  }
+
+  private func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
+                                     withParam param: T?,
+                                     error: Error?) -> Void {
+    if let callback {
+      DispatchQueue.main.async {
+        callback(param, error)
+      }
     }
   }
 
