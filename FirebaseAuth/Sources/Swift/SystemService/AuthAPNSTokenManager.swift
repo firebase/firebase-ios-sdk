@@ -86,6 +86,18 @@
       }
     }
 
+    func getTokenAA() async throws -> AuthAPNSToken {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.getToken() { token, error in
+          if let token {
+            continuation.resume(returning: token)
+          } else {
+            continuation.resume(throwing: error!)
+          }
+        }
+      }
+    }
+
     /** @property token
         @brief The APNs token, if one is available.
         @remarks Setting a token with AuthAPNSTokenTypeUnknown will automatically converts it to

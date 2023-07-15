@@ -219,15 +219,15 @@ extension Auth: AuthInterop {
     kAuthGlobalWorkQueue.async {
       guard let user else {
         let error = AuthErrorUtils.nullUserError(message: nil)
-        self.wrapMainAsync(completion, error)
+        Auth.wrapMainAsync(completion, error)
         return
       }
       let updateUserBlock: (User) -> Void = { user in
         do {
           try self.updateCurrentUser(user, byForce: true, savingToDisk: true)
-          self.wrapMainAsync(completion, nil)
+          Auth.wrapMainAsync(completion, nil)
         } catch {
-          self.wrapMainAsync(completion, error)
+          Auth.wrapMainAsync(completion, error)
         }
       }
       if user.requestConfiguration.apiKey != self.requestConfiguration.apiKey {
@@ -236,7 +236,7 @@ extension Auth: AuthInterop {
         user.requestConfiguration = self.requestConfiguration
         user.reload { error in
           if let error {
-            self.wrapMainAsync(completion, error)
+            Auth.wrapMainAsync(completion, error)
             return
           }
           updateUserBlock(user)
@@ -289,9 +289,9 @@ extension Auth: AuthInterop {
       Task {
         do {
           let response = try await AuthBackend.postAA(with: request)
-          self.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
+          Auth.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
         } catch {
-          self.wrapMainAsync(callback: completion, withParam: nil, error: error)
+          Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
         }
       }
     }
@@ -1058,9 +1058,9 @@ extension Auth: AuthInterop {
           let actionCodeInfo = ActionCodeInfo(withOperation: operation,
                                               email: email,
                                               newEmail: response.verifiedEmail)
-          self.wrapMainAsync(callback: completion, withParam: actionCodeInfo, error: nil)
+          Auth.wrapMainAsync(callback: completion, withParam: actionCodeInfo, error: nil)
         } catch {
-          self.wrapMainAsync(callback: completion, withParam: nil, error: error)
+          Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
         }
       }
     }
@@ -1485,7 +1485,7 @@ extension Auth: AuthInterop {
                                 completion: ((Error?) -> Void)? = nil) {
     currentUser?.internalGetToken { idToken, error in
       if let error {
-        self.wrapMainAsync(completion, error)
+        Auth.wrapMainAsync(completion, error)
         return
       }
       guard let idToken else {
@@ -2239,7 +2239,7 @@ extension Auth: AuthInterop {
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
     let authDataCallback: (((AuthDataResult?, Error?) -> Void)?, AuthDataResult?, Error?) -> Void =
       { callback, result, error in
-        self.wrapMainAsync(callback: callback, withParam: result, error: error)
+        Auth.wrapMainAsync(callback: callback, withParam: result, error: error)
       }
     return { authResult, error in
       if let error {
@@ -2260,14 +2260,14 @@ extension Auth: AuthInterop {
     Task {
       do {
         let _ = try await AuthBackend.postAA(with: request)
-        self.wrapMainAsync(callback, nil)
+        Auth.wrapMainAsync(callback, nil)
       } catch {
-        self.wrapMainAsync(callback, error)
+        Auth.wrapMainAsync(callback, error)
       }
     }
   }
 
-  private func wrapMainAsync(_ callback: ((Error?) -> Void)?, _ error: Error?) {
+  class func wrapMainAsync(_ callback: ((Error?) -> Void)?, _ error: Error?) {
     if let callback {
       DispatchQueue.main.async {
         callback(error)
@@ -2275,7 +2275,7 @@ extension Auth: AuthInterop {
     }
   }
 
-  private func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
+  class func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
                                      withParam param: T?,
                                      error: Error?) -> Void {
     if let callback {

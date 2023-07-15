@@ -15,13 +15,11 @@
 #if !os(macOS)
   import Foundation
 
-  // TODO: Nothing should be public
-
   /** @class FIRAuthAppCredentialManager
       @brief A class to manage app credentials backed by iOS Keychain.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRAuthAppCredentialManager) public class AuthAppCredentialManager: NSObject {
+  class AuthAppCredentialManager: NSObject {
     let kKeychainDataKey = "app_credentials"
     let kFullCredentialKey = "full_credential"
     let kPendingReceiptsKey = "pending_receipts"
@@ -29,13 +27,13 @@
     /** @property credential
         @brief The full credential (which has a secret) to be used by the app, if one is available.
      */
-    @objc public var credential: AuthAppCredential?
+    var credential: AuthAppCredential?
 
     /** @property maximumNumberOfPendingReceipts
         @brief The maximum (but not necessarily the minimum) number of pending receipts to be kept.
         @remarks Only tests should access this property.
      */
-    @objc public let maximumNumberOfPendingReceipts = 32
+    let maximumNumberOfPendingReceipts = 32
 
     init(withKeychain keychain: AuthKeychainServices) {
       keychainServices = keychain
@@ -54,7 +52,7 @@
       }
     }
 
-    @objc public func didStartVerification(withReceipt receipt: String,
+    func didStartVerification(withReceipt receipt: String,
                                            timeout: TimeInterval,
                                            callback: @escaping (AuthAppCredential) -> Void) {
       pendingReceipts = pendingReceipts.filter { $0 != receipt }
@@ -69,7 +67,16 @@
       }
     }
 
-    @objc public func canFinishVerification(withReceipt receipt: String, secret: String) -> Bool {
+    func didStartVerificationAA(withReceipt receipt: String,
+                                           timeout: TimeInterval) async -> AuthAppCredential {
+      return await withCheckedContinuation { continuation in
+        self.didStartVerification(withReceipt: receipt, timeout: timeout) { credential in
+          continuation.resume(returning: credential)
+        }
+      }
+    }
+
+    func canFinishVerification(withReceipt receipt: String, secret: String) -> Bool {
       guard pendingReceipts.contains(receipt) else {
         return false
       }
@@ -80,7 +87,7 @@
       return true
     }
 
-    @objc public func clearCredential() {
+    func clearCredential() {
       credential = nil
       saveData()
     }

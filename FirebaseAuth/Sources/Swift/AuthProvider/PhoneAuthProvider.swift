@@ -62,29 +62,10 @@ import FirebaseCore
     public func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate?,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
-      guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
-                                                    urlTypes: auth.mainBundleUrlTypes) else {
-        fatalError(
-          "Please register custom URL scheme \(callbackScheme) in the app's Info.plist file."
-        )
-      }
-      kAuthGlobalWorkQueue.async {
-        let callbackOnMainThread: (String?, Error?) -> Void = { verificationID, error in
-          if let completion {
-            DispatchQueue.main.async {
-              completion(verificationID, error)
-            }
-          }
-        }
-        self.internalVerify(phoneNumber: phoneNumber,
-                            uiDelegate: uiDelegate) { verificationID, error in
-          if let error {
-            callbackOnMainThread(nil, error)
-          } else {
-            callbackOnMainThread(verificationID, nil)
-          }
-        }
-      }
+      verifyPhoneNumber(phoneNumber,
+                        uiDelegate: uiDelegate,
+                        multiFactorSession: nil,
+                        completion: completion)
     }
 
     /**
@@ -103,10 +84,6 @@ import FirebaseCore
                                   uiDelegate: AuthUIDelegate?,
                                   multiFactorSession session: MultiFactorSession? = nil,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
-      guard let session else {
-        verifyPhoneNumber(phoneNumber, uiDelegate: uiDelegate, completion: completion)
-        return
-      }
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: auth.mainBundleUrlTypes) else {
         fatalError(
@@ -114,20 +91,14 @@ import FirebaseCore
         )
       }
       kAuthGlobalWorkQueue.async {
-        let callbackOnMainThread: (String?, Error?) -> Void = { verificationID, error in
-          if let completion {
-            DispatchQueue.main.async {
-              completion(verificationID, error)
-            }
-          }
-        }
-        self.internalVerify(phoneNumber: phoneNumber,
-                            uiDelegate: uiDelegate,
-                            multiFactorSession: session) { verificationID, error in
-          if let error {
-            callbackOnMainThread(nil, error)
-          } else {
-            callbackOnMainThread(verificationID, nil)
+        Task {
+          do {
+            let verificationID = try await self.internalVerify(phoneNumber: phoneNumber,
+                                                               uiDelegate: uiDelegate,
+                                                               multiFactorSession: session)
+            Auth.wrapMainAsync(callback: completion, withParam: verificationID, error: nil)
+          } catch {
+            Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
           }
         }
       }
@@ -210,24 +181,17 @@ import FirebaseCore
 
     private func internalVerify(phoneNumber: String,
                                 uiDelegate: AuthUIDelegate?,
-                                multiFactorSession session: MultiFactorSession? = nil,
-                                completion: @escaping ((String?, Error?) -> Void)) {
+                                multiFactorSession session: MultiFactorSession? = nil) async throws -> String? {
       guard phoneNumber.count > 0 else {
-        completion(nil, AuthErrorUtils.missingPhoneNumberError(message: nil))
-        return
+        throw AuthErrorUtils.missingPhoneNumberError(message: nil)
       }
-      auth.notificationManager.checkNotificationForwarding { isNotificationBeingForwarded in
-        guard isNotificationBeingForwarded else {
-          completion(nil, AuthErrorUtils.notificationNotForwardedError())
-          return
-        }
-        self.verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
-                                             retryOnInvalidAppCredential: true,
-                                             multiFactorSession: session,
-                                             uiDelegate: uiDelegate) { verificationID, error in
-          completion(verificationID, error)
-        }
+      guard await auth.notificationManager.checkNotificationForwardingAA() else {
+        throw AuthErrorUtils.notificationNotForwardedError()
       }
+      return try await self.verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
+                                                            retryOnInvalidAppCredential: true,
+                                                            multiFactorSession: session,
+                                                            uiDelegate: uiDelegate)
     }
 
     /** @fn
@@ -240,43 +204,22 @@ import FirebaseCore
      */
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
-                                                 uiDelegate: AuthUIDelegate?,
-                                                 callback: @escaping (String?, Error?) -> Void) {
-      verifyClient(withUIDelegate: uiDelegate) { appCredential, reCAPTCHAToken, error in
-        if let error {
-          callback(nil, error)
-          return
-        }
-        var request: SendVerificationCodeRequest?
-        if let appCredential {
-          request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
-                                                appCredential: appCredential,
-                                                reCAPTCHAToken: nil,
-                                                requestConfiguration: self.auth
-                                                  .requestConfiguration)
-        } else if let reCAPTCHAToken {
-          request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
-                                                appCredential: nil,
-                                                reCAPTCHAToken: reCAPTCHAToken,
-                                                requestConfiguration: self.auth
-                                                  .requestConfiguration)
-        } else {
-          fatalError("Internal Phone Auth Error:Both reCAPTCHA token and app credential are nil")
-        }
-        if let request {
-          AuthBackend.post(with: request) { response, error in
-            if let error {
-              self.handleVerifyErrorWithRetry(error: error,
-                                              phoneNumber: phoneNumber,
-                                              retryOnInvalidAppCredential: retryOnInvalidAppCredential,
-                                              multiFactorSession: nil,
-                                              uiDelegate: uiDelegate,
-                                              callback: callback)
-              return
-            }
-            callback(response?.verificationID, nil)
-          }
-        }
+                                                 uiDelegate: AuthUIDelegate?) async throws -> String? {
+      let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
+      let request = SendVerificationCodeRequest(phoneNumber: phoneNumber,
+                                              codeIdentity: codeIdentity,
+                                              requestConfiguration: self.auth
+                                                .requestConfiguration)
+
+      do {
+        let response = try await AuthBackend.postAA(with: request)
+        return response.verificationID
+      } catch {
+        return try await self.handleVerifyErrorWithRetry(error: error,
+                                        phoneNumber: phoneNumber,
+                                        retryOnInvalidAppCredential: retryOnInvalidAppCredential,
+                                        multiFactorSession: nil,
+                                        uiDelegate: uiDelegate)
       }
     }
 
@@ -291,62 +234,53 @@ import FirebaseCore
     private func verifyClAndSendVerificationCode(toPhoneNumber phoneNumber: String,
                                                  retryOnInvalidAppCredential: Bool,
                                                  multiFactorSession session: MultiFactorSession?,
-                                                 uiDelegate: AuthUIDelegate?,
-                                                 callback: @escaping (String?, Error?) -> Void) {
+                                                 uiDelegate: AuthUIDelegate?) async throws -> String? {
       if let settings = auth.settings,
          settings.isAppVerificationDisabledForTesting {
         let request = SendVerificationCodeRequest(
           phoneNumber: phoneNumber,
-          appCredential: nil,
-          reCAPTCHAToken: nil,
+          codeIdentity: CodeIdentity.empty,
           requestConfiguration: auth.requestConfiguration
         )
-
-        AuthBackend.post(with: request) { response, error in
-          callback(response?.verificationID, error)
-        }
-        return
+        
+        let response = try await AuthBackend.postAA(with: request)
+        return response.verificationID
       }
       guard let session else {
-        verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
-                                        retryOnInvalidAppCredential: retryOnInvalidAppCredential,
-                                        uiDelegate: uiDelegate,
-                                        callback: callback)
-        return
+        return try await verifyClAndSendVerificationCode(
+          toPhoneNumber: phoneNumber,
+                                  retryOnInvalidAppCredential: retryOnInvalidAppCredential,
+                                                         uiDelegate: uiDelegate)
       }
-
-      verifyClient(withUIDelegate: uiDelegate) { appCredential, reCAPTCHAToken, error in
-        if let error {
-          callback(nil, error)
-          return
-        }
-        let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(phoneNumber: phoneNumber,
-                                                                    appCredential: appCredential,
-                                                                    reCAPTCHAToken: reCAPTCHAToken)
-
-        // XXX TODO: Figure out the right logic here, where we're assuming the callback is a certain
-        // type.
-        let request: any AuthRPCRequest = (session.idToken != nil) ?
-          StartMFAEnrollmentRequest(idToken: session.idToken,
-                                    enrollmentInfo: startMFARequestInfo,
-                                    requestConfiguration: self.auth.requestConfiguration) :
-          StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
-                                MFAEnrollmentID: session.multiFactorInfo?.uid,
-                                signInInfo: startMFARequestInfo,
-                                requestConfiguration: self.auth.requestConfiguration)
-
-        AuthBackend.post(with: request) { response, error in
-          if let error {
-            self.handleVerifyErrorWithRetry(error: error,
-                                            phoneNumber: phoneNumber,
-                                            retryOnInvalidAppCredential: retryOnInvalidAppCredential,
-                                            multiFactorSession: session,
-                                            uiDelegate: uiDelegate,
-                                            callback: callback)
-            return
-          }
-          callback((response as? StartMFAEnrollmentResponse)?.enrollmentResponse?.sessionInfo, nil)
-        }
+      let codeIdentity = try await verifyClient(withUIDelegate: uiDelegate)
+      let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(phoneNumber: phoneNumber,
+                                                                  codeIdentity: codeIdentity)
+      do {
+        switch codeIdentity {
+        case .credential(_):
+          let request = StartMFAEnrollmentRequest(idToken: session.idToken,
+                                                  enrollmentInfo: startMFARequestInfo,
+                                                  requestConfiguration: self.auth.requestConfiguration)
+            let response = try await AuthBackend.postAA(with: request)
+            return response.enrollmentResponse?.sessionInfo
+        case .recaptcha(_):
+          let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
+                                              MFAEnrollmentID: session.multiFactorInfo?.uid,
+                                              signInInfo: startMFARequestInfo,
+                                              requestConfiguration: self.auth.requestConfiguration)
+          
+          let response = try await AuthBackend.postAA(with: request)
+          return response.responseInfo?.sessionInfo
+      case .empty:
+        return nil
+      }
+      } catch {
+        return try await self.handleVerifyErrorWithRetry(
+          error: error,
+                                                         phoneNumber: phoneNumber,
+                                                         retryOnInvalidAppCredential: retryOnInvalidAppCredential,
+                                                         multiFactorSession: session,
+                                                         uiDelegate: uiDelegate)
       }
     }
 
@@ -354,82 +288,70 @@ import FirebaseCore
                                             phoneNumber: String,
                                             retryOnInvalidAppCredential: Bool,
                                             multiFactorSession session: MultiFactorSession?,
-                                            uiDelegate: AuthUIDelegate?,
-                                            callback: @escaping (String?, Error?) -> Void) {
+                                            uiDelegate: AuthUIDelegate?) async throws -> String? {
       if (error as NSError).code == AuthErrorCode.invalidAppCredential.rawValue {
         if retryOnInvalidAppCredential {
           auth.appCredentialManager.clearCredential()
-          verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
+          return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
                                           retryOnInvalidAppCredential: false,
                                           multiFactorSession: session,
-                                          uiDelegate: uiDelegate,
-                                          callback: callback)
-          return
+                                          uiDelegate: uiDelegate)
         }
-        callback(nil, AuthErrorUtils.unexpectedResponse(deserializedResponse: nil,
-                                                        underlyingError: error))
-        return
+        throw AuthErrorUtils.unexpectedResponse(deserializedResponse: nil, underlyingError: error)
       }
-      callback(nil, error)
+      throw error
     }
 
     /** @fn
      @brief Continues the flow to verify the client via silent push notification.
      @param completion The callback to be invoked when the client verification flow is finished.
      */
-    private func verifyClient(withUIDelegate uiDelegate: AuthUIDelegate?,
-                              completion: @escaping (AuthAppCredential?, String?, Error?) -> Void) {
+    private func verifyClient(withUIDelegate uiDelegate: AuthUIDelegate?) async throws -> CodeIdentity {
       // Remove the simulator check below after FCM supports APNs in simulators
       #if targetEnvironment(simulator)
         let environment = ProcessInfo().environment
         if environment["XCTestConfigurationFilePath"] == nil {
-          reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate, completion: completion)
-          return
+          return try await CodeIdentity.recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
         }
       #endif
       if let credential = auth.appCredentialManager.credential {
-        completion(credential, nil, nil)
-        return
+        return CodeIdentity.credential(credential)
       }
-      auth.tokenManager.getToken { token, error in
-        guard let token else {
-          self.reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate, completion: completion)
-          return
-        }
-        let request = VerifyClientRequest(withAppToken: token.string,
+      var token: AuthAPNSToken
+      do {
+        token = try await auth.tokenManager.getTokenAA()
+      } catch {
+        return try await CodeIdentity.recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
+      }
+      let request = VerifyClientRequest(withAppToken: token.string,
                                           isSandbox: token.type == AuthAPNSTokenType.sandbox,
                                           requestConfiguration: self.auth.requestConfiguration)
-        AuthBackend.post(with: request) { response, error in
-          if let error {
-            let nserror = error as NSError
-            // reCAPTCHA Flow if it's an invalid app credential or a missing app token.
-            if (nserror.code == AuthErrorCode.internalError.rawValue &&
-              (nserror.userInfo[NSUnderlyingErrorKey] as? NSError)?.code ==
-              AuthErrorCode.invalidAppCredential.rawValue) ||
-              nserror.code == AuthErrorCode.missingAppToken.rawValue {
-              self.reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate, completion: completion)
-              return
-            } else {
-              completion(nil, nil, error)
-              return
-            }
-          }
-          guard let verifyResponse = response,
-                let receipt = verifyResponse.receipt,
-                let timeout = verifyResponse.suggestedTimeOutDate?.timeIntervalSinceNow else {
-            fatalError("Internal Auth Error: invalid VerifyClientResponse")
-          }
-          self.auth.appCredentialManager.didStartVerification(withReceipt: receipt,
-                                                              timeout: timeout) { credential in
-            if credential.secret == nil {
-              AuthLog.logWarning(code: "I-AUT000014", message: "Failed to receive remote " +
-                "notification to verify app identity within \(timeout) " +
-                "second(s), falling back to reCAPTCHA verification.")
-              self.reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate, completion: completion)
-              return
-            }
-            completion(credential, nil, nil)
-          }
+      do {
+        let verifyResponse = try await AuthBackend.postAA(with: request)
+        guard let receipt = verifyResponse.receipt,
+              let timeout = verifyResponse.suggestedTimeOutDate?.timeIntervalSinceNow else {
+          fatalError("Internal Auth Error: invalid VerifyClientResponse")
+        }
+        let credential = await
+           self.auth.appCredentialManager.didStartVerificationAA(withReceipt: receipt,
+                                                                            timeout: timeout)
+        if credential.secret == nil {
+          AuthLog.logWarning(code: "I-AUT000014", message: "Failed to receive remote " +
+            "notification to verify app identity within \(timeout) " +
+            "second(s), falling back to reCAPTCHA verification.")
+          return try await CodeIdentity.recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
+        }
+        return CodeIdentity.credential(credential)
+      } catch {
+        let nserror = error as NSError
+        // reCAPTCHA Flow if it's an invalid app credential or a missing app token.
+        if (nserror.code == AuthErrorCode.internalError.rawValue &&
+            (nserror.userInfo[NSUnderlyingErrorKey] as? NSError)?.code ==
+            AuthErrorCode.invalidAppCredential.rawValue) ||
+             nserror.code == AuthErrorCode.missingAppToken.rawValue {
+          return try await CodeIdentity.recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
+        } else {
+          throw error
         }
       }
     }
@@ -438,44 +360,38 @@ import FirebaseCore
      @brief Continues the flow to verify the client via silent push notification.
      @param completion The callback to be invoked when the client verification flow is finished.
      */
-    private func reCAPTCHAFlowWithUIDelegate(withUIDelegate uiDelegate: AuthUIDelegate?,
-                                             completion: @escaping (AuthAppCredential?, String?,
-                                                                    Error?) -> Void) {
-      let eventID = AuthWebUtils.randomString(withLength: 10)
-      Task {
-        do {
-          guard let url = try await reCAPTCHAURL(withEventID: eventID) else {
-            fatalError(
-              "Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue"
-            )
+  private func reCAPTCHAFlowWithUIDelegate(withUIDelegate uiDelegate: AuthUIDelegate?) async throws -> String {
+    let eventID = AuthWebUtils.randomString(withLength: 10)
+    guard let url = try await reCAPTCHAURL(withEventID: eventID) else {
+      fatalError(
+        "Internal error: reCAPTCHAURL returned neither a value nor an error. Report issue"
+      )
+    }
+    let callbackMatcher: (URL?) -> Bool = { callbackURL in
+      AuthWebUtils.isExpectedCallbackURL(
+        callbackURL,
+        eventID: eventID,
+        authType: self.kAuthTypeVerifyApp,
+        callbackScheme: self.callbackScheme
+      )
+    }
+
+    return try await withCheckedThrowingContinuation { continuation in
+      self.auth.authURLPresenter.present(url,
+                                         uiDelegate: uiDelegate,
+                                         callbackMatcher: callbackMatcher) { callbackURL, error in
+        if let error {
+          continuation.resume(throwing: error)
+        } else {
+          do {
+            continuation.resume(returning: try self.reCAPTCHAToken(forURL: callbackURL))
+          } catch {
+            continuation.resume(throwing: error)
           }
-          let callbackMatcher: (URL?) -> Bool = { callbackURL in
-            AuthWebUtils.isExpectedCallbackURL(
-              callbackURL,
-              eventID: eventID,
-              authType: self.kAuthTypeVerifyApp,
-              callbackScheme: self.callbackScheme
-            )
-          }
-          self.auth.authURLPresenter.present(url,
-                                             uiDelegate: uiDelegate,
-                                             callbackMatcher: callbackMatcher) { callbackURL, error in
-            if let error = error {
-              completion(nil, nil, error)
-              return
-            }
-            do {
-              let reCAPTHAtoken = try self.reCAPTCHAToken(forURL: callbackURL)
-              completion(nil, reCAPTHAtoken, nil)
-            } catch {
-              completion(nil, nil, error)
-            }
-          }
-        } catch {
-          completion(nil, nil, error)
         }
       }
     }
+  }
 
     /**
      @brief Parses the reCAPTCHA URL and returns the reCAPTCHA token.

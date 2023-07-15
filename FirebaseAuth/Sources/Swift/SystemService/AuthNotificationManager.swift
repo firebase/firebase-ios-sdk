@@ -20,7 +20,7 @@
       @brief A class represents a credential that proves the identity of the app.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public class AuthNotificationManager: NSObject {
+  class AuthNotificationManager: NSObject {
     /** @var kNotificationKey
         @brief The key to locate payload data in the remote notification.
      */
@@ -70,7 +70,7 @@
         @brief The timeout for checking for notification forwarding.
         @remarks Only tests should access this property.
      */
-    @objc public let timeout: TimeInterval
+    let timeout: TimeInterval
 
     /** @property immediateCallbackForTestFaking
         @brief Disable callback waiting for tests.
@@ -89,7 +89,7 @@
         @param appCredentialManager The object to handle app credentials delivered via notification.
         @return The initialized instance.
      */
-    @objc public init(withApplication application: Application,
+    init(withApplication application: Application,
                       appCredentialManager: AuthAppCredentialManager) {
       self.application = application
       self.appCredentialManager = appCredentialManager
@@ -101,7 +101,7 @@
         @param callback The block to be called either immediately or in future once a result
             is available.
      */
-    @objc public func checkNotificationForwarding(withCallback callback: @escaping (Bool) -> Void) {
+    func checkNotificationForwarding(withCallback callback: @escaping (Bool) -> Void) {
       if pendingCallbacks != nil {
         pendingCallbacks?.append(callback)
         return
@@ -135,6 +135,14 @@
         }
         kAuthGlobalWorkQueue.asyncAfter(deadline: .now() + .seconds(Int(self.timeout))) {
           self.callback()
+        }
+      }
+    }
+
+    func checkNotificationForwardingAA() async -> Bool {
+      return await withCheckedContinuation { continuation in
+        checkNotificationForwarding() { value in
+          continuation.resume(returning: value)
         }
       }
     }
