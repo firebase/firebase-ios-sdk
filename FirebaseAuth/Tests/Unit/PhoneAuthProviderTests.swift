@@ -377,10 +377,13 @@
       var visited = false
       rpcIssuer?.verifyRequester = { request in
         XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
-
-        XCTAssertEqual(request.appCredential?.receipt, self.kTestReceipt)
-        XCTAssertEqual(request.appCredential?.secret, self.kTestSecret)
-
+        switch request.codeIdentity {
+        case .credential(let credential):
+          XCTAssertEqual(credential.receipt, self.kTestReceipt)
+          XCTAssertEqual(credential.secret, self.kTestSecret)
+        default:
+          XCTFail("Should be credential")
+        }
         verifyRequesterExpectation.fulfill()
         do {
           if visited == false || goodRetry == false {
@@ -480,11 +483,20 @@
       rpcIssuer?.verifyRequester = { request in
         XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
         if reCAPTCHAfallback {
-          XCTAssertNil(request.appCredential)
-          XCTAssertEqual(request.reCAPTCHAToken, self.kFakeReCAPTCHAToken)
+          switch request.codeIdentity {
+          case .recaptcha(let token):
+            XCTAssertEqual(token, self.kFakeReCAPTCHAToken)
+          default:
+            XCTFail("Should be recaptcha")
+          }
         } else {
-          XCTAssertEqual(request.appCredential?.receipt, self.kTestReceipt)
-          XCTAssertEqual(request.appCredential?.secret, self.kTestSecret)
+          switch request.codeIdentity {
+          case .credential(let credential):
+            XCTAssertEqual(credential.receipt, self.kTestReceipt)
+            XCTAssertEqual(credential.secret, self.kTestSecret)
+          default:
+            XCTFail("Should be credential")
+          }
         }
         verifyRequesterExpectation.fulfill()
         do {
@@ -568,15 +580,16 @@
         let requestExpectation = self.expectation(description: "verifyRequester")
         rpcIssuer?.verifyRequester = { request in
           XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
-          if reCAPTCHAfallback {
-            XCTAssertNil(request.appCredential)
-            XCTAssertEqual(request.reCAPTCHAToken, self.kFakeReCAPTCHAToken)
-          } else if testMode {
-            XCTAssertNil(request.appCredential)
-            XCTAssertNil(request.reCAPTCHAToken)
-          } else {
-            XCTAssertEqual(request.appCredential?.receipt, self.kTestReceipt)
-            XCTAssertEqual(request.appCredential?.secret, self.kTestSecret)
+          switch request.codeIdentity {
+          case .credential(let credential):
+            XCTAssertFalse(reCAPTCHAfallback)
+            XCTAssertEqual(credential.receipt, self.kTestReceipt)
+            XCTAssertEqual(credential.secret, self.kTestSecret)
+          case .recaptcha(let token):
+            XCTAssertTrue(reCAPTCHAfallback)
+            XCTAssertEqual(token, self.kFakeReCAPTCHAToken)
+          case .empty:
+            XCTAssertTrue(testMode)
           }
           requestExpectation.fulfill()
           do {
