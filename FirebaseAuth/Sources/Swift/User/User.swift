@@ -750,31 +750,30 @@ extension User: NSSecureCoding {}
                                                requestConfiguration: requestConfiguration)
           credential.prepare(request)
           request.accessToken = accessToken
-          AuthBackend.post(with: request) { rawResponse, error in
-            if let error {
+          Task {
+            do {
+              let response = try await AuthBackend.postAA(with: request)
+              let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
+              let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
+              let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
+                                          credential: updatedOAuthCredential)
+              guard let idToken = response.idToken,
+                    let refreshToken = response.refreshToken else {
+                fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+              }
+              self.updateTokenAndRefreshUser(idToken: idToken,
+                                             refreshToken: refreshToken,
+                                             accessToken: accessToken,
+                                             expirationDate: response.approximateExpirationDate,
+                                             result: result,
+                                             requestConfiguration: requestConfiguration,
+                                             completion: completion,
+                                             withTaskComplete: complete)
+            } catch {
               self.signOutIfTokenIsInvalid(withError: error)
               completeWithError(nil, error)
               return
             }
-            guard let response = rawResponse else {
-              fatalError("Internal Auth Error: response type is not an VerifyAssertionResponse")
-            }
-            let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
-            let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
-            let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
-                                        credential: updatedOAuthCredential)
-            guard let idToken = response.idToken,
-                  let refreshToken = response.refreshToken else {
-              fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
-            }
-            self.updateTokenAndRefreshUser(idToken: idToken,
-                                           refreshToken: refreshToken,
-                                           accessToken: accessToken,
-                                           expirationDate: response.approximateExpirationDate,
-                                           result: result,
-                                           requestConfiguration: requestConfiguration,
-                                           completion: completion,
-                                           withTaskComplete: complete)
           }
         }
       }
@@ -917,44 +916,45 @@ extension User: NSSecureCoding {}
           return
         }
         request.deleteProviders = [provider]
-        AuthBackend.post(with: request) { rawResponse, error in
-          if let error {
+        Task {
+          do {
+            let response = try await AuthBackend.postAA(with: request)
+            // We can't just use the provider info objects in SetAccountInfoResponse
+            // because they don't have localID and email fields. Remove the specific
+            // provider manually.
+            self.providerDataRaw.removeValue(forKey: provider)
+            if provider == EmailAuthProvider.id {
+              self.hasEmailPasswordCredential = false
+            }
+            #if os(iOS)
+              // After successfully unlinking a phone auth provider, remove the phone number
+              // from the cached user info.
+              if provider == PhoneAuthProvider.id {
+                self.phoneNumber = nil
+              }
+            #endif
+            if let idToken = response.idToken,
+               let refreshToken = response.refreshToken {
+              let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
+                                                    accessToken: idToken,
+                                                    accessTokenExpirationDate: response
+                                                      .approximateExpirationDate,
+                                                    refreshToken: refreshToken)
+              self.setTokenService(tokenService: tokenService) { error in
+                completeAndCallbackWithError(error)
+              }
+              return
+            }
+            if let error = self.updateKeychain() {
+              completeAndCallbackWithError(error)
+              return
+            }
+            completeAndCallbackWithError(nil)
+          } catch {
             self.signOutIfTokenIsInvalid(withError: error)
             completeAndCallbackWithError(error)
             return
           }
-          // We can't just use the provider info objects in FIRSetAccountInfoResponse
-          // because they don't have localID and email fields. Remove the specific
-          // provider manually.
-          self.providerDataRaw.removeValue(forKey: provider)
-          if provider == EmailAuthProvider.id {
-            self.hasEmailPasswordCredential = false
-          }
-          #if os(iOS)
-            // After successfully unlinking a phone auth provider, remove the phone number
-            // from the cached user info.
-            if provider == PhoneAuthProvider.id {
-              self.phoneNumber = nil
-            }
-          #endif
-          if let response = rawResponse,
-             let idToken = response.idToken,
-             let refreshToken = response.refreshToken {
-            let tokenService = SecureTokenService(withRequestConfiguration: requestConfiguration,
-                                                  accessToken: idToken,
-                                                  accessTokenExpirationDate: response
-                                                    .approximateExpirationDate,
-                                                  refreshToken: refreshToken)
-            self.setTokenService(tokenService: tokenService) { error in
-              completeAndCallbackWithError(error)
-            }
-            return
-          }
-          if let error = self.updateKeychain() {
-            completeAndCallbackWithError(error)
-            return
-          }
-          completeAndCallbackWithError(nil)
         }
       }
     }
@@ -1057,11 +1057,14 @@ extension User: NSSecureCoding {}
           actionCodeSettings: actionCodeSettings,
           requestConfiguration: requestConfiguration
         )
-        AuthBackend.post(with: request) { response, error in
-          if let error {
+        Task {
+          do {
+            let _ = try await AuthBackend.postAA(with: request)
+            User.callInMainThreadWithError(callback: completion, error: nil)
+          } catch {
             self.signOutIfTokenIsInvalid(withError: error)
+            User.callInMainThreadWithError(callback: completion, error: error)
           }
-          User.callInMainThreadWithError(callback: completion, error: error)
         }
       }
     }
@@ -1135,18 +1138,14 @@ extension User: NSSecureCoding {}
         }
         let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
                                            requestConfiguration: requestConfiguration)
-        AuthBackend.post(with: request) { response, error in
-          if let error {
-            User.callInMainThreadWithError(callback: completion, error: error)
-            return
-          }
+        Task {
           do {
+            let _ = try await AuthBackend.postAA(with: request)
             try self.auth?.signOutByForce(withUserID: self.uid)
+            User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
             User.callInMainThreadWithError(callback: completion, error: error)
-            return
           }
-          User.callInMainThreadWithError(callback: completion, error: error)
         }
       }
     }
@@ -1222,8 +1221,13 @@ extension User: NSSecureCoding {}
           actionCodeSettings: actionCodeSettings,
           requestConfiguration: requestConfiguration
         )
-        AuthBackend.post(with: request) { response, error in
-          User.callInMainThreadWithError(callback: completion, error: error)
+        Task {
+          do {
+            let _ = try await AuthBackend.postAA(with: request)
+            User.callInMainThreadWithError(callback: completion, error: nil)
+          } catch {
+            User.callInMainThreadWithError(callback: completion, error: error)
+          }
         }
       }
     }
@@ -1399,38 +1403,36 @@ extension User: NSSecureCoding {}
             if let requestConfiguration = self.auth?.requestConfiguration {
               let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                                 requestConfiguration: requestConfiguration)
-              AuthBackend.post(with: getAccountInfoRequest) { response, error in
-                if let error {
-                  self.signOutIfTokenIsInvalid(withError: error)
-                  callback(error)
-                  return
-                }
-                guard let accountInfoResponse = response else {
-                  fatalError("Auth Internal Error: Response is not an GetAccountInfoResponse")
-                }
-                if let users = accountInfoResponse.users {
-                  for userAccountInfo in users {
-                    // Set the account to non-anonymous if there are any providers, even if
-                    // they're not email/password ones.
-                    if let providerUsers = userAccountInfo.providerUserInfo {
-                      if providerUsers.count > 0 {
-                        self.isAnonymous = false
-                        for providerUserInfo in providerUsers {
-                          if providerUserInfo.providerID == EmailAuthProvider.id {
-                            self.hasEmailPasswordCredential = true
-                            break
+              Task {
+                do {
+                  let accountInfoResponse = try await AuthBackend.postAA(with: getAccountInfoRequest)
+                  if let users = accountInfoResponse.users {
+                    for userAccountInfo in users {
+                      // Set the account to non-anonymous if there are any providers, even if
+                      // they're not email/password ones.
+                      if let providerUsers = userAccountInfo.providerUserInfo {
+                        if providerUsers.count > 0 {
+                          self.isAnonymous = false
+                          for providerUserInfo in providerUsers {
+                            if providerUserInfo.providerID == EmailAuthProvider.id {
+                              self.hasEmailPasswordCredential = true
+                              break
+                            }
                           }
                         }
                       }
                     }
                   }
-                }
-                self.update(withGetAccountInfoResponse: accountInfoResponse)
-                if let error = self.updateKeychain() {
+                  self.update(withGetAccountInfoResponse: accountInfoResponse)
+                  if let error = self.updateKeychain() {
+                    callback(error)
+                    return
+                  }
+                  callback(nil)
+                } catch {
+                  self.signOutIfTokenIsInvalid(withError: error)
                   callback(error)
-                  return
                 }
-                callback(nil)
               }
             }
           }
@@ -1476,15 +1478,9 @@ extension User: NSSecureCoding {}
             let setAccountInfoRequest = SetAccountInfoRequest(requestConfiguration: configuration)
             setAccountInfoRequest.accessToken = accessToken
             changeBlock(user, setAccountInfoRequest)
-            // Execute request:
-            AuthBackend.post(with: setAccountInfoRequest) { response, error in
-              if let error {
-                self.signOutIfTokenIsInvalid(withError: error)
-                complete()
-                callback(error)
-                return
-              }
-              if let accountInfoResponse = response {
+            Task {
+              do {
+                let accountInfoResponse = try await AuthBackend.postAA(with: setAccountInfoRequest)
                 if let idToken = accountInfoResponse.idToken,
                    let refreshToken = accountInfoResponse.refreshToken {
                   let tokenService = SecureTokenService(
@@ -1499,9 +1495,13 @@ extension User: NSSecureCoding {}
                   }
                   return
                 }
+                complete()
+                callback(nil)
+              } catch {
+                self.signOutIfTokenIsInvalid(withError: error)
+                complete()
+                callback(error)
               }
-              complete()
-              callback(nil)
             }
           }
         }
@@ -1552,21 +1552,19 @@ extension User: NSSecureCoding {}
       }
       let request = GetAccountInfoRequest(accessToken: token,
                                           requestConfiguration: requestConfiguration)
-      AuthBackend.post(with: request) { response, error in
-        if let error {
+      Task {
+        do {
+          let accountInfoResponse = try await AuthBackend.postAA(with: request)
+          self.update(withGetAccountInfoResponse: accountInfoResponse)
+          if let error = self.updateKeychain() {
+            callback(nil, error)
+            return
+          }
+          callback(accountInfoResponse.users?.first, nil)
+        } catch {
           self.signOutIfTokenIsInvalid(withError: error)
           callback(nil, error)
-          return
         }
-        guard let accountInfoResponse = response else {
-          fatalError("Internal Error: wrong response type")
-        }
-        self.update(withGetAccountInfoResponse: accountInfoResponse)
-        if let error = self.updateKeychain() {
-          callback(nil, error)
-          return
-        }
-        callback(accountInfoResponse.users?.first, nil)
       }
     }
   }
@@ -1640,37 +1638,36 @@ extension User: NSSecureCoding {}
                                                  operation: operation,
                                                  requestConfiguration: configuration)
           request.accessToken = accessToken
-          AuthBackend.post(with: request) { response, error in
-            if let error {
+          Task {
+            do {
+              let verifyResponse = try await AuthBackend.postAA(with: request)
+              guard let idToken = verifyResponse.idToken,
+                    let refreshToken = verifyResponse.refreshToken else {
+                fatalError("Internal Auth Error: missing token in internalUpdateOrLinkPhoneNumber")
+              }
+              self.tokenService = SecureTokenService(
+                withRequestConfiguration: configuration,
+                accessToken: idToken,
+                accessTokenExpirationDate: verifyResponse.approximateExpirationDate,
+                refreshToken: refreshToken
+              )
+              // Get account info to update cached user info.
+              self.getAccountInfoRefreshingCache { user, error in
+                if let error {
+                  self.signOutIfTokenIsInvalid(withError: error)
+                  completion(error)
+                  return
+                }
+                self.isAnonymous = false
+                if let error = self.updateKeychain() {
+                  completion(error)
+                  return
+                }
+                completion(nil)
+              }
+            } catch {
               self.signOutIfTokenIsInvalid(withError: error)
               completion(error)
-              return
-            }
-            // Update the new token and refresh user info again.
-            if let verifyResponse = response {
-              if let idToken = verifyResponse.idToken,
-                 let refreshToken = verifyResponse.refreshToken {
-                self.tokenService = SecureTokenService(
-                  withRequestConfiguration: configuration,
-                  accessToken: idToken,
-                  accessTokenExpirationDate: verifyResponse.approximateExpirationDate,
-                  refreshToken: refreshToken
-                )
-              }
-            }
-            // Get account info to update cached user info.
-            self.getAccountInfoRefreshingCache { user, error in
-              if let error {
-                self.signOutIfTokenIsInvalid(withError: error)
-                completion(error)
-                return
-              }
-              self.isAnonymous = false
-              if let error = self.updateKeychain() {
-                completion(error)
-                return
-              }
-              completion(nil)
             }
           }
         }
@@ -1720,30 +1717,28 @@ extension User: NSSecureCoding {}
                                              oobCode: actionCode,
                                              requestConfiguration: requestConfiguration)
         request.idToken = accessToken
-        AuthBackend.post(with: request) { rawResponse, error in
-          if let error {
+        Task {
+          do {
+            let response = try await AuthBackend.postAA(with: request)
+            guard let idToken = response.idToken,
+                  let refreshToken = response.refreshToken else {
+              fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+            }
+            self.updateTokenAndRefreshUser(idToken: idToken,
+                                           refreshToken: refreshToken,
+                                           accessToken: accessToken,
+                                           expirationDate: response.approximateExpirationDate,
+                                           result: AuthDataResult(
+                                             withUser: self,
+                                             additionalUserInfo: nil
+                                           ),
+                                           requestConfiguration: requestConfiguration,
+                                           completion: completion)
+          } catch {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
                                                             error: error)
-            return
           }
-          guard let response = rawResponse else {
-            fatalError("Internal Auth Error: response type is not an EmailLinkSignInResponse")
-          }
-          guard let idToken = response.idToken,
-                let refreshToken = response.refreshToken else {
-            fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
-          }
-          self.updateTokenAndRefreshUser(idToken: idToken,
-                                         refreshToken: refreshToken,
-                                         accessToken: accessToken,
-                                         expirationDate: response.approximateExpirationDate,
-                                         result: AuthDataResult(
-                                           withUser: self,
-                                           additionalUserInfo: nil
-                                         ),
-                                         requestConfiguration: requestConfiguration,
-                                         completion: completion)
         }
       }
     }
@@ -1769,30 +1764,28 @@ extension User: NSSecureCoding {}
                                                   displayName: gameCenterCredential.displayName,
                                                   requestConfiguration: requestConfiguration)
         request.accessToken = accessToken
-        AuthBackend.post(with: request) { rawResponse, error in
-          if let error {
+        Task {
+          do {
+            let response = try await AuthBackend.postAA(with: request)
+            guard let idToken = response.idToken,
+                  let refreshToken = response.refreshToken else {
+              fatalError("Internal Auth Error: missing token in link(withGameCredential")
+            }
+            self.updateTokenAndRefreshUser(idToken: idToken,
+                                           refreshToken: refreshToken,
+                                           accessToken: accessToken,
+                                           expirationDate: response.approximateExpirationDate,
+                                           result: AuthDataResult(
+                                             withUser: self,
+                                             additionalUserInfo: nil
+                                           ),
+                                           requestConfiguration: requestConfiguration,
+                                           completion: completion)
+          } catch {
             User.callInMainThreadWithAuthDataResultAndError(callback: completion,
                                                             result: nil,
                                                             error: error)
-            return
           }
-          guard let response = rawResponse else {
-            fatalError("Internal Auth Error: response type is not an SignInWithGameCenterResponse")
-          }
-          guard let idToken = response.idToken,
-                let refreshToken = response.refreshToken else {
-            fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
-          }
-          self.updateTokenAndRefreshUser(idToken: idToken,
-                                         refreshToken: refreshToken,
-                                         accessToken: accessToken,
-                                         expirationDate: response.approximateExpirationDate,
-                                         result: AuthDataResult(
-                                           withUser: self,
-                                           additionalUserInfo: nil
-                                         ),
-                                         requestConfiguration: requestConfiguration,
-                                         completion: completion)
         }
       }
     }
@@ -1848,24 +1841,22 @@ extension User: NSSecureCoding {}
       }
       let getAccountInfoRequest = GetAccountInfoRequest(accessToken: accessToken,
                                                         requestConfiguration: requestConfiguration)
-      AuthBackend.post(with: getAccountInfoRequest) { rawResponse, error in
-        if let error {
+      Task {
+        do {
+          let response = try await AuthBackend.postAA(with: getAccountInfoRequest)
+          self.isAnonymous = false
+          self.update(withGetAccountInfoResponse: response)
+          if let error = self.updateKeychain() {
+            User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
+                                                            error: error)
+            return
+          }
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
+                                                          result: result)
+        } catch {
           self.signOutIfTokenIsInvalid(withError: error)
           User.callInMainThreadWithAuthDataResultAndError(callback: completion, error: error)
-          return
         }
-        guard let response = rawResponse else {
-          fatalError("Internal Auth Error: response is not a GetAccountInfoResponse")
-        }
-        self.isAnonymous = false
-        self.update(withGetAccountInfoResponse: response)
-        if let error = self.updateKeychain() {
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
-                                                          error: error)
-          return
-        }
-        User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
-                                                        result: result)
       }
     }
   }

@@ -1138,9 +1138,7 @@ extension Auth: AuthInterop {
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
       request.oobCode = code
-      AuthBackend.post(with: request) { rawResponse, error in
-        self.wrapMainAsync(completion, error)
-      }
+      self.wrapAsyncRPCTask(request, completion)
     }
   }
 
@@ -1225,9 +1223,7 @@ extension Auth: AuthInterop {
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      AuthBackend.post(with: request) { response, error in
-        self.wrapMainAsync(completion, error)
-      }
+      self.wrapAsyncRPCTask(request, completion)
     }
   }
 
@@ -1290,9 +1286,7 @@ extension Auth: AuthInterop {
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      AuthBackend.post(with: request) { response, error in
-        self.wrapMainAsync(completion, error)
-      }
+      self.wrapAsyncRPCTask(request, completion)
     }
   }
 
