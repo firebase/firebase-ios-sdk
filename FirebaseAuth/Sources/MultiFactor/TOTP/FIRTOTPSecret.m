@@ -62,8 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)openInOTPAppWithQRCodeURL:(NSString *)QRCodeURL {
   NSURL *url = [NSURL URLWithString:QRCodeURL];
   static Class applicationClass = nil;
-    // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-    // responds to it.
+  // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+  // responds to it.
   if (![GULAppEnvironmentUtil isAppExtension]) {
     Class cls = NSClassFromString(@"UIApplication");
     if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
