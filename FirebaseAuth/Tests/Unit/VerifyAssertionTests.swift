@@ -166,82 +166,62 @@ class VerifyAssertionTests: RPCBaseTests {
   /** @fn testSuccessfulVerifyAssertionResponse
       @brief This test simulates a successful verify assertion flow.
    */
-  func testSuccessfulVerifyAssertionResponse() throws {
-    var callbackInvoked = false
-    var rpcResponse: VerifyAssertionResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeVerifyAssertionRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+  func testSuccessfulVerifyAssertionResponse() async throws {
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        self.kProviderIDKey: self.kTestProviderID,
+        self.kIDTokenKey: self.kTestIDToken,
+        self.kExpiresInKey: self.kTestExpiresIn,
+        self.kRefreshTokenKey: self.kTestRefreshToken,
+        self.kVerifiedProviderKey: [self.kTestProvider],
+        self.kPhotoUrlKey: self.kTestPhotoUrl,
+        self.kUsernameKey: self.kUsername,
+        self.kIsNewUserKey: true,
+        self.kRawUserInfoKey: self.profile,
+      ])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [
-      kProviderIDKey: kTestProviderID,
-      kIDTokenKey: kTestIDToken,
-      kExpiresInKey: kTestExpiresIn,
-      kRefreshTokenKey: kTestRefreshToken,
-      kVerifiedProviderKey: [kTestProvider],
-      kPhotoUrlKey: kTestPhotoUrl,
-      kUsernameKey: kUsername,
-      kIsNewUserKey: true,
-      kRawUserInfoKey: profile,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.idToken, kTestIDToken)
-    XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)
-    XCTAssertEqual(rpcResponse?.verifiedProvider, [kTestProvider])
-    XCTAssertEqual(rpcResponse?.photoURL, URL(string: kTestPhotoUrl))
-    XCTAssertEqual(rpcResponse?.username, kUsername)
-    XCTAssertEqual(try XCTUnwrap(rpcResponse?.profile as? [String: String]), profile)
-    let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyAssertionRequest())
+    XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
+    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    XCTAssertEqual(rpcResponse.verifiedProvider, [kTestProvider])
+    XCTAssertEqual(rpcResponse.photoURL, URL(string: kTestPhotoUrl))
+    XCTAssertEqual(rpcResponse.username, kUsername)
+    XCTAssertEqual(try XCTUnwrap(rpcResponse.profile as? [String: String]), profile)
+    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
-    XCTAssertEqual(rpcResponse?.providerID, kTestProviderID)
-    XCTAssertTrue(try XCTUnwrap(rpcResponse?.isNewUser))
+    XCTAssertEqual(rpcResponse.providerID, kTestProviderID)
+    XCTAssertTrue(rpcResponse.isNewUser)
   }
 
   /** @fn testSuccessfulVerifyAssertionResponseWithTextData
       @brief This test simulates a successful verify assertion flow when response collection
           fields are sent as text values.
    */
-  func testSuccessfulVerifyAssertionResponseWithTextData() throws {
-    var callbackInvoked = false
-    var rpcResponse: VerifyAssertionResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeVerifyAssertionRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+  func testSuccessfulVerifyAssertionResponseWithTextData() async throws {
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        self.kProviderIDKey: self.kTestProviderID,
+        self.kIDTokenKey: self.kTestIDToken,
+        self.kExpiresInKey: self.kTestExpiresIn,
+        self.kRefreshTokenKey: self.kTestRefreshToken,
+        self.kVerifiedProviderKey: self.convertToJson([self.kTestProvider]),
+        self.kPhotoUrlKey: self.kTestPhotoUrl,
+        self.kUsernameKey: self.kUsername,
+        self.kIsNewUserKey: false,
+        self.kRawUserInfoKey: self.convertToJson(self.profile),
+      ])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [
-      kProviderIDKey: kTestProviderID,
-      kIDTokenKey: kTestIDToken,
-      kExpiresInKey: kTestExpiresIn,
-      kRefreshTokenKey: kTestRefreshToken,
-      kVerifiedProviderKey: convertToJson([kTestProvider]),
-      kPhotoUrlKey: kTestPhotoUrl,
-      kUsernameKey: kUsername,
-      kIsNewUserKey: false,
-      kRawUserInfoKey: convertToJson(profile),
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.idToken, kTestIDToken)
-    XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)
-    XCTAssertEqual(rpcResponse?.verifiedProvider, [kTestProvider])
-    XCTAssertEqual(rpcResponse?.photoURL, URL(string: kTestPhotoUrl))
-    XCTAssertEqual(rpcResponse?.username, kUsername)
-    XCTAssertEqual(try XCTUnwrap(rpcResponse?.profile as? [String: String]), profile)
-    let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyAssertionRequest())
+    XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
+    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    XCTAssertEqual(rpcResponse.verifiedProvider, [kTestProvider])
+    XCTAssertEqual(rpcResponse.photoURL, URL(string: kTestPhotoUrl))
+    XCTAssertEqual(rpcResponse.username, kUsername)
+    XCTAssertEqual(try XCTUnwrap(rpcResponse.profile as? [String: String]), profile)
+    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
-    XCTAssertEqual(rpcResponse?.providerID, kTestProviderID)
-    XCTAssertFalse(try XCTUnwrap(rpcResponse?.isNewUser))
+    XCTAssertEqual(rpcResponse.providerID, kTestProviderID)
+    XCTAssertFalse(rpcResponse.isNewUser)
   }
 
   private func convertToJson(_ input: AnyHashable) throws -> String {

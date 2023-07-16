@@ -59,30 +59,21 @@ class VerifyClientTests: RPCBaseTests {
   /** @fn testSuccessfulVerifyClientResponse
       @brief Tests a successful attempt of the verify password flow.
    */
-  func testSuccessfulVerifyClientResponse() throws {
+  func testSuccessfulVerifyClientResponse() async throws {
     let kReceiptKey = "receipt"
     let kFakeReceipt = "receipt"
     let kSuggestedTimeOutKey = "suggestedTimeout"
     let kFakeSuggestedTimeout = "1234"
-    var callbackInvoked = false
-    var rpcResponse: VerifyClientResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeVerifyClientRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        kReceiptKey: kFakeReceipt,
+        kSuggestedTimeOutKey: kFakeSuggestedTimeout,
+      ])
     }
-
-    try rpcIssuer?.respond(withJSON: [
-      kReceiptKey: kFakeReceipt,
-      kSuggestedTimeOutKey: kFakeSuggestedTimeout,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.receipt, kFakeReceipt)
-    let timeOut = try XCTUnwrap(rpcResponse?.suggestedTimeOutDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyClientRequest())
+    XCTAssertEqual(rpcResponse.receipt, kFakeReceipt)
+    let timeOut = try XCTUnwrap(rpcResponse.suggestedTimeOutDate?.timeIntervalSinceNow)
     XCTAssertEqual(timeOut, 1234, accuracy: 0.1)
   }
 

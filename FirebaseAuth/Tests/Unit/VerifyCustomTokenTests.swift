@@ -90,7 +90,7 @@ class VerifyCustomTokenTests: RPCBaseTests {
   /** @fn testSuccessfulVerifyCustomTokenResponse
       @brief This test simulates a successful verify CustomToken flow.
    */
-  func testSuccessfulVerifyCustomTokenResponse() throws {
+  func testSuccessfulVerifyCustomTokenResponse() async throws {
     let kIDTokenKey = "idToken"
     let kTestIDToken = "ID_TOKEN"
     let kTestExpiresIn = "12345"
@@ -98,30 +98,21 @@ class VerifyCustomTokenTests: RPCBaseTests {
     let kExpiresInKey = "expiresIn"
     let kRefreshTokenKey = "refreshToken"
     let kIsNewUserKey = "isNewUser"
-    var callbackInvoked = false
-    var rpcResponse: VerifyCustomTokenResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeVerifyCustomTokenRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        kIDTokenKey: kTestIDToken,
+        kExpiresInKey: kTestExpiresIn,
+        kRefreshTokenKey: kTestRefreshToken,
+        kIsNewUserKey: true,
+      ])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [
-      kIDTokenKey: kTestIDToken,
-      kExpiresInKey: kTestExpiresIn,
-      kRefreshTokenKey: kTestRefreshToken,
-      kIsNewUserKey: true,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.idToken, kTestIDToken)
-    XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)
-    let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyCustomTokenRequest())
+    XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
+    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
-    XCTAssertTrue(try XCTUnwrap(rpcResponse?.isNewUser))
+    XCTAssertTrue(rpcResponse.isNewUser)
   }
 
   private func makeVerifyCustomTokenRequest() -> VerifyCustomTokenRequest {

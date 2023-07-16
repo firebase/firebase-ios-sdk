@@ -106,24 +106,17 @@ class SendVerificationCodeTests: RPCBaseTests {
   /** @fn testSuccessfulSendVerificationCodeResponse
       @brief This test simulates a successful verify CustomToken flow.
    */
-  func testSuccessfulSendVerificationCodeResponse() throws {
+  func testSuccessfulSendVerificationCodeResponse() async throws {
     let kVerificationIDKey = "sessionInfo"
     let kFakeVerificationID = "testVerificationID"
-    var callbackInvoked = false
-    var rpcResponse: SendVerificationCodeResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken))) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.verificationID, kFakeVerificationID)
+    let rpcResponse = try await AuthBackend.postAA(with:
+          makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)))
+    XCTAssertNotNil(rpcResponse)
+    XCTAssertEqual(rpcResponse.verificationID, kFakeVerificationID)
   }
 
   private func makeSendVerificationCodeRequest(_ codeIdentity: CodeIdentity) -> SendVerificationCodeRequest {

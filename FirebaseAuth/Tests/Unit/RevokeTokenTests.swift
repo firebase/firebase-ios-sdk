@@ -49,21 +49,11 @@ class RevokeTokenTests: RPCBaseTests {
   /** @fn testSuccessfulRevokeTokenResponse
       @brief Tests a successful attempt of the verify password flow.
    */
-  func testSuccessfulRevokeTokenResponse() throws {
-    var callbackInvoked = false
-    var rpcResponse: RevokeTokenResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeRevokeTokenRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+  func testSuccessfulRevokeTokenResponse() async throws {
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [:])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [:])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
+    let rpcResponse = try await AuthBackend.postAA(with: makeRevokeTokenRequest())
     XCTAssertNotNil(rpcResponse)
   }
 

@@ -74,26 +74,18 @@ class ResetPasswordTests: RPCBaseTests {
   /** @fn testSuccessfulResetPassword
       @brief Tests a successful reset password flow.
    */
-  func testSuccessfulResetPassword() throws {
+  func testSuccessfulResetPassword() async throws {
     let kTestEmail = "test@email.com"
     let kExpectedResetPasswordRequestType = "PASSWORD_RESET"
-    var callbackInvoked = false
-    var rpcResponse: ResetPasswordResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeResetPasswordRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: ["email": kTestEmail,
+                                            "requestType": kExpectedResetPasswordRequestType])
     }
+    let rpcResponse = try await AuthBackend.postAA(with: makeResetPasswordRequest())
 
-    _ = try rpcIssuer?.respond(withJSON: ["email": kTestEmail,
-                                          "requestType": kExpectedResetPasswordRequestType])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.email, kTestEmail)
-    XCTAssertEqual(rpcResponse?.requestType, kExpectedResetPasswordRequestType)
+    XCTAssertEqual(rpcResponse.email, kTestEmail)
+    XCTAssertEqual(rpcResponse.requestType, kExpectedResetPasswordRequestType)
   }
 
   private func makeResetPasswordRequest() -> ResetPasswordRequest {

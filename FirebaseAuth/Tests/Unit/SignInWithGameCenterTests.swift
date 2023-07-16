@@ -55,9 +55,6 @@ class SignInWithGameCenterTests: RPCBaseTests {
     let kLocalID = "LOCALID"
     let kDisplayNameKey = "displayName"
     let kDisplayName = "DISPLAYNAME"
-    var callbackInvoked = false
-    var rpcResponse: SignInWithGameCenterResponse?
-    var rpcError: NSError?
 
     let signature = try XCTUnwrap(Data(base64Encoded: kSignature))
     let salt = try XCTUnwrap(Data(base64URLEncoded: kSalt))
@@ -89,34 +86,30 @@ class SignInWithGameCenterTests: RPCBaseTests {
     XCTAssertEqual(requestDictionary[kAccessTokenKey], kAccessToken)
     XCTAssertEqual(requestDictionary[kDisplayNameKey], kDisplayName)
 
-    AuthBackend.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        "idToken": self.kIDToken,
+        "refreshToken": kRefreshToken,
+        "localId": kLocalID,
+        "playerId": self.kPlayerID,
+        "teamPlayerId": self.kTeamPlayerID,
+        "gamePlayerId": self.kGamePlayerID,
+        "expiresIn": self.kApproximateExpirationDate,
+        "isNewUser": true,
+        "displayName": kDisplayName,
+      ])
     }
+    let rpcResponse = try await AuthBackend.postAA(with: request)
+    XCTAssertNotNil(rpcResponse)
 
-    _ = try rpcIssuer?.respond(withJSON: [
-      "idToken": kIDToken,
-      "refreshToken": kRefreshToken,
-      "localId": kLocalID,
-      "playerId": kPlayerID,
-      "teamPlayerId": kTeamPlayerID,
-      "gamePlayerId": kGamePlayerID,
-      "expiresIn": kApproximateExpirationDate,
-      "isNewUser": true,
-      "displayName": kDisplayName,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.idToken, kIDToken)
-    XCTAssertEqual(rpcResponse?.refreshToken, kRefreshToken)
-    XCTAssertEqual(rpcResponse?.localID, kLocalID)
-    XCTAssertEqual(rpcResponse?.playerID, kPlayerID)
-    XCTAssertEqual(rpcResponse?.teamPlayerID, kTeamPlayerID)
-    XCTAssertEqual(rpcResponse?.gamePlayerID, kGamePlayerID)
-    XCTAssertEqual(rpcResponse?.displayName, kDisplayName)
-    XCTAssertTrue(try XCTUnwrap(rpcResponse?.isNewUser))
+    XCTAssertEqual(rpcResponse.idToken, kIDToken)
+    XCTAssertEqual(rpcResponse.refreshToken, kRefreshToken)
+    XCTAssertEqual(rpcResponse.localID, kLocalID)
+    XCTAssertEqual(rpcResponse.playerID, kPlayerID)
+    XCTAssertEqual(rpcResponse.teamPlayerID, kTeamPlayerID)
+    XCTAssertEqual(rpcResponse.gamePlayerID, kGamePlayerID)
+    XCTAssertEqual(rpcResponse.displayName, kDisplayName)
+    XCTAssertTrue(rpcResponse.isNewUser)
   }
 
   #if !os(watchOS)

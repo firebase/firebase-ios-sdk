@@ -136,7 +136,7 @@ class VerifyPasswordTests: RPCBaseTests {
   /** @fn testSuccessfulVerifyPasswordResponse
       @brief Tests a successful attempt of the verify password flow.
    */
-  func testSuccessfulVerifyPasswordResponse() throws {
+  func testSuccessfulVerifyPasswordResponse() async throws {
     let kLocalIDKey = "localId"
     let kTestLocalID = "testLocalId"
     let kEmailKey = "email"
@@ -151,36 +151,27 @@ class VerifyPasswordTests: RPCBaseTests {
     let kTestRefreshToken = "REFRESH_TOKEN"
     let kPhotoUrlKey = "photoUrl"
     let kTestPhotoUrl = "www.example.com"
-    var callbackInvoked = false
-    var rpcResponse: VerifyPasswordResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeVerifyPasswordRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        kLocalIDKey: kTestLocalID,
+        kEmailKey: kTestEmail,
+        kDisplayNameKey: kTestDisplayName,
+        kIDTokenKey: kTestIDToken,
+        kExpiresInKey: kTestExpiresIn,
+        kRefreshTokenKey: kTestRefreshToken,
+        kPhotoUrlKey: kTestPhotoUrl,
+      ])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [
-      kLocalIDKey: kTestLocalID,
-      kEmailKey: kTestEmail,
-      kDisplayNameKey: kTestDisplayName,
-      kIDTokenKey: kTestIDToken,
-      kExpiresInKey: kTestExpiresIn,
-      kRefreshTokenKey: kTestRefreshToken,
-      kPhotoUrlKey: kTestPhotoUrl,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.email, kTestEmail)
-    XCTAssertEqual(rpcResponse?.localID, kTestLocalID)
-    XCTAssertEqual(rpcResponse?.displayName, kTestDisplayName)
-    XCTAssertEqual(rpcResponse?.idToken, kTestIDToken)
-    let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyPasswordRequest())
+    XCTAssertEqual(rpcResponse.email, kTestEmail)
+    XCTAssertEqual(rpcResponse.localID, kTestLocalID)
+    XCTAssertEqual(rpcResponse.displayName, kTestDisplayName)
+    XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
+    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
-    XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)
-    XCTAssertEqual(rpcResponse?.photoURL?.absoluteString, kTestPhotoUrl)
+    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    XCTAssertEqual(rpcResponse.photoURL?.absoluteString, kTestPhotoUrl)
   }
 
   private func makeVerifyPasswordRequest() -> VerifyPasswordRequest {

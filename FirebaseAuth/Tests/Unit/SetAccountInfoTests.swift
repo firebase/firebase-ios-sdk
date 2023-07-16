@@ -194,7 +194,7 @@ class SetAccountInfoTests: RPCBaseTests {
   /** @fn testSuccessfulSetAccountInfoResponse
       @brief This test simulates a successful @c SetAccountInfo flow.
    */
-  func testSuccessfulSetAccountInfoResponse() throws {
+  func testSuccessfulSetAccountInfoResponse() async throws {
     let kIDTokenKey = "idToken"
     let kPhotoUrlKey = "photoUrl"
     let kTestPhotoURL = "testPhotoUrl"
@@ -205,24 +205,14 @@ class SetAccountInfoTests: RPCBaseTests {
     let kRefreshTokenKey = "refreshToken"
     let kTestRefreshToken = "REFRESH_TOKEN"
 
-    var callbackInvoked = false
-    var rpcResponse: SetAccountInfoResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: setAccountInfoRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON:
+                                    [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
+                                                      kIDTokenKey: kTestIDToken,
+                                                      kExpiresInKey: kTestExpiresIn,
+                                                      kRefreshTokenKey: kTestRefreshToken])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
-                                          kIDTokenKey: kTestIDToken,
-                                          kExpiresInKey: kTestExpiresIn,
-                                          kRefreshTokenKey: kTestRefreshToken])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    let response = try XCTUnwrap(rpcResponse)
+    let response = try await AuthBackend.postAA(with: setAccountInfoRequest())
     XCTAssertEqual(response.providerUserInfo?.first?.photoURL?.absoluteString, kTestPhotoURL)
     XCTAssertEqual(response.idToken, kTestIDToken)
     XCTAssertEqual(response.refreshToken, kTestRefreshToken)
