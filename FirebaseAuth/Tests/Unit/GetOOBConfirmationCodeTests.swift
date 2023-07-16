@@ -46,7 +46,6 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       (getEmailVerificationRequest, kVerifyEmailRequestTypeValue),
     ] {
       let request = try request()
-
       let rpcIssuer = try checkRequest(
         request: request,
         expected: kExpectedAPIURL,
@@ -144,28 +143,16 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       @brief This test simulates a complete password reset response (with OOB Code) and makes sure
           it succeeds, and we get the OOB Code decoded correctly.
    */
-  func testSuccessfulOOBResponse() throws {
-    var callbackInvoked = false
-    var rpcResponse: GetOOBConfirmationCodeResponse?
-    var rpcError: NSError?
-
+  func testSuccessfulOOBResponse() async throws {
     for request in [
       getPasswordResetRequest,
       getSignInWithEmailRequest,
       getEmailVerificationRequest,
     ] {
-      let request = try request()
-      AuthBackend.post(with: request) { response, error in
-        callbackInvoked = true
-        rpcResponse = response
-        rpcError = error as? NSError
+      rpcIssuer?.respondBlock = {
+        try self.rpcIssuer?.respond(withJSON:  [self.kOOBCodeKey: self.kTestOOBCode])
       }
-
-      _ = try rpcIssuer?.respond(withJSON: [kOOBCodeKey: kTestOOBCode])
-
-      XCTAssert(callbackInvoked)
-      XCTAssertNil(rpcError)
-      let response = try XCTUnwrap(rpcResponse)
+      let response = try await AuthBackend.postAA(with: request())
       XCTAssertEqual(response.OOBCode, kTestOOBCode)
     }
   }
@@ -174,46 +161,32 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       @brief This test simulates a password reset request where we don't receive the optional OOBCode
           response value. It should still succeed.
    */
-  func testSuccessfulOOBResponseWithoutOOBCode() throws {
-    var callbackInvoked = false
-    var rpcResponse: GetOOBConfirmationCodeResponse?
-    var rpcError: NSError?
-
+  func testSuccessfulOOBResponseWithoutOOBCode() async throws {
     for request in [
       getPasswordResetRequest,
       getSignInWithEmailRequest,
       getEmailVerificationRequest,
     ] {
-      let request = try request()
-      AuthBackend.post(with: request) { response, error in
-        callbackInvoked = true
-        rpcResponse = response
-        rpcError = error as? NSError
+      rpcIssuer?.respondBlock = {
+        try self.rpcIssuer?.respond(withJSON: [:])
       }
-
-      _ = try rpcIssuer?.respond(withJSON: [:])
-
-      XCTAssert(callbackInvoked)
-      XCTAssertNil(rpcError)
-      let response = try XCTUnwrap(rpcResponse)
+      let response = try await AuthBackend.postAA(with: request())
       XCTAssertNil(response.OOBCode)
     }
   }
 
   private func getPasswordResetRequest() throws -> GetOOBConfirmationCodeRequest {
-    return try XCTUnwrap(GetOOBConfirmationCodeRequest.passwordResetRequest(email: kTestEmail,
-                                                                            actionCodeSettings: fakeActionCodeSettings(
-                                                                            ),
-                                                                            requestConfiguration: makeRequestConfiguration(
-                                                                            )))
+    return try XCTUnwrap(GetOOBConfirmationCodeRequest.passwordResetRequest(
+      email: kTestEmail,
+                  actionCodeSettings: fakeActionCodeSettings(),
+      requestConfiguration: makeRequestConfiguration()))
   }
 
   private func getSignInWithEmailRequest() throws -> GetOOBConfirmationCodeRequest {
-    return try XCTUnwrap(GetOOBConfirmationCodeRequest.signInWithEmailLinkRequest(kTestEmail,
-                                                                                  actionCodeSettings: fakeActionCodeSettings(
-                                                                                  ),
-                                                                                  requestConfiguration: makeRequestConfiguration(
-                                                                                  )))
+    return try XCTUnwrap(GetOOBConfirmationCodeRequest.signInWithEmailLinkRequest(
+      kTestEmail,
+                              actionCodeSettings: fakeActionCodeSettings(),
+                  requestConfiguration: makeRequestConfiguration()))
   }
 
   private func getEmailVerificationRequest() throws -> GetOOBConfirmationCodeRequest {

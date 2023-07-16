@@ -60,19 +60,12 @@ class DeleteAccountTests: RPCBaseTests {
   /** @fn testSuccessfulDeleteAccount
       @brief This test checks for a successful response
    */
-  func testSuccessfulDeleteAccountResponse() throws {
-    var callbackInvoked = false
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeDeleteAccountRequest()) { response, error in
-      callbackInvoked = true
-      rpcError = error as? NSError
+  func testSuccessfulDeleteAccountResponse() async throws {
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [:])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [:])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
+    let rpcResponse = try await AuthBackend.postAA(with: makeDeleteAccountRequest())
+    XCTAssertNotNil(rpcResponse)
   }
 
   private func makeDeleteAccountRequest() -> DeleteAccountRequest {

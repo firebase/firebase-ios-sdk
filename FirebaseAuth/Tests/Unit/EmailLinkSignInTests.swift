@@ -53,38 +53,41 @@ class EmailLinkSignInTests: RPCBaseTests {
   /** @fn testEmailLinkRequestCreation
       @brief Tests the email link sign-in request with mandatory parameters.
    */
-  func testEmailLinkRequest() {
-    AuthBackend.post(with: makeEmailLinkSignInRequest()) { response, error in
-      XCTFail("No explicit response from the fake backend.")
+  func testEmailLinkRequest() async throws {
+    rpcIssuer?.respondBlock = {
+      XCTAssertEqual(self.rpcIssuer?.requestURL?.absoluteString, self.kExpectedAPIURL)
+      guard let requestDictionary = self.rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
+        XCTFail("decodedRequest is not a dictionary")
+        return
+      }
+      XCTAssertEqual(requestDictionary[self.kEmailKey], self.kTestEmail)
+      XCTAssertEqual(requestDictionary[self.kOOBCodeKey], self.kTestOOBCode)
+      XCTAssertNil(requestDictionary[self.kIDTokenKey])
+      try self.rpcIssuer?.respond(withJSON: [:]) // unblock the await
     }
-    XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
-    guard let requestDictionary = rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
-      XCTFail("decodedRequest is not a dictionary")
-      return
-    }
-    XCTAssertEqual(requestDictionary[kEmailKey], kTestEmail)
-    XCTAssertEqual(requestDictionary[kOOBCodeKey], kTestOOBCode)
-    XCTAssertNil(requestDictionary[kIDTokenKey])
+    let _ = try await AuthBackend.postAA(with: makeEmailLinkSignInRequest())
   }
 
   /** @fn testEmailLinkRequestCreationOptional
       @brief Tests the email link sign-in request with mandatory parameters and optional ID token.
    */
-  func testEmailLinkRequestCreationOptional() {
+  func testEmailLinkRequestCreationOptional() async throws {
     let kTestIDToken = "testIDToken"
     let request = makeEmailLinkSignInRequest()
     request.idToken = kTestIDToken
-    AuthBackend.post(with: request) { response, error in
-      XCTFail("No explicit response from the fake backend.")
+
+    rpcIssuer?.respondBlock = {
+      XCTAssertEqual(self.rpcIssuer?.requestURL?.absoluteString, self.kExpectedAPIURL)
+      guard let requestDictionary = self.rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
+        XCTFail("decodedRequest is not a dictionary")
+        return
+      }
+      XCTAssertEqual(requestDictionary[self.kEmailKey], self.kTestEmail)
+      XCTAssertEqual(requestDictionary[self.kOOBCodeKey], self.kTestOOBCode)
+      XCTAssertEqual(requestDictionary[self.kIDTokenKey], kTestIDToken)
+      try self.rpcIssuer?.respond(withJSON: [:]) // unblock the await
     }
-    XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
-    guard let requestDictionary = rpcIssuer?.decodedRequest as? [AnyHashable: String] else {
-      XCTFail("decodedRequest is not a dictionary")
-      return
-    }
-    XCTAssertEqual(requestDictionary[kEmailKey], kTestEmail)
-    XCTAssertEqual(requestDictionary[kOOBCodeKey], kTestOOBCode)
-    XCTAssertEqual(requestDictionary[kIDTokenKey], kTestIDToken)
+    let _ = try await AuthBackend.postAA(with: request)
   }
 
   func testEmailLinkSignInErrors() throws {
@@ -99,31 +102,21 @@ class EmailLinkSignInTests: RPCBaseTests {
   /** @fn testSuccessfulEmailLinkSignInResponse
       @brief Tests a successful email link sign-in response.
    */
-  func testSuccessfulEmailLinkSignInResponse() throws {
+  func testSuccessfulEmailLinkSignInResponse() async throws {
     let kTestIDTokenResponse = "fakeToken"
     let kTestEmailResponse = "fakeEmail@example.com"
     let kTestTokenExpirationTimeInterval: Double = 55 * 60
     let kTestRefreshToken = "testRefreshToken"
 
-    var callbackInvoked = false
-    var rpcResponse: EmailLinkSignInResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeEmailLinkSignInRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: ["idToken": kTestIDTokenResponse,
+                                             "email": kTestEmailResponse,
+                                             "isNewUser": true,
+                                             "expiresIn": "\(kTestTokenExpirationTimeInterval)",
+                                             "refreshToken": kTestRefreshToken])
     }
+    let response = try await AuthBackend.postAA(with: makeEmailLinkSignInRequest())
 
-    try rpcIssuer?.respond(withJSON: ["idToken": kTestIDTokenResponse,
-                                      "email": kTestEmailResponse,
-                                      "isNewUser": true,
-                                      "expiresIn": "\(kTestTokenExpirationTimeInterval)",
-                                      "refreshToken": kTestRefreshToken])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    let response = try XCTUnwrap(rpcResponse)
     XCTAssertEqual(response.idToken, kTestIDTokenResponse)
     XCTAssertEqual(response.email, kTestEmailResponse)
     XCTAssertEqual(response.refreshToken, kTestRefreshToken)

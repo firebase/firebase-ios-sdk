@@ -67,7 +67,7 @@ class RPCBaseTests: XCTestCase {
    */
   let kTestIdentifier = "Identifier"
 
-  var rpcIssuer: FakeBackendRPCIssuer?
+  var rpcIssuer: FakeBackendRPCIssuer!
   var rpcImplementation: AuthBackendImplementation?
 
   override func setUp() {
@@ -92,7 +92,6 @@ class RPCBaseTests: XCTestCase {
     AuthBackend.post(with: request) { response, error in
       XCTFail("No explicit response from the fake backend.")
     }
-    let rpcIssuer = try XCTUnwrap(rpcIssuer)
     XCTAssertEqual(rpcIssuer.requestURL?.absoluteString, expected)
     if checkPostBody {
       XCTAssertFalse(request.containsPostBody)

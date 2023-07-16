@@ -163,9 +163,10 @@ private let kFiveMinutes = 5 * 60.0
 
     let request = SecureTokenRequest.refreshRequest(refreshToken: refreshToken,
                                                     requestConfiguration: requestConfiguration)
-    AuthBackend.post(with: request) { rawResponse, error in
-      var tokenUpdated = false
-      if let response = rawResponse {
+    Task {
+      do {
+        let response = try await AuthBackend.postAA(with: request)
+        var tokenUpdated = false
         if let newAccessToken = response.accessToken,
            newAccessToken.count > 0,
            newAccessToken != self.accessToken {
@@ -198,11 +199,10 @@ private let kFiveMinutes = 5 * 60.0
           self.refreshToken = newRefreshToken
           tokenUpdated = true
         }
-        callback(response.accessToken, error, tokenUpdated)
-        return
+        callback(response.accessToken, nil, tokenUpdated)
+      } catch {
+        callback(nil, error, false)
       }
-      // Not clear this fall through case was considered in original ObjC implementation.
-      callback(nil, error, false)
     }
   }
 

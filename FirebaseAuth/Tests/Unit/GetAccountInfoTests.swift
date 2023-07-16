@@ -58,7 +58,7 @@ class GetAccountInfoTests: RPCBaseTests {
   /** @fn testSuccessfulGetAccountInfoResponse
       @brief This test simulates a successful @c GetAccountInfo flow.
    */
-  func testSuccessfulGetAccountInfoResponse() throws {
+  func testSuccessfulGetAccountInfoResponse() async throws {
     let kProviderUserInfoKey = "providerUserInfo"
     let kPhotoUrlKey = "photoUrl"
     let kTestPhotoURL = "testPhotoURL"
@@ -76,16 +76,6 @@ class GetAccountInfoTests: RPCBaseTests {
     let kLocalIDKey = "localId"
     let kTestLocalID = "testLocalId"
 
-    var callbackInvoked = false
-    var rpcResponse: GetAccountInfoResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeGetAccountInfoRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
-
     let usersIn = [[
       kProviderUserInfoKey: [[
         kProviderIDkey: kTestProviderID,
@@ -102,11 +92,12 @@ class GetAccountInfoTests: RPCBaseTests {
       kPasswordHashKey: kTestPasswordHash,
     ] as [String: Any]]
 
-    _ = try rpcIssuer?.respond(withJSON: ["users": usersIn])
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: ["users": usersIn])
+    }
+    let rpcResponse = try await AuthBackend.postAA(with: makeGetAccountInfoRequest())
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    let users = try XCTUnwrap(rpcResponse?.users)
+    let users = try XCTUnwrap(rpcResponse.users)
     XCTAssertGreaterThan(users.count, 0)
     let firstUser = try XCTUnwrap(users.first)
     XCTAssertEqual(firstUser.photoURL?.absoluteString, kTestPhotoURL)
