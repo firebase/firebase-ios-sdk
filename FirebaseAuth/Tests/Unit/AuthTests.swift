@@ -76,12 +76,12 @@ class AuthTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
 
     self.rpcIssuer.respondBlock = {
-      let request = try XCTUnwrap(self.rpcIssuer?.request as? CreateAuthURIRequest)
+      let request = try XCTUnwrap(self.rpcIssuer.request as? CreateAuthURIRequest)
       XCTAssertEqual(request.identifier, self.kEmail)
       XCTAssertEqual(request.endpoint, "createAuthUri")
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
-      try self.rpcIssuer?.respond(withJSON: ["signinMethods": allSignInMethods])
+      try self.rpcIssuer.respond(withJSON: ["signinMethods": allSignInMethods])
     }
 
     auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
@@ -112,7 +112,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     let message = "TOO_MANY_ATTEMPTS_TRY_LATER"
-    try rpcIssuer?.respond(serverErrorMessage: message)
+    try rpcIssuer.respond(serverErrorMessage: message)
 
     waitForExpectations(timeout: 5)
   }
@@ -252,13 +252,13 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? EmailLinkSignInRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? EmailLinkSignInRequest)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.oobCode, fakeCode)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
                                       "email": kEmail,
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
@@ -287,7 +287,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
+    try rpcIssuer.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -328,14 +328,14 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? VerifyPasswordRequest)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.password, kFakePassword)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
                                       "email": kEmail,
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
@@ -365,7 +365,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "INVALID_PASSWORD")
+    try rpcIssuer.respond(serverErrorMessage: "INVALID_PASSWORD")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -391,13 +391,13 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? ResetPasswordRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? ResetPasswordRequest)
     XCTAssertEqual(request.oobCode, kFakeOobCode)
     XCTAssertEqual(request.updatedPassword, kFakePassword)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: [:])
+    try rpcIssuer.respond(withJSON: [:])
 
     waitForExpectations(timeout: 5)
   }
@@ -424,7 +424,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
+    try rpcIssuer.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -452,12 +452,12 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? ResetPasswordRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? ResetPasswordRequest)
     XCTAssertEqual(request.oobCode, kFakeOobCode)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["email": kEmail,
+    try rpcIssuer.respond(withJSON: ["email": kEmail,
                                       "requestType": verifyEmailRequestType,
                                       "newEmail": kNewEmail])
     waitForExpectations(timeout: 5)
@@ -483,7 +483,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "EXPIRED_OOB_CODE")
+    try rpcIssuer.respond(serverErrorMessage: "EXPIRED_OOB_CODE")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -507,11 +507,11 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? SetAccountInfoRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? SetAccountInfoRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: [:])
+    try rpcIssuer.respond(withJSON: [:])
     waitForExpectations(timeout: 5)
   }
 
@@ -535,7 +535,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
+    try rpcIssuer.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -560,12 +560,12 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? ResetPasswordRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? ResetPasswordRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.oobCode, kFakeOobCode)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["email": kEmail])
+    try rpcIssuer.respond(withJSON: ["email": kEmail])
     waitForExpectations(timeout: 5)
   }
 
@@ -590,7 +590,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "INVALID_OOB_CODE")
+    try rpcIssuer.respond(serverErrorMessage: "INVALID_OOB_CODE")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -629,13 +629,13 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? EmailLinkSignInRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? EmailLinkSignInRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.oobCode, fakeCode)
     XCTAssertEqual(request.email, kEmail)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
@@ -667,7 +667,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+    try rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -702,13 +702,13 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? VerifyPasswordRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.password, kFakePassword)
     XCTAssertEqual(request.email, kEmail)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
@@ -737,7 +737,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+    try rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -806,13 +806,13 @@ class AuthTests: RPCBaseTests {
       group.wait()
 
       // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      let request = try XCTUnwrap(rpcIssuer.request as? VerifyAssertionRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+      try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                         "refreshToken": kRefreshToken,
                                         "federatedId": kGoogleID,
                                         "providerId": GoogleAuthProvider.id,
@@ -847,13 +847,13 @@ class AuthTests: RPCBaseTests {
       group.wait()
 
       // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      let request = try XCTUnwrap(rpcIssuer.request as? VerifyAssertionRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+      try rpcIssuer.respond(serverErrorMessage: "USER_DISABLED")
       waitForExpectations(timeout: 5)
     }
 
@@ -884,7 +884,7 @@ class AuthTests: RPCBaseTests {
       group.wait()
 
       // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      let request = try XCTUnwrap(rpcIssuer.request as? VerifyAssertionRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
       XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
@@ -892,7 +892,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+      try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                         "refreshToken": kRefreshToken,
                                         "federatedId": kGoogleID,
                                         "providerId": GoogleAuthProvider.id,
@@ -930,7 +930,7 @@ class AuthTests: RPCBaseTests {
       group.wait()
 
       // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+      let request = try XCTUnwrap(rpcIssuer.request as? VerifyAssertionRequest)
       XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
       XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
       XCTAssertEqual(request.requestURI, AuthTests.kOAuthRequestURI)
@@ -938,7 +938,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(request.returnSecureToken)
 
       // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+      try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                         "refreshToken": kRefreshToken,
                                         "federatedId": kGoogleID,
                                         "providerId": GoogleAuthProvider.id,
@@ -988,7 +988,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? VerifyAssertionRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
     XCTAssertEqual(request.providerIDToken, kGoogleIDToken)
@@ -996,7 +996,7 @@ class AuthTests: RPCBaseTests {
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                       "refreshToken": kRefreshToken,
                                       "federatedId": kGoogleID,
                                       "providerId": GoogleAuthProvider.id,
@@ -1035,13 +1035,13 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? VerifyAssertionRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.providerID, GoogleAuthProvider.id)
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "EMAIL_EXISTS")
+    try rpcIssuer.respond(serverErrorMessage: "EMAIL_EXISTS")
     waitForExpectations(timeout: 5)
   }
 
@@ -1089,7 +1089,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? VerifyAssertionRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
     XCTAssertEqual(request.providerIDToken, kAppleIDToken)
@@ -1097,7 +1097,7 @@ class AuthTests: RPCBaseTests {
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                       "refreshToken": kRefreshToken,
                                       "federatedId": kGoogleID,
                                       "providerId": AuthProviderString.apple.rawValue,
@@ -1141,14 +1141,14 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? SignUpNewUserRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? SignUpNewUserRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertNil(request.email)
     XCTAssertNil(request.password)
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
                                       "email": kEmail,
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
@@ -1177,7 +1177,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
+    try rpcIssuer.respond(serverErrorMessage: "OPERATION_NOT_ALLOWED")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -1212,13 +1212,13 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyCustomTokenRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? VerifyCustomTokenRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.token, kCustomToken)
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
                                       "email": kEmail,
                                       "isNewUser": false,
                                       "refreshToken": kRefreshToken])
@@ -1247,7 +1247,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "INVALID_CUSTOM_TOKEN")
+    try rpcIssuer.respond(serverErrorMessage: "INVALID_CUSTOM_TOKEN")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -1282,14 +1282,14 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? SignUpNewUserRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? SignUpNewUserRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.password, kFakePassword)
     XCTAssertTrue(request.returnSecureToken)
 
     // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+    try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
                                       "email": kEmail,
                                       "isNewUser": true,
                                       "refreshToken": kRefreshToken])
@@ -1319,7 +1319,7 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. Send the response from the fake backend.
-    try rpcIssuer?.respond(serverErrorMessage: "WEAK_PASSWORD")
+    try rpcIssuer.respond(serverErrorMessage: "WEAK_PASSWORD")
     waitForExpectations(timeout: 5)
     XCTAssertNil(auth?.currentUser)
   }
@@ -1377,12 +1377,12 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? GetOOBConfirmationCodeRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? GetOOBConfirmationCodeRequest)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
 
     // 3. Send the response from the fake backend.
-    _ = try rpcIssuer?.respond(withJSON: [:])
+    _ = try rpcIssuer.respond(withJSON: [:])
 
     waitForExpectations(timeout: 5)
   }
@@ -1403,7 +1403,7 @@ class AuthTests: RPCBaseTests {
     }
     group.wait()
 
-    try rpcIssuer?.respond(underlyingErrorMessage: "ipRefererBlocked")
+    try rpcIssuer.respond(underlyingErrorMessage: "ipRefererBlocked")
 
     waitForExpectations(timeout: 5)
   }
@@ -1428,14 +1428,14 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? GetOOBConfirmationCodeRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? GetOOBConfirmationCodeRequest)
     XCTAssertEqual(request.email, kEmail)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.continueURL, kContinueURL)
     XCTAssertTrue(request.handleCodeInApp)
 
     // 3. Send the response from the fake backend.
-    _ = try rpcIssuer?.respond(withJSON: [:])
+    _ = try rpcIssuer.respond(withJSON: [:])
 
     waitForExpectations(timeout: 5)
   }
@@ -1457,7 +1457,7 @@ class AuthTests: RPCBaseTests {
     }
     group.wait()
 
-    try rpcIssuer?.respond(underlyingErrorMessage: "ipRefererBlocked")
+    try rpcIssuer.respond(underlyingErrorMessage: "ipRefererBlocked")
     waitForExpectations(timeout: 5)
   }
 
@@ -1475,13 +1475,13 @@ class AuthTests: RPCBaseTests {
                                                            appID: kTestFirebaseAppID)
     let group = createGroup()
     // Clear fake so we can inject error
-    rpcIssuer?.fakeGetAccountProviderJSON = nil
+    rpcIssuer.fakeGetAccountProviderJSON = nil
     auth.updateCurrentUser(user2) { error in
       XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.invalidAPIKey.rawValue)
       expectation.fulfill()
     }
     group.wait()
-    try rpcIssuer?.respond(underlyingErrorMessage: "keyInvalid")
+    try rpcIssuer.respond(underlyingErrorMessage: "keyInvalid")
     waitForExpectations(timeout: 5)
   }
 
@@ -1499,7 +1499,7 @@ class AuthTests: RPCBaseTests {
                                                            appID: kTestFirebaseAppID)
     let group = createGroup()
     // Clear fake so we can inject error
-    rpcIssuer?.fakeGetAccountProviderJSON = nil
+    rpcIssuer.fakeGetAccountProviderJSON = nil
     auth.updateCurrentUser(user2) { error in
       XCTAssertEqual((error as? NSError)?.code, AuthErrorCode.networkError.rawValue)
       expectation.fulfill()
@@ -1508,7 +1508,7 @@ class AuthTests: RPCBaseTests {
     let kFakeErrorDomain = "fakeDomain"
     let kFakeErrorCode = -1
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(withData: nil, error: responseError)
+    try rpcIssuer.respond(withData: nil, error: responseError)
     waitForExpectations(timeout: 5)
   }
 
@@ -1622,14 +1622,14 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? RevokeTokenRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? RevokeTokenRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
     XCTAssertEqual(request.token, code)
     XCTAssertEqual(request.tokenType, .authorizationCode)
 
     // 3. Send the response from the fake backend.
-    _ = try rpcIssuer?.respond(withJSON: [:])
+    _ = try rpcIssuer.respond(withJSON: [:])
 
     waitForExpectations(timeout: 5)
   }
@@ -1647,14 +1647,14 @@ class AuthTests: RPCBaseTests {
     group.wait()
 
     // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? RevokeTokenRequest)
+    let request = try XCTUnwrap(rpcIssuer.request as? RevokeTokenRequest)
     XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
     XCTAssertEqual(request.providerID, AuthProviderString.apple.rawValue)
     XCTAssertEqual(request.token, code)
     XCTAssertEqual(request.tokenType, .authorizationCode)
 
     // 3. Send the response from the fake backend.
-    _ = try rpcIssuer?.respond(withJSON: [:])
+    _ = try rpcIssuer.respond(withJSON: [:])
   }
 
   /** @fn testSignOut
@@ -1874,7 +1874,7 @@ class AuthTests: RPCBaseTests {
     try waitForSignInWithAccessToken()
 
     // Set up expectation for secureToken RPC made by a failed attempt to refresh tokens.
-    rpcIssuer?.secureTokenErrorString = "INVALID_ID_TOKEN"
+    rpcIssuer.secureTokenErrorString = "INVALID_ID_TOKEN"
 
     // Verify that the current user's access token is the "old" access token before automatic token
     // refresh.
@@ -1891,7 +1891,7 @@ class AuthTests: RPCBaseTests {
     waitForAuthGlobalWorkQueueDrain()
 
     // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
-    usleep(500)
+    usleep(1000)
     XCTAssertNil(auth.currentUser)
   }
 
@@ -1909,7 +1909,7 @@ class AuthTests: RPCBaseTests {
     try waitForSignInWithAccessToken()
 
     // Set up expectation for secureToken RPC made by a failed attempt to refresh tokens.
-    rpcIssuer?.secureTokenNetworkError = NSError(domain: "ERROR", code: -1)
+    rpcIssuer.secureTokenNetworkError = NSError(domain: "ERROR", code: -1)
 
     // Execute saved token refresh task.
     let expectation = self.expectation(description: #function)
@@ -1922,7 +1922,7 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
     waitForAuthGlobalWorkQueueDrain()
 
-    rpcIssuer?.secureTokenNetworkError = nil
+    rpcIssuer.secureTokenNetworkError = nil
     setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
 
     // The old access token should still be the current user's access token and not the new access
@@ -2087,9 +2087,22 @@ class AuthTests: RPCBaseTests {
     setFakeGetAccountProvider()
     setFakeSecureTokenService()
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
+    // 1. Set up respondBlock to test request and send it to generate a fake response.
+    rpcIssuer.respondBlock = {
+      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+      let request = try XCTUnwrap(self.rpcIssuer.request as? VerifyPasswordRequest)
+      XCTAssertEqual(request.email, self.kEmail)
+      XCTAssertEqual(request.password, self.kFakePassword)
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+      XCTAssertTrue(request.returnSecureToken)
 
+      // 3. Send the response from the fake backend.
+      try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
+                                            "email": self.kEmail,
+                                        "isNewUser": true,
+                                        "expiresIn": "3600",
+                                        "refreshToken": kRefreshToken])
+    }
     auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.
       XCTAssertTrue(Thread.isMainThread)
@@ -2109,22 +2122,6 @@ class AuthTests: RPCBaseTests {
       XCTAssertNil(error)
       expectation.fulfill()
     }
-    group.wait()
-
-    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPasswordRequest)
-    XCTAssertEqual(request.email, kEmail)
-    XCTAssertEqual(request.password, kFakePassword)
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-    XCTAssertTrue(request.returnSecureToken)
-
-    // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["idToken": fakeAccessToken,
-                                      "email": kEmail,
-                                      "isNewUser": true,
-                                      "expiresIn": "3600",
-                                      "refreshToken": kRefreshToken])
-
     waitForExpectations(timeout: 5)
     assertUser(auth?.currentUser)
   }

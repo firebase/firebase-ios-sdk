@@ -574,6 +574,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
                   underlyingError: error
                 )
               )
+              return
             }
             // No error message at all, return the decoded response.
             continuation.resume(
@@ -607,6 +608,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
                   error: error
                 ) {
                   continuation.resume(throwing: clientError)
+                  return
                 }
               }
             }

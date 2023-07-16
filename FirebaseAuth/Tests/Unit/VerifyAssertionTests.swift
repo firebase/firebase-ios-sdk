@@ -56,10 +56,10 @@ class VerifyAssertionTests: RPCBaseTests {
       @remarks The presence of the @c providerAccessToken will prevent an @c
           InvalidArgumentException exception from being raised.
    */
-  func testVerifyAssertionRequestProviderAccessToken() throws {
+  func testVerifyAssertionRequestProviderAccessToken() async throws {
     let request = makeVerifyAssertionRequest()
     request.returnSecureToken = false
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kIDTokenKey,
@@ -71,7 +71,7 @@ class VerifyAssertionTests: RPCBaseTests {
       URLQueryItem(name: kProviderAccessTokenKey, value: kTestProviderAccessToken),
     ]
 
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kPostBodyKey], components.query)
     XCTAssertNil(requestDictionary[kReturnSecureTokenKey])
     // Auto-create flag Should be true by default.
@@ -81,7 +81,7 @@ class VerifyAssertionTests: RPCBaseTests {
   /** @fn testVerifyAssertionRequestOptionalFields
       @brief Tests the verify assertion request with all optinal fields set.
    */
-  func testVerifyAssertionRequestOptionalFields() throws {
+  func testVerifyAssertionRequestOptionalFields() async throws {
     let request = makeVerifyAssertionRequest()
     request.providerIDToken = kTestProviderIDToken
     request.accessToken = kTestAccessToken
@@ -100,7 +100,7 @@ class VerifyAssertionTests: RPCBaseTests {
     let userJSON = "{\"name\":{\"firstName\":\"\(kFakeGivenName)\"," +
       "\"lastName\":\"\(kFakeFamilyName)\"}}"
 
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kIDTokenKey,
@@ -116,40 +116,40 @@ class VerifyAssertionTests: RPCBaseTests {
       URLQueryItem(name: "user", value: userJSON),
     ]
 
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kPostBodyKey], components.query)
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kReturnSecureTokenKey] as? Bool))
     XCTAssertFalse(try XCTUnwrap(requestDictionary[kAutoCreateKey] as? Bool))
   }
 
-  func testVerifyAssertionRequestErrors() throws {
+  func testVerifyAssertionRequestErrors() async throws {
     let kTestInvalidCredentialError = "INVALID_IDP_RESPONSE"
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kFederatedUserIDAlreadyLinkedMessage = "FEDERATED_USER_ID_ALREADY_LINKED:"
     let kOperationNotAllowedErrorMessage = "OPERATION_NOT_ALLOWED"
     let kPasswordLoginDisabledErrorMessage = "PASSWORD_LOGIN_DISABLED"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyAssertionRequest(),
       message: kTestInvalidCredentialError,
       errorCode: AuthErrorCode.invalidCredential
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyAssertionRequest(),
       message: kUserDisabledErrorMessage,
       errorCode: AuthErrorCode.userDisabled
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyAssertionRequest(),
       message: kFederatedUserIDAlreadyLinkedMessage,
       errorCode: AuthErrorCode.credentialAlreadyInUse
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyAssertionRequest(),
       message: kOperationNotAllowedErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyAssertionRequest(),
       message: kPasswordLoginDisabledErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed

@@ -148,6 +148,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       } catch {
         XCTFail("Unexpected exception in respondBlock")
       }
+      self.respondBlock = nil
     } else if let group {
       self.group = nil
       group.leave()

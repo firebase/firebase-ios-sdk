@@ -31,7 +31,7 @@ class SendVerificationCodeTests: RPCBaseTests {
   /** @fn testSendVerificationCodeRequest
       @brief Tests the sendVerificationCode request with a ReCAPTCHA token.
    */
-  func testSendVerificationCodeRequestReCAPTCHA() throws {
+  func testSendVerificationCodeRequestReCAPTCHA() async throws {
     let request = makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken))
     XCTAssertEqual(request.phoneNumber, kTestPhoneNumber)
     switch request.codeIdentity {
@@ -40,20 +40,20 @@ class SendVerificationCodeTests: RPCBaseTests {
     default:
       XCTFail("Should be a reCAPTCHA")
     }
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kPhoneNumberKey,
       value: kTestPhoneNumber
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary["recaptchaToken"], kTestReCAPTCHAToken)
   }
 
   /** @fn testSendVerificationCodeRequest
       @brief Tests the sendVerificationCode request with an App Credential
    */
-  func testSendVerificationCodeRequestCredential() throws {
+  func testSendVerificationCodeRequestCredential() async throws {
     let credential = AuthAppCredential(receipt: kTestReceipt, secret: kTestSecret)
     let request = makeSendVerificationCodeRequest(CodeIdentity.credential(credential))
     XCTAssertEqual(request.phoneNumber, kTestPhoneNumber)
@@ -64,39 +64,39 @@ class SendVerificationCodeTests: RPCBaseTests {
     default:
       XCTFail("Should be a credential")
     }
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kPhoneNumberKey,
       value: kTestPhoneNumber
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kReceiptKey], kTestReceipt)
     XCTAssertEqual(requestDictionary[kSecretKey], kTestSecret)
   }
 
-  func testSendVerificationCodeRequestErrors() throws {
+  func testSendVerificationCodeRequestErrors() async throws {
     let kInvalidPhoneNumberErrorMessage = "INVALID_PHONE_NUMBER"
     let kQuotaExceededErrorMessage = "QUOTA_EXCEEDED"
     let kAppNotVerifiedErrorMessage = "APP_NOT_VERIFIED"
     let kCaptchaCheckFailedErrorMessage = "CAPTCHA_CHECK_FAILED"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kInvalidPhoneNumberErrorMessage,
       errorCode: AuthErrorCode.invalidPhoneNumber
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kQuotaExceededErrorMessage,
       errorCode: AuthErrorCode.quotaExceeded
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kAppNotVerifiedErrorMessage,
       errorCode: AuthErrorCode.appNotVerified
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kCaptchaCheckFailedErrorMessage,
       errorCode: AuthErrorCode.captchaCheckFailed

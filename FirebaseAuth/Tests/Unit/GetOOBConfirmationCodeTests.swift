@@ -39,14 +39,14 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
   private let kOOBCodeKey = "oobCode"
   private let kTestOOBCode = "OOBCode"
 
-  func testOobRequests() throws {
+  func testOobRequests() async throws {
     for (request, requestType) in [
       (getPasswordResetRequest, kPasswordResetRequestTypeValue),
       (getSignInWithEmailRequest, kEmailLinkSignInTypeValue),
       (getEmailVerificationRequest, kVerifyEmailRequestTypeValue),
     ] {
       let request = try request()
-      let rpcIssuer = try checkRequest(
+      try await checkRequest(
         request: request,
         expected: kExpectedAPIURL,
         key: "should_be_empty_dictionary",
@@ -69,7 +69,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
     }
   }
 
-  func testGetOOBConfirmationCodeErrors() throws {
+  func testGetOOBConfirmationCodeErrors() async throws {
     let kEmailNotFoundMessage = "EMAIL_NOT_FOUND: fake custom message"
     let kMissingEmailErrorMessage = "MISSING_EMAIL"
     let kInvalidEmailErrorMessage = "INVALID_EMAIL:"
@@ -82,57 +82,57 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
     let kInvalidContinueURIErrorMessage = "INVALID_CONTINUE_URI"
     let kMissingContinueURIErrorMessage = "MISSING_CONTINUE_URI"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kEmailNotFoundMessage,
       errorCode: AuthErrorCode.userNotFound
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getEmailVerificationRequest(),
       message: kMissingEmailErrorMessage,
       errorCode: AuthErrorCode.missingEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kInvalidEmailErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kInvalidMessagePayloadErrorMessage,
       errorCode: AuthErrorCode.invalidMessagePayload
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kInvalidSenderErrorMessage,
       errorCode: AuthErrorCode.invalidSender
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kMissingIosBundleIDErrorMessage,
       errorCode: AuthErrorCode.missingIosBundleID
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kMissingAndroidPackageNameErrorMessage,
       errorCode: AuthErrorCode.missingAndroidPackageName
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kUnauthorizedDomainErrorMessage,
       errorCode: AuthErrorCode.unauthorizedDomain
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kInvalidRecipientEmailErrorMessage,
       errorCode: AuthErrorCode.invalidRecipientEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kInvalidContinueURIErrorMessage,
       errorCode: AuthErrorCode.invalidContinueURI
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: getPasswordResetRequest(),
       message: kMissingContinueURIErrorMessage,
       errorCode: AuthErrorCode.missingContinueURI

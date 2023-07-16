@@ -30,27 +30,27 @@ class DeleteAccountTests: RPCBaseTests {
   let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/deleteAccount?key=APIKey"
 
-  func testDeleteAccount() throws {
+  func testDeleteAccount() async throws {
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kInvalidUserTokenErrorMessage = "INVALID_ID_TOKEN:"
     let kCredentialTooOldErrorMessage = "CREDENTIAL_TOO_OLD_LOGIN_AGAIN:"
-    try checkRequest(
+    try await checkRequest(
       request: makeDeleteAccountRequest(),
       expected: kExpectedAPIURL,
       key: kLocalIDKey,
       value: kLocalID
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeDeleteAccountRequest(),
       message: kUserDisabledErrorMessage,
       errorCode: AuthErrorCode.userDisabled
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeDeleteAccountRequest(),
       message: kInvalidUserTokenErrorMessage,
       errorCode: AuthErrorCode.invalidUserToken
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeDeleteAccountRequest(),
       message: kCredentialTooOldErrorMessage,
       errorCode: AuthErrorCode.requiresRecentLogin

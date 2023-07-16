@@ -28,28 +28,28 @@ class VerifyClientTests: RPCBaseTests {
   /** @fn testVerifyClientRequest
       @brief Tests the VerifyClient request.
    */
-  func testVerifyClientRequest() throws {
+  func testVerifyClientRequest() async throws {
     let request = makeVerifyClientRequest()
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kAPPTokenKey,
       value: kFakeAppToken
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kIsSandboxKey] as? Bool))
   }
 
-  func testVerifyClientRequestErrors() throws {
+  func testVerifyClientRequestErrors() async throws {
     let kMissingAppCredentialErrorMessage = "MISSING_APP_CREDENTIAL"
     let kInvalidAppCredentialErrorMessage = "INVALID_APP_CREDENTIAL"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyClientRequest(),
       message: kMissingAppCredentialErrorMessage,
       errorCode: AuthErrorCode.missingAppCredential
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyClientRequest(),
       message: kInvalidAppCredentialErrorMessage,
       errorCode: AuthErrorCode.invalidAppCredential

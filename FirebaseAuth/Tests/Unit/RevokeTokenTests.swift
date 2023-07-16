@@ -33,15 +33,15 @@ class RevokeTokenTests: RPCBaseTests {
   /** @fn testRevokeTokenRequest
       @brief Tests the RevokeToken request.
    */
-  func testRevokeTokenRequest() throws {
+  func testRevokeTokenRequest() async throws {
     let request = makeRevokeTokenRequest()
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kFakeTokenKey,
       value: kFakeToken
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kFakeProviderIDKey], AuthProviderString.apple.rawValue)
     XCTAssertEqual(requestDictionary[kFakeTokenTypeKey], "3")
   }

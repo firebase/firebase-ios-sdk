@@ -37,16 +37,16 @@ import XCTest
     /** @fn testVerifyPhoneNumberRequest
         @brief Tests the verifyPhoneNumber request.
      */
-    func testVerifyPhoneNumberRequest() throws {
+    func testVerifyPhoneNumberRequest() async throws {
       let request = makeVerifyPhoneNumberRequest()
       request.accessToken = kTestAccessToken
-      let issuer = try checkRequest(
+      try await checkRequest(
         request: request,
         expected: kExpectedAPIURL,
         key: kVerificationIDKey,
         value: kVerificationID
       )
-      let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+      let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
       XCTAssertEqual(requestDictionary[kVerificationCodeKey], kVerificationCode)
       XCTAssertEqual(requestDictionary[kIDTokenKey], kTestAccessToken)
       XCTAssertEqual(
@@ -58,16 +58,16 @@ import XCTest
     /** @fn testVerifyPhoneNumberRequestWithTemporaryProof
         @brief Tests the verifyPhoneNumber request when created using a temporary proof.
      */
-    func testVerifyPhoneNumberRequestWithTemporaryProof() throws {
+    func testVerifyPhoneNumberRequestWithTemporaryProof() async throws {
       let request = makeVerifyPhoneNumberRequestWithTemporaryProof()
       request.accessToken = kTestAccessToken
-      let issuer = try checkRequest(
+      try await checkRequest(
         request: request,
         expected: kExpectedAPIURL,
         key: kTemporaryProofKey,
         value: kTemporaryProof
       )
-      let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+      let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
       XCTAssertEqual(requestDictionary[kPhoneNumberKey], kPhoneNumber)
       XCTAssertEqual(requestDictionary[kIDTokenKey], kTestAccessToken)
       XCTAssertEqual(
@@ -76,22 +76,22 @@ import XCTest
       )
     }
 
-    func testVerifyPhoneNumberRequestErrors() throws {
+    func testVerifyPhoneNumberRequestErrors() async throws {
       let kInvalidVerificationCodeErrorMessage = "INVALID_CODE"
       let kInvalidSessionInfoErrorMessage = "INVALID_SESSION_INFO"
       let kSessionExpiredErrorMessage = "SESSION_EXPIRED"
 
-      try checkBackendError(
+      try await checkBackendError(
         request: makeVerifyPhoneNumberRequest(),
         message: kInvalidVerificationCodeErrorMessage,
         errorCode: AuthErrorCode.invalidVerificationCode
       )
-      try checkBackendError(
+      try await checkBackendError(
         request: makeVerifyPhoneNumberRequest(),
         message: kInvalidSessionInfoErrorMessage,
         errorCode: AuthErrorCode.invalidVerificationID
       )
-      try checkBackendError(
+      try await checkBackendError(
         request: makeVerifyPhoneNumberRequest(),
         message: kSessionExpiredErrorMessage,
         errorCode: AuthErrorCode.sessionExpired

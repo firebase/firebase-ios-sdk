@@ -35,8 +35,8 @@ class CreateAuthURITests: RPCBaseTests {
   let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/createAuthUri?key=APIKey"
 
-  func testCreateAuthUriRequest() throws {
-    try checkRequest(
+  func testCreateAuthUriRequest() async throws {
+    try await checkRequest(
       request: makeAuthURIRequest(),
       expected: kExpectedAPIURL,
       key: kContinueURITestKey,
@@ -44,21 +44,21 @@ class CreateAuthURITests: RPCBaseTests {
     )
   }
 
-  func testCreateAuthUriErrors() throws {
+  func testCreateAuthUriErrors() async throws {
     let kMissingContinueURIErrorMessage = "MISSING_CONTINUE_URI:"
     let kInvalidIdentifierErrorMessage = "INVALID_IDENTIFIER"
     let kInvalidEmailErrorMessage = "INVALID_EMAIL"
-    try checkBackendError(
+    try await checkBackendError(
       request: makeAuthURIRequest(),
       message: kMissingContinueURIErrorMessage,
       errorCode: AuthErrorCode.missingContinueURI
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeAuthURIRequest(),
       message: kInvalidIdentifierErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeAuthURIRequest(),
       message: kInvalidEmailErrorMessage,
       errorCode: AuthErrorCode.invalidEmail

@@ -50,7 +50,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
   /** @fn testSignInWithGameCenterRequestAnonymous
       @brief Tests the encoding of a sign up new user request when user is signed in anonymously.
    */
-  func testRequestResponseEncoding() throws {
+  func testRequestResponseEncoding() async throws {
     let kRefreshToken = "PUBLICKEYURL"
     let kLocalID = "LOCALID"
     let kDisplayNameKey = "displayName"
@@ -73,13 +73,13 @@ class SignInWithGameCenterTests: RPCBaseTests {
                                                   displayName: kDisplayName,
                                                   requestConfiguration: makeRequestConfiguration())
     request.accessToken = kAccessToken
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kPlayerIDKey,
       value: kPlayerID
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kTeamPlayerIDKey], kTeamPlayerID)
     XCTAssertEqual(requestDictionary[kGamePlayerIDKey], kGamePlayerID)
     XCTAssertEqual(requestDictionary[kPublicKeyURLKey], kPublicKeyURL)

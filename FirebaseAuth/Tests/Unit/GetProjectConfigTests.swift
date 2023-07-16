@@ -30,9 +30,9 @@ class GetProjectConfigTests: RPCBaseTests {
   let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getProjectConfig?key=APIKey"
 
-  func testGetProjectConfig() throws {
+  func testGetProjectConfig() async throws {
     let kMissingAPIKeyErrorMessage = "MISSING_API_KEY"
-    try checkRequest(
+    try await checkRequest(
       request: makeGetProjectConfigRequest(),
       expected: kExpectedAPIURL,
       key: kTestAPIKey,
@@ -41,7 +41,7 @@ class GetProjectConfigTests: RPCBaseTests {
     )
     // This test simulates a missing API key error. Since the API key is provided to the backend
     // from the auth library this error should map to an internal error.
-    try checkBackendError(
+    try await checkBackendError(
       request: makeGetProjectConfigRequest(),
       message: kMissingAPIKeyErrorMessage,
       errorCode: AuthErrorCode.internalError

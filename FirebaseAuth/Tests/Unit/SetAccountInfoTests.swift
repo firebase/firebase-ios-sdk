@@ -19,14 +19,14 @@ import XCTest
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SetAccountInfoTests: RPCBaseTests {
-  func testSetAccountInfoRequest() throws {
+  func testSetAccountInfoRequest() async throws {
     let kExpectedAPIURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/setAccountInfo?key=APIKey"
 
     let request = setAccountInfoRequest()
     request.returnSecureToken = false
 
-    let rpcIssuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: "should_be_empty_dictionary",
@@ -36,7 +36,7 @@ class SetAccountInfoTests: RPCBaseTests {
     XCTAssertEqual(decodedRequest.count, 0)
   }
 
-  func testSetAccountInfoRequestOptionalFields() throws {
+  func testSetAccountInfoRequestOptionalFields() async throws {
     let kIDTokenKey = "idToken"
     let kDisplayNameKey = "displayName"
     let kTestDisplayName = "testDisplayName"
@@ -83,7 +83,7 @@ class SetAccountInfoTests: RPCBaseTests {
     request.deleteAttributes = [kTestDeleteAttributes]
     request.deleteProviders = [kTestDeleteProviders]
 
-    let rpcIssuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kIDTokenKey,
@@ -107,7 +107,7 @@ class SetAccountInfoTests: RPCBaseTests {
     XCTAssertEqual(decodedRequest[kReturnSecureTokenKey] as? Bool, true)
   }
 
-  func testSetAccountInfoErrors() throws {
+  func testSetAccountInfoErrors() async throws {
     let kEmailExistsErrorMessage = "EMAIL_EXISTS"
     let kEmailSignUpNotAllowedErrorMessage = "OPERATION_NOT_ALLOWED"
     let kPasswordLoginDisabledErrorMessage = "PASSWORD_LOGIN_DISABLED"
@@ -123,68 +123,68 @@ class SetAccountInfoTests: RPCBaseTests {
     let kWeakPasswordErrorMessage = "WEAK_PASSWORD : Password should be at least 6 characters"
     let kWeakPasswordClientErrorMessage = "Password should be at least 6 characters"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kEmailExistsErrorMessage,
       errorCode: AuthErrorCode.emailAlreadyInUse
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kEmailSignUpNotAllowedErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kPasswordLoginDisabledErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kUserDisabledErrorMessage,
       errorCode: AuthErrorCode.userDisabled
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kInvalidUserTokenErrorMessage,
       errorCode: AuthErrorCode.invalidUserToken
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kCredentialTooOldErrorMessage,
       errorCode: AuthErrorCode.requiresRecentLogin
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kWeakPasswordErrorMessage,
       errorCode: AuthErrorCode.weakPassword,
       errorReason: kWeakPasswordClientErrorMessage
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kInvalidEmailErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kInvalidActionCodeErrorMessage,
       errorCode: AuthErrorCode.invalidActionCode
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kExpiredActionCodeErrorMessage,
       errorCode: AuthErrorCode.expiredActionCode
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kInvalidMessagePayloadErrorMessage,
       errorCode: AuthErrorCode.invalidMessagePayload
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kInvalidSenderErrorMessage,
       errorCode: AuthErrorCode.invalidSender
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: setAccountInfoRequest(),
       message: kInvalidRecipientEmailErrorMessage,
       errorCode: AuthErrorCode.invalidRecipientEmail

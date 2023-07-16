@@ -90,9 +90,9 @@ class EmailLinkSignInTests: RPCBaseTests {
     let _ = try await AuthBackend.postAA(with: request)
   }
 
-  func testEmailLinkSignInErrors() throws {
+  func testEmailLinkSignInErrors() async throws {
     let kInvalidEmailErrorMessage = "INVALID_EMAIL"
-    try checkBackendError(
+    try await checkBackendError(
       request: makeEmailLinkSignInRequest(),
       message: kInvalidEmailErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
