@@ -75,9 +75,14 @@ class AuthTests: RPCBaseTests {
     let allSignInMethods = ["emailLink", "facebook.com"]
     let expectation = self.expectation(description: #function)
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer in
-    // `fetchSignInMethods`.
-    let group = createGroup()
+    self.rpcIssuer.respondBlock = {
+      let request = try XCTUnwrap(self.rpcIssuer?.request as? CreateAuthURIRequest)
+      XCTAssertEqual(request.identifier, self.kEmail)
+      XCTAssertEqual(request.endpoint, "createAuthUri")
+      XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+
+      try self.rpcIssuer?.respond(withJSON: ["signinMethods": allSignInMethods])
+    }
 
     auth?.fetchSignInMethods(forEmail: kEmail) { signInMethods, error in
       // 4. After the response triggers the callback, verify the returned signInMethods.
@@ -86,16 +91,6 @@ class AuthTests: RPCBaseTests {
       XCTAssertNil(error)
       expectation.fulfill()
     }
-    group.wait()
-
-    // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-    let request = try XCTUnwrap(rpcIssuer?.request as? CreateAuthURIRequest)
-    XCTAssertEqual(request.identifier, kEmail)
-    XCTAssertEqual(request.endpoint, "createAuthUri")
-    XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
-
-    // 3. Send the response from the fake backend.
-    try rpcIssuer?.respond(withJSON: ["signinMethods": allSignInMethods])
 
     waitForExpectations(timeout: 5)
   }
@@ -133,8 +128,18 @@ class AuthTests: RPCBaseTests {
       setFakeGetAccountProvider()
       setFakeSecureTokenService()
 
-      // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-      let group = createGroup()
+      // 1. Setup respond block to test and fake send request.
+      rpcIssuer.respondBlock = {
+        // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? VerifyPhoneNumberRequest)
+        XCTAssertEqual(request.verificationCode, kVerificationCode)
+        XCTAssertEqual(request.verificationID, kVerificationID)
+
+        // 3. Send the response from the fake backend.
+        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                          "isNewUser": true,
+                                              "refreshToken": self.kRefreshToken])
+      }
 
       try auth?.signOut()
       let credential = PhoneAuthProvider.provider(auth: auth)
@@ -154,18 +159,6 @@ class AuthTests: RPCBaseTests {
         XCTAssertNil(error)
         expectation.fulfill()
       }
-      group.wait()
-
-      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyPhoneNumberRequest)
-      XCTAssertEqual(request.verificationCode, kVerificationCode)
-      XCTAssertEqual(request.verificationID, kVerificationID)
-
-      // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                        "isNewUser": true,
-                                        "refreshToken": kRefreshToken])
-
       waitForExpectations(timeout: 5)
       assertUser(auth?.currentUser)
     }
@@ -1872,7 +1865,7 @@ class AuthTests: RPCBaseTests {
       @brief Tests an unsuccessful flow to auto refresh tokens with an "invalid token" error.
           This error should cause the user to be signed out.
    */
-  func SKIPtestAutomaticTokenRefreshInvalidTokenFailure() throws {
+  func testAutomaticTokenRefreshInvalidTokenFailure() throws {
     try auth.signOut()
     // Enable auto refresh
     enableAutoTokenRefresh()
@@ -1894,10 +1887,11 @@ class AuthTests: RPCBaseTests {
       self.authDispatcherCallback?()
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 544)
+    waitForExpectations(timeout: 5)
     waitForAuthGlobalWorkQueueDrain()
 
     // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
+    usleep(500)
     XCTAssertNil(auth.currentUser)
   }
 
