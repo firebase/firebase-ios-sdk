@@ -485,8 +485,6 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           @c FIRAuthErrorCodeUnexpectedServerResponse and the error from @c setWithDictionary:error:
           as the value of the underlyingError.
    */
-  // TODO: Broken test - the fake backend may treat things differently around the response and
-  // errors.
   func testUndecodableSuccessResponse() async throws {
     rpcIssuer.respondBlock = {
       FakeResponse.injectDecodingError = true
@@ -576,10 +574,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
         nonEmptyHeartbeatsPayload
       }
-      rpcImplementation.post(with: request) { response, error in
-        // The callback never happens and it's fine since we only need to verify the request.
-        XCTFail("Should not be a callback")
+      rpcIssuer.respondBlock = {
+        // Force return from async post
+        try self.rpcIssuer.respond(withJSON: [:])
       }
+      let _ = try? await rpcImplementation.postAA(with: request)
 
       // Then
       let expectedHeader = FIRHeaderValueFromHeartbeatsPayload(
@@ -636,9 +635,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
         emptyHeartbeatsPayload
       }
-      rpcImplementation.post(with: request) { response, error in
-        // The callback never happens and it's fine since we only need to verify the request.
+      rpcIssuer.respondBlock = {
+        // Force return from async post
+        try self.rpcIssuer.respond(withJSON: [:])
       }
+      let _ = try? await rpcImplementation.postAA(with: request)
 
       // Then
       let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
