@@ -489,14 +489,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
    */
   func testUndecodableSuccessResponse() async throws {
     rpcIssuer.respondBlock = {
-      FakeResponse.injectDecodingError = true
-      defer {
-        FakeResponse.injectDecodingError = false
-      }
       try self.rpcIssuer.respond(withJSON: [:])
     }
     do {
-      let _ = try await rpcImplementation.post(with: FakeRequest(withRequestBody: [:]))
+      let request = FakeDecodingErrorRequest(withRequestBody: [:])
+      let _ = try await rpcImplementation.post(with: request)
       XCTFail("Expected to throw")
     } catch {
       let rpcError = error as NSError
@@ -680,7 +677,6 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       return true
     }
 
-    var response: FakeResponse
     private let configuration: AuthRequestConfiguration
 
     let encodingError: NSError?
@@ -689,14 +685,12 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     init(withEncodingError error: NSError) {
       encodingError = error
       requestBody = [:]
-      response = FakeResponse()
       configuration = FakeRequest.makeRequestConfiguration()
     }
 
     init(withDecodingError error: NSError) {
       encodingError = nil
       requestBody = [:]
-      response = FakeResponse()
       configuration = FakeRequest.makeRequestConfiguration()
     }
 
@@ -704,21 +698,45 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
          requestConfiguration: AuthRequestConfiguration = FakeRequest.makeRequestConfiguration()) {
       encodingError = nil
       requestBody = body
-      response = FakeResponse()
       configuration = requestConfiguration
     }
   }
 
   private class FakeResponse: AuthRPCResponse {
-    static var injectDecodingError: Bool = false
-    required init() {}
+    required init() {
+    }
 
     var receivedDictionary: [String: AnyHashable] = [:]
     func setFields(dictionary: [String: AnyHashable]) throws {
-      if FakeResponse.injectDecodingError {
-        throw NSError(domain: "dummy", code: -1)
-      }
       receivedDictionary = dictionary
+    }
+  }
+
+  private class FakeDecodingErrorRequest: AuthRPCRequest {
+    typealias Response = FakeDecodingErrorResponse
+    func requestURL() -> URL {
+      return fakeRequest.requestURL()
+    }
+
+    func unencodedHTTPRequestBody() throws -> [String : AnyHashable] {
+      return try fakeRequest.unencodedHTTPRequestBody()
+    }
+
+    func requestConfiguration() -> FirebaseAuth.AuthRequestConfiguration {
+      return fakeRequest.requestConfiguration()
+    }
+
+    let fakeRequest: FakeRequest
+    init(withRequestBody body: [String: AnyHashable]) {
+      fakeRequest = FakeRequest(withRequestBody: body)
+    }
+  }
+
+  private class FakeDecodingErrorResponse: FakeResponse {
+    required init() {
+    }
+    override func setFields(dictionary: [String: AnyHashable]) throws {
+      throw NSError(domain: "dummy", code: -1)
     }
   }
 }
