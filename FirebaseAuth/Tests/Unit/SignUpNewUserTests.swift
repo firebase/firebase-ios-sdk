@@ -82,7 +82,7 @@ class SignUpNewUserTests: RPCBaseTests {
         kRefreshTokenKey: kTestRefreshToken,
       ])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeSignUpNewUserRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeSignUpNewUserRequest())
     XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
     let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)

@@ -99,7 +99,7 @@ class SignInWithGameCenterTests: RPCBaseTests {
         "displayName": kDisplayName,
       ])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: request)
+    let rpcResponse = try await AuthBackend.post(with: request)
     XCTAssertNotNil(rpcResponse)
 
     XCTAssertEqual(rpcResponse.idToken, kIDToken)

@@ -96,8 +96,8 @@ class AuthBackend: NSObject {
     return gBackendImplementation!
   }
 
-  class func postAA<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
-    return try await implementation().postAA(with: request)
+  class func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+    return try await implementation().post(with: request)
   }
 
   class func request(withURL url: URL,
@@ -147,8 +147,8 @@ class AuthBackend: NSObject {
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendImplementation {
-  func postAA<T: AuthRPCRequest>(with request: T) async throws -> T.Response
-  func postAA<T: AuthRPCRequest>(with request: T, response: T.Response) async throws -> Void
+  func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response
+  func post<T: AuthRPCRequest>(with request: T, response: T.Response) async throws -> Void
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -171,9 +171,9 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param response The empty response to be filled.
       @param callback The callback for both success and failure.
    */
-  fileprivate func postAA<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+  fileprivate func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     let response = T.Response()
-    try await postAA(with: request, response: response)
+    try await post(with: request, response: response)
     if let auth = request.requestConfiguration().auth,
        let mfaError = AuthBackendRPCImplementation
        .generateMFAError(response: response, auth: auth) {
@@ -247,7 +247,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param response The empty response to be filled.
       @param callback The callback for both success and failure.
    */
-  fileprivate func postAA<T: AuthRPCRequest>(with request: T, response: T.Response) async throws {
+  fileprivate func post<T: AuthRPCRequest>(with request: T, response: T.Response) async throws {
     var bodyData: Data?
     if request.containsPostBody {
       var postBody: [String: AnyHashable]

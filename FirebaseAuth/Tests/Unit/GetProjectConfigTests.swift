@@ -60,7 +60,7 @@ class GetProjectConfigTests: RPCBaseTests {
       try self.rpcIssuer?.respond(withJSON: ["projectId": kTestProjectID,
                                              "authorizedDomains": [kTestDomain1, kTestDomain2]])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeGetProjectConfigRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeGetProjectConfigRequest())
     XCTAssertEqual(rpcResponse.projectID, kTestProjectID)
     XCTAssertEqual(rpcResponse.authorizedDomains?.first, kTestDomain1)
     XCTAssertEqual(rpcResponse.authorizedDomains?[1], kTestDomain2)

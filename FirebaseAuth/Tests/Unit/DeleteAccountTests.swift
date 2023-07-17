@@ -64,7 +64,7 @@ class DeleteAccountTests: RPCBaseTests {
     rpcIssuer?.respondBlock = {
       try self.rpcIssuer?.respond(withJSON: [:])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeDeleteAccountRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeDeleteAccountRequest())
     XCTAssertNotNil(rpcResponse)
   }
 

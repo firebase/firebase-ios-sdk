@@ -82,7 +82,7 @@ class ResetPasswordTests: RPCBaseTests {
       try self.rpcIssuer?.respond(withJSON: ["email": kTestEmail,
                                             "requestType": kExpectedResetPasswordRequestType])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeResetPasswordRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeResetPasswordRequest())
 
     XCTAssertEqual(rpcResponse.email, kTestEmail)
     XCTAssertEqual(rpcResponse.requestType, kExpectedResetPasswordRequestType)

@@ -75,7 +75,7 @@ class CreateAuthURITests: RPCBaseTests {
     rpcIssuer?.respondBlock = {
       try self.rpcIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeAuthURIRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeAuthURIRequest())
     XCTAssertEqual(rpcResponse.authURI, kTestAuthUri)
   }
 
@@ -89,7 +89,7 @@ class CreateAuthURITests: RPCBaseTests {
         .respond(withJSON: ["kind": kTestExpectedKind,
                             "allProviders": [kTestProviderID1, kTestProviderID2]])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeAuthURIRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeAuthURIRequest())
 
     XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
     XCTAssertEqual(rpcIssuer?.decodedRequest?["identifier"] as? String, kTestIdentifier)

@@ -288,7 +288,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.postAA(with: request)
+          let response = try await AuthBackend.post(with: request)
           Auth.wrapMainAsync(callback: completion, withParam: response.signinMethods, error: nil)
         } catch {
           Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
@@ -377,7 +377,7 @@ extension Auth: AuthInterop {
     if request.password.count == 0 {
       throw AuthErrorUtils.wrongPasswordError(message: nil)
     }
-    let response = try await AuthBackend.postAA(with: request)
+    let response = try await AuthBackend.post(with: request)
     return try await completeSignIn(withAccessToken: response.idToken,
                                     accessTokenExpirationDate: response
                                       .approximateExpirationDate,
@@ -754,7 +754,7 @@ extension Auth: AuthInterop {
       let request = SignUpNewUserRequest(requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.postAA(with: request)
+          let response = try await AuthBackend.post(with: request)
           let user = try await self.completeSignIn(
             withAccessToken: response.idToken,
             accessTokenExpirationDate: response.approximateExpirationDate,
@@ -824,7 +824,7 @@ extension Auth: AuthInterop {
                                              requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.postAA(with: request)
+          let response = try await AuthBackend.post(with: request)
           let user = try await self.completeSignIn(
             withAccessToken: response.idToken,
             accessTokenExpirationDate: response.approximateExpirationDate,
@@ -918,7 +918,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.postAA(with: request)
+          let response = try await AuthBackend.post(with: request)
           let user = try await self.completeSignIn(
             withAccessToken: response.idToken,
             accessTokenExpirationDate: response.approximateExpirationDate,
@@ -1049,7 +1049,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: self.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.postAA(with: request)
+          let response = try await AuthBackend.post(with: request)
 
           let operation = ActionCodeInfo.actionCodeOperation(forRequestType: response.requestType)
           guard let email = response.email else {
@@ -2082,7 +2082,7 @@ extension Auth: AuthInterop {
                                          requestConfiguration: requestConfiguration)
     request.autoCreate = !isReauthentication
     credential.prepare(request)
-    let response = try await AuthBackend.postAA(with: request)
+    let response = try await AuthBackend.post(with: request)
     if response.needConfirmation {
       let email = response.email
       let credential = OAuthCredential(withVerifyAssertionResponse: response)
@@ -2122,7 +2122,7 @@ extension Auth: AuthInterop {
                                                phoneNumber: phoneNumber,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        return try await AuthBackend.postAA(with: request)
+        return try await AuthBackend.post(with: request)
       case let .verification(verificationID, code):
         guard verificationID.count > 0 else {
           throw AuthErrorUtils.missingVerificationIDError(message: nil)
@@ -2134,7 +2134,7 @@ extension Auth: AuthInterop {
                                                verificationCode: code,
                                                operation: operation,
                                                requestConfiguration: requestConfiguration)
-        return try await AuthBackend.postAA(with: request)
+        return try await AuthBackend.post(with: request)
       }
     }
   #endif
@@ -2164,7 +2164,7 @@ extension Auth: AuthInterop {
                                                 timestamp: credential.timestamp,
                                                 displayName: credential.displayName,
                                                 requestConfiguration: requestConfiguration)
-      let response = try await AuthBackend.postAA(with: request)
+      let response = try await AuthBackend.post(with: request)
       let user = try await completeSignIn(withAccessToken: response.idToken,
                                           accessTokenExpirationDate: response
                                             .approximateExpirationDate,
@@ -2200,7 +2200,7 @@ extension Auth: AuthInterop {
     let request = EmailLinkSignInRequest(email: email,
                                          oobCode: actionCode,
                                          requestConfiguration: requestConfiguration)
-    let response = try await AuthBackend.postAA(with: request)
+    let response = try await AuthBackend.post(with: request)
     let user = try await completeSignIn(withAccessToken: response.idToken,
                                         accessTokenExpirationDate: response
                                           .approximateExpirationDate,
@@ -2259,7 +2259,7 @@ extension Auth: AuthInterop {
   private func wrapAsyncRPCTask(_ request: any AuthRPCRequest, _ callback: ((Error?) -> Void)?) {
     Task {
       do {
-        let _ = try await AuthBackend.postAA(with: request)
+        let _ = try await AuthBackend.post(with: request)
         Auth.wrapMainAsync(callback, nil)
       } catch {
         Auth.wrapMainAsync(callback, error)

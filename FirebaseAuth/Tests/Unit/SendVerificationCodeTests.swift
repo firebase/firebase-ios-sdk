@@ -113,7 +113,7 @@ class SendVerificationCodeTests: RPCBaseTests {
     rpcIssuer.respondBlock = {
       try self.rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
     }
-    let rpcResponse = try await AuthBackend.postAA(with:
+    let rpcResponse = try await AuthBackend.post(with:
           makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)))
     XCTAssertNotNil(rpcResponse)
     XCTAssertEqual(rpcResponse.verificationID, kFakeVerificationID)

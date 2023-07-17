@@ -212,7 +212,7 @@ import FirebaseCore
                                                 .requestConfiguration)
 
       do {
-        let response = try await AuthBackend.postAA(with: request)
+        let response = try await AuthBackend.post(with: request)
         return response.verificationID
       } catch {
         return try await self.handleVerifyErrorWithRetry(error: error,
@@ -243,7 +243,7 @@ import FirebaseCore
           requestConfiguration: auth.requestConfiguration
         )
         
-        let response = try await AuthBackend.postAA(with: request)
+        let response = try await AuthBackend.post(with: request)
         return response.verificationID
       }
       guard let session else {
@@ -261,7 +261,7 @@ import FirebaseCore
           let request = StartMFAEnrollmentRequest(idToken: session.idToken,
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: self.auth.requestConfiguration)
-            let response = try await AuthBackend.postAA(with: request)
+            let response = try await AuthBackend.post(with: request)
             return response.enrollmentResponse?.sessionInfo
         case .recaptcha(_):
           let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
@@ -269,7 +269,7 @@ import FirebaseCore
                                               signInInfo: startMFARequestInfo,
                                               requestConfiguration: self.auth.requestConfiguration)
           
-          let response = try await AuthBackend.postAA(with: request)
+          let response = try await AuthBackend.post(with: request)
           return response.responseInfo?.sessionInfo
       case .empty:
         return nil
@@ -327,7 +327,7 @@ import FirebaseCore
                                           isSandbox: token.type == AuthAPNSTokenType.sandbox,
                                           requestConfiguration: self.auth.requestConfiguration)
       do {
-        let verifyResponse = try await AuthBackend.postAA(with: request)
+        let verifyResponse = try await AuthBackend.post(with: request)
         guard let receipt = verifyResponse.receipt,
               let timeout = verifyResponse.suggestedTimeOutDate?.timeIntervalSinceNow else {
           fatalError("Internal Auth Error: invalid VerifyClientResponse")

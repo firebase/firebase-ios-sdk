@@ -71,7 +71,7 @@ class VerifyClientTests: RPCBaseTests {
         kSuggestedTimeOutKey: kFakeSuggestedTimeout,
       ])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyClientRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeVerifyClientRequest())
     XCTAssertEqual(rpcResponse.receipt, kFakeReceipt)
     let timeOut = try XCTUnwrap(rpcResponse.suggestedTimeOutDate?.timeIntervalSinceNow)
     XCTAssertEqual(timeOut, 1234, accuracy: 0.1)

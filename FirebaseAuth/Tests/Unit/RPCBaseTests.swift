@@ -101,7 +101,7 @@ class RPCBaseTests: XCTestCase {
       // Dummy response to unblock await.
       let _ = try self.rpcIssuer?.respond(withJSON: [:])
     }
-    let _ = try await AuthBackend.postAA(with: request)
+    let _ = try await AuthBackend.post(with: request)
   }
 
   /** @fn checkBackendError
@@ -126,7 +126,7 @@ class RPCBaseTests: XCTestCase {
       }
     }
     do {
-      let _ = try await AuthBackend.postAA(with: request)
+      let _ = try await AuthBackend.post(with: request)
       XCTFail("Did not throw expected error")
       return
     } catch {

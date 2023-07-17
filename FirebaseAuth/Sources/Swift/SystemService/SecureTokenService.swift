@@ -165,7 +165,7 @@ private let kFiveMinutes = 5 * 60.0
                                                     requestConfiguration: requestConfiguration)
     Task {
       do {
-        let response = try await AuthBackend.postAA(with: request)
+        let response = try await AuthBackend.post(with: request)
         var tokenUpdated = false
         if let newAccessToken = response.accessToken,
            newAccessToken.count > 0,

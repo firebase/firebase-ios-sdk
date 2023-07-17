@@ -180,7 +180,7 @@ class VerifyAssertionTests: RPCBaseTests {
         self.kRawUserInfoKey: self.profile,
       ])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyAssertionRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeVerifyAssertionRequest())
     XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
     XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
     XCTAssertEqual(rpcResponse.verifiedProvider, [kTestProvider])
@@ -211,7 +211,7 @@ class VerifyAssertionTests: RPCBaseTests {
         self.kRawUserInfoKey: self.convertToJson(self.profile),
       ])
     }
-    let rpcResponse = try await AuthBackend.postAA(with: makeVerifyAssertionRequest())
+    let rpcResponse = try await AuthBackend.post(with: makeVerifyAssertionRequest())
     XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
     XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
     XCTAssertEqual(rpcResponse.verifiedProvider, [kTestProvider])
