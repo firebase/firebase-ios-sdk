@@ -150,7 +150,7 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
       getEmailVerificationRequest,
     ] {
       rpcIssuer?.respondBlock = {
-        try self.rpcIssuer?.respond(withJSON:  [self.kOOBCodeKey: self.kTestOOBCode])
+        try self.rpcIssuer?.respond(withJSON: [self.kOOBCodeKey: self.kTestOOBCode])
       }
       let response = try await AuthBackend.post(with: request())
       XCTAssertEqual(response.OOBCode, kTestOOBCode)
@@ -178,15 +178,17 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
   private func getPasswordResetRequest() throws -> GetOOBConfirmationCodeRequest {
     return try XCTUnwrap(GetOOBConfirmationCodeRequest.passwordResetRequest(
       email: kTestEmail,
-                  actionCodeSettings: fakeActionCodeSettings(),
-      requestConfiguration: makeRequestConfiguration()))
+      actionCodeSettings: fakeActionCodeSettings(),
+      requestConfiguration: makeRequestConfiguration()
+    ))
   }
 
   private func getSignInWithEmailRequest() throws -> GetOOBConfirmationCodeRequest {
     return try XCTUnwrap(GetOOBConfirmationCodeRequest.signInWithEmailLinkRequest(
       kTestEmail,
-                              actionCodeSettings: fakeActionCodeSettings(),
-                  requestConfiguration: makeRequestConfiguration()))
+      actionCodeSettings: fakeActionCodeSettings(),
+      requestConfiguration: makeRequestConfiguration()
+    ))
   }
 
   private func getEmailVerificationRequest() throws -> GetOOBConfirmationCodeRequest {

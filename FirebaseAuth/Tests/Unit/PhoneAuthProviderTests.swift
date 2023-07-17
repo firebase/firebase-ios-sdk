@@ -378,7 +378,7 @@
       rpcIssuer?.verifyRequester = { request in
         XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
         switch request.codeIdentity {
-        case .credential(let credential):
+        case let .credential(credential):
           XCTAssertEqual(credential.receipt, self.kTestReceipt)
           XCTAssertEqual(credential.secret, self.kTestSecret)
         default:
@@ -484,14 +484,14 @@
         XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
         if reCAPTCHAfallback {
           switch request.codeIdentity {
-          case .recaptcha(let token):
+          case let .recaptcha(token):
             XCTAssertEqual(token, self.kFakeReCAPTCHAToken)
           default:
             XCTFail("Should be recaptcha")
           }
         } else {
           switch request.codeIdentity {
-          case .credential(let credential):
+          case let .credential(credential):
             XCTAssertEqual(credential.receipt, self.kTestReceipt)
             XCTAssertEqual(credential.secret, self.kTestSecret)
           default:
@@ -581,11 +581,11 @@
         rpcIssuer?.verifyRequester = { request in
           XCTAssertEqual(request.phoneNumber, self.kTestPhoneNumber)
           switch request.codeIdentity {
-          case .credential(let credential):
+          case let .credential(credential):
             XCTAssertFalse(reCAPTCHAfallback)
             XCTAssertEqual(credential.receipt, self.kTestReceipt)
             XCTAssertEqual(credential.secret, self.kTestSecret)
-          case .recaptcha(let token):
+          case let .recaptcha(token):
             XCTAssertTrue(reCAPTCHAfallback)
             XCTAssertEqual(token, self.kFakeReCAPTCHAToken)
           case .empty:

@@ -2276,8 +2276,8 @@ extension Auth: AuthInterop {
   }
 
   class func wrapMainAsync<T: Any>(callback: ((T?, Error?) -> Void)?,
-                                     withParam param: T?,
-                                     error: Error?) -> Void {
+                                   withParam param: T?,
+                                   error: Error?) -> Void {
     if let callback {
       DispatchQueue.main.async {
         callback(param, error)

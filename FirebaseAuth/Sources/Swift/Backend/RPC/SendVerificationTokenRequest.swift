@@ -65,7 +65,8 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
    */
   let codeIdentity: CodeIdentity
 
-  init(phoneNumber: String, codeIdentity: CodeIdentity, requestConfiguration: AuthRequestConfiguration) {
+  init(phoneNumber: String, codeIdentity: CodeIdentity,
+       requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
     self.codeIdentity = codeIdentity
     super.init(
@@ -78,10 +79,10 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     var postBody: [String: AnyHashable] = [:]
     postBody[kPhoneNumberKey] = phoneNumber
     switch codeIdentity {
-    case .credential(let appCredential):
+    case let .credential(appCredential):
       postBody[kReceiptKey] = appCredential.receipt
       postBody[kSecretKey] = appCredential.secret
-    case .recaptcha(let reCAPTCHAToken):
+    case let .recaptcha(reCAPTCHAToken):
       postBody[kreCAPTCHATokenKey] = reCAPTCHAToken
     case .empty: break
     }

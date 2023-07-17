@@ -52,10 +52,10 @@ class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {
       dict[kPhoneNumberKey] = phoneNumber
     }
     switch codeIdentity {
-    case .credential(let appCredential):
+    case let .credential(appCredential):
       dict[kReceiptKey] = appCredential.receipt
       dict[kSecretKey] = appCredential.secret
-    case .recaptcha(let reCAPTCHAToken):
+    case let .recaptcha(reCAPTCHAToken):
       dict[kreCAPTCHATokenKey] = reCAPTCHAToken
     case .empty:
       break

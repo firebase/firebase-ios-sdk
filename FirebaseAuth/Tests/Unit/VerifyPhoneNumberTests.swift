@@ -19,110 +19,110 @@ import XCTest
 
 #if os(iOS)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class VerifyPhoneNumberTests: RPCBaseTests {
-  private let kVerificationCode = "12345678"
-  private let kVerificationID = "55432"
-  private let kPhoneNumber = "4155551234"
-  private let kTemporaryProof = "12345658"
-  private let kVerificationCodeKey = "code"
-  private let kVerificationIDKey = "sessionInfo"
-  private let kIDTokenKey = "idToken"
-  private let kOperationKey = "operation"
-  private let kTestAccessToken = "accessToken"
-  private let kTemporaryProofKey = "temporaryProof"
-  private let kPhoneNumberKey = "phoneNumber"
-  private let kExpectedAPIURL =
-  "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPhoneNumber?key=APIKey"
-  
-  /** @fn testVerifyPhoneNumberRequest
-   @brief Tests the verifyPhoneNumber request.
-   */
-  func testVerifyPhoneNumberRequest() async throws {
-    let request = makeVerifyPhoneNumberRequest()
-    request.accessToken = kTestAccessToken
-    try await checkRequest(
-      request: request,
-      expected: kExpectedAPIURL,
-      key: kVerificationIDKey,
-      value: kVerificationID
-    )
-    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
-    XCTAssertEqual(requestDictionary[kVerificationCodeKey], kVerificationCode)
-    XCTAssertEqual(requestDictionary[kIDTokenKey], kTestAccessToken)
-    XCTAssertEqual(
-      requestDictionary[kOperationKey],
-      AuthOperationType.signUpOrSignIn.operationString
-    )
-  }
-  
-  /** @fn testVerifyPhoneNumberRequestWithTemporaryProof
-   @brief Tests the verifyPhoneNumber request when created using a temporary proof.
-   */
-  func testVerifyPhoneNumberRequestWithTemporaryProof() async throws {
-    let request = makeVerifyPhoneNumberRequestWithTemporaryProof()
-    request.accessToken = kTestAccessToken
-    try await checkRequest(
-      request: request,
-      expected: kExpectedAPIURL,
-      key: kTemporaryProofKey,
-      value: kTemporaryProof
-    )
-    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
-    XCTAssertEqual(requestDictionary[kPhoneNumberKey], kPhoneNumber)
-    XCTAssertEqual(requestDictionary[kIDTokenKey], kTestAccessToken)
-    XCTAssertEqual(
-      requestDictionary[kOperationKey],
-      AuthOperationType.signUpOrSignIn.operationString
-    )
-  }
-  
-  func testVerifyPhoneNumberRequestErrors() async throws {
-    let kInvalidVerificationCodeErrorMessage = "INVALID_CODE"
-    let kInvalidSessionInfoErrorMessage = "INVALID_SESSION_INFO"
-    let kSessionExpiredErrorMessage = "SESSION_EXPIRED"
-    
-    try await checkBackendError(
-      request: makeVerifyPhoneNumberRequest(),
-      message: kInvalidVerificationCodeErrorMessage,
-      errorCode: AuthErrorCode.invalidVerificationCode
-    )
-    try await checkBackendError(
-      request: makeVerifyPhoneNumberRequest(),
-      message: kInvalidSessionInfoErrorMessage,
-      errorCode: AuthErrorCode.invalidVerificationID
-    )
-    try await checkBackendError(
-      request: makeVerifyPhoneNumberRequest(),
-      message: kSessionExpiredErrorMessage,
-      errorCode: AuthErrorCode.sessionExpired
-    )
-  }
-  
-  /** @fn testSuccessfulVerifyPhoneNumberResponse
-   @brief Tests a successful to verify phone number flow.
-   */
-  func testSuccessfulVerifyPhoneNumberResponse() async throws {
-    let kTestLocalID = "testLocalId"
-    let kTestIDToken = "ID_TOKEN"
-    let kTestExpiresIn = "12345"
-    let kTestRefreshToken = "REFRESH_TOKEN"
+  class VerifyPhoneNumberTests: RPCBaseTests {
+    private let kVerificationCode = "12345678"
+    private let kVerificationID = "55432"
+    private let kPhoneNumber = "4155551234"
+    private let kTemporaryProof = "12345658"
+    private let kVerificationCodeKey = "code"
+    private let kVerificationIDKey = "sessionInfo"
+    private let kIDTokenKey = "idToken"
+    private let kOperationKey = "operation"
+    private let kTestAccessToken = "accessToken"
+    private let kTemporaryProofKey = "temporaryProof"
+    private let kPhoneNumberKey = "phoneNumber"
+    private let kExpectedAPIURL =
+      "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPhoneNumber?key=APIKey"
 
-    rpcIssuer.respondBlock = {
-      try self.rpcIssuer?.respond(withJSON: [
-        "idToken": kTestIDToken,
-        "refreshToken": kTestRefreshToken,
-        "localId": kTestLocalID,
-        "expiresIn": kTestExpiresIn,
-        "isNewUser": true,
-      ])
+    /** @fn testVerifyPhoneNumberRequest
+     @brief Tests the verifyPhoneNumber request.
+     */
+    func testVerifyPhoneNumberRequest() async throws {
+      let request = makeVerifyPhoneNumberRequest()
+      request.accessToken = kTestAccessToken
+      try await checkRequest(
+        request: request,
+        expected: kExpectedAPIURL,
+        key: kVerificationIDKey,
+        value: kVerificationID
+      )
+      let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
+      XCTAssertEqual(requestDictionary[kVerificationCodeKey], kVerificationCode)
+      XCTAssertEqual(requestDictionary[kIDTokenKey], kTestAccessToken)
+      XCTAssertEqual(
+        requestDictionary[kOperationKey],
+        AuthOperationType.signUpOrSignIn.operationString
+      )
     }
-    let rpcResponse = try await AuthBackend.post(with: makeVerifyPhoneNumberRequest())
-    XCTAssertEqual(rpcResponse.localID, kTestLocalID)
-    XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
-    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
-    XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
-    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
-  }
+
+    /** @fn testVerifyPhoneNumberRequestWithTemporaryProof
+     @brief Tests the verifyPhoneNumber request when created using a temporary proof.
+     */
+    func testVerifyPhoneNumberRequestWithTemporaryProof() async throws {
+      let request = makeVerifyPhoneNumberRequestWithTemporaryProof()
+      request.accessToken = kTestAccessToken
+      try await checkRequest(
+        request: request,
+        expected: kExpectedAPIURL,
+        key: kTemporaryProofKey,
+        value: kTemporaryProof
+      )
+      let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
+      XCTAssertEqual(requestDictionary[kPhoneNumberKey], kPhoneNumber)
+      XCTAssertEqual(requestDictionary[kIDTokenKey], kTestAccessToken)
+      XCTAssertEqual(
+        requestDictionary[kOperationKey],
+        AuthOperationType.signUpOrSignIn.operationString
+      )
+    }
+
+    func testVerifyPhoneNumberRequestErrors() async throws {
+      let kInvalidVerificationCodeErrorMessage = "INVALID_CODE"
+      let kInvalidSessionInfoErrorMessage = "INVALID_SESSION_INFO"
+      let kSessionExpiredErrorMessage = "SESSION_EXPIRED"
+
+      try await checkBackendError(
+        request: makeVerifyPhoneNumberRequest(),
+        message: kInvalidVerificationCodeErrorMessage,
+        errorCode: AuthErrorCode.invalidVerificationCode
+      )
+      try await checkBackendError(
+        request: makeVerifyPhoneNumberRequest(),
+        message: kInvalidSessionInfoErrorMessage,
+        errorCode: AuthErrorCode.invalidVerificationID
+      )
+      try await checkBackendError(
+        request: makeVerifyPhoneNumberRequest(),
+        message: kSessionExpiredErrorMessage,
+        errorCode: AuthErrorCode.sessionExpired
+      )
+    }
+
+    /** @fn testSuccessfulVerifyPhoneNumberResponse
+     @brief Tests a successful to verify phone number flow.
+     */
+    func testSuccessfulVerifyPhoneNumberResponse() async throws {
+      let kTestLocalID = "testLocalId"
+      let kTestIDToken = "ID_TOKEN"
+      let kTestExpiresIn = "12345"
+      let kTestRefreshToken = "REFRESH_TOKEN"
+
+      rpcIssuer.respondBlock = {
+        try self.rpcIssuer?.respond(withJSON: [
+          "idToken": kTestIDToken,
+          "refreshToken": kTestRefreshToken,
+          "localId": kTestLocalID,
+          "expiresIn": kTestExpiresIn,
+          "isNewUser": true,
+        ])
+      }
+      let rpcResponse = try await AuthBackend.post(with: makeVerifyPhoneNumberRequest())
+      XCTAssertEqual(rpcResponse.localID, kTestLocalID)
+      XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
+      let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
+      XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
+      XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    }
 
     /** @fn testSuccessfulVerifyPhoneNumberResponseWithTemporaryProof
         @brief Tests a successful to verify phone number flow with temporary proof response.

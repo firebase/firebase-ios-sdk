@@ -88,7 +88,7 @@
 
     func getTokenAA() async throws -> AuthAPNSToken {
       return try await withCheckedThrowingContinuation { continuation in
-        self.getToken() { token, error in
+        self.getToken { token, error in
           if let token {
             continuation.resume(returning: token)
           } else {

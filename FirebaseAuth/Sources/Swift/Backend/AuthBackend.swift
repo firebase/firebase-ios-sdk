@@ -257,7 +257,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         // thrown errors.. Although perhaps the case of 'containsPostBody' returning false could
         // perhaps be modeled differently so that the failing unencodedHTTPRequestBody could only
         // be called when a body exists...
-          postBody = try request.unencodedHTTPRequestBody()
+        postBody = try request.unencodedHTTPRequestBody()
       } catch {
         throw AuthErrorUtils.RPCRequestEncodingError(underlyingError: error)
       }

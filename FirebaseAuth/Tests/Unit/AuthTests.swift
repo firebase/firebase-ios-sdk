@@ -75,7 +75,7 @@ class AuthTests: RPCBaseTests {
     let allSignInMethods = ["emailLink", "facebook.com"]
     let expectation = self.expectation(description: #function)
 
-    self.rpcIssuer.respondBlock = {
+    rpcIssuer.respondBlock = {
       let request = try XCTUnwrap(self.rpcIssuer.request as? CreateAuthURIRequest)
       XCTAssertEqual(request.identifier, self.kEmail)
       XCTAssertEqual(request.endpoint, "createAuthUri")
@@ -137,7 +137,7 @@ class AuthTests: RPCBaseTests {
 
         // 3. Send the response from the fake backend.
         try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                          "isNewUser": true,
+                                              "isNewUser": true,
                                               "refreshToken": self.kRefreshToken])
       }
 
@@ -259,9 +259,9 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "email": kEmail,
-                                      "isNewUser": true,
-                                      "refreshToken": kRefreshToken])
+                                     "email": kEmail,
+                                     "isNewUser": true,
+                                     "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 5)
     assertUser(auth?.currentUser)
@@ -336,9 +336,9 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "email": kEmail,
-                                      "isNewUser": true,
-                                      "refreshToken": kRefreshToken])
+                                     "email": kEmail,
+                                     "isNewUser": true,
+                                     "refreshToken": kRefreshToken])
 
     waitForExpectations(timeout: 5)
     assertUser(auth?.currentUser)
@@ -458,8 +458,8 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["email": kEmail,
-                                      "requestType": verifyEmailRequestType,
-                                      "newEmail": kNewEmail])
+                                     "requestType": verifyEmailRequestType,
+                                     "newEmail": kNewEmail])
     waitForExpectations(timeout: 5)
   }
 
@@ -636,8 +636,8 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "isNewUser": true,
-                                      "refreshToken": kRefreshToken])
+                                     "isNewUser": true,
+                                     "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
   }
 
@@ -709,8 +709,8 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "isNewUser": true,
-                                      "refreshToken": kRefreshToken])
+                                     "isNewUser": true,
+                                     "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
   }
 
@@ -813,13 +813,13 @@ class AuthTests: RPCBaseTests {
 
       // 3. Send the response from the fake backend.
       try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                        "refreshToken": kRefreshToken,
-                                        "federatedId": kGoogleID,
-                                        "providerId": GoogleAuthProvider.id,
-                                        "localId": kLocalID,
-                                        "displayName": kDisplayName,
-                                        "rawUserInfo": kGoogleProfile,
-                                        "username": kUserName])
+                                       "refreshToken": kRefreshToken,
+                                       "federatedId": kGoogleID,
+                                       "providerId": GoogleAuthProvider.id,
+                                       "localId": kLocalID,
+                                       "displayName": kDisplayName,
+                                       "rawUserInfo": kGoogleProfile,
+                                       "username": kUserName])
       waitForExpectations(timeout: 5)
       try assertUserGoogle(auth.currentUser)
     }
@@ -893,14 +893,14 @@ class AuthTests: RPCBaseTests {
 
       // 3. Send the response from the fake backend.
       try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                        "refreshToken": kRefreshToken,
-                                        "federatedId": kGoogleID,
-                                        "providerId": GoogleAuthProvider.id,
-                                        "localId": kLocalID,
-                                        "displayName": kGoogleDisplayName,
-                                        "rawUserInfo": kGoogleProfile,
-                                        "username": kUserName,
-                                        "needConfirmation": true])
+                                       "refreshToken": kRefreshToken,
+                                       "federatedId": kGoogleID,
+                                       "providerId": GoogleAuthProvider.id,
+                                       "localId": kLocalID,
+                                       "displayName": kGoogleDisplayName,
+                                       "rawUserInfo": kGoogleProfile,
+                                       "username": kUserName,
+                                       "needConfirmation": true])
       waitForExpectations(timeout: 5)
     }
 
@@ -939,13 +939,13 @@ class AuthTests: RPCBaseTests {
 
       // 3. Send the response from the fake backend.
       try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                        "refreshToken": kRefreshToken,
-                                        "federatedId": kGoogleID,
-                                        "providerId": GoogleAuthProvider.id,
-                                        "localId": kLocalID,
-                                        "displayName": kGoogleDisplayName,
-                                        "rawUserInfo": kGoogleProfile,
-                                        "username": kUserName])
+                                       "refreshToken": kRefreshToken,
+                                       "federatedId": kGoogleID,
+                                       "providerId": GoogleAuthProvider.id,
+                                       "localId": kLocalID,
+                                       "displayName": kGoogleDisplayName,
+                                       "rawUserInfo": kGoogleProfile,
+                                       "username": kUserName])
       waitForExpectations(timeout: 5)
       try assertUserGoogle(auth.currentUser)
     }
@@ -997,13 +997,13 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                      "refreshToken": kRefreshToken,
-                                      "federatedId": kGoogleID,
-                                      "providerId": GoogleAuthProvider.id,
-                                      "localId": kLocalID,
-                                      "displayName": kGoogleDisplayName,
-                                      "rawUserInfo": kGoogleProfile,
-                                      "username": kGoogleDisplayName])
+                                     "refreshToken": kRefreshToken,
+                                     "federatedId": kGoogleID,
+                                     "providerId": GoogleAuthProvider.id,
+                                     "localId": kLocalID,
+                                     "displayName": kGoogleDisplayName,
+                                     "rawUserInfo": kGoogleProfile,
+                                     "username": kGoogleDisplayName])
     waitForExpectations(timeout: 5)
     try assertUserGoogle(auth.currentUser)
   }
@@ -1098,15 +1098,15 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                      "refreshToken": kRefreshToken,
-                                      "federatedId": kGoogleID,
-                                      "providerId": AuthProviderString.apple.rawValue,
-                                      "localId": kLocalID,
-                                      "displayName": kGoogleDisplayName,
-                                      "rawUserInfo": kGoogleProfile,
-                                      "firstName": kFirst,
-                                      "lastName": kLast,
-                                      "username": kGoogleDisplayName])
+                                     "refreshToken": kRefreshToken,
+                                     "federatedId": kGoogleID,
+                                     "providerId": AuthProviderString.apple.rawValue,
+                                     "localId": kLocalID,
+                                     "displayName": kGoogleDisplayName,
+                                     "rawUserInfo": kGoogleProfile,
+                                     "firstName": kFirst,
+                                     "lastName": kLast,
+                                     "username": kGoogleDisplayName])
     waitForExpectations(timeout: 5)
     XCTAssertNotNil(auth.currentUser)
   }
@@ -1149,9 +1149,9 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "email": kEmail,
-                                      "isNewUser": true,
-                                      "refreshToken": kRefreshToken])
+                                     "email": kEmail,
+                                     "isNewUser": true,
+                                     "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
     try assertUserAnonymous(XCTUnwrap(auth?.currentUser))
   }
@@ -1219,9 +1219,9 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "email": kEmail,
-                                      "isNewUser": false,
-                                      "refreshToken": kRefreshToken])
+                                     "email": kEmail,
+                                     "isNewUser": false,
+                                     "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
     assertUser(auth?.currentUser)
   }
@@ -1290,9 +1290,9 @@ class AuthTests: RPCBaseTests {
 
     // 3. Send the response from the fake backend.
     try rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
-                                      "email": kEmail,
-                                      "isNewUser": true,
-                                      "refreshToken": kRefreshToken])
+                                     "email": kEmail,
+                                     "isNewUser": true,
+                                     "refreshToken": kRefreshToken])
     waitForExpectations(timeout: 5)
     assertUser(auth?.currentUser)
   }
@@ -2099,9 +2099,9 @@ class AuthTests: RPCBaseTests {
       // 3. Send the response from the fake backend.
       try self.rpcIssuer.respond(withJSON: ["idToken": fakeAccessToken,
                                             "email": self.kEmail,
-                                        "isNewUser": true,
-                                        "expiresIn": "3600",
-                                        "refreshToken": kRefreshToken])
+                                            "isNewUser": true,
+                                            "expiresIn": "3600",
+                                            "refreshToken": kRefreshToken])
     }
     auth?.signIn(withEmail: kEmail, password: kFakePassword) { authResult, error in
       // 4. After the response triggers the callback, verify the returned result.

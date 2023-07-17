@@ -85,10 +85,10 @@ class RPCBaseTests: XCTestCase {
       @brief Tests the encoding of a request.
    */
   func checkRequest(request: any AuthRPCRequest,
-                                       expected: String,
-                                       key: String,
-                                       value: String?,
-                                       checkPostBody: Bool = false) async throws -> Void {
+                    expected: String,
+                    key: String,
+                    value: String?,
+                    checkPostBody: Bool = false) async throws {
     rpcIssuer.respondBlock = {
       XCTAssertEqual(self.rpcIssuer.requestURL?.absoluteString, expected)
       if checkPostBody {
@@ -115,7 +115,6 @@ class RPCBaseTests: XCTestCase {
                          errorReason: String? = nil,
                          underlyingErrorKey: String? = nil,
                          checkLocalizedDescription: String? = nil) async throws {
-
     rpcIssuer.respondBlock = {
       if let json = json {
         _ = try self.rpcIssuer.respond(withJSON: json)

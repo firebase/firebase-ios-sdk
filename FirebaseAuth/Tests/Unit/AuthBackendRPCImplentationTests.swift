@@ -43,16 +43,16 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCRequestEncodingError.rawValue)
-      
+
       let underlyingUnderlying = try XCTUnwrap(underlyingError
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-      
+
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
     }
@@ -73,11 +73,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.JSONSerializationError.rawValue)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-      
+
       XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
@@ -105,7 +105,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingError.code, kFakeErrorCode)
-      
+
       XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
@@ -133,19 +133,20 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-      
+
       let underlyingUnderlying = try XCTUnwrap(underlyingError
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-      
+
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
       XCTAssertEqual(data,
-                     try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
+                     try XCTUnwrap(underlyingError
+                       .userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
     }
   }
 
@@ -169,18 +170,19 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
-      
+
       let underlyingUnderlying = try XCTUnwrap(underlyingError
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, NSCocoaErrorDomain)
-      
+
       XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
       XCTAssertEqual(data,
-                     try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
+                     try XCTUnwrap(underlyingError
+                       .userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
     }
   }
 
@@ -210,16 +212,16 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-      
+
       let underlyingUnderlying = try XCTUnwrap(underlyingError
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-      
+
       XCTAssertNotNil(try XCTUnwrap(
         underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]
       ) as? [Int])
@@ -287,16 +289,16 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
-      
+
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
       let underlyingUnderlying = try XCTUnwrap(underlyingError
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-      
+
       let dictionary = try XCTUnwrap(underlyingError
         .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
       XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequired)
@@ -356,7 +358,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
@@ -364,7 +366,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-      
+
       let dictionary = try XCTUnwrap(underlyingError
         .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
       XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequiredInvalidPassword)
@@ -398,7 +400,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
@@ -406,7 +408,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-      
+
       let dictionary = try XCTUnwrap(underlyingError
         .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
       XCTAssertEqual(dictionary["message"], kUnknownServerErrorMessage)
@@ -436,7 +438,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       let rpcError = error as NSError
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
@@ -444,7 +446,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         .userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
       XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-      
+
       let dictionary = try XCTUnwrap(underlyingError
         .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
       XCTAssertEqual(dictionary, [:])
@@ -501,11 +503,11 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
       XCTAssertEqual(rpcError.domain, AuthErrors.domain)
       XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
-      
+
       let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
       XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
       XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCResponseDecodingError.rawValue)
-      
+
       let dictionary = try XCTUnwrap(underlyingError
         .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
       XCTAssertEqual(dictionary, [:])
@@ -520,7 +522,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     let kTestKey = "TestKey"
     let kTestValue = "TestValue"
     rpcIssuer.respondBlock = {
-      // It doesn't matter what we respond with here, as long as it's not an error response. The fake
+      // It doesn't matter what we respond with here, as long as it's not an error response. The
+      // fake
       // response will deterministicly simulate a decoding error regardless of the response value it
       // was given.
       try self.rpcIssuer.respond(withJSON: [kTestKey: kTestValue])
@@ -578,7 +581,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      let _ = try? await rpcImplementation.post(with: request)
+      _ = try? await rpcImplementation.post(with: request)
 
       // Then
       let expectedHeader = FIRHeaderValueFromHeartbeatsPayload(
@@ -639,7 +642,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
         // Force return from async post
         try self.rpcIssuer.respond(withJSON: [:])
       }
-      let _ = try? await rpcImplementation.post(with: request)
+      _ = try? await rpcImplementation.post(with: request)
 
       // Then
       let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
@@ -708,8 +711,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
   private class FakeResponse: AuthRPCResponse {
     static var injectDecodingError: Bool = false
-    required init() {
-    }
+    required init() {}
+
     var receivedDictionary: [String: AnyHashable] = [:]
     func setFields(dictionary: [String: AnyHashable]) throws {
       if FakeResponse.injectDecodingError {

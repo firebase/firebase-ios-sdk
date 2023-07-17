@@ -90,7 +90,7 @@
         @return The initialized instance.
      */
     init(withApplication application: Application,
-                      appCredentialManager: AuthAppCredentialManager) {
+         appCredentialManager: AuthAppCredentialManager) {
       self.application = application
       self.appCredentialManager = appCredentialManager
       timeout = kProbingTimeout
@@ -141,7 +141,7 @@
 
     func checkNotificationForwardingAA() async -> Bool {
       return await withCheckedContinuation { continuation in
-        checkNotificationForwarding() { value in
+        checkNotificationForwarding { value in
           continuation.resume(returning: value)
         }
       }

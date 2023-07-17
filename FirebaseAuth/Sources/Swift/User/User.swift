@@ -753,7 +753,8 @@ extension User: NSSecureCoding {}
           Task {
             do {
               let response = try await AuthBackend.post(with: request)
-              let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
+              let additionalUserInfo = AdditionalUserInfo
+                .userInfo(verifyAssertionResponse: response)
               let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
               let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
                                           credential: updatedOAuthCredential)
@@ -1847,8 +1848,11 @@ extension User: NSSecureCoding {}
           self.isAnonymous = false
           self.update(withGetAccountInfoResponse: response)
           if let error = self.updateKeychain() {
-            User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,
-                                                            error: error)
+            User.callInMainThreadWithAuthDataResultAndError(
+              callback: completion,
+              complete: complete,
+              error: error
+            )
             return
           }
           User.callInMainThreadWithAuthDataResultAndError(callback: completion, complete: complete,

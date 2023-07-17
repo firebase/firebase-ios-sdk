@@ -35,7 +35,7 @@ class SendVerificationCodeTests: RPCBaseTests {
     let request = makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken))
     XCTAssertEqual(request.phoneNumber, kTestPhoneNumber)
     switch request.codeIdentity {
-    case .recaptcha(let token):
+    case let .recaptcha(token):
       XCTAssertEqual(token, kTestReCAPTCHAToken)
     default:
       XCTFail("Should be a reCAPTCHA")
@@ -58,7 +58,7 @@ class SendVerificationCodeTests: RPCBaseTests {
     let request = makeSendVerificationCodeRequest(CodeIdentity.credential(credential))
     XCTAssertEqual(request.phoneNumber, kTestPhoneNumber)
     switch request.codeIdentity {
-    case .credential(let credential):
+    case let .credential(credential):
       XCTAssertEqual(credential.secret, kTestSecret)
       XCTAssertEqual(credential.receipt, kTestReceipt)
     default:
@@ -114,12 +114,13 @@ class SendVerificationCodeTests: RPCBaseTests {
       try self.rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
     }
     let rpcResponse = try await AuthBackend.post(with:
-          makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)))
+      makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)))
     XCTAssertNotNil(rpcResponse)
     XCTAssertEqual(rpcResponse.verificationID, kFakeVerificationID)
   }
 
-  private func makeSendVerificationCodeRequest(_ codeIdentity: CodeIdentity) -> SendVerificationCodeRequest {
+  private func makeSendVerificationCodeRequest(_ codeIdentity: CodeIdentity)
+    -> SendVerificationCodeRequest {
     return SendVerificationCodeRequest(phoneNumber: kTestPhoneNumber,
                                        codeIdentity: codeIdentity,
                                        requestConfiguration: makeRequestConfiguration())

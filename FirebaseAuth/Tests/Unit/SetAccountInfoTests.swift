@@ -207,10 +207,10 @@ class SetAccountInfoTests: RPCBaseTests {
 
     rpcIssuer.respondBlock = {
       try self.rpcIssuer?.respond(withJSON:
-                                    [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
-                                                      kIDTokenKey: kTestIDToken,
-                                                      kExpiresInKey: kTestExpiresIn,
-                                                      kRefreshTokenKey: kTestRefreshToken])
+        [kProviderUserInfoKey: [[kPhotoUrlKey: kTestPhotoURL]],
+         kIDTokenKey: kTestIDToken,
+         kExpiresInKey: kTestExpiresIn,
+         kRefreshTokenKey: kTestRefreshToken])
     }
     let response = try await AuthBackend.post(with: setAccountInfoRequest())
     XCTAssertEqual(response.providerUserInfo?.first?.photoURL?.absoluteString, kTestPhotoURL)
