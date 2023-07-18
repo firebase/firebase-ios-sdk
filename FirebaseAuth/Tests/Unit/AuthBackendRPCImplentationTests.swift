@@ -703,8 +703,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
   }
 
   private class FakeResponse: AuthRPCResponse {
-    required init() {
-    }
+    required init() {}
 
     var receivedDictionary: [String: AnyHashable] = [:]
     func setFields(dictionary: [String: AnyHashable]) throws {
@@ -718,7 +717,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       return fakeRequest.requestURL()
     }
 
-    func unencodedHTTPRequestBody() throws -> [String : AnyHashable] {
+    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
       return try fakeRequest.unencodedHTTPRequestBody()
     }
 
@@ -733,8 +732,8 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
   }
 
   private class FakeDecodingErrorResponse: FakeResponse {
-    required init() {
-    }
+    required init() {}
+
     override func setFields(dictionary: [String: AnyHashable]) throws {
       throw NSError(domain: "dummy", code: -1)
     }
