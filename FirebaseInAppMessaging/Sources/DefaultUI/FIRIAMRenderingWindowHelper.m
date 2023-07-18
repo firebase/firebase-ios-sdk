@@ -19,6 +19,7 @@
 
 #import "FirebaseInAppMessaging/Sources/DefaultUI/Banner/FIRIAMBannerViewUIWindow.h"
 #import "FirebaseInAppMessaging/Sources/DefaultUI/FIRIAMRenderingWindowHelper.h"
+#import "FirebaseInAppMessaging/Sources/Private/Util/UIApplication+FIRForegroundWindowScene.h"
 
 @implementation FIRIAMRenderingWindowHelper
 
@@ -63,17 +64,8 @@
 }
 
 #if defined(__IPHONE_13_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-+ (UIWindowScene *)foregroundedScene API_AVAILABLE(ios(13.0)) {
-  for (UIWindowScene *connectedScene in [UIApplication sharedApplication].connectedScenes) {
-    if (connectedScene.activationState == UISceneActivationStateForegroundActive) {
-      return connectedScene;
-    }
-  }
-  return nil;
-}
-
 + (UIWindow *)iOS13PlusWindow API_AVAILABLE(ios(13.0)) {
-  UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
+  UIWindowScene *foregroundedScene = [[UIApplication sharedApplication] fir_foregroundWindowScene];
   if (foregroundedScene.delegate) {
     return [[UIWindow alloc] initWithWindowScene:foregroundedScene];
   } else {
@@ -82,7 +74,7 @@
 }
 
 + (FIRIAMBannerViewUIWindow *)iOS13PlusBannerWindow API_AVAILABLE(ios(13.0)) {
-  UIWindowScene *foregroundedScene = [[self class] foregroundedScene];
+  UIWindowScene *foregroundedScene = [[UIApplication sharedApplication] fir_foregroundWindowScene];
   if (foregroundedScene.delegate) {
     return [[FIRIAMBannerViewUIWindow alloc] initWithWindowScene:foregroundedScene];
   } else {

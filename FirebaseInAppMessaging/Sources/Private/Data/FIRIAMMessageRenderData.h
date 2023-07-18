@@ -25,11 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, nonnull, readonly) id<FIRIAMMessageContentData> contentData;
 @property(nonatomic, nonnull, readonly) FIRIAMRenderingEffectSetting *renderingEffectSettings;
 @property(nonatomic, nonnull, copy, readonly) NSString *messageID;
-@property(nonatomic, nonnull, copy, readonly) NSString *name;
+@property(nonatomic, nullable, copy, readonly) NSString *name;
 
 - (instancetype)init NS_UNAVAILABLE;
 - (instancetype)initWithMessageID:(NSString *)messageID
-                      messageName:(NSString *)messageName
+                      messageName:(nullable NSString *)messageName
                       contentData:(id<FIRIAMMessageContentData>)contentData
                   renderingEffect:(FIRIAMRenderingEffectSetting *)renderEffect;
 @end

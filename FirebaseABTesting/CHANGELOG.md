@@ -1,3 +1,6 @@
+# 10.11.0
+- [fixed] Fix crash caused by mutating array during iteration. (#11378)
+
 # 8.2.0
 - [fixed] Fixed analyze issue introduced in Xcode 12.5. (#8209)
 

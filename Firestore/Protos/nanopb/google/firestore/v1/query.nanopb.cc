@@ -103,14 +103,26 @@ const pb_field_t google_firestore_v1_StructuredAggregationQuery_fields[3] = {
     PB_LAST_FIELD
 };
 
-const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_fields[3] = {
+const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_fields[5] = {
     PB_ANONYMOUS_ONEOF_FIELD(operator,   1, MESSAGE , ONEOF, STATIC  , FIRST, google_firestore_v1_StructuredAggregationQuery_Aggregation, count, count, &google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_fields),
-    PB_FIELD(  7, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1_StructuredAggregationQuery_Aggregation, alias, count, 0),
+    PB_ANONYMOUS_ONEOF_FIELD(operator,   2, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_StructuredAggregationQuery_Aggregation, sum, sum, &google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_fields),
+    PB_ANONYMOUS_ONEOF_FIELD(operator,   3, MESSAGE , ONEOF, STATIC  , UNION, google_firestore_v1_StructuredAggregationQuery_Aggregation, avg, avg, &google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_fields),
+    PB_FIELD(  7, BYTES   , SINGULAR, POINTER , OTHER, google_firestore_v1_StructuredAggregationQuery_Aggregation, alias, avg, 0),
     PB_LAST_FIELD
 };
 
 const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_fields[2] = {
     PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_firestore_v1_StructuredAggregationQuery_Aggregation_Count, up_to, up_to, &google_protobuf_Int64Value_fields),
+    PB_LAST_FIELD
+};
+
+const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_fields[2] = {
+    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum, field, field, &google_firestore_v1_StructuredQuery_FieldReference_fields),
+    PB_LAST_FIELD
+};
+
+const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_fields[2] = {
+    PB_FIELD(  1, MESSAGE , SINGULAR, STATIC  , FIRST, google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg, field, field, &google_firestore_v1_StructuredQuery_FieldReference_fields),
     PB_LAST_FIELD
 };
 
@@ -134,7 +146,7 @@ const pb_field_t google_firestore_v1_Cursor_fields[3] = {
  * numbers or field sizes that are larger than what can fit in 8 or 16 bit
  * field descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_StructuredQuery, select) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, where) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, start_at) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, end_at) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, limit) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, composite_filter) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, field_filter) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, unary_filter) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, field) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, value) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_UnaryFilter, field) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Order, field) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery, structured_query) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, count) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Count, up_to) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1_StructuredQuery_google_firestore_v1_StructuredQuery_CollectionSelector_google_firestore_v1_StructuredQuery_Filter_google_firestore_v1_StructuredQuery_CompositeFilter_google_firestore_v1_StructuredQuery_FieldFilter_google_firestore_v1_StructuredQuery_UnaryFilter_google_firestore_v1_StructuredQuery_Order_google_firestore_v1_StructuredQuery_FieldReference_google_firestore_v1_StructuredQuery_Projection_google_firestore_v1_StructuredAggregationQuery_google_firestore_v1_StructuredAggregationQuery_Aggregation_google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_google_firestore_v1_Cursor)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_StructuredQuery, select) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, where) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, start_at) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, end_at) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery, limit) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, composite_filter) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, field_filter) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, unary_filter) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, field) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, value) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_UnaryFilter, field) < 65536 && pb_membersize(google_firestore_v1_StructuredQuery_Order, field) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery, structured_query) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, count) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, sum) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, avg) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Count, up_to) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum, field) < 65536 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg, field) < 65536), YOU_MUST_DEFINE_PB_FIELD_32BIT_FOR_MESSAGES_google_firestore_v1_StructuredQuery_google_firestore_v1_StructuredQuery_CollectionSelector_google_firestore_v1_StructuredQuery_Filter_google_firestore_v1_StructuredQuery_CompositeFilter_google_firestore_v1_StructuredQuery_FieldFilter_google_firestore_v1_StructuredQuery_UnaryFilter_google_firestore_v1_StructuredQuery_Order_google_firestore_v1_StructuredQuery_FieldReference_google_firestore_v1_StructuredQuery_Projection_google_firestore_v1_StructuredAggregationQuery_google_firestore_v1_StructuredAggregationQuery_Aggregation_google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_google_firestore_v1_Cursor)
 #endif
 
 #if !defined(PB_FIELD_16BIT) && !defined(PB_FIELD_32BIT)
@@ -145,7 +157,7 @@ PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_StructuredQuery, select) < 6
  * numbers or field sizes that are larger than what can fit in the default
  * 8 bit descriptors.
  */
-PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_StructuredQuery, select) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, where) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, start_at) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, end_at) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, limit) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, composite_filter) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, field_filter) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, unary_filter) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, field) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, value) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_UnaryFilter, field) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Order, field) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery, structured_query) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, count) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Count, up_to) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_StructuredQuery_google_firestore_v1_StructuredQuery_CollectionSelector_google_firestore_v1_StructuredQuery_Filter_google_firestore_v1_StructuredQuery_CompositeFilter_google_firestore_v1_StructuredQuery_FieldFilter_google_firestore_v1_StructuredQuery_UnaryFilter_google_firestore_v1_StructuredQuery_Order_google_firestore_v1_StructuredQuery_FieldReference_google_firestore_v1_StructuredQuery_Projection_google_firestore_v1_StructuredAggregationQuery_google_firestore_v1_StructuredAggregationQuery_Aggregation_google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_google_firestore_v1_Cursor)
+PB_STATIC_ASSERT((pb_membersize(google_firestore_v1_StructuredQuery, select) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, where) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, start_at) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, end_at) < 256 && pb_membersize(google_firestore_v1_StructuredQuery, limit) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, composite_filter) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, field_filter) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Filter, unary_filter) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, field) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_FieldFilter, value) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_UnaryFilter, field) < 256 && pb_membersize(google_firestore_v1_StructuredQuery_Order, field) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery, structured_query) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, count) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, sum) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation, avg) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Count, up_to) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum, field) < 256 && pb_membersize(google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg, field) < 256), YOU_MUST_DEFINE_PB_FIELD_16BIT_FOR_MESSAGES_google_firestore_v1_StructuredQuery_google_firestore_v1_StructuredQuery_CollectionSelector_google_firestore_v1_StructuredQuery_Filter_google_firestore_v1_StructuredQuery_CompositeFilter_google_firestore_v1_StructuredQuery_FieldFilter_google_firestore_v1_StructuredQuery_UnaryFilter_google_firestore_v1_StructuredQuery_Order_google_firestore_v1_StructuredQuery_FieldReference_google_firestore_v1_StructuredQuery_Projection_google_firestore_v1_StructuredAggregationQuery_google_firestore_v1_StructuredAggregationQuery_Aggregation_google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_google_firestore_v1_Cursor)
 #endif
 
 
@@ -426,6 +438,12 @@ std::string google_firestore_v1_StructuredAggregationQuery_Aggregation::ToString
         tostring_result += PrintMessageField("count ",
             count, indent + 1, true);
         break;
+    case google_firestore_v1_StructuredAggregationQuery_Aggregation_sum_tag:
+        tostring_result += PrintMessageField("sum ", sum, indent + 1, true);
+        break;
+    case google_firestore_v1_StructuredAggregationQuery_Aggregation_avg_tag:
+        tostring_result += PrintMessageField("avg ", avg, indent + 1, true);
+        break;
     }
     tostring_result += PrintPrimitiveField("alias: ",
         alias, indent + 1, false);
@@ -444,6 +462,26 @@ std::string google_firestore_v1_StructuredAggregationQuery_Aggregation_Count::To
     std::string tostring_result;
 
     tostring_result += PrintMessageField("up_to ", up_to, indent + 1, false);
+
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
+}
+
+std::string google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum::ToString(int indent) const {
+    std::string tostring_header = PrintHeader(indent, "Sum", this);
+    std::string tostring_result;
+
+    tostring_result += PrintMessageField("field ", field, indent + 1, false);
+
+    std::string tostring_tail = PrintTail(indent);
+    return tostring_header + tostring_result + tostring_tail;
+}
+
+std::string google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg::ToString(int indent) const {
+    std::string tostring_header = PrintHeader(indent, "Avg", this);
+    std::string tostring_result;
+
+    tostring_result += PrintMessageField("field ", field, indent + 1, false);
 
     std::string tostring_tail = PrintTail(indent);
     return tostring_header + tostring_result + tostring_tail;

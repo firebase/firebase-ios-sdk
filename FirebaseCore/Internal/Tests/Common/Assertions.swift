@@ -14,7 +14,6 @@
 
 import XCTest
 @testable import FirebaseCoreInternal
-import HeartbeatLoggingTestUtils
 
 // MARK: - Assertions
 

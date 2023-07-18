@@ -1,5 +1,16 @@
-# Unreleased
+# 10.12.0
+- [changed] Updated `upload-symbols` to version 3.16 with support for new default build settings in Xcode 15 (#11463)
+- [changed] Re-enabled dSYM uploads for Flutter apps building with `--obfuscate` and updated instructions for de-obfuscating Dart stacktraces
+- [fixed] `upload-symbols` / `run` now support apps with `User Script Sandboxing` set to `YES` when all input files are present in the build phase. Please see the Pull Request for the full list of input files (#11463)
+- [fixed] `upload-symbols` / `run` no longer read from the app's Info.plist and supports apps with `Generate Info.plist File` set to `NO` (#11463)
+- [added] Added a `CrashlyticsInputFiles.xcfilelist`. Instead of using "Input Files", developers can specify the path to this file in the Build Phase's "Input File Lists" section of your Crashlytics `run` / `upload-symbols` script to keep it up to date (#11428)
+
+# 10.11.0
+- [fixed] Fixed a threading-related hang during initialization in urgent mode (#11216)
+
+# 10.10.0
 - [changed] Removed references to deprecated CTCarrier API in FirebaseSessions. (#11144)
+- [fixed] Fix Xcode 14.3 Analyzer issue. (#11228)
 
 # 10.9.0
 - [fixed] Updated upload-symbols to 3.15. Disabled dSYM uploads for Flutter

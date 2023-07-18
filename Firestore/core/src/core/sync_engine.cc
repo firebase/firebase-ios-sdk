@@ -28,6 +28,7 @@
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/query_result.h"
 #include "Firestore/core/src/local/target_data.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/document_set.h"
@@ -56,6 +57,7 @@ using local::LocalWriteResult;
 using local::QueryPurpose;
 using local::QueryResult;
 using local::TargetData;
+using model::AggregateField;
 using model::BatchId;
 using model::DocumentKey;
 using model::DocumentKeySet;
@@ -111,7 +113,6 @@ TargetId SyncEngine::Listen(Query query) {
   TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
   TargetId target_id = target_data.target_id();
   nanopb::ByteString resume_token = target_data.resume_token();
-  remote_store_->Listen(std::move(target_data));
 
   ViewSnapshot view_snapshot = InitializeViewAndComputeSnapshot(
       query, target_id, std::move(resume_token));
@@ -120,6 +121,7 @@ TargetId SyncEngine::Listen(Query query) {
   snapshots.push_back(std::move(view_snapshot));
   sync_engine_callback_->OnViewSnapshots(std::move(snapshots));
 
+  remote_store_->Listen(std::move(target_data));
   return target_id;
 }
 
@@ -250,9 +252,12 @@ void SyncEngine::Transaction(int max_attempts,
   runner->Run();
 }
 
-void SyncEngine::RunCountQuery(const core::Query& query,
-                               api::CountQueryCallback&& result_callback) {
-  remote_store_->RunCountQuery(query, std::move(result_callback));
+void SyncEngine::RunAggregateQuery(
+    const core::Query& query,
+    const std::vector<model::AggregateField>& aggregates,
+    api::AggregateQueryCallback&& result_callback) {
+  remote_store_->RunAggregateQuery(query, aggregates,
+                                   std::move(result_callback));
 }
 
 void SyncEngine::HandleCredentialChange(const credentials::User& user) {
@@ -340,7 +345,7 @@ void SyncEngine::HandleRejectedListen(TargetId target_id, Status error) {
     // copy-initialization" error.
     DocumentKeySet limbo_documents{limbo_key};
     RemoteEvent::TargetChangeMap target_changes;
-    RemoteEvent::TargetSet target_mismatches;
+    RemoteEvent::TargetMismatchMap target_mismatches;
     DocumentUpdateMap document_updates{{limbo_key, doc}};
 
     RemoteEvent event{SnapshotVersion::None(), std::move(target_changes),

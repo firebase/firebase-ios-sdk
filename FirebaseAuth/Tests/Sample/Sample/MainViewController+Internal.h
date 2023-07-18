@@ -94,6 +94,9 @@ typedef void (^TestAutomationCallback)(NSError *_Nullable error);
 
 - (FIRActionCodeSettings *)actionCodeSettings;
 
+- (void)authenticateWithSecondFactorError:(NSError * _Nullable)error
+                                 workflow:(NSString *)workflow;
+
 @end
 
 NS_ASSUME_NONNULL_END

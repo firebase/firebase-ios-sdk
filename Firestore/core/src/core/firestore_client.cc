@@ -44,6 +44,7 @@
 #include "Firestore/core/src/local/proto_sizer.h"
 #include "Firestore/core/src/local/query_engine.h"
 #include "Firestore/core/src/local/query_result.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/database_id.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/document_set.h"
@@ -84,11 +85,13 @@ using local::LruParams;
 using local::MemoryPersistence;
 using local::QueryEngine;
 using local::QueryResult;
+using model::AggregateField;
 using model::Document;
 using model::DocumentKeySet;
 using model::DocumentMap;
 using model::FieldIndex;
 using model::Mutation;
+using model::ObjectValue;
 using model::OnlineState;
 using remote::ConnectivityMonitor;
 using remote::Datastore;
@@ -552,20 +555,23 @@ void FirestoreClient::Transaction(int max_attempts,
   });
 }
 
-void FirestoreClient::RunCountQuery(const Query& query,
-                                    api::CountQueryCallback&& result_callback) {
+void FirestoreClient::RunAggregateQuery(
+    const Query& query,
+    const std::vector<AggregateField>& aggregates,
+    api::AggregateQueryCallback&& result_callback) {
   VerifyNotTerminated();
 
   // Dispatch the result back onto the user dispatch queue.
   auto async_callback = [this,
-                         result_callback](const StatusOr<int64_t>& status) {
+                         result_callback](const StatusOr<ObjectValue>& status) {
     if (result_callback) {
       user_executor_->Execute([=] { result_callback(std::move(status)); });
     }
   };
 
-  worker_queue_->Enqueue([this, query, async_callback] {
-    sync_engine_->RunCountQuery(query, std::move(async_callback));
+  worker_queue_->Enqueue([this, query, aggregates, async_callback] {
+    sync_engine_->RunAggregateQuery(query, aggregates,
+                                    std::move(async_callback));
   });
 }
 

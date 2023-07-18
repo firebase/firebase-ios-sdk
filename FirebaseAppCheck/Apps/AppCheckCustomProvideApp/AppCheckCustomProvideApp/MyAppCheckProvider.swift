@@ -21,7 +21,8 @@ import FirebaseAppCheck
 class MyAppCheckProvider: NSObject, AppCheckProvider {
   func getToken(completion handler: @escaping AppCheckTokenHandler) {
     DispatchQueue.main.async {
-      // Create or request Firebase App Check token. Usually the token is requested from your server.
+      // Create or request Firebase App Check token. Usually the token is requested from your
+      // server.
       let myToken = AppCheckToken(
         token: "MyToken",
         expirationDate: Date(timeIntervalSinceNow: 60 * 60)

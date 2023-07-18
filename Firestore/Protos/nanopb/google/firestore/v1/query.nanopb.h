@@ -108,12 +108,26 @@ typedef struct _google_firestore_v1_Cursor {
 /* @@protoc_insertion_point(struct:google_firestore_v1_Cursor) */
 } google_firestore_v1_Cursor;
 
+typedef struct _google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg {
+    google_firestore_v1_StructuredQuery_FieldReference field;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg) */
+} google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg;
+
 typedef struct _google_firestore_v1_StructuredAggregationQuery_Aggregation_Count {
     google_protobuf_Int64Value up_to;
 
     std::string ToString(int indent = 0) const;
 /* @@protoc_insertion_point(struct:google_firestore_v1_StructuredAggregationQuery_Aggregation_Count) */
 } google_firestore_v1_StructuredAggregationQuery_Aggregation_Count;
+
+typedef struct _google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum {
+    google_firestore_v1_StructuredQuery_FieldReference field;
+
+    std::string ToString(int indent = 0) const;
+/* @@protoc_insertion_point(struct:google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum) */
+} google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum;
 
 typedef struct _google_firestore_v1_StructuredQuery_CollectionSelector {
     pb_bytes_array_t *collection_id;
@@ -164,6 +178,8 @@ typedef struct _google_firestore_v1_StructuredAggregationQuery_Aggregation {
     pb_size_t which_operator;
     union {
         google_firestore_v1_StructuredAggregationQuery_Aggregation_Count count;
+        google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum sum;
+        google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg avg;
     };
     pb_bytes_array_t *alias;
 
@@ -227,6 +243,8 @@ typedef struct _google_firestore_v1_StructuredAggregationQuery {
 #define google_firestore_v1_StructuredAggregationQuery_init_default {0, {google_firestore_v1_StructuredQuery_init_default}, 0, NULL}
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_init_default {0, {google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_default}, NULL}
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_default {google_protobuf_Int64Value_init_default}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_init_default {google_firestore_v1_StructuredQuery_FieldReference_init_default}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_init_default {google_firestore_v1_StructuredQuery_FieldReference_init_default}
 #define google_firestore_v1_Cursor_init_default  {0, NULL, 0}
 #define google_firestore_v1_StructuredQuery_init_zero {google_firestore_v1_StructuredQuery_Projection_init_zero, 0, NULL, google_firestore_v1_StructuredQuery_Filter_init_zero, 0, NULL, false, google_protobuf_Int32Value_init_zero, 0, google_firestore_v1_Cursor_init_zero, google_firestore_v1_Cursor_init_zero}
 #define google_firestore_v1_StructuredQuery_CollectionSelector_init_zero {NULL, 0}
@@ -240,6 +258,8 @@ typedef struct _google_firestore_v1_StructuredAggregationQuery {
 #define google_firestore_v1_StructuredAggregationQuery_init_zero {0, {google_firestore_v1_StructuredQuery_init_zero}, 0, NULL}
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_init_zero {0, {google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_zero}, NULL}
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_init_zero {google_protobuf_Int64Value_init_zero}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_init_zero {google_firestore_v1_StructuredQuery_FieldReference_init_zero}
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_init_zero {google_firestore_v1_StructuredQuery_FieldReference_init_zero}
 #define google_firestore_v1_Cursor_init_zero     {0, NULL, 0}
 
 /* Field tags (for use in manual encoding/decoding) */
@@ -247,7 +267,9 @@ typedef struct _google_firestore_v1_StructuredAggregationQuery {
 #define google_firestore_v1_StructuredQuery_Projection_fields_tag 2
 #define google_firestore_v1_Cursor_values_tag    1
 #define google_firestore_v1_Cursor_before_tag    2
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_field_tag 1
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_up_to_tag 1
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_field_tag 1
 #define google_firestore_v1_StructuredQuery_CollectionSelector_collection_id_tag 2
 #define google_firestore_v1_StructuredQuery_CollectionSelector_all_descendants_tag 3
 #define google_firestore_v1_StructuredQuery_CompositeFilter_op_tag 1
@@ -260,6 +282,8 @@ typedef struct _google_firestore_v1_StructuredAggregationQuery {
 #define google_firestore_v1_StructuredQuery_UnaryFilter_field_tag 2
 #define google_firestore_v1_StructuredQuery_UnaryFilter_op_tag 1
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_count_tag 1
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_sum_tag 2
+#define google_firestore_v1_StructuredAggregationQuery_Aggregation_avg_tag 3
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_alias_tag 7
 #define google_firestore_v1_StructuredQuery_Filter_composite_filter_tag 1
 #define google_firestore_v1_StructuredQuery_Filter_field_filter_tag 2
@@ -286,8 +310,10 @@ extern const pb_field_t google_firestore_v1_StructuredQuery_Order_fields[3];
 extern const pb_field_t google_firestore_v1_StructuredQuery_FieldReference_fields[2];
 extern const pb_field_t google_firestore_v1_StructuredQuery_Projection_fields[2];
 extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_fields[3];
-extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_fields[3];
+extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_fields[5];
 extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_fields[2];
+extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_fields[2];
+extern const pb_field_t google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_fields[2];
 extern const pb_field_t google_firestore_v1_Cursor_fields[3];
 
 /* Maximum encoded size of messages (where known) */
@@ -303,6 +329,8 @@ extern const pb_field_t google_firestore_v1_Cursor_fields[3];
 /* google_firestore_v1_StructuredAggregationQuery_size depends on runtime parameters */
 /* google_firestore_v1_StructuredAggregationQuery_Aggregation_size depends on runtime parameters */
 #define google_firestore_v1_StructuredAggregationQuery_Aggregation_Count_size 13
+/* google_firestore_v1_StructuredAggregationQuery_Aggregation_Sum_size depends on runtime parameters */
+/* google_firestore_v1_StructuredAggregationQuery_Aggregation_Avg_size depends on runtime parameters */
 /* google_firestore_v1_Cursor_size depends on runtime parameters */
 
 /* Message IDs (where set with "msgid" option) */

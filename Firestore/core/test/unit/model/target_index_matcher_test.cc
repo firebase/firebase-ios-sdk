@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
 #include "gtest/gtest.h"
@@ -511,6 +512,49 @@ TEST(TargetIndexMatcher, WithInAndOrderBySameField) {
                .AddingFilter(Filter("a", "in", Array(1, 2, 3)))
                .AddingOrderBy(OrderBy("a"));
   ValidateServesTarget(q, "a", Segment::Kind::kAscending);
+}
+
+TEST(TargetIndexMatcher, WithEqualityAndInequalityOnTheSameField) {
+  ValidateServesTarget(testutil::Query("collId")
+                           .AddingFilter(Filter("a", ">=", 5))
+                           .AddingFilter(Filter("a", "==", 0)),
+                       "a", Segment::Kind::kAscending);
+
+  ValidateServesTarget(testutil::Query("collId")
+                           .AddingFilter(Filter("a", ">=", 5))
+                           .AddingFilter(Filter("a", "==", 0))
+                           .AddingOrderBy(OrderBy("a")),
+                       "a", Segment::Kind::kAscending);
+
+  ValidateServesTarget(testutil::Query("collId")
+                           .AddingFilter(Filter("a", ">=", 5))
+                           .AddingFilter(Filter("a", "==", 0))
+                           .AddingOrderBy(OrderBy("a"))
+                           .AddingOrderBy(OrderBy("__name__")),
+                       "a", Segment::Kind::kAscending);
+
+  ValidateServesTarget(testutil::Query("collId")
+                           .AddingFilter(Filter("a", ">=", 5))
+                           .AddingFilter(Filter("a", "==", 0))
+                           .AddingOrderBy(OrderBy("a"))
+                           .AddingOrderBy(OrderBy("__name__", "desc")),
+                       "a", Segment::Kind::kAscending);
+
+  ValidateServesTarget(testutil::Query("collId")
+                           .AddingFilter(Filter("a", ">=", 5))
+                           .AddingFilter(Filter("a", "==", 0))
+                           .AddingOrderBy(OrderBy("a"))
+                           .AddingOrderBy(OrderBy("b"))
+                           .AddingOrderBy(OrderBy("__name__", "desc")),
+                       "a", Segment::Kind::kAscending, "b",
+                       Segment::Kind::kAscending);
+
+  ValidateServesTarget(testutil::Query("collId")
+                           .AddingFilter(Filter("a", ">=", 5))
+                           .AddingFilter(Filter("a", "==", 0))
+                           .AddingOrderBy(OrderBy("a", "desc"))
+                           .AddingOrderBy(OrderBy("__name__", "desc")),
+                       "a", Segment::Kind::kDescending);
 }
 
 }  //  namespace

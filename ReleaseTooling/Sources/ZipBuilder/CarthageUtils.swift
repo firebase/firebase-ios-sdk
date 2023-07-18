@@ -304,7 +304,8 @@ extension CarthageUtils {
   }
 
   /// Get the JSON filename for a product
-  /// Consider using just the product name post Firebase 7. The conditions are to handle Firebase 6 compatibility.
+  /// Consider using just the product name post Firebase 7. The conditions are to handle Firebase 6
+  /// compatibility.
   ///
   /// - Parameters:
   ///   - product: The name of the Firebase product.

@@ -25,7 +25,8 @@
     @available(tvOS, unavailable)
     @available(watchOS, unavailable)
     public extension MultiFactorResolver {
-      /// A helper function that helps users sign in with a second factor using a `MultiFactorAssertion`.
+      /// A helper function that helps users sign in with a second factor using a
+      /// `MultiFactorAssertion`.
       /// This assertion confirms that the user has successfully completed the second factor.
       ///
       /// - Parameter assertion: The base class for asserting ownership of a second factor.

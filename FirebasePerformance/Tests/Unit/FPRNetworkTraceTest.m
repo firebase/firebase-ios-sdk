@@ -433,7 +433,7 @@
   NSURLRequest *URLRequest = [NSURLRequest requestWithURL:URL];
   FPRNetworkTrace *networkTrace = [[FPRNetworkTrace alloc] initWithURLRequest:URLRequest];
   XCTAssertNotNil(networkTrace);
-  XCTAssertEqual(networkTrace.URLRequest.URL.absoluteString, urlString);
+  XCTAssertEqualObjects(networkTrace.URLRequest.URL.absoluteString, urlString);
 }
 
 /** Validates that every trace contains a session Id. */

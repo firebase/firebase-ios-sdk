@@ -19,11 +19,15 @@ import FirebaseAuthInterop
 import FirebaseMessagingInterop
 import XCTest
 
-/// This file was intitialized as a direct port of `FirebaseFunctionsSwift/Tests/IntegrationTests.swift`
-/// which itself was ported from the Objective-C `FirebaseFunctions/Tests/Integration/FIRIntegrationTests.m`
+/// This file was intitialized as a direct port of
+/// `FirebaseFunctionsSwift/Tests/IntegrationTests.swift`
+/// which itself was ported from the Objective-C
+/// `FirebaseFunctions/Tests/Integration/FIRIntegrationTests.m`
 ///
-/// The tests require the emulator to be running with `FirebaseFunctions/Backend/start.sh synchronous`
-/// The Firebase Functions called in the tests are implemented in `FirebaseFunctions/Backend/index.js`.
+/// The tests require the emulator to be running with `FirebaseFunctions/Backend/start.sh
+/// synchronous`
+/// The Firebase Functions called in the tests are implemented in
+/// `FirebaseFunctions/Backend/index.js`.
 
 struct DataTestRequest: Encodable {
   var bool: Bool

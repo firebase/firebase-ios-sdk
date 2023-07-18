@@ -850,7 +850,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)reauthenticateWithProvider:(id<FIRFederatedAuthProvider>)provider
                         UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                         completion:(nullable FIRAuthDataResultCallback)completion {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [provider getCredentialWithUIDelegate:UIDelegate
                                completion:^(FIRAuthCredential *_Nullable credential,
@@ -863,7 +863,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                          completion:completion];
                                }];
   });
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 }
 
 - (nullable NSString *)refreshToken {
@@ -1339,7 +1339,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 - (void)linkWithProvider:(id<FIRFederatedAuthProvider>)provider
               UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
               completion:(nullable FIRAuthDataResultCallback)completion {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     [provider getCredentialWithUIDelegate:UIDelegate
                                completion:^(FIRAuthCredential *_Nullable credential,
@@ -1351,7 +1351,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                  [self linkWithCredential:credential completion:completion];
                                }];
   });
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 }
 
 - (void)unlinkFromProvider:(NSString *)provider

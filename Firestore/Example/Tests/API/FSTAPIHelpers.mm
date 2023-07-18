@@ -163,4 +163,18 @@ FIRQuerySnapshot *FSTTestQuerySnapshot(
                                             metadata:std::move(metadata)];
 }
 
+@implementation FSTNSExceptionUtil
+
++ (BOOL)testForException:(nonnull void (^)())methodToTry
+          reasonContains:(nonnull NSString *)substring {
+  @try {
+    methodToTry();
+    return NO;
+  } @catch (NSException *exception) {
+    return [[exception reason] containsString:substring];
+  }
+}
+
+@end
+
 NS_ASSUME_NONNULL_END

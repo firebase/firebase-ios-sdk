@@ -33,6 +33,7 @@
 #include "Firestore/core/src/core/firestore_client.h"
 #include "Firestore/core/src/core/listen_options.h"
 #include "Firestore/core/src/core/operator.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/model/resource_path.h"
 #include "Firestore/core/src/model/value_util.h"
 #include "Firestore/core/src/nanopb/nanopb_util.h"
@@ -57,6 +58,8 @@ using core::IsDisjunctiveOperator;
 using core::ListenOptions;
 using core::QueryListener;
 using core::ViewSnapshot;
+using model::AggregateAlias;
+using model::AggregateField;
 using model::DocumentKey;
 using model::FieldPath;
 using model::GetTypeOrder;
@@ -473,8 +476,17 @@ std::string Query::Describe(Operator op) const {
   UNREACHABLE();
 }
 
+AggregateQuery Query::Aggregate(
+    std::vector<AggregateField>&& aggregations) const {
+  return AggregateQuery(*this, std::move(aggregations));
+}
+
+// TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+// to the new Aggregate API
 AggregateQuery Query::Count() const {
-  return AggregateQuery(*this);
+  return AggregateQuery(
+      *this, std::vector<AggregateField>{AggregateField(
+                 AggregateField::OpKind::Count, AggregateAlias("count"))});
 }
 
 }  // namespace api

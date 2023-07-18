@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, copy, readonly, nullable) NSString *phoneInfo;
 
+@property(nonatomic, copy, readonly, nullable) NSObject *TOTPInfo;
+
 @property(nonatomic, copy, readonly, nullable) NSString *MFAEnrollmentID;
 
 @property(nonatomic, copy, readonly, nullable) NSString *displayName;

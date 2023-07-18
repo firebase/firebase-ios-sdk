@@ -112,12 +112,12 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 
   // The `userInfo` property isn't available on newer versions of tvOS.
 #if TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_WATCH
-  NSString *currentImageURL = content.userInfo[kPayloadOptionsName][kPayloadOptionsImageURLName];
-  if (!currentImageURL) {
+  NSObject *currentImageURL = content.userInfo[kPayloadOptionsName][kPayloadOptionsImageURLName];
+  if (!currentImageURL || currentImageURL == [NSNull null]) {
     [self deliverNotification];
     return;
   }
-  NSURL *attachmentURL = [NSURL URLWithString:currentImageURL];
+  NSURL *attachmentURL = [NSURL URLWithString:(NSString *)currentImageURL];
   if (attachmentURL) {
     [self loadAttachmentForURL:attachmentURL
              completionHandler:^(UNNotificationAttachment *attachment) {

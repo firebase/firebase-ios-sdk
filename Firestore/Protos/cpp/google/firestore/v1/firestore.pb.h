@@ -60,6 +60,7 @@
 #include "google/firestore/v1/write.pb.h"
 #include <google/protobuf/empty.pb.h>
 #include <google/protobuf/timestamp.pb.h>
+#include <google/protobuf/wrappers.pb.h>
 #include "google/rpc/status.pb.h"
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
@@ -4830,6 +4831,7 @@ class Target :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kExpectedCountFieldNumber = 12,
     kTargetIdFieldNumber = 5,
     kOnceFieldNumber = 6,
     kQueryFieldNumber = 2,
@@ -4837,6 +4839,21 @@ class Target :
     kResumeTokenFieldNumber = 4,
     kReadTimeFieldNumber = 11,
   };
+  // .google.protobuf.Int32Value expected_count = 12;
+  bool has_expected_count() const;
+  private:
+  bool _internal_has_expected_count() const;
+  public:
+  void clear_expected_count();
+  const PROTOBUF_NAMESPACE_ID::Int32Value& expected_count() const;
+  PROTOBUF_NAMESPACE_ID::Int32Value* release_expected_count();
+  PROTOBUF_NAMESPACE_ID::Int32Value* mutable_expected_count();
+  void set_allocated_expected_count(PROTOBUF_NAMESPACE_ID::Int32Value* expected_count);
+  private:
+  const PROTOBUF_NAMESPACE_ID::Int32Value& _internal_expected_count() const;
+  PROTOBUF_NAMESPACE_ID::Int32Value* _internal_mutable_expected_count();
+  public:
+
   // int32 target_id = 5;
   void clear_target_id();
   ::PROTOBUF_NAMESPACE_ID::int32 target_id() const;
@@ -4938,6 +4955,7 @@ class Target :
   inline void clear_has_resume_type();
 
   ::PROTOBUF_NAMESPACE_ID::internal::InternalMetadataWithArena _internal_metadata_;
+  PROTOBUF_NAMESPACE_ID::Int32Value* expected_count_;
   ::PROTOBUF_NAMESPACE_ID::int32 target_id_;
   bool once_;
   union TargetTypeUnion {
@@ -10597,6 +10615,61 @@ inline void Target::_internal_set_once(bool value) {
 inline void Target::set_once(bool value) {
   _internal_set_once(value);
   // @@protoc_insertion_point(field_set:google.firestore.v1.Target.once)
+}
+
+// .google.protobuf.Int32Value expected_count = 12;
+inline bool Target::_internal_has_expected_count() const {
+  return this != internal_default_instance() && expected_count_ != nullptr;
+}
+inline bool Target::has_expected_count() const {
+  return _internal_has_expected_count();
+}
+inline const PROTOBUF_NAMESPACE_ID::Int32Value& Target::_internal_expected_count() const {
+  const PROTOBUF_NAMESPACE_ID::Int32Value* p = expected_count_;
+  return p != nullptr ? *p : *reinterpret_cast<const PROTOBUF_NAMESPACE_ID::Int32Value*>(
+      &PROTOBUF_NAMESPACE_ID::_Int32Value_default_instance_);
+}
+inline const PROTOBUF_NAMESPACE_ID::Int32Value& Target::expected_count() const {
+  // @@protoc_insertion_point(field_get:google.firestore.v1.Target.expected_count)
+  return _internal_expected_count();
+}
+inline PROTOBUF_NAMESPACE_ID::Int32Value* Target::release_expected_count() {
+  // @@protoc_insertion_point(field_release:google.firestore.v1.Target.expected_count)
+  
+  PROTOBUF_NAMESPACE_ID::Int32Value* temp = expected_count_;
+  expected_count_ = nullptr;
+  return temp;
+}
+inline PROTOBUF_NAMESPACE_ID::Int32Value* Target::_internal_mutable_expected_count() {
+  
+  if (expected_count_ == nullptr) {
+    auto* p = CreateMaybeMessage<PROTOBUF_NAMESPACE_ID::Int32Value>(GetArenaNoVirtual());
+    expected_count_ = p;
+  }
+  return expected_count_;
+}
+inline PROTOBUF_NAMESPACE_ID::Int32Value* Target::mutable_expected_count() {
+  // @@protoc_insertion_point(field_mutable:google.firestore.v1.Target.expected_count)
+  return _internal_mutable_expected_count();
+}
+inline void Target::set_allocated_expected_count(PROTOBUF_NAMESPACE_ID::Int32Value* expected_count) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == nullptr) {
+    delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(expected_count_);
+  }
+  if (expected_count) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(expected_count)->GetArena();
+    if (message_arena != submessage_arena) {
+      expected_count = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, expected_count, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  expected_count_ = expected_count;
+  // @@protoc_insertion_point(field_set_allocated:google.firestore.v1.Target.expected_count)
 }
 
 inline bool Target::has_target_type() const {

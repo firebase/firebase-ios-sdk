@@ -43,7 +43,8 @@ struct ContentView: View {
               .fontWeight(.semibold)
             Text(identity.token ?? "None")
               .foregroundColor(.green)
-              // Increase the layout priority to allow more than one line to be shown. Without this, the
+              // Increase the layout priority to allow more than one line to be shown. Without this,
+              // the
               // simulator renders a single truncated line even though the Preview renders it
               // appropriately. Potentially a bug in the simulator?
               .layoutPriority(1)
@@ -248,7 +249,8 @@ struct ContentView_Previews: PreviewProvider {
     var identity = Identity()
     identity.installationsID = UUID().uuidString
 
-    // The token is a long string, generate a very long repeating string of characters to see how the view
+    // The token is a long string, generate a very long repeating string of characters to see how
+    // the view
     // will react.
     let longString = UUID().uuidString.replacingOccurrences(of: "-", with: "")
     identity.token = Array(repeating: longString, count: 8).reduce("", +)

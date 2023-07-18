@@ -915,7 +915,7 @@ void FIRCLSDwarfPointerEncodingShow(const char* leadString, uint8_t encoding) {
   if (encoding == DW_EH_PE_omit) {
     FIRCLSSDKLog("%s: 0x%02x (omit)\n", leadString, encoding);
   } else {
-    const char* peValue = "";
+    const char* peValue = "unknown";
     const char* peOffset = "";
 
     switch (encoding & DW_EH_PE_VALUE_MASK) {
@@ -950,7 +950,6 @@ void FIRCLSDwarfPointerEncodingShow(const char* leadString, uint8_t encoding) {
         peValue = "DW_EH_PE_sdata8";
         break;
       default:
-        peValue = "unknown";
         break;
     }
 

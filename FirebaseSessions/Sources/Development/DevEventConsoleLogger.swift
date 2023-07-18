@@ -48,6 +48,8 @@ class DevEventConsoleLogger: EventGDTLoggerProtocol {
           session_sampling_rate: \(proto.session_data.data_collection_status.session_sampling_rate)
       application_info
         app_id: \(proto.application_info.app_id.description)
+        session_sdk_version: \(proto.application_info.session_sdk_version.description)
+        os_version: \(proto.application_info.os_version.description)
         device_model: \(proto.application_info.device_model.description)
         development_platform_name: \(proto.application_info.development_platform_name.description)
         development_platform_version: \(proto.application_info.development_platform_version
@@ -56,6 +58,7 @@ class DevEventConsoleLogger: EventGDTLoggerProtocol {
         apple_app_info
           bundle_short_version: \(proto.application_info.apple_app_info.bundle_short_version
       .description)
+          app_build_version: \(proto.application_info.apple_app_info.app_build_version.description)
           network_connection_info
             network_type: \(proto.application_info.apple_app_info.network_connection_info
       .network_type.rawValue)

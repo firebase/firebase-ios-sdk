@@ -2,7 +2,7 @@
 
 First, make sure you have necessary prereqs for building:
 ```
-brew install automake libtool protobuf golang
+brew install automake libtool protobuf golang cmake
 ```
 
 Take a nap while that completes. Then, build the protos:

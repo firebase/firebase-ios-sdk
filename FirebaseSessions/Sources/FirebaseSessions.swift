@@ -123,7 +123,8 @@ private enum GoogleDataTransportConfig {
     }
   }
 
-  // Initializes the SDK and begines the process of listening for lifecycle events and logging events
+  // Initializes the SDK and begines the process of listening for lifecycle events and logging
+  // events
   init(appID: String, sessionGenerator: SessionGenerator, coordinator: SessionCoordinatorProtocol,
        initiator: SessionInitiator, appInfo: ApplicationInfoProtocol, settings: SettingsProtocol,
        loggedEventCallback: @escaping (Result<Void, FirebaseSessionsError>) -> Void) {

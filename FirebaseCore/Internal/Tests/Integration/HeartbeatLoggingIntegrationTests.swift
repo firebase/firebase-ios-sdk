@@ -14,7 +14,6 @@
 
 import XCTest
 @testable import FirebaseCoreInternal
-import HeartbeatLoggingTestUtils
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)

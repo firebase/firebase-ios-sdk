@@ -475,9 +475,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
   if (self) {
     _app = app;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
     _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
-#endif
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   }
   return self;
 }
@@ -654,7 +654,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                 completion:(nullable FIRAuthDataResultCallback)completion {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback decoratedCallback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
@@ -671,7 +671,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                                         callback:decoratedCallback];
                                }];
   });
-#endif  // TARGET_OS_IOS
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 }
 
 - (void)fetchSignInMethodsForEmail:(nonnull NSString *)email
@@ -1761,11 +1761,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                               completion:(nullable void (^)(NSError *_Nullable error))completion {
   [self.currentUser
       getIDTokenWithCompletion:^(NSString *_Nullable idToken, NSError *_Nullable error) {
-        if (completion) {
-          if (error) {
+        if (error) {
+          if (completion) {
             completion(error);
-            return;
           }
+          return;
         }
         FIRRevokeTokenRequest *request =
             [[FIRRevokeTokenRequest alloc] initWithToken:authorizationCode
@@ -1875,9 +1875,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (BOOL)canHandleURL:(NSURL *)URL {
   __block BOOL result = NO;
+#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     result = [self->_authURLPresenter canHandleURL:URL];
   });
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   return result;
 }
 
@@ -1940,8 +1942,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @param completion A block which is invoked when the custom token sign in request completes.
  */
 - (void)internalSignInAndRetrieveDataWithCustomToken:(NSString *)token
-                                          completion:
-                                              (nullable FIRAuthDataResultCallback)completion {
+                                          completion:(FIRAuthDataResultCallback)completion {
   FIRVerifyCustomTokenRequest *request =
       [[FIRVerifyCustomTokenRequest alloc] initWithToken:token
                                     requestConfiguration:_requestConfiguration];
@@ -1950,10 +1951,8 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                callback:^(FIRVerifyCustomTokenResponse *_Nullable response,
                           NSError *_Nullable error) {
                  if (error) {
-                   if (completion) {
-                     completion(nil, error);
-                     return;
-                   }
+                   completion(nil, error);
+                   return;
                  }
                  [self completeSignInWithAccessToken:response.IDToken
                            accessTokenExpirationDate:response.approximateExpirationDate
@@ -1961,7 +1960,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                            anonymous:NO
                                             callback:^(FIRUser *_Nullable user,
                                                        NSError *_Nullable error) {
-                                              if (error && completion) {
+                                              if (error) {
                                                 completion(nil, error);
                                                 return;
                                               }
@@ -1976,9 +1975,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                                    initWithUser:user
                                                              additionalUserInfo:additonalUserInfo]
                                                        : nil;
-                                              if (completion) {
-                                                completion(result, error);
-                                              }
+                                              completion(result, error);
                                             }];
                }];
 }

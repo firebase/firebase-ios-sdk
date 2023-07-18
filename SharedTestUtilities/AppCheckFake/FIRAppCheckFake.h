@@ -25,6 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 /** The tokenResult to be passed to `-[getTokenWithCompletion:]` completion handler. */
 @property(nonatomic, nonnull) id<FIRAppCheckTokenResultInterop> tokenResult;
 
+/** The token result to be passed to `-[getLimitedUseTokenWithCompletion:]` completion handler. */
+@property(nonatomic, nonnull) id<FIRAppCheckTokenResultInterop> limitedUseTokenResult;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -14,7 +14,6 @@
 
 import XCTest
 @testable import FirebaseCoreInternal
-import HeartbeatLoggingTestUtils
 
 class HeartbeatsPayloadTests: XCTestCase {
   func testPayloadCurrentVersion() throws {

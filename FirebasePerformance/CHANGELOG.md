@@ -1,3 +1,10 @@
+# 10.12.0
+- [fixed] Make Firebase performance compatible with Xcode15.
+- [changed] Removed the capability to access Carrier information of the device since that API is deprecated by Apple.
+
+# 10.11.0
+- [fixed] Fixed a bug to disable data collection if the data collection was disabled before Firebase application was configured.
+
 # 10.9.0
 - [fixed] Fixed a memory leak when generating session events (#11027).
 

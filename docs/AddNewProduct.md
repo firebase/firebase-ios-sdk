@@ -20,6 +20,10 @@ Existing Firebase Swift implementations can be helpful. However, note that they 
 Objective C ports and do not take advantage of Swift features like structs, default arguments, and
 async/await as much as new implementations should.
 
+### Swift APIs
+
+[Apple's API design guidelines](https://www.swift.org/documentation/api-design-guidelines/)
+
 ### Swift Style
 
 Follow this [Style Guide](https://google.github.io/swift/).

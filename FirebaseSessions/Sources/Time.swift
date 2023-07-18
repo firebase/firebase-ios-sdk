@@ -20,7 +20,8 @@ protocol TimeProvider {
 }
 
 ///
-/// Time is provides timestamp values in different formats to classes in the Sessions SDK. It mainly exists for testing purposes.
+/// Time is provides timestamp values in different formats to classes in the Sessions SDK. It mainly
+/// exists for testing purposes.
 ///
 class Time: TimeProvider {
   // Returns the current time as a timestamp in microseconds

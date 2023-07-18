@@ -314,13 +314,13 @@ import FirebaseAuthInterop
     (suggestedWillRetry: Bool,
      error: Error?,
      response: @escaping GTMSessionFetcherRetryResponse) in
-      var shouldRetry = suggestedWillRetry
-      // GTMSessionFetcher does not consider being offline a retryable error, but we do, so we
-      // special-case it here.
-      if !shouldRetry, error != nil {
-        shouldRetry = (error as? NSError)?.code == URLError.notConnectedToInternet.rawValue
-      }
-      response(shouldRetry)
+    var shouldRetry = suggestedWillRetry
+    // GTMSessionFetcher does not consider being offline a retryable error, but we do, so we
+    // special-case it here.
+    if !shouldRetry, error != nil {
+      shouldRetry = (error as? NSError)?.code == URLError.notConnectedToInternet.rawValue
+    }
+    response(shouldRetry)
   }
 
   private static func initFetcherServiceForApp(_ app: FirebaseApp,

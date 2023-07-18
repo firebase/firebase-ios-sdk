@@ -33,7 +33,8 @@ public struct RemoteConfigProperty<T: Decodable>: DynamicProperty {
   /// Creates an instance by providing a config key.
   ///
   /// - Parameter key: key name
-  /// - Parameter fallback: The value to fall back to if the key doesn't exist in remote or default configs
+  /// - Parameter fallback: The value to fall back to if the key doesn't exist in remote or default
+  /// configs
   public init(key: String, fallback: T) {
     self.key = key
 

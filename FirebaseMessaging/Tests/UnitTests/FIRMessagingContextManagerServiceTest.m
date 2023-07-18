@@ -36,7 +36,8 @@ static NSString *const kMessageIdentifierValue = @"1584748495200141";
 
 @interface FIRMessagingContextManagerService (ExposedForTest)
 + (void)scheduleiOS10LocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date;
-+ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message;
++ (UNMutableNotificationContent *)contentFromContextualMessage:(NSDictionary *)message
+    API_AVAILABLE(macos(10.14));
 @end
 
 API_AVAILABLE(macos(10.14))
@@ -44,8 +45,7 @@ API_AVAILABLE(macos(10.14))
 
 @property(nonatomic, readwrite, strong) NSDateFormatter *dateFormatter;
 @property(nonatomic, readwrite, strong) NSMutableArray *scheduledLocalNotifications;
-@property(nonatomic, readwrite, strong)
-    NSMutableArray<UNNotificationRequest *> *requests API_AVAILABLE(ios(10.0), macos(10.4));
+@property(nonatomic, readwrite, strong) NSMutableArray<UNNotificationRequest *> *requests;
 
 @end
 
@@ -57,7 +57,7 @@ API_AVAILABLE(macos(10.14))
   self.dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
   [self.dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
   self.scheduledLocalNotifications = [[NSMutableArray alloc] init];
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     self.requests = [[NSMutableArray alloc] init];
   }
 
@@ -104,7 +104,7 @@ API_AVAILABLE(macos(10.14))
   };
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
 
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     XCTAssertEqual(self.requests.count, 1);
     UNNotificationRequest *request = self.requests.firstObject;
     XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
@@ -146,7 +146,7 @@ API_AVAILABLE(macos(10.14))
   };
 
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     XCTAssertEqual(self.requests.count, 0);
     return;
   }
@@ -176,7 +176,7 @@ API_AVAILABLE(macos(10.14))
 
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
 
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     XCTAssertEqual(self.requests.count, 1);
     UNNotificationRequest *request = self.requests.firstObject;
     XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
@@ -216,7 +216,7 @@ API_AVAILABLE(macos(10.14))
   };
 
   XCTAssertTrue([FIRMessagingContextManagerService handleContextManagerMessage:message]);
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     XCTAssertEqual(self.requests.count, 1);
     UNNotificationRequest *request = self.requests.firstObject;
     XCTAssertEqualObjects(request.identifier, kMessageIdentifierValue);
@@ -278,7 +278,7 @@ API_AVAILABLE(macos(10.14))
 }
 
 - (void)testScheduleiOS10LocalNotification {
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     id mockContextManagerService = OCMClassMock([FIRMessagingContextManagerService class]);
     NSDictionary *message = @{};
 
@@ -290,7 +290,7 @@ API_AVAILABLE(macos(10.14))
 }
 
 - (void)testContentFromConetxtualMessage {
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     NSDictionary *message = @{
       @"aps" : @{@"content-available" : @1},
       @"gcm.message_id" : @1623702615599207,

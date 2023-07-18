@@ -59,7 +59,8 @@ struct ZipBuilder {
     /// The directory that contains the properly assembled release artifacts.
     let zipDir: URL
 
-    /// The directory that contains the properly assembled release artifacts for Carthage if building it.
+    /// The directory that contains the properly assembled release artifacts for Carthage if
+    /// building it.
     let carthageDir: URL?
   }
 
@@ -375,7 +376,8 @@ struct ZipBuilder {
   /// 4. Assemble the `README` file based off the template and copy it to the directory.
   /// 5. Return the URL of the folder containing the contents of the Zip file.
   ///
-  /// - Returns: Return the URL of the folder containing the contents of the Zip or Carthage distribution.
+  /// - Returns: Return the URL of the folder containing the contents of the Zip or Carthage
+  /// distribution.
   /// - Throws: One of many errors that could have happened during the build phase.
   private func assembleDistributions(withPackageKind packageKind: String,
                                      podsToInstall: [CocoaPodUtils.VersionedPod],
@@ -613,7 +615,8 @@ struct ZipBuilder {
     return copiedFrameworkNames
   }
 
-  /// Copies required files from the Firebase pod (`Firebase.h`, `module.modulemap`, and `NOTICES`) into
+  /// Copies required files from the Firebase pod (`Firebase.h`, `module.modulemap`, and `NOTICES`)
+  /// into
   /// the given `zipDir`. Will cause a fatalError if anything fails since the zip file can't exist
   /// without these files.
   private func copyFirebasePodFiles(fromDir firebasePodDir: URL, to zipDir: URL) {
@@ -730,7 +733,8 @@ struct ZipBuilder {
                                              frameworksToIgnore: frameworksToIgnore)
 
     let copiedFrameworks = namedFrameworks.filter {
-      // Skip frameworks that aren't contained in the "frameworksToIgnore" array and the Firebase pod.
+      // Skip frameworks that aren't contained in the "frameworksToIgnore" array and the Firebase
+      // pod.
       !(frameworksToIgnore.contains($0) || $0 == "Firebase")
     }
 

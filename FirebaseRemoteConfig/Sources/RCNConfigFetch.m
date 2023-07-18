@@ -208,31 +208,6 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
     if (strongSelf == nil) {
       return;
     }
-
-    // Check if a fetch is already in progress.
-    // TODO: for this case should we still return a SUCCESS status?
-    if (strongSelf->_settings.isFetchInProgress) {
-      // Check if we have some fetched data.
-      if (strongSelf->_settings.lastFetchTimeInterval > 0) {
-        FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000052",
-                    @"A fetch is already in progress. Using previous fetch results.");
-        FIRRemoteConfigUpdate *update =
-            [self->_content getConfigUpdateForNamespace:self->_FIRNamespace];
-        return [strongSelf reportCompletionWithStatus:strongSelf->_settings.lastFetchStatus
-                                           withUpdate:update
-                                            withError:nil
-                                    completionHandler:nil
-                              updateCompletionHandler:completionHandler];
-      } else {
-        FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000053",
-                    @"A fetch is already in progress. Ignoring duplicate request.");
-        return [strongSelf reportCompletionWithStatus:FIRRemoteConfigFetchStatusFailure
-                                           withUpdate:nil
-                                            withError:nil
-                                    completionHandler:nil
-                              updateCompletionHandler:completionHandler];
-      }
-    }
     // Check whether cache data is within throttle limit.
     if ([strongSelf->_settings shouldThrottle] && !hasDeviceContextChanged) {
       // Must set lastFetchStatus before FailReason.

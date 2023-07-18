@@ -13,9 +13,13 @@
 // limitations under the License.
 
 #import "Crashlytics/UnitTests/FIRCLSMachO/FIRCLSMachOTests.h"
+#include <mach-o/dyld.h>
+#include <mach-o/getsect.h>
+#include <mach-o/utils.h>
+
+#include "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachO.h"
-
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOBinary.h"
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSMachOSlice.h"
 #import "Crashlytics/Shared/FIRCLSMachO/FIRCLSdSYM.h"
@@ -313,6 +317,7 @@
   XCTAssert(ptr != NULL);
 }
 
+#if !CLS_TARGET_OS_XR
 - (void)testReadArm64Section {
   NSString* path = [[self resourcePath] stringByAppendingPathComponent:@"armv7-armv7s-arm64.dylib"];
   struct FIRCLSMachOFile file;
@@ -333,5 +338,17 @@
   XCTAssert(FIRCLSMachOSliceGetSectionByName(&slice, SEG_TEXT, "__unwind_info", &ptr));
   XCTAssert(ptr != NULL);
 }
+#endif
+
+#if CLS_TARGET_OS_XR
+
+- (void)testVisionProGetSlice {
+  struct FIRCLSMachOSlice slice = FIRCLSMachOSliceGetCurrent();
+  XCTAssertEqual(slice.cputype, CPU_TYPE_ARM64);
+
+  const char* archname = macho_arch_name_for_mach_header(NULL);
+  XCTAssertEqualObjects(@(archname), @"arm64");
+}
+#endif
 
 @end

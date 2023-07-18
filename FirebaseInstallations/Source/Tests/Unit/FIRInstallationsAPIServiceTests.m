@@ -18,7 +18,7 @@
 
 #import <OCMock/OCMock.h>
 
-@import HeartbeatLoggingTestUtils;
+@import FirebaseCoreInternal;
 
 #import "FBLPromise+Testing.h"
 #import "FirebaseInstallations/Source/Tests/Utils/FIRInstallationsItem+Tests.h"

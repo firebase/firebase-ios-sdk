@@ -827,12 +827,22 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
       experimentMetadata = [[NSMutableDictionary alloc] init];
     }
 
+    /// Load activated experiments payload.
+    NSMutableArray *activeExperimentPayloads =
+        [strongSelf loadExperimentTableFromKey:@RCNExperimentTableKeyActivePayload];
+    if (!activeExperimentPayloads) {
+      activeExperimentPayloads = [[NSMutableArray alloc] init];
+    }
+
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(
             YES, @{
               @RCNExperimentTableKeyPayload : [experimentPayloads copy],
-              @RCNExperimentTableKeyMetadata : [experimentMetadata copy]
+              @RCNExperimentTableKeyMetadata : [experimentMetadata copy],
+              /// Activated experiments only need ExperimentsDescriptions data, which
+              /// experimentPayloads contains.
+              @RCNExperimentTableKeyActivePayload : [activeExperimentPayloads copy]
             });
       });
     }

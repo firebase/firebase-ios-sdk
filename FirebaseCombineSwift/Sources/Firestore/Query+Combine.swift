@@ -25,7 +25,8 @@
     /// Reads the documents matching this query.
     ///
     /// - Parameter source: Indicates whether the results should be fetched from the cache only
-    ///   (`Source.cache`), the server only (`Source.server`), or to attempt the server and fall back
+    ///   (`Source.cache`), the server only (`Source.server`), or to attempt the server and fall
+    /// back
     ///   to the cache (`Source.default`).
     /// - Returns: A publisher emitting a `QuerySnapshot` instance.
     func getDocuments(source: FirestoreSource = .default) -> Future<QuerySnapshot, Error> {

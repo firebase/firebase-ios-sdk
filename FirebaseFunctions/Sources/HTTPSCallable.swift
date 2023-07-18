@@ -50,6 +50,8 @@ open class HTTPSCallable: NSObject {
 
   private let endpoint: EndpointType
 
+  private let options: HTTPSCallableOptions?
+
   // MARK: - Public Properties
 
   /**
@@ -57,13 +59,15 @@ open class HTTPSCallable: NSObject {
    */
   @objc open var timeoutInterval: TimeInterval = 70
 
-  internal init(functions: Functions, name: String) {
+  internal init(functions: Functions, name: String, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
+    self.options = options
     endpoint = .name(name)
   }
 
-  internal init(functions: Functions, url: URL) {
+  internal init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
+    self.options = options
     endpoint = .url(url)
   }
 
@@ -105,11 +109,13 @@ open class HTTPSCallable: NSObject {
     case let .name(name):
       functions.callFunction(name: name,
                              withObject: data,
+                             options: options,
                              timeout: timeoutInterval,
                              completion: callback)
     case let .url(url):
       functions.callFunction(url: url,
                              withObject: data,
+                             options: options,
                              timeout: timeoutInterval,
                              completion: callback)
     }

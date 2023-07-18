@@ -22,7 +22,7 @@
 @implementation FIRIAMMessageRenderData
 
 - (instancetype)initWithMessageID:(NSString *)messageID
-                      messageName:(NSString *)messageName
+                      messageName:(nullable NSString *)messageName
                       contentData:(id<FIRIAMMessageContentData>)contentData
                   renderingEffect:(FIRIAMRenderingEffectSetting *)renderEffect {
   if (self = [super init]) {

@@ -24,7 +24,7 @@
 #pragma mark - NSURLConnectionDelegate methods
 
 /** Returns the dispatch queue for all instrumentation to occur on. */
-static dispatch_queue_t GetInstrumentationQueue() {
+static dispatch_queue_t GetInstrumentationQueue(void) {
   static dispatch_queue_t queue;
   static dispatch_once_t token;
   dispatch_once(&token, ^{

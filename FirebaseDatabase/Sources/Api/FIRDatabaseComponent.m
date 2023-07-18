@@ -32,7 +32,7 @@ typedef NSMutableDictionary<NSString *, FIRDatabase *> FIRDatabaseDictionary;
 
 @interface FIRDatabaseComponent () <FIRComponentLifecycleMaintainer, FIRLibrary>
 @property(nonatomic) FIRDatabaseDictionary *instances;
-/// Internal intializer.
+/// Internal initializer.
 - (instancetype)initWithApp:(FIRApp *)app;
 @end
 

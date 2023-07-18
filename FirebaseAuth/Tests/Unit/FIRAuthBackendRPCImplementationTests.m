@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-@import HeartbeatLoggingTestUtils;
+@import FirebaseCoreInternal;
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"

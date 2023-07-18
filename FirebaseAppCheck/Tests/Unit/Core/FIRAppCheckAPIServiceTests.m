@@ -19,7 +19,7 @@
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
-@import HeartbeatLoggingTestUtils;
+@import FirebaseCoreInternal;
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>

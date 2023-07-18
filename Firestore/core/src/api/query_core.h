@@ -20,11 +20,15 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Firestore/core/src/api/api_fwd.h"
 #include "Firestore/core/src/core/core_fwd.h"
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/model/aggregate_field.h"
 #include "Firestore/core/src/nanopb/message.h"
+
+using firebase::firestore::model::AggregateField;
 
 namespace firebase {
 namespace firestore {
@@ -187,8 +191,23 @@ class Query {
   }
 
   /**
+   * Creates a new `AggregateQuery` that performs the specified aggregations.
+   *
+   * @param aggregations The aggregations to be performed by the created
+   * `AggregateQuery`.
+   *
+   * @return The created `AggregateQuery`.
+   */
+  AggregateQuery Aggregate(std::vector<AggregateField>&& aggregations) const;
+
+  // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
+  // to the new Aggregate API
+  /**
    * Creates a new `AggregateQuery` counting the number of documents matching
-   * this query.
+   * this query. This API is preserved for backward-compatibility with
+   * the c++ SDK.
+   *
+   * @return The created `AggregateQuery`.
    */
   AggregateQuery Count() const;
 

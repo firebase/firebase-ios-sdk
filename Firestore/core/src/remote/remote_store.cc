@@ -39,6 +39,7 @@ using core::Transaction;
 using local::LocalStore;
 using local::QueryPurpose;
 using local::TargetData;
+using model::AggregateField;
 using model::BatchId;
 using model::DocumentKeySet;
 using model::kBatchIdUnknown;
@@ -193,7 +194,16 @@ void RemoteStore::SendWatchRequest(const TargetData& target_data) {
   // We need to increment the expected number of pending responses we're due
   // from watch so we wait for the ack to process any messages from this target.
   watch_change_aggregator_->RecordPendingTargetRequest(target_data.target_id());
-  watch_stream_->WatchQuery(target_data);
+
+  // Add expectedCount to target if there is a resume token.
+  if (!target_data.resume_token().empty()) {
+    int32_t expectedCount =
+        GetRemoteKeysForTarget(target_data.target_id()).size();
+    TargetData new_target_data = target_data.WithExpectedCount(expectedCount);
+    watch_stream_->WatchQuery(new_target_data);
+  } else {
+    watch_stream_->WatchQuery(target_data);
+  }
 }
 
 void RemoteStore::SendUnwatchRequest(TargetId target_id) {
@@ -318,7 +328,10 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
 
   // Re-establish listens for the targets that have been invalidated by
   // existence filter mismatches.
-  for (TargetId target_id : remote_event.target_mismatches()) {
+  for (const auto& entry : remote_event.target_mismatches()) {
+    const TargetId& target_id = entry.first;
+    const QueryPurpose& purpose = entry.second;
+
     auto found = listen_targets_.find(target_id);
     if (found == listen_targets_.end()) {
       // A watched target might have been removed already.
@@ -342,8 +355,7 @@ void RemoteStore::RaiseWatchSnapshot(const SnapshotVersion& snapshot_version) {
     // that we flag the first re-listen this way without impacting future
     // listens of this target (that might happen e.g. on reconnect).
     TargetData request_target_data(target_data.target(), target_id,
-                                   target_data.sequence_number(),
-                                   QueryPurpose::ExistenceFilterMismatch);
+                                   target_data.sequence_number(), purpose);
     SendWatchRequest(request_target_data);
   }
 
@@ -365,10 +377,13 @@ void RemoteStore::ProcessTargetError(const WatchTargetChange& change) {
   }
 }
 
-void RemoteStore::RunCountQuery(const core::Query& query,
-                                api::CountQueryCallback&& result_callback) {
+void RemoteStore::RunAggregateQuery(
+    const core::Query& query,
+    const std::vector<AggregateField>& aggregates,
+    api::AggregateQueryCallback&& result_callback) {
   if (CanUseNetwork()) {
-    datastore_->RunCountQuery(query, std::move(result_callback));
+    datastore_->RunAggregateQuery(query, aggregates,
+                                  std::move(result_callback));
   } else {
     result_callback(Status::FromErrno(Error::kErrorUnavailable,
                                       "Failed to get result from server."));
@@ -555,6 +570,10 @@ absl::optional<TargetData> RemoteStore::GetTargetDataForTarget(
   auto found = listen_targets_.find(target_id);
   return found != listen_targets_.end() ? found->second
                                         : absl::optional<TargetData>{};
+}
+
+const model::DatabaseId& RemoteStore::GetDatabaseId() const {
+  return datastore_->database_info().database_id();
 }
 
 void RemoteStore::RestartNetwork() {

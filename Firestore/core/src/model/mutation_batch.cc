@@ -97,7 +97,7 @@ absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
       // TODO(dconeybe) Replace absl::nullopt with a FieldMask?
       auto new_mutated_fields = mutation.ApplyToLocalView(
           document, std::move(mutated_fields), local_write_time_);
-      mutated_fields.swap(new_mutated_fields);
+      mutated_fields = std::move(new_mutated_fields);
     }
   }
 
@@ -106,7 +106,7 @@ absl::optional<FieldMask> MutationBatch::ApplyToLocalDocument(
     if (mutation.key() == document.key()) {
       auto new_mutated_fields = mutation.ApplyToLocalView(
           document, std::move(mutated_fields), local_write_time_);
-      mutated_fields.swap(new_mutated_fields);
+      mutated_fields = std::move(new_mutated_fields);
     }
   }
 

@@ -1,8 +1,12 @@
 {
-  "version": "9.18.0",
+  "version": "12.0.1",
   "firestore": {
-    "version": "1.13.1",
+    "version": "1.17.4",
     "path": "firestore_export",
     "metadata_file": "firestore_export/firestore_export.overall_export_metadata"
+  },
+  "auth": {
+    "version": "12.0.1",
+    "path": "auth_export"
   }
 }

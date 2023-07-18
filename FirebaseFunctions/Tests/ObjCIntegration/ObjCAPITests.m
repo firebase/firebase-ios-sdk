@@ -37,6 +37,12 @@
   FIRHTTPSCallable *callable = [func HTTPSCallableWithURL:url];
   callable = [func HTTPSCallableWithName:@"name"];
 
+  FIRHTTPSCallableOptions *options =
+      [[FIRHTTPSCallableOptions alloc] initWithRequireLimitedUseAppCheckTokens:YES];
+  __unused BOOL requireLimitedUseAppCheckTokens = options.requireLimitedUseAppCheckTokens;
+  callable = [func HTTPSCallableWithURL:url options:options];
+  callable = [func HTTPSCallableWithName:@"name" options:options];
+
   [func useEmulatorWithHost:@"host" port:123];
 
 #pragma mark - HTTPSCallable and HTTPSCallableResult
