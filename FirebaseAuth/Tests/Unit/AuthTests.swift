@@ -1858,6 +1858,7 @@ class AuthTests: RPCBaseTests {
 
     // Verify that current user's access token is the "new" access token provided in the mock secure
     // token response during automatic token refresh.
+    usleep(5000)
     XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
   }
 
