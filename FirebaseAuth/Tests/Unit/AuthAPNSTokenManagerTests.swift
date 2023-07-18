@@ -63,7 +63,7 @@
       XCTAssertFalse(fakeApplication!.registerCalled)
       var firstCallbackCalled = false
       let manager = try XCTUnwrap(manager)
-      manager.getToken { token, error in
+      manager.getTokenInternal { token, error in
         firstCallbackCalled = true
         XCTAssertEqual(token?.data, self.data)
         XCTAssertEqual(token?.type, .sandbox)
@@ -73,7 +73,7 @@
 
       // Add second callback, which is yet to be called either.
       var secondCallbackCalled = false
-      manager.getToken { token, error in
+      manager.getTokenInternal { token, error in
         secondCallbackCalled = true
         XCTAssertEqual(token?.data, self.data)
         XCTAssertEqual(token?.type, .sandbox)
@@ -96,7 +96,7 @@
 
       // Add third callback, which should be called back immediately.
       var thirdCallbackCalled = false
-      manager.getToken { token, error in
+      manager.getTokenInternal { token, error in
         thirdCallbackCalled = true
         XCTAssertEqual(token?.data, self.data)
         XCTAssertEqual(token?.type, .sandbox)
@@ -123,7 +123,7 @@
 
       // Add callback to time out.
       let expectation = self.expectation(description: #function)
-      manager.getToken { token, error in
+      manager.getTokenInternal { token, error in
         XCTAssertNil(token)
         XCTAssertNil(error)
         expectation.fulfill()
@@ -153,7 +153,7 @@
 
       // Add callback to cancel.
       var callbackCalled = false
-      manager.getToken { token, error in
+      manager.getTokenInternal { token, error in
         XCTAssertNil(token)
         XCTAssertEqual(error as? NSError, self.error as NSError)
         XCTAssertFalse(callbackCalled) // verify callback is not called twice

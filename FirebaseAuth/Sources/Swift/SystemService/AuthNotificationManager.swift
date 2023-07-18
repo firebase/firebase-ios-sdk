@@ -101,7 +101,7 @@
         @param callback The block to be called either immediately or in future once a result
             is available.
      */
-    func checkNotificationForwarding(withCallback callback: @escaping (Bool) -> Void) {
+    func checkNotificationForwardingInternal(withCallback callback: @escaping (Bool) -> Void) {
       if pendingCallbacks != nil {
         pendingCallbacks?.append(callback)
         return
@@ -139,9 +139,9 @@
       }
     }
 
-    func checkNotificationForwardingAA() async -> Bool {
+    func checkNotificationForwarding() async -> Bool {
       return await withCheckedContinuation { continuation in
-        checkNotificationForwarding { value in
+        checkNotificationForwardingInternal { value in
           continuation.resume(returning: value)
         }
       }

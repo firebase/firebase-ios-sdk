@@ -1299,7 +1299,7 @@ extension User: NSSecureCoding {}
     user.auth = auth
     user.tenantID = auth.tenantID
     user.requestConfiguration = auth.requestConfiguration
-    let accessToken2 = try await user.internalGetTokenAA()
+    let accessToken2 = try await user.internalGetTokenAsync()
     let getAccountInfoRequest = GetAccountInfoRequest(
       accessToken: accessToken2,
       requestConfiguration: user.requestConfiguration
@@ -1904,23 +1904,14 @@ extension User: NSSecureCoding {}
     }
   }
 
-  func internalGetTokenAA(forceRefresh: Bool = false) async throws -> String {
+  func internalGetTokenAsync(forceRefresh: Bool = false) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
-      tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in
+      self.internalGetToken(forceRefresh: forceRefresh) { token, error in
         if let error {
           continuation.resume(throwing: error)
-          return
+        } else {
+          continuation.resume(returning: token!)
         }
-        if tokenUpdated {
-          if let error = self.updateKeychain() {
-            continuation.resume(throwing: error)
-            return
-          }
-        }
-        guard let token else {
-          fatalError("Internal Auth Error: missing token without error")
-        }
-        continuation.resume(returning: token)
       }
     }
   }

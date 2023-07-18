@@ -52,9 +52,9 @@
       }
     }
 
-    func didStartVerification(withReceipt receipt: String,
-                              timeout: TimeInterval,
-                              callback: @escaping (AuthAppCredential) -> Void) {
+    func didStartVerificationInternal(withReceipt receipt: String,
+                                      timeout: TimeInterval,
+                                      callback: @escaping (AuthAppCredential) -> Void) {
       pendingReceipts = pendingReceipts.filter { $0 != receipt }
       if pendingReceipts.count >= maximumNumberOfPendingReceipts {
         pendingReceipts.remove(at: 0)
@@ -67,10 +67,10 @@
       }
     }
 
-    func didStartVerificationAA(withReceipt receipt: String,
-                                timeout: TimeInterval) async -> AuthAppCredential {
+    func didStartVerification(withReceipt receipt: String,
+                              timeout: TimeInterval) async -> AuthAppCredential {
       return await withCheckedContinuation { continuation in
-        self.didStartVerification(withReceipt: receipt, timeout: timeout) { credential in
+        self.didStartVerificationInternal(withReceipt: receipt, timeout: timeout) { credential in
           continuation.resume(returning: credential)
         }
       }

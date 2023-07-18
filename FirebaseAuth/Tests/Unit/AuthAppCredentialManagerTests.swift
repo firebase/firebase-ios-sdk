@@ -39,8 +39,8 @@
 
       // Start verification.
       let expectation = self.expectation(description: #function)
-      manager.didStartVerification(withReceipt: kReceipt,
-                                   timeout: kVerificationTimeout) { [self] credential in
+      manager.didStartVerificationInternal(withReceipt: kReceipt,
+                                           timeout: kVerificationTimeout) { [self] credential in
         XCTAssertEqual(credential.receipt, self.kReceipt)
         XCTAssertEqual(credential.secret, self.kSecret)
         expectation.fulfill()
@@ -76,8 +76,8 @@
 
       // Start verification.
       let expectation = self.expectation(description: #function)
-      manager.didStartVerification(withReceipt: kReceipt,
-                                   timeout: kVerificationTimeout) { [self] credential in
+      manager.didStartVerificationInternal(withReceipt: kReceipt,
+                                           timeout: kVerificationTimeout) { [self] credential in
         XCTAssertEqual(credential.receipt, self.kReceipt)
         XCTAssertNil(credential.secret) // different from test above.
         expectation.fulfill()
@@ -106,8 +106,8 @@
 
       // Start verification.
       let expectation = self.expectation(description: #function)
-      manager.didStartVerification(withReceipt: kReceipt,
-                                   timeout: kVerificationTimeout) { [self] credential in
+      manager.didStartVerificationInternal(withReceipt: kReceipt,
+                                           timeout: kVerificationTimeout) { [self] credential in
         XCTAssertEqual(credential.receipt, self.kReceipt)
         XCTAssertEqual(credential.secret, self.kSecret)
         expectation.fulfill()
@@ -118,8 +118,8 @@
       for i in 1 ... (manager.maximumNumberOfPendingReceipts - 1) {
         let randomReceipt = "RANDOM_\(i)"
         let randomExpectation = self.expectation(description: randomReceipt)
-        manager.didStartVerification(withReceipt: randomReceipt,
-                                     timeout: kVerificationTimeout) { credential in
+        manager.didStartVerificationInternal(withReceipt: randomReceipt,
+                                             timeout: kVerificationTimeout) { credential in
           // They all should get full credential because one is
           // available at this point.
           XCTAssertEqual(credential.receipt, self.kReceipt)
@@ -139,8 +139,8 @@
 
       // Start verification of another target receipt.
       let anotherExpectation = self.expectation(description: "another")
-      manager.didStartVerification(withReceipt: kAnotherReceipt,
-                                   timeout: kVerificationTimeout) { [self] credential in
+      manager.didStartVerificationInternal(withReceipt: kAnotherReceipt,
+                                           timeout: kVerificationTimeout) { [self] credential in
         XCTAssertEqual(credential.receipt, self.kAnotherReceipt)
         XCTAssertNil(credential.secret)
         anotherExpectation.fulfill()
@@ -151,8 +151,8 @@
       for i in 1 ... manager.maximumNumberOfPendingReceipts {
         let randomReceipt = "RANDOM_\(i)"
         let randomExpectation = self.expectation(description: randomReceipt)
-        manager.didStartVerification(withReceipt: randomReceipt,
-                                     timeout: kVerificationTimeout) { credential in
+        manager.didStartVerificationInternal(withReceipt: randomReceipt,
+                                             timeout: kVerificationTimeout) { credential in
           // They all should get partial credential because verification
           // has never completed.
           XCTAssertEqual(credential.receipt, randomReceipt)
@@ -180,8 +180,8 @@
 
       // Start verification.
       let expectation = self.expectation(description: #function)
-      manager.didStartVerification(withReceipt: kReceipt,
-                                   timeout: kVerificationTimeout) { [self] credential in
+      manager.didStartVerificationInternal(withReceipt: kReceipt,
+                                           timeout: kVerificationTimeout) { [self] credential in
         XCTAssertEqual(credential.receipt, self.kReceipt)
         XCTAssertNil(credential.secret)
         expectation.fulfill()

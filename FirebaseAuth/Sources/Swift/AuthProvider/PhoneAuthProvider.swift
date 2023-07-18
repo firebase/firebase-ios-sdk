@@ -186,7 +186,7 @@ import FirebaseCore
       guard phoneNumber.count > 0 else {
         throw AuthErrorUtils.missingPhoneNumberError(message: nil)
       }
-      guard await auth.notificationManager.checkNotificationForwardingAA() else {
+      guard await auth.notificationManager.checkNotificationForwarding() else {
         throw AuthErrorUtils.notificationNotForwardedError()
       }
       return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
@@ -326,7 +326,7 @@ import FirebaseCore
       }
       var token: AuthAPNSToken
       do {
-        token = try await auth.tokenManager.getTokenAA()
+        token = try await auth.tokenManager.getToken()
       } catch {
         return try await CodeIdentity
           .recaptcha(reCAPTCHAFlowWithUIDelegate(withUIDelegate: uiDelegate))
@@ -341,8 +341,7 @@ import FirebaseCore
           fatalError("Internal Auth Error: invalid VerifyClientResponse")
         }
         let credential = await
-          auth.appCredentialManager.didStartVerificationAA(withReceipt: receipt,
-                                                           timeout: timeout)
+          auth.appCredentialManager.didStartVerification(withReceipt: receipt, timeout: timeout)
         if credential.secret == nil {
           AuthLog.logWarning(code: "I-AUT000014", message: "Failed to receive remote " +
             "notification to verify app identity within \(timeout) " +
