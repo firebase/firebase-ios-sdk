@@ -1196,6 +1196,14 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
   using firebase::firestore::testutil::CaptureExistenceFilterMismatches;
   using firebase::firestore::util::TestingHooks;
 
+  // TODO(b/291365820): Stop skipping this test when running against the Firestore emulator once
+  // the emulator is improved to include a bloom filter in the existence filter messages that it
+  // sends.
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test when running against the Firestore emulator because the emulator does "
+            "not include a bloom filter when it sends existence filter messages, making it "
+            "impossible for this test to verify the correctness of the bloom filter.");
+
   // Set this test to stop when the first failure occurs because some test assertion failures make
   // the rest of the test not applicable or will even crash.
   [self setContinueAfterFailure:NO];
@@ -1261,44 +1269,30 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
 
     // Verify that the snapshot from the resumed query contains the expected documents; that is,
     // that it contains the 50 documents that were _not_ deleted.
-    // TODO(b/270731363): Remove the "if" condition below once the Firestore Emulator is fixed to
-    // send an existence filter. At the time of writing, the Firestore emulator fails to send an
-    // existence filter, resulting in the client including the deleted documents in the snapshot
-    // of the resumed query.
-    if (!([FSTIntegrationTestCase isRunningAgainstEmulator] && querySnapshot2.count == 100)) {
-      NSSet<NSString *> *actualDocumentIds =
-          [NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)];
-      NSSet<NSString *> *expectedDocumentIds;
-      {
-        NSMutableArray<NSString *> *expectedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
-        for (FIRDocumentReference *documentRef in createdDocuments) {
-          if (![deletedDocumentIds containsObject:documentRef.documentID]) {
-            [expectedDocumentIdsAccumulator addObject:documentRef.documentID];
-          }
+    NSSet<NSString *> *actualDocumentIds =
+        [NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)];
+    NSSet<NSString *> *expectedDocumentIds;
+    {
+      NSMutableArray<NSString *> *expectedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (FIRDocumentReference *documentRef in createdDocuments) {
+        if (![deletedDocumentIds containsObject:documentRef.documentID]) {
+          [expectedDocumentIdsAccumulator addObject:documentRef.documentID];
         }
-        expectedDocumentIds = [NSSet setWithArray:expectedDocumentIdsAccumulator];
       }
-      if (![actualDocumentIds isEqualToSet:expectedDocumentIds]) {
-        NSArray<NSString *> *unexpectedDocumentIds =
-            SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
-        NSArray<NSString *> *missingDocumentIds =
-            SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
-        XCTFail(@"querySnapshot2 contained %lu documents (expected %lu): "
-                @"%lu unexpected and %lu missing; "
-                @"unexpected documents: %@; missing documents: %@",
-                (unsigned long)actualDocumentIds.count, (unsigned long)expectedDocumentIds.count,
-                (unsigned long)unexpectedDocumentIds.count, (unsigned long)missingDocumentIds.count,
-                [unexpectedDocumentIds componentsJoinedByString:@", "],
-                [missingDocumentIds componentsJoinedByString:@", "]);
-      }
+      expectedDocumentIds = [NSSet setWithArray:expectedDocumentIdsAccumulator];
     }
-
-    // Skip the verification of the existence filter mismatch when testing against the Firestore
-    // emulator because the Firestore emulator fails to to send an existence filter at all.
-    // TODO(b/270731363): Enable the verification of the existence filter mismatch once the
-    // Firestore emulator is fixed to send an existence filter.
-    if ([FSTIntegrationTestCase isRunningAgainstEmulator]) {
-      return;
+    if (![actualDocumentIds isEqualToSet:expectedDocumentIds]) {
+      NSArray<NSString *> *unexpectedDocumentIds =
+          SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
+      NSArray<NSString *> *missingDocumentIds =
+          SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
+      XCTFail(@"querySnapshot2 contained %lu documents (expected %lu): "
+              @"%lu unexpected and %lu missing; "
+              @"unexpected documents: %@; missing documents: %@",
+              (unsigned long)actualDocumentIds.count, (unsigned long)expectedDocumentIds.count,
+              (unsigned long)unexpectedDocumentIds.count, (unsigned long)missingDocumentIds.count,
+              [unexpectedDocumentIds componentsJoinedByString:@", "],
+              [missingDocumentIds componentsJoinedByString:@", "]);
     }
 
     // Verify that Watch sent an existence filter with the correct counts when the query was
