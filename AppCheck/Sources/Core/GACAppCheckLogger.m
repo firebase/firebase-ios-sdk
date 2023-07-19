@@ -59,7 +59,7 @@ NSString *GACAppCheckLoggerLevelEnumToString(GACAppCheckLogLevel logLevel) {
 void GACAppCheckLog(GACAppCheckMessageCode code, GACAppCheckLogLevel logLevel, NSString *message) {
   // Don't log anything in not debug builds.
 #if !NDEBUG
-  if (logLevel >= gGACAppCheckLogLevel) {
+  if (logLevel <= gGACAppCheckLogLevel) {
     NSLog(@"<%@> [AppCheckCore][%@] %@", GACAppCheckLoggerLevelEnumToString(logLevel),
           GACAppCheckMessageCodeEnumToString(code), message);
   }
