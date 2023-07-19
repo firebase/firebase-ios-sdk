@@ -16,6 +16,18 @@
   import Foundation
   import GameKit
 
+  // TODO: Delete this when minimum iOS version passes 13.5.
+  /// WarningWorkaround is needed because playerID is deprecated in iOS 13.0 but still needed until
+  /// 13.5 when the fetchItems API was introduced.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  private protocol WarningWorkaround {
+    static func pre135Credential(localPlayer: GKLocalPlayer,
+                                 completion: @escaping (AuthCredential?, Error?) -> Void)
+  }
+
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  extension GameCenterAuthProvider: WarningWorkaround {}
+
   /**
    @brief A concrete implementation of `AuthProvider` for Game Center Sign In. Not available on watchOS.
    */
@@ -49,7 +61,7 @@
           if let error = error {
             completion(nil, error)
           } else {
-            let credential = GameCenterAuthCredential(withPlayerID: localPlayer.playerID,
+            let credential = GameCenterAuthCredential(withPlayerID: "",
                                                       teamPlayerID: localPlayer.teamPlayerID,
                                                       gamePlayerID: localPlayer.gamePlayerID,
                                                       publicKeyURL: publicKeyURL,
@@ -61,29 +73,41 @@
           }
         }
       } else {
-        localPlayer
-          .generateIdentityVerificationSignature { publicKeyURL, signature, salt, timestamp, error in
-            if error != nil {
-              completion(nil, error)
-            } else {
-              /**
-               @c `localPlayer.alias` is actually the displayname needed, instead of
-               `localPlayer.displayname`. For more information, check
-               https://developer.apple.com/documentation/gamekit/gkplayer
-               **/
-              let displayName = localPlayer.alias
-              let credential = GameCenterAuthCredential(withPlayerID: localPlayer.playerID,
-                                                        teamPlayerID: nil,
-                                                        gamePlayerID: nil,
-                                                        publicKeyURL: publicKeyURL,
-                                                        signature: signature,
-                                                        salt: salt,
-                                                        timestamp: timestamp,
-                                                        displayName: displayName)
-              completion(credential, nil)
-            }
-          }
+        (GameCenterAuthProvider.self as WarningWorkaround.Type).pre135Credential(
+          localPlayer: localPlayer, completion: completion
+        )
       }
+    }
+
+    @available(iOS, deprecated: 13.0)
+    @available(tvOS, deprecated: 13.0)
+    @available(macOS, deprecated: 10.15.0)
+    @available(macCatalyst, deprecated: 13.0)
+    fileprivate class func pre135Credential(localPlayer: GKLocalPlayer,
+                                            completion: @escaping (AuthCredential?, Error?)
+                                              -> Void) {
+      localPlayer
+        .generateIdentityVerificationSignature { publicKeyURL, signature, salt, timestamp, error in
+          if error != nil {
+            completion(nil, error)
+          } else {
+            /**
+             @c `localPlayer.alias` is actually the displayname needed, instead of
+             `localPlayer.displayname`. For more information, check
+             https://developer.apple.com/documentation/gamekit/gkplayer
+             **/
+            let displayName = localPlayer.alias
+            let credential = GameCenterAuthCredential(withPlayerID: localPlayer.playerID,
+                                                      teamPlayerID: nil,
+                                                      gamePlayerID: nil,
+                                                      publicKeyURL: publicKeyURL,
+                                                      signature: signature,
+                                                      salt: salt,
+                                                      timestamp: timestamp,
+                                                      displayName: displayName)
+            completion(credential, nil)
+          }
+        }
     }
 
     /** @fn
@@ -108,18 +132,16 @@
     }
   }
 
-  // Change to internal
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRGameCenterAuthCredential)
-  public class GameCenterAuthCredential: AuthCredential, NSSecureCoding {
-    @objc public let playerID: String
-    @objc public let teamPlayerID: String?
-    @objc public let gamePlayerID: String?
-    @objc public let publicKeyURL: URL?
-    @objc public let signature: Data?
-    @objc public let salt: Data?
-    @objc public let timestamp: UInt64
-    @objc public let displayName: String
+  class GameCenterAuthCredential: AuthCredential, NSSecureCoding {
+    let playerID: String
+    let teamPlayerID: String?
+    let gamePlayerID: String?
+    let publicKeyURL: URL?
+    let signature: Data?
+    let salt: Data?
+    let timestamp: UInt64
+    let displayName: String
 
     /**
         @brief Designated initializer.
@@ -146,9 +168,9 @@
       super.init(provider: GameCenterAuthProvider.id)
     }
 
-    public static var supportsSecureCoding = true
+    static var supportsSecureCoding = true
 
-    public func encode(with coder: NSCoder) {
+    func encode(with coder: NSCoder) {
       coder.encode(playerID, forKey: "playerID")
       coder.encode(teamPlayerID, forKey: "teamPlayerID")
       coder.encode(gamePlayerID, forKey: "gamePlayerID")
@@ -159,7 +181,7 @@
       coder.encode(displayName, forKey: "displayName")
     }
 
-    public required init?(coder: NSCoder) {
+    required init?(coder: NSCoder) {
       guard let playerID = coder.decodeObject(of: NSString.self, forKey: "playerID") as? String,
             let teamPlayerID = coder.decodeObject(
               of: NSString.self,
