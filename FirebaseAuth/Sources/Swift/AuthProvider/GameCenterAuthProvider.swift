@@ -19,11 +19,13 @@
   // TODO: Delete this when minimum iOS version passes 13.5.
   /// WarningWorkaround is needed because playerID is deprecated in iOS 13.0 but still needed until
   /// 13.5 when the fetchItems API was introduced.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   private protocol WarningWorkaround {
     static func pre135Credential(localPlayer: GKLocalPlayer,
                                  completion: @escaping (AuthCredential?, Error?) -> Void)
   }
 
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   extension GameCenterAuthProvider: WarningWorkaround {}
 
   /**
