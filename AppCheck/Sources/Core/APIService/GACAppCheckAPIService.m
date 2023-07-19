@@ -23,8 +23,9 @@
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckToken+APIResponse.h"
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheckLogger.h"
+#import "AppCheck/Sources/Core/GACAppCheckLogger+Internal.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckLogger.h"
 
 #import <GoogleUtilities/GULURLSessionDataResponse.h>
 #import <GoogleUtilities/NSURLSession+GULPromises.h>
@@ -129,9 +130,11 @@ static NSString *const kDefaultBaseURL = @"https://firebaseappcheck.googleapis.c
   NSInteger statusCode = response.HTTPResponse.statusCode;
   return [FBLPromise do:^id _Nullable {
     if (statusCode < 200 || statusCode >= 300) {
-      GACLogDebug(kGACLoggerAppCheckMessageCodeUnexpectedHTTPCode,
-                  @"Unexpected API response: %@, body: %@.", response.HTTPResponse,
-                  [[NSString alloc] initWithData:response.HTTPBody encoding:NSUTF8StringEncoding]);
+      NSString *logMessage = [NSString
+          stringWithFormat:@"Unexpected API response: %@, body: %@.", response.HTTPResponse,
+                           [[NSString alloc] initWithData:response.HTTPBody
+                                                 encoding:NSUTF8StringEncoding]];
+      GACAppCheckLogDebug(GACLoggerAppCheckMessageCodeUnexpectedHTTPCode, logMessage);
       return [GACAppCheckErrorUtil APIErrorWithHTTPResponse:response.HTTPResponse
                                                        data:response.HTTPBody];
     }

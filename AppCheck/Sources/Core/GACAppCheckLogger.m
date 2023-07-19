@@ -14,26 +14,36 @@
  * limitations under the License.
  */
 
-#import "AppCheck/Sources/Core/GACAppCheckLogger.h"
+#import "AppCheck/Sources/Public/AppCheck/GACAppCheckLogger.h"
+
+#import "AppCheck/Sources/Core/GACAppCheckLogger+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - Log Message Codes
+#pragma mark - Public
 
-NSString *const kGACLoggerAppCheckMessageCodeUnknown = @"I-FAA001001";
+volatile NSInteger gGACAppCheckLogLevel = GACAppCheckLogLevelError;
 
-// GACAppCheck.m
-NSString *const kGACLoggerAppCheckMessageCodeProviderIsMissing = @"I-FAA002002";
+#pragma mark - Helpers
 
-// GACAppCheckAPIService.m
-NSString *const kGACLoggerAppCheckMessageCodeUnexpectedHTTPCode = @"I-FAA003001";
+NSString *GACAppCheckMessageCodeEnumToString(GACAppCheckMessageCode code) {
+  return [[NSString alloc] initWithFormat:@"I-GAC%06ld", (long)code];
+}
 
-// GACAppCheckDebugProvider.m
-NSString *const kGACLoggerAppCheckMessageDebugProviderFailedExchange = @"I-FAA004002";
-
-// GACAppAttestProvider.m
-NSString *const kGACLoggerAppCheckMessageCodeAppAttestNotSupported = @"I-FAA007001";
-NSString *const kGACLoggerAppCheckMessageCodeAttestationRejected = @"I-FAA007002";
+NSString *GACAppCheckLoggerLevelEnumToString(GACAppCheckLogLevel logLevel) {
+  switch (logLevel) {
+    case GACAppCheckLogLevelFault:
+      return @"Fault";
+    case GACAppCheckLogLevelError:
+      return @"Error";
+    case GACAppCheckLogLevelWarning:
+      return @"Warning";
+    case GACAppCheckLogLevelInfo:
+      return @"Info";
+    case GACAppCheckLogLevelDebug:
+      return @"Debug";
+  }
+}
 
 #pragma mark - Logging Functions
 
@@ -46,21 +56,14 @@ NSString *const kGACLoggerAppCheckMessageCodeAttestationRejected = @"I-FAA007002
  * yyyy-mm-dd hh:mm:ss.SSS sender[PID] <Debug> [GoogleSignIn/AppCheck][I-COR000002] Configure
  * succeed.
  */
-#define GAC_LOGGING_FUNCTION(level)                                                  \
-  void GACLog##level(NSString *messageCode, NSString *format, ...) {                 \
-    va_list args_ptr;                                                                \
-    va_start(args_ptr, format);                                                      \
-    NSString *message = [[NSString alloc] initWithFormat:format arguments:args_ptr]; \
-    va_end(args_ptr);                                                                \
-    NSLog(@"<" #level "> [AppCheck][%@] %@", messageCode, message);                  \
+void GACAppCheckLog(GACAppCheckMessageCode code, GACAppCheckLogLevel logLevel, NSString *message) {
+  // Don't log anything in not debug builds.
+#if !NDEBUG
+  if (logLevel >= gGACAppCheckLogLevel) {
+    NSLog(@"<%@> [AppCheckCore][%@] %@", GACAppCheckLoggerLevelEnumToString(logLevel),
+          GACAppCheckMessageCodeEnumToString(code), message);
   }
-
-GAC_LOGGING_FUNCTION(Error)
-GAC_LOGGING_FUNCTION(Warning)
-GAC_LOGGING_FUNCTION(Notice)
-GAC_LOGGING_FUNCTION(Info)
-GAC_LOGGING_FUNCTION(Debug)
-
-#undef GAC_LOGGING_FUNCTION
+#endif  // !NDEBUG
+}
 
 NS_ASSUME_NONNULL_END
