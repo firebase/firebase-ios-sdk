@@ -165,6 +165,7 @@ Simplify your app development, grow your user base, and monetize more effectivel
   s.subspec 'InAppMessaging' do |ss|
     ss.dependency 'Firebase/CoreOnly'
     ss.ios.dependency 'FirebaseInAppMessaging', '~> 10.13.0-beta'
+    ss.tvos.dependency 'FirebaseInAppMessaging', '~> 10.13.0-beta'
     ss.ios.deployment_target = '11.0'
     ss.tvos.deployment_target = '12.0'
   end
