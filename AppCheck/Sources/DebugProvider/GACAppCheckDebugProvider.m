@@ -23,7 +23,7 @@
 #endif
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
-#import "AppCheck/Sources/Core/GACAppCheckLogger.h"
+#import "AppCheck/Sources/Core/GACAppCheckLogger+Internal.h"
 #import "AppCheck/Sources/DebugProvider/API/GACAppCheckDebugProviderAPIService.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"
@@ -112,8 +112,9 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
         return nil;
       })
       .catch(^void(NSError *error) {
-        GACLogDebug(kGACLoggerAppCheckMessageDebugProviderFailedExchange,
-                    @"Failed to exchange debug token to app check token: %@", error);
+        NSString *logMessage = [NSString
+            stringWithFormat:@"Failed to exchange debug token to app check token: %@", error];
+        GACAppCheckLogDebug(GACLoggerAppCheckMessageDebugProviderFailedExchange, logMessage);
         handler(nil, error);
       });
 }
