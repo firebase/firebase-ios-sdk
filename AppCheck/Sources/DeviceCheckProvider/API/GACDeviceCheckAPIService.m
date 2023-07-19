@@ -28,7 +28,7 @@
 #import "AppCheck/Sources/Core/APIService/GACAppCheckToken+APIResponse.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheckLogger.h"
+#import "AppCheck/Sources/Core/GACAppCheckLogger+Internal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

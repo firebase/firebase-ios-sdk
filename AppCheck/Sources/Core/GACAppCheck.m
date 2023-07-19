@@ -31,7 +31,7 @@
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckTokenDelegate.h"
 
 #import "AppCheck/Sources/Core/Errors/GACAppCheckErrorUtil.h"
-#import "AppCheck/Sources/Core/GACAppCheckLogger.h"
+#import "AppCheck/Sources/Core/GACAppCheckLogger+Internal.h"
 #import "AppCheck/Sources/Core/Storage/GACAppCheckStorage.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefreshResult.h"
 #import "AppCheck/Sources/Core/TokenRefresh/GACAppCheckTokenRefresher.h"
