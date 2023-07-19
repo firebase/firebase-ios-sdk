@@ -30,7 +30,7 @@
 
 #import "AppCheck/Sources/Core/APIService/GACAppCheckAPIService.h"
 #import "AppCheck/Sources/Core/Backoff/GACAppCheckBackoffWrapper.h"
-#import "AppCheck/Sources/Core/GACAppCheckLogger.h"
+#import "AppCheck/Sources/Core/GACAppCheckLogger+Internal.h"
 #import "AppCheck/Sources/DeviceCheckProvider/API/GACDeviceCheckAPIService.h"
 #import "AppCheck/Sources/DeviceCheckProvider/DCDevice+GACDeviceCheckTokenGenerator.h"
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckToken.h"

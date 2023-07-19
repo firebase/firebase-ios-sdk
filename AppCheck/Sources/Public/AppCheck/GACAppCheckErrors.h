@@ -40,14 +40,17 @@ typedef NS_ERROR_ENUM(GACAppCheckErrorDomain, GACAppCheckErrorCode){
 
 #pragma mark - Error Message Codes
 
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeUnknown;
+typedef NS_ENUM(NSInteger, GACAppCheckMessageCode) {
+  GACLoggerAppCheckMessageCodeUnknown = 1001,
 
-// App Check
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeUnexpectedHTTPCode;
+  // App Check
+  GACLoggerAppCheckMessageCodeProviderIsMissing = 2002,
+  GACLoggerAppCheckMessageCodeUnexpectedHTTPCode = 3001,
 
-// Debug Provider
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageDebugProviderFailedExchange;
+  // Debug Provider
+  GACLoggerAppCheckMessageDebugProviderFailedExchange = 4002,
 
-// App Attest Provider
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeAppAttestNotSupported;
-FOUNDATION_EXPORT NSString *const kGACLoggerAppCheckMessageCodeAttestationRejected;
+  // App Attest Provider
+  GACLoggerAppCheckMessageCodeAppAttestNotSupported = 7001,
+  GACLoggerAppCheckMessageCodeAttestationRejected = 7002
+};
