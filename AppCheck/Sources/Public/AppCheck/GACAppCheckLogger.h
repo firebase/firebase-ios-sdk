@@ -26,14 +26,14 @@ FOUNDATION_EXPORT volatile NSInteger gGACAppCheckLogLevel;
 
 /// Constants that specify the level of logging to perform in App Check Core.
 typedef NS_ENUM(NSInteger, GACAppCheckLogLevel) {
-  /// The fault log level; equivalent to `OS_LOG_TYPE_FAULT`.
-  GACAppCheckLogLevelFault = 1,
-  /// The error log level; equivalent to `OS_LOG_TYPE_ERROR`.
-  GACAppCheckLogLevelError = 2,
+  /// The debug log level; equivalent to `OS_LOG_TYPE_DEBUG`.
+  GACAppCheckLogLevelDebug = 1,
+  /// The informational log level; equivalent to `OS_LOG_TYPE_INFO`.
+  GACAppCheckLogLevelInfo = 2,
   /// The warning log level; equivalent to `OS_LOG_TYPE_DEFAULT`.
   GACAppCheckLogLevelWarning = 3,
-  /// The informational log level; equivalent to `OS_LOG_TYPE_INFO`.
-  GACAppCheckLogLevelInfo = 4,
-  /// The debug log level; equivalent to `OS_LOG_TYPE_DEBUG`.
-  GACAppCheckLogLevelDebug = 5
+  /// The error log level; equivalent to `OS_LOG_TYPE_ERROR`.
+  GACAppCheckLogLevelError = 4,
+  /// The fault log level; equivalent to `OS_LOG_TYPE_FAULT`.
+  GACAppCheckLogLevelFault = 5
 } NS_SWIFT_NAME(AppCheckCoreLogLevel);
