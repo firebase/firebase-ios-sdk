@@ -23,7 +23,7 @@ class VerifyPasswordTests: RPCBaseTests {
   let kTestEmail = "testEmail."
   let kTestPassword = "testPassword"
 
-  func testVerifyPasswordRequest() throws {
+  func testVerifyPasswordRequest() async throws {
     let kEmailKey = "email"
     let kPasswordKey = "password"
     let kCaptchaChallengeKey = "captchaChallenge"
@@ -31,20 +31,20 @@ class VerifyPasswordTests: RPCBaseTests {
     let kSecureTokenKey = "returnSecureToken"
     let kExpectedAPIURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=APIKey"
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: makeVerifyPasswordRequest(),
       expected: kExpectedAPIURL,
       key: kEmailKey,
       value: kTestEmail
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kPasswordKey], kTestPassword)
     XCTAssertNil(requestDictionary[kCaptchaChallengeKey])
     XCTAssertNil(requestDictionary[kCaptchaResponseKey])
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kSecureTokenKey] as? Bool))
   }
 
-  func testVerifyPasswordRequestOptionalFields() throws {
+  func testVerifyPasswordRequestOptionalFields() async throws {
     let kEmailKey = "email"
     let kPasswordKey = "password"
     let kCaptchaChallengeKey = "captchaChallenge"
@@ -59,20 +59,20 @@ class VerifyPasswordTests: RPCBaseTests {
     request.pendingIDToken = kTestPendingToken
     request.captchaChallenge = kTestCaptchaChallenge
     request.captchaResponse = kTestCaptchaResponse
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kEmailKey,
       value: kTestEmail
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kPasswordKey], kTestPassword)
     XCTAssertEqual(requestDictionary[kCaptchaChallengeKey], kTestCaptchaChallenge)
     XCTAssertEqual(requestDictionary[kCaptchaResponseKey], kTestCaptchaResponse)
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kSecureTokenKey] as? Bool))
   }
 
-  func testVerifyPasswordRequestErrors() throws {
+  func testVerifyPasswordRequestErrors() async throws {
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kOperationNotAllowedErrorMessage = "OPERATION_NOT_ALLOWED"
     let kEmailNotFoundErrorMessage = "EMAIL_NOT_FOUND"
@@ -84,48 +84,48 @@ class VerifyPasswordTests: RPCBaseTests {
     let kTooManyAttemptsErrorMessage = "TOO_MANY_ATTEMPTS_TRY_LATER:"
     let kPasswordLoginDisabledErrorMessage = "PASSWORD_LOGIN_DISABLED"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kUserDisabledErrorMessage,
       errorCode: AuthErrorCode.userDisabled
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kEmailNotFoundErrorMessage,
       errorCode: AuthErrorCode.userNotFound
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kWrongPasswordErrorMessage,
       errorCode: AuthErrorCode.wrongPassword
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kInvalidEmailErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kTooManyAttemptsErrorMessage,
       errorCode: AuthErrorCode.tooManyRequests
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kBadRequestErrorMessage,
       reason: kInvalidKeyReasonValue,
       errorCode: AuthErrorCode.invalidAPIKey
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kOperationNotAllowedErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kPasswordLoginDisabledErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyPasswordRequest(),
       message: kBadRequestErrorMessage,
       reason: kAppNotAuthorizedReasonValue,
@@ -136,7 +136,7 @@ class VerifyPasswordTests: RPCBaseTests {
   /** @fn testSuccessfulVerifyPasswordResponse
       @brief Tests a successful attempt of the verify password flow.
    */
-  func testSuccessfulVerifyPasswordResponse() throws {
+  func testSuccessfulVerifyPasswordResponse() async throws {
     let kLocalIDKey = "localId"
     let kTestLocalID = "testLocalId"
     let kEmailKey = "email"
@@ -151,36 +151,27 @@ class VerifyPasswordTests: RPCBaseTests {
     let kTestRefreshToken = "REFRESH_TOKEN"
     let kPhotoUrlKey = "photoUrl"
     let kTestPhotoUrl = "www.example.com"
-    var callbackInvoked = false
-    var rpcResponse: VerifyPasswordResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeVerifyPasswordRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        kLocalIDKey: kTestLocalID,
+        kEmailKey: kTestEmail,
+        kDisplayNameKey: kTestDisplayName,
+        kIDTokenKey: kTestIDToken,
+        kExpiresInKey: kTestExpiresIn,
+        kRefreshTokenKey: kTestRefreshToken,
+        kPhotoUrlKey: kTestPhotoUrl,
+      ])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [
-      kLocalIDKey: kTestLocalID,
-      kEmailKey: kTestEmail,
-      kDisplayNameKey: kTestDisplayName,
-      kIDTokenKey: kTestIDToken,
-      kExpiresInKey: kTestExpiresIn,
-      kRefreshTokenKey: kTestRefreshToken,
-      kPhotoUrlKey: kTestPhotoUrl,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.email, kTestEmail)
-    XCTAssertEqual(rpcResponse?.localID, kTestLocalID)
-    XCTAssertEqual(rpcResponse?.displayName, kTestDisplayName)
-    XCTAssertEqual(rpcResponse?.idToken, kTestIDToken)
-    let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.post(with: makeVerifyPasswordRequest())
+    XCTAssertEqual(rpcResponse.email, kTestEmail)
+    XCTAssertEqual(rpcResponse.localID, kTestLocalID)
+    XCTAssertEqual(rpcResponse.displayName, kTestDisplayName)
+    XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
+    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
-    XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)
-    XCTAssertEqual(rpcResponse?.photoURL?.absoluteString, kTestPhotoUrl)
+    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    XCTAssertEqual(rpcResponse.photoURL?.absoluteString, kTestPhotoUrl)
   }
 
   private func makeVerifyPasswordRequest() -> VerifyPasswordRequest {

@@ -32,16 +32,16 @@ class SignUpNewUserTests: RPCBaseTests {
   /** @fn testSignUpNewUserRequestAnonymous
       @brief Tests the encoding of a sign up new user request when user is signed in anonymously.
    */
-  func testSignUpNewUserRequestAnonymous() throws {
+  func testSignUpNewUserRequestAnonymous() async throws {
     let request = makeSignUpNewUserRequestAnonymous()
     request.returnSecureToken = false
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kEmailKey,
       value: nil
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertNil(requestDictionary[kDisplayNameKey])
     XCTAssertNil(requestDictionary[kPasswordKey])
     XCTAssertNil(requestDictionary[kReturnSecureTokenKey])
@@ -50,15 +50,15 @@ class SignUpNewUserTests: RPCBaseTests {
   /** @fn testSignUpNewUserRequestNotAnonymous
       @brief Tests the encoding of a sign up new user request when user is not signed in anonymously.
    */
-  func testSignUpNewUserRequestNotAnonymous() throws {
+  func testSignUpNewUserRequestNotAnonymous() async throws {
     let request = makeSignUpNewUserRequest()
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kEmailKey,
       value: kTestEmail
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kDisplayNameKey], kTestDisplayName)
     XCTAssertEqual(requestDictionary[kPasswordKey], kTestPassword)
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kReturnSecureTokenKey] as? Bool))
@@ -67,37 +67,28 @@ class SignUpNewUserTests: RPCBaseTests {
   /** @fn testSuccessfulSignUp
       @brief This test simulates a complete sign up flow with no errors.
    */
-  func testSuccessfulSignUp() throws {
+  func testSuccessfulSignUp() async throws {
     let kIDTokenKey = "idToken"
     let kTestIDToken = "ID_TOKEN"
     let kTestExpiresIn = "12345"
     let kTestRefreshToken = "REFRESH_TOKEN"
     let kExpiresInKey = "expiresIn"
     let kRefreshTokenKey = "refreshToken"
-    var callbackInvoked = false
-    var rpcResponse: SignUpNewUserResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeSignUpNewUserRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        kIDTokenKey: kTestIDToken,
+        kExpiresInKey: kTestExpiresIn,
+        kRefreshTokenKey: kTestRefreshToken,
+      ])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [
-      kIDTokenKey: kTestIDToken,
-      kExpiresInKey: kTestExpiresIn,
-      kRefreshTokenKey: kTestRefreshToken,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)
-    let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.post(with: makeSignUpNewUserRequest())
+    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
   }
 
-  func testSignUpNewUserRequestErrors() throws {
+  func testSignUpNewUserRequestErrors() async throws {
     let kEmailAlreadyInUseErrorMessage = "EMAIL_EXISTS"
     let kEmailSignUpNotAllowedErrorMessage = "OPERATION_NOT_ALLOWED"
     let kPasswordLoginDisabledErrorMessage = "PASSWORD_LOGIN_DISABLED:"
@@ -105,27 +96,27 @@ class SignUpNewUserTests: RPCBaseTests {
     let kWeakPasswordErrorMessage = "WEAK_PASSWORD : Password should be at least 6 characters"
     let kWeakPasswordClientErrorMessage = "Password should be at least 6 characters"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSignUpNewUserRequest(),
       message: kEmailAlreadyInUseErrorMessage,
       errorCode: AuthErrorCode.emailAlreadyInUse
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSignUpNewUserRequest(),
       message: kEmailSignUpNotAllowedErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSignUpNewUserRequest(),
       message: kPasswordLoginDisabledErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSignUpNewUserRequest(),
       message: kInvalidEmailErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeSignUpNewUserRequest(),
       message: kWeakPasswordErrorMessage,
       errorCode: AuthErrorCode.weakPassword,

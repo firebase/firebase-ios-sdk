@@ -33,15 +33,15 @@ class RevokeTokenTests: RPCBaseTests {
   /** @fn testRevokeTokenRequest
       @brief Tests the RevokeToken request.
    */
-  func testRevokeTokenRequest() throws {
+  func testRevokeTokenRequest() async throws {
     let request = makeRevokeTokenRequest()
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kFakeTokenKey,
       value: kFakeToken
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kFakeProviderIDKey], AuthProviderString.apple.rawValue)
     XCTAssertEqual(requestDictionary[kFakeTokenTypeKey], "3")
   }
@@ -49,21 +49,11 @@ class RevokeTokenTests: RPCBaseTests {
   /** @fn testSuccessfulRevokeTokenResponse
       @brief Tests a successful attempt of the verify password flow.
    */
-  func testSuccessfulRevokeTokenResponse() throws {
-    var callbackInvoked = false
-    var rpcResponse: RevokeTokenResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeRevokeTokenRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+  func testSuccessfulRevokeTokenResponse() async throws {
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [:])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [:])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
+    let rpcResponse = try await AuthBackend.post(with: makeRevokeTokenRequest())
     XCTAssertNotNil(rpcResponse)
   }
 

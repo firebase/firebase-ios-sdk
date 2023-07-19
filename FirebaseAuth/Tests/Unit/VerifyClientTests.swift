@@ -28,28 +28,28 @@ class VerifyClientTests: RPCBaseTests {
   /** @fn testVerifyClientRequest
       @brief Tests the VerifyClient request.
    */
-  func testVerifyClientRequest() throws {
+  func testVerifyClientRequest() async throws {
     let request = makeVerifyClientRequest()
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kAPPTokenKey,
       value: kFakeAppToken
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kIsSandboxKey] as? Bool))
   }
 
-  func testVerifyClientRequestErrors() throws {
+  func testVerifyClientRequestErrors() async throws {
     let kMissingAppCredentialErrorMessage = "MISSING_APP_CREDENTIAL"
     let kInvalidAppCredentialErrorMessage = "INVALID_APP_CREDENTIAL"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyClientRequest(),
       message: kMissingAppCredentialErrorMessage,
       errorCode: AuthErrorCode.missingAppCredential
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyClientRequest(),
       message: kInvalidAppCredentialErrorMessage,
       errorCode: AuthErrorCode.invalidAppCredential
@@ -59,30 +59,21 @@ class VerifyClientTests: RPCBaseTests {
   /** @fn testSuccessfulVerifyClientResponse
       @brief Tests a successful attempt of the verify password flow.
    */
-  func testSuccessfulVerifyClientResponse() throws {
+  func testSuccessfulVerifyClientResponse() async throws {
     let kReceiptKey = "receipt"
     let kFakeReceipt = "receipt"
     let kSuggestedTimeOutKey = "suggestedTimeout"
     let kFakeSuggestedTimeout = "1234"
-    var callbackInvoked = false
-    var rpcResponse: VerifyClientResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeVerifyClientRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        kReceiptKey: kFakeReceipt,
+        kSuggestedTimeOutKey: kFakeSuggestedTimeout,
+      ])
     }
-
-    try rpcIssuer?.respond(withJSON: [
-      kReceiptKey: kFakeReceipt,
-      kSuggestedTimeOutKey: kFakeSuggestedTimeout,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.receipt, kFakeReceipt)
-    let timeOut = try XCTUnwrap(rpcResponse?.suggestedTimeOutDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.post(with: makeVerifyClientRequest())
+    XCTAssertEqual(rpcResponse.receipt, kFakeReceipt)
+    let timeOut = try XCTUnwrap(rpcResponse.suggestedTimeOutDate?.timeIntervalSinceNow)
     XCTAssertEqual(timeOut, 1234, accuracy: 0.1)
   }
 

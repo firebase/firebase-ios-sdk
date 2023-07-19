@@ -44,6 +44,13 @@ private let kreCAPTCHATokenKey = "recaptchaToken"
  */
 private let kTenantIDKey = "tenantId"
 
+///  A verification code can be an appCredential or a reCaptcha Token
+enum CodeIdentity {
+  case credential(AuthAppCredential)
+  case recaptcha(String)
+  case empty
+}
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = SendVerificationCodeResponse
@@ -53,22 +60,15 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
    */
   let phoneNumber: String
 
-  /** @property appCredential
-      @brief The credential to prove the identity of the app in order to send the verification code.
+  /** @property verificationCode
+      @brief The credential or reCAPTCHA token to prove the identity of the app in order to send the verification code.
    */
-  let appCredential: AuthAppCredential?
+  let codeIdentity: CodeIdentity
 
-  /** @property reCAPTCHAToken
-      @brief The reCAPTCHA token to prove the identity of the app in order to send the verification
-          code.
-   */
-  let reCAPTCHAToken: String?
-
-  init(phoneNumber: String, appCredential: AuthAppCredential?,
-       reCAPTCHAToken: String?, requestConfiguration: AuthRequestConfiguration) {
+  init(phoneNumber: String, codeIdentity: CodeIdentity,
+       requestConfiguration: AuthRequestConfiguration) {
     self.phoneNumber = phoneNumber
-    self.appCredential = appCredential
-    self.reCAPTCHAToken = reCAPTCHAToken
+    self.codeIdentity = codeIdentity
     super.init(
       endpoint: kSendVerificationCodeEndPoint,
       requestConfiguration: requestConfiguration
@@ -78,14 +78,13 @@ class SendVerificationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [:]
     postBody[kPhoneNumberKey] = phoneNumber
-    if let receipt = appCredential?.receipt {
-      postBody[kReceiptKey] = receipt
-    }
-    if let secret = appCredential?.secret {
-      postBody[kSecretKey] = secret
-    }
-    if let reCAPTCHAToken {
+    switch codeIdentity {
+    case let .credential(appCredential):
+      postBody[kReceiptKey] = appCredential.receipt
+      postBody[kSecretKey] = appCredential.secret
+    case let .recaptcha(reCAPTCHAToken):
       postBody[kreCAPTCHATokenKey] = reCAPTCHAToken
+    case .empty: break
     }
 
     if let tenantID {

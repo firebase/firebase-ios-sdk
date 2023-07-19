@@ -64,7 +64,7 @@ import Foundation
         )
         Task {
           do {
-            let response = try await AuthBackend.postAA(with: request)
+            let response = try await AuthBackend.post(with: request)
             let user = try await self.auth.completeSignIn(withAccessToken: response.idToken,
                                                           accessTokenExpirationDate: nil,
                                                           refreshToken: response.refreshToken,

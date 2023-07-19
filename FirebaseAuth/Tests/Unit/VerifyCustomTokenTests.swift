@@ -28,59 +28,59 @@ class VerifyCustomTokenTests: RPCBaseTests {
   /** @fn testVerifyCustomTokenRequest
       @brief Tests the verify custom token request.
    */
-  func testVerifyCustomTokenRequest() throws {
+  func testVerifyCustomTokenRequest() async throws {
     let request = makeVerifyCustomTokenRequest()
     request.returnSecureToken = false
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kTestTokenKey,
       value: kTestToken
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertNil(requestDictionary[kReturnSecureTokenKey])
   }
 
   /** @fn testVerifyCustomTokenRequestOptionalFields
       @brief Tests the verify custom token request with optional fields.
    */
-  func testVerifyCustomTokenRequestOptionalFields() throws {
+  func testVerifyCustomTokenRequestOptionalFields() async throws {
     let request = makeVerifyCustomTokenRequest()
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kTestTokenKey,
       value: kTestToken
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kReturnSecureTokenKey] as? Bool))
   }
 
-  func testVerifyCustomTokenRequestErrors() throws {
+  func testVerifyCustomTokenRequestErrors() async throws {
     let kInvalidCustomTokenErrorMessage = "INVALID_CUSTOM_TOKEN"
     let kInvalidCustomTokenServerErrorMessage = "INVALID_CUSTOM_TOKEN : Detailed Error"
     let kInvalidCustomTokenEmptyServerErrorMessage = "INVALID_CUSTOM_TOKEN :"
     let kInvalidCustomTokenErrorDetails = "Detailed Error"
     let kCredentialMismatchErrorMessage = "CREDENTIAL_MISMATCH:"
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyCustomTokenRequest(),
       message: kInvalidCustomTokenErrorMessage,
       errorCode: AuthErrorCode.invalidCustomToken
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyCustomTokenRequest(),
       message: kInvalidCustomTokenServerErrorMessage,
       errorCode: AuthErrorCode.invalidCustomToken,
       checkLocalizedDescription: kInvalidCustomTokenErrorDetails
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyCustomTokenRequest(),
       message: kInvalidCustomTokenEmptyServerErrorMessage,
       errorCode: AuthErrorCode.invalidCustomToken,
       checkLocalizedDescription: ""
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeVerifyCustomTokenRequest(),
       message: kCredentialMismatchErrorMessage,
       errorCode: AuthErrorCode.customTokenMismatch
@@ -90,7 +90,7 @@ class VerifyCustomTokenTests: RPCBaseTests {
   /** @fn testSuccessfulVerifyCustomTokenResponse
       @brief This test simulates a successful verify CustomToken flow.
    */
-  func testSuccessfulVerifyCustomTokenResponse() throws {
+  func testSuccessfulVerifyCustomTokenResponse() async throws {
     let kIDTokenKey = "idToken"
     let kTestIDToken = "ID_TOKEN"
     let kTestExpiresIn = "12345"
@@ -98,30 +98,21 @@ class VerifyCustomTokenTests: RPCBaseTests {
     let kExpiresInKey = "expiresIn"
     let kRefreshTokenKey = "refreshToken"
     let kIsNewUserKey = "isNewUser"
-    var callbackInvoked = false
-    var rpcResponse: VerifyCustomTokenResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeVerifyCustomTokenRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [
+        kIDTokenKey: kTestIDToken,
+        kExpiresInKey: kTestExpiresIn,
+        kRefreshTokenKey: kTestRefreshToken,
+        kIsNewUserKey: true,
+      ])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [
-      kIDTokenKey: kTestIDToken,
-      kExpiresInKey: kTestExpiresIn,
-      kRefreshTokenKey: kTestRefreshToken,
-      kIsNewUserKey: true,
-    ])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.idToken, kTestIDToken)
-    XCTAssertEqual(rpcResponse?.refreshToken, kTestRefreshToken)
-    let expiresIn = try XCTUnwrap(rpcResponse?.approximateExpirationDate?.timeIntervalSinceNow)
+    let rpcResponse = try await AuthBackend.post(with: makeVerifyCustomTokenRequest())
+    XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
+    XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
+    let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
     XCTAssertEqual(expiresIn, 12345, accuracy: 0.1)
-    XCTAssertTrue(try XCTUnwrap(rpcResponse?.isNewUser))
+    XCTAssertTrue(rpcResponse.isNewUser)
   }
 
   private func makeVerifyCustomTokenRequest() -> VerifyCustomTokenRequest {

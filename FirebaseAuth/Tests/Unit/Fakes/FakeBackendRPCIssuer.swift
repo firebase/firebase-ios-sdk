@@ -73,6 +73,8 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var verifyPasswordRequester: ((VerifyPasswordRequest) -> Void)?
   var verifyPhoneNumberRequester: ((VerifyPhoneNumberRequest) -> Void)?
 
+  var respondBlock: (() throws -> Void)?
+
   var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
   var secureTokenNetworkError: NSError?
@@ -140,7 +142,14 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       }
       decodedRequest = try? JSONSerialization.jsonObject(with: body) as? [String: Any]
     }
-    if let group {
+    if let respondBlock {
+      do {
+        try respondBlock()
+      } catch {
+        XCTFail("Unexpected exception in respondBlock")
+      }
+      self.respondBlock = nil
+    } else if let group {
       self.group = nil
       group.leave()
     }

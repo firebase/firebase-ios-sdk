@@ -32,35 +32,30 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           request passed returns an error during it's unencodedHTTPRequestBodyWithError: method.
           The error returned should be delivered to the caller without any change.
    */
-  func testRequestEncodingError() throws {
+  func testRequestEncodingError() async throws {
     let encodingError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     let request = FakeRequest(withEncodingError: encodingError)
 
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCRequestEncodingError.rawValue)
+
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
+
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
     }
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
-
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCRequestEncodingError.rawValue)
-
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
 
   /** @fn testBodyDataSerializationError
@@ -69,61 +64,52 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           The error from @c NSJSONSerialization should be returned as the underlyingError for an
           @c NSError with the code @c FIRAuthErrorCodeJSONSerializationError.
    */
-  func testBodyDataSerializationError() throws {
+  func testBodyDataSerializationError() async throws {
     let request = FakeRequest(withRequestBody: ["unencodable": self])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.JSONSerializationError.rawValue)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+
+      XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
     }
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
-
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.JSONSerializationError.rawValue)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-
-    XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
   }
 
   /** @fn testNetworkError
       @brief This test checks to make sure a network error is properly wrapped and forwarded with the
           correct code (FIRAuthErrorCodeNetworkError).
    */
-  func testNetworkError() throws {
+  func testNetworkError() async throws {
     let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
+      try self.rpcIssuer.respond(withData: nil, error: responseError)
     }
-    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(withData: nil, error: responseError)
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.networkError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.networkError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingError.code, kFakeErrorCode)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingError.code, kFakeErrorCode)
-
-    XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testUnparsableErrorResponse
@@ -133,38 +119,35 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           receive the original network error wrapped in an @c NSError with the code
           @c FIRAuthErrorCodeUnexpectedHTTPResponse.
    */
-  func testUnparsableErrorResponse() throws {
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
+  func testUnparsableErrorResponse() async throws {
     let data = "<html><body>An error occurred.</body></html>".data(using: .utf8)
-    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(withData: data, error: responseError)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
+      try self.rpcIssuer.respond(withData: data, error: responseError)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
-    XCTAssertEqual(data,
-                   try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
+      XCTAssertEqual(data,
+                     try XCTUnwrap(underlyingError
+                       .userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
+    }
   }
 
   /** @fn testUnparsableSuccessResponse
@@ -174,36 +157,33 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           receive the @c NSJSONSerialization error wrapped in an @c NSError with the code
           @c FIRAuthErrorCodeUnexpectedServerResponse.
    */
-  func testUnparsableSuccessResponse() throws {
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
+  func testUnparsableSuccessResponse() async throws {
     let data = "<xml>Some non-JSON value.</xml>".data(using: .utf8)
-    try rpcIssuer?.respond(withData: data, error: nil)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withData: data, error: nil)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, NSCocoaErrorDomain)
 
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, NSCocoaErrorDomain)
-
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
-    XCTAssertEqual(data,
-                   try XCTUnwrap(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
+      XCTAssertEqual(data,
+                     try XCTUnwrap(underlyingError
+                       .userInfo[AuthErrorUtils.userInfoDataKey] as? Data))
+    }
   }
 
   /** @fn testNonDictionaryErrorResponse
@@ -214,43 +194,39 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           in the @c NSError.userInfo dictionary associated with the key
           @c FIRAuthErrorUserInfoDeserializedResponseKey.
    */
-  func testNonDictionaryErrorResponse() throws {
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
+  func testNonDictionaryErrorResponse() async throws {
     // We are responding with a JSON-encoded string value representing an array - which is
     // unexpected. It should normally be a dictionary, and we need to check for this sort
     // of thing. Because we can successfully decode this value, however, we do return it
     // in the error results. We check for this array later in the test.
     let data = "[]".data(using: .utf8)
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(withData: data, error: responseError)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withData: data, error: responseError)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
-    XCTAssertNotNil(try XCTUnwrap(
-      underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]
-    ) as? [Int])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      XCTAssertNotNil(try XCTUnwrap(
+        underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]
+      ) as? [Int])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testNonDictionarySuccessResponse
@@ -261,38 +237,33 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           @c NSError.userInfo dictionary associated with the key
           @c FIRAuthErrorUserInfoDecodedResponseKey.
    */
-  func testNonDictionarySuccessResponse() throws {
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
+  func testNonDictionarySuccessResponse() async throws {
     // We are responding with a JSON-encoded string value representing an array - which is
     // unexpected. It should normally be a dictionary, and we need to check for this sort
     // of thing. Because we can successfully decode this value, however, we do return it
     // in the error results. We check for this array later in the test.
     let data = "[]".data(using: .utf8)
-    try rpcIssuer?.respond(withData: data, error: nil)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withData: data, error: nil)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
-
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
-    XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
-
-    XCTAssertNotNil(try XCTUnwrap(
-      underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]
-    ) as? [Int])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedResponse.rawValue)
+      XCTAssertNil(underlyingError.userInfo[NSUnderlyingErrorKey])
+      XCTAssertNotNil(try XCTUnwrap(
+        underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey]
+      ) as? [Int])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testCaptchaRequiredResponse
@@ -303,38 +274,36 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           @c NSError.userInfo dictionary associated with the key
           @c FIRAuthErrorUserInfoDeserializedResponseKey.
    */
-  func testCaptchaRequiredResponse() throws {
+  func testCaptchaRequiredResponse() async throws {
     let kErrorMessageCaptchaRequired = "CAPTCHA_REQUIRED"
     let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
+      try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageCaptchaRequired,
+                                 error: responseError)
     }
-    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(serverErrorMessage: kErrorMessageCaptchaRequired, error: responseError)
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let dictionary = try XCTUnwrap(underlyingError
-      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
-    XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequired)
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      let dictionary = try XCTUnwrap(underlyingError
+        .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+      XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequired)
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testCaptchaCheckFailedResponse
@@ -345,28 +314,24 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           @c NSError.userInfo dictionary associated with the key
           @c FIRAuthErrorUserInfoDecodedErrorResponseKey.
    */
-  func testCaptchaCheckFailedResponse() throws {
+  func testCaptchaCheckFailedResponse() async throws {
     let kErrorMessageCaptchaCheckFailed = "CAPTCHA_CHECK_FAILED"
     let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      let responseError = NSError(domain: self.kFakeErrorDomain, code: self.kFakeErrorCode)
+      try self.rpcIssuer.respond(
+        serverErrorMessage: kErrorMessageCaptchaCheckFailed,
+        error: responseError
+      )
     }
-    let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(
-      serverErrorMessage: kErrorMessageCaptchaCheckFailed,
-      error: responseError
-    )
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.captchaCheckFailed.rawValue)
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.captchaCheckFailed.rawValue)
+    }
   }
 
   /** @fn testCaptchaRequiredInvalidPasswordResponse
@@ -378,39 +343,35 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           @c NSError.userInfo dictionary associated with the key
           @c FIRAuthErrorUserInfoDeserializedResponseKey.
    */
-  func testCaptchaRequiredInvalidPasswordResponse() throws {
+  func testCaptchaRequiredInvalidPasswordResponse() async throws {
     let kErrorMessageCaptchaRequiredInvalidPassword = "CAPTCHA_REQUIRED_INVALID_PASSWORD"
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(serverErrorMessage: kErrorMessageCaptchaRequiredInvalidPassword,
-                           error: responseError)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(serverErrorMessage: kErrorMessageCaptchaRequiredInvalidPassword,
+                                 error: responseError)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
-    let dictionary = try XCTUnwrap(underlyingError
-      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
-    XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequiredInvalidPassword)
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      let dictionary = try XCTUnwrap(underlyingError
+        .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+      XCTAssertEqual(dictionary["message"], kErrorMessageCaptchaRequiredInvalidPassword)
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testDecodableErrorResponseWithUnknownMessage
@@ -422,40 +383,37 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           error message in the @c NSError.userInfo dictionary associated with the key
           @c FIRAuthErrorUserInfoDeserializedResponseKey.
    */
-  func testDecodableErrorResponseWithUnknownMessage() throws {
-    let kUnknownServerErrorMessage = "UNKNOWN_MESSAGE"
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
+  func testDecodableErrorResponseWithUnknownMessage() async throws {
     // We need to return a valid "error" response here, but we are going to intentionally use a
     // bogus error message.
+    let kUnknownServerErrorMessage = "UNKNOWN_MESSAGE"
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(serverErrorMessage: kUnknownServerErrorMessage, error: responseError)
+    let request = FakeRequest(withRequestBody: [:])
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(serverErrorMessage: kUnknownServerErrorMessage,
+                                 error: responseError)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
-    let dictionary = try XCTUnwrap(underlyingError
-      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
-    XCTAssertEqual(dictionary["message"], kUnknownServerErrorMessage)
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      let dictionary = try XCTUnwrap(underlyingError
+        .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+      XCTAssertEqual(dictionary["message"], kUnknownServerErrorMessage)
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testErrorResponseWithNoErrorMessage
@@ -467,69 +425,59 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           response message in the @c NSError.userInfo dictionary associated with the key
           @c FIRAuthErrorUserInfoDeserializedResponseKey.
    */
-  func testErrorResponseWithNoErrorMessage() throws {
+  func testErrorResponseWithNoErrorMessage() async throws {
     let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
-    try rpcIssuer?.respond(withJSON: [:], error: responseError)
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: [:], error: responseError)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
+      let underlyingUnderlying = try XCTUnwrap(underlyingError
+        .userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
+      XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.unexpectedErrorResponse.rawValue)
-    let underlyingUnderlying = try XCTUnwrap(underlyingError
-      .userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingUnderlying.domain, kFakeErrorDomain)
-    XCTAssertEqual(underlyingUnderlying.code, kFakeErrorCode)
-
-    let dictionary = try XCTUnwrap(underlyingError
-      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
-    XCTAssertEqual(dictionary, [:])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      let dictionary = try XCTUnwrap(underlyingError
+        .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+      XCTAssertEqual(dictionary, [:])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testClientErrorResponse
       @brief This test checks the behaviour of @c postWithRequest:response:callback: when the
           response contains a client error specified by an error messsage sent from the backend.
    */
-  func testClientErrorResponse() throws {
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
+  func testClientErrorResponse() async throws {
     let responseError = NSError(domain: kFakeErrorDomain, code: kFakeErrorCode)
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kServerErrorDetailMarker = " : "
     let kFakeUserDisabledCustomErrorMessage = "The user has been disabled."
     let customErrorMessage = "\(kUserDisabledErrorMessage)" +
       "\(kServerErrorDetailMarker)\(kFakeUserDisabledCustomErrorMessage)"
-    try rpcIssuer?.respond(serverErrorMessage: customErrorMessage, error: responseError)
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.userDisabled.rawValue)
-
-    let customMessage = try XCTUnwrap(rpcError?.userInfo[NSLocalizedDescriptionKey] as? String)
-    XCTAssertEqual(customMessage, kFakeUserDisabledCustomErrorMessage)
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(serverErrorMessage: customErrorMessage, error: responseError)
+    }
+    do {
+      let _ = try await rpcImplementation.post(with: FakeRequest(withRequestBody: [:]))
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.userDisabled.rawValue)
+      let customMessage = try XCTUnwrap(rpcError.userInfo[NSLocalizedDescriptionKey] as? String)
+      XCTAssertEqual(customMessage, kFakeUserDisabledCustomErrorMessage)
+    }
   }
 
   /** @fn testUndecodableSuccessResponse
@@ -539,65 +487,46 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           @c FIRAuthErrorCodeUnexpectedServerResponse and the error from @c setWithDictionary:error:
           as the value of the underlyingError.
    */
-  // TODO: Broken test - the fake backend may treat things differently around the response and
-  // errors.
-  func xxx_testUndecodableSuccessResponse() throws {
-    let request =
-      FakeRequest(withDecodingError: NSError(domain: kFakeErrorDomain, code: kFakeErrorCode))
-    var callbackInvoked = false
-//    var rpcResponse: FakeResponse = FakeResponse(withDecodingError: <#T##NSError?#>)
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
-
-    rpcImplementation?.post(with: request) { response, error in
-//    rpcImplementation?.post(with: request, response: rpcResponse) { error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+  func testUndecodableSuccessResponse() async throws {
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer.respond(withJSON: [:])
     }
-    try rpcIssuer?.respond(withJSON: [:])
+    do {
+      let request = FakeDecodingErrorRequest(withRequestBody: [:])
+      let _ = try await rpcImplementation.post(with: request)
+      XCTFail("Expected to throw")
+    } catch {
+      let rpcError = error as NSError
 
-    XCTAssert(callbackInvoked)
-//    XCTAssertNil(rpcError)
-    XCTAssertNil(rpcResponse)
+      XCTAssertEqual(rpcError.domain, AuthErrors.domain)
+      XCTAssertEqual(rpcError.code, AuthErrorCode.internalError.rawValue)
 
-    XCTAssertEqual(rpcError?.domain, AuthErrors.domain)
-    XCTAssertEqual(rpcError?.code, AuthErrorCode.internalError.rawValue)
+      let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+      XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
+      XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCResponseDecodingError.rawValue)
 
-    let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-    XCTAssertEqual(underlyingError.domain, AuthErrorUtils.internalErrorDomain)
-    XCTAssertEqual(underlyingError.code, AuthInternalErrorCode.RPCResponseDecodingError.rawValue)
-
-    let dictionary = try XCTUnwrap(underlyingError
-      .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
-    XCTAssertEqual(dictionary, [:])
-    XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+      let dictionary = try XCTUnwrap(underlyingError
+        .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable])
+      XCTAssertEqual(dictionary, [:])
+      XCTAssertNil(underlyingError.userInfo[AuthErrorUtils.userInfoDataKey])
+    }
   }
 
   /** @fn testSuccessfulResponse
       @brief Tests that a decoded dictionary is handed to the response instance.
    */
-  func testSuccessfulResponse() throws {
-    let request = FakeRequest(withRequestBody: [:])
-    var callbackInvoked = false
-    var rpcResponse: FakeResponse?
-    var rpcError: NSError?
+  func testSuccessfulResponse() async throws {
     let kTestKey = "TestKey"
     let kTestValue = "TestValue"
-
-    rpcImplementation?.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      // It doesn't matter what we respond with here, as long as it's not an error response. The
+      // fake
+      // response will deterministicly simulate a decoding error regardless of the response value it
+      // was given.
+      try self.rpcIssuer.respond(withJSON: [kTestKey: kTestValue])
     }
-    // It doesn't matter what we respond with here, as long as it's not an error response. The fake
-    // response will deterministicly simulate a decoding error regardless of the response value it
-    // was given.
-    try rpcIssuer?.respond(withJSON: [kTestKey: kTestValue])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(try XCTUnwrap(rpcResponse?.receivedDictionary[kTestKey] as? String), kTestValue)
+    let rpcResponse = try await rpcImplementation.post(with: FakeRequest(withRequestBody: [:]))
+    XCTAssertEqual(try XCTUnwrap(rpcResponse.receivedDictionary[kTestKey] as? String), kTestValue)
   }
 
   // TODO: enable heartbeat logger tests for SPM
@@ -631,7 +560,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
             to verify that a heartbeats payload is attached as a header to an
             outgoing request when there are stored heartbeats that need sending.
      */
-    func testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending() throws {
+    func testRequest_IncludesHeartbeatPayload_WhenHeartbeatsNeedSending() async throws {
       // Given
       let fakeHeartbeatLogger = FakeHeartbeatLogger()
       let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
@@ -645,16 +574,17 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
         nonEmptyHeartbeatsPayload
       }
-      rpcImplementation?.post(with: request) { response, error in
-        // The callback never happens and it's fine since we only need to verify the request.
-        XCTFail("Should not be a callback")
+      rpcIssuer.respondBlock = {
+        // Force return from async post
+        try self.rpcIssuer.respond(withJSON: [:])
       }
+      _ = try? await rpcImplementation.post(with: request)
 
       // Then
       let expectedHeader = FIRHeaderValueFromHeartbeatsPayload(
         HeartbeatLoggingTestUtils.nonEmptyHeartbeatsPayload
       )
-      let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
+      let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
       let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-Client")
       XCTAssertEqual(headerValue, expectedHeader)
     }
@@ -665,7 +595,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
           to verify that a appCheck token is attached as a header to an
           outgoing request.
    */
-  func testRequest_IncludesAppCheckHeader() throws {
+  func testRequest_IncludesAppCheckHeader() async throws {
     // Given
     let fakeAppCheck = FakeAppCheck()
     let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
@@ -674,11 +604,12 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
 
     let request = FakeRequest(withRequestBody: [:], requestConfiguration: requestConfiguration)
 
-    rpcImplementation?.post(with: request) { response, error in
-      // The callback never happens and it's fine since we only need to verify the request.
-      XCTFail("Should not be a callback")
+    rpcIssuer.respondBlock = {
+      // Just force return from async call.
+      try self.rpcIssuer.respond(withJSON: [:])
     }
-    let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
+    let _ = try await rpcImplementation.post(with: request)
+    let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
     let headerValue = completeRequest.value(forHTTPHeaderField: "X-Firebase-AppCheck")
     XCTAssertEqual(headerValue, fakeAppCheck.fakeAppCheckToken)
   }
@@ -690,7 +621,7 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
             to verify that a request header does not contain heartbeat data in the
             case that there are no stored heartbeats that need sending.
      */
-    func testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending() throws {
+    func testRequest_DoesNotIncludeAHeartbeatPayload_WhenNoHeartbeatsNeedSending() async throws {
       // Given
       let fakeHeartbeatLogger = FakeHeartbeatLogger()
       let requestConfiguration = AuthRequestConfiguration(apiKey: kFakeAPIKey,
@@ -704,12 +635,14 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       fakeHeartbeatLogger.onFlushHeartbeatsIntoPayloadHandler = {
         emptyHeartbeatsPayload
       }
-      rpcImplementation?.post(with: request) { response, error in
-        // The callback never happens and it's fine since we only need to verify the request.
+      rpcIssuer.respondBlock = {
+        // Force return from async post
+        try self.rpcIssuer.respond(withJSON: [:])
       }
+      _ = try? await rpcImplementation.post(with: request)
 
       // Then
-      let completeRequest = try XCTUnwrap(rpcIssuer?.completeRequest)
+      let completeRequest = try XCTUnwrap(rpcIssuer.completeRequest)
       XCTAssertNil(completeRequest.value(forHTTPHeaderField: "X-Firebase-Client"))
     }
   #endif
@@ -744,7 +677,6 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
       return true
     }
 
-    var response: FakeResponse
     private let configuration: AuthRequestConfiguration
 
     let encodingError: NSError?
@@ -753,14 +685,12 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
     init(withEncodingError error: NSError) {
       encodingError = error
       requestBody = [:]
-      response = FakeResponse()
       configuration = FakeRequest.makeRequestConfiguration()
     }
 
     init(withDecodingError error: NSError) {
       encodingError = nil
       requestBody = [:]
-      response = FakeResponse(withDecodingError: error)
       configuration = FakeRequest.makeRequestConfiguration()
     }
 
@@ -768,28 +698,44 @@ class AuthBackendRPCImplementationTests: RPCBaseTests {
          requestConfiguration: AuthRequestConfiguration = FakeRequest.makeRequestConfiguration()) {
       encodingError = nil
       requestBody = body
-      response = FakeResponse()
       configuration = requestConfiguration
     }
   }
 
   private class FakeResponse: AuthRPCResponse {
-    // TODO: Will this work?
-    required init() {
-      decodingError = nil
-    }
+    required init() {}
 
-    let decodingError: NSError?
     var receivedDictionary: [String: AnyHashable] = [:]
-    init(withDecodingError error: NSError? = nil) {
-      decodingError = error
+    func setFields(dictionary: [String: AnyHashable]) throws {
+      receivedDictionary = dictionary
+    }
+  }
+
+  private class FakeDecodingErrorRequest: AuthRPCRequest {
+    typealias Response = FakeDecodingErrorResponse
+    func requestURL() -> URL {
+      return fakeRequest.requestURL()
     }
 
-    func setFields(dictionary: [String: AnyHashable]) throws {
-      if let decodingError {
-        throw decodingError
-      }
-      receivedDictionary = dictionary
+    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+      return try fakeRequest.unencodedHTTPRequestBody()
+    }
+
+    func requestConfiguration() -> FirebaseAuth.AuthRequestConfiguration {
+      return fakeRequest.requestConfiguration()
+    }
+
+    let fakeRequest: FakeRequest
+    init(withRequestBody body: [String: AnyHashable]) {
+      fakeRequest = FakeRequest(withRequestBody: body)
+    }
+  }
+
+  private class FakeDecodingErrorResponse: FakeResponse {
+    required init() {}
+
+    override func setFields(dictionary: [String: AnyHashable]) throws {
+      throw NSError(domain: "dummy", code: -1)
     }
   }
 }

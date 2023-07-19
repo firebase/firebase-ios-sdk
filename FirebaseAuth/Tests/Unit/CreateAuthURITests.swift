@@ -35,8 +35,8 @@ class CreateAuthURITests: RPCBaseTests {
   let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/createAuthUri?key=APIKey"
 
-  func testCreateAuthUriRequest() throws {
-    try checkRequest(
+  func testCreateAuthUriRequest() async throws {
+    try await checkRequest(
       request: makeAuthURIRequest(),
       expected: kExpectedAPIURL,
       key: kContinueURITestKey,
@@ -44,21 +44,21 @@ class CreateAuthURITests: RPCBaseTests {
     )
   }
 
-  func testCreateAuthUriErrors() throws {
+  func testCreateAuthUriErrors() async throws {
     let kMissingContinueURIErrorMessage = "MISSING_CONTINUE_URI:"
     let kInvalidIdentifierErrorMessage = "INVALID_IDENTIFIER"
     let kInvalidEmailErrorMessage = "INVALID_EMAIL"
-    try checkBackendError(
+    try await checkBackendError(
       request: makeAuthURIRequest(),
       message: kMissingContinueURIErrorMessage,
       errorCode: AuthErrorCode.missingContinueURI
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeAuthURIRequest(),
       message: kInvalidIdentifierErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeAuthURIRequest(),
       message: kInvalidEmailErrorMessage,
       errorCode: AuthErrorCode.invalidEmail
@@ -68,53 +68,36 @@ class CreateAuthURITests: RPCBaseTests {
   /** @fn testSuccessfulCreateAuthURI
       @brief This test checks for a successful response
    */
-  func testSuccessfulCreateAuthURIResponse() throws {
+  func testSuccessfulCreateAuthURIResponse() async throws {
     let kAuthUriKey = "authUri"
     let kTestAuthUri = "AuthURI"
-    var callbackInvoked = false
-    var rpcResponse: CreateAuthURIResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeAuthURIRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [kAuthUriKey: kTestAuthUri])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.authURI, kTestAuthUri)
+    let rpcResponse = try await AuthBackend.post(with: makeAuthURIRequest())
+    XCTAssertEqual(rpcResponse.authURI, kTestAuthUri)
   }
 
-  func testRequestAndResponseEncoding() throws {
+  func testRequestAndResponseEncoding() async throws {
     let kTestExpectedKind = "identitytoolkit#CreateAuthUriResponse"
     let kTestProviderID1 = "google.com"
     let kTestProviderID2 = "facebook.com"
-    var callbackInvoked = false
-    var rpcResponse: CreateAuthURIResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeAuthURIRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?
+        .respond(withJSON: ["kind": kTestExpectedKind,
+                            "allProviders": [kTestProviderID1, kTestProviderID2]])
     }
+    let rpcResponse = try await AuthBackend.post(with: makeAuthURIRequest())
 
     XCTAssertEqual(rpcIssuer?.requestURL?.absoluteString, kExpectedAPIURL)
     XCTAssertEqual(rpcIssuer?.decodedRequest?["identifier"] as? String, kTestIdentifier)
     XCTAssertEqual(rpcIssuer?.decodedRequest?["continueUri"] as? String, kTestContinueURI)
 
-    _ = try rpcIssuer?
-      .respond(withJSON: ["kind": kTestExpectedKind,
-                          "allProviders": [kTestProviderID1, kTestProviderID2]])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.allProviders?.count, 2)
-    XCTAssertEqual(rpcResponse?.allProviders?.first, kTestProviderID1)
-    XCTAssertEqual(rpcResponse?.allProviders?[1], kTestProviderID2)
+    XCTAssertEqual(rpcResponse.allProviders?.count, 2)
+    XCTAssertEqual(rpcResponse.allProviders?.first, kTestProviderID1)
+    XCTAssertEqual(rpcResponse.allProviders?[1], kTestProviderID2)
   }
 
   private func makeAuthURIRequest() -> CreateAuthURIRequest {

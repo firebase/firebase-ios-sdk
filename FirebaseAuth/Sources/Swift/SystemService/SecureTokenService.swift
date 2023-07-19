@@ -88,9 +88,15 @@ private let kFiveMinutes = 5 * 60.0
         callback(self.accessToken, nil, false)
       } else {
         AuthLog.logDebug(code: "I-AUT000017", message: "Fetching new token from backend.")
-        self.requestAccessToken(retryIfExpired: true) { token, error, tokenUpdated in
-          complete()
-          callback(token, error, tokenUpdated)
+        Task {
+          do {
+            let (token, tokenUpdated) = try await self.requestAccessToken(retryIfExpired: true)
+            complete()
+            callback(token, nil, tokenUpdated)
+          } catch {
+            complete()
+            callback(nil, error, false)
+          }
         }
       }
     }
@@ -147,15 +153,13 @@ private let kFiveMinutes = 5 * 60.0
       @details This handles both the case that the token has not been granted yet and that it just
           needs to be refreshed. The caller is responsible for making sure that this is occurring in
           a @c _taskQueue task.
-      @param callback Called when the fetch is complete. Invoked asynchronously on the main thread in
-          the future.
+      @Returns  token and Bool indicating if update occurred.
       @remarks Because this method is guaranteed to only be called from tasks enqueued in
           @c _taskQueue, we do not need any @synchronized guards around access to _accessToken/etc.
           since only one of those tasks is ever running at a time, and those tasks are the only
           access to and mutation of these instance variables.
    */
-  private func requestAccessToken(retryIfExpired: Bool,
-                                  callback: @escaping (String?, Error?, Bool) -> Void) {
+  private func requestAccessToken(retryIfExpired: Bool) async throws -> (String?, Bool) {
     // TODO: This was a crash in ObjC SDK, should it callback with an error?
     guard let refreshToken, let requestConfiguration else {
       fatalError("refreshToken and requestConfiguration should not be nil")
@@ -163,47 +167,40 @@ private let kFiveMinutes = 5 * 60.0
 
     let request = SecureTokenRequest.refreshRequest(refreshToken: refreshToken,
                                                     requestConfiguration: requestConfiguration)
-    AuthBackend.post(with: request) { rawResponse, error in
-      var tokenUpdated = false
-      if let response = rawResponse {
-        if let newAccessToken = response.accessToken,
-           newAccessToken.count > 0,
-           newAccessToken != self.accessToken {
-          let tokenResult = AuthTokenResult.tokenResult(token: newAccessToken)
-          // There is an edge case where the request for a new access token may be made right
-          // before the app goes inactive, resulting in the callback being invoked much later
-          // with an expired access token. This does not fully solve the issue, as if the
-          // callback is invoked less than an hour after the request is made, a token is not
-          // re-requested here but the approximateExpirationDate will still be off since that
-          // is computed at the time the token is received.
-          if retryIfExpired,
-             let expirationDate = tokenResult?.expirationDate,
-             expirationDate.timeIntervalSinceNow <= kFiveMinutes {
-            // We only retry once, to avoid an infinite loop in the case that an end-user has
-            // their local time skewed by over an hour.
-            self.requestAccessToken(retryIfExpired: false, callback: callback)
-            return
-          }
-          self.accessToken = newAccessToken
-          self.accessTokenExpirationDate = response.approximateExpirationDate
-          tokenUpdated = true
-          AuthLog.logDebug(
-            code: "I-AUT000017",
-            message: "Updated access token. Estimated expiration date: " +
-              "\(String(describing: self.accessTokenExpirationDate)), current date: \(Date())"
-          )
-        }
-        if let newRefreshToken = response.refreshToken,
-           newRefreshToken != self.refreshToken {
-          self.refreshToken = newRefreshToken
-          tokenUpdated = true
-        }
-        callback(response.accessToken, error, tokenUpdated)
-        return
+    let response = try await AuthBackend.post(with: request)
+    var tokenUpdated = false
+    if let newAccessToken = response.accessToken,
+       newAccessToken.count > 0,
+       newAccessToken != accessToken {
+      let tokenResult = AuthTokenResult.tokenResult(token: newAccessToken)
+      // There is an edge case where the request for a new access token may be made right
+      // before the app goes inactive, resulting in the callback being invoked much later
+      // with an expired access token. This does not fully solve the issue, as if the
+      // callback is invoked less than an hour after the request is made, a token is not
+      // re-requested here but the approximateExpirationDate will still be off since that
+      // is computed at the time the token is received.
+      if retryIfExpired,
+         let expirationDate = tokenResult?.expirationDate,
+         expirationDate.timeIntervalSinceNow <= kFiveMinutes {
+        // We only retry once, to avoid an infinite loop in the case that an end-user has
+        // their local time skewed by over an hour.
+        return try await requestAccessToken(retryIfExpired: false)
       }
-      // Not clear this fall through case was considered in original ObjC implementation.
-      callback(nil, error, false)
+      accessToken = newAccessToken
+      accessTokenExpirationDate = response.approximateExpirationDate
+      tokenUpdated = true
+      AuthLog.logDebug(
+        code: "I-AUT000017",
+        message: "Updated access token. Estimated expiration date: " +
+          "\(String(describing: accessTokenExpirationDate)), current date: \(Date())"
+      )
     }
+    if let newRefreshToken = response.refreshToken,
+       newRefreshToken != self.refreshToken {
+      self.refreshToken = newRefreshToken
+      tokenUpdated = true
+    }
+    return (response.accessToken, tokenUpdated)
   }
 
   private func hasValidAccessToken() -> Bool {

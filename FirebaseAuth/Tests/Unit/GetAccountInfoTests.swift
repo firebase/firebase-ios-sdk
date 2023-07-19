@@ -30,24 +30,29 @@ class GetAccountInfoTests: RPCBaseTests {
    */
   let kIDTokenKey = "idToken"
 
-  func testGetAccountInfoRequest() throws {
+  func testGetAccountInfoRequest() async {
     let kExpectedAPIURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getAccountInfo?key=APIKey"
-    try checkRequest(
-      request: makeGetAccountInfoRequest(),
-      expected: kExpectedAPIURL,
-      key: kIDTokenKey,
-      value: kTestAccessToken
-    )
+    do {
+      try await checkRequest(
+        request: makeGetAccountInfoRequest(),
+        expected: kExpectedAPIURL,
+        key: kIDTokenKey,
+        value: kTestAccessToken
+      )
+    } catch {
+      // Ignore error from missing users array in fake JSON return.
+      return
+    }
   }
 
   /** fn testGetAccountInfoUnexpectedResponseError
       brief This test simulates an unexpected response returned from server in c GetAccountInfo
           flow.
    */
-  func testGetAccountInfoUnexpectedResponseError() throws {
+  func testGetAccountInfoUnexpectedResponseError() async throws {
     let kUsersKey = "users"
-    try checkBackendError(
+    try await checkBackendError(
       request: makeGetAccountInfoRequest(),
       json: [kUsersKey: ["user1Data", "user2Data"]],
       errorCode: AuthErrorCode.internalError,
@@ -58,7 +63,7 @@ class GetAccountInfoTests: RPCBaseTests {
   /** @fn testSuccessfulGetAccountInfoResponse
       @brief This test simulates a successful @c GetAccountInfo flow.
    */
-  func testSuccessfulGetAccountInfoResponse() throws {
+  func testSuccessfulGetAccountInfoResponse() async throws {
     let kProviderUserInfoKey = "providerUserInfo"
     let kPhotoUrlKey = "photoUrl"
     let kTestPhotoURL = "testPhotoURL"
@@ -76,16 +81,6 @@ class GetAccountInfoTests: RPCBaseTests {
     let kLocalIDKey = "localId"
     let kTestLocalID = "testLocalId"
 
-    var callbackInvoked = false
-    var rpcResponse: GetAccountInfoResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeGetAccountInfoRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
-    }
-
     let usersIn = [[
       kProviderUserInfoKey: [[
         kProviderIDkey: kTestProviderID,
@@ -102,11 +97,12 @@ class GetAccountInfoTests: RPCBaseTests {
       kPasswordHashKey: kTestPasswordHash,
     ] as [String: Any]]
 
-    _ = try rpcIssuer?.respond(withJSON: ["users": usersIn])
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: ["users": usersIn])
+    }
+    let rpcResponse = try await AuthBackend.post(with: makeGetAccountInfoRequest())
 
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    let users = try XCTUnwrap(rpcResponse?.users)
+    let users = try XCTUnwrap(rpcResponse.users)
     XCTAssertGreaterThan(users.count, 0)
     let firstUser = try XCTUnwrap(users.first)
     XCTAssertEqual(firstUser.photoURL?.absoluteString, kTestPhotoURL)

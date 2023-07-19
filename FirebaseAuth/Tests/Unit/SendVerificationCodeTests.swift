@@ -29,49 +29,75 @@ class SendVerificationCodeTests: RPCBaseTests {
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/sendVerificationCode?key=APIKey"
 
   /** @fn testSendVerificationCodeRequest
-      @brief Tests the sendVerificationCode request.
+      @brief Tests the sendVerificationCode request with a ReCAPTCHA token.
    */
-  func testSendVerificationCodeRequest() throws {
-    let request = makeSendVerificationCodeRequest()
+  func testSendVerificationCodeRequestReCAPTCHA() async throws {
+    let request = makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken))
     XCTAssertEqual(request.phoneNumber, kTestPhoneNumber)
-    XCTAssertEqual(request.appCredential?.receipt, kTestReceipt)
-    XCTAssertEqual(request.appCredential?.secret, kTestSecret)
-    XCTAssertEqual(request.reCAPTCHAToken, kTestReCAPTCHAToken)
-    let issuer = try checkRequest(
+    switch request.codeIdentity {
+    case let .recaptcha(token):
+      XCTAssertEqual(token, kTestReCAPTCHAToken)
+    default:
+      XCTFail("Should be a reCAPTCHA")
+    }
+    try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
       key: kPhoneNumberKey,
       value: kTestPhoneNumber
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary["recaptchaToken"], kTestReCAPTCHAToken)
+  }
+
+  /** @fn testSendVerificationCodeRequest
+      @brief Tests the sendVerificationCode request with an App Credential
+   */
+  func testSendVerificationCodeRequestCredential() async throws {
+    let credential = AuthAppCredential(receipt: kTestReceipt, secret: kTestSecret)
+    let request = makeSendVerificationCodeRequest(CodeIdentity.credential(credential))
+    XCTAssertEqual(request.phoneNumber, kTestPhoneNumber)
+    switch request.codeIdentity {
+    case let .credential(credential):
+      XCTAssertEqual(credential.secret, kTestSecret)
+      XCTAssertEqual(credential.receipt, kTestReceipt)
+    default:
+      XCTFail("Should be a credential")
+    }
+    try await checkRequest(
+      request: request,
+      expected: kExpectedAPIURL,
+      key: kPhoneNumberKey,
+      value: kTestPhoneNumber
+    )
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kReceiptKey], kTestReceipt)
     XCTAssertEqual(requestDictionary[kSecretKey], kTestSecret)
   }
 
-  func testSendVerificationCodeRequestErrors() throws {
+  func testSendVerificationCodeRequestErrors() async throws {
     let kInvalidPhoneNumberErrorMessage = "INVALID_PHONE_NUMBER"
     let kQuotaExceededErrorMessage = "QUOTA_EXCEEDED"
     let kAppNotVerifiedErrorMessage = "APP_NOT_VERIFIED"
     let kCaptchaCheckFailedErrorMessage = "CAPTCHA_CHECK_FAILED"
 
-    try checkBackendError(
-      request: makeSendVerificationCodeRequest(),
+    try await checkBackendError(
+      request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kInvalidPhoneNumberErrorMessage,
       errorCode: AuthErrorCode.invalidPhoneNumber
     )
-    try checkBackendError(
-      request: makeSendVerificationCodeRequest(),
+    try await checkBackendError(
+      request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kQuotaExceededErrorMessage,
       errorCode: AuthErrorCode.quotaExceeded
     )
-    try checkBackendError(
-      request: makeSendVerificationCodeRequest(),
+    try await checkBackendError(
+      request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kAppNotVerifiedErrorMessage,
       errorCode: AuthErrorCode.appNotVerified
     )
-    try checkBackendError(
-      request: makeSendVerificationCodeRequest(),
+    try await checkBackendError(
+      request: makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)),
       message: kCaptchaCheckFailedErrorMessage,
       errorCode: AuthErrorCode.captchaCheckFailed
     )
@@ -80,31 +106,23 @@ class SendVerificationCodeTests: RPCBaseTests {
   /** @fn testSuccessfulSendVerificationCodeResponse
       @brief This test simulates a successful verify CustomToken flow.
    */
-  func testSuccessfulSendVerificationCodeResponse() throws {
+  func testSuccessfulSendVerificationCodeResponse() async throws {
     let kVerificationIDKey = "sessionInfo"
     let kFakeVerificationID = "testVerificationID"
-    var callbackInvoked = false
-    var rpcResponse: SendVerificationCodeResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeSendVerificationCodeRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [kVerificationIDKey: kFakeVerificationID])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.verificationID, kFakeVerificationID)
+    let rpcResponse = try await AuthBackend.post(with:
+      makeSendVerificationCodeRequest(CodeIdentity.recaptcha(kTestReCAPTCHAToken)))
+    XCTAssertNotNil(rpcResponse)
+    XCTAssertEqual(rpcResponse.verificationID, kFakeVerificationID)
   }
 
-  private func makeSendVerificationCodeRequest() -> SendVerificationCodeRequest {
-    let credential = AuthAppCredential(receipt: kTestReceipt, secret: kTestSecret)
+  private func makeSendVerificationCodeRequest(_ codeIdentity: CodeIdentity)
+    -> SendVerificationCodeRequest {
     return SendVerificationCodeRequest(phoneNumber: kTestPhoneNumber,
-                                       appCredential: credential,
-                                       reCAPTCHAToken: kTestReCAPTCHAToken,
+                                       codeIdentity: codeIdentity,
                                        requestConfiguration: makeRequestConfiguration())
   }
 }

@@ -67,8 +67,8 @@ class RPCBaseTests: XCTestCase {
    */
   let kTestIdentifier = "Identifier"
 
-  var rpcIssuer: FakeBackendRPCIssuer?
-  var rpcImplementation: AuthBackendImplementation?
+  var rpcIssuer: FakeBackendRPCIssuer!
+  var rpcImplementation: AuthBackendImplementation!
 
   override func setUp() {
     rpcIssuer = FakeBackendRPCIssuer()
@@ -84,24 +84,24 @@ class RPCBaseTests: XCTestCase {
   /** @fn checkRequest
       @brief Tests the encoding of a request.
    */
-  @discardableResult func checkRequest(request: any AuthRPCRequest,
-                                       expected: String,
-                                       key: String,
-                                       value: String?,
-                                       checkPostBody: Bool = false) throws -> FakeBackendRPCIssuer {
-    AuthBackend.post(with: request) { response, error in
-      XCTFail("No explicit response from the fake backend.")
+  func checkRequest(request: any AuthRPCRequest,
+                    expected: String,
+                    key: String,
+                    value: String?,
+                    checkPostBody: Bool = false) async throws {
+    rpcIssuer.respondBlock = {
+      XCTAssertEqual(self.rpcIssuer.requestURL?.absoluteString, expected)
+      if checkPostBody {
+        XCTAssertFalse(request.containsPostBody)
+      } else if let requestDictionary = self.rpcIssuer.decodedRequest as? [String: AnyHashable] {
+        XCTAssertEqual(requestDictionary[key], value)
+      } else {
+        XCTFail("decodedRequest is not a dictionary")
+      }
+      // Dummy response to unblock await.
+      let _ = try self.rpcIssuer?.respond(withJSON: [:])
     }
-    let rpcIssuer = try XCTUnwrap(rpcIssuer)
-    XCTAssertEqual(rpcIssuer.requestURL?.absoluteString, expected)
-    if checkPostBody {
-      XCTAssertFalse(request.containsPostBody)
-    } else if let requestDictionary = rpcIssuer.decodedRequest as? [String: AnyHashable] {
-      XCTAssertEqual(requestDictionary[key], value)
-    } else {
-      XCTFail("decodedRequest is not a dictionary")
-    }
-    return rpcIssuer
+    let _ = try await AuthBackend.post(with: request)
   }
 
   /** @fn checkBackendError
@@ -114,39 +114,35 @@ class RPCBaseTests: XCTestCase {
                          errorCode: AuthErrorCode,
                          errorReason: String? = nil,
                          underlyingErrorKey: String? = nil,
-                         checkLocalizedDescription: String? = nil) throws {
-    var callbackInvoked = false
-    var rpcResponse: CreateAuthURIResponse?
-    var rpcError: NSError?
-
-    AuthBackend.post(with: request) { response, error in
-      callbackInvoked = true
-      rpcResponse = response as? CreateAuthURIResponse
-      rpcError = error as? NSError
+                         checkLocalizedDescription: String? = nil) async throws {
+    rpcIssuer.respondBlock = {
+      if let json = json {
+        _ = try self.rpcIssuer.respond(withJSON: json)
+      } else if let reason = reason {
+        _ = try self.rpcIssuer.respond(underlyingErrorMessage: reason, message: message)
+      } else {
+        _ = try self.rpcIssuer.respond(serverErrorMessage: message)
+      }
     }
-
-    if let json = json {
-      _ = try rpcIssuer?.respond(withJSON: json)
-    } else if let reason = reason {
-      _ = try rpcIssuer?.respond(underlyingErrorMessage: reason, message: message)
-    } else {
-      _ = try rpcIssuer?.respond(serverErrorMessage: message)
-    }
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcResponse)
-    XCTAssertEqual(rpcError?.code, errorCode.rawValue)
-    if errorCode == .internalError {
-      let underlyingError = try XCTUnwrap(rpcError?.userInfo[NSUnderlyingErrorKey] as? NSError)
-      XCTAssertNotNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
-    }
-    if let errorReason {
-      XCTAssertEqual(errorReason, rpcError?.userInfo[NSLocalizedFailureReasonErrorKey] as? String)
-    }
-    if let checkLocalizedDescription {
-      let localizedDescription = try XCTUnwrap(rpcError?
-        .userInfo[NSLocalizedDescriptionKey] as? String)
-      XCTAssertEqual(checkLocalizedDescription, localizedDescription)
+    do {
+      let _ = try await AuthBackend.post(with: request)
+      XCTFail("Did not throw expected error")
+      return
+    } catch {
+      let rpcError = error as NSError
+      XCTAssertEqual(rpcError.code, errorCode.rawValue)
+      if errorCode == .internalError {
+        let underlyingError = try XCTUnwrap(rpcError.userInfo[NSUnderlyingErrorKey] as? NSError)
+        XCTAssertNotNil(underlyingError.userInfo[AuthErrorUtils.userInfoDeserializedResponseKey])
+      }
+      if let errorReason {
+        XCTAssertEqual(errorReason, rpcError.userInfo[NSLocalizedFailureReasonErrorKey] as? String)
+      }
+      if let checkLocalizedDescription {
+        let localizedDescription = try XCTUnwrap(rpcError
+          .userInfo[NSLocalizedDescriptionKey] as? String)
+        XCTAssertEqual(checkLocalizedDescription, localizedDescription)
+      }
     }
   }
 

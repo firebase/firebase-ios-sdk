@@ -75,7 +75,7 @@ import Foundation
       case let .verification(verificationID, code):
         let finalizeMFAPhoneRequestInfo =
           AuthProtoFinalizeMFAPhoneRequestInfo(sessionInfo: verificationID, verificationCode: code)
-        guard let user = user else {
+        guard let user = user, let auth = user.auth else {
           fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
         }
         let request = FinalizeMFAEnrollmentRequest(
@@ -85,24 +85,30 @@ import Foundation
           requestConfiguration: user.requestConfiguration
         )
 
-        AuthBackend.post(with: request) { rawResponse, error in
-          if let error {
-            if let completion {
-              completion(error)
-            }
-          } else if let response = rawResponse {
-            Task {
-              do {
-                try await user.auth?.completeSignIn(withAccessToken: response.idToken,
-                                                    accessTokenExpirationDate: nil,
-                                                    refreshToken: response.refreshToken,
-                                                    anonymous: false)
-                try? user.auth?.signOut()
-              } catch {
+        Task {
+          do {
+            let response = try await AuthBackend.post(with: request)
+            do {
+              let user = try await auth.completeSignIn(withAccessToken: response.idToken,
+                                                       accessTokenExpirationDate: nil,
+                                                       refreshToken: response.refreshToken,
+                                                       anonymous: false)
+              try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+              if let completion {
+                DispatchQueue.main.async {
+                  completion(nil)
+                }
+              }
+            } catch {
+              DispatchQueue.main.async {
                 if let completion {
                   completion(error)
                 }
               }
+            }
+          } catch {
+            if let completion {
+              completion(error)
             }
           }
         }
@@ -165,7 +171,7 @@ import Foundation
                                        requestConfiguration: user.requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.postAA(with: request)
+          let response = try await AuthBackend.post(with: request)
           do {
             let user = try await auth.completeSignIn(withAccessToken: response.idToken,
                                                      accessTokenExpirationDate: nil,

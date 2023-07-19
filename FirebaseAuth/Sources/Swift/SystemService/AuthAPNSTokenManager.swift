@@ -52,12 +52,13 @@
       self.application = application
     }
 
+    // This function is internal to make visible for tests.
     /** @fn getTokenWithCallback:
         @brief Attempts to get the APNs token.
         @param callback The block to be called either immediately or in future, either when a token
             becomes available, or when timeout occurs, whichever happens earlier.
      */
-    func getToken(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
+    func getTokenInternal(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
       if failFastForTesting {
         let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
         callback(nil, error)
@@ -82,6 +83,18 @@
         // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
         if applicableCallbacks.count == self.pendingCallbacks.count {
           self.callback(withToken: nil, error: nil)
+        }
+      }
+    }
+
+    func getToken() async throws -> AuthAPNSToken {
+      return try await withCheckedThrowingContinuation { continuation in
+        self.getTokenInternal { token, error in
+          if let token {
+            continuation.resume(returning: token)
+          } else {
+            continuation.resume(throwing: error!)
+          }
         }
       }
     }

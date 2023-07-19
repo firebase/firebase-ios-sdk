@@ -75,7 +75,7 @@
     private func verify(forwarding: Bool, delegate: FakeForwardingDelegate) throws {
       delegate.forwardsNotification = forwarding
       let expectation = self.expectation(description: "callback")
-      notificationManager?.checkNotificationForwarding { forwarded in
+      notificationManager?.checkNotificationForwardingInternal { forwarded in
         XCTAssertEqual(forwarded, forwarding)
         expectation.fulfill()
       }
@@ -94,7 +94,7 @@
       try verify(forwarding: false, delegate: delegate)
       modernDelegate?.notificationReceived = false
       var calledBack = false
-      notificationManager?.checkNotificationForwarding { isNotificationBeingForwarded in
+      notificationManager?.checkNotificationForwardingInternal { isNotificationBeingForwarded in
         XCTAssertFalse(isNotificationBeingForwarded)
         calledBack = true
       }
@@ -105,18 +105,18 @@
     /** @fn testPassingToCredentialManager
         @brief Test notification with the right structure is passed to credential manager.
      */
-    func testPassingToCredentialManager() throws {
+    func testPassingToCredentialManager() async throws {
       let payload = ["receipt": kReceipt, "secret": kSecret]
       let notification = ["com.google.firebase.auth": payload]
       // Stub appCredentialManager
-      appCredentialManager?.didStartVerification(withReceipt: kReceipt, timeout: 1000) { _ in }
+      let _ = await appCredentialManager?.didStartVerification(withReceipt: kReceipt, timeout: 0)
       XCTAssertTrue(try XCTUnwrap(notificationManager?.canHandle(notification: notification)))
 
       // JSON string form
       let data = try JSONSerialization.data(withJSONObject: payload)
       let string = String(data: data, encoding: .utf8)
       let jsonNotification = ["com.google.firebase.auth": string as Any] as [AnyHashable: Any]
-      appCredentialManager?.didStartVerification(withReceipt: kReceipt, timeout: 1000) { _ in }
+      let _ = await appCredentialManager?.didStartVerification(withReceipt: kReceipt, timeout: 0)
       XCTAssertTrue(try XCTUnwrap(notificationManager?.canHandle(notification: jsonNotification)))
     }
 

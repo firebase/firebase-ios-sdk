@@ -30,27 +30,27 @@ class DeleteAccountTests: RPCBaseTests {
   let kExpectedAPIURL =
     "https://www.googleapis.com/identitytoolkit/v3/relyingparty/deleteAccount?key=APIKey"
 
-  func testDeleteAccount() throws {
+  func testDeleteAccount() async throws {
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kInvalidUserTokenErrorMessage = "INVALID_ID_TOKEN:"
     let kCredentialTooOldErrorMessage = "CREDENTIAL_TOO_OLD_LOGIN_AGAIN:"
-    try checkRequest(
+    try await checkRequest(
       request: makeDeleteAccountRequest(),
       expected: kExpectedAPIURL,
       key: kLocalIDKey,
       value: kLocalID
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeDeleteAccountRequest(),
       message: kUserDisabledErrorMessage,
       errorCode: AuthErrorCode.userDisabled
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeDeleteAccountRequest(),
       message: kInvalidUserTokenErrorMessage,
       errorCode: AuthErrorCode.invalidUserToken
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeDeleteAccountRequest(),
       message: kCredentialTooOldErrorMessage,
       errorCode: AuthErrorCode.requiresRecentLogin
@@ -60,19 +60,12 @@ class DeleteAccountTests: RPCBaseTests {
   /** @fn testSuccessfulDeleteAccount
       @brief This test checks for a successful response
    */
-  func testSuccessfulDeleteAccountResponse() throws {
-    var callbackInvoked = false
-    var rpcError: NSError?
-
-    AuthBackend.post(with: makeDeleteAccountRequest()) { response, error in
-      callbackInvoked = true
-      rpcError = error as? NSError
+  func testSuccessfulDeleteAccountResponse() async throws {
+    rpcIssuer?.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: [:])
     }
-
-    _ = try rpcIssuer?.respond(withJSON: [:])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
+    let rpcResponse = try await AuthBackend.post(with: makeDeleteAccountRequest())
+    XCTAssertNotNil(rpcResponse)
   }
 
   private func makeDeleteAccountRequest() -> DeleteAccountRequest {

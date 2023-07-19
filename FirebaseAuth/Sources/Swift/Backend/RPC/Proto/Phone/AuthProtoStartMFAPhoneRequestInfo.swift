@@ -40,12 +40,10 @@ class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {
   }
 
   var phoneNumber: String?
-  var appCredential: AuthAppCredential?
-  var reCAPTCHAToken: String?
-  init(phoneNumber: String?, appCredential: AuthAppCredential?, reCAPTCHAToken: String?) {
+  var codeIdentity: CodeIdentity
+  init(phoneNumber: String?, codeIdentity: CodeIdentity) {
     self.phoneNumber = phoneNumber
-    self.appCredential = appCredential
-    self.reCAPTCHAToken = reCAPTCHAToken
+    self.codeIdentity = codeIdentity
   }
 
   var dictionary: [String: AnyHashable] {
@@ -53,14 +51,14 @@ class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {
     if let phoneNumber = phoneNumber {
       dict[kPhoneNumberKey] = phoneNumber
     }
-    if let receipt = appCredential?.receipt {
-      dict[kReceiptKey] = receipt
-    }
-    if let secret = appCredential?.secret {
-      dict[kSecretKey] = secret
-    }
-    if let reCAPTCHAToken = reCAPTCHAToken {
+    switch codeIdentity {
+    case let .credential(appCredential):
+      dict[kReceiptKey] = appCredential.receipt
+      dict[kSecretKey] = appCredential.secret
+    case let .recaptcha(reCAPTCHAToken):
       dict[kreCAPTCHATokenKey] = reCAPTCHAToken
+    case .empty:
+      break
     }
     return dict
   }

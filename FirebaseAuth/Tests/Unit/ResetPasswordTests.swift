@@ -22,49 +22,49 @@ class ResetPasswordTests: RPCBaseTests {
   let kTestOOBCode = "OOBCode"
   let kTestNewPassword = "newPassword:-)"
 
-  func testResetPasswordRequest() throws {
+  func testResetPasswordRequest() async throws {
     let kOOBCodeKey = "oobCode"
     let kNewPasswordKey = "newPassword"
     let kExpectedAPIURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/resetPassword?key=APIKey"
-    let issuer = try checkRequest(
+    try await checkRequest(
       request: makeResetPasswordRequest(),
       expected: kExpectedAPIURL,
       key: kNewPasswordKey,
       value: kTestNewPassword
     )
-    let requestDictionary = try XCTUnwrap(issuer.decodedRequest as? [String: AnyHashable])
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
     XCTAssertEqual(requestDictionary[kOOBCodeKey], kTestOOBCode)
   }
 
-  func testResetPasswordRequestErrors() throws {
+  func testResetPasswordRequestErrors() async throws {
     let kUserDisabledErrorMessage = "USER_DISABLED"
     let kOperationNotAllowedErrorMessage = "OPERATION_NOT_ALLOWED"
     let kExpiredActionCodeErrorMessage = "EXPIRED_OOB_CODE"
     let kInvalidActionCodeErrorMessage = "INVALID_OOB_CODE"
     let kWeakPasswordErrorMessagePrefix = "WEAK_PASSWORD : "
 
-    try checkBackendError(
+    try await checkBackendError(
       request: makeResetPasswordRequest(),
       message: kUserDisabledErrorMessage,
       errorCode: AuthErrorCode.userDisabled
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeResetPasswordRequest(),
       message: kOperationNotAllowedErrorMessage,
       errorCode: AuthErrorCode.operationNotAllowed
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeResetPasswordRequest(),
       message: kExpiredActionCodeErrorMessage,
       errorCode: AuthErrorCode.expiredActionCode
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeResetPasswordRequest(),
       message: kInvalidActionCodeErrorMessage,
       errorCode: AuthErrorCode.invalidActionCode
     )
-    try checkBackendError(
+    try await checkBackendError(
       request: makeResetPasswordRequest(),
       message: kWeakPasswordErrorMessagePrefix,
       errorCode: AuthErrorCode.weakPassword
@@ -74,26 +74,18 @@ class ResetPasswordTests: RPCBaseTests {
   /** @fn testSuccessfulResetPassword
       @brief Tests a successful reset password flow.
    */
-  func testSuccessfulResetPassword() throws {
+  func testSuccessfulResetPassword() async throws {
     let kTestEmail = "test@email.com"
     let kExpectedResetPasswordRequestType = "PASSWORD_RESET"
-    var callbackInvoked = false
-    var rpcResponse: ResetPasswordResponse?
-    var rpcError: NSError?
 
-    AuthBackend.post(with: makeResetPasswordRequest()) { response, error in
-      callbackInvoked = true
-      rpcResponse = response
-      rpcError = error as? NSError
+    rpcIssuer.respondBlock = {
+      try self.rpcIssuer?.respond(withJSON: ["email": kTestEmail,
+                                             "requestType": kExpectedResetPasswordRequestType])
     }
+    let rpcResponse = try await AuthBackend.post(with: makeResetPasswordRequest())
 
-    _ = try rpcIssuer?.respond(withJSON: ["email": kTestEmail,
-                                          "requestType": kExpectedResetPasswordRequestType])
-
-    XCTAssert(callbackInvoked)
-    XCTAssertNil(rpcError)
-    XCTAssertEqual(rpcResponse?.email, kTestEmail)
-    XCTAssertEqual(rpcResponse?.requestType, kExpectedResetPasswordRequestType)
+    XCTAssertEqual(rpcResponse.email, kTestEmail)
+    XCTAssertEqual(rpcResponse.requestType, kExpectedResetPasswordRequestType)
   }
 
   private func makeResetPasswordRequest() -> ResetPasswordRequest {
