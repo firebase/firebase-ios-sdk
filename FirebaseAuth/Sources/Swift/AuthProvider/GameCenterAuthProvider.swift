@@ -78,6 +78,9 @@
     }
 
     @available(iOS, deprecated: 13.0)
+    @available(tvOS, deprecated: 13.0)
+    @available(macOS, deprecated: 10.15.0)
+    @available(macCatalyst, deprecated: 13.0)
     fileprivate class func pre135Credential(localPlayer: GKLocalPlayer,
                                             completion: @escaping (AuthCredential?, Error?)
                                               -> Void) {
