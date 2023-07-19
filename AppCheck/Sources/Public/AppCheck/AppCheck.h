@@ -16,6 +16,7 @@
 
 #import "GACAppCheck.h"
 #import "GACAppCheckErrors.h"
+#import "GACAppCheckLogger.h"
 #import "GACAppCheckProvider.h"
 #import "GACAppCheckSettings.h"
 #import "GACAppCheckToken.h"
