@@ -43,11 +43,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO(andrewheard): Remove from generic App Check SDK.
-// FIREBASE_APP_CHECK_ONLY_BEGIN
-static NSString *const kHeartbeatKey = @"X-firebase-client";
-// FIREBASE_APP_CHECK_ONLY_END
-
 /// A data object that contains all key attest data required for FAC token exchange.
 @interface GACAppAttestKeyAttestationResult : NSObject
 
@@ -134,7 +129,7 @@ static NSString *const kHeartbeatKey = @"X-firebase-client";
     _keyIDStorage = keyIDStorage;
     _artifactStorage = artifactStorage;
     _backoffWrapper = backoffWrapper;
-    _queue = dispatch_queue_create("com.firebase.GACAppAttestProvider", DISPATCH_QUEUE_SERIAL);
+    _queue = dispatch_queue_create("com.google.GACAppAttestProvider", DISPATCH_QUEUE_SERIAL);
   }
   return self;
 }

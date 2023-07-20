@@ -38,14 +38,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-// TODO(andrewheard): Remove from generic App Check SDK.
-// FIREBASE_APP_CHECK_ONLY_BEGIN
-static NSString *const kGACAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix =
-    @"GACAppCheckTokenAutoRefreshEnabled_";
-static NSString *const kGACAppCheckTokenAutoRefreshEnabledInfoPlistKey =
-    @"FirebaseAppCheckTokenAutoRefreshEnabled";
-// FIREBASE_APP_CHECK_ONLY_END
-
 static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
 
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
