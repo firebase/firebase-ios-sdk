@@ -21,7 +21,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// An object representing a Firebase App Check token.
-NS_SWIFT_NAME(InternalAppCheckToken)
+NS_SWIFT_NAME(AppCheckCoreToken)
 @interface GACAppCheckToken : NSObject <GACAppCheckTokenInterop>
 
 /// A Firebase App Check token.
