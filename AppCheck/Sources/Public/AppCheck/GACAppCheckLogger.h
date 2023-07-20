@@ -16,14 +16,6 @@
 
 #import "GACAppCheckErrors.h"
 
-/// The current logging level.
-///
-/// Messages with levels equal to or higher priority than `GACAppCheckLogLevel` will be printed,
-/// where Fault > Error > Warning > Info > Debug.
-///
-/// Note: Declared as volatile to make getting and setting atomic.
-FOUNDATION_EXPORT volatile NSInteger gGACAppCheckLogLevel;
-
 /// Constants that specify the level of logging to perform in App Check Core.
 typedef NS_ENUM(NSInteger, GACAppCheckLogLevel) {
   /// The debug log level; equivalent to `OS_LOG_TYPE_DEBUG`.
@@ -37,3 +29,16 @@ typedef NS_ENUM(NSInteger, GACAppCheckLogLevel) {
   /// The fault log level; equivalent to `OS_LOG_TYPE_FAULT`.
   GACAppCheckLogLevelFault = 5
 } NS_SWIFT_NAME(AppCheckCoreLogLevel);
+
+NS_SWIFT_NAME(AppCheckCoreLogger)
+@interface GACAppCheckLogger : NSObject
+
+/// The current logging level.
+///
+/// Messages with levels equal to or higher priority than `logLevel` will be printed, where
+/// Fault > Error > Warning > Info > Debug.
+@property(class, atomic, assign) GACAppCheckLogLevel logLevel;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
