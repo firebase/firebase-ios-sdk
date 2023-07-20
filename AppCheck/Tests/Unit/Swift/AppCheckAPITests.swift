@@ -185,6 +185,11 @@ final class AppCheckAPITests {
         }
       }
     #endif // !os(watchOS)
+
+    // MARK: - AppCheckCoreLogger
+
+    // Set the log level for App Check Core
+    AppCheckCoreLogger.logLevel = .debug
   }
 }
 
