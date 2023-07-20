@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This class is available on all platforms for select OS versions. See
 /// https://firebase.google.com/docs/ios/learn-more for more details.
 GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
-NS_SWIFT_NAME(InternalDeviceCheckProvider)
+NS_SWIFT_NAME(AppCheckCoreDeviceCheckProvider)
 @interface GACDeviceCheckProvider : NSObject <GACAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;

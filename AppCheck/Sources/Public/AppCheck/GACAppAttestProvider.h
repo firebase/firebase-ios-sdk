@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// This class is available on all platforms for select OS versions. See
 /// https://firebase.google.com/docs/ios/learn-more for more details.
 GAC_APP_ATTEST_PROVIDER_AVAILABILITY
-NS_SWIFT_NAME(InternalAppAttestProvider)
+NS_SWIFT_NAME(AppCheckCoreAppAttestProvider)
 @interface GACAppAttestProvider : NSObject <GACAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
