@@ -32,7 +32,7 @@ final class AppCheckAPITests {
     #if TARGET_OS_IOS
       if #available(iOS 14.0, *) {
         // TODO(andrewheard): Add `requestHooks` in API tests.
-        if let provider = InternalAppAttestProvider(
+        if let provider = AppCheckCoreAppAttestProvider(
           storageID: app.name,
           resourceName: resourceName,
           apiKey: app.options.apiKey,
@@ -51,7 +51,7 @@ final class AppCheckAPITests {
     guard let app = FirebaseApp.app() else { return }
 
     // Retrieving an AppCheck instance
-    let appCheck = InternalAppCheck(
+    let appCheck = AppCheckCore(
       instanceName: app.name,
       appCheckProvider: DummyAppCheckProvider(),
       settings: DummyAppCheckSettings(),
@@ -85,7 +85,7 @@ final class AppCheckAPITests {
 
     // `AppCheckDebugProvider` initializer
     // TODO(andrewheard): Add `requestHooks` in API tests.
-    let debugProvider = InternalAppCheckDebugProvider(
+    let debugProvider = AppCheckCoreDebugProvider(
       storageID: app.name,
       resourceName: resourceName,
       apiKey: app.options.apiKey,
@@ -117,7 +117,7 @@ final class AppCheckAPITests {
 
     // MARK: - AppCheckToken
 
-    let token = InternalAppCheckToken(token: "token", expirationDate: Date.distantFuture)
+    let token = AppCheckCoreToken(token: "token", expirationDate: Date.distantFuture)
     _ = token.token
     _ = token.expirationDate
 
@@ -126,15 +126,15 @@ final class AppCheckAPITests {
     appCheck.token(forcingRefresh: false) { _, error in
       if let error = error {
         switch error {
-        case InternalAppCheckErrorCode.unknown:
+        case AppCheckCoreErrorCode.unknown:
           break
-        case InternalAppCheckErrorCode.serverUnreachable:
+        case AppCheckCoreErrorCode.serverUnreachable:
           break
-        case InternalAppCheckErrorCode.invalidConfiguration:
+        case AppCheckCoreErrorCode.invalidConfiguration:
           break
-        case InternalAppCheckErrorCode.keychain:
+        case AppCheckCoreErrorCode.keychain:
           break
-        case InternalAppCheckErrorCode.unsupported:
+        case AppCheckCoreErrorCode.unsupported:
           break
         default:
           break
@@ -156,7 +156,7 @@ final class AppCheckAPITests {
     #if !os(watchOS)
       if #available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *) {
         // TODO(andrewheard): Add `requestHooks` in API tests.
-        let deviceCheckProvider = InternalDeviceCheckProvider(
+        let deviceCheckProvider = AppCheckCoreDeviceCheckProvider(
           storageID: app.name,
           resourceName: resourceName,
           apiKey: app.options.apiKey,
@@ -176,7 +176,7 @@ final class AppCheckAPITests {
           Task {
             do {
               _ = try await deviceCheckProvider.getToken()
-            } catch InternalAppCheckErrorCode.unsupported {
+            } catch AppCheckCoreErrorCode.unsupported {
               // ...
             } catch {
               // ...
@@ -193,16 +193,16 @@ final class AppCheckAPITests {
   }
 }
 
-class DummyAppCheckProvider: NSObject, InternalAppCheckProvider {
-  func getToken(completion handler: @escaping (InternalAppCheckToken?, Error?) -> Void) {
-    handler(InternalAppCheckToken(token: "token", expirationDate: .distantFuture), nil)
+class DummyAppCheckProvider: NSObject, AppCheckCoreProvider {
+  func getToken(completion handler: @escaping (AppCheckCoreToken?, Error?) -> Void) {
+    handler(AppCheckCoreToken(token: "token", expirationDate: .distantFuture), nil)
   }
 }
 
-class DummyAppCheckSettings: NSObject, GACAppCheckSettingsProtocol {
+class DummyAppCheckSettings: NSObject, AppCheckCoreSettingsProtocol {
   var isTokenAutoRefreshEnabled: Bool = true
 }
 
-class DummyAppCheckTokenDelegate: NSObject, GACAppCheckTokenDelegate {
-  func tokenDidUpdate(_ token: InternalAppCheckToken, instanceName: String) {}
+class DummyAppCheckTokenDelegate: NSObject, AppCheckCoreTokenDelegate {
+  func tokenDidUpdate(_ token: AppCheckCoreToken, instanceName: String) {}
 }

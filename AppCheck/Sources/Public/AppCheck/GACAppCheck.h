@@ -26,14 +26,14 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// A class used to manage App Check tokens for a given resource.
-NS_SWIFT_NAME(InternalAppCheck)
+NS_SWIFT_NAME(AppCheckCore)
 @interface GACAppCheck : NSObject <GACAppCheckInterop>
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Returns an instance of `AppCheck` for an application.
-/// @param appCheckProvider  An `InternalAppCheckProvider` instance that provides App Check tokens.
-/// @return An instance of `AppCheck` corresponding to the provided `app`.
+/// @param appCheckProvider  An `AppCheckCoreProvider` instance that provides App Check tokens.
+/// @return An instance of `AppCheckCore` corresponding to the provided `app`.
 - (instancetype)initWithInstanceName:(NSString *)instanceName
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                             settings:(id<GACAppCheckSettingsProtocol>)settings

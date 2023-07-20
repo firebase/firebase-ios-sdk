@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// `xcodebuild test -scheme InstallationsExample -workspace InstallationsExample.xcworkspace \
 /// MY_APP_CHECK_DEBUG_TOKEN=$(MY_SECRET_ON_CI)`
 ///
-NS_SWIFT_NAME(InternalAppCheckDebugProvider)
+NS_SWIFT_NAME(AppCheckCoreDebugProvider)
 @interface GACAppCheckDebugProvider : NSObject <GACAppCheckProvider>
 
 - (instancetype)init NS_UNAVAILABLE;
