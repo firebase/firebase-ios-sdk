@@ -26,7 +26,7 @@ typedef void (^GACAppCheckAPIRequestHook)(NSMutableURLRequest *request);
 
 /// Defines the methods required to be implemented by a specific Firebase App Check
 /// provider.
-NS_SWIFT_NAME(InternalAppCheckProvider)
+NS_SWIFT_NAME(AppCheckCoreProvider)
 @protocol GACAppCheckProvider <NSObject>
 
 /// Returns a new Firebase App Check token.

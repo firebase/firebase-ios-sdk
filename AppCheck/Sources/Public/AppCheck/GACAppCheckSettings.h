@@ -19,6 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// A collection of App Check-wide settings and parameters.
+NS_SWIFT_NAME(AppCheckCoreSettingsProtocol)
 @protocol GACAppCheckSettingsProtocol <NSObject>
 
 /// If App Check token auto-refresh is enabled.
