@@ -29,7 +29,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kKeychainService = @"com.firebase.app_check.token_storage";
+static NSString *const kKeychainService = @"com.google.app_check_core.token_storage";
 
 @interface GACAppCheckStorage ()
 
