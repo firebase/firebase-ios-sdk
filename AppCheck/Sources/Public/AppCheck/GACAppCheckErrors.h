@@ -17,7 +17,7 @@
 #import <Foundation/Foundation.h>
 
 /// Firebase app check error domain.
-FOUNDATION_EXTERN NSErrorDomain const GACAppCheckErrorDomain NS_SWIFT_NAME(InternalAppCheckErrorDomain);
+FOUNDATION_EXTERN NSErrorDomain const GACAppCheckErrorDomain NS_SWIFT_NAME(AppCheckCoreErrorDomain);
 
 typedef NS_ERROR_ENUM(GACAppCheckErrorDomain, GACAppCheckErrorCode){
     /// An unknown or non-actionable error.
@@ -36,7 +36,7 @@ typedef NS_ERROR_ENUM(GACAppCheckErrorDomain, GACAppCheckErrorCode){
     /// Selected app attestation provider is not supported on the current platform or OS version.
     GACAppCheckErrorCodeUnsupported = 4
 
-} NS_SWIFT_NAME(InternalAppCheckErrorCode);
+} NS_SWIFT_NAME(AppCheckCoreErrorCode);
 
 #pragma mark - Error Message Codes
 
@@ -53,4 +53,4 @@ typedef NS_ENUM(NSInteger, GACAppCheckMessageCode) {
   // App Attest Provider
   GACLoggerAppCheckMessageCodeAppAttestNotSupported = 7001,
   GACLoggerAppCheckMessageCodeAttestationRejected = 7002
-};
+} NS_SWIFT_NAME(AppCheckCoreMessageCode);
