@@ -22,7 +22,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Public
 
-volatile NSInteger gGACAppCheckLogLevel = GACAppCheckLogLevelError;
+@implementation GACAppCheckLogger
+
+// Note: Declared as volatile to make getting and setting atomic.
+static volatile GACAppCheckLogLevel _logLevel;
+
++ (GACAppCheckLogLevel)logLevel {
+  return _logLevel;
+}
+
++ (void)setLogLevel:(GACAppCheckLogLevel)logLevel {
+  _logLevel = logLevel;
+}
+
+@end
 
 #pragma mark - Helpers
 
@@ -59,7 +72,7 @@ NSString *GACAppCheckLoggerLevelEnumToString(GACAppCheckLogLevel logLevel) {
 void GACAppCheckLog(GACAppCheckMessageCode code, GACAppCheckLogLevel logLevel, NSString *message) {
   // Don't log anything in not debug builds.
 #if !NDEBUG
-  if (logLevel >= gGACAppCheckLogLevel) {
+  if (logLevel >= GACAppCheckLogger.logLevel) {
     NSLog(@"<%@> [AppCheckCore][%@] %@", GACAppCheckLoggerLevelEnumToString(logLevel),
           GACAppCheckMessageCodeEnumToString(code), message);
   }
