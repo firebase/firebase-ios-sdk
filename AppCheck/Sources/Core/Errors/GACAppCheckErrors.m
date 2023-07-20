@@ -18,4 +18,4 @@
 
 #import "AppCheck/Sources/Public/AppCheck/GACAppCheckErrors.h"
 
-NSErrorDomain const GACAppCheckErrorDomain = @"com.firebase.appCheck";
+NSErrorDomain const GACAppCheckErrorDomain = @"com.google.app_check_core";
