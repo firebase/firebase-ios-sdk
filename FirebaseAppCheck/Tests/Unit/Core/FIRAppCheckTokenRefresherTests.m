@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-@import AppCheck;
+@import AppCheckCore;
 
 #import <OCMock/OCMock.h>
 

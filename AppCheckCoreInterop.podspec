@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'AppCheckCoreInterop'
-  s.version          = '10.11.0'
+  s.version          = '10.13.0'
   s.summary          = 'Interfaces that allow other SDKs to use AppCheckCore functionality.'
 
   s.description      = <<-DESC

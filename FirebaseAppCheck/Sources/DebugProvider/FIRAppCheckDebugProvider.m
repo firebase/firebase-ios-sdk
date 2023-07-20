@@ -22,7 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
-#import <AppCheck/AppCheck.h>
+@import AppCheckCore;
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
@@ -85,8 +85,6 @@ NS_ASSUME_NONNULL_BEGIN
   [self.debugProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
                                                NSError *_Nullable error) {
     if (error) {
-      FIRAppCheckDebugLog(kGACLoggerAppCheckMessageDebugProviderFailedExchange,
-                          @"Failed to exchange debug token to app check token: %@", error);
       handler(nil, error);
       return;
     }
