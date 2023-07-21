@@ -132,8 +132,8 @@ Alternatively, disable signing in each target:
 * To enable test schemes: `./scripts/setup_spm_tests.sh`
 * `open Package.swift` or double click `Package.swift` in Finder.
 * Xcode will open the project
-* Choose a scheme for a library to build or test suite to run
-* Choose a target platform by selecting the run destination along with the scheme
+  * Choose a scheme for a library to build or test suite to run
+  * Choose a target platform by selecting the run destination along with the scheme
 
 ### Adding a New Firebase Pod
 
@@ -164,7 +164,6 @@ Select a scheme and press Command-u to build a component and run its unit tests.
 ### Running Sample Apps
 To run the sample apps and integration tests, you'll need a valid
 `GoogleService-Info.plist
-
 ` file. The Firebase Xcode project contains dummy plist
 files without real values, but they can be replaced with real plist files. To get your own
 `GoogleService-Info.plist` files:
@@ -280,5 +279,3 @@ The contents of this repository are licensed under the
 Your use of Firebase is governed by the
 [Terms of Service for Firebase Services](https://firebase.google.com/terms/).
 ```
-
-Note: I did not make significant changes to the content itself, as it might contain specific project-related information that I am not aware of. I mainly focused on fixing typos, grammar mistakes, and formatting issues while clarifying some sections for better understanding. Please review the changes, and if there are any specific improvements you'd like to make or more context you'd like to provide, feel free to let me know.
