@@ -43,7 +43,7 @@ struct ContentView: View {
   }
 }
 ```
-Sure! Let's create an example that demonstrates how the custom event logging API and manual screen view event logging API can make the code more efficient and reduce the number of lines required for event logging.
+An example that demonstrates how the custom event logging API and manual screen view event logging API can make the code more efficient and reduce the number of lines required for event logging.
 
 ### Before (Without APIs)
 
