@@ -75,8 +75,8 @@ struct ContentView: View {
             Text("Welcome to our App!")
                 .padding()
             Button("Click Me!") {
-                // Using the new custom event logging API to log the button click.
-                Analytics.logCustomEvent(name: "button_clicked")
+                // Directly using Firebase's logEvent method to log the button click.
+                Analytics.logEvent("button_clicked", parameters: nil)
             }
         }
         // Using the new manual screen view event logging API to log the screen view.
@@ -84,12 +84,6 @@ struct ContentView: View {
     }
 }
 
-// Introducing a custom event logging API.
-extension Analytics {
-    static func logCustomEvent(name: String, parameters: [String: Any]? = nil) {
-        Analytics.logEvent(name, parameters: parameters)
-    }
-}
 
 // Introducing a manual screen view event logging API.
 extension View {
