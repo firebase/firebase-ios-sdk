@@ -53,7 +53,6 @@ struct ContentView: View {
         VStack {
             Text("Welcome to our App!")
                 .padding()
-            
             Button("Click Me!") {
                 // Logging a custom event when the button is clicked.
                 Analytics.logEvent("button_clicked", parameters: nil)
@@ -75,7 +74,6 @@ struct ContentView: View {
         VStack {
             Text("Welcome to our App!")
                 .padding()
-            
             Button("Click Me!") {
                 // Using the new custom event logging API to log the button click.
                 Analytics.logCustomEvent(name: "button_clicked")
