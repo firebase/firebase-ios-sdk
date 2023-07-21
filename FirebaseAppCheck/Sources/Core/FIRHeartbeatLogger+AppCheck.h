@@ -16,7 +16,7 @@
 
 #import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 
-#import <AppCheck/AppCheck.h>
+@import AppCheckCore;
 
 NS_ASSUME_NONNULL_BEGIN
 

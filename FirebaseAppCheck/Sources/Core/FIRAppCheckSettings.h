@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@import AppCheck;
+@import AppCheckCore;
 
 @class FIRApp;
 
