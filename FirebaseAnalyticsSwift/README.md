@@ -102,12 +102,8 @@ extension View {
 }
 ```
 
-In this example, using the custom event logging API and manual screen view event logging API significantly reduces the amount of code required for event logging:
+In this example, by leveraging the custom event logging API and manual screen view event logging API, we achieve a significant reduction in code complexity for event tracking:
 
-1. Before: We had separate event logging code for both the button click and screen view events, resulting in redundant lines of code.
-2. After: With the custom event logging API and manual screen view event logging API, we have reduced the event logging code to a few lines, improving code efficiency and readability.
+1. **Before:** In the previous implementation, event logging for button clicks and screen views required separate blocks of code, leading to redundant lines of code throughout the app. This redundancy made the codebase less efficient and harder to maintain.
 
-By using these APIs, you can easily log events and screen views throughout the app with concise and reusable code, making it more efficient and maintainable.
-
-
-
+2. **After:** By adopting the event logging API and manual screen view event logging API, we now condense the event tracking logic into just a few lines of code. This streamlined approach improves the overall code efficiency and enhances code readability.
