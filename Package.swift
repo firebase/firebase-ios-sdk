@@ -26,8 +26,8 @@ let package = Package(
   platforms: [.iOS(.v11), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
-      name: "AppCheck",
-      targets: ["AppCheck"]
+      name: "AppCheckCore",
+      targets: ["AppCheckCore"]
     ),
     .library(
       name: "FirebaseAnalytics",
@@ -1222,7 +1222,7 @@ let package = Package(
 
     .target(name: "FirebaseAppCheck",
             dependencies: [
-              "AppCheck",
+              "AppCheckCore",
               "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "FBLPromises", package: "Promises"),
@@ -1281,14 +1281,14 @@ let package = Package(
 
     // MARK: - App Check
 
-    .target(name: "AppCheck",
+    .target(name: "AppCheckCore",
             dependencies: [
-              "AppCheckInterop",
+              "AppCheckCoreInterop",
               "FirebaseCore",
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
             ],
-            path: "AppCheck/Sources",
+            path: "AppCheckCore/Sources",
             publicHeadersPath: "Public",
             cSettings: [
               .headerSearchPath("../.."),
@@ -1301,8 +1301,8 @@ let package = Package(
             ]),
     // Internal headers only for consuming from Swift.
     .target(
-      name: "AppCheckInterop",
-      path: "AppCheck/Interop",
+      name: "AppCheckCoreInterop",
+      path: "AppCheckCore/Interop",
       exclude: [
         "CMakeLists.txt",
       ],
@@ -1312,16 +1312,16 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnit",
+      name: "AppCheckCoreUnit",
       dependencies: [
-        "AppCheck",
+        "AppCheckCore",
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
-      path: "AppCheck/Tests",
+      path: "AppCheckCore/Tests",
       exclude: [
-        // Swift tests are in the target `AppCheckUnitSwift` since mixed language targets are not
-        // supported (as of Xcode 14.3).
+        // Swift tests are in the target `AppCheckCoreUnitSwift` since mixed language targets are
+        // not supported (as of Xcode 14.3).
         "Unit/Swift",
       ],
       resources: [
@@ -1332,9 +1332,9 @@ let package = Package(
       ]
     ),
     .testTarget(
-      name: "AppCheckUnitSwift",
-      dependencies: ["AppCheck"],
-      path: "AppCheck/Tests/Unit/Swift",
+      name: "AppCheckCoreUnitSwift",
+      dependencies: ["AppCheckCore"],
+      path: "AppCheckCore/Tests/Unit/Swift",
       cSettings: [
         .headerSearchPath("../.."),
       ]

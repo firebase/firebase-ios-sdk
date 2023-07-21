@@ -16,7 +16,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import <AppCheck/AppCheck.h>
+@import AppCheckCore;
+
 #import <OCMock/OCMock.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"

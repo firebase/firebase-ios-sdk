@@ -16,7 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppAttestProvider.h"
 
-#import <AppCheck/AppCheck.h>
+@import AppCheckCore;
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
