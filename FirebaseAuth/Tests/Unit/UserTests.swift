@@ -392,8 +392,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_EMAIL")
+        }
         user.updateEmail(to: self.kNewEmail) { rawError in
           XCTAssertTrue(Thread.isMainThread)
           let error = try! XCTUnwrap(rawError)
@@ -404,12 +405,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_EMAIL")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -423,8 +418,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_ID_TOKEN")
+        }
         user.updateEmail(to: self.kNewEmail) { rawError in
           XCTAssertTrue(Thread.isMainThread)
           let error = try! XCTUnwrap(rawError)
@@ -435,12 +431,6 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_ID_TOKEN")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -457,7 +447,10 @@ class UserTests: RPCBaseTests {
       let auth = try XCTUnwrap(UserTests.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken])
+          }
           self.expectVerifyPhoneNumberRequest()
           self.rpcIssuer?.fakeGetAccountProviderJSON = [[
             "phoneNumber": self.kPhoneNumber,
@@ -474,11 +467,6 @@ class UserTests: RPCBaseTests {
             XCTAssertEqual(auth.currentUser?.phoneNumber, self.kPhoneNumber)
             expectation.fulfill()
           }
-          group.wait()
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -493,7 +481,9 @@ class UserTests: RPCBaseTests {
       let auth = try XCTUnwrap(UserTests.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
+          }
           self.expectVerifyPhoneNumberRequest()
 
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
@@ -508,10 +498,6 @@ class UserTests: RPCBaseTests {
             XCTAssertEqual(auth.currentUser, user)
             expectation.fulfill()
           }
-          group.wait()
-          try self.rpcIssuer?.respond(serverErrorMessage: "INVALID_PHONE_NUMBER")
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -527,14 +513,15 @@ class UserTests: RPCBaseTests {
       let auth = try XCTUnwrap(UserTests.auth)
       signInWithEmailPasswordReturnFakeUser { user in
         do {
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          }
           self.expectVerifyPhoneNumberRequest()
 
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
             verificationCode: self.kVerificationCode
           )
-
           user.updatePhoneNumber(credential) { rawError in
             XCTAssertTrue(Thread.isMainThread)
             let error = try! XCTUnwrap(rawError)
@@ -543,10 +530,6 @@ class UserTests: RPCBaseTests {
             XCTAssertNil(UserTests.auth?.currentUser)
             expectation.fulfill()
           }
-          group.wait()
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -573,8 +556,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
+        }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
           let error = try! XCTUnwrap(rawError)
@@ -585,12 +569,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -604,8 +582,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "WEAK_PASSWORD")
+        }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
           let error = try! XCTUnwrap(rawError)
@@ -616,12 +595,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "WEAK_PASSWORD")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -636,8 +609,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+        }
         user.updatePassword(to: self.kNewPassword) { rawError in
           XCTAssertTrue(Thread.isMainThread)
           let error = try! XCTUnwrap(rawError)
@@ -648,12 +622,6 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -667,7 +635,10 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        }
         let profileChange = user.createProfileChangeRequest()
         profileChange.photoURL = URL(string: self.kTestPhotoURL)
         profileChange.displayName = self.kNewDisplayName
@@ -678,12 +649,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(user.photoURL, URL(string: self.kTestPhotoURL))
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken])
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -697,8 +662,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+        }
         let profileChange = user.createProfileChangeRequest()
         profileChange.displayName = self.kNewDisplayName
         profileChange.commitChanges { rawError in
@@ -712,12 +678,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -731,8 +691,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
+        }
         let profileChange = user.createProfileChangeRequest()
         profileChange.displayName = self.kNewDisplayName
         profileChange.commitChanges { rawError in
@@ -745,12 +706,6 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -842,8 +797,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "QUOTA_EXCEEDED")
+        }
         // Clear fake so we can inject error
         self.rpcIssuer?.fakeGetAccountProviderJSON = nil
 
@@ -855,12 +811,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "QUOTA_EXCEEDED")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -874,8 +824,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+        }
         // Clear fake so we can inject error
         self.rpcIssuer?.fakeGetAccountProviderJSON = nil
 
@@ -887,12 +838,6 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
         }
-        group.wait()
-
-        try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
-
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -906,7 +851,10 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
         user.reauthenticate(with: emailCredential) { rawResult, error in
@@ -920,11 +868,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken])
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -937,7 +880,16 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithGoogleCredential { user in
       do {
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken,
+                                                 "federatedId": self.kGoogleID,
+                                                 "providerId": GoogleAuthProvider.id,
+                                                 "localId": self.kLocalID,
+                                                 "displayName": self.kGoogleDisplayName,
+                                                 "rawUserInfo": self.kGoogleProfile,
+                                                 "username": self.kUserName])
+        }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
         user.reauthenticate(with: googleCredential) { reauthenticatedAuthResult, error in
@@ -965,17 +917,6 @@ class UserTests: RPCBaseTests {
           )
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken,
-                                               "federatedId": self.kGoogleID,
-                                               "providerId": GoogleAuthProvider.id,
-                                               "localId": self.kLocalID,
-                                               "displayName": self.kGoogleDisplayName,
-                                               "rawUserInfo": self.kGoogleProfile,
-                                               "username": self.kUserName])
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -990,8 +931,10 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        }
         self.setFakeGetAccountProvider(withLocalID: "A different Local ID")
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1005,11 +948,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken])
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1024,8 +962,9 @@ class UserTests: RPCBaseTests {
     let expectation = self.expectation(description: #function)
     signInWithEmailPasswordReturnFakeUser { user in
       do {
-        let group = self.createGroup()
-
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
+        }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
         user.reauthenticate(with: googleCredential) { reauthenticatedAuthResult, rawError in
@@ -1038,10 +977,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(serverErrorMessage: "USER_NOT_FOUND")
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1058,7 +993,16 @@ class UserTests: RPCBaseTests {
       XCTAssertNotNil(user)
       do {
         self.setFakeGoogleGetAccountProvider()
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken,
+                                                 "federatedId": self.kGoogleID,
+                                                 "providerId": GoogleAuthProvider.id,
+                                                 "localId": self.kLocalID,
+                                                 "displayName": self.kGoogleDisplayName,
+                                                 "rawUserInfo": self.kGoogleProfile,
+                                                 "username": self.kUserName])
+        }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
         user.link(with: googleCredential) { linkAuthResult, error in
@@ -1082,17 +1026,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(linkAuthResult?.user.providerData.first?.providerID, GoogleAuthProvider.id)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken,
-                                               "federatedId": self.kGoogleID,
-                                               "providerId": GoogleAuthProvider.id,
-                                               "localId": self.kLocalID,
-                                               "displayName": self.kGoogleDisplayName,
-                                               "rawUserInfo": self.kGoogleProfile,
-                                               "username": self.kUserName])
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1110,7 +1043,9 @@ class UserTests: RPCBaseTests {
       XCTAssertNotNil(user)
       do {
         self.setFakeGetAccountProvider()
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
+        }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
         user.link(with: googleCredential) { linkAuthResult, rawError in
@@ -1124,10 +1059,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(serverErrorMessage: "CREDENTIAL_TOO_OLD_LOGIN_AGAIN")
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1175,7 +1106,9 @@ class UserTests: RPCBaseTests {
       XCTAssertNotNil(user)
       do {
         self.setFakeGetAccountProvider()
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
+        }
         let googleCredential = GoogleAuthProvider.credential(withIDToken: self.kGoogleIDToken,
                                                              accessToken: self.kGoogleAccessToken)
         user.link(with: googleCredential) { linkAuthResult, rawError in
@@ -1187,10 +1120,6 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(serverErrorMessage: "USER_DISABLED")
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1208,7 +1137,10 @@ class UserTests: RPCBaseTests {
       XCTAssertNotNil(user)
       do {
         self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
         user.link(with: emailCredential) { linkAuthResult, error in
@@ -1224,11 +1156,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(linkAuthResult?.user.displayName, user.displayName)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken])
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1246,7 +1173,10 @@ class UserTests: RPCBaseTests {
       XCTAssertNotNil(user)
       do {
         self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                 "refreshToken": self.kRefreshToken])
+        }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
         user.link(with: emailCredential) { linkAuthResult, error in
@@ -1265,11 +1195,6 @@ class UserTests: RPCBaseTests {
             expectation.fulfill()
           }
         }
-        group.wait()
-        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                               "refreshToken": self.kRefreshToken])
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1286,7 +1211,9 @@ class UserTests: RPCBaseTests {
       XCTAssertNotNil(user)
       do {
         self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
+        }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
         user.link(with: emailCredential) { linkAuthResult, rawError in
@@ -1298,10 +1225,6 @@ class UserTests: RPCBaseTests {
           XCTAssertEqual(UserTests.auth?.currentUser, user)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1318,7 +1241,9 @@ class UserTests: RPCBaseTests {
       XCTAssertNotNil(user)
       do {
         self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
-        let group = self.createGroup()
+        self.rpcIssuer.respondBlock = {
+          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+        }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
         user.link(with: emailCredential) { linkAuthResult, rawError in
@@ -1330,10 +1255,6 @@ class UserTests: RPCBaseTests {
           XCTAssertNil(UserTests.auth?.currentUser)
           expectation.fulfill()
         }
-        group.wait()
-        try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
-      } catch {
-        XCTFail("Caught an error in \(#function): \(error)")
       }
     }
     waitForExpectations(timeout: 5)
@@ -1366,7 +1287,9 @@ class UserTests: RPCBaseTests {
         XCTAssertNotNil(user)
         do {
           self.setFakeGetAccountProvider()
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          }
           user.link(with: FakeOAuthProvider(providerID: "foo", auth: auth),
                     uiDelegate: nil) { linkAuthResult, rawError in
             XCTAssertTrue(Thread.isMainThread)
@@ -1377,10 +1300,6 @@ class UserTests: RPCBaseTests {
             XCTAssertNil(UserTests.auth?.currentUser)
             expectation.fulfill()
           }
-          group.wait()
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -1397,7 +1316,9 @@ class UserTests: RPCBaseTests {
         XCTAssertNotNil(user)
         do {
           self.setFakeGetAccountProvider()
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
+          }
           user.reauthenticate(with: FakeOAuthProvider(providerID: "foo", auth: auth),
                               uiDelegate: nil) { linkAuthResult, rawError in
             XCTAssertTrue(Thread.isMainThread)
@@ -1408,10 +1329,6 @@ class UserTests: RPCBaseTests {
             XCTAssertEqual(UserTests.auth?.currentUser, user)
             expectation.fulfill()
           }
-          group.wait()
-          try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -1429,7 +1346,10 @@ class UserTests: RPCBaseTests {
         self.expectVerifyPhoneNumberRequest(isLink: true)
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken])
+          }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
             verificationCode: self.kVerificationCode
@@ -1453,11 +1373,6 @@ class UserTests: RPCBaseTests {
             XCTAssertEqual(auth.currentUser?.phoneNumber, self.kTestPhoneNumber)
             expectation.fulfill()
           }
-          group.wait()
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -1476,7 +1391,10 @@ class UserTests: RPCBaseTests {
         self.expectVerifyPhoneNumberRequest(isLink: true)
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken])
+          }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
             verificationCode: self.kVerificationCode
@@ -1500,16 +1418,7 @@ class UserTests: RPCBaseTests {
             XCTAssertEqual(auth.currentUser?.phoneNumber, self.kTestPhoneNumber)
 
             // Immediately unlink the phone auth provider.
-            let unlinkGroup = self.createGroup()
-            user.unlink(fromProvider: PhoneAuthProvider.id) { user, error in
-              XCTAssertNil(error)
-              XCTAssertEqual(auth.currentUser, user)
-              XCTAssertNil(auth.currentUser?.phoneNumber)
-              expectation.fulfill()
-            }
-            unlinkGroup.wait()
-
-            do {
+            self.rpcIssuer.respondBlock = {
               let request = try XCTUnwrap(self.rpcIssuer?.request as? SetAccountInfoRequest)
               XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
               XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
@@ -1521,18 +1430,16 @@ class UserTests: RPCBaseTests {
               XCTAssertNil(request.providers)
               XCTAssertNil(request.deleteAttributes)
               XCTAssertEqual(try XCTUnwrap(request.deleteProviders?.first), PhoneAuthProvider.id)
-
               try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                                      "refreshToken": self.kRefreshToken])
-            } catch {
-              XCTFail("Caught an error responding for unlink's SetAccountInfoRequest: \(error)")
+            }
+            user.unlink(fromProvider: PhoneAuthProvider.id) { user, error in
+              XCTAssertNil(error)
+              XCTAssertEqual(auth.currentUser, user)
+              XCTAssertNil(auth.currentUser?.phoneNumber)
+              expectation.fulfill()
             }
           }
-          group.wait()
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken])
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -1580,7 +1487,12 @@ class UserTests: RPCBaseTests {
         self.expectVerifyPhoneNumberRequest(isLink: true)
         do {
           self.setFakeGetAccountProvider(withProviderID: PhoneAuthProvider.id)
-          let group = self.createGroup()
+          self.rpcIssuer.respondBlock = {
+            try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                                   "refreshToken": self.kRefreshToken,
+                                                   "phoneNumber": self.kTestPhoneNumber,
+                                                   "temporaryProof": "Fake Temporary Proof"])
+          }
           let credential = PhoneAuthProvider.provider(auth: auth).credential(
             withVerificationID: self.kVerificationID,
             verificationCode: self.kVerificationCode
@@ -1604,13 +1516,6 @@ class UserTests: RPCBaseTests {
             }
             expectation.fulfill()
           }
-          group.wait()
-          try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                                 "refreshToken": self.kRefreshToken,
-                                                 "phoneNumber": self.kTestPhoneNumber,
-                                                 "temporaryProof": "Fake Temporary Proof"])
-        } catch {
-          XCTFail("Caught an error in \(#function): \(error)")
         }
       }
       waitForExpectations(timeout: 5)
@@ -1677,7 +1582,28 @@ class UserTests: RPCBaseTests {
       // Pretend that the display name on the server has been changed since the original signin.
       setFakeGetAccountProvider(withNewDisplayName: kNewDisplayName)
 
-      let group = createGroup()
+      rpcIssuer.respondBlock = {
+        let request = try XCTUnwrap(self.rpcIssuer?.request as? SetAccountInfoRequest)
+        XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
+        XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
+        if changeEmail {
+          XCTAssertEqual(request.email, self.kNewEmail)
+          XCTAssertNil(request.password)
+        } else {
+          XCTAssertEqual(request.password, self.kNewPassword)
+          XCTAssertNil(request.email)
+        }
+        XCTAssertNil(request.localID)
+        XCTAssertNil(request.displayName)
+        XCTAssertNil(request.photoURL)
+        XCTAssertNil(request.providers)
+        XCTAssertNil(request.deleteAttributes)
+        XCTAssertNil(request.deleteProviders)
+
+        try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                               "email": self.kNewEmail,
+                                               "refreshToken": self.kRefreshToken])
+      }
       if changeEmail {
         user.updateEmail(to: kNewEmail) { error in
           XCTAssertNil(error)
@@ -1694,31 +1620,6 @@ class UserTests: RPCBaseTests {
           expectation.fulfill()
         }
       }
-      group.wait()
-
-      let request = try XCTUnwrap(rpcIssuer?.request as? SetAccountInfoRequest)
-      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
-      XCTAssertEqual(request.accessToken, RPCBaseTests.kFakeAccessToken)
-      if changeEmail {
-        XCTAssertEqual(request.email, kNewEmail)
-        XCTAssertNil(request.password)
-      } else {
-        XCTAssertEqual(request.password, kNewPassword)
-        XCTAssertNil(request.email)
-      }
-      XCTAssertNil(request.localID)
-      XCTAssertNil(request.displayName)
-      XCTAssertNil(request.photoURL)
-      XCTAssertNil(request.providers)
-      XCTAssertNil(request.deleteAttributes)
-      XCTAssertNil(request.deleteProviders)
-
-      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                        "email": kNewEmail,
-                                        "refreshToken": kRefreshToken])
-
-    } catch {
-      XCTFail("Caught an error in \(#function): \(error)")
     }
   }
 
@@ -1777,8 +1678,20 @@ class UserTests: RPCBaseTests {
     setFakeSecureTokenService(fakeAccessToken: RPCBaseTests.kFakeAccessToken)
     setFakeGoogleGetAccountProvider()
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
+    rpcIssuer.respondBlock = {
+      try self.verifyGoogleAssertionRequest(
+        XCTUnwrap(self.rpcIssuer?.request as? VerifyAssertionRequest)
+      )
+
+      // 3. Send the response from the fake backend.
+      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                             "providerId": GoogleAuthProvider.id,
+                                             "refreshToken": self.kRefreshToken,
+                                             "localId": self.kLocalID,
+                                             "displayName": self.kDisplayName,
+                                             "rawUserInfo": self.kGoogleProfile,
+                                             "username": self.kUserName])
+    }
 
     do {
       try UserTests.auth?.signOut()
@@ -1806,20 +1719,6 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(error)
         completion(user)
       }
-      group.wait()
-
-      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      try verifyGoogleAssertionRequest(XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest))
-
-      // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                        "providerId": GoogleAuthProvider.id,
-                                        "refreshToken": kRefreshToken,
-                                        "localId": kLocalID,
-                                        "displayName": kDisplayName,
-                                        "rawUserInfo": kGoogleProfile,
-                                        "username": kUserName])
-
     } catch {
       XCTFail("Throw in \(#function): \(error)")
     }
@@ -1841,8 +1740,25 @@ class UserTests: RPCBaseTests {
                               withFederatedID: kFacebookID,
                               withEmail: kFacebookEmail)
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
+    rpcIssuer.respondBlock = {
+      let request = try XCTUnwrap(self.rpcIssuer?.request as? VerifyAssertionRequest)
+      XCTAssertEqual(request.providerID, FacebookAuthProvider.id)
+      XCTAssertEqual(request.providerIDToken, self.kFacebookIDToken)
+      XCTAssertEqual(request.providerAccessToken, self.kFacebookAccessToken)
+      XCTAssertTrue(request.returnSecureToken)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
+      XCTAssertTrue(request.returnSecureToken)
+
+      // 3. Send the response from the fake backend.
+      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                             "refreshToken": self.kRefreshToken,
+                                             "federatedId": self.kFacebookID,
+                                             "providerId": FacebookAuthProvider.id,
+                                             "localId": self.kLocalID,
+                                             "displayName": self.kDisplayName,
+                                             "rawUserInfo": self.kGoogleProfile,
+                                             "username": self.kUserName])
+    }
 
     do {
       try UserTests.auth?.signOut()
@@ -1877,27 +1793,6 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(error)
         completion(user)
       }
-      group.wait()
-
-      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? VerifyAssertionRequest)
-      XCTAssertEqual(request.providerID, FacebookAuthProvider.id)
-      XCTAssertEqual(request.providerIDToken, kFacebookIDToken)
-      XCTAssertEqual(request.providerAccessToken, kFacebookAccessToken)
-      XCTAssertTrue(request.returnSecureToken)
-      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
-      XCTAssertTrue(request.returnSecureToken)
-
-      // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                        "refreshToken": kRefreshToken,
-                                        "federatedId": kFacebookID,
-                                        "providerId": FacebookAuthProvider.id,
-                                        "localId": kLocalID,
-                                        "displayName": kDisplayName,
-                                        "rawUserInfo": kGoogleProfile,
-                                        "username": kUserName])
-
     } catch {
       XCTFail("Throw in \(#function): \(error)")
     }
@@ -1907,8 +1802,18 @@ class UserTests: RPCBaseTests {
     let kRefreshToken = "fakeRefreshToken"
     setFakeSecureTokenService()
 
-    // 1. Create a group to synchronize request creation by the fake rpcIssuer.
-    let group = createGroup()
+    rpcIssuer.respondBlock = {
+      let request = try XCTUnwrap(self.rpcIssuer?.request as? EmailLinkSignInRequest)
+      XCTAssertEqual(request.email, self.kEmail)
+      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
+      XCTAssertEqual(request.oobCode, "aCode")
+      XCTAssertNil(request.idToken)
+
+      // Send the response from the fake backend.
+      try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
+                                             "isNewUser": true,
+                                             "refreshToken": kRefreshToken])
+    }
 
     do {
       try UserTests.auth?.signOut()
@@ -1934,19 +1839,6 @@ class UserTests: RPCBaseTests {
         XCTAssertNil(error)
         completion(user)
       }
-      group.wait()
-
-      // 2. After the fake rpcIssuer leaves the group, validate the created Request instance.
-      let request = try XCTUnwrap(rpcIssuer?.request as? EmailLinkSignInRequest)
-      XCTAssertEqual(request.email, kEmail)
-      XCTAssertEqual(request.apiKey, UserTests.kFakeAPIKey)
-      XCTAssertEqual(request.oobCode, "aCode")
-      XCTAssertNil(request.idToken)
-
-      // 3. Send the response from the fake backend.
-      try rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
-                                        "isNewUser": true,
-                                        "refreshToken": kRefreshToken])
     } catch {
       XCTFail("Throw in \(#function): \(error)")
     }

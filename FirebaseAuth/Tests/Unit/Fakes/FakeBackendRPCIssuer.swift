@@ -59,11 +59,6 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
    */
   private var handler: ((Data?, Error?) -> Void)?
 
-  /** @var group
-      @brief Block on handler initialization
-   */
-  var group: DispatchGroup?
-
   /** @var verifyRequester
       @brief Optional function to run tests on the request.
    */
@@ -149,9 +144,6 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
         XCTFail("Unexpected exception in respondBlock")
       }
       self.respondBlock = nil
-    } else if let group {
-      self.group = nil
-      group.leave()
     }
   }
 

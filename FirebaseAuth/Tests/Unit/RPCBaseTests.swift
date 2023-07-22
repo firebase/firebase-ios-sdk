@@ -295,13 +295,6 @@ class RPCBaseTests: XCTestCase {
     ]]
   }
 
-  func createGroup() -> DispatchGroup {
-    let group = DispatchGroup()
-    rpcIssuer?.group = group
-    group.enter()
-    return group
-  }
-
   func fakeActionCodeSettings() -> ActionCodeSettings {
     let settings = ActionCodeSettings()
     settings.iOSBundleID = kIosBundleID
