@@ -148,7 +148,6 @@ class AuthBackend: NSObject {
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendImplementation {
   func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response
-  func post<T: AuthRPCRequest>(with request: T, response: T.Response) async throws -> Void
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -172,13 +171,11 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param callback The callback for both success and failure.
    */
   fileprivate func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
-    let response = T.Response()
-    try await post(with: request, response: response)
+    let response = try await postInternal(with: request)
     if let auth = request.requestConfiguration().auth,
-       let mfaError = AuthBackendRPCImplementation
-       .generateMFAError(response: response, auth: auth) {
+       let mfaError = Self.generateMFAError(response: response, auth: auth) {
       throw mfaError
-    } else if let error = AuthBackendRPCImplementation.phoneCredentialInUse(response: response) {
+    } else if let error = Self.phoneCredentialInUse(response: response) {
       throw error
     } else {
       return response
@@ -247,7 +244,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param response The empty response to be filled.
       @param callback The callback for both success and failure.
    */
-  fileprivate func post<T: AuthRPCRequest>(with request: T, response: T.Response) async throws {
+  fileprivate func postInternal<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     var bodyData: Data?
     if request.containsPostBody {
       var postBody: [String: AnyHashable]
@@ -341,6 +338,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
             }
           }
 
+          let response = T.Response()
+
           // At this point we either have an error with successfully decoded
           // details in the body, or we have a response which must pass further
           // validation before we know it's truly successful. We deal with the
@@ -404,7 +403,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
               }
             }
           }
-          continuation.resume()
+          continuation.resume(returning: response)
         }
     }
   }
