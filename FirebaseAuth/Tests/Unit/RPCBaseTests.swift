@@ -318,4 +318,9 @@ class RPCBaseTests: XCTestCase {
     XCTAssertEqual(googleUserInfo.displayName, kGoogleDisplayName)
     XCTAssertEqual(googleUserInfo.email, kGoogleEmail)
   }
+
+  /// Sleep long enough for pending async task to start.
+  static func waitSleep() {
+    usleep(10000)
+  }
 }

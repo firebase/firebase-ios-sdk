@@ -1767,7 +1767,7 @@ class AuthTests: RPCBaseTests {
 
     // Verify that current user's access token is the "new" access token provided in the mock secure
     // token response during automatic token refresh.
-    usleep(5000)
+    RPCBaseTests.waitSleep()
     XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
   }
 
@@ -1801,7 +1801,7 @@ class AuthTests: RPCBaseTests {
     waitForAuthGlobalWorkQueueDrain()
 
     // Verify that the user is nil after failed attempt to refresh tokens caused signed out.
-    usleep(5000)
+    RPCBaseTests.waitSleep()
     XCTAssertNil(auth.currentUser)
   }
 
@@ -1842,7 +1842,7 @@ class AuthTests: RPCBaseTests {
     // Execute saved token refresh task.
     let expectation2 = self.expectation(description: "dispatchAfterExpectation")
     kAuthGlobalWorkQueue.async {
-      usleep(5000)
+      RPCBaseTests.waitSleep()
       XCTAssertNotNil(self.authDispatcherCallback)
       self.authDispatcherCallback?()
       expectation2.fulfill()
@@ -1851,7 +1851,7 @@ class AuthTests: RPCBaseTests {
     waitForAuthGlobalWorkQueueDrain()
 
     // Time for callback to run.
-    usleep(1000)
+    RPCBaseTests.waitSleep()
 
     // Verify that current user's access token is the "new" access token provided in the mock secure
     // token response during automatic token refresh.
