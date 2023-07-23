@@ -65,7 +65,7 @@ class SerialTaskQueueTests: XCTestCase {
       expectation.fulfill()
     }
     // The task should not executed until the global work queue is resumed.
-    sleep(1)
+    RPCBaseTests.waitSleep()
     XCTAssertFalse(executed)
     kAuthGlobalWorkQueue.resume()
     waitForExpectations(timeout: 5)
@@ -95,7 +95,7 @@ class SerialTaskQueueTests: XCTestCase {
     XCTAssertFalse(executed)
     nextExpectation = self.expectation(description: "next")
     completion?()
-    waitForExpectations(timeout: 555)
+    waitForExpectations(timeout: 5)
     XCTAssertTrue(executed)
   }
 }

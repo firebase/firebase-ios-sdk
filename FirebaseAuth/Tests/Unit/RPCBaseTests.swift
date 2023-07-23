@@ -295,13 +295,6 @@ class RPCBaseTests: XCTestCase {
     ]]
   }
 
-  func createGroup() -> DispatchGroup {
-    let group = DispatchGroup()
-    rpcIssuer?.group = group
-    group.enter()
-    return group
-  }
-
   func fakeActionCodeSettings() -> ActionCodeSettings {
     let settings = ActionCodeSettings()
     settings.iOSBundleID = kIosBundleID
@@ -324,5 +317,10 @@ class RPCBaseTests: XCTestCase {
     XCTAssertEqual(googleUserInfo.uid, kGoogleID)
     XCTAssertEqual(googleUserInfo.displayName, kGoogleDisplayName)
     XCTAssertEqual(googleUserInfo.email, kGoogleEmail)
+  }
+
+  /// Sleep long enough for pending async task to start.
+  static func waitSleep() {
+    usleep(10000)
   }
 }
