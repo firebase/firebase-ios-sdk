@@ -22,8 +22,6 @@
 #import "FBLPromises.h"
 #endif
 
-@import AppCheckCoreInterop;
-
 #import "AppCheckCore/Sources/Public/AppCheckCore/GACAppCheckErrors.h"
 #import "AppCheckCore/Sources/Public/AppCheckCore/GACAppCheckProvider.h"
 #import "AppCheckCore/Sources/Public/AppCheckCore/GACAppCheckSettings.h"
@@ -41,6 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
 
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
+
+typedef void (^GACAppCheckTokenHandler)(id<GACAppCheckTokenProtocol> _Nullable token,
+                                        NSError *_Nullable error);
 
 @interface GACAppCheck ()
 
@@ -112,10 +113,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 #pragma mark - GACAppCheckInterop
 
-- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(GACAppCheckTokenHandlerInterop)handler {
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh completion:(GACAppCheckTokenHandler)handler {
   [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
-      .then(^id _Nullable(GACAppCheckToken *token) {
+      .then(^id _Nullable(id<GACAppCheckTokenProtocol> token) {
         handler(token, nil);
         return token;
       })
@@ -124,9 +124,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
       });
 }
 
-- (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandlerInterop)handler {
+- (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandler)handler {
   [self limitedUseToken]
-      .then(^id _Nullable(GACAppCheckToken *token) {
+      .then(^id _Nullable(id<GACAppCheckTokenProtocol> token) {
         handler(token, nil);
         return token;
       })
