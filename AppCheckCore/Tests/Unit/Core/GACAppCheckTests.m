@@ -41,7 +41,7 @@ static NSString *const kResourceName = @"projects/test_project_id/apps/test_app_
 static NSString *const kAppName = @"GACAppCheckTests";
 static NSString *const kAppGroupID = @"app_group_id";
 
-@interface GACAppCheck (Tests) <GACAppCheckInterop>
+@interface GACAppCheck (Tests)
 
 - (instancetype)initWithInstanceName:(NSString *)instanceName
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
@@ -59,7 +59,7 @@ static NSString *const kAppGroupID = @"app_group_id";
 @property(nonatomic) OCMockObject<GACAppCheckTokenRefresherProtocol> *mockTokenRefresher;
 @property(nonatomic) OCMockObject<GACAppCheckSettingsProtocol> *mockSettings;
 @property(nonatomic) OCMockObject<GACAppCheckTokenDelegate> *mockTokenDelegate;
-@property(nonatomic) GACAppCheck<GACAppCheckInterop> *appCheck;
+@property(nonatomic) GACAppCheck *appCheck;
 
 @property(nonatomic, copy, nullable) GACAppCheckTokenRefreshBlock tokenRefreshHandler;
 
@@ -184,7 +184,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 2. Request token and verify result.
   [self.appCheck
       getTokenForcingRefresh:NO
-                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                  completion:^(id<GACAppCheckTokenProtocol> _Nullable token, NSError *error) {
                     [expectation fulfill];
                     XCTAssertNotNil(token);
                     XCTAssertEqualObjects(token.token, expectedToken.token);
@@ -210,7 +210,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 2. Request token and verify result.
   [self.appCheck
       getTokenForcingRefresh:YES
-                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                  completion:^(id<GACAppCheckTokenProtocol> _Nullable token, NSError *error) {
                     [expectation fulfill];
                     XCTAssertNotNil(token);
                     XCTAssertEqualObjects(token.token, expectedToken.token);
@@ -232,7 +232,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 2. Request token and verify result.
   [self.appCheck
       getTokenForcingRefresh:NO
-                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                  completion:^(id<GACAppCheckTokenProtocol> _Nullable token, NSError *error) {
                     [expectation fulfill];
                     XCTAssertNotNil(token);
                     XCTAssertEqualObjects(token.token, expectedToken.token);
@@ -255,7 +255,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 2. Request token and verify result.
   [self.appCheck
       getTokenForcingRefresh:NO
-                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                  completion:^(id<GACAppCheckTokenProtocol> _Nullable token, NSError *error) {
                     [expectation fulfill];
                     XCTAssertNil(token);
                     XCTAssertEqualObjects(error, providerError);
@@ -357,7 +357,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
 
-  [self.appCheck getLimitedUseTokenWithCompletion:^(id<GACAppCheckTokenInterop> _Nullable token,
+  [self.appCheck getLimitedUseTokenWithCompletion:^(id<GACAppCheckTokenProtocol> _Nullable token,
                                                     NSError *_Nullable error) {
     [getTokenExpectation fulfill];
     XCTAssertNotNil(token);
@@ -386,7 +386,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
 
-  [self.appCheck getLimitedUseTokenWithCompletion:^(id<GACAppCheckTokenInterop> _Nullable token,
+  [self.appCheck getLimitedUseTokenWithCompletion:^(id<GACAppCheckTokenProtocol> _Nullable token,
                                                     NSError *_Nullable error) {
     [getTokenExpectation fulfill];
     XCTAssertNotNil(error);
@@ -426,7 +426,7 @@ static NSString *const kAppGroupID = @"app_group_id";
     // 3.2. Request token and verify result.
     [self.appCheck
         getTokenForcingRefresh:NO
-                    completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                    completion:^(id<GACAppCheckTokenProtocol> _Nullable token, NSError *error) {
                       [getTokenExpectation fulfill];
                       XCTAssertNotNil(token);
                       XCTAssertEqualObjects(token.token, expectedToken.token);
@@ -471,7 +471,7 @@ static NSString *const kAppGroupID = @"app_group_id";
     // 3.2. Request token and verify result.
     [self.appCheck
         getTokenForcingRefresh:NO
-                    completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                    completion:^(id<GACAppCheckTokenProtocol> _Nullable token, NSError *error) {
                       [getTokenExpectation fulfill];
                       XCTAssertNil(token);
                       XCTAssertEqualObjects(error, storageError);
@@ -522,7 +522,7 @@ static NSString *const kAppGroupID = @"app_group_id";
 
   // 2. Request token and verify result.
   [self.appCheck getTokenForcingRefresh:NO
-                             completion:^(id<GACAppCheckTokenInterop> _Nullable token,
+                             completion:^(id<GACAppCheckTokenProtocol> _Nullable token,
                                           NSError *_Nullable error) {
                                [expectation fulfill];
                                XCTAssertNotNil(token);
@@ -545,7 +545,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   // 2. Request token and verify result.
   [self.appCheck
       getTokenForcingRefresh:NO
-                  completion:^(id<GACAppCheckTokenInterop> _Nullable token, NSError *error) {
+                  completion:^(id<GACAppCheckTokenProtocol> _Nullable token, NSError *error) {
                     [expectation fulfill];
                     XCTAssertNotNil(token);
                     XCTAssertEqualObjects(token.token, cachedToken.token);

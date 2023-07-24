@@ -16,13 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-@import AppCheckCoreInterop;
-
 NS_ASSUME_NONNULL_BEGIN
 
-/// An object representing a Firebase App Check token.
-NS_SWIFT_NAME(AppCheckCoreToken)
-@interface GACAppCheckToken : NSObject <GACAppCheckTokenInterop>
+NS_SWIFT_NAME(AppCheckCoreTokenProtocol)
+@protocol GACAppCheckTokenProtocol <NSObject>
 
 /// A Firebase App Check token.
 @property(nonatomic, readonly) NSString *token;
@@ -32,6 +29,12 @@ NS_SWIFT_NAME(AppCheckCoreToken)
 
 /// The date when the App Check token was received in the device's local time.
 @property(nonatomic, readonly) NSDate *receivedAtDate;
+
+@end
+
+/// An object representing a Firebase App Check token.
+NS_SWIFT_NAME(AppCheckCoreToken)
+@interface GACAppCheckToken : NSObject <GACAppCheckTokenProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;
 
