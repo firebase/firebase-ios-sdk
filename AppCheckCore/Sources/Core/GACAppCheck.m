@@ -48,7 +48,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 @property(nonatomic, readonly) id<GACAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<GACAppCheckStorageProtocol> storage;
 @property(nonatomic, readonly) id<GACAppCheckSettingsProtocol> settings;
-@property(nonatomic, readonly, weak) id<GACAppCheckTokenDelegate> tokenDelegate;
+@property(nonatomic, readonly, nullable, weak) id<GACAppCheckTokenDelegate> tokenDelegate;
 
 @property(nonatomic, readonly, nullable) id<GACAppCheckTokenRefresherProtocol> tokenRefresher;
 
@@ -65,7 +65,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                              storage:(id<GACAppCheckStorageProtocol>)storage
                       tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
                             settings:(id<GACAppCheckSettingsProtocol>)settings
-                       tokenDelegate:(id<GACAppCheckTokenDelegate>)tokenDelegate {
+                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate {
   self = [super init];
   if (self) {
     _instanceName = instanceName;
@@ -89,8 +89,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 - (instancetype)initWithInstanceName:(NSString *)instanceName
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                             settings:(id<GACAppCheckSettingsProtocol>)settings
-                       tokenDelegate:(id<GACAppCheckTokenDelegate>)tokenDelegate
                         resourceName:(NSString *)resourceName
+                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
                  keychainAccessGroup:(nullable NSString *)accessGroup {
   GACAppCheckTokenRefreshResult *refreshResult =
       [[GACAppCheckTokenRefreshResult alloc] initWithStatusNever];
@@ -204,7 +204,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
             initWithStatusSuccessAndExpirationDate:token.expirationDate
                                     receivedAtDate:token.receivedAtDate];
         [self.tokenRefresher updateWithRefreshResult:refreshResult];
-        [self.tokenDelegate tokenDidUpdate:token instanceName:self.instanceName];
+        if (self.tokenDelegate) {
+          [self.tokenDelegate tokenDidUpdate:token instanceName:self.instanceName];
+        }
         return token;
       });
 }
