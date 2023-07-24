@@ -145,7 +145,7 @@ static NSString *const kDynamicLinkDomain = @"test.page.link";
 /** @var kCaptchaResponseKey
     @brief The key for the "captchaResponse" value in the request.
  */
-static NSString *const kCaptchaResponseKey = @"captchaResponse";
+static NSString *const kCaptchaResponseKey = @"captchaResp";
 
 /** @var kTestCaptchaResponse
     @brief Fake captchaResponse for testing the request.
