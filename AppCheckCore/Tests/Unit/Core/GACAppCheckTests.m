@@ -147,8 +147,8 @@ static NSString *const kAppGroupID = @"app_group_id";
   GACAppCheck *appCheck = [[GACAppCheck alloc] initWithInstanceName:kAppName
                                                    appCheckProvider:mockProvider
                                                            settings:mockSettings
-                                                      tokenDelegate:mockTokenDelegate
                                                        resourceName:kResourceName
+                                                      tokenDelegate:mockTokenDelegate
                                                 keychainAccessGroup:kAppGroupID];
   XCTAssert([appCheck isKindOfClass:[GACAppCheck class]]);
 

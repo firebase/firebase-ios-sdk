@@ -89,8 +89,8 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 - (instancetype)initWithInstanceName:(NSString *)instanceName
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                             settings:(id<GACAppCheckSettingsProtocol>)settings
-                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
                         resourceName:(NSString *)resourceName
+                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
                  keychainAccessGroup:(nullable NSString *)accessGroup {
   GACAppCheckTokenRefreshResult *refreshResult =
       [[GACAppCheckTokenRefreshResult alloc] initWithStatusNever];

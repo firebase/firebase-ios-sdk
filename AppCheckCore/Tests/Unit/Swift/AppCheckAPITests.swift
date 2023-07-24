@@ -55,8 +55,8 @@ final class AppCheckAPITests {
       instanceName: app.name,
       appCheckProvider: DummyAppCheckProvider(),
       settings: DummyAppCheckSettings(),
-      tokenDelegate: DummyAppCheckTokenDelegate(),
       resourceName: resourceName,
+      tokenDelegate: DummyAppCheckTokenDelegate(),
       keychainAccessGroup: app.options.appGroupID
     )
 
