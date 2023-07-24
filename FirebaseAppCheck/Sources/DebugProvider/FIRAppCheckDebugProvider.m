@@ -62,10 +62,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   GACAppCheckDebugProvider *debugProvider =
-      [[GACAppCheckDebugProvider alloc] initWithStorageID:app.name
-                                             resourceName:app.resourceName
-                                                   APIKey:app.options.APIKey
-                                             requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+      [[GACAppCheckDebugProvider alloc] initWithServiceName:app.name
+                                               resourceName:app.resourceName
+                                                     APIKey:app.options.APIKey
+                                               requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
   return [self initWithDebugProvider:debugProvider];
 }

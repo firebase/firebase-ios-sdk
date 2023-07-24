@@ -72,10 +72,10 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
 
   OCMExpect([self.deviceCheckProviderMock alloc]).andReturn(self.deviceCheckProviderMock);
-  OCMExpect([self.deviceCheckProviderMock initWithStorageID:kAppName
-                                               resourceName:self.resourceName
-                                                     APIKey:kAPIKey
-                                               requestHooks:OCMOCK_ANY])
+  OCMExpect([self.deviceCheckProviderMock initWithServiceName:kAppName
+                                                 resourceName:self.resourceName
+                                                       APIKey:kAPIKey
+                                                 requestHooks:OCMOCK_ANY])
       .andReturn(self.deviceCheckProviderMock);
 
   XCTAssertNotNil([[FIRDeviceCheckProvider alloc] initWithApp:app]);

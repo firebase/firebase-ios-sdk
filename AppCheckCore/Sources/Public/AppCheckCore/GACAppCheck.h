@@ -40,12 +40,12 @@ NS_SWIFT_NAME(AppCheckCore)
 /// @param accessGroup The identifier for a keychain group that the app shares items with; if
 /// provided, requires the Keychain Access Groups Entitlement.
 /// @return An instance of `AppCheckCore` with the specified token provider.
-- (instancetype)initWithInstanceName:(NSString *)instanceName
-                    appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
-                            settings:(id<GACAppCheckSettingsProtocol>)settings
-                        resourceName:(NSString *)resourceName
-                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
-                 keychainAccessGroup:(nullable NSString *)accessGroup;
+- (instancetype)initWithServiceName:(NSString *)serviceName
+                   appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                           settings:(id<GACAppCheckSettingsProtocol>)settings
+                       resourceName:(NSString *)resourceName
+                      tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
+                keychainAccessGroup:(nullable NSString *)accessGroup;
 
 @end
 
