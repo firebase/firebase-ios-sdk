@@ -40,6 +40,9 @@ static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
 
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
+typedef void (^GACAppCheckTokenHandler)(id<GACAppCheckTokenProtocol> _Nullable token,
+                                        NSError *_Nullable error);
+
 @interface GACAppCheck ()
 
 @property(nonatomic, readonly) NSString *instanceName;

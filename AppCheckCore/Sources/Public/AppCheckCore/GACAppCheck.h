@@ -24,10 +24,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-NS_SWIFT_NAME(AppCheckCoreTokenHandler)
-typedef void (^GACAppCheckTokenHandler)(id<GACAppCheckTokenProtocol> _Nullable token,
-                                        NSError *_Nullable error);
-
 NS_SWIFT_NAME(AppCheckCoreProtocol) @protocol GACAppCheckProtocol
 
 /// Requests Firebase app check token.
@@ -39,14 +35,16 @@ NS_SWIFT_NAME(AppCheckCoreProtocol) @protocol GACAppCheckProtocol
 /// @param handler The completion handler. Includes the app check token if the request succeeds,
 /// or an error if the request fails.
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
-                    completion:(GACAppCheckTokenHandler)handler
+                    completion:(void (^)(id<GACAppCheckTokenProtocol> _Nullable token,
+                                         NSError *_Nullable error))handler
     NS_SWIFT_NAME(token(forcingRefresh:completion:));
 
 /// Retrieve a new limited-use App Check token
 ///
 /// This method does not affect the token generation behavior of the
 /// ``tokenForcingRefresh()`` method.
-- (void)getLimitedUseTokenWithCompletion:(GACAppCheckTokenHandler)handler;
+- (void)getLimitedUseTokenWithCompletion:(void (^)(id<GACAppCheckTokenProtocol> _Nullable token,
+                                                   NSError *_Nullable error))handler;
 
 @end
 
