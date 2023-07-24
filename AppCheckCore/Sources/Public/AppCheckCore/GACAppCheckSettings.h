@@ -23,16 +23,11 @@ NS_SWIFT_NAME(AppCheckCoreSettingsProtocol)
 @protocol GACAppCheckSettingsProtocol <NSObject>
 
 /// If App Check token auto-refresh is enabled.
-@property(nonatomic, readonly) BOOL isTokenAutoRefreshEnabled;
+@property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
 
 @end
 
 @interface GACAppCheckSettings : NSObject <GACAppCheckSettingsProtocol>
-
-- (instancetype)initWithTokenAutoRefreshEnabled:(BOOL)tokenAutoRefreshEnabled;
-
-- (instancetype)init NS_UNAVAILABLE;
-
 @end
 
 NS_ASSUME_NONNULL_END

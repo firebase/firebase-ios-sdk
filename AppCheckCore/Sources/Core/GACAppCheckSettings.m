@@ -22,14 +22,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @synthesize isTokenAutoRefreshEnabled = _isTokenAutoRefreshEnabled;
 
-- (instancetype)initWithTokenAutoRefreshEnabled:(BOOL)tokenAutoRefreshEnabled {
-  if (self = [super init]) {
-    _isTokenAutoRefreshEnabled = tokenAutoRefreshEnabled;
-  }
-
-  return self;
-}
-
 @end
 
 NS_ASSUME_NONNULL_END

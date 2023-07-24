@@ -40,13 +40,14 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
                 userDefault:(NSUserDefaults *)userDefaults
                  mainBundle:(NSBundle *)mainBundle {
-  self = [super initWithTokenAutoRefreshEnabled:NO];
+  self = [super init];
   if (self) {
     _firebaseApp = firebaseApp;
     _userDefaults = userDefaults;
     _mainBundle = mainBundle;
     _userDefaultKey = [kFIRAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix
         stringByAppendingString:firebaseApp.name];
+    [super setIsTokenAutoRefreshEnabled:NO];
     _isTokenAutoRefreshConfigured = NO;
   }
   return self;
@@ -57,7 +58,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
     if (self.isTokenAutoRefreshConfigured) {
       // Return value form the in-memory cache to avoid accessing the user default or bundle when
       // not required.
-      return self.isTokenAutoRefreshEnabled;
+      return [super isTokenAutoRefreshEnabled];
     }
 
     // Check user defaults for a value set during the previous launch.
@@ -75,7 +76,7 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
       self.isTokenAutoRefreshConfigured = YES;
       self.isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabledNumber.boolValue;
       // Return the value.
-      return self.isTokenAutoRefreshEnabled;
+      return [super isTokenAutoRefreshEnabled];
     }
 
     // Fallback to the global data collection flag.
@@ -92,8 +93,8 @@ NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey =
 - (void)setIsTokenAutoRefreshEnabled:(BOOL)isTokenAutoRefreshEnabled {
   @synchronized(self) {
     self.isTokenAutoRefreshConfigured = YES;
-    self.isTokenAutoRefreshEnabled = isTokenAutoRefreshEnabled;
-    [self.userDefaults setBool:self.isTokenAutoRefreshEnabled forKey:self.userDefaultKey];
+    [super setIsTokenAutoRefreshEnabled:isTokenAutoRefreshEnabled];
+    [self.userDefaults setBool:isTokenAutoRefreshEnabled forKey:self.userDefaultKey];
   }
 }
 
