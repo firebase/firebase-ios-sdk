@@ -187,6 +187,24 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   void ConfigureFieldIndexes(std::vector<model::FieldIndex> parsed_indexes);
 
+  /**
+   * Enables SDK to create persistent cache indexes automatically for local
+   * query execution when SDK believes cache indexes can help improves
+   * performance.
+   *
+   * This feature is disabled by default.
+   */
+  void EnableIndexAutoCreation();
+
+  /**
+   * Stops creating persistent cache indexes automatically for local query
+   * execution. The indexes which have been created by calling
+   * EnableIndexAutoCreation() still take effect.
+   */
+  void DisableIndexAutoCreation();
+
+  void DeleteAllFieldIndexes();
+
   void LoadBundle(std::unique_ptr<util::ByteStream> bundle_data,
                   std::shared_ptr<api::LoadBundleTask> result_task);
 

@@ -597,6 +597,21 @@ void FirestoreClient::ConfigureFieldIndexes(
   });
 }
 
+void FirestoreClient::EnableIndexAutoCreation() {
+  VerifyNotTerminated();
+  // worker_queue_->Enqueue([this] {
+  // local_store_->EnableIndexAutoCreation();
+  //});
+}
+
+void FirestoreClient::DisableIndexAutoCreation() {
+  VerifyNotTerminated();
+}
+
+void FirestoreClient::DeleteAllFieldIndexes() {
+  VerifyNotTerminated();
+}
+
 void FirestoreClient::LoadBundle(
     std::unique_ptr<util::ByteStream> bundle_data,
     std::shared_ptr<api::LoadBundleTask> result_task) {
