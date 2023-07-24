@@ -486,9 +486,8 @@ static NSString *const kEmailChangeNeedsVerificationErrorMessage =
  */
 static NSString *const kInvalidPendingToken = @"INVALID_PENDING_TOKEN";
 
-/** @var kMissingRecaptchaToken
-    @brief This is the error message the server will respond with if the recaptcha token is missing
-   in the request.
+/** @var kInvalidRecaptchaScore
+    @brief This is the error message the server will respond with if the recaptcha score is invalid.
  */
 static NSString *const kInvalidRecaptchaScore = @"INVALID_RECAPTCHA_SCORE";
 
@@ -498,27 +497,25 @@ static NSString *const kInvalidRecaptchaScore = @"INVALID_RECAPTCHA_SCORE";
  */
 static NSString *const kMissingRecaptchaToken = @"MISSING_RECAPTCHA_TOKEN";
 
-/** @var kMissingRecaptchaToken
-    @brief This is the error message the server will respond with if the recaptcha token is missing
-   in the request.
+/** @var kInvalidRecaptchaToken
+    @brief This is the error message the server will respond with if the recaptcha token is invalid.
  */
 static NSString *const kInvalidRecaptchaToken = @"INVALID_RECAPTCHA_TOKEN";
 
-/** @var kMissingRecaptchaToken
-    @brief This is the error message the server will respond with if the recaptcha token is missing
-   in the request.
+/** @var kInvalidRecaptchaAction
+    @brief This is the error message the server will respond with if the recaptcha action is
+   invalid.
  */
 static NSString *const kInvalidRecaptchaAction = @"INVALID_RECAPTCHA_ACTION";
 
-/** @var kMissingRecaptchaToken
-    @brief This is the error message the server will respond with if the recaptcha token is missing
-   in the request.
+/** @var kInvalidRecaptchaEnforcementState
+    @brief This is the error message the server will respond with if the recaptcha enforcement state
+   is invalid.
  */
 static NSString *const kInvalidRecaptchaEnforcementState = @"INVALID_RECAPTCHA_ENFORCEMENT_STATE";
 
-/** @var kMissingRecaptchaToken
-    @brief This is the error message the server will respond with if the recaptcha token is missing
-   in the request.
+/** @var kRecaptchaNotEnabled
+    @brief This is the error message the server will respond with if recaptcha is not enabled.
  */
 static NSString *const kRecaptchaNotEnabled = @"RECAPTCHA_NOT_ENABLED";
 

@@ -598,7 +598,7 @@ static NSString *const kFIRAuthErrorMessageBlockingCloudFunctionReturnedError =
     @"Blocking cloud function returned an error.";
 
 static NSString *const kFIRAuthErrorMessageRecaptchaNotEnabled =
-    @"The reCAPTCHA verification is not enabled for this project.";
+    @"reCAPTCHA Enterprise is not enabled for this project.";
 
 static NSString *const kFIRAuthErrorMessageMissingRecaptchaToken =
     @"The reCAPTCHA verification token is missing when sending request to the backend.";
@@ -616,11 +616,12 @@ static NSString *const kFIRAuthErrorMessageMissingRecaptchaVersion =
     @"The request is missing the reCAPTCHA version parameter.";
 
 static NSString *const kFIRAuthErrorMessageInvalidRecaptchaVersion =
-    @"The request specifies an invalid version of the reCAPTCHA verification.";
+    @"The request specifies an invalid version of reCAPTCHA.";
 
 static NSString *const kFIRAuthErrorMessageInvalidReqType =
     @"The request is not supported or is invalid.";
 
+// TODO(chuanr): point the link to GCIP doc once available.
 static NSString *const kFIRAuthErrorMessageRecaptchaSDKNotLinked =
     @"The reCAPTCHA SDK is not linked to your app. Please follow "
     @"https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps to add Recaptcha "
