@@ -1274,7 +1274,6 @@ let package = Package(
 
     .target(name: "AppCheckCore",
             dependencies: [
-              "AppCheckCoreInterop",
               "FirebaseCore",
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -1290,18 +1289,6 @@ let package = Package(
                 .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
               ),
             ]),
-    // Internal headers only for consuming from Swift.
-    .target(
-      name: "AppCheckCoreInterop",
-      path: "AppCheckCore/Interop",
-      exclude: [
-        "CMakeLists.txt",
-      ],
-      publicHeadersPath: "Public",
-      cSettings: [
-        .headerSearchPath("../../"),
-      ]
-    ),
     .testTarget(
       name: "AppCheckCoreUnit",
       dependencies: [

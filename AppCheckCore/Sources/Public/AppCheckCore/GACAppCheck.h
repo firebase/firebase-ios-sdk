@@ -16,18 +16,41 @@
 
 #import <Foundation/Foundation.h>
 
-@import AppCheckCoreInterop;
-
 @class GACAppCheckToken;
 @protocol GACAppCheckProvider;
 @protocol GACAppCheckSettingsProtocol;
 @protocol GACAppCheckTokenDelegate;
+@protocol GACAppCheckTokenProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
+NS_SWIFT_NAME(AppCheckCoreProtocol) @protocol GACAppCheckProtocol
+
+/// Requests Firebase app check token.
+///
+/// @param forcingRefresh If `YES`,  a new Firebase app check token is requested and the token
+/// cache is ignored. If `NO`, the cached token is used if it exists and has not expired yet. In
+/// most cases, `NO` should be used. `YES` should only be used if the server explicitly returns an
+/// error, indicating a revoked token.
+/// @param handler The completion handler. Includes the app check token if the request succeeds,
+/// or an error if the request fails.
+- (void)getTokenForcingRefresh:(BOOL)forcingRefresh
+                    completion:(void (^)(id<GACAppCheckTokenProtocol> _Nullable token,
+                                         NSError *_Nullable error))handler
+    NS_SWIFT_NAME(token(forcingRefresh:completion:));
+
+/// Retrieve a new limited-use App Check token
+///
+/// This method does not affect the token generation behavior of the
+/// ``tokenForcingRefresh()`` method.
+- (void)getLimitedUseTokenWithCompletion:(void (^)(id<GACAppCheckTokenProtocol> _Nullable token,
+                                                   NSError *_Nullable error))handler;
+
+@end
+
 /// A class used to manage App Check tokens for a given resource.
 NS_SWIFT_NAME(AppCheckCore)
-@interface GACAppCheck : NSObject <GACAppCheckInterop>
+@interface GACAppCheck : NSObject <GACAppCheckProtocol>
 
 - (instancetype)init NS_UNAVAILABLE;
 
