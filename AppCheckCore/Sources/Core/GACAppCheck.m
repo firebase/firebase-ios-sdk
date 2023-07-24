@@ -87,9 +87,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 #pragma mark - Public
 
 - (instancetype)initWithServiceName:(NSString *)serviceName
+                       resourceName:(NSString *)resourceName
                    appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                            settings:(id<GACAppCheckSettingsProtocol>)settings
-                       resourceName:(NSString *)resourceName
                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
                 keychainAccessGroup:(nullable NSString *)accessGroup {
   GACAppCheckTokenRefreshResult *refreshResult =
