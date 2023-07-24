@@ -100,17 +100,17 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                    NSString *siteKey = [self siteKey];
                                    Class RecaptchaClass = NSClassFromString(@"Recaptcha");
                                    if (RecaptchaClass) {
-                                     SEL selectorWithTimeout = NSSelectorFromString(
-                                         @"getClientWithSiteKey:withTimeout:completion:");
-                                     if ([RecaptchaClass respondsToSelector:selectorWithTimeout]) {
-                                       void (*funcWithTimeout)(
-                                           id, SEL, NSString *, double,
+                                     SEL selector =
+                                         NSSelectorFromString(@"getClientWithSiteKey:completion:");
+                                     if ([RecaptchaClass respondsToSelector:selector]) {
+                                       void (*funcWithoutTimeout)(
+                                           id, SEL, NSString *,
                                            void (^)(
                                                id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
-                                               NSError *_Nullable error)) = (void *)[RecaptchaClass
-                                           methodForSelector:selectorWithTimeout];
-                                       funcWithTimeout(
-                                           RecaptchaClass, selectorWithTimeout, siteKey, 10000.0,
+                                               NSError *_Nullable error)) =
+                                           (void *)[RecaptchaClass methodForSelector:selector];
+                                       funcWithoutTimeout(
+                                           RecaptchaClass, selector, siteKey,
                                            ^(id<RCARecaptchaClientProtocol> _Nullable recaptchaClient,
                                              NSError *_Nullable error) {
                                              if (recaptchaClient) {

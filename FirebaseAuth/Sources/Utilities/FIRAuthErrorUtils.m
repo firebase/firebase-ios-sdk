@@ -622,7 +622,7 @@ static NSString *const kFIRAuthErrorMessageInvalidReqType =
     @"The request is not supported or is invalid.";
 
 static NSString *const kFIRAuthErrorMessageRecaptchaSDKNotLinked =
-    @"The recaptcha SDK is not linked to your app. Please follow "
+    @"The reCAPTCHA SDK is not linked to your app. Please follow "
     @"https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps to add Recaptcha "
     @"Enterprise SDK to your app.";
 
@@ -850,7 +850,7 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
     case FIRAuthErrorCodeKeychainError:
       return @"ERROR_KEYCHAIN_ERROR";
     case FIRAuthErrorCodeMissingClientType:
-      return @"ERROR_MISSING_CLIENT_Type";
+      return @"ERROR_MISSING_CLIENT_TYPE";
     case FIRAuthErrorCodeUserTokenExpired:
       return @"ERROR_USER_TOKEN_EXPIRED";
     case FIRAuthErrorCodeUserNotFound:

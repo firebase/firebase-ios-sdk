@@ -16,9 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 #import <RecaptchaInterop/RCARecaptchaProtocol.h>
-#endif
 
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 
@@ -58,7 +57,6 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
 @property(nonatomic, strong, nullable)
     NSMutableDictionary<NSString *, FIRAuthRecaptchaConfig *> *tenantConfigs;
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 @property(nonatomic, strong) id<RCARecaptchaClientProtocol> recaptchaClient;
 
 - (void)verifyForceRefresh:(BOOL)forceRefresh
@@ -71,10 +69,11 @@ typedef NS_ENUM(NSInteger, FIRAuthRecaptchaAction) {
                    completion:(nullable FIRAuthInjectRequestCallback)completion;
 
 - (BOOL)enablementStatusForProvider:(FIRAuthRecaptchaProvider)provider;
-#endif
 
 + (id)sharedRecaptchaVerifier:(nullable FIRAuth *)auth;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

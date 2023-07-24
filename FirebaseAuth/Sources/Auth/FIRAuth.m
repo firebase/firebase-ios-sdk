@@ -745,7 +745,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
     return;
   }
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
           enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
     [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -772,7 +772,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                    }];
   } else {
     [FIRAuthBackend
-        verifyPassword:(FIRVerifyPasswordRequest *)request
+        verifyPassword:request
               callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
                 if (error) {
                   NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
@@ -824,7 +824,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   }
 #else
   [FIRAuthBackend
-      verifyPassword:(FIRVerifyPasswordRequest *)request
+      verifyPassword:request
             callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error) {
               if (error) {
                 callback(nil, error);
@@ -1388,7 +1388,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         passwordResetRequestWithEmail:email
                    actionCodeSettings:actionCodeSettings
                  requestConfiguration:self->_requestConfiguration];
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
     if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
             enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
       [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -1412,7 +1412,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      }];
     } else {
       [FIRAuthBackend
-          getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
+          getOOBConfirmationCode:request
                         callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                    NSError *_Nullable error) {
                           if (!error) {
@@ -1487,7 +1487,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
                                                   actionCodeSettings:actionCodeSettings
                                                 requestConfiguration:self->_requestConfiguration];
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
     if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
             enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
       [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -1511,7 +1511,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      }];
     } else {
       [FIRAuthBackend
-          getOOBConfirmationCode:(FIRGetOOBConfirmationCodeRequest *)request
+          getOOBConfirmationCode:request
                         callback:^(FIRGetOOBConfirmationCodeResponse *_Nullable response,
                                    NSError *_Nullable error) {
                           if (!error) {
@@ -1785,7 +1785,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       }];
 }
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 - (void)initializeRecaptchaConfigWithCompletion:
     (nullable void (^)(NSError *_Nullable error))completion {
   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -2005,7 +2005,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
   if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
           enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
     [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -2020,7 +2020,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                    }];
   } else {
     [FIRAuthBackend
-        signUpNewUser:(FIRSignUpNewUserRequest *)request
+        signUpNewUser:request
              callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
                if (!error) {
                  completion(response, nil);

@@ -178,7 +178,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/GoogleCloudPlatform/recaptcha-enterprise-mobile-sdk.git",
-      "18.2.0" ..< "18.2.1"
+      "18.2.0" ..< "18.3.0"
     ),
   ],
   targets: [
