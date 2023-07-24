@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "AppCheckCore/Sources/Public/AppCheckCore/GACAppCheckSettings.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// A collection of App Check-wide settings and parameters.
-NS_SWIFT_NAME(AppCheckCoreSettingsProtocol)
-@protocol GACAppCheckSettingsProtocol <NSObject>
+@implementation GACAppCheckSettings
 
-/// If App Check token auto-refresh is enabled.
-@property(nonatomic, readonly) BOOL isTokenAutoRefreshEnabled;
+@synthesize isTokenAutoRefreshEnabled = _isTokenAutoRefreshEnabled;
 
-@end
+- (instancetype)initWithTokenAutoRefreshEnabled:(BOOL)tokenAutoRefreshEnabled {
+  if (self = [super init]) {
+    _isTokenAutoRefreshEnabled = tokenAutoRefreshEnabled;
+  }
 
-@interface GACAppCheckSettings : NSObject <GACAppCheckSettingsProtocol>
-
-- (instancetype)initWithTokenAutoRefreshEnabled:(BOOL)tokenAutoRefreshEnabled;
-
-- (instancetype)init NS_UNAVAILABLE;
+  return self;
+}
 
 @end
 
