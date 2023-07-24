@@ -114,7 +114,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 /** @var kCaptchaResponseKey
     @brief The key for the "captchaResponse" value in the request.
  */
-static NSString *const kCaptchaResponseKey = @"captchaResponse";
+static NSString *const kCaptchaResponseKey = @"captchaResp";
 
 /** @var kClientType
     @brief The key for the "clientType" value in the request.

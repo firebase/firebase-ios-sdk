@@ -16,6 +16,8 @@
 
 #import "FirebaseAuth/Sources/Utilities/FIRAuthRecaptchaVerifier.h"
 
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetRecaptchaConfigRequest.h"
@@ -24,10 +26,8 @@
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 
-#if TARGET_OS_IOS
 #import <RecaptchaInterop/RCAActionProtocol.h>
 #import <RecaptchaInterop/RCARecaptchaProtocol.h>
-#endif
 
 static const NSDictionary *providerToStringMap;
 static const NSDictionary *actionToStringMap;
@@ -65,10 +65,10 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
 }
 
 - (NSString *)siteKey {
-  if ([FIRAuth auth].tenantID == nil) {
+  if (self.auth.tenantID == nil) {
     return self->_agentConfig.siteKey;
   } else {
-    FIRAuthRecaptchaConfig *config = self->_tenantConfigs[[FIRAuth auth].tenantID];
+    FIRAuthRecaptchaConfig *config = self->_tenantConfigs[self.auth.tenantID];
     if (config) {
       return config.siteKey;
     } else {
@@ -77,13 +77,13 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
   }
 }
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 - (BOOL)enablementStatusForProvider:(FIRAuthRecaptchaProvider)provider {
-  if ([FIRAuth auth].tenantID == nil) {
+  if (self.auth.tenantID == nil) {
     return [self->_agentConfig.enablementStatus[providerToStringMap[@(provider)]] boolValue];
   } else {
-    return [self->_tenantConfigs[[FIRAuth auth].tenantID]
-                .enablementStatus[providerToStringMap[@(provider)]] boolValue];
+    return
+        [self->_tenantConfigs[self.auth.tenantID].enablementStatus[providerToStringMap[@(provider)]]
+            boolValue];
   }
 }
 
@@ -130,6 +130,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                                 [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
                                    }
                                  } else {
+                                   NSLog(@"reCAPTCHA verification succeeded.");
                                    [self retrieveRecaptchaTokenWithAction:action
                                                                completion:completion];
                                  }
@@ -139,17 +140,17 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
 - (void)retrieveRecaptchaConfigForceRefresh:(BOOL)forceRefresh
                                  completion:(nullable FIRAuthRecaptchaConfigCallback)completion {
   if (!forceRefresh) {
-    if ([FIRAuth auth].tenantID == nil && _agentConfig != nil) {
+    if (self.auth.tenantID == nil && _agentConfig != nil) {
       completion(nil);
       return;
     }
-    if ([FIRAuth auth].tenantID != nil && _tenantConfigs[[FIRAuth auth].tenantID] != nil) {
+    if (self.auth.tenantID != nil && _tenantConfigs[self.auth.tenantID] != nil) {
       completion(nil);
       return;
     }
   }
   FIRGetRecaptchaConfigRequest *request = [[FIRGetRecaptchaConfigRequest alloc]
-      initWithRequestConfiguration:[FIRAuth auth].requestConfiguration];
+      initWithRequestConfiguration:self.auth.requestConfiguration];
   [FIRAuthBackend
       getRecaptchaConfig:request
                 callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,
@@ -157,6 +158,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                   if (error) {
                     completion(error);
                   }
+                  NSLog(@"reCAPTCHA config retrieval succeeded.");
                   FIRAuthRecaptchaConfig *config = [[FIRAuthRecaptchaConfig alloc] init];
                   config.siteKey = [response.recaptchaKey componentsSeparatedByString:@"/"][3];
                   NSMutableDictionary *tmpEnablementStatus = [NSMutableDictionary dictionary];
@@ -175,7 +177,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                   }
                   config.enablementStatus = tmpEnablementStatus;
 
-                  if ([FIRAuth auth].tenantID == nil) {
+                  if (self.auth.tenantID == nil) {
                     self->_agentConfig = config;
                     completion(nil);
                     return;
@@ -183,7 +185,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                     if (!self->_tenantConfigs) {
                       self->_tenantConfigs = [[NSMutableDictionary alloc] init];
                     }
-                    self->_tenantConfigs[[FIRAuth auth].tenantID] = config;
+                    self->_tenantConfigs[self.auth.tenantID] = config;
                     completion(nil);
                     return;
                   }
@@ -209,6 +211,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
         [self.recaptchaClient execute:customAction
                            completion:^(NSString *_Nullable token, NSError *_Nullable error) {
                              if (!error) {
+                               NSLog(@"reCAPTCHA token retrieval succeeded.");
                                completion(token, nil);
                                return;
                              } else {
@@ -247,6 +250,7 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                    }
                                  }];
 }
-#endif
 
 @end
+
+#endif
