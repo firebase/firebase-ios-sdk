@@ -48,7 +48,7 @@ static NSString *const kAppGroupID = @"app_group_id";
                              storage:(id<GACAppCheckStorageProtocol>)storage
                       tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
                             settings:(id<GACAppCheckSettingsProtocol>)settings
-                       tokenDelegate:(id<GACAppCheckTokenDelegate>)tokenDelegate;
+                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate;
 
 @end
 

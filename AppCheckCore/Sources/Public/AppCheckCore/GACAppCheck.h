@@ -32,12 +32,18 @@ NS_SWIFT_NAME(AppCheckCore)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// Returns an instance of `AppCheck` for an application.
-/// @param appCheckProvider  An `AppCheckCoreProvider` instance that provides App Check tokens.
-/// @return An instance of `AppCheckCore` corresponding to the provided `app`.
+/// @param appCheckProvider  An object that provides App Check tokens.
+/// @param settings An object that provides App Check settings.
+/// @param tokenDelegate A delegate that receives token update notifications.
+/// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
+/// "projects/{project_id}/apps/{app_id}".
+/// @param accessGroup The identifier for a keychain group that the app shares items with; if
+/// provided, requires the Keychain Access Groups Entitlement.
+/// @return An instance of `AppCheckCore` with the specified token provider.
 - (instancetype)initWithInstanceName:(NSString *)instanceName
                     appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
                             settings:(id<GACAppCheckSettingsProtocol>)settings
-                       tokenDelegate:(id<GACAppCheckTokenDelegate>)tokenDelegate
+                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
                         resourceName:(NSString *)resourceName
                  keychainAccessGroup:(nullable NSString *)accessGroup;
 
