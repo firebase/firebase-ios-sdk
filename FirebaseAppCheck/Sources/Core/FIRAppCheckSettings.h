@@ -26,7 +26,7 @@ FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledUserDefault
 FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey;
 
 /// Handles storing and updating the Firebase app check wide settings and parameters.
-@interface FIRAppCheckSettings : NSObject <GACAppCheckSettingsProtocol>
+@interface FIRAppCheckSettings : GACAppCheckSettings
 
 /// If Firebase app check token auto-refresh is allowed.
 @property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
