@@ -20,6 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation GACAppCheckToken
 
+@synthesize token = _token;
+@synthesize expirationDate = _expirationDate;
+@synthesize receivedAtDate = _receivedAtDate;
+
 - (instancetype)initWithToken:(NSString *)token
                expirationDate:(NSDate *)expirationDate
                receivedAtDate:(NSDate *)receivedAtDate {
