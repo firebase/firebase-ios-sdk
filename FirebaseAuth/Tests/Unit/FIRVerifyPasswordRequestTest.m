@@ -81,7 +81,27 @@ static NSString *const kCaptchaResponseKey = @"captchaResponse";
 /** @var kTestCaptchaResponse
     @brief Fake captchaResponse for testing the request.
  */
-static NSString *const kTestCaptchaResponse = @"captchaResponse";
+static NSString *const kTestCaptchaResponse = @"testCaptchaResponse";
+
+/** @var kClientTypeKey
+    @brief The key for the "clientType" value in the request.
+ */
+static NSString *const kClientTypeKey = @"clientType";
+
+/** @var kTestClientType
+    @brief Fake clientType for testing the request.
+ */
+static NSString *const kTestClientType = @"testClientType";
+
+/** @var kRecaptchaVersionKey
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+static NSString *const kRecaptchaVersionKey = @"recaptchaVersion";
+
+/** @var kTestRecaptchaVersion
+    @brief Fake recaptchaVersion for testing the request.
+ */
+static NSString *const kTestRecaptchaVersion = @"testRecaptchaVersion";
 
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
@@ -162,6 +182,8 @@ static NSString *const kExpectedAPIURL =
   request.pendingIDToken = kTestPendingToken;
   request.captchaChallenge = kTestCaptchaChallenge;
   request.captchaResponse = kTestCaptchaResponse;
+  request.clientType = kTestClientType;
+  request.recaptchaVersion = kTestRecaptchaVersion;
   [FIRAuthBackend
       verifyPassword:request
             callback:^(FIRVerifyPasswordResponse *_Nullable response, NSError *_Nullable error){
@@ -173,6 +195,8 @@ static NSString *const kExpectedAPIURL =
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kPasswordKey], kTestPassword);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCaptchaChallengeKey], kTestCaptchaChallenge);
   XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kCaptchaResponseKey], kTestCaptchaResponse);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kClientTypeKey], kTestClientType);
+  XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kRecaptchaVersionKey], kTestRecaptchaVersion);
   XCTAssertTrue([_RPCIssuer.decodedRequest[kReturnSecureTokenKey] boolValue]);
 }
 
