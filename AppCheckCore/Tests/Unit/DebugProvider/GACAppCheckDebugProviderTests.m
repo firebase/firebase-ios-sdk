@@ -70,10 +70,10 @@ typedef void (^GACAppCheckTokenValidationBlock)(GACAppCheckToken *_Nullable toke
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
 
   XCTAssertNotNil([[GACAppCheckDebugProvider alloc]
-      initWithStorageID:options.googleAppID
-           resourceName:[GACAppCheckDebugProviderTests resourceNameFromApp:app]
-                 APIKey:app.options.APIKey
-           requestHooks:nil]);
+      initWithServiceName:options.googleAppID
+             resourceName:[GACAppCheckDebugProviderTests resourceNameFromApp:app]
+                   APIKey:app.options.APIKey
+             requestHooks:nil]);
 }
 
 #pragma mark - Debug token generating/storing

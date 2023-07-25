@@ -37,17 +37,17 @@ NS_SWIFT_NAME(AppCheckCoreDeviceCheckProvider)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// The default initializer.
-/// @param storageID A unique identifier to differentiate storage keys corresponding to the same
+/// @param serviceName A unique identifier to differentiate storage keys corresponding to the same
 /// `resourceName`; may be a Firebase App Name or an SDK name.
 /// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
 /// "projects/{project_id}/apps/{app_id}".
 /// @param APIKey The Google Cloud Platform API key, if needed, or nil.
 /// @param requestHooks Hooks that will be invoked on requests through this service.
 /// @return An instance of `DeviceCheckProvider` .
-- (instancetype)initWithStorageID:(NSString *)storageID
-                     resourceName:(NSString *)resourceName
-                           APIKey:(nullable NSString *)APIKey
-                     requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
+- (instancetype)initWithServiceName:(NSString *)serviceName
+                       resourceName:(NSString *)resourceName
+                             APIKey:(nullable NSString *)APIKey
+                       requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
 
 @end
 

@@ -80,10 +80,10 @@ GAC_DEVICE_CHECK_PROVIDER_AVAILABILITY
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
 
   XCTAssertNotNil([[GACDeviceCheckProvider alloc]
-      initWithStorageID:app.name
-           resourceName:[GACDeviceCheckProviderTests resourceNameFromApp:app]
-                 APIKey:app.options.APIKey
-           requestHooks:nil]);
+      initWithServiceName:app.name
+             resourceName:[GACDeviceCheckProviderTests resourceNameFromApp:app]
+                   APIKey:app.options.APIKey
+             requestHooks:nil]);
 }
 
 - (void)testGetTokenSuccess {
