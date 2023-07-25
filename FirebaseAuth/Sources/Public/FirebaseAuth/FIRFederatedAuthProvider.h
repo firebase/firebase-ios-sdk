@@ -52,7 +52,7 @@ typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credentia
                     watchos
 #if defined(TARGET_OS_VISION)
                     ,
-                    xros
+                    visionos
 #endif  // defined(TARGET_OS_VISION)
     );
 
