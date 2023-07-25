@@ -16,6 +16,7 @@
 #import <TargetConditionals.h>
 #if TARGET_OS_IOS
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
 #import <UIKit/UIKit.h>
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/MultiFactor/TOTP/FIRTOTPSecret+Internal.h"
@@ -60,10 +61,28 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)openInOTPAppWithQRCodeURL:(NSString *)QRCodeURL {
   NSURL *url = [NSURL URLWithString:QRCodeURL];
-  if ([[UIApplication sharedApplication] canOpenURL:url]) {
-    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+  static Class applicationClass = nil;
+  // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
+  // responds to it.
+  if (![GULAppEnvironmentUtil isAppExtension]) {
+    Class cls = NSClassFromString(@"UIApplication");
+    if (cls && [cls respondsToSelector:@selector(sharedApplication)]) {
+      applicationClass = cls;
+    }
+  }
+  UIApplication *application = [applicationClass sharedApplication];
+  if (application) {
+    if ([application respondsToSelector:@selector(canOpenURL:)]) {
+      if ([application canOpenURL:url]) {
+        [application openURL:url options:@{} completionHandler:nil];
+      } else {
+        NSLog(@"URL cannot be opened");
+      }
+    } else {
+      NSLog(@"Cannot access canOpenURL: method");
+    }
   } else {
-    FIRLogError(kFIRLoggerAuth, @"I-AUT000019", @"URL cannot be opened");
+    NSLog(@"sharedApplication cannot be accessed");
   }
 }
 
