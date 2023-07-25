@@ -72,14 +72,17 @@ NS_ASSUME_NONNULL_BEGIN
   }
   UIApplication *application = [applicationClass sharedApplication];
   if (application) {
-    if ([application respondsToSelector:@selector(canOpenURL:)]) {
-      if ([application canOpenURL:url]) {
-        [application openURL:url options:@{} completionHandler:nil];
+    if ([application canOpenURL:url]) {
+      SEL selector = @selector(openURL:options:completionHandler:);
+      if ([application respondsToSelector:selector]) {
+        IMP imp = [application methodForSelector:selector];
+        void (*func)(id, SEL, NSURL *, NSDictionary *, void (^)(BOOL)) = (void *)imp;
+        func(application, selector, url, @{}, nil);
       } else {
-        NSLog(@"URL cannot be opened");
+        NSLog(@"Cannot access openURL:options:completionHandler: method");
       }
     } else {
-      NSLog(@"Cannot access canOpenURL: method");
+      NSLog(@"URL cannot be opened");
     }
   } else {
     NSLog(@"sharedApplication cannot be accessed");
