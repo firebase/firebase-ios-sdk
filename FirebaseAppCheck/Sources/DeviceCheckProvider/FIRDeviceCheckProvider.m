@@ -61,10 +61,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 
   GACDeviceCheckProvider *deviceCheckProvider =
-      [[GACDeviceCheckProvider alloc] initWithStorageID:app.name
-                                           resourceName:app.resourceName
-                                                 APIKey:app.options.APIKey
-                                           requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+      [[GACDeviceCheckProvider alloc] initWithServiceName:app.name
+                                             resourceName:app.resourceName
+                                                   APIKey:app.options.APIKey
+                                             requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
   return [self initWithDeviceCheckProvider:deviceCheckProvider];
 }

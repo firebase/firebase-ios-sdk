@@ -52,10 +52,10 @@ final class AppCheckAPITests {
 
     // Retrieving an AppCheck instance
     let appCheck = AppCheckCore(
-      instanceName: app.name,
+      serviceName: app.name,
+      resourceName: resourceName,
       appCheckProvider: DummyAppCheckProvider(),
       settings: DummyAppCheckSettings(),
-      resourceName: resourceName,
       tokenDelegate: DummyAppCheckTokenDelegate(),
       keychainAccessGroup: app.options.appGroupID
     )
@@ -86,7 +86,7 @@ final class AppCheckAPITests {
     // `AppCheckDebugProvider` initializer
     // TODO(andrewheard): Add `requestHooks` in API tests.
     let debugProvider = AppCheckCoreDebugProvider(
-      storageID: app.name,
+      serviceName: app.name,
       resourceName: resourceName,
       apiKey: app.options.apiKey,
       requestHooks: nil
@@ -157,7 +157,7 @@ final class AppCheckAPITests {
       if #available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, *) {
         // TODO(andrewheard): Add `requestHooks` in API tests.
         let deviceCheckProvider = AppCheckCoreDeviceCheckProvider(
-          storageID: app.name,
+          serviceName: app.name,
           resourceName: resourceName,
           apiKey: app.options.apiKey,
           requestHooks: nil
@@ -204,5 +204,5 @@ class DummyAppCheckSettings: NSObject, AppCheckCoreSettingsProtocol {
 }
 
 class DummyAppCheckTokenDelegate: NSObject, AppCheckCoreTokenDelegate {
-  func tokenDidUpdate(_ token: AppCheckCoreToken, instanceName: String) {}
+  func tokenDidUpdate(_ token: AppCheckCoreToken, serviceName: String) {}
 }

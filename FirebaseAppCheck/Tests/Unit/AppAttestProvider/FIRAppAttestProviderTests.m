@@ -71,12 +71,12 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
 
   OCMExpect([self.appAttestProviderMock alloc]).andReturn(self.appAttestProviderMock);
-  OCMExpect([self.appAttestProviderMock initWithStorageID:kAppName
-                                             resourceName:self.resourceName
-                                                  baseURL:nil
-                                                   APIKey:kAPIKey
-                                      keychainAccessGroup:OCMOCK_ANY
-                                             requestHooks:OCMOCK_ANY])
+  OCMExpect([self.appAttestProviderMock initWithServiceName:kAppName
+                                               resourceName:self.resourceName
+                                                    baseURL:nil
+                                                     APIKey:kAPIKey
+                                        keychainAccessGroup:OCMOCK_ANY
+                                               requestHooks:OCMOCK_ANY])
       .andReturn(self.appAttestProviderMock);
 
   XCTAssertNotNil([[FIRAppAttestProvider alloc] initWithApp:app]);

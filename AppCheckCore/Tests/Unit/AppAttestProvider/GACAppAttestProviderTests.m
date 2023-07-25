@@ -112,13 +112,13 @@ GAC_APP_ATTEST_PROVIDER_AVAILABILITY
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
   NSString *resourceName = [GACAppAttestProviderTests resourceNameFromApp:app];
 
-  XCTAssertNotNil([[GACAppAttestProvider alloc] initWithStorageID:app.name
-                                                     resourceName:resourceName
-                                                          baseURL:nil
-                                                           APIKey:app.options.APIKey
-                                              keychainAccessGroup:nil
-                                                       limitedUse:NO
-                                                     requestHooks:nil]);
+  XCTAssertNotNil([[GACAppAttestProvider alloc] initWithServiceName:app.name
+                                                       resourceName:resourceName
+                                                            baseURL:nil
+                                                             APIKey:app.options.APIKey
+                                                keychainAccessGroup:nil
+                                                         limitedUse:NO
+                                                       requestHooks:nil]);
 }
 #endif  // !TARGET_OS_MACCATALYST
 
