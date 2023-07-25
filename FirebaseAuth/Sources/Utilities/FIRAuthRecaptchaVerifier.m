@@ -122,10 +122,14 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                              }
                                            });
                                      } else {
+                                       NSLog(@"reCAPTCHA verification faled because reCAPTCHA SDK "
+                                             @"not linked.");
                                        completion(nil,
                                                   [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
                                      }
                                    } else {
+                                     NSLog(@"reCAPTCHA verification faled because reCAPTCHA SDK "
+                                           @"not linked.");
                                      completion(nil,
                                                 [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
                                    }
@@ -156,10 +160,12 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                 callback:^(FIRGetRecaptchaConfigResponse *_Nullable response,
                            NSError *_Nullable error) {
                   if (error) {
+                    NSLog(@"reCAPTCHA config retrieval failed.");
                     completion(error);
                   }
                   NSLog(@"reCAPTCHA config retrieval succeeded.");
                   FIRAuthRecaptchaConfig *config = [[FIRAuthRecaptchaConfig alloc] init];
+                  // Response's site key is of the format projects/<project-id>/keys/<site-key>'
                   config.siteKey = [response.recaptchaKey componentsSeparatedByString:@"/"][3];
                   NSMutableDictionary *tmpEnablementStatus = [NSMutableDictionary dictionary];
                   for (NSDictionary *state in response.enforcementState) {
@@ -208,16 +214,18 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
           [[RecaptchaActionClass alloc] init], customActionSelector, actionToStringMap[@(action)]);
 
       if (customAction) {
-        [self.recaptchaClient execute:customAction
-                           completion:^(NSString *_Nullable token, NSError *_Nullable error) {
-                             if (!error) {
-                               NSLog(@"reCAPTCHA token retrieval succeeded.");
-                               completion(token, nil);
-                               return;
-                             } else {
-                               completion(kFakeToken, nil);
-                             }
-                           }];
+        [self.recaptchaClient
+               execute:customAction
+            completion:^(NSString *_Nullable token, NSError *_Nullable error) {
+              if (!error) {
+                NSLog(@"reCAPTCHA token retrieval succeeded.");
+                completion(token, nil);
+                return;
+              } else {
+                NSLog(@"reCAPTCHA token retrieval failed. NO_RECAPTCHA sent as the fake code.");
+                completion(kFakeToken, nil);
+              }
+            }];
       }
     } else {
       completion(nil, [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
