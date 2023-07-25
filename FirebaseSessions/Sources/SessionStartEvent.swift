@@ -257,9 +257,9 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
     var subtype: firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype
 
     // swift(>=5.9) implies Xcode 15+
-    // Need to have this swift version check to use os(xrOS) macro, VisionOS support.
+    // Need to have this swift version check to use os(visionOS) macro, VisionOS support.
     #if swift(>=5.9)
-      #if os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+      #if os(iOS) && !targetEnvironment(macCatalyst) && !os(visionOS)
         switch mobileSubtype {
         case CTRadioAccessTechnologyGPRS:
           subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_GPRS
@@ -294,10 +294,10 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
             subtype = firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_NR
           }
         }
-      #else // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+      #else // os(iOS) && !targetEnvironment(macCatalyst) && !os(visionOS)
         subtype =
           firebase_appquality_sessions_NetworkConnectionInfo_MobileSubtype_UNKNOWN_MOBILE_SUBTYPE
-      #endif // os(iOS) && !targetEnvironment(macCatalyst) && !os(xrOS)
+      #endif // os(iOS) && !targetEnvironment(macCatalyst) && !os(visionOS)
     #else // swift(>=5.9)
       #if os(iOS) && !targetEnvironment(macCatalyst)
         switch mobileSubtype {
