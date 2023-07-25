@@ -880,38 +880,25 @@ NS_SWIFT_NAME(Auth)
 
 #if TARGET_OS_IOS
 /**
- @fn passkeySignInWithPlatformCredential:completion
- @brief sign in with passkey
+ @fn finalizePasskeySignInWithPlatformCredential:completion
+ @brief sign in with passkey credential
  */
-- (void)passkeySignInWithPlatformCredential:
+- (void)finalizePasskeySignInWithPlatformCredential:
             (ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential
-                                 completion:
-                                     (nullable void (^)(FIRAuthDataResult *_Nullable authResult,
+                                         completion:(nullable void (^)(
+                                                        FIRAuthDataResult *_Nullable authResult,
                                                         NSError *_Nullable error))completion
     API_AVAILABLE(ios(15.0));
 
 /**
- @fn getPasskeyAssertionRequestWithCompletion
+ @fn startPasskeySignInWithCompletion
  @brief create key assertion request for sign in
  */
-- (void)getPasskeyAssertionRequestWithCompletion:
+- (void)startPasskeySignInWithCompletion:
     (nullable void (^)(
         ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
         NSError *_Nullable error))completion API_AVAILABLE(ios(15.0));
 
-/**
- @fn getPasskeySignUpRequestWithCompletion
- @brief sign up  with passkey as first factor.
- This method will create an anonymous user first and then retrieve challange and rpID from GCIP to
- create a creation request. To finish up the sign up, enrollPasskeyWithPlatformCredential:completion
- needs to be called in the ASController delegation.
- */
-- (void)getPasskeySignUpRequestWithName:(NSString *)name
-                             completion:
-                                 (nullable void (^)(
-                                     ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
-                                         *_Nullable request,
-                                     NSError *_Nullable error))completion API_AVAILABLE(ios(15.0));
 #endif
 @end
 
