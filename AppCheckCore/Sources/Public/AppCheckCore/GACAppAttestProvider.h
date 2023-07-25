@@ -33,7 +33,7 @@ NS_SWIFT_NAME(AppCheckCoreAppAttestProvider)
 - (instancetype)init NS_UNAVAILABLE;
 
 /// The default initializer.
-/// @param storageID A unique identifier to differentiate storage keys corresponding to the same
+/// @param serviceName A unique identifier to differentiate storage keys corresponding to the same
 /// `resourceName`; may be a Firebase App Name or an SDK name.
 /// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
 /// "projects/{project_id}/apps/{app_id}".
@@ -43,20 +43,20 @@ NS_SWIFT_NAME(AppCheckCoreAppAttestProvider)
 /// @param accessGroup The Keychain Access Group.
 /// @param requestHooks Hooks that will be invoked on requests through this service.
 /// @return An instance of `AppAttestProvider` if App Attest is supported or `nil`.
-- (nullable instancetype)initWithStorageID:(NSString *)storageID
-                              resourceName:(NSString *)resourceName
-                                   baseURL:(nullable NSString *)baseURL
-                                    APIKey:(nullable NSString *)APIKey
-                       keychainAccessGroup:(nullable NSString *)accessGroup
-                              requestHooks:
-                                  (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
+- (nullable instancetype)initWithServiceName:(NSString *)serviceName
+                                resourceName:(NSString *)resourceName
+                                     baseURL:(nullable NSString *)baseURL
+                                      APIKey:(nullable NSString *)APIKey
+                         keychainAccessGroup:(nullable NSString *)accessGroup
+                                requestHooks:
+                                    (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
 
 /// Initializer with support for short-lived tokens.
 ///
 /// TODO(andrewheard): Remove or refactor this constructor when the short-lived (limited-use) token
 /// feature is fully implemented.
 ///
-/// @param storageID A unique identifier to differentiate storage keys corresponding to the same
+/// @param serviceName A unique identifier to differentiate storage keys corresponding to the same
 /// `resourceName`; may be a Firebase App Name or an SDK name.
 /// @param resourceName The name of the resource protected by App Check; for a Firebase App this is
 /// "projects/{project_id}/apps/{app_id}".
@@ -67,14 +67,14 @@ NS_SWIFT_NAME(AppCheckCoreAppAttestProvider)
 /// @param limitedUse If YES, forces a short-lived token with a 5 minute TTL.
 /// @param requestHooks Hooks that will be invoked on requests through this service.
 /// @return An instance of `AppAttestProvider` if App Attest is supported or `nil`.
-- (nullable instancetype)initWithStorageID:(NSString *)storageID
-                              resourceName:(NSString *)resourceName
-                                   baseURL:(nullable NSString *)baseURL
-                                    APIKey:(nullable NSString *)APIKey
-                       keychainAccessGroup:(nullable NSString *)accessGroup
-                                limitedUse:(BOOL)limitedUse
-                              requestHooks:
-                                  (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
+- (nullable instancetype)initWithServiceName:(NSString *)serviceName
+                                resourceName:(NSString *)resourceName
+                                     baseURL:(nullable NSString *)baseURL
+                                      APIKey:(nullable NSString *)APIKey
+                         keychainAccessGroup:(nullable NSString *)accessGroup
+                                  limitedUse:(BOOL)limitedUse
+                                requestHooks:
+                                    (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks;
 
 @end
 

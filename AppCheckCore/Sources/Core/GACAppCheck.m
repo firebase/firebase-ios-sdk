@@ -45,7 +45,7 @@ typedef void (^GACAppCheckTokenHandler)(id<GACAppCheckTokenProtocol> _Nullable t
 
 @interface GACAppCheck ()
 
-@property(nonatomic, readonly) NSString *instanceName;
+@property(nonatomic, readonly) NSString *serviceName;
 @property(nonatomic, readonly) id<GACAppCheckProvider> appCheckProvider;
 @property(nonatomic, readonly) id<GACAppCheckStorageProtocol> storage;
 @property(nonatomic, readonly) id<GACAppCheckSettingsProtocol> settings;
@@ -61,15 +61,15 @@ typedef void (^GACAppCheckTokenHandler)(id<GACAppCheckTokenProtocol> _Nullable t
 
 #pragma mark - Internal
 
-- (instancetype)initWithInstanceName:(NSString *)instanceName
-                    appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
-                             storage:(id<GACAppCheckStorageProtocol>)storage
-                      tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
-                            settings:(id<GACAppCheckSettingsProtocol>)settings
-                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate {
+- (instancetype)initWithServiceName:(NSString *)serviceName
+                   appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                            storage:(id<GACAppCheckStorageProtocol>)storage
+                     tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
+                           settings:(id<GACAppCheckSettingsProtocol>)settings
+                      tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate {
   self = [super init];
   if (self) {
-    _instanceName = instanceName;
+    _serviceName = serviceName;
     _appCheckProvider = appCheckProvider;
     _storage = storage;
     _tokenRefresher = tokenRefresher;
@@ -87,28 +87,28 @@ typedef void (^GACAppCheckTokenHandler)(id<GACAppCheckTokenProtocol> _Nullable t
 
 #pragma mark - Public
 
-- (instancetype)initWithInstanceName:(NSString *)instanceName
-                    appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
-                            settings:(id<GACAppCheckSettingsProtocol>)settings
-                        resourceName:(NSString *)resourceName
-                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
-                 keychainAccessGroup:(nullable NSString *)accessGroup {
+- (instancetype)initWithServiceName:(NSString *)serviceName
+                       resourceName:(NSString *)resourceName
+                   appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                           settings:(id<GACAppCheckSettingsProtocol>)settings
+                      tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate
+                keychainAccessGroup:(nullable NSString *)accessGroup {
   GACAppCheckTokenRefreshResult *refreshResult =
       [[GACAppCheckTokenRefreshResult alloc] initWithStatusNever];
   GACAppCheckTokenRefresher *tokenRefresher =
       [[GACAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult settings:settings];
 
   NSString *tokenKey =
-      [NSString stringWithFormat:@"app_check_token.%@.%@", instanceName, resourceName];
+      [NSString stringWithFormat:@"app_check_token.%@.%@", serviceName, resourceName];
   GACAppCheckStorage *storage = [[GACAppCheckStorage alloc] initWithTokenKey:tokenKey
                                                                  accessGroup:accessGroup];
 
-  return [self initWithInstanceName:instanceName
-                   appCheckProvider:appCheckProvider
-                            storage:storage
-                     tokenRefresher:tokenRefresher
-                           settings:settings
-                      tokenDelegate:tokenDelegate];
+  return [self initWithServiceName:serviceName
+                  appCheckProvider:appCheckProvider
+                           storage:storage
+                    tokenRefresher:tokenRefresher
+                          settings:settings
+                     tokenDelegate:tokenDelegate];
 }
 
 #pragma mark - GACAppCheckInterop
@@ -205,7 +205,7 @@ typedef void (^GACAppCheckTokenHandler)(id<GACAppCheckTokenProtocol> _Nullable t
                                     receivedAtDate:token.receivedAtDate];
         [self.tokenRefresher updateWithRefreshResult:refreshResult];
         if (self.tokenDelegate) {
-          [self.tokenDelegate tokenDidUpdate:token instanceName:self.instanceName];
+          [self.tokenDelegate tokenDidUpdate:token serviceName:self.serviceName];
         }
         return token;
       });

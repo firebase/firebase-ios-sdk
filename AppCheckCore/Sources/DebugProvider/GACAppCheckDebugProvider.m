@@ -50,10 +50,10 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
   return self;
 }
 
-- (instancetype)initWithStorageID:(NSString *)storageID
-                     resourceName:(NSString *)resourceName
-                           APIKey:(nullable NSString *)APIKey
-                     requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
+- (instancetype)initWithServiceName:(NSString *)serviceName
+                       resourceName:(NSString *)resourceName
+                             APIKey:(nullable NSString *)APIKey
+                       requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 

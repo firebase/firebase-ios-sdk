@@ -46,12 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithApp:(FIRApp *)app {
 #if FIR_APP_ATTEST_SUPPORTED_TARGETS
   GACAppAttestProvider *appAttestProvider =
-      [[GACAppAttestProvider alloc] initWithStorageID:app.name
-                                         resourceName:app.resourceName
-                                              baseURL:nil
-                                               APIKey:app.options.APIKey
-                                  keychainAccessGroup:app.options.appGroupID
-                                         requestHooks:@[ [app.heartbeatLogger requestHook] ]];
+      [[GACAppAttestProvider alloc] initWithServiceName:app.name
+                                           resourceName:app.resourceName
+                                                baseURL:nil
+                                                 APIKey:app.options.APIKey
+                                    keychainAccessGroup:app.options.appGroupID
+                                           requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
   return [self initWithAppAttestProvider:appAttestProvider];
 #else   // FIR_APP_ATTEST_SUPPORTED_TARGETS

@@ -68,10 +68,10 @@ static NSString *const kProjectNumber = @"123456789";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
 
   OCMExpect([self.debugProviderMock alloc]).andReturn(self.debugProviderMock);
-  OCMExpect([self.debugProviderMock initWithStorageID:kAppName
-                                         resourceName:self.resourceName
-                                               APIKey:kAPIKey
-                                         requestHooks:OCMOCK_ANY])
+  OCMExpect([self.debugProviderMock initWithServiceName:kAppName
+                                           resourceName:self.resourceName
+                                                 APIKey:kAPIKey
+                                           requestHooks:OCMOCK_ANY])
       .andReturn(self.debugProviderMock);
 
   XCTAssertNotNil([[FIRAppCheckDebugProvider alloc] initWithApp:app]);
