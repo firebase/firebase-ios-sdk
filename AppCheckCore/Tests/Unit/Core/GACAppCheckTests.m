@@ -43,12 +43,12 @@ static NSString *const kAppGroupID = @"app_group_id";
 
 @interface GACAppCheck (Tests)
 
-- (instancetype)initWithInstanceName:(NSString *)instanceName
-                    appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
-                             storage:(id<GACAppCheckStorageProtocol>)storage
-                      tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
-                            settings:(id<GACAppCheckSettingsProtocol>)settings
-                       tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate;
+- (instancetype)initWithServiceName:(NSString *)instanceName
+                   appCheckProvider:(id<GACAppCheckProvider>)appCheckProvider
+                            storage:(id<GACAppCheckStorageProtocol>)storage
+                     tokenRefresher:(id<GACAppCheckTokenRefresherProtocol>)tokenRefresher
+                           settings:(id<GACAppCheckSettingsProtocol>)settings
+                      tokenDelegate:(nullable id<GACAppCheckTokenDelegate>)tokenDelegate;
 
 @end
 
@@ -78,12 +78,12 @@ static NSString *const kAppGroupID = @"app_group_id";
 
   [self stubSetTokenRefreshHandler];
 
-  self.appCheck = [[GACAppCheck alloc] initWithInstanceName:kAppName
-                                           appCheckProvider:self.mockAppCheckProvider
-                                                    storage:self.mockStorage
-                                             tokenRefresher:self.mockTokenRefresher
-                                                   settings:self.mockSettings
-                                              tokenDelegate:self.mockTokenDelegate];
+  self.appCheck = [[GACAppCheck alloc] initWithServiceName:kAppName
+                                          appCheckProvider:self.mockAppCheckProvider
+                                                   storage:self.mockStorage
+                                            tokenRefresher:self.mockTokenRefresher
+                                                  settings:self.mockSettings
+                                             tokenDelegate:self.mockTokenDelegate];
 }
 
 - (void)tearDown {
@@ -144,12 +144,12 @@ static NSString *const kAppGroupID = @"app_group_id";
       OCMStrictProtocolMock(@protocol(GACAppCheckTokenDelegate));
 
   // 6. Call init.
-  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithInstanceName:kAppName
-                                                   appCheckProvider:mockProvider
-                                                           settings:mockSettings
-                                                       resourceName:kResourceName
-                                                      tokenDelegate:mockTokenDelegate
-                                                keychainAccessGroup:kAppGroupID];
+  GACAppCheck *appCheck = [[GACAppCheck alloc] initWithServiceName:kAppName
+                                                      resourceName:kResourceName
+                                                  appCheckProvider:mockProvider
+                                                          settings:mockSettings
+                                                     tokenDelegate:mockTokenDelegate
+                                               keychainAccessGroup:kAppGroupID];
   XCTAssert([appCheck isKindOfClass:[GACAppCheck class]]);
 
   // 7. Verify mocks.
@@ -287,7 +287,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
-  OCMExpect([self.mockTokenDelegate tokenDidUpdate:tokenToReturn instanceName:kAppName]);
+  OCMExpect([self.mockTokenDelegate tokenDidUpdate:tokenToReturn serviceName:kAppName]);
 
   // 5. Trigger refresh and expect the result.
   if (self.tokenRefreshHandler == nil) {
@@ -319,7 +319,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
 
   // 4. Don't expect token update notification to be sent.
-  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY instanceName:OCMOCK_ANY]);
+  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY serviceName:OCMOCK_ANY]);
 
   // 5. Trigger refresh and expect the result.
   if (self.tokenRefreshHandler == nil) {
@@ -352,7 +352,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMReject([self.mockStorage setToken:expectedToken]);
 
   // 4. Don't expect token update notification to be sent.
-  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY instanceName:OCMOCK_ANY]);
+  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY serviceName:OCMOCK_ANY]);
 
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
@@ -381,7 +381,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
 
   // 4. Don't expect token update notification to be sent.
-  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY instanceName:OCMOCK_ANY]);
+  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY serviceName:OCMOCK_ANY]);
 
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
@@ -410,7 +410,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 2. Expect token update notification to be sent.
-  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken instanceName:kAppName]);
+  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken serviceName:kAppName]);
 
   // 3. Request token several times.
   NSInteger getTokenCallsCount = 10;
@@ -455,7 +455,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   NSError *storageError = [NSError errorWithDomain:self.name code:0 userInfo:nil];
 
   // 2. Don't expect token update notification to be sent.
-  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY instanceName:OCMOCK_ANY]);
+  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY serviceName:OCMOCK_ANY]);
 
   // 3. Request token several times.
   NSInteger getTokenCallsCount = 10;
@@ -572,7 +572,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
-  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken instanceName:kAppName]);
+  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken serviceName:kAppName]);
 
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
@@ -589,7 +589,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
 
   // 3. Don't expect token update notification to be sent.
-  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY instanceName:OCMOCK_ANY]);
+  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY serviceName:OCMOCK_ANY]);
 
   // 4. Expect token request to be completed.
   return [self expectationWithDescription:@"getToken"];
@@ -611,7 +611,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
-  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken instanceName:kAppName]);
+  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken serviceName:kAppName]);
 
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
@@ -636,7 +636,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMExpect([self.mockTokenRefresher updateWithRefreshResult:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
-  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken instanceName:kAppName]);
+  OCMExpect([self.mockTokenDelegate tokenDidUpdate:expectedToken serviceName:kAppName]);
 
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
@@ -658,7 +658,7 @@ static NSString *const kAppGroupID = @"app_group_id";
   OCMReject([self.mockAppCheckProvider getTokenWithCompletion:[OCMArg any]]);
 
   // 4. Expect token update notification to be sent.
-  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY instanceName:OCMOCK_ANY]);
+  OCMReject([self.mockTokenDelegate tokenDidUpdate:OCMOCK_ANY serviceName:OCMOCK_ANY]);
 
   // 5. Expect token request to be completed.
   XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];

@@ -134,36 +134,36 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (nullable instancetype)initWithStorageID:(NSString *)storageID
-                              resourceName:(NSString *)resourceName
-                                   baseURL:(nullable NSString *)baseURL
-                                    APIKey:(nullable NSString *)APIKey
-                       keychainAccessGroup:(nullable NSString *)accessGroup
-                              requestHooks:
-                                  (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
-  return [self initWithStorageID:storageID
-                    resourceName:resourceName
-                         baseURL:baseURL
-                          APIKey:APIKey
-             keychainAccessGroup:accessGroup
-                      limitedUse:NO
-                    requestHooks:requestHooks];
+- (nullable instancetype)initWithServiceName:(NSString *)serviceName
+                                resourceName:(NSString *)resourceName
+                                     baseURL:(nullable NSString *)baseURL
+                                      APIKey:(nullable NSString *)APIKey
+                         keychainAccessGroup:(nullable NSString *)accessGroup
+                                requestHooks:
+                                    (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
+  return [self initWithServiceName:serviceName
+                      resourceName:resourceName
+                           baseURL:baseURL
+                            APIKey:APIKey
+               keychainAccessGroup:accessGroup
+                        limitedUse:NO
+                      requestHooks:requestHooks];
 }
 
-- (nullable instancetype)initWithStorageID:(NSString *)storageID
-                              resourceName:(NSString *)resourceName
-                                   baseURL:(nullable NSString *)baseURL
-                                    APIKey:(nullable NSString *)APIKey
-                       keychainAccessGroup:(nullable NSString *)accessGroup
-                                limitedUse:(BOOL)limitedUse
-                              requestHooks:
-                                  (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
+- (nullable instancetype)initWithServiceName:(NSString *)serviceName
+                                resourceName:(NSString *)resourceName
+                                     baseURL:(nullable NSString *)baseURL
+                                      APIKey:(nullable NSString *)APIKey
+                         keychainAccessGroup:(nullable NSString *)accessGroup
+                                  limitedUse:(BOOL)limitedUse
+                                requestHooks:
+                                    (nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
 #if GAC_APP_ATTEST_SUPPORTED_TARGETS
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
-  NSString *storageKeySuffix = [GACAppAttestProvider storageKeySuffixWithID:storageID
-                                                               resourceName:resourceName];
+  NSString *storageKeySuffix = [GACAppAttestProvider storageKeySuffixWithServiceName:serviceName
+                                                                        resourceName:resourceName];
 
   GACAppAttestKeyIDStorage *keyIDStorage =
       [[GACAppAttestKeyIDStorage alloc] initWithKeySuffix:storageKeySuffix];
@@ -512,8 +512,9 @@ NS_ASSUME_NONNULL_BEGIN
       });
 }
 
-+ (NSString *)storageKeySuffixWithID:(NSString *)storageID resourceName:(NSString *)resourceName {
-  return [NSString stringWithFormat:@"%@.%@", storageID, resourceName];
++ (NSString *)storageKeySuffixWithServiceName:(NSString *)serviceName
+                                 resourceName:(NSString *)resourceName {
+  return [NSString stringWithFormat:@"%@.%@", serviceName, resourceName];
 }
 
 @end
