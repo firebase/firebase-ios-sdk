@@ -860,9 +860,11 @@ NS_SWIFT_NAME(Auth)
 
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
 /** @fn initializeRecaptchaConfigWithCompletion:completion:
-    @brief Calling initializeRecaptchaConfig method will update the ReCAPTCHA config for the
-   project/tenant tied to the Auth instance. The tenantId can be toggled for the same auth instance
-   in the same app and the sign in flow will include ReCAPTCHA only if needed.
+    @brief Initializes reCAPTCHA using the settings configured for the project or
+    tenant.
+
+    If you change the tenant ID of the `Auth` instance, the configuration will be
+    reloaded.
  */
 - (void)initializeRecaptchaConfigWithCompletion:
     (nullable void (^)(NSError *_Nullable error))completion;

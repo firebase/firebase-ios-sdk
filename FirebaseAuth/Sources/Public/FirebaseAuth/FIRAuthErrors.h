@@ -409,7 +409,7 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeEmailChangeNeedsVerification = 17090,
 
-    /** Indicates that the request does not contain any client identifier.
+    /** Indicates that the request does not contain a client identifier.
      */
     FIRAuthErrorCodeMissingClientIdentifier = 17093,
 
@@ -422,39 +422,39 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeBlockingCloudFunctionError = 17105,
 
-    /** Indicates that the recaptcha integration is not enabled for this project.
+    /** Indicates that reCAPTCHA Enterprise integration is not enabled for this project.
      */
     FIRAuthErrorCodeRecaptchaNotEnabled = 17200,
 
-    /** Indicates that the recaptcha token is missing when sending request to the backend.
+    /** Indicates that the reCAPTCHA token is missing from the backend request.
      */
     FIRAuthErrorCodeMissingRecaptchaToken = 17201,
 
-    /** Indicates that the recaptcha token is invalid when sending request to the backend.
+    /** Indicates that the reCAPTCHA token sent with the backend request is invalid.
      */
     FIRAuthErrorCodeInvalidRecaptchaToken = 17202,
 
-    /** Indicates that The recaptcha action is invalid when sending request to the backend.
+    /** Indicates that the requested reCAPTCHA action is invalid.
      */
     FIRAuthErrorCodeInvalidRecaptchaAction = 17203,
 
-    /** Indicates an error for when the client type is missing.
+    /** Indicates that the client type is missing from the request.
      */
     FIRAuthErrorCodeMissingClientType = 17204,
 
-    /** Indicates that the recaptcha version sent to backend is missing.
+    /** Indicates that the reCAPTCHA version is missing from the request.
      */
     FIRAuthErrorCodeMissingRecaptchaVersion = 17205,
 
-    /** Indicates that the recaptcha version sent to backend is invalid.
+    /** Indicates that the reCAPTCHA version sent to the backend is invalid.
      */
     FIRAuthErrorCodeInvalidRecaptchaVersion = 17206,
 
-    /** Indicates that the request type sent to backend is invalid.
+    /** Indicates that the request type sent to the backend is invalid.
      */
     FIRAuthErrorCodeInvalidReqType = 17207,
 
-    /** Indicates that the recaptcha sdk is not linked.
+    /** Indicates that the reCAPTCHA SDK is not linked to the app.
      */
     FIRAuthErrorCodeRecaptchaSDKNotLinked = 17208,
 

@@ -569,7 +569,7 @@ static NSString *const kFIRAuthErrorMessageRejectedCredential =
     @brief Error message constant describing @c FIRAuthErrorCodeMissingClientIdentifier errors.
  */
 static NSString *const kFIRAuthErrorMessageMissingClientIdentifier =
-    @"The request does not contain any client identifier.";
+    @"The request does not contain a client identifier.";
 
 /** @var kFIRAuthErrorMessageMissingOrInvalidNonce
     @brief Error message constant describing @c FIRAuthErrorCodeMissingOrInvalidNonce errors.
@@ -601,7 +601,7 @@ static NSString *const kFIRAuthErrorMessageRecaptchaNotEnabled =
     @"reCAPTCHA Enterprise is not enabled for this project.";
 
 static NSString *const kFIRAuthErrorMessageMissingRecaptchaToken =
-    @"The reCAPTCHA verification token is missing when sending request to the backend.";
+    @"The backend request is missing the reCAPTCHA verification token.";
 
 static NSString *const kFIRAuthErrorMessageInvalidRecaptchaToken =
     @"The reCAPTCHA verification token is invalid or has expired.";
@@ -623,9 +623,8 @@ static NSString *const kFIRAuthErrorMessageInvalidReqType =
 
 // TODO(chuanr): point the link to GCIP doc once available.
 static NSString *const kFIRAuthErrorMessageRecaptchaSDKNotLinked =
-    @"The reCAPTCHA SDK is not linked to your app. Please follow "
-    @"https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps to add Recaptcha "
-    @"Enterprise SDK to your app.";
+    @"The reCAPTCHA SDK is not linked to your app. See "
+    @"https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps";
 
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
