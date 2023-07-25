@@ -36,7 +36,7 @@ static const NSTimeInterval kRegistrationTimeout = .5;
  */
 static const NSTimeInterval kExpectationTimeout = 2;
 
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 
 /** @class FIRAuthLegacyUIApplication
     @brief A fake legacy (< iOS 7) UIApplication class.
@@ -60,7 +60,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
 @end
 
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 
 /** @class FIRAuthAPNSTokenManagerTests
     @brief Unit tests for @c FIRAuthAPNSTokenManager .
@@ -241,7 +241,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   OCMVerifyAll(_mockApplication);
 }
 
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 
 /** @fn testLegacyRegistration
     @brief Tests remote notification registration on legacy systems.
@@ -278,7 +278,7 @@ static const NSTimeInterval kExpectationTimeout = 2;
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
 }
 
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 
 @end
 

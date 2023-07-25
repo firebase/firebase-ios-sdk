@@ -469,9 +469,9 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                      appCheck:FIR_COMPONENT(FIRAppCheckInterop, app.container)];
   if (self) {
     _app = app;
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
     _authURLPresenter = [[FIRAuthURLPresenter alloc] init];
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   }
   return self;
 }
@@ -648,7 +648,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)signInWithProvider:(id<FIRFederatedAuthProvider>)provider
                 UIDelegate:(nullable id<FIRAuthUIDelegate>)UIDelegate
                 completion:(nullable FIRAuthDataResultCallback)completion {
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback decoratedCallback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
@@ -665,7 +665,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                                                                         callback:decoratedCallback];
                                }];
   });
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 }
 
 - (void)fetchSignInMethodsForEmail:(nonnull NSString *)email
@@ -1638,11 +1638,11 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
 - (BOOL)canHandleURL:(NSURL *)URL {
   __block BOOL result = NO;
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   dispatch_sync(FIRAuthGlobalWorkQueue(), ^{
     result = [self->_authURLPresenter canHandleURL:URL];
   });
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   return result;
 }
 
