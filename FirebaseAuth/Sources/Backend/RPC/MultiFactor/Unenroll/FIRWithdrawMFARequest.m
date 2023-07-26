@@ -30,8 +30,10 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                          MFAEnrollmentID:(NSString *)MFAEnrollmentID
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kWithdrawMFAEndPoint requestConfiguration:requestConfiguration];
-  self.useIdentityPlatform = YES;
+  self = [super initWithEndpoint:kWithdrawMFAEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
   if (self) {
     _IDToken = IDToken;
     _MFAEnrollmentID = MFAEnrollmentID;

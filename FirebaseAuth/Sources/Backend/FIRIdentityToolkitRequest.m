@@ -37,10 +37,12 @@ static NSString *kFirebaseAuthStagingAPIHost = @"staging-www.sandbox.googleapis.
 static NSString *kIdentityPlatformStagingAPIHost =
     @"staging-identitytoolkit.sandbox.googleapis.com";
 
-static NSString *const kClientType = @"CLIENT_TYPE_IOS";
-
 @implementation FIRIdentityToolkitRequest {
   FIRAuthRequestConfiguration *_requestConfiguration;
+
+  BOOL _useIdentityPlatform;
+
+  BOOL _useStaging;
 }
 
 - (nullable instancetype)initWithEndpoint:(NSString *)endpoint
@@ -52,7 +54,6 @@ static NSString *const kClientType = @"CLIENT_TYPE_IOS";
     _requestConfiguration = requestConfiguration;
     _useIdentityPlatform = NO;
     _useStaging = NO;
-    _clientType = kClientType;
 
     // Automatically set the tenant ID. If the request is initialized before FIRAuth is configured,
     // set tenant ID to nil.
@@ -65,12 +66,20 @@ static NSString *const kClientType = @"CLIENT_TYPE_IOS";
   return self;
 }
 
-- (BOOL)containsPostBody {
-  return YES;
+- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                      useIdentityPlatform:(BOOL)useIdentityPlatform
+                               useStaging:(BOOL)useStaging {
+  self = [self initWithEndpoint:endpoint requestConfiguration:requestConfiguration];
+  if (self) {
+    _useIdentityPlatform = useIdentityPlatform;
+    _useStaging = useStaging;
+  }
+  return self;
 }
 
-- (nullable NSString *)queryParams {
-  return nil;
+- (BOOL)containsPostBody {
+  return YES;
 }
 
 - (NSURL *)requestURL {
@@ -106,14 +115,8 @@ static NSString *const kClientType = @"CLIENT_TYPE_IOS";
       apiHostAndPathPrefix = kFirebaseAuthAPIHost;
     }
   }
-  NSMutableString *URLString = [NSMutableString
+  NSString *URLString = [NSString
       stringWithFormat:apiURLFormat, apiProtocol, apiHostAndPathPrefix, _endpoint, _APIKey];
-
-  NSString *queryParams = [self queryParams];
-  if (queryParams) {
-    [URLString appendString:queryParams];
-  }
-
   NSURL *URL = [NSURL URLWithString:URLString];
   return URL;
 }
