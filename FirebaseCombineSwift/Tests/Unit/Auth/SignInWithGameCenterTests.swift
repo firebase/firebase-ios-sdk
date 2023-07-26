@@ -69,7 +69,7 @@ class SignInWithGameCenterTests: XCTestCase {
     var contentType: String?
     var handler: FIRAuthBackendRPCIssuerCompletionHandler?
 
-    func asyncPostToURL(with requestConfiguration: FIRAuthRequestConfiguration, url URL: URL,
+    func asyncCallToURL(with requestConfiguration: FIRAuthRequestConfiguration, url URL: URL,
                         body: Data?, contentType: String,
                         completionHandler handler: @escaping FIRAuthBackendRPCIssuerCompletionHandler) {
       requestURL = URL
