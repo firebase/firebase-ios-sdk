@@ -1,7 +1,5 @@
 # 10.13.0
-- [added] Added reCAPTCHA verification support in email authentication flows. (#11231)
 - [fixed] Fixed a compilation error regression introduced in 10.12.0 building iOS App Extensions. (#11537)
-
 # 10.12.0
 - [added] Added support to Firebase Auth to enroll and sign in a user with
   TOTP second factor. (#11261)
