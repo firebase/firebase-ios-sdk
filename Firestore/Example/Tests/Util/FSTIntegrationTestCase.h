@@ -33,6 +33,7 @@
 @class FIRFirestore;
 @class FIRFirestoreSettings;
 @class FIRQuery;
+@class FIRWriteBatch;
 @class FSTEventAccumulator;
 
 NS_ASSUME_NONNULL_BEGIN

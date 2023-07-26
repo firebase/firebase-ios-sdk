@@ -790,12 +790,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
                                                         withString:collectionGroup];
     [batch setData:@{@"x" : @1} forDocument:[self.db documentWithPath:path]];
   }
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
-  [batch commitWithCompletion:^(NSError *error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self awaitExpectations];
+  [self commitWriteBatch:batch];
 
   FIRQuerySnapshot *querySnapshot =
       [self readDocumentSetForRef:[self.db collectionGroupWithID:collectionGroup]];
@@ -821,12 +816,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
                                                         withString:collectionGroup];
     [batch setData:@{@"x" : @1} forDocument:[self.db documentWithPath:path]];
   }
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
-  [batch commitWithCompletion:^(NSError *error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self awaitExpectations];
+  [self commitWriteBatch:batch];
 
   FIRQuerySnapshot *querySnapshot = [self
       readDocumentSetForRef:[[[[self.db collectionGroupWithID:collectionGroup]
@@ -858,12 +848,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
                                                         withString:collectionGroup];
     [batch setData:@{@"x" : @1} forDocument:[self.db documentWithPath:path]];
   }
-  XCTestExpectation *expectation = [self expectationWithDescription:@"batch written"];
-  [batch commitWithCompletion:^(NSError *error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self awaitExpectations];
+  [self commitWriteBatch:batch];
 
   FIRQuerySnapshot *querySnapshot = [self
       readDocumentSetForRef:[[[self.db collectionGroupWithID:collectionGroup]
