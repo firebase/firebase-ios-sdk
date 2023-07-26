@@ -128,8 +128,8 @@ NS_SWIFT_NAME(User)
     @brief a list of user enrolled passkey object.
         This property is available on iOS only.
 */
-@property(nonatomic, readonly) NSArray<FIRPasskey *> *enrolledPasskeys;
-// API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, readonly)
+    NSArray<FIRPasskey *> *enrolledPasskeys API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @fn init
     @brief This class should not be instantiated.
