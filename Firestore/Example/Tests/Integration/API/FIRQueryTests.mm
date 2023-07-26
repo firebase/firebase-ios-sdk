@@ -1231,25 +1231,22 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
     NSArray<FIRDocumentReference *> *createdDocuments =
         FIRDocumentReferenceArrayFromQuerySnapshot(querySnapshot1);
 
-    // Delete 50 of the 100 documents. Do this in a transaction, rather than
-    // [FIRDocumentReference deleteDocument], to avoid affecting the local cache.
+    // Delete 50 of the 100 documents. Use a different Firestore instance to avoid affecting the
+    // local cache.
     NSSet<NSString *> *deletedDocumentIds;
     {
+      FIRFirestore *db2 = [self firestore];
+      FIRWriteBatch *batch = [db2 batch];
+
       NSMutableArray<NSString *> *deletedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
-      XCTestExpectation *expectation = [self expectationWithDescription:@"DeleteTransaction"];
-      [collRef.firestore
-          runTransactionWithBlock:^id _Nullable(FIRTransaction *transaction, NSError **) {
-            for (decltype(createdDocuments.count) i = 0; i < createdDocuments.count; i += 2) {
-              FIRDocumentReference *documentToDelete = createdDocuments[i];
-              [transaction deleteDocument:documentToDelete];
-              [deletedDocumentIdsAccumulator addObject:documentToDelete.documentID];
-            }
-            return @"document deletion successful";
-          }
-          completion:^(id, NSError *) {
-            [expectation fulfill];
-          }];
-      [self awaitExpectation:expectation];
+      for (decltype(createdDocuments.count) i = 0; i < createdDocuments.count; i += 2) {
+        FIRDocumentReference *documentToDelete = [db2 documentWithPath:createdDocuments[i].path];
+        [batch deleteDocument:documentToDelete];
+        [deletedDocumentIdsAccumulator addObject:documentToDelete.documentID];
+      }
+
+      [self commitWriteBatch:batch];
+
       deletedDocumentIds = [NSSet setWithArray:deletedDocumentIdsAccumulator];
     }
     XCTAssertEqual(deletedDocumentIds.count, 50u, @"deletedDocumentIds has the wrong size");

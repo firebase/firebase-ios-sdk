@@ -115,6 +115,8 @@ extern "C" {
                     data:(NSDictionary<NSString *, id> *)data
                   fields:(NSArray<id> *)fields;
 
+- (void)commitWriteBatch:(FIRWriteBatch *)batch;
+
 - (void)disableNetwork;
 
 - (void)enableNetwork;
