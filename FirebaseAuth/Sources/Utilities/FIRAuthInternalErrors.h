@@ -90,11 +90,11 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeKeychainError = FIRAuthPublicErrorCodeFlag |
                                           FIRAuthErrorCodeKeychainError,
 
-  /** @var FIRAuthInternalErrorCodeMissingClientType
-      @brief Indicates an error for when the client type is missing.
+  /** @var FIRAuthInternalErrorCodeMissingClientIdentifier
+      @brief Indicates an error for when the client identifier is missing.
    */
-  FIRAuthInternalErrorCodeMissingClientType = FIRAuthPublicErrorCodeFlag |
-                                              FIRAuthErrorCodeMissingClientType,
+  FIRAuthInternalErrorCodeMissingClientIdentifier = FIRAuthPublicErrorCodeFlag |
+                                                    FIRAuthErrorCodeMissingClientIdentifier,
 
   /** @var FIRAuthInternalErrorCodeInternalError
       @brief An internal error occurred.
@@ -441,11 +441,6 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeEmailChangeNeedsVerification =
       FIRAuthPublicErrorCodeFlag | FIRAuthErrorCodeEmailChangeNeedsVerification,
 
-  /** Indicates that the request does not contain any client identifier.
-   */
-  FIRAuthInternalErrorCodeMissingClientIdentifier = FIRAuthPublicErrorCodeFlag |
-                                                    FIRAuthErrorCodeMissingClientIdentifier,
-
   /** Indicates that the nonce is missing or invalid.
    */
   FIRAuthInternalErrorCodeMissingOrInvalidNonce = FIRAuthPublicErrorCodeFlag |
@@ -487,27 +482,12 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorBlockingCloudFunctionError = FIRAuthPublicErrorCodeFlag |
                                                    FIRAuthErrorCodeBlockingCloudFunctionError,
 
-  /** Indicates that the recaptcha score sent to backend is invalid.
-   */
-  FIRAuthInternalErrorCodeInvalidRecaptchaScore = FIRAuthPublicErrorCodeFlag |
-                                                  FIRAuthErrorCodeCaptchaCheckFailed,
-
-  /** Indicates that the recaptcha integration is not enabled for this project.
-   */
-  FIRAuthInternalErrorCodeRecaptchaNotEnabled = FIRAuthPublicErrorCodeFlag |
-                                                FIRAuthErrorCodeRecaptchaNotEnabled,
-
-  /** Indicates that the recaptcha sdk is not linked to the app.
-   */
-  FIRAuthInternalErrorCodeRecaptchaSDKNotLinked = FIRAuthPublicErrorCodeFlag |
-                                                  FIRAuthErrorCodeRecaptchaSDKNotLinked,
-
   /** @var FIRAuthInternalErrorCodeRPCRequestEncodingError
-        @brief Indicates an error encoding the RPC request.
-        @remarks This is typically due to some sort of unexpected input value.
+      @brief Indicates an error encoding the RPC request.
+      @remarks This is typically due to some sort of unexpected input value.
 
-            See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details.
-     */
+          See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary for details.
+   */
   FIRAuthInternalErrorCodeRPCRequestEncodingError = 1,
 
   /** @var FIRAuthInternalErrorCodeJSONSerializationError

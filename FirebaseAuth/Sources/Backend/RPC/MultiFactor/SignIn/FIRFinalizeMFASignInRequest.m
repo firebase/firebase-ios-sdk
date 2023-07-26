@@ -30,8 +30,9 @@ static NSString *const kTenantIDKey = @"tenantId";
                                  requestConfiguration:
                                      (FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizeMFASignInEndPoint
-            requestConfiguration:requestConfiguration];
-  self.useIdentityPlatform = YES;
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
   if (self) {
     _MFAPendingCredential = MFAPendingCredential;
     _verificationInfo = verificationInfo;
