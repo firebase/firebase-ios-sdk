@@ -44,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
     _auth = auth;
     _heartbeatLogger = heartbeatLogger;
     _appCheck = appCheck;
-    _HTTPMethod = @"POST";
   }
   return self;
 }

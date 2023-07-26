@@ -30,8 +30,10 @@ static NSString *const kTenantIDKey = @"tenantId";
                  MFAEnrollmentID:(NSString *)MFAEnrollmentID
                       signInInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)signInInfo
             requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kStartMFASignInEndPoint requestConfiguration:requestConfiguration];
-  self.useIdentityPlatform = YES;
+  self = [super initWithEndpoint:kStartMFASignInEndPoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
   if (self) {
     _MFAPendingCredential = MFAPendingCredential;
     _MFAEnrollmentID = MFAEnrollmentID;

@@ -111,21 +111,6 @@ static NSString *const kVerifyBeforeUpdateEmailRequestTypeValue = @"VERIFY_AND_C
  */
 static NSString *const kTenantIDKey = @"tenantId";
 
-/** @var kCaptchaResponseKey
-    @brief The key for the "captchaResponse" value in the request.
- */
-static NSString *const kCaptchaResponseKey = @"captchaResp";
-
-/** @var kClientType
-    @brief The key for the "clientType" value in the request.
- */
-static NSString *const kClientType = @"clientType";
-
-/** @var kRecaptchaVersion
-    @brief The key for the "recaptchaVersion" value in the request.
- */
-static NSString *const kRecaptchaVersion = @"recaptchaVersion";
-
 @interface FIRGetOOBConfirmationCodeRequest ()
 
 /** @fn initWithRequestType:email:APIKey:
@@ -246,68 +231,64 @@ static NSString *const kRecaptchaVersion = @"recaptchaVersion";
   NSMutableDictionary *body =
       [@{kRequestTypeKey : [[self class] requestTypeStringValueForRequestType:_requestType]}
           mutableCopy];
+
   // For password reset requests, we only need an email address in addition to the already required
   // fields.
   if (_requestType == FIRGetOOBConfirmationCodeRequestTypePasswordReset) {
     body[kEmailKey] = _email;
   }
+
   // For verify email requests, we only need an STS Access Token in addition to the already required
   // fields.
   if (_requestType == FIRGetOOBConfirmationCodeRequestTypeVerifyEmail) {
     body[kIDTokenKey] = _accessToken;
   }
+
   // For email sign-in link requests, we only need an email address in addition to the already
   // required fields.
   if (_requestType == FIRGetOOBConfirmationCodeRequestTypeEmailLink) {
     body[kEmailKey] = _email;
   }
+
   // For email sign-in link requests, we only need an STS Access Token, a new email address in
   // addition to the already required fields.
   if (_requestType == FIRGetOOBConfirmationCodeRequestTypeVerifyBeforeUpdateEmail) {
     body[kNewEmailKey] = _updatedEmail;
     body[kIDTokenKey] = _accessToken;
   }
+
   if (_continueURL) {
     body[kContinueURLKey] = _continueURL;
   }
+
   if (_iOSBundleID) {
     body[kIosBundleIDKey] = _iOSBundleID;
   }
+
   if (_androidPackageName) {
     body[kAndroidPackageNameKey] = _androidPackageName;
   }
+
   if (_androidMinimumVersion) {
     body[kAndroidMinimumVersionKey] = _androidMinimumVersion;
   }
+
   if (_androidInstallApp) {
     body[kAndroidInstallAppKey] = @YES;
   }
+
   if (_handleCodeInApp) {
     body[kCanHandleCodeInAppKey] = @YES;
   }
+
   if (_dynamicLinkDomain) {
     body[kDynamicLinkDomainKey] = _dynamicLinkDomain;
-  }
-  if (_captchaResponse) {
-    body[kCaptchaResponseKey] = _captchaResponse;
-  }
-  if (self.clientType) {
-    body[kClientType] = self.clientType;
-  }
-  if (_recaptchaVersion) {
-    body[kRecaptchaVersion] = _recaptchaVersion;
   }
   if (self.tenantID) {
     body[kTenantIDKey] = self.tenantID;
   }
 
   return body;
-}
-
-- (void)injectRecaptchaFields:(NSString *_Nullable)recaptchaResponse
-             recaptchaVersion:(NSString *)recaptchaVersion {
-  _captchaResponse = recaptchaResponse;
-  _recaptchaVersion = recaptchaVersion;
 }
 
 @end

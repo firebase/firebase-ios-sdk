@@ -73,8 +73,9 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration];
-  request.useStaging = YES;
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:NO
+                                               useStaging:YES];
   NSString *expectedURL = [NSString
       stringWithFormat:
           @"https://staging-www.sandbox.googleapis.com/identitytoolkit/v3/relyingparty/%@?key=%@",
@@ -92,8 +93,9 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration];
-  request.useIdentityPlatform = YES;
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:YES
+                                               useStaging:NO];
   NSString *expectedURL = [NSString
       stringWithFormat:@"https://identitytoolkit.googleapis.com/v2/%@?key=%@", kEndpoint, kAPIKey];
 
@@ -109,9 +111,9 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
       [[FIRAuthRequestConfiguration alloc] initWithAPIKey:kAPIKey appID:kFirebaseAppID];
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration];
-  request.useIdentityPlatform = YES;
-  request.useStaging = YES;
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:YES
+                                               useStaging:YES];
   NSString *expectedURL = [NSString
       stringWithFormat:@"https://staging-identitytoolkit.sandbox.googleapis.com/v2/%@?key=%@",
                        kEndpoint, kAPIKey];
@@ -147,8 +149,9 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration];
-  request.useIdentityPlatform = YES;
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:YES
+                                               useStaging:NO];
   NSString *expectedURL =
       [NSString stringWithFormat:@"http://%@/identitytoolkit.googleapis.com/v2/%@?key=%@",
                                  kEmulatorHostAndPort, kEndpoint, kAPIKey];
@@ -170,8 +173,9 @@ static NSString *const kEmulatorHostAndPort = @"emulatorhost:12345";
   requestConfiguration.emulatorHostAndPort = kEmulatorHostAndPort;
   FIRIdentityToolkitRequest *request =
       [[FIRIdentityToolkitRequest alloc] initWithEndpoint:kEndpoint
-                                     requestConfiguration:requestConfiguration];
-  request.useIdentityPlatform = YES;
+                                     requestConfiguration:requestConfiguration
+                                      useIdentityPlatform:YES
+                                               useStaging:NO];
 
   XCTAssertEqualObjects(@"tenant-id", request.tenantID);
 }
