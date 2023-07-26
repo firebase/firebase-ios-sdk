@@ -106,7 +106,7 @@ public extension FileManager {
   /// timestamp.
   private static func timeStamp() -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "YYYY-MM-dd'T'HH-mm-ss"
+    formatter.dateFormat = "yyyy-MM-dd'T'HH-mm-ss"
     return formatter.string(from: Date())
   }
 
