@@ -283,6 +283,25 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [self verifyAllMocks];
 }
 
+- (void)testGetToken_WhenTokenIsUnexpectedlyNil {
+  NSArray * /*[tokenNotification, getToken]*/ expectations =
+      [self configuredExpectations_GetTokenWhenCachedTokenExpired_withExpectedToken:nil];
+
+  // 2. Request token and verify result.
+  [self.appCheck
+      tokenForcingRefresh:NO
+               completion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+                 [expectations.lastObject fulfill];
+                 // TODO: Not sure what expected output should be.
+                 XCTAssertNil(token);
+                 XCTAssertNotNil(error);
+               }];
+
+  // 3. Wait for expectations and validate mocks.
+  [self waitForExpectations:expectations timeout:0.5];
+  [self verifyAllMocks];
+}
+
 - (void)testGetToken_AppCheckProviderError {
   // 1. Create expected token and error and configure expectations.
   FIRAppCheckToken *cachedToken = [self soonExpiringToken];
@@ -1007,7 +1026,8 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:cachedToken]);
 
   // 2. Expect token requested from app check provider.
-  id completionArg = [OCMArg invokeBlockWithArgs:expectedToken, [NSNull null], nil];
+  id completionArg =
+      [OCMArg invokeBlockWithArgs:expectedToken ?: [NSNull null], [NSNull null], nil];
   OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
 
   // 3. Expect new token to be stored.
