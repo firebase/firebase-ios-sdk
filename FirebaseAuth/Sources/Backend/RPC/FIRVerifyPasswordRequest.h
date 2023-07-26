@@ -52,11 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *captchaResponse;
 
-/** @property captchaResponse
-    @brief The reCAPTCHA version.
- */
-@property(nonatomic, copy, nullable) NSString *recaptchaVersion;
-
 /** @property returnSecureToken
     @brief Whether the response should return access token and refresh token directly.
     @remarks The default value is @c YES .

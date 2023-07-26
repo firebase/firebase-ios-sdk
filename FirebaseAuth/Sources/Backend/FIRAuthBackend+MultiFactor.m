@@ -24,7 +24,7 @@
 + (void)startMultiFactorEnrollment:(FIRStartMFAEnrollmentRequest *)request
                           callback:(FIRStartMFAEnrollmentResponseCallback)callback {
   FIRStartMFAEnrollmentResponse *response = [[FIRStartMFAEnrollmentResponse alloc] init];
-  [[self implementation] callWithRequest:request
+  [[self implementation] postWithRequest:request
                                 response:response
                                 callback:^(NSError *error) {
                                   if (error) {
@@ -38,7 +38,7 @@
 + (void)finalizeMultiFactorEnrollment:(FIRFinalizeMFAEnrollmentRequest *)request
                              callback:(FIRFinalizeMFAEnrollmentResponseCallback)callback {
   FIRFinalizeMFAEnrollmentResponse *response = [[FIRFinalizeMFAEnrollmentResponse alloc] init];
-  [[self implementation] callWithRequest:request
+  [[self implementation] postWithRequest:request
                                 response:response
                                 callback:^(NSError *error) {
                                   if (error) {
@@ -52,7 +52,7 @@
 + (void)startMultiFactorSignIn:(FIRStartMFASignInRequest *)request
                       callback:(FIRStartMFASignInResponseCallback)callback {
   FIRStartMFASignInResponse *response = [[FIRStartMFASignInResponse alloc] init];
-  [[self implementation] callWithRequest:request
+  [[self implementation] postWithRequest:request
                                 response:response
                                 callback:^(NSError *error) {
                                   if (error) {
@@ -66,7 +66,7 @@
 + (void)finalizeMultiFactorSignIn:(FIRFinalizeMFASignInRequest *)request
                          callback:(FIRFinalizeMFASignInResponseCallback)callback {
   FIRFinalizeMFASignInResponse *response = [[FIRFinalizeMFASignInResponse alloc] init];
-  [[self implementation] callWithRequest:request
+  [[self implementation] postWithRequest:request
                                 response:response
                                 callback:^(NSError *error) {
                                   if (error) {
@@ -80,7 +80,7 @@
 + (void)withdrawMultiFactor:(FIRWithdrawMFARequest *)request
                    callback:(FIRWithdrawMFAResponseCallback)callback {
   FIRWithdrawMFAResponse *response = [[FIRWithdrawMFAResponse alloc] init];
-  [[self implementation] callWithRequest:request
+  [[self implementation] postWithRequest:request
                                 response:response
                                 callback:^(NSError *error) {
                                   if (error) {

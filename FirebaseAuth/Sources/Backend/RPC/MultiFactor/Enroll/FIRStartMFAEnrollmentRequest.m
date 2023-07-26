@@ -31,8 +31,9 @@ static NSString *const kTenantIDKey = @"tenantId";
                           enrollmentInfo:(FIRAuthProtoStartMFAPhoneRequestInfo *)phoneEnrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
-            requestConfiguration:requestConfiguration];
-  self.useIdentityPlatform = YES;
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
   if (self) {
     _IDToken = IDToken;
     _phoneEnrollmentInfo = phoneEnrollmentInfo;
@@ -45,8 +46,9 @@ static NSString *const kTenantIDKey = @"tenantId";
                           (FIRAuthProtoStartMFATOTPEnrollmentRequestInfo *)TOTPEnrollmentInfo
                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kStartMFAEnrollmentEndPoint
-            requestConfiguration:requestConfiguration];
-  self.useIdentityPlatform = YES;
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
   if (self) {
     _IDToken = IDToken;
     _TOTPEnrollmentInfo = TOTPEnrollmentInfo;

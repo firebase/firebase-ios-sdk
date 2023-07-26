@@ -66,8 +66,10 @@ typedef NS_ENUM(NSInteger, FIRTokenType) {
 - (nullable instancetype)initWithToken:(NSString *)token
                                idToken:(NSString *)idToken
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
-  self = [super initWithEndpoint:kRevokeTokenEndpoint requestConfiguration:requestConfiguration];
-  self.useIdentityPlatform = YES;
+  self = [super initWithEndpoint:kRevokeTokenEndpoint
+            requestConfiguration:requestConfiguration
+             useIdentityPlatform:YES
+                      useStaging:NO];
   if (self) {
     // Apple and authorization code are the only provider and token type we support for now.
     // Generalize this initializer to accept other providers and token types once supported.

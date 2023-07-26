@@ -42,21 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, readonly, nullable) NSString *tenantID;
 
-/** @property useIdentityPlatform
-    @brief The toggle of using Identity Platform endpoints.
- */
-@property(nonatomic) BOOL useIdentityPlatform;
-
-/** @property useStaging
-    @brief The toggle of using staging endpoints.
- */
-@property(nonatomic) BOOL useStaging;
-
-/** @property clientType
-    @brief The type of the client that the request sent from, which should be CLIENT_TYPE_IOS;
- */
-@property(nonatomic, copy) NSString *clientType;
-
 /** @fn init
     @brief Please use initWithEndpoint:APIKey:
  */
@@ -71,15 +56,15 @@ NS_ASSUME_NONNULL_BEGIN
                      requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
     NS_DESIGNATED_INITIALIZER;
 
+- (nullable instancetype)initWithEndpoint:(NSString *)endpoint
+                     requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
+                      useIdentityPlatform:(BOOL)useIdentityPlatform
+                               useStaging:(BOOL)useStaging;
+
 /** @fn requestURL
     @brief Gets the request's full URL.
  */
 - (NSURL *)requestURL;
-
-/** @fn queryParams
-    @brief Gets the request's query parameters.
- */
-- (nullable NSString *)queryParams;
 
 /** @fn requestConfiguration
     @brief Gets the request's configuration.
