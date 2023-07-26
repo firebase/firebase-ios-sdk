@@ -50,10 +50,10 @@ typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credentia
     API_UNAVAILABLE(macos,
                     tvos,
                     watchos
-#if defined(TARGET_OS_XR)
+#if defined(TARGET_OS_VISION)
                     ,
-                    xros
-#endif  // defined(TARGET_OS_XR)
+                    visionos
+#endif  // defined(TARGET_OS_VISION)
     );
 
 @end

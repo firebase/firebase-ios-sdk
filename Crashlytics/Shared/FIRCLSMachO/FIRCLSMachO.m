@@ -267,7 +267,7 @@ struct FIRCLSMachOSlice FIRCLSMachOSliceGetCurrent(void) {
   void* executableSymbol;
   Dl_info dlinfo;
 
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
   const NXArchInfo* archInfo;
   archInfo = NXGetLocalArchInfo();
 
@@ -342,7 +342,7 @@ const char* FIRCLSMachOSliceGetArchitectureName(FIRCLSMachOSliceRef slice) {
     return "armv7k";
   }
 
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
   const NXArchInfo* archInfo;
 
   archInfo = NXGetArchInfoFromCpuType(slice->cputype, slice->cpusubtype);

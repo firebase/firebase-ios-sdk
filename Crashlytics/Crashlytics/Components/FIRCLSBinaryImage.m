@@ -242,7 +242,7 @@ static FIRCLSMachOSegmentCommand FIRCLSBinaryImageMachOGetSegmentCommand(
 
   return segmentCommand;
 }
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
 static bool FIRCLSBinaryImageMachOSliceInitSectionByName(FIRCLSMachOSliceRef slice,
                                                          const char* segName,
                                                          const char* sectionName,
@@ -345,7 +345,7 @@ static bool FIRCLSBinaryImageFillInImageDetails(FIRCLSBinaryImageDetails* detail
   FIRCLSMachOSection section;
 
 #if CLS_COMPACT_UNWINDING_SUPPORTED
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
   if (FIRCLSBinaryImageMachOSliceInitSectionByName(&details->slice, SEG_TEXT, "__unwind_info",
                                                    &section)) {
     details->node.unwindInfo = (void*)(section.addr + details->vmaddr_slide);
@@ -358,7 +358,7 @@ static bool FIRCLSBinaryImageFillInImageDetails(FIRCLSBinaryImageDetails* detail
 #endif
 
 #if CLS_DWARF_UNWINDING_SUPPORTED
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
   if (FIRCLSBinaryImageMachOSliceInitSectionByName(&details->slice, SEG_TEXT, "__eh_frame",
                                                    &section)) {
     details->node.ehFrame = (void*)(section.addr + details->vmaddr_slide);
@@ -370,7 +370,7 @@ static bool FIRCLSBinaryImageFillInImageDetails(FIRCLSBinaryImageDetails* detail
 #endif
 #endif
 
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
   if (FIRCLSBinaryImageMachOSliceInitSectionByName(&details->slice, SEG_DATA, "__crash_info",
                                                    &section)) {
     details->node.crashInfo = (void*)(section.addr + details->vmaddr_slide);

@@ -39,7 +39,7 @@
                                            selector:@selector(didBecomeInactive:)
                                                name:UIApplicationDidEnterBackgroundNotification
                                              object:nil];
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(didChangeOrientation:)
                                                name:UIDeviceOrientationDidChangeNotification
@@ -53,7 +53,7 @@
              name:UIApplicationDidChangeStatusBarOrientationNotification
            object:nil];
 #pragma clang diagnostic pop
-#endif  // !CLS_TARGET_OS_XR
+#endif  // !CLS_TARGET_OS_VISION
 
 #elif CLS_TARGET_OS_OSX
   [[NSNotificationCenter defaultCenter] addObserver:self
@@ -68,22 +68,22 @@
 }
 
 - (void)captureInitialNotificationStates {
-#if TARGET_OS_IOS && (!CLS_TARGET_OS_XR)
+#if TARGET_OS_IOS && (!CLS_TARGET_OS_VISION)
   UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
   UIInterfaceOrientation statusBarOrientation =
       [FIRCLSApplicationSharedInstance() statusBarOrientation];
-#endif  // TARGET_OS_IOS && (!CLS_TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!CLS_TARGET_OS_VISION)
 
   // It's nice to do this async, so we don't hold up the main thread while doing three
   // consecutive IOs here.
   dispatch_async(FIRCLSGetLoggingQueue(), ^{
     FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSInBackgroundKey, @"0");
-#if TARGET_OS_IOS && (!CLS_TARGET_OS_XR)
+#if TARGET_OS_IOS && (!CLS_TARGET_OS_VISION)
     FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSDeviceOrientationKey,
                                            [@(orientation) description]);
     FIRCLSUserLoggingWriteInternalKeyValue(FIRCLSUIOrientationKey,
                                            [@(statusBarOrientation) description]);
-#endif  // TARGET_OS_IOS && (!CLS_TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!CLS_TARGET_OS_VISION)
   });
 }
 
@@ -95,7 +95,7 @@
   FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSInBackgroundKey, @YES);
 }
 
-#if TARGET_OS_IOS && (!CLS_TARGET_OS_XR)
+#if TARGET_OS_IOS && (!CLS_TARGET_OS_VISION)
 - (void)didChangeOrientation:(NSNotification *)notification {
   UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
 
@@ -108,6 +108,6 @@
 
   FIRCLSUserLoggingRecordInternalKeyValue(FIRCLSUIOrientationKey, @(statusBarOrientation));
 }
-#endif  // TARGET_OS_IOS && (!CLS_TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!CLS_TARGET_OS_VISION)
 
 @end

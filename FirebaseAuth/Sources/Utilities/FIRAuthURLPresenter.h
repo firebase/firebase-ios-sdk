@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 
 #import <Foundation/Foundation.h>
 
@@ -66,4 +66,4 @@ typedef BOOL (^FIRAuthURLCallbackMatcher)(NSURL *_Nullable callbackURL);
 
 NS_ASSUME_NONNULL_END
 
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)

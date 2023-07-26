@@ -35,12 +35,21 @@
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/visionos"]);
+#elif defined(TARGET_OS_VISION) && TARGET_OS_VISION
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+  XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/visionos"]);
 #elif TARGET_OS_IOS
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/ios"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/tvos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/visionos"]);
 #endif  // TARGET_OS_MACCATALYST
 
 #if TARGET_OS_TV
@@ -49,6 +58,7 @@
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/visionos"]);
 #endif  // TARGET_OS_TV
 
 #if TARGET_OS_OSX
@@ -57,6 +67,7 @@
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/visionos"]);
 #endif  // TARGET_OS_OSX
 
 #if TARGET_OS_WATCH
@@ -65,6 +76,7 @@
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/macos"]);
   XCTAssertTrue([[FIRApp firebaseUserAgent] containsString:@"apple-platform/watchos"]);
   XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/maccatalyst"]);
+  XCTAssertFalse([[FIRApp firebaseUserAgent] containsString:@"apple-platform/visionos"]);
 #endif  // TARGET_OS_WATCH
 }
 

@@ -15,7 +15,7 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 
 #import <OCMock/OCMock.h>
 #import <SafariServices/SafariServices.h>
@@ -1659,4 +1659,4 @@ static const NSTimeInterval kExpectationTimeout = 2;
 
 NS_ASSUME_NONNULL_END
 
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)

@@ -421,10 +421,10 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
   SEL openURLWithSourceApplicationSelector = @selector(application:
                                                            openURL:sourceApplication:annotation:);
 // TODO(Xcode 15): When Xcode 15 is the minimum supported Xcode version, it will be unnecessary to
-// check if `TARGET_OS_XR` is defined.
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+// check if `TARGET_OS_VISION` is defined.
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   SEL handleOpenURLSelector = @selector(application:handleOpenURL:);
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   // Due to FIRAAppDelegateProxy swizzling, this selector will most likely get chosen, whether or
   // not the actual application has implemented
   // |application:continueUserActivity:restorationHandler:|. A warning will be displayed to the user
@@ -446,8 +446,8 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
     // due to the default swizzling done by FIRAAppDelegateProxy in Firebase Analytics
   } else if ([appDelegate respondsToSelector:openURLWithSourceApplicationSelector]) {
 // TODO(Xcode 15): When Xcode 15 is the minimum supported Xcode version, it will be unnecessary to
-// check if `TARGET_OS_XR` is defined.
-#if TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+// check if `TARGET_OS_VISION` is defined.
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application
@@ -460,7 +460,7 @@ BOOL FIRMessagingIsContextManagerMessage(NSDictionary *message) {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [appDelegate application:application handleOpenURL:url];
 #pragma clang diagnostic pop
-#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   }
 #endif  // TARGET_OS_IOS || TARGET_OS_TV
 }

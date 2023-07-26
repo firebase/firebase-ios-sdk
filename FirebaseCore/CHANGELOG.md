@@ -1,3 +1,6 @@
+# Firebase 10.13.0
+- For developers building for visionOS, Xcode 15 beta 5 or later is required.
+
 # Firebase 10.12.0
 - For developers building for visionOS, using products that use the Keychain
   (e.g. FirebaseAuth) may fail to access the keychain on the visionOS
