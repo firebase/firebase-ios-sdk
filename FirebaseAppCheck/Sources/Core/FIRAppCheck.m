@@ -325,12 +325,19 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
         // TODO: Make sure the self.tokenRefresher is updated only once. Currently the timer will be
         // updated twice in the case when the refresh triggered by self.tokenRefresher, but it
         // should be fine for now as it is a relatively cheap operation.
-        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc]
-            initWithStatusSuccessAndExpirationDate:token.expirationDate
-                                    receivedAtDate:token.receivedAtDate];
-        [self.tokenRefresher updateWithRefreshResult:refreshResult];
-        [self postTokenUpdateNotificationWithToken:token];
-        return token;
+        if (token) {
+          __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc]
+              initWithStatusSuccessAndExpirationDate:token.expirationDate
+                                      receivedAtDate:token.receivedAtDate];
+          [self.tokenRefresher updateWithRefreshResult:refreshResult];
+          [self postTokenUpdateNotificationWithToken:token];
+          return token;
+        } else {
+          __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusFailure];
+          [self.tokenRefresher updateWithRefreshResult:refreshResult];
+          return
+              [FIRAppCheckErrorUtil errorWithFailureReason:@"Token refresh error: token is nil"];
+        }
       });
 }
 
