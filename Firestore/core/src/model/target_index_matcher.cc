@@ -38,10 +38,7 @@ TargetIndexMatcher::TargetIndexMatcher(const core::Target& target) {
 
   for (const Filter& filter : target.filters()) {
     FieldFilter field_filter(filter);
-    if (field_filter.IsInequality()) {
-      HARD_ASSERT(!inequality_filter_.has_value() ||
-                      inequality_filter_->field() == field_filter.field(),
-                  "Only a single inequality is supported");
+    if (field_filter.IsInequality() && !inequality_filter_.has_value()) {
       inequality_filter_ = field_filter;
     } else {
       equality_filters_.push_back(field_filter);

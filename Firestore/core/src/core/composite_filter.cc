@@ -152,6 +152,18 @@ const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
   return nullptr;
 }
 
+const std::vector<FieldFilter>& CompositeFilter::Rep::GetInequalityFilters()
+    const {
+  if (Filter::Rep::memoized_inequality_filters_.empty()) {
+    for (const auto& filter : GetFlattenedFilters()) {
+      std::copy(filter.GetInequalityFilters().begin(),
+                filter.GetInequalityFilters().end(),
+                std::back_inserter(Filter::Rep::memoized_inequality_filters_));
+    }
+  }
+  return Filter::Rep::memoized_inequality_filters_;
+}
+
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
   if (Filter::Rep::memoized_flattened_filters_.empty() && !filters().empty()) {

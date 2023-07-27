@@ -117,6 +117,8 @@ class Query {
    */
   const model::FieldPath* InequalityFilterField() const;
 
+  const std::set<model::FieldPath> InequalityFilterFields() const;
+
   /**
    * Checks if any of the provided filter operators are included in the query
    * and returns the first one that is, or null if none are.

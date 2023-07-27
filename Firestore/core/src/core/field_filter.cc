@@ -210,6 +210,16 @@ const model::FieldPath* FieldFilter::Rep::GetFirstInequalityField() const {
   return nullptr;
 }
 
+const std::vector<FieldFilter>& FieldFilter::Rep::GetInequalityFilters() const {
+  // This is already a field filter, so we return a vector of size one.
+  if (IsInequality() && Filter::Rep::memoized_inequality_filters_.empty()) {
+    Filter::Rep::memoized_inequality_filters_ = std::vector<FieldFilter>{
+        FieldFilter(std::make_shared<const Rep>(*this))};
+  }
+
+  return Filter::Rep::memoized_inequality_filters_;
+}
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

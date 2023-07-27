@@ -77,6 +77,21 @@ const FieldPath* Query::InequalityFilterField() const {
   return nullptr;
 }
 
+const std::set<model::FieldPath> Query::InequalityFilterFields() const {
+  std::set<FieldPath> result;
+  for (const Filter& filter : filters_) {
+    const std::vector<FieldFilter>& inequalityFilters =
+        filter.GetInequalityFilters();
+    for (const FieldFilter& subFilter : inequalityFilters) {
+      {
+        result.insert(subFilter.field());
+      }
+    }
+  }
+
+  return result;
+}
+
 absl::optional<Operator> Query::FindOpInsideFilters(
     const std::vector<Operator>& ops) const {
   for (const auto& filter : filters_) {
@@ -91,51 +106,42 @@ absl::optional<Operator> Query::FindOpInsideFilters(
 
 const std::vector<OrderBy>& Query::order_bys() const {
   if (memoized_order_bys_.empty()) {
-    const FieldPath* inequality_field = InequalityFilterField();
-    const FieldPath* first_order_by_field = FirstOrderByField();
-    if (inequality_field && !first_order_by_field) {
-      // In order to implicitly add key ordering, we must also add the
-      // inequality filter field for it to be a valid query. Note that the
-      // default inequality field and key ordering is ascending.
-      if (inequality_field->IsKeyFieldPath()) {
-        memoized_order_bys_ = {
-            OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
-        };
-      } else {
-        memoized_order_bys_ = {
-            OrderBy(*inequality_field, Direction::Ascending),
-            OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
-        };
-      }
-    } else {
-      HARD_ASSERT(
-          !inequality_field || *inequality_field == *first_order_by_field,
-          "First orderBy %s should match inequality field %s.",
-          first_order_by_field->CanonicalString(),
-          inequality_field->CanonicalString());
-
-      std::vector<OrderBy> result = explicit_order_bys_;
-
-      bool found_explicit_key_order = false;
-      for (const OrderBy& order_by : explicit_order_bys_) {
-        if (order_by.field().IsKeyFieldPath()) {
-          found_explicit_key_order = true;
-          break;
-        }
-      }
-
-      if (!found_explicit_key_order) {
-        // The direction of the implicit key ordering always matches the
-        // direction of the last explicit sort order
-        Direction last_direction = explicit_order_bys_.empty()
-                                       ? Direction::Ascending
-                                       : explicit_order_bys_.back().direction();
-        result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
-      }
-
-      memoized_order_bys_ = std::move(result);
+    // Any explicit order by fields should be added as is.
+    std::vector<OrderBy> result = explicit_order_bys_;
+    std::set<FieldPath> fieldsNormalized;
+    for (const OrderBy& order_by : explicit_order_bys_) {
+      fieldsNormalized.insert(order_by.field());
     }
+
+    // The direction of the implicit key ordering always matches the
+    // direction of the last explicit sort order
+    Direction last_direction = explicit_order_bys_.empty()
+                                   ? Direction::Ascending
+                                   : explicit_order_bys_.back().direction();
+
+    // Any inequality fields not explicitly ordered should be implicitly ordered
+    // in a lexicographical order. When there are multiple inequality filters on
+    // the same field, the field should be added only once. Note:
+    // `SortedSet<FieldPath>` sorts the key field before other fields. However,
+    // we want the key field to be sorted last.
+    const std::set<model::FieldPath> inequality_fields =
+        InequalityFilterFields();
+
+    for (const model::FieldPath& field : inequality_fields) {
+      if (fieldsNormalized.find(field) == fieldsNormalized.end() &&
+          !field.IsKeyFieldPath()) {
+        result.push_back(OrderBy(field, last_direction));
+      }
+    }
+
+    if (fieldsNormalized.find(FieldPath::KeyFieldPath()) ==
+        fieldsNormalized.end()) {
+      result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
+    }
+
+    memoized_order_bys_ = std::move(result);
   }
+
   return memoized_order_bys_;
 }
 
@@ -162,16 +168,6 @@ int32_t Query::limit() const {
 Query Query::AddingFilter(Filter filter) const {
   HARD_ASSERT(!IsDocumentQuery(), "No filter is allowed for document query");
 
-  const FieldPath* new_inequality_field = filter.GetFirstInequalityField();
-  const FieldPath* query_inequality_field = InequalityFilterField();
-  HARD_ASSERT(!query_inequality_field || !new_inequality_field ||
-                  *query_inequality_field == *new_inequality_field,
-              "Query must only have one inequality field.");
-
-  HARD_ASSERT(explicit_order_bys_.empty() || !new_inequality_field ||
-                  explicit_order_bys_[0].field() == *new_inequality_field,
-              "First orderBy must match inequality field");
-
   std::vector<Filter> filters_copy(filters_);
   filters_copy.push_back(std::move(filter));
 
@@ -187,12 +183,6 @@ Query Query::AddingFilter(Filter filter) const {
 
 Query Query::AddingOrderBy(OrderBy order_by) const {
   HARD_ASSERT(!IsDocumentQuery(), "No ordering is allowed for document query");
-
-  if (explicit_order_bys_.empty()) {
-    const FieldPath* inequality = InequalityFilterField();
-    HARD_ASSERT(inequality == nullptr || *inequality == order_by.field(),
-                "First OrderBy must match inequality field.");
-  }
 
   std::vector<OrderBy> order_bys_copy(explicit_order_bys_);
   order_bys_copy.push_back(std::move(order_by));
