@@ -335,8 +335,7 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
         } else {
           __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusFailure];
           [self.tokenRefresher updateWithRefreshResult:refreshResult];
-          return
-              [FIRAppCheckErrorUtil errorWithFailureReason:@"Token refresh error: token is nil"];
+          return [FIRAppCheckErrorUtil errorWithFailureReason:@"Token refresh error: token is nil"];
         }
       });
 }
