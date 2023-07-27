@@ -234,6 +234,43 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [self verifyAllMocks];
 }
 
+- (void)testGetToken_WhenNoCache_TokenProviderReturnsNilTokenAndNilError {
+  // 1. Configure expectations.
+  NSError *expectedError =
+      [FIRAppCheckErrorUtil errorWithFailureReason:@"Token refresh error: token is nil"];
+
+  // 1.1. Expect token to be requested from storage; returning nil.
+  OCMExpect([self.mockStorage getToken]).andReturn([FBLPromise resolvedWith:nil]);
+
+  // 1.2. Expect token requested from app check provider; returning nil token and no error.
+  id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], [NSNull null], nil];
+  OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
+
+  // 1.33. Expect stored token to be cleared.
+  OCMExpect([self.mockStorage setToken:nil]).andReturn([FBLPromise resolvedWith:nil]);
+
+  // 1.4. Don't expect token update notification to be sent.
+  XCTestExpectation *notificationExpectation = [self tokenUpdateNotificationWithExpectedToken:@""
+                                                                                   isInverted:YES];
+
+  // 1.5. Expect token request to be completed.
+  XCTestExpectation *getTokenExpectation = [self expectationWithDescription:@"getToken"];
+
+  // 2. Request token and verify result.
+  [self.appCheck
+      tokenForcingRefresh:NO
+               completion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+                 [getTokenExpectation fulfill];
+                 XCTAssertNil(token);
+                 XCTAssertNotNil(error);
+                 XCTAssertEqualObjects(error, expectedError);
+               }];
+
+  // 3. Wait for expectations and validate mocks.
+  [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
+  [self verifyAllMocks];
+}
+
 - (void)testGetToken_WhenCachedTokenIsValid_Success {
   [self assertGetToken_WhenCachedTokenIsValid_Success];
 }
