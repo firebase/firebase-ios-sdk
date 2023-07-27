@@ -211,10 +211,7 @@ struct ZipBuilder {
       // build order bugs.
       // Also AppCheck must be built after other pods so that its restricted architecture
       // selection does not restrict any of its dependencies.
-      var sortedPods = podsToBuild.keys.sorted().filter {
-        // Don't build header-only Interop pods for binary distributions.
-        !$0.hasSuffix("Interop")
-      }
+      var sortedPods = podsToBuild.keys.sorted()
 
       sortedPods.removeAll(where: { value in
         value == "FirebaseAppCheck"
@@ -588,9 +585,7 @@ struct ZipBuilder {
     // it to the destination directory.
     for podName in installedPods {
       // Skip the Firebase pod and specifically ignored frameworks.
-      guard podName != "Firebase",
-            // Interop pods weren't built, so don't try to copy.
-            !podName.hasSuffix("Interop") else {
+      guard podName != "Firebase" else {
         continue
       }
 
