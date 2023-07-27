@@ -128,7 +128,9 @@ struct ModuleMapBuilder {
   /// to make sure we install the right version and from the right location.
   private func generate(framework: FrameworkInfo) {
     let podName = framework.versionedPod.name
-    let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
+    let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods).filter {
+      !$0.name.hasSuffix("Interop")
+    }
 
     CocoaPodUtils.installPods(allSubspecList(framework: framework) + deps,
                               inDir: projectDir,
