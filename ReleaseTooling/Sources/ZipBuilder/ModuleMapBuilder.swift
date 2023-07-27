@@ -132,7 +132,8 @@ struct ModuleMapBuilder {
       // Don't include Interop pods in the module map calculation since they shouldn't add anything
       // and it uses the platform-independent version of the dependency list, which causes a crash
       // for the iOS-only RecaptchaInterop pod when the subsequent code tries to `pod install` it
-      // for macOS. All this module code should go away when we switch to building dynamic frameworks.
+      // for macOS. All this module code should go away when we switch to building dynamic
+      // frameworks.
       !$0.name.hasSuffix("Interop")
     }
 
