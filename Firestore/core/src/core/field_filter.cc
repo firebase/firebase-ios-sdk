@@ -203,13 +203,6 @@ bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {
          *value_rhs_ == *other_rep.value_rhs_;
 }
 
-const model::FieldPath* FieldFilter::Rep::GetFirstInequalityField() const {
-  if (IsInequality()) {
-    return &field();
-  }
-  return nullptr;
-}
-
 const std::vector<FieldFilter>& FieldFilter::Rep::GetInequalityFilters() const {
   // This is already a field filter, so we return a vector of size one.
   if (IsInequality() && Filter::Rep::memoized_inequality_filters_.empty()) {

@@ -97,14 +97,6 @@ class Filter {
 
   /**
    * Returns the first inequality filter contained within this filter.
-   * Returns nullptr if it does not contain any inequalities.
-   */
-  const model::FieldPath* GetFirstInequalityField() const {
-    return rep_->GetFirstInequalityField();
-  }
-
-  /**
-   * Returns the first inequality filter contained within this filter.
    * Returns empty vector if it does not contain any inequalities.
    */
   const std::vector<FieldFilter>& GetInequalityFilters() const {
@@ -161,7 +153,6 @@ class Filter {
 
     virtual bool IsEmpty() const = 0;
 
-    virtual const model::FieldPath* GetFirstInequalityField() const = 0;
     virtual const std::vector<FieldFilter>& GetInequalityFilters() const = 0;
     // virtual const std::vector<Filter> GetInequalityFilters() const = 0;
 

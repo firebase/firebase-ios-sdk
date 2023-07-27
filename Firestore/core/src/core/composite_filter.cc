@@ -141,17 +141,6 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
   return nullptr;
 }
 
-const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
-  CheckFunction condition = [](const FieldFilter& field_filter) {
-    return field_filter.IsInequality();
-  };
-  const FieldFilter* found = FindFirstMatchingFilter(condition);
-  if (found) {
-    return &(found->field());
-  }
-  return nullptr;
-}
-
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetInequalityFilters()
     const {
   if (Filter::Rep::memoized_inequality_filters_.empty()) {

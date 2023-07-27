@@ -67,16 +67,6 @@ bool Query::MatchesAllDocuments() const {
            explicit_order_bys_.front().field().IsKeyFieldPath()));
 }
 
-const FieldPath* Query::InequalityFilterField() const {
-  for (const Filter& filter : filters_) {
-    const FieldPath* found = filter.GetFirstInequalityField();
-    if (found) {
-      return found;
-    }
-  }
-  return nullptr;
-}
-
 const std::set<model::FieldPath> Query::InequalityFilterFields() const {
   std::set<FieldPath> result;
   for (const Filter& filter : filters_) {
@@ -143,14 +133,6 @@ const std::vector<OrderBy>& Query::order_bys() const {
   }
 
   return memoized_order_bys_;
-}
-
-const FieldPath* Query::FirstOrderByField() const {
-  if (explicit_order_bys_.empty()) {
-    return nullptr;
-  }
-
-  return &explicit_order_bys_.front().field();
 }
 
 LimitType Query::limit_type() const {
