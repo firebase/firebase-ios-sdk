@@ -34,12 +34,11 @@ TargetIndexMatcher::TargetIndexMatcher(const core::Target& target) {
                        ? *target.collection_group()
                        : target.path().last_segment();
   order_bys_ = target.order_bys();
-  inequality_filter_ = absl::nullopt;
 
   for (const Filter& filter : target.filters()) {
     FieldFilter field_filter(filter);
-    if (field_filter.IsInequality() && !inequality_filter_.has_value()) {
-      inequality_filter_ = field_filter;
+    if (field_filter.IsInequality()) {
+      inequality_filters_.emplace(field_filter);
     } else {
       equality_filters_.push_back(field_filter);
     }
@@ -85,13 +84,22 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   // `order_bys_` has at least one element.
   auto order_by_iter = order_bys_.begin();
 
-  if (inequality_filter_.has_value()) {
+  if (!inequality_filters_.empty()) {
+    if (inequality_filters_.size() > 1) {
+      // Only single inequality is supported for now.
+      return false;
+    }
+
+    // Only a single inequality is currently supported. Get the only entry in
+    // the set.
+    const FieldFilter& inequality_filter = *inequality_filters_.begin();
+
     // If there is an inequality filter and the field was not in one of the
     // equality filters above, the next segment must match both the filter
     // and the first orderBy clause.
-    if (equality_segments.count(
-            inequality_filter_.value().field().CanonicalString()) == 0) {
-      if (!MatchesFilter(inequality_filter_, segments[segment_index]) ||
+    if (equality_segments.count(inequality_filter.field().CanonicalString()) ==
+        0) {
+      if (!MatchesFilter(inequality_filter, segments[segment_index]) ||
           !MatchesOrderBy(*(order_by_iter++), segments[segment_index])) {
         return false;
       }

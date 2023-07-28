@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_MODEL_TARGET_INDEX_MATCHER_H_
 #define FIRESTORE_CORE_SRC_MODEL_TARGET_INDEX_MATCHER_H_
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -88,10 +89,21 @@ class TargetIndexMatcher {
   bool MatchesOrderBy(const core::OrderBy& order_by,
                       const model::Segment& segment);
 
+  // Custom functor comparator for FieldFilter
+  struct FieldFilterComparator {
+    bool operator()(const core::FieldFilter& filter1,
+                    const core::FieldFilter& filter2) const {
+      return filter1.field() < filter2.field();
+    }
+  };
+
   // The collection ID (or collection group) of the query target.
   std::string collection_id_;
 
-  absl::optional<core::FieldFilter> inequality_filter_;
+  // The inequality filters of the target (if it exists).
+  // Note: The sort on FieldFilters is not required. We are comparing the
+  // inequality Filters based on its field path difference only.
+  std::set<core::FieldFilter, FieldFilterComparator> inequality_filters_;
   std::vector<core::FieldFilter> equality_filters_;
   std::vector<core::OrderBy> order_bys_;
 };

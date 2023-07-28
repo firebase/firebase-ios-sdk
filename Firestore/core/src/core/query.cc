@@ -74,7 +74,7 @@ const std::set<model::FieldPath> Query::InequalityFilterFields() const {
         filter.GetInequalityFilters();
     for (const FieldFilter& subFilter : inequalityFilters) {
       {
-        result.insert(subFilter.field());
+        result.emplace(subFilter.field());
       }
     }
   }
@@ -103,8 +103,8 @@ const std::vector<OrderBy>& Query::order_bys() const {
       fieldsNormalized.insert(order_by.field());
     }
 
-    // The direction of the implicit key ordering always matches the
-    // direction of the last explicit sort order
+    // The order of the implicit ordering always matches the last explicit order
+    // by.
     Direction last_direction = explicit_order_bys_.empty()
                                    ? Direction::Ascending
                                    : explicit_order_bys_.back().direction();
@@ -126,7 +126,7 @@ const std::vector<OrderBy>& Query::order_bys() const {
 
     if (fieldsNormalized.find(FieldPath::KeyFieldPath()) ==
         fieldsNormalized.end()) {
-      result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
+      result.push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));
     }
 
     memoized_order_bys_ = std::move(result);

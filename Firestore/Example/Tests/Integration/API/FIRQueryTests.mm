@@ -1266,7 +1266,7 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"doc4", @"doc1" ]));
 }
 
-- (void)testMultipleInequalityOnUnaryValues {
+- (void)testMultipleInequalityOnSpecialValues {
   // TODO(MIEQ): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
             "Skip this test if running against production because multiple inequality is "
