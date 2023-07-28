@@ -20,6 +20,7 @@
 #include <iosfwd>
 #include <limits>
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
