@@ -16,6 +16,11 @@
 
   import Foundation
   import UIKit
+  #if COCOAPODS
+    @_implementationOnly import GoogleUtilities
+  #else
+    @_implementationOnly import GoogleUtilities_Environment
+  #endif
 
   /** @class AuthDefaultUIDelegate
       @brief Class responsible for providing a default FIRAuthUIDelegate.
@@ -23,24 +28,27 @@
           continue a given flow, but none was provided.
    */
   class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
-    // TODO: Figure out what to do for extensions.
     /** @fn defaultUIDelegate
         @brief Returns a default FIRAuthUIDelegate object.
         @return The default FIRAuthUIDelegate object.
      */
-    @available(iOSApplicationExtension, unavailable)
-    @available(tvOSApplicationExtension, unavailable)
     class func defaultUIDelegate() -> AuthUIDelegate? {
-      // TODO: Consider removing code below when doing extension testing.
-      // iOS App extensions should not call [UIApplication sharedApplication], even if UIApplication
-      // responds to it.
-      guard let applicationClass = NSClassFromString("UIApplication"),
-            applicationClass.responds(to: NSSelectorFromString("sharedApplication")) else {
+      if GULAppEnvironmentUtil.isAppExtension() {
+        // iOS App extensions should not call [UIApplication sharedApplication], even if
+        // UIApplication responds to it.
+        return nil
+      }
+
+      // Using reflection here to avoid build errors in extensions.
+      let sel = NSSelectorFromString("sharedApplication")
+      guard UIApplication.responds(to: sel),
+            let application = UIApplication.perform(sel).takeUnretainedValue() as? UIApplication
+      else {
         return nil
       }
       var topViewController: UIViewController?
       if #available(iOS 13.0, tvOS 13.0, *) {
-        let connectedScenes = UIApplication.shared.connectedScenes
+        let connectedScenes = application.connectedScenes
         for scene in connectedScenes {
           if let windowScene = scene as? UIWindowScene {
             for window in windowScene.windows {
@@ -51,7 +59,7 @@
           }
         }
       } else {
-        topViewController = UIApplication.shared.keyWindow?.rootViewController
+        topViewController = application.keyWindow?.rootViewController
       }
       while true {
         if let controller = topViewController?.presentedViewController {

@@ -19,8 +19,6 @@
   import WebKit
   import SafariServices
 
-  // TODO: Remove objc's and publics
-
   /** @class AuthURLPresenter
       @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
    */
