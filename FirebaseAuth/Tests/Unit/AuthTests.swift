@@ -1890,6 +1890,9 @@ class AuthTests: RPCBaseTests {
       waitForExpectations(timeout: 5)
       waitForAuthGlobalWorkQueueDrain()
 
+      // Time for callback to run.
+      RPCBaseTests.waitSleep()
+
       // Verify that current user's access token is the "new" access token provided in the mock
       // secure token response during automatic token refresh.
       XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())

@@ -51,7 +51,7 @@
         storage: FakeAuthKeychainStorage()
       )
       appCredentialManager = AuthAppCredentialManager(withKeychain: fakeKeychain)
-      let application = FakeApplication()
+      let application = UIApplication.shared
       notificationManager = AuthNotificationManager(withApplication: application,
                                                     appCredentialManager: appCredentialManager!)
       modernDelegate = FakeForwardingDelegate(notificationManager!)
@@ -139,9 +139,7 @@
         .canHandle(notification: ["com.google.firebase.auth": ["warning": "asdf"]]))
     }
 
-    private class FakeApplication: Application {
-      var delegate: UIApplicationDelegate?
-    }
+    private class FakeApplication: UIApplication {}
 
     private class FakeForwardingDelegate: NSObject, UIApplicationDelegate {
       let notificationManager: AuthNotificationManager
