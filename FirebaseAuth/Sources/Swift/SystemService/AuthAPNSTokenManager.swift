@@ -59,11 +59,6 @@
             becomes available, or when timeout occurs, whichever happens earlier.
      */
     func getTokenInternal(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
-      if failFastForTesting {
-        let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
-        callback(nil, error)
-        return
-      }
       if let token = tokenStore {
         callback(token, nil)
         return
@@ -134,8 +129,6 @@
     func cancel(withError error: Error) {
       callback(withToken: nil, error: error)
     }
-
-    var failFastForTesting: Bool = false
 
     // `application` is a var to enable unit test faking.
     var application: AuthAPNSTokenApplication

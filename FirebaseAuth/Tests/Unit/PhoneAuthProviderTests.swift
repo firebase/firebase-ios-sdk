@@ -684,13 +684,16 @@
           auth.tokenManager.tokenStore = AuthAPNSToken(withData: data, type: .prod)
         } else {
           // Skip APNS token fetching.
-          auth.tokenManager.failFastForTesting = true
+          auth.tokenManager = FakeTokenManager(withApplication: UIApplication.shared)
         }
       }
     }
 
-    private class FakeApplication: Application {
-      var delegate: UIApplicationDelegate?
+    class FakeTokenManager: AuthAPNSTokenManager {
+      override func getTokenInternal(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
+        let error = NSError(domain: "dummy domain", code: AuthErrorCode.missingAppToken.rawValue)
+        callback(nil, error)
+      }
     }
 
     class FakePresenter: NSObject, AuthWebViewControllerDelegate {
