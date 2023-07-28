@@ -246,7 +246,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   id completionArg = [OCMArg invokeBlockWithArgs:[NSNull null], [NSNull null], nil];
   OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionArg]);
 
-  // 1.33. Expect stored token to be cleared.
+  // 1.3. Expect stored token to be cleared.
   OCMExpect([self.mockStorage setToken:nil]).andReturn([FBLPromise resolvedWith:nil]);
 
   // 1.4. Don't expect token update notification to be sent.
