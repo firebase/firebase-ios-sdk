@@ -298,7 +298,7 @@ import FirebaseCore
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
         rpcIssuer?.projectConfigRequester = { request in
           // 3. Validate the created Request instance.
-          XCTAssertEqual(request.apiKey, PhoneAuthProviderTests.kFakeAPIKey)
+          XCTAssertEqual(request.apiKey, OAuthProviderTests.kFakeAPIKey)
           XCTAssertEqual(request.endpoint, "getProjectConfig")
           // 4. Fulfill the expectation.
           projectConfigExpectation.fulfill()

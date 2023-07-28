@@ -348,7 +348,7 @@
       let expectation = self.expectation(description: function)
 
       // Fake push notification.
-      auth.appCredentialManager.fakeCredential = AuthAppCredential(
+      auth.appCredentialManager?.fakeCredential = AuthAppCredential(
         receipt: kTestReceipt,
         secret: kTestSecret
       )
@@ -438,7 +438,7 @@
       let expectation = self.expectation(description: function)
 
       // Fake push notification.
-      auth.appCredentialManager.fakeCredential = AuthAppCredential(
+      auth.appCredentialManager?.fakeCredential = AuthAppCredential(
         receipt: kTestReceipt,
         secret: reCAPTCHAfallback ? nil : kTestSecret
       )
@@ -556,8 +556,8 @@
 
       if !reCAPTCHAfallback {
         // Fake out appCredentialManager flow.
-        auth.appCredentialManager.credential = AuthAppCredential(receipt: kTestReceipt,
-                                                                 secret: kTestSecret)
+        auth.appCredentialManager?.credential = AuthAppCredential(receipt: kTestReceipt,
+                                                                  secret: kTestSecret)
       } else {
         // 1. Intercept, handle, and test the projectConfiguration RPC calls.
         let projectConfigExpectation = self.expectation(description: "projectConfiguration")
@@ -673,7 +673,7 @@
           settings.appVerificationDisabledForTesting = true
           auth.settings = settings
         }
-        auth.notificationManager.immediateCallbackForTestFaking = { forwardingNotification }
+        auth.notificationManager?.immediateCallbackForTestFaking = { forwardingNotification }
         auth.mainBundleUrlTypes = [["CFBundleURLSchemes": [scheme]]]
 
         if fakeToken {
@@ -681,7 +681,7 @@
             XCTFail("Failed to encode data for fake token")
             return
           }
-          auth.tokenManager.tokenStore = AuthAPNSToken(withData: data, type: .prod)
+          auth.tokenManager?.tokenStore = AuthAPNSToken(withData: data, type: .prod)
         } else {
           // Skip APNS token fetching.
           auth.tokenManager = FakeTokenManager(withApplication: UIApplication.shared)

@@ -1688,8 +1688,8 @@ extension Auth: AuthInterop {
         // Using reflection here to avoid build errors in extensions.
         let sel = NSSelectorFromString("sharedApplication")
         guard UIApplication.responds(to: sel),
-              let application = UIApplication.perform(sel).takeUnretainedValue() as? UIApplication
-        else {
+              let rawApplication = UIApplication.perform(sel),
+              let application = rawApplication.takeUnretainedValue() as? UIApplication else {
           return
         }
 

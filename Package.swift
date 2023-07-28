@@ -447,7 +447,11 @@ let package = Package(
       dependencies: [
         "FirebaseAuth",
       ],
-      path: "FirebaseAuth/Tests/Unit"
+      path: "FirebaseAuth/Tests/Unit",
+      exclude: [
+        "PhoneAuthProviderTests.swift", // TODO: these tests rely on a non-zero UIApplication.shared
+        "AuthNotificationManagerTests.swift",
+      ]
     ),
     .target(
       name: "FirebaseAuthCombineSwift",
