@@ -464,6 +464,9 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   return result;
 }
 
+void LevelDbIndexManager::CreateTargetIndexes(const core::Target&) const {
+}
+
 model::IndexOffset LevelDbIndexManager::GetMinOffset(
     const core::Target& target) {
   std::vector<FieldIndex> indexes;

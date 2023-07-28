@@ -68,6 +68,10 @@ const DocumentMap QueryEngine::GetDocumentsMatchingQuery(
   return ExecuteFullCollectionScan(query);
 }
 
+void QueryEngine::SetIndexAutoCreationEnabled(bool enabled) {
+  index_auto_creation_enabled_ = enabled;
+}
+
 absl::optional<DocumentMap> QueryEngine::PerformQueryUsingIndex(
     const Query& query) const {
   if (query.MatchesAllDocuments()) {

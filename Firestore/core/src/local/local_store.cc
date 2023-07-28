@@ -699,6 +699,10 @@ void LocalStore::ConfigureFieldIndexes(
   });
 }
 
+void LocalStore::SetIndexAutoCreationEnabled(bool isEnabled) const {
+  query_engine_->SetIndexAutoCreationEnabled(isEnabled);
+}
+
 Target LocalStore::NewUmbrellaTarget(const std::string& bundle_id) {
   // It is OK that the path used for the query is not valid, because this will
   // not be read and queried.

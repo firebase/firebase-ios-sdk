@@ -321,7 +321,7 @@ void Firestore::SetIndexConfiguration(const std::string& config,
 std::shared_ptr<const PersistentCacheIndexManager>
 Firestore::persistent_cache_index_manager() {
   EnsureClientConfigured();
-  if (settings_.persistence_enabled() && !persistent_cache_index_manager_) {
+  if (!persistent_cache_index_manager_ && settings_.persistence_enabled()) {
     persistent_cache_index_manager_ =
         std::make_shared<const PersistentCacheIndexManager>(client_);
   }

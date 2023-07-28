@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/api/persistent_cache_index_manager.h"
-
-#include <utility>
-
-#include "Firestore/core/src/core/firestore_client.h"
+#ifndef FIRESTORE_CORE_SRC_LOCAL_QUERY_CONTEXT_H_
+#define FIRESTORE_CORE_SRC_LOCAL_QUERY_CONTEXT_H_
 
 namespace firebase {
 namespace firestore {
-namespace api {
+namespace local {
 
-PersistentCacheIndexManager::PersistentCacheIndexManager(
-    std::shared_ptr<core::FirestoreClient> client)
-    : client_(std::move(client)) {
-}
+/** A tracker to keep a record of important details during database local query
+ * execution. */
+class QueryContext {
+ public:
+  int GetDocumentReadCount() const {
+    return document_read_count_;
+  }
 
-void PersistentCacheIndexManager::EnableIndexAutoCreation() const {
-  client_->SetIndexAutoCreationEnabled(true);
-}
+  void incrementDocumentReadCount() {
+    document_read_count_++;
+  }
 
-void PersistentCacheIndexManager::DisableIndexAutoCreation() const {
-  client_->SetIndexAutoCreationEnabled(false);
-}
+ private:
+  /** Counts the number of documents passed through during local query
+   * execution. */
+  int document_read_count_ = 0;
+};
 
-void PersistentCacheIndexManager::DeleteAllFieldIndexes() const {
-  client_->DeleteAllFieldIndexes();
-}
-
-}  // namespace api
+}  // namespace local
 }  // namespace firestore
 }  // namespace firebase
+
+#endif  // FIRESTORE_CORE_SRC_LOCAL_QUERY_CONTEXT_H_

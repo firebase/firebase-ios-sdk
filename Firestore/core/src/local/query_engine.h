@@ -78,6 +78,8 @@ class QueryEngine {
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) const;
 
+  void SetIndexAutoCreationEnabled(bool enabled);
+
  private:
   /**
    * Performs an indexed query that evaluates the query based on a collection's
@@ -132,6 +134,8 @@ class QueryEngine {
   LocalDocumentsView* local_documents_view_ = nullptr;
 
   IndexManager* index_manager_ = nullptr;
+
+  bool index_auto_creation_enabled_ = false;
 };
 
 }  // namespace local

@@ -288,6 +288,8 @@ class LocalStore : public bundle::BundleCallback {
 
   void ConfigureFieldIndexes(std::vector<model::FieldIndex> new_field_indexes);
 
+  void SetIndexAutoCreationEnabled(bool isEnabled) const;
+
  private:
   friend class IndexBackfiller;
   friend class IndexBackfillerTest;

@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "Firestore/core/src/core/query.h"
+#include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/document_key.h"
 #include "Firestore/core/src/model/field_index.h"
 #include "Firestore/core/test/unit/testutil/testutil.h"
@@ -57,6 +58,18 @@ std::vector<core::Query> QueriesWithArrayContains() {
               Filter("a", "array-contains", "a")),
           testutil::Query("collId").AddingFilter(
               Filter("a", "array-contains-any", Array("a")))};
+}
+
+std::vector<core::Query> QueriesWithOrderBys() {
+  return {testutil::Query("collId").AddingOrderBy(OrderBy("a")),
+          testutil::Query("collId").AddingOrderBy(OrderBy("a", "desc")),
+          testutil::Query("collId").AddingOrderBy(OrderBy("a", "asc")),
+          testutil::Query("collId")
+              .AddingOrderBy(OrderBy("a"))
+              .AddingOrderBy(OrderBy("__name__")),
+          testutil::Query("collId")
+              .AddingFilter(Filter("a", "array-contains", "a"))
+              .AddingOrderBy(OrderBy("b"))};
 }
 
 void ValidateServesTarget(const core::Query& query,
@@ -121,6 +134,15 @@ void ValidateDoesNotServeTarget(const core::Query& query,
       MakeFieldIndex("collId", field1, kind1, field2, kind2, field3, kind3);
   TargetIndexMatcher matcher(query.ToTarget());
   EXPECT_FALSE(matcher.ServedByIndex(expected_index));
+}
+
+void ValidateBuildTargetIndexCreateFullMatchIndex(const core::Query& query) {
+  const core::Target& target = query.ToTarget();
+  TargetIndexMatcher matcher(target);
+  FieldIndex expected_index = matcher.BuildTargetIndex();
+  EXPECT_TRUE(matcher.ServedByIndex(expected_index));
+  // Check the index created is a FULL MATCH index
+  EXPECT_TRUE(expected_index.segments().size() >= target.GetSegmentCount());
 }
 
 TEST(TargetIndexMatcher, CanUseMergeJoin) {
@@ -555,6 +577,155 @@ TEST(TargetIndexMatcher, WithEqualityAndInequalityOnTheSameField) {
                            .AddingOrderBy(OrderBy("a", "desc"))
                            .AddingOrderBy(OrderBy("__name__", "desc")),
                        "a", Segment::Kind::kDescending);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithQueriesWithEqualities) {
+  for (const auto& query : QueriesWithEqualities()) {
+    ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  }
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithQueriesWithInequalities) {
+  for (const auto& query : QueriesWithEqualities()) {
+    ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  }
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithQueriesWithArrayContains) {
+  for (const auto& query : QueriesWithArrayContains()) {
+    ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  }
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithQueriesWithOrderBys) {
+  for (const auto& query : QueriesWithOrderBys()) {
+    ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  }
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithInequalityUsesSingleFieldIndex) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", ">", 1))
+                   .AddingFilter(Filter("a", "<", 10));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithCollection) {
+  auto query = testutil::Query("collId");
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithArrayContainsAndOrderBy) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", "array-contains", "a"))
+                   .AddingFilter(Filter("a", ">", "b"))
+                   .AddingOrderBy(OrderBy("a", "asc"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithEqualityAndDescendingOrder) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", "==", 1))
+                   .AddingOrderBy(OrderBy("__name__", "desc"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithMultipleEqualities) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a1", "==", "a"))
+                   .AddingFilter(Filter("a2", "==", "b"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithMultipleEqualitiesAndInequality) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("equality1", "==", "a"))
+                   .AddingFilter(Filter("equality2", "==", "b"))
+                   .AddingFilter(Filter("inequality", ">=", "c"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  query = testutil::Query("collId")
+              .AddingFilter(Filter("equality1", "==", "a"))
+              .AddingFilter(Filter("inequality", ">=", "c"))
+              .AddingFilter(Filter("equality2", "==", "b"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithMultipleFilters) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", "==", "a"))
+                   .AddingFilter(Filter("b", ">", "b"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  query = testutil::Query("collId")
+              .AddingFilter(Filter("a1", "==", "a"))
+              .AddingFilter(Filter("a2", ">", "b"))
+              .AddingOrderBy(OrderBy("a2", "asc"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  query = testutil::Query("collId")
+              .AddingFilter(Filter("a", ">=", 1))
+              .AddingFilter(Filter("a", "==", 5))
+              .AddingFilter(Filter("a", "<=", 10));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  query = testutil::Query("collId")
+              .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
+              .AddingFilter(Filter("a", ">=", 2));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithMultipleOrderBys) {
+  auto query = testutil::Query("collId")
+                   .AddingOrderBy(OrderBy("fff"))
+                   .AddingOrderBy(OrderBy("bar", "desc"))
+                   .AddingOrderBy(OrderBy("__name__"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  query = testutil::Query("collId")
+              .AddingOrderBy(OrderBy("foo"))
+              .AddingOrderBy(OrderBy("bar"))
+              .AddingOrderBy(OrderBy("__name__", "desc"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithInAndNotIn) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
+                   .AddingFilter(Filter("b", "in", Array(1, 2, 3)));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithEqualityAndDifferentOrderBy) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("foo", "==", ""))
+                   .AddingFilter(Filter("bar", "==", ""))
+                   .AddingOrderBy(OrderBy("qux"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+  query = testutil::Query("collId")
+              .AddingFilter(Filter("aaa", "==", ""))
+              .AddingFilter(Filter("qqq", "==", ""))
+              .AddingFilter(Filter("ccc", "==", ""))
+              .AddingOrderBy(OrderBy("fff", "desc"))
+              .AddingOrderBy(OrderBy("bbb"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithEqualsAndNotIn) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", "==", 1))
+                   .AddingFilter(Filter("b", "not-in", Array(1, 2, 3)));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithInAndOrderBy) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", "not-in", Array(1, 2, 3)))
+                   .AddingOrderBy(OrderBy("a"))
+                   .AddingOrderBy(OrderBy("b"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexWithInAndOrderBySameField) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", "in", Array(1, 2, 3)))
+                   .AddingOrderBy(OrderBy("a"));
+  ValidateBuildTargetIndexCreateFullMatchIndex(query);
 }
 
 }  //  namespace
