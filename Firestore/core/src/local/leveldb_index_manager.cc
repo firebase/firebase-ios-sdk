@@ -464,7 +464,17 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   return result;
 }
 
-void LevelDbIndexManager::CreateTargetIndexes(const core::Target&) const {
+void LevelDbIndexManager::CreateTargetIndexes(const core::Target& target) {
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  for (const auto& subTarget : GetSubTargets(target)) {
+    IndexManager::IndexType type = GetIndexType(subTarget);
+    if (type == IndexManager::IndexType::NONE ||
+        type == IndexManager::IndexType::PARTIAL) {
+      TargetIndexMatcher targetIndexMatcher(subTarget);
+      AddFieldIndex(targetIndexMatcher.BuildTargetIndex());
+    }
+  }
 }
 
 model::IndexOffset LevelDbIndexManager::GetMinOffset(

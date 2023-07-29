@@ -31,6 +31,7 @@ namespace local {
 
 class LocalDocumentsView;
 class IndexManager;
+class QueryContext;
 
 /**
  * Firestore queries can be executed in three modes. The Query Engine determines
@@ -81,6 +82,8 @@ class QueryEngine {
   void SetIndexAutoCreationEnabled(bool enabled);
 
  private:
+  friend class IndexManagerTest;
+
   /**
    * Performs an indexed query that evaluates the query based on a collection's
    * persisted index values. Returns nullopt if an index is not available.
@@ -120,7 +123,7 @@ class QueryEngine {
       const model::SnapshotVersion& limbo_free_snapshot_version) const;
 
   const model::DocumentMap ExecuteFullCollectionScan(
-      const core::Query& query) const;
+      const core::Query& query, absl::optional<QueryContext>& context) const;
 
   /**
    * Combines the results from an indexed execution with the remaining documents
@@ -131,11 +134,31 @@ class QueryEngine {
       const core::Query& query,
       const model::IndexOffset& offset) const;
 
+  void CreateCacheIndexes(const core::Query& query,
+                          const QueryContext& context,
+                          size_t result_size) const;
+
   LocalDocumentsView* local_documents_view_ = nullptr;
 
   IndexManager* index_manager_ = nullptr;
 
   bool index_auto_creation_enabled_ = false;
+
+  /** SDK only decides whether it should create index when collection size is
+   * larger than this. */
+  size_t index_auto_creation_min_collection_size_;
+
+  double relative_index_read_cost_per_document_;
+
+  // For testing
+  void SetIndexAutoCreationMinCollectionSize(size_t new_min) {
+    index_auto_creation_min_collection_size_ = new_min;
+  }
+
+  // For testing
+  void SetRelativeIndexReadCostPerDocument(double new_cost) {
+    relative_index_read_cost_per_document_ = new_cost;
+  }
 };
 
 }  // namespace local

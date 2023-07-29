@@ -89,7 +89,7 @@ std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() const {
   return {};
 }
 
-void MemoryIndexManager::CreateTargetIndexes(const core::Target&) const {
+void MemoryIndexManager::CreateTargetIndexes(const core::Target&) {
 }
 
 model::IndexOffset MemoryIndexManager::GetMinOffset(const core::Target&) {

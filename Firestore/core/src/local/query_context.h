@@ -25,18 +25,18 @@ namespace local {
  * execution. */
 class QueryContext {
  public:
-  int GetDocumentReadCount() const {
+  size_t GetDocumentReadCount() const {
     return document_read_count_;
   }
 
-  void incrementDocumentReadCount() {
-    document_read_count_++;
+  void IncrementDocumentReadCount(size_t num) {
+    document_read_count_ += num;
   }
 
  private:
   /** Counts the number of documents passed through during local query
    * execution. */
-  int document_read_count_ = 0;
+  size_t document_read_count_ = 0;
 };
 
 }  // namespace local

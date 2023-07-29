@@ -67,7 +67,7 @@ class MemoryIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() const override;
 
-  void CreateTargetIndexes(const core::Target&) const override;
+  void CreateTargetIndexes(const core::Target&) override;
 
   model::IndexOffset GetMinOffset(const core::Target&) override;
 
