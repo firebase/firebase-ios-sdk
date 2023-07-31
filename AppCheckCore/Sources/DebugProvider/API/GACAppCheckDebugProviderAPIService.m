@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 static NSString *const kContentTypeKey = @"Content-Type";
 static NSString *const kJSONContentType = @"application/json";
 static NSString *const kDebugTokenField = @"debug_token";
+static NSString *const kLimitedUseField = @"limited_use";
 
 @interface GACAppCheckDebugProviderAPIService ()
 
@@ -43,16 +44,22 @@ static NSString *const kDebugTokenField = @"debug_token";
 
 @property(nonatomic, readonly) NSString *resourceName;
 
+// TODO(andrewheard): Remove or refactor property when short-lived token feature is implemented.
+// When `YES`, forces a short-lived token with a 5 minute TTL.
+@property(nonatomic, readonly) BOOL limitedUse;
+
 @end
 
 @implementation GACAppCheckDebugProviderAPIService
 
 - (instancetype)initWithAPIService:(id<GACAppCheckAPIServiceProtocol>)APIService
-                      resourceName:(NSString *)resourceName {
+                      resourceName:(NSString *)resourceName
+                        limitedUse:(BOOL)limitedUse {
   self = [super init];
   if (self) {
     _APIService = APIService;
     _resourceName = resourceName;
+    _limitedUse = limitedUse;
   }
   return self;
 }
@@ -89,10 +96,13 @@ static NSString *const kDebugTokenField = @"debug_token";
   return [FBLPromise onQueue:[self backgroundQueue]
                           do:^id _Nullable {
                             NSError *encodingError;
-                            NSData *payloadJSON = [NSJSONSerialization
-                                dataWithJSONObject:@{kDebugTokenField : debugToken}
-                                           options:0
-                                             error:&encodingError];
+                            NSData *payloadJSON =
+                                [NSJSONSerialization dataWithJSONObject:@{
+                                  kDebugTokenField : debugToken,
+                                  kLimitedUseField : @(self.limitedUse)
+                                }
+                                                                options:0
+                                                                  error:&encodingError];
 
                             if (payloadJSON != nil) {
                               return payloadJSON;

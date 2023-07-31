@@ -48,7 +48,8 @@ static NSString *const kResourceName = @"projects/test_project_id/apps/test_app_
 
   self.debugAPIService =
       [[GACAppCheckDebugProviderAPIService alloc] initWithAPIService:self.mockAPIService
-                                                        resourceName:kResourceName];
+                                                        resourceName:kResourceName
+                                                          limitedUse:NO];
 }
 
 - (void)tearDown {

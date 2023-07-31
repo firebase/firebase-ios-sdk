@@ -54,18 +54,33 @@ static NSString *const kDebugTokenUserDefaultsKey = @"FIRAAppCheckDebugToken";
                        resourceName:(NSString *)resourceName
                              APIKey:(nullable NSString *)APIKey
                        requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
+  return [self initWithServiceName:serviceName
+                      resourceName:resourceName
+                           baseURL:nil
+                            APIKey:APIKey
+                        limitedUse:NO
+                      requestHooks:requestHooks];
+}
+
+- (instancetype)initWithServiceName:(NSString *)serviceName
+                       resourceName:(NSString *)resourceName
+                            baseURL:(nullable NSString *)baseURL
+                             APIKey:(nullable NSString *)APIKey
+                         limitedUse:(BOOL)limitedUse
+                       requestHooks:(nullable NSArray<GACAppCheckAPIRequestHook> *)requestHooks {
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
   GACAppCheckAPIService *APIService =
       [[GACAppCheckAPIService alloc] initWithURLSession:URLSession
-                                                baseURL:nil
+                                                baseURL:baseURL
                                                  APIKey:APIKey
                                            requestHooks:requestHooks];
 
   GACAppCheckDebugProviderAPIService *debugAPIService =
       [[GACAppCheckDebugProviderAPIService alloc] initWithAPIService:APIService
-                                                        resourceName:resourceName];
+                                                        resourceName:resourceName
+                                                          limitedUse:limitedUse];
 
   return [self initWithAPIService:debugAPIService];
 }
