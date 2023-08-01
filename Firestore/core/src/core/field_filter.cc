@@ -203,16 +203,6 @@ bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {
          *value_rhs_ == *other_rep.value_rhs_;
 }
 
-const std::vector<FieldFilter>& FieldFilter::Rep::GetInequalityFilters() const {
-  // This is already a field filter, so we return a vector of size one.
-  if (IsInequality() && Filter::Rep::memoized_inequality_filters_.empty()) {
-    Filter::Rep::memoized_inequality_filters_ = std::vector<FieldFilter>{
-        FieldFilter(std::make_shared<const Rep>(*this))};
-  }
-
-  return Filter::Rep::memoized_inequality_filters_;
-}
-
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

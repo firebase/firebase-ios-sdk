@@ -70,15 +70,12 @@ bool Query::MatchesAllDocuments() const {
 const std::set<model::FieldPath> Query::InequalityFilterFields() const {
   std::set<FieldPath> result;
   for (const Filter& filter : filters_) {
-    const std::vector<FieldFilter>& inequalityFilters =
-        filter.GetInequalityFilters();
-    for (const FieldFilter& subFilter : inequalityFilters) {
-      {
+    for (const FieldFilter& subFilter : filter.GetFlattenedFilters()) {
+      if (subFilter.IsInequality()) {
         result.emplace(subFilter.field());
       }
     }
   }
-
   return result;
 }
 

@@ -96,14 +96,6 @@ class Filter {
   }
 
   /**
-   * Returns the first inequality filter contained within this filter.
-   * Returns empty vector if it does not contain any inequalities.
-   */
-  const std::vector<FieldFilter>& GetInequalityFilters() const {
-    return rep_->GetInequalityFilters();
-  }
-
-  /**
    * Returns a list of all field filters that are contained within this filter.
    */
   const std::vector<FieldFilter>& GetFlattenedFilters() const {
@@ -153,9 +145,6 @@ class Filter {
 
     virtual bool IsEmpty() const = 0;
 
-    virtual const std::vector<FieldFilter>& GetInequalityFilters() const = 0;
-    // virtual const std::vector<Filter> GetInequalityFilters() const = 0;
-
     virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
 
     virtual std::vector<Filter> GetFilters() const = 0;
@@ -165,8 +154,6 @@ class Filter {
      * traversing the tree of filters contained in this composite filter.
      */
     mutable std::vector<FieldFilter> memoized_flattened_filters_;
-
-    mutable std::vector<FieldFilter> memoized_inequality_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {
