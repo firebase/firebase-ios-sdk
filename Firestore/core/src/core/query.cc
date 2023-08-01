@@ -89,8 +89,8 @@ absl::optional<Operator> Query::FindOpInsideFilters(
   return absl::nullopt;
 }
 
-const std::vector<OrderBy>& Query::order_bys() const {
-  if (memoized_order_bys_.empty()) {
+const std::vector<OrderBy>& Query::normalized_order_bys() const {
+  if (memoized_normalized_order_bys_.empty()) {
     const FieldPath* inequality_field = InequalityFilterField();
     const FieldPath* first_order_by_field = FirstOrderByField();
     if (inequality_field && !first_order_by_field) {
@@ -98,11 +98,11 @@ const std::vector<OrderBy>& Query::order_bys() const {
       // inequality filter field for it to be a valid query. Note that the
       // default inequality field and key ordering is ascending.
       if (inequality_field->IsKeyFieldPath()) {
-        memoized_order_bys_ = {
+        memoized_normalized_order_bys_ = {
             OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
         };
       } else {
-        memoized_order_bys_ = {
+        memoized_normalized_order_bys_ = {
             OrderBy(*inequality_field, Direction::Ascending),
             OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
         };
@@ -133,10 +133,10 @@ const std::vector<OrderBy>& Query::order_bys() const {
         result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
       }
 
-      memoized_order_bys_ = std::move(result);
+      memoized_normalized_order_bys_ = std::move(result);
     }
   }
-  return memoized_order_bys_;
+  return memoized_normalized_order_bys_;
 }
 
 const FieldPath* Query::FirstOrderByField() const {
@@ -265,7 +265,7 @@ bool Query::MatchesOrderBy(const Document& doc) const {
   // to the inequality, and is evaluated as "a > 1 orderBy a || b == 1 orderBy
   // a". A document with content of {b:1} matches the filters, but does not
   // match the orderBy because it's missing the field 'a'.
-  for (const OrderBy& order_by : order_bys()) {
+  for (const OrderBy& order_by : normalized_order_bys()) {
     const FieldPath& field_path = order_by.field();
     // order by key always matches
     if (field_path != FieldPath::KeyFieldPath() &&
@@ -277,17 +277,18 @@ bool Query::MatchesOrderBy(const Document& doc) const {
 }
 
 bool Query::MatchesBounds(const Document& doc) const {
-  if (start_at_ && !start_at_->SortsBeforeDocument(order_bys(), doc)) {
+  if (start_at_ &&
+      !start_at_->SortsBeforeDocument(normalized_order_bys(), doc)) {
     return false;
   }
-  if (end_at_ && !end_at_->SortsAfterDocument(order_bys(), doc)) {
+  if (end_at_ && !end_at_->SortsAfterDocument(normalized_order_bys(), doc)) {
     return false;
   }
   return true;
 }
 
 model::DocumentComparator Query::Comparator() const {
-  std::vector<OrderBy> ordering = order_bys();
+  std::vector<OrderBy> ordering = normalized_order_bys();
 
   bool has_key_ordering = false;
   for (const OrderBy& order_by : ordering) {
@@ -329,37 +330,50 @@ std::string Query::ToString() const {
 
 const Target& Query::ToTarget() const& {
   if (memoized_target == nullptr) {
-    if (limit_type_ == LimitType::Last) {
-      // Flip the orderBy directions since we want the last results
-      std::vector<OrderBy> new_order_bys;
-      for (const auto& order_by : order_bys()) {
-        Direction dir = order_by.direction() == Direction::Descending
-                            ? Direction::Ascending
-                            : Direction::Descending;
-        new_order_bys.emplace_back(order_by.field(), dir);
-      }
-
-      // We need to swap the cursors to match the now-flipped query ordering.
-      auto new_start_at = end_at_
-                              ? absl::optional<Bound>{Bound::FromValue(
-                                    end_at_->position(), end_at_->inclusive())}
-                              : absl::nullopt;
-      auto new_end_at =
-          start_at_ ? absl::optional<Bound>{Bound::FromValue(
-                          start_at_->position(), start_at_->inclusive())}
-                    : absl::nullopt;
-
-      Target target(path(), collection_group(), filters(), new_order_bys,
-                    limit_, new_start_at, new_end_at);
-      memoized_target = std::make_shared<Target>(std::move(target));
-    } else {
-      Target target(path(), collection_group(), filters(), order_bys(), limit_,
-                    start_at(), end_at());
-      memoized_target = std::make_shared<Target>(std::move(target));
-    }
+    memoized_target = ToTarget(normalized_order_bys());
   }
 
   return *memoized_target;
+}
+
+const Target& Query::ToAggregateTarget() const& {
+  if (memoized_aggregate_target == nullptr) {
+    memoized_aggregate_target = ToTarget(explicit_order_bys_);
+  }
+
+  return *memoized_aggregate_target;
+}
+
+const std::shared_ptr<const Target> Query::ToTarget(
+    const std::vector<OrderBy>& order_bys) const& {
+  if (limit_type_ == LimitType::Last) {
+    // Flip the orderBy directions since we want the last results
+    std::vector<OrderBy> new_order_bys;
+    for (const auto& order_by : order_bys) {
+      Direction dir = order_by.direction() == Direction::Descending
+                          ? Direction::Ascending
+                          : Direction::Descending;
+      new_order_bys.emplace_back(order_by.field(), dir);
+    }
+
+    // We need to swap the cursors to match the now-flipped query ordering.
+    auto new_start_at = end_at_
+                            ? absl::optional<Bound>{Bound::FromValue(
+                                  end_at_->position(), end_at_->inclusive())}
+                            : absl::nullopt;
+    auto new_end_at = start_at_
+                          ? absl::optional<Bound>{Bound::FromValue(
+                                start_at_->position(), start_at_->inclusive())}
+                          : absl::nullopt;
+
+    Target target(path(), collection_group(), filters(), new_order_bys, limit_,
+                  new_start_at, new_end_at);
+    return std::make_shared<Target>(std::move(target));
+  } else {
+    Target target(path(), collection_group(), filters(), order_bys, limit_,
+                  start_at(), end_at());
+    return std::make_shared<Target>(std::move(target));
+  }
 }
 
 std::ostream& operator<<(std::ostream& os, const Query& query) {
