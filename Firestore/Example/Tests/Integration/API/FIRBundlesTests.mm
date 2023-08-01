@@ -69,11 +69,16 @@ using firebase::firestore::util::MakeString;
 }
 
 - (std::string)defaultBundle {
-  return CreateBundle(MakeString([FSTIntegrationTestCase projectID]));
+  return CreateBundle(MakeString([FSTIntegrationTestCase projectID]),
+                      MakeString([FSTIntegrationTestCase databaseID]));
 }
 
 - (std::string)bundleForProject:(NSString*)projectID {
-  return CreateBundle(MakeString(projectID));
+  return CreateBundle(MakeString(projectID), MakeString([FSTIntegrationTestCase databaseID]));
+}
+
+- (std::string)bundleForDatabase:(NSString*)databaseID {
+  return CreateBundle(MakeString([FSTIntegrationTestCase projectID]), MakeString(databaseID));
 }
 
 - (void)verifyQueryResults {
@@ -230,6 +235,29 @@ using firebase::firestore::util::MakeString;
   __block FIRLoadBundleTaskProgress* result;
   XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
   auto bundle = [self bundleForProject:@"OtherProject"];
+  FIRLoadBundleTask* task =
+      [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
+               completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
+                 result = progress;
+                 XCTAssertNotNil(error);
+                 [expectation fulfill];
+               }];
+  [task addObserver:^(FIRLoadBundleTaskProgress* progress) {
+    [progresses addObject:progress];
+  }];
+  [self awaitExpectation:expectation];
+
+  XCTAssertEqual(2ul, progresses.count);
+  [self verifyProgress:progresses[0] hasLoadedDocument:0];
+  [self verifyErrorProgress:progresses[1]];
+  XCTAssertEqualObjects(progresses[1], result);
+}
+
+- (void)testLoadBundlesFromOtherDatabaseFails {
+  NSMutableArray* progresses = [[NSMutableArray alloc] init];
+  __block FIRLoadBundleTaskProgress* result;
+  XCTestExpectation* expectation = [self expectationWithDescription:@"loading complete"];
+  auto bundle = [self bundleForDatabase:@"other-database"];
   FIRLoadBundleTask* task =
       [self.db loadBundle:[MakeNSString(bundle) dataUsingEncoding:NSUTF8StringEncoding]
                completion:^(FIRLoadBundleTaskProgress* progress, NSError* error) {
