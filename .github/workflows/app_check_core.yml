@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
     - 'AppCheckCore**'
-    - '.github/workflows/app_check.yml'
+    - '.github/workflows/app_check_core.yml'
     - 'Gemfile*'
   schedule:
     # Run every day at 11pm (PST) - cron uses UTC times
@@ -15,41 +15,6 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  pod_lib_lint:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [ios, tvos, macos]
-    env:
-      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
-      POD_LIB_LINT_ONLY: 1
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Configure test keychain
-      run: scripts/configure_test_keychain.sh
-    - name: AppCheckCore
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb AppCheckCore.podspec --platforms=${{ matrix.target }}
-
-  catalyst:
-    # Don't run on private repo unless it is a PR.
-    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
-    env:
-      # This env var is set because the job has a dependency on the unpublished HeatbeatLoggingTestUtils.
-      POD_LIB_LINT_ONLY: 1
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: Setup project and Build for Catalyst
-      run: scripts/test_catalyst.sh AppCheckCore test AppCheckCore-Unit-unit
-
   diagnostics:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
@@ -72,25 +37,6 @@ jobs:
       with:
         name: failure-xcodebuild-raw-logs
         path: xcodebuild.log
-
-  app_check-cron-only:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
-    strategy:
-      matrix:
-        flags: [
-          '--skip-tests --use-modular-headers'
-        ]
-    needs: pod_lib_lint
-    steps:
-    - uses: actions/checkout@v3
-    - uses: ruby/setup-ruby@v1
-    - name: Setup Bundler
-      run: scripts/setup_bundler.sh
-    - name: PodLibLint AppCheckCore Cron
-      # TODO: Remove --allow-warnings when stabilized.
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb AppCheckCore.podspec --platforms=ios ${{ matrix.flags }}
 
   spm:
     # Don't run on private repo unless it is a PR.
