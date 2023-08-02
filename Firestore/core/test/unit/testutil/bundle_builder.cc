@@ -194,13 +194,15 @@ std::vector<std::string> BundleTemplate() {
 
 }  // namespace
 
-std::string CreateBundle(const std::string& project_id) {
+std::string CreateBundle(const std::string& project_id,
+                         const std::string& database_id) {
   std::string bundle;
 
   auto bundle_template = BundleTemplate();
   for (size_t i = 1; i < bundle_template.size(); ++i) {
-    auto element =
-        absl::StrReplaceAll(bundle_template[i], {{"{projectId}", project_id}});
+    auto element = absl::StrReplaceAll(
+        bundle_template[i],
+        {{"{projectId}", project_id}, {"(default)", database_id}});
     bundle.append(std::to_string(element.size()));
     bundle.append(std::move(element));
   }
