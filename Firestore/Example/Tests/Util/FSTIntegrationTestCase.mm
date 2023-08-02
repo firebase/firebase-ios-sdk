@@ -84,6 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 static const double kPrimingTimeout = 45.0;
 
 static NSString *defaultProjectId;
+static NSString *defaultDatabaseId = @"(default)";
 static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;
@@ -186,6 +187,12 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
   defaultSettings = [[FIRFirestoreSettings alloc] init];
 
+  // Setup database id to use.
+  NSString *databaseId = [[NSProcessInfo processInfo] environment][@"TARGET_DATABASE_ID"];
+  if (databaseId) {
+    defaultDatabaseId = databaseId;
+  }
+
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
   NSString *project = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
@@ -217,7 +224,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     defaultProjectId = project;
     defaultSettings.host = host;
 
-    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
+    NSLog(@"Integration tests running against %@/(%@:%@)", defaultSettings.host, defaultProjectId,
+          defaultDatabaseId);
     return;
   }
 
@@ -230,7 +238,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
       defaultSettings.host = host;
     }
 
-    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
+    NSLog(@"Integration tests running against %@/(%@:%@)", defaultSettings.host, defaultProjectId,
+          defaultDatabaseId);
     return;
   }
 
@@ -254,6 +263,13 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     [self setUpDefaults];
   }
   return defaultProjectId;
+}
+
++ (NSString *)databaseID {
+  if (!defaultDatabaseId) {
+    return @"(default)";
+  }
+  return defaultDatabaseId;
 }
 
 + (bool)isRunningAgainstEmulator {
@@ -282,8 +298,9 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
   std::string projectID = MakeString(app.options.projectID);
+  std::string databaseID = MakeString(defaultDatabaseId);
   FIRFirestore *firestore =
-      [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
+      [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID, databaseID)
                                 persistenceKey:MakeString(persistenceKey)
                        authCredentialsProvider:_fakeAuthCredentialsProvider
                    appCheckCredentialsProvider:_fakeAppCheckCredentialsProvider
