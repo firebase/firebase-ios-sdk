@@ -623,87 +623,62 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
       reason);
 }
 
-/** Multiple Inequality tests*/
-
-- (void)testMultipleInequalityOnDifferentFields {
-  FIRCollectionReference *collection = [self collectionRef];
-  // Multiple inequalities, one of which is inside a nested composite filter.
-  NSArray<FIRFilter *> *array1 = @[
-    [FIRFilter andFilterWithFilters:@[
-      [FIRFilter filterWhereField:@"a" isEqualTo:@"b"], [FIRFilter filterWhereField:@"c"
-                                                                      isGreaterThan:@"d"]
-    ]],
-    [FIRFilter andFilterWithFilters:@[
-      [FIRFilter filterWhereField:@"e" isEqualTo:@"f"], [FIRFilter filterWhereField:@"g"
-                                                                          isEqualTo:@"h"]
-    ]]
-  ];
-
-  XCTAssertNoThrow([[collection queryWhereFilter:[FIRFilter orFilterWithFilters:array1]]
-      queryWhereField:@"r"
-        isGreaterThan:@"s"]);
-
-  XCTAssertNoThrow([[collection queryWhereFilter:[FIRFilter orFilterWithFilters:array1]]
-                       queryOrderedByField:@"r"], );
-
-  // Conflicting operations within a composite filter.
-  NSString *reason = @"Invalid Query. You cannot use 'notIn' filters with 'in' filters.";
-
-  NSArray<FIRFilter *> *array2 = @[
-    [FIRFilter andFilterWithFilters:@[
-      [FIRFilter filterWhereField:@"a" isEqualTo:@"b"], [FIRFilter filterWhereField:@"c"
-                                                                                 in:@[ @"d", @"e" ]]
-    ]],
-    [FIRFilter andFilterWithFilters:@[
-      [FIRFilter filterWhereField:@"e" isEqualTo:@"f"], [FIRFilter filterWhereField:@"c"
-                                                                              notIn:@[ @"f", @"g" ]]
-    ]]
-  ];
-
-  FSTAssertThrows([collection queryWhereFilter:[FIRFilter orFilterWithFilters:array2]], reason);
-}
-
 - (void)testInvalidQueryFilters {
   FIRCollectionReference *collection = [self collectionRef];
   NSString *reason = @"Invalid Query. You cannot use 'notIn' filters with 'in' filters.";
-
-  // Conflicting operations between a field filter and a composite filter.
-  NSArray<FIRFilter *> *array3 = @[
+  NSArray<FIRFilter *> *array1 = @[
     [FIRFilter andFilterWithFilters:@[
       [FIRFilter filterWhereField:@"a" isEqualTo:@"b"], [FIRFilter filterWhereField:@"c"
                                                                                  in:@[ @"d", @"e" ]]
     ]],
     [FIRFilter andFilterWithFilters:@[
       [FIRFilter filterWhereField:@"e" isEqualTo:@"f"], [FIRFilter filterWhereField:@"g"
-                                                                          isEqualTo:@"h"]
+                                                                              notIn:@[ @"h", @"i" ]]
     ]]
   ];
+  FSTAssertThrows([collection queryWhereFilter:[FIRFilter orFilterWithFilters:array1]], reason);
 
-  NSArray<NSString *> *array4 = @[ @"j", @"k" ];
-
-  FSTAssertThrows(
-      [[collection queryWhereFilter:[FIRFilter orFilterWithFilters:array3]] queryWhereField:@"i"
-                                                                                      notIn:array4],
-      reason);
-
-  // Conflicting operations between two composite filters.
-  NSArray<FIRFilter *> *array5 = @[
+  reason = @"Invalid Query. You cannot use 'notIn' filters with 'notEqual' filters.";
+  NSArray<FIRFilter *> *array2 = @[
     [FIRFilter andFilterWithFilters:@[
-      [FIRFilter filterWhereField:@"i" isEqualTo:@"j"], [FIRFilter filterWhereField:@"l"
-                                                                              notIn:@[ @"m", @"n" ]]
+      [FIRFilter filterWhereField:@"a" isEqualTo:@"b"], [FIRFilter filterWhereField:@"c"
+                                                                       isNotEqualTo:@"d"]
     ]],
     [FIRFilter andFilterWithFilters:@[
-      [FIRFilter filterWhereField:@"o" isEqualTo:@"p"], [FIRFilter filterWhereField:@"q"
-                                                                          isEqualTo:@"r"]
+      [FIRFilter filterWhereField:@"e" isEqualTo:@"f"], [FIRFilter filterWhereField:@"g"
+                                                                              notIn:@[ @"h", @"i" ]]
     ]]
   ];
+  FSTAssertThrows([collection queryWhereFilter:[FIRFilter orFilterWithFilters:array2]], reason);
 
-  FSTAssertThrows([[collection queryWhereFilter:[FIRFilter orFilterWithFilters:array3]]
-                      queryWhereFilter:[FIRFilter orFilterWithFilters:array5]],
-                  reason);
+  reason = @"Invalid Query. You cannot use more than one 'notIn' filter.";
+  NSArray<FIRFilter *> *array3 = @[
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" isEqualTo:@"b"], [FIRFilter filterWhereField:@"c"
+                                                                              notIn:@[ @"d", @"e" ]]
+    ]],
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"e" isEqualTo:@"f"], [FIRFilter filterWhereField:@"g"
+                                                                              notIn:@[ @"h", @"i" ]]
+    ]]
+  ];
+  FSTAssertThrows([collection queryWhereFilter:[FIRFilter orFilterWithFilters:array3]], reason);
+
+  reason = @"Invalid Query. You cannot use more than one 'notEqual' filter.";
+  NSArray<FIRFilter *> *array4 = @[
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"a" isEqualTo:@"b"], [FIRFilter filterWhereField:@"c"
+                                                                       isNotEqualTo:@"d"]
+    ]],
+    [FIRFilter andFilterWithFilters:@[
+      [FIRFilter filterWhereField:@"e" isEqualTo:@"f"], [FIRFilter filterWhereField:@"g"
+                                                                       isNotEqualTo:@"h"]
+    ]]
+  ];
+  FSTAssertThrows([collection queryWhereFilter:[FIRFilter orFilterWithFilters:array4]], reason);
 }
 
-- (void)testQueryInequalityFieldMustMatchFirstOrderByField {
+- (void)testQueryInequalityFieldWithMultipleOrderByField {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FIRQuery *base = [coll queryWhereField:@"x" isGreaterThanOrEqualTo:@32];
 
@@ -741,18 +716,6 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
                    @"equality different than orderBy works.");
   XCTAssertNoThrow([[coll queryOrderedByField:@"x"] queryWhereField:@"y" arrayContains:@"cat"],
                    @"array_contains different than orderBy works.");
-}
-
-- (void)testQueriesWithMultipleNotEqualAndInequalitiesFail {
-  FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
-
-  FSTAssertThrows([[coll queryWhereField:@"x" isNotEqualTo:@1] queryWhereField:@"x"
-                                                                  isNotEqualTo:@2],
-                  @"Invalid Query. You cannot use more than one 'notEqual' filter.");
-
-  FSTAssertThrows([[coll queryWhereField:@"x" isNotEqualTo:@1] queryWhereField:@"y"
-                                                                  isNotEqualTo:@2],
-                  @"Invalid Query. You cannot use more than one 'notEqual' filter.");
 }
 
 - (void)testQueriesWithNotEqualAndNotInFiltersFail {

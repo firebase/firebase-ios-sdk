@@ -121,6 +121,7 @@ const std::vector<OrderBy>& Query::order_bys() const {
       }
     }
 
+    // Add the document key field to the last if it is not explicitly ordered.
     if (fieldsNormalized.find(FieldPath::KeyFieldPath()) ==
         fieldsNormalized.end()) {
       result.push_back(OrderBy(FieldPath::KeyFieldPath(), last_direction));

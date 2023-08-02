@@ -89,7 +89,7 @@ class TargetIndexMatcher {
   bool MatchesOrderBy(const core::OrderBy& order_by,
                       const model::Segment& segment);
 
-  // Custom functor comparator for FieldFilter
+  // Custom comparator for FieldFilter based on its Field property.
   struct FieldFilterComparator {
     bool operator()(const core::FieldFilter& filter1,
                     const core::FieldFilter& filter2) const {
@@ -101,8 +101,8 @@ class TargetIndexMatcher {
   std::string collection_id_;
 
   // The inequality filters of the target (if it exists).
-  // Note: The sort on FieldFilters is not required. We are comparing the
-  // inequality Filters based on its field path difference only.
+  // Note: The sort on FieldFilters is not required. We are using comparator to
+  // differentiate inequality Filters based on its field path only.
   std::set<core::FieldFilter, FieldFilterComparator> inequality_filters_;
   std::vector<core::FieldFilter> equality_filters_;
   std::vector<core::OrderBy> order_bys_;
