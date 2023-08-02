@@ -678,7 +678,7 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
   FSTAssertThrows([collection queryWhereFilter:[FIRFilter orFilterWithFilters:array4]], reason);
 }
 
-- (void)testQueryInequalityFieldWithMultipleOrderByField {
+- (void)testQueryInequalityFieldWithMultipleOrderByFields {
   FIRCollectionReference *coll = [self.db collectionWithPath:@"collection"];
   FIRQuery *base = [coll queryWhereField:@"x" isGreaterThanOrEqualTo:@32];
 
