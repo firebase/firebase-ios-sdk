@@ -412,9 +412,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
       XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
       [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
         [commitExpectation fulfill];
-        if (error != nil) {
-          XCTFail(@"WriteBatch commit failed: %@", error);
-        }
+        XCTAssertNil(error, @"WriteBatch commit failed: %@", error);
       }];
       [commits addObject:commitExpectation];
       writeBatch = nil;
@@ -426,9 +424,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
     [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
       [commitExpectation fulfill];
-      if (error != nil) {
-        XCTFail(@"WriteBatch commit failed: %@", error);
-      }
+      XCTAssertNil(error, @"WriteBatch commit failed: %@", error);
     }];
     [commits addObject:commitExpectation];
   }
@@ -567,6 +563,15 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
                   fields:(NSArray<id> *)fields {
   XCTestExpectation *expectation = [self expectationWithDescription:@"setDataWithMerge"];
   [ref setData:data mergeFields:fields completion:[self completionForExpectation:expectation]];
+  [self awaitExpectation:expectation];
+}
+
+- (void)commitWriteBatch:(FIRWriteBatch *)batch {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"WriteBatch commit"];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    [expectation fulfill];
+    XCTAssertNil(error, @"WriteBatch commit should have succeeded, but it failed: %@", error);
+  }];
   [self awaitExpectation:expectation];
 }
 
