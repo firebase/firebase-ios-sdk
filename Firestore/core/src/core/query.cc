@@ -109,8 +109,8 @@ const std::vector<OrderBy>& Query::order_bys() const {
     // Any inequality fields not explicitly ordered should be implicitly ordered
     // in a lexicographical order. When there are multiple inequality filters on
     // the same field, the field should be added only once. Note:
-    // `SortedSet<FieldPath>` sorts the key field before other fields. However,
-    // we want the key field to be sorted last.
+    // `std::set<model::FieldPath>` sorts the key field before other fields.
+    // However, we want the key field to be sorted last.
     const std::set<model::FieldPath> inequality_fields =
         InequalityFilterFields();
 
