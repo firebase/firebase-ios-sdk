@@ -186,7 +186,10 @@ import FirebaseCore
       guard phoneNumber.count > 0 else {
         throw AuthErrorUtils.missingPhoneNumberError(message: nil)
       }
-      guard await auth.notificationManager.checkNotificationForwarding() else {
+      guard let manager = auth.notificationManager else {
+        throw AuthErrorUtils.notificationNotForwardedError()
+      }
+      guard await manager.checkNotificationForwarding() else {
         throw AuthErrorUtils.notificationNotForwardedError()
       }
       return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,

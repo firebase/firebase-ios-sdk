@@ -49,7 +49,7 @@
     /** @var _application
         @brief The application.
      */
-    private let application: Application
+    private let application: UIApplication
 
     /** @var _appCredentialManager
         @brief The object to handle app credentials delivered via notification.
@@ -89,7 +89,7 @@
         @param appCredentialManager The object to handle app credentials delivered via notification.
         @return The initialized instance.
      */
-    init(withApplication application: Application,
+    init(withApplication application: UIApplication,
          appCredentialManager: AuthAppCredentialManager) {
       self.application = application
       self.appCredentialManager = appCredentialManager
@@ -121,10 +121,8 @@
         let proberNotification = [self.kNotificationDataKey: [self.kNotificationProberKey:
             "This fake notification should be forwarded to Firebase Auth."]]
         if let delegate = self.application.delegate {
-          delegate.application!(
-            UIApplication.shared,
-            didReceiveRemoteNotification: proberNotification
-          ) { _ in
+          delegate.application?(self.application,
+                                didReceiveRemoteNotification: proberNotification) { _ in
           }
         } else {
           AuthLog.logWarning(
@@ -195,18 +193,4 @@
       }
     }
   }
-
-  // Protocol for UIApplication to enable unit testing
-  @objc public protocol ApplicationDelegate {
-    @objc optional func application(_ application: Application,
-                                    didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-                                    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult)
-                                      -> Void)
-  }
-
-  @objc public protocol Application {
-    var delegate: UIApplicationDelegate? { get set }
-  }
-
-  extension UIApplication: Application {}
 #endif

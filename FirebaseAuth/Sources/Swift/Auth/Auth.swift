@@ -1684,7 +1684,15 @@ extension Auth: AuthInterop {
           // UIApplication responds to it.
           return
         }
-        let application = UIApplication.shared
+
+        // Using reflection here to avoid build errors in extensions.
+        let sel = NSSelectorFromString("sharedApplication")
+        guard UIApplication.responds(to: sel),
+              let rawApplication = UIApplication.perform(sel),
+              let application = rawApplication.takeUnretainedValue() as? UIApplication else {
+          return
+        }
+
         // Initialize for phone number auth.
         self.tokenManager = AuthAPNSTokenManager(withApplication: application)
         self.appCredentialManager = AuthAppCredentialManager(withKeychain: self.keychainServices)
