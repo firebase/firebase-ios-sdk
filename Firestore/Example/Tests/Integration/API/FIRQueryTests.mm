@@ -21,8 +21,7 @@
 #import "Firestore/Example/Tests/Util/FSTEventAccumulator.h"
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
-
-#include "Firestore/core/test/unit/testutil/testing_hooks_util.h"
+#import "Firestore/Example/Tests/Util/FSTTestingHooks.h"
 
 namespace {
 
@@ -1178,9 +1177,6 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
 }
 
 - (void)testResumingAQueryShouldUseBloomFilterToAvoidFullRequery {
-  using firebase::firestore::testutil::CaptureExistenceFilterMismatches;
-  using firebase::firestore::util::TestingHooks;
-
   // TODO(b/291365820): Stop skipping this test when running against the Firestore emulator once
   // the emulator is improved to include a bloom filter in the existence filter messages that it
   // sends.
@@ -1243,11 +1239,11 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
     // Resume the query and save the resulting snapshot for verification.
     // Use some internal testing hooks to "capture" the existence filter mismatches to verify that
     // Watch sent a bloom filter, and it was used to avert a full requery.
-    FIRQuerySnapshot *querySnapshot2;
-    std::vector<TestingHooks::ExistenceFilterMismatchInfo> existence_filter_mismatches =
-        CaptureExistenceFilterMismatches([&] {
+    __block FIRQuerySnapshot *querySnapshot2;
+    NSArray<FSTTestingHooksExistenceFilterMismatchInfo *> *existenceFilterMismatches =
+        [FSTTestingHooks captureExistenceFilterMismatchesDuringBlock:^{
           querySnapshot2 = [self readDocumentSetForRef:collRef source:FIRFirestoreSourceDefault];
-        });
+        }];
 
     // Verify that the snapshot from the resumed query contains the expected documents; that is,
     // that it contains the 50 documents that were _not_ deleted.
@@ -1279,33 +1275,32 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
 
     // Verify that Watch sent an existence filter with the correct counts when the query was
     // resumed.
-    XCTAssertEqual(existence_filter_mismatches.size(), size_t{1},
+    XCTAssertEqual(existenceFilterMismatches.count, 1u,
                    @"Watch should have sent exactly 1 existence filter");
-    const TestingHooks::ExistenceFilterMismatchInfo &existenceFilterMismatchInfo =
-        existence_filter_mismatches[0];
-    XCTAssertEqual(existenceFilterMismatchInfo.local_cache_count, 100);
-    XCTAssertEqual(existenceFilterMismatchInfo.existence_filter_count, 50);
+    FSTTestingHooksExistenceFilterMismatchInfo *existenceFilterMismatchInfo =
+        existenceFilterMismatches[0];
+    XCTAssertEqual(existenceFilterMismatchInfo.localCacheCount, 100);
+    XCTAssertEqual(existenceFilterMismatchInfo.existenceFilterCount, 50);
 
     // Verify that Watch sent a valid bloom filter.
-    const absl::optional<TestingHooks::BloomFilterInfo> &bloom_filter =
-        existence_filter_mismatches[0].bloom_filter;
-    XCTAssertTrue(bloom_filter.has_value(),
-                  "Watch should have included a bloom filter in the existence filter");
-    XCTAssertGreaterThan(bloom_filter->hash_count, 0);
-    XCTAssertGreaterThan(bloom_filter->bitmap_length, 0);
-    XCTAssertGreaterThan(bloom_filter->padding, 0);
-    XCTAssertLessThan(bloom_filter->padding, 8);
+    FSTTestingHooksBloomFilter *bloomFilter = existenceFilterMismatchInfo.bloomFilter;
+    XCTAssertNotNil(bloomFilter,
+                    "Watch should have included a bloom filter in the existence filter");
+    XCTAssertGreaterThan(bloomFilter.hashCount, 0);
+    XCTAssertGreaterThan(bloomFilter.bitmapLength, 0);
+    XCTAssertGreaterThan(bloomFilter.padding, 0);
+    XCTAssertLessThan(bloomFilter.padding, 8);
 
     // Verify that the bloom filter was successfully used to avert a full requery. If a false
     // positive occurred then retry the entire test. Although statistically rare, false positives
     // are expected to happen occasionally. When a false positive _does_ happen, just retry the test
     // with a different set of documents. If that retry _also_ experiences a false positive, then
     // fail the test because that is so improbable that something must have gone wrong.
-    if (attemptNumber == 1 && !bloom_filter->applied) {
+    if (attemptNumber == 1 && !bloomFilter.applied) {
       continue;
     }
 
-    XCTAssertTrue(bloom_filter->applied,
+    XCTAssertTrue(bloomFilter.applied,
                   @"The bloom filter should have been successfully applied with attemptNumber=%@",
                   @(attemptNumber));
 
