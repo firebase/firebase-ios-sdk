@@ -18,9 +18,7 @@ import FirebaseFirestore
 import FirebaseFirestoreSwift
 import Foundation
 
-// TODO(sum/avg) remove `sumAvgIsPublic` from the directive below to enable these tests when sum/avg
-// is public
-#if sumAvgIsPublic && swift(>=5.5.2)
+#if swift(>=5.5.2)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 
   class AggregationIntegrationTests: FSTIntegrationTestCase {
