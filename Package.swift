@@ -449,7 +449,8 @@ let package = Package(
       ],
       path: "FirebaseAuth/Tests/Unit",
       exclude: [
-        "PhoneAuthProviderTests.swift", // TODO: these tests rely on a non-zero UIApplication.shared
+        // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
+        "PhoneAuthProviderTests.swift",
         "AuthNotificationManagerTests.swift",
       ]
     ),

@@ -1858,50 +1858,45 @@ class AuthTests: RPCBaseTests {
     XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
   }
 
-  #if COCOAPODS // This test depends on a non-nil UIApplication.shared
-    #if os(iOS)
-      /** @fn testAutoRefreshAppForegroundedNotification
-          @brief Tests that app foreground notification triggers the scheduling of an automatic token
-              refresh task.
-       */
-      func testAutoRefreshAppForegroundedNotification() throws {
-        try auth.signOut()
-        // Enable auto refresh
-        enableAutoTokenRefresh()
+  #if os(iOS)
+    /** @fn testAutoRefreshAppForegroundedNotification
+        @brief Tests that app foreground notification triggers the scheduling of an automatic token
+            refresh task.
+     */
+    func testAutoRefreshAppForegroundedNotification() throws {
+      try auth.signOut()
+      // Enable auto refresh
+      enableAutoTokenRefresh()
 
-        // Sign in a user.
-        try waitForSignInWithAccessToken()
+      // Sign in a user.
+      try waitForSignInWithAccessToken()
 
-        // Post "UIApplicationDidBecomeActiveNotification" to trigger scheduling token refresh task.
-        NotificationCenter.default.post(
-          name: UIApplication.didBecomeActiveNotification,
-          object: nil
-        )
+      // Post "UIApplicationDidBecomeActiveNotification" to trigger scheduling token refresh task.
+      NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
 
-        setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
+      setFakeSecureTokenService(fakeAccessToken: AuthTests.kNewAccessToken)
 
-        // Verify that the current user's access token is the "old" access token before automatic
-        // token refresh.
-        XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
+      // Verify that the current user's access token is the "old" access token before automatic
+      // token refresh.
+      XCTAssertEqual(AuthTests.kAccessToken, auth.currentUser?.rawAccessToken())
 
-        // Execute saved token refresh task.
-        let expectation = self.expectation(description: #function)
-        kAuthGlobalWorkQueue.async {
-          XCTAssertNotNil(self.authDispatcherCallback)
-          self.authDispatcherCallback?()
-          expectation.fulfill()
-        }
-        waitForExpectations(timeout: 5)
-        waitForAuthGlobalWorkQueueDrain()
-
-        // Time for callback to run.
-        RPCBaseTests.waitSleep()
-
-        // Verify that current user's access token is the "new" access token provided in the mock
-        // secure token response during automatic token refresh.
-        XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
+      // Execute saved token refresh task.
+      let expectation = self.expectation(description: #function)
+      kAuthGlobalWorkQueue.async {
+        XCTAssertNotNil(self.authDispatcherCallback)
+        self.authDispatcherCallback?()
+        expectation.fulfill()
       }
-    #endif
+      waitForExpectations(timeout: 5)
+      waitForAuthGlobalWorkQueueDrain()
+
+      // Time for callback to run.
+      RPCBaseTests.waitSleep()
+
+      // Verify that current user's access token is the "new" access token provided in the mock
+      // secure token response during automatic token refresh.
+      XCTAssertEqual(AuthTests.kNewAccessToken, auth.currentUser?.rawAccessToken())
+    }
   #endif
 
   // MARK: Application Delegate tests.
