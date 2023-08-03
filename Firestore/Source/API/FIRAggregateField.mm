@@ -21,6 +21,8 @@
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"
 
+#import "Firestore/core/src/model/aggregate_field.h"
+
 using firebase::firestore::model::AggregateField;
 
 NS_ASSUME_NONNULL_BEGIN
