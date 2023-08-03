@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// Init with the server response.
 - (nullable instancetype)initWithResponseData:(NSData *)response
                                   requestDate:(NSDate *)requestDate
-                                        error:(NSError **)outError;
+                                        error:(NSError **_Nonnull)outError;
 
 @end
 

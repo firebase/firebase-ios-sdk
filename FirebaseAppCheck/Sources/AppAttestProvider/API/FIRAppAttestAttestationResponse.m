@@ -19,6 +19,8 @@
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckToken+APIResponse.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 static NSString *const kResponseFieldAppCheckTokenDict = @"appCheckToken";
 static NSString *const kResponseFieldArtifact = @"artifact";
 
@@ -35,13 +37,12 @@ static NSString *const kResponseFieldArtifact = @"artifact";
 
 - (nullable instancetype)initWithResponseData:(NSData *)response
                                   requestDate:(NSDate *)requestDate
-                                        error:(NSError **)outError {
+                                        error:(NSError **_Nonnull)outError {
+  NSParameterAssert(outError);
   if (response.length <= 0) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil
-            errorWithFailureReason:
-                @"Failed to parse the initial handshake response. Empty server response body."],
-        outError);
+    *outError = [FIRAppCheckErrorUtil
+        errorWithFailureReason:
+            @"Failed to parse the initial handshake response. Empty server response body."];
     return nil;
   }
 
@@ -51,46 +52,54 @@ static NSString *const kResponseFieldArtifact = @"artifact";
                                                                  error:&JSONError];
 
   if (![responseDict isKindOfClass:[NSDictionary class]]) {
-    FIRAppCheckSetErrorToPointer([FIRAppCheckErrorUtil JSONSerializationError:JSONError], outError);
+    if (JSONError) {
+      *outError = [FIRAppCheckErrorUtil JSONSerializationError:JSONError];
+    } else {
+      *outError = [FIRAppCheckErrorUtil
+          errorWithFailureReason:
+              @"Unexpected top-level JSON object in initial handshake response."];
+    }
     return nil;
   }
 
   NSString *artifactBase64String = responseDict[kResponseFieldArtifact];
   if (![artifactBase64String isKindOfClass:[NSString class]]) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil
-            appAttestAttestationResponseErrorWithMissingField:kResponseFieldArtifact],
-        outError);
+    *outError = [FIRAppCheckErrorUtil
+        appAttestAttestationResponseErrorWithMissingField:kResponseFieldArtifact];
     return nil;
   }
   NSData *artifactData = [[NSData alloc] initWithBase64EncodedString:artifactBase64String
                                                              options:0];
   if (artifactData == nil) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil
-            appAttestAttestationResponseErrorWithMissingField:kResponseFieldArtifact],
-        outError);
+    *outError = [FIRAppCheckErrorUtil
+        appAttestAttestationResponseErrorWithMissingField:kResponseFieldArtifact];
     return nil;
   }
 
   NSDictionary *appCheckTokenDict = responseDict[kResponseFieldAppCheckTokenDict];
   if (![appCheckTokenDict isKindOfClass:[NSDictionary class]]) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil
-            appAttestAttestationResponseErrorWithMissingField:kResponseFieldAppCheckTokenDict],
-        outError);
+    *outError = [FIRAppCheckErrorUtil
+        appAttestAttestationResponseErrorWithMissingField:kResponseFieldAppCheckTokenDict];
     return nil;
   }
 
+  NSError *tokenError;
   FIRAppCheckToken *appCheckToken = [[FIRAppCheckToken alloc] initWithResponseDict:appCheckTokenDict
                                                                        requestDate:requestDate
-                                                                             error:outError];
+                                                                             error:&tokenError];
 
-  if (appCheckToken == nil) {
-    return nil;
+  if (appCheckToken) {
+    return [self initWithArtifact:artifactData token:appCheckToken];
+  } else if (tokenError) {
+    *outError = tokenError;
+  } else {
+    *outError =
+        [FIRAppCheckErrorUtil errorWithFailureReason:@"Failed to parse App Check token response."];
   }
 
-  return [self initWithArtifact:artifactData token:appCheckToken];
+  return nil;
 }
+
+NS_ASSUME_NONNULL_END
 
 @end

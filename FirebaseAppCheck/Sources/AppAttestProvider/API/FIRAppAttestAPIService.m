@@ -106,22 +106,29 @@ static NSString *const kHTTPMethodPost = @"POST";
 #pragma mark - Challenge response parsing
 
 - (FBLPromise<NSData *> *)randomChallengeWithAPIResponse:(GULURLSessionDataResponse *)response {
-  return [FBLPromise onQueue:[self backgroundQueue]
-                          do:^id _Nullable {
-                            NSError *error;
+  return [FBLPromise
+      onQueue:[self backgroundQueue]
+           do:^id _Nullable {
+             NSError *error;
 
-                            NSData *randomChallenge =
-                                [self randomChallengeFromResponseBody:response.HTTPBody
-                                                                error:&error];
-
-                            return randomChallenge ?: error;
-                          }];
+             NSData *randomChallenge = [self randomChallengeFromResponseBody:response.HTTPBody
+                                                                       error:&error];
+             if (randomChallenge) {
+               return randomChallenge;
+             } else if (error) {
+               return error;
+             } else {
+               return [FIRAppCheckErrorUtil
+                   errorWithFailureReason:@"Failed to parse random challenge response."];
+             }
+           }];
 }
 
-- (nullable NSData *)randomChallengeFromResponseBody:(NSData *)response error:(NSError **)outError {
+- (nullable NSData *)randomChallengeFromResponseBody:(NSData *)response
+                                               error:(NSError **_Nonnull)outError {
+  NSParameterAssert(outError);
   if (response.length <= 0) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."], outError);
+    *outError = [FIRAppCheckErrorUtil errorWithFailureReason:@"Empty server response body."];
     return nil;
   }
 
@@ -131,18 +138,26 @@ static NSString *const kHTTPMethodPost = @"POST";
                                                                  error:&JSONError];
 
   if (![responseDict isKindOfClass:[NSDictionary class]]) {
-    FIRAppCheckSetErrorToPointer([FIRAppCheckErrorUtil JSONSerializationError:JSONError], outError);
+    if (JSONError) {
+      *outError = [FIRAppCheckErrorUtil JSONSerializationError:JSONError];
+    } else {
+      *outError = [FIRAppCheckErrorUtil
+          errorWithFailureReason:@"Unexpected top-level JSON object in random challenge response."];
+    }
     return nil;
   }
 
   NSString *challenge = responseDict[@"challenge"];
   if (![challenge isKindOfClass:[NSString class]]) {
-    FIRAppCheckSetErrorToPointer(
-        [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"challenge"], outError);
+    *outError = [FIRAppCheckErrorUtil appCheckTokenResponseErrorWithMissingField:@"challenge"];
     return nil;
   }
 
   NSData *randomChallenge = [[NSData alloc] initWithBase64EncodedString:challenge options:0];
+  if (!randomChallenge) {
+    *outError =
+        [FIRAppCheckErrorUtil errorWithFailureReason:@"Failed to decode random challenge data."];
+  }
   return randomChallenge;
 }
 
@@ -160,17 +175,23 @@ static NSString *const kHTTPMethodPost = @"POST";
                                               body:HTTPBody
                                  additionalHeaders:@{kContentTypeKey : kJSONContentType}];
       })
-      .thenOn(
-          [self backgroundQueue], ^id _Nullable(GULURLSessionDataResponse *_Nullable URLResponse) {
-            NSError *error;
+      .thenOn([self backgroundQueue], ^id(GULURLSessionDataResponse *_Nullable URLResponse) {
+        NSError *error;
 
-            __auto_type response =
-                [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
-                                                                  requestDate:[NSDate date]
-                                                                        error:&error];
+        __auto_type response =
+            [[FIRAppAttestAttestationResponse alloc] initWithResponseData:URLResponse.HTTPBody
+                                                              requestDate:[NSDate date]
+                                                                    error:&error];
 
-            return response ?: error;
-          });
+        if (response) {
+          return response;
+        } else if (error) {
+          return error;
+        } else {
+          return [FIRAppCheckErrorUtil
+              errorWithFailureReason:@"Failed to initialize attestation response."];
+        }
+      });
 }
 
 #pragma mark - Request HTTP Body
@@ -240,10 +261,12 @@ static NSString *const kHTTPMethodPost = @"POST";
 }
 
 - (NSURL *)URLForEndpoint:(NSString *)endpoint {
-  NSString *URL = [[self class] URLWithBaseURL:self.APIService.baseURL
-                                     projectID:self.projectID
-                                         appID:self.appID];
-  return [NSURL URLWithString:[NSString stringWithFormat:@"%@:%@", URL, endpoint]];
+  NSString *baseURL = [[self class] URLWithBaseURL:self.APIService.baseURL
+                                         projectID:self.projectID
+                                             appID:self.appID];
+  NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@:%@", baseURL, endpoint]];
+  NSAssert(url != nil, @"URL for endpoint '%@' is nil.", endpoint);
+  return url;
 }
 
 + (NSString *)URLWithBaseURL:(NSString *)baseURL
