@@ -246,7 +246,9 @@ class Query {
 
   /**
    * Returns a `Target` instance this query will be mapped to in backend
-   * and local store, for use within an aggregate query.
+   * and local store, for use within an aggregate query. Unlike targets
+   * for non-aggregate queries, aggregate query targets do not contain
+   * normalized order-bys, they only contain explicit order-bys.
    */
   const Target& ToAggregateTarget() const&;
 
@@ -287,7 +289,9 @@ class Query {
   // The corresponding Target of this Query instance.
   mutable std::shared_ptr<const Target> memoized_target;
 
-  // The corresponding aggregate Target of this Query instance.
+  // The corresponding aggregate Target of this Query instance. Unlike targets
+  // for non-aggregate queries, aggregate query targets do not contain
+  // normalized order-bys, they only contain explicit order-bys.
   mutable std::shared_ptr<const Target> memoized_aggregate_target;
 
   const std::shared_ptr<const Target> ToTarget(
