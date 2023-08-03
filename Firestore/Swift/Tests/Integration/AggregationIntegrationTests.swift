@@ -30,12 +30,6 @@ import Foundation
     }
 
     func testCanRunAggregateQuery() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: ["author": "authorA",
                                               "title": "titleA",
@@ -81,12 +75,6 @@ import Foundation
     }
 
     func testCannotPerformMoreThanMaxAggregations() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: ["author": "authorA",
                                               "title": "titleA",
@@ -115,12 +103,6 @@ import Foundation
     }
 
     func testPerformsAggregationsWhenNaNExistsForSomeFieldValues() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: ["author": "authorA",
                                               "title": "titleA",
@@ -150,12 +132,6 @@ import Foundation
     }
 
     func testThrowsAnErrorWhenGettingTheResultOfAnUnrequestedAggregation() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: [:])
 
@@ -176,12 +152,6 @@ import Foundation
     }
 
     func testPerformsAggregationsOnNestedMapValues() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: ["metadata": [
         "pages": 100,
@@ -229,12 +199,6 @@ import Foundation
     }
 
     func testSumOverflow() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: [
         "longOverflow": Int64.max,
@@ -282,12 +246,6 @@ import Foundation
     }
 
     func testAverageOverflow() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: [
         "longOverflow": Int64.max,
@@ -327,12 +285,6 @@ import Foundation
     }
 
     func testAverageUnderflow() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: ["underflowSmall": Double.leastNonzeroMagnitude])
       try await collection.addDocument(data: ["underflowSmall": 0])
@@ -345,12 +297,6 @@ import Foundation
     }
 
     func testPerformsAggregateOverResultSetOfZeroDocuments() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: ["pages": 100])
       try await collection.addDocument(data: ["pages": 50])
@@ -371,12 +317,6 @@ import Foundation
     }
 
     func testPerformsAggregateOverResultSetOfZeroFields() async throws {
-      // TODO(sum/avg) remove the check below when sum and avg are supported in production
-      try XCTSkipIf(
-        !FSTIntegrationTestCase.isRunningAgainstEmulator(),
-        "only tested against emulator"
-      )
-
       let collection = collectionRef()
       try await collection.addDocument(data: ["pages": 100])
       try await collection.addDocument(data: ["pages": 50])
