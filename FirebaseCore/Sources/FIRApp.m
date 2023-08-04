@@ -711,9 +711,9 @@ static FIRApp *sDefaultApp;
 
   // Validate version part (see part between '*' symbols below)
   // '<version #>:<project number>:ios:*<hashed bundle id>*'.
-  unsigned long long fingerprint = NSNotFound;
-  if (![stringScanner scanHexLongLong:&fingerprint]) {
-    // Fingerprint part is missing
+  unsigned long long bundleIDHash = NSNotFound;
+  if (![stringScanner scanHexLongLong:&bundleIDHash]) {
+    // Hashed bundleID part is missing
     return NO;
   }
 
