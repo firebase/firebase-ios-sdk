@@ -193,12 +193,12 @@ class Query {
   /**
    * Creates a new `AggregateQuery` that performs the specified aggregations.
    *
-   * @param aggregations The aggregations to be performed by the created
+   * @param aggregateFields The aggregations to be performed by the created
    * `AggregateQuery`.
    *
    * @return The created `AggregateQuery`.
    */
-  AggregateQuery Aggregate(std::vector<AggregateField>&& aggregations) const;
+  AggregateQuery Aggregate(std::vector<AggregateField>&& aggregateFields) const;
 
   // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates
   // to the new Aggregate API

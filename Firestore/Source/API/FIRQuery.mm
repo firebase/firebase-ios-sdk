@@ -485,11 +485,13 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (FIRAggregateQuery *)count {
   FIRAggregateField *countAF = [FIRAggregateField aggregateFieldForCount];
-  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:@[ countAF ]];
+  return [[FIRAggregateQuery alloc] initWithQueryAndAggregateFields:self
+                                                    aggregateFields:@[ countAF ]];
 }
 
-- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations {
-  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:aggregations];
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregateFields {
+  return [[FIRAggregateQuery alloc] initWithQueryAndAggregateFields:self
+                                                    aggregateFields:aggregateFields];
 }
 
 #pragma mark - Private Methods

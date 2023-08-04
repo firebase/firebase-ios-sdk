@@ -19,6 +19,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class FIRAggregateQuery;
+@class FIRAggregateField;
 
 /**
  * The results of executing an `AggregateQuery`.
@@ -37,20 +38,20 @@ NS_SWIFT_NAME(AggregateQuerySnapshot)
 @property(nonatomic, readonly) NSNumber* count;
 
 /**
- * Gets the aggregation result for the specified aggregation without loss of precision. No coercion
- * of data types or values is performed.
+ * Gets the aggregate result for the specified aggregate field without loss of precision. No
+ * coercion of data types or values is performed.
  *
- * See the `AggregateField` class for the expected aggregration result values and types. Numeric
- * aggregation results will be boxed in an `NSNumber`.
+ * See the `AggregateField` class for the expected aggregate result values and types. Numeric
+ * aggregate results will be boxed in an `NSNumber`.
  *
- * @param aggregation An instance of `AggregateField` that specifies which aggregation result to
+ * @param aggregteField An instance of `AggregateField` that specifies which aggregate result to
  * return.
- * @return Returns the aggregation result from the server without loss of precision.
- * @warning Throws an `InvalidArgument` exception if the aggregation was not requested in the
+ * @return Returns the aggregate result from the server without loss of precision.
+ * @warning Throws an `InvalidArgument` exception if the aggregate field was not requested in the
  * `AggregateQuery`.
  * @see `AggregateField`
  */
-- (nullable id)valueForAggregation:(FIRAggregateField*)aggregation NS_SWIFT_NAME(get(_:));
+- (nullable id)valueForAggregateField:(FIRAggregateField*)aggregteField NS_SWIFT_NAME(get(_:));
 
 @end
 

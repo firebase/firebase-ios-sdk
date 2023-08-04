@@ -232,27 +232,27 @@
             ]]];
 
   // Count
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:2L]);
   XCTAssertEqual([snapshot count], [NSNumber numberWithLong:2L]);
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"weight"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"weight"]]
           doubleValue],
       99.6);
 
   // Average
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]],
-      [NSNumber numberWithDouble:75.0]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"weight"]]
-          doubleValue],
-      49.8);
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"pages"]],
+                 [NSNumber numberWithDouble:75.0]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"weight"]]
+                     doubleValue],
+                 49.8);
 }
 
 - (void)testCanRunEmptyAggregateQuery {
@@ -394,7 +394,7 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:longField]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:longField]],
       [NSNumber numberWithLong:3], );
 }
 
@@ -430,12 +430,12 @@
             ]]];
 
   // Count
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:2L]);
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
 }
 
@@ -481,12 +481,12 @@
   [self awaitExpectation:expectation];
 
   // Count
-  XCTAssertEqual([result valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([result valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:2L]);
 
   // Sum
   XCTAssertEqual(
-      [result valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [result valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
 }
 
@@ -525,22 +525,22 @@
             ]]];
 
   // Assert
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:2L]);
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"weight"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"weight"]]
           doubleValue],
       99.6);
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]],
-      [NSNumber numberWithDouble:75.0]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"weight"]]
-          doubleValue],
-      49.8);
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"pages"]],
+                 [NSNumber numberWithDouble:75.0]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"weight"]]
+                     doubleValue],
+                 49.8);
 }
 
 - (void)testCannotPerformMoreThanMaxAggregations {
@@ -623,13 +623,13 @@
               [FIRAggregateField aggregateFieldForAverageOfField:@"x"]
             ]]];
   // "cg-doc1", "cg-doc2", "cg-doc3", "cg-doc4", "cg-doc5",
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:5L]);
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"x"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"x"]],
       [NSNumber numberWithLong:10L]);
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"x"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"x"]],
       [NSNumber numberWithDouble:2.0]);
 }
 
@@ -675,19 +675,19 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
       [NSNumber numberWithDouble:NAN]);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
           longValue],
       300L);
 
   // Average
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"rating"]],
+                 [NSNumber numberWithDouble:NAN]);
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]],
-      [NSNumber numberWithDouble:NAN]);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"year"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"year"]]
           doubleValue],
       2000.0);
 }
@@ -732,7 +732,7 @@
 
   @
   try {
-    [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"foo"]];
+    [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"foo"]];
     XCTAssertTrue(false, "Exception expected");
   } @catch (NSException* exception) {
     XCTAssertEqualObjects(exception.name, @"FIRInvalidArgumentException");
@@ -742,7 +742,7 @@
 
   @
   try {
-    [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]];
+    [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]];
     XCTAssertTrue(false, "Exception expected");
   } @catch (NSException* exception) {
     XCTAssertEqualObjects(exception.name, @"FIRInvalidArgumentException");
@@ -795,26 +795,26 @@
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longValue],
       8L);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
           longValue],
       200L);
 
   // Average
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 4.0);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      4.0);
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]]
-          doubleValue],
+      [[snapshot valueForAggregateField:[FIRAggregateField
+                                            aggregateFieldForAverageOfField:@"pages"]] doubleValue],
       100.0);
 }
 
@@ -863,25 +863,26 @@
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longValue],
       0L);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
           longValue],
       200L);
 
   // Average
   XCTAssertEqualObjects(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]],
+      [snapshot
+          valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]],
       [NSNull null]);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]]
-          doubleValue],
+      [[snapshot valueForAggregateField:[FIRAggregateField
+                                            aggregateFieldForAverageOfField:@"pages"]] doubleValue],
       100.0);
 }
 
@@ -910,28 +911,30 @@
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField
-                                         aggregateFieldForSumOfField:@"metadata.pages"]] longValue],
+      [[snapshot
+          valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"metadata.pages"]]
+          longValue],
       150L);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField
-                                         aggregateFieldForSumOfField:@"metadata.rating.user"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField
+                                            aggregateFieldForSumOfField:@"metadata.rating.user"]]
           longValue],
       9);
 
   // Average
   XCTAssertEqual(
-      [[snapshot
-          valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"metadata.pages"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField
+                                            aggregateFieldForAverageOfField:@"metadata.pages"]]
           doubleValue],
       75.0);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField
-                                         aggregateFieldForAverageOfField:@"metadata.rating.critic"]]
+      [[snapshot
+          valueForAggregateField:[FIRAggregateField
+                                     aggregateFieldForAverageOfField:@"metadata.rating.critic"]]
           doubleValue],
       3.0);
 }
@@ -957,7 +960,7 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           doubleValue],
       [[NSNumber numberWithLong:LLONG_MAX] doubleValue] +
           [[NSNumber numberWithLong:LLONG_MAX] doubleValue]);
@@ -982,7 +985,7 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longLongValue],
       [[NSNumber numberWithLong:LLONG_MAX - 100] longLongValue]);
 }
@@ -1015,7 +1018,7 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longLongValue],
       [[NSNumber numberWithLong:-10101] longLongValue]);
 }
@@ -1041,7 +1044,7 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
       [NSNumber numberWithDouble:INFINITY]);
 }
 
@@ -1066,7 +1069,7 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
       [NSNumber numberWithDouble:-INFINITY]);
 }
 
@@ -1089,11 +1092,11 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longLongValue],
       [[NSNumber numberWithLong:0] longLongValue]);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           doubleValue],
       [[NSNumber numberWithLong:0] doubleValue]);
 }
@@ -1129,7 +1132,7 @@
 
   // Sum
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:0L]);
 }
 
@@ -1149,11 +1152,11 @@
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longLongValue],
       [[NSNumber numberWithLong:10] longLongValue]);
 }
@@ -1170,7 +1173,7 @@
 
   // Sum
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           doubleValue],
       [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
 }
@@ -1236,9 +1239,9 @@
         [self readSnapshotForAggregate:[testCollection aggregate:@[ testCase[@"agg"] ]]];
 
     // Average
-    XCTAssertEqual([[snapshot valueForAggregation:testCase[@"agg"]] longValue],
+    XCTAssertEqual([[snapshot valueForAggregateField:testCase[@"agg"]] longValue],
                    [testCase[@"expected"] longLongValue]);
-    XCTAssertEqualWithAccuracy([[snapshot valueForAggregation:testCase[@"agg"]] doubleValue],
+    XCTAssertEqualWithAccuracy([[snapshot valueForAggregateField:testCase[@"agg"]] doubleValue],
                                [testCase[@"expected"] doubleValue], 0.00000000000001);
   }
 }
@@ -1255,10 +1258,10 @@
             ]]];
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:0] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:0] doubleValue]);
 }
 
 - (void)testPerformsAverageOfMinIEEE754 {
@@ -1272,10 +1275,10 @@
             ]]];
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:__DBL_DENORM_MIN__] doubleValue]);
 }
 
 - (void)testPerformsAverageOverflowIEEE754DuringAccumulation {
@@ -1290,10 +1293,10 @@
             ]]];
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:INFINITY] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:INFINITY] doubleValue]);
 }
 
 - (void)testPerformsAverageOverResultSetOfZeroDocuments {
@@ -1326,9 +1329,9 @@
                                                  aggregateFieldForAverageOfField:@"pages"] ]]];
 
   // Average
-  XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"pages"]],
-      [NSNull null]);
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"pages"]],
+                 [NSNull null]);
 }
 
 - (void)testPerformsAverageOnlyOnNumericFields {
@@ -1347,13 +1350,13 @@
 
   // Count
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 4L);
 
   // Average
-  XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithDouble:5] doubleValue]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 [[NSNumber numberWithDouble:5] doubleValue]);
 }
 
 @end

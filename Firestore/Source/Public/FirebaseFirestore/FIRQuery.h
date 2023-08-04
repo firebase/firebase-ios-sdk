@@ -20,6 +20,7 @@
 #import "FIRListenerRegistration.h"
 
 @class FIRAggregateQuery;
+@class FIRAggregateField;
 @class FIRFieldPath;
 @class FIRFirestore;
 @class FIRFilter;
@@ -572,13 +573,13 @@ NS_SWIFT_NAME(Query)
  * values, not the documents' data, is downloaded. The query can even aggregate the documents if the
  * result set would be prohibitively large to download entirely (e.g. thousands of documents).
  *
- * @param aggregations Specifies the aggregation operations to perform on the result set of this
+ * @param aggregateFields Specifies the aggregate operations to perform on the result set of this
  * query.
  *
  * @return An `AggregateQuery` encapsulating this `Query` and `AggregateField`s, which can be used
  * to query the server for the aggregation results.
  */
-- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregateFields
     NS_SWIFT_NAME(aggregate(_:));
 
 @end
