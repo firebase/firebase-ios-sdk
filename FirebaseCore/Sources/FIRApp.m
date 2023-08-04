@@ -627,7 +627,7 @@ static FIRApp *sDefaultApp;
     return NO;
   }
 
-  if (![self validateAppIDFingerprint:appID withVersion:appIDVersion]) {
+  if (![self validateBundleIDHashWithinAppID:appID forVersion:appIDVersion]) {
     return NO;
   }
 
@@ -735,7 +735,7 @@ static FIRApp *sDefaultApp;
  * @return YES if provided string fufills the expected fingerprint and the version is known, NO
  *         otherwise.
  */
-+ (BOOL)validateAppIDFingerprint:(NSString *)appID withVersion:(NSString *)version {
++ (BOOL)validateBundleIDHashWithinAppID:(NSString *)appID forVersion:(NSString *)version {
   // Extract the supplied fingerprint from the supplied app ID.
   // This assumes the app ID format is the same for all known versions below. If the app ID format
   // changes in future versions, the tokenizing of the app ID format will need to take into account

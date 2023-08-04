@@ -55,7 +55,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 + (void)logAppInfo:(NSNotification *)notification;
 + (BOOL)validateAppID:(NSString *)appID;
 + (BOOL)validateAppIDFormat:(NSString *)appID withVersion:(NSString *)version;
-+ (BOOL)validateAppIDFingerprint:(NSString *)appID withVersion:(NSString *)version;
++ (BOOL)validateBundleIDHashWithinAppID:(NSString *)appID forVersion:(NSString *)version;
 
 + (nullable NSNumber *)readDataCollectionSwitchFromPlist;
 + (nullable NSNumber *)readDataCollectionSwitchFromUserDefaultsForApp:(FIRApp *)app;
@@ -577,24 +577,24 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   // Sanity checks first.
   NSString *const kGoodAppIDV1 = @"1:1337:ios:deadbeef";
   NSString *const kGoodVersionV1 = @"1";
-  XCTAssertTrue([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodVersionV1]);
+  XCTAssertTrue([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:kGoodVersionV1]);
 
   NSString *const kGoodAppIDV2 = @"2:1337:ios:5e18052ab54fbfec";
   NSString *const kGoodVersionV2 = @"2";
   XCTAssertTrue([FIRApp validateAppIDFormat:kGoodAppIDV2 withVersion:kGoodVersionV2]);
 
   // Nil or empty strings.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:nil]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:@""]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:nil withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"" withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:nil withVersion:nil]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"" withVersion:@""]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:nil]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:@""]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:nil forVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:@"" forVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:nil forVersion:nil]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:@"" forVersion:@""]);
 
   // App ID contains only the version prefix.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodVersionV1 withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodVersionV1 forVersion:kGoodVersionV1]);
   // The version is the entire app ID.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodAppIDV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:kGoodAppIDV1]);
 }
 
 // Uncomment if you need to measure performance of [FIRApp validateAppID:].
