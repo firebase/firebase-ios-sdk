@@ -600,7 +600,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 // Uncomment if you need to measure performance of [FIRApp validateAppID:].
 // It is commented because measures are heavily dependent on a build agent configuration,
 // so it cannot produce reliable resault on CI
-//- (void)testAppIDFingerprintPerfomance {
+//- (void)testAppIDValidationPerfomance {
 //  [self measureBlock:^{
 //    for (NSInteger i = 0; i < 100; ++i) {
 //      [self testAppIDPrefix];
