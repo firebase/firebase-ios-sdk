@@ -587,7 +587,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   }
   const Document &document = *snapshot.internalDocument;
   const DatabaseId &databaseID = self.firestore.databaseID;
-  const std::vector<OrderBy> &order_bys = self.query.order_bys();
+  const std::vector<OrderBy> &order_bys = self.query.normalized_order_bys();
 
   SharedMessage<google_firestore_v1_ArrayValue> components{{}};
   components->values_count = CheckedSize(order_bys.size());
