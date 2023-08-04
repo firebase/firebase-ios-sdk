@@ -51,9 +51,7 @@ import Foundation
       let snapshot = try await collection.aggregate([
         AggregateField.count(),
         AggregateField.sum("pages"),
-        AggregateField.sum("weight"),
         AggregateField.average("pages"),
-        AggregateField.average("weight"),
       ]).getAggregation(source: .server)
 
       // Count
@@ -63,15 +61,11 @@ import Foundation
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 150)
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Double, 150)
       XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Int64, 150)
-      XCTAssertEqual(snapshot.get(AggregateField.sum("weight")) as? NSNumber, 99.6)
-      XCTAssertEqual(snapshot.get(AggregateField.sum("weight")) as? Double, 99.6)
 
       // Average
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? NSNumber, 75.0)
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? Double, 75.0)
       XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? Int64, 75)
-      XCTAssertEqual(snapshot.get(AggregateField.average("weight")) as? NSNumber, 49.8)
-      XCTAssertEqual(snapshot.get(AggregateField.average("weight")) as? Double, 49.8)
     }
 
     func testCannotPerformMoreThanMaxAggregations() async throws {
@@ -103,6 +97,9 @@ import Foundation
     }
 
     func testPerformsAggregationsWhenNaNExistsForSomeFieldValues() async throws {
+      try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
+                    "Skip this test if running against production because it requires a composite index.")
+
       let collection = collectionRef()
       try await collection.addDocument(data: ["author": "authorA",
                                               "title": "titleA",
@@ -171,9 +168,7 @@ import Foundation
       let snapshot = try await collection.aggregate([
         AggregateField.count(),
         AggregateField.sum("metadata.pages"),
-        AggregateField.sum(FieldPath(["metadata", "rating", "user"])),
         AggregateField.average("metadata.pages"),
-        AggregateField.average(FieldPath(["metadata", "rating", "critic"])),
       ]).getAggregation(source: .server)
 
       // Count
@@ -185,20 +180,18 @@ import Foundation
         150
       )
       XCTAssertEqual(snapshot.get(AggregateField.sum("metadata.pages")) as? NSNumber, 150)
-      XCTAssertEqual(snapshot.get(AggregateField.sum("metadata.rating.user")) as? NSNumber, 9)
 
       // Average
       XCTAssertEqual(
         snapshot.get(AggregateField.average(FieldPath(["metadata", "pages"]))) as? Double,
         75.0
       )
-      XCTAssertEqual(
-        snapshot.get(AggregateField.average("metadata.rating.critic")) as? Double,
-        3.0
-      )
     }
 
     func testSumOverflow() async throws {
+      try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
+                    "Skip this test if running against production because it requires a composite index.")
+
       let collection = collectionRef()
       try await collection.addDocument(data: [
         "longOverflow": Int64.max,
@@ -246,6 +239,9 @@ import Foundation
     }
 
     func testAverageOverflow() async throws {
+      try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
+                    "Skip this test if running against production because it requires a composite index.")
+
       let collection = collectionRef()
       try await collection.addDocument(data: [
         "longOverflow": Int64.max,

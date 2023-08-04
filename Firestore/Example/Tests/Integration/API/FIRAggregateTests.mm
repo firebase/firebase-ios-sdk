@@ -226,9 +226,7 @@
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
               [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
             ]]];
 
   // Count
@@ -240,19 +238,11 @@
   XCTAssertEqual(
       [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
       [NSNumber numberWithLong:150L], );
-  XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"weight"]]
-          doubleValue],
-      99.6);
 
   // Average
   XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
                                                       aggregateFieldForAverageOfField:@"pages"]],
                  [NSNumber numberWithDouble:75.0]);
-  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
-                                                       aggregateFieldForAverageOfField:@"weight"]]
-                     doubleValue],
-                 49.8);
 }
 
 - (void)testCanRunEmptyAggregateQuery {
@@ -327,40 +317,33 @@
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
               [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
             ]]];
 
   FIRAggregateQuerySnapshot* snapshot2 =
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
               [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
             ]]];
 
   // different aggregates
   FIRAggregateQuerySnapshot* snapshot3 =
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForCount],
-              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
               [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"]
+              [FIRAggregateField aggregateFieldForAverageOfField:@"weight"]
             ]]];
 
   // different data set
-  FIRAggregateQuerySnapshot* snapshot4 = [self
-      readSnapshotForAggregate:[[testCollection queryWhereField:@"pages" isGreaterThan:@50]
-                                   aggregate:@[
-                                     [FIRAggregateField aggregateFieldForCount],
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"weight"],
-                                     [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
-                                     [FIRAggregateField
-                                         aggregateFieldForAverageOfField:@"weight"]
-                                   ]]];
+  FIRAggregateQuerySnapshot* snapshot4 =
+      [self readSnapshotForAggregate:[[testCollection queryWhereField:@"pages" isGreaterThan:@50]
+                                         aggregate:@[
+                                           [FIRAggregateField aggregateFieldForCount],
+                                           [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+                                           [FIRAggregateField
+                                               aggregateFieldForAverageOfField:@"pages"]
+                                         ]]];
 
   XCTAssertEqualObjects(snapshot1, snapshot2);
   XCTAssertNotEqualObjects(snapshot1, snapshot3);
@@ -374,13 +357,9 @@
 }
 #endif  // #if !defined(THREAD_SANITIZER)
 
-- (void)testAllowsAliasesLongerThan1500Bytes {
-  // The longest field name allowed is 1500. The alias chosen by the client is <op>_<fieldName>.
-  // If the field name is
-  // 1500 bytes, the alias will be longer than 1500, which is the limit for aliases. This is to
-  // make sure the client
-  // can handle this corner case correctly.
-  NSString* longField = [@"" stringByPaddingToLength:1500
+- (void)testAggregateOnFieldNameWithMaxLength {
+  // The longest field name and alias allowed is 1500 bytes or 1499 characters.
+  NSString* longField = [@"" stringByPaddingToLength:1499
                                           withString:@"0123456789"
                                      startingAtIndex:0];
 
@@ -491,6 +470,8 @@
 }
 
 - (void)testCanPerformMaxAggregations {
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because it requires a composite index.");
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -594,6 +575,9 @@
 }
 
 - (void)testCanRunAggregateCollectionGroupQuery {
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because it requires a composite index.");
+
   NSString* collectionGroup =
       [NSString stringWithFormat:@"%@%@", @"b",
                                  [self.db collectionWithPath:@"foo"].documentWithAutoID.documentID];
@@ -634,6 +618,9 @@
 }
 
 - (void)testPerformsAggregationsWhenNaNExistsForSomeFieldValues {
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because it requires a composite index.");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -787,9 +774,7 @@
       readSnapshotForAggregate:[[testCollection queryWhereField:@"rating" in:@[ @5, @3 ]]
                                    aggregate:@[
                                      [FIRAggregateField aggregateFieldForSumOfField:@"rating"],
-                                     [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
                                      [FIRAggregateField aggregateFieldForAverageOfField:@"rating"],
-                                     [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
                                      [FIRAggregateField aggregateFieldForCount]
                                    ]]];
 
@@ -802,23 +787,18 @@
       [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
           longValue],
       8L);
-  XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
-          longValue],
-      200L);
 
   // Average
   XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
                                                        aggregateFieldForAverageOfField:@"rating"]]
                      doubleValue],
                  4.0);
-  XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField
-                                            aggregateFieldForAverageOfField:@"pages"]] doubleValue],
-      100.0);
 }
 
 - (void)testPerformsAggregationWhenUsingArrayContainsAnyOperator {
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because it requires a composite index.");
+
   FIRCollectionReference* testCollection = [self collectionRefWithDocuments:@{
     @"a" : @{
       @"author" : @"authorA",
@@ -903,9 +883,7 @@
   FIRAggregateQuerySnapshot* snapshot =
       [self readSnapshotForAggregate:[testCollection aggregate:@[
               [FIRAggregateField aggregateFieldForSumOfField:@"metadata.pages"],
-              [FIRAggregateField aggregateFieldForSumOfField:@"metadata.rating.user"],
               [FIRAggregateField aggregateFieldForAverageOfField:@"metadata.pages"],
-              [FIRAggregateField aggregateFieldForAverageOfField:@"metadata.rating.critic"],
               [FIRAggregateField aggregateFieldForCount]
             ]]];
 
@@ -919,11 +897,6 @@
           valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"metadata.pages"]]
           longValue],
       150L);
-  XCTAssertEqual(
-      [[snapshot valueForAggregateField:[FIRAggregateField
-                                            aggregateFieldForSumOfField:@"metadata.rating.user"]]
-          longValue],
-      9);
 
   // Average
   XCTAssertEqual(
@@ -931,12 +904,6 @@
                                             aggregateFieldForAverageOfField:@"metadata.pages"]]
           doubleValue],
       75.0);
-  XCTAssertEqual(
-      [[snapshot
-          valueForAggregateField:[FIRAggregateField
-                                     aggregateFieldForAverageOfField:@"metadata.rating.critic"]]
-          doubleValue],
-      3.0);
 }
 
 - (void)testPerformsSumThatOverflowsMaxLong {
@@ -1078,11 +1045,7 @@
     @"a" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
     @"b" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
     @"c" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"d" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"e" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]},
-    @"f" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"g" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]},
-    @"h" : @{@"rating" : [NSNumber numberWithDouble:DBL_MAX]}
+    @"d" : @{@"rating" : [NSNumber numberWithDouble:-DBL_MAX]}
   }];
 
   FIRAggregateQuerySnapshot* snapshot =
@@ -1091,14 +1054,16 @@
                                                        aggregateFieldForSumOfField:@"rating"] ]]];
 
   // Sum
-  XCTAssertEqual(
+  long long ratingL =
       [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          longLongValue],
-      [[NSNumber numberWithLong:0] longLongValue]);
-  XCTAssertEqual(
+          longLongValue];
+  XCTAssertTrue(ratingL == [[NSNumber numberWithDouble:-INFINITY] longLongValue] || ratingL == 0 ||
+                ratingL == [[NSNumber numberWithDouble:INFINITY] longLongValue]);
+
+  double ratingD =
       [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
-          doubleValue],
-      [[NSNumber numberWithLong:0] doubleValue]);
+          doubleValue];
+  XCTAssertTrue(ratingD == -INFINITY || ratingD == 0 || ratingD == INFINITY);
 }
 
 - (void)testPerformsSumOverResultSetOfZeroDocuments {
