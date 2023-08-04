@@ -571,7 +571,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFormat:@"1:1337:ios:deadbeef:ab" withVersion:kGoodVersionV1]);
 }
 
-- (void)testAppIDFingerprintInvalid {
+- (void)testAppIDContainsInvalidBundleIDHash {
   OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
   // Some direct tests of the validateAppIDFingerprint:withVersion: method.
   // Sanity checks first.
