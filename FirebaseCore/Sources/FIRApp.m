@@ -644,7 +644,7 @@ static FIRApp *sDefaultApp;
  * The version must end in ":".
  *
  * For v1 app ids the format is expected to be
- * '<version #>:<project number>:ios:<fingerprint of bundle id>'.
+ * '<version #>:<project number>:ios:<hashed bundle id>'.
  *
  * This method does not verify that the contents of the app id are correct, just that they fulfill
  * the expected format.
@@ -662,21 +662,21 @@ static FIRApp *sDefaultApp;
   stringScanner.charactersToBeSkipped = nil;
 
   // Skip version part
-  // '*<version #>*:<project number>:ios:<fingerprint of bundle id>'
+  // '*<version #>*:<project number>:ios:<hashed bundle id>'
   if (![stringScanner scanString:version intoString:NULL]) {
     // The version part is missing or mismatched
     return NO;
   }
 
   // Validate version part (see part between '*' symbols below)
-  // '<version #>*:*<project number>:ios:<fingerprint of bundle id>'
+  // '<version #>*:*<project number>:ios:<hashed bundle id>'
   if (![stringScanner scanString:@":" intoString:NULL]) {
     // appIDVersion must be separated by ":"
     return NO;
   }
 
   // Validate version part (see part between '*' symbols below)
-  // '<version #>:*<project number>*:ios:<fingerprint of bundle id>'.
+  // '<version #>:*<project number>*:ios:<hashed bundle id>'.
   NSInteger projectNumber = NSNotFound;
   if (![stringScanner scanInteger:&projectNumber]) {
     // NO project number found.
@@ -684,14 +684,14 @@ static FIRApp *sDefaultApp;
   }
 
   // Validate version part (see part between '*' symbols below)
-  // '<version #>:<project number>*:*ios:<fingerprint of bundle id>'.
+  // '<version #>:<project number>*:*ios:<hashed bundle id>'.
   if (![stringScanner scanString:@":" intoString:NULL]) {
     // The project number must be separated by ":"
     return NO;
   }
 
   // Validate version part (see part between '*' symbols below)
-  // '<version #>:<project number>:*ios*:<fingerprint of bundle id>'.
+  // '<version #>:<project number>:*ios*:<hashed bundle id>'.
   NSString *platform;
   if (![stringScanner scanUpToString:@":" intoString:&platform]) {
     return NO;
@@ -703,14 +703,14 @@ static FIRApp *sDefaultApp;
   }
 
   // Validate version part (see part between '*' symbols below)
-  // '<version #>:<project number>:ios*:*<fingerprint of bundle id>'.
+  // '<version #>:<project number>:ios*:*<hashed bundle id>'.
   if (![stringScanner scanString:@":" intoString:NULL]) {
     // The platform must be separated by ":"
     return NO;
   }
 
   // Validate version part (see part between '*' symbols below)
-  // '<version #>:<project number>:ios:*<fingerprint of bundle id>*'.
+  // '<version #>:<project number>:ios:*<hashed bundle id>*'.
   unsigned long long fingerprint = NSNotFound;
   if (![stringScanner scanHexLongLong:&fingerprint]) {
     // Fingerprint part is missing
