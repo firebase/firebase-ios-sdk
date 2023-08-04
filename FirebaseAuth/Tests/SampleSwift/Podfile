@@ -14,7 +14,7 @@ target 'AuthenticationExample' do
   pod 'FirebaseInstallations', :path => '../../..'
   pod 'FirebaseAuthInterop', :path => '../../..'
   pod 'FirebaseAppCheckInterop', :path => '../../..'
-  
+
   ### For Email Link/Passwordless Auth
   pod 'FirebaseDynamicLinks', :path => '../../..'
 

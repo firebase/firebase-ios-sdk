@@ -1,7 +1,6 @@
 
 # Firebase Auth Quickstart
 
-  
 
 This Firebase quickstart is written in Swift and aims to showcase how Firebase Auth can help manage user authentication. You can read more about Firebase Auth [here](https://firebase.google.com/docs/auth)!
 
@@ -9,7 +8,7 @@ To view the older Objective-C and Swift quickstarts, view the [`LegacyAuthQuicks
 
 ## Getting Started
 
-Firebase Auth offers multiple ways to authenticate users. In this quickstart, we demonstrate how you can use Firebase Auth to authenticate users by providing implementations for the various authentication flows. Since each Firebase Auth flow is different, each may require a few extra steps to set everything up. Feel free to follow along and configure as many authentication flows as you would like to demo!  
+Firebase Auth offers multiple ways to authenticate users. In this quickstart, we demonstrate how you can use Firebase Auth to authenticate users by providing implementations for the various authentication flows. Since each Firebase Auth flow is different, each may require a few extra steps to set everything up. Feel free to follow along and configure as many authentication flows as you would like to demo!
 
 Ready? Let's get started! 🏎💨
 
@@ -44,11 +43,9 @@ We will need to connect our quickstart with the [Firebase Console](https://conso
 
 To enable sign in with each of the following identity providers, there are a few configuration steps required to make sure everything works properly.
 
-**When it comes to configuring most of the below identity providers**, you may have to [add a custom URL scheme](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project) in your Xcode project so Firebase Auth can correctly work with the corresponding Identity Provider. This is done by selecting the app's target in Xcode and navigating to the **Info** tab. For each login flow that requires adding a custom URL scheme, be sure to add a new URL Scheme for each respective identity provider rather than replace existing schemes you have created previously. 
+**When it comes to configuring most of the below identity providers**, you may have to [add a custom URL scheme](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project) in your Xcode project so Firebase Auth can correctly work with the corresponding Identity Provider. This is done by selecting the app's target in Xcode and navigating to the **Info** tab. For each login flow that requires adding a custom URL scheme, be sure to add a new URL Scheme for each respective identity provider rather than replace existing schemes you have created previously.
 
 
-  
-  
 ### Google Sign In
 
 We have already included the **`GoogleSignIn`** cocoapod in the quickstart's `Podfile`. This cocoapod is **required** for **Google Sign In**.
@@ -60,7 +57,7 @@ We have already included the **`GoogleSignIn`** cocoapod in the quickstart's `Po
 - Click **Google** and turn on the **Enable** switch, then click **Save**.
 
 - In Xcode, [add a custom URL scheme for your reversed client ID](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project).
-    - You can find this in the `GoogleService-Info.plist`. This is the value associated with the **`REVERSED_CLIENT_ID`** key in the  `GoogleService-Info.plist` file. 
+    - You can find this in the `GoogleService-Info.plist`. This is the value associated with the **`REVERSED_CLIENT_ID`** key in the  `GoogleService-Info.plist` file.
     - For the `URL Type`'s **Identifier**, something like "Firebase Auth" adds some context for what the reversed link is related to.
     - In Xcode, select the quickstart's target and navigate to the `Info` tab. Look for the `URL Types` section. Expand the section and add a 'URL Type' and by pasting in the URL and, optionally, adding an identifier.
 
@@ -90,7 +87,7 @@ As outlined in the docs, **Sign in with Apple** requires enabling the *Sign In w
   - Click **Twitter** and turn on the **Enable** switch, then click **Save**.
   - You'll need to register an app on Twitter's [developer portal](https://apps.twitter.com) to obtain the **API Key** and **App Secret**.
   - After registering an app on Twitter's developer portal, enter your Twitter **API Key** and **App Secret** and then click **Save**.
-  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your  
+  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your
     Authorization callback URL in your app's settings page on your [Twitter app's config](https://apps.twitter.com).
    - In Xcode, [add a custom URL scheme for your reversed client ID](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project).
         - Note that you may have already done this previously
@@ -106,7 +103,7 @@ As outlined in the docs, **Sign in with Apple** requires enabling the *Sign In w
   - Click **Microsoft** and turn on the **Enable** switch, then click **Save**.
   - You'll need to register an app on Microsoft's [developer portal](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-v2-register-an-app) to obtain the **Application Id** and **Application Secret**.
   - After registering an app on Microsoft's developer portal, enter your Microsoft **Application Id** and **Application Secret** and then click **Save**.
-  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your  
+  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your
     Authorization callback URL in your app's settings page on your [Microsoft app's config](https://docs.microsoft.com/en-us/azure/active-directory/develop/quickstart-v2-register-an-app).
 - In Xcode, [add a custom URL scheme for your reversed client ID](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project).
   - Note that you may have already done this in a previous step
@@ -116,23 +113,21 @@ As outlined in the docs, **Sign in with Apple** requires enabling the *Sign In w
 
 See the [Getting Started with Microsoft Sign In guide](https://firebase.google.com/docs/auth/ios/microsoft-oauth) for more details.
 
-  
 ### GitHub
 #### Start by going to the [Firebase Console](https://console.firebase.google.com) and navigate to your project:
 - Select the **Auth** panel and then click the **Sign In Method** tab.
   - Click **GitHub** and turn on the **Enable** switch, then click **Save**.
   - You'll need to register an app on GitHub's [developer portal](https://developer.github.com/apps/building-oauth-apps/) to obtain the **Client ID** and **Client Secret**.
   - After registering an app on GitHub's developer portal, enter your GitHub **Client ID** and **Client Secret** and then click **Save**.
-  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your  
+  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your
     Authorization callback URL in your app's settings page on your [GitHub app's config](https://developer.github.com/apps/building-oauth-apps/).
 - In Xcode, [add a custom URL scheme for your reversed client ID](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project).
   - Note that you may have already done this in a previous step
   - You can find this in the `GoogleService-Info.plist`
 - Run the app on your device or simulator.
 - Choose **GitHub** under **Identity Providers** to launch the **GitHub Sign In** flow
-   
+
 See the [Getting Started with GitHub Sign In guide](https://firebase.google.com/docs/auth/ios/github-auth) for more details.
-  
 
 ### Yahoo
 #### Start by going to the [Firebase Console](https://console.firebase.google.com) and navigate to your project:
@@ -140,15 +135,14 @@ See the [Getting Started with GitHub Sign In guide](https://firebase.google.com/
   - Click **Yahoo** and turn on the **Enable** switch, then click **Save**.
   - You'll need to register an app on Yahoo's [developer portal](https://developer.yahoo.com/apps/) to obtain the **Client ID** and **Client Secret**.
   - After registering an app on Yahoo's developer portal, enter your Yahoo **Client ID** and **Client Secret** and then click **Save**.
-  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your  
+  - Make sure your Firebase OAuth redirect URI (e.g. my-app-12345.firebaseapp.com/__/auth/handler) is set as your
     Authorization callback URL in your app's settings page on your [Yahoo app's config](https://developer.yahoo.com/apps/).
 - In Xcode, [add a custom URL scheme for your reversed client ID](https://developers.google.com/identity/sign-in/ios/start-integrating#add_a_url_scheme_to_your_project).
   - You can find this in the `GoogleService-Info.plist`
 - Run the app on your device or simulator.
 - Choose **Yahoo** under **Identity Providers** to launch the **Yahoo Sign In** flow
-  
+
 See the [Getting Started with Yahoo Sign In guide](https://firebase.google.com/docs/auth/ios/yahoo-oauth) for more details.
-  
 
 ### Facebook
 
@@ -171,8 +165,7 @@ We have already included the **`FBSDKLoginKit`** cocoapod in the quickstart's `P
     - Example: `fb1234567890`
 - Run the app on your device or simulator.
 - Choose **Facebook** under **Identity Providers** to launch the **Facebook Sign In** flow
-  
-  
+
 ### Email/Password Setup
 #### Start by going to the [Firebase Console](https://console.firebase.google.com) and navigate to your project:
   - Select the **Auth** panel and then click the **Sign In Method** tab.
@@ -181,7 +174,7 @@ We have already included the **`FBSDKLoginKit`** cocoapod in the quickstart's `P
 - Choose **Email & Password** to launch the **Email & Password Sign In** flow
 
 See the [Getting Started with Password-based Sign In guide](https://firebase.google.com/docs/auth/ios/password-auth) for more details.
-  
+
 ## Other Auth Methods
 
 ### Email Link/Passwordless
@@ -196,7 +189,7 @@ If this is your first time working with Dynamic Links, here's a great [introduct
   - Turn on **Email link (passwordless sign-in)**, then click **Save**.
 
 #### Configuring Dynamic Links
-As we mentioned above, we will need to configure dynamic links for this auth flow. 
+As we mentioned above, we will need to configure dynamic links for this auth flow.
 
 - Go to the project's settings on the Firebase console. When enabling dynamic links, you will need to add an **App Store ID** and a **Team ID**. Feel free to make up the **App Store ID** (ex: 123456789). For the **Team ID**, enter an id affiliated with an Apple Developer account.
 - Navigate to the **Dynamic Links** in the Firebase Console and click **Get Started**
@@ -227,14 +220,11 @@ See the [Getting Started with Email Link/Passwordless Sign In guide](https://fir
 
 ### So how does this work?
 
-We will start by taking a look at [`PasswordlessViewController.swift`](https://github.com/firebase/quickstart-ios/blob/master/authentication/AuthenticationExample/View%20Controllers/Other%20Auth%20Method%20Controllers/PasswordlessViewController.swift). If you are currently running the quickstart app, select the "Email Link/Passwordless" authentication option.  
+We will start by taking a look at [`PasswordlessViewController.swift`](https://github.com/firebase/quickstart-ios/blob/master/authentication/AuthenticationExample/View%20Controllers/Other%20Auth%20Method%20Controllers/PasswordlessViewController.swift). If you are currently running the quickstart app, select the "Email Link/Passwordless" authentication option.
 
 The user is prompted for an email to be used in the verification process. When the **Send Sign In Link** button is tapped, we configure our verification link by adding the user's email to the dynamic link we created earlier. Then we send a send the link to the user's email. You can edit the format of these verification emails on the [Firebase Console](https://console.firebase.google.com/).
 
- 
 When the user receives the verification email, they can open the link contained in the email to be redirected back to the app (using the power of [Dynamic Links](https://firebase.google.com/docs/dynamic-links) 😎. On apps using the [`SceneDelegate`](https://developer.apple.com/documentation/uikit/uiscenedelegate) API,  opening the incoming dynamic link will be handled in `UIWindowSceneDelegate`'s  `func scene(_ scene: UIScene, continue userActivity: NSUserActivity)` method. This method can be implemented in  `SceneDelegate.swift`. Since the quickstart uses the `SceneDelegate` API, you can check out the implementation [here](https://github.com/firebase/quickstart-ios/blob/master/authentication/AuthenticationExample/SceneDelegate.swift#L53). We basically pass the incoming link to a helper method that will do a few things:
-
-  
 
 ```swift
 // SceneDelegate.swift
@@ -264,19 +254,17 @@ If the incoming dynamic link is a sign-in link, then we post a notification that
 
 This takes us back to our  `PasswordlessViewController.swift`, where [we registered for this exact notification](https://github.com/firebase/quickstart-ios/blob/master/authentication/AuthenticationExample/View%20Controllers/Other%20Auth%20Method%20Controllers/PasswordlessViewController.swift#L26)! When the notification is posted, we will receive it here and call the `passwordlessSignIn()` method to complete the authentication. In this method, we used Firebase Auth's `Auth.auth().signIn(withEmail: String, link: String)` which, behind the scenes, checks that this link was the link we originally sent to the associated email and if so, signs in the user! 🥳
 
-  
 ### Phone Number
 
-When Firebase Auth uses Phone Number authentication, Auth will attempt to send a silent Apple Push Notification (APN) to the device to confirm that the phone number being used is associated with the device. If APNs (which, like Sign In with Apple, are a [capability](https://developer.apple.com/documentation/xcode/adding_capabilities_to_your_app) you can enable in Xcode or on the Apple Developer Console) are not enabled or configured correctly, Auth will instead present a web view with a reCAPTCHA verification flow. 
+When Firebase Auth uses Phone Number authentication, Auth will attempt to send a silent Apple Push Notification (APN) to the device to confirm that the phone number being used is associated with the device. If APNs (which, like Sign In with Apple, are a [capability](https://developer.apple.com/documentation/xcode/adding_capabilities_to_your_app) you can enable in Xcode or on the Apple Developer Console) are not enabled or configured correctly, Auth will instead present a web view with a reCAPTCHA verification flow.
 
 #### Start by going to the [Firebase Console](https://console.firebase.google.com) and navigate to your project:
   - Select the **Auth** panel and then click the **Sign In Method** tab.
-  - Click **Phone** and turn on the **Enable** switch, then click **Save**. 
+  - Click **Phone** and turn on the **Enable** switch, then click **Save**.
   - Run the app on your device or simulator.
   - Choose **Phone Number**  to launch the **Phone Number Authentication** flow
   - After entering a phone number, please wait roughly 5 seconds to allow Firebase Auth to present the necessary flow.
   See the official [Firebase docs for phone authentication](https://firebase.google.com/docs/auth/ios/phone-auth) for more info!
-  
 
 ### Anonymous Authentication
 #### Start by going to the [Firebase Console](https://console.firebase.google.com) and navigate to your project:
@@ -311,42 +299,8 @@ If you wish to setup a custom auth system. The below steps can help in its confi
     - Select **Custom Auth system**
     - Paste in the token you generated earlier.
     - Pressing **Login** should then login the token's affiliated user.
-  
+
 
 # Support
 
 -  [Firebase Support](https://firebase.google.com/support/)
-
-  
-
-# License
-  
-
-Copyright 2020 Google LLC
-
-
-Licensed to the Apache Software Foundation (ASF) under one or more contributor
-
-license agreements.  See the NOTICE file distributed with this work for
-
-additional information regarding copyright ownership.  The ASF licenses this
-
-file to you under the Apache License, Version 2.0 (the "License"); you may not
-
-use this file except in compliance with the License.  You may obtain a copy of
-
-the License at
-  
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-  
-Unless required by applicable law or agreed to in writing, software
-
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-
-License for the specific language governing permissions and limitations under
-
-the License.
