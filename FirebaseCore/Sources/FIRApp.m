@@ -725,8 +725,8 @@ static FIRApp *sDefaultApp;
 }
 
 /**
- * Validates that the fingerprint of the app ID string is what is expected based on the supplied
- * version.
+ * Validates that the hashed bundle ID included in the app ID string is what is expected based on
+ * the supplied version.
  *
  * Note that the v1 hash algorithm is not permitted on the client and cannot be fully validated.
  *
@@ -736,23 +736,23 @@ static FIRApp *sDefaultApp;
  *         otherwise.
  */
 + (BOOL)validateBundleIDHashWithinAppID:(NSString *)appID forVersion:(NSString *)version {
-  // Extract the supplied fingerprint from the supplied app ID.
-  // This assumes the app ID format is the same for all known versions below. If the app ID format
-  // changes in future versions, the tokenizing of the app ID format will need to take into account
-  // the version of the app ID.
+  // Extract the hashed bundle ID from the given app ID.
+  // This assumes the app ID format is the same for all known versions below.
+  // If the app ID format changes in future versions, the tokenizing of the app
+  // ID format will need to take into account the version of the app ID.
   NSArray *components = [appID componentsSeparatedByString:@":"];
   if (components.count != 4) {
     return NO;
   }
 
-  NSString *suppliedFingerprintString = components[3];
-  if (!suppliedFingerprintString.length) {
+  NSString *suppliedBundleIDHashString = components[3];
+  if (!suppliedBundleIDHashString.length) {
     return NO;
   }
 
-  uint64_t suppliedFingerprint;
-  NSScanner *scanner = [NSScanner scannerWithString:suppliedFingerprintString];
-  if (![scanner scanHexLongLong:&suppliedFingerprint]) {
+  uint64_t suppliedBundleIDHash;
+  NSScanner *scanner = [NSScanner scannerWithString:suppliedBundleIDHashString];
+  if (![scanner scanHexLongLong:&suppliedBundleIDHash]) {
     return NO;
   }
 
