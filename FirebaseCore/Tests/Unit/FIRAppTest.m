@@ -573,7 +573,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 
 - (void)testAppIDContainsInvalidBundleIDHash {
   OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
-  // Some direct tests of the validateAppIDFingerprint:withVersion: method.
+  // Some direct tests of the validateBundleIDHashWithinAppID:forVersion: method.
   // Sanity checks first.
   NSString *const kGoodAppIDV1 = @"1:1337:ios:deadbeef";
   NSString *const kGoodVersionV1 = @"1";
