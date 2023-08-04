@@ -423,33 +423,34 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 #pragma mark - App ID v1
 
 - (void)testAppIDV1 {
-  // Missing separator between platform:fingerprint.
+  // Missing separator between platform:hashed bundle ID.
   XCTAssertFalse([FIRApp validateAppID:@"1:1337:iosdeadbeef"]);
 
   // Wrong platform "android".
   XCTAssertFalse([FIRApp validateAppID:@"1:1337:android:deadbeef"]);
 
-  // The fingerprint, aka 4th field, should only contain hex characters.
+  // The hashed bundle ID, aka 4th field, should only contain hex characters.
   XCTAssertFalse([FIRApp validateAppID:@"1:1337:ios:123abcxyz"]);
 
-  // The fingerprint, aka 4th field, is not tested in V1, so a bad value shouldn't cause a failure.
+  // The hashed bundle ID, aka 4th field, is not tested in V1, so a bad value shouldn't cause a
+  // failure.
   XCTAssertTrue([FIRApp validateAppID:@"1:1337:ios:deadbeef"]);
 }
 
 #pragma mark - App ID v2
 
 - (void)testAppIDV2 {
-  // Missing separator between platform:fingerprint.
+  // Missing separator between platform:hashed bundle ID.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios5e18052ab54fbfec"]);
 
   // Unknown versions may contain anything.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:123abcxyz"]);
   XCTAssertTrue([FIRApp validateAppID:@"2:thisdoesn'teven_m:a:t:t:e:r_"]);
 
-  // Known good fingerprint.
+  // Known good hashed bundle ID.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:5e18052ab54fbfec"]);
 
-  // Unknown fingerprint, not tested so shouldn't cause a failure.
+  // Unknown hashed bundle ID, not tested so shouldn't cause a failure.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:deadbeef"]);
 }
 

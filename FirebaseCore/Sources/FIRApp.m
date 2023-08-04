@@ -573,8 +573,8 @@ static FIRApp *sDefaultApp;
 #pragma mark - private - App ID Validation
 
 /**
- * Validates the format and fingerprint of the app ID contained in GOOGLE_APP_ID in the plist file.
- * This is the main method for validating app ID.
+ * Validates the format and hashed bundle ID of the app ID contained in GOOGLE_APP_ID in the plist
+ * file. This is the main method for validating app ID.
  *
  * @return YES if the app ID fulfills the expected format and contains a hashed bundle ID, NO
  * otherwise.
@@ -598,7 +598,7 @@ static FIRApp *sDefaultApp;
 
 + (BOOL)validateAppID:(NSString *)appID {
   // Failing validation only occurs when we are sure we are looking at a V2 app ID and it does not
-  // have a valid fingerprint, otherwise we just warn about the potential issue.
+  // have a valid hashed bundle ID, otherwise we just warn about the potential issue.
   if (!appID.length) {
     return NO;
   }
@@ -718,7 +718,7 @@ static FIRApp *sDefaultApp;
   }
 
   if (!stringScanner.isAtEnd) {
-    // There are not allowed characters in the fingerprint part
+    // There are not allowed characters in the hashed bundle ID part
     return NO;
   }
 
@@ -733,7 +733,7 @@ static FIRApp *sDefaultApp;
  *
  * @param appID Contents of GOOGLE_APP_ID from the plist file.
  * @param version Indicates what version of the app id format this string should be.
- * @return YES if provided string fufills the expected fingerprint and the version is known, NO
+ * @return YES if provided string fufills the expected hashed bundle ID and the version is known, NO
  *         otherwise.
  */
 + (BOOL)validateBundleIDHashWithinAppID:(NSString *)appID forVersion:(NSString *)version {
