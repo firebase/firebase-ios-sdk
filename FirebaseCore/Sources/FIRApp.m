@@ -573,7 +573,7 @@ static FIRApp *sDefaultApp;
 #pragma mark - private - App ID Validation
 
 /**
- * Validates the format and hashed bundle ID of the app ID contained in GOOGLE_APP_ID in the plist
+ * Validates the format of app ID and its included bundle ID contained in GOOGLE_APP_ID in the plist
  * file. This is the main method for validating app ID.
  *
  * @return YES if the app ID fulfills the expected format and contains a hashed bundle ID, NO
