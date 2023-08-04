@@ -7,11 +7,16 @@ target 'AuthenticationExample' do
 
   # Pods for AuthenticationExample
   ## Firebase 🔥 Pods
-  pod 'FirebaseAnalytics'
-  pod 'FirebaseAuth'
+  pod 'FirebaseCore', :path => '../../../'
+  pod 'FirebaseCoreInternal', :path => '../../../'
+  pod 'FirebaseCoreExtension', :path => '../../../'
+  pod 'FirebaseAuth', :path => '../../../', :testspecs => ['unit']
+  pod 'FirebaseInstallations', :path => '../../..'
+  pod 'FirebaseAuthInterop', :path => '../../..'
+  pod 'FirebaseAppCheckInterop', :path => '../../..'
   
   ### For Email Link/Passwordless Auth
-  pod 'FirebaseDynamicLinks'
+  pod 'FirebaseDynamicLinks', :path => '../../..'
 
   ## Pod for Sign in with Google
   pod 'GoogleSignIn'
@@ -19,7 +24,12 @@ target 'AuthenticationExample' do
   ## Pod for Sign in with Facebook
   pod 'FBSDKLoginKit'
 
-  target 'AuthenticationExampleTests' do
+  target 'SwiftApiTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+
+  target 'ObjCApiTests' do
     inherit! :search_paths
     # Pods for testing
   end

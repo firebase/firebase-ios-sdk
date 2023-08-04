@@ -65,8 +65,8 @@ extension User: DataSourceProvidable {
 
 // MARK: - UIKit Extensions
 
-extension UIViewController {
-  public func displayError(_ error: Error?, from function: StaticString = #function) {
+public extension UIViewController {
+  func displayError(_ error: Error?, from function: StaticString = #function) {
     guard let error = error else { return }
     print("ⓧ Error in \(function): \(error.localizedDescription)")
     let message = "\(error.localizedDescription)\n\n Ocurred in \(function)"

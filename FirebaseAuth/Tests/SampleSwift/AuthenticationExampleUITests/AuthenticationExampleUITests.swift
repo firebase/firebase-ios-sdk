@@ -53,13 +53,17 @@ class AuthenticationExampleUITests: XCTestCase {
   }
 
   func testAuthExistingAccount() {
+    // Setup existing user for duplicate test below.
+    let existingEmail = "existing@test.com"
+    let existingPassword = "existingPW"
+
     app.staticTexts["Email & Password Login"].tap()
 
-    let testEmail = "test@test.com"
+    let testEmail = existingEmail
     app.textFields["Email"].tap()
     app.textFields["Email"].typeText(testEmail)
 
-    let testPassword = "test12"
+    let testPassword = existingPassword
     app.textFields["Password"].tap()
     app.textFields["Password"].typeText(testPassword)
 
@@ -185,7 +189,7 @@ class AuthenticationExampleUITests: XCTestCase {
 
   func DRAFT_testGoogleSignInAndLinkAccount() {
     let interruptionMonitor = addUIInterruptionMonitor(withDescription: "Sign in with Google") {
-      (alert) -> Bool in
+      alert -> Bool in
       alert.buttons["Continue"].tap()
       return true
     }
@@ -225,15 +229,6 @@ class AuthenticationExampleUITests: XCTestCase {
 
     // Cleanup
     removeUIInterruptionMonitor(interruptionMonitor)
-  }
-
-  func testLaunchPerformance() {
-    if #available(macOS 10.15, iOS 13.0, tvOS 13.0, *) {
-      // This measures how long it takes to launch your application.
-      measure(metrics: [XCTOSSignpostMetric.applicationLaunch]) {
-        XCUIApplication().launch()
-      }
-    }
   }
 
   // MARK: - Private Helpers

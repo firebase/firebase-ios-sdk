@@ -36,7 +36,7 @@ class Animator: NSObject, UIViewControllerAnimatedTransitioning {
     let container = transitionContext.containerView
 
     guard let fromView = transitionContext.view(forKey: .from),
-      let toView = transitionContext.view(forKey: .to) else {
+          let toView = transitionContext.view(forKey: .to) else {
       transitionContext.completeTransition(false)
       return
     }

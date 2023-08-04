@@ -404,6 +404,7 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
   public func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(withEmail: email, password: password) { authData, error in
@@ -608,6 +609,7 @@ extension Auth: AuthInterop {
     @available(tvOS, unavailable)
     @available(macOS, unavailable)
     @available(watchOS, unavailable)
+    @discardableResult
     public func signIn(with provider: FederatedAuthProvider,
                        uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
@@ -716,6 +718,7 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
   public func signIn(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(with: credential) { result, error in
@@ -788,6 +791,7 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
   @objc public func signInAnonymously() async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signInAnonymously { result, error in
@@ -861,6 +865,7 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
   public func signIn(withCustomToken token: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(withCustomToken: token) { result, error in
@@ -961,6 +966,7 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @discardableResult
   public func createUser(withEmail email: String, password: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.createUser(withEmail: email, password: password) { result, error in

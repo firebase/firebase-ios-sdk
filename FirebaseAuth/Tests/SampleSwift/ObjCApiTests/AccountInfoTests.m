@@ -32,6 +32,18 @@ static NSString *const kNewUserEmail = @"user+user_new_email@example.com";
 
 @implementation AccountInfoTests
 
+- (void)setUp {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"setup old email expectation"];
+  FIRAuth *auth = [FIRAuth auth];
+  [auth createUserWithEmail:kOldUserEmail
+                   password:@"password"
+                 completion:^(FIRAuthDataResult *user, NSError *error) {
+                   // Succeed whether or not the user already exists.
+                   [expectation fulfill];
+                 }];
+  [self waitForExpectationsWithTimeout:kExpectationsTimeout handler:nil];
+}
+
 - (void)testUpdatingUsersEmailAlreadyInUse {
   SKIP_IF_ON_MOBILE_HARNESS
   FIRAuth *auth = [FIRAuth auth];

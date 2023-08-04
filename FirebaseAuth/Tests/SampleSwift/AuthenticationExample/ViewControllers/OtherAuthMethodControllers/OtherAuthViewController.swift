@@ -14,7 +14,8 @@
 
 import UIKit
 
-/// Base UIViewController Class for presenting auth flows defined in [OtherAuthMethods](x-source-tag://OtherAuthMethods)
+/// Base UIViewController Class for presenting auth flows defined in
+/// [OtherAuthMethods](x-source-tag://OtherAuthMethods)
 class OtherAuthViewController: UIViewController {
   weak var delegate: LoginDelegate?
 

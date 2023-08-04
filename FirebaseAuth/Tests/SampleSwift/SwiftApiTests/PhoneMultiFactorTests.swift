@@ -15,6 +15,7 @@
  */
 
 import XCTest
+import FirebaseAuth
 
 let kNoSecondFactorUserEmail = "iosapitests+no_second_factor@gmail.com"
 let kNoSecondFactorUserPassword = "aaaaaa"
@@ -26,8 +27,10 @@ let kPhoneSecondFactorDisplayName = "phone1"
 let kOneSecondFactorUserEmail = "iosapitests+one_phone_second_factor@gmail.com"
 let kOneSecondFactorUserPassword = "aaaaaa"
 
-class PhoneMultiFactorTests: FIRAuthApiTestsBase {
-  func testEnrollUnenroll() {
+// TODO: Restore these tests that haven't been built or run for years before Swift conversion.
+
+class PhoneMultiFactorTests: TestsBase {
+  func SKIPtestEnrollUnenroll() {
     let enrollExpectation = expectation(description: "Enroll phone multi factor finished.")
     let unenrollExpectation = expectation(description: "Unenroll phone multi factor finished.")
     Auth.auth()
@@ -38,6 +41,7 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
         // Enroll
         guard let user = result?.user else {
           XCTFail("No valid user after attempted sign-in.")
+          return
         }
         user.multiFactor.getSessionWithCompletion { session, error in
           XCTAssertNil(error,
@@ -53,22 +57,22 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
               verificationCode: kPhoneSecondFactorVerificationCode
             )
             let assertion = PhoneMultiFactorGenerator.assertion(with: credential)
-            user?.multiFactor
+            user.multiFactor
               .enroll(with: assertion, displayName: kPhoneSecondFactorDisplayName) { error in
                 XCTAssertNil(error,
                              "Phone multi factor enroll failed. Error: \(error!.localizedDescription)")
-                XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.first?
+                XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors?.first?
                   .displayName,
                   kPhoneSecondFactorDisplayName)
                 enrollExpectation.fulfill()
 
                 // Unenroll
-                user = Auth.auth().currentUser
-                user?.multiFactor
-                  .unenroll(with: (user?.multiFactor.enrolledFactors.first)!, completion: { error in
+                XCTAssertEqual(user, Auth.auth().currentUser)
+                user.multiFactor
+                  .unenroll(with: (user.multiFactor.enrolledFactors?.first)!, completion: { error in
                     XCTAssertNil(error,
                                  "Phone multi factor unenroll failed. Error: \(error!.localizedDescription)")
-                    XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.count, 0)
+                    XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors?.count, 0)
                     unenrollExpectation.fulfill()
                   })
               }
@@ -82,14 +86,16 @@ class PhoneMultiFactorTests: FIRAuthApiTestsBase {
     }
   }
 
-  func testSignInWithSecondFactor() {
+  func SKIPtestSignInWithSecondFactor() {
     let signInExpectation = expectation(description: "Sign in with phone multi factor finished.")
     Auth.auth()
       .signIn(withEmail: kOneSecondFactorUserEmail,
               password: kOneSecondFactorUserPassword) { result, error in
         // SignIn
-        guard let error = error, error.code == AuthErrorCode.secondFactorRequired.rawValue else {
+        guard let error = error as? NSError,
+              error.code == AuthErrorCode.secondFactorRequired.rawValue else {
           XCTFail("User sign in returns wrong error. Error: \(error!.localizedDescription)")
+          return
         }
         let resolver = error
           .userInfo["FIRAuthErrorUserInfoMultiFactorResolverKey"] as! MultiFactorResolver

@@ -292,15 +292,22 @@ case "$product-$platform-$method" in
   Auth-*-xcodebuild)
     if check_secrets; then
       RunXcodebuild \
-        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
-        -scheme "Auth_ApiTests" \
+        -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
+        -scheme "ObjCApiTests" \
         "${xcb_flags[@]}" \
         build \
         test
 
       RunXcodebuild \
-        -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
+        -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
         -scheme "SwiftApiTests" \
+        "${xcb_flags[@]}" \
+        build \
+        test
+
+      RunXcodebuild \
+        -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
+        -scheme "AuthenticationExampleUITests" \
         "${xcb_flags[@]}" \
         build \
         test

@@ -3,11 +3,26 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8848764F29D3149200780FA6 /* GoogleService-Info.plist */; };
+		DE8FD46F2A7D660B00B6831A /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4682A7D660A00B6831A /* Credentials.swift */; };
+		DE8FD4702A7D660B00B6831A /* AccountInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */; };
+		DE8FD4712A7D660B00B6831A /* FacebookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46A2A7D660A00B6831A /* FacebookTests.swift */; };
+		DE8FD4722A7D660B00B6831A /* EmailPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46B2A7D660B00B6831A /* EmailPasswordTests.swift */; };
+		DE8FD4732A7D660B00B6831A /* GoogleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46C2A7D660B00B6831A /* GoogleTests.swift */; };
+		DE8FD4742A7D660B00B6831A /* TestsBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46D2A7D660B00B6831A /* TestsBase.swift */; };
+		DE8FD4752A7D660B00B6831A /* AnonymousTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46E2A7D660B00B6831A /* AnonymousTests.swift */; };
+		DE8FD4862A7D990900B6831A /* CustomAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4832A7D990900B6831A /* CustomAuthTests.m */; };
+		DE8FD4872A7D990900B6831A /* EmailPasswordAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4842A7D990900B6831A /* EmailPasswordAuthTests.m */; };
+		DE8FD4882A7D990900B6831A /* FacebookAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4852A7D990900B6831A /* FacebookAuthTests.m */; };
+		DE8FD48B2A7D994000B6831A /* AnonymousAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4892A7D994000B6831A /* AnonymousAuthTests.m */; };
+		DE8FD48C2A7D994000B6831A /* AccountInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD48A2A7D994000B6831A /* AccountInfoTests.m */; };
+		DE8FD48F2A7D997A00B6831A /* FIRAuthApiTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD48D2A7D997A00B6831A /* FIRAuthApiTestsBase.m */; };
+		DE8FD4902A7D997A00B6831A /* GoogleAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD48E2A7D997A00B6831A /* GoogleAuthTests.m */; };
+		DE8FD4942A7D9E2700B6831A /* PhoneMultiFactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4912A7D9D9E00B6831A /* PhoneMultiFactorTests.swift */; };
 		EA02F68524A000E00079D000 /* UserActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68424A000E00079D000 /* UserActions.swift */; };
 		EA02F68D24A063E90079D000 /* LoginDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68C24A063E90079D000 /* LoginDelegate.swift */; };
 		EA062D5D24A0FEB6006714D3 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EA062D5C24A0FEB6006714D3 /* README.md */; };
@@ -29,7 +44,6 @@
 		EAE4CBC724855E3A00245E92 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBC624855E3A00245E92 /* SceneDelegate.swift */; };
 		EAE4CBC924855E3A00245E92 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBC824855E3A00245E92 /* AuthViewController.swift */; };
 		EAE4CBCE24855E3D00245E92 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EAE4CBCD24855E3D00245E92 /* Assets.xcassets */; };
-		EAE4CBDC24855E3E00245E92 /* AuthenticationExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBDB24855E3E00245E92 /* AuthenticationExampleTests.swift */; };
 		EAE4CBE724855E3E00245E92 /* AuthenticationExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBE624855E3E00245E92 /* AuthenticationExampleUITests.swift */; };
 		EAE4CBF524857A5100245E92 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAE4CBF424857A5100245E92 /* LoginController.swift */; };
 		EAEBCE0F2489FFDE00FCEA92 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAEBCE0E2489FFDE00FCEA92 /* Extensions.swift */; };
@@ -38,6 +52,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		DE8FD47E2A7D96B900B6831A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EAE4CBB924855E3A00245E92 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EAE4CBC024855E3A00245E92;
+			remoteInfo = AuthenticationExample;
+		};
 		EAE4CBD824855E3E00245E92 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EAE4CBB924855E3A00245E92 /* Project object */;
@@ -56,6 +77,24 @@
 
 /* Begin PBXFileReference section */
 		8848764F29D3149200780FA6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		DE8FD4682A7D660A00B6831A /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
+		DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
+		DE8FD46A2A7D660A00B6831A /* FacebookTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FacebookTests.swift; sourceTree = "<group>"; };
+		DE8FD46B2A7D660B00B6831A /* EmailPasswordTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailPasswordTests.swift; sourceTree = "<group>"; };
+		DE8FD46C2A7D660B00B6831A /* GoogleTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoogleTests.swift; sourceTree = "<group>"; };
+		DE8FD46D2A7D660B00B6831A /* TestsBase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestsBase.swift; sourceTree = "<group>"; };
+		DE8FD46E2A7D660B00B6831A /* AnonymousTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnonymousTests.swift; sourceTree = "<group>"; };
+		DE8FD47A2A7D96B900B6831A /* ObjCApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ObjCApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		DE8FD4832A7D990900B6831A /* CustomAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomAuthTests.m; sourceTree = "<group>"; };
+		DE8FD4842A7D990900B6831A /* EmailPasswordAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmailPasswordAuthTests.m; sourceTree = "<group>"; };
+		DE8FD4852A7D990900B6831A /* FacebookAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FacebookAuthTests.m; sourceTree = "<group>"; };
+		DE8FD4892A7D994000B6831A /* AnonymousAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AnonymousAuthTests.m; sourceTree = "<group>"; };
+		DE8FD48A2A7D994000B6831A /* AccountInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AccountInfoTests.m; sourceTree = "<group>"; };
+		DE8FD48D2A7D997A00B6831A /* FIRAuthApiTestsBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthApiTestsBase.m; sourceTree = "<group>"; };
+		DE8FD48E2A7D997A00B6831A /* GoogleAuthTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GoogleAuthTests.m; sourceTree = "<group>"; };
+		DE8FD4912A7D9D9E00B6831A /* PhoneMultiFactorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneMultiFactorTests.swift; sourceTree = "<group>"; };
+		DE8FD4962A7DAFEE00B6831A /* FIRAuthApiTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthApiTestsBase.h; sourceTree = "<group>"; };
+		DE8FD4972A7DB00600B6831A /* AuthCredentials.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthCredentials.h; sourceTree = "<group>"; };
 		EA02F68424A000E00079D000 /* UserActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActions.swift; sourceTree = "<group>"; };
 		EA02F68C24A063E90079D000 /* LoginDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDelegate.swift; sourceTree = "<group>"; };
 		EA062D5C24A0FEB6006714D3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
@@ -80,9 +119,7 @@
 		EAE4CBC824855E3A00245E92 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		EAE4CBCD24855E3D00245E92 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EAE4CBD224855E3D00245E92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		EAE4CBD724855E3E00245E92 /* AuthenticationExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticationExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		EAE4CBDB24855E3E00245E92 /* AuthenticationExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationExampleTests.swift; sourceTree = "<group>"; };
-		EAE4CBDD24855E3E00245E92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		EAE4CBD724855E3E00245E92 /* SwiftApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE4CBE224855E3E00245E92 /* AuthenticationExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticationExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE4CBE624855E3E00245E92 /* AuthenticationExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationExampleUITests.swift; sourceTree = "<group>"; };
 		EAE4CBE824855E3E00245E92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -93,6 +130,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		DE8FD4772A7D96B900B6831A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAE4CBBE24855E3A00245E92 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -117,11 +161,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		CE54897B57069002714B8FA5 /* Pods */ = {
+		2EBFAC992DA393BBD4494A15 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		DE8FD47B2A7D96B900B6831A /* ObjCApiTests */ = {
+			isa = PBXGroup;
+			children = (
+				DE8FD4972A7DB00600B6831A /* AuthCredentials.h */,
+				DE8FD4962A7DAFEE00B6831A /* FIRAuthApiTestsBase.h */,
+				DE8FD48D2A7D997A00B6831A /* FIRAuthApiTestsBase.m */,
+				DE8FD48E2A7D997A00B6831A /* GoogleAuthTests.m */,
+				DE8FD48A2A7D994000B6831A /* AccountInfoTests.m */,
+				DE8FD4892A7D994000B6831A /* AnonymousAuthTests.m */,
+				DE8FD4832A7D990900B6831A /* CustomAuthTests.m */,
+				DE8FD4842A7D990900B6831A /* EmailPasswordAuthTests.m */,
+				DE8FD4852A7D990900B6831A /* FacebookAuthTests.m */,
+			);
+			path = ObjCApiTests;
 			sourceTree = "<group>";
 		};
 		EA02F68E24A0714B0079D000 /* OtherAuthMethodControllers */ = {
@@ -200,10 +260,11 @@
 			isa = PBXGroup;
 			children = (
 				EAE4CBC324855E3A00245E92 /* AuthenticationExample */,
-				EAE4CBDA24855E3E00245E92 /* AuthenticationExampleTests */,
+				EAE4CBDA24855E3E00245E92 /* SwiftApiTests */,
 				EAE4CBE524855E3E00245E92 /* AuthenticationExampleUITests */,
+				DE8FD47B2A7D96B900B6831A /* ObjCApiTests */,
 				EAE4CBC224855E3A00245E92 /* Products */,
-				CE54897B57069002714B8FA5 /* Pods */,
+				2EBFAC992DA393BBD4494A15 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -211,8 +272,9 @@
 			isa = PBXGroup;
 			children = (
 				EAE4CBC124855E3A00245E92 /* AuthenticationExample.app */,
-				EAE4CBD724855E3E00245E92 /* AuthenticationExampleTests.xctest */,
+				EAE4CBD724855E3E00245E92 /* SwiftApiTests.xctest */,
 				EAE4CBE224855E3E00245E92 /* AuthenticationExampleUITests.xctest */,
+				DE8FD47A2A7D96B900B6831A /* ObjCApiTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -236,13 +298,19 @@
 			path = AuthenticationExample;
 			sourceTree = "<group>";
 		};
-		EAE4CBDA24855E3E00245E92 /* AuthenticationExampleTests */ = {
+		EAE4CBDA24855E3E00245E92 /* SwiftApiTests */ = {
 			isa = PBXGroup;
 			children = (
-				EAE4CBDB24855E3E00245E92 /* AuthenticationExampleTests.swift */,
-				EAE4CBDD24855E3E00245E92 /* Info.plist */,
+				DE8FD4912A7D9D9E00B6831A /* PhoneMultiFactorTests.swift */,
+				DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */,
+				DE8FD46E2A7D660B00B6831A /* AnonymousTests.swift */,
+				DE8FD4682A7D660A00B6831A /* Credentials.swift */,
+				DE8FD46B2A7D660B00B6831A /* EmailPasswordTests.swift */,
+				DE8FD46A2A7D660A00B6831A /* FacebookTests.swift */,
+				DE8FD46C2A7D660B00B6831A /* GoogleTests.swift */,
+				DE8FD46D2A7D660B00B6831A /* TestsBase.swift */,
 			);
-			path = AuthenticationExampleTests;
+			path = SwiftApiTests;
 			sourceTree = "<group>";
 		};
 		EAE4CBE524855E3E00245E92 /* AuthenticationExampleUITests */ = {
@@ -257,6 +325,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		DE8FD4792A7D96B900B6831A /* ObjCApiTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DE8FD4802A7D96BB00B6831A /* Build configuration list for PBXNativeTarget "ObjCApiTests" */;
+			buildPhases = (
+				DE8FD4762A7D96B900B6831A /* Sources */,
+				DE8FD4772A7D96B900B6831A /* Frameworks */,
+				DE8FD4782A7D96B900B6831A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				DE8FD47F2A7D96B900B6831A /* PBXTargetDependency */,
+			);
+			name = ObjCApiTests;
+			productName = ObjCApiTests;
+			productReference = DE8FD47A2A7D96B900B6831A /* ObjCApiTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		EAE4CBC024855E3A00245E92 /* AuthenticationExample */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = EAE4CBEB24855E3E00245E92 /* Build configuration list for PBXNativeTarget "AuthenticationExample" */;
@@ -274,9 +360,9 @@
 			productReference = EAE4CBC124855E3A00245E92 /* AuthenticationExample.app */;
 			productType = "com.apple.product-type.application";
 		};
-		EAE4CBD624855E3E00245E92 /* AuthenticationExampleTests */ = {
+		EAE4CBD624855E3E00245E92 /* SwiftApiTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EAE4CBEE24855E3E00245E92 /* Build configuration list for PBXNativeTarget "AuthenticationExampleTests" */;
+			buildConfigurationList = EAE4CBEE24855E3E00245E92 /* Build configuration list for PBXNativeTarget "SwiftApiTests" */;
 			buildPhases = (
 				EAE4CBD324855E3E00245E92 /* Sources */,
 				EAE4CBD424855E3E00245E92 /* Frameworks */,
@@ -287,9 +373,9 @@
 			dependencies = (
 				EAE4CBD924855E3E00245E92 /* PBXTargetDependency */,
 			);
-			name = AuthenticationExampleTests;
+			name = SwiftApiTests;
 			productName = "Swifty AuthTests";
-			productReference = EAE4CBD724855E3E00245E92 /* AuthenticationExampleTests.xctest */;
+			productReference = EAE4CBD724855E3E00245E92 /* SwiftApiTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		EAE4CBE124855E3E00245E92 /* AuthenticationExampleUITests */ = {
@@ -320,11 +406,16 @@
 				LastUpgradeCheck = 1130;
 				ORGANIZATIONNAME = Firebase;
 				TargetAttributes = {
+					DE8FD4792A7D96B900B6831A = {
+						CreatedOnToolsVersion = 14.2;
+						TestTargetID = EAE4CBC024855E3A00245E92;
+					};
 					EAE4CBC024855E3A00245E92 = {
 						CreatedOnToolsVersion = 11.3;
 					};
 					EAE4CBD624855E3E00245E92 = {
 						CreatedOnToolsVersion = 11.3;
+						LastSwiftMigration = 1420;
 						TestTargetID = EAE4CBC024855E3A00245E92;
 					};
 					EAE4CBE124855E3E00245E92 = {
@@ -347,13 +438,21 @@
 			projectRoot = "";
 			targets = (
 				EAE4CBC024855E3A00245E92 /* AuthenticationExample */,
-				EAE4CBD624855E3E00245E92 /* AuthenticationExampleTests */,
+				EAE4CBD624855E3E00245E92 /* SwiftApiTests */,
 				EAE4CBE124855E3E00245E92 /* AuthenticationExampleUITests */,
+				DE8FD4792A7D96B900B6831A /* ObjCApiTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		DE8FD4782A7D96B900B6831A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAE4CBBF24855E3A00245E92 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -382,6 +481,20 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		DE8FD4762A7D96B900B6831A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DE8FD48B2A7D994000B6831A /* AnonymousAuthTests.m in Sources */,
+				DE8FD4862A7D990900B6831A /* CustomAuthTests.m in Sources */,
+				DE8FD4882A7D990900B6831A /* FacebookAuthTests.m in Sources */,
+				DE8FD48F2A7D997A00B6831A /* FIRAuthApiTestsBase.m in Sources */,
+				DE8FD4872A7D990900B6831A /* EmailPasswordAuthTests.m in Sources */,
+				DE8FD4902A7D997A00B6831A /* GoogleAuthTests.m in Sources */,
+				DE8FD48C2A7D994000B6831A /* AccountInfoTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		EAE4CBBD24855E3A00245E92 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -415,7 +528,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EAE4CBDC24855E3E00245E92 /* AuthenticationExampleTests.swift in Sources */,
+				DE8FD4752A7D660B00B6831A /* AnonymousTests.swift in Sources */,
+				DE8FD4732A7D660B00B6831A /* GoogleTests.swift in Sources */,
+				DE8FD46F2A7D660B00B6831A /* Credentials.swift in Sources */,
+				DE8FD4722A7D660B00B6831A /* EmailPasswordTests.swift in Sources */,
+				DE8FD4702A7D660B00B6831A /* AccountInfoTests.swift in Sources */,
+				DE8FD4942A7D9E2700B6831A /* PhoneMultiFactorTests.swift in Sources */,
+				DE8FD4742A7D660B00B6831A /* TestsBase.swift in Sources */,
+				DE8FD4712A7D660B00B6831A /* FacebookTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,6 +550,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		DE8FD47F2A7D96B900B6831A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = EAE4CBC024855E3A00245E92 /* AuthenticationExample */;
+			targetProxy = DE8FD47E2A7D96B900B6831A /* PBXContainerItemProxy */;
+		};
 		EAE4CBD924855E3E00245E92 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = EAE4CBC024855E3A00245E92 /* AuthenticationExample */;
@@ -443,6 +568,46 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		DE8FD4812A7D96BB00B6831A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W24VCQN5P5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ObjCApiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthenticationExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AuthenticationExample";
+			};
+			name = Debug;
+		};
+		DE8FD4822A7D96BB00B6831A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = W24VCQN5P5;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ObjCApiTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthenticationExample.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/AuthenticationExample";
+			};
+			name = Release;
+		};
 		EAE4CBE924855E3E00245E92 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -608,10 +773,11 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = AuthenticationExampleTests/Info.plist;
+				INFOPLIST_FILE = SwiftApiTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -620,6 +786,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.AuthenticationExampleTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/AuthenticationExample.app/AuthenticationExample";
@@ -631,10 +798,11 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = AuthenticationExampleTests/Info.plist;
+				INFOPLIST_FILE = SwiftApiTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -694,6 +862,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		DE8FD4802A7D96BB00B6831A /* Build configuration list for PBXNativeTarget "ObjCApiTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DE8FD4812A7D96BB00B6831A /* Debug */,
+				DE8FD4822A7D96BB00B6831A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		EAE4CBBC24855E3A00245E92 /* Build configuration list for PBXProject "AuthenticationExample" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -712,7 +889,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EAE4CBEE24855E3E00245E92 /* Build configuration list for PBXNativeTarget "AuthenticationExampleTests" */ = {
+		EAE4CBEE24855E3E00245E92 /* Build configuration list for PBXNativeTarget "SwiftApiTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EAE4CBEF24855E3E00245E92 /* Debug */,

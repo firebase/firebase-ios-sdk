@@ -120,7 +120,8 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     }
   }
 
-  /// Wrapper method that uses Firebase's `unlink(fromProvider:)` API to unlink a user from an auth provider.
+  /// Wrapper method that uses Firebase's `unlink(fromProvider:)` API to unlink a user from an auth
+  /// provider.
   /// This method will update the UI upon the unlinking's completion.
   /// - Parameter providerID: The string id of the auth provider.
   private func unlinkFromProvider(_ providerID: String) {
@@ -166,7 +167,8 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
       let credential = GoogleAuthProvider.credential(withIDToken: idToken,
                                                      accessToken: user.accessToken.tokenString)
 
-      // Rather than use the credential to sign in the user, we will use it to link to the currently signed in user's account.
+      // Rather than use the credential to sign in the user, we will use it to link to the currently
+      // signed in user's account.
       linkAccount(authCredential: credential)
     }
   }
@@ -321,7 +323,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
   private func passwordlessSignIn() {
     // Retrieve link that we stored in user defaults in `SceneDelegate`.
     guard let email = email,
-      let link = UserDefaults.standard.value(forKey: "Link") as? String else { return }
+          let link = UserDefaults.standard.value(forKey: "Link") as? String else { return }
     let credential = EmailAuthProvider.credential(withEmail: email, link: link)
     linkAccount(authCredential: credential)
     self.email = nil

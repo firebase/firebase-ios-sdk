@@ -14,7 +14,8 @@
 
 import UIKit
 
-/// Abstracts away view/view controller based tableview configuration by acting as a tableview's datasource and delegate
+/// Abstracts away view/view controller based tableview configuration by acting as a tableview's
+/// datasource and delegate
 class DataSourceProvider<DataSource: DataSourceProvidable>: NSObject, UITableViewDataSource,
   UITableViewDelegate {
   weak var delegate: DataSourceProviderDelegate?
