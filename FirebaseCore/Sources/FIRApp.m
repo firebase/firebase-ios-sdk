@@ -576,7 +576,8 @@ static FIRApp *sDefaultApp;
  * Validates the format and fingerprint of the app ID contained in GOOGLE_APP_ID in the plist file.
  * This is the main method for validating app ID.
  *
- * @return YES if the app ID fulfills the expected format and fingerprint, NO otherwise.
+ * @return YES if the app ID fulfills the expected format and contains a hashed bundle ID, NO
+ * otherwise.
  */
 - (BOOL)isAppIDValid {
   NSString *appID = _options.googleAppID;
