@@ -1,3 +1,6 @@
+# Unreleased
+- [feature] Add support for sum and average aggregate queries.
+
 # 10.12.0
 - [feature] Implemented an optimization in the local cache synchronization logic
   that reduces the number of billed document reads when documents were deleted
