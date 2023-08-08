@@ -20,14 +20,11 @@
 
 #import "FBLPromise+Testing.h"
 
-#import <FirebaseAppCheck/FirebaseAppCheck.h>
+@import FirebaseAppCheckInterop;
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
-
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"

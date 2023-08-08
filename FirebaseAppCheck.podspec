@@ -36,7 +36,6 @@ Pod::Spec.new do |s|
 
   s.source_files = [
     base_dir + 'Sources/**/*.[mh]',
-    base_dir + 'Interop/*.h',
     'FirebaseCore/Extension/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseAppCheck/*.h'
