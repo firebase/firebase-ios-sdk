@@ -205,7 +205,7 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
 - (void)exportDeliveryMetricsToBigQueryWithMessageInfo:(NSDictionary *)info {
   GDTCORTransport *transport = [[GDTCORTransport alloc] initWithMappingID:@"1249"
                                                              transformers:nil
-                                                                   target:kGDTCORTargetFLL];
+                                                                   target:kGDTCORTargetCCT];
 
   fm_MessagingClientEventExtension eventExtension = fm_MessagingClientEventExtension_init_default;
 
