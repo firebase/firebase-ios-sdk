@@ -1217,6 +1217,7 @@ let package = Package(
 
     .target(name: "FirebaseAppCheck",
             dependencies: [
+              "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
