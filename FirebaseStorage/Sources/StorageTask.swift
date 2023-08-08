@@ -26,7 +26,7 @@ import Foundation
  * for metadata and errors.
  * Callbacks are always fired on the developer-specified callback queue.
  * If no queue is specified, it defaults to the main queue.
- * This class is not thread safe, so only call methods on the main thread.
+ * This class is thread-safe.
  */
 @objc(FIRStorageTask) open class StorageTask: NSObject {
   /**
