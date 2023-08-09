@@ -20,15 +20,17 @@ import Foundation
   import AppKit
 #elseif os(watchOS)
   import WatchKit
+#endif // os(iOS) || os(tvOS)
+
 // swift(>=5.9) implies Xcode 15+
 // Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
 // TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
 // when Xcode 15 is the minimum supported by Firebase.
-#elseif swift(>=5.9)
+#if swift(>=5.9)
   #if os(visionOS)
     import UIKit
   #endif // os(visionOS)
-#endif // os(iOS) || os(tvOS)
+#endif // swift(>=5.9)
 
 ///
 /// The SessionInitiator is responsible for:
@@ -95,11 +97,13 @@ class SessionInitiator {
           object: nil
         )
       }
+    #endif // os(iOS) || os(tvOS)
+
     // swift(>=5.9) implies Xcode 15+
     // Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
     // TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
     // when Xcode 15 is the minimum supported by Firebase.
-    #elseif swift(>=5.9)
+    #if swift(>=5.9)
       #if os(visionOS)
         notificationCenter.addObserver(
           self,
@@ -114,7 +118,7 @@ class SessionInitiator {
           object: nil
         )
       #endif // os(visionOS)
-    #endif // os(iOS) || os(tvOS)
+    #endif // swift(>=5.9)
   }
 
   @objc private func appBackgrounded() {
