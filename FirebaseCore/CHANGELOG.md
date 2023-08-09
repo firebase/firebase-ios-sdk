@@ -1,3 +1,6 @@
+# Firebase 10.14.0
+- For developers building for visionOS, Xcode 15 beta 6 or later is required.
+
 # Firebase 10.13.0
 - For developers building for visionOS, Xcode 15 beta 5 or later is required.
 
