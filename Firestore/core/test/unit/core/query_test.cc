@@ -950,8 +950,8 @@ TEST(QueryTest, GeneratedOrderBysNotAffectedByPreviouslyMemoizedTargets) {
   auto target1 = query1.ToTarget();
 
   // query2 - first to aggregate target, then to non-aggregate target
-  auto aggregateTarget2 = query2.ToAggregateTarget();
   auto target2 = query2.ToTarget();
+  auto aggregateTarget2 = query2.ToAggregateTarget();
 
   EXPECT_EQ(aggregateTarget1.order_bys().size(), 0);
 

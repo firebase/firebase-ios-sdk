@@ -25,15 +25,13 @@ final class AppCheckAPITests {
   func usage() {
     // MARK: - AppAttestProvider
 
-    #if TARGET_OS_IOS
-      if #available(iOS 14.0, *) {
-        if let app = FirebaseApp.app(), let provider = AppAttestProvider(app: app) {
-          provider.getToken { token, error in
-            // ...
-          }
+    if #available(iOS 14.0, macOS 11.3, macCatalyst 14.5, tvOS 15.0, watchOS 9.0, *) {
+      if let app = FirebaseApp.app(), let provider = AppAttestProvider(app: app) {
+        provider.getToken { token, error in
+          // ...
         }
       }
-    #endif // TARGET_OS_IOS
+    }
 
     // MARK: - AppCheck
 
