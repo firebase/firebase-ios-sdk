@@ -12,40 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#if canImport(Combine) && swift(>=5.0)
+#if os(iOS) || targetEnvironment(macCatalyst)
 
-  #if os(iOS) || targetEnvironment(macCatalyst)
+  import Combine
+  import FirebaseAuth
 
-    import Combine
-    import FirebaseAuth
-
-    @available(swift 5.0)
-    @available(iOS 13.0, macCatalyst 13.0, *)
-    @available(macOS, unavailable)
-    @available(tvOS, unavailable)
-    @available(watchOS, unavailable)
-    public extension OAuthProvider {
-      /// Used to obtain an auth credential via a mobile web flow.
-      ///
-      /// The publisher will emit events on the **main** thread.
-      ///
-      /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
-      /// - Returns: A publisher that emits an `AuthCredential` when the credential is obtained
-      ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
-      func getCredentialWith(_ uiDelegate: AuthUIDelegate?)
-        -> Future<AuthCredential, Error> {
-        Future<AuthCredential, Error> { promise in
-          self.getCredentialWith(uiDelegate) { authCredential, error in
-            if let error = error {
-              promise(.failure(error))
-            } else if let authCredential = authCredential {
-              promise(.success(authCredential))
-            }
+  @available(iOS 13.0, macCatalyst 13.0, *)
+  @available(macOS, unavailable)
+  @available(tvOS, unavailable)
+  @available(watchOS, unavailable)
+  public extension OAuthProvider {
+    /// Used to obtain an auth credential via a mobile web flow.
+    ///
+    /// The publisher will emit events on the **main** thread.
+    ///
+    /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
+    /// - Returns: A publisher that emits an `AuthCredential` when the credential is obtained
+    ///   successfully, or an error otherwise. The publisher will emit on the *main* thread.
+    func getCredentialWith(_ uiDelegate: AuthUIDelegate?)
+      -> Future<AuthCredential, Error> {
+      Future<AuthCredential, Error> { promise in
+        self.getCredentialWith(uiDelegate) { authCredential, error in
+          if let error = error {
+            promise(.failure(error))
+          } else if let authCredential = authCredential {
+            promise(.success(authCredential))
           }
         }
       }
     }
+  }
 
-  #endif // os(iOS) || targetEnvironment(macCatalyst)
-
-#endif // canImport(Combine) && swift(>=5.0)
+#endif // os(iOS) || targetEnvironment(macCatalyst)
