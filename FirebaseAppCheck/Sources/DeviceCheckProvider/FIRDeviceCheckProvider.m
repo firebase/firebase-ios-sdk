@@ -30,6 +30,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
+#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
@@ -133,10 +134,26 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - DeviceCheck
 
 - (FBLPromise<NSData *> *)deviceToken {
-  return [FBLPromise
-      wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-        [self.deviceTokenGenerator generateTokenWithCompletionHandler:handler];
-      }];
+  return [self isDeviceCheckSupported].then(^FBLPromise<NSData *> *(NSNull *ignored) {
+    return [FBLPromise
+        wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+          [self.deviceTokenGenerator generateTokenWithCompletionHandler:handler];
+        }];
+  });
+}
+
+#pragma mark - Helpers
+
+/// Returns a resolved promise if DeviceCheck is supported and a rejected promise if it is not.
+- (FBLPromise<NSNull *> *)isDeviceCheckSupported {
+  if (self.deviceTokenGenerator.isSupported) {
+    return [FBLPromise resolvedWith:[NSNull null]];
+  } else {
+    NSError *error = [FIRAppCheckErrorUtil unsupportedAttestationProvider:@"DeviceCheckProvider"];
+    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
+    [rejectedPromise reject:error];
+    return rejectedPromise;
+  }
 }
 
 @end
