@@ -37,8 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<AggregateQuery> _aggregateQuery;
 }
 
-- (instancetype)initWithQueryAndAggregateFields:(FIRQuery *)query
-                                aggregateFields:(NSArray<FIRAggregateField *> *)aggregateFields {
+- (instancetype)initWithQuery:(FIRQuery *)query
+              aggregateFields:(NSArray<FIRAggregateField *> *)aggregateFields {
   if (self = [super init]) {
     _query = query;
 
