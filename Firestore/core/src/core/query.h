@@ -118,6 +118,9 @@ class Query {
    */
   const model::FieldPath* InequalityFilterField() const;
 
+  /**
+   * Returns the sorted set of inequality filter fields used in this query.
+   */
   const std::set<model::FieldPath> InequalityFilterFields() const;
 
   /**

@@ -24,6 +24,7 @@
 
 #include "Firestore/core/test/unit/testutil/testing_hooks_util.h"
 
+// TODO(MIEQ) update these imports with public imports when aggregate types are public
 #import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 

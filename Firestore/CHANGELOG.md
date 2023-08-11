@@ -12,6 +12,7 @@
   ```
   To go back to using the binary distribution of Firestore, quit Xcode and
   open Xcode like normal, without the environment variable. (#11492)
+- [feature] Added support for having multiple inequality fields in compound queries. (#11626)
 
 # 10.11.0
 - [feature] Expose MultiDb API for public preview. (#10465)
