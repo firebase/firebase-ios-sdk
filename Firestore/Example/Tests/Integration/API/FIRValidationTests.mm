@@ -300,10 +300,11 @@ using firebase::firestore::testutil::OptionsForUnitTesting;
   id data = @{@"foo" : ref};
   [self expectWrite:data
       toFailWithReason:
-          [NSString
-              stringWithFormat:@"Document Reference is for database different-db/(default) but "
-                                "should be for database %@/(default) (found in field foo)",
-                               [FSTIntegrationTestCase projectID]]];
+          [NSString stringWithFormat:@"Document Reference is for database different-db/%@ but "
+                                      "should be for database %@/%@ (found in field foo)",
+                                     [FSTIntegrationTestCase databaseID],
+                                     [FSTIntegrationTestCase projectID],
+                                     [FSTIntegrationTestCase databaseID]]];
 }
 
 - (void)testWritesWithReservedFieldsFail {

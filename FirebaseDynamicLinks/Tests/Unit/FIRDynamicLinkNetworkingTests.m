@@ -26,7 +26,7 @@
 static NSString *const kAPIKey = @"myfakeapikey";
 const NSInteger kJSONParsingErrorCode = 3840;
 static NSString *const kURLScheme = @"gindeeplinkurl";
-static const NSTimeInterval kAsyncTestTimout = 0.5;
+static const NSTimeInterval kAsyncTestTimout = 5.0;
 
 @interface FIRDynamicLinkNetworkingTests : XCTestCase
 

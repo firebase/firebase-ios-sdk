@@ -142,12 +142,12 @@ class Query {
   }
 
   /**
-   * Returns the full list of ordering constraints on the query.
+   * Returns the normalized list of ordering constraints on the query.
    *
    * This might include additional sort orders added implicitly to match the
    * backend behavior.
    */
-  const std::vector<OrderBy>& order_bys() const;
+  const std::vector<OrderBy>& normalized_order_bys() const;
 
   bool has_limit() const {
     return limit_ != Target::kNoLimit;
@@ -247,6 +247,14 @@ class Query {
    */
   const Target& ToTarget() const&;
 
+  /**
+   * Returns a `Target` instance this query will be mapped to in backend
+   * and local store, for use within an aggregate query. Unlike targets
+   * for non-aggregate queries, aggregate query targets do not contain
+   * normalized order-bys, they only contain explicit order-bys.
+   */
+  const Target& ToAggregateTarget() const&;
+
   friend std::ostream& operator<<(std::ostream& os, const Query& query);
 
   friend bool operator==(const Query& lhs, const Query& rhs);
@@ -273,7 +281,7 @@ class Query {
   std::vector<OrderBy> explicit_order_bys_;
 
   // The memoized list of sort orders.
-  mutable std::vector<OrderBy> memoized_order_bys_;
+  mutable std::vector<OrderBy> memoized_normalized_order_bys_;
 
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
@@ -283,6 +291,14 @@ class Query {
 
   // The corresponding Target of this Query instance.
   mutable std::shared_ptr<const Target> memoized_target;
+
+  // The corresponding aggregate Target of this Query instance. Unlike targets
+  // for non-aggregate queries, aggregate query targets do not contain
+  // normalized order-bys, they only contain explicit order-bys.
+  mutable std::shared_ptr<const Target> memoized_aggregate_target;
+
+  const std::shared_ptr<const Target> ToTarget(
+      const std::vector<OrderBy>& order_bys) const&;
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

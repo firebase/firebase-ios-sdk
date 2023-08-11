@@ -22,7 +22,8 @@ namespace firebase {
 namespace firestore {
 namespace testutil {
 
-std::string CreateBundle(const std::string& project_id);
+std::string CreateBundle(const std::string& project_id,
+                         const std::string& database_id);
 
 }  // namespace testutil
 }  // namespace firestore

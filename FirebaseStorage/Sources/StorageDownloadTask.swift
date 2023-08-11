@@ -28,7 +28,6 @@ import Foundation
  * Downloads can currently be returned as `Data` in memory, or as a `URL` to a file on disk.
  * Downloads are performed on a background queue, and callbacks are raised on the developer
  * specified `callbackQueue` in Storage, or the main queue if left unspecified.
- * Currently all downloads must be initiated and managed on the main queue.
  */
 @objc(FIRStorageDownloadTask)
 open class StorageDownloadTask: StorageObservableTask, StorageTaskManagement {
