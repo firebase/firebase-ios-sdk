@@ -84,7 +84,6 @@ def get_workflows(client, repo_name)
     end
     workflows.push(*cur_page_workflows)
   end
-  puts "workflow_file: %s" % [workflows]
   return workflows
 end
 
