@@ -124,8 +124,8 @@ void QueryEngine::CreateCacheIndexes(const core::Query& query,
   }
 }
 
-void QueryEngine::SetIndexAutoCreationEnabled(bool enabled) {
-  index_auto_creation_enabled_ = enabled;
+void QueryEngine::SetIndexAutoCreationEnabled(bool is_enabled) {
+  index_auto_creation_enabled_ = is_enabled;
 }
 
 absl::optional<DocumentMap> QueryEngine::PerformQueryUsingIndex(

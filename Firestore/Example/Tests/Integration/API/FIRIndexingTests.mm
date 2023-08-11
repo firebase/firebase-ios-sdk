@@ -15,9 +15,12 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRPersistentCacheSettings+Internal.h"
 
 #import <XCTest/XCTest.h>
 
+#import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
 
 @interface FIRIndexingTests : FSTIntegrationTestCase
@@ -29,15 +32,15 @@
 - (void)setUp {
   [super setUp];
   self.db = [self firestore];
-  XCTestExpectation* exp = [self expectationWithDescription:@"clear persistence"];
-  [self.db clearPersistenceWithCompletion:^(NSError*) {
+  XCTestExpectation *exp = [self expectationWithDescription:@"clear persistence"];
+  [self.db clearPersistenceWithCompletion:^(NSError *) {
     [exp fulfill];
   }];
   [self awaitExpectation:exp];
 }
 
 - (void)testCanConfigureIndexes {
-  NSString* json = @"{\n"
+  NSString *json = @"{\n"
                     "\t\"indexes\": [{\n"
                     "\t\t\t\"collectionGroup\": \"restaurants\",\n"
                     "\t\t\t\"queryScope\": \"COLLECTION\",\n"
@@ -64,14 +67,14 @@
                     "}";
 
   [self.db setIndexConfigurationFromJSON:json
-                              completion:^(NSError* error) {
+                              completion:^(NSError *error) {
                                 XCTAssertNil(error);
                               }];
 }
 
 - (void)testBadJsonDoesNotCrashClient {
   [self.db setIndexConfigurationFromJSON:@"{,"
-                              completion:^(NSError* error) {
+                              completion:^(NSError *error) {
                                 XCTAssertNotNil(error);
                                 XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                                 XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
@@ -79,7 +82,7 @@
 }
 
 - (void)testBadIndexDoesNotCrashClient {
-  NSString* json = @"{\n"
+  NSString *json = @"{\n"
                     "\t\"indexes\": [{\n"
                     "\t\t\"collectionGroup\": \"restaurants\",\n"
                     "\t\t\"queryScope\": \"COLLECTION\",\n"
@@ -92,11 +95,111 @@
                     "}";
 
   [self.db setIndexConfigurationFromJSON:json
-                              completion:^(NSError* error) {
+                              completion:^(NSError *error) {
                                 XCTAssertNotNil(error);
                                 XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
                                 XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
                               }];
+}
+
+/**
+ * After Auto Index Creation is enabled, through public API there is no way to state of indexes
+ * sitting inside SDK. So this test only checks the API of auto index creation.
+ */
+- (void)testAutoIndexCreationSetSuccessfully {
+  // Use persistent disk cache (default)
+  FIRPersistentCacheSettings *cacheSettings = [FIRPersistentCacheSettings alloc];
+  self.db.settings.cacheSettings = cacheSettings;
+
+  FIRCollectionReference *coll = [self collectionRef];
+  NSDictionary *testDocs = @{
+    @"a" : @{@"match" : @YES},
+    @"b" : @{@"match" : @NO},
+    @"c" : @{@"match" : @NO},
+  };
+  [self writeAllDocuments:testDocs toCollection:coll];
+
+  FIRQuery *query = [coll queryWhereField:@"match" isEqualTo:@YES];
+
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+
+  XCTAssertNoThrow([self.db.persistentCacheIndexManager enableIndexAutoCreation]);
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+
+  XCTAssertNoThrow([self.db.persistentCacheIndexManager disableIndexAutoCreation]);
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+
+  XCTAssertNoThrow([self.db.persistentCacheIndexManager deleteAllIndexes]);
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+}
+
+- (void)testAutoIndexCreationSetSuccessfullyUsingDefault {
+  // Use persistent disk cache (default)
+  FIRCollectionReference *coll = [self collectionRef];
+  NSDictionary *testDocs = @{
+    @"a" : @{@"match" : @YES},
+    @"b" : @{@"match" : @NO},
+    @"c" : @{@"match" : @NO},
+  };
+  [self writeAllDocuments:testDocs toCollection:coll];
+
+  FIRQuery *query = [coll queryWhereField:@"match" isEqualTo:@YES];
+
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+
+  XCTAssertNoThrow([self.db.persistentCacheIndexManager enableIndexAutoCreation]);
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+
+  XCTAssertNoThrow([self.db.persistentCacheIndexManager disableIndexAutoCreation]);
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+
+  XCTAssertNoThrow([self.db.persistentCacheIndexManager deleteAllIndexes]);
+  [query getDocumentsWithSource:FIRFirestoreSourceCache
+                     completion:^(FIRQuerySnapshot *results, NSError *error) {
+                       XCTAssertNil(error);
+                       XCTAssertEqual(results.count, 1);
+                     }];
+}
+
+- (void)testAutoIndexCreationAfterFailsTermination {
+  [self terminateFirestore:self.db];
+
+  FSTAssertThrows([self.db.persistentCacheIndexManager enableIndexAutoCreation],
+                  @"The client has already been terminated.");
+
+  FSTAssertThrows([self.db.persistentCacheIndexManager disableIndexAutoCreation],
+                  @"The client has already been terminated.");
+
+  FSTAssertThrows([self.db.persistentCacheIndexManager deleteAllIndexes],
+                  @"The client has already been terminated.");
 }
 
 @end

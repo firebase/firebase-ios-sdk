@@ -187,7 +187,7 @@ class FirestoreClient : public std::enable_shared_from_this<FirestoreClient> {
 
   void ConfigureFieldIndexes(std::vector<model::FieldIndex> parsed_indexes);
 
-  void SetIndexAutoCreationEnabled(bool isEnabled) const;
+  void SetIndexAutoCreationEnabled(bool is_enabled) const;
 
   void DeleteAllFieldIndexes();
 

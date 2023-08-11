@@ -144,6 +144,10 @@ model::FieldIndex TargetIndexMatcher::BuildTargetIndex() {
     }
   }
 
+  // Note: We do not explicitly check `inequality_filter_` but rather rely on
+  // the target defining an appropriate `order_bys_` to ensure that the required
+  // index segment is added. The query engine would reject a query with an
+  // inequality filter that lacks the required order-by clause.
   for (const auto& order_by : order_bys_) {
     // Stop adding more segments if we see a order-by on key. Typically this is
     // the default implicit order-by which is covered in the index_entry table

@@ -597,10 +597,10 @@ void FirestoreClient::ConfigureFieldIndexes(
   });
 }
 
-void FirestoreClient::SetIndexAutoCreationEnabled(bool isEnabled) const {
+void FirestoreClient::SetIndexAutoCreationEnabled(bool is_enabled) const {
   VerifyNotTerminated();
-  worker_queue_->Enqueue([this, isEnabled] {
-    local_store_->SetIndexAutoCreationEnabled(isEnabled);
+  worker_queue_->Enqueue([this, is_enabled] {
+    local_store_->SetIndexAutoCreationEnabled(is_enabled);
   });
 }
 

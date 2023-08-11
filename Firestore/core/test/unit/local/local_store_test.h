@@ -78,6 +78,7 @@ class LocalStoreTestBase : public testing::Test {
   void ApplyRemoteEvent(const remote::RemoteEvent& event);
   void NotifyLocalViewChanges(LocalViewChanges changes);
   void BackfillIndexes();
+  void SetBackfillerMaxDocumentsToProcess(size_t new_max);
   void AcknowledgeMutationWithVersion(
       int64_t document_version,
       absl::optional<nanopb::Message<google_firestore_v1_Value>>
@@ -89,6 +90,9 @@ class LocalStoreTestBase : public testing::Test {
   model::TargetId AllocateQuery(core::Query query);
   local::TargetData GetTargetData(const core::Query& query);
   local::QueryResult ExecuteQuery(const core::Query& query);
+  void SetIndexAutoCreationEnabled(bool is_enabled);
+  void SetMinCollectionSizeToAutoCreateIndex(size_t new_min);
+  void SetRelativeIndexReadCostPerDocument(double new_cost);
   void ApplyBundledDocuments(
       const std::vector<model::MutableDocument>& documents);
 

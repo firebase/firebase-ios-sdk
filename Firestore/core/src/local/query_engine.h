@@ -79,10 +79,11 @@ class QueryEngine {
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) const;
 
-  void SetIndexAutoCreationEnabled(bool enabled);
+  void SetIndexAutoCreationEnabled(bool is_enabled);
 
  private:
   friend class IndexManagerTest;
+  friend class LocalStoreTestBase;
 
   /**
    * Performs an indexed query that evaluates the query based on a collection's
