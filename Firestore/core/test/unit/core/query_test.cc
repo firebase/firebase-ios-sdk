@@ -842,7 +842,7 @@ TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
                 .AddingFilter(testutil::Filter("aa", ">", 5))
                 .AddingFilter(testutil::Filter("b", "<=", 5))
                 .AddingFilter(testutil::Filter("A", ">=", 5))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("A", "asc"),
                 testutil::OrderBy("a", "asc"),
@@ -856,7 +856,7 @@ TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
                 .AddingFilter(testutil::Filter("1", ">", 5))
                 .AddingFilter(testutil::Filter("19", "<=", 5))
                 .AddingFilter(testutil::Filter("2", ">=", 5))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("1", "asc"),
                 testutil::OrderBy("19", "asc"),
@@ -869,7 +869,7 @@ TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
   ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
                 .AddingFilter(testutil::Filter("aa", ">", 5))
                 .AddingFilter(testutil::Filter("a.a", "<=", 5))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("a", "asc"),
                 testutil::OrderBy("a.a", "asc"),
@@ -881,7 +881,7 @@ TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
   ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
                 .AddingFilter(testutil::Filter("_a", ">", 5))
                 .AddingFilter(testutil::Filter("a.a", "<=", 5))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("_a", "asc"),
                 testutil::OrderBy("a", "asc"),
@@ -893,7 +893,7 @@ TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
   ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
                 .AddingFilter(testutil::Filter("a.z", ">", 5))
                 .AddingFilter(testutil::Filter(("`a.a`"), "<=", 5))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("a", "asc"),
                 testutil::OrderBy("a.z", "asc"),
@@ -908,7 +908,7 @@ TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
                                            testutil::Filter("c", "<=", 0)}),
                                 OrFilters({testutil::Filter("d", ">", 3),
                                            testutil::Filter("e", "==", 2)})}))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("a", "asc"),
                 testutil::OrderBy("b", "asc"),
