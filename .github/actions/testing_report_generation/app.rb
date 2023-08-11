@@ -29,7 +29,7 @@ ISSUE_LABELS = ""
 ISSUE_TITLE = "Auto-Generated Testing Report"
 
 if not ENV['INPUT_EXCLUDE-WORKFLOW-FILES'].nil?
-  EXCLUDED_WORKFLOWS = ENV['INPUT_EXCLUDE-WORKFLOW-FILES'].split(/[,]/)
+  EXCLUDED_WORKFLOWS = ENV['INPUT_EXCLUDE-WORKFLOW-FILES'].split(/[ ,]/)
 end
 if not ENV['INPUT_ISSUE-LABELS'].nil?
   ISSUE_LABELS = ENV['INPUT_ISSUE-LABELS']
@@ -101,14 +101,15 @@ for wf in get_workflows(client, REPO_NAME_WITH_OWNER) do
   workflow_file = File.basename(wf.path)
   puts "------------"
   puts "workflow_file: %s" % [workflow_file]
+  if EXCLUDED_WORKFLOWS.include?(workflow_file)
+    puts workflow_file + " is excluded in the report."
+    
   workflow_text = "[%s](%s)" % [wf.name, wf.html_url]
   runs = client.workflow_runs(REPO_NAME_WITH_OWNER, File.basename(wf.path), :event => "schedule").workflow_runs
   runs = runs.sort_by { |run| -run.created_at.to_i }
   latest_run = runs[0]
   if latest_run.nil?
     puts "no schedule runs found."
-  elsif EXCLUDED_WORKFLOWS.include?(workflow_file)
-    puts workflow_file + " is excluded in the report."
   # Involved workflow runs triggered within one day.
   elsif Time.now.utc - latest_run.created_at < TESTS_TIME_INTERVAL_IN_SECS
     puts "created_at: %s" % [latest_run.created_at]
