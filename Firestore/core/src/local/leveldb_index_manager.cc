@@ -464,6 +464,29 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   return result;
 }
 
+void LevelDbIndexManager::DeleteAllFieldIndexes() {
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  db_->current_transaction()->DeleteEverythingWithPrefix(
+      "Delete All Index Configuration",
+      LevelDbIndexConfigurationKey::KeyPrefix());
+
+  // Delete states from all users for this index id.
+  db_->current_transaction()->DeleteEverythingWithPrefix(
+      "Delete All Index States", LevelDbIndexStateKey::KeyPrefix(),
+      [](absl::string_view key) {
+        LevelDbIndexStateKey state_key;
+        return state_key.Decode(key);
+      });
+
+  // Delete entries from all users for this index id.
+  db_->current_transaction()->DeleteEverythingWithPrefix(
+      "Delete All Index Entries", LevelDbIndexEntryKey::KeyPrefix());
+
+  memoized_indexes_.clear();
+  next_index_to_update_ = QueueForNextIndexToUpdate();
+}
+
 void LevelDbIndexManager::CreateTargetIndexes(const core::Target& target) {
   HARD_ASSERT(started_, "IndexManager not started");
 

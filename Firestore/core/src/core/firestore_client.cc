@@ -606,6 +606,7 @@ void FirestoreClient::SetIndexAutoCreationEnabled(bool is_enabled) const {
 
 void FirestoreClient::DeleteAllFieldIndexes() {
   VerifyNotTerminated();
+  worker_queue_->Enqueue([this] { local_store_->DeleteAllFieldIndexes(); });
 }
 
 void FirestoreClient::LoadBundle(

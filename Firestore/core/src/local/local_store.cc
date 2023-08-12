@@ -703,6 +703,11 @@ void LocalStore::SetIndexAutoCreationEnabled(bool is_enabled) const {
   query_engine_->SetIndexAutoCreationEnabled(is_enabled);
 }
 
+void LocalStore::DeleteAllFieldIndexes() const {
+  persistence_->Run("Delete All FieldIndexes",
+                    [&] { return index_manager_->DeleteAllFieldIndexes(); });
+}
+
 Target LocalStore::NewUmbrellaTarget(const std::string& bundle_id) {
   // It is OK that the path used for the query is not valid, because this will
   // not be read and queried.

@@ -643,19 +643,24 @@ TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWithIndexAutoCreation) {
   FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 2);
   FSTAssertQueryReturned("coll/a", "coll/e");
 
-  SetIndexAutoCreationEnabled(false);
-
   BackfillIndexes();
 
   ExecuteQuery(query);
   FSTAssertRemoteDocumentsRead(/* byKey= */ 2, /* byCollection= */ 0);
   FSTAssertQueryReturned("coll/a", "coll/e");
 
-  // DeleteAllIndexes();
+  DeleteAllIndexes();
 
-  // ExecuteQuery(query);
-  // FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 2);
-  // FSTAssertQueryReturned("coll/a", "coll/e");
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 2);
+  FSTAssertQueryReturned("coll/a", "coll/e");
+
+  // Field index is created again.
+  BackfillIndexes();
+
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 2, /* byCollection= */ 0);
+  FSTAssertQueryReturned("coll/a", "coll/e");
 }
 
 TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWithManualAddedIndexes) {
@@ -677,11 +682,11 @@ TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWithManualAddedIndexes) {
   FSTAssertRemoteDocumentsRead(/* byKey= */ 1, /* byCollection= */ 0);
   FSTAssertQueryReturned("coll/a");
 
-  // DeleteAllIndexes();
+  DeleteAllIndexes();
 
-  // ExecuteQuery(query);
-  // FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 1);
-  // FSTAssertQueryReturned("coll/a");
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 1);
+  FSTAssertQueryReturned("coll/a");
 }
 
 TEST_F(LevelDbLocalStoreTest, IndexAutoCreationWorksWithMutation) {

@@ -91,6 +91,7 @@ class LocalStoreTestBase : public testing::Test {
   local::TargetData GetTargetData(const core::Query& query);
   local::QueryResult ExecuteQuery(const core::Query& query);
   void SetIndexAutoCreationEnabled(bool is_enabled);
+  void DeleteAllIndexes() const;
   void SetMinCollectionSizeToAutoCreateIndex(size_t new_min);
   void SetRelativeIndexReadCostPerDocument(double new_cost);
   void ApplyBundledDocuments(

@@ -22,6 +22,7 @@
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/log.h"
 #include "absl/memory/memory.h"
+#include "absl/strings/match.h"
 #include "absl/strings/str_cat.h"
 #include "leveldb/write_batch.h"
 
@@ -198,6 +199,29 @@ void LevelDbTransaction::Delete(absl::string_view key) {
   deletions_.insert(to_delete);
   mutations_.erase(to_delete);
   version_++;
+}
+
+void LevelDbTransaction::DeleteEverythingWithPrefix(
+    absl::string_view label,
+    const std::string& prefix,
+    const std::function<bool(absl::string_view key)> decode_function) {
+  auto it = NewIterator();
+  for (it->Seek(prefix); it->Valid() && absl::StartsWith(it->key(), prefix);
+       it->Next()) {
+    if (decode_function && !decode_function(it->key())) {
+      break;
+    }
+
+    Delete(it->key());
+
+    if (changed_keys() >= 1000U) {
+      LOG_DEBUG(
+          "Cannot delete all entries in transaction: %s due to the total count "
+          "of entries is more than or equal to 1000. Please trigger %s again.",
+          label, label);
+      break;
+    }
+  }
 }
 
 void LevelDbTransaction::Commit() {

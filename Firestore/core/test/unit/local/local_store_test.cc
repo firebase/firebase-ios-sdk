@@ -284,6 +284,10 @@ void LocalStoreTestBase::SetIndexAutoCreationEnabled(bool is_enabled) {
   query_engine_.SetIndexAutoCreationEnabled(is_enabled);
 }
 
+void LocalStoreTestBase::DeleteAllIndexes() const {
+  local_store_.DeleteAllFieldIndexes();
+}
+
 void LocalStoreTestBase::SetMinCollectionSizeToAutoCreateIndex(size_t new_min) {
   query_engine_.SetIndexAutoCreationMinCollectionSize(new_min);
 }

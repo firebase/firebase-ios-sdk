@@ -15,10 +15,11 @@
  */
 
 #import <FirebaseFirestore/FirebaseFirestore.h>
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRPersistentCacheSettings+Internal.h"
 
 #import <XCTest/XCTest.h>
+
+#import "Firestore/Source/API/FIRFirestore+Internal.h"
+#import "Firestore/Source/API/FIRPersistentCacheSettings+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
@@ -103,7 +104,7 @@
 }
 
 /**
- * After Auto Index Creation is enabled, through public API there is no way to state of indexes
+ * After Auto Index Creation is enabled, through public API there is no way to see the indexes
  * sitting inside SDK. So this test only checks the API of auto index creation.
  */
 - (void)testAutoIndexCreationSetSuccessfully {
