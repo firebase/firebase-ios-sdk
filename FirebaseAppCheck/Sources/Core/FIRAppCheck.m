@@ -338,7 +338,12 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   return
       [FBLPromise wrapObjectOrErrorCompletion:^(
                       FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-        [self.appCheckProvider getTokenWithCompletion:handler];
+        if ([self.appCheckProvider
+                respondsToSelector:@selector(getLimitedUseTokenWithCompletion:)]) {
+          [self.appCheckProvider getLimitedUseTokenWithCompletion:handler];
+        } else {
+          [self.appCheckProvider getTokenWithCompletion:handler];
+        }
       }].then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
         return token;
       });
