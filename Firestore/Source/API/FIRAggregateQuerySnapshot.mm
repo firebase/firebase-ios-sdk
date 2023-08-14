@@ -78,7 +78,7 @@ NS_ASSUME_NONNULL_BEGIN
   return _query;
 }
 
-- (nullable id)valueForAggregateField:(FIRAggregateField *)aggregateField {
+- (id)valueForAggregateField:(FIRAggregateField *)aggregateField {
   FIRServerTimestampBehavior serverTimestampBehavior = FIRServerTimestampBehaviorNone;
   AggregateAlias alias = [aggregateField createAlias];
   absl::optional<google_firestore_v1_Value> fieldValue = _result.Get(alias.StringValue());
