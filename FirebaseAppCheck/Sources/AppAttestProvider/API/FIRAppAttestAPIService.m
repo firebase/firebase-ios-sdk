@@ -35,6 +35,7 @@ static NSString *const kRequestFieldAssertion = @"assertion";
 static NSString *const kRequestFieldAttestation = @"attestation_statement";
 static NSString *const kRequestFieldChallenge = @"challenge";
 static NSString *const kRequestFieldKeyID = @"key_id";
+static NSString *const kRequestFieldLimitedUse = @"limited_use";
 
 static NSString *const kExchangeAppAttestAssertionEndpoint = @"exchangeAppAttestAssertion";
 static NSString *const kExchangeAppAttestAttestationEndpoint = @"exchangeAppAttestAttestation";
@@ -71,10 +72,14 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 - (FBLPromise<FIRAppCheckToken *> *)getAppCheckTokenWithArtifact:(NSData *)artifact
                                                        challenge:(NSData *)challenge
-                                                       assertion:(NSData *)assertion {
+                                                       assertion:(NSData *)assertion
+                                                      limitedUse:(BOOL)limitedUse {
   NSURL *URL = [self URLForEndpoint:kExchangeAppAttestAssertionEndpoint];
 
-  return [self HTTPBodyWithArtifact:artifact challenge:challenge assertion:assertion]
+  return [self HTTPBodyWithArtifact:artifact
+                          challenge:challenge
+                          assertion:assertion
+                         limitedUse:limitedUse]
       .then(^FBLPromise<GULURLSessionDataResponse *> *(NSData *HTTPBody) {
         return [self.APIService sendRequestWithURL:URL
                                         HTTPMethod:kHTTPMethodPost
@@ -150,10 +155,14 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 - (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
                                                                       keyID:(NSString *)keyID
-                                                                  challenge:(NSData *)challenge {
+                                                                  challenge:(NSData *)challenge
+                                                                 limitedUse:(BOOL)limitedUse {
   NSURL *URL = [self URLForEndpoint:kExchangeAppAttestAttestationEndpoint];
 
-  return [self HTTPBodyWithAttestation:attestation keyID:keyID challenge:challenge]
+  return [self HTTPBodyWithAttestation:attestation
+                                 keyID:keyID
+                             challenge:challenge
+                            limitedUse:limitedUse]
       .then(^FBLPromise<GULURLSessionDataResponse *> *(NSData *HTTPBody) {
         return [self.APIService sendRequestWithURL:URL
                                         HTTPMethod:kHTTPMethodPost
@@ -177,7 +186,8 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 - (FBLPromise<NSData *> *)HTTPBodyWithArtifact:(NSData *)artifact
                                      challenge:(NSData *)challenge
-                                     assertion:(NSData *)assertion {
+                                     assertion:(NSData *)assertion
+                                    limitedUse:(BOOL)limitedUse {
   if (artifact.length <= 0 || challenge.length <= 0 || assertion.length <= 0) {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
     [rejectedPromise reject:[FIRAppCheckErrorUtil
@@ -190,7 +200,8 @@ static NSString *const kHTTPMethodPost = @"POST";
                             id JSONObject = @{
                               kRequestFieldArtifact : [self base64StringWithData:artifact],
                               kRequestFieldChallenge : [self base64StringWithData:challenge],
-                              kRequestFieldAssertion : [self base64StringWithData:assertion]
+                              kRequestFieldAssertion : [self base64StringWithData:assertion],
+                              kRequestFieldLimitedUse : @(limitedUse)
                             };
 
                             return [self HTTPBodyWithJSONObject:JSONObject];
@@ -199,7 +210,8 @@ static NSString *const kHTTPMethodPost = @"POST";
 
 - (FBLPromise<NSData *> *)HTTPBodyWithAttestation:(NSData *)attestation
                                             keyID:(NSString *)keyID
-                                        challenge:(NSData *)challenge {
+                                        challenge:(NSData *)challenge
+                                       limitedUse:(BOOL)limitedUse {
   if (attestation.length <= 0 || keyID.length <= 0 || challenge.length <= 0) {
     FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
     [rejectedPromise reject:[FIRAppCheckErrorUtil
@@ -212,7 +224,8 @@ static NSString *const kHTTPMethodPost = @"POST";
                             id JSONObject = @{
                               kRequestFieldKeyID : keyID,
                               kRequestFieldAttestation : [self base64StringWithData:attestation],
-                              kRequestFieldChallenge : [self base64StringWithData:challenge]
+                              kRequestFieldChallenge : [self base64StringWithData:challenge],
+                              kRequestFieldLimitedUse : @(limitedUse)
                             };
 
                             return [self HTTPBodyWithJSONObject:JSONObject];

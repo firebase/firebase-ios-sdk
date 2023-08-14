@@ -39,12 +39,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// artifact and an Firebase App Check token or rejected with an error.
 - (FBLPromise<FIRAppAttestAttestationResponse *> *)attestKeyWithAttestation:(NSData *)attestation
                                                                       keyID:(NSString *)keyID
-                                                                  challenge:(NSData *)challenge;
+                                                                  challenge:(NSData *)challenge
+                                                                 limitedUse:(BOOL)limitedUse;
 
 /// Exchanges attestation data (artifact & assertion) and a challenge for a FAC token.
 - (FBLPromise<FIRAppCheckToken *> *)getAppCheckTokenWithArtifact:(NSData *)artifact
                                                        challenge:(NSData *)challenge
-                                                       assertion:(NSData *)assertion;
+                                                       assertion:(NSData *)assertion
+                                                      limitedUse:(BOOL)limitedUse;
 
 @end
 

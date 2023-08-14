@@ -232,7 +232,8 @@
   // 3. Send request.
   __auto_type promise = [self.appAttestAPIService getAppCheckTokenWithArtifact:artifact
                                                                      challenge:challenge
-                                                                     assertion:assertion];
+                                                                     assertion:assertion
+                                                                    limitedUse:NO];
   // 4. Verify.
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
@@ -270,7 +271,8 @@
   // 3. Send request.
   __auto_type promise = [self.appAttestAPIService getAppCheckTokenWithArtifact:artifact
                                                                      challenge:challenge
-                                                                     assertion:assertion];
+                                                                     assertion:assertion
+                                                                    limitedUse:NO];
   // 4. Verify.
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
@@ -305,7 +307,8 @@
   // 3. Send request.
   __auto_type promise = [self.appAttestAPIService getAppCheckTokenWithArtifact:artifact
                                                                      challenge:challenge
-                                                                     assertion:assertion];
+                                                                     assertion:assertion
+                                                                    limitedUse:NO];
   // 4. Verify.
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
 
@@ -340,7 +343,8 @@
   // 3. Send request.
   __auto_type promise = [self.appAttestAPIService attestKeyWithAttestation:attestation
                                                                      keyID:keyID
-                                                                 challenge:challenge];
+                                                                 challenge:challenge
+                                                                limitedUse:NO];
 
   // 4. Verify.
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
@@ -377,7 +381,8 @@
   // 2. Send request.
   __auto_type promise = [self.appAttestAPIService attestKeyWithAttestation:attestation
                                                                      keyID:keyID
-                                                                 challenge:challenge];
+                                                                 challenge:challenge
+                                                                limitedUse:NO];
 
   // 3. Verify.
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
@@ -411,7 +416,8 @@
   // 3. Send request.
   __auto_type promise = [self.appAttestAPIService attestKeyWithAttestation:attestation
                                                                      keyID:keyID
-                                                                 challenge:challenge];
+                                                                 challenge:challenge
+                                                                limitedUse:NO];
 
   // 4. Verify.
   XCTAssert(FBLWaitForPromisesWithTimeout(1));
