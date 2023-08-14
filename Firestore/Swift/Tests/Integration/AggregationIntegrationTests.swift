@@ -53,12 +53,17 @@ class AggregationIntegrationTests: FSTIntegrationTestCase {
     ]).getAggregation(source: .server)
 
     // Count
+    // This wouldn't compile since NSNumber isn't a valid return type
+    // for any of the `get` APIs.
     XCTAssertEqual(snapshot.get(AggregateField.count()) as? NSNumber, 2)
 
     // Sum
-    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 150)
-    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Double, 150)
-    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Int64, 150)
+    let _: Double? = snapshot.get(AggregateField.sum("pages"))
+    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as Double?, 150)
+    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as Int64?, 150)
+//    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? NSNumber, 150)
+//    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Double, 150)
+//    XCTAssertEqual(snapshot.get(AggregateField.sum("pages")) as? Int64, 150)
 
     // Average
     XCTAssertEqual(snapshot.get(AggregateField.average("pages")) as? NSNumber, 75.0)

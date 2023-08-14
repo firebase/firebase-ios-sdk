@@ -51,7 +51,7 @@ NS_SWIFT_NAME(AggregateQuerySnapshot)
  * `AggregateQuery`.
  * @see `AggregateField`
  */
-- (nullable id)valueForAggregateField:(FIRAggregateField*)aggregateField NS_SWIFT_NAME(get(_:));
+- (nullable id)valueForAggregateField:(FIRAggregateField*)aggregateField NS_REFINED_FOR_SWIFT;
 
 @end
 
