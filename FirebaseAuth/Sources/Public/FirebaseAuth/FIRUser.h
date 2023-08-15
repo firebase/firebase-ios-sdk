@@ -19,7 +19,7 @@
 #import "FIRAuth.h"
 #import "FIRAuthDataResult.h"
 #import "FIRMultiFactor.h"
-#import "FIRPasskey.h"
+#import "FIRPasskeyInfo.h"
 #import "FIRUserInfo.h"
 
 @class FIRAuthTokenResult;
@@ -126,10 +126,8 @@ NS_SWIFT_NAME(User)
 
 /** @property enrolledPasskeys
     @brief a list of user enrolled passkey object.
-        This property is available on iOS only.
 */
-@property(nonatomic, readonly)
-    NSArray<FIRPasskey *> *enrolledPasskeys API_UNAVAILABLE(macos, tvos, watchos);
+@property(nonatomic, readonly) NSArray<FIRPasskeyInfo *> *enrolledPasskeys API_UNAVAILABLE(watchos);
 
 /** @fn init
     @brief This class should not be instantiated.
@@ -522,7 +520,8 @@ NS_SWIFT_NAME(User)
 - (void)startPasskeyEnrollmentWithCompletion:
     (nullable void (^)(
         ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest *_Nullable request,
-        NSError *_Nullable error))completion API_AVAILABLE(ios(15.0));
+        NSError *_Nullable error))completion NS_SWIFT_NAME(startPasskeyEnrollment(completion:))
+        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
 
 /**
  @fn finalizePasskeyEnrollmentWithPlatformCredential:completion
@@ -534,7 +533,8 @@ NS_SWIFT_NAME(User)
                                              completion:(nullable void (^)(
                                                             FIRAuthDataResult *_Nullable authResult,
                                                             NSError *_Nullable error))completion
-    API_AVAILABLE(ios(15.0));
+    NS_SWIFT_NAME(finalizePasskeyEnrollment(with:completion:))
+        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
 
 /**
  @fn unenrollPasskeyWithCredentialID:completion
@@ -543,7 +543,7 @@ NS_SWIFT_NAME(User)
  */
 - (void)unenrollPasskeyWithCredentialID:(NSString *)credentialID
                              completion:(nullable void (^)(NSError *_Nullable error))completion
-    API_AVAILABLE(ios(15.0));
+    NS_SWIFT_NAME(unenrollPasskey(with:completion:));
 
 #endif
 

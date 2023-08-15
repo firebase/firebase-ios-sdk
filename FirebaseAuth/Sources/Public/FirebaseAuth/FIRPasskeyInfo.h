@@ -22,7 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
  @class FIRPasskey
  @brief Passkey Info
  */
-NS_SWIFT_NAME(Passkey) API_UNAVAILABLE(macos, tvos, watchos) @interface FIRPasskey : NSObject
+NS_SWIFT_NAME(PasskeyInfo) API_UNAVAILABLE(watchos) @interface FIRPasskeyInfo : NSObject
 
 /**
  @brief Passkey name
