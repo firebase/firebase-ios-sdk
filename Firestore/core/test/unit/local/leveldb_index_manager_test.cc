@@ -1582,6 +1582,60 @@ TEST_F(LevelDbIndexManagerTest, IndexTypeForOrQueries) {
   });
 }
 
+TEST_F(LevelDbIndexManagerTest,
+       CreateTargetIndexesCreatesFullIndexesForEachSubTargets) {
+  persistence_->Run(
+      "TestCreateTargetIndexesCreatesFullIndexesForEachSubTargets", [&]() {
+        index_manager_->Start();
+
+        auto query = Query("coll").AddingFilter(
+            OrFilters({Filter("a", "==", 1), Filter("b", "==", 2),
+                       Filter("c", "==", 3)}));
+
+        auto subQuery1 = Query("coll").AddingFilter(Filter("a", "==", 1));
+        auto subQuery2 = Query("coll").AddingFilter(Filter("b", "==", 2));
+        auto subQuery3 = Query("coll").AddingFilter(Filter("c", "==", 3));
+
+        ValidateIndexType(query, IndexManager::IndexType::NONE);
+        ValidateIndexType(subQuery1, IndexManager::IndexType::NONE);
+        ValidateIndexType(subQuery2, IndexManager::IndexType::NONE);
+        ValidateIndexType(subQuery3, IndexManager::IndexType::NONE);
+
+        index_manager_->CreateTargetIndexes(query.ToTarget());
+
+        ValidateIndexType(query, IndexManager::IndexType::FULL);
+        ValidateIndexType(subQuery1, IndexManager::IndexType::FULL);
+        ValidateIndexType(subQuery2, IndexManager::IndexType::FULL);
+        ValidateIndexType(subQuery3, IndexManager::IndexType::FULL);
+      });
+}
+
+TEST_F(LevelDbIndexManagerTest,
+       CreateTargetIndexesUpgradesPartialIndexToFullIndex) {
+  persistence_->Run(
+      "TestCreateTargetIndexesUpgradesPartialIndexToFullIndex", [&]() {
+        index_manager_->Start();
+
+        auto query = Query("coll").AddingFilter(
+            AndFilters({Filter("a", "==", 1), Filter("b", "==", 2)}));
+
+        auto subQuery1 = Query("coll").AddingFilter(Filter("a", "==", 1));
+        auto subQuery2 = Query("coll").AddingFilter(Filter("b", "==", 2));
+
+        index_manager_->CreateTargetIndexes(subQuery1.ToTarget());
+
+        ValidateIndexType(query, IndexManager::IndexType::PARTIAL);
+        ValidateIndexType(subQuery1, IndexManager::IndexType::FULL);
+        ValidateIndexType(subQuery2, IndexManager::IndexType::NONE);
+
+        index_manager_->CreateTargetIndexes(query.ToTarget());
+
+        ValidateIndexType(query, IndexManager::IndexType::FULL);
+        ValidateIndexType(subQuery1, IndexManager::IndexType::FULL);
+        ValidateIndexType(subQuery2, IndexManager::IndexType::NONE);
+      });
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

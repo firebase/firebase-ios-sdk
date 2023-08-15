@@ -467,6 +467,9 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
 void LevelDbIndexManager::DeleteAllFieldIndexes() {
   HARD_ASSERT(started_, "IndexManager not started");
 
+  memoized_indexes_.clear();
+  next_index_to_update_ = QueueForNextIndexToUpdate();
+
   db_->current_transaction()->DeleteEverythingWithPrefix(
       "Delete All Index Configuration",
       LevelDbIndexConfigurationKey::KeyPrefix());
@@ -482,9 +485,6 @@ void LevelDbIndexManager::DeleteAllFieldIndexes() {
   // Delete entries from all users for this index id.
   db_->current_transaction()->DeleteEverythingWithPrefix(
       "Delete All Index Entries", LevelDbIndexEntryKey::KeyPrefix());
-
-  memoized_indexes_.clear();
-  next_index_to_update_ = QueueForNextIndexToUpdate();
 }
 
 void LevelDbIndexManager::CreateTargetIndexes(const core::Target& target) {
