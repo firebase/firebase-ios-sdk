@@ -177,8 +177,8 @@ let package = Package(
       revision: "935e2736044e71e5341663c3cc9a335ba6867a2b"
     ),
     .package(
-      url: "https://github.com/GoogleCloudPlatform/recaptcha-enterprise-mobile-sdk.git",
-      "18.2.0" ..< "18.3.0"
+      url: "https://github.com/google/interop-ios-for-google-sdks.git",
+      "100.0.0" ..< "101.0.0" , branch: "main"
     ),
   ],
   targets: [
@@ -424,7 +424,7 @@ let package = Package(
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
-        .product(name: "RecaptchaInterop", package: "recaptcha-enterprise-mobile-sdk"),
+        .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
