@@ -1285,4 +1285,134 @@
   }
 }
 
+- (void)testBloomFilterShouldCorrectlyEncodeComplexUnicodeCharacters {
+  // TODO(b/291365820): Stop skipping this test when running against the Firestore emulator once
+  // the emulator is improved to include a bloom filter in the existence filter messages that it
+  // sends.
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test when running against the Firestore emulator because the emulator does "
+            "not include a bloom filter when it sends existence filter messages, making it "
+            "impossible for this test to verify the correctness of the bloom filter.");
+
+  // Set this test to stop when the first failure occurs because some test assertion failures make
+  // the rest of the test not applicable or will even crash.
+  [self setContinueAfterFailure:NO];
+
+  // Firestore does not do any Unicode normalization on the document IDs. Therefore, two document
+  // IDs that are canonically-equivalent (i.e. they visually appear identical) but are represented
+  // by a different sequence of Unicode code points are treated as distinct document IDs.
+  NSArray<NSString *> *testDocIds;
+  {
+    NSMutableArray<NSString *> *testDocIdsAccumulator = [[NSMutableArray alloc] init];
+    [testDocIdsAccumulator addObject:@"DocumentToDelete"];
+    // The next two strings both end with "e" with an accent: the first uses the dedicated Unicode
+    // code point for this character, while the second uses the standard lowercase "e" followed by
+    // the accent combining character.
+    [testDocIdsAccumulator addObject:@"LowercaseEWithAcuteAccent_\u00E9"];
+    [testDocIdsAccumulator addObject:@"LowercaseEWithAcuteAccent_\u0065\u0301"];
+    // The next two strings both end with an "e" with two different accents applied via the
+    // following two combining characters. The combining characters are specified in a different
+    // order and Firestore treats these document IDs as unique, despite the order of the combining
+    // characters being irrelevant.
+    [testDocIdsAccumulator addObject:@"LowercaseEWithMultipleAccents_\u0065\u0301\u0327"];
+    [testDocIdsAccumulator addObject:@"LowercaseEWithMultipleAccents_\u0065\u0327\u0301"];
+    // The next string contains a character outside the BMP (the "basic multilingual plane"); that
+    // is, its code point is greater than 0xFFFF. Since NSString stores text in sequences of 16-bit
+    // code units, using the UTF-16 encoding (according to
+    // https://www.objc.io/issues/9-strings/unicode) it is stored as a surrogate pair, two 16-bit
+    // code units U+D83D and U+DE00, to represent this character. Make sure that its presence is
+    // correctly tested in the bloom filter, which uses UTF-8 encoding.
+    [testDocIdsAccumulator addObject:@"Smiley_\U0001F600"];
+
+    testDocIds = [NSArray arrayWithArray:testDocIdsAccumulator];
+  }
+
+  // Verify assumptions about the equivalence of strings in `testDocIds`.
+  XCTAssertEqualObjects(testDocIds[1].decomposedStringWithCanonicalMapping,
+                        testDocIds[2].decomposedStringWithCanonicalMapping);
+  XCTAssertEqualObjects(testDocIds[3].decomposedStringWithCanonicalMapping,
+                        testDocIds[4].decomposedStringWithCanonicalMapping);
+  XCTAssertEqual([testDocIds[5] characterAtIndex:7], 0xD83D);
+  XCTAssertEqual([testDocIds[5] characterAtIndex:8], 0xDE00);
+
+  // Create the mapping from document ID to document data for the document IDs specified in
+  // `testDocIds`.
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs =
+      [[NSMutableDictionary alloc] init];
+  for (NSString *testDocId in testDocIds) {
+    [testDocs setValue:@{@"foo" : @42} forKey:testDocId];
+  }
+
+  // Create the documents whose names contain complex Unicode characters in a new collection.
+  FIRCollectionReference *collRef = [self collectionRefWithDocuments:testDocs];
+
+  // Run a query to populate the local cache with documents that have names with complex Unicode
+  // characters.
+  {
+    FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
+                                                            source:FIRFirestoreSourceDefault];
+    XCTAssertEqualObjects([NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot1)],
+                          [NSSet setWithArray:testDocs.allKeys],
+                          @"querySnapshot1 has the wrong documents");
+  }
+
+  // Delete one of the documents so that the next call to collection.get() will experience an
+  // existence filter mismatch. Use a different Firestore instance to avoid affecting the local
+  // cache.
+  FIRDocumentReference *documentToDelete = [collRef documentWithPath:@"DocumentToDelete"];
+  {
+    FIRFirestore *db2 = [self firestore];
+    [self deleteDocumentRef:[db2 documentWithPath:documentToDelete.path]];
+  }
+
+  // Wait for 10 seconds, during which Watch will stop tracking the query and will send an
+  // existence filter rather than "delete" events when the query is resumed.
+  [NSThread sleepForTimeInterval:10.0f];
+
+  // Resume the query and save the resulting snapshot for verification. Use some internal testing
+  // hooks to "capture" the existence filter mismatches.
+  __block FIRQuerySnapshot *querySnapshot2;
+  NSArray<FSTTestingHooksExistenceFilterMismatchInfo *> *existenceFilterMismatches =
+      [FSTTestingHooks captureExistenceFilterMismatchesDuringBlock:^{
+        querySnapshot2 = [self readDocumentSetForRef:collRef source:FIRFirestoreSourceDefault];
+      }];
+
+  // Verify that the snapshot from the resumed query contains the expected documents; that is, that
+  // it contains the documents whose names contain complex Unicode characters and _not_ the document
+  // that was deleted.
+  {
+    NSMutableArray<NSString *> *querySnapshot2ExpectedDocumentIds =
+        [NSMutableArray arrayWithArray:testDocIds];
+    [querySnapshot2ExpectedDocumentIds removeObject:documentToDelete.documentID];
+    XCTAssertEqualObjects([NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)],
+                          [NSSet setWithArray:querySnapshot2ExpectedDocumentIds],
+                          @"querySnapshot2 has the wrong documents");
+  }
+
+  // Verify that Watch sent an existence filter with the correct counts.
+  XCTAssertEqual(existenceFilterMismatches.count, 1u,
+                 @"Watch should have sent exactly 1 existence filter");
+  FSTTestingHooksExistenceFilterMismatchInfo *existenceFilterMismatchInfo =
+      existenceFilterMismatches[0];
+  XCTAssertEqual(existenceFilterMismatchInfo.localCacheCount, (int)testDocIds.count);
+  XCTAssertEqual(existenceFilterMismatchInfo.existenceFilterCount, (int)testDocIds.count - 1);
+
+  // Verify that Watch sent a valid bloom filter.
+  FSTTestingHooksBloomFilter *bloomFilter = existenceFilterMismatchInfo.bloomFilter;
+  XCTAssertNotNil(bloomFilter, "Watch should have included a bloom filter in the existence filter");
+
+  // The bloom filter application should statistically be successful almost every time; the _only_
+  // time when it would _not_ be successful is if there is a false positive when testing for
+  // 'DocumentToDelete' in the bloom filter. So verify that the bloom filter application is
+  // successful, unless there was a false positive.
+  BOOL isFalsePositive = [bloomFilter mightContain:documentToDelete];
+  XCTAssertEqual(bloomFilter.applied, !isFalsePositive);
+
+  // Verify that the bloom filter contains the document paths with complex Unicode characters.
+  for (FIRDocumentSnapshot *documentSnapshot in querySnapshot2.documents) {
+    XCTAssertTrue([bloomFilter mightContain:documentSnapshot.reference],
+                  @"The bloom filter should contain %@", documentSnapshot.documentID);
+  }
+}
+
 @end

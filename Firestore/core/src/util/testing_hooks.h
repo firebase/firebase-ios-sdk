@@ -20,9 +20,11 @@
 #include <functional>
 #include <memory>
 #include <mutex>  // NOLINT(build/c++11)
+#include <string>
 #include <unordered_map>
 
 #include "Firestore/core/src/api/listener_registration.h"
+#include "Firestore/core/src/remote/bloom_filter.h"
 #include "Firestore/core/src/util/no_destructor.h"
 #include "absl/types/optional.h"
 
@@ -60,6 +62,12 @@ class TestingHooks final {
 
     /** The number of bits of padding in the last byte of the bloom filter. */
     int padding = -1;
+
+    /**
+     * The BloomFilter created from the existence filter; may be empty if
+     * creating it failed.
+     */
+    absl::optional<remote::BloomFilter> bloom_filter;
   };
 
   /**
@@ -75,6 +83,18 @@ class TestingHooks final {
      * specified in the `ExistenceFilter` message's `count` field.
      */
     int existence_filter_count = -1;
+
+    /**
+     * The projectId used when checking documents for membership in the bloom
+     * filter.
+     */
+    std::string project_id;
+
+    /**
+     * The databaseId used when checking documents for membership in the bloom
+     * filter.
+     */
+    std::string database_id;
 
     /**
      * Information about the bloom filter provided by Watch in the
