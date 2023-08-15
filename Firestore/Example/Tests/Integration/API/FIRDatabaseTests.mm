@@ -1829,10 +1829,10 @@ using firebase::firestore::util::TimerId;
   XCTAssertEqualObjects(result.data, data);
 }
 
-- (void)testGetValidPersistentCacheIndexManagerExplicit {
+- (void)testGetValidPersistentCacheIndexManager {
   [FIRApp configure];
 
-  FIRFirestore *db1 = [FIRFirestore firestoreForDatabase:@"db1"];
+  FIRFirestore *db1 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB1"];
   FIRFirestoreSettings *settings1 = [db1 settings];
   [settings1 setCacheSettings:[[FIRPersistentCacheSettings alloc] init]];
   [db1 setSettings:settings1];
@@ -1840,11 +1840,11 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotNil(db1.persistentCacheIndexManager);
 
   // Use persistent disk cache (default)
-  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"db2"];
+  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB2"];
   XCTAssertNotNil(db2.persistentCacheIndexManager);
 
   // Disable persistent disk cache
-  FIRFirestore *db3 = [FIRFirestore firestoreForDatabase:@"db3"];
+  FIRFirestore *db3 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB3"];
   FIRFirestoreSettings *settings3 = [db3 settings];
   [settings3 setCacheSettings:[[FIRMemoryCacheSettings alloc] init]];
   [db3 setSettings:settings3];
@@ -1852,7 +1852,7 @@ using firebase::firestore::util::TimerId;
   XCTAssertNil(db3.persistentCacheIndexManager);
 
   // Disable persistent disk cache (deprecated)
-  FIRFirestore *db4 = [FIRFirestore firestoreForDatabase:@"db4"];
+  FIRFirestore *db4 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB4"];
   FIRFirestoreSettings *settings4 = [db4 settings];
   settings4.persistenceEnabled = NO;
   [db4 setSettings:settings4];
@@ -1862,19 +1862,19 @@ using firebase::firestore::util::TimerId;
 - (void)testCanGetSameOrDifferentPersistentCacheIndexManager {
   [FIRApp configure];
   // Use persistent disk cache (explicit)
-  FIRFirestore *db1 = [FIRFirestore firestoreForDatabase:@"db1"];
+  FIRFirestore *db1 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB5"];
   FIRFirestoreSettings *settings1 = [db1 settings];
   [settings1 setCacheSettings:[[FIRPersistentCacheSettings alloc] init]];
   [db1 setSettings:settings1];
   XCTAssertEqual(db1.persistentCacheIndexManager, db1.persistentCacheIndexManager);
 
   // Use persistent disk cache (default)
-  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"db2"];
+  FIRFirestore *db2 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB6"];
   XCTAssertEqual(db2.persistentCacheIndexManager, db2.persistentCacheIndexManager);
 
   XCTAssertNotEqual(db1.persistentCacheIndexManager, db2.persistentCacheIndexManager);
 
-  FIRFirestore *db3 = [FIRFirestore firestoreForDatabase:@"db3"];
+  FIRFirestore *db3 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB7"];
   FIRFirestoreSettings *settings3 = [db3 settings];
   [settings3 setCacheSettings:[[FIRPersistentCacheSettings alloc] init]];
   [db3 setSettings:settings3];
@@ -1882,7 +1882,7 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotEqual(db2.persistentCacheIndexManager, db3.persistentCacheIndexManager);
 
   // Use persistent disk cache (default)
-  FIRFirestore *db4 = [FIRFirestore firestoreForDatabase:@"db4"];
+  FIRFirestore *db4 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB8"];
   XCTAssertNotEqual(db1.persistentCacheIndexManager, db4.persistentCacheIndexManager);
   XCTAssertNotEqual(db2.persistentCacheIndexManager, db4.persistentCacheIndexManager);
   XCTAssertNotEqual(db3.persistentCacheIndexManager, db4.persistentCacheIndexManager);
