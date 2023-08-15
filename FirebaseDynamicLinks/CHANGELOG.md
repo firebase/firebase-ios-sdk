@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Refactoring function names and comments.
+
 # 10.3.0
 - [fixed] Fixes issue where `utmParametersDictionary` / `minimumAppVersion` were not provided and their value were set to `[NSNull null]` instead of `nil`.
 
