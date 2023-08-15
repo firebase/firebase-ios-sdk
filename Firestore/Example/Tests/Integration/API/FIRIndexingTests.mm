@@ -109,8 +109,9 @@
  */
 - (void)testAutoIndexCreationSetSuccessfully {
   // Use persistent disk cache (explict)
-  FIRPersistentCacheSettings *cacheSettings = [FIRPersistentCacheSettings alloc];
-  self.db.settings.cacheSettings = cacheSettings;
+  FIRFirestoreSettings *settings = [self.db settings];
+  [settings setCacheSettings:[[FIRPersistentCacheSettings alloc] init]];
+  [self.db setSettings:settings];
 
   FIRCollectionReference *coll = [self collectionRef];
   NSDictionary *testDocs = @{

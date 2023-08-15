@@ -69,7 +69,7 @@ class LevelDbIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() const override;
 
-  void DeleteAllFieldIndexes() override;
+  bool DeleteAllFieldIndexes() override;
 
   void CreateTargetIndexes(const core::Target& target) override;
 

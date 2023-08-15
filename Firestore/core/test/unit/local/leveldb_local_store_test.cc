@@ -689,6 +689,34 @@ TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWithManualAddedIndexes) {
   FSTAssertQueryReturned("coll/a");
 }
 
+TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWith500Documents) {
+  FieldIndex index =
+      MakeFieldIndex("coll", 0, FieldIndex::InitialState(), "matches",
+                     model::Segment::Kind::kAscending);
+  ConfigureFieldIndexes({index});
+
+  core::Query query =
+      testutil::Query("coll").AddingFilter(Filter("matches", "==", true));
+  int target_id = AllocateQuery(query);
+
+  for (int count = 1; count <= 500; count++) {
+    ApplyRemoteEvent(AddedRemoteEvent(
+        Doc("coll/" + std::to_string(count), 10, Map("matches", true)),
+        {target_id}));
+  }
+
+  SetBackfillerMaxDocumentsToProcess(500);
+  BackfillIndexes();
+
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 500, /* byCollection= */ 0);
+
+  DeleteAllIndexes();
+
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 500);
+}
+
 TEST_F(LevelDbLocalStoreTest, IndexAutoCreationWorksWithMutation) {
   core::Query query = testutil::Query("coll").AddingFilter(
       Filter("value", "array-contains-any", Array(8, 1, "string")));

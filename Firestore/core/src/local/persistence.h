@@ -190,6 +190,26 @@ class Persistence {
     return result;
   }
 
+  /**
+   * Accepts a function and runs it within a transaction. When called, a
+   * transaction will be started before a block is run, and committed after the
+   * block has executed. Given there exists upper limit (1000 operations) for
+   * transaction, this task will run repeatedly until task is finished.
+   *
+   * @param label A semi-unique name for the transaction, for logging.
+   * @param block A function to be executed within the transaction whose return
+   *     value is boolean. When `block()` returns true, means the function has
+   * finished execution. If `block()` returns false, task needs to be executed
+   * again.
+   */
+  auto RunUntilTaskFinished(absl::string_view label,
+                            std::function<bool()> block) {
+    bool is_finished = false;
+    while (!is_finished) {
+      RunInternal(label, [&]() mutable { is_finished = block(); });
+    }
+  }
+
  private:
   virtual void RunInternal(absl::string_view label,
                            std::function<void()> block) = 0;

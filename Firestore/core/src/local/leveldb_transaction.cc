@@ -201,10 +201,12 @@ void LevelDbTransaction::Delete(absl::string_view key) {
   version_++;
 }
 
-void LevelDbTransaction::DeleteEverythingWithPrefix(
+bool LevelDbTransaction::DeleteEverythingWithPrefix(
     absl::string_view label,
     const std::string& prefix,
     const std::function<bool(absl::string_view key)> decode_function) {
+  bool is_finished = true;
+
   auto it = NewIterator();
   for (it->Seek(prefix); it->Valid() && absl::StartsWith(it->key(), prefix);
        it->Next()) {
@@ -216,12 +218,14 @@ void LevelDbTransaction::DeleteEverythingWithPrefix(
 
     if (changed_keys() >= 1000U) {
       LOG_DEBUG(
-          "Cannot delete all entries in transaction: %s due to the total count "
-          "of entries is more than or equal to 1000. Please trigger %s again.",
-          label, label);
+          "Cannot delete all entries in a single transaction. Please trigger "
+          "%s again.",
+          label);
+      is_finished = false;
       break;
     }
   }
+  return is_finished;
 }
 
 void LevelDbTransaction::Commit() {

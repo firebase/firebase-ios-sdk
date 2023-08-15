@@ -704,8 +704,9 @@ void LocalStore::SetIndexAutoCreationEnabled(bool is_enabled) const {
 }
 
 void LocalStore::DeleteAllFieldIndexes() const {
-  persistence_->Run("Delete All FieldIndexes",
-                    [&] { return index_manager_->DeleteAllFieldIndexes(); });
+  persistence_->RunUntilTaskFinished("Delete All FieldIndexes", [&] {
+    return index_manager_->DeleteAllFieldIndexes();
+  });
 }
 
 Target LocalStore::NewUmbrellaTarget(const std::string& bundle_id) {
