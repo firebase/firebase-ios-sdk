@@ -35,7 +35,7 @@ let package = Package(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
-    // Adding this library to the your project is enough for it to take effect. The module
+    // Adding this library to your project is enough for it to take effect. The module
     // does not need to be imported into any source files.
     .library(
       name: "FirebaseAnalyticsOnDeviceConversion",
