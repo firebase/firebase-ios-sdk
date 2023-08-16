@@ -178,7 +178,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
-      "100.0.0" ..< "101.0.0" , branch: "main"
+      "100.0.0" ..< "101.0.0"
     ),
   ],
   targets: [
