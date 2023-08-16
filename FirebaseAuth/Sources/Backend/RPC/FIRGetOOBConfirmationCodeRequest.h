@@ -112,6 +112,16 @@ typedef NS_ENUM(NSInteger, FIRGetOOBConfirmationCodeRequestType) {
  */
 @property(copy, nonatomic, nullable) NSString *dynamicLinkDomain;
 
+/** @property captchaResponse
+    @brief Response to the captcha.
+ */
+@property(nonatomic, copy, nullable) NSString *captchaResponse;
+
+/** @property captchaResponse
+    @brief The reCAPTCHA version.
+ */
+@property(nonatomic, copy, nullable) NSString *recaptchaVersion;
+
 /** @fn passwordResetRequestWithEmail:actionCodeSettings:requestConfiguration:
     @brief Creates a password reset request.
     @param email The user's email address.
