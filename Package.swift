@@ -29,12 +29,14 @@ let package = Package(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
-    // This library is not designed to be imported into client source code.
+    // Adding this product to the your project is enough for it to take effect– the module
+    // does not need to be imported into any source files.
     .library(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
-    // This library is not designed to be imported into client source code.
+    // Adding this product to the your project is enough for it to take effect– the module
+    // does not need to be imported into any source files.
     .library(
       name: "FirebaseAnalyticsOnDeviceConversion",
       targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
