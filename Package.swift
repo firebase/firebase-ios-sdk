@@ -178,6 +178,10 @@ let package = Package(
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
       revision: "935e2736044e71e5341663c3cc9a335ba6867a2b"
     ),
+    .package(
+      url: "https://github.com/google/interop-ios-for-google-sdks.git",
+      "100.0.0" ..< "101.0.0"
+    ),
   ],
   targets: [
     .target(
@@ -422,6 +426,7 @@ let package = Package(
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
+        .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
