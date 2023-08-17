@@ -1583,9 +1583,9 @@ TEST_F(LevelDbIndexManagerTest, IndexTypeForOrQueries) {
 }
 
 TEST_F(LevelDbIndexManagerTest,
-       CreateTargetIndexesCreatesFullIndexesForEachSubTargets) {
+       CreateTargetIndexesCreatesFullIndexesForEachSubTarget) {
   persistence_->Run(
-      "TestCreateTargetIndexesCreatesFullIndexesForEachSubTargets", [&]() {
+      "TestCreateTargetIndexesCreatesFullIndexesForEachSubTarget", [&]() {
         index_manager_->Start();
 
         auto query = Query("coll").AddingFilter(

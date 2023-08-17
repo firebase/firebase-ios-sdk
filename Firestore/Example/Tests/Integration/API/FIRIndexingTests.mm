@@ -204,4 +204,6 @@
                   @"The client has already been terminated.");
 }
 
+// TODO(b/296100693) Add testing hooks to verify indexes are created as expected.
+
 @end
