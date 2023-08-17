@@ -104,12 +104,17 @@ extension AuthBackendImplementationMock {
     fatalError("You need to implement \(#function) in your mock.")
   }
 
+  func getRecaptchaConfig(_ request: FIRGetRecaptchaConfigRequest,
+                          callback: @escaping FIRGetRecaptchaConfigResponseCallback) {
+    fatalError("You need to implement \(#function) in your mock.")
+  }
+
   func resetPassword(_ request: FIRResetPasswordRequest,
                      callback: @escaping FIRResetPasswordCallback) {
     fatalError("You need to implement \(#function) in your mock.")
   }
 
-  func post(with request: FIRAuthRPCRequest, response: FIRAuthRPCResponse,
+  func call(with request: FIRAuthRPCRequest, response: FIRAuthRPCResponse,
             callback: @escaping (Error?) -> Void) {
     fatalError("You need to implement \(#function) in your mock.")
   }

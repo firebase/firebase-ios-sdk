@@ -58,6 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *languageCode;
 
+/** @property HTTPMethod
+    @brief The HTTP method used in the request.
+ */
+@property(nonatomic, copy, nonnull) NSString *HTTPMethod;
+
 /** @property additionalFrameworkMarker
     @brief Additional framework marker that will be added as part of the header of every request.
  */
