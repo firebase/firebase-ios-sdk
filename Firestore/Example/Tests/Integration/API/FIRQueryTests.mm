@@ -27,16 +27,6 @@
 #import "Firestore/Source/API/FIRAggregateQuerySnapshot+Internal.h"
 #import "Firestore/Source/API/FIRQuery+Internal.h"
 
-namespace {
-
-NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *> *remove) {
-  NSMutableSet<NSString *> *mutableSet = [NSMutableSet setWithSet:set];
-  [mutableSet minusSet:remove];
-  return [mutableSet.allObjects sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
-}
-
-}  // namespace
-
 @interface FIRQueryTests : FSTIntegrationTestCase
 @end
 
@@ -1757,30 +1747,16 @@ NSArray<NSString *> *SortedStringsNotIn(NSSet<NSString *> *set, NSSet<NSString *
 
     // Verify that the snapshot from the resumed query contains the expected documents; that is,
     // that it contains the 50 documents that were _not_ deleted.
-    NSSet<NSString *> *actualDocumentIds =
-        [NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)];
-    NSSet<NSString *> *expectedDocumentIds;
     {
-      NSMutableArray<NSString *> *expectedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      NSMutableArray<NSString *> *expectedDocumentIds = [[NSMutableArray alloc] init];
       for (FIRDocumentReference *documentRef in createdDocuments) {
         if (![deletedDocumentIds containsObject:documentRef.documentID]) {
-          [expectedDocumentIdsAccumulator addObject:documentRef.documentID];
+          [expectedDocumentIds addObject:documentRef.documentID];
         }
       }
-      expectedDocumentIds = [NSSet setWithArray:expectedDocumentIdsAccumulator];
-    }
-    if (![actualDocumentIds isEqualToSet:expectedDocumentIds]) {
-      NSArray<NSString *> *unexpectedDocumentIds =
-          SortedStringsNotIn(actualDocumentIds, expectedDocumentIds);
-      NSArray<NSString *> *missingDocumentIds =
-          SortedStringsNotIn(expectedDocumentIds, actualDocumentIds);
-      XCTFail(@"querySnapshot2 contained %lu documents (expected %lu): "
-              @"%lu unexpected and %lu missing; "
-              @"unexpected documents: %@; missing documents: %@",
-              (unsigned long)actualDocumentIds.count, (unsigned long)expectedDocumentIds.count,
-              (unsigned long)unexpectedDocumentIds.count, (unsigned long)missingDocumentIds.count,
-              [unexpectedDocumentIds componentsJoinedByString:@", "],
-              [missingDocumentIds componentsJoinedByString:@", "]);
+      XCTAssertEqualObjects([NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)],
+                            [NSSet setWithArray:expectedDocumentIds],
+                            @"querySnapshot2 has the wrong documents");
     }
 
     // Verify that Watch sent an existence filter with the correct counts when the query was
