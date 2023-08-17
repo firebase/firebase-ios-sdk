@@ -839,6 +839,7 @@ TEST(QueryTest, ImplicitOrderBy) {
 TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
   auto base_query = testutil::Query("foo");
   ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">=", 5))
                 .AddingFilter(testutil::Filter("aa", ">", 5))
                 .AddingFilter(testutil::Filter("b", "<=", 5))
                 .AddingFilter(testutil::Filter("A", ">=", 5))
@@ -914,6 +915,44 @@ TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
                 testutil::OrderBy("b", "asc"),
                 testutil::OrderBy("c", "asc"),
                 testutil::OrderBy("d", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // OrderBy
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("b", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">", 5))
+                .AddingFilter(testutil::Filter(("z"), "<=", 5))
+                .AddingOrderBy(testutil::OrderBy("z"))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("z", "asc"),
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("b", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // last explicit order by direction
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("b", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">", 5))
+                .AddingOrderBy(testutil::OrderBy("z", "desc"))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("z", "desc"),
+                testutil::OrderBy("a", "desc"),
+                testutil::OrderBy("b", "desc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc"),
+            }));
+
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("b", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">", 5))
+                .AddingOrderBy(testutil::OrderBy("z", "desc"))
+                .AddingOrderBy(testutil::OrderBy("c"))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("z", "desc"),
+                testutil::OrderBy("c", "asc"),
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("b", "asc"),
                 testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
             }));
 }
