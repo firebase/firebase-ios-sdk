@@ -745,7 +745,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     callback(nil, [FIRAuthErrorUtils wrongPasswordErrorWithMessage:nil]);
     return;
   }
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
           enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
     [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -1388,7 +1388,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         passwordResetRequestWithEmail:email
                    actionCodeSettings:actionCodeSettings
                  requestConfiguration:self->_requestConfiguration];
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
     if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
             enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
       [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -1487,7 +1487,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
         [FIRGetOOBConfirmationCodeRequest signInWithEmailLinkRequest:email
                                                   actionCodeSettings:actionCodeSettings
                                                 requestConfiguration:self->_requestConfiguration];
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
     if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
             enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
       [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -1785,7 +1785,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       }];
 }
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 - (void)initializeRecaptchaConfigWithCompletion:
     (nullable void (^)(NSError *_Nullable error))completion {
   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
@@ -2005,7 +2005,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     return;
   }
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
   if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
           enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
     [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self]
