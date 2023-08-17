@@ -898,8 +898,7 @@ NS_SWIFT_NAME(Auth)
 - (void)startPasskeySignInWithCompletion:
     (nullable void (^)(
         ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
-        NSError *_Nullable error))completion NS_SWIFT_NAME(startPasskeySignIn(completion:))
-        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+        NSError *_Nullable error))completion API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
 
 #endif
 @end
