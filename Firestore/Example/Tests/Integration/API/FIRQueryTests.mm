@@ -1351,9 +1351,10 @@
   {
     FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
                                                             source:FIRFirestoreSourceDefault];
-    XCTAssertEqualObjects([NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot1)],
-                          [NSSet setWithArray:testDocIds],
-                          @"querySnapshot1 has the wrong documents");
+    XCTAssertEqualObjects(
+        [FIRQuerySnapshotGetIDs(querySnapshot1) sortedArrayUsingSelector:@selector(compare:)],
+        [testDocIds sortedArrayUsingSelector:@selector(compare:)],
+        @"querySnapshot1 has the wrong documents");
   }
 
   // Delete one of the documents so that the next call to collection.get() will experience an
@@ -1384,9 +1385,10 @@
     NSMutableArray<NSString *> *querySnapshot2ExpectedDocumentIds =
         [NSMutableArray arrayWithArray:testDocIds];
     [querySnapshot2ExpectedDocumentIds removeObject:documentToDelete.documentID];
-    XCTAssertEqualObjects([NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)],
-                          [NSSet setWithArray:querySnapshot2ExpectedDocumentIds],
-                          @"querySnapshot2 has the wrong documents");
+    XCTAssertEqualObjects(
+        [FIRQuerySnapshotGetIDs(querySnapshot2) sortedArrayUsingSelector:@selector(compare:)],
+        [querySnapshot2ExpectedDocumentIds sortedArrayUsingSelector:@selector(compare:)],
+        @"querySnapshot2 has the wrong documents");
   }
 
   // Verify that Watch sent an existence filter with the correct counts.
