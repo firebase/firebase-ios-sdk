@@ -1352,7 +1352,7 @@
     FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
                                                             source:FIRFirestoreSourceDefault];
     XCTAssertEqualObjects([NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot1)],
-                          [NSSet setWithArray:testDocs.allKeys],
+                          [NSSet setWithArray:testDocIds],
                           @"querySnapshot1 has the wrong documents");
   }
 
