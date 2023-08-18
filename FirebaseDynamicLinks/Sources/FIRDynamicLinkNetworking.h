@@ -50,7 +50,7 @@ typedef NS_ENUM(NSInteger, FIRDynamicLinkNetworkingRetrievalProcessType) {
   // iSDK performs a server lookup using default match in the background
   // when app is first-opened; no API called by developer.
   FIRDynamicLinkNetworkingRetrievalProcessTypeImplicitDefault = 1,
-  // iSDK performs a server lookup by device fingerprint upon a dev API call.
+  // iSDK performs a server lookup by device heuristics upon a dev API call.
   FIRDynamicLinkNetworkingRetrievalProcessTypeExplicitDefault = 2,
   // iSDK performs a unique match only if default match is found upon a dev
   // API call.
