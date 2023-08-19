@@ -14,22 +14,22 @@
 
 import Foundation
 
-@objc(FIRUserInfoImpl) public class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
+class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
   /** @fn userInfoWithGetAccountInfoResponseProviderUserInfo:
       @brief A convenience factory method for constructing a @c FIRUserInfo instance from data
           returned by the getAccountInfo endpoint.
       @param providerUserInfo Data returned by the getAccountInfo endpoint.
       @return A new instance of @c FIRUserInfo using data from the getAccountInfo endpoint.
    */
-  @objc public class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
+  class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
-    guard let providerID = providerUserInfo.providerID,
-          let uid = providerUserInfo.federatedID else {
-      // This was a crash in ObjC implementation. Should providerID and federatedID be not nullable?
-      fatalError("Missing providerID or federatedID from GetAccountInfoResponseProviderUserInfo")
+    guard let providerID = providerUserInfo.providerID else {
+      // This was a crash in ObjC implementation. Should providerID be not nullable?
+      // federatedID is nil on initial Phone Auth.
+      fatalError("Missing providerID from GetAccountInfoResponseProviderUserInfo")
     }
     return UserInfoImpl(withProviderID: providerID,
-                        userID: uid,
+                        userID: providerUserInfo.federatedID,
                         displayName: providerUserInfo.displayName,
                         photoURL: providerUserInfo.photoURL,
                         email: providerUserInfo.email,
@@ -45,12 +45,12 @@ import Foundation
       @param email The user's email address.
       @param phoneNumber The user's phone number.
    */
-  @objc public init(withProviderID providerID: String,
-                    userID: String,
-                    displayName: String?,
-                    photoURL: URL?,
-                    email: String?,
-                    phoneNumber: String?) {
+  init(withProviderID providerID: String,
+       userID: String?,
+       displayName: String?,
+       photoURL: URL?,
+       email: String?,
+       phoneNumber: String?) {
     self.providerID = providerID
     uid = userID
     self.displayName = displayName
@@ -59,17 +59,17 @@ import Foundation
     self.phoneNumber = phoneNumber
   }
 
-  public var providerID: String
+  var providerID: String
 
-  public var uid: String
+  var uid: String?
 
-  public var displayName: String?
+  var displayName: String?
 
-  public var photoURL: URL?
+  var photoURL: URL?
 
-  public var email: String?
+  var email: String?
 
-  public var phoneNumber: String?
+  var phoneNumber: String?
 
   // MARK: Secure Coding
 

@@ -22,5 +22,6 @@ enum UserAction: String {
   case updateEmail = "Email"
   case updatePhotoURL = "Photo URL"
   case updateDisplayName = "Display Name"
+  case updatePhoneNumber = "Phone Number"
   case refreshUserInfo = "Refresh User Info"
 }

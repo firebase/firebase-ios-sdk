@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8848764F29D3149200780FA6 /* GoogleService-Info.plist */; };
+		DE4D8E202A8B0311001952B6 /* SwiftApplication.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE4D8E1F2A8B0311001952B6 /* SwiftApplication.plist */; };
 		DE8FD46F2A7D660B00B6831A /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4682A7D660A00B6831A /* Credentials.swift */; };
 		DE8FD4702A7D660B00B6831A /* AccountInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */; };
 		DE8FD4712A7D660B00B6831A /* FacebookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46A2A7D660A00B6831A /* FacebookTests.swift */; };
@@ -77,6 +78,7 @@
 
 /* Begin PBXFileReference section */
 		8848764F29D3149200780FA6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
+		DE4D8E1F2A8B0311001952B6 /* SwiftApplication.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = SwiftApplication.plist; sourceTree = "<group>"; };
 		DE8FD4682A7D660A00B6831A /* Credentials.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Credentials.swift; sourceTree = "<group>"; };
 		DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		DE8FD46A2A7D660A00B6831A /* FacebookTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FacebookTests.swift; sourceTree = "<group>"; };
@@ -118,7 +120,6 @@
 		EAE4CBC624855E3A00245E92 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		EAE4CBC824855E3A00245E92 /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		EAE4CBCD24855E3D00245E92 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		EAE4CBD224855E3D00245E92 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EAE4CBD724855E3E00245E92 /* SwiftApiTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SwiftApiTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE4CBE224855E3E00245E92 /* AuthenticationExampleUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AuthenticationExampleUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EAE4CBE624855E3E00245E92 /* AuthenticationExampleUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationExampleUITests.swift; sourceTree = "<group>"; };
@@ -282,6 +283,7 @@
 		EAE4CBC324855E3A00245E92 /* AuthenticationExample */ = {
 			isa = PBXGroup;
 			children = (
+				DE4D8E1F2A8B0311001952B6 /* SwiftApplication.plist */,
 				EA062D5C24A0FEB6006714D3 /* README.md */,
 				EA20B506249CA63300B5E581 /* AuthenticationExample.entitlements */,
 				EAE4CBC424855E3A00245E92 /* AppDelegate.swift */,
@@ -293,7 +295,6 @@
 				EAE4CBCD24855E3D00245E92 /* Assets.xcassets */,
 				8848764F29D3149200780FA6 /* GoogleService-Info.plist */,
 				EA217894248979E200736757 /* LaunchScreen.storyboard */,
-				EAE4CBD224855E3D00245E92 /* Info.plist */,
 			);
 			path = AuthenticationExample;
 			sourceTree = "<group>";
@@ -457,6 +458,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DE4D8E202A8B0311001952B6 /* SwiftApplication.plist in Resources */,
 				EA217895248979E200736757 /* LaunchScreen.storyboard in Resources */,
 				8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */,
 				EAE4CBCE24855E3D00245E92 /* Assets.xcassets in Resources */,
@@ -731,13 +733,13 @@
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = AuthenticationExample/Info.plist;
+				INFOPLIST_FILE = AuthenticationExample/SwiftApplication.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.quickstart.AuthenticationExample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -754,13 +756,13 @@
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
-				INFOPLIST_FILE = AuthenticationExample/Info.plist;
+				INFOPLIST_FILE = AuthenticationExample/SwiftApplication.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.quickstart.AuthenticationExample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.google.FirebaseExperimental1;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;

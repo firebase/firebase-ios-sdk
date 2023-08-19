@@ -52,7 +52,7 @@ import FirebaseCoreExtension
                       dependencies: [appCheckInterop]) { container, isCacheable in
         guard let app = container.app else { return nil }
         isCacheable.pointee = true
-        return self.init(app: app)
+        return Auth(app: app)
       }]
   }
 
