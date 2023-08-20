@@ -30,6 +30,7 @@ import FirebaseAuthInterop
 #endif
 
 #if os(iOS)
+  @available(iOS 13.0, *)
   extension Auth: UISceneDelegate {
     public func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
       for urlContext in URLContexts {
@@ -38,6 +39,7 @@ import FirebaseAuthInterop
     }
   }
 
+  @available(iOS 13.0, *)
   extension Auth: UIApplicationDelegate {
     public func application(_ application: UIApplication,
                             didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
