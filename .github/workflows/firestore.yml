@@ -332,6 +332,19 @@ jobs:
     - name: Swift Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
+  # A job that fails if any required job in the test matrix fails,
+  # to be used as a required check for merging.
+  check-required-tests:
+    runs-on: ubuntu-latest
+    if: always()
+    name: Check all required Firestore tests results
+    needs: [cmake, cmake-prod-db, xcodebuild]
+    steps:
+      - name: Check test matrix
+        if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure'
+        run: exit 1
+
+
   # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
   # Firebase UI 12
   # quickstart:
