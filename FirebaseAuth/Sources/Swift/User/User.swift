@@ -43,7 +43,7 @@ extension User: NSSecureCoding {}
       @brief Profile data for each identity provider, if any.
       @remarks This data is cached on sign-in and updated when linking or unlinking.
    */
-  @objc public var providerData: [UserInfoImpl] {
+  @objc public var providerData: [UserInfo] {
     return Array(providerDataRaw.values)
   }
 
@@ -1137,12 +1137,17 @@ extension User: NSSecureCoding {}
         guard let requestConfiguration = self.auth?.requestConfiguration else {
           fatalError("Internal Error: Unexpected nil requestConfiguration.")
         }
-        let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
+        guard let uid = self.uid else {
+          fatalError("Internal Error: Unexpected nil uid.")
+        }
+        let request = DeleteAccountRequest(localID: uid, accessToken: accessToken,
                                            requestConfiguration: requestConfiguration)
         Task {
           do {
             let _ = try await AuthBackend.post(with: request)
-            try self.auth?.signOutByForce(withUserID: self.uid)
+            if let uid = self.uid {
+              try self.auth?.signOutByForce(withUserID: uid)
+            }
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
             User.callInMainThreadWithError(callback: completion, error: error)
@@ -1317,7 +1322,7 @@ extension User: NSSecureCoding {}
   /** @property uid
       @brief The provider's user ID for the user.
    */
-  @objc public var uid: String
+  @objc public var uid: String?
 
   /** @property displayName
       @brief The name of the user.
@@ -1877,7 +1882,9 @@ extension User: NSSecureCoding {}
       code == AuthErrorCode.userTokenExpired.rawValue {
       AuthLog.logNotice(code: "I-AUT000016",
                         message: "Invalid user token detected, user is automatically signed out.")
-      try? auth?.signOutByForce(withUserID: uid)
+      if let uid {
+        try? auth?.signOutByForce(withUserID: uid)
+      }
     }
   }
 

@@ -78,7 +78,7 @@ class VerifyCustomTokenTests: RPCBaseTests {
       request: makeVerifyCustomTokenRequest(),
       message: kInvalidCustomTokenEmptyServerErrorMessage,
       errorCode: AuthErrorCode.invalidCustomToken,
-      checkLocalizedDescription: ""
+      checkLocalizedDescription: "The custom token format is incorrect. Please check the documentation."
     )
     try await checkBackendError(
       request: makeVerifyCustomTokenRequest(),

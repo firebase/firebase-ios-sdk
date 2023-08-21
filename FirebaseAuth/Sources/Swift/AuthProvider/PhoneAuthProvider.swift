@@ -60,7 +60,7 @@ import FirebaseCore
      */
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     public func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate?,
+                                  uiDelegate: AuthUIDelegate? = nil,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
                         uiDelegate: uiDelegate,
@@ -81,7 +81,7 @@ import FirebaseCore
 
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
     public func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate?,
+                                  uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession session: MultiFactorSession? = nil,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
@@ -106,7 +106,7 @@ import FirebaseCore
 
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     public func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate?,
+                                  uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession? = nil) async throws
       -> String {
       return try await withCheckedThrowingContinuation { continuation in
@@ -134,7 +134,7 @@ import FirebaseCore
      */
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
     public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate?,
+                                  uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession session: MultiFactorSession?,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
       session?.multiFactorInfo = multiFactorInfo
@@ -146,7 +146,7 @@ import FirebaseCore
 
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate?,
+                                  uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession?) async throws -> String {
       return try await withCheckedThrowingContinuation { continuation in
         self.verifyPhoneNumber(with: multiFactorInfo,

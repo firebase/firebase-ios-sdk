@@ -1039,7 +1039,8 @@ private let kFIRAuthErrorMessageMissingAppToken =
     @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.
  */
 private let kFIRAuthErrorMessageNotificationNotForwarded =
-  "If app delegate swizzling is disabled, remote notifications received by UIApplicationDelegate need to be forwarded to FIRAuth's canHandleNotificaton: method."
+  "If app delegate swizzling is disabled, remote notifications received by UIApplicationDelegate need to" +
+  "be forwarded to FirebaseAuth's canHandleNotificaton method."
 
 /** @var kFIRAuthErrorMessageAppNotVerified
     @brief Message for @c FIRAuthErrorCodeMissingAppToken error code.

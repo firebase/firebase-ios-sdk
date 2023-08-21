@@ -28,7 +28,7 @@ extension User: DataSourceProvidable {
                    isEditable: true
                  ),
                  Item(title: email ?? "––", detailTitle: "Email", isEditable: true),
-                 Item(title: phoneNumber ?? "––", detailTitle: "Phone Number")]
+                 Item(title: phoneNumber ?? "––", detailTitle: "Phone Number", isEditable: true)]
     return Section(headerDescription: "Info", items: items)
   }
 
@@ -69,7 +69,7 @@ public extension UIViewController {
   func displayError(_ error: Error?, from function: StaticString = #function) {
     guard let error = error else { return }
     print("ⓧ Error in \(function): \(error.localizedDescription)")
-    let message = "\(error.localizedDescription)\n\n Ocurred in \(function)"
+    let message = "\(error.localizedDescription)\n\n Occurred in \(function)"
     let errorAlertController = UIAlertController(
       title: "Error",
       message: message,

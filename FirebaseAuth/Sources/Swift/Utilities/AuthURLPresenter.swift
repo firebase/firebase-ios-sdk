@@ -180,10 +180,11 @@
             }
           }
         }
-      }
-      isPresenting = false
-      if let completion {
-        completion(url, error)
+      } else {
+        isPresenting = false
+        if let completion {
+          completion(url, error)
+        }
       }
     }
   }

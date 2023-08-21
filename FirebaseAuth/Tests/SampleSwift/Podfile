@@ -22,7 +22,7 @@ target 'AuthenticationExample' do
   pod 'GoogleSignIn'
 
   ## Pod for Sign in with Facebook
-  pod 'FBSDKLoginKit'
+  pod 'FBSDKLoginKit', '< 13'
 
   target 'SwiftApiTests' do
     inherit! :search_paths

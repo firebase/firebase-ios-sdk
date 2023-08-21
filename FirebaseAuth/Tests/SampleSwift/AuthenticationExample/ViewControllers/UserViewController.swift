@@ -66,10 +66,14 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
 
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
+    guard let title = item.detailTitle else {
+      return
+    }
 
-    let actionName = item.isEditable ? item.detailTitle! : item.title!
+    let actionName = item.isEditable ? title : item.title!
 
-    guard let action = UserAction(rawValue: actionName) else {
+    guard let action = UserAction(rawValue: actionName),
+          let title = item.detailTitle else {
       // The row tapped has no affiliated action.
       return
     }
@@ -91,13 +95,19 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
       deleteCurrentUser()
 
     case .updateEmail:
-      presentEditUserInfoController(for: item, to: updateUserEmail)
+      presentEditUserInfoController(for: title, to: updateUserEmail)
 
     case .updateDisplayName:
-      presentEditUserInfoController(for: item, to: updateUserDisplayName)
+      presentEditUserInfoController(for: title, to: updateUserDisplayName)
 
     case .updatePhotoURL:
-      presentEditUserInfoController(for: item, to: updatePhotoURL)
+      presentEditUserInfoController(for: title, to: updatePhotoURL)
+
+    case .updatePhoneNumber:
+      presentEditUserInfoController(
+        for: title + " formatted like +16509871234",
+        to: updatePhoneNumber
+      )
 
     case .refreshUserInfo:
       refreshUserInfo()
@@ -173,6 +183,22 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
+  public func updatePhoneNumber(to newPhoneNumber: String) {
+    Task {
+      do {
+        let phoneAuthProvider = PhoneAuthProvider.provider()
+        let verificationID = try await phoneAuthProvider.verifyPhoneNumber(newPhoneNumber)
+        let verificationCode = try await getVerificationCode()
+        let credential = phoneAuthProvider.credential(withVerificationID: verificationID,
+                                                      verificationCode: verificationCode)
+        try await user?.updatePhoneNumber(credential)
+        self.updateUI()
+      } catch {
+        self.displayError(error)
+      }
+    }
+  }
+
   // MARK: - Sign in with Apple Token Revocation Flow
 
   // For Sign in with Apple
@@ -201,6 +227,19 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
   // [END token_revocation_deleteuser]
 
   // MARK: - Private Helpers
+
+  private func getVerificationCode() async throws -> String {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.presentEditUserInfoController(for: "Phone Auth Verification Code") { code in
+        if code != "" {
+          continuation.resume(returning: code)
+        } else {
+          // Cancelled
+          continuation.resume(throwing: NSError())
+        }
+      }
+    }
+  }
 
   private func configureNavigationBar() {
     navigationItem.title = "User"
@@ -241,22 +280,26 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
                       animations: { tableView.reloadData() })
   }
 
-  private func presentEditUserInfoController(for item: Itemable,
+  private func presentEditUserInfoController(for title: String,
                                              to saveHandler: @escaping (String) -> Void) {
     let editController = UIAlertController(
-      title: "Update \(item.detailTitle!)",
+      title: "Update \(title)",
       message: nil,
       preferredStyle: .alert
     )
-    editController.addTextField { $0.placeholder = "New \(item.detailTitle!)" }
+    editController.addTextField { $0.placeholder = "New \(title)" }
 
-    let saveHandler: (UIAlertAction) -> Void = { _ in
+    let saveHandler1: (UIAlertAction) -> Void = { _ in
       let text = editController.textFields!.first!.text!
       saveHandler(text)
     }
 
-    editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler))
-    editController.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+    let cancel: (UIAlertAction) -> Void = { _ in
+      saveHandler("")
+    }
+
+    editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler1))
+    editController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: cancel))
     present(editController, animated: true, completion: nil)
   }
 

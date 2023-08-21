@@ -60,6 +60,10 @@ private let kFIRAuthErrorMessageMalformedJWT =
       if errorUserInfo[NSLocalizedDescriptionKey] == nil {
         errorUserInfo[NSLocalizedDescriptionKey] = publicCode.errorDescription
       }
+      if let localizedDescription = errorUserInfo[NSLocalizedDescriptionKey] as? String,
+         localizedDescription == "" {
+        errorUserInfo[NSLocalizedDescriptionKey] = publicCode.errorDescription
+      }
       errorUserInfo[userInfoNameKey] = publicCode.errorCodeString
       return NSError(
         domain: errorDomain,

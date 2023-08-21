@@ -29,23 +29,17 @@ import FirebaseAuthInterop
   import UIKit
 #endif
 
-// TODO: What should this be?
-// extension NSNotification.Name {
-//    /**
-//        @brief The name of the `NSNotificationCenter` notification which is posted when the auth
-//        state
-//            changes (for example, a new token has been produced, a user signs in or signs out).
-//            The
-//            object parameter of the notification is the sender `Auth` instance.
-//     */
-//    public static let AuthStateDidChange: NSNotification.Name
-// }
-
 #if os(iOS)
   @available(iOS 13.0, *)
-  extension Auth: UISceneDelegate {}
+  extension Auth: UISceneDelegate {
+    public func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+      for urlContext in URLContexts {
+        let _ = canHandle(urlContext.url)
+      }
+    }
+  }
 
-  @available(iOS 13, *)
+  @available(iOS 13.0, *)
   extension Auth: UIApplicationDelegate {
     public func application(_ application: UIApplication,
                             didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
@@ -65,6 +59,12 @@ import FirebaseAuthInterop
                             @escaping (UIBackgroundFetchResult) -> Void) {
       _ = canHandleNotification(userInfo)
       completionHandler(UIBackgroundFetchResult.noData)
+    }
+
+    // TODO(#11693): This deprecated API is temporarily needed for Phone Auth.
+    public func application(_ application: UIApplication,
+                            didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
+      _ = canHandleNotification(userInfo)
     }
 
     public func application(_ application: UIApplication,
@@ -163,9 +163,7 @@ extension Auth: AuthInterop {
    @return The `Auth` instance associated with the given app.
    */
   @objc public class func auth(app: FirebaseApp) -> Auth {
-    let provider = ComponentType<AuthProvider>.instance(for: AuthProvider.self,
-                                                        in: app.container)
-    return provider.auth()
+    return ComponentType<AuthProvider>.instance(for: AuthProvider.self, in: app.container) as! Auth
   }
 
   /** @property app
