@@ -111,9 +111,9 @@ extension AuthProvider: DataSourceProvidable {
 
   static var emailPasswordSection: Section {
     let image = UIImage(named: "firebaseIcon")
+    let header = "Email & Password Login"
     let item = Item(title: emailPassword.name, hasNestedContent: true, image: image)
-    let footer = "A example login flow with password authentication."
-    return Section(footerDescription: footer, items: [item])
+    return Section(headerDescription: header, items: [item])
   }
 
   static var otherSection: Section {
@@ -128,7 +128,8 @@ extension AuthProvider: DataSourceProvidable {
       Item(title: anonymous.name, image: anonSymbol),
       Item(title: custom.name, image: shieldSymbol),
     ]
-    return Section(footerDescription: "Other authentication methods.", items: otherOptions)
+    let header = "Other Authentication Methods"
+    return Section(headerDescription: header, items: otherOptions)
   }
 
   static var sections: [Section] {
