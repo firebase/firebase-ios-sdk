@@ -66,14 +66,9 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
 
   func didSelectRowAt(_ indexPath: IndexPath, on tableView: UITableView) {
     let item = dataSourceProvider.item(at: indexPath)
-    guard let title = item.detailTitle else {
-      return
-    }
+    let actionName = item.isEditable ? item.detailTitle! : item.title!
 
-    let actionName = item.isEditable ? title : item.title!
-
-    guard let action = UserAction(rawValue: actionName),
-          let title = item.detailTitle else {
+    guard let action = UserAction(rawValue: actionName) else {
       // The row tapped has no affiliated action.
       return
     }
@@ -95,17 +90,17 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
       deleteCurrentUser()
 
     case .updateEmail:
-      presentEditUserInfoController(for: title, to: updateUserEmail)
+      presentEditUserInfoController(for: actionName, to: updateUserEmail)
 
     case .updateDisplayName:
-      presentEditUserInfoController(for: title, to: updateUserDisplayName)
+      presentEditUserInfoController(for: actionName, to: updateUserDisplayName)
 
     case .updatePhotoURL:
-      presentEditUserInfoController(for: title, to: updatePhotoURL)
+      presentEditUserInfoController(for: actionName, to: updatePhotoURL)
 
     case .updatePhoneNumber:
       presentEditUserInfoController(
-        for: title + " formatted like +16509871234",
+        for: actionName + " formatted like +16509871234",
         to: updatePhoneNumber
       )
 
