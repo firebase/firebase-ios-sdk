@@ -111,7 +111,7 @@ extension AuthProvider: DataSourceProvidable {
 
   static var emailPasswordSection: Section {
     let image = UIImage(named: "firebaseIcon")
-    let header = "Email & Password Login"
+    let header = "Email and Password Login"
     let item = Item(title: emailPassword.name, hasNestedContent: true, image: image)
     return Section(headerDescription: header, items: [item])
   }
