@@ -464,43 +464,11 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   return result;
 }
 
-bool LevelDbIndexManager::DeleteAllFieldIndexes() {
+void LevelDbIndexManager::CleanUpLocalIndexRecords() {
   HARD_ASSERT(started_, "IndexManager not started");
-
-  bool is_finished = true;
-  is_finished = db_->current_transaction()->DeleteEverythingWithPrefix(
-      "Delete All Index Configuration",
-      LevelDbIndexConfigurationKey::KeyPrefix());
-
-  // Pause the task, creates another transaction to continue the work.
-  if (!is_finished) {
-    return false;
-  }
-
-  // Delete states from all users for this index id.
-  is_finished = db_->current_transaction()->DeleteEverythingWithPrefix(
-      "Delete All Index States", LevelDbIndexStateKey::KeyPrefix(),
-      [](absl::string_view key) {
-        LevelDbIndexStateKey state_key;
-        return state_key.Decode(key);
-      });
-
-  if (!is_finished) {
-    return false;
-  }
-
-  // Delete entries from all users for this index id.
-  is_finished = db_->current_transaction()->DeleteEverythingWithPrefix(
-      "Delete All Index Entries", LevelDbIndexEntryKey::KeyPrefix());
-
-  if (!is_finished) {
-    return false;
-  }
 
   memoized_indexes_.clear();
   next_index_to_update_ = QueueForNextIndexToUpdate();
-
-  return true;
 }
 
 void LevelDbIndexManager::CreateTargetIndexes(const core::Target& target) {

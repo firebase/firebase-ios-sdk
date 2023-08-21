@@ -89,10 +89,7 @@ std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() const {
   return {};
 }
 
-bool MemoryIndexManager::DeleteAllFieldIndexes() {
-  // No indexes for memory cache, so the function always returns true as
-  // finished.
-  return true;
+void MemoryIndexManager::CleanUpLocalIndexRecords() {
 }
 
 void MemoryIndexManager::CreateTargetIndexes(const core::Target&) {

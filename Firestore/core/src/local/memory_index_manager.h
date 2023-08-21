@@ -67,7 +67,7 @@ class MemoryIndexManager : public IndexManager {
 
   std::vector<model::FieldIndex> GetFieldIndexes() const override;
 
-  bool DeleteAllFieldIndexes() override;
+  void CleanUpLocalIndexRecords() override;
 
   void CreateTargetIndexes(const core::Target&) override;
 

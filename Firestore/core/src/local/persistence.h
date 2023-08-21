@@ -153,6 +153,17 @@ class Persistence {
       const std::string& target_uid) = 0;
 
   /**
+      Removes all persistent cache indexes. This feature is implemented in
+   `Persistence` instead of `IndexManager` like other SDKs.
+
+   *  The reason for that is the total operation of `DeleteAllIndexes` may
+   exceed maximum operation per transaction. So the SDK needs more than one
+   transaction to execute the task, while all functions in `IndexManager` can be
+   carried out in one transaction.
+      */
+  virtual void DeleteAllFieldIndexes() = 0;
+
+  /**
    * Accepts a function and runs it within a transaction. When called, a
    * transaction will be started before a block is run, and committed after the
    * block has executed.
@@ -188,26 +199,6 @@ class Persistence {
     RunInternal(label, [&]() mutable { result = block(); });
 
     return result;
-  }
-
-  /**
-   * Accepts a function and runs it within a transaction. When called, a
-   * transaction will be started before a block is run, and committed after the
-   * block has executed. Given there exists upper limit (1000 operations) for
-   * transaction, this task will run repeatedly until task is finished.
-   *
-   * @param label A semi-unique name for the transaction, for logging.
-   * @param block A function to be executed within the transaction whose return
-   *     value is boolean. When `block()` returns true, means the function has
-   * finished execution. If `block()` returns false, task needs to be executed
-   * again.
-   */
-  auto RunUntilTaskFinished(absl::string_view label,
-                            std::function<bool()> block) {
-    bool is_finished = false;
-    while (!is_finished) {
-      RunInternal(label, [&]() mutable { is_finished = block(); });
-    }
   }
 
  private:

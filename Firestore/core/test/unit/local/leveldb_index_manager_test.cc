@@ -1322,8 +1322,8 @@ TEST_F(LevelDbIndexManagerTest,
       });
 }
 
-TEST_F(LevelDbIndexManagerTest, DeleteAllFieldIndexesWorks) {
-  persistence_->Run("TestDeleteAllFieldIndexesWorks", [&]() {
+TEST_F(LevelDbIndexManagerTest, CleanUpLocalIndexRecordsWorks) {
+  persistence_->Run("TestCleanUpLocalIndexRecordsWorks", [&]() {
     index_manager_->Start();
 
     auto index1 = MakeFieldIndex("coll1", 0, model::FieldIndex::InitialState(),
@@ -1337,7 +1337,7 @@ TEST_F(LevelDbIndexManagerTest, DeleteAllFieldIndexesWorks) {
       EXPECT_EQ(indexes.size(), 2);
     }
 
-    index_manager_->DeleteAllFieldIndexes();
+    index_manager_->CleanUpLocalIndexRecords();
     {
       auto indexes = index_manager_->GetFieldIndexes();
       EXPECT_EQ(indexes.size(), 0);

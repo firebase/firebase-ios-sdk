@@ -156,17 +156,6 @@ class LevelDbTransaction {
   void Delete(absl::string_view key);
 
   /**
-   * Remove the database entry (if any) for all "key" starting with given
-   * prefix.  It is not an error if "key" did not exist in the database. When
-   * function returns true, means the function has finished execution. If it
-   * returns false, function needs to be called again.
-   */
-  bool DeleteEverythingWithPrefix(
-      absl::string_view label,
-      const std::string& prefix,
-      const std::function<bool(absl::string_view key)> decode_function = {});
-
-  /**
    * Schedules the row identified by `key` to be set to `value` when this
    * transaction commits.
    */

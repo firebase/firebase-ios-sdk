@@ -104,6 +104,8 @@ class MemoryPersistence : public Persistence {
 
   void ReleaseOtherUserSpecificComponents(const std::string& uid) override;
 
+  void DeleteAllFieldIndexes() override;
+
  protected:
   void RunInternal(absl::string_view label,
                    std::function<void()> block) override;

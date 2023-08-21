@@ -102,6 +102,8 @@ class LevelDbPersistence : public Persistence {
 
   void ReleaseOtherUserSpecificComponents(const std::string& uid) override;
 
+  void DeleteAllFieldIndexes() override;
+
  protected:
   void RunInternal(absl::string_view label,
                    std::function<void()> block) override;
@@ -128,6 +130,13 @@ class LevelDbPersistence : public Persistence {
       LevelDbMigrations::SchemaVersion schema_version,
       LocalSerializer serializer,
       const LruParams& lru_params);
+
+  /**
+   * Remove the database entry (if any) for all "key" starting with given
+   * prefix. It is a no-op if the key does not exist.
+   */
+  void DeleteEverythingWithPrefix(absl::string_view label,
+                                  const std::string& prefix);
 
   std::unique_ptr<leveldb::DB> db_;
 

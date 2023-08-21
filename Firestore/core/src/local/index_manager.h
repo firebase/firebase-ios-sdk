@@ -112,9 +112,9 @@ class IndexManager {
   /** Returns all configured field indexes. */
   virtual std::vector<model::FieldIndex> GetFieldIndexes() const = 0;
 
-  /** Removes all field indexes and deletes all index values. Function returns
-   * true is all deletions are finished, otherwise false. */
-  virtual bool DeleteAllFieldIndexes() = 0;
+  /** Cleans up the local indexes records including fast look up map and update
+   * queue. */
+  virtual void CleanUpLocalIndexRecords() = 0;
 
   /** Creates a full matched field index which serves the given target. */
   virtual void CreateTargetIndexes(const core::Target& target) = 0;

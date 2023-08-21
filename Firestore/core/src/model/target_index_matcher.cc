@@ -122,6 +122,8 @@ model::FieldIndex TargetIndexMatcher::BuildTargetIndex() {
   // We want to make sure only one segment created for one field. For example,
   // in case like a == 3 and a > 2, Index: {a ASCENDING} will only be created
   // once.
+  // Since `FieldPath` doesn't have hash function, std::set is used instead of
+  // std::unordered_set
   std::set<FieldPath> unique_fields;
   std::vector<Segment> segments;
 
