@@ -330,10 +330,13 @@ case "$product-$platform-$method" in
     "${firestore_emulator}" start
     trap '"${firestore_emulator}" stop' ERR EXIT
 
+    nproc=$(sysctl -n hw.ncpu)
     RunXcodebuild \
         -workspace 'Firestore/Example/Firestore.xcworkspace' \
         -scheme "Firestore_IntegrationTests_$platform" \
         -enableCodeCoverage YES \
+        -parallelizeTargets \
+        -jobs ${nproc} \
         "${xcb_flags[@]}" \
         build \
         test
