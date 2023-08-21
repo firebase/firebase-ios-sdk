@@ -338,10 +338,10 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     name: Check all required Firestore tests results
-    needs: [cmake, cmake-prod-db, xcodebuild]
+    needs: [cmake, cmake-prod-db, xcodebuild, spm]
     steps:
       - name: Check test matrix
-        if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure'
+        if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure' || needs.spm.result == 'failure'
         run: exit 1
 
 

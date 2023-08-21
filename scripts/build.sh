@@ -338,7 +338,6 @@ case "$product-$platform-$method" in
         -parallelizeTargets \
         -jobs ${nproc} \
         "${xcb_flags[@]}" \
-        build \
         test
     ;;
 
