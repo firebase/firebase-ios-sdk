@@ -36,14 +36,14 @@ namespace {
 
 static const int kDefaultIndexAutoCreationMinCollectionSize = 100;
 
-// TODO(csi): update the experiment link
 /**
  * This cost represents the evaluation result of (([index, docKey] + [docKey,
  * docContent]) per document in the result set) / ([docKey, docContent] per
- * documents in full collection scan) coming from experiment.
+ * documents in full collection scan) coming from experiment
+ * https://github.com/firebase/firebase-ios-sdk/pull/11716.
  */
 
-static const double KDefaultRelativeIndexReadCostPerDocument = 2;
+static const double KDefaultRelativeIndexReadCostPerDocument = 3.4;
 }  // namespace
 
 using core::LimitType;
