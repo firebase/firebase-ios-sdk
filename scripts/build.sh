@@ -279,6 +279,12 @@ if [[ -n "${SANITIZERS:-}" ]]; then
   done
 fi
 
+if [[ -n "${CACHE_LAUNCHER:-}" ]]; then
+  cmake_options+=(
+    -DCMAKE_C_COMPILER_LAUNCHER=${CACHE_LAUNCHER}
+    -DCMAKE_CXX_COMPILER_LAUNCHER=${CACHE_LAUNCHER}
+  )
+fi
 
 case "$product-$platform-$method" in
   FirebasePod-iOS-*)

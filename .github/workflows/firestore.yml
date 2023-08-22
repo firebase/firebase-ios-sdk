@@ -105,29 +105,14 @@ jobs:
         os: [macos-12, ubuntu-latest]
 
     env:
-      MINT_PATH: ${{ github.workspace }}/mint
+      CACHE_LAUNCHER: buildcache
 
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
-
-    - name: Prepare ccache
-      uses: actions/cache@v3
-      with:
-        path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
-        restore-keys: |
-          firestore-ccache-${{ runner.os }}-
-
-    - name: Cache Mint packages
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.MINT_PATH }}
-        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-        restore-keys: ${{ runner.os }}-mint-
+        cache_key: cmake-${{ matrix.os }}
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
@@ -158,22 +143,7 @@ jobs:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
-
-    - name: Prepare ccache
-      uses: actions/cache@v3
-      with:
-        path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
-        restore-keys: |
-          firestore-ccache-${{ runner.os }}-
-
-    - name: Cache Mint packages
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.MINT_PATH }}
-        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-        restore-keys: ${{ runner.os }}-mint-
+        cache_key: cmake-${{ matrix.os }}
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
@@ -208,15 +178,7 @@ jobs:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
-
-    - name: Prepare ccache
-      uses: actions/cache@v3
-      with:
-        path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-${{ github.sha }}
-        restore-keys: |
-          firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-
+        cache_key: cmake-${{ matrix.os }}-${{ matrix.sanitizer }}
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
