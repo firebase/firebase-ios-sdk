@@ -73,6 +73,19 @@ NS_ASSUME_NONNULL_BEGIN
   }];
 }
 
+- (void)getLimitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable,
+                                                   NSError *_Nullable))handler {
+  [self.appAttestProvider getLimitedUseTokenWithCompletion:^(
+                              GACAppCheckToken *_Nullable internalToken, NSError *_Nullable error) {
+    if (error) {
+      handler(nil, error);
+      return;
+    }
+
+    handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+  }];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

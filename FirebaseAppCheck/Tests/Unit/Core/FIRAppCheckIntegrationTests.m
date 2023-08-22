@@ -22,7 +22,6 @@
 
 @import FirebaseAppCheckInterop;
 
-#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
@@ -64,7 +63,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, nullable) id mockProviderFactory;
 @property(nonatomic, nullable) id mockAppCheckProvider;
-@property(nonatomic, nullable) id mockTokenRefresher;
 
 - (void)testDefaultAppCheckProvider FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY;
 
@@ -74,9 +72,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUp {
   [super setUp];
-
-  // Disable token refresher to avoid any unexpected async tasks being scheduled.
-  [self disableTokenRefresher];
 
   self.mockAppCheckProvider = OCMProtocolMock(@protocol(FIRAppCheckProvider));
   self.mockProviderFactory = OCMProtocolMock(@protocol(FIRAppCheckProviderFactory));
@@ -90,8 +85,6 @@ NS_ASSUME_NONNULL_BEGIN
     [FIRAppCheck setAppCheckProviderFactory:[[FIRDeviceCheckProviderFactory alloc] init]];
   }
 
-  [self.mockTokenRefresher stopMocking];
-  self.mockTokenRefresher = nil;
   [self.mockProviderFactory stopMocking];
   self.mockProviderFactory = nil;
   [self.mockAppCheckProvider stopMocking];
@@ -119,6 +112,10 @@ NS_ASSUME_NONNULL_BEGIN
   [self configureAppWithName:appName];
 
   FIRApp *app = [FIRApp appNamed:appName];
+  FIRAppCheck *appCheck = [FIRAppCheck appCheckWithApp:app];
+  XCTAssertNotNil(appCheck);
+  // Disable token refresher to avoid any unexpected async tasks being scheduled.
+  appCheck.isTokenAutoRefreshEnabled = NO;
   XCTAssertNotNil(FIR_COMPONENT(FIRAppCheckInterop, app.container));
 
   // 3. Verify
@@ -155,6 +152,11 @@ NS_ASSUME_NONNULL_BEGIN
 
   // 3. Configure FIRApp.
   [self configureAppWithName:appName];
+  FIRApp *app = [FIRApp appNamed:appName];
+  FIRAppCheck *appCheck = [FIRAppCheck appCheckWithApp:app];
+  XCTAssertNotNil(appCheck);
+  // Disable token refresher to avoid any unexpected async tasks being scheduled.
+  appCheck.isTokenAutoRefreshEnabled = NO;
 
   // 4. Expect App Check Provider to be called on getToken.
   FIRAppCheckToken *fakeToken = [[FIRAppCheckToken alloc] initWithToken:@"token"
@@ -163,19 +165,18 @@ NS_ASSUME_NONNULL_BEGIN
   OCMExpect([self.mockAppCheckProvider getTokenWithCompletion:completionBlockArg]);
 
   // 5. Call getToken and check the result.
-  FIRApp *app = [FIRApp appNamed:appName];
-  id<FIRAppCheckInterop> appCheck = FIR_COMPONENT(FIRAppCheckInterop, app.container);
+  id<FIRAppCheckInterop> appCheckInterop = FIR_COMPONENT(FIRAppCheckInterop, app.container);
 
   XCTestExpectation *completionExpectation =
       [self expectationWithDescription:@"completionExpectation"];
-  [appCheck getTokenForcingRefresh:YES
-                        completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
-                          [completionExpectation fulfill];
-                          XCTAssertNil(tokenResult.error);
-                          XCTAssertNotNil(tokenResult);
-                          XCTAssertEqualObjects(tokenResult.token, fakeToken.token);
-                          XCTAssertNil(tokenResult.error);
-                        }];
+  [appCheckInterop getTokenForcingRefresh:YES
+                               completion:^(id<FIRAppCheckTokenResultInterop> tokenResult) {
+                                 [completionExpectation fulfill];
+                                 XCTAssertNil(tokenResult.error);
+                                 XCTAssertNotNil(tokenResult);
+                                 XCTAssertEqualObjects(tokenResult.token, fakeToken.token);
+                                 XCTAssertNil(tokenResult.error);
+                               }];
   [self waitForExpectations:@[ completionExpectation ] timeout:0.5];
 
   // 6. Verify mocks
@@ -205,6 +206,10 @@ NS_ASSUME_NONNULL_BEGIN
   [FIRApp configureWithName:@"AppName" options:options];
 
   FIRApp *defaultApp = [FIRApp defaultApp];
+  FIRAppCheck *appCheck = [FIRAppCheck appCheckWithApp:defaultApp];
+  XCTAssertNotNil(appCheck);
+  // Disable token refresher to avoid any unexpected async tasks being scheduled.
+  appCheck.isTokenAutoRefreshEnabled = NO;
 
   id<FIRAppCheckInterop> defaultAppCheck = FIR_COMPONENT(FIRAppCheckInterop, defaultApp.container);
 
@@ -215,13 +220,6 @@ NS_ASSUME_NONNULL_BEGIN
                                    NSLog(@"Error: %@", tokenResult.error);
                                  }
                                }];
-}
-
-- (void)disableTokenRefresher {
-  self.mockTokenRefresher = OCMClassMock([FIRAppCheckTokenRefresher class]);
-  OCMStub([self.mockTokenRefresher alloc]).andReturn(self.mockTokenRefresher);
-  OCMStub([self.mockTokenRefresher initWithRefreshResult:[OCMArg any] settings:[OCMArg any]])
-      .andReturn(self.mockTokenRefresher);
 }
 
 @end

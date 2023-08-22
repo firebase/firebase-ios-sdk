@@ -42,6 +42,12 @@ NS_ASSUME_NONNULL_BEGIN
               receivedAtDate:token.receivedAtDate];
 }
 
+- (GACAppCheckToken *)internalToken {
+  return [[GACAppCheckToken alloc] initWithToken:self.token
+                                  expirationDate:self.expirationDate
+                                  receivedAtDate:self.receivedAtDate];
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
