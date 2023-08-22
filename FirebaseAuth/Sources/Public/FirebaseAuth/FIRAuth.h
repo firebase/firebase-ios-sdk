@@ -16,8 +16,6 @@
 
 #import <AvailabilityMacros.h>
 #import <Foundation/Foundation.h>
-
-#import <AuthenticationServices/AuthenticationServices.h>
 #import "FIRAuthAPNSTokenType.h"
 #import "FIRAuthErrors.h"
 
@@ -30,6 +28,11 @@
 @class FIRUser;
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@class ASAuthorizationPlatformPublicKeyCredentialAssertion;
+@class ASAuthorizationPlatformPublicKeyCredentialAssertionRequest;
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -878,7 +881,6 @@ NS_SWIFT_NAME(Auth)
                                             error:(NSError *_Nullable *_Nullable)outError
     __attribute__((swift_error(nonnull_error)));  // This method can return `nil` on success.
 
-#if TARGET_OS_IOS
 /**
  @fn finalizePasskeySignInWithPlatformCredential:completion
  @brief sign in with passkey credential
@@ -900,7 +902,6 @@ NS_SWIFT_NAME(Auth)
         ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
         NSError *_Nullable error))completion API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
 
-#endif
 @end
 
 NS_ASSUME_NONNULL_END

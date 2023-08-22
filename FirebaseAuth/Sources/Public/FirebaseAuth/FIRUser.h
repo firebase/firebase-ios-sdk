@@ -28,6 +28,11 @@
 @class FIRUserMetadata;
 @protocol FIRAuthUIDelegate;
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@class ASAuthorizationPlatformPublicKeyCredentialRegistration;
+@class ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest;
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRAuthTokenCallback
@@ -512,15 +517,17 @@ NS_SWIFT_NAME(User)
                                       completion:
                                           (nullable void (^)(NSError *_Nullable error))completion;
 
-#if TARGET_OS_IOS
 /**
  @fn startPasskeyEnrollmentWithCompletion
  @brief Create an registration request for enroll.
  */
-- (void)startPasskeyEnrollmentWithCompletion:
-    (nullable void (^)(
-        ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest *_Nullable request,
-        NSError *_Nullable error))completion NS_SWIFT_NAME(startPasskeyEnrollment(completion:))
+- (void)startPasskeyEnrollmentWithName:(nullable NSString *)name
+                            completion:
+                                (nullable void (^)(
+                                    ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
+                                        *_Nullable request,
+                                    NSError *_Nullable error))completion
+    NS_SWIFT_NAME(startPasskeyEnrollment(with:completion:))
         API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
 
 /**
@@ -544,8 +551,6 @@ NS_SWIFT_NAME(User)
 - (void)unenrollPasskeyWithCredentialID:(NSString *)credentialID
                              completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(unenrollPasskey(with:completion:));
-
-#endif
 
 @end
 
