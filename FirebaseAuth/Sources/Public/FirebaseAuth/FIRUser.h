@@ -517,8 +517,9 @@ NS_SWIFT_NAME(User)
                                       completion:
                                           (nullable void (^)(NSError *_Nullable error))completion;
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 /**
- @fn startPasskeyEnrollmentWithCompletion
+ @fn startPasskeyEnrollmentWithName:completion
  @brief Create an registration request for enroll.
  */
 - (void)startPasskeyEnrollmentWithName:(nullable NSString *)name
@@ -543,6 +544,7 @@ NS_SWIFT_NAME(User)
     NS_SWIFT_NAME(finalizePasskeyEnrollment(with:completion:))
         API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
 
+#endif
 /**
  @fn unenrollPasskeyWithCredentialID:completion
  @brief To unenroll a passkey with platform credential.
