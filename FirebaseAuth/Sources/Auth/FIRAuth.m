@@ -18,8 +18,6 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 
-
-
 #if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 #endif
@@ -82,6 +80,11 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthAppCredentialManager.h"
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@class ASAuthorizationPlatformPublicKeyCredentialAssertion;
+@class ASAuthorizationPlatformPublicKeyCredentialAssertionRequest;
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -2371,10 +2374,17 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
   return user;
 }
 
-- (void)startPasskeySignInWithCompletion:(nullable void (^)(ASAuthorizationPlatformPublicKeyCredentialAssertionRequest * _Nullable __strong, NSError * _Nullable error))completion{
+- (void)startPasskeySignInWithCompletion:
+    (nullable void (^)(
+        ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+        NSError *_Nullable error))completion {
 }
 
-- (void)finalizePasskeySignInWithPlatformCredential:(ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential completion:(nullable void (^)(FIRAuthDataResult * _Nullable __strong, NSError * _Nullable __strong))completion{
+- (void)finalizePasskeySignInWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential
+                                         completion:(nullable void (^)(
+                                                        FIRAuthDataResult *_Nullable result,
+                                                        NSError *_Nullable error))completion {
 }
 
 @end

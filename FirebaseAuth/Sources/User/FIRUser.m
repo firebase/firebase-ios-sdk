@@ -66,6 +66,11 @@
 #import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@class ASAuthorizationPlatformPublicKeyCredentialRegistration;
+@class ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest;
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /** @var kUserIDCodingKey
@@ -1515,6 +1520,28 @@ static void callInMainThreadWithAuthDataResultAndError(
                  @"Invalid user token detected, user is automatically signed out.");
     [_auth signOutByForceWithUserID:_userID error:NULL];
   }
+}
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+- (void)finalizePasskeyEnrollmentWithPlatformCredential:
+            (nonnull ASAuthorizationPlatformPublicKeyCredentialRegistration *)platformCredential
+                                             completion:(nullable void (^)(
+                                                            FIRAuthDataResult *_Nullable result,
+                                                            NSError *_Nullable error))completion {
+}
+
+- (void)startPasskeyEnrollmentWithName:(nullable NSString *)name
+                            completion:
+                                (nullable void (^)(
+                                    ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest
+                                        *_Nullable request,
+                                    NSError *_Nullable error))completion {
+}
+
+#endif
+
+- (void)unenrollPasskeyWithCredentialID:(nonnull NSString *)credentialID
+                             completion:(nullable void (^)(NSError *_Nullable error))completion {
 }
 
 @end

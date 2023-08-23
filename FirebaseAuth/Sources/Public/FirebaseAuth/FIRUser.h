@@ -28,11 +28,6 @@
 @class FIRUserMetadata;
 @protocol FIRAuthUIDelegate;
 
-#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
-@class ASAuthorizationPlatformPublicKeyCredentialRegistration;
-@class ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest;
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 /** @typedef FIRAuthTokenCallback
