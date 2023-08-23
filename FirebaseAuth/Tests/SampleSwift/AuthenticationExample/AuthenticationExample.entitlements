@@ -10,5 +10,9 @@
 	</array>
 	<key>com.apple.developer.associated-domains</key>
 	<array/>
+	<key>keychain-access-groups</key>
+	<array>
+		<string>$(AppIdentifierPrefix)com.google.firebase.auth.keychainGroup1</string>
+	</array>
 </dict>
 </plist>

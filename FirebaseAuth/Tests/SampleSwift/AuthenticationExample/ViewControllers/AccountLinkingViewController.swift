@@ -311,12 +311,13 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     actionCodeSettings.handleCodeInApp = true
     actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
 
-    Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
-      guard error == nil else { return self.displayError(error) }
+    AppManager.shared.auth()
+      .sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
+        guard error == nil else { return self.displayError(error) }
 
-      // Set `email` property as it will be used to complete sign in after opening email link
-      self.email = email
-    }
+        // Set `email` property as it will be used to complete sign in after opening email link
+        self.email = email
+      }
   }
 
   @objc

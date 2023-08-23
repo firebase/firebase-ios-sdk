@@ -16,6 +16,7 @@ import UIKit
 
 /// Firebase Auth supported identity providers and other methods of authentication
 enum AuthProvider: String {
+  case settings = "Settings"
   case google = "google.com"
   case apple = "apple.com"
   case twitter = "twitter.com"
@@ -35,6 +36,8 @@ enum AuthProvider: String {
   /// The UI friendly name of the `AuthProvider`. Used for display.
   var name: String {
     switch self {
+    case .settings:
+      return "Settings"
     case .google:
       return "Google"
     case .apple:
@@ -66,6 +69,8 @@ enum AuthProvider: String {
   /// - Parameter rawValue: String value representing `AuthProvider`'s name or type.
   init?(rawValue: String) {
     switch rawValue {
+    case "Settings":
+      self = .settings
     case "Google":
       self = .google
     case "Apple":
@@ -102,6 +107,12 @@ extension AuthProvider: DataSourceProvidable {
     [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook]
   }
 
+  static var settingsSection: Section {
+    let header = "Auth Settings"
+    let item = Item(title: settings.name, hasNestedContent: true)
+    return Section(headerDescription: header, items: [item])
+  }
+
   static var providerSection: Section {
     let providers = self.providers.map { Item(title: $0.name) }
     let header = "Identity Providers"
@@ -133,7 +144,7 @@ extension AuthProvider: DataSourceProvidable {
   }
 
   static var sections: [Section] {
-    [providerSection, emailPasswordSection, otherSection]
+    [settingsSection, providerSection, emailPasswordSection, otherSection]
   }
 
   static var authLinkSections: [Section] {

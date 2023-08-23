@@ -63,14 +63,14 @@ class LoginController: UIViewController {
   // MARK: - Firebase 🔥
 
   private func login(with email: String, password: String) {
-    Auth.auth().signIn(withEmail: email, password: password) { result, error in
+    AppManager.shared.auth().signIn(withEmail: email, password: password) { result, error in
       guard error == nil else { return self.displayError(error) }
       self.delegate?.loginDidOccur()
     }
   }
 
   private func createUser(email: String, password: String) {
-    Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+    AppManager.shared.auth().createUser(withEmail: email, password: password) { authResult, error in
       guard error == nil else { return self.displayError(error) }
       self.delegate?.loginDidOccur()
     }

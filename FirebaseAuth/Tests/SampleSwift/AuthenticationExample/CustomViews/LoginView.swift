@@ -14,7 +14,7 @@
 
 import UIKit
 
-/// Login View presented when peforming Email & Password Login Flow
+/// Login View presented when performing Email & Password Login Flow
 class LoginView: UIView {
   var emailTextField: UITextField! {
     didSet {
