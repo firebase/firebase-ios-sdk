@@ -116,7 +116,7 @@ jobs:
     - name: Prepare ccache
       uses: actions/cache@v3
       with:
-        path: ${{ runner.temp }}
+        path: ${{ runner.temp }}/ccache
         key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
           firestore-ccache-${{ runner.os }}-
@@ -132,7 +132,9 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   cmake-prod-db:
@@ -159,7 +161,7 @@ jobs:
     - name: Prepare ccache
       uses: actions/cache@v3
       with:
-        path: ${{ runner.temp }}
+        path: ${{ runner.temp }}/ccache
         key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
           firestore-ccache-${{ runner.os }}-
@@ -179,7 +181,9 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   sanitizers:
@@ -206,7 +210,7 @@ jobs:
     - name: Prepare ccache
       uses: actions/cache@v3
       with:
-        path: ${{ runner.temp }}
+        path: ${{ runner.temp }}/ccache
         key: firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-${{ github.sha }}
         restore-keys: |
           firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-
@@ -215,7 +219,9 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   xcodebuild:
