@@ -27,6 +27,8 @@ concurrency:
 jobs:
   changes:
     runs-on: macos-12
+    # Only when this is not a scheduled run
+    if: github.event_name != 'schedule'
     outputs:
       changed: ${{ steps.changes.outputs.changed }}
     steps:
