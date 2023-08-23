@@ -110,9 +110,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v3
@@ -156,9 +153,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v3
@@ -206,9 +200,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v3
