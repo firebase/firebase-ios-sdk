@@ -27,6 +27,8 @@ concurrency:
 jobs:
   changes:
     runs-on: macos-12
+    # Only when this is not a scheduled run
+    if: github.event_name != 'schedule'
     outputs:
       changed: ${{ steps.changes.outputs.changed }}
     steps:
@@ -110,14 +112,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v3
       with:
-        path: ~/.ccache
+        path: ${{ runner.temp }}/ccache
         key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
           firestore-ccache-${{ runner.os }}-
@@ -133,7 +132,9 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   cmake-prod-db:
@@ -156,17 +157,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v3
       with:
-        path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        path: ${{ runner.temp }}/ccache
+        key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-
+          firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
 
     - name: Cache Mint packages
       uses: actions/cache@v3
@@ -183,7 +181,9 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   sanitizers:
@@ -206,23 +206,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
 
     - name: Prepare ccache
       uses: actions/cache@v3
       with:
-        path: ~/.ccache
-        key: firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-${{ github.sha }}
+        path: ${{ runner.temp }}/ccache
+        key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-
+          ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   xcodebuild:
@@ -241,7 +240,7 @@ jobs:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: ${{ matrix.target }}
 
     - uses: ruby/setup-ruby@v1
 
