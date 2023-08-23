@@ -79,6 +79,11 @@ class QueryEngine {
       const model::SnapshotVersion& last_limbo_free_snapshot_version,
       const model::DocumentKeySet& remote_keys) const;
 
+  const model::DocumentMap GetDocumentsMatchingQueryForTest(
+      const core::Query& query,
+      bool is_auto_indexing_enabled,
+      absl::optional<QueryContext>& context) const;
+
   void SetIndexAutoCreationEnabled(bool is_enabled);
 
  private:

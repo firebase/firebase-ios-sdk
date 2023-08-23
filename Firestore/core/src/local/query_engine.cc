@@ -91,6 +91,24 @@ const DocumentMap QueryEngine::GetDocumentsMatchingQuery(
   return full_scan_result;
 }
 
+const DocumentMap QueryEngine::GetDocumentsMatchingQueryForTest(
+    const Query& query,
+    bool is_auto_indexing_enabled,
+    absl::optional<QueryContext>& context) const {
+  HARD_ASSERT(local_documents_view_ && index_manager_,
+              "Initialize() not called");
+
+  absl::optional<DocumentMap> index_result;
+  if (is_auto_indexing_enabled) {
+    index_result = PerformQueryUsingIndex(query);
+    HARD_ASSERT(index_result.has_value(), "createTargetIndices fails");
+  } else {
+    index_result = ExecuteFullCollectionScan(query, context);
+    HARD_ASSERT(index_result.has_value(), "full scan fails");
+  }
+  return index_result.value();
+}
+
 void QueryEngine::CreateCacheIndexes(const core::Query& query,
                                      const QueryContext& context,
                                      size_t result_size) const {
