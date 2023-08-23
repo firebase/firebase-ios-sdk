@@ -211,9 +211,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ runner.temp }}/ccache
-        key: firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-${{ github.sha }}
+        key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-${{ matrix.sanitizer }}-
+          ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
