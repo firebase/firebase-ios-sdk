@@ -18,6 +18,8 @@
 
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 
+
+
 #if __has_include(<UIKit/UIKit.h>)
 #import <UIKit/UIKit.h>
 #endif
@@ -2367,6 +2369,12 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
   user.auth = self;
   return user;
+}
+
+- (void)startPasskeySignInWithCompletion:(nullable void (^)(ASAuthorizationPlatformPublicKeyCredentialAssertionRequest * _Nullable __strong, NSError * _Nullable error))completion{
+}
+
+- (void)finalizePasskeySignInWithPlatformCredential:(ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential completion:(nullable void (^)(FIRAuthDataResult * _Nullable __strong, NSError * _Nullable __strong))completion{
 }
 
 @end
