@@ -162,9 +162,9 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ runner.temp }}/ccache
-        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
-          firestore-ccache-${{ runner.os }}-
+          firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
 
     - name: Cache Mint packages
       uses: actions/cache@v3
