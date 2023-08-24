@@ -15,7 +15,7 @@
 import UIKit
 
 /// Firebase Auth supported identity providers and other methods of authentication
-enum AuthProvider: String {
+enum AuthMenu: String {
   case settings = "Settings"
   case google = "google.com"
   case apple = "apple.com"
@@ -33,7 +33,7 @@ enum AuthProvider: String {
   /// More intuitively named getter for `rawValue`.
   var id: String { rawValue }
 
-  /// The UI friendly name of the `AuthProvider`. Used for display.
+  /// The UI friendly name of the `AuthMenu`. Used for display.
   var name: String {
     switch self {
     case .settings:
@@ -65,8 +65,8 @@ enum AuthProvider: String {
     }
   }
 
-  /// Failable initializer to create an `AuthProvider` from it's corresponding `name` value.
-  /// - Parameter rawValue: String value representing `AuthProvider`'s name or type.
+  /// Failable initializer to create an `AuthMenu` from it's corresponding `name` value.
+  /// - Parameter rawValue: String value representing `AuthMenu`'s name or type.
   init?(rawValue: String) {
     switch rawValue {
     case "Settings":
@@ -102,8 +102,8 @@ enum AuthProvider: String {
 
 // MARK: DataSourceProvidable
 
-extension AuthProvider: DataSourceProvidable {
-  private static var providers: [AuthProvider] {
+extension AuthMenu: DataSourceProvidable {
+  private static var providers: [AuthMenu] {
     [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook]
   }
 
@@ -148,12 +148,12 @@ extension AuthProvider: DataSourceProvidable {
   }
 
   static var authLinkSections: [Section] {
-    let allItems = AuthProvider.sections.flatMap { $0.items }
+    let allItems = AuthMenu.sections.flatMap { $0.items }
     let header = "Manage linking between providers"
     let footer =
       "Select an unchecked row to link the currently signed in user to that auth provider. To unlink the user from a linked provider, select its corresponding row marked with a checkmark."
     return [Section(headerDescription: header, footerDescription: footer, items: allItems)]
   }
 
-  var sections: [Section] { AuthProvider.sections }
+  var sections: [Section] { AuthMenu.sections }
 }

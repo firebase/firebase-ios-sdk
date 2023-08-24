@@ -33,7 +33,7 @@ import CryptoKit
 private let kFacebookAppID = "ENTER APP ID HERE"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
-  var dataSourceProvider: DataSourceProvider<AuthProvider>!
+  var dataSourceProvider: DataSourceProvider<AuthMenu>!
 
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
@@ -52,7 +52,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     let providerName = item.isEditable ? item.detailTitle! : item.title!
 
-    guard let provider = AuthProvider(rawValue: providerName) else {
+    guard let provider = AuthMenu(rawValue: providerName) else {
       // The row tapped has no affiliated action.
       return
     }
@@ -197,7 +197,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   // Maintain a strong reference to an OAuthProvider for login
   private var oauthProvider: OAuthProvider!
 
-  private func performOAuthLoginFlow(for provider: AuthProvider) {
+  private func performOAuthLoginFlow(for provider: AuthMenu) {
     oauthProvider = OAuthProvider(providerID: provider.id)
     oauthProvider.getCredentialWith(nil) { credential, error in
       guard error == nil else { return self.displayError(error) }
@@ -252,7 +252,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func configureDataSourceProvider() {
     let tableView = view as! UITableView
-    dataSourceProvider = DataSourceProvider(dataSource: AuthProvider.sections, tableView: tableView)
+    dataSourceProvider = DataSourceProvider(dataSource: AuthMenu.sections, tableView: tableView)
     dataSourceProvider.delegate = self
   }
 
