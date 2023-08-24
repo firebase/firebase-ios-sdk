@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 8848764F29D3149200780FA6 /* GoogleService-Info.plist */; };
-		DE4D8E202A8B0311001952B6 /* SwiftApplication.plist in Resources */ = {isa = PBXBuildFile; fileRef = DE4D8E1F2A8B0311001952B6 /* SwiftApplication.plist */; };
 		DE8FD46F2A7D660B00B6831A /* Credentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4682A7D660A00B6831A /* Credentials.swift */; };
 		DE8FD4702A7D660B00B6831A /* AccountInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD4692A7D660A00B6831A /* AccountInfoTests.swift */; };
 		DE8FD4712A7D660B00B6831A /* FacebookTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8FD46A2A7D660A00B6831A /* FacebookTests.swift */; };
@@ -467,7 +466,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DE4D8E202A8B0311001952B6 /* SwiftApplication.plist in Resources */,
 				EA217895248979E200736757 /* LaunchScreen.storyboard in Resources */,
 				8848765129D314A400780FA6 /* GoogleService-Info.plist in Resources */,
 				DEC2E5E42A966DE20090260A /* GoogleService-Info_multi.plist in Resources */,
