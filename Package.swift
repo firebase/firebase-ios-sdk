@@ -892,7 +892,9 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        "FirebaseRemoteConfig",
+        // TODO(ncooke3): Consider if this should import the merged module
+        // (`FirebaseRemoteConfig`).
+        "FirebaseRemoteConfigInternal",
         "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -956,7 +958,7 @@ let package = Package(
     // MARK: - Firebase Remote Config
 
     .target(
-      name: "FirebaseRemoteConfig",
+      name: "FirebaseRemoteConfigInternal",
       dependencies: [
         "FirebaseCore",
         "FirebaseABTesting",
@@ -971,7 +973,7 @@ let package = Package(
     ),
     .testTarget(
       name: "RemoteConfigUnit",
-      dependencies: ["FirebaseRemoteConfig", .product(name: "OCMock", package: "ocmock")],
+      dependencies: ["FirebaseRemoteConfigInternal", .product(name: "OCMock", package: "ocmock")],
       path: "FirebaseRemoteConfig/Tests/Unit",
       exclude: [
         // Need to be evaluated/ported to RC V2.
@@ -991,16 +993,23 @@ let package = Package(
       ]
     ),
     .target(
-      name: "FirebaseRemoteConfigSwift",
+      name: "FirebaseRemoteConfig",
       dependencies: [
-        "FirebaseRemoteConfig",
+        "FirebaseRemoteConfigInternal",
         "FirebaseSharedSwift",
       ],
       path: "FirebaseRemoteConfigSwift/Sources"
     ),
+    .target(
+      name: "FirebaseRemoteConfigSwift",
+      dependencies: [
+        "FirebaseRemoteConfig",
+      ],
+      path: "FirebaseRemoteConfigSwift/Exporter"
+    ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
-      dependencies: ["FirebaseRemoteConfigSwift",
+      dependencies: ["FirebaseRemoteConfig",
                      "RemoteConfigFakeConsoleObjC"],
       path: "FirebaseRemoteConfigSwift/Tests",
       exclude: [
