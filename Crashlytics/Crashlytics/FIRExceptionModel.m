@@ -33,7 +33,9 @@
 
   _name = [name copy];
   _reason = [reason copy];
-
+  
+  _isFatal = YES;
+  _onDemand = YES;
   return self;
 }
 

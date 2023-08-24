@@ -145,6 +145,8 @@ NS_SWIFT_NAME(Crashlytics)
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel
     NS_SWIFT_NAME(record(exceptionModel:));
 
+- (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel
+NS_SWIFT_NAME(recordOnDemandExceptionModel(exceptionModel:));
 /**
  * Returns whether the app crashed during the previous execution.
  */
@@ -242,6 +244,7 @@ NS_SWIFT_NAME(Crashlytics)
  * This method only applies if automatic data collection is disabled.
  */
 - (void)deleteUnsentReports;
+
 
 @end
 
