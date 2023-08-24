@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_XR) || !TARGET_OS_XR)
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
 #import <RecaptchaInterop/RCARecaptchaProtocol.h>
 
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"

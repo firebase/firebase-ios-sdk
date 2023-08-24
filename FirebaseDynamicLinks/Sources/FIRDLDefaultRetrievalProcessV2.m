@@ -139,7 +139,8 @@ NS_ASSUME_NONNULL_BEGIN
   // Disable deprecated warning for internal methods.
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  // If there is not a unique match, we will send an additional request for fingerprinting.
+  // If there is not a unique match, we will send an additional request for device heuristics based
+  // matching.
   [_networkingService
       retrievePendingDynamicLinkWithIOSVersion:[UIDevice currentDevice].systemVersion
                               resolutionHeight:resolutionHeight
@@ -245,7 +246,7 @@ NS_ASSUME_NONNULL_BEGIN
   if (_jsExecutor) {
     return;
   }
-  NSString *jsString = @"window.generateFingerprint=()=>navigator.language||''";
+  NSString *jsString = @"window.generateDeviceHeuristics=()=>navigator.language||''";
   _jsExecutor = [[FIRDLJavaScriptExecutor alloc] initWithDelegate:self script:jsString];
 }
 
