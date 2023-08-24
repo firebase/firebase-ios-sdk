@@ -25,7 +25,7 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
 
   private var _user: User?
   var user: User? {
-    get { _user ?? Auth.auth().currentUser }
+    get { _user ?? AppManager.shared.auth().currentUser }
     set { _user = newValue }
   }
 
@@ -112,7 +112,7 @@ class UserViewController: UIViewController, DataSourceProviderDelegate {
   // MARK: - Firebase 🔥
 
   public func signCurrentUserOut() {
-    try? Auth.auth().signOut()
+    try? AppManager.shared.auth().signOut()
     updateUI()
   }
 
@@ -338,7 +338,7 @@ extension UserViewController: ASAuthorizationControllerDelegate,
 
     Task {
       do {
-        try await Auth.auth().revokeToken(withAuthorizationCode: authCodeString)
+        try await AppManager.shared.auth().revokeToken(withAuthorizationCode: authCodeString)
         try await user?.delete()
         self.updateUI()
       } catch {

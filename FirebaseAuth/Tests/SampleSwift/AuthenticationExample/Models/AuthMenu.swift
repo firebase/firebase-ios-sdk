@@ -15,7 +15,8 @@
 import UIKit
 
 /// Firebase Auth supported identity providers and other methods of authentication
-enum AuthProvider: String {
+enum AuthMenu: String {
+  case settings = "Settings"
   case google = "google.com"
   case apple = "apple.com"
   case twitter = "twitter.com"
@@ -32,9 +33,11 @@ enum AuthProvider: String {
   /// More intuitively named getter for `rawValue`.
   var id: String { rawValue }
 
-  /// The UI friendly name of the `AuthProvider`. Used for display.
+  /// The UI friendly name of the `AuthMenu`. Used for display.
   var name: String {
     switch self {
+    case .settings:
+      return "Settings"
     case .google:
       return "Google"
     case .apple:
@@ -62,10 +65,12 @@ enum AuthProvider: String {
     }
   }
 
-  /// Failable initializer to create an `AuthProvider` from it's corresponding `name` value.
-  /// - Parameter rawValue: String value representing `AuthProvider`'s name or type.
+  /// Failable initializer to create an `AuthMenu` from it's corresponding `name` value.
+  /// - Parameter rawValue: String value representing `AuthMenu`'s name or type.
   init?(rawValue: String) {
     switch rawValue {
+    case "Settings":
+      self = .settings
     case "Google":
       self = .google
     case "Apple":
@@ -97,9 +102,15 @@ enum AuthProvider: String {
 
 // MARK: DataSourceProvidable
 
-extension AuthProvider: DataSourceProvidable {
-  private static var providers: [AuthProvider] {
+extension AuthMenu: DataSourceProvidable {
+  private static var providers: [AuthMenu] {
     [.google, .apple, .twitter, .microsoft, .gitHub, .yahoo, .facebook]
+  }
+
+  static var settingsSection: Section {
+    let header = "Auth Settings"
+    let item = Item(title: settings.name, hasNestedContent: true)
+    return Section(headerDescription: header, items: [item])
   }
 
   static var providerSection: Section {
@@ -133,16 +144,16 @@ extension AuthProvider: DataSourceProvidable {
   }
 
   static var sections: [Section] {
-    [providerSection, emailPasswordSection, otherSection]
+    [settingsSection, providerSection, emailPasswordSection, otherSection]
   }
 
   static var authLinkSections: [Section] {
-    let allItems = AuthProvider.sections.flatMap { $0.items }
+    let allItems = AuthMenu.sections.flatMap { $0.items }
     let header = "Manage linking between providers"
     let footer =
       "Select an unchecked row to link the currently signed in user to that auth provider. To unlink the user from a linked provider, select its corresponding row marked with a checkmark."
     return [Section(headerDescription: header, footerDescription: footer, items: allItems)]
   }
 
-  var sections: [Section] { AuthProvider.sections }
+  var sections: [Section] { AuthMenu.sections }
 }

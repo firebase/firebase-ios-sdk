@@ -33,7 +33,7 @@ import CryptoKit
 private let kFacebookAppID = "ENTER APP ID HERE"
 
 class AuthViewController: UIViewController, DataSourceProviderDelegate {
-  var dataSourceProvider: DataSourceProvider<AuthProvider>!
+  var dataSourceProvider: DataSourceProvider<AuthMenu>!
 
   override func loadView() {
     view = UITableView(frame: .zero, style: .insetGrouped)
@@ -52,12 +52,15 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     let providerName = item.isEditable ? item.detailTitle! : item.title!
 
-    guard let provider = AuthProvider(rawValue: providerName) else {
+    guard let provider = AuthMenu(rawValue: providerName) else {
       // The row tapped has no affiliated action.
       return
     }
 
     switch provider {
+    case .settings:
+      performSettings()
+
     case .google:
       performGoogleSignInFlow()
 
@@ -88,6 +91,11 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   // MARK: - Firebase 🔥
+
+  private func performSettings() {
+    let settingsController = SettingsViewController()
+    navigationController?.pushViewController(settingsController, animated: true)
+  }
 
   private func performGoogleSignInFlow() {
     // [START headless_google_auth]
@@ -135,7 +143,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   func signIn(with credential: AuthCredential) {
     // [START signin_google_credential]
-    Auth.auth().signIn(with: credential) { result, error in
+    AppManager.shared.auth().signIn(with: credential) { result, error in
       // [START_EXCLUDE silent]
       guard error == nil else { return self.displayError(error) }
       // [END_EXCLUDE]
@@ -189,7 +197,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   // Maintain a strong reference to an OAuthProvider for login
   private var oauthProvider: OAuthProvider!
 
-  private func performOAuthLoginFlow(for provider: AuthProvider) {
+  private func performOAuthLoginFlow(for provider: AuthMenu) {
     oauthProvider = OAuthProvider(providerID: provider.id)
     oauthProvider.getCredentialWith(nil) { credential, error in
       guard error == nil else { return self.displayError(error) }
@@ -220,7 +228,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func performAnonymousLoginFlow() {
-    Auth.auth().signInAnonymously { result, error in
+    AppManager.shared.auth().signInAnonymously { result, error in
       guard error == nil else { return self.displayError(error) }
       self.transitionToUserViewController()
     }
@@ -234,7 +242,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
   }
 
   private func signin(with credential: AuthCredential) {
-    Auth.auth().signIn(with: credential) { result, error in
+    AppManager.shared.auth().signIn(with: credential) { result, error in
       guard error == nil else { return self.displayError(error) }
       self.transitionToUserViewController()
     }
@@ -244,7 +252,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
   private func configureDataSourceProvider() {
     let tableView = view as! UITableView
-    dataSourceProvider = DataSourceProvider(dataSource: AuthProvider.sections, tableView: tableView)
+    dataSourceProvider = DataSourceProvider(dataSource: AuthMenu.sections, tableView: tableView)
     dataSourceProvider.delegate = self
   }
 
@@ -311,7 +319,7 @@ extension AuthViewController: ASAuthorizationControllerDelegate,
                                                    rawNonce: nonce,
                                                    fullName: appleIDCredential.fullName)
 
-    Auth.auth().signIn(with: credential) { result, error in
+    AppManager.shared.auth().signIn(with: credential) { result, error in
       // Error. If error.code == .MissingOrInvalidNonce, make sure
       // you're sending the SHA256-hashed nonce as a hex string with
       // your request to Apple.

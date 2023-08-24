@@ -29,7 +29,7 @@ class CustomAuthViewController: OtherAuthViewController {
   // MARK: - Firebase 🔥
 
   private func customAuthLogin(token: String) {
-    Auth.auth().signIn(withCustomToken: token) { result, error in
+    AppManager.shared.auth().signIn(withCustomToken: token) { result, error in
       guard error == nil else { return self.displayError(error) }
       self.navigationController?.dismiss(animated: true, completion: {
         self.delegate?.loginDidOccur()

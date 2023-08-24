@@ -27,7 +27,7 @@ import AuthenticationServices
 import CryptoKit
 
 class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate {
-  var dataSourceProvider: DataSourceProvider<AuthProvider>!
+  var dataSourceProvider: DataSourceProvider<AuthMenu>!
 
   var tableView: UITableView { view as! UITableView }
 
@@ -68,7 +68,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
 
     let providerName = item.title!
 
-    guard let provider = AuthProvider(rawValue: providerName) else {
+    guard let provider = AuthMenu(rawValue: providerName) else {
       // The row tapped has no affiliated action.
       return
     }
@@ -205,7 +205,7 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
   // Maintain a strong reference to an OAuthProvider for login
   private var oauthProvider: OAuthProvider!
 
-  private func performOAuthAccountLink(for provider: AuthProvider) {
+  private func performOAuthAccountLink(for provider: AuthMenu) {
     oauthProvider = OAuthProvider(providerID: provider.id)
     oauthProvider.getCredentialWith(nil) { [weak self] credential, error in
       guard let strongSelf = self else { return }
@@ -311,12 +311,13 @@ class AccountLinkingViewController: UIViewController, DataSourceProviderDelegate
     actionCodeSettings.handleCodeInApp = true
     actionCodeSettings.setIOSBundleID(Bundle.main.bundleIdentifier!)
 
-    Auth.auth().sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
-      guard error == nil else { return self.displayError(error) }
+    AppManager.shared.auth()
+      .sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
+        guard error == nil else { return self.displayError(error) }
 
-      // Set `email` property as it will be used to complete sign in after opening email link
-      self.email = email
-    }
+        // Set `email` property as it will be used to complete sign in after opening email link
+        self.email = email
+      }
   }
 
   @objc
@@ -432,7 +433,7 @@ extension AccountLinkingViewController: DataSourceProvidable {
   var sections: [Section] { buildSections() }
 
   private func buildSections() -> [Section] {
-    var section = AuthProvider.authLinkSections.first!
+    var section = AuthMenu.authLinkSections.first!
     section.items = section.items.compactMap { item -> Item? in
       var item = item
       item.hasNestedContent = false
@@ -443,7 +444,7 @@ extension AccountLinkingViewController: DataSourceProvidable {
   }
 
   private func userProviderDataContains(item: Item) -> Bool {
-    guard let authProvider = AuthProvider(rawValue: item.title ?? "") else { return false }
+    guard let authProvider = AuthMenu(rawValue: item.title ?? "") else { return false }
     return user.providerData.map { $0.providerID }.contains(authProvider.id)
   }
 }

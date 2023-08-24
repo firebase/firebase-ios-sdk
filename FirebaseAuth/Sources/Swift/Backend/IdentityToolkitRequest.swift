@@ -19,7 +19,7 @@ private let kHttpProtocol = "http:"
 
 private let kEmulatorHostAndPrefixFormat = "%@/%@"
 
-private let gAPIHost = "www.googleapis.com"
+private var gAPIHost = "www.googleapis.com"
 
 private let kFirebaseAuthAPIHost = "www.googleapis.com"
 private let kIdentityPlatformAPIHost = "identitytoolkit.googleapis.com"
@@ -99,5 +99,12 @@ open class IdentityToolkitRequest {
   /// Returns the request's configuration.
   public func requestConfiguration() -> AuthRequestConfiguration {
     _requestConfiguration
+  }
+
+  // MARK: Internal API for development
+
+  static var host: String { gAPIHost }
+  static func setHost(_ host: String) {
+    gAPIHost = host
   }
 }

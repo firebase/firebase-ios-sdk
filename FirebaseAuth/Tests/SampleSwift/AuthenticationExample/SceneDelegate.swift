@@ -65,7 +65,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
       guard let link = dynamicLink?.url?.absoluteString else { return }
 
-      if Auth.auth().isSignIn(withEmailLink: link) {
+      if AppManager.shared.auth().isSignIn(withEmailLink: link) {
         // Save the link as it will be used in the next step to complete login
         UserDefaults.standard.set(link, forKey: "Link")
 

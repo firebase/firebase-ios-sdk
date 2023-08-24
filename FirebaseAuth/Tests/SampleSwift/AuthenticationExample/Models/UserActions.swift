@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/// Namespace for peformable actions on a Firebase User instance
+/// Namespace for performable actions on a Firebase User instance
 enum UserAction: String {
   case signOut = "Sign Out"
   case link = "Link/Unlink Auth Providers"
