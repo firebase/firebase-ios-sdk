@@ -16,7 +16,7 @@
 
 import FirebaseCore
 import FirebaseRemoteConfig
-import FirebaseRemoteConfigSwift
+
 import XCTest
 
 let ConfigKeyForThisTestOnly = "PropertyWrapperDefaultConfigsTestsKey"
