@@ -21,7 +21,7 @@
 #include <utility>
 
 #import "FIRFirestoreSettings+Internal.h"
-#import "FIRPersistentCacheSettings+Internal.h"
+#import "FIRPersistentCacheIndexManager+Internal.h"
 #import "FIRTransactionOptions+Internal.h"
 #import "FIRTransactionOptions.h"
 

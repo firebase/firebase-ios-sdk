@@ -15,7 +15,7 @@
  */
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRPersistentCacheSettings+Internal.h"
+#import "Firestore/Source/API/FIRPersistentCacheIndexManager+Internal.h"
 
 using firebase::firestore::api::Firestore;
 using firebase::firestore::api::PersistentCacheIndexManager;

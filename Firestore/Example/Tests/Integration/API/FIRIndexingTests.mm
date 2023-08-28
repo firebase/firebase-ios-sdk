@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 
 #import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRPersistentCacheSettings+Internal.h"
+#import "Firestore/Source/API/FIRPersistentCacheIndexManager+Internal.h"
 
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
