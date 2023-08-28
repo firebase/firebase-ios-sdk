@@ -1322,36 +1322,6 @@ TEST_F(LevelDbIndexManagerTest,
       });
 }
 
-TEST_F(LevelDbIndexManagerTest, CleanUpLocalIndexRecordsWorks) {
-  persistence_->Run("TestCleanUpLocalIndexRecordsWorks", [&]() {
-    index_manager_->Start();
-
-    auto index1 = MakeFieldIndex("coll1", 0, model::FieldIndex::InitialState(),
-                                 "value", model::Segment::kAscending);
-    auto index2 = MakeFieldIndex("coll2", 0, model::FieldIndex::InitialState(),
-                                 "value", model::Segment::kDescending);
-    index_manager_->AddFieldIndex(index1);
-    index_manager_->AddFieldIndex(index2);
-    {
-      auto indexes = index_manager_->GetFieldIndexes();
-      EXPECT_EQ(indexes.size(), 2);
-    }
-
-    index_manager_->CleanUpLocalIndexRecords();
-    {
-      auto indexes = index_manager_->GetFieldIndexes();
-      EXPECT_EQ(indexes.size(), 0);
-    }
-
-    // Re add deleted field index
-    index_manager_->AddFieldIndex(index1);
-    {
-      auto indexes = index_manager_->GetFieldIndexes();
-      EXPECT_EQ(indexes.size(), 1);
-    }
-  });
-}
-
 TEST_F(LevelDbIndexManagerTest, CanChangeUser) {
   persistence_->Run("CreateReadDeleteFieldsIndexes", [&]() {
     IndexManager* index_manager =

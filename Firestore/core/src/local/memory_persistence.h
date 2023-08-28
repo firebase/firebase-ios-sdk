@@ -104,8 +104,6 @@ class MemoryPersistence : public Persistence {
 
   void ReleaseOtherUserSpecificComponents(const std::string& uid) override;
 
-  void DeleteAllFieldIndexes() override;
-
  protected:
   void RunInternal(absl::string_view label,
                    std::function<void()> block) override;
@@ -114,6 +112,8 @@ class MemoryPersistence : public Persistence {
   MemoryPersistence();
 
   void set_reference_delegate(std::unique_ptr<ReferenceDelegate> delegate);
+
+  void DeleteAllFieldIndexes() override;
 
   MutationQueues mutation_queues_;
 

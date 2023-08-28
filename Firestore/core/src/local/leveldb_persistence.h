@@ -102,14 +102,14 @@ class LevelDbPersistence : public Persistence {
 
   void ReleaseOtherUserSpecificComponents(const std::string& uid) override;
 
-  void DeleteAllFieldIndexes() override;
-
  protected:
   void RunInternal(absl::string_view label,
                    std::function<void()> block) override;
 
  private:
   friend class LevelDbOverlayMigrationManagerTest;
+  friend class LevelDbIndexManager;
+
   LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
                      util::Path directory,
                      std::set<std::string> users,
@@ -130,6 +130,8 @@ class LevelDbPersistence : public Persistence {
       LevelDbMigrations::SchemaVersion schema_version,
       LocalSerializer serializer,
       const LruParams& lru_params);
+
+  void DeleteAllFieldIndexes() override;
 
   /**
    * Remove the database entry (if any) for all "key" starting with given

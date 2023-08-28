@@ -89,7 +89,7 @@ std::vector<model::FieldIndex> MemoryIndexManager::GetFieldIndexes() const {
   return {};
 }
 
-void MemoryIndexManager::CleanUpLocalIndexRecords() {
+void MemoryIndexManager::DeleteAllFieldIndexes() {
 }
 
 void MemoryIndexManager::CreateTargetIndexes(const core::Target&) {

@@ -464,9 +464,10 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   return result;
 }
 
-void LevelDbIndexManager::CleanUpLocalIndexRecords() {
+void LevelDbIndexManager::DeleteAllFieldIndexes() {
   HARD_ASSERT(started_, "IndexManager not started");
 
+  db_->DeleteAllFieldIndexes();
   memoized_indexes_.clear();
   next_index_to_update_ = QueueForNextIndexToUpdate();
 }
