@@ -108,6 +108,7 @@ class LevelDbPersistence : public Persistence {
 
  private:
   friend class LevelDbOverlayMigrationManagerTest;
+  friend class LevelDbLocalStoreTest;
   friend class LevelDbIndexManager;
 
   LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
@@ -115,6 +116,11 @@ class LevelDbPersistence : public Persistence {
                      std::set<std::string> users,
                      LocalSerializer serializer,
                      const LruParams& lru_params);
+
+  /**
+   * The maximum number of operation per transaction.
+   */
+  static const size_t kMaxOperationPerTransaction = 1000U;
 
   /**
    * Ensures that the given directory exists.

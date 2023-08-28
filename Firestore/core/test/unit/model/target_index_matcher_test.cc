@@ -586,7 +586,7 @@ TEST(TargetIndexMatcher, BuildTargetIndexWithQueriesWithEqualities) {
 }
 
 TEST(TargetIndexMatcher, BuildTargetIndexWithQueriesWithInequalities) {
-  for (const auto& query : QueriesWithEqualities()) {
+  for (const auto& query : QueriesWithInequalities()) {
     ValidateBuildTargetIndexCreateFullMatchIndex(query);
   }
 }

@@ -87,8 +87,13 @@ INSTANTIATE_TEST_SUITE_P(LevelDbLocalStoreTest,
 
 class LevelDbLocalStoreTest : public LocalStoreTestBase {
  public:
-  LevelDbLocalStoreTest() : LocalStoreTestBase(Factory()) {
+  LevelDbLocalStoreTest()
+      : LocalStoreTestBase(Factory()),
+        max_operation_per_transaction_(
+            LevelDbPersistence::kMaxOperationPerTransaction) {
   }
+
+  const size_t max_operation_per_transaction_;
 };
 
 TEST_F(LevelDbLocalStoreTest, AddsIndexes) {
@@ -689,7 +694,8 @@ TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWithManualAddedIndexes) {
   FSTAssertQueryReturned("coll/a");
 }
 
-TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWith1000Documents) {
+TEST_F(LevelDbLocalStoreTest,
+       DeleteAllIndexesWorksWhenMoreThanOneTransactionRequiredToCompleteTask) {
   FieldIndex index =
       MakeFieldIndex("coll", 0, FieldIndex::InitialState(), "matches",
                      model::Segment::Kind::kAscending);
@@ -699,22 +705,27 @@ TEST_F(LevelDbLocalStoreTest, DeleteAllIndexesWorksWith1000Documents) {
       testutil::Query("coll").AddingFilter(Filter("matches", "==", true));
   int target_id = AllocateQuery(query);
 
-  for (int count = 1; count <= 1000; count++) {
+  // requires at least 2 transactions
+  const size_t num_of_documents = max_operation_per_transaction_ * 1.5;
+
+  for (size_t count = 1; count <= num_of_documents; count++) {
     ApplyRemoteEvent(AddedRemoteEvent(
         Doc("coll/" + std::to_string(count), 10, Map("matches", true)),
         {target_id}));
   }
 
-  SetBackfillerMaxDocumentsToProcess(1000);
+  SetBackfillerMaxDocumentsToProcess(num_of_documents);
   BackfillIndexes();
 
   ExecuteQuery(query);
-  FSTAssertRemoteDocumentsRead(/* byKey= */ 1000, /* byCollection= */ 0);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ num_of_documents,
+                               /* byCollection= */ 0);
 
   DeleteAllIndexes();
 
   ExecuteQuery(query);
-  FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 1000);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 0,
+                               /* byCollection= */ num_of_documents);
 }
 
 TEST_F(LevelDbLocalStoreTest, IndexAutoCreationWorksWithMutation) {

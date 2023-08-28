@@ -52,11 +52,6 @@ using util::StatusOr;
 using util::StringFormat;
 
 /**
- * The maximum number of operation per transaction.
- */
-static const size_t kMaxOperationPerTransaction = 1000U;
-
-/**
  * Finds all user ids in the database based on the existence of a mutation
  * queue.
  */
