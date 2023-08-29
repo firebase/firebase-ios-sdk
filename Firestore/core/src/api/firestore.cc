@@ -22,6 +22,7 @@
 #include "Firestore/core/src/api/collection_reference.h"
 #include "Firestore/core/src/api/document_reference.h"
 #include "Firestore/core/src/api/listener_registration.h"
+#include "Firestore/core/src/api/persistent_cache_index_manager.h"
 #include "Firestore/core/src/api/settings.h"
 #include "Firestore/core/src/api/snapshots_in_sync_listener_registration.h"
 #include "Firestore/core/src/api/write_batch.h"
@@ -315,6 +316,17 @@ void Firestore::SetIndexConfiguration(const std::string& config,
 
   callback(util::Status::OK());
   return;
+}
+
+std::shared_ptr<const PersistentCacheIndexManager>
+Firestore::persistent_cache_index_manager() {
+  EnsureClientConfigured();
+  if (!persistent_cache_index_manager_ && settings_.persistence_enabled()) {
+    persistent_cache_index_manager_ =
+        std::make_shared<const PersistentCacheIndexManager>(client_);
+  }
+
+  return persistent_cache_index_manager_;
 }
 
 std::shared_ptr<LoadBundleTask> Firestore::LoadBundle(

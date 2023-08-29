@@ -36,7 +36,7 @@ using model::IndexOffset;
 /**
  * The maximum number of documents to process each time Backfill() is called.
  */
-static const int kMaxDocumentsToProcess = 50;
+static const size_t kMaxDocumentsToProcess = 50;
 
 }  // namespace
 
@@ -47,7 +47,7 @@ IndexBackfiller::IndexBackfiller() {
 int IndexBackfiller::WriteIndexEntries(const LocalStore* local_store) {
   IndexManager* index_manager = local_store->index_manager();
   std::unordered_set<std::string> processed_collection_groups;
-  int documents_remaining = max_documents_to_process_;
+  size_t documents_remaining = max_documents_to_process_;
   while (documents_remaining > 0) {
     const auto collection_group =
         index_manager->GetNextCollectionGroupToUpdate();

@@ -25,6 +25,7 @@
 #include "Firestore/core/src/local/document_overlay_cache.h"
 #include "Firestore/core/src/local/index_manager.h"
 #include "Firestore/core/src/local/mutation_queue.h"
+#include "Firestore/core/src/local/query_context.h"
 #include "Firestore/core/src/local/remote_document_cache.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/model_fwd.h"
@@ -39,10 +40,9 @@ class Query;
 }  // namespace core
 
 namespace local {
-class LocalWriteResult;
-}  // namespace local
 
-namespace local {
+class LocalWriteResult;
+class QueryContext;
 
 /**
  * A readonly view of the local state of all documents we're tracking (i.e. we
@@ -141,6 +141,20 @@ class LocalDocumentsView {
   virtual model::DocumentMap GetDocumentsMatchingQuery(
       const core::Query& query, const model::IndexOffset& offset);
 
+  /**
+   * Performs a query against the local view of all documents.
+   *
+   * @param query The query to match documents against.
+   * @param offset Read time and document key to start scanning by (exclusive).
+   * @param context A optional tracker to keep a record of important details
+   * during database local query execution.
+   */
+  // Virtual for testing.
+  virtual model::DocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>& context);
+
  private:
   friend class QueryEngine;
 
@@ -155,11 +169,15 @@ class LocalDocumentsView {
       const model::ResourcePath& doc_path);
 
   model::DocumentMap GetDocumentsMatchingCollectionGroupQuery(
-      const core::Query& query, const model::IndexOffset& offset);
+      const core::Query& query,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>& context);
 
   /** Queries the remote documents and overlays mutations. */
   model::DocumentMap GetDocumentsMatchingCollectionQuery(
-      const core::Query& query, const model::IndexOffset& offset);
+      const core::Query& query,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>& context);
 
   RemoteDocumentCache* remote_document_cache() {
     return remote_document_cache_;

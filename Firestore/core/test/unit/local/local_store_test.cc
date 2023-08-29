@@ -26,6 +26,7 @@
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/credentials/user.h"
+#include "Firestore/core/src/local/index_backfiller.h"
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/persistence.h"
@@ -214,6 +215,10 @@ void LocalStoreTestBase::BackfillIndexes() {
   local_store_.Backfill();
 }
 
+void LocalStoreTestBase::SetBackfillerMaxDocumentsToProcess(size_t new_max) {
+  local_store_.index_backfiller()->SetMaxDocumentsToProcess(new_max);
+}
+
 void LocalStoreTestBase::UpdateViews(int target_id, bool from_cache) {
   NotifyLocalViewChanges(TestViewChanges(target_id, from_cache, {}, {}));
 }
@@ -273,6 +278,22 @@ QueryResult LocalStoreTestBase::ExecuteQuery(const core::Query& query) {
   last_query_result_ =
       local_store_.ExecuteQuery(query, /* use_previous_results= */ true);
   return last_query_result_;
+}
+
+void LocalStoreTestBase::SetIndexAutoCreationEnabled(bool is_enabled) {
+  query_engine_.SetIndexAutoCreationEnabled(is_enabled);
+}
+
+void LocalStoreTestBase::DeleteAllIndexes() const {
+  local_store_.DeleteAllFieldIndexes();
+}
+
+void LocalStoreTestBase::SetMinCollectionSizeToAutoCreateIndex(size_t new_min) {
+  query_engine_.SetIndexAutoCreationMinCollectionSize(new_min);
+}
+
+void LocalStoreTestBase::SetRelativeIndexReadCostPerDocument(double new_cost) {
+  query_engine_.SetRelativeIndexReadCostPerDocument(new_cost);
 }
 
 void LocalStoreTestBase::ApplyBundledDocuments(

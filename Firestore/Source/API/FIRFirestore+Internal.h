@@ -25,6 +25,7 @@
 
 @class FIRApp;
 @class FSTUserDataReader;
+@class FIRPersistentCacheIndexManager;
 
 namespace firebase {
 namespace firestore {
@@ -77,6 +78,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)terminateInternalWithCompletion:(nullable void (^)(NSError *_Nullable error))completion;
 
 - (const std::shared_ptr<firebase::firestore::util::AsyncQueue> &)workerQueue;
+
+// TODO(csi): make this function public
+@property(nonatomic, readonly) FIRPersistentCacheIndexManager *persistentCacheIndexManager;
 
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 
