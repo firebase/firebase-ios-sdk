@@ -288,7 +288,7 @@ static NSString *const kTestIDKey = @"id";
                                      rpcResponse:RPCResponse];
 }
 
-/** @fn errorValidationHelperWithCallbackInvoked
+/** @fn errorValidationHelperWithCallbackInvoked:rpcError:rpcResponse:
     @brief Helper function to validate the unexpected response returned from server in @c
    StartPasskeyEnrollment flow.
  */
