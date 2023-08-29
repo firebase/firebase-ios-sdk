@@ -68,6 +68,9 @@ def detect_changed_modules(changed_api_files):
       if v['root_dir'] and v['root_dir'] in file_path:
         changed_modules[k] = v
         break
+      elif f'{k}.podspec' in file_path:
+        changed_modules[k] = v
+        break
 
   logging.info(f'changed_modules:\n{json.dumps(changed_modules, indent=4)}')
   return changed_modules
