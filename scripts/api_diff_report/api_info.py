@@ -69,7 +69,7 @@ def get_api_files(file_list):
   """Filter out non api files."""
   return [
       f for f in file_list
-      if f.endwith('.podspec') or f.endswith('.swift') or (f.endswith('.h') and 'Public' in f)
+      if f.endswith('.podspec') or f.endswith('.swift') or (f.endswith('.h') and 'Public' in f)
   ]
 
 
