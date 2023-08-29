@@ -139,7 +139,7 @@ def get_root_dir(module_name, source_files):
       'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
       'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
       'FirebaseInAppMessagingSwift': 'FirebaseInAppMessaging/Swift/Source',
-      'FirebaseRemoteConfig': 'FirebaseRemoteConfig/Sources',
+      'FirebaseRemoteConfig': 'FirebaseRemoteConfigSwift/Sources',
   }
   if module_name in MODULE_ROOT_PATCH:
     return MODULE_ROOT_PATCH[module_name]
