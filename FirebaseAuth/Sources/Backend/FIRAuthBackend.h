@@ -56,6 +56,8 @@
 @class FIRSignUpNewUserResponse;
 @class FIRRevokeTokenRequest;
 @class FIRRevokeTokenResponse;
+@class FIRStartPasskeyEnrollmentRequest;
+@class FIRStartPasskeyEnrollmentResponse;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
@@ -240,6 +242,9 @@ typedef void (^FIRRevokeTokenResponseCallback)(FIRRevokeTokenResponse *_Nullable
  */
 typedef void (^FIRSignInWithGameCenterResponseCallback)(
     FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
+
+typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
+    FIRStartPasskeyEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
@@ -426,6 +431,9 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
 + (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
 
++ (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
+
 #endif
 
 /** @fn revokeToken:callback:
@@ -599,6 +607,9 @@ typedef void (^FIRSignInWithGameCenterResponseCallback)(
  */
 - (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
+
+- (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
 
 #endif
 
