@@ -24,7 +24,7 @@ class SessionsSettingsTests: XCTestCase {
       "sessions_enabled": false,
       "sampling_rate": 0.5,
       "session_timeout_seconds": 10,
-    ],
+    ] as [String: Any],
   ]
 
   var cache: SettingsCacheClient!
@@ -65,8 +65,7 @@ class SessionsSettingsTests: XCTestCase {
   func test_NoRemoteAndDefaultsPresent_DefaultConfigsApply() {
     let emptySettings: [String: Any] = [
       "cache_duration": 10,
-      "app_quality": [
-      ],
+      "app_quality": [:] as [String: Any],
     ]
 
     cache.removeCache()
