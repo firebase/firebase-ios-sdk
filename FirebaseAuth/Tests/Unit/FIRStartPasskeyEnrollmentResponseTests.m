@@ -24,13 +24,15 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthInternalErrors.h"
 #import "FirebaseAuth/Tests/Unit/FIRFakeBackendRPCIssuer.h"
 
-/** @var kTestAPIKey
-    @brief Fake API key used for testing.
+/**
+ @var kTestAPIKey
+ @brief Fake API key used for testing.
  */
 static NSString *const kTestAPIKey = @"APIKey";
 
-/** @var kTestFirebaseAppID
-    @brief Fake Firebase app ID used for testing.
+/**
+ @var kTestFirebaseAppID
+ @brief Fake Firebase app ID used for testing.
  */
 static NSString *const kTestFirebaseAppID = @"appID";
 
@@ -40,20 +42,58 @@ static NSString *const kTestFirebaseAppID = @"appID";
  */
 static NSString *const kIDToken = @"idToken";
 
-/** @var kUsersKey
-    @brief the name of the "users" property in the response.
+/**
+ @var kTestRpID
+ @brief Fake Relying Party ID used for testing.
+ */
+static NSString *const kTestRpID = @"1234567890";
+
+/**
+ @var kTestChallenge
+ @brief Fake challenge used for testing.
+ */
+static NSString *const kTestChallenge = @"challengebytes";
+
+/**
+ @var kTestUserID
+ @brief Fake user id used for testing.
+ */
+static NSString *const kTestUserID = @"user-id";
+
+/**
+ @var kUsersKey
+ @brief the name of the "users" property in the response.
  */
 static NSString *const kUsersKey = @"users";
 
+/**
+ @var kTestRpKey
+ @brief the name of the "rp" property in the response.
+ */
 static NSString *const kTestRpKey = @"rp";
+
+/**
+ @var kTestChallengeKey
+ @brief the name of the "challenge" property in the response.
+ */
 static NSString *const kTestChallengeKey = @"challenge";
+
+/**
+ @var kTestUserKey
+ @brief the name of the "user" property in the response.
+ */
 static NSString *const kTestUserKey = @"user";
+
+/**
+ @var kTestIDKey
+ @brief the name of the "id" property in the response.
+ */
 static NSString *const kTestIDKey = @"id";
 
-static NSString *const kTestRpID = @"1234567890";
-static NSString *const kTestChallenge = @"challengebytes";
-static NSString *const kTestUserID = @"user-id";
-
+/**
+ @class FIRStartPasskeyEnrollmentResponseTests
+ @brief Tests for @c FIRStartPasskeyEnrollmentResponse.
+ */
 @interface FIRStartPasskeyEnrollmentResponseTests : XCTestCase
 @end
 @implementation FIRStartPasskeyEnrollmentResponseTests {
@@ -85,8 +125,8 @@ static NSString *const kTestUserID = @"user-id";
   [super tearDown];
 }
 
-/** @fn testSuccessfulGetAccountInfoResponse
-    @brief This test simulates a successful @c GetAccountInfo flow.
+/** @fn testSuccessfulStartPasskeyEnrollmentResponse
+    @brief This test simulates a successful @c StartPasskeyEnrollment flow.
  */
 - (void)testSuccessfulStartPasskeyEnrollmentResponse {
   FIRStartPasskeyEnrollmentRequest *request =
@@ -121,9 +161,9 @@ static NSString *const kTestUserID = @"user-id";
   XCTAssertEqualObjects(RPCResponse.userID, kTestUserID);
 }
 
-/** @fn testGetAccountInfoUnexpectedResponseError
-    @brief This test simulates an unexpected response returned from server in @c GetAccountInfo
-        flow.
+/** @fn testStartPasskeyEnrollmentResponseMissingCreationOptionsError
+    @brief This test simulates an unexpected response returned from server in @c
+   StartPasskeyEnrollment flow.
  */
 - (void)testStartPasskeyEnrollmentResponseMissingCreationOptionsError {
   FIRStartPasskeyEnrollmentRequest *request =
@@ -150,6 +190,10 @@ static NSString *const kTestUserID = @"user-id";
                                      rpcResponse:RPCResponse];
 }
 
+/** @fn testStartPasskeyEnrollmentResponseMissingRpIdError
+    @brief This test simulates an unexpected response returned from server in @c
+   StartPasskeyEnrollment flow.
+ */
 - (void)testStartPasskeyEnrollmentResponseMissingRpIdError {
   FIRStartPasskeyEnrollmentRequest *request =
       [[FIRStartPasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken
@@ -179,6 +223,10 @@ static NSString *const kTestUserID = @"user-id";
                                      rpcResponse:RPCResponse];
 }
 
+/** @fn testStartPasskeyEnrollmentResponseMissingUserIdError
+    @brief This test simulates an unexpected response returned from server in @c
+   StartPasskeyEnrollment flow.
+ */
 - (void)testStartPasskeyEnrollmentResponseMissingUserIdError {
   FIRStartPasskeyEnrollmentRequest *request =
       [[FIRStartPasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken
@@ -208,6 +256,10 @@ static NSString *const kTestUserID = @"user-id";
                                      rpcResponse:RPCResponse];
 }
 
+/** @fn testStartPasskeyEnrollmentResponseMissingChallengeError
+    @brief This test simulates an unexpected response returned from server in @c
+   StartPasskeyEnrollment flow.
+ */
 - (void)testStartPasskeyEnrollmentResponseMissingChallengeError {
   FIRStartPasskeyEnrollmentRequest *request =
       [[FIRStartPasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken
@@ -236,6 +288,10 @@ static NSString *const kTestUserID = @"user-id";
                                      rpcResponse:RPCResponse];
 }
 
+/** @fn errorValidationHelperWithCallbackInvoked
+    @brief Helper function to validate the unexpected response returned from server in @c
+   StartPasskeyEnrollment flow.
+ */
 - (void)errorValidationHelperWithCallbackInvoked:(BOOL)callbackInvoked
                                         rpcError:(NSError *)RPCError
                                      rpcResponse:(FIRStartPasskeyEnrollmentResponse *)RPCResponse {

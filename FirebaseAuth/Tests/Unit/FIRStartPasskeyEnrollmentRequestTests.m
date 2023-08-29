@@ -19,7 +19,6 @@
 
 #import <XCTest/XCTest.h>
 
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"

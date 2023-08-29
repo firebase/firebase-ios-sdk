@@ -243,6 +243,13 @@ typedef void (^FIRRevokeTokenResponseCallback)(FIRRevokeTokenResponse *_Nullable
 typedef void (^FIRSignInWithGameCenterResponseCallback)(
     FIRSignInWithGameCenterResponse *_Nullable response, NSError *_Nullable error);
 
+/** @typedef FIRStartPasskeyEnrollmentResponseCallback
+    @brief The type of block used to return the result of a call to the StartPasskeyEnrollment
+   endpoint.
+    @param response The received response, if any.
+    @param error The error which occurred, if any.
+    @remarks One of response or error will be non-nil.
+ */
 typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
     FIRStartPasskeyEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
@@ -431,6 +438,12 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
 + (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
 
+/** @fn startPasskeyEnrollment:callback:
+    @brief Calls the startPasskeyEnrollment endpoint, which is responsible for receving the
+   challenge that will later be consumed for platform key creation.
+    @param request The request parameters.
+    @param callback The callback.
+ */
 + (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
 
@@ -608,6 +621,12 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
 - (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
 
+/** @fn startPasskeyEnrollment:callback:
+    @brief Calls the startPasskeyEnrollment endpoint, which is responsible for receving the
+   challenge that will later be consumed for platform key creation.
+    @param request The request parameters.
+    @param callback The callback.
+ */
 - (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
 
