@@ -193,6 +193,16 @@ class Persistence {
  private:
   virtual void RunInternal(absl::string_view label,
                            std::function<void()> block) = 0;
+
+  /**
+   * Removes all persistent cache indexes. This feature is implemented in
+   * `Persistence` instead of `IndexManager` like other SDKs. The reason for
+   * that is the total operation of `DeleteAllIndexes` may exceed maximum
+   * operation per transaction. So the SDK needs more than one transaction to
+   * execute the task, while all functions in `IndexManager` can be carried out
+   * in one transaction.
+   */
+  virtual void DeleteAllFieldIndexes() = 0;
 };
 
 }  // namespace local

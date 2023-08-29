@@ -202,6 +202,13 @@ class WrappedRemoteDocumentCache : public RemoteDocumentCache {
       absl::optional<size_t>,
       const model::OverlayByDocumentKeyMap& mutated_docs) const override;
 
+  model::MutableDocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>& context,
+      absl::optional<size_t> limit,
+      const model::OverlayByDocumentKeyMap& mutated_docs) const override;
+
   void SetIndexManager(IndexManager* manager) override {
     index_manager_ = NOT_NULL(manager);
   }

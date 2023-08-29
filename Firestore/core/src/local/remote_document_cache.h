@@ -33,6 +33,7 @@ class Query;
 namespace local {
 
 class IndexManager;
+class QueryContext;
 
 /**
  * Represents cached documents received from the remote backend.
@@ -114,6 +115,32 @@ class RemoteDocumentCache {
   virtual model::MutableDocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
       const model::IndexOffset& offset,
+      absl::optional<size_t> limit = absl::nullopt,
+      const model::OverlayByDocumentKeyMap& mutated_docs = {}) const = 0;
+
+  /**
+   * Executes a query against the cached Document entries
+   *
+   * Implementations may return extra documents if convenient. The results
+   * should be re-filtered by the consumer before presenting them to the user.
+   *
+   * Cached DeletedDocument entries have no bearing on query results.
+   *
+   * @param query The query to match documents against.
+   * @param offset The read time and document key to start scanning at
+   * (exclusive).
+   * @param context A optional tracker to keep a record of important details
+   * during database local query execution.
+   * @param limit The maximum number of results to return.
+   * If the limit is not defined, returns all matching documents.
+   * @param mutated_docs The documents with local mutations, they are read
+   * regardless if the remote version matches the given query.
+   * @return The set of matching documents.
+   */
+  virtual model::MutableDocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>& context,
       absl::optional<size_t> limit = absl::nullopt,
       const model::OverlayByDocumentKeyMap& mutated_docs = {}) const = 0;
 

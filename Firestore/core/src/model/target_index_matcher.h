@@ -78,6 +78,9 @@ class TargetIndexMatcher {
    */
   bool ServedByIndex(const model::FieldIndex& index);
 
+  /** Returns a full matched field index for this target. */
+  model::FieldIndex BuildTargetIndex();
+
  private:
   bool HasMatchingEqualityFilter(const model::Segment& segment);
 
