@@ -1,0 +1,57 @@
+name: client_app
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/client_app.yml"
+      - "Package.swift"
+      - ".swiftpm/*"
+      - "*.podspec"
+      - "scripts/install_prereqs.sh"
+      - "scripts/build.sh"
+      - "SwiftPMTests/*"
+      - "Gemfile*"
+  schedule:
+    # Run every day at 12am (PST) - cron uses UTC times
+    - cron: "0 8 * * *"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  client-app-spm:
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    env:
+      FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
+    runs-on: macos-12
+    strategy:
+      matrix:
+        platform: [iOS]
+        # TODO(Xcode 14.3): Remove above line and uncomment below array when GHA
+        # supports Ventura/Xcode 14.3.
+        # platform: [iOS, tvOS, macOS, catalyst]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+        with:
+          cache_key: ${{ matrix.os }}
+      - name: Build Client App –– ${{ matrix.platform }}
+        run: scripts/third_party/travis/retry.sh ./scripts/build.sh SwiftPMClientApp ${{ matrix.platform }} xcodebuild
+
+  client-app-cocoapods:
+    # Don't run on private repo unless it is a PR.
+    if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v3
+      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+        with:
+          cache_key: ${{ matrix.os }}
+      - uses: ruby/setup-ruby@v1
+      - name: Setup Bundler
+        run: scripts/setup_bundler.sh
+      - name: Prereqs
+        run: scripts/install_prereqs.sh ClientApp iOS xcodebuild
+      - name: Build
+        run: scripts/build.sh CocoaPodsClientApp iOS xcodebuild

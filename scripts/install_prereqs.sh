@@ -170,6 +170,11 @@ case "$project-$platform-$method" in
     bundle exec pod install --project-directory=GoogleDataTransport/GDTCCTWatchOSTestApp/
     ;;
 
+  ClientApp-iOS-xcodebuild)
+    install_xcpretty
+    bundle exec pod install --project-directory=SwiftPMTests/ClientApp/ --repo-update
+    ;;
+
   *-pod-lib-lint)
     ;;
 

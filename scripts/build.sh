@@ -44,6 +44,7 @@ product can be one of:
   SymbolCollision
   GoogleDataTransport
   Performance
+  ClientApp
 platform can be one of:
   iOS (default)
   iOS-device
@@ -701,6 +702,14 @@ case "$product-$platform-$method" in
     RunXcodebuild \
       -project 'SwiftPMTests/ClientApp/ClientApp.xcodeproj' \
       -scheme "ClientApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  CocoaPodsClientApp-iOS-xcodebuild)
+    RunXcodebuild \
+      -workspace 'SwiftPMTests/ClientApp/ClientApp.xcworkspace' \
+      -scheme "ClientApp-CocoaPods" \
       "${xcb_flags[@]}" \
       build
     ;;
