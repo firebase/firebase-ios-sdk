@@ -35,11 +35,11 @@ import FirebaseSharedSwift
   }
 #endif // SWIFT_PACKAGE
 
-public enum RemoteConfigValueCodableError: Error {
+enum RemoteConfigValueCodableError: Error {
   case unsupportedType(String)
 }
 
-public extension RemoteConfigValue {
+extension RemoteConfigValue {
   /// Extracts a RemoteConfigValue JSON-encoded object and decodes it to the requested type.
   ///
   /// - Parameter asType: The type to decode the JSON-object to
@@ -54,11 +54,11 @@ public extension RemoteConfigValue {
   }
 }
 
-public enum RemoteConfigCodableError: Error {
+enum RemoteConfigCodableError: Error {
   case invalidSetDefaultsInput(String)
 }
 
-public extension RemoteConfig {
+extension RemoteConfig {
   /// Decodes a struct from the respective Remote Config values.
   ///
   /// - Parameter asType: The type to decode to.
