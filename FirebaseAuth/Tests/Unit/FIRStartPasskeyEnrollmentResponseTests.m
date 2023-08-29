@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthErrors.h"
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
@@ -307,3 +308,4 @@ static NSString *const kTestIDKey = @"id";
 }
 
 @end
+#endif

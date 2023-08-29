@@ -613,11 +613,13 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   [[self implementation] verifyClient:request callback:callback];
 }
 
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 + (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
   [[self implementation] startPasskeyEnrollment:request callback:callback];
 }
-
 #endif
 
 + (void)revokeToken:(FIRRevokeTokenRequest *)request
@@ -1037,6 +1039,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                }];
 }
 
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 - (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
   FIRStartPasskeyEnrollmentResponse *response = [[FIRStartPasskeyEnrollmentResponse alloc] init];
@@ -1050,7 +1055,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                  callback(response, nil);
                }];
 }
-
 #endif
 
 - (void)revokeToken:(FIRRevokeTokenRequest *)request

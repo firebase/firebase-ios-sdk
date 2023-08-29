@@ -438,6 +438,9 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
 + (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
 
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 /** @fn startPasskeyEnrollment:callback:
     @brief Calls the startPasskeyEnrollment endpoint, which is responsible for receving the
    challenge that will later be consumed for platform key creation.
@@ -446,7 +449,6 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
  */
 + (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
-
 #endif
 
 /** @fn revokeToken:callback:
@@ -621,6 +623,9 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
 - (void)verifyClient:(FIRVerifyClientRequest *)request
             callback:(FIRVerifyClientResponseCallback)callback;
 
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 /** @fn startPasskeyEnrollment:callback:
     @brief Calls the startPasskeyEnrollment endpoint, which is responsible for receving the
    challenge that will later be consumed for platform key creation.
@@ -629,7 +634,6 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
  */
 - (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
-
 #endif
 
 /** @fn revokeToken:callback:
