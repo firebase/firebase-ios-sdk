@@ -14,7 +14,10 @@
 
 // ‼️ Changes should also be reflected in the ObjC/ObjC++ files if applicable.
 
-import Firebase
+#if !COCOAPODS
+  // TODO(ncooke3): Figure out why this isn't working on CocoaPods.
+  import Firebase
+#endif // !COCOAPODS
 // NOTE(ncooke3): `FirebaseABTesting` is not listed as a library.
 import FirebaseABTesting
 import FirebaseAnalytics
@@ -24,7 +27,9 @@ import FirebaseAppCheck
   import FirebaseAppDistribution
 #endif
 import FirebaseAuth
-import FirebaseAuthCombineSwift
+#if SWIFT_PACKAGE
+  import FirebaseAuthCombineSwift
+#endif // SWIFT_PACKAGE
 import FirebaseCore
 import FirebaseCrashlytics
 import FirebaseDatabase
@@ -33,10 +38,14 @@ import FirebaseDatabaseSwift
   import FirebaseDynamicLinks
 #endif
 import FirebaseFirestore
-import FirebaseFirestoreCombineSwift
+#if SWIFT_PACKAGE
+  import FirebaseFirestoreCombineSwift
+#endif // SWIFT_PACKAGE
 import FirebaseFirestoreSwift
 import FirebaseFunctions
-import FirebaseFunctionsCombineSwift
+#if SWIFT_PACKAGE
+  import FirebaseFunctionsCombineSwift
+#endif // SWIFT_PACKAGE
 #if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
   import FirebaseInAppMessaging
   import FirebaseInAppMessagingSwift
@@ -50,4 +59,6 @@ import FirebaseMLModelDownloader
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
 import FirebaseStorage
-import FirebaseStorageCombineSwift
+#if SWIFT_PACKAGE
+  import FirebaseStorageCombineSwift
+#endif // SWIFT_PACKAGE

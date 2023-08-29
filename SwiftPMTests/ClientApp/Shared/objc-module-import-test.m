@@ -14,7 +14,10 @@
 
 // ‼️ NOTE: Changes should also be reflected in `objcxx-module-import-test.m`.
 
+#if !COCOAPODS
+// TODO(ncooke3): Figure out why this isn't working on CocoaPods.
 @import Firebase;
+#endif  // !COCOAPODS
 @import FirebaseABTesting;
 @import FirebaseAnalytics;
 @import FirebaseAppCheck;
