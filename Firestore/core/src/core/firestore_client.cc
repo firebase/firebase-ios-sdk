@@ -405,7 +405,7 @@ void FirestoreClient::WaitForPendingWrites(StatusCallback callback) {
   });
 }
 
-void FirestoreClient::VerifyNotTerminated() {
+void FirestoreClient::VerifyNotTerminated() const {
   if (is_terminated()) {
     ThrowIllegalState("The client has already been terminated.");
   }
@@ -595,6 +595,18 @@ void FirestoreClient::ConfigureFieldIndexes(
   worker_queue_->Enqueue([this, parsed_indexes] {
     local_store_->ConfigureFieldIndexes(std::move(parsed_indexes));
   });
+}
+
+void FirestoreClient::SetIndexAutoCreationEnabled(bool is_enabled) const {
+  VerifyNotTerminated();
+  worker_queue_->Enqueue([this, is_enabled] {
+    local_store_->SetIndexAutoCreationEnabled(is_enabled);
+  });
+}
+
+void FirestoreClient::DeleteAllFieldIndexes() {
+  VerifyNotTerminated();
+  worker_queue_->Enqueue([this] { local_store_->DeleteAllFieldIndexes(); });
 }
 
 void FirestoreClient::LoadBundle(

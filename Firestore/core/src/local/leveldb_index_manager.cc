@@ -464,6 +464,27 @@ absl::optional<model::FieldIndex> LevelDbIndexManager::GetFieldIndex(
   return result;
 }
 
+void LevelDbIndexManager::DeleteAllFieldIndexes() {
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  db_->DeleteAllFieldIndexes();
+  memoized_indexes_.clear();
+  next_index_to_update_ = QueueForNextIndexToUpdate();
+}
+
+void LevelDbIndexManager::CreateTargetIndexes(const core::Target& target) {
+  HARD_ASSERT(started_, "IndexManager not started");
+
+  for (const auto& subTarget : GetSubTargets(target)) {
+    IndexManager::IndexType type = GetIndexType(subTarget);
+    if (type == IndexManager::IndexType::NONE ||
+        type == IndexManager::IndexType::PARTIAL) {
+      TargetIndexMatcher targetIndexMatcher(subTarget);
+      AddFieldIndex(targetIndexMatcher.BuildTargetIndex());
+    }
+  }
+}
+
 model::IndexOffset LevelDbIndexManager::GetMinOffset(
     const core::Target& target) {
   std::vector<FieldIndex> indexes;

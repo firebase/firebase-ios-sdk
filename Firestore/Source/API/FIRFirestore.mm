@@ -21,6 +21,7 @@
 #include <utility>
 
 #import "FIRFirestoreSettings+Internal.h"
+#import "FIRPersistentCacheIndexManager+Internal.h"
 #import "FIRTransactionOptions+Internal.h"
 #import "FIRTransactionOptions.h"
 
@@ -106,6 +107,7 @@ NS_ASSUME_NONNULL_BEGIN
   std::shared_ptr<Firestore> _firestore;
   FIRFirestoreSettings *_settings;
   __weak id<FSTFirestoreInstanceRegistry> _registry;
+  FIRPersistentCacheIndexManager *_indexManager;
 }
 
 + (void)initialize {
@@ -531,6 +533,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const std::shared_ptr<AsyncQueue> &)workerQueue {
   return _firestore->worker_queue();
+}
+
+- (FIRPersistentCacheIndexManager *)persistentCacheIndexManager {
+  if (!_indexManager) {
+    auto index_manager = _firestore->persistent_cache_index_manager();
+    if (index_manager) {
+      _indexManager = [[FIRPersistentCacheIndexManager alloc]
+          initWithPersistentCacheIndexManager:index_manager];
+    }
+  }
+  return _indexManager;
 }
 
 - (const DatabaseId &)databaseID {
