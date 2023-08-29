@@ -65,9 +65,15 @@ def detect_changed_modules(changed_api_files):
   changed_modules = {}
   for file_path in changed_api_files:
     for k, v in all_modules.items():
-      if v['root_dir'] and v['root_dir'] in file_path:
-        changed_modules[k] = v
-        break
+      if isinstance(v['root_dir'], str):
+        if v['root_dir'] in file_path:
+          changed_modules[k] = v
+          break
+      elif isinstance(v['root_dir'], list):
+        for d in v['root_dir']:
+          if d in file_path:
+            changed_modules[k] = v
+            break
       elif f'{k}.podspec' in file_path:
         changed_modules[k] = v
         break
@@ -139,6 +145,7 @@ def get_root_dir(module_name, source_files):
       'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
       'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
       'FirebaseInAppMessagingSwift': 'FirebaseInAppMessaging/Swift/Source',
+      'FirebaseRemoteConfig': ['FirebaseRemoteConfig/Sources', 'FirebaseRemoteConfigSwift/Sources'],
   }
   if module_name in MODULE_ROOT_PATCH:
     return MODULE_ROOT_PATCH[module_name]
