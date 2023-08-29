@@ -9,7 +9,7 @@ on:
       - "*.podspec"
       - "scripts/install_prereqs.sh"
       - "scripts/build.sh"
-      - "SwiftPMTests/*"
+      - "ClientApp/*"
       - "Gemfile*"
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times

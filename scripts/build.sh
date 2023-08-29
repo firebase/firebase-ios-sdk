@@ -700,7 +700,7 @@ case "$product-$platform-$method" in
 
   SwiftPMClientApp-*-xcodebuild)
     RunXcodebuild \
-      -project 'SwiftPMTests/ClientApp/ClientApp.xcodeproj' \
+      -project 'ClientApp/ClientApp.xcodeproj' \
       -scheme "ClientApp" \
       "${xcb_flags[@]}" \
       build
@@ -708,7 +708,7 @@ case "$product-$platform-$method" in
 
   CocoaPodsClientApp-iOS-xcodebuild)
     RunXcodebuild \
-      -workspace 'SwiftPMTests/ClientApp/ClientApp.xcworkspace' \
+      -workspace 'ClientApp/ClientApp.xcworkspace' \
       -scheme "ClientApp-CocoaPods" \
       "${xcb_flags[@]}" \
       build
