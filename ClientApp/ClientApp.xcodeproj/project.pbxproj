@@ -69,7 +69,7 @@
 		EA5A62912A9914F300F5711A /* ClientApp_CocoaPods.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClientApp_CocoaPods.entitlements; sourceTree = "<group>"; };
 		EA5A62932A9914F300F5711A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		EA7DF54229EF20B9005664A7 /* swift-import-test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "swift-import-test.swift"; sourceTree = "<group>"; };
-		EA7DF54929EF2A92005664A7 /* firebase-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "firebase-ios-sdk"; path = ../..; sourceTree = "<group>"; };
+		EA7DF54929EF2A92005664A7 /* firebase-ios-sdk */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "firebase-ios-sdk"; path = ../; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

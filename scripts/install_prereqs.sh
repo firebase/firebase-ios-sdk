@@ -172,7 +172,7 @@ case "$project-$platform-$method" in
 
   ClientApp-iOS-xcodebuild)
     install_xcpretty
-    bundle exec pod install --project-directory=SwiftPMTests/ClientApp/ --repo-update
+    bundle exec pod install --project-directory=ClientApp/ --repo-update
     ;;
 
   *-pod-lib-lint)
