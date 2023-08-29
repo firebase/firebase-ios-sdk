@@ -64,9 +64,7 @@ def detect_changed_modules(changed_api_files):
   all_modules = module_info()
   changed_modules = {}
   for file_path in changed_api_files:
-    print(f'file_path: {file_path}')
     for k, v in all_modules.items():
-      print(k)
       if v['root_dir'] and v['root_dir'] in file_path:
         changed_modules[k] = v
         break
