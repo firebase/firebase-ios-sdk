@@ -14,6 +14,8 @@
 
 #include "Crashlytics/Shared/FIRCLSFABHost.h"
 
+#import <GoogleUtilities/GULAppEnvironmentUtil.h>
+
 #if TARGET_OS_WATCH
 #import <WatchKit/WatchKit.h>
 #elif TARGET_OS_IPHONE
@@ -89,31 +91,5 @@ NSString *FIRCLSHostOSDisplayVersion(void) {
 #pragma mark Public
 
 NSString *FIRCLSHostModelInfo(void) {
-  NSString *model = nil;
-
-#if TARGET_OS_SIMULATOR
-#if TARGET_OS_WATCH
-  model = @"watchOS Simulator";
-#elif TARGET_OS_TV
-  model = @"tvOS Simulator";
-#elif TARGET_OS_IPHONE
-  switch ([[UIDevice currentDevice] userInterfaceIdiom]) {
-    case UIUserInterfaceIdiomPhone:
-      model = @"iOS Simulator (iPhone)";
-      break;
-    case UIUserInterfaceIdiomPad:
-      model = @"iOS Simulator (iPad)";
-      break;
-    default:
-      model = @"iOS Simulator (Unknown)";
-      break;
-  }
-#endif
-#elif TARGET_OS_EMBEDDED
-  model = FIRCLSHostSysctlEntry("hw.machine");
-#else
-  model = FIRCLSHostSysctlEntry("hw.model");
-#endif
-
-  return model;
+  return [GULAppEnvironmentUtil deviceSimulatorModel];
 }
