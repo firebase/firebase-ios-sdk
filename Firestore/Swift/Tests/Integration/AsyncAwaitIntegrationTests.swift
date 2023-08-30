@@ -98,7 +98,7 @@ let emptyBundle = """
       try await db.terminate()
 
       let configureApp2Attempt = {
-        try ExceptionCatcher.catchException {
+        try FSTExceptionCatcher.catchException {
           self.db.persistentCacheIndexManager.enableIndexAutoCreation()
         }
       }
