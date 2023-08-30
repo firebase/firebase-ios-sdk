@@ -13,21 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import "FIRPersistentCacheIndexManager.h"
 
-#import <Foundation/Foundation.h>
+import FirebaseFirestore
+import FirebaseFirestoreSwift
+import Foundation
 
-#include <memory>
-#include "Firestore/core/src/api/persistent_cache_index_manager.h"
+class IndexingTests: FSTIntegrationTestCase {
+  func testAutoIndexCreationSetSuccessfully() throws {
+    // Use persistent disk cache (explict)
+    let settings = db.settings
+    settings.cacheSettings = PersistentCacheSettings()
+    db.settings = settings
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface FIRPersistentCacheIndexManager (/* Init */)
-
-- (instancetype)initWithPersistentCacheIndexManager:
-    (std::shared_ptr<const firebase::firestore::api::PersistentCacheIndexManager>)indexManager
-    NS_DESIGNATED_INITIALIZER;
-
-@end
-
-NS_ASSUME_NONNULL_END
+    let coll = collectionRef()
+    let testDocs = [
+      "a": ["match": true],
+      "b": ["match": false],
+      "c": ["match": false],
+    ]
+    writeAllDocuments(testDocs, toCollection: coll)
+  }
+}

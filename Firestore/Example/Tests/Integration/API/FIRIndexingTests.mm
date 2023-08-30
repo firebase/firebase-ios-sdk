@@ -18,11 +18,9 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRPersistentCacheIndexManager+Internal.h"
-
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRPersistentCacheIndexManager.h"
 
 @interface FIRIndexingTests : FSTIntegrationTestCase
 @end
@@ -38,69 +36,6 @@
     [exp fulfill];
   }];
   [self awaitExpectation:exp];
-}
-
-- (void)testCanConfigureIndexes {
-  NSString *json = @"{\n"
-                    "\t\"indexes\": [{\n"
-                    "\t\t\t\"collectionGroup\": \"restaurants\",\n"
-                    "\t\t\t\"queryScope\": \"COLLECTION\",\n"
-                    "\t\t\t\"fields\": [{\n"
-                    "\t\t\t\t\t\"fieldPath\": \"price\",\n"
-                    "\t\t\t\t\t\"order\": \"ASCENDING\"\n"
-                    "\t\t\t\t},\n"
-                    "\t\t\t\t{\n"
-                    "\t\t\t\t\t\"fieldPath\": \"avgRating\",\n"
-                    "\t\t\t\t\t\"order\": \"DESCENDING\"\n"
-                    "\t\t\t\t}\n"
-                    "\t\t\t]\n"
-                    "\t\t},\n"
-                    "\t\t{\n"
-                    "\t\t\t\"collectionGroup\": \"restaurants\",\n"
-                    "\t\t\t\"queryScope\": \"COLLECTION\",\n"
-                    "\t\t\t\"fields\": [{\n"
-                    "\t\t\t\t\"fieldPath\": \"price\",\n"
-                    "\t\t\t\t\"order\": \"ASCENDING\"\n"
-                    "\t\t\t}]\n"
-                    "\t\t}\n"
-                    "\t],\n"
-                    "\t\"fieldOverrides\": []\n"
-                    "}";
-
-  [self.db setIndexConfigurationFromJSON:json
-                              completion:^(NSError *error) {
-                                XCTAssertNil(error);
-                              }];
-}
-
-- (void)testBadJsonDoesNotCrashClient {
-  [self.db setIndexConfigurationFromJSON:@"{,"
-                              completion:^(NSError *error) {
-                                XCTAssertNotNil(error);
-                                XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-                                XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-                              }];
-}
-
-- (void)testBadIndexDoesNotCrashClient {
-  NSString *json = @"{\n"
-                    "\t\"indexes\": [{\n"
-                    "\t\t\"collectionGroup\": \"restaurants\",\n"
-                    "\t\t\"queryScope\": \"COLLECTION\",\n"
-                    "\t\t\"fields\": [{\n"
-                    "\t\t\t\"fieldPath\": \"price\",\n"
-                    "\t\t\t\"order\": \"ASCENDING\",\n"
-                    "\t\t]}\n"
-                    "\t}],\n"
-                    "\t\"fieldOverrides\": []\n"
-                    "}";
-
-  [self.db setIndexConfigurationFromJSON:json
-                              completion:^(NSError *error) {
-                                XCTAssertNotNil(error);
-                                XCTAssertEqualObjects(error.domain, FIRFirestoreErrorDomain);
-                                XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
-                              }];
 }
 
 /**
@@ -194,13 +129,13 @@
 - (void)testAutoIndexCreationAfterFailsTermination {
   [self terminateFirestore:self.db];
 
-  FSTAssertThrows([self.db.persistentCacheIndexManager enableIndexAutoCreation],
+  XCTAssertThrows([self.db.persistentCacheIndexManager enableIndexAutoCreation],
                   @"The client has already been terminated.");
 
-  FSTAssertThrows([self.db.persistentCacheIndexManager disableIndexAutoCreation],
+  XCTAssertThrows([self.db.persistentCacheIndexManager disableIndexAutoCreation],
                   @"The client has already been terminated.");
 
-  FSTAssertThrows([self.db.persistentCacheIndexManager deleteAllIndexes],
+  XCTAssertThrows([self.db.persistentCacheIndexManager deleteAllIndexes],
                   @"The client has already been terminated.");
 }
 

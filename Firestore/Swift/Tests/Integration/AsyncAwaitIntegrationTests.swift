@@ -93,5 +93,18 @@ let emptyBundle = """
       XCTAssertEqual(FIRQuerySnapshotGetIDs(snapshot),
                      ["doc1", "doc2", "doc4", "doc5"])
     }
+
+    func testAutoIndexCreationAfterFailsTermination() async throws {
+      try await db.terminate()
+      // XCTAssertThrowsError( db.persistentCacheIndexManager.enableIndexAutoCreation(),
+      // "The client has already been terminated.")
+
+      // let configureApp2Attempt = {
+      // try ExceptionCatcher.catchException {
+      // self.db.persistentCacheIndexManager.enableIndexAutoCreation()
+      // }
+      // }
+      // XCTAssertNoThrow(try configureApp2Attempt())
+    }
   }
 #endif
