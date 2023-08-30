@@ -480,7 +480,10 @@ void LevelDbIndexManager::CreateTargetIndexes(const core::Target& target) {
     if (type == IndexManager::IndexType::NONE ||
         type == IndexManager::IndexType::PARTIAL) {
       TargetIndexMatcher targetIndexMatcher(subTarget);
-      AddFieldIndex(targetIndexMatcher.BuildTargetIndex());
+      auto const field_index = targetIndexMatcher.BuildTargetIndex();
+      if (field_index.has_value()) {
+        AddFieldIndex(field_index.value());
+      }
     }
   }
 }

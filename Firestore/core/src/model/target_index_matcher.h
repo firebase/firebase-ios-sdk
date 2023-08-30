@@ -55,6 +55,10 @@ class TargetIndexMatcher {
  public:
   explicit TargetIndexMatcher(const core::Target& target);
 
+  inline bool HasMultipleInequality() const {
+    return inequality_filters_.size() > 1U;
+  }
+
   /**
    * Returns whether the index can be used to serve the TargetIndexMatcher's
    * target.
@@ -78,8 +82,11 @@ class TargetIndexMatcher {
    */
   bool ServedByIndex(const model::FieldIndex& index);
 
-  /** Returns a full matched field index for this target. */
-  model::FieldIndex BuildTargetIndex();
+  /**
+   * Returns a full matched field index for this target. Currently multiple
+   * inequality query is not supported so function returns null.
+   */
+  absl::optional<model::FieldIndex> BuildTargetIndex();
 
  private:
   bool HasMatchingEqualityFilter(const model::Segment& segment);

@@ -51,6 +51,11 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   HARD_ASSERT(index.collection_group() == collection_id_,
               "Collection IDs do not match");
 
+  if (HasMultipleInequality()) {
+    // Only single inequality is supported for now.
+    return false;
+  }
+
   // If there is an array element, find a matching filter.
   const auto& array_segment = index.GetArraySegment();
   if (array_segment.has_value() &&
@@ -87,11 +92,6 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   auto order_by_iter = order_bys_.begin();
 
   if (!inequality_filters_.empty()) {
-    if (inequality_filters_.size() > 1) {
-      // Only single inequality is supported for now.
-      return false;
-    }
-
     // Only a single inequality is currently supported. Get the only entry in
     // the set.
     const FieldFilter& inequality_filter = *inequality_filters_.begin();
@@ -123,7 +123,11 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   return true;
 }
 
-model::FieldIndex TargetIndexMatcher::BuildTargetIndex() {
+absl::optional<model::FieldIndex> TargetIndexMatcher::BuildTargetIndex() {
+  if (HasMultipleInequality()) {
+    return {};
+  }
+
   // We want to make sure only one segment created for one field. For example,
   // in case like a == 3 and a > 2, Index: {a ASCENDING} will only be created
   // once.
