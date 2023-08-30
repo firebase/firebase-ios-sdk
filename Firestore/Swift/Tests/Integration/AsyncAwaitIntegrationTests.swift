@@ -96,15 +96,13 @@ let emptyBundle = """
 
     func testAutoIndexCreationAfterFailsTermination() async throws {
       try await db.terminate()
-      // XCTAssertThrowsError( db.persistentCacheIndexManager.enableIndexAutoCreation(),
-      // "The client has already been terminated.")
 
-      // let configureApp2Attempt = {
-      // try ExceptionCatcher.catchException {
-      // self.db.persistentCacheIndexManager.enableIndexAutoCreation()
-      // }
-      // }
-      // XCTAssertNoThrow(try configureApp2Attempt())
+      let configureApp2Attempt = {
+        try ExceptionCatcher.catchException {
+          self.db.persistentCacheIndexManager.enableIndexAutoCreation()
+        }
+      }
+      XCTAssertNoThrow(try configureApp2Attempt())
     }
   }
 #endif
