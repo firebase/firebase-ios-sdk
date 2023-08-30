@@ -102,7 +102,7 @@ let emptyBundle = """
           self.db.persistentCacheIndexManager.enableIndexAutoCreation()
         }
       }
-      XCTAssertNoThrow(try configureApp2Attempt())
+      XCTAssertThrowsError(try configureApp2Attempt())
     }
   }
 #endif
