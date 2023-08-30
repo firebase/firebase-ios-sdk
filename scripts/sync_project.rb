@@ -191,6 +191,7 @@ def sync_firestore(test_only)
         'Firestore/Protos/cpp/**',
         'Firestore/Swift/Tests/**',
         'Firestore/core/test/**',
+        'SharedTestUtilities/ExceptionCatcher.[mh]'
       ]
       t.exclude_files = [
         # needs to be in project but not in target
