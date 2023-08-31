@@ -51,7 +51,7 @@ TargetIndexMatcher::TargetIndexMatcher(const core::Target& target) {
   }
 }
 
-bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
+bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) const {
   HARD_ASSERT(index.collection_group() == collection_id_,
               "Collection IDs do not match");
 
@@ -118,7 +118,7 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
   return true;
 }
 
-model::FieldIndex TargetIndexMatcher::BuildTargetIndex() {
+model::FieldIndex TargetIndexMatcher::BuildTargetIndex() const {
   // We want to make sure only one segment created for one field. For example,
   // in case like a == 3 and a > 2, Index: {a ASCENDING} will only be created
   // once.
@@ -175,7 +175,8 @@ model::FieldIndex TargetIndexMatcher::BuildTargetIndex() {
                     std::move(segments), FieldIndex::InitialState());
 }
 
-bool TargetIndexMatcher::HasMatchingEqualityFilter(const Segment& segment) {
+bool TargetIndexMatcher::HasMatchingEqualityFilter(
+    const Segment& segment) const {
   for (const auto& filter : equality_filters_) {
     if (MatchesFilter(filter, segment)) {
       return true;
@@ -185,7 +186,8 @@ bool TargetIndexMatcher::HasMatchingEqualityFilter(const Segment& segment) {
 }
 
 bool TargetIndexMatcher::MatchesFilter(
-    const absl::optional<core::FieldFilter>& filter, const Segment& segment) {
+    const absl::optional<core::FieldFilter>& filter,
+    const Segment& segment) const {
   if (!filter.has_value()) {
     return false;
   }
@@ -193,7 +195,7 @@ bool TargetIndexMatcher::MatchesFilter(
 }
 
 bool TargetIndexMatcher::MatchesFilter(const FieldFilter& filter,
-                                       const Segment& segment) {
+                                       const Segment& segment) const {
   if (filter.field() != segment.field_path()) {
     return false;
   }
@@ -204,7 +206,7 @@ bool TargetIndexMatcher::MatchesFilter(const FieldFilter& filter,
 }
 
 bool TargetIndexMatcher::MatchesOrderBy(const OrderBy& order_by,
-                                        const Segment& segment) {
+                                        const Segment& segment) const {
   if (order_by.field() != segment.field_path()) {
     return false;
   }
