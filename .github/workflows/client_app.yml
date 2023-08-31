@@ -3,6 +3,7 @@ name: client_app
 on:
   pull_request:
     paths:
+      - "Firebase*"
       - ".github/workflows/client_app.yml"
       - "Package.swift"
       - ".swiftpm/*"
