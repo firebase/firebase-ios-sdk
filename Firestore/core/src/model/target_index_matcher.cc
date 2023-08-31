@@ -40,7 +40,7 @@ TargetIndexMatcher::TargetIndexMatcher(const core::Target& target) {
   for (const Filter& filter : target.filters()) {
     FieldFilter field_filter(filter);
     if (field_filter.IsInequality()) {
-      inequality_filters_.emplace(field_filter);
+      inequality_filters_.insert(field_filter);
     } else {
       equality_filters_.push_back(field_filter);
     }

@@ -141,7 +141,7 @@ void ValidateBuildTargetIndexCreateFullMatchIndex(const core::Query& query) {
   TargetIndexMatcher matcher(target);
   EXPECT_FALSE(matcher.HasMultipleInequality());
   absl::optional<FieldIndex> actual_index = matcher.BuildTargetIndex();
-  EXPECT_TRUE(actual_index.has_value());
+  ASSERT_TRUE(actual_index.has_value());
   EXPECT_TRUE(matcher.ServedByIndex(actual_index.value()));
   // Check the index created is a FULL MATCH index
   EXPECT_TRUE(actual_index.value().segments().size() >=
