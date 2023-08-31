@@ -32,5 +32,100 @@ class IndexingTests: FSTIntegrationTestCase {
       "c": ["match": false],
     ]
     writeAllDocuments(testDocs, toCollection: coll)
+
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
+
+    let enableIndexAutoCreation = {
+      try FSTExceptionCatcher.catchException {
+        self.db.persistentCacheIndexManager.enableIndexAutoCreation()
+      }
+    }
+    XCTAssertNoThrow(try enableIndexAutoCreation())
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
+
+    let disableIndexAutoCreation = {
+      try FSTExceptionCatcher.catchException {
+        self.db.persistentCacheIndexManager.disableIndexAutoCreation()
+      }
+    }
+    XCTAssertNoThrow(try disableIndexAutoCreation())
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
+
+    let deleteAllIndexes = {
+      try FSTExceptionCatcher.catchException {
+        self.db.persistentCacheIndexManager.deleteAllIndexes()
+      }
+    }
+    XCTAssertNoThrow(try deleteAllIndexes())
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
+  }
+
+  func testAutoIndexCreationSetSuccessfullyUsingDefault() throws {
+    // Use persistent disk cache (default)
+    let coll = collectionRef()
+    let testDocs = [
+      "a": ["match": true],
+      "b": ["match": false],
+      "c": ["match": false],
+    ]
+    writeAllDocuments(testDocs, toCollection: coll)
+
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
+
+    let enableIndexAutoCreation = {
+      try FSTExceptionCatcher.catchException {
+        self.db.persistentCacheIndexManager.enableIndexAutoCreation()
+      }
+    }
+    XCTAssertNoThrow(try enableIndexAutoCreation())
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
+
+    let disableIndexAutoCreation = {
+      try FSTExceptionCatcher.catchException {
+        self.db.persistentCacheIndexManager.disableIndexAutoCreation()
+      }
+    }
+    XCTAssertNoThrow(try disableIndexAutoCreation())
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
+
+    let deleteAllIndexes = {
+      try FSTExceptionCatcher.catchException {
+        self.db.persistentCacheIndexManager.deleteAllIndexes()
+      }
+    }
+    XCTAssertNoThrow(try deleteAllIndexes())
+    coll.whereField("match", isEqualTo: true)
+      .getDocuments(source: .cache) { querySnapshot, err in
+        XCTAssertNil(err)
+        XCTAssertEqual(querySnapshot!.count, 1)
+      }
   }
 }
