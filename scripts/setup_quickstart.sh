@@ -49,6 +49,8 @@ if check_secrets || [[ ${SAMPLE} == "installations" ]]; then
   export FIREBASE_POD_REPO_FOR_DEV_POD=`pwd`
 
   git clone https://github.com/firebase/quickstart-ios.git
+  # TODO(ncooke3): Remove when Firebase 10.15.0 is released.
+  git checkout swift-pods-merged
 
   $scripts_dir/localize_podfile.swift "$WORKSPACE_DIR"/Podfile "$RELEASE_TESTING"
   if [ "$RELEASE_TESTING" == "nightly_release_testing" ]; then
