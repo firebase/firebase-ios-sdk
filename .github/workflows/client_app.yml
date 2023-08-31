@@ -1,5 +1,7 @@
 name: client_app
 
+# TODO(ncooke3): Revert before merging.
+
 on:
   pull_request:
     paths:
