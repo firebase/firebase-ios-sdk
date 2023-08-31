@@ -53,6 +53,7 @@ bool TargetIndexMatcher::ServedByIndex(const model::FieldIndex& index) {
 
   if (HasMultipleInequality()) {
     // Only single inequality is supported for now.
+    // TODO(Add support for multiple inequality query): b/298441043
     return false;
   }
 
