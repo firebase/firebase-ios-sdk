@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import FirebaseRemoteConfig
+import FirebaseRemoteConfigSwift
 
 import XCTest
 
