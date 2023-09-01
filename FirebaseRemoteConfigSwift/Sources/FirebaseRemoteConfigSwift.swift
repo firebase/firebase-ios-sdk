@@ -17,4 +17,6 @@
 // The `@_exported` is needed to prevent breaking clients that are using
 // types prefixed with the `FirebaseRemoteConfigSwift` module name (e.g.
 // `FirebaseRemoteConfigSwift.RemoteConfigValueCodableError`).
-@_exported import FirebaseRemoteConfig
+@_exported import enum FirebaseRemoteConfig.RemoteConfigValueCodableError
+@_exported import enum FirebaseRemoteConfig.RemoteConfigCodableError
+@_exported import struct FirebaseRemoteConfig.RemoteConfigProperty
