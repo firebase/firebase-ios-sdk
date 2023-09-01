@@ -998,14 +998,14 @@ let package = Package(
         "FirebaseRemoteConfigInternal",
         "FirebaseSharedSwift",
       ],
-      path: "FirebaseRemoteConfig/Swift"
+      path: "FirebaseRemoteConfigSwift/Sources"
     ),
     .target(
       name: "FirebaseRemoteConfigSwift",
       dependencies: [
         "FirebaseRemoteConfig",
       ],
-      path: "FirebaseRemoteConfigSwift/Sources"
+      path: "FirebaseRemoteConfigSwift/Exporter"
     ),
     .testTarget(
       name: "RemoteConfigFakeConsole",

@@ -40,7 +40,7 @@ app update.
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'FirebaseRemoteConfig/Swift/**/*.swift',
+    'FirebaseRemoteConfigSwift/Sources/**/*.swift',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.pod_target_xcconfig = {
