@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+// TODO(csi): Delete this once setIndexConfigurationFromJSON and setIndexConfigurationFromStream
+//  are removed.
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #import "FIRFirestore+Internal.h"
 
 #include <memory>
