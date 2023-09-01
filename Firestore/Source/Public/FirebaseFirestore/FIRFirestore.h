@@ -107,7 +107,8 @@ NS_SWIFT_NAME(Firestore)
  * A PersistentCacheIndexManager which you can config persistent cache indexes used for
  * local query execution.
  */
-@property(nonatomic, readonly) FIRPersistentCacheIndexManager *persistentCacheIndexManager;
+@property(nonatomic, readonly, nullable)
+    FIRPersistentCacheIndexManager *persistentCacheIndexManager;
 
 /**
  * NOTE: This preview method will be deprecated in a future major release, consider using

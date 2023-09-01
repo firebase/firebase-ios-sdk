@@ -99,14 +99,14 @@ let emptyBundle = """
 
       let enableIndexAutoCreation = {
         try FSTExceptionCatcher.catchException {
-          self.db.persistentCacheIndexManager.enableIndexAutoCreation()
+          self.db.persistentCacheIndexManager?.enableIndexAutoCreation()
         }
       }
       XCTAssertThrowsError(try enableIndexAutoCreation(), "The client has already been terminated.")
 
       let disableIndexAutoCreation = {
         try FSTExceptionCatcher.catchException {
-          self.db.persistentCacheIndexManager.disableIndexAutoCreation()
+          self.db.persistentCacheIndexManager?.disableIndexAutoCreation()
         }
       }
       XCTAssertThrowsError(
@@ -116,7 +116,7 @@ let emptyBundle = """
 
       let deleteAllIndexes = {
         try FSTExceptionCatcher.catchException {
-          self.db.persistentCacheIndexManager.deleteAllIndexes()
+          self.db.persistentCacheIndexManager?.deleteAllIndexes()
         }
       }
       XCTAssertThrowsError(try deleteAllIndexes(), "The client has already been terminated.")

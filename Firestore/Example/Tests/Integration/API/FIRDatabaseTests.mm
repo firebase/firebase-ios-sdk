@@ -1844,7 +1844,7 @@ using firebase::firestore::util::TimerId;
   XCTAssertNotNil(db2.persistentCacheIndexManager);
 
   // Disable persistent disk cache
-  FIRFirestore *db3 = [FIRFirestore firestoreForDatabase:@"PersistentCacheIndexManagerDB3"];
+  FIRFirestore *db3 = [FIRFirestore firestoreForDatabase:@"MemoryCacheIndexManagerDB1"];
   FIRFirestoreSettings *settings3 = [db3 settings];
   [settings3 setCacheSettings:[[FIRMemoryCacheSettings alloc] init]];
   [db3 setSettings:settings3];

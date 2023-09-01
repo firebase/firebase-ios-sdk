@@ -41,7 +41,7 @@ class IndexingTests: FSTIntegrationTestCase {
 
     let enableIndexAutoCreation = {
       try FSTExceptionCatcher.catchException {
-        self.db.persistentCacheIndexManager.enableIndexAutoCreation()
+        self.db.persistentCacheIndexManager!.enableIndexAutoCreation()
       }
     }
     XCTAssertNoThrow(try enableIndexAutoCreation())
@@ -53,7 +53,7 @@ class IndexingTests: FSTIntegrationTestCase {
 
     let disableIndexAutoCreation = {
       try FSTExceptionCatcher.catchException {
-        self.db.persistentCacheIndexManager.disableIndexAutoCreation()
+        self.db.persistentCacheIndexManager!.disableIndexAutoCreation()
       }
     }
     XCTAssertNoThrow(try disableIndexAutoCreation())
@@ -65,7 +65,7 @@ class IndexingTests: FSTIntegrationTestCase {
 
     let deleteAllIndexes = {
       try FSTExceptionCatcher.catchException {
-        self.db.persistentCacheIndexManager.deleteAllIndexes()
+        self.db.persistentCacheIndexManager!.deleteAllIndexes()
       }
     }
     XCTAssertNoThrow(try deleteAllIndexes())
@@ -94,7 +94,7 @@ class IndexingTests: FSTIntegrationTestCase {
 
     let enableIndexAutoCreation = {
       try FSTExceptionCatcher.catchException {
-        self.db.persistentCacheIndexManager.enableIndexAutoCreation()
+        self.db.persistentCacheIndexManager!.enableIndexAutoCreation()
       }
     }
     XCTAssertNoThrow(try enableIndexAutoCreation())
@@ -106,7 +106,7 @@ class IndexingTests: FSTIntegrationTestCase {
 
     let disableIndexAutoCreation = {
       try FSTExceptionCatcher.catchException {
-        self.db.persistentCacheIndexManager.disableIndexAutoCreation()
+        self.db.persistentCacheIndexManager!.disableIndexAutoCreation()
       }
     }
     XCTAssertNoThrow(try disableIndexAutoCreation())
@@ -118,7 +118,7 @@ class IndexingTests: FSTIntegrationTestCase {
 
     let deleteAllIndexes = {
       try FSTExceptionCatcher.catchException {
-        self.db.persistentCacheIndexManager.deleteAllIndexes()
+        self.db.persistentCacheIndexManager!.deleteAllIndexes()
       }
     }
     XCTAssertNoThrow(try deleteAllIndexes())
