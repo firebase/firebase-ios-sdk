@@ -40,7 +40,6 @@ app update.
     'FirebaseABTesting/Sources/Private/*.h',
     'FirebaseCore/Extension/*.h',
     'FirebaseInstallations/Source/Library/Private/*.h',
-    'FirebaseRemoteConfig/Swift/**/*.swift',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
   s.pod_target_xcconfig = {
@@ -48,7 +47,6 @@ app update.
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'
   }
   s.dependency 'FirebaseABTesting', '~> 10.0'
-  s.dependency 'FirebaseSharedSwift', '~> 10.0'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
