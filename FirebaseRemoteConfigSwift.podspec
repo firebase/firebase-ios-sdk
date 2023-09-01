@@ -39,6 +39,7 @@ app update.
   ]
 
   s.dependency 'FirebaseRemoteConfig', '~> 10.0'
+  s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseSharedSwift', '~> 10.0'
 
   # Run Swift API tests on a real backend.
