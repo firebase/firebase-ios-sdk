@@ -1,3 +1,7 @@
+# Unreleased
+- [feature] Add the option to allow the SDK to create cache indexes automatically to
+  improve query execution locally. (#11596)
+
 # 10.12.0
 - [feature] Implemented an optimization in the local cache synchronization logic
   that reduces the number of billed document reads when documents were deleted

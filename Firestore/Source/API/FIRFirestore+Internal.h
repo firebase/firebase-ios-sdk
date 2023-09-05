@@ -79,9 +79,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (const std::shared_ptr<firebase::firestore::util::AsyncQueue> &)workerQueue;
 
-// TODO(csi): make this function public
-@property(nonatomic, readonly) FIRPersistentCacheIndexManager *persistentCacheIndexManager;
-
 @property(nonatomic, assign, readonly) std::shared_ptr<api::Firestore> wrapped;
 
 @property(nonatomic, assign, readonly) const model::DatabaseId &databaseID;
