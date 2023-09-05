@@ -206,7 +206,7 @@ final class FirebaseRemoteConfigSwift_APIBuildTests: XCTestCase {
     case .invalidSetDefaultsInput: break
     }
 
-    @available(iOS 14.0, *)
+    @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
     struct PropertyWrapperTester {
       @FirebaseRemoteConfigSwift.RemoteConfigProperty(key: "", fallback: "")
       var stringValue: String!
