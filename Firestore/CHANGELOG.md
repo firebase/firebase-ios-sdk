@@ -1,5 +1,5 @@
 # Unreleased
-- [feature] Add option to allow SDK create cache indexes automatically to
+- [feature] Add the option to allow the SDK to create cache indexes automatically to
   improve query execution locally. (#11596)
 
 # 10.12.0

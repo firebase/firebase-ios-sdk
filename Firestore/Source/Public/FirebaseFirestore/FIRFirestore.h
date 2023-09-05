@@ -111,9 +111,9 @@ NS_SWIFT_NAME(Firestore)
     FIRPersistentCacheIndexManager *persistentCacheIndexManager;
 
 /**
- * NOTE: This preview method will be deprecated in a future major release, consider using
- * `PersistentCacheIndexManager.enableIndexAutoCreation()` to let SDK decide whether to create cache
- * indexes for queries running locally.
+ * NOTE: This preview method will be deprecated in a future major release. Consider using
+ * `PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to create
+ * cache indexes for queries running locally.
  *
  * Configures indexing for local query execution. Any previous index configuration is overridden.
  *
@@ -133,13 +133,13 @@ NS_SWIFT_NAME(Firestore)
                            completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(setIndexConfiguration(_:completion:)) DEPRECATED_MSG_ATTRIBUTE(
         "Instead of creating cache indexes manually, consider using "
-        "`PersistentCacheIndexManager.enableIndexAutoCreation()` to let SDK decide whether to "
+        "`PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to "
         "create cache indexes for queries running locally.");
 
 /**
- * NOTE: This preview method will be deprecated in a future major release, consider using
- * `PersistentCacheIndexManager.enableIndexAutoCreation()` to let SDK decide whether to create cache
- * indexes for queries running locally.
+ * NOTE: This preview method will be deprecated in a future major release. Consider using
+ * `PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to create
+ * cache indexes for queries running locally.
  *
  * Configures indexing for local query execution. Any previous index configuration is overridden.
  *
@@ -162,7 +162,7 @@ NS_SWIFT_NAME(Firestore)
                              completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(setIndexConfiguration(_:completion:)) DEPRECATED_MSG_ATTRIBUTE(
         "Instead of creating cache indexes manually, consider using "
-        "`PersistentCacheIndexManager.enableIndexAutoCreation()` to let SDK decide whether to "
+        "`PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to "
         "create cache indexes for queries running locally.");
 
 #pragma mark - Collections and Documents
