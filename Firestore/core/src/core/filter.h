@@ -165,7 +165,8 @@ class Filter {
      * (MemoizedFlattenedFilters is not copyable because of its std::once_flag
      * member variable).
      */
-    mutable std::shared_ptr<MemoizedFlattenedFilters> memoized_flattened_filters_;
+    mutable std::shared_ptr<MemoizedFlattenedFilters>
+        memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {
