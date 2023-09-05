@@ -124,11 +124,11 @@ FieldFilter::FieldFilter(std::shared_ptr<const Filter::Rep> rep)
 
 const std::vector<FieldFilter>& FieldFilter::Rep::GetFlattenedFilters() const {
   // This is already a field filter, so we return a vector of size one.
-  if (Filter::Rep::memoized_flattened_filters_.empty()) {
-    Filter::Rep::memoized_flattened_filters_ = std::vector<FieldFilter>{
+  std::call_once(memoized_flattened_filters_->once, [this]() {
+    memoized_flattened_filters_->filters = std::vector<FieldFilter>{
         FieldFilter(std::make_shared<const Rep>(*this))};
-  }
-  return Filter::Rep::memoized_flattened_filters_;
+  });
+  return memoized_flattened_filters_->filters;
 }
 
 std::vector<Filter> FieldFilter::Rep::GetFilters() const {

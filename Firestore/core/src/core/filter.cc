@@ -16,6 +16,8 @@
 
 #include "Firestore/core/src/core/filter.h"
 
+#include "Firestore/core/src/core/field_filter.h"
+
 #include <ostream>
 
 namespace firebase {
@@ -30,6 +32,16 @@ bool operator==(const Filter& lhs, const Filter& rhs) {
 
 std::ostream& operator<<(std::ostream& os, const Filter& filter) {
   return os << filter.ToString();
+}
+
+Filter::Rep::Rep() : memoized_flattened_filters_(std::make_shared<MemoizedFlattenedFilters>()) {
+}
+
+Filter::Rep::~Rep() {
+  // Add a comment about WHY this call_once here is necessary (i.e. so that the
+  // destructor synchronizes with some other thread that potentially won the
+  // race to set memoized_flattened_filters_.filters).
+  std::call_once(memoized_flattened_filters_->once, []{});
 }
 
 }  // namespace core

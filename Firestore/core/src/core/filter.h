@@ -19,6 +19,7 @@
 
 #include <iosfwd>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
@@ -114,7 +115,8 @@ class Filter {
  protected:
   class Rep {
    public:
-    virtual ~Rep() = default;
+    Rep();
+    virtual ~Rep();
 
     virtual Type type() const {
       return Type::kFilter;
@@ -149,11 +151,21 @@ class Filter {
 
     virtual std::vector<Filter> GetFilters() const = 0;
 
+    struct MemoizedFlattenedFilters {
+      std::once_flag once;
+      std::vector<FieldFilter> filters;
+    };
+
     /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
+     *
+     * Use a std::shared_ptr<MemoizedFlattenedFilters> rather than using
+     * MemoizedFlattenedFilters directly so that it is copyable
+     * (MemoizedFlattenedFilters is not copyable because of its std::once_flag
+     * member variable).
      */
-    mutable std::vector<FieldFilter> memoized_flattened_filters_;
+    mutable std::shared_ptr<MemoizedFlattenedFilters> memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {
