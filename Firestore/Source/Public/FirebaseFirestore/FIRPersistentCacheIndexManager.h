@@ -19,8 +19,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- * A PersistentCacheIndexManager which you can config persistent cache indexes used for
- * local query execution.
+ * A PersistentCacheIndexManager, for configuring persistent cache indexes used for local query
+ * execution.
  */
 NS_SWIFT_NAME(PersistentCacheIndexManager)
 @interface FIRPersistentCacheIndexManager : NSObject
