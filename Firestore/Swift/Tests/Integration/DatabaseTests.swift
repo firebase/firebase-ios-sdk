@@ -101,6 +101,8 @@ import FirebaseFirestore
     }
 
     func testGetValidPersistentCacheIndexManager() async throws {
+      // [FIRApp resetApps] is an internal api, while Swift test can only test again public api.
+      // So `FirebaseApp.configure()` can only be called once for the whole test class.
       FirebaseApp.configure()
 
       let db1 = Firestore.firestore(database: "SwiftPersistentCacheIndexManagerDB1")
