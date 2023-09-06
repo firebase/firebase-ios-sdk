@@ -20,7 +20,7 @@
 #include <functional>
 #include <iosfwd>
 #include <memory>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <vector>
 
