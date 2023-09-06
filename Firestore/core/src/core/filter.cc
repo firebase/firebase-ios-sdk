@@ -39,16 +39,16 @@ Filter::Rep::Rep()
 }
 
 Filter::Rep::ThreadSafeMemoizer::~ThreadSafeMemoizer() {
-  // Call `std::call_once` in order to synchronize with the thread that called
-  // `memoize()` that actually populated `filters_`. Without this invocation,
-  // there is a data race between the destructor destroying `filters_` and the
-  // thread whose `memoize()` call populated `filters_`.
+  // Call `std::call_once` in order to synchronize with the "active" invocation
+  // of `memoize()`. Without this synchronization, there is a data race between
+  // this destructor, which "reads" `filters_` to destroy it, and the write to
+  // `filters_` done by the "active" invocation of `memoize()`.
   std::call_once(once_, [&]() {});
 }
 
 const std::vector<FieldFilter>& Filter::Rep::ThreadSafeMemoizer::memoize(
-    std::function<void(std::vector<FieldFilter>&)> func) {
-  std::call_once(once_, [&]() { func(filters_); });
+    std::function<std::vector<FieldFilter>()> func) {
+  std::call_once(once_, [&]() { filters_ = func(); });
   return filters_;
 }
 

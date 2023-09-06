@@ -152,11 +152,29 @@ class Filter {
 
     virtual std::vector<Filter> GetFilters() const = 0;
 
+    /**
+     * Stores a memoized value in a manner that is safe to be shared between
+     * multiple threads.
+     */
     class ThreadSafeMemoizer {
      public:
       ~ThreadSafeMemoizer();
+
+      /**
+       * Memoize a value.
+       *
+       * The std::function object specified by the first invocation of this
+       * function (the "active" invocation) will be invoked synchronously.
+       * None of the std::function objects specified by the subsequent
+       * invocations of this function (the "passive" invocations) will be
+       * invoked. All invocations, both "active" and "passive", will return a
+       * reference to the std::vector created by copying the return value from
+       * the std::function specified by the "active" invocation. It is,
+       * therefore, the "active" invocation's job to return the std::vector
+       * to memoize.
+       */
       const std::vector<FieldFilter>& memoize(
-          std::function<void(std::vector<FieldFilter>&)>);
+          std::function<std::vector<FieldFilter>()>);
 
      private:
       std::once_flag once_;
@@ -168,7 +186,7 @@ class Filter {
      * traversing the tree of filters contained in this composite filter.
      *
      * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
-     * `ThreadSafeMemoizer` directly so that it is copyable
+     * `ThreadSafeMemoizer` directly so that this class is copyable
      * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
      * member variable, which is not copyable).
      */
