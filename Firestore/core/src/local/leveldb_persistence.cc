@@ -307,6 +307,17 @@ void LevelDbPersistence::ReleaseOtherUserSpecificComponents(
   }
 }
 
+void LevelDbPersistence::DeleteAllFieldIndexes() {
+  DeleteEverythingWithPrefix("Delete All Index Configuration",
+                             LevelDbIndexConfigurationKey::KeyPrefix());
+
+  DeleteEverythingWithPrefix("Delete All Index States",
+                             LevelDbIndexStateKey::KeyPrefix());
+
+  DeleteEverythingWithPrefix("Delete All Index Entries",
+                             LevelDbIndexEntryKey::KeyPrefix());
+}
+
 void LevelDbPersistence::RunInternal(absl::string_view label,
                                      std::function<void()> block) {
   HARD_ASSERT(transaction_ == nullptr,
@@ -327,6 +338,29 @@ leveldb::ReadOptions StandardReadOptions() {
   leveldb::ReadOptions options;
   options.verify_checksums = true;
   return options;
+}
+
+void LevelDbPersistence::DeleteEverythingWithPrefix(absl::string_view label,
+                                                    const std::string& prefix) {
+  bool more_deletes = true;
+
+  auto fun = [&]() {
+    more_deletes = false;
+
+    auto it = transaction_->NewIterator();
+    for (it->Seek(prefix); it->Valid() && absl::StartsWith(it->key(), prefix);
+         it->Next()) {
+      if (transaction_->changed_keys() >= kMaxOperationPerTransaction) {
+        more_deletes = true;
+        break;
+      }
+      transaction_->Delete(it->key());
+    }
+  };
+
+  while (more_deletes) {
+    RunInternal(label, fun);
+  }
 }
 
 }  // namespace local

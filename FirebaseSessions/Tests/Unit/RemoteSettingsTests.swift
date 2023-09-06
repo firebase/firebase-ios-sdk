@@ -25,7 +25,7 @@ class RemoteSettingsTests: XCTestCase {
       "sessions_enabled": false,
       "sampling_rate": 0.5,
       "session_timeout_seconds": 10,
-    ],
+    ] as [String: Any],
   ]
   let validSettings2: [String: Any] = [
     "cache_duration": 20,
@@ -33,7 +33,7 @@ class RemoteSettingsTests: XCTestCase {
       "sessions_enabled": true,
       "sampling_rate": 0.2,
       "session_timeout_seconds": 20,
-    ],
+    ] as [String: Any],
   ]
   let corruptedJSONString: String = "{{{{ non_key: non\"value {}"
   var cache: SettingsCacheClient!

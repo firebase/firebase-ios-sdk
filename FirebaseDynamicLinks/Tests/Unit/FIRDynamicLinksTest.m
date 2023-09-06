@@ -407,7 +407,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   XCTAssertEqualObjects(dynamicLink.inviteId, invitationId);
 }
 
-- (void)testCustomScheme_FirstTimeOpenedFromFingerprintCodepathShouldGetWeakMatch {
+- (void)testCustomScheme_FirstTimeOpenedFromDeviceHeuristicsCodepathShouldGetWeakMatch {
   NSString *invitationId = @"21392094021749127-4389172947";
 
   NSString *urlString =
@@ -421,7 +421,7 @@ static NSString *const kInfoPlistCustomDomainsKey = @"FirebaseDynamicLinksCustom
   FIRDynamicLink *dynamicLink = [self.service dynamicLinkFromCustomSchemeURL:url];
   XCTAssertEqual(
       dynamicLink.matchConfidence, FIRDynamicLinkMatchConfidenceWeak,
-      @"matchConfidence should be weak when app is first opened from fingerprint codepath.");
+      @"matchConfidence should be weak when app is first opened from device heuristics codepath.");
   XCTAssertNil(dynamicLink.url);
   XCTAssertEqualObjects(dynamicLink.inviteId, invitationId);
 }

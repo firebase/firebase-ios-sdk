@@ -46,6 +46,8 @@ struct Empty;
 
 namespace api {
 
+class PersistentCacheIndexManager;
+
 extern const int kDefaultTransactionMaxAttempts;
 
 class Firestore : public std::enable_shared_from_this<Firestore> {
@@ -87,6 +89,9 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   void set_settings(const Settings& settings);
 
   void set_user_executor(std::unique_ptr<util::Executor> user_executor);
+
+  std::shared_ptr<const PersistentCacheIndexManager>
+  persistent_cache_index_manager();
 
   CollectionReference GetCollection(const std::string& collection_path);
   DocumentReference GetDocument(const std::string& document_path);
@@ -130,6 +135,9 @@ class Firestore : public std::enable_shared_from_this<Firestore> {
   std::shared_ptr<credentials::AuthCredentialsProvider>
       auth_credentials_provider_;
   std::string persistence_key_;
+
+  std::shared_ptr<const PersistentCacheIndexManager>
+      persistent_cache_index_manager_;
 
   std::shared_ptr<util::Executor> user_executor_;
   std::shared_ptr<util::AsyncQueue> worker_queue_;

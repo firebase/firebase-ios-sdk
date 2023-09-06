@@ -29,7 +29,7 @@ import FirebaseAuthInterop
 /**
  * Firebase Storage is a service that supports uploading and downloading binary objects,
  * such as images, videos, and other files to Google Cloud Storage. Instances of `Storage`
- * are not thread-safe.
+ * are not thread-safe, but can be accessed from any thread.
  *
  * If you call `Storage.storage()`, the instance will initialize with the default `FirebaseApp`,
  * `FirebaseApp.app()`, and the storage location will come from the provided

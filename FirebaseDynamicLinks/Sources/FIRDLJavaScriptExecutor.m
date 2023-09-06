@@ -25,10 +25,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-static NSString *const kJSMethodName = @"generateFingerprint";
+static NSString *const kJSMethodName = @"generateDeviceHeuristics";
 
 /** Creates and returns the FDL JS method name. */
-NSString *FIRDLTypeofFingerprintJSMethodNameString(void) {
+NSString *FIRDLTypeofDeviceHeuristicsJSMethodNameString(void) {
   static NSString *methodName;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -38,7 +38,7 @@ NSString *FIRDLTypeofFingerprintJSMethodNameString(void) {
 }
 
 /** Creates and returns the FDL JS method definition. */
-NSString *GINFingerprintJSMethodString(void) {
+NSString *GINDeviceHeuristicsJSMethodString(void) {
   static NSString *methodString;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
@@ -121,7 +121,7 @@ NSString *GINFingerprintJSMethodString(void) {
   __weak __typeof__(self) weakSelf = self;
 
   // Make sure that the javascript was loaded successfully before calling the method.
-  [webView evaluateJavaScript:FIRDLTypeofFingerprintJSMethodNameString()
+  [webView evaluateJavaScript:FIRDLTypeofDeviceHeuristicsJSMethodNameString()
             completionHandler:^(id _Nullable typeofResult, NSError *_Nullable typeError) {
               if (typeError) {
                 [weakSelf handleExecutionError:typeError];
@@ -129,7 +129,7 @@ NSString *GINFingerprintJSMethodString(void) {
               }
               if ([typeofResult isEqual:@"function"]) {
                 [webView
-                    evaluateJavaScript:GINFingerprintJSMethodString()
+                    evaluateJavaScript:GINDeviceHeuristicsJSMethodString()
                      completionHandler:^(id _Nullable result, NSError *_Nullable functionError) {
                        __typeof__(self) strongSelf = weakSelf;
                        if ([result isKindOfClass:[NSString class]]) {
