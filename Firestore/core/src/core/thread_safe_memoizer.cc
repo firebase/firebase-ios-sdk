@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google
+ * Copyright 2023 Google
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-#include "Firestore/core/src/core/filter.h"
-#include "Firestore/core/src/core/field_filter.h"
-#include "Firestore/core/src/core/thread_safe_memoizer.h"
-
-#include <ostream>
+#include "thread_safe_memoizer.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
-bool operator==(const Filter& lhs, const Filter& rhs) {
-  return lhs.rep_ == nullptr
-             ? rhs.rep_ == nullptr
-             : (rhs.rep_ != nullptr && lhs.rep_->Equals(*rhs.rep_));
+template <typename T>
+ThreadSafeMemoizer<T>::~ThreadSafeMemoizer() {
+  // Call `std::call_once` in order to synchronize with the "active" invocation
+  // of `memoize()`. Without this synchronization, there is a data race between
+  // this destructor, which "reads" `filters_` to destroy it, and the write to
+  // `filters_` done by the "active" invocation of `memoize()`.
+  std::call_once(once_, [&]() {});
 }
 
-std::ostream& operator<<(std::ostream& os, const Filter& filter) {
-  return os << filter.ToString();
-}
-
-Filter::Rep::Rep()
-    : memoized_flattened_filters_(
-          std::make_shared<ThreadSafeMemoizer<FieldFilter>>()) {
+template <typename T>
+const std::vector<T>& ThreadSafeMemoizer<T>::memoize(
+    std::function<std::vector<T>()> func) {
+  std::call_once(once_, [&]() { filters_ = func(); });
+  return filters_;
 }
 
 }  // namespace core

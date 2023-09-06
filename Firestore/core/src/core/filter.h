@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 
+#include "Firestore/core/src/core/thread_safe_memoizer.h"
 #include "Firestore/core/src/model/model_fwd.h"
 
 namespace firebase {
@@ -124,7 +125,6 @@ class Filter {
   class Rep {
    public:
     Rep();
-
     virtual ~Rep() = default;
 
     virtual Type type() const {
@@ -163,35 +163,6 @@ class Filter {
     virtual std::vector<Filter> GetFilters() const = 0;
 
     /**
-     * Stores a memoized value in a manner that is safe to be shared between
-     * multiple threads.
-     */
-    class ThreadSafeMemoizer {
-     public:
-      ~ThreadSafeMemoizer();
-
-      /**
-       * Memoize a value.
-       *
-       * The std::function object specified by the first invocation of this
-       * function (the "active" invocation) will be invoked synchronously.
-       * None of the std::function objects specified by the subsequent
-       * invocations of this function (the "passive" invocations) will be
-       * invoked. All invocations, both "active" and "passive", will return a
-       * reference to the std::vector created by copying the return value from
-       * the std::function specified by the "active" invocation. It is,
-       * therefore, the "active" invocation's job to return the std::vector
-       * to memoize.
-       */
-      const std::vector<FieldFilter>& memoize(
-          std::function<std::vector<FieldFilter>()>);
-
-     private:
-      std::once_flag once_;
-      std::vector<FieldFilter> filters_;
-    };
-
-    /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
      *
@@ -200,7 +171,8 @@ class Filter {
      * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
      * member variable, which is not copyable).
      */
-    mutable std::shared_ptr<ThreadSafeMemoizer> memoized_flattened_filters_;
+    mutable std::shared_ptr<ThreadSafeMemoizer<FieldFilter>>
+        memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {
