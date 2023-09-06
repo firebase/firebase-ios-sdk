@@ -154,16 +154,15 @@ const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
 
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
-  if (Filter::Rep::memoized_flattened_filters_.empty() && !filters().empty()) {
-    for (const auto& filter : filters()) {
+  return memoized_flattened_filters_->memoize([&]() {
+    std::vector<FieldFilter> flattened_filters;
+    for (const auto& filter : filters())
       std::copy(filter.GetFlattenedFilters().begin(),
                 filter.GetFlattenedFilters().end(),
-                std::back_inserter(Filter::Rep::memoized_flattened_filters_));
-    }
-  }
-  return Filter::Rep::memoized_flattened_filters_;
+                std::back_inserter(flattened_filters));
+    return flattened_filters;
+  });
 }
-
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
