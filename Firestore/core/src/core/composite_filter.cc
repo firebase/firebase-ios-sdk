@@ -163,6 +163,7 @@ const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     return flattened_filters;
   });
 }
+
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

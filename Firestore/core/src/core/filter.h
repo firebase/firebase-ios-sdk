@@ -19,7 +19,6 @@
 
 #include <iosfwd>
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <vector>
 
@@ -126,6 +125,7 @@ class Filter {
   class Rep {
    public:
     Rep();
+
     virtual ~Rep() = default;
 
     virtual Type type() const {
