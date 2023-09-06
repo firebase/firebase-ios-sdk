@@ -90,19 +90,21 @@ absl::optional<Operator> Query::FindOpInsideFilters(
 }
 
 const std::vector<OrderBy>& Query::normalized_order_bys() const {
-  if (memoized_normalized_order_bys_.empty()) {
+  return memoized_normalized_order_bys_->memoize([&]() {
+    std::vector<OrderBy> result;
     const FieldPath* inequality_field = InequalityFilterField();
     const FieldPath* first_order_by_field = FirstOrderByField();
+
     if (inequality_field && !first_order_by_field) {
       // In order to implicitly add key ordering, we must also add the
       // inequality filter field for it to be a valid query. Note that the
       // default inequality field and key ordering is ascending.
       if (inequality_field->IsKeyFieldPath()) {
-        memoized_normalized_order_bys_ = {
+        result = {
             OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
         };
       } else {
-        memoized_normalized_order_bys_ = {
+        result = {
             OrderBy(*inequality_field, Direction::Ascending),
             OrderBy(FieldPath::KeyFieldPath(), Direction::Ascending),
         };
@@ -114,8 +116,7 @@ const std::vector<OrderBy>& Query::normalized_order_bys() const {
           first_order_by_field->CanonicalString(),
           inequality_field->CanonicalString());
 
-      std::vector<OrderBy> result = explicit_order_bys_;
-
+      result = explicit_order_bys_;
       bool found_explicit_key_order = false;
       for (const OrderBy& order_by : explicit_order_bys_) {
         if (order_by.field().IsKeyFieldPath()) {
@@ -132,11 +133,10 @@ const std::vector<OrderBy>& Query::normalized_order_bys() const {
                                        : explicit_order_bys_.back().direction();
         result.emplace_back(FieldPath::KeyFieldPath(), last_direction);
       }
-
-      memoized_normalized_order_bys_ = std::move(result);
     }
-  }
-  return memoized_normalized_order_bys_;
+
+    return result;
+  });
 }
 
 const FieldPath* Query::FirstOrderByField() const {

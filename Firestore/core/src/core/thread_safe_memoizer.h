@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef THREAD_SAFE_MEMOIZER_H_
-#define THREAD_SAFE_MEMOIZER_H_
+#ifndef FIRESTORE_CORE_SRC_CORE_THREAD_SAFE_MEMOIZER_H_
+#define FIRESTORE_CORE_SRC_CORE_THREAD_SAFE_MEMOIZER_H_
 
-#include <functional>
-#include <mutex>
+#include <mutex>  // NOLINT(build/c++11)
 #include <vector>
 
 namespace firebase {
@@ -35,10 +34,11 @@ class ThreadSafeMemoizer {
   ~ThreadSafeMemoizer() {
     // Call `std::call_once` in order to synchronize with the "active"
     // invocation of `memoize()`. Without this synchronization, there is a data
-    // race between this destructor, which "reads" `filters_` to destroy it, and
-    // the write to `filters_` done by the "active" invocation of `memoize()`.
+    // race between this destructor, which "reads" `memoized_value_` to destroy
+    // it, and the write to `memoized_value_` done by the "active" invocation of
+    // `memoize()`.
     std::call_once(once_, [&]() {});
-  };
+  }
 
   /**
    * Memoize a value.
@@ -54,17 +54,17 @@ class ThreadSafeMemoizer {
    * to memoize.
    */
   const std::vector<T>& memoize(std::function<std::vector<T>()> func) {
-    std::call_once(once_, [&]() { filters_ = func(); });
-    return filters_;
-  };
+    std::call_once(once_, [&]() { memoized_value_ = func(); });
+    return memoized_value_;
+  }
 
  private:
   std::once_flag once_;
-  std::vector<T> filters_;
+  std::vector<T> memoized_value_;
 };
 
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // THREAD_SAFE_MEMOIZER_H_
+#endif  // FIRESTORE_CORE_SRC_CORE_THREAD_SAFE_MEMOIZER_H_

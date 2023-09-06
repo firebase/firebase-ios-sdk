@@ -277,8 +277,17 @@ class Query {
   // sort at the end.
   std::vector<OrderBy> explicit_order_bys_;
 
-  // The memoized list of sort orders.
-  mutable std::vector<OrderBy> memoized_normalized_order_bys_;
+  /**
+   * The memoized list of sort orders.
+   *
+   * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
+   * `ThreadSafeMemoizer` directly so that this class is copyable
+   * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
+   * member variable, which is not copyable).
+   */
+  mutable std::shared_ptr<ThreadSafeMemoizer<OrderBy>>
+      memoized_normalized_order_bys_ =
+          std::make_shared<ThreadSafeMemoizer<OrderBy>>();
 
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
