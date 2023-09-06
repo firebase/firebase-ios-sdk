@@ -16,9 +16,9 @@
 
 #include "Firestore/core/src/core/filter.h"
 
-#include "Firestore/core/src/core/field_filter.h"
-
 #include <ostream>
+
+#include "Firestore/core/src/core/field_filter.h"
 
 namespace firebase {
 namespace firestore {
