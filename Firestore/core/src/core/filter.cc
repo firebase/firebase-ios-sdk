@@ -15,10 +15,11 @@
  */
 
 #include "Firestore/core/src/core/filter.h"
-#include "Firestore/core/src/core/field_filter.h"
-#include "Firestore/core/src/core/thread_safe_memoizer.h"
 
 #include <ostream>
+
+#include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/util/thread_safe_memoizer.h"
 
 namespace firebase {
 namespace firestore {

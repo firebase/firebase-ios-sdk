@@ -23,12 +23,13 @@
 #include <string>
 #include <vector>
 
-#include "Firestore/core/src/core/thread_safe_memoizer.h"
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/util/thread_safe_memoizer.h"
+
+using firebase::firestore::util::ThreadSafeMemoizer;
 
 namespace firebase {
 namespace firestore {
-
 namespace core {
 
 class FieldFilter;

@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef FIRESTORE_CORE_SRC_CORE_THREAD_SAFE_MEMOIZER_H_
-#define FIRESTORE_CORE_SRC_CORE_THREAD_SAFE_MEMOIZER_H_
+#ifndef FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
+#define FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
 
 #include <mutex>  // NOLINT(build/c++11)
 #include <vector>
 
 namespace firebase {
 namespace firestore {
-namespace core {
+namespace util {
 
 /**
  * Stores a memoized value in a manner that is safe to be shared between
@@ -63,8 +63,8 @@ class ThreadSafeMemoizer {
   std::vector<T> memoized_value_;
 };
 
-}  // namespace core
+}  // namespace util
 }  // namespace firestore
 }  // namespace firebase
 
-#endif  // FIRESTORE_CORE_SRC_CORE_THREAD_SAFE_MEMOIZER_H_
+#endif  // FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
