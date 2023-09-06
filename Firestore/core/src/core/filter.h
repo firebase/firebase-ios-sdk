@@ -17,9 +17,9 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_FILTER_H_
 #define FIRESTORE_CORE_SRC_CORE_FILTER_H_
 
+#include <functional>
 #include <iosfwd>
 #include <memory>
-#include <mutex>
 #include <string>
 #include <vector>
 
@@ -116,7 +116,7 @@ class Filter {
   class Rep {
    public:
     Rep();
-    virtual ~Rep();
+    virtual ~Rep() = default;
 
     virtual Type type() const {
       return Type::kFilter;
@@ -151,22 +151,26 @@ class Filter {
 
     virtual std::vector<Filter> GetFilters() const = 0;
 
-    struct MemoizedFlattenedFilters {
-      std::once_flag once;
-      std::vector<FieldFilter> filters;
+    class ThreadSafeMemoizer {
+      public:
+       ~ThreadSafeMemoizer();
+       const std::vector<FieldFilter>& memoize(std::function<void(std::vector<FieldFilter>&)>);
+
+      private:
+       std::once_flag once_;
+       std::vector<FieldFilter> filters_;
     };
 
     /**
      * Memoized list of all field filters that can be found by
      * traversing the tree of filters contained in this composite filter.
      *
-     * Use a std::shared_ptr<MemoizedFlattenedFilters> rather than using
-     * MemoizedFlattenedFilters directly so that it is copyable
-     * (MemoizedFlattenedFilters is not copyable because of its std::once_flag
-     * member variable).
+     * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
+     * `ThreadSafeMemoizer` directly so that it is copyable
+     * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
+     * member variable, which is not copyable).
      */
-    mutable std::shared_ptr<MemoizedFlattenedFilters>
-        memoized_flattened_filters_;
+    mutable std::shared_ptr<ThreadSafeMemoizer> memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {

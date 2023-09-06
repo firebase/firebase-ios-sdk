@@ -34,16 +34,20 @@ std::ostream& operator<<(std::ostream& os, const Filter& filter) {
   return os << filter.ToString();
 }
 
-Filter::Rep::Rep()
-    : memoized_flattened_filters_(
-          std::make_shared<MemoizedFlattenedFilters>()) {
+Filter::Rep::Rep() : memoized_flattened_filters_(std::make_shared<ThreadSafeMemoizer>()) {
 }
 
-Filter::Rep::~Rep() {
-  // Add a comment about WHY this call_once here is necessary (i.e. so that the
-  // destructor synchronizes with some other thread that potentially won the
-  // race to set memoized_flattened_filters_.filters).
-  std::call_once(memoized_flattened_filters_->once, [] {});
+Filter::Rep::ThreadSafeMemoizer::~ThreadSafeMemoizer() {
+  // Call `std::call_once` in order to synchronize with the thread that called
+  // `memoize()` that actually populated `filters_`. Without this invocation,
+  // there is a data race between the destructor destroying `filters_` and the
+  // thread whose `memoize()` call populated `filters_`.
+  std::call_once(once_, [&](){});
+}
+
+const std::vector<FieldFilter>& Filter::Rep::ThreadSafeMemoizer::memoize(std::function<void(std::vector<FieldFilter>&)> func) {
+  std::call_once(once_, [&]() { func(filters_); });
+  return filters_;
 }
 
 }  // namespace core
