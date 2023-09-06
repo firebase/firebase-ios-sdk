@@ -34,7 +34,8 @@ std::ostream& operator<<(std::ostream& os, const Filter& filter) {
   return os << filter.ToString();
 }
 
-Filter::Rep::Rep() : memoized_flattened_filters_(std::make_shared<ThreadSafeMemoizer>()) {
+Filter::Rep::Rep()
+    : memoized_flattened_filters_(std::make_shared<ThreadSafeMemoizer>()) {
 }
 
 Filter::Rep::ThreadSafeMemoizer::~ThreadSafeMemoizer() {
@@ -42,10 +43,11 @@ Filter::Rep::ThreadSafeMemoizer::~ThreadSafeMemoizer() {
   // `memoize()` that actually populated `filters_`. Without this invocation,
   // there is a data race between the destructor destroying `filters_` and the
   // thread whose `memoize()` call populated `filters_`.
-  std::call_once(once_, [&](){});
+  std::call_once(once_, [&]() {});
 }
 
-const std::vector<FieldFilter>& Filter::Rep::ThreadSafeMemoizer::memoize(std::function<void(std::vector<FieldFilter>&)> func) {
+const std::vector<FieldFilter>& Filter::Rep::ThreadSafeMemoizer::memoize(
+    std::function<void(std::vector<FieldFilter>&)> func) {
   std::call_once(once_, [&]() { func(filters_); });
   return filters_;
 }

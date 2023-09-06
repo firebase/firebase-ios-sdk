@@ -152,13 +152,14 @@ class Filter {
     virtual std::vector<Filter> GetFilters() const = 0;
 
     class ThreadSafeMemoizer {
-      public:
-       ~ThreadSafeMemoizer();
-       const std::vector<FieldFilter>& memoize(std::function<void(std::vector<FieldFilter>&)>);
+     public:
+      ~ThreadSafeMemoizer();
+      const std::vector<FieldFilter>& memoize(
+          std::function<void(std::vector<FieldFilter>&)>);
 
-      private:
-       std::once_flag once_;
-       std::vector<FieldFilter> filters_;
+     private:
+      std::once_flag once_;
+      std::vector<FieldFilter> filters_;
     };
 
     /**
