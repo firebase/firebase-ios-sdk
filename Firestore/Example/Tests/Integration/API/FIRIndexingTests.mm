@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
+// TODO(csi): Delete this once setIndexConfigurationFromJSON and setIndexConfigurationFromStream
+//  are removed.
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
 
-#import "Firestore/Source/API/FIRFirestore+Internal.h"
-#import "Firestore/Source/API/FIRPersistentCacheIndexManager+Internal.h"
-
 #import "Firestore/Example/Tests/Util/FSTHelpers.h"
 #import "Firestore/Example/Tests/Util/FSTIntegrationTestCase.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRPersistentCacheIndexManager.h"
 
 @interface FIRIndexingTests : FSTIntegrationTestCase
 @end
@@ -194,13 +196,13 @@
 - (void)testAutoIndexCreationAfterFailsTermination {
   [self terminateFirestore:self.db];
 
-  FSTAssertThrows([self.db.persistentCacheIndexManager enableIndexAutoCreation],
+  XCTAssertThrows([self.db.persistentCacheIndexManager enableIndexAutoCreation],
                   @"The client has already been terminated.");
 
-  FSTAssertThrows([self.db.persistentCacheIndexManager disableIndexAutoCreation],
+  XCTAssertThrows([self.db.persistentCacheIndexManager disableIndexAutoCreation],
                   @"The client has already been terminated.");
 
-  FSTAssertThrows([self.db.persistentCacheIndexManager deleteAllIndexes],
+  XCTAssertThrows([self.db.persistentCacheIndexManager deleteAllIndexes],
                   @"The client has already been terminated.");
 }
 
