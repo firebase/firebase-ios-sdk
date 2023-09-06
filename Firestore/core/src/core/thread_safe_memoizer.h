@@ -32,7 +32,13 @@ namespace core {
 template <typename T>
 class ThreadSafeMemoizer {
  public:
-  ~ThreadSafeMemoizer();
+  ~ThreadSafeMemoizer() {
+    // Call `std::call_once` in order to synchronize with the "active"
+    // invocation of `memoize()`. Without this synchronization, there is a data
+    // race between this destructor, which "reads" `filters_` to destroy it, and
+    // the write to `filters_` done by the "active" invocation of `memoize()`.
+    std::call_once(once_, [&]() {});
+  };
 
   /**
    * Memoize a value.
@@ -47,7 +53,10 @@ class ThreadSafeMemoizer {
    * therefore, the "active" invocation's job to return the std::vector
    * to memoize.
    */
-  const std::vector<T>& memoize(std::function<std::vector<T>()>);
+  const std::vector<T>& memoize(std::function<std::vector<T>()> func) {
+    std::call_once(once_, [&]() { filters_ = func(); });
+    return filters_;
+  };
 
  private:
   std::once_flag once_;
