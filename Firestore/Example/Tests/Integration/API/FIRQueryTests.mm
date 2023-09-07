@@ -1653,7 +1653,7 @@
   [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter] matchesResult:@[ @"doc2" ]];
 
   // explicit AND: a < 3 && b not-in [2, 3]
-  // Implicitly ordered by: a asc, __name__ asc
+  // Implicitly ordered by: a asc, b asc, __name__ asc
   filter = [FIRFilter andFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isLessThan:@3], [FIRFilter filterWhereField:@"b"
                                                                            notIn:@[ @2, @3 ]]
