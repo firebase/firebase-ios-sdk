@@ -277,18 +277,6 @@ class Query {
   // sort at the end.
   std::vector<OrderBy> explicit_order_bys_;
 
-  /**
-   * The memoized list of sort orders.
-   *
-   * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
-   * `ThreadSafeMemoizer` directly so that this class is copyable
-   * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
-   * member variable, which is not copyable).
-   */
-  mutable std::shared_ptr<ThreadSafeMemoizer<std::vector<OrderBy>>>
-      memoized_normalized_order_bys_ =
-          std::make_shared<ThreadSafeMemoizer<std::vector<OrderBy>>>();
-
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;
 
@@ -299,11 +287,16 @@ class Query {
       const std::vector<OrderBy>& order_bys) const&;
 
   /**
-   * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
-   * `ThreadSafeMemoizer` directly so that this class is copyable
+   * For properties below, use a `std::shared_ptr<ThreadSafeMemoizer>` rather
+   * than using `ThreadSafeMemoizer` directly so that this class is copyable
    * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
    * member variable, which is not copyable).
    */
+
+  // The memoized list of sort orders.
+  mutable std::shared_ptr<ThreadSafeMemoizer<std::vector<OrderBy>>>
+      memoized_normalized_order_bys_ =
+          std::make_shared<ThreadSafeMemoizer<std::vector<OrderBy>>>();
 
   // The corresponding Target of this Query instance.
   mutable std::shared_ptr<ThreadSafeMemoizer<Target>> memoized_target_ =
@@ -312,7 +305,7 @@ class Query {
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
-  // mutable std::shared_ptr<Target> memoized_aggregate_target;
+  // mutable std::shared_ptr<Target> memoized_aggregate_target_;
   mutable std::shared_ptr<ThreadSafeMemoizer<Target>>
       memoized_aggregate_target_ =
           std::make_shared<ThreadSafeMemoizer<Target>>();
