@@ -75,18 +75,21 @@ class TargetIndexMatcher {
    *   clauses cannot be skipped, but a continuous OrderBy suffix may be
    *   omitted.
    */
-  bool ServedByIndex(const model::FieldIndex& index);
+  bool ServedByIndex(const model::FieldIndex& index) const;
+
+  /** Returns a full matched field index for this target. */
+  model::FieldIndex BuildTargetIndex() const;
 
  private:
-  bool HasMatchingEqualityFilter(const model::Segment& segment);
+  bool HasMatchingEqualityFilter(const model::Segment& segment) const;
 
   bool MatchesFilter(const core::FieldFilter& filter,
-                     const model::Segment& segment);
+                     const model::Segment& segment) const;
   bool MatchesFilter(const absl::optional<core::FieldFilter>& filter,
-                     const model::Segment& segment);
+                     const model::Segment& segment) const;
 
   bool MatchesOrderBy(const core::OrderBy& order_by,
-                      const model::Segment& segment);
+                      const model::Segment& segment) const;
 
   // The collection ID (or collection group) of the query target.
   std::string collection_id_;

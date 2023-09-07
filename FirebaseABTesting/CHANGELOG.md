@@ -1,3 +1,6 @@
+# 10.14.0
+- [fixed] Fix crash caused by mutating array during iteration. (#11669)
+
 # 10.11.0
 - [fixed] Fix crash caused by mutating array during iteration. (#11378)
 

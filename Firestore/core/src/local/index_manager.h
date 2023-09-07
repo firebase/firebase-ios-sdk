@@ -112,6 +112,12 @@ class IndexManager {
   /** Returns all configured field indexes. */
   virtual std::vector<model::FieldIndex> GetFieldIndexes() const = 0;
 
+  /** Removes all field indexes and deletes all index values. */
+  virtual void DeleteAllFieldIndexes() = 0;
+
+  /** Creates a full matched field index which serves the given target. */
+  virtual void CreateTargetIndexes(const core::Target& target) = 0;
+
   /**
    * Iterates over all field indexes that are used to serve the given target,
    * and returns the minimum offset of them all. Asserts that the target can be

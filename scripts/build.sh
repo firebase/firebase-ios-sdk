@@ -44,6 +44,7 @@ product can be one of:
   SymbolCollision
   GoogleDataTransport
   Performance
+  ClientApp
 platform can be one of:
   iOS (default)
   iOS-device
@@ -335,7 +336,6 @@ case "$product-$platform-$method" in
         -scheme "Firestore_IntegrationTests_$platform" \
         -enableCodeCoverage YES \
         "${xcb_flags[@]}" \
-        build \
         test
     ;;
 
@@ -700,8 +700,16 @@ case "$product-$platform-$method" in
 
   SwiftPMClientApp-*-xcodebuild)
     RunXcodebuild \
-      -project 'SwiftPMTests/ClientApp/ClientApp.xcodeproj' \
+      -project 'ClientApp/ClientApp.xcodeproj' \
       -scheme "ClientApp" \
+      "${xcb_flags[@]}" \
+      build
+    ;;
+
+  CocoaPodsClientApp-iOS-xcodebuild)
+    RunXcodebuild \
+      -workspace 'ClientApp/ClientApp.xcworkspace' \
+      -scheme "ClientApp-CocoaPods" \
       "${xcb_flags[@]}" \
       build
     ;;
