@@ -1298,6 +1298,14 @@
   // the rest of the test not applicable or will even crash.
   [self setContinueAfterFailure:NO];
 
+  // Define a comparator that compares `NSString` objects in a way that orders canonically-
+  // equivalent, but distinct, strings in a consistent manner by using `NSForcedOrderingSearch`.
+  // Otherwise, the bare `[NSString compare:]` method considers canonically-equivalent, but
+  // distinct, strings as "equal" and orders them indeterminately.
+  NSComparator sortComparator = ^(NSString *string1, NSString *string2) {
+    return [string1 compare:string2 options:NSForcedOrderingSearch];
+  };
+
   // Firestore does not do any Unicode normalization on the document IDs. Therefore, two document
   // IDs that are canonically-equivalent (i.e. they visually appear identical) but are represented
   // by a different sequence of Unicode code points are treated as distinct document IDs.
@@ -1352,8 +1360,8 @@
     FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:collRef
                                                             source:FIRFirestoreSourceDefault];
     XCTAssertEqualObjects(
-        [FIRQuerySnapshotGetIDs(querySnapshot1) sortedArrayUsingSelector:@selector(compare:)],
-        [testDocIds sortedArrayUsingSelector:@selector(compare:)],
+        [FIRQuerySnapshotGetIDs(querySnapshot1) sortedArrayUsingComparator:sortComparator],
+        [testDocIds sortedArrayUsingComparator:sortComparator],
         @"querySnapshot1 has the wrong documents");
   }
 
@@ -1386,8 +1394,8 @@
         [NSMutableArray arrayWithArray:testDocIds];
     [querySnapshot2ExpectedDocumentIds removeObject:documentToDelete.documentID];
     XCTAssertEqualObjects(
-        [FIRQuerySnapshotGetIDs(querySnapshot2) sortedArrayUsingSelector:@selector(compare:)],
-        [querySnapshot2ExpectedDocumentIds sortedArrayUsingSelector:@selector(compare:)],
+        [FIRQuerySnapshotGetIDs(querySnapshot2) sortedArrayUsingComparator:sortComparator],
+        [querySnapshot2ExpectedDocumentIds sortedArrayUsingComparator:sortComparator],
         @"querySnapshot2 has the wrong documents");
   }
 
