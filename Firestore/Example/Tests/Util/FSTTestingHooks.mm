@@ -47,34 +47,63 @@ using firebase::firestore::util::TestingHooks;
 - (instancetype)initWithApplied:(BOOL)applied
                       hashCount:(int)hashCount
                    bitmapLength:(int)bitmapLength
-                        padding:(int)padding NS_DESIGNATED_INITIALIZER;
+                        padding:(int)padding
+                      projectId:(std::string)projectId
+                     databaseId:(std::string)databaseId
+                    bloomFilter:(absl::optional<BloomFilter>)bloomFilter NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithBloomFilterInfo:(const TestingHooks::BloomFilterInfo&)bloomFilterInfo;
+- (instancetype)initWithBloomFilterInfo:(const TestingHooks::BloomFilterInfo&)bloomFilterInfo
+                              projectId:(std::string)projectId
+                             databaseId:(std::string)databaseId;
 
 @end
 
 #pragma mark - FSTTestingHooksBloomFilter implementation
 
-@implementation FSTTestingHooksBloomFilter
+@implementation FSTTestingHooksBloomFilter {
+  std::string _projectId;
+  std::string _databaseId;
+  absl::optional<BloomFilter> _bloomFilter;
+}
 
 - (instancetype)initWithApplied:(BOOL)applied
                       hashCount:(int)hashCount
                    bitmapLength:(int)bitmapLength
-                        padding:(int)padding {
+                        padding:(int)padding
+                      projectId:(std::string)projectId
+                     databaseId:(std::string)databaseId
+                    bloomFilter:(absl::optional<BloomFilter>)bloomFilter {
   if (self = [super init]) {
     _applied = applied;
     _hashCount = hashCount;
     _bitmapLength = bitmapLength;
     _padding = padding;
+    _projectId = std::move(projectId);
+    _databaseId = std::move(databaseId);
+    _bloomFilter = std::move(bloomFilter);
   }
   return self;
 }
 
-- (instancetype)initWithBloomFilterInfo:(const TestingHooks::BloomFilterInfo&)bloomFilterInfo {
+- (instancetype)initWithBloomFilterInfo:(const TestingHooks::BloomFilterInfo&)bloomFilterInfo
+                              projectId:(std::string)projectId
+                             databaseId:(std::string)databaseId {
   return [self initWithApplied:bloomFilterInfo.applied
                      hashCount:bloomFilterInfo.hash_count
                   bitmapLength:bloomFilterInfo.bitmap_length
-                       padding:bloomFilterInfo.padding];
+                       padding:bloomFilterInfo.padding
+                     projectId:std::move(projectId)
+                    databaseId:std::move(databaseId)
+                   bloomFilter:bloomFilterInfo.bloom_filter];
+}
+
+- (BOOL)mightContain:(FIRDocumentReference*)documentRef {
+  if (!_bloomFilter.has_value()) {
+    return NO;
+  }
+  std::string document_path = StringFormat("projects/%s/databases/%s/documents/%s", _projectId,
+                                           _databaseId, MakeStringView(documentRef.path));
+  return _bloomFilter->MightContain(document_path);
 }
 
 @end
@@ -114,7 +143,9 @@ using firebase::firestore::util::TestingHooks;
   FSTTestingHooksBloomFilter* bloomFilter;
   if (existenceFilterMismatchInfo.bloom_filter.has_value()) {
     bloomFilter = [[FSTTestingHooksBloomFilter alloc]
-        initWithBloomFilterInfo:existenceFilterMismatchInfo.bloom_filter.value()];
+        initWithBloomFilterInfo:existenceFilterMismatchInfo.bloom_filter.value()
+                      projectId:existenceFilterMismatchInfo.project_id
+                     databaseId:existenceFilterMismatchInfo.database_id];
   } else {
     bloomFilter = nil;
   }
