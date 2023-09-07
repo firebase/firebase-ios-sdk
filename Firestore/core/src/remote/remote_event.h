@@ -418,11 +418,20 @@ class WatchChangeAggregator {
                               const model::DocumentKey& key);
 
   /**
+   * Parse the bloom filter from the "unchanged_names" field of an existence
+   * filter.
+   */
+  static absl::optional<BloomFilter> ParseBloomFilter(
+      const ExistenceFilterWatchChange& existence_filter);
+
+  /**
    * Apply bloom filter to remove the deleted documents, and return the
    * application status.
    */
   BloomFilterApplicationStatus ApplyBloomFilter(
-      const ExistenceFilterWatchChange& existence_filter, int current_count);
+      const BloomFilter& bloom_filter,
+      const ExistenceFilterWatchChange& existence_filter,
+      int current_count);
 
   /**
    * Filter out removed documents based on bloom filter membership result and
