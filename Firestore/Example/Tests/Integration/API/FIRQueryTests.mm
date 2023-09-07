@@ -1324,8 +1324,8 @@
     NSArray<FIRDocumentReference *> *createdDocuments =
         FIRDocumentReferenceArrayFromQuerySnapshot(querySnapshot1);
 
-    // Out of the 20 existing documents, leave 5 docs untouched, delete 5 docs,
-    // remove 5 docs, update 5 docs, and add 15 new docs.
+    // Out of the 20 existing documents, leave 5 docs untouched, delete 5 docs, remove 5 docs,
+    // update 5 docs, and add 15 new docs.
     NSSet<NSString *> *deletedDocumentIds;
     NSSet<NSString *> *removedDocumentIds;
     NSSet<NSString *> *updatedDocumentIds;
