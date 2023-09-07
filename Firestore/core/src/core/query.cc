@@ -330,16 +330,15 @@ std::string Query::ToString() const {
 
 const Target& Query::ToTarget() const& {
   return memoized_target_->memoize(
-      [&]() { return *ToTarget(normalized_order_bys()); });
+      [&]() { return ToTarget(normalized_order_bys()); });
 }
 
 const Target& Query::ToAggregateTarget() const& {
   return memoized_aggregate_target_->memoize(
-      [&]() { return *ToTarget(explicit_order_bys_); });
+      [&]() { return ToTarget(explicit_order_bys_); });
 }
 
-const std::shared_ptr<const Target> Query::ToTarget(
-    const std::vector<OrderBy>& order_bys) const& {
+Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
   if (limit_type_ == LimitType::Last) {
     // Flip the orderBy directions since we want the last results
     std::vector<OrderBy> new_order_bys;
@@ -362,11 +361,11 @@ const std::shared_ptr<const Target> Query::ToTarget(
 
     Target target(path(), collection_group(), filters(), new_order_bys, limit_,
                   new_start_at, new_end_at);
-    return std::make_shared<Target>(std::move(target));
+    return target;
   } else {
     Target target(path(), collection_group(), filters(), order_bys, limit_,
                   start_at(), end_at());
-    return std::make_shared<Target>(std::move(target));
+    return target;
   }
 }
 

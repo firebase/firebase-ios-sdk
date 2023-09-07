@@ -283,8 +283,7 @@ class Query {
   absl::optional<Bound> start_at_;
   absl::optional<Bound> end_at_;
 
-  const std::shared_ptr<const Target> ToTarget(
-      const std::vector<OrderBy>& order_bys) const&;
+  Target ToTarget(const std::vector<OrderBy>& order_bys) const;
 
   /**
    * For properties below, use a `std::shared_ptr<ThreadSafeMemoizer>` rather
@@ -305,7 +304,6 @@ class Query {
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
-  // mutable std::shared_ptr<Target> memoized_aggregate_target_;
   mutable std::shared_ptr<ThreadSafeMemoizer<Target>>
       memoized_aggregate_target_ =
           std::make_shared<ThreadSafeMemoizer<Target>>();
