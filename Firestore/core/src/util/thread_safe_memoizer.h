@@ -53,14 +53,14 @@ class ThreadSafeMemoizer {
    * therefore, the "active" invocation's job to return the std::vector
    * to memoize.
    */
-  const std::vector<T>& memoize(std::function<std::vector<T>()> func) {
+  const T& memoize(std::function<T()> func) {
     std::call_once(once_, [&]() { memoized_value_ = func(); });
     return memoized_value_;
   }
 
  private:
   std::once_flag once_;
-  std::vector<T> memoized_value_;
+  T memoized_value_;
 };
 
 }  // namespace util

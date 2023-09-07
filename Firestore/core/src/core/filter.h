@@ -172,7 +172,7 @@ class Filter {
      * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
      * member variable, which is not copyable).
      */
-    mutable std::shared_ptr<ThreadSafeMemoizer<FieldFilter>>
+    mutable std::shared_ptr<ThreadSafeMemoizer<std::vector<FieldFilter>>>
         memoized_flattened_filters_;
   };
 

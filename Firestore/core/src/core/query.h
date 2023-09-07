@@ -285,9 +285,9 @@ class Query {
    * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
    * member variable, which is not copyable).
    */
-  mutable std::shared_ptr<ThreadSafeMemoizer<OrderBy>>
+  mutable std::shared_ptr<ThreadSafeMemoizer<std::vector<OrderBy>>>
       memoized_normalized_order_bys_ =
-          std::make_shared<ThreadSafeMemoizer<OrderBy>>();
+          std::make_shared<ThreadSafeMemoizer<std::vector<OrderBy>>>();
 
   int32_t limit_ = Target::kNoLimit;
   LimitType limit_type_ = LimitType::None;

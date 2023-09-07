@@ -37,7 +37,7 @@ std::ostream& operator<<(std::ostream& os, const Filter& filter) {
 
 Filter::Rep::Rep()
     : memoized_flattened_filters_(
-          std::make_shared<ThreadSafeMemoizer<FieldFilter>>()) {
+          std::make_shared<ThreadSafeMemoizer<std::vector<FieldFilter>>>()) {
 }
 
 }  // namespace core
