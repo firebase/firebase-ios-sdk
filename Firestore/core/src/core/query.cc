@@ -329,19 +329,13 @@ std::string Query::ToString() const {
 }
 
 const Target& Query::ToTarget() const& {
-  if (memoized_target == nullptr) {
-    memoized_target = ToTarget(normalized_order_bys());
-  }
-
-  return *memoized_target;
+  return memoized_target_->memoize(
+      [&]() { return *ToTarget(normalized_order_bys()); });
 }
 
 const Target& Query::ToAggregateTarget() const& {
-  if (memoized_aggregate_target == nullptr) {
-    memoized_aggregate_target = ToTarget(explicit_order_bys_);
-  }
-
-  return *memoized_aggregate_target;
+  return memoized_aggregate_target_->memoize(
+      [&]() { return *ToTarget(explicit_order_bys_); });
 }
 
 const std::shared_ptr<const Target> Query::ToTarget(

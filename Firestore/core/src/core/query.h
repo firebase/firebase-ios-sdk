@@ -295,16 +295,27 @@ class Query {
   absl::optional<Bound> start_at_;
   absl::optional<Bound> end_at_;
 
+  const std::shared_ptr<const Target> ToTarget(
+      const std::vector<OrderBy>& order_bys) const&;
+
+  /**
+   * Use a `std::shared_ptr<ThreadSafeMemoizer>` rather than using
+   * `ThreadSafeMemoizer` directly so that this class is copyable
+   * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
+   * member variable, which is not copyable).
+   */
+
   // The corresponding Target of this Query instance.
-  mutable std::shared_ptr<const Target> memoized_target;
+  mutable std::shared_ptr<ThreadSafeMemoizer<Target>> memoized_target_ =
+      std::make_shared<ThreadSafeMemoizer<Target>>();
 
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
-  mutable std::shared_ptr<const Target> memoized_aggregate_target;
-
-  const std::shared_ptr<const Target> ToTarget(
-      const std::vector<OrderBy>& order_bys) const&;
+  // mutable std::shared_ptr<Target> memoized_aggregate_target;
+  mutable std::shared_ptr<ThreadSafeMemoizer<Target>>
+      memoized_aggregate_target_ =
+          std::make_shared<ThreadSafeMemoizer<Target>>();
 };
 
 bool operator==(const Query& lhs, const Query& rhs);
