@@ -1320,7 +1320,7 @@
     // Run a query to populate the local cache with the 20 documents and a resume token.
     FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:query
                                                             source:FIRFirestoreSourceDefault];
-    XCTAssertEqual(querySnapshot1.count, 20, @"querySnapshot1.count has an unexpected value");
+    XCTAssertEqual(querySnapshot1.count, 20u, @"querySnapshot1.count has an unexpected value");
     NSArray<FIRDocumentReference *> *createdDocuments =
         FIRDocumentReferenceArrayFromQuerySnapshot(querySnapshot1);
 
@@ -1364,7 +1364,6 @@
       updatedDocumentIds = [NSSet setWithArray:updatedDocumentIdsAccumulator];
       XCTAssertEqual(updatedDocumentIds.count, 5u, @"updatedDocumentIds has the wrong size");
 
-      // Update 5 documents, but ensure they still match the query.
       for (int i = 0; i < 15; i += 1) {
         FIRDocumentReference *documentToAdd = [db2
             documentWithPath:[NSString stringWithFormat:@"%@/newDoc%@", collRef.path, @(1000 + i)]];
@@ -1386,20 +1385,18 @@
     // existence filter rather than "delete" events when the query is resumed.
     [NSThread sleepForTimeInterval:10.0f];
 
-    // Resume the query and save the resulting snapshot for
-    // verification. Use some internal testing hooks to "capture" the
-    // existence filter mismatches to verify that Watch sent a bloom
+    // Resume the query and save the resulting snapshot for verification. Use some internal testing
+    // hooks to "capture" the existence filter mismatches to verify that Watch sent a bloom
     // filter, and it was used to avert a full requery.
     __block FIRQuerySnapshot *querySnapshot2;
     NSArray<FSTTestingHooksExistenceFilterMismatchInfo *> *existenceFilterMismatches =
         [FSTTestingHooks captureExistenceFilterMismatchesDuringBlock:^{
           querySnapshot2 = [self readDocumentSetForRef:query source:FIRFirestoreSourceDefault];
         }];
-    XCTAssertEqual(querySnapshot2.count, 25, @"querySnapshot1.count has an unexpected value");
+    XCTAssertEqual(querySnapshot2.count, 25u, @"querySnapshot1.count has an unexpected value");
 
-    // Verify that the snapshot from the resumed query contains the
-    // expected documents; that is, 10 existing documents that still
-    // match the query, and 15 documents that are newly added.
+    // Verify that the snapshot from the resumed query contains the expected documents; that is, 10
+    // existing documents that still match the query, and 15 documents that are newly added.
     {
       NSMutableArray<NSString *> *expectedDocumentIds = [[NSMutableArray alloc] init];
       for (FIRDocumentReference *documentRef in createdDocuments) {
