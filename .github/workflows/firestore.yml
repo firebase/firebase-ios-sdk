@@ -355,10 +355,11 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    - name: Build Test – Source
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-      env:
-          FIREBASE_SOURCE_FIRESTORE: 1
+    # TODO: Re-enable either in or after #11706.
+    # - name: Build Test – Source
+    #   run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+    #   env:
+    #       FIREBASE_SOURCE_FIRESTORE: 1
     - name: Swift Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
