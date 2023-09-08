@@ -1285,6 +1285,164 @@
   }
 }
 
+- (void)
+    testBloomFilterShouldAvertAFullRequeryWhenDocumentsWereAddedDeletedRemovedUpdatedAndUnchangedSinceTheResumeToken {
+  // TODO(b/291365820): Stop skipping this test when running against the Firestore emulator once
+  // the emulator is improved to include a bloom filter in the existence filter messages that it
+  // sends.
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test when running against the Firestore emulator because the emulator does "
+            "not include a bloom filter when it sends existence filter messages, making it "
+            "impossible for this test to verify the correctness of the bloom filter.");
+
+  // Set this test to stop when the first failure occurs because some test assertion failures make
+  // the rest of the test not applicable or will even crash.
+  [self setContinueAfterFailure:NO];
+
+  // Prepare the names and contents of the 20 documents to create.
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *testDocs =
+      [[NSMutableDictionary alloc] init];
+  for (int i = 0; i < 20; i++) {
+    [testDocs setValue:@{@"key" : @42, @"removed" : @NO}
+                forKey:[NSString stringWithFormat:@"doc%@", @(1000 + i)]];
+  }
+
+  // Each iteration of the "while" loop below runs a single iteration of the test. The test will
+  // be run multiple times only if a bloom filter false positive occurs.
+  int attemptNumber = 0;
+  while (true) {
+    attemptNumber++;
+
+    // Create 20 documents in a new collection.
+    FIRCollectionReference *collRef = [self collectionRefWithDocuments:testDocs];
+    FIRQuery *query = [collRef queryWhereField:@"removed" isEqualTo:@NO];
+
+    // Run a query to populate the local cache with the 20 documents and a resume token.
+    FIRQuerySnapshot *querySnapshot1 = [self readDocumentSetForRef:query
+                                                            source:FIRFirestoreSourceDefault];
+    XCTAssertEqual(querySnapshot1.count, 20u, @"querySnapshot1.count has an unexpected value");
+    NSArray<FIRDocumentReference *> *createdDocuments =
+        FIRDocumentReferenceArrayFromQuerySnapshot(querySnapshot1);
+
+    // Out of the 20 existing documents, leave 5 docs untouched, delete 5 docs, remove 5 docs,
+    // update 5 docs, and add 15 new docs.
+    NSSet<NSString *> *deletedDocumentIds;
+    NSSet<NSString *> *removedDocumentIds;
+    NSSet<NSString *> *updatedDocumentIds;
+    NSMutableArray<NSString *> *addedDocumentIds = [[NSMutableArray alloc] init];
+
+    {
+      FIRFirestore *db2 = [self firestore];
+      FIRWriteBatch *batch = [db2 batch];
+
+      NSMutableArray<NSString *> *deletedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (decltype(createdDocuments.count) i = 0; i < createdDocuments.count; i += 4) {
+        FIRDocumentReference *documentToDelete = [db2 documentWithPath:createdDocuments[i].path];
+        [batch deleteDocument:documentToDelete];
+        [deletedDocumentIdsAccumulator addObject:documentToDelete.documentID];
+      }
+      deletedDocumentIds = [NSSet setWithArray:deletedDocumentIdsAccumulator];
+      XCTAssertEqual(deletedDocumentIds.count, 5u, @"deletedDocumentIds has the wrong size");
+
+      // Update 5 documents to no longer match the query.
+      NSMutableArray<NSString *> *removedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (decltype(createdDocuments.count) i = 1; i < createdDocuments.count; i += 4) {
+        FIRDocumentReference *documentToRemove = [db2 documentWithPath:createdDocuments[i].path];
+        [batch updateData:@{@"removed" : @YES} forDocument:documentToRemove];
+        [removedDocumentIdsAccumulator addObject:documentToRemove.documentID];
+      }
+      removedDocumentIds = [NSSet setWithArray:removedDocumentIdsAccumulator];
+      XCTAssertEqual(removedDocumentIds.count, 5u, @"removedDocumentIds has the wrong size");
+
+      // Update 5 documents, but ensure they still match the query.
+      NSMutableArray<NSString *> *updatedDocumentIdsAccumulator = [[NSMutableArray alloc] init];
+      for (decltype(createdDocuments.count) i = 2; i < createdDocuments.count; i += 4) {
+        FIRDocumentReference *documentToUpdate = [db2 documentWithPath:createdDocuments[i].path];
+        [batch updateData:@{@"key" : @43} forDocument:documentToUpdate];
+        [updatedDocumentIdsAccumulator addObject:documentToUpdate.documentID];
+      }
+      updatedDocumentIds = [NSSet setWithArray:updatedDocumentIdsAccumulator];
+      XCTAssertEqual(updatedDocumentIds.count, 5u, @"updatedDocumentIds has the wrong size");
+
+      for (int i = 0; i < 15; i += 1) {
+        FIRDocumentReference *documentToAdd = [db2
+            documentWithPath:[NSString stringWithFormat:@"%@/newDoc%@", collRef.path, @(1000 + i)]];
+        [batch setData:@{@"key" : @42, @"removed" : @NO} forDocument:documentToAdd];
+        [addedDocumentIds addObject:documentToAdd.documentID];
+      }
+
+      // Ensure the documentIds above are mutually exclusive.
+      NSMutableSet<NSString *> *mergedSet = [NSMutableSet setWithArray:addedDocumentIds];
+      [mergedSet unionSet:deletedDocumentIds];
+      [mergedSet unionSet:removedDocumentIds];
+      [mergedSet unionSet:updatedDocumentIds];
+      XCTAssertEqual(mergedSet.count, 30u, @"There are documents experienced multiple operations.");
+
+      [self commitWriteBatch:batch];
+    }
+
+    // Wait for 10 seconds, during which Watch will stop tracking the query and will send an
+    // existence filter rather than "delete" events when the query is resumed.
+    [NSThread sleepForTimeInterval:10.0f];
+
+    // Resume the query and save the resulting snapshot for verification. Use some internal testing
+    // hooks to "capture" the existence filter mismatches to verify that Watch sent a bloom
+    // filter, and it was used to avert a full requery.
+    __block FIRQuerySnapshot *querySnapshot2;
+    NSArray<FSTTestingHooksExistenceFilterMismatchInfo *> *existenceFilterMismatches =
+        [FSTTestingHooks captureExistenceFilterMismatchesDuringBlock:^{
+          querySnapshot2 = [self readDocumentSetForRef:query source:FIRFirestoreSourceDefault];
+        }];
+    XCTAssertEqual(querySnapshot2.count, 25u, @"querySnapshot1.count has an unexpected value");
+
+    // Verify that the snapshot from the resumed query contains the expected documents; that is, 10
+    // existing documents that still match the query, and 15 documents that are newly added.
+    {
+      NSMutableArray<NSString *> *expectedDocumentIds = [[NSMutableArray alloc] init];
+      for (FIRDocumentReference *documentRef in createdDocuments) {
+        if (![deletedDocumentIds containsObject:documentRef.documentID] &&
+            ![removedDocumentIds containsObject:documentRef.documentID]) {
+          [expectedDocumentIds addObject:documentRef.documentID];
+        }
+      }
+      [expectedDocumentIds addObjectsFromArray:addedDocumentIds];
+      XCTAssertEqualObjects([NSSet setWithArray:FIRQuerySnapshotGetIDs(querySnapshot2)],
+                            [NSSet setWithArray:expectedDocumentIds],
+                            @"querySnapshot2 has the wrong documents");
+    }
+
+    // Verify that Watch sent an existence filter with the correct counts when the query was
+    // resumed.
+    XCTAssertEqual(existenceFilterMismatches.count, 1u,
+                   @"Watch should have sent exactly 1 existence filter");
+    FSTTestingHooksExistenceFilterMismatchInfo *existenceFilterMismatchInfo =
+        existenceFilterMismatches[0];
+    XCTAssertEqual(existenceFilterMismatchInfo.localCacheCount, 35);
+    XCTAssertEqual(existenceFilterMismatchInfo.existenceFilterCount, 25);
+
+    // Verify that Watch sent a valid bloom filter.
+    FSTTestingHooksBloomFilter *bloomFilter = existenceFilterMismatchInfo.bloomFilter;
+    XCTAssertNotNil(bloomFilter,
+                    "Watch should have included a bloom filter in the existence filter");
+
+    // Verify that the bloom filter was successfully used to avert a full requery. If a false
+    // positive occurred then retry the entire test. Although statistically rare, false positives
+    // are expected to happen occasionally. When a false positive _does_ happen, just retry the test
+    // with a different set of documents. If that retry _also_ experiences a false positive, then
+    // fail the test because that is so improbable that something must have gone wrong.
+    if (attemptNumber == 1 && !bloomFilter.applied) {
+      continue;
+    }
+
+    XCTAssertTrue(bloomFilter.applied,
+                  @"The bloom filter should have been successfully applied with attemptNumber=%@",
+                  @(attemptNumber));
+
+    // Break out of the test loop now that the test passes.
+    break;
+  }
+}
+
 - (void)testBloomFilterShouldCorrectlyEncodeComplexUnicodeCharacters {
   // TODO(b/291365820): Stop skipping this test when running against the Firestore emulator once
   // the emulator is improved to include a bloom filter in the existence filter messages that it
