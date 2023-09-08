@@ -1,6 +1,3 @@
-# Unreleased
-- [changed] Firelog to clearcut migration (b/295010819).
-
 # 10.12.0
 - [changed] Removing fiam scoped tokens set by old FIAM SDK(s) from keychain if exisits (b/284207019).
 
