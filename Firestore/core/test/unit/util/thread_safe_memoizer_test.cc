@@ -34,7 +34,7 @@ TEST(ThreadSafeMemoizerTest, MultiThreadedMemoization) {
   const int expected_result = 42;
 
   // Create a thread safe memoizer and multiple threads.
-  firebase::firestore::util::ThreadSafeMemoizer<int> memoized_result;
+  util::ThreadSafeMemoizer<int> memoized_result;
   std::vector<std::thread> threads;
 
   for (int i = 0; i < num_threads; ++i) {
