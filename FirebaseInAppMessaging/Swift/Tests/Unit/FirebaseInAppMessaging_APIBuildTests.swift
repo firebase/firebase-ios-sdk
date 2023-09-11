@@ -21,7 +21,7 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
   func usage() throws {
     // MARK: - FirebaseInAppMessaging
 
-    let inAppMessaging: FirebaseInAppMessaging.InAppMessaging = FirebaseInAppMessaging.InAppMessaging.inAppMessaging()
+    let inAppMessaging = FirebaseInAppMessaging.InAppMessaging.inAppMessaging()
 
     let _: Bool = inAppMessaging.messageDisplaySuppressed
     inAppMessaging.messageDisplaySuppressed = true
@@ -32,32 +32,78 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
     inAppMessaging.automaticDataCollectionEnabled = true
 
     let _: FirebaseInAppMessaging.InAppMessagingDisplay = inAppMessaging.messageDisplayComponent
+    // FIXME(ncooke3): Below.
 //    inAppMessaging.messageDisplayComponent = InAppMessagingDisplay
 
     inAppMessaging.triggerEvent("eventName")
 
-    let _: InAppMessagingDisplayDelegate? = inAppMessaging.delegate
+    let delegate: FirebaseInAppMessaging.InAppMessagingDisplayDelegate? = inAppMessaging.delegate
     inAppMessaging.delegate = nil
 
     // TODO(ncooke3): Does it make sense for these params to be nullable?
     let nullableText: String? = nil
     let nullableURL: URL? = nil
-    let action: FirebaseInAppMessaging.InAppMessagingAction = FirebaseInAppMessaging.InAppMessagingAction(actionText: nullableText, actionURL: nullableURL)
+    let action = FirebaseInAppMessaging.InAppMessagingAction(
+      actionText: nullableText,
+      actionURL: nullableURL
+    )
     let _: String? = action.actionText
     let _: URL? = action.actionURL
 
-
-    let nonnullText: String = ""
+    let nonnullText = ""
     let nonnullColor: UIColor = .black
-    let button: FirebaseInAppMessaging.InAppMessagingActionButton = FirebaseInAppMessaging.InAppMessagingActionButton.init(buttonText: nonnullText, buttonTextColor: nonnullColor, backgroundColor: nonnullColor)
+    let button = FirebaseInAppMessaging.InAppMessagingActionButton(
+      buttonText: nonnullText,
+      buttonTextColor: nonnullColor,
+      backgroundColor: nonnullColor
+    )
     let _: String = button.buttonText
     let _: UIColor = button.buttonTextColor
     let _: UIColor = button.buttonBackgroundColor
 
+    // TODO(ncooke3): This type should not have a `FIR` prefix.
+    _ = FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType.RawValue()
+    let messsageType: FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType = .banner
+    switch messsageType {
+    case .modal: break
+    case .banner: break
+    case .imageOnly: break
+    case .card: break
+    @unknown default: break
+    }
+
+    // TODO(ncooke3): This type should not have a `FIR` prefix.
+    _ = FirebaseInAppMessaging.FIAMDisplayRenderErrorType.RawValue()
+    let errorType: FirebaseInAppMessaging.FIAMDisplayRenderErrorType = .unspecifiedError
+    switch errorType {
+    case .imageDataInvalid: break
+    case .unspecifiedError: break
+    @unknown default: break
+    }
+
+    // TODO(ncooke3): This type should not have a `FIR` prefix.
+    _ = FirebaseInAppMessaging.FIRInAppMessagingDismissType.RawValue()
+    let dismissType: FirebaseInAppMessaging.FIRInAppMessagingDismissType = .typeAuto
+    switch dismissType {
+    case .typeUserSwipe: break
+    case .typeUserTapClose: break
+    case .typeAuto: break
+    case .unspecified: break
+    @unknown default: break
+    }
+
+    // TODO(ncooke3): This type should not have a `FIR` prefix.
+    _ = FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType.RawValue()
+    let triggerType: FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType = .onAnalyticsEvent
+    switch triggerType {
+    case .onAppForeground: break
+    case .onAnalyticsEvent: break
+    @unknown default: break
+    }
 
     let nullableImageData: FirebaseInAppMessaging.InAppMessagingImageData? = nil
-    let nullableDict: [AnyHashable : Any]? = nil
-    let bannerDisplay: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessaging.InAppMessagingBannerDisplay(
+    let nullableDict: [AnyHashable: Any]? = nil
+    let bannerDisplay = FirebaseInAppMessaging.InAppMessagingBannerDisplay(
       campaignName: nonnullText,
       titleText: nonnullText,
       bodyText: nullableText,
@@ -67,53 +113,97 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
       actionURL: nullableURL,
       appData: nullableDict
     )
+    _ = bannerDisplay as FirebaseInAppMessaging.InAppMessagingDisplayMessage
     let _: String = bannerDisplay.title
-    let _: InAppMessagingImageData? = bannerDisplay.imageData
+    let _: FirebaseInAppMessaging.InAppMessagingImageData? = bannerDisplay.imageData
     let _: String? = bannerDisplay.bodyText
     let _: UIColor = bannerDisplay.displayBackgroundColor
     let _: UIColor = bannerDisplay.textColor
     let _: URL? = bannerDisplay.actionURL
-
 
     let campaignInfo: FirebaseInAppMessaging.InAppMessagingCampaignInfo! = nil
     let _: String = campaignInfo.messageID
     let _: String = campaignInfo.campaignName
     let _: Bool = campaignInfo.renderAsTestMessage
 
-    let cardDisplay: FirebaseInAppMessaging.InAppMessagingCardDisplay! = nil
-    let _:String = cardDisplay.title
-    let _:String? = cardDisplay.body
-    let _:UIColor = cardDisplay.textColor
-    let _:FirebaseInAppMessaging.InAppMessagingImageData = cardDisplay.portraitImageData
-    let _:FirebaseInAppMessaging.InAppMessagingImageData? = cardDisplay.landscapeImageData
-    let _:UIColor = cardDisplay.displayBackgroundColor
-    let _:FirebaseInAppMessaging.InAppMessagingActionButton = cardDisplay.primaryActionButton
-    let _:URL? = cardDisplay.primaryActionURL
-    let _:FirebaseInAppMessaging.InAppMessagingActionButton? = cardDisplay.secondaryActionButton
-    let _:URL? = cardDisplay.secondaryActionURL
-
-    FirebaseInAppMessaging.InAppMessagingCardDisplay(
-      campaignName: <#T##String#>,
-      titleText: <#T##String#>,
-      bodyText: <#T##String?#>,
-      textColor: <#T##UIColor#>,
-      portraitImageData: <#T##InAppMessagingImageData#>,
-      landscapeImageData: <#T##InAppMessagingImageData?#>,
-      backgroundColor: <#T##UIColor#>,
-      primaryActionButton: <#T##InAppMessagingActionButton#>,
-      secondaryActionButton: <#T##InAppMessagingActionButton?#>,
-      primaryActionURL: <#T##URL?#>,
-      secondaryActionURL: <#T##URL?#>,
-      appData: <#T##[AnyHashable : Any]?#>
+    let nonnullImageData = FirebaseInAppMessaging.InAppMessagingImageData(
+      imageURL: nonnullText,
+      imageData: Data()
     )
+    let _: Data? = nonnullImageData.imageRawData
+    let _: String = nonnullImageData.imageURL
 
-    FirebaseInAppMessaging.InAppMessagingCardDisplay(
-      messageID: <#T##String#>,
-      campaignName: <#T##String#>,
-      renderAsTestMessage: <#T##Bool#>,
-      messageType: <#T##FIRInAppMessagingDisplayMessageType#>,
-      triggerType: <#T##FIRInAppMessagingDisplayTriggerType#>
+    let nullableActionButton: FirebaseInAppMessaging.InAppMessagingActionButton? = nil
+    let cardDisplay = FirebaseInAppMessaging.InAppMessagingCardDisplay(
+      campaignName: nonnullText,
+      titleText: nonnullText,
+      bodyText: nullableText,
+      textColor: nonnullColor,
+      portraitImageData: nonnullImageData,
+      landscapeImageData: nullableImageData,
+      backgroundColor: nonnullColor,
+      primaryActionButton: button,
+      secondaryActionButton: nullableActionButton,
+      primaryActionURL: nullableURL,
+      secondaryActionURL: nullableURL,
+      appData: nullableDict
     )
+    _ = cardDisplay as FirebaseInAppMessaging.InAppMessagingDisplayMessage
+    let _: String = cardDisplay.title
+    let _: String? = cardDisplay.body
+    let _: UIColor = cardDisplay.textColor
+    let _: FirebaseInAppMessaging.InAppMessagingImageData = cardDisplay.portraitImageData
+    let _: FirebaseInAppMessaging.InAppMessagingImageData? = cardDisplay.landscapeImageData
+    let _: UIColor = cardDisplay.displayBackgroundColor
+    let _: FirebaseInAppMessaging.InAppMessagingActionButton = cardDisplay.primaryActionButton
+    let _: URL? = cardDisplay.primaryActionURL
+    let _: FirebaseInAppMessaging.InAppMessagingActionButton? = cardDisplay.secondaryActionButton
+    let _: URL? = cardDisplay.secondaryActionURL
+
+    let displayMessage = FirebaseInAppMessaging.InAppMessagingDisplayMessage(
+      messageID: nonnullText,
+      campaignName: nonnullText,
+      renderAsTestMessage: true,
+      messageType: messsageType,
+      triggerType: triggerType
+    )
+    let _: FirebaseInAppMessaging.InAppMessagingCampaignInfo = displayMessage.campaignInfo
+    let _: FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType = displayMessage.type
+    let _: FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType = displayMessage.triggerType
+    let _: [AnyHashable: Any]? = displayMessage.appData
+
+    let imageOnlyDisplay = FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay(
+      campaignName: nonnullText,
+      imageData: nonnullImageData,
+      actionURL: nullableURL,
+      appData: nullableDict
+    )
+    _ = imageOnlyDisplay as FirebaseInAppMessaging.InAppMessagingDisplayMessage
+    let _: FirebaseInAppMessaging.InAppMessagingImageData = imageOnlyDisplay.imageData
+    let _: URL? = imageOnlyDisplay.actionURL
+
+    let modalDisplay = FirebaseInAppMessaging.InAppMessagingModalDisplay(
+      campaignName: nonnullText,
+      titleText: nonnullText,
+      bodyText: nullableText,
+      textColor: nonnullColor,
+      backgroundColor: nonnullColor,
+      imageData: nullableImageData,
+      actionButton: nullableActionButton,
+      actionURL: nullableURL,
+      appData: nullableDict
+    )
+    _ = modalDisplay as FirebaseInAppMessaging.InAppMessagingDisplayMessage
+    let _: String = modalDisplay.title
+    let _: InAppMessagingImageData? = modalDisplay.imageData
+    let _: String? = modalDisplay.bodyText
+    let _: InAppMessagingActionButton? = modalDisplay.actionButton
+    let _: URL? = modalDisplay.actionURL
+    let _: UIColor = modalDisplay.displayBackgroundColor
+    let _: UIColor = modalDisplay.textColor
+
+    let display: FirebaseInAppMessaging.InAppMessagingDisplay! = nil
+    display.displayMessage(displayMessage, displayDelegate: delegate!)
 
     // MARK: - FirebaseInAppMessagingSwift
   }
