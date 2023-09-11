@@ -23,7 +23,6 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-// Define a simple expensive function for testing.
 int ExpensiveFunction() {
   // Simulate an expensive operation
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -47,7 +46,6 @@ TEST(ThreadSafeMemoizerTest, MultiThreadedMemoization) {
     });
   }
 
-  // Start all threads
   for (auto& thread : threads) {
     thread.join();
   }
