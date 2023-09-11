@@ -33,7 +33,8 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
 
     let _: FirebaseInAppMessaging.InAppMessagingDisplay = inAppMessaging.messageDisplayComponent
     // FIXME(ncooke3): Below.
-//    inAppMessaging.messageDisplayComponent = InAppMessagingDisplay
+    let displayConformer: FirebaseInAppMessaging.InAppMessagingDisplay! = nil
+    inAppMessaging.messageDisplayComponent = displayConformer
 
     inAppMessaging.triggerEvent("eventName")
 
