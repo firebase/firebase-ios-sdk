@@ -16,7 +16,7 @@
 
 #include "Firestore/core/src/util/thread_safe_memoizer.h"
 
-#include <thread>
+#include <thread>  // NOLINT(build/c++11)
 #include "gtest/gtest.h"
 
 namespace firebase {

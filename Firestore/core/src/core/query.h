@@ -30,6 +30,7 @@
 #include "Firestore/core/src/core/target.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/resource_path.h"
+#include "Firestore/core/src/util/thread_safe_memoizer.h"
 
 namespace firebase {
 namespace firestore {
