@@ -206,5 +206,72 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
     display.displayMessage(displayMessage, displayDelegate: delegate!)
 
     // MARK: - FirebaseInAppMessagingSwift
+
+    let nullableImage: UIImage? = nil
+    let nullableColor: UIColor? = nil
+    let nullableAppData: [String: String]? = nil
+    let _: FirebaseInAppMessaging.InAppMessagingCardDisplay = FirebaseInAppMessagingSwift
+      .InAppMessagingPreviewHelpers.cardMessage(
+        campaignName: nonnullText,
+        title: nonnullText,
+        body: nullableText,
+        textColor: nonnullColor,
+        backgroundColor: nonnullColor,
+        portraitImage: UIImage(),
+        landscapeImage: nullableImage,
+        primaryButtonText: nonnullText,
+        primaryButtonTextColor: nonnullColor,
+        primaryButtonBackgroundColor: nonnullColor,
+        primaryActionURL: nullableURL,
+        secondaryButtonText: nullableText,
+        secondaryButtonTextColor: nullableColor,
+        secondaryButtonBackgroundColor: nullableColor,
+        secondaryActionURL: nullableURL,
+        appData: nullableAppData
+      )
+
+    let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
+      .InAppMessagingPreviewHelpers.modalMessage()
+    let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
+      .InAppMessagingPreviewHelpers.modalMessage(
+        campaignName: nonnullText,
+        title: nonnullText,
+        body: nullableText,
+        textColor: nonnullColor,
+        backgroundColor: nonnullColor,
+        image: nullableImage,
+        buttonText: nullableText,
+        buttonTextColor: nullableColor,
+        buttonBackgroundColor: nullableColor,
+        actionURL: nullableURL,
+        appData: nullableAppData
+      )
+
+    let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
+      .InAppMessagingPreviewHelpers.bannerMessage()
+    let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
+      .InAppMessagingPreviewHelpers.bannerMessage(
+        campaignName: nonnullText,
+        title: nonnullText,
+        body: nullableText,
+        textColor: nonnullColor,
+        backgroundColor: nonnullColor,
+        image: nullableImage,
+        actionURL: nullableURL,
+        appData: nullableAppData
+      )
+
+    let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
+      .InAppMessagingPreviewHelpers.imageOnlyMessage(image: UIImage())
+    let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
+      .InAppMessagingPreviewHelpers.imageOnlyMessage(
+        campaignName: nonnullText,
+        image: UIImage(),
+        actionURL: nullableURL,
+        appData: nullableAppData
+      )
+
+    let swiftDelegate = FirebaseInAppMessagingSwift.InAppMessagingPreviewHelpers.Delegate()
+    _ = swiftDelegate as InAppMessagingDisplayDelegate
   }
 }
