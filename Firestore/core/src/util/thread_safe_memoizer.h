@@ -17,6 +17,7 @@
 #ifndef FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
 #define FIRESTORE_CORE_SRC_UTIL_THREAD_SAFE_MEMOIZER_H_
 
+#include <functional>
 #include <mutex>  // NOLINT(build/c++11)
 #include <vector>
 
@@ -27,10 +28,14 @@ namespace util {
 /**
  * Stores a memoized value in a manner that is safe to be shared between
  * multiple threads.
+ *
+ * TODO(b/299933587) Make `ThreadSafeMemoizer` copyable and moveable.
  */
 template <typename T>
 class ThreadSafeMemoizer {
  public:
+  ThreadSafeMemoizer() = default;
+
   ~ThreadSafeMemoizer() {
     // Call `std::call_once` in order to synchronize with the "active"
     // invocation of `memoize()`. Without this synchronization, there is a data
@@ -39,6 +44,13 @@ class ThreadSafeMemoizer {
     // `memoize()`.
     std::call_once(once_, [&]() {});
   }
+
+  // This class cannot be copied or moved, because it has `std::once_flag`
+  // member.
+  ThreadSafeMemoizer(const ThreadSafeMemoizer&) = delete;
+  ThreadSafeMemoizer(ThreadSafeMemoizer&&) = delete;
+  ThreadSafeMemoizer& operator=(const ThreadSafeMemoizer&) = delete;
+  ThreadSafeMemoizer& operator=(ThreadSafeMemoizer&&) = delete;
 
   /**
    * Memoize a value.

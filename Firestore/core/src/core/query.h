@@ -285,28 +285,26 @@ class Query {
 
   Target ToTarget(const std::vector<OrderBy>& order_bys) const;
 
-  /**
-   * For properties below, use a `std::shared_ptr<ThreadSafeMemoizer>` rather
-   * than using `ThreadSafeMemoizer` directly so that this class is copyable
-   * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
-   * member variable, which is not copyable).
-   */
+  // For properties below, use a `std::shared_ptr<ThreadSafeMemoizer>` rather
+  // than using `ThreadSafeMemoizer` directly so that this class is copyable
+  // (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
+  // member variable, which is not copyable).
 
   // The memoized list of sort orders.
   mutable std::shared_ptr<ThreadSafeMemoizer<std::vector<OrderBy>>>
-      memoized_normalized_order_bys_ =
-          std::make_shared<ThreadSafeMemoizer<std::vector<OrderBy>>>();
+      memoized_normalized_order_bys_{
+          std::make_shared<ThreadSafeMemoizer<std::vector<OrderBy>>>()};
 
   // The corresponding Target of this Query instance.
-  mutable std::shared_ptr<ThreadSafeMemoizer<Target>> memoized_target_ =
-      std::make_shared<ThreadSafeMemoizer<Target>>();
+  mutable std::shared_ptr<ThreadSafeMemoizer<Target>> memoized_target_{
+      std::make_shared<ThreadSafeMemoizer<Target>>()};
 
   // The corresponding aggregate Target of this Query instance. Unlike targets
   // for non-aggregate queries, aggregate query targets do not contain
   // normalized order-bys, they only contain explicit order-bys.
   mutable std::shared_ptr<ThreadSafeMemoizer<Target>>
-      memoized_aggregate_target_ =
-          std::make_shared<ThreadSafeMemoizer<Target>>();
+      memoized_aggregate_target_{
+          std::make_shared<ThreadSafeMemoizer<Target>>()};
 };
 
 bool operator==(const Query& lhs, const Query& rhs);

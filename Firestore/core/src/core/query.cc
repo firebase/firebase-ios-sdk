@@ -359,13 +359,11 @@ Target Query::ToTarget(const std::vector<OrderBy>& order_bys) const {
                                 start_at_->position(), start_at_->inclusive())}
                           : absl::nullopt;
 
-    Target target(path(), collection_group(), filters(), new_order_bys, limit_,
+    return Target(path(), collection_group(), filters(), new_order_bys, limit_,
                   new_start_at, new_end_at);
-    return target;
   } else {
-    Target target(path(), collection_group(), filters(), order_bys, limit_,
+    return Target(path(), collection_group(), filters(), order_bys, limit_,
                   start_at(), end_at());
-    return target;
   }
 }
 
