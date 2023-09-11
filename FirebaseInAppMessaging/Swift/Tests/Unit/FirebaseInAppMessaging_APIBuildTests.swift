@@ -16,6 +16,7 @@ import XCTest
 
 import FirebaseInAppMessaging
 import FirebaseInAppMessagingSwift
+import SwiftUI
 
 final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
   func usage() throws {
@@ -64,8 +65,8 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
 
     // TODO(ncooke3): This type should not have a `FIR` prefix.
     _ = FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType.RawValue()
-    let messsageType: FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType = .banner
-    switch messsageType {
+    let messsageType: FirebaseInAppMessaging.FIRInAppMessagingDisplayMessageType! = nil
+    switch messsageType! {
     case .modal: break
     case .banner: break
     case .imageOnly: break
@@ -75,8 +76,8 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
 
     // TODO(ncooke3): This type should not have a `FIR` prefix.
     _ = FirebaseInAppMessaging.FIAMDisplayRenderErrorType.RawValue()
-    let errorType: FirebaseInAppMessaging.FIAMDisplayRenderErrorType = .unspecifiedError
-    switch errorType {
+    let errorType: FirebaseInAppMessaging.FIAMDisplayRenderErrorType! = nil
+    switch errorType! {
     case .imageDataInvalid: break
     case .unspecifiedError: break
     @unknown default: break
@@ -84,8 +85,8 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
 
     // TODO(ncooke3): This type should not have a `FIR` prefix.
     _ = FirebaseInAppMessaging.FIRInAppMessagingDismissType.RawValue()
-    let dismissType: FirebaseInAppMessaging.FIRInAppMessagingDismissType = .typeAuto
-    switch dismissType {
+    let dismissType: FirebaseInAppMessaging.FIRInAppMessagingDismissType! = nil
+    switch dismissType! {
     case .typeUserSwipe: break
     case .typeUserTapClose: break
     case .typeAuto: break
@@ -95,8 +96,8 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
 
     // TODO(ncooke3): This type should not have a `FIR` prefix.
     _ = FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType.RawValue()
-    let triggerType: FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType = .onAnalyticsEvent
-    switch triggerType {
+    let triggerType: FirebaseInAppMessaging.FIRInAppMessagingDisplayTriggerType! = nil
+    switch triggerType! {
     case .onAppForeground: break
     case .onAnalyticsEvent: break
     @unknown default: break
@@ -208,71 +209,101 @@ final class FirebaseInAppMessagingSwift_APIBuildTests: XCTestCase {
 
     // MARK: - FirebaseInAppMessagingSwift
 
-    let nullableImage: UIImage? = nil
-    let nullableColor: UIColor? = nil
-    let nullableAppData: [String: String]? = nil
-    let _: FirebaseInAppMessaging.InAppMessagingCardDisplay = FirebaseInAppMessagingSwift
-      .InAppMessagingPreviewHelpers.cardMessage(
-        campaignName: nonnullText,
-        title: nonnullText,
-        body: nullableText,
-        textColor: nonnullColor,
-        backgroundColor: nonnullColor,
-        portraitImage: UIImage(),
-        landscapeImage: nullableImage,
-        primaryButtonText: nonnullText,
-        primaryButtonTextColor: nonnullColor,
-        primaryButtonBackgroundColor: nonnullColor,
-        primaryActionURL: nullableURL,
-        secondaryButtonText: nullableText,
-        secondaryButtonTextColor: nullableColor,
-        secondaryButtonBackgroundColor: nullableColor,
-        secondaryActionURL: nullableURL,
-        appData: nullableAppData
-      )
+    if #available(iOS 13, tvOS 13, *) {
+      let nullableImage: UIImage? = nil
+      let nullableColor: UIColor? = nil
+      let nullableAppData: [String: String]? = nil
+      let _: FirebaseInAppMessaging.InAppMessagingCardDisplay = FirebaseInAppMessagingSwift
+        .InAppMessagingPreviewHelpers.cardMessage(
+          campaignName: nonnullText,
+          title: nonnullText,
+          body: nullableText,
+          textColor: nonnullColor,
+          backgroundColor: nonnullColor,
+          portraitImage: UIImage(),
+          landscapeImage: nullableImage,
+          primaryButtonText: nonnullText,
+          primaryButtonTextColor: nonnullColor,
+          primaryButtonBackgroundColor: nonnullColor,
+          primaryActionURL: nullableURL,
+          secondaryButtonText: nullableText,
+          secondaryButtonTextColor: nullableColor,
+          secondaryButtonBackgroundColor: nullableColor,
+          secondaryActionURL: nullableURL,
+          appData: nullableAppData
+        )
 
-    let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
-      .InAppMessagingPreviewHelpers.modalMessage()
-    let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
-      .InAppMessagingPreviewHelpers.modalMessage(
-        campaignName: nonnullText,
-        title: nonnullText,
-        body: nullableText,
-        textColor: nonnullColor,
-        backgroundColor: nonnullColor,
-        image: nullableImage,
-        buttonText: nullableText,
-        buttonTextColor: nullableColor,
-        buttonBackgroundColor: nullableColor,
-        actionURL: nullableURL,
-        appData: nullableAppData
-      )
+      let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
+        .InAppMessagingPreviewHelpers.modalMessage()
+      let _: FirebaseInAppMessaging.InAppMessagingModalDisplay = FirebaseInAppMessagingSwift
+        .InAppMessagingPreviewHelpers.modalMessage(
+          campaignName: nonnullText,
+          title: nonnullText,
+          body: nullableText,
+          textColor: nonnullColor,
+          backgroundColor: nonnullColor,
+          image: nullableImage,
+          buttonText: nullableText,
+          buttonTextColor: nullableColor,
+          buttonBackgroundColor: nullableColor,
+          actionURL: nullableURL,
+          appData: nullableAppData
+        )
 
-    let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
-      .InAppMessagingPreviewHelpers.bannerMessage()
-    let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
-      .InAppMessagingPreviewHelpers.bannerMessage(
-        campaignName: nonnullText,
-        title: nonnullText,
-        body: nullableText,
-        textColor: nonnullColor,
-        backgroundColor: nonnullColor,
-        image: nullableImage,
-        actionURL: nullableURL,
-        appData: nullableAppData
-      )
+      let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
+        .InAppMessagingPreviewHelpers.bannerMessage()
+      let _: FirebaseInAppMessaging.InAppMessagingBannerDisplay = FirebaseInAppMessagingSwift
+        .InAppMessagingPreviewHelpers.bannerMessage(
+          campaignName: nonnullText,
+          title: nonnullText,
+          body: nullableText,
+          textColor: nonnullColor,
+          backgroundColor: nonnullColor,
+          image: nullableImage,
+          actionURL: nullableURL,
+          appData: nullableAppData
+        )
 
-    let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
-      .InAppMessagingPreviewHelpers.imageOnlyMessage(image: UIImage())
-    let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
-      .InAppMessagingPreviewHelpers.imageOnlyMessage(
-        campaignName: nonnullText,
-        image: UIImage(),
-        actionURL: nullableURL,
-        appData: nullableAppData
-      )
+      let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
+        .InAppMessagingPreviewHelpers.imageOnlyMessage(image: UIImage())
+      let _: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay = FirebaseInAppMessagingSwift
+        .InAppMessagingPreviewHelpers.imageOnlyMessage(
+          campaignName: nonnullText,
+          image: UIImage(),
+          actionURL: nullableURL,
+          appData: nullableAppData
+        )
 
-    let swiftDelegate = FirebaseInAppMessagingSwift.InAppMessagingPreviewHelpers.Delegate()
-    _ = swiftDelegate as InAppMessagingDisplayDelegate
+      let swiftDelegate = FirebaseInAppMessagingSwift.InAppMessagingPreviewHelpers.Delegate()
+      _ = swiftDelegate as InAppMessagingDisplayDelegate
+    }
+
+    @available(iOS 13, tvOS 13, *)
+    struct MyView: View {
+      var body: some View {
+        Text("Hello, world!")
+          .imageOnlyInAppMessage(
+            closure: { (_: FirebaseInAppMessaging.InAppMessagingImageOnlyDisplay,
+                        _: FirebaseInAppMessaging.InAppMessagingDisplayDelegate) in
+                Text("My image-only display!")
+            }
+          )
+        Text("Hello, world!")
+          .bannerInAppMessage(closure: { (_: FirebaseInAppMessaging.InAppMessagingBannerDisplay,
+                                          _: FirebaseInAppMessaging.InAppMessagingDisplayDelegate) in
+              Text("My banner!")
+            })
+        Text("Hello, world!")
+          .modalInAppMessage(closure: { (_: FirebaseInAppMessaging.InAppMessagingModalDisplay,
+                                         _: FirebaseInAppMessaging.InAppMessagingDisplayDelegate) in
+              Text("My modal!")
+            })
+        Text("Hello, world!")
+          .cardInAppMessage(closure: { (_: FirebaseInAppMessaging.InAppMessagingCardDisplay,
+                                        _: FirebaseInAppMessaging.InAppMessagingDisplayDelegate) in
+              Text("My card!")
+            })
+      }
+    }
   }
 }
