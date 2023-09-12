@@ -35,5 +35,6 @@ See more product details at https://firebase.google.com/products/in-app-messagin
 
   s.framework = 'UIKit'
 
-  s.dependency 'FirebaseInAppMessaging', '~> 10.0-beta'
+  s.dependency 'FirebaseInAppMessaging', '~> 10.14-beta'
+
 end
