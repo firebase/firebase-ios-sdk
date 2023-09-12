@@ -169,12 +169,12 @@ extension Auth: AuthInterop {
   /** @property app
    @brief Gets the `FirebaseApp` object that this auth object is connected to.
    */
-  @objc public weak var app: FirebaseApp?
+  @objc public internal(set) weak var app: FirebaseApp?
 
   /** @property currentUser
    @brief Synchronously gets the cached current user, or null if there is none.
    */
-  @objc public var currentUser: User?
+  @objc public internal(set) var currentUser: User?
 
   /** @property languageCode
    @brief The current user language code. This property can be set to the app's current language by
@@ -182,7 +182,16 @@ extension Auth: AuthInterop {
 
    @remarks The string used to set this property must be a language code that follows BCP 47.
    */
-  @objc public var languageCode: String?
+  @objc public var languageCode: String? {
+    get {
+      return requestConfiguration.languageCode
+    }
+    set(val) {
+      kAuthGlobalWorkQueue.sync {
+        requestConfiguration.languageCode = val
+      }
+    }
+  }
 
   /** @property settings
    @brief Contains settings related to the auth object.
@@ -192,7 +201,7 @@ extension Auth: AuthInterop {
   /** @property userAccessGroup
    @brief The current user access group that the Auth instance is using. Default is nil.
    */
-  @objc public var userAccessGroup: String?
+  @objc public internal(set) var userAccessGroup: String?
 
   /** @property shareAuthStateAcrossDevices
    @brief Contains shareAuthStateAcrossDevices setting related to the auth object.
@@ -1458,8 +1467,10 @@ extension Auth: AuthInterop {
    @brief Sets `languageCode` to the app's current language.
    */
   @objc public func useAppLanguage() {
-    kAuthGlobalWorkQueue.async {
-      self.requestConfiguration.languageCode = Locale.preferredLanguages.first
+    kAuthGlobalWorkQueue.sync {
+      if let language = Locale.preferredLanguages.first {
+        self.requestConfiguration.languageCode = language
+      }
     }
   }
 

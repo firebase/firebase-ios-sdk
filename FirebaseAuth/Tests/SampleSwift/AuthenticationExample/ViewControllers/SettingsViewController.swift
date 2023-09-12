@@ -22,6 +22,9 @@ enum SettingsAction: String {
   case toggleSecureTokenAPI = "Secure Token"
   case toggleActiveApp = "Active App"
   case toggleAccessGroup = "Current Access Group"
+  case setAuthLanugage = "Auth Language"
+  case useAppLanguage = "Use App Language"
+  case togglePhoneAppVerification = "Disable App Verification (Phone)"
 }
 
 class SettingsViewController: UIViewController, DataSourceProviderDelegate {
@@ -61,6 +64,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       // The row tapped has no affiliated action.
       return
     }
+    let auth = AppManager.shared.auth()
 
     switch action {
     case .toggleSecureTokenAPI:
@@ -71,6 +75,15 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       AppManager.shared.toggle()
     case .toggleAccessGroup:
       toggleAccessGroup()
+    case .setAuthLanugage:
+      setAuthLanguage()
+    case .useAppLanguage:
+      auth.useAppLanguage()
+    case .togglePhoneAppVerification:
+      guard let settings = auth.settings else {
+        fatalError("Unset auth.settings")
+      }
+      settings.appVerificationDisabledForTesting = !settings.isAppVerificationDisabledForTesting
     }
     updateUI()
   }
@@ -105,6 +118,19 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
+  private func setAuthLanguage() {
+    let prompt = UIAlertController(title: nil, message: "Enter Language Code For Auth:",
+                                   preferredStyle: .alert)
+    prompt.addTextField()
+    let okAction = UIAlertAction(title: "OK", style: .default) { action in
+      AppManager.shared.auth().languageCode = prompt.textFields?[0].text ?? ""
+      self.updateUI()
+    }
+    prompt.addAction(okAction)
+
+    present(prompt, animated: true)
+  }
+
   // MARK: - Private Helpers
 
   private func configureNavigationBar() {
@@ -134,29 +160,6 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
                       options: .transitionCrossDissolve,
                       animations: { tableView.reloadData() })
   }
-
-  private func presentEditUserInfoController(for title: String,
-                                             to saveHandler: @escaping (String) -> Void) {
-    let editController = UIAlertController(
-      title: "Update \(title)",
-      message: nil,
-      preferredStyle: .alert
-    )
-    editController.addTextField { $0.placeholder = "New \(title)" }
-
-    let saveHandler1: (UIAlertAction) -> Void = { _ in
-      let text = editController.textFields!.first!.text!
-      saveHandler(text)
-    }
-
-    let cancel: (UIAlertAction) -> Void = { _ in
-      saveHandler("")
-    }
-
-    editController.addAction(UIAlertAction(title: "Save", style: .default, handler: saveHandler1))
-    editController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: cancel))
-    present(editController, animated: true, completion: nil)
-  }
 }
 
 // MARK: - Extending a `AuthSettings` to conform to `DataSourceProvidable`
@@ -184,7 +187,48 @@ extension AuthSettings: DataSourceProvidable {
     return Section(headerDescription: "Keychain Access Groups", items: items)
   }
 
+  // TODO: Add ability to click and clear both of these fields.
+  private var phoneAuthSection: Section {
+    var tokenString = "No Token"
+    var credentialString = "No Credential"
+    if let token = AppManager.shared.auth().tokenManager.token {
+      let tokenType = token.type == .prod ? "Production" : "Sandbox"
+      tokenString = "token: \(token.string): type: \(tokenType)"
+    }
+    if let credential = AppManager.shared.auth().appCredentialManager.credential {
+      // TODO: Maybe use truncatedString like ObjC sample
+      credentialString = "\(credential.receipt)/\(credential.secret ?? "nil")"
+    }
+    let items = [Item(title: tokenString, detailTitle: "APNs Token"),
+                 Item(title: credentialString, detailTitle: "App Credential")]
+    return Section(headerDescription: "Phone Auth - TODO toggle off", items: items)
+  }
+
+  private var languageSection: Section {
+    let languageCode = AppManager.shared.auth().languageCode
+    let items = [Item(title: languageCode ?? "[none]", detailTitle: "Auth Language"),
+                 Item(title: "Click to Use App Language", detailTitle: "Use App Language")]
+    return Section(headerDescription: "Language", items: items)
+  }
+
+  private var disableSection: Section {
+    guard let settings = AppManager.shared.auth().settings else {
+      fatalError("Missing auth settings")
+    }
+    let disabling = settings.isAppVerificationDisabledForTesting ? "YES" : "NO"
+    let items = [Item(title: disabling, detailTitle: "Disable App Verification (Phone)")]
+    return Section(headerDescription: "Auth Settings", items: items)
+  }
+
   var sections: [Section] {
-    [versionSection, apiHostSection, appsSection, keychainSection]
+    [
+      versionSection,
+      apiHostSection,
+      appsSection,
+      keychainSection,
+      phoneAuthSection,
+      languageSection,
+      disableSection,
+    ]
   }
 }

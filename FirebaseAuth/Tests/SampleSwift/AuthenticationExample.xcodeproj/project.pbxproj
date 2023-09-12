@@ -26,6 +26,7 @@
 		DEC2E5DD2A95331E0090260A /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2E5DC2A95331D0090260A /* SettingsViewController.swift */; };
 		DEC2E5DF2A9583CA0090260A /* AppManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEC2E5DE2A9583CA0090260A /* AppManager.swift */; };
 		DEC2E5E42A966DE20090260A /* GoogleService-Info_multi.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEC2E5E32A966DE20090260A /* GoogleService-Info_multi.plist */; };
+		DED37F632AB0C4F7003A67E4 /* SettingsUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DED37F622AB0C4F7003A67E4 /* SettingsUITests.swift */; };
 		EA02F68524A000E00079D000 /* UserActions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68424A000E00079D000 /* UserActions.swift */; };
 		EA02F68D24A063E90079D000 /* LoginDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA02F68C24A063E90079D000 /* LoginDelegate.swift */; };
 		EA062D5D24A0FEB6006714D3 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = EA062D5C24A0FEB6006714D3 /* README.md */; };
@@ -102,6 +103,7 @@
 		DEC2E5DC2A95331D0090260A /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		DEC2E5DE2A9583CA0090260A /* AppManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppManager.swift; sourceTree = "<group>"; };
 		DEC2E5E32A966DE20090260A /* GoogleService-Info_multi.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info_multi.plist"; sourceTree = SOURCE_ROOT; };
+		DED37F622AB0C4F7003A67E4 /* SettingsUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUITests.swift; sourceTree = "<group>"; };
 		EA02F68424A000E00079D000 /* UserActions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserActions.swift; sourceTree = "<group>"; };
 		EA02F68C24A063E90079D000 /* LoginDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginDelegate.swift; sourceTree = "<group>"; };
 		EA062D5C24A0FEB6006714D3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
@@ -327,6 +329,7 @@
 			children = (
 				EAE4CBE624855E3E00245E92 /* AuthenticationExampleUITests.swift */,
 				EAE4CBE824855E3E00245E92 /* Info.plist */,
+				DED37F622AB0C4F7003A67E4 /* SettingsUITests.swift */,
 			);
 			path = AuthenticationExampleUITests;
 			sourceTree = "<group>";
@@ -555,6 +558,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DED37F632AB0C4F7003A67E4 /* SettingsUITests.swift in Sources */,
 				EAE4CBE724855E3E00245E92 /* AuthenticationExampleUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
