@@ -24,7 +24,7 @@ See more product details at https://firebase.google.com/products/in-app-messagin
   s.prefix_header_file      = false
 
   s.source_files = [
-    'FirebaseInAppMessaging/Swift/Source/**/*.swift',
+    'FirebaseRemoteConfigSwift/Sources/**/*.swift',
   ]
 
   s.test_spec 'unit' do |unit_tests|
