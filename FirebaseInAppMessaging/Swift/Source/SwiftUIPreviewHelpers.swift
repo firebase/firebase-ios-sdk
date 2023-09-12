@@ -14,8 +14,6 @@
 
 import UIKit
 
-import FirebaseInAppMessaging
-
 @available(iOS 13.0, tvOS 13.0, *)
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
