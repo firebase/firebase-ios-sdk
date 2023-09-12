@@ -758,7 +758,7 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInAppMessaging",
+      name: "FirebaseInAppMessagingInternal",
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
@@ -788,9 +788,15 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseInAppMessaging",
+      dependencies: ["FirebaseInAppMessagingInternal"],
+      path: "FirebaseInAppMessaging/Swift/Source"
+    ),
+
+    .target(
       name: "FirebaseInAppMessagingSwift",
       dependencies: ["FirebaseInAppMessaging"],
-      path: "FirebaseInAppMessaging/Swift/Source"
+      path: "FirebaseInAppMessagingSwift/Sources"
     ),
 
     .target(

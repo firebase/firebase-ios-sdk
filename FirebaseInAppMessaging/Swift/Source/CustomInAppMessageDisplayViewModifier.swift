@@ -14,6 +14,10 @@
 
 import SwiftUI
 
+#if SWIFT_PACKAGE
+  @_exported import FirebaseInAppMessagingInternal
+#endif // SWIFT_PACKAGE
+
 // MARK: Image-only messages.
 
 @available(iOS 13, tvOS 13, *)
