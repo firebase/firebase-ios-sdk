@@ -12,7 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO(ncooke3): Add warning that importing this extension is deprecated.
+// TODO: Enable warning when ready to surface deprecation to customers.
+// #warning("""
+// The FirebaseRemoteConfigSwift module is deprecated and will be removed in
+// the future. All of the public API from FirebaseRemoteConfigSwift can now be
+// accessed through the FirebaseRemoteConfig module. To migrate, delete imports
+// of FirebaseRemoteConfigSwift and remove the module as a dependency to your
+// project. If applicable, any APIs namespaced with `FirebaseRemoteConfigSwift`
+// can now be namespaced with `FirebaseRemoteConfig`.
+// """)
 
 // The `@_exported` is needed to prevent breaking clients that are using
 // types prefixed with the `FirebaseRemoteConfigSwift` module name (e.g.
