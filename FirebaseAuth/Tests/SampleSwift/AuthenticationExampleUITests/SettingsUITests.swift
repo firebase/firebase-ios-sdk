@@ -60,7 +60,8 @@ class SettingsUITests: XCTestCase {
     let accessCell = app.cells.containing(.staticText, identifier: "Current Access Group").element
     XCTAssertTrue(accessCell.staticTexts["[none]"].exists)
     accessCell.tap()
-    // XCTAssertTrue(accessCell.staticTexts["com.google.firebase.auth.keychainGroup1"].exists)
+    let predicate = NSPredicate(format: "label CONTAINS 'com.google.firebase.auth.keychainGroup1'")
+    let createAccountText = accessCell.staticTexts.containing(predicate).element.exists
     accessCell.tap()
     XCTAssertTrue(accessCell.staticTexts["[none]"].exists)
 
