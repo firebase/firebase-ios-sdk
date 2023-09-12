@@ -352,7 +352,7 @@ const char* FIRCLSMachOSliceGetArchitectureName(FIRCLSMachOSliceRef slice) {
 
   return archInfo->name;
 #else
-  const char* archname = macho_arch_name_for_mach_header(NULL);
+  const char* archname = macho_arch_name_for_mach_header(slice->startAddress);
 
   if (!archname) {
     return "unknown";
