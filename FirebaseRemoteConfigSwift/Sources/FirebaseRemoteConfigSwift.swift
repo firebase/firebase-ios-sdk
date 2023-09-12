@@ -13,6 +13,7 @@
 // limitations under the License.
 
 // TODO: Enable warning when ready to surface deprecation to customers.
+// TODO: When warning is enabled, ensure it is reflected in release note.
 // #warning("""
 // The FirebaseRemoteConfigSwift module is deprecated and will be removed in
 // the future. All of the public API from FirebaseRemoteConfigSwift can now be
