@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// TODO(ncooke3): Add warning that importing this extension is deprecated.
+#import <Foundation/Foundation.h>
 
-// The `@_exported` is needed to prevent breaking clients that are using
-// types prefixed with the `FirebaseRemoteConfigSwift` module name (e.g.
-// `FirebaseRemoteConfigSwift.RemoteConfigValueCodableError`).
-@_exported import FirebaseRemoteConfig
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FSTExceptionCatcher : NSObject
+
+typedef void (^ThrowingBlock)(void);
+
++ (BOOL)catchException:(ThrowingBlock)block error:(__autoreleasing NSError **)error;
+
+@end
+
+NS_ASSUME_NONNULL_END

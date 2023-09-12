@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseRemoteConfigInternal
-#endif // SWIFT_PACKAGE
+import FirebaseRemoteConfig
 import FirebaseCore
 import SwiftUI
 

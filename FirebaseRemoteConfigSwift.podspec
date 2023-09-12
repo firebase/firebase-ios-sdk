@@ -35,10 +35,11 @@ app update.
   s.prefix_header_file      = false
 
   s.source_files = [
-    'FirebaseRemoteConfigSwift/Exporter/**/*.swift',
+    'FirebaseRemoteConfigSwift/Sources/**/*.swift',
   ]
 
   s.dependency 'FirebaseRemoteConfig', '~> 10.0'
+  s.dependency 'FirebaseSharedSwift', '~> 10.0'
 
   # Run Swift API tests on a real backend.
   s.test_spec 'swift-api-tests' do |swift_api|

@@ -892,9 +892,7 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        // TODO(ncooke3): Consider if this should import the merged module
-        // (`FirebaseRemoteConfig`).
-        "FirebaseRemoteConfigInternal",
+        "FirebaseRemoteConfig",
         "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -958,7 +956,7 @@ let package = Package(
     // MARK: - Firebase Remote Config
 
     .target(
-      name: "FirebaseRemoteConfigInternal",
+      name: "FirebaseRemoteConfig",
       dependencies: [
         "FirebaseCore",
         "FirebaseABTesting",
@@ -973,7 +971,7 @@ let package = Package(
     ),
     .testTarget(
       name: "RemoteConfigUnit",
-      dependencies: ["FirebaseRemoteConfigInternal", .product(name: "OCMock", package: "ocmock")],
+      dependencies: ["FirebaseRemoteConfig", .product(name: "OCMock", package: "ocmock")],
       path: "FirebaseRemoteConfig/Tests/Unit",
       exclude: [
         // Need to be evaluated/ported to RC V2.
@@ -993,23 +991,16 @@ let package = Package(
       ]
     ),
     .target(
-      name: "FirebaseRemoteConfig",
+      name: "FirebaseRemoteConfigSwift",
       dependencies: [
-        "FirebaseRemoteConfigInternal",
+        "FirebaseRemoteConfig",
         "FirebaseSharedSwift",
       ],
       path: "FirebaseRemoteConfigSwift/Sources"
     ),
-    .target(
-      name: "FirebaseRemoteConfigSwift",
-      dependencies: [
-        "FirebaseRemoteConfig",
-      ],
-      path: "FirebaseRemoteConfigSwift/Exporter"
-    ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
-      dependencies: ["FirebaseRemoteConfig",
+      dependencies: ["FirebaseRemoteConfigSwift",
                      "RemoteConfigFakeConsoleObjC"],
       path: "FirebaseRemoteConfigSwift/Tests",
       exclude: [
@@ -1468,8 +1459,8 @@ func firestoreTarget() -> Target {
 
   return .binaryTarget(
     name: "FirebaseFirestore",
-    url: "https://dl.google.com/firebase/ios/bin/firestore/10.14.0/FirebaseFirestore.zip",
-    checksum: "c35d3c6dbb4cd16ea8bcb49b980578ccdd56ecb2e4835356d8cd1f52cb4cbd4d"
+    url: "https://dl.google.com/firebase/ios/bin/firestore/10.15.0/FirebaseFirestore.zip",
+    checksum: "67cffbd90c1c2a4bba40e1b8ded5f0d8cf530aebc4c0321406d616d3ac6d9865"
   )
 }
 
