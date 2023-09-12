@@ -1,5 +1,4 @@
-# Unreleased
-- [feature] Added support for having multiple inequality fields in compound queries. (#11626)
+# 10.15.0
 - [feature] Add the option to allow the SDK to create cache indexes automatically to
   improve query execution locally. (#11596)
 
