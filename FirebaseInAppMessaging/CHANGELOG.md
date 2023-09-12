@@ -1,3 +1,13 @@
+# Unreleased
+- [changed] `FirebaseInAppMessagingSwift` has been merged into
+  `FirebaseInAppMessaging`, and will be deprecated in a future release. All of
+  the public API from `FirebaseInAppMessagingSwift` can now be
+  accessed through the `FirebaseInAppMessaging` module. To migrate, delete
+  imports of `FirebaseInAppMessagingSwift` and remove the module as a dependency
+  to your project. If applicable, any APIs namespaced with
+  `FirebaseInAppMessagingSwift` can now be namespaced with
+  `FirebaseInAppMessaging`.
+
 # 10.13.0
 - [fixed] Fix Firebase tvOS podspec dependency for In App Messaging. (#11569)
 
