@@ -6,7 +6,9 @@
   imports of `FirebaseRemoteConfigSwift` and remove the module as a dependency
   to your project. If applicable, any APIs namespaced with
   `FirebaseRemoteConfigSwift` can now be namespaced with
-  `FirebaseRemoteConfig`.
+  `FirebaseRemoteConfig`. Additionally, if applicable,
+  `@testable import FirebaseRemoteConfigSwift` should be replaced with
+  `@testable import FirebaseRemoteConfig`.
 
 # 10.1.0
 - [fixed] Fix CocoaPods release did not include the RemoteConfigProperty feature. (#10371)
