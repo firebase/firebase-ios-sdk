@@ -1,10 +1,10 @@
 # Unreleased
-- [changed] `FirebaseInAppMessagingSwift` has been merged into
-  `FirebaseInAppMessaging`, and will be deprecated in a future release. All of
-  the public API from `FirebaseInAppMessagingSwift` can now be
-  accessed through the `FirebaseInAppMessaging` module. To migrate, delete
-  imports of `FirebaseInAppMessagingSwift` and remove the module as a dependency
-  to your project. If applicable, any APIs namespaced with
+- [deprecated] `FirebaseInAppMessagingSwift` has been deprecated, and will be
+  removed in a future release. All of the public API from
+  `FirebaseInAppMessagingSwift` can now be accessed through the
+  `FirebaseInAppMessaging` module. To migrate, delete imports of
+  `FirebaseInAppMessagingSwift` and remove the module as a dependency to your
+  project. If applicable, any APIs namespaced with
   `FirebaseInAppMessagingSwift` can now be namespaced with
   `FirebaseInAppMessaging`. Additionally, if applicable,
   `@testable import FirebaseInAppMessagingSwift` should be replaced with
