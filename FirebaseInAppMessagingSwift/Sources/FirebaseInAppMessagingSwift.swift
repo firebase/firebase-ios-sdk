@@ -20,7 +20,9 @@
 // accessed through the FirebaseInAppMessaging module. To migrate, delete imports
 // of FirebaseInAppMessagingSwift and remove the module as a dependency to your
 // project. If applicable, any APIs namespaced with `FirebaseInAppMessagingSwift`
-// can now be namespaced with `FirebaseInAppMessaging`.
+// can now be namespaced with `FirebaseInAppMessaging`. Additionally, if
+// applicable, `@testable import FirebaseInAppMessagingSwift` should be replaced
+// with `@testable import FirebaseInAppMessaging`.
 // """)
 
 // The `@_exported` is needed to prevent breaking clients that are using
