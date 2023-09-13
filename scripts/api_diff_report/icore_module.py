@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import logging
 import json
+import logging
+import os
 import subprocess
 
 SWIFT = 'Swift'
 OBJECTIVE_C = 'Objective-C'
-MIXED = "Mixed"
+MIXED = 'Mixed'
 
 # List of Swift and Objective-C modules
 MODULE_LIST = [
@@ -38,8 +38,7 @@ MODULE_LIST = [
     'FirebaseFirestore',
     'FirebaseFirestoreSwift',
     'FirebaseFunctions',
-    'FirebaseInAppMessaging'
-    'FirebaseInAppMessagingSwift',
+    'FirebaseInAppMessagingFirebaseInAppMessagingSwift',
     'FirebaseInstallations',
     'FirebaseMessaging',
     'FirebaseMLModelDownloader',
@@ -52,7 +51,7 @@ MODULE_LIST = [
     # Not buildable. NO "source_files"
     'GoogleAppMeasurement',
     # Not buildable. NO "source_files"
-    'GoogleAppMeasurementOnDeviceConversion'
+    'GoogleAppMeasurementOnDeviceConversion',
 ]
 
 
@@ -86,10 +85,11 @@ def detect_changed_modules(changed_api_files):
 
 def module_info():
   """retrieve module info in MODULE_LIST from `.podspecs`
-    The module info helps to build Jazzy
-    includes: module name, source_files, public_header_files,
-              language, umbrella_header, framework_root
-    """
+
+  The module info helps to build Jazzy
+  includes: module name, source_files, public_header_files,
+            language, umbrella_header, framework_root
+  """
   module_from_podspecs = module_info_from_podspecs()
   module_list = {}
   for k, v in module_from_podspecs.items():
@@ -98,13 +98,15 @@ def module_info():
         module_list[k] = v
         module_list[k]['scheme'] = get_scheme(k)
         module_list[k]['umbrella_header'] = get_umbrella_header(
-            k, v.get('public_header_files'))
+            k, v.get('public_header_files')
+        )
         module_list[k]['root_dir'] = get_root_dir(k, v.get('source_files'))
         if isinstance(module_list[k]['root_dir'], list):
           module_list[k]['language'] = MIXED
         else:
-          module_list[k]['language'] = OBJECTIVE_C if v.get(
-              'public_header_files') else SWIFT
+          module_list[k]['language'] = (
+              OBJECTIVE_C if v.get('public_header_files') else SWIFT
+          )
 
   logging.info(f'all_module:\n{json.dumps(module_list, indent=4)}')
   return module_list
@@ -113,9 +115,9 @@ def module_info():
 def get_scheme(module_name):
   """Jazzy documentation Info SWIFT only.
 
-    Get scheme from module name in .podspecs Assume the scheme is the
-    same as the module name:
-    """
+  Get scheme from module name in .podspecs Assume the scheme is the
+  same as the module name:
+  """
   MODULE_SCHEME_PATCH = {
       'FirebaseInAppMessagingSwift': 'FirebaseInAppMessagingSwift-Beta',
   }
@@ -126,11 +128,12 @@ def get_scheme(module_name):
 
 def get_umbrella_header(module_name, public_header_files):
   """Jazzy documentation Info OBJC only Get umbrella_header from
-    public_header_files in .podspecs Assume the umbrella_header is with the
-    format:
 
-    {module_name}/Sources/Public/{module_name}/{module_name}.h
-    """
+  public_header_files in .podspecs Assume the umbrella_header is with the
+  format:
+
+  {module_name}/Sources/Public/{module_name}/{module_name}.h
+  """
   if public_header_files:
     if isinstance(public_header_files, list):
       return public_header_files[0].replace('*', module_name)
@@ -141,16 +144,20 @@ def get_umbrella_header(module_name, public_header_files):
 
 def get_root_dir(module_name, source_files):
   """Get source code root_dir from source_files in .podspecs Assume the
-    root_dir is with the format:
 
-    {module_name}/Sources or {module_name}/Source
-    """
+  root_dir is with the format:
+
+  {module_name}/Sources or {module_name}/Source
+  """
   MODULE_ROOT_PATCH = {
       'FirebaseFirestore': 'Firestore/Source',
       'FirebaseFirestoreSwift': 'Firestore/Swift/Source',
       'FirebaseCrashlytics': 'Crashlytics/Crashlytics',
       'FirebaseInAppMessagingSwift': 'FirebaseInAppMessaging/Swift/Source',
-      'FirebaseRemoteConfig': ['FirebaseRemoteConfig/Sources', 'FirebaseRemoteConfigSwift/Sources'],
+      'FirebaseRemoteConfig': [
+          'FirebaseRemoteConfig/Sources',
+          'FirebaseRemoteConfigSwift/Sources',
+      ],
   }
   if module_name in MODULE_ROOT_PATCH:
     return MODULE_ROOT_PATCH[module_name]
@@ -174,17 +181,19 @@ def module_info_from_podspecs(root_dir=os.getcwd()):
       result[podspec_data['name']] = {
           'name': podspec_data['name'],
           'source_files': source_files,
-          'public_header_files': podspec_data.get('public_header_files')
+          'public_header_files': podspec_data.get('public_header_files'),
       }
   return result
 
 
 def parse_podspec(podspec_file):
-  result = subprocess.run(f'pod ipc spec {podspec_file}',
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.PIPE,
-                          text=True,
-                          shell=True)
+  result = subprocess.run(
+      f'pod ipc spec {podspec_file}',
+      stdout=subprocess.PIPE,
+      stderr=subprocess.PIPE,
+      text=True,
+      shell=True,
+  )
   if result.returncode != 0:
     logging.info(f'Error: {result.stderr}')
     return None

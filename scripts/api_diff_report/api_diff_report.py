@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import argparse
+import json
 import logging
 import os
 import api_info
@@ -30,10 +30,12 @@ def main():
 
   args = parse_cmdline_args()
 
-  new_api_file = os.path.join(os.path.expanduser(args.pr_branch),
-                              api_info.API_INFO_FILE_NAME)
-  old_api_file = os.path.join(os.path.expanduser(args.base_branch),
-                              api_info.API_INFO_FILE_NAME)
+  new_api_file = os.path.join(
+      os.path.expanduser(args.pr_branch), api_info.API_INFO_FILE_NAME
+  )
+  old_api_file = os.path.join(
+      os.path.expanduser(args.base_branch), api_info.API_INFO_FILE_NAME
+  )
   if os.path.exists(new_api_file):
     with open(new_api_file) as f:
       new_api_json = json.load(f)
@@ -53,7 +55,7 @@ def main():
     logging.info(f'markdown diff report: \n{report}')
   else:
     logging.info('No API Diff Detected.')
-    report = ""
+    report = ''
 
   output_dir = os.path.expanduser(args.output_dir)
   if not os.path.exists(output_dir):
@@ -67,31 +69,31 @@ def main():
 def generate_diff_json(new_api, old_api, level='module'):
   """diff_json only contains module & api that has a change.
 
-    format:
-    {
-      $(module_name_1): {
-        "api_types": {
-          $(api_type_1): {
-            "apis": {
-              $(api_1): {
-                "declaration": [
-                  $(api_1_declaration)
-                ],
-                "sub_apis": {
-                  $(sub_api_1): {
-                    "declaration": [
-                      $(sub_api_1_declaration)
-                    ]
-                  },
+  format:
+  {
+    $(module_name_1): {
+      "api_types": {
+        $(api_type_1): {
+          "apis": {
+            $(api_1): {
+              "declaration": [
+                $(api_1_declaration)
+              ],
+              "sub_apis": {
+                $(sub_api_1): {
+                  "declaration": [
+                    $(sub_api_1_declaration)
+                  ]
                 },
-                "status": $(diff_status)
-              }
+              },
+              "status": $(diff_status)
             }
           }
         }
       }
     }
-    """
+  }
+  """
   NEXT_LEVEL = {'module': 'api_types', 'api_types': 'apis', 'apis': 'sub_apis'}
   next_level = NEXT_LEVEL.get(level)
 
@@ -111,16 +113,26 @@ def generate_diff_json(new_api, old_api, level='module'):
         diff[key]['declaration'] = [STATUS_REMOVED] + diff[key]['declaration']
     # Module Build Error. If a "module" exist but have no
     # content (e.g. doc_path), it must have a build error.
-    elif level == 'module' and (not new_api[key]['path']
-                                or not old_api[key]['path']):
+    elif level == 'module' and (
+        not new_api[key]['path'] or not old_api[key]['path']
+    ):
       diff[key] = {'status': STATUS_ERROR}
     # Check diff in child level and diff in declaration
     else:
-      child_diff = generate_diff_json(new_api[key][next_level],
-                                      old_api[key][next_level],
-                                      level=next_level) if next_level else {}
-      declaration_diff = new_api[key].get('declaration') != old_api[key].get(
-          'declaration') if level in ['apis', 'sub_apis'] else False
+      child_diff = (
+          generate_diff_json(
+              new_api[key][next_level],
+              old_api[key][next_level],
+              level=next_level,
+          )
+          if next_level
+          else {}
+      )
+      declaration_diff = (
+          new_api[key].get('declaration') != old_api[key].get('declaration')
+          if level in ['apis', 'sub_apis']
+          else False
+      )
 
       # No diff
       if not child_diff and not declaration_diff:
@@ -134,10 +146,12 @@ def generate_diff_json(new_api, old_api, level='module'):
       # Modified API (changes in API declaration)
       if declaration_diff:
         diff[key]['status'] = STATUS_MODIFIED
-        diff[key]['declaration'] = [STATUS_ADD] + \
-            new_api[key]['declaration'] + \
-            [STATUS_REMOVED] + \
-            old_api[key]['declaration']
+        diff[key]['declaration'] = (
+            [STATUS_ADD]
+            + new_api[key]['declaration']
+            + [STATUS_REMOVED]
+            + old_api[key]['declaration']
+        )
 
   return diff
 
@@ -186,8 +200,9 @@ def generate_markdown_report(diff, level=0):
             report += '</summary>\n\n'
             declarations = value.get('declaration', [])
             sub_report = generate_text_report(value, level=1, print_key=False)
-            detail = process_declarations(current_status, declarations,
-                                          sub_report)
+            detail = process_declarations(
+                current_status, declarations, sub_report
+            )
             report += f'```diff\n{detail}\n```\n\n</details>\n\n'
         else:  # no diff at current level
           report += f'{header_str} {key}\n'
@@ -203,7 +218,7 @@ def process_declarations(current_status, declarations, sub_report):
   """Diff syntax highlighting in Github Markdown."""
   detail = ''
   if current_status == STATUS_MODIFIED:
-    for line in (declarations + sub_report.split('\n')):
+    for line in declarations + sub_report.split('\n'):
       if STATUS_ADD in line:
         prefix = '+ '
         continue
@@ -214,7 +229,7 @@ def process_declarations(current_status, declarations, sub_report):
         detail += f'{prefix}{line}\n'
   else:
     prefix = '+ ' if current_status == STATUS_ADD else '- '
-    for line in (declarations + sub_report.split('\n')):
+    for line in declarations + sub_report.split('\n'):
       if line:
         detail += f'{prefix}{line}\n'
 

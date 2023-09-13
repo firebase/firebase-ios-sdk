@@ -13,28 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+import argparse
+import datetime
 import json
 import logging
-import requests
-import argparse
+import os
 import api_diff_report
-import datetime
 import pytz
-
+import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-STAGES_PROGRESS = "progress"
-STAGES_END = "end"
+STAGES_PROGRESS = 'progress'
+STAGES_END = 'end'
 
-TITLE_PROGESS = "## ⏳&nbsp; Detecting API diff in progress...\n"
+TITLE_PROGESS = '## ⏳&nbsp; Detecting API diff in progress...\n'
 TITLE_END_DIFF = '## Apple API Diff Report\n'
-TITLE_END_NO_DIFF = "## ✅&nbsp; No API diff detected\n"
+TITLE_END_NO_DIFF = '## ✅&nbsp; No API diff detected\n'
 
 COMMENT_HIDDEN_IDENTIFIER = '\r\n<hidden value="diff-report"></hidden>\r\n'
 GITHUB_API_URL = 'https://api.github.com/repos/firebase/firebase-ios-sdk'
-PR_LABEL = "public-api-change"
+PR_LABEL = 'public-api-change'
 
 
 def main():
@@ -49,7 +48,7 @@ def main():
   commit = args.commit
   run_id = args.run_id
 
-  report = ""
+  report = ''
   comment_id = get_comment_id(token, pr_number, COMMENT_HIDDEN_IDENTIFIER)
   if stage == STAGES_PROGRESS:
     if comment_id:
@@ -58,13 +57,17 @@ def main():
       update_comment(token, comment_id, report)
       delete_label(token, pr_number, PR_LABEL)
   elif stage == STAGES_END:
-    diff_report_file = os.path.join(os.path.expanduser(args.report),
-                                    api_diff_report.API_DIFF_FILE_NAME)
+    diff_report_file = os.path.join(
+        os.path.expanduser(args.report), api_diff_report.API_DIFF_FILE_NAME
+    )
     with open(diff_report_file, 'r') as file:
       report_content = file.read()
     if report_content:  # Diff detected
-      report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
-          TITLE_END_DIFF, commit, run_id) + report_content
+      report = (
+          COMMENT_HIDDEN_IDENTIFIER
+          + generate_markdown_title(TITLE_END_DIFF, commit, run_id)
+          + report_content
+      )
       if comment_id:
         update_comment(token, comment_id, report)
       else:
@@ -73,20 +76,25 @@ def main():
     else:  # No diff
       if comment_id:
         report = COMMENT_HIDDEN_IDENTIFIER + generate_markdown_title(
-            TITLE_END_NO_DIFF, commit, run_id)
+            TITLE_END_NO_DIFF, commit, run_id
+        )
         update_comment(token, comment_id, report)
         delete_label(token, pr_number, PR_LABEL)
 
 
 def generate_markdown_title(title, commit, run_id):
   pst_now = datetime.datetime.utcnow().astimezone(
-      pytz.timezone('America/Los_Angeles'))
+      pytz.timezone('America/Los_Angeles')
+  )
   return (
-      title + 'Commit: %s\n' % commit
+      title
+      + 'Commit: %s\n' % commit
       + 'Last updated: %s \n' % pst_now.strftime('%a %b %e %H:%M %Z %G')
       + '**[View workflow logs & download artifacts]'
       + '(https://github.com/firebase/firebase-ios-sdk/actions/runs/%s)**\n\n'
-      % run_id + '-----\n')
+      % run_id
+      + '-----\n'
+  )
 
 
 RETRIES = 3
@@ -95,15 +103,17 @@ RETRY_STATUS = (403, 500, 502, 504)
 TIMEOUT = 5
 
 
-def requests_retry_session(retries=RETRIES,
-                           backoff_factor=BACKOFF,
-                           status_forcelist=RETRY_STATUS):
+def requests_retry_session(
+    retries=RETRIES, backoff_factor=BACKOFF, status_forcelist=RETRY_STATUS
+):
   session = requests.Session()
-  retry = Retry(total=retries,
-                read=retries,
-                connect=retries,
-                backoff_factor=backoff_factor,
-                status_forcelist=status_forcelist)
+  retry = Retry(
+      total=retries,
+      read=retries,
+      connect=retries,
+      backoff_factor=backoff_factor,
+      status_forcelist=status_forcelist,
+  )
   adapter = HTTPAdapter(max_retries=retry)
   session.mount('http://', adapter)
   session.mount('https://', adapter)
@@ -123,11 +133,12 @@ def list_comments(token, issue_number):
   url = f'{GITHUB_API_URL}/issues/{issue_number}/comments'
   headers = {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': f'token {token}'
+      'Authorization': f'token {token}',
   }
-  with requests_retry_session().get(url, headers=headers,
-                                    timeout=TIMEOUT) as response:
-    logging.info("list_comments: %s response: %s", url, response)
+  with requests_retry_session().get(
+      url, headers=headers, timeout=TIMEOUT
+  ) as response:
+    logging.info('list_comments: %s response: %s', url, response)
     return response.json()
 
 
@@ -136,14 +147,13 @@ def add_comment(token, issue_number, comment):
   url = f'{GITHUB_API_URL}/issues/{issue_number}/comments'
   headers = {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': f'token {token}'
+      'Authorization': f'token {token}',
   }
   data = {'body': comment}
-  with requests.post(url,
-                     headers=headers,
-                     data=json.dumps(data),
-                     timeout=TIMEOUT) as response:
-    logging.info("add_comment: %s response: %s", url, response)
+  with requests.post(
+      url, headers=headers, data=json.dumps(data), timeout=TIMEOUT
+  ) as response:
+    logging.info('add_comment: %s response: %s', url, response)
 
 
 def update_comment(token, comment_id, comment):
@@ -151,14 +161,13 @@ def update_comment(token, comment_id, comment):
   url = f'{GITHUB_API_URL}/issues/comments/{comment_id}'
   headers = {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': f'token {token}'
+      'Authorization': f'token {token}',
   }
   data = {'body': comment}
-  with requests_retry_session().patch(url,
-                                      headers=headers,
-                                      data=json.dumps(data),
-                                      timeout=TIMEOUT) as response:
-    logging.info("update_comment: %s response: %s", url, response)
+  with requests_retry_session().patch(
+      url, headers=headers, data=json.dumps(data), timeout=TIMEOUT
+  ) as response:
+    logging.info('update_comment: %s response: %s', url, response)
 
 
 def delete_comment(token, comment_id):
@@ -166,10 +175,10 @@ def delete_comment(token, comment_id):
   url = f'{GITHUB_API_URL}/issues/comments/{comment_id}'
   headers = {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': f'token {token}'
+      'Authorization': f'token {token}',
   }
   with requests.delete(url, headers=headers, timeout=TIMEOUT) as response:
-    logging.info("delete_comment: %s response: %s", url, response)
+    logging.info('delete_comment: %s response: %s', url, response)
 
 
 def add_label(token, issue_number, label):
@@ -177,14 +186,13 @@ def add_label(token, issue_number, label):
   url = f'{GITHUB_API_URL}/issues/{issue_number}/labels'
   headers = {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': f'token {token}'
+      'Authorization': f'token {token}',
   }
   data = [label]
-  with requests.post(url,
-                     headers=headers,
-                     data=json.dumps(data),
-                     timeout=TIMEOUT) as response:
-    logging.info("add_label: %s response: %s", url, response)
+  with requests.post(
+      url, headers=headers, data=json.dumps(data), timeout=TIMEOUT
+  ) as response:
+    logging.info('add_label: %s response: %s', url, response)
 
 
 def delete_label(token, issue_number, label):
@@ -192,10 +200,10 @@ def delete_label(token, issue_number, label):
   url = f'{GITHUB_API_URL}/issues/{issue_number}/labels/{label}'
   headers = {
       'Accept': 'application/vnd.github.v3+json',
-      'Authorization': f'token {token}'
+      'Authorization': f'token {token}',
   }
   with requests.delete(url, headers=headers, timeout=TIMEOUT) as response:
-    logging.info("delete_label: %s response: %s", url, response)
+    logging.info('delete_label: %s response: %s', url, response)
 
 
 def parse_cmdline_args():

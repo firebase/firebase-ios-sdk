@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import argparse
+import json
 import logging
 import os
 import subprocess
-import icore_module
 from urllib.parse import unquote
 from bs4 import BeautifulSoup
+import icore_module
 
 API_INFO_FILE_NAME = 'api_info.json'
 
@@ -54,7 +54,7 @@ def main():
       module_api_container = parse_module(api_doc_dir)
       api_container[module['name']] = {
           'path': api_doc_dir,
-          'api_types': module_api_container
+          'api_types': module_api_container,
       }
     else:  # api doc fail to build.
       api_container[module['name']] = {'path': '', 'api_types': {}}
@@ -68,14 +68,19 @@ def main():
 def get_api_files(file_list):
   """Filter out non api files."""
   return [
-      f for f in file_list
-      if f.endswith('.podspec') or f.endswith('.swift') or (f.endswith('.h') and 'Public' in f)
+      f
+      for f in file_list
+      if f.endswith('.podspec')
+      or f.endswith('.swift')
+      or (f.endswith('.h') and 'Public' in f)
   ]
 
 
 def build_api_doc(module, output_dir):
   """Use Jazzy to build API documentation for a specific module's source
-    code."""
+
+  code.
+  """
   if module['language'] == icore_module.SWIFT:
     build_api_doc_swift(module, output_dir)
   elif module['language'] == icore_module.OBJECTIVE_C:
@@ -86,91 +91,97 @@ def build_api_doc(module, output_dir):
 
 def build_api_doc_swift(module, output_dir):
   logging.info('------------')
-  cmd = f'jazzy --module {module["name"]}'\
-      + ' --swift-build-tool xcodebuild'\
-      + ' --build-tool-arguments'\
-      + f' -scheme,{module["scheme"]}'\
-      + ',-destination,generic/platform=iOS,build'\
+  cmd = (
+      f'jazzy --module {module["name"]}'
+      + ' --swift-build-tool xcodebuild'
+      + ' --build-tool-arguments'
+      + f' -scheme,{module["scheme"]}'
+      + ',-destination,generic/platform=iOS,build'
       + f' --output {output_dir}'
+  )
   logging.info(cmd)
-  result = subprocess.Popen(cmd,
-                            universal_newlines=True,
-                            shell=True,
-                            stdout=subprocess.PIPE)
+  result = subprocess.Popen(
+      cmd, universal_newlines=True, shell=True, stdout=subprocess.PIPE
+  )
   logging.info(result.stdout.read())
 
 
 def build_api_doc_objc(module, output_dir):
   logging.info('------------')
-  cmd = 'jazzy --objc'\
-      + f' --framework-root {module["root_dir"]}'\
-      + f' --umbrella-header {module["umbrella_header"]}'\
+  cmd = (
+      'jazzy --objc'
+      + f' --framework-root {module["root_dir"]}'
+      + f' --umbrella-header {module["umbrella_header"]}'
       + f' --output {output_dir}'
+  )
   logging.info(cmd)
-  result = subprocess.Popen(cmd,
-                            universal_newlines=True,
-                            shell=True,
-                            stdout=subprocess.PIPE)
+  result = subprocess.Popen(
+      cmd, universal_newlines=True, shell=True, stdout=subprocess.PIPE
+  )
   logging.info(result.stdout.read())
 
 
 def build_api_doc_mixed(module, output_dir):
   logging.info('------------')
-  cmd = f'sourcekitten doc --module-name {module["name"]}'\
+  cmd = (
+      f'sourcekitten doc --module-name {module["name"]}'
       + f' > {module["name"]}swiftDoc.json'
+  )
   logging.info(cmd)
-  result = subprocess.Popen(cmd,
-                            universal_newlines=True,
-                            shell=True,
-                            stdout=subprocess.PIPE)
+  result = subprocess.Popen(
+      cmd, universal_newlines=True, shell=True, stdout=subprocess.PIPE
+  )
   logging.info(result.stdout.read())
-  cmd = f'sourcekitten doc --objc {module["umbrella_header"]}'\
-      + ' -- -x objective-c -isysroot'\
-      + ' $(xcrun --sdk iphoneos --show-sdk-path)'\
+  cmd = (
+      f'sourcekitten doc --objc {module["umbrella_header"]}'
+      + ' -- -x objective-c -isysroot'
+      + ' $(xcrun --sdk iphoneos --show-sdk-path)'
       + f' -I {module["root_dir"][0]} > {module["name"]}objcDoc.json'
+  )
   logging.info(cmd)
-  result = subprocess.Popen(cmd,
-                            universal_newlines=True,
-                            shell=True,
-                            stdout=subprocess.PIPE)
+  result = subprocess.Popen(
+      cmd, universal_newlines=True, shell=True, stdout=subprocess.PIPE
+  )
   logging.info(result.stdout.read())
-  cmd = f'jazzy --module {module["name"]} --sourcekitten-sourcefile'\
-      + f' {module["name"]}swiftDoc.json,{module["name"]}objcDoc.json'\
+  cmd = (
+      f'jazzy --module {module["name"]} --sourcekitten-sourcefile'
+      + f' {module["name"]}swiftDoc.json,{module["name"]}objcDoc.json'
       + f' --output {output_dir}'
+  )
   logging.info(cmd)
-  result = subprocess.Popen(cmd,
-                            universal_newlines=True,
-                            shell=True,
-                            stdout=subprocess.PIPE)
+  result = subprocess.Popen(
+      cmd, universal_newlines=True, shell=True, stdout=subprocess.PIPE
+  )
   logging.info(result.stdout.read())
 
 
 def parse_module(api_doc_path):
-  """Parse "${module}/index.html" and extract necessary information
-    e.g.
-    {
-      $(api_type_1): {
-        "api_type_link": $(api_type_link),
-        "apis": {
-          $(api_name_1): {
-            "api_link": $(api_link_1),
-            "declaration": [$(swift_declaration), $(objc_declaration)],
-            "sub_apis": {
-              $(sub_api_name_1): {"declaration": [$(swift_declaration)]},
-              $(sub_api_name_2): {"declaration": [$(objc_declaration)]},
-              ...
-            }
-          },
-          $(api_name_2): {
+  """Parse "${module}/index.html" and extract necessary information e.g.
+
+  {
+
+    $(api_type_1): {
+      "api_type_link": $(api_type_link),
+      "apis": {
+        $(api_name_1): {
+          "api_link": $(api_link_1),
+          "declaration": [$(swift_declaration), $(objc_declaration)],
+          "sub_apis": {
+            $(sub_api_name_1): {"declaration": [$(swift_declaration)]},
+            $(sub_api_name_2): {"declaration": [$(objc_declaration)]},
             ...
-          },
-        }
-      },
-      $(api_type_2): {
-        ..
-      },
-    }
-    """
+          }
+        },
+        $(api_name_2): {
+          ...
+        },
+      }
+    },
+    $(api_type_2): {
+      ..
+    },
+  }
+  """
   module_api_container = {}
   # Read the HTML content from the file
   index_link = f'{api_doc_path}/index.html'
@@ -195,7 +206,7 @@ def parse_module(api_doc_path):
 
     module_api_container[api_type] = {
         'api_type_link': api_type_link,
-        'apis': apis
+        'apis': apis,
     }
 
   parse_api(api_doc_path, module_api_container)
@@ -206,8 +217,8 @@ def parse_module(api_doc_path):
 def parse_api(doc_path, module_api_container):
   """Parse API html and extract necessary information.
 
-    e.g. ${module}/Classes.html
-    """
+  e.g. ${module}/Classes.html
+  """
   for api_type, api_type_abstract in module_api_container.items():
     api_type_link = f'{doc_path}/{unquote(api_type_abstract["api_type_link"])}'
     api_data_container = module_api_container[api_type]['apis']
@@ -216,8 +227,9 @@ def parse_api(doc_path, module_api_container):
 
     # Parse the HTML content
     soup = BeautifulSoup(html_content, 'html.parser')
-    for api in soup.find('div', class_='task-group').find_all('li',
-                                                              class_='item'):
+    for api in soup.find('div', class_='task-group').find_all(
+        'li', class_='item'
+    ):
       api_name = api.find('a', class_='token').text
       for api_declaration in api.find_all('div', class_='language'):
         api_declaration_text = ' '.join(api_declaration.stripped_strings)
@@ -225,15 +237,17 @@ def parse_api(doc_path, module_api_container):
 
     for api, api_abstruct in api_type_abstract['apis'].items():
       if api_abstruct['api_link'].endswith('.html'):
-        parse_sub_api(f'{doc_path}/{unquote(api_abstruct["api_link"])}',
-                      api_data_container[api]['sub_apis'])
+        parse_sub_api(
+            f'{doc_path}/{unquote(api_abstruct["api_link"])}',
+            api_data_container[api]['sub_apis'],
+        )
 
 
 def parse_sub_api(api_link, sub_api_data_container):
   """Parse SUB_API html and extract necessary information.
 
-    e.g. ${module}/Classes/${class_name}.html
-    """
+  e.g. ${module}/Classes/${class_name}.html
+  """
   with open(api_link, 'r') as file:
     html_content = file.read()
 
@@ -246,7 +260,8 @@ def parse_sub_api(api_link, sub_api_data_container):
       for api_declaration in s_api.find_all('div', class_='language'):
         api_declaration_text = ' '.join(api_declaration.stripped_strings)
         sub_api_data_container[api_name]['declaration'].append(
-            api_declaration_text)
+            api_declaration_text
+        )
 
 
 def parse_cmdline_args():
