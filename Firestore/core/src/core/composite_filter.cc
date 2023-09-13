@@ -141,27 +141,16 @@ const FieldFilter* CompositeFilter::Rep::FindFirstMatchingFilter(
   return nullptr;
 }
 
-const model::FieldPath* CompositeFilter::Rep::GetFirstInequalityField() const {
-  CheckFunction condition = [](const FieldFilter& field_filter) {
-    return field_filter.IsInequality();
-  };
-  const FieldFilter* found = FindFirstMatchingFilter(condition);
-  if (found) {
-    return &(found->field());
-  }
-  return nullptr;
-}
-
 const std::vector<FieldFilter>& CompositeFilter::Rep::GetFlattenedFilters()
     const {
-  if (Filter::Rep::memoized_flattened_filters_.empty() && !filters().empty()) {
-    for (const auto& filter : filters()) {
+  return memoized_flattened_filters_->memoize([&]() {
+    std::vector<FieldFilter> flattened_filters;
+    for (const auto& filter : filters())
       std::copy(filter.GetFlattenedFilters().begin(),
                 filter.GetFlattenedFilters().end(),
-                std::back_inserter(Filter::Rep::memoized_flattened_filters_));
-    }
-  }
-  return Filter::Rep::memoized_flattened_filters_;
+                std::back_inserter(flattened_filters));
+    return flattened_filters;
+  });
 }
 
 }  // namespace core
