@@ -6,7 +6,9 @@
   imports of `FirebaseInAppMessagingSwift` and remove the module as a dependency
   to your project. If applicable, any APIs namespaced with
   `FirebaseInAppMessagingSwift` can now be namespaced with
-  `FirebaseInAppMessaging`.
+  `FirebaseInAppMessaging`. Additionally, if applicable,
+  `@testable import FirebaseInAppMessagingSwift` should be replaced with
+  `@testable import FirebaseInAppMessaging`.
 
 # 10.13.0
 - [fixed] Fix Firebase tvOS podspec dependency for In App Messaging. (#11569)
