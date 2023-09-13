@@ -19,6 +19,7 @@ import subprocess
 
 SWIFT = 'Swift'
 OBJECTIVE_C = 'Objective-C'
+MIXED = "Mixed"
 
 # List of Swift and Objective-C modules
 MODULE_LIST = [
@@ -69,6 +70,7 @@ def detect_changed_modules(changed_api_files):
         if v['root_dir'] in file_path:
           changed_modules[k] = v
           break
+      # Mixed language modules
       elif isinstance(v['root_dir'], list):
         for d in v['root_dir']:
           if d in file_path:
@@ -94,12 +96,15 @@ def module_info():
     if k in MODULE_LIST:
       if k not in module_list:
         module_list[k] = v
-        module_list[k]['language'] = OBJECTIVE_C if v.get(
-            'public_header_files') else SWIFT
         module_list[k]['scheme'] = get_scheme(k)
         module_list[k]['umbrella_header'] = get_umbrella_header(
             k, v.get('public_header_files'))
         module_list[k]['root_dir'] = get_root_dir(k, v.get('source_files'))
+        if isinstance(module_list[k]['root_dir'], list):
+          module_list[k]['language'] = MIXED
+        else:
+          module_list[k]['language'] = OBJECTIVE_C if v.get(
+              'public_header_files') else SWIFT
 
   logging.info(f'all_module:\n{json.dumps(module_list, indent=4)}')
   return module_list

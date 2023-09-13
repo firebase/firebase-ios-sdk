@@ -77,31 +77,72 @@ def build_api_doc(module, output_dir):
   """Use Jazzy to build API documentation for a specific module's source
     code."""
   if module['language'] == icore_module.SWIFT:
-    logging.info('------------')
-    cmd = f'jazzy --module {module["name"]}'\
-        + ' --swift-build-tool xcodebuild'\
-        + ' --build-tool-arguments'\
-        + f' -scheme,{module["scheme"]}'\
-        + ',-destination,generic/platform=iOS,build'\
-        + f' --output {output_dir}'
-    logging.info(cmd)
-    result = subprocess.Popen(cmd,
-                              universal_newlines=True,
-                              shell=True,
-                              stdout=subprocess.PIPE)
-    logging.info(result.stdout.read())
+    build_api_doc_swift(module, output_dir)
   elif module['language'] == icore_module.OBJECTIVE_C:
-    logging.info('------------')
-    cmd = 'jazzy --objc'\
-        + f' --framework-root {module["root_dir"]}'\
-        + f' --umbrella-header {module["umbrella_header"]}'\
-        + f' --output {output_dir}'
-    logging.info(cmd)
-    result = subprocess.Popen(cmd,
-                              universal_newlines=True,
-                              shell=True,
-                              stdout=subprocess.PIPE)
-    logging.info(result.stdout.read())
+    build_api_doc_objc(module, output_dir)
+  elif module['language'] == icore_module.MIXED:
+    build_api_doc_mixed(module, output_dir)
+
+
+def build_api_doc_swift(module, output_dir):
+  logging.info('------------')
+  cmd = f'jazzy --module {module["name"]}'\
+      + ' --swift-build-tool xcodebuild'\
+      + ' --build-tool-arguments'\
+      + f' -scheme,{module["scheme"]}'\
+      + ',-destination,generic/platform=iOS,build'\
+      + f' --output {output_dir}'
+  logging.info(cmd)
+  result = subprocess.Popen(cmd,
+                            universal_newlines=True,
+                            shell=True,
+                            stdout=subprocess.PIPE)
+  logging.info(result.stdout.read())
+
+
+def build_api_doc_objc(module, output_dir):
+  logging.info('------------')
+  cmd = 'jazzy --objc'\
+      + f' --framework-root {module["root_dir"]}'\
+      + f' --umbrella-header {module["umbrella_header"]}'\
+      + f' --output {output_dir}'
+  logging.info(cmd)
+  result = subprocess.Popen(cmd,
+                            universal_newlines=True,
+                            shell=True,
+                            stdout=subprocess.PIPE)
+  logging.info(result.stdout.read())
+
+
+def build_api_doc_mixed(module, output_dir):
+  logging.info('------------')
+  cmd = f'sourcekitten doc --module-name {module["name"]}'\
+      + f' > {module["name"]}swiftDoc.json'
+  logging.info(cmd)
+  result = subprocess.Popen(cmd,
+                            universal_newlines=True,
+                            shell=True,
+                            stdout=subprocess.PIPE)
+  logging.info(result.stdout.read())
+  cmd = f'sourcekitten doc --objc {module["umbrella_header"]}'\
+      + ' -- -x objective-c -isysroot'\
+      + ' $(xcrun --sdk iphoneos --show-sdk-path)'\
+      + f' -I {module["root_dir"][0]} > {module["name"]}objcDoc.json'
+  logging.info(cmd)
+  result = subprocess.Popen(cmd,
+                            universal_newlines=True,
+                            shell=True,
+                            stdout=subprocess.PIPE)
+  logging.info(result.stdout.read())
+  cmd = f'jazzy --module {module["name"]} --sourcekitten-sourcefile'\
+      + f' {module["name"]}swiftDoc.json,{module["name"]}objcDoc.json'\
+      + f' --output {output_dir}'
+  logging.info(cmd)
+  result = subprocess.Popen(cmd,
+                            universal_newlines=True,
+                            shell=True,
+                            stdout=subprocess.PIPE)
+  logging.info(result.stdout.read())
 
 
 def parse_module(api_doc_path):
