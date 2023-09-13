@@ -140,8 +140,6 @@ class CompositeFilter : public Filter {
 
     const std::vector<FieldFilter>& GetFlattenedFilters() const override;
 
-    const model::FieldPath* GetFirstInequalityField() const override;
-
     std::vector<Filter> GetFilters() const override {
       return filters();
     }

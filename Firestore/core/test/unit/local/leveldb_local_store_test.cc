@@ -764,6 +764,43 @@ TEST_F(LevelDbLocalStoreTest, IndexAutoCreationWorksWithMutation) {
   FSTAssertQueryReturned("coll/a", "coll/f");
 }
 
+TEST_F(LevelDbLocalStoreTest,
+       IndexAutoCreationDoesnotWorkWithMultipleInequality) {
+  core::Query query = testutil::Query("coll")
+                          .AddingFilter(Filter("field1", "<", 5))
+                          .AddingFilter(Filter("field2", "<", 5));
+  int target_id = AllocateQuery(query);
+
+  SetIndexAutoCreationEnabled(true);
+  SetMinCollectionSizeToAutoCreateIndex(0);
+  SetRelativeIndexReadCostPerDocument(2);
+
+  ApplyRemoteEvent(AddedRemoteEvent(
+      Doc("coll/a", 10, Map("field1", 1, "field2", 2)), {target_id}));
+  ApplyRemoteEvent(AddedRemoteEvent(
+      Doc("coll/b", 10, Map("field1", 8, "field2", 2)), {target_id}));
+  ApplyRemoteEvent(AddedRemoteEvent(
+      Doc("coll/c", 10, Map("field1", "string", "field2", 2)), {target_id}));
+  ApplyRemoteEvent(
+      AddedRemoteEvent(Doc("coll/d", 10, Map("field1", 2)), {target_id}));
+  ApplyRemoteEvent(AddedRemoteEvent(
+      Doc("coll/e", 10, Map("field1", 4, "field2", 4)), {target_id}));
+
+  // First time query is running without indexes.
+  // Based on current heuristic, collection document counts (5) > 2 * resultSize
+  // (2). Full matched index will not be created since FieldIndex does not
+  // support multiple inequality.
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 2);
+  FSTAssertQueryReturned("coll/a", "coll/e");
+
+  BackfillIndexes();
+
+  ExecuteQuery(query);
+  FSTAssertRemoteDocumentsRead(/* byKey= */ 0, /* byCollection= */ 2);
+  FSTAssertQueryReturned("coll/a", "coll/e");
+}
+
 }  // namespace local
 }  // namespace firestore
 }  // namespace firebase

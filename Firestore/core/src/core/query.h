@@ -20,6 +20,7 @@
 #include <iosfwd>
 #include <limits>
 #include <memory>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -119,6 +120,11 @@ class Query {
   const model::FieldPath* InequalityFilterField() const;
 
   /**
+   * Returns the sorted set of inequality filter fields used in this query.
+   */
+  const std::set<model::FieldPath> InequalityFilterFields() const;
+
+  /**
    * Checks if any of the provided filter operators are included in the query
    * and returns the first one that is, or null if none are.
    */
@@ -143,9 +149,6 @@ class Query {
    * backend behavior.
    */
   const std::vector<OrderBy>& normalized_order_bys() const;
-
-  /** Returns the first field in an order-by constraint, or nullptr if none. */
-  const model::FieldPath* FirstOrderByField() const;
 
   bool has_limit() const {
     return limit_ != Target::kNoLimit;
