@@ -184,7 +184,9 @@ extension Auth: AuthInterop {
    */
   @objc public var languageCode: String? {
     get {
-      return requestConfiguration.languageCode
+      kAuthGlobalWorkQueue.sync {
+        return requestConfiguration.languageCode
+      }
     }
     set(val) {
       kAuthGlobalWorkQueue.sync {
