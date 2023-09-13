@@ -25,12 +25,10 @@
 @import FirebaseDynamicLinks;
 @import FirebaseFirestore;
 @import FirebaseFunctions;
-#if TARGET_OS_IOS || TARGET_OS_TV
-@import FirebaseInAppMessaging;
-#endif
 @import FirebaseInstallations;
 @import FirebaseMessaging;
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
+@import FirebaseInAppMessaging;
 @import FirebasePerformance;
 #endif
 @import FirebaseRemoteConfig;

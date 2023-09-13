@@ -46,15 +46,13 @@ import FirebaseFunctions
 #if SWIFT_PACKAGE
   import FirebaseFunctionsCombineSwift
 #endif // SWIFT_PACKAGE
-#if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
-  import FirebaseInAppMessaging
-  import FirebaseInAppMessagingSwift
-#endif
 import FirebaseInstallations
 import FirebaseMessaging
 import FirebaseMLModelDownloader
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebasePerformance
+  import FirebaseInAppMessaging
+  import FirebaseInAppMessagingSwift
 #endif
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
