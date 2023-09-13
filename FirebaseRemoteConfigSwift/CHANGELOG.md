@@ -1,10 +1,10 @@
 # Unreleased
-- [changed] `FirebaseRemoteConfigSwift` has been merged into
-  `FirebaseRemoteConfig`, and will be deprecated in a future release. All of
-  the public API from `FirebaseRemoteConfigSwift` can now be
-  accessed through the `FirebaseRemoteConfig` module. To migrate, delete
-  imports of `FirebaseRemoteConfigSwift` and remove the module as a dependency
-  to your project. If applicable, any APIs namespaced with
+- [deprecated] `FirebaseRemoteConfigSwift` has been deprecated, and will be
+  removed in a future release. All of the public API from
+  `FirebaseRemoteConfigSwift` can now be accessed through the
+  `FirebaseRemoteConfig` module. To migrate, delete imports of
+  `FirebaseRemoteConfigSwift` and remove the module as a dependency to your
+  project. If applicable, any APIs namespaced with
   `FirebaseRemoteConfigSwift` can now be namespaced with
   `FirebaseRemoteConfig`. Additionally, if applicable,
   `@testable import FirebaseRemoteConfigSwift` should be replaced with
