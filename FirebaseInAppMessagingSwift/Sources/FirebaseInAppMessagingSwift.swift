@@ -24,7 +24,5 @@ with `@testable import FirebaseInAppMessaging`.
 """)
 
 // The `@_exported` is needed to prevent breaking clients that are using
-// types prefixed with the `FirebaseInAppMessaingSwift` namepsace. The entire
-// FirebaseInAppMessaging module is re-exported since there exists API defined
-// in Swift that cannot be selectively re-exported (e.g. extensions).
-@_exported import FirebaseInAppMessaging
+// types prefixed with the `FirebaseInAppMessaingSwift` namespace.
+@_exported import enum FirebaseInAppMessaging.InAppMessagingPreviewHelpers
