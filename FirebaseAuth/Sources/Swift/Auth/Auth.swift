@@ -1468,9 +1468,7 @@ extension Auth: AuthInterop {
    */
   @objc public func useAppLanguage() {
     kAuthGlobalWorkQueue.sync {
-      if let language = Locale.preferredLanguages.first {
-        self.requestConfiguration.languageCode = language
-      }
+      self.requestConfiguration.languageCode = Locale.preferredLanguages.first
     }
   }
 
