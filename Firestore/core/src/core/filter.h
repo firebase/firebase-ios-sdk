@@ -17,10 +17,8 @@
 #ifndef FIRESTORE_CORE_SRC_CORE_FILTER_H_
 #define FIRESTORE_CORE_SRC_CORE_FILTER_H_
 
-#include <functional>
 #include <iosfwd>
 #include <memory>
-#include <mutex>  // NOLINT(build/c++11)
 #include <string>
 #include <vector>
 
