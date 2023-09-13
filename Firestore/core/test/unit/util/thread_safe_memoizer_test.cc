@@ -23,27 +23,33 @@ namespace firebase {
 namespace firestore {
 namespace util {
 
-int ExpensiveFunction() {
-  // Simulate an expensive operation
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  return 42;
-}
-
 TEST(ThreadSafeMemoizerTest, MultiThreadedMemoization) {
+  std::atomic<int> global_int{77};
+
+  auto expensive_lambda = [&]() {
+    // Simulate an expensive operation
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    // If the lambda gets executed multiple times, threads will see incremented
+    // `global_int`.
+    global_int++;
+    return global_int.load();
+  };
+
   const int num_threads = 5;
-  const int expected_result = 42;
+  const int expected_result = 78;
 
   // Create a thread safe memoizer and multiple threads.
   util::ThreadSafeMemoizer<int> memoized_result;
   std::vector<std::thread> threads;
 
   for (int i = 0; i < num_threads; ++i) {
-    threads.emplace_back([&memoized_result, expected_result]() {
-      const int& actual_result = memoized_result.memoize(ExpensiveFunction);
+    threads.emplace_back(
+        [&memoized_result, expected_result, &expensive_lambda]() {
+          const int& actual_result = memoized_result.memoize(expensive_lambda);
 
-      // Verify that all threads get the same memoized result.
-      EXPECT_EQ(actual_result, expected_result);
-    });
+          // Verify that all threads get the same memoized result.
+          EXPECT_EQ(actual_result, expected_result);
+        });
   }
 
   for (auto& thread : threads) {
