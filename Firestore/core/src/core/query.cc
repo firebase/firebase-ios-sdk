@@ -93,7 +93,7 @@ absl::optional<Operator> Query::FindOpInsideFilters(
 
 const std::vector<OrderBy>& Query::normalized_order_bys() const {
   return memoized_normalized_order_bys_->memoize([&]() {
-// Any explicit order by fields should be added as is.
+    // Any explicit order by fields should be added as is.
     std::vector<OrderBy> result = explicit_order_bys_;
     std::set<FieldPath> fieldsNormalized;
     for (const OrderBy& order_by : explicit_order_bys_) {
