@@ -31,13 +31,11 @@
 // #endif
 // @import FirebaseFirestore;
 // @import FirebaseFunctions;
-// #if (TARGET_OS_IOS || TARGET_OS_TV) && !TARGET_OS_MACCATALYST
-// @import FirebaseInAppMessaging;
-// #endif
 // @import FirebaseInstallations;
 // @import FirebaseMessaging;
 // #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
 // @import FirebasePerformance;
+// @import FirebaseInAppMessaging;
 // #endif
 // @import FirebaseRemoteConfig;
 // @import FirebaseStorage;
