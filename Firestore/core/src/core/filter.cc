@@ -19,6 +19,7 @@
 #include <ostream>
 
 #include "Firestore/core/src/core/field_filter.h"
+#include "Firestore/core/src/util/thread_safe_memoizer.h"
 
 namespace firebase {
 namespace firestore {
@@ -35,21 +36,9 @@ std::ostream& operator<<(std::ostream& os, const Filter& filter) {
 }
 
 Filter::Rep::Rep()
-    : memoized_flattened_filters_(std::make_shared<ThreadSafeMemoizer>()) {
-}
-
-Filter::Rep::ThreadSafeMemoizer::~ThreadSafeMemoizer() {
-  // Call `std::call_once` in order to synchronize with the "active" invocation
-  // of `memoize()`. Without this synchronization, there is a data race between
-  // this destructor, which "reads" `filters_` to destroy it, and the write to
-  // `filters_` done by the "active" invocation of `memoize()`.
-  std::call_once(once_, [&]() {});
-}
-
-const std::vector<FieldFilter>& Filter::Rep::ThreadSafeMemoizer::memoize(
-    std::function<std::vector<FieldFilter>()> func) {
-  std::call_once(once_, [&]() { filters_ = func(); });
-  return filters_;
+    : memoized_flattened_filters_(
+          std::make_shared<
+              util::ThreadSafeMemoizer<std::vector<FieldFilter>>>()) {
 }
 
 }  // namespace core

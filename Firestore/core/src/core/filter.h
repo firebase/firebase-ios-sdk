@@ -25,10 +25,10 @@
 #include <vector>
 
 #include "Firestore/core/src/model/model_fwd.h"
+#include "Firestore/core/src/util/thread_safe_memoizer.h"
 
 namespace firebase {
 namespace firestore {
-
 namespace core {
 
 class FieldFilter;
@@ -117,6 +117,7 @@ class Filter {
   class Rep {
    public:
     Rep();
+
     virtual ~Rep() = default;
 
     virtual Type type() const {
@@ -190,7 +191,8 @@ class Filter {
      * (`ThreadSafeMemoizer` is not copyable because of its `std::once_flag`
      * member variable, which is not copyable).
      */
-    mutable std::shared_ptr<ThreadSafeMemoizer> memoized_flattened_filters_;
+    mutable std::shared_ptr<util::ThreadSafeMemoizer<std::vector<FieldFilter>>>
+        memoized_flattened_filters_;
   };
 
   explicit Filter(std::shared_ptr<const Rep>&& rep) : rep_(rep) {
