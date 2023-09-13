@@ -24,12 +24,10 @@
 #import "FirebaseDatabase/FirebaseDatabase.h"
 #import "FirebaseDynamicLinks/FirebaseDynamicLinks.h"
 #import "FirebaseFirestore/FirebaseFirestore.h"
-#if TARGET_OS_IOS || TARGET_OS_TV
-#import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
-#endif
 #import "FirebaseInstallations/FirebaseInstallations.h"
 #import "FirebaseMessaging/FirebaseMessaging.h"
 #if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
+#import "FirebaseInAppMessaging/FirebaseInAppMessaging.h"
 #import "FirebasePerformance/FirebasePerformance.h"
 #endif
 #import "FirebaseRemoteConfig/FirebaseRemoteConfig.h"
