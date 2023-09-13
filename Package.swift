@@ -651,7 +651,6 @@ let package = Package(
       ]
     ),
     firestoreWrapperTarget(),
-    firestoreTarget(),
     .target(
       name: "FirebaseFirestoreSwiftTarget",
       dependencies: [.target(name: "FirebaseFirestoreSwift",
@@ -663,30 +662,9 @@ let package = Package(
     .target(
       name: "FirebaseFirestoreSwift",
       dependencies: [
-        "FirebaseCore",
-        "FirebaseCoreExtension",
         "FirebaseFirestoreTarget",
-        "FirebaseSharedSwift",
       ],
-      path: "Firestore",
-      exclude: [
-        "CHANGELOG.md",
-        "CMakeLists.txt",
-        "Example/",
-        "LICENSE",
-        "Protos/",
-        "README.md",
-        "Source/",
-        "core/",
-        "fuzzing/",
-        "test.sh",
-        "Swift/CHANGELOG.md",
-        "Swift/Tests/",
-        "third_party/nlohmann_json",
-      ],
-      sources: [
-        "Swift/Source/",
-      ]
+      path: "FirebaseFirestoreSwift/Sources"
     ),
 
     // MARK: - Firebase Functions
@@ -1296,8 +1274,7 @@ let package = Package(
         .headerSearchPath("../../.."),
       ]
     ),
-
-  ],
+  ] + firestoreTargets(),
   cLanguageStandard: .c99,
   cxxLanguageStandard: CXXLanguageStandard.gnucxx14
 )
@@ -1324,7 +1301,9 @@ func abseilDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20220623.0" ..< "0.20220624.0"
+//      "0.20220623.0" ..< "0.20220624.0"
+      // Use older version because above newer version is broken. See #11788.
+      "0.20220203.1" ..< "0.20220204.0"
     )
   } else {
     packageInfo = (
@@ -1371,6 +1350,7 @@ func firestoreWrapperTarget() -> Target {
       .product(name: "abseil", package: "abseil-cpp-binary"),
       .product(name: "gRPC-C++", package: "grpc-binary"),
       .product(name: "nanopb", package: "nanopb"),
+      "FirebaseAppCheckInterop",
       "FirebaseCore",
       "leveldb",
     ],
@@ -1383,82 +1363,114 @@ func firestoreWrapperTarget() -> Target {
   )
 }
 
-func firestoreTarget() -> Target {
+func firestoreTargets() -> [Target] {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    return .target(
-      name: "FirebaseFirestore",
-      dependencies: [
-        "FirebaseAppCheckInterop",
-        "FirebaseCore",
-        "leveldb",
-        .product(name: "nanopb", package: "nanopb"),
-        .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
-        .product(name: "gRPC-cpp", package: "grpc-ios"),
-      ],
-      path: "Firestore",
-      exclude: [
-        "CHANGELOG.md",
-        "CMakeLists.txt",
-        "Example/",
-        "LICENSE",
-        "Protos/CMakeLists.txt",
-        "Protos/Podfile",
-        "Protos/README.md",
-        "Protos/build_protos.py",
-        "Protos/cpp/",
-        "Protos/lib/",
-        "Protos/nanopb_cpp_generator.py",
-        "Protos/protos/",
-        "README.md",
-        "Source/CMakeLists.txt",
-        "Swift/",
-        "core/CMakeLists.txt",
-        "core/src/util/config_detected.h.in",
-        "core/test/",
-        "fuzzing/",
-        "test.sh",
-        // Swift PM doesn't recognize hpp files, so we're relying on search paths
-        // to find third_party/nlohmann_json/json.hpp.
-        "third_party/",
+    return [
+      .target(
+        name: "FirebaseFirestoreInternal",
+        dependencies: [
+          "FirebaseAppCheckInterop",
+          "FirebaseCore",
+          "leveldb",
+          .product(name: "nanopb", package: "nanopb"),
+          .product(name: "abseil", package: "abseil-cpp-SwiftPM"),
+          .product(name: "gRPC-cpp", package: "grpc-ios"),
+        ],
+        path: "Firestore",
+        exclude: [
+          "CHANGELOG.md",
+          "CMakeLists.txt",
+          "Example/",
+          "LICENSE",
+          "Protos/CMakeLists.txt",
+          "Protos/Podfile",
+          "Protos/README.md",
+          "Protos/build_protos.py",
+          "Protos/cpp/",
+          "Protos/lib/",
+          "Protos/nanopb_cpp_generator.py",
+          "Protos/protos/",
+          "README.md",
+          "Source/CMakeLists.txt",
+          "Swift/",
+          "core/CMakeLists.txt",
+          "core/src/util/config_detected.h.in",
+          "core/test/",
+          "fuzzing/",
+          "test.sh",
+          // Swift PM doesn't recognize hpp files, so we're relying on search paths
+          // to find third_party/nlohmann_json/json.hpp.
+          "third_party/",
 
-        // Exclude alternate implementations for other platforms
-        "core/src/remote/connectivity_monitor_noop.cc",
-        "core/src/util/filesystem_win.cc",
-        "core/src/util/log_stdio.cc",
-        "core/src/util/secure_random_openssl.cc",
-      ],
-      sources: [
-        "Source/",
-        "Protos/nanopb/",
-        "core/include/",
-        "core/src",
-      ],
-      publicHeadersPath: "Source/Public",
-      cSettings: [
-        .headerSearchPath("../"),
-        .headerSearchPath("Source/Public/FirebaseFirestore"),
-        .headerSearchPath("Protos/nanopb"),
-        .define("PB_FIELD_32BIT", to: "1"),
-        .define("PB_NO_PACKED_STRUCTS", to: "1"),
-        .define("PB_ENABLE_MALLOC", to: "1"),
-        .define("FIRFirestore_VERSION", to: firebaseVersion),
-      ],
-      linkerSettings: [
-        .linkedFramework(
-          "SystemConfiguration",
-          .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
-        ),
-        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
-        .linkedLibrary("c++"),
-      ]
-    )
+          // Exclude alternate implementations for other platforms
+          "core/src/remote/connectivity_monitor_noop.cc",
+          "core/src/util/filesystem_win.cc",
+          "core/src/util/log_stdio.cc",
+          "core/src/util/secure_random_openssl.cc",
+        ],
+        sources: [
+          "Source/",
+          "Protos/nanopb/",
+          "core/include/",
+          "core/src",
+        ],
+        publicHeadersPath: "Source/Public",
+        cSettings: [
+          .headerSearchPath("../"),
+          .headerSearchPath("Source/Public/FirebaseFirestore"),
+          .headerSearchPath("Protos/nanopb"),
+          .define("PB_FIELD_32BIT", to: "1"),
+          .define("PB_NO_PACKED_STRUCTS", to: "1"),
+          .define("PB_ENABLE_MALLOC", to: "1"),
+          .define("FIRFirestore_VERSION", to: firebaseVersion),
+        ],
+        linkerSettings: [
+          .linkedFramework(
+            "SystemConfiguration",
+            .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
+          ),
+          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
+          .linkedLibrary("c++"),
+        ]
+      ),
+      .target(
+        name: "FirebaseFirestore",
+        dependencies: [
+          "FirebaseCore",
+          "FirebaseCoreExtension",
+          "FirebaseFirestoreInternal",
+          "FirebaseSharedSwift",
+        ],
+        path: "Firestore",
+        exclude: [
+          "CHANGELOG.md",
+          "CMakeLists.txt",
+          "Example/",
+          "LICENSE",
+          "Protos/",
+          "README.md",
+          "Source/",
+          "core/",
+          "fuzzing/",
+          "test.sh",
+          "Swift/CHANGELOG.md",
+          "Swift/Tests/",
+          "third_party/nlohmann_json",
+        ],
+        sources: [
+          "Swift/Source/",
+        ]
+      ),
+    ]
   } else if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
     // This is set when running `scripts/check_firestore_symbols.sh`.
-    return .binaryTarget(
-      name: "FirebaseFirestore",
-      // The `xcframework` should be moved to the root of the repo.
-      path: "FirebaseFirestore.xcframework"
-    )
+    return [
+      .binaryTarget(
+        name: "FirebaseFirestore",
+        // The `xcframework` should be moved to the root of the repo.
+        path: "FirebaseFirestore.xcframework"
+      ),
+    ]
   }
 
   return .binaryTarget(
