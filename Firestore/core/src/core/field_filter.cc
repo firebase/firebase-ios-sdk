@@ -202,13 +202,6 @@ bool FieldFilter::Rep::Equals(const Filter::Rep& other) const {
          *value_rhs_ == *other_rep.value_rhs_;
 }
 
-const model::FieldPath* FieldFilter::Rep::GetFirstInequalityField() const {
-  if (IsInequality()) {
-    return &field();
-  }
-  return nullptr;
-}
-
 }  // namespace core
 }  // namespace firestore
 }  // namespace firebase

@@ -96,14 +96,6 @@ class Filter {
   }
 
   /**
-   * Returns the first inequality filter contained within this filter.
-   * Returns nullptr if it does not contain any inequalities.
-   */
-  const model::FieldPath* GetFirstInequalityField() const {
-    return rep_->GetFirstInequalityField();
-  }
-
-  /**
    * Returns a list of all field filters that are contained within this filter.
    */
   const std::vector<FieldFilter>& GetFlattenedFilters() const {
@@ -154,8 +146,6 @@ class Filter {
     virtual std::string ToString() const = 0;
 
     virtual bool IsEmpty() const = 0;
-
-    virtual const model::FieldPath* GetFirstInequalityField() const = 0;
 
     virtual const std::vector<FieldFilter>& GetFlattenedFilters() const = 0;
 
