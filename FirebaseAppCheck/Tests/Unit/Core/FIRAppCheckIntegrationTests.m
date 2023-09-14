@@ -20,13 +20,13 @@
 
 #import <TargetConditionals.h>
 
+@import FirebaseAppCheckInterop;
+
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
 
