@@ -1473,11 +1473,13 @@ func firestoreTargets() -> [Target] {
     ]
   }
 
-  return .binaryTarget(
-    name: "FirebaseFirestore",
-    url: "https://dl.google.com/firebase/ios/bin/firestore/10.16.0/FirebaseFirestore.zip",
-    checksum: "0a6616a4bbf1adb2f0a502e9ad8e5ab144a8c4993a15bb4b795bae86b66ecab8"
-  )
+  return [
+    .binaryTarget(
+      name: "FirebaseFirestore",
+      url: "https://dl.google.com//firebase/ios/sandbox/bin/firestore/10.16.0/FirebaseFirestore.zip",
+      checksum: "ebf71284189f81602ca7551449acbda704d11ab9834a3c544a833d0c168ad072"
+    ),
+  ]
 }
 
 extension Platform {
