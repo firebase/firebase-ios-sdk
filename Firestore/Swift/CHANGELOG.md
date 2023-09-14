@@ -1,3 +1,15 @@
+Unreleased
+- [deprecated] `FirebaseFirestoreSwift` has been deprecated, and will be
+  removed in a future release. All of the public API from
+  `FirebaseFirestoreSwift` can now be accessed through the
+  `FirebaseFirestore` module. To migrate, delete imports of
+  `FirebaseFirestoreSwift` and remove the module as a dependency to your
+  project. If applicable, any APIs namespaced with
+  `FirebaseFirestoreSwift` can now be namespaced with
+  `FirebaseFirestore`. Additionally, if applicable,
+  `@testable import FirebaseFirestoreSwift` should be replaced with
+  `@testable import FirebaseFirestore`.
+
 # 10.12.0
 - [added] Added support animations on the `@FirestoreQuery` property wrapper.
 

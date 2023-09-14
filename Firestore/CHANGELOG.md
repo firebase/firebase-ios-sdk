@@ -1,3 +1,9 @@
+# Unreleased
+- [feature] The `FirebaseFirestore` module now contains Firebase Firestore's
+  Swift-only APIs that were previously only available via the
+  `FirebaseFirestoreSwift` extension SDK. See the
+  `FirebaseFirestoreSwift` release note from this release for more details.
+
 # 10.16.0
 - [fixed] Fixed an issue where Firestore's binary SwiftPM distribution would
   not link properly when building a target for testing. This issue affected
