@@ -616,13 +616,10 @@ let package = Package(
       dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
       path: "FirebaseDatabaseSwift/Tests/"
     ),
-    .target(
+    .binaryTarget(
       name: "FirebaseSharedSwift",
-      path: "FirebaseSharedSwift/Sources",
-      exclude: [
-        "third_party/FirebaseDataEncoder/LICENSE",
-        "third_party/FirebaseDataEncoder/METADATA",
-      ]
+      url: "https://dl.google.com/firebase/ios/experimental/bin/sharedswift/11.0.0/FirebaseSharedSwift.zip",
+      checksum: "c9f6699932bba781457363daff279b452ac6322283d250cfb5dd860f48c889c7"
     ),
     .testTarget(
       name: "FirebaseSharedSwiftTests",
@@ -1478,7 +1475,7 @@ func firestoreTargets() -> [Target] {
   return [
     .binaryTarget(
       name: "FirebaseFirestore",
-      url: "https://dl.google.com//firebase/ios/sandbox/bin/firestore/10.16.0/FirebaseFirestore.zip",
+      url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/10.16.0/FirebaseFirestore.zip",
       checksum: "ebf71284189f81602ca7551449acbda704d11ab9834a3c544a833d0c168ad072"
     ),
   ]
