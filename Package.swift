@@ -1352,6 +1352,8 @@ func firestoreWrapperTarget() -> Target {
       .product(name: "nanopb", package: "nanopb"),
       "FirebaseAppCheckInterop",
       "FirebaseCore",
+      "FirebaseCoreExtension",
+      "FirebaseSharedSwift",
       "leveldb",
     ],
     path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
