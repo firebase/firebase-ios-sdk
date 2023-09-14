@@ -894,8 +894,9 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        // TODO(ncooke3): Consider if this should import the merged module
-        // (`FirebaseRemoteConfig`).
+        // Performance depends on the Obj-C target of FirebaseRemoteConfig to
+        // avoid including Swift code from the `FirebaseRemoteConfig` target
+        // that is unneeded.
         "FirebaseRemoteConfigInternal",
         "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
