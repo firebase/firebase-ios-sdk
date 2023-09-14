@@ -1013,6 +1013,7 @@ let package = Package(
     .testTarget(
       name: "RemoteConfigFakeConsole",
       dependencies: ["FirebaseRemoteConfig",
+                     "FirebaseRemoteConfigSwift",
                      "RemoteConfigFakeConsoleObjC"],
       path: "FirebaseRemoteConfigSwift/Tests",
       exclude: [
