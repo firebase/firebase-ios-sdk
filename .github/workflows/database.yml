@@ -121,6 +121,9 @@ jobs:
       matrix:
         podspec: [FirebaseDatabase.podspec, FirebaseDatabaseSwift.podspec --allow-warnings]
         target: [ios, tvos, macos, watchos]
+        exclude:
+          - podspec: FirebaseDatabaseSwift.podspec --allow-warnings
+            target: watchos
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
