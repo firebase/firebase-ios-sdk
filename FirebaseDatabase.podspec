@@ -37,6 +37,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     base_dir + '**/*.[mh]',
     base_dir + 'third_party/Wrap-leveldb/APLevelDB.mm',
     base_dir + 'third_party/SocketRocket/fbase64.c',
+    'FirebaseDatabase/Swift/Sources/**/*.swift',
     'FirebaseAuth/Interop/*.h',
     'FirebaseCore/Extension/*.h',
   ]
@@ -49,6 +50,7 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
+  s.dependency 'FirebaseSharedSwift', '~> 10.0'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'

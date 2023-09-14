@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import FirebaseDatabase
+#if SWIFT_PACKAGE
+  @_exported import FirebaseDatabaseInternal
+#endif // SWIFT_PACKAGE
 import FirebaseSharedSwift
 
 public extension Database {
