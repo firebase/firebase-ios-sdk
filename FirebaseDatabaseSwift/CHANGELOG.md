@@ -9,6 +9,7 @@
   `FirebaseDatabase`. Additionally, if applicable,
   `@testable import FirebaseDatabaseSwift` should be replaced with
   `@testable import FirebaseDatabase`.
+
 # 9.0.0
 - [added] **Breaking change:** `FirebaseDatabaseSwift` has exited beta and is
   now generally available for use.
