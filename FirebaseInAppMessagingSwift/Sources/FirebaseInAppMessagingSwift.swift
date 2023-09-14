@@ -25,5 +25,5 @@ to your project. If applicable, any APIs namespaced with
 """)
 
 // The `@_exported` is needed to prevent breaking clients that are using
-// types prefixed with the `FirebaseInAppMessaingSwift` namespace.
+// types prefixed with the `FirebaseInAppMessaging` namespace.
 @_exported import enum FirebaseInAppMessaging.InAppMessagingPreviewHelpers
