@@ -618,8 +618,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseSharedSwift",
-      url: "https://dl.google.com/firebase/ios/experimental/bin/sharedswift/11.0.0/FirebaseSharedSwift.zip",
-      checksum: "c9f6699932bba781457363daff279b452ac6322283d250cfb5dd860f48c889c7"
+      url: "https://dl.google.com/firebase/ios/experimental/bin/sharedswift/10.16.0/FirebaseSharedSwift.zip",
+      checksum: "cfa32eb16ba8fafa7a443ab8f48e019794470bb358066d6c571df1531df02fe6"
     ),
     .testTarget(
       name: "FirebaseSharedSwiftTests",
