@@ -22,15 +22,16 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
     runs-on: macos-12
+    strategy:
+      matrix:
+        podspec: [FirebaseInAppMessaging.podspec, FirebaseInAppMessagingSwift.podspec --allow-warnings]
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: FirebaseInAppMessaging
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseInAppMessaging.podspec
-    - name: FirebaseInAppMessagingSwift
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb --allow-warnings FirebaseInAppMessagingSwift.podspec
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec}}
 
   tests:
     # Don't run on private repo unless it is a PR.
