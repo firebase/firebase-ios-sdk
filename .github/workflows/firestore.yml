@@ -96,225 +96,225 @@ jobs:
       run:  scripts/check.sh --test-only
 
 
-  # cmake:
-  #   needs: check
-  #   # Either a scheduled run from public repo, or a pull request with firestore changes.
-  #   if: |
-  #     (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-  #     (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-  #   strategy:
-  #     matrix:
-  #       os: [macos-12, ubuntu-latest]
+  cmake:
+    needs: check
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    strategy:
+      matrix:
+        os: [macos-12, ubuntu-latest]
 
-  #   env:
-  #     MINT_PATH: ${{ github.workspace }}/mint
+    env:
+      MINT_PATH: ${{ github.workspace }}/mint
 
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #   - uses: actions/checkout@v3
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
 
-  #   - name: Prepare ccache
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: ${{ runner.temp }}/ccache
-  #       key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
-  #       restore-keys: |
-  #         firestore-ccache-${{ runner.os }}-
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          firestore-ccache-${{ runner.os }}-
 
-  #   - name: Cache Mint packages
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: ${{ env.MINT_PATH }}
-  #       key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-  #       restore-keys: ${{ runner.os }}-mint-
+    - name: Cache Mint packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
 
-  #   - name: Setup build
-  #     run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
-  #   - name: Build and test
-  #     run: |
-  #       export CCACHE_DIR=${{ runner.temp }}/ccache
-  #       scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
-
-
-  # cmake-prod-db:
-  #   # Either a scheduled run from public repo, or a pull request with firestore changes.
-  #   if: |
-  #     (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-  #     (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-  #   needs: check
-
-  #   strategy:
-  #     matrix:
-  #       os: [macos-12]
-  #       databaseId: [(default), test-db]
-
-  #   env:
-  #     plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-  #     MINT_PATH: ${{ github.workspace }}/mint
-  #     TARGET_DATABASE_ID: ${{ matrix.databaseId }}
-
-  #   runs-on: ${{ matrix.os }}
-  #   steps:
-  #   - uses: actions/checkout@v3
-
-  #   - name: Prepare ccache
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: ${{ runner.temp }}/ccache
-  #       key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
-  #       restore-keys: |
-  #         firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
-
-  #   - name: Cache Mint packages
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: ${{ env.MINT_PATH }}
-  #       key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-  #       restore-keys: ${{ runner.os }}-mint-
-
-  #   - name: Install Secret GoogleService-Info.plist
-  #     run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
-  #       Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
-
-  #   - name: Setup build
-  #     run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
-
-  #   - name: Build and test
-  #     run: |
-  #       export CCACHE_DIR=${{ runner.temp }}/ccache
-  #       scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+    - name: Build and test
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
-  # sanitizers:
-  #   # Either a scheduled run from public repo, or a pull request with firestore changes.
-  #   if: |
-  #     (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-  #     (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-  #   needs: check
+  cmake-prod-db:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    needs: check
 
-  #   strategy:
-  #     matrix:
-  #       # TODO(b/260248007): Re-enable this once tsan passes on Linux
-  #       os: [macos-12]
-  #       sanitizer: [asan, tsan]
+    strategy:
+      matrix:
+        os: [macos-12]
+        databaseId: [(default), test-db]
 
-  #   runs-on: ${{ matrix.os }}
+    env:
+      plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
+      MINT_PATH: ${{ github.workspace }}/mint
+      TARGET_DATABASE_ID: ${{ matrix.databaseId }}
 
-  #   env:
-  #     SANITIZERS: ${{ matrix.sanitizer }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
 
-  #   steps:
-  #   - uses: actions/checkout@v3
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
 
-  #   - name: Prepare ccache
-  #     uses: actions/cache@v3
-  #     with:
-  #       path: ${{ runner.temp }}/ccache
-  #       key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
-  #       restore-keys: |
-  #         ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
+    - name: Cache Mint packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
 
-  #   - name: Setup build
-  #     run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
+        Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
-  #   - name: Build and test
-  #     run: |
-  #       export CCACHE_DIR=${{ runner.temp }}/ccache
-  #       scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
-
-  # xcodebuild:
-  #   # Either a scheduled run from public repo, or a pull request with firestore changes.
-  #   if: |
-  #     (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-  #     (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-  #   runs-on: macos-12
-  #   needs: check
-
-  #   strategy:
-  #     matrix:
-  #       target: [iOS, tvOS, macOS]
-
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-  #     with:
-  #       cache_key: ${{ matrix.target }}
-
-  #   - uses: ruby/setup-ruby@v1
-
-  #   - name: Setup build
-  #     run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
-
-  #   - name: Build and test
-  #     run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+    - name: Build and test
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
-  # pod-lib-lint:
-  #   # Either a scheduled run from public repo, or a pull request with firestore changes.
-  #   if: |
-  #     (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
-  #     (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-  #   runs-on: macos-12
-  #   needs: check
-  #   strategy:
-  #     matrix:
-  #       podspec: [
-  #         'FirebaseFirestore.podspec',
-  #         'FirebaseFirestoreSwift.podspec',
-  #       ]
+  sanitizers:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    needs: check
 
-  #   steps:
-  #   - uses: actions/checkout@v3
+    strategy:
+      matrix:
+        # TODO(b/260248007): Re-enable this once tsan passes on Linux
+        os: [macos-12]
+        sanitizer: [asan, tsan]
 
-  #   - uses: ruby/setup-ruby@v1
-  #   - name: Setup Bundler
-  #     run: ./scripts/setup_bundler.sh
+    runs-on: ${{ matrix.os }}
 
-  #   - name: Pod lib lint
-  #     # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
-  #     run: |
-  #       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
-  #           --platforms=ios \
-  #           --allow-warnings \
-  #           --no-analyze
+    env:
+      SANITIZERS: ${{ matrix.sanitizer }}
 
-  # # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
-  # pod-lib-lint-cron:
-  #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-  #   runs-on: macos-12
-  #   needs: check
-  #   strategy:
-  #     matrix:
-  #       podspec: [
-  #         'FirebaseFirestore.podspec',
-  #         'FirebaseFirestoreSwift.podspec',
-  #       ]
-  #       platforms: [
-  #         'macos',
-  #         'tvos',
-  #       ]
-  #       flags: [
-  #         '--use-static-frameworks',
-  #         '',
-  #       ]
+    steps:
+    - uses: actions/checkout@v3
 
-  #   steps:
-  #   - uses: actions/checkout@v3
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
 
-  #   - uses: ruby/setup-ruby@v1
-  #   - name: Setup Bundler
-  #     run: ./scripts/setup_bundler.sh
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
-  #   - name: Pod lib lint
-  #     # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
-  #     run: |
-  #       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
-  #           ${{ matrix.flags }} \
-  #           --platforms=${{ matrix.platforms }} \
-  #           --allow-warnings \
-  #           --no-analyze
+    - name: Build and test
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+
+
+  xcodebuild:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    runs-on: macos-12
+    needs: check
+
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.target }}
+
+    - uses: ruby/setup-ruby@v1
+
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+
+    - name: Build and test
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+
+
+  pod-lib-lint:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    runs-on: macos-12
+    needs: check
+    strategy:
+      matrix:
+        podspec: [
+          'FirebaseFirestore.podspec',
+          'FirebaseFirestoreSwift.podspec',
+        ]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+
+    - name: Pod lib lint
+      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
+            --platforms=ios \
+            --allow-warnings \
+            --no-analyze
+
+  # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
+  pod-lib-lint-cron:
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    runs-on: macos-12
+    needs: check
+    strategy:
+      matrix:
+        podspec: [
+          'FirebaseFirestore.podspec',
+          'FirebaseFirestoreSwift.podspec',
+        ]
+        platforms: [
+          'macos',
+          'tvos',
+        ]
+        flags: [
+          '--use-static-frameworks',
+          '',
+        ]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
+
+    - name: Pod lib lint
+      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
+            ${{ matrix.flags }} \
+            --platforms=${{ matrix.platforms }} \
+            --allow-warnings \
+            --no-analyze
 
   spm-source:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -397,17 +397,17 @@ spm-binary-cron:
     - name: Swift Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
-  # # A job that fails if any required job in the test matrix fails,
-  # # to be used as a required check for merging.
-  # check-required-tests:
-  #   runs-on: ubuntu-latest
-  #   if: always()
-  #   name: Check all required Firestore tests results
-  #   needs: [cmake, cmake-prod-db, xcodebuild, spm-source, spm-binary]
-  #   steps:
-  #     - name: Check test matrix
-  #       if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure' || needs.spm.result == 'failure'
-  #       run: exit 1
+  # A job that fails if any required job in the test matrix fails,
+  # to be used as a required check for merging.
+  check-required-tests:
+    runs-on: ubuntu-latest
+    if: always()
+    name: Check all required Firestore tests results
+    needs: [cmake, cmake-prod-db, xcodebuild, spm-source, spm-binary]
+    steps:
+      - name: Check test matrix
+        if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure' || needs.spm.result == 'failure'
+        run: exit 1
 
 
   # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
