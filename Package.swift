@@ -557,6 +557,7 @@ let package = Package(
     .target(
       name: "FirebaseDatabase",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
       ],
