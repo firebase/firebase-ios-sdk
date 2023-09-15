@@ -316,7 +316,28 @@ jobs:
             --allow-warnings \
             --no-analyze
 
-  spm:
+  spm-source:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    runs-on: macos-12
+    needs: check
+    env:
+      FIREBASE_SOURCE_FIRESTORE: 1
+    steps:
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: iOS Build Test
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
+    - name: Swift Build
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+
+  spm-binary:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -330,16 +351,34 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    - name: iOS Build Test – Binary
+    - name: iOS Build Test
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-    - name: iOS Build Test – Source
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-      env:
-          FIREBASE_SOURCE_FIRESTORE: 1
     - name: Swift Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
 
-  spm-cron:
+  # TODO: Re-enable either in or after #11706.
+  # spm-source-cron:
+  #   # Don't run on private repo.
+  #   if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+  #   runs-on: macos-12
+  #   strategy:
+  #     matrix:
+  #       target: [tvOS, macOS, catalyst]
+  #   env:
+  #     FIREBASE_SOURCE_FIRESTORE: 1
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+  #     with:
+  #       cache_key: ${{ matrix.os }}
+  #   - name: Initialize xcodebuild
+  #     run: scripts/setup_spm_tests.sh
+  #   - name: Build Test - Binary
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+  #   - name: Swift Build
+  #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
+
+  spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-12
@@ -355,11 +394,6 @@ jobs:
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    # TODO: Re-enable either in or after #11706.
-    # - name: Build Test – Source
-    #   run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-    #   env:
-    #       FIREBASE_SOURCE_FIRESTORE: 1
     - name: Swift Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
@@ -369,7 +403,7 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     name: Check all required Firestore tests results
-    needs: [cmake, cmake-prod-db, xcodebuild, spm]
+    needs: [cmake, cmake-prod-db, xcodebuild, spm-source, spm-binary]
     steps:
       - name: Check test matrix
         if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure' || needs.spm.result == 'failure'
