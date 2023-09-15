@@ -378,7 +378,7 @@ jobs:
   #   - name: Swift Build
   #     run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
-spm-binary-cron:
+  spm-binary-cron:
     # Don't run on private repo.
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     runs-on: macos-12
