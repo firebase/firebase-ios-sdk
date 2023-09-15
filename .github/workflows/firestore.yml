@@ -351,12 +351,8 @@ jobs:
         cache_key: ${{ matrix.os }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
-    # - name: iOS Build Test – Binary
-    #   run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-    # - name: iOS Build Test – Source
-    #   run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-    #   env:
-    #       FIREBASE_SOURCE_FIRESTORE: 1
+    - name: iOS Build Test
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
     - name: Swift Build
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
 
