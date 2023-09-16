@@ -46,6 +46,13 @@ struct ModuleMapBuilder {
       module * { export * }
 
       """
+
+      if module == "FirebaseFirestore" {
+        content += "  link framework " + "BoringSSL-GRPC" + "\n"
+        content += "  link framework " + "gRPC-Core" + "\n"
+        content += "  link framework " + "gRPC-C++" + "\n"
+      }
+
       for framework in frameworks.sorted() {
         content += "  link framework " + framework + "\n"
       }
