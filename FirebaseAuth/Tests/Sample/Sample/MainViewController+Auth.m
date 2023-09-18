@@ -31,8 +31,10 @@ NS_ASSUME_NONNULL_BEGIN
     [StaticContentTableViewCell cellWithTitle:@"Sign out"
                                       action:^{ [weakSelf signOut]; }],
     [StaticContentTableViewCell cellWithTitle:@"Initialize Recaptcha Config"
-                                      action:^{ [weakSelf initializeRecaptchaConfig]; }]
-    ]];
+                                      action:^{ [weakSelf initializeRecaptchaConfig]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Set Auth Domain"
+                                      action:^{ [weakSelf setAuthDomain]; }]
+  ]];
 }
 
 - (void)signInAnonymously {
@@ -83,6 +85,23 @@ NS_ASSUME_NONNULL_BEGIN
         }
     }];
 }
+
+- (void)setAuthDomain {
+  [self showTextInputPromptWithMessage:@"Auth Domain:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable customAuthDomain) {
+    if (userPressedOK && customAuthDomain.length) {
+      FIRAuth *auth = [AppManager auth];
+      if(!auth) {
+        [self logFailedTest:@"Could not obtain auth object."];
+        return;
+      }
+      auth.customAuthDomain = customAuthDomain;
+      [self logSuccess:[NSString stringWithFormat:@"Successfully set auth domain to: %@", customAuthDomain]];
+    }
+    return;
+  }];
+}
+
 
 @end
 
