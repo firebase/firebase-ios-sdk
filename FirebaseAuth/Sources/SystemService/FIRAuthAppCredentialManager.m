@@ -73,7 +73,7 @@ static const NSUInteger kMaximumNumberOfPendingReceipts = 32;
       NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:encodedData
                                                                                   error:&error];
 #else
-// iOS 12 deprecation
+      // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedUnarchiver *unarchiver =
