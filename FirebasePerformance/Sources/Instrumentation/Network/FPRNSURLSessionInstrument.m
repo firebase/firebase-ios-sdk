@@ -406,11 +406,13 @@ void InstrumentUploadTaskWithRequestFromData(FPRNSURLSessionInstrument *instrume
     }
     typedef NSURLSessionUploadTask *(*OriginalImp)(id, SEL, NSURLRequest *, NSData *);
     // To avoid a runtime warning in Xcode 15, the given `URLRequest`
-    // should have a nil `HTTPBody`. To workaround this, the `HTTPBody` data is removed.
+    // should have a nil `HTTPBody`. To workaround this, the `HTTPBody` data is removed
+    // and requestData is replaced with it, if it bodyData was `nil`.
     NSMutableURLRequest *requestWithoutHTTPBody = [request mutableCopy];
+    NSData *requestData = bodyData ?: requestWithoutHTTPBody.HTTPBody;
     requestWithoutHTTPBody.HTTPBody = nil;
     NSURLSessionUploadTask *uploadTask =
-        ((OriginalImp)currentIMP)(session, selector, requestWithoutHTTPBody, bodyData);
+        ((OriginalImp)currentIMP)(session, selector, requestWithoutHTTPBody, requestData);
     if (uploadTask.originalRequest) {
       FPRNetworkTrace *trace =
           [[FPRNetworkTrace alloc] initWithURLRequest:uploadTask.originalRequest];
