@@ -141,8 +141,14 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   options.projectID = @"project_id";
   [FIRApp configureWithOptions:options];
 
+  FIRAppCheck *appCheck = [FIRAppCheck appCheck];
+
+  // Prevent app check from trying to refresh the token while other
+  // tests are running.
+  appCheck.isTokenAutoRefreshEnabled = NO;
+
   // Check.
-  XCTAssertNotNil([FIRAppCheck appCheck]);
+  XCTAssertNotNil(appCheck);
 
   [FIRApp resetApps];
 }
@@ -158,7 +164,13 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   FIRApp *app = [FIRApp appNamed:@"testAppCheckInstanceForApp"];
   XCTAssertNotNil(app);
 
-  XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
+  FIRAppCheck *appCheck = [FIRAppCheck appCheckWithApp:app];
+
+  // Prevent app check from trying to refresh the token while other
+  // tests are running.
+  appCheck.isTokenAutoRefreshEnabled = NO;
+
+  XCTAssertNotNil(appCheck);
 
   [FIRApp resetApps];
 }
