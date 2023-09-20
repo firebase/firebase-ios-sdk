@@ -97,7 +97,8 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   id mockApp = OCMStrictClassMock([FIRApp class]);
   id mockAppOptions = OCMStrictClassMock([FIROptions class]);
   OCMStub([mockApp name]).andReturn(appName);
-  OCMStub([mockApp isDataCollectionDefaultEnabled]).andReturn(YES);
+  // Prevent token auto-fetch on init.
+  OCMStub([mockApp isDataCollectionDefaultEnabled]).andReturn(NO);
   OCMStub([(FIRApp *)mockApp options]).andReturn(mockAppOptions);
   OCMExpect([mockAppOptions projectID]).andReturn(projectID);
   OCMExpect([mockAppOptions googleAppID]).andReturn(googleAppID);
@@ -141,14 +142,8 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   options.projectID = @"project_id";
   [FIRApp configureWithOptions:options];
 
-  FIRAppCheck *appCheck = [FIRAppCheck appCheck];
-
-  // Prevent app check from trying to refresh the token while other
-  // tests are running.
-  appCheck.isTokenAutoRefreshEnabled = NO;
-
   // Check.
-  XCTAssertNotNil(appCheck);
+  XCTAssertNotNil([FIRAppCheck appCheck]);
 
   [FIRApp resetApps];
 }
@@ -164,13 +159,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   FIRApp *app = [FIRApp appNamed:@"testAppCheckInstanceForApp"];
   XCTAssertNotNil(app);
 
-  FIRAppCheck *appCheck = [FIRAppCheck appCheckWithApp:app];
-
-  // Prevent app check from trying to refresh the token while other
-  // tests are running.
-  appCheck.isTokenAutoRefreshEnabled = NO;
-
-  XCTAssertNotNil(appCheck);
+  XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
 
   [FIRApp resetApps];
 }
