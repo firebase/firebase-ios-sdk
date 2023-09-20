@@ -18,12 +18,11 @@
 
 #import <OCMock/OCMock.h>
 
-#import <TargetConditionals.h>
-
 @import FirebaseAppCheckInterop;
 
 #import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProviderFactory.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
@@ -33,8 +32,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
 @interface DummyAppCheckProvider : NSObject <FIRAppCheckProvider>
 @end
@@ -225,7 +222,5 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 @end
-
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
 NS_ASSUME_NONNULL_END
