@@ -70,6 +70,7 @@ static NSString *const kProjectNumber = @"123456789";
   OCMExpect([self.debugProviderMock alloc]).andReturn(self.debugProviderMock);
   OCMExpect([self.debugProviderMock initWithServiceName:kAppName
                                            resourceName:self.resourceName
+                                                baseURL:nil
                                                  APIKey:kAPIKey
                                            requestHooks:OCMOCK_ANY])
       .andReturn(self.debugProviderMock);
