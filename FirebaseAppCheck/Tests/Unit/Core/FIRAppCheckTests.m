@@ -81,9 +81,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 - (void)tearDown {
   self.appCheck = nil;
-  [self.mockAppCheckCore stopMocking];
-  self.mockAppCheckProvider = nil;
-  [self.mockAppCheckProvider stopMocking];
+  self.mockAppCheckCore = nil;
   self.mockAppCheckProvider = nil;
 
   [super tearDown];
