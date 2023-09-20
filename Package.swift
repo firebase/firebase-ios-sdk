@@ -26,10 +26,6 @@ let package = Package(
   platforms: [.iOS(.v11), .macCatalyst(.v13), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v7)],
   products: [
     .library(
-      name: "AppCheckCore",
-      targets: ["AppCheckCore"]
-    ),
-    .library(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
@@ -186,6 +182,9 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
+    .package(url: "https://github.com/google/app-check.git",
+             // TODO(andrewheard): Replace branch with version range before merging into `master`.
+             branch: "CocoaPods-0.1.0-alpha.9"),
   ],
   targets: [
     .target(
@@ -1222,9 +1221,9 @@ let package = Package(
 
     .target(name: "FirebaseAppCheck",
             dependencies: [
-              "AppCheckCore",
               "FirebaseAppCheckInterop",
               "FirebaseCore",
+              .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
             ],
@@ -1277,54 +1276,6 @@ let package = Package(
       name: "FirebaseAppCheckIntegration",
       dependencies: ["FirebaseAppCheck"],
       path: "FirebaseAppCheck/Tests/Integration"
-    ),
-
-    // MARK: - App Check
-
-    .target(name: "AppCheckCore",
-            dependencies: [
-              "FirebaseCore",
-              .product(name: "FBLPromises", package: "Promises"),
-              .product(name: "GULEnvironment", package: "GoogleUtilities"),
-            ],
-            path: "AppCheckCore/Sources",
-            publicHeadersPath: "Public",
-            cSettings: [
-              .headerSearchPath("../.."),
-            ],
-            linkerSettings: [
-              .linkedFramework(
-                "DeviceCheck",
-                .when(platforms: [.iOS, .macCatalyst, .macOS, .tvOS])
-              ),
-            ]),
-    .testTarget(
-      name: "AppCheckCoreUnit",
-      dependencies: [
-        "AppCheckCore",
-        "SharedTestUtilities",
-        .product(name: "OCMock", package: "ocmock"),
-      ],
-      path: "AppCheckCore/Tests",
-      exclude: [
-        // Swift tests are in the target `AppCheckCoreUnitSwift` since mixed language targets are
-        // not supported (as of Xcode 14.3).
-        "Unit/Swift",
-      ],
-      resources: [
-        .process("Fixture"),
-      ],
-      cSettings: [
-        .headerSearchPath("../.."),
-      ]
-    ),
-    .testTarget(
-      name: "AppCheckCoreUnitSwift",
-      dependencies: ["AppCheckCore"],
-      path: "AppCheckCore/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ]
     ),
 
     // MARK: Testing support
