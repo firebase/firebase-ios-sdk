@@ -26,11 +26,12 @@
 
 @implementation FIRAppCheckDebugProviderFactoryTests
 
-- (void)disabled_testCreateProviderWithApp {
+- (void)testCreateProviderWithApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
   options.APIKey = @"api_key";
   options.projectID = @"project_id";
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testInitWithValidApp" options:options];
+  app.dataCollectionDefaultEnabled = NO;
 
   FIRAppCheckDebugProviderFactory *factory = [[FIRAppCheckDebugProviderFactory alloc] init];
 

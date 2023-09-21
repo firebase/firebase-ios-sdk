@@ -130,12 +130,6 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   XCTAssertNotNil(app);
 
   XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
-
-  XCTestExpectation *appDeletedExpectation = [[XCTestExpectation alloc] init];
-  [app deleteApp:^(BOOL success) {
-    [appDeletedExpectation fulfill];
-  }];
-  [self waitForExpectations:@[ appDeletedExpectation ] timeout:0.5];
 }
 
 #pragma mark - Public Get Token

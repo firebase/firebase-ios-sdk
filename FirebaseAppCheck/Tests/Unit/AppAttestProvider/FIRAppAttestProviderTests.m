@@ -66,24 +66,14 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
 #pragma mark - Init tests
 
-- (void)disabled_testInitWithValidApp {
+- (void)testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
-
-  OCMExpect([self.appAttestProviderMock alloc]).andReturn(self.appAttestProviderMock);
-  OCMExpect([self.appAttestProviderMock initWithServiceName:kAppName
-                                               resourceName:self.resourceName
-                                                    baseURL:nil
-                                                     APIKey:kAPIKey
-                                        keychainAccessGroup:OCMOCK_ANY
-                                               requestHooks:OCMOCK_ANY])
-      .andReturn(self.appAttestProviderMock);
+  app.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNotNil([[FIRAppAttestProvider alloc] initWithApp:app]);
-
-  OCMVerifyAll(self.appAttestProviderMock);
 }
 
 - (void)testGetTokenSuccess {

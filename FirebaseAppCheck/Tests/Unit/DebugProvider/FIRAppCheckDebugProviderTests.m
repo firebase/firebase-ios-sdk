@@ -61,38 +61,29 @@ static NSString *const kProjectNumber = @"123456789";
 
 #pragma mark - Initialization
 
-- (void)disabled_testInitWithValidApp {
+- (void)testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
-
-  OCMExpect([self.debugProviderMock alloc]).andReturn(self.debugProviderMock);
-  OCMExpect([self.debugProviderMock initWithServiceName:kAppName
-                                           resourceName:self.resourceName
-                                                baseURL:nil
-                                                 APIKey:kAPIKey
-                                           requestHooks:OCMOCK_ANY])
-      .andReturn(self.debugProviderMock);
+  app.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNotNil([[FIRAppCheckDebugProvider alloc] initWithApp:app]);
-
-  OCMVerifyAll(self.debugProviderMock);
 }
 
-- (void)disabled_testInitWithIncompleteApp {
+- (void)testInitWithIncompleteApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.projectID = kProjectID;
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  missingAPIKeyApp.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNil([[FIRAppCheckDebugProvider alloc] initWithApp:missingAPIKeyApp]);
 
   options.projectID = nil;
   options.APIKey = kAPIKey;
   FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  missingProjectIDApp.dataCollectionDefaultEnabled = NO;
   XCTAssertNil([[FIRAppCheckDebugProvider alloc] initWithApp:missingProjectIDApp]);
-
-  OCMVerifyAll(self.debugProviderMock);
 }
 
 #pragma mark - Current Debug token

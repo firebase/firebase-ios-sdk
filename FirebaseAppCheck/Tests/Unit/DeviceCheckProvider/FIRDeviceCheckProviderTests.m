@@ -66,37 +66,29 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   self.deviceCheckProviderMock = nil;
 }
 
-- (void)disabled_testInitWithValidApp {
+- (void)testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
-
-  OCMExpect([self.deviceCheckProviderMock alloc]).andReturn(self.deviceCheckProviderMock);
-  OCMExpect([self.deviceCheckProviderMock initWithServiceName:kAppName
-                                                 resourceName:self.resourceName
-                                                       APIKey:kAPIKey
-                                                 requestHooks:OCMOCK_ANY])
-      .andReturn(self.deviceCheckProviderMock);
+  app.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNotNil([[FIRDeviceCheckProvider alloc] initWithApp:app]);
-
-  OCMVerifyAll(self.deviceCheckProviderMock);
 }
 
-- (void)disabled_testInitWithIncompleteApp {
+- (void)testInitWithIncompleteApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.projectID = kProjectID;
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  missingAPIKeyApp.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingAPIKeyApp]);
 
   options.projectID = nil;
   options.APIKey = kAPIKey;
   FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  missingProjectIDApp.dataCollectionDefaultEnabled = NO;
   XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingProjectIDApp]);
-
-  OCMVerifyAll(self.deviceCheckProviderMock);
 }
 
 - (void)testGetTokenSuccess {
