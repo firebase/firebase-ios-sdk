@@ -18,12 +18,11 @@ import FirebaseAppCheck
 import FirebaseCore
 
 final class AppCheckE2ETests: XCTestCase {
-  // TODO(andrewheard): Add integration tests that exercise the public API.
-
   let appName = "test_app_name"
   var app: FirebaseApp!
 
   override func setUp() {
+    AppCheck.setAppCheckProviderFactory(TestAppCheckProviderFactory())
     let options = FirebaseOptions(googleAppID: "1:123456789:ios:abc123", gcmSenderID: "123456789")
     options.projectID = "test_project_id"
     options.apiKey = "test_api_key"
@@ -41,7 +40,6 @@ final class AppCheckE2ETests: XCTestCase {
   }
 
   func testInitAppCheck() throws {
-    AppCheck.setAppCheckProviderFactory(AppCheckDebugProviderFactory())
     let appCheck = AppCheck.appCheck(app: app)
 
     XCTAssertNotNil(appCheck)
@@ -51,5 +49,79 @@ final class AppCheckE2ETests: XCTestCase {
     let debugProvider = AppCheckDebugProvider(app: app)
 
     XCTAssertNotNil(debugProvider)
+  }
+
+  func testInitAppCheckDebugProviderFactory() throws {
+    let debugProvider = AppCheckDebugProviderFactory().createProvider(with: app)
+
+    XCTAssertNotNil(debugProvider)
+  }
+
+  func testInitDeviceCheckProvider() throws {
+    let deviceCheckProvider = DeviceCheckProvider(app: app)
+
+    XCTAssertNotNil(deviceCheckProvider)
+  }
+
+  func testDeviceCheckProviderFactoryCreate() throws {
+    let deviceCheckProvider = DeviceCheckProviderFactory().createProvider(with: app)
+
+    XCTAssertNotNil(deviceCheckProvider)
+  }
+
+  @available(iOS 14.0, macOS 11.3, macCatalyst 14.5, tvOS 15.0, watchOS 9.0, *)
+  func testInitAppAttestProvider() throws {
+    let appAttestProvider = AppAttestProvider(app: app)
+
+    XCTAssertNotNil(appAttestProvider)
+  }
+
+  func testGetToken() async throws {
+    guard let appCheck = AppCheck.appCheck(app: app) else {
+      XCTFail("AppCheck instance is nil.")
+      return
+    }
+
+    let token = try await appCheck.token(forcingRefresh: true)
+
+    XCTAssertEqual(token.token, TestAppCheckProvider.tokenValue)
+  }
+
+  func testGetLimitedUseToken() async throws {
+    guard let appCheck = AppCheck.appCheck(app: app) else {
+      XCTFail("AppCheck instance is nil.")
+      return
+    }
+
+    let token = try await appCheck.limitedUseToken()
+
+    XCTAssertEqual(token.token, TestAppCheckProvider.limitedUseTokenValue)
+  }
+}
+
+class TestAppCheckProvider: NSObject, AppCheckProvider {
+  static let tokenValue = "TestToken"
+  static let limitedUseTokenValue = "TestLimitedUseToken"
+
+  func getToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
+    let token = AppCheckToken(
+      token: TestAppCheckProvider.tokenValue,
+      expirationDate: Date.distantFuture
+    )
+    handler(token, nil)
+  }
+
+  func getLimitedUseToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
+    let token = AppCheckToken(
+      token: TestAppCheckProvider.limitedUseTokenValue,
+      expirationDate: Date.distantFuture
+    )
+    handler(token, nil)
+  }
+}
+
+class TestAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+    return TestAppCheckProvider()
   }
 }
