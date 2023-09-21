@@ -76,26 +76,38 @@ final class AppCheckE2ETests: XCTestCase {
     XCTAssertNotNil(appAttestProvider)
   }
 
-  func testGetToken() async throws {
+  func testGetToken() throws {
     guard let appCheck = AppCheck.appCheck(app: app) else {
       XCTFail("AppCheck instance is nil.")
       return
     }
 
-    let token = try await appCheck.token(forcingRefresh: true)
+    let expectation = XCTestExpectation()
+    appCheck.token(forcingRefresh: true) { token, error in
+      XCTAssertNil(error)
+      XCTAssertNotNil(token)
+      XCTAssertEqual(token!.token, TestAppCheckProvider.tokenValue)
+      expectation.fulfill()
+    }
 
-    XCTAssertEqual(token.token, TestAppCheckProvider.tokenValue)
+    wait(for: [expectation], timeout: 0.5)
   }
 
-  func testGetLimitedUseToken() async throws {
+  func testGetLimitedUseToken() throws {
     guard let appCheck = AppCheck.appCheck(app: app) else {
       XCTFail("AppCheck instance is nil.")
       return
     }
 
-    let token = try await appCheck.limitedUseToken()
+    let expectation = XCTestExpectation()
+    appCheck.limitedUseToken { token, error in
+      XCTAssertNil(error)
+      XCTAssertNotNil(token)
+      XCTAssertEqual(token!.token, TestAppCheckProvider.limitedUseTokenValue)
+      expectation.fulfill()
+    }
 
-    XCTAssertEqual(token.token, TestAppCheckProvider.limitedUseTokenValue)
+    wait(for: [expectation], timeout: 0.5)
   }
 }
 
