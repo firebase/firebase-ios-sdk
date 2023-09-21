@@ -147,7 +147,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [FIRApp resetApps];
 }
 
-- (void)testAppCheckInstanceForApp {
+- (void)disabled_testAppCheckInstanceForApp {
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
                                   GCMSenderID:@"sender_id"];

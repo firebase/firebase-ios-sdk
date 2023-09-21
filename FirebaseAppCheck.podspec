@@ -64,7 +64,7 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     unit_tests.source_files = [
-      base_dir + 'Tests/Unit/**/FIRAppCheckTests.[mh]',
+      base_dir + 'Tests/Unit/**/*.[mh]',
       base_dir + 'Tests/Utils/**/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*',
       'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
