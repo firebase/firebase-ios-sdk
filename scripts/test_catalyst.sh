@@ -64,5 +64,4 @@ args=("${args[@]}" "${buildcache_xcb_flags[@]}")
 
 xcodebuild -version
 gem install xcpretty
-# TODO(andrewheard): Re-add `| xcpretty` before merging.
-xcodebuild "${args[@]}"
+xcodebuild "${args[@]}" | xcpretty
