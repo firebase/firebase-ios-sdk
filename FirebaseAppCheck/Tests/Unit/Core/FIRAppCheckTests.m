@@ -142,6 +142,9 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   options.projectID = @"project_id";
   [FIRApp configureWithOptions:options];
 
+  // Prevent token auto-fetch on init.
+  [[FIRApp defaultApp] setDataCollectionDefaultEnabled:NO];
+
   // Check.
   XCTAssertNotNil([FIRAppCheck appCheck]);
 
@@ -155,8 +158,12 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   options.APIKey = @"api_key";
   options.projectID = @"project_id";
 
+
   [FIRApp configureWithName:@"testAppCheckInstanceForApp" options:options];
   FIRApp *app = [FIRApp appNamed:@"testAppCheckInstanceForApp"];
+
+  // Prevent token auto-fetch on init.
+  [app setDataCollectionDefaultEnabled:NO];
   XCTAssertNotNil(app);
 
   XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
