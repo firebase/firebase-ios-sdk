@@ -87,80 +87,55 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [super tearDown];
 }
 
-- (void)disabled_testInitWithApp {
+- (void)testInitWithApp {
   NSString *projectID = @"testInitWithApp_projectID";
   NSString *googleAppID = @"testInitWithApp_googleAppID";
   NSString *appName = @"testInitWithApp_appName";
   NSString *appGroupID = @"testInitWithApp_appGroupID";
 
   // 1. Stub FIRApp and validate usage.
-  id mockApp = OCMStrictClassMock([FIRApp class]);
-  id mockAppOptions = OCMStrictClassMock([FIROptions class]);
-  OCMStub([mockApp name]).andReturn(appName);
-  OCMStub([mockApp isDataCollectionDefaultEnabled]).andReturn(YES);
-  OCMStub([(FIRApp *)mockApp options]).andReturn(mockAppOptions);
-  OCMExpect([mockAppOptions projectID]).andReturn(projectID);
-  OCMExpect([mockAppOptions googleAppID]).andReturn(googleAppID);
-  OCMExpect([mockAppOptions appGroupID]).andReturn(appGroupID);
+  FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:googleAppID GCMSenderID:@""];
+  options.projectID = projectID;
+  options.appGroupID = appGroupID;
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  app.dataCollectionDefaultEnabled = NO;
 
   // 2. Stub attestation provider.
   OCMockObject<FIRAppCheckProviderFactory> *mockProviderFactory =
       OCMStrictProtocolMock(@protocol(FIRAppCheckProviderFactory));
   OCMockObject<FIRAppCheckProvider> *mockProvider =
       OCMStrictProtocolMock(@protocol(FIRAppCheckProvider));
-  OCMExpect([mockProviderFactory createProviderWithApp:mockApp]).andReturn(mockProvider);
+  OCMExpect([mockProviderFactory createProviderWithApp:app]).andReturn(mockProvider);
 
   [FIRAppCheck setAppCheckProviderFactory:mockProviderFactory];
 
   // 3. Call init.
-  FIRAppCheck *appCheck = [[FIRAppCheck alloc] initWithApp:mockApp];
+  FIRAppCheck *appCheck = [[FIRAppCheck alloc] initWithApp:app];
   XCTAssert([appCheck isKindOfClass:[FIRAppCheck class]]);
 
   // 4. Verify mocks.
-  OCMVerifyAll(mockApp);
-  OCMVerifyAll(mockAppOptions);
   OCMVerifyAll(mockProviderFactory);
   OCMVerifyAll(mockProvider);
-
-  // 5. Stop mocking real class mocks.
-  [mockApp stopMocking];
-  mockApp = nil;
-  [mockAppOptions stopMocking];
-  mockAppOptions = nil;
 }
 
-- (void)disabled_testAppCheckDefaultInstance {
-  // Should throw an exception when the default app is not configured.
-  XCTAssertThrows([FIRAppCheck appCheck]);
-
-  // Configure default FIRApp.
-  FIROptions *options =
-      [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
-                                  GCMSenderID:@"sender_id"];
-  options.APIKey = @"api_key";
-  options.projectID = @"project_id";
-  [FIRApp configureWithOptions:options];
-
-  // Check.
-  XCTAssertNotNil([FIRAppCheck appCheck]);
-
-  [FIRApp resetApps];
-}
-
-- (void)disabled_testAppCheckInstanceForApp {
+- (void)testAppCheckInstanceForApp {
   FIROptions *options =
       [[FIROptions alloc] initWithGoogleAppID:@"1:100000000000:ios:aaaaaaaaaaaaaaaaaaaaaaaa"
                                   GCMSenderID:@"sender_id"];
   options.APIKey = @"api_key";
   options.projectID = @"project_id";
 
-  [FIRApp configureWithName:@"testAppCheckInstanceForApp" options:options];
-  FIRApp *app = [FIRApp appNamed:@"testAppCheckInstanceForApp"];
+  FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testAppCheckInstanceForApp" options:options];
+  app.dataCollectionDefaultEnabled = NO;
   XCTAssertNotNil(app);
 
   XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
 
-  [FIRApp resetApps];
+  XCTestExpectation *appDeletedExpectation = [[XCTestExpectation alloc] init];
+  [app deleteApp:^(BOOL success) {
+    [appDeletedExpectation fulfill];
+  }];
+  [self waitForExpectations:@[ appDeletedExpectation ] timeout:0.5];
 }
 
 #pragma mark - Public Get Token
