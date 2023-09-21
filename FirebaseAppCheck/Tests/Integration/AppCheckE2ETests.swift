@@ -57,12 +57,14 @@ final class AppCheckE2ETests: XCTestCase {
     XCTAssertNotNil(debugProvider)
   }
 
+  @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
   func testInitDeviceCheckProvider() throws {
     let deviceCheckProvider = DeviceCheckProvider(app: app)
 
     XCTAssertNotNil(deviceCheckProvider)
   }
 
+  @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
   func testDeviceCheckProviderFactoryCreate() throws {
     let deviceCheckProvider = DeviceCheckProviderFactory().createProvider(with: app)
 
@@ -86,7 +88,7 @@ final class AppCheckE2ETests: XCTestCase {
     appCheck.token(forcingRefresh: true) { token, error in
       XCTAssertNil(error)
       XCTAssertNotNil(token)
-      XCTAssertEqual(token!.token, TestAppCheckProvider.tokenValue)
+      XCTAssertEqual(token?.token, TestAppCheckProvider.tokenValue)
       expectation.fulfill()
     }
 
