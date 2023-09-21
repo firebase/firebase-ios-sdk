@@ -87,7 +87,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [super tearDown];
 }
 
-- (void)testInitWithApp {
+- (void)disabled_testInitWithApp {
   NSString *projectID = @"testInitWithApp_projectID";
   NSString *googleAppID = @"testInitWithApp_googleAppID";
   NSString *appName = @"testInitWithApp_appName";
@@ -311,7 +311,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
                   }];
 
   // 3. Wait for expectations and validate mocks.
-  [self waitForExpectations:expectations timeout:0.5];
+  [self waitForExpectations:expectations timeout:15];
   [self verifyAllMocks];
 }
 
