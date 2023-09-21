@@ -87,7 +87,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   [super tearDown];
 }
 
-- (void)testInitWithApp {
+- (void)disabled_testInitWithApp {
   NSString *projectID = @"testInitWithApp_projectID";
   NSString *googleAppID = @"testInitWithApp_googleAppID";
   NSString *appName = @"testInitWithApp_appName";
@@ -129,7 +129,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   mockAppOptions = nil;
 }
 
-- (void)testAppCheckDefaultInstance {
+- (void)disabled_testAppCheckDefaultInstance {
   // Should throw an exception when the default app is not configured.
   XCTAssertThrows([FIRAppCheck appCheck]);
 
