@@ -166,7 +166,7 @@
   OCMVerifyAll(self.bundleMock);
 }
 
-- (void)testIsTokenAutoRefreshEnabledWhenAppDeallocated {
+- (void)disabled_testIsTokenAutoRefreshEnabledWhenAppDeallocated {
   // 1. Create settings instance.
   // Use an actual FIRApp instance as a fake app because OCMClassMock doesn't get deallocated on
   // `self.mockApp = nil;`

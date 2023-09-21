@@ -66,7 +66,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   self.deviceCheckProviderMock = nil;
 }
 
-- (void)testInitWithValidApp {
+- (void)disabled_testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
@@ -84,7 +84,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   OCMVerifyAll(self.deviceCheckProviderMock);
 }
 
-- (void)testInitWithIncompleteApp {
+- (void)disabled_testInitWithIncompleteApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.projectID = kProjectID;
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];

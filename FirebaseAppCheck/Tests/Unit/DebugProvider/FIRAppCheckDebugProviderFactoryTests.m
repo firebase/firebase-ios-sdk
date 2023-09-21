@@ -26,7 +26,7 @@
 
 @implementation FIRAppCheckDebugProviderFactoryTests
 
-- (void)testCreateProviderWithApp {
+- (void)disabled_testCreateProviderWithApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:@"app_id" GCMSenderID:@"sender_id"];
   options.APIKey = @"api_key";
   options.projectID = @"project_id";

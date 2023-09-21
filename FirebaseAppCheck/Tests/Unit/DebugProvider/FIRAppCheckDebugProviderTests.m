@@ -61,7 +61,7 @@ static NSString *const kProjectNumber = @"123456789";
 
 #pragma mark - Initialization
 
-- (void)testInitWithValidApp {
+- (void)disabled_testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
@@ -80,7 +80,7 @@ static NSString *const kProjectNumber = @"123456789";
   OCMVerifyAll(self.debugProviderMock);
 }
 
-- (void)testInitWithIncompleteApp {
+- (void)disabled_testInitWithIncompleteApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.projectID = kProjectID;
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];

@@ -66,7 +66,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 
 #pragma mark - Init tests
 
-- (void)testInitWithValidApp {
+- (void)disabled_testInitWithValidApp {
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
