@@ -98,6 +98,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   options.projectID = projectID;
   options.appGroupID = appGroupID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:appName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
 
   // 2. Stub attestation provider.
@@ -126,6 +127,7 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   options.projectID = @"project_id";
 
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:@"testAppCheckInstanceForApp" options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
   XCTAssertNotNil(app);
 

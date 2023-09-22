@@ -71,6 +71,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNotNil([[FIRAppAttestProvider alloc] initWithApp:app]);

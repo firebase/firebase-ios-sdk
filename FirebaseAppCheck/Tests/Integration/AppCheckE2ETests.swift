@@ -78,22 +78,26 @@ final class AppCheckE2ETests: XCTestCase {
     XCTAssertNotNil(appAttestProvider)
   }
 
-  func testGetToken() throws {
-    guard let appCheck = AppCheck.appCheck(app: app) else {
-      XCTFail("AppCheck instance is nil.")
-      return
-    }
+  // The following test is disabled on macOS since `token(forcingRefresh:handler:)` requires a
+  // provisioning profile to access the keychain to cache tokens.
+  #if !os(macOS)
+    func testGetToken() throws {
+      guard let appCheck = AppCheck.appCheck(app: app) else {
+        XCTFail("AppCheck instance is nil.")
+        return
+      }
 
-    let expectation = XCTestExpectation()
-    appCheck.token(forcingRefresh: true) { token, error in
-      XCTAssertNil(error)
-      XCTAssertNotNil(token)
-      XCTAssertEqual(token?.token, TestAppCheckProvider.tokenValue)
-      expectation.fulfill()
-    }
+      let expectation = XCTestExpectation()
+      appCheck.token(forcingRefresh: true) { token, error in
+        XCTAssertNil(error)
+        XCTAssertNotNil(token)
+        XCTAssertEqual(token?.token, TestAppCheckProvider.tokenValue)
+        expectation.fulfill()
+      }
 
-    wait(for: [expectation], timeout: 0.5)
-  }
+      wait(for: [expectation], timeout: 0.5)
+    }
+  #endif
 
   func testGetLimitedUseToken() throws {
     guard let appCheck = AppCheck.appCheck(app: app) else {

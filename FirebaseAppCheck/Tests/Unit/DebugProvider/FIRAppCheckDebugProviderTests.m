@@ -66,6 +66,7 @@ static NSString *const kProjectNumber = @"123456789";
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNotNil([[FIRAppCheckDebugProvider alloc] initWithApp:app]);
@@ -75,6 +76,7 @@ static NSString *const kProjectNumber = @"123456789";
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.projectID = kProjectID;
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   missingAPIKeyApp.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNil([[FIRAppCheckDebugProvider alloc] initWithApp:missingAPIKeyApp]);
@@ -82,6 +84,7 @@ static NSString *const kProjectNumber = @"123456789";
   options.projectID = nil;
   options.APIKey = kAPIKey;
   FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   missingProjectIDApp.dataCollectionDefaultEnabled = NO;
   XCTAssertNil([[FIRAppCheckDebugProvider alloc] initWithApp:missingProjectIDApp]);
 }

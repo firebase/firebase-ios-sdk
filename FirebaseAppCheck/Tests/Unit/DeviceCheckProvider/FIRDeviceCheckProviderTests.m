@@ -71,6 +71,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   app.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNotNil([[FIRDeviceCheckProvider alloc] initWithApp:app]);
@@ -80,6 +81,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   FIROptions *options = [[FIROptions alloc] initWithGoogleAppID:kAppID GCMSenderID:kProjectNumber];
   options.projectID = kProjectID;
   FIRApp *missingAPIKeyApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   missingAPIKeyApp.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingAPIKeyApp]);
@@ -87,6 +89,7 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
   options.projectID = nil;
   options.APIKey = kAPIKey;
   FIRApp *missingProjectIDApp = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
+  // The following disables automatic token refresh, which could interfere with tests.
   missingProjectIDApp.dataCollectionDefaultEnabled = NO;
   XCTAssertNil([[FIRDeviceCheckProvider alloc] initWithApp:missingProjectIDApp]);
 }
