@@ -16,8 +16,6 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
-
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 @import AppCheckCore;
@@ -82,6 +80,20 @@ NS_ASSUME_NONNULL_BEGIN
 
     handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
   }];
+}
+
+- (void)getLimitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable,
+                                                   NSError *_Nullable))handler {
+  [self.deviceCheckProvider
+      getLimitedUseTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
+                                         NSError *_Nullable error) {
+        if (error) {
+          handler(nil, error);
+          return;
+        }
+
+        handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+      }];
 }
 
 @end

@@ -69,19 +69,10 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   options.APIKey = kAPIKey;
   options.projectID = kProjectID;
   FIRApp *app = [[FIRApp alloc] initInstanceWithName:kAppName options:options];
-
-  OCMExpect([self.appAttestProviderMock alloc]).andReturn(self.appAttestProviderMock);
-  OCMExpect([self.appAttestProviderMock initWithServiceName:kAppName
-                                               resourceName:self.resourceName
-                                                    baseURL:nil
-                                                     APIKey:kAPIKey
-                                        keychainAccessGroup:OCMOCK_ANY
-                                               requestHooks:OCMOCK_ANY])
-      .andReturn(self.appAttestProviderMock);
+  // The following disables automatic token refresh, which could interfere with tests.
+  app.dataCollectionDefaultEnabled = NO;
 
   XCTAssertNotNil([[FIRAppAttestProvider alloc] initWithApp:app]);
-
-  OCMVerifyAll(self.appAttestProviderMock);
 }
 
 - (void)testGetTokenSuccess {

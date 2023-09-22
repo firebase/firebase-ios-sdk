@@ -44,7 +44,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
   GACAppAttestProvider *appAttestProvider =
       [[GACAppAttestProvider alloc] initWithServiceName:app.name
                                            resourceName:app.resourceName
@@ -54,9 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
                                            requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
   return [self initWithAppAttestProvider:appAttestProvider];
-#else   // FIR_APP_ATTEST_SUPPORTED_TARGETS
-  return nil;
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
 }
 
 #pragma mark - FIRAppCheckProvider
@@ -64,6 +60,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable, NSError *_Nullable))handler {
   [self.appAttestProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
                                                    NSError *_Nullable error) {
+    if (error) {
+      handler(nil, error);
+      return;
+    }
+
+    handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+  }];
+}
+
+- (void)getLimitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable,
+                                                   NSError *_Nullable))handler {
+  [self.appAttestProvider getLimitedUseTokenWithCompletion:^(
+                              GACAppCheckToken *_Nullable internalToken, NSError *_Nullable error) {
     if (error) {
       handler(nil, error);
       return;
