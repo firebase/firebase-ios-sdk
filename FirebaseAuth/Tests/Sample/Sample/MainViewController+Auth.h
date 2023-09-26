@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)signInAnonymouslyWithCallback:(nullable FIRAuthDataResultCallback)callback;
 
--(void)setAuthDomain;
+- (void)setAuthDomain;
 
 @end
 

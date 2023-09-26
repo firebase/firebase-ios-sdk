@@ -79,12 +79,6 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
      otherwise.
    */
   BOOL _usingClientIDScheme;
-
-  /** @var _customAuthDomain
-   @brief The custom authentication domain used to handle all sign-in redirects. End-users will see
-   this domain when signing in. This domain must be allowlisted in the Firebase Console.
-   */
-  NSString *_customAuthDomain;
 }
 
 + (FIROAuthCredential *)credentialWithProviderID:(NSString *)providerID
@@ -259,9 +253,6 @@ static NSString *const kCustomUrlSchemePrefix = @"app-";
           stringByAppendingString:[_auth.app.options.googleAppID
                                       stringByReplacingOccurrencesOfString:@":"
                                                                 withString:@"-"]];
-    }
-    if (auth.customAuthDomain.length) {
-      _customAuthDomain = auth.customAuthDomain;
     }
   }
   return self;
