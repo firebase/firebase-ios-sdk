@@ -70,6 +70,12 @@ class LevelDbRemoteDocumentCache : public RemoteDocumentCache {
       const model::IndexOffset& offset,
       absl::optional<size_t> limit = absl::nullopt,
       const model::OverlayByDocumentKeyMap& mutated_docs = {}) const override;
+  model::MutableDocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>& context,
+      absl::optional<size_t> limit = absl::nullopt,
+      const model::OverlayByDocumentKeyMap& mutated_docs = {}) const override;
 
   void SetIndexManager(IndexManager* manager) override;
 

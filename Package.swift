@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.14.0"
+let firebaseVersion = "10.16.0"
 
 let package = Package(
   name: "Firebase",
@@ -29,12 +29,14 @@ let package = Package(
       name: "FirebaseAnalytics",
       targets: ["FirebaseAnalyticsTarget"]
     ),
-    // This library is not designed to be imported into client source code.
+    // Adding this library to your project is enough for it to take effect. The module
+    // does not need to be imported into any source files.
     .library(
       name: "FirebaseAnalyticsWithoutAdIdSupport",
       targets: ["FirebaseAnalyticsWithoutAdIdSupportTarget"]
     ),
-    // This library is not designed to be imported into client source code.
+    // Adding this library to your project is enough for it to take effect. The module
+    // does not need to be imported into any source files.
     .library(
       name: "FirebaseAnalyticsOnDeviceConversion",
       targets: ["FirebaseAnalyticsOnDeviceConversionTarget"]
@@ -176,6 +178,10 @@ let package = Package(
       url: "https://github.com/SlaunchaMan/GCDWebServer.git",
       revision: "935e2736044e71e5341663c3cc9a335ba6867a2b"
     ),
+    .package(
+      url: "https://github.com/google/interop-ios-for-google-sdks.git",
+      "100.0.0" ..< "101.0.0"
+    ),
   ],
   targets: [
     .target(
@@ -303,8 +309,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.13.0/FirebaseAnalytics.zip",
-      checksum: "0b293db77dc7627661e766daa0d48766ba66bbb8ad9e88a28e90e32cfcf1b54d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.16.0/FirebaseAnalytics.zip",
+      checksum: "1321d2faa9c3b910758528a1540558c446b97cf9a4d3aad6067907156586d600"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -420,6 +426,7 @@ let package = Package(
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
+        .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
@@ -550,6 +557,7 @@ let package = Package(
     .target(
       name: "FirebaseDatabase",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
       ],
@@ -1210,6 +1218,7 @@ let package = Package(
 
     .target(name: "FirebaseAppCheck",
             dependencies: [
+              "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -1303,7 +1312,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.13.0")
+  return .package(url: appMeasurementURL, exact: "10.16.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1452,8 +1461,8 @@ func firestoreTarget() -> Target {
 
   return .binaryTarget(
     name: "FirebaseFirestore",
-    url: "https://dl.google.com/firebase/ios/bin/firestore/10.13.0/FirebaseFirestore.zip",
-    checksum: "72cbd6e35bfcd714f104df86c1fd7a9a019989423185bb6b1b3dbfb52c4b9f57"
+    url: "https://dl.google.com/firebase/ios/bin/firestore/10.15.0/FirebaseFirestore.zip",
+    checksum: "67cffbd90c1c2a4bba40e1b8ded5f0d8cf530aebc4c0321406d616d3ac6d9865"
   )
 }
 

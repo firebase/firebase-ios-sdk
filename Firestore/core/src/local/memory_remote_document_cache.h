@@ -37,6 +37,7 @@ namespace local {
 class MemoryLruReferenceDelegate;
 class MemoryPersistence;
 class Sizer;
+class QueryContext;
 
 class MemoryRemoteDocumentCache : public RemoteDocumentCache {
  public:
@@ -55,6 +56,12 @@ class MemoryRemoteDocumentCache : public RemoteDocumentCache {
   model::MutableDocumentMap GetDocumentsMatchingQuery(
       const core::Query& query,
       const model::IndexOffset& offset,
+      absl::optional<size_t> limit = absl::nullopt,
+      const model::OverlayByDocumentKeyMap& mutated_docs = {}) const override;
+  model::MutableDocumentMap GetDocumentsMatchingQuery(
+      const core::Query& query,
+      const model::IndexOffset& offset,
+      absl::optional<QueryContext>&,
       absl::optional<size_t> limit = absl::nullopt,
       const model::OverlayByDocumentKeyMap& mutated_docs = {}) const override;
 

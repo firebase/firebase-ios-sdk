@@ -366,7 +366,7 @@ static const NSInteger FIRErrorCodeDurableDeepLinkFailed = -119;
   }
 
   if ([url.path isEqualToString:@"/link"] && [url.host isEqualToString:@"google"]) {
-    // This URL is a callback url from a fingerprint match
+    // This URL is a callback url from a device heuristics based match
     // Extract information from query.
     NSString *query = url.query;
 
