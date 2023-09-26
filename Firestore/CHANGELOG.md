@@ -1,4 +1,4 @@
-# Unreleased
+# 10.16.0
 - [fixed] Fixed an issue where Firestore's binary SwiftPM distribution would
   not link properly when building a target for testing. This issue affected
   Xcode 15 Beta 5 and later (#11656).
