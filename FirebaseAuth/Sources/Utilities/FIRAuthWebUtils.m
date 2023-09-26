@@ -129,7 +129,7 @@ NS_ASSUME_NONNULL_BEGIN
                   return;
                 }
                 // Look up an authorized domain ends with one of the supportedAuthDomains.
-                // The searching ends once the first valid suportedAuthDomain is found.
+                // The searching ends once the first valid supportedAuthDomain is found.
                 NSString *authDomain;
                 NSString *customAuthDomain = requestConfiguration.auth.customAuthDomain;
                 if (customAuthDomain) {
@@ -152,11 +152,11 @@ NS_ASSUME_NONNULL_BEGIN
                   }
                 } else {
                   for (NSString *domain in response.authorizedDomains) {
-                    for (NSString *suportedAuthDomain in [self supportedAuthDomains]) {
-                      NSInteger index = domain.length - suportedAuthDomain.length;
+                    for (NSString *supportedAuthDomain in [self supportedAuthDomains]) {
+                      NSInteger index = domain.length - supportedAuthDomain.length;
                       if (index >= 2) {
-                        if ([domain hasSuffix:suportedAuthDomain] &&
-                            domain.length >= suportedAuthDomain.length + 2) {
+                        if ([domain hasSuffix:supportedAuthDomain] &&
+                            domain.length >= supportedAuthDomain.length + 2) {
                           authDomain = domain;
                           break;
                         }
