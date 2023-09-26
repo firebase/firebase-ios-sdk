@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.m"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 /** @class FIRAuthWebUtilsTests
  @brief Tests for the FIRAuthWebUtils class.
@@ -72,5 +71,3 @@
 }
 
 @end
-
-#endif //TARGET_OS_IOS
