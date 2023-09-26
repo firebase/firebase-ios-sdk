@@ -15,7 +15,7 @@
  */
 #import <TargetConditionals.h>
 #import <XCTest/XCTest.h>
-#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
+#import "FIRAuthWebUtils.h"
 
 /** @class FIRAuthWebUtilsTests
  @brief Tests for the FIRAuthWebUtils class.
