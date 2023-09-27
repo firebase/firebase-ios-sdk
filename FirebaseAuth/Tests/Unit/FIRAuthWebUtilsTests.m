@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import <TargetConditionals.h>
+
 #import <XCTest/XCTest.h>
-#import "FIRAuthWebUtils.h"
+#import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 /** @class FIRAuthWebUtilsTests
  @brief Tests for the FIRAuthWebUtils class.
