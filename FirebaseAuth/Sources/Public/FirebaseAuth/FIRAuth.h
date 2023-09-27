@@ -355,6 +355,13 @@ NS_SWIFT_NAME(Auth)
  */
 @property(nonatomic, strong, nullable) NSData *APNSToken API_UNAVAILABLE(macos, tvos, watchos);
 
+/**
+ * @property customAuthDomain
+ * @brief The custom authentication domain used to handle all sign-in redirects. End-users will see
+ * this domain when signing in. This domain must be allowlisted in the Firebase Console.
+ */
+@property(nonatomic, copy, nullable) NSString *customAuthDomain;
+
 /** @fn init
     @brief Please access auth instances using `Auth.auth()` and `Auth.auth(app:)`.
  */

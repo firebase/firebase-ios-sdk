@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
-
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
-
 #import <Foundation/Foundation.h>
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
@@ -159,5 +155,3 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS

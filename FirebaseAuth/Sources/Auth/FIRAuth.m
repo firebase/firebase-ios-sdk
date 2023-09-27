@@ -2373,7 +2373,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 #else
       // Encode the user object.
       NSMutableData *archiveData = [NSMutableData data];
-// iOS 12 deprecation
+      // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       NSKeyedArchiver *archiver =
@@ -2439,7 +2439,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       return NO;
     }
 #else
-// iOS 12 deprecation
+    // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =
@@ -2621,7 +2621,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       return nil;
     }
 #else
-// iOS 12 deprecation
+    // iOS 12 deprecation
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
     NSKeyedUnarchiver *unarchiver =

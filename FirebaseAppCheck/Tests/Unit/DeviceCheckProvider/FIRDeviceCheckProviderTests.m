@@ -23,13 +23,12 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
 #import "FirebaseAppCheck/Sources/DeviceCheckProvider/FIRDeviceCheckTokenGenerator.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "SharedTestUtilities/AppCheckBackoffWrapperFake/FIRAppCheckBackoffWrapperFake.h"
-
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
 
 FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 @interface FIRDeviceCheckProvider (Tests)
@@ -326,5 +325,3 @@ FIR_DEVICE_CHECK_PROVIDER_AVAILABILITY
 }
 
 @end
-
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS

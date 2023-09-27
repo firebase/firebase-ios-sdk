@@ -1,3 +1,6 @@
+# 10.16.0
+- [fixed] Fix Xcode 15 runtime warning (#11821).
+
 # 10.12.0
 - [fixed] Make Firebase performance compatible with Xcode15.
 - [changed] Removed the capability to access Carrier information of the device since that API is deprecated by Apple.

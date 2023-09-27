@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.15.0"
+let firebaseVersion = "10.16.0"
 
 let package = Package(
   name: "Firebase",
@@ -309,8 +309,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.13.0/FirebaseAnalytics.zip",
-      checksum: "0b293db77dc7627661e766daa0d48766ba66bbb8ad9e88a28e90e32cfcf1b54d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.16.0/FirebaseAnalytics.zip",
+      checksum: "1321d2faa9c3b910758528a1540558c446b97cf9a4d3aad6067907156586d600"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -557,6 +557,7 @@ let package = Package(
     .target(
       name: "FirebaseDatabase",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
       ],
@@ -1217,6 +1218,7 @@ let package = Package(
 
     .target(name: "FirebaseAppCheck",
             dependencies: [
+              "FirebaseAppCheckInterop",
               "FirebaseCore",
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -1310,7 +1312,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.13.0")
+  return .package(url: appMeasurementURL, exact: "10.16.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1459,8 +1461,8 @@ func firestoreTarget() -> Target {
 
   return .binaryTarget(
     name: "FirebaseFirestore",
-    url: "https://dl.google.com/firebase/ios/bin/firestore/10.14.0/FirebaseFirestore.zip",
-    checksum: "c35d3c6dbb4cd16ea8bcb49b980578ccdd56ecb2e4835356d8cd1f52cb4cbd4d"
+    url: "https://dl.google.com/firebase/ios/bin/firestore/10.15.0/FirebaseFirestore.zip",
+    checksum: "67cffbd90c1c2a4bba40e1b8ded5f0d8cf530aebc4c0321406d616d3ac6d9865"
   )
 }
 

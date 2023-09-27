@@ -136,7 +136,6 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
   NSURLSession *URLSession = [NSURLSession
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
@@ -166,9 +165,6 @@ NS_ASSUME_NONNULL_BEGIN
                            keyIDStorage:keyIDStorage
                         artifactStorage:artifactStorage
                          backoffWrapper:backoffWrapper];
-#else   // FIR_APP_ATTEST_SUPPORTED_TARGETS
-  return nil;
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS
 }
 
 #pragma mark - FIRAppCheckProvider
