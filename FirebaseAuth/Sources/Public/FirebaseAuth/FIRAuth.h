@@ -364,15 +364,17 @@ NS_SWIFT_NAME(Auth)
 
 /**
  * @property overrideIdentityToolKitHost
- * @brief A custom host used to handle proxying identityToolKit signins. This gives organizations the ability to create a proxy that
- * is behind a firewall to prevent brute force attacks using the public key against the identitytoolkit api directly.
+ * @brief A custom host used to handle proxying identityToolKit signins. This gives organizations
+ * the ability to create a proxy that is behind a firewall to prevent brute force attacks using the
+ * public key against the identitytoolkit api directly.
  */
 @property(nonatomic, copy, nullable) NSString *overrideIdentityToolKitHost;
 
 /**
  * @property overrideSecureTokenHost
- * @brief A custom host used to handle proxying securetoken signins. This gives organizations the ability to create a proxy that
- * is behind a firewall to prevent brute force attacks using the public key against the secure token api directly.
+ * @brief A custom host used to handle proxying securetoken signins. This gives organizations the
+ * ability to create a proxy that is behind a firewall to prevent brute force attacks using the
+ * public key against the secure token api directly.
  */
 @property(nonatomic, copy, nullable) NSString *overrideSecureTokenHost;
 
