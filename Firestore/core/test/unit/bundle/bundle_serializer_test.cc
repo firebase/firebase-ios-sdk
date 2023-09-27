@@ -42,7 +42,6 @@ namespace {
 
 using google::protobuf::Message;
 using google::protobuf::util::MessageDifferencer;
-using google::protobuf::util::MessageToJsonString;
 using nlohmann::json;
 using ProtoBundledDocumentMetadata = ::firestore::BundledDocumentMetadata;
 using ProtoBundleMetadata = ::firestore::BundleMetadata;
@@ -69,6 +68,11 @@ using util::JsonReader;
 
 json Parse(const std::string& s) {
   return json::parse(s, /*callback=*/nullptr, /*allow_exception=*/false);
+}
+
+void MessageToJsonString(const Message& message, std::string* output) {
+  auto result = google::protobuf::util::MessageToJsonString(message, output);
+  EXPECT_TRUE(result.ok());
 }
 
 class BundleSerializerTest : public ::testing::Test {
