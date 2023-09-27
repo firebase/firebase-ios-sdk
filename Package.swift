@@ -1461,8 +1461,8 @@ func firestoreTarget() -> Target {
 
   return .binaryTarget(
     name: "FirebaseFirestore",
-    url: "https://dl.google.com/firebase/ios/bin/firestore/10.15.0/FirebaseFirestore.zip",
-    checksum: "67cffbd90c1c2a4bba40e1b8ded5f0d8cf530aebc4c0321406d616d3ac6d9865"
+    url: "https://dl.google.com/firebase/ios/bin/firestore/10.16.0/FirebaseFirestore.zip",
+    checksum: "58c2cee5e004240a21b174358dbf371bfebc3ce24c2d71d7518d0e6a0487dcd6"
   )
 }
 
