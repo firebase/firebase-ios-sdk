@@ -1,7 +1,7 @@
-variable "project_info" {}
+variable "project_id" {}
 
 provider "google" {
-  project = var.project_info.project_id
+  project = var.project_id
 }
 
 resource "google_firestore_index" "default-db-index" {
@@ -19,7 +19,6 @@ resource "google_firestore_index" "default-db-index" {
       order      = lookup(fields.value, "order", null)
     }
   }
-
 }
 
 resource "google_firestore_index" "named-db-index" {
