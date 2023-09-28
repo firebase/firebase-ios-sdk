@@ -1680,7 +1680,7 @@
 		132E32997D781B896672D30A /* reference_set_test.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = reference_set_test.cc; sourceTree = "<group>"; };
 		166CE73C03AB4366AAC5201C /* leveldb_index_manager_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = leveldb_index_manager_test.cc; sourceTree = "<group>"; };
 		1A7D48A017ECB54FD381D126 /* Validation_BloomFilterTest_MD5_5000_1_membership_test_result.json */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.json; name = Validation_BloomFilterTest_MD5_5000_1_membership_test_result.json; path = bloom_filter_golden_test_data/Validation_BloomFilterTest_MD5_5000_1_membership_test_result.json; sourceTree = "<group>"; };
-		1A8141230C7E3986EACEF0B6 /* thread_safe_memoizer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; path = thread_safe_memoizer_test.cc; sourceTree = "<group>"; };
+		1A8141230C7E3986EACEF0B6 /* thread_safe_memoizer_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = thread_safe_memoizer_test.cc; sourceTree = "<group>"; };
 		1B342370EAE3AA02393E33EB /* cc_compilation_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; name = cc_compilation_test.cc; path = api/cc_compilation_test.cc; sourceTree = "<group>"; };
 		1B9F95EC29FAD3F100EEC075 /* FIRAggregateQueryUnitTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FIRAggregateQueryUnitTests.mm; sourceTree = "<group>"; };
 		1C01D8CE367C56BB2624E299 /* index.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = index.pb.h; path = admin/index.pb.h; sourceTree = "<group>"; };
@@ -6105,6 +6105,31 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-fmodule-map-file=\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCoreInternal-iOS/FirebaseCoreInternal.modulemap\"",
+					"-fmodule-map-file=\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestoreSwift-iOS/FirebaseFirestoreSwift.modulemap\"",
+					"-fmodule-map-file=\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseSharedSwift-iOS/FirebaseSharedSwift.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Private/grpc/gRPC-Core-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FBLPromises/PromisesObjC-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FirebaseCore/FirebaseCore-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FirebaseCoreExtension/FirebaseCoreExtension-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FirebaseFirestore/FirebaseFirestore-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GRPCClient/gRPC-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GoogleBenchmark/GoogleBenchmark-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GoogleTest/GoogleTest-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GoogleUtilities/GoogleUtilities-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/ProtobufCpp/ProtobufCpp-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/RxLibrary/gRPC-RxLibrary-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/absl/abseil-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/grpcpp/gRPC-C++-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/leveldb/leveldb-library-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/nanopb/nanopb-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/openssl_grpc/BoringSSL-GRPC-iOS.modulemap\"",
+					"-Wno-unreachable-code",
+					"-Werror",
+					"-Wno-modules-import-nested-redundant",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"c++\"",
@@ -6130,6 +6155,31 @@
 					"GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS=1",
 				);
 				INFOPLIST_FILE = "Tests/Tests-Info.plist";
+				OTHER_CFLAGS = (
+					"$(inherited)",
+					"-fmodule-map-file=\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseCoreInternal-iOS/FirebaseCoreInternal.modulemap\"",
+					"-fmodule-map-file=\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseFirestoreSwift-iOS/FirebaseFirestoreSwift.modulemap\"",
+					"-fmodule-map-file=\"${PODS_CONFIGURATION_BUILD_DIR}/FirebaseSharedSwift-iOS/FirebaseSharedSwift.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Private/grpc/gRPC-Core-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FBLPromises/PromisesObjC-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FirebaseCore/FirebaseCore-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FirebaseCoreExtension/FirebaseCoreExtension-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/FirebaseFirestore/FirebaseFirestore-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GRPCClient/gRPC-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GoogleBenchmark/GoogleBenchmark-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GoogleTest/GoogleTest-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/GoogleUtilities/GoogleUtilities-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/ProtobufCpp/ProtobufCpp-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/RxLibrary/gRPC-RxLibrary-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/absl/abseil-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/grpcpp/gRPC-C++-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/leveldb/leveldb-library-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/nanopb/nanopb-iOS.modulemap\"",
+					"-fmodule-map-file=\"${PODS_ROOT}/Headers/Public/openssl_grpc/BoringSSL-GRPC-iOS.modulemap\"",
+					"-Wno-unreachable-code",
+					"-Werror",
+					"-Wno-modules-import-nested-redundant",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"c++\"",
