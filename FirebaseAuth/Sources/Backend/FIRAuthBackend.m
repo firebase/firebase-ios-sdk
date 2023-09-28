@@ -58,6 +58,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
@@ -673,6 +675,13 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
++ (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
+  [[self implementation] startPasskeyEnrollment:request callback:callback];
+}
+#endif
+
 + (void)revokeToken:(FIRRevokeTokenRequest *)request
            callback:(FIRRevokeTokenResponseCallback)callback {
   [[self implementation] revokeToken:request callback:callback];
@@ -1097,6 +1106,22 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                }];
 }
 
+#endif
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+- (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
+                      callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
+  FIRStartPasskeyEnrollmentResponse *response = [[FIRStartPasskeyEnrollmentResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
 #endif
 
 - (void)revokeToken:(FIRRevokeTokenRequest *)request
