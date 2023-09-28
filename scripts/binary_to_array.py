@@ -107,7 +107,7 @@ def header(header_guard, namespaces, array_name, array_size_name, fileid):
         "#endif  // defined(__cplusplus)"])
 
   data.extend([
-      "",
+      "using size_t = std::size_t;",
       "extern const size_t %s;" % array_size_name,
       "extern const unsigned char %s[];" % array_name,
       "extern const char %s[];" % fileid,

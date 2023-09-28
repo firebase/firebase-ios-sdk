@@ -9,6 +9,8 @@ namespace firebase {
 namespace firestore {
 namespace remote {
 
+using size_t = std::size_t;
+
 extern const size_t grpc_root_certificates_generated_size;
 extern const unsigned char grpc_root_certificates_generated_data[];
 extern const char roots_filename[];
