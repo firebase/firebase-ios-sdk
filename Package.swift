@@ -309,8 +309,8 @@ let package = Package(
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
-      url: "https://dl.google.com/firebase/ios/swiftpm/10.13.0/FirebaseAnalytics.zip",
-      checksum: "0b293db77dc7627661e766daa0d48766ba66bbb8ad9e88a28e90e32cfcf1b54d"
+      url: "https://dl.google.com/firebase/ios/swiftpm/10.16.0/FirebaseAnalytics.zip",
+      checksum: "1321d2faa9c3b910758528a1540558c446b97cf9a4d3aad6067907156586d600"
     ),
     .target(
       name: "FirebaseAnalyticsSwiftTarget",
@@ -1312,7 +1312,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, exact: "10.13.0")
+  return .package(url: appMeasurementURL, exact: "10.16.0")
 }
 
 func abseilDependency() -> Package.Dependency {
@@ -1322,13 +1322,13 @@ func abseilDependency() -> Package.Dependency {
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
-      "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-      "0.20220623.0" ..< "0.20220624.0"
+      "https://github.com/abseil/abseil-cpp.git",
+      "20211102.0" ..< "20211103.0"
     )
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.2022062300.0" ..< "1.2022062400.0"
+      "1.2021110200.0" ..< "1.2021110300.0"
     )
   }
 
@@ -1341,9 +1341,9 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.50.1" ..< "1.51.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.44.0" ..< "1.45.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.50.1" ..< "1.51.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.44.0" ..< "1.45.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1461,8 +1461,8 @@ func firestoreTarget() -> Target {
 
   return .binaryTarget(
     name: "FirebaseFirestore",
-    url: "https://dl.google.com/firebase/ios/bin/firestore/10.15.0/FirebaseFirestore.zip",
-    checksum: "67cffbd90c1c2a4bba40e1b8ded5f0d8cf530aebc4c0321406d616d3ac6d9865"
+    url: "https://dl.google.com/firebase/ios/bin/firestore/10.16.0/FirebaseFirestore.zip",
+    checksum: "58c2cee5e004240a21b174358dbf371bfebc3ce24c2d71d7518d0e6a0487dcd6"
   )
 }
 
