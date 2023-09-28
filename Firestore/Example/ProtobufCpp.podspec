@@ -75,7 +75,8 @@ Pod::Spec.new do |s|
     '-Wno-invalid-offsetof ' +
     '-Wno-shorten-64-to-32 ' +
     '-Wno-unreachable-code ' +
-    '-Wno-unused-parameter'
+    '-Wno-unused-parameter' +
+    '-Wnomodules-import-nested-redundant'
 
   s.requires_arc = false
   s.library = 'c++'
