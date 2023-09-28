@@ -76,7 +76,7 @@ Pod::Spec.new do |s|
     '-Wno-shorten-64-to-32 ' +
     '-Wno-unreachable-code ' +
     '-Wno-unused-parameter' +
-    '-Wnomodules-import-nested-redundant'
+    '-Wno-modules-import-nested-redundant'
 
   s.requires_arc = false
   s.library = 'c++'
