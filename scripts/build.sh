@@ -145,7 +145,7 @@ if [[ "$xcode_major" -lt 11 ]]; then
 else
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 11'
+    -destination 'platform=iOS Simulator,name=iPhone 14'
   )
 fi
 

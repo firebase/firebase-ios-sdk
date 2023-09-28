@@ -23,8 +23,6 @@ FirebaseSetupPythonInterpreter(
 # verify that the protoc-generated output isn't changing.
 set(OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_external_subdirectory(protobuf)
-
 # Generating protobuf and nanopb sources when cross compiling doesn't work
 # because CMake can't build protoc for the host when building cross targets.
 #
