@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 #import "FirebaseAuth/Tests/Unit/FIRFakeAppCheck.h"
+
 #import <Foundation/Foundation.h>
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
+
+@import FirebaseAppCheckInterop;
 
 #pragma mark - FIRFakeAppCheckResult
 
