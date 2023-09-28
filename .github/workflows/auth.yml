@@ -6,6 +6,7 @@ on:
     - 'FirebaseAuth**'
     - 'FirebaseAuth/Interop/*.h'
     - '.github/workflows/auth.yml'
+    - 'scripts/gha-encrypted/AuthSample/SwiftApplication.plist.gpg'
     - 'Gemfile*'
   schedule:
     # Run every day at 1am (PST) - cron uses UTC times
