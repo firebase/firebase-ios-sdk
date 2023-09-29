@@ -18,17 +18,22 @@ import sys
 import plistlib
 import json
 
+print("file is called")
+
+
 # Check if the PLIST file path was provided as a command-line argument
 if len(sys.argv) != 2:
     print("Usage: python read_plist.py <path_to_googleService-info.plist>")
     sys.exit(1)
 
 plist_file_path = sys.argv[1]
+print("plist_file_path"+plist_file_path)
 
 # Read the PLIST file
 try:
     with open(plist_file_path, 'rb') as plist_file:
         plist_data = plistlib.load(plist_file)
+    print("opened!")
 
     # Extract the 'project_id' field only for confidentiality
     project_id = plist_data.get('PROJECT_ID')
