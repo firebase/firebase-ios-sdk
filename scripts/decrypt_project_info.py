@@ -31,7 +31,6 @@ if not os.path.isfile(plist_file_path):
 else:
     print("File is found")
 
-
 # Read the PLIST file
 try:
     with open(plist_file_path, 'rb') as plist_file:
@@ -39,8 +38,6 @@ try:
         plist_data = plistlib.load(plist_file)
         print("loaded")
 
-
-    # Extract the 'project_id' field only for confidentiality
     project_id = plist_data.get('PROJECT_ID')
 
     if project_id:
