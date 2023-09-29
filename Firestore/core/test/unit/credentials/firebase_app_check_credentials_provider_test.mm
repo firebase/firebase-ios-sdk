@@ -16,10 +16,10 @@
 
 #include "Firestore/core/src/credentials/firebase_app_check_credentials_provider_apple.h"
 
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+
 #include <chrono>  // NOLINT(build/c++11)
 #include <future>  // NOLINT(build/c++11)
-
-#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 
