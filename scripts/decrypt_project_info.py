@@ -40,7 +40,5 @@ try:
         print("PROJECT_ID key not found in the plist file.")
 except FileNotFoundError:
     print(f"File not found: {plist_file_path}")
-except plistlib.InvalidFileException as e:
-    print("Invalid plist file.")
-except Exception as e:
+except Exception:
     print("An error occurred.")
