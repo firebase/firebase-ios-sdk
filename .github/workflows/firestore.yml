@@ -178,6 +178,10 @@ jobs:
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
     # create composite indexes with Terraform
+    - name: Set up Cloud SDK
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
@@ -185,7 +189,6 @@ jobs:
       continue-on-error: true
     - name: Terraform Apply
       run: |
-        python --version
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         terraform apply -var-file=Firestore/Example/App/project_info.json -auto-approve
         rm Firestore/Example/App/project_info.json

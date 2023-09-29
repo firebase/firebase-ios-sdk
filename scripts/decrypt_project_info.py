@@ -17,7 +17,6 @@
 import sys
 import plistlib
 import json
-import os  # Import the os module
 
 # Check if the PLIST file path was provided as a command-line argument
 if len(sys.argv) != 2:
@@ -26,17 +25,10 @@ if len(sys.argv) != 2:
 
 plist_file_path = sys.argv[1]
 
-if not os.path.isfile(plist_file_path):
-    print("File not found")
-else:
-    print("File is found")
-
 # Read the PLIST file
 try:
     with open(plist_file_path, 'rb') as plist_file:
-        print("opened")
         plist_data = plistlib.readPlist(plist_file)
-        print("loaded")
 
     project_id = plist_data.get('PROJECT_ID')
 
