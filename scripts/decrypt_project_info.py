@@ -41,6 +41,6 @@ try:
 except FileNotFoundError:
     print(f"File not found: {plist_file_path}")
 except plistlib.InvalidFileException as e:
-    print(f"Invalid plist file: {e}")
+    print("Invalid plist file.")
 except Exception as e:
-    print(f"An error occurred: {e}")
+    print("An error occurred.")
