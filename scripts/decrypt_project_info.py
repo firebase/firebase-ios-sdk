@@ -39,6 +39,6 @@ try:
     else:
         print("PROJECT_ID key not found in the plist file.")
 except FileNotFoundError:
-    print(f"File not found: {plist_file_path}")
+    print("File not found")
 except Exception:
     print("An error occurred.")
