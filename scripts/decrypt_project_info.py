@@ -18,13 +18,12 @@ import sys
 import plistlib
 import json
 
-print("file is called")
-
-
 # Check if the PLIST file path was provided as a command-line argument
 if len(sys.argv) != 2:
     print("Usage: python read_plist.py <path_to_googleService-info.plist>")
     sys.exit(1)
+
+print("file is called")
 
 plist_file_path = sys.argv[1]
 print("plist_file_path"+plist_file_path)
