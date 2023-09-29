@@ -22,6 +22,8 @@
 #pragma mark - DeviceCheck
 
 // Targets where DeviceCheck framework is available to be used in preprocessor conditions.
+// TODO: Remove this macro during a breaking change; it is no longer used in the codebase but is
+// defined in the public API.
 #define FIR_DEVICE_CHECK_SUPPORTED_TARGETS \
   TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
 
@@ -32,6 +34,8 @@
 #pragma mark - App Attest
 
 // Targets where `DCAppAttestService` is available to be used in preprocessor conditions.
+// TODO: Remove this macro during a breaking change; it is no longer used in the codebase but is
+// defined in the public API.
 #define FIR_APP_ATTEST_SUPPORTED_TARGETS \
   TARGET_OS_IOS || TARGET_OS_OSX || TARGET_OS_TV || TARGET_OS_WATCH
 

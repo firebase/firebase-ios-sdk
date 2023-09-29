@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-#import <TargetConditionals.h>
-
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
-
-// Currently DCAppAttestService is available on iOS only.
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
-
 #import <DeviceCheck/DeviceCheck.h>
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
+
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,5 +28,3 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS

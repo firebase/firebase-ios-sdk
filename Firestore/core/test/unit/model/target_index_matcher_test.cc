@@ -139,10 +139,13 @@ void ValidateDoesNotServeTarget(const core::Query& query,
 void ValidateBuildTargetIndexCreateFullMatchIndex(const core::Query& query) {
   const core::Target& target = query.ToTarget();
   TargetIndexMatcher matcher(target);
-  FieldIndex expected_index = matcher.BuildTargetIndex();
-  EXPECT_TRUE(matcher.ServedByIndex(expected_index));
+  EXPECT_FALSE(matcher.HasMultipleInequality());
+  absl::optional<FieldIndex> actual_index = matcher.BuildTargetIndex();
+  ASSERT_TRUE(actual_index.has_value());
+  EXPECT_TRUE(matcher.ServedByIndex(actual_index.value()));
   // Check the index created is a FULL MATCH index
-  EXPECT_TRUE(expected_index.segments().size() >= target.GetSegmentCount());
+  EXPECT_TRUE(actual_index.value().segments().size() >=
+              target.GetSegmentCount());
 }
 
 TEST(TargetIndexMatcher, CanUseMergeJoin) {
@@ -726,6 +729,17 @@ TEST(TargetIndexMatcher, BuildTargetIndexWithInAndOrderBySameField) {
                    .AddingFilter(Filter("a", "in", Array(1, 2, 3)))
                    .AddingOrderBy(OrderBy("a"));
   ValidateBuildTargetIndexCreateFullMatchIndex(query);
+}
+
+TEST(TargetIndexMatcher, BuildTargetIndexReturnsNullForMultipleInequality) {
+  auto query = testutil::Query("collId")
+                   .AddingFilter(Filter("a", ">=", 1))
+                   .AddingFilter(Filter("b", "<=", 10));
+  const core::Target& target = query.ToTarget();
+  TargetIndexMatcher matcher(target);
+  EXPECT_TRUE(matcher.HasMultipleInequality());
+  absl::optional<FieldIndex> actual_index = matcher.BuildTargetIndex();
+  EXPECT_FALSE(actual_index.has_value());
 }
 
 }  //  namespace

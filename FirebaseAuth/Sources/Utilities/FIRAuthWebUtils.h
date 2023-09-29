@@ -59,6 +59,12 @@ typedef void (^FIRFetchAuthDomainCallback)(NSString *_Nullable authDomain,
                      authType:(NSString *)authType
                callbackScheme:(NSString *)callbackScheme;
 
+/** @fn extractDomain:urlString
+ @brief Strips url of scheme and path string to extract domain name
+ @param urlString URL string for domain
+ */
++ (NSString *)extractDomain:(NSString *)urlString;
+
 /** @fn fetchAuthDomainWithCompletion:completion:
     @brief Fetches the auth domain associated with the Firebase Project.
     @param completion The callback invoked after the auth domain has been constructed or an error

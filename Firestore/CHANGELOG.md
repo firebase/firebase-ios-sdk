@@ -1,3 +1,11 @@
+# 10.16.0
+- [fixed] Fixed an issue where Firestore's binary SwiftPM distribution would
+  not link properly when building a target for testing. This issue affected
+  Xcode 15 Beta 5 and later (#11656).
+- [fixed] Downgrade the CocoaPods grpc dependency back to 1.44.0 (from 1.50.1)
+  to fix a crash on iOS 12 devices that was introduced in the Firebase Apple SDK
+  10.10.0 when the grpc dependency was upgraded (#11509).
+
 # 10.15.0
 - [feature] Add the option to allow the SDK to create cache indexes automatically to
   improve query execution locally. (#11596)
