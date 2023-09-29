@@ -178,11 +178,6 @@ jobs:
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
     # create composite indexes with Terraform
-    - name: Set up Cloud SDK
-      uses: google-github-actions/auth@v0
-      with:
-        credentials_json: ${{ secrets.GOOGLE_CREDENTIALS }}
-        export_environment_variables: true
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
