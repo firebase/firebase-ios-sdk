@@ -26,10 +26,11 @@ if len(sys.argv) != 2:
 
 plist_file_path = sys.argv[1]
 
-# Check if the file exists before attempting to read it
-if not os.path.exists(plist_file_path):
+if not os.path.isfile(plist_file_path):
     print("File not found")
-    sys.exit(1)
+else:
+    print("File is found")
+
 
 # Read the PLIST file
 try:
