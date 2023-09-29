@@ -1343,9 +1343,8 @@ func grpcDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.49.1" ..< "1.50.0")
   } else {
-    // TODO(andrewheard): Change back to binary distribution before merging (after the binary repo
-    // is tagged): ("https://github.com/google/grpc-binary.git", "1.50.1" ..< "1.50.2")
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.49.1" ..< "1.50.0")
+    // TODO(andrewheard): Change back to "1.49.1" ..< "1.50.0" before merging.
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.50.1" ..< "1.50.2")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
