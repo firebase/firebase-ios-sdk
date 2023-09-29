@@ -1313,7 +1313,7 @@ func googleAppMeasurementDependency() -> Package.Dependency {
     return .package(url: appMeasurementURL, branch: "main")
   }
 
-  return .package(url: appMeasurementURL, branch: "main")
+  return .package(url: appMeasurementURL, exact: "10.16.0")
 }
 
 func abseilDependency() -> Package.Dependency {

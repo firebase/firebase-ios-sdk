@@ -44,7 +44,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # version wins in the global header map. The benefit of keeping them here is
   # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
-    'FirebaseAppCheck/Interop/*.h',
     'FirebaseCore/Extension/*.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
@@ -88,6 +87,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
 
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.16'
   s.dependency 'FirebaseCore', '~> 10.0'
 
   abseil_version = '~> 1.20220623.0'
