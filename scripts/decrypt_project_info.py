@@ -26,7 +26,7 @@ if len(sys.argv) != 2:
 print("file is called")
 
 plist_file_path = sys.argv[1]
-print("plist_file_path"+plist_file_path)
+print("plist_file_path" + plist_file_path)
 
 # Read the PLIST file
 try:
