@@ -178,12 +178,12 @@ jobs:
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
     # create composite indexes with Terraform
-    - name: Setup Terraform 
+    - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
       run: terraform init
       continue-on-error: true
-    - name: Terraform Apply 
+    - name: Terraform Apply
       run: |
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         terraform apply -var-file=Firestore/Example/App/project_info.json -auto-approve
