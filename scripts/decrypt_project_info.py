@@ -35,7 +35,10 @@ else:
 # Read the PLIST file
 try:
     with open(plist_file_path, 'rb') as plist_file:
+        print("opened")
         plist_data = plistlib.load(plist_file)
+        print("loaded")
+
 
     # Extract the 'project_id' field only for confidentiality
     project_id = plist_data.get('PROJECT_ID')
@@ -45,5 +48,5 @@ try:
             json.dump({'project_id': project_id}, json_file)
     else:
         print("PROJECT_ID key not found in the plist file.")
-except Exception:
-    print("An error occurred.")
+except Exception as e:
+    print("Error loading plist data:", e)
