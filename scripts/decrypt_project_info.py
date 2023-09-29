@@ -38,7 +38,5 @@ try:
             json.dump({'project_id': project_id}, json_file)
     else:
         print("PROJECT_ID key not found in the plist file.")
-except FileNotFoundError:
-    print("File not found")
 except Exception:
     print("An error occurred.")
