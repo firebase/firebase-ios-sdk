@@ -35,7 +35,7 @@ else:
 try:
     with open(plist_file_path, 'rb') as plist_file:
         print("opened")
-        plist_data = plistlib.load(plist_file)
+        plist_data = plistlib.loads(plist_file)
         print("loaded")
 
     project_id = plist_data.get('PROJECT_ID')
