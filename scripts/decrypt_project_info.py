@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # Copyright 2023 Google
 #
@@ -35,7 +35,7 @@ else:
 try:
     with open(plist_file_path, 'rb') as plist_file:
         print("opened")
-        plist_data = plistlib.loads(plist_file)
+        plist_data = readPlist(plist_file)
         print("loaded")
 
     project_id = plist_data.get('PROJECT_ID')

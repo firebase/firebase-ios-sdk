@@ -185,6 +185,7 @@ jobs:
       continue-on-error: true
     - name: Terraform Apply
       run: |
+        python --version
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         terraform apply -var-file=Firestore/Example/App/project_info.json -auto-approve
         rm Firestore/Example/App/project_info.json
