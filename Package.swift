@@ -1328,7 +1328,7 @@ func abseilDependency() -> Package.Dependency {
   } else {
     packageInfo = (
       "https://github.com/google/abseil-cpp-binary.git",
-      "1.20220623.0" ..< "1.20220624.0"
+      "1.2022062300.0" ..< "1.2022062400.0"
     )
   }
 
