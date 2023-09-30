@@ -14,10 +14,26 @@
 
 import Foundation
 
-class AuthProtoFinalizeMFAPhoneResponseInfo: NSObject, AuthProto {
-  var phoneNumber: String?
-
+class AuthProtoFinalizeMFATOTPEnrollmentRequestInfo: NSObject, AuthProto {
   required init(dictionary: [String: AnyHashable]) {
-    phoneNumber = dictionary["phoneNumber"] as? String
+    fatalError()
+  }
+
+  let sessionInfo: String?
+  let verificationCode: String?
+  init(sessionInfo: String?, verificationCode: String?) {
+    self.sessionInfo = sessionInfo
+    self.verificationCode = verificationCode
+  }
+
+  var dictionary: [String: AnyHashable] {
+    var dict: [String: AnyHashable] = [:]
+    if let sessionInfo = sessionInfo {
+      dict["sessionInfo"] = sessionInfo
+    }
+    if let verificationCode = verificationCode {
+      dict["verificationCode"] = verificationCode
+    }
+    return dict
   }
 }

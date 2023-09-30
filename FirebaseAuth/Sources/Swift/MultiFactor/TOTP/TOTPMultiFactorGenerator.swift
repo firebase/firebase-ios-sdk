@@ -23,6 +23,7 @@ import Foundation
    the assertion.
    This class is available on iOS only.
    */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRTOTPMultiFactorGenerator) public class TOTPMultiFactorGenerator: NSObject {
     /**
      @fn generateSecretWithMultiFactorSession
@@ -35,7 +36,11 @@ import Foundation
     @objc public func generateSecretWithMultiFactorSession(session: MultiFactorSession,
                                                            completion: (TOTPSecret?, Error?)
                                                              -> Void) {
-      // Saturday TODO
+//      if let idToken = session.idToken {
+//        let request = StartMFAEnrollmentRequest(idToken: idToken,
+//                                                enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo(),
+//                                                requestConfiguration: session.currentUser.auth?.requestConfiguration)
+//      }
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

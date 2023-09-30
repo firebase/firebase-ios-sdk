@@ -14,10 +14,27 @@
 
 import Foundation
 
-class AuthProtoFinalizeMFAPhoneResponseInfo: NSObject, AuthProto {
-  var phoneNumber: String?
-
+/**
+ @brief AuthProtoFinalizeMFATOTPSignInRequestInfo class.  This class is used to compose
+ finalizeMFASignInRequest for TOTP case.
+ */
+class AuthProtoFinalizeMFATOTPSignInRequestInfo: NSObject, AuthProto {
   required init(dictionary: [String: AnyHashable]) {
-    phoneNumber = dictionary["phoneNumber"] as? String
+    fatalError()
+  }
+
+  let mfaEnrollmentID: String?
+  let verificationCode: String?
+  init(mfaEnrollmentID: String?, verificationCode: String?) {
+    self.mfaEnrollmentID = mfaEnrollmentID
+    self.verificationCode = verificationCode
+  }
+
+  var dictionary: [String: AnyHashable] {
+    var dict: [String: AnyHashable] = [:]
+    if let verificationCode = verificationCode {
+      dict["verificationCode"] = verificationCode
+    }
+    return dict
   }
 }

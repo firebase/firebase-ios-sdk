@@ -189,9 +189,16 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
          let enrollments = mfaResponse.mfaInfo {
         var info: [MultiFactorInfo] = []
         for enrollment in enrollments {
-          #warning("fixe me with an enum between mfa and totp")
-//          switch (enrollment.)
-//          info.append(MultiFactorInfo(proto: enrollment))
+          // check which MFA factors are enabled.
+          if let phoneInfo = enrollment.phoneInfo {
+            info.append(MultiFactorInfo(proto: enrollment,
+                                        factorID: PhoneMultiFactorInfo.PhoneMultiFactorID))
+          } else if let totpInfo = enrollment.totpInfo {
+            info.append(MultiFactorInfo(proto: enrollment,
+                                        factorID: PhoneMultiFactorInfo.TOTPMultiFactorID))
+          } else {
+            AuthLog.logError(code: "I-AUT000021", message: "Multifactor type is not supported")
+          }
         }
         return AuthErrorUtils.secondFactorRequiredError(
           pendingCredential: mfaResponse.mfaPendingCredential,

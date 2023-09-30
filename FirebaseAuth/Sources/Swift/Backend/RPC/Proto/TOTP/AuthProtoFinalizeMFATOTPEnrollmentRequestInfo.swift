@@ -14,10 +14,16 @@
 
 import Foundation
 
-class AuthProtoFinalizeMFAPhoneResponseInfo: NSObject, AuthProto {
-  var phoneNumber: String?
+class AuthProtoStartMFATOTPEnrollmentRequestInfo: NSObject,
+  AuthProto {
+  public required init(dictionary: [String: AnyHashable]) {
+    fatalError()
+  }
 
-  required init(dictionary: [String: AnyHashable]) {
-    phoneNumber = dictionary["phoneNumber"] as? String
+  var dictionary: [String: AnyHashable] {
+    // Request to trigger enrollment for TOTP. Since there are no request parameters, we send an
+    // empty
+    // JSON object to the server
+    return [:]
   }
 }
