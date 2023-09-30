@@ -59,12 +59,13 @@ import Foundation
     }
 
     public required init?(coder: NSCoder) {
-      guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String else {
+      guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String
+      else {
         return nil
       }
       self.uid = uid
-      self.factorID = coder.decodeObject(of: [NSString.self],
-                                         forKey: kFactorIDCodingKey) as? String
+      factorID = coder.decodeObject(of: [NSString.self],
+                                    forKey: kFactorIDCodingKey) as? String
       displayName = coder.decodeObject(
         of: [NSString.self],
         forKey: kDisplayNameCodingKey
@@ -76,16 +77,15 @@ import Foundation
     }
   }
 
-extension MultiFactorInfo : NSSecureCoding {
-  private static var secureCodingWorkaround = true
-  public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
+  extension MultiFactorInfo: NSSecureCoding {
+    private static var secureCodingWorkaround = true
+    public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
 
-
-  public func encode(with coder: NSCoder) {
-    coder.encode(uid, forKey: kUIDCodingKey)
-    coder.encode(displayName, forKey: kDisplayNameCodingKey)
-    coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
-    coder.encode(factorID, forKey: kFactorIDCodingKey)
+    public func encode(with coder: NSCoder) {
+      coder.encode(uid, forKey: kUIDCodingKey)
+      coder.encode(displayName, forKey: kDisplayNameCodingKey)
+      coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
+      coder.encode(factorID, forKey: kFactorIDCodingKey)
+    }
   }
-}
 #endif

@@ -400,8 +400,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil)
       _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
       let mfi =
-      MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:]), factorID: "abc")
-      as! PhoneMultiFactorInfo
+        MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:]), factorID: "abc")
+          as! PhoneMultiFactorInfo
       _ = try await provider.verifyPhoneNumber(with: mfi, uiDelegate: nil,
                                                multiFactorSession: nil)
       _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
