@@ -19,7 +19,7 @@ class StartMFAEnrollmentResponse: AuthRPCResponse {
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneSessionInfo"] as? [String: AnyHashable] {
-      enrollmentResponse = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
+      phoneSessionInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
     } else {
       fatalError()
       // XXX TODO: throw something. original code does not strictly follow
@@ -30,5 +30,5 @@ class StartMFAEnrollmentResponse: AuthRPCResponse {
     }
   }
 
-  var enrollmentResponse: AuthProtoStartMFAPhoneResponseInfo?
+  var phoneSessionInfo: AuthProtoStartMFAPhoneResponseInfo?
 }

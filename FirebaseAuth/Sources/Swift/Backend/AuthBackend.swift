@@ -186,13 +186,15 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     private class func generateMFAError(response: AuthRPCResponse, auth: Auth) -> Error? {
       if let mfaResponse = response as? EmailLinkSignInResponse,
          mfaResponse.idToken == nil,
-         let enrollments = mfaResponse.MFAInfo {
+         let enrollments = mfaResponse.mfaInfo {
         var info: [MultiFactorInfo] = []
         for enrollment in enrollments {
-          info.append(MultiFactorInfo(proto: enrollment))
+          #warning("fixe me with an enum between mfa and totp")
+//          switch (enrollment.)
+//          info.append(MultiFactorInfo(proto: enrollment))
         }
         return AuthErrorUtils.secondFactorRequiredError(
-          pendingCredential: mfaResponse.MFAPendingCredential,
+          pendingCredential: mfaResponse.mfaPendingCredential,
           hints: info,
           auth: auth
         )

@@ -306,7 +306,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
         .enroll(with: PhoneMultiFactorGenerator.assertion(with: credential),
                 displayName: "name") { _ in
         }
-      let mfi = MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:]))
+      let mfi = MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:]), factorID: "abc")
       obj.unenroll(with: mfi) { _ in
       }
       obj.unenroll(withFactorUID: "uid") { _ in
@@ -324,7 +324,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
         with: PhoneMultiFactorGenerator.assertion(with: credential),
         displayName: "name"
       )
-      let mfi = MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:]))
+      let mfi = MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:]), factorID: "abc")
       try await obj.unenroll(with: mfi)
       try await obj.unenroll(withFactorUID: "uid")
     }
@@ -382,7 +382,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       }
       provider.verifyPhoneNumber(
         with: MultiFactorInfo(
-          proto: AuthProtoMFAEnrollment(dictionary: [:])
+          proto: AuthProtoMFAEnrollment(dictionary: [:]), factorID: "abc"
         ) as! PhoneMultiFactorInfo,
         uiDelegate: nil,
         multiFactorSession: nil
@@ -400,7 +400,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil)
       _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
       let mfi =
-        MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:])) as! PhoneMultiFactorInfo
+      MultiFactorInfo(proto: AuthProtoMFAEnrollment(dictionary: [:]), factorID: "abc")
+      as! PhoneMultiFactorInfo
       _ = try await provider.verifyPhoneNumber(with: mfi, uiDelegate: nil,
                                                multiFactorSession: nil)
       _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)

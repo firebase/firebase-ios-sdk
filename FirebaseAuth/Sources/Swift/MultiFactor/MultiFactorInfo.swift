@@ -27,49 +27,44 @@ import Foundation
    @brief Safe public structure used to represent a second factor entity from a client perspective.
        This class is available on iOS only.
    */
-  @objc(FIRMultiFactorInfo) public class MultiFactorInfo: NSObject, NSSecureCoding {
+  @objc(FIRMultiFactorInfo) public class MultiFactorInfo: NSObject {
     /**
         @brief The multi-factor enrollment ID.
      */
-    @objc(UID) public var uid: String
+    @objc(UID) public let uid: String
 
     /**
         @brief The user friendly name of the current second factor.
      */
-    @objc public var displayName: String?
+    @objc public let displayName: String?
 
     /**
         @brief The second factor enrollment date.
      */
-    @objc public var enrollmentDate: Date?
+    @objc public let enrollmentDate: Date?
 
     /**
         @brief The identifier of the second factor.
      */
-    var factorID: String?
+    @objc public let factorID: String?
 
-    @objc public init(proto: AuthProtoMFAEnrollment) {
+    init(proto: AuthProtoMFAEnrollment, factorID: String) {
       guard let uid = proto.mfaEnrollmentID else {
         fatalError("Auth Internal Error: Failed to inialize MFA: missing enrollment ID")
       }
       self.uid = uid
+      self.factorID = factorID
       displayName = proto.displayName
       enrollmentDate = proto.enrolledAt
     }
 
-    // MARK: - NSSecureCoding
-
-    private static var secureCodingWorkaround = true
-    public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
-
     public required init?(coder: NSCoder) {
-      guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String,
-            let factorID = coder.decodeObject(of: [NSString.self],
-                                              forKey: kFactorIDCodingKey) as? String else {
+      guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String else {
         return nil
       }
       self.uid = uid
-      self.factorID = factorID
+      self.factorID = coder.decodeObject(of: [NSString.self],
+                                         forKey: kFactorIDCodingKey) as? String
       displayName = coder.decodeObject(
         of: [NSString.self],
         forKey: kDisplayNameCodingKey
@@ -79,12 +74,18 @@ import Foundation
         forKey: kEnrollmentDateCodingKey
       ) as? Date
     }
-
-    public func encode(with coder: NSCoder) {
-      coder.encode(uid, forKey: kUIDCodingKey)
-      coder.encode(displayName, forKey: kDisplayNameCodingKey)
-      coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
-      coder.encode(factorID, forKey: kFactorIDCodingKey)
-    }
   }
+
+extension MultiFactorInfo : NSSecureCoding {
+  private static var secureCodingWorkaround = true
+  public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
+
+
+  public func encode(with coder: NSCoder) {
+    coder.encode(uid, forKey: kUIDCodingKey)
+    coder.encode(displayName, forKey: kDisplayNameCodingKey)
+    coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
+    coder.encode(factorID, forKey: kFactorIDCodingKey)
+  }
+}
 #endif

@@ -22,19 +22,18 @@ import Foundation
        This class is available on iOS only.
    */
   @objc(FIRPhoneMultiFactorInfo) public class PhoneMultiFactorInfo: MultiFactorInfo {
-    @objc(FIRPhoneMultiFactorID) public static let PhoneMultiFactorID = "FIRPhoneMultiFactorID"
-
+    @objc(FIRPhoneMultiFactorID) public static let PhoneMultiFactorID = "phone"
+    @objc(FIRTOTPMultiFactorID) public static let TOTPMultiFactorID = "totp"
     /**
         @brief This is the phone number associated with the current second factor.
      */
     @objc public var phoneNumber: String
-    @objc override public init(proto: AuthProtoMFAEnrollment) {
+    init(proto: AuthProtoMFAEnrollment) {
       guard let phoneInfo = proto.phoneInfo else {
         fatalError("Internal Auth Error: Missing phone number in Multi Factor Enrollment")
       }
       phoneNumber = phoneInfo
-      super.init(proto: proto)
-      factorID = Self.PhoneMultiFactorID
+      super.init(proto: proto, factorID: Self.PhoneMultiFactorID)
     }
 
     // MARK: NSSecureCoding
