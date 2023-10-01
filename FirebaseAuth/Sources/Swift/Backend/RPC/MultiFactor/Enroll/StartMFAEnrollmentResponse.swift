@@ -17,9 +17,14 @@ import Foundation
 class StartMFAEnrollmentResponse: AuthRPCResponse {
   required init() {}
 
+  private(set) var phoneSessionInfo: AuthProtoStartMFAPhoneResponseInfo?
+  private(set) var totpSessionInfo: AuthProtoStartMFATOTPEnrollmentResponseInfo?
+
   func setFields(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneSessionInfo"] as? [String: AnyHashable] {
       phoneSessionInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
+    } else if let data = dictionary["totpSessionInfo"] as? [String: AnyHashable] {
+      totpSessionInfo = AuthProtoStartMFATOTPEnrollmentResponseInfo(dictionary: data)
     } else {
       fatalError()
       // XXX TODO: throw something. original code does not strictly follow
@@ -29,6 +34,4 @@ class StartMFAEnrollmentResponse: AuthRPCResponse {
       // throw xxx
     }
   }
-
-  var phoneSessionInfo: AuthProtoStartMFAPhoneResponseInfo?
 }

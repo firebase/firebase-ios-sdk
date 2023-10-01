@@ -48,35 +48,50 @@ import Foundation
     @objc(resolveSignInWithAssertion:completion:)
     public func resolveSignIn(with assertion: MultiFactorAssertion,
                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
-      let phoneAssertion = assertion as? PhoneMultiFactorAssertion
-      guard let credential = phoneAssertion?.authCredential else {
-        fatalError("Internal Error: Missing credential")
+      var finalizedMFARequestInfo: AuthProto?
+      if let totpAssertion = assertion as? TOTPMultiFactorAssertion {
+        switch totpAssertion.secretOrID {
+        case .secret: fatalError("Missing enrollmentID in totpAssertion")
+        case let .enrollmentID(enrollmentID):
+          finalizedMFARequestInfo = AuthProtoFinalizeMFATOTPSignInRequestInfo(
+            mfaEnrollmentID: enrollmentID,
+            verificationCode: totpAssertion.oneTimePassword
+          )
+        }
+      } else {
+        let phoneAssertion = assertion as? PhoneMultiFactorAssertion
+        guard let credential = phoneAssertion?.authCredential else {
+          fatalError("Internal Error: Missing credential")
+        }
+        switch credential.credentialKind {
+        case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
+        case let .verification(verificationID, code):
+          finalizedMFARequestInfo =
+            AuthProtoFinalizeMFAPhoneRequestInfo(
+              sessionInfo: verificationID,
+              verificationCode: code
+            )
+        }
       }
-      switch credential.credentialKind {
-      case .phoneNumber: fatalError("Internal Error: Missing verificationCode")
-      case let .verification(verificationID, code):
-        let finalizeMFAPhoneRequestInfo =
-          AuthProtoFinalizeMFAPhoneRequestInfo(sessionInfo: verificationID, verificationCode: code)
-        let request = FinalizeMFASignInRequest(
-          mfaPendingCredential: mfaPendingCredential,
-          verificationInfo: finalizeMFAPhoneRequestInfo,
-          requestConfiguration: auth.requestConfiguration
-        )
-        Task {
-          do {
-            let response = try await AuthBackend.post(with: request)
-            let user = try await self.auth.completeSignIn(withAccessToken: response.idToken,
-                                                          accessTokenExpirationDate: nil,
-                                                          refreshToken: response.refreshToken,
-                                                          anonymous: false)
-            let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
-            let decoratedCallback = self.auth
-              .signInFlowAuthDataResultCallback(byDecorating: completion)
-            decoratedCallback(result, nil)
-          } catch {
-            if let completion {
-              completion(nil, error)
-            }
+      let request = FinalizeMFASignInRequest(
+        mfaPendingCredential: mfaPendingCredential,
+        verificationInfo: finalizedMFARequestInfo,
+        requestConfiguration: auth.requestConfiguration
+      )
+      Task {
+        do {
+          let response = try await AuthBackend.post(with: request)
+          let user = try await self.auth.completeSignIn(withAccessToken: response.idToken,
+                                                        accessTokenExpirationDate: nil,
+                                                        refreshToken: response.refreshToken,
+                                                        anonymous: false)
+          let result = AuthDataResult(withUser: user, additionalUserInfo: nil)
+          let decoratedCallback = self.auth
+            .signInFlowAuthDataResultCallback(byDecorating: completion)
+          decoratedCallback(result, nil)
+        } catch {
+          if let completion {
+            completion(nil, error)
           }
         }
       }
@@ -107,8 +122,7 @@ import Foundation
       self.mfaPendingCredential = mfaPendingCredential
       self.hints = hints
       self.auth = auth
-      session = MultiFactorSession()
-      session.mfaPendingCredential = mfaPendingCredential
+      session = MultiFactorSession(mfaCredential: mfaPendingCredential)
     }
   }
 

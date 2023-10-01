@@ -190,10 +190,10 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
         var info: [MultiFactorInfo] = []
         for enrollment in enrollments {
           // check which MFA factors are enabled.
-          if let phoneInfo = enrollment.phoneInfo {
+          if let _ = enrollment.phoneInfo {
             info.append(MultiFactorInfo(proto: enrollment,
                                         factorID: PhoneMultiFactorInfo.PhoneMultiFactorID))
-          } else if let totpInfo = enrollment.totpInfo {
+          } else if let _ = enrollment.totpInfo {
             info.append(MultiFactorInfo(proto: enrollment,
                                         factorID: PhoneMultiFactorInfo.TOTPMultiFactorID))
           } else {

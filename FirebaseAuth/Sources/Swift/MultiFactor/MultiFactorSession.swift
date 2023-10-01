@@ -17,26 +17,49 @@ import Foundation
 #if os(iOS)
   /** @class FIRMultiFactorSession
       @brief Opaque object that identifies the current session to enroll a second factor or to
-          complete sign in when previously enrolled.
+          complete sign in when previously enrolled. Identifies the current session to enroll a second factor or to complete sign in when
+   previously enrolled. It contains additional context on the existing user, notably the confirmation
+   that the user passed the first factor challenge.
           This class is available on iOS only.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorSession) public class MultiFactorSession: NSObject {
+    /**
+     @brief The ID token for an enroll flow. This has to be retrieved after recent authentication.
+     */
     var idToken: String?
 
+    /**
+     @brief The pending credential after an enrolled second factor user signs in successfully with the
+     first factor
+     */
     var mfaPendingCredential: String?
 
+    /**
+     @brief Multi factor info for the current user.
+     */
     var multiFactorInfo: MultiFactorInfo?
 
+    /**
+     @brief Current user object
+     */
+    var currentUser: User?
+
     class var sessionForCurrentUser: MultiFactorSession {
-      let currentUser = Auth.auth().currentUser
-      let idToken = currentUser?.tokenService.accessToken
-      return .init(idToken: idToken)
+      // TODO: Fix for the right Auth instance. (broken in ObjC)
+      guard let currentUser = Auth.auth().currentUser else {
+        fatalError("Internal Auth Error: missing user for multifactor auth")
+      }
+      return .init(idToken: currentUser.tokenService.accessToken, currentUser: currentUser)
     }
 
-    convenience init(idToken: String?) {
-      self.init()
+    init(idToken: String, currentUser: User) {
       self.idToken = idToken
+      self.currentUser = currentUser
+    }
+
+    init(mfaCredential: String?) {
+      mfaPendingCredential = mfaCredential
     }
   }
 

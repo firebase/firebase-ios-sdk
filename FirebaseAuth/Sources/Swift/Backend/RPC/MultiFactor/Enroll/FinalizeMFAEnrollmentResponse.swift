@@ -17,11 +17,19 @@ import Foundation
 class FinalizeMFAEnrollmentResponse: AuthRPCResponse {
   public required init() {}
 
-  var idToken: String?
-  var refreshToken: String?
+  private(set) var idToken: String?
+  private(set) var refreshToken: String?
+  private(set) var phoneSessionInfo: AuthProtoFinalizeMFAPhoneResponseInfo?
+  private(set) var totpSessionInfo: AuthProtoFinalizeMFATOTPEnrollmentResponseInfo?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     idToken = dictionary["idToken"] as? String
     refreshToken = dictionary["refreshToken"] as? String
+
+    if let data = dictionary["phoneSessionInfo"] as? [String: AnyHashable] {
+      phoneSessionInfo = AuthProtoFinalizeMFAPhoneResponseInfo(dictionary: data)
+    } else if let data = dictionary["totpSessionInfo"] as? [String: AnyHashable] {
+      totpSessionInfo = AuthProtoFinalizeMFATOTPEnrollmentResponseInfo(dictionary: data)
+    }
   }
 }

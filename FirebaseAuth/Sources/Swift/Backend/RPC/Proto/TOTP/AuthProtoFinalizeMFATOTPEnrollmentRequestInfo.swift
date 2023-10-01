@@ -14,10 +14,13 @@
 
 import Foundation
 
-class AuthProtoStartMFATOTPEnrollmentRequestInfo: NSObject,
-  AuthProto {
+class AuthProtoStartMFATOTPEnrollmentRequestInfo: NSObject, AuthProto {
   public required init(dictionary: [String: AnyHashable]) {
     fatalError()
+  }
+
+  override init() {
+    super.init()
   }
 
   var dictionary: [String: AnyHashable] {

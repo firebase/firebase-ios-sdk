@@ -15,9 +15,8 @@
 import Foundation
 
 #if os(iOS)
-
   /**
-   @class FIRTOTPMultiFactorGenerator
+   @class TOTPMultiFactorGenerator
    @brief The data structure used to help initialize an assertion for a second factor entity to the
    Firebase Auth/CICP server. Depending on the type of second factor, this will help generate
    the assertion.
@@ -34,13 +33,43 @@ import Foundation
      @param completion Completion block
      */
     @objc public func generateSecretWithMultiFactorSession(session: MultiFactorSession,
-                                                           completion: (TOTPSecret?, Error?)
+                                                           completion: @escaping (TOTPSecret?,
+                                                                                  Error?)
                                                              -> Void) {
-//      if let idToken = session.idToken {
-//        let request = StartMFAEnrollmentRequest(idToken: idToken,
-//                                                enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo(),
-//                                                requestConfiguration: session.currentUser.auth?.requestConfiguration)
-//      }
+      guard let currentUser = session.currentUser,
+            let requestConfiguration = currentUser.auth?.requestConfiguration else {
+        let error = AuthErrorUtils.error(code: AuthErrorCode.internalError,
+                                         userInfo: [NSLocalizedDescriptionKey:
+                                           "Invalid ID token."])
+        completion(nil, error)
+        return
+      }
+      let totpEnrollmentInfo = AuthProtoStartMFATOTPEnrollmentRequestInfo()
+      let request = StartMFAEnrollmentRequest(idToken: session.idToken,
+                                              totpEnrollmentInfo: totpEnrollmentInfo,
+                                              requestConfiguration: requestConfiguration)
+      Task {
+        do {
+          let response = try await AuthBackend.post(with: request)
+          if let totpSessionInfo = response.totpSessionInfo {
+            let secret = TOTPSecret(secretKey: totpSessionInfo.sharedSecretKey,
+                                    hashingAlgorithm: totpSessionInfo.hashingAlgorithm,
+                                    codeLength: totpSessionInfo.verificationCodeLength,
+                                    codeIntervalSeconds: totpSessionInfo.periodSec,
+                                    enrollmentCompletionDeadline: totpSessionInfo
+                                      .finalizeEnrollmentTime,
+                                    sessionInfo: totpSessionInfo.sessionInfo)
+            completion(secret, nil)
+          } else {
+            let error = AuthErrorUtils.error(code: AuthErrorCode.internalError,
+                                             userInfo: [NSLocalizedDescriptionKey:
+                                               "Error generating TOTP secret."])
+            completion(nil, error)
+          }
+        } catch {
+          completion(nil, error)
+        }
+      }
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

@@ -25,14 +25,28 @@ private let kTenantIDKey = "tenantId"
 class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = StartMFAEnrollmentResponse
 
-  private(set) var idToken: String?
-  private(set) var enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
+  let idToken: String?
+  private(set) var phoneEnrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?
+  private(set) var totpEnrollmentInfo: AuthProtoStartMFATOTPEnrollmentRequestInfo?
 
   init(idToken: String?,
        enrollmentInfo: AuthProtoStartMFAPhoneRequestInfo?,
        requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
-    self.enrollmentInfo = enrollmentInfo
+    phoneEnrollmentInfo = enrollmentInfo
+    super.init(
+      endpoint: kStartMFAEnrollmentEndPoint,
+      requestConfiguration: requestConfiguration,
+      useIdentityPlatform: true,
+      useStaging: false
+    )
+  }
+
+  init(idToken: String?,
+       totpEnrollmentInfo: AuthProtoStartMFATOTPEnrollmentRequestInfo?,
+       requestConfiguration: AuthRequestConfiguration) {
+    self.idToken = idToken
+    self.totpEnrollmentInfo = totpEnrollmentInfo
     super.init(
       endpoint: kStartMFAEnrollmentEndPoint,
       requestConfiguration: requestConfiguration,
@@ -46,8 +60,10 @@ class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     if let idToken = idToken {
       body["idToken"] = idToken
     }
-    if let enrollmentInfo = enrollmentInfo {
-      body["phoneEnrollmentInfo"] = enrollmentInfo.dictionary
+    if let phoneEnrollmentInfo {
+      body["phoneEnrollmentInfo"] = phoneEnrollmentInfo.dictionary
+    } else if let totpEnrollmentInfo {
+      body["totpEnrollmentInfo"] = totpEnrollmentInfo.dictionary
     }
     if let tenantID = tenantID {
       body[kTenantIDKey] = tenantID

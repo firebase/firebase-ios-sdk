@@ -26,10 +26,10 @@ class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = FinalizeMFAEnrollmentResponse
 
   var mfaPendingCredential: String?
-  var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
+  var verificationInfo: AuthProto?
 
   init(mfaPendingCredential: String?,
-       verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
+       verificationInfo: AuthProto?,
        requestConfiguration: AuthRequestConfiguration) {
     self.mfaPendingCredential = mfaPendingCredential
     self.verificationInfo = verificationInfo
@@ -44,8 +44,13 @@ class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
     if let mfaPendingCredential = mfaPendingCredential {
       body["mfaPendingCredential"] = mfaPendingCredential
     }
-    if let verificationInfo = verificationInfo {
+    if let verificationInfo = verificationInfo as? AuthProtoFinalizeMFAPhoneRequestInfo {
       body["phoneVerificationInfo"] = verificationInfo.dictionary
+    }
+    if let verificationInfo = verificationInfo as? AuthProtoFinalizeMFATOTPSignInRequestInfo {
+      body["totpVerificationInfo"] = verificationInfo.dictionary
+      // mfaEnrollmentID only required for TOTP
+      body["mfaEnrollmentId"] = verificationInfo.mfaEnrollmentID
     }
     if let tenantID = tenantID {
       body[kTenantIDKey] = tenantID

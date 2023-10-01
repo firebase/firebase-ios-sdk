@@ -2316,11 +2316,10 @@ extension Auth: AuthInterop {
   internal var mainBundleUrlTypes: [[String: Any]]!
 
   /** @property requestConfiguration
-      @brief The configuration object comprising of paramters needed to make a request to Firebase
+      @brief The configuration object comprising of parameters needed to make a request to Firebase
           Auth's backend.
    */
-  // TODO: internal
-  var requestConfiguration: AuthRequestConfiguration
+  internal var requestConfiguration: AuthRequestConfiguration
 
   #if os(iOS)
     /** @property tokenManager

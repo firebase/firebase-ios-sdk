@@ -93,10 +93,10 @@ import Foundation
     /**
      @brief Additional session information.
      */
-    private let sessionInfo: String?
+    let sessionInfo: String?
 
-    init(secretKey: String, hashingAlgorithm: String, codeLength: Int, codeIntervalSeconds: Int,
-         enrollmentCompletionDeadline: Date, sessionInfo: String) {
+    init(secretKey: String, hashingAlgorithm: String?, codeLength: Int, codeIntervalSeconds: Int,
+         enrollmentCompletionDeadline: Date?, sessionInfo: String?) {
       self.secretKey = secretKey
       self.hashingAlgorithm = hashingAlgorithm
       self.codeLength = codeLength
