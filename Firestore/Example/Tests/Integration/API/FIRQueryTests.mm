@@ -914,8 +914,7 @@
 - (void)testOrQueriesWithCompositeIndexes {
   // TODO(orquery): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because order-by-equality is not "
-            "supported yet.");
+            "Skip this test because prod testing with composite indexes is not supported yet.");
 
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
@@ -986,31 +985,6 @@
                      matchesResult:@[ @"doc3", @"doc4", @"doc6" ]];
 }
 
-- (void)testOrQueriesWithNotIn {
-  // TODO(orquery): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because it results in a 'missing index' "
-            "error. The Firestore Emulator, however, does serve these queries");
-
-  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"doc1" : @{@"a" : @1, @"b" : @0},
-    @"doc2" : @{@"b" : @1},
-    @"doc3" : @{@"a" : @3, @"b" : @2},
-    @"doc4" : @{@"a" : @1, @"b" : @3},
-    @"doc5" : @{@"a" : @1},
-    @"doc6" : @{@"a" : @2}
-  }];
-
-  // a==2 || b not-in [2,3]
-  // Has implicit orderBy b.
-  FIRFilter *filter = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b"
-                                                                          notIn:@[ @2, @3 ]]
-  ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter]
-                     matchesResult:@[ @"doc1", @"doc2" ]];
-}
-
 - (void)testOrQueriesWithArrayMembership {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
@@ -1039,10 +1013,6 @@
 }
 
 - (void)testMultipleInOps {
-  // TODO(orquery): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because it's not yet supported.");
-
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
     @"doc2" : @{@"b" : @1},
@@ -1071,10 +1041,6 @@
 }
 
 - (void)testUsingInWithArrayContainsAny {
-  // TODO(orquery): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test if running against production because it's not yet supported.");
-
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @[ @0 ]},
     @"doc2" : @{@"b" : @[ @1 ]},
