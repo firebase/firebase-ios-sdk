@@ -112,25 +112,32 @@ static NSString *const kRawClientDataJSON = @"testRawClientDataJSON";
  */
 - (void)testSuccessfulFinalizePasskeyEnrollmentResponse {
   if (@available(iOS 15.0, *)) {
-    FIRFinalizePasskeyEnrollmentRequest *request = [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken name:kName credentialID:kCredentialID clientDataJson:kRawClientDataJSON attestationObject:kRawAttestationObject requestConfiguration:_requestConfiguration];
+    FIRFinalizePasskeyEnrollmentRequest *request =
+        [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken
+                                                                name:kName
+                                                        credentialID:kCredentialID
+                                                      clientDataJson:kRawClientDataJSON
+                                                   attestationObject:kRawAttestationObject
+                                                requestConfiguration:_requestConfiguration];
 
     __block BOOL callbackInvoked;
     __block FIRFinalizePasskeyEnrollmentResponse *RPCResponse;
     __block NSError *RPCError;
-    
-    [FIRAuthBackend finalizePasskeyEnrollment:request
-                                  callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
-                                             NSError *_Nullable error) {
-      callbackInvoked = YES;
-      RPCResponse = response;
-      RPCError = error;
-    }];
-    
+
+    [FIRAuthBackend
+        finalizePasskeyEnrollment:request
+                         callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
+                                    NSError *_Nullable error) {
+                           callbackInvoked = YES;
+                           RPCResponse = response;
+                           RPCError = error;
+                         }];
+
     [_RPCIssuer respondWithJSON:@{
       @"idToken" : kIDToken,
-      @"refreshToken": kRefreshToken,
+      @"refreshToken" : kRefreshToken,
     }];
-    
+
     XCTAssert(callbackInvoked);
     XCTAssertNil(RPCError);
     XCTAssertNotNil(RPCResponse);
@@ -145,20 +152,27 @@ static NSString *const kRawClientDataJSON = @"testRawClientDataJSON";
  */
 - (void)testFinalizePasskeyEnrollmentResponseMissingIDTokenError {
   if (@available(iOS 15.0, *)) {
-    FIRFinalizePasskeyEnrollmentRequest *request = [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken name:kName credentialID:kCredentialID clientDataJson:kRawClientDataJSON attestationObject:kRawAttestationObject requestConfiguration:_requestConfiguration];
-    
+    FIRFinalizePasskeyEnrollmentRequest *request =
+        [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken
+                                                                name:kName
+                                                        credentialID:kCredentialID
+                                                      clientDataJson:kRawClientDataJSON
+                                                   attestationObject:kRawAttestationObject
+                                                requestConfiguration:_requestConfiguration];
+
     __block BOOL callbackInvoked;
     __block FIRFinalizePasskeyEnrollmentResponse *RPCResponse;
     __block NSError *RPCError;
-    
-    [FIRAuthBackend finalizePasskeyEnrollment:request
-                                     callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
-                                                NSError *_Nullable error) {
-      callbackInvoked = YES;
-      RPCResponse = response;
-      RPCError = error;
-    }];
-    
+
+    [FIRAuthBackend
+        finalizePasskeyEnrollment:request
+                         callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
+                                    NSError *_Nullable error) {
+                           callbackInvoked = YES;
+                           RPCResponse = response;
+                           RPCError = error;
+                         }];
+
     [_RPCIssuer respondWithJSON:@{
       @"wrongkey" : @{},
       @"refreshToken" : kRefreshToken,
@@ -174,20 +188,27 @@ static NSString *const kRawClientDataJSON = @"testRawClientDataJSON";
  */
 - (void)testFinalizePasskeyEnrollmentResponseMissingRefreshTokenError {
   if (@available(iOS 15.0, *)) {
-    FIRFinalizePasskeyEnrollmentRequest *request = [[FIRFinalizePasskeyEnrollmentRequest alloc]initWithIDToken:kIDToken name:kName credentialID:kCredentialID clientDataJson:kRawClientDataJSON attestationObject:kRawAttestationObject requestConfiguration:_requestConfiguration];
+    FIRFinalizePasskeyEnrollmentRequest *request =
+        [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken
+                                                                name:kName
+                                                        credentialID:kCredentialID
+                                                      clientDataJson:kRawClientDataJSON
+                                                   attestationObject:kRawAttestationObject
+                                                requestConfiguration:_requestConfiguration];
 
     __block BOOL callbackInvoked;
     __block FIRFinalizePasskeyEnrollmentResponse *RPCResponse;
     __block NSError *RPCError;
-    
-    [FIRAuthBackend finalizePasskeyEnrollment:request
-                                     callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
-                                                NSError *_Nullable error) {
-      callbackInvoked = YES;
-      RPCResponse = response;
-      RPCError = error;
-    }];
-    
+
+    [FIRAuthBackend
+        finalizePasskeyEnrollment:request
+                         callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
+                                    NSError *_Nullable error) {
+                           callbackInvoked = YES;
+                           RPCResponse = response;
+                           RPCError = error;
+                         }];
+
     [_RPCIssuer respondWithJSON:@{
       @"wrongkey" : @{},
       @"idToken" : kIDToken,
@@ -204,7 +225,8 @@ static NSString *const kRawClientDataJSON = @"testRawClientDataJSON";
  */
 - (void)errorValidationHelperWithCallbackInvoked:(BOOL)callbackInvoked
                                         rpcError:(NSError *)RPCError
-                                     rpcResponse:(FIRFinalizePasskeyEnrollmentResponse *)RPCResponse {
+                                     rpcResponse:
+                                         (FIRFinalizePasskeyEnrollmentResponse *)RPCResponse {
   XCTAssert(callbackInvoked);
   XCTAssertNotNil(RPCError);
   XCTAssertEqualObjects(RPCError.domain, FIRAuthErrorDomain);
@@ -218,4 +240,3 @@ static NSString *const kRawClientDataJSON = @"testRawClientDataJSON";
 
 @end
 #endif
-

@@ -679,7 +679,8 @@ typedef void (^FIRFinalizePasskeyEnrollmentResponseCallback)(
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
 
 /** @fn finalizePasskeyEnrollment:callback:
-    @brief Calls the finalizePasskeyEnrollment endpoint, which is responsible for sending the platform credential details to GCIP backend to exchange the access token and refresh token.
+    @brief Calls the finalizePasskeyEnrollment endpoint, which is responsible for sending the
+   platform credential details to GCIP backend to exchange the access token and refresh token.
     @param request The request parameters.
     @param callback The callback.
  */

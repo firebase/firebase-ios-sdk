@@ -36,6 +36,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -64,16 +66,12 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyClientResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPasswordResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyPhoneNumberResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthErrorUtils.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
@@ -684,8 +682,9 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
   [[self implementation] startPasskeyEnrollment:request callback:callback];
 }
-  
-+ (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+
++ (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
   [[self implementation] finalizePasskeyEnrollment:request callback:callback];
 }
 #endif
@@ -1131,8 +1130,10 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                }];
 }
 
-- (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
-  FIRFinalizePasskeyEnrollmentResponse *response = [[FIRFinalizePasskeyEnrollmentResponse alloc] init];
+- (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+  FIRFinalizePasskeyEnrollmentResponse *response =
+      [[FIRFinalizePasskeyEnrollmentResponse alloc] init];
   [self callWithRequest:request
                response:response
                callback:^(NSError *error) {

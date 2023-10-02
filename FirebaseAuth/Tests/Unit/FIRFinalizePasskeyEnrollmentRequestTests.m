@@ -153,18 +153,32 @@ static NSString *const kAuthAttestationRespKey = @"authenticatorAttestationRespo
 
 - (void)testFinalizePasskeyEnrollmentRequest {
   if (@available(iOS 15.0, *)) {
-    FIRFinalizePasskeyEnrollmentRequest *request = [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken name:kName credentialID:kCredentialID clientDataJson:kRawClientDataJSON attestationObject:kRawAttestationObject requestConfiguration:_requestConfiguration];
-    
-    [FIRAuthBackend finalizePasskeyEnrollment:request callback:^(FIRFinalizePasskeyEnrollmentResponse * _Nullable response, NSError * _Nullable error) {
-    }];
+    FIRFinalizePasskeyEnrollmentRequest *request =
+        [[FIRFinalizePasskeyEnrollmentRequest alloc] initWithIDToken:kIDToken
+                                                                name:kName
+                                                        credentialID:kCredentialID
+                                                      clientDataJson:kRawClientDataJSON
+                                                   attestationObject:kRawAttestationObject
+                                                requestConfiguration:_requestConfiguration];
+
+    [FIRAuthBackend
+        finalizePasskeyEnrollment:request
+                         callback:^(FIRFinalizePasskeyEnrollmentResponse *_Nullable response,
+                                    NSError *_Nullable error){
+                         }];
     XCTAssertEqualObjects(_RPCIssuer.requestURL.absoluteString, kExpectedAPIURL);
     XCTAssertNotNil(_RPCIssuer.decodedRequest);
     XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kIDTokenKey], kIDToken);
     XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kNameKey], kName);
-    XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAuthRegistrationRespKey][kAuthAttestationRespKey][kRawClientDataJSONKey], kRawClientDataJSON);
-    XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAuthRegistrationRespKey][kAuthAttestationRespKey][kRawAttestationObjectKey], kRawAttestationObject);
-    XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAuthRegistrationRespKey][kCredentialIDKey], kCredentialID);
-
+    XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAuthRegistrationRespKey]
+                                                   [kAuthAttestationRespKey][kRawClientDataJSONKey],
+                          kRawClientDataJSON);
+    XCTAssertEqualObjects(
+        _RPCIssuer.decodedRequest[kAuthRegistrationRespKey][kAuthAttestationRespKey]
+                                 [kRawAttestationObjectKey],
+        kRawAttestationObject);
+    XCTAssertEqualObjects(_RPCIssuer.decodedRequest[kAuthRegistrationRespKey][kCredentialIDKey],
+                          kCredentialID);
   }
 }
 

@@ -71,14 +71,14 @@ static NSString *const kClientDataJsonKey = @"clientDataJson";
  */
 static NSString *const kAttestationObject = @"attestationObject";
 
-
 @implementation FIRFinalizePasskeyEnrollmentRequest
 
 - (nullable instancetype)initWithIDToken:(NSString *)IDToken
                                     name:(NSString *)name
                             credentialID:(NSString *)credentialID
                           clientDataJson:(NSString *)clientDataJson
-                       attestationObject:(NSString *)attestationObject requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
+                       attestationObject:(NSString *)attestationObject
+                    requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kFinalizePasskeyEnrollmentEndPoint
             requestConfiguration:requestConfiguration];
   if (self) {
@@ -96,7 +96,7 @@ static NSString *const kAttestationObject = @"attestationObject";
   NSMutableDictionary *postBody = [NSMutableDictionary dictionary];
   NSMutableDictionary *authRegistrationResponse = [NSMutableDictionary dictionary];
   NSMutableDictionary *authAttestationResponse = [NSMutableDictionary dictionary];
-  
+
   if (_IDToken) {
     postBody[kIDTokenKey] = _IDToken;
   }
@@ -115,10 +115,10 @@ static NSString *const kAttestationObject = @"attestationObject";
   if (self.tenantID) {
     postBody[kTenantIDKey] = self.tenantID;
   }
-  
+
   authRegistrationResponse[kAuthAttestationRespKey] = authAttestationResponse;
   postBody[kAuthRegistrationRespKey] = authRegistrationResponse;
-  
+
   return [postBody copy];
 }
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+#import <AuthenticationServices/ASAuthorizationPlatformPublicKeyCredentialRegistration.h>
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
-#import <AuthenticationServices/ASAuthorizationPlatformPublicKeyCredentialRegistration.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, readonly) NSString *clientDataJson;
 
 /**
- 
+
  @property attestationObject
  @brief The attestation object from the authenticator.
  */

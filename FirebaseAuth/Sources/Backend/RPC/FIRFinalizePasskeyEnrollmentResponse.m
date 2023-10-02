@@ -28,7 +28,6 @@ static const NSString *kIdTokenKey = @"idToken";
  */
 static const NSString *kRefreshTokenKey = @"refreshToken";
 
-
 @implementation FIRFinalizePasskeyEnrollmentResponse
 
 - (BOOL)setWithDictionary:(nonnull NSDictionary *)dictionary
@@ -39,7 +38,7 @@ static const NSString *kRefreshTokenKey = @"refreshToken";
   if (dictionary[kRefreshTokenKey] == nil) {
     return NO;
   }
-  
+
   _idToken = dictionary[kIdTokenKey];
   _refreshToken = dictionary[kRefreshTokenKey];
   return YES;
