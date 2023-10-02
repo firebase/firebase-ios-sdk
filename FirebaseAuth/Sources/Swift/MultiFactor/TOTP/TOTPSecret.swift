@@ -39,8 +39,9 @@ import Foundation
      @param issuer issuer of the TOTP(likely the app name).
      @returns A QRCode URL string.
      */
-    @objc public func generateQRCodeURLWithAccountName(accountName: String,
-                                                       issuer: String) -> String {
+    @objc(generateQRCodeURLWithAccountName:issuer:)
+    public func generateQRCodeURL(withAccountName accountName: String,
+                                  issuer: String) -> String {
       guard let hashingAlgorithm, codeLength > 0 else {
         return ""
       }
@@ -54,7 +55,7 @@ import Foundation
      https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes
      */
     @objc(openInOTPAppWithQRCodeURL:)
-    public func openInOTPAppWithQRCodeURL(qrCodeURL: String) {
+    public func openInOTPApp(withQRCodeURL qrCodeURL: String) {
       if let url = URL(string: qrCodeURL),
          UIApplication.shared.canOpenURL(url) {
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
