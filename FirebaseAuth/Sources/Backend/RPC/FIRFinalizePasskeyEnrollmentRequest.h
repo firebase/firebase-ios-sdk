@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 #import <AuthenticationServices/ASAuthorizationPlatformPublicKeyCredentialRegistration.h>
+#endif
+
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Backend/FIRIdentityToolkitRequest.h"
 
