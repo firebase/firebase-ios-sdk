@@ -22,12 +22,23 @@ import Foundation
        This class is available on iOS only.
    */
   @objc(FIRPhoneMultiFactorInfo) public class PhoneMultiFactorInfo: MultiFactorInfo {
+    /**
+        @brief The string identifier for using phone as a second factor.
+             This constant is available on iOS only.
+     */
     @objc(FIRPhoneMultiFactorID) public static let PhoneMultiFactorID = "phone"
+
+    /**
+        @brief The string identifier for using TOTP as a second factor.
+             This constant is available on iOS only.
+     */
     @objc(FIRTOTPMultiFactorID) public static let TOTPMultiFactorID = "totp"
+
     /**
         @brief This is the phone number associated with the current second factor.
      */
     @objc public var phoneNumber: String
+
     init(proto: AuthProtoMFAEnrollment) {
       guard let phoneInfo = proto.phoneInfo else {
         fatalError("Internal Auth Error: Missing phone number in Multi Factor Enrollment")
