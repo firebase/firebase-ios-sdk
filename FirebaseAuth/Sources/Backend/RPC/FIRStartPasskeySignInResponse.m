@@ -24,7 +24,7 @@ static const NSString *kOptionsKey = @"credentialRequestOptions";
 
 /**
  @var kRpIdKey
- @brief // The relying party identifier.
+ @brief The relying party identifier.
  */
 static const NSString *kRpIdKey = @"rpId";
 
@@ -44,7 +44,6 @@ static const NSString *kChallengeKey = @"challenge";
   if (dictionary[kOptionsKey][kRpIdKey] == nil) {
     return NO;
   }
-
   if (dictionary[kOptionsKey][kChallengeKey] == nil) {
     return NO;
   }

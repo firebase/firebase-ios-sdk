@@ -63,7 +63,7 @@ static NSString *const kChallengeKey = @"challenge";
 
 /**
  @class FIRStartPasskeySignInResponseTests
- @brief Tests for @c FIRStartPasskeySingInResponse.
+ @brief Tests for @c FIRStartPasskeySignInResponse.
  */
 @interface FIRStartPasskeySignInResponseTests : XCTestCase
 @end
