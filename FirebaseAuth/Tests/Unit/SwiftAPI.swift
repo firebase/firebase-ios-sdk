@@ -439,14 +439,14 @@ class AuthAPI_hOnlyTests: XCTestCase {
         withEnrollmentID: "id", oneTimePassword: "code"
       )
     }
-  #endif
 
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func FIRTOTPMultiFactorGenerator_hAsync() async throws {
-    _ = try await TOTPMultiFactorGenerator.generateSecret(
-      with: MultiFactorSession(mfaCredential: "")
-    )
-  }
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    func FIRTOTPMultiFactorGenerator_hAsync() async throws {
+      _ = try await TOTPMultiFactorGenerator.generateSecret(
+        with: MultiFactorSession(mfaCredential: "")
+      )
+    }
+  #endif
 
   func FIRTwitterAuthProvider_h() {
     _ = TwitterAuthProvider.credential(withToken: "token", secret: "secret")
