@@ -182,16 +182,14 @@ jobs:
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
       run: terraform init
-      env:
-        GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
       continue-on-error: true
     - name: Terraform Apply
       run: |
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         terraform apply -var-file=Firestore/Example/App/project_info.json -auto-approve
-        rm Firestore/Example/App/project_info.json
       env:
         GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+      continue-on-error: true
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
