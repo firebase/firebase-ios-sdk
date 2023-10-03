@@ -414,26 +414,32 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRTOTPSecret_h() {
-    let obj = TOTPSecret(secretKey: "key", hashingAlgorithm: "algo", codeLength: 9,
-                         codeIntervalSeconds: 8, enrollmentCompletionDeadline: nil,
-                         sessionInfo: "session")
-    _ = obj.sharedSecretKey()
-    _ = obj.generateQRCodeURL(withAccountName: "name", issuer: "issuer")
-    obj.openInOTPApp(withQRCodeURL: "url")
-  }
-
-  func FIRTOTPMultiFactorGenerator_h() {
-    TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession(mfaCredential: "")) { _, _ in
+  #if os(iOS)
+    func FIRTOTPSecret_h() {
+      let obj = TOTPSecret(secretKey: "key", hashingAlgorithm: "algo", codeLength: 9,
+                           codeIntervalSeconds: 8, enrollmentCompletionDeadline: nil,
+                           sessionInfo: "session")
+      _ = obj.sharedSecretKey()
+      _ = obj.generateQRCodeURL(withAccountName: "name", issuer: "issuer")
+      obj.openInOTPApp(withQRCodeURL: "url")
     }
-    let secret = TOTPSecret(secretKey: "key", hashingAlgorithm: "algo", codeLength: 9,
-                            codeIntervalSeconds: 8, enrollmentCompletionDeadline: nil,
-                            sessionInfo: "session")
-    _ = TOTPMultiFactorGenerator.assertionForEnrollment(with: secret,
-                                                        oneTimePassword: "code")
-    _ = TOTPMultiFactorGenerator.assertionForSignIn(withEnrollmentID: "id",
-                                                    oneTimePassword: "code")
-  }
+
+    func FIRTOTPMultiFactorGenerator_h() {
+      TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession(mfaCredential: "")) { _, _ in
+      }
+      let secret = TOTPSecret(secretKey: "key",
+                              hashingAlgorithm: "algo",
+                              codeLength: 9,
+                              codeIntervalSeconds: 8,
+                              enrollmentCompletionDeadline: nil,
+                              sessionInfo: "session")
+      _ = TOTPMultiFactorGenerator.assertionForEnrollment(with: secret,
+                                                          oneTimePassword: "code")
+      _ = TOTPMultiFactorGenerator.assertionForSignIn(
+        withEnrollmentID: "id", oneTimePassword: "code"
+      )
+    }
+  #endif
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func FIRTOTPMultiFactorGenerator_hAsync() async throws {
