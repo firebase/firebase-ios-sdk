@@ -1,4 +1,5 @@
 # 10.16.0
+- [fixed] Fixed a memory leak regression when generating session events (#11725).
 - [fixed] Fix Xcode 15 runtime warning (#11821).
 
 # 10.12.0
