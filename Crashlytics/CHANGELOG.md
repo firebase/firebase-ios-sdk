@@ -1,3 +1,6 @@
+# 10.16.0
+- [fixed] Fixed a memory leak regression when generating session events (#11725).
+
 # 10.12.0
 - [changed] Updated `upload-symbols` to version 3.16 with support for new default build settings in Xcode 15 (#11463)
 - [changed] Re-enabled dSYM uploads for Flutter apps building with `--obfuscate` and updated instructions for de-obfuscating Dart stacktraces

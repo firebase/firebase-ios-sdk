@@ -41,6 +41,7 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
     super.init()
 
+    // Note: If you add a proto string field here, remember to free it in the deinit.
     proto.event_type = firebase_appquality_sessions_EventType_SESSION_START
     proto.session_data.session_id = makeProtoString(sessionInfo.sessionId)
     proto.session_data.first_session_id = makeProtoString(sessionInfo.firstSessionId)
@@ -79,16 +80,18 @@ class SessionStartEvent: NSObject, GDTCOREventDataObject {
 
   deinit {
     let garbage: [UnsafeMutablePointer<pb_bytes_array_t>?] = [
-      proto.session_data.session_id,
-      proto.session_data.first_session_id,
-      proto.session_data.firebase_installation_id,
       proto.application_info.app_id,
-      proto.application_info.session_sdk_version,
-      proto.application_info.device_model,
-      proto.application_info.development_platform_name,
-      proto.application_info.development_platform_version,
+      proto.application_info.apple_app_info.app_build_version,
       proto.application_info.apple_app_info.bundle_short_version,
       proto.application_info.apple_app_info.mcc_mnc,
+      proto.application_info.development_platform_name,
+      proto.application_info.development_platform_version,
+      proto.application_info.device_model,
+      proto.application_info.os_version,
+      proto.application_info.session_sdk_version,
+      proto.session_data.session_id,
+      proto.session_data.firebase_installation_id,
+      proto.session_data.first_session_id,
     ]
     for pointer in garbage {
       nanopb_free(pointer)
