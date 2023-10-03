@@ -23,43 +23,42 @@ private let kErrorKey = "error"
     @brief Represents the provider user info part of the response from the getAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
-@objc(FIRGetAccountInfoResponseProviderUserInfo)
-public class GetAccountInfoResponseProviderUserInfo: NSObject {
+class GetAccountInfoResponseProviderUserInfo: NSObject {
   /** @property providerID
    @brief The ID of the identity provider.
    */
-  @objc public let providerID: String?
+  let providerID: String?
 
   /** @property displayName
    @brief The user's display name at the identity provider.
    */
-  @objc public let displayName: String?
+  let displayName: String?
 
   /** @property photoURL
    @brief The user's photo URL at the identity provider.
    */
-  @objc public let photoURL: URL?
+  let photoURL: URL?
 
   /** @property federatedID
    @brief The user's identifier at the identity provider.
    */
-  @objc public let federatedID: String?
+  let federatedID: String?
 
   /** @property email
    @brief The user's email at the identity provider.
    */
-  @objc public let email: String?
+  let email: String?
 
   /** @property phoneNumber
    @brief A phone number associated with the user.
    */
-  @objc public let phoneNumber: String?
+  let phoneNumber: String?
 
   /** @fn initWithAPIKey:
    @brief Designated initializer.
    @param dictionary The provider user info data from endpoint.
    */
-  @objc public init(dictionary: [String: Any]) {
+  init(dictionary: [String: Any]) {
     providerID = dictionary["providerId"] as? String
     displayName = dictionary["displayName"] as? String
     if let photoURL = dictionary["photoUrl"] as? String {
@@ -78,60 +77,60 @@ public class GetAccountInfoResponseProviderUserInfo: NSObject {
     @brief Represents the firebase user info part of the response from the getAccountInfo endpoint.
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
-@objc(FIRGetAccountInfoResponseUser) public class GetAccountInfoResponseUser: NSObject {
+class GetAccountInfoResponseUser: NSObject {
   /** @property localID
    @brief The ID of the user.
    */
-  @objc public let localID: String?
+  let localID: String?
 
   /** @property email
    @brief The email or the user.
    */
-  @objc public let email: String?
+  let email: String?
 
   /** @property emailVerified
    @brief Whether the email has been verified.
    */
-  @objc public let emailVerified: Bool
+  let emailVerified: Bool
 
   /** @property displayName
    @brief The display name of the user.
    */
-  @objc public let displayName: String?
+  let displayName: String?
 
   /** @property photoURL
    @brief The user's photo URL.
    */
-  @objc public let photoURL: URL?
+  let photoURL: URL?
 
   /** @property creationDate
    @brief The user's creation date.
    */
-  @objc public let creationDate: Date?
+  let creationDate: Date?
 
   /** @property lastSignInDate
    @brief The user's last login date.
    */
-  @objc public let lastLoginDate: Date?
+  let lastLoginDate: Date?
 
   /** @property providerUserInfo
    @brief The user's profiles at the associated identity providers.
    */
-  @objc public let providerUserInfo: [GetAccountInfoResponseProviderUserInfo]?
+  let providerUserInfo: [GetAccountInfoResponseProviderUserInfo]?
 
   /** @property passwordHash
    @brief Information about user's password.
    @remarks This is not necessarily the hash of user's actual password.
    */
 
-  @objc public let passwordHash: String?
+  let passwordHash: String?
 
   /** @property phoneNumber
    @brief A phone number associated with the user.
    */
-  @objc public let phoneNumber: String?
+  let phoneNumber: String?
 
-  @objc(MFAEnrollments) public let mfaEnrollments: [AuthProtoMFAEnrollment]?
+  let mfaEnrollments: [AuthProtoMFAEnrollment]?
 
   /** @fn initWithAPIKey:
    @brief Designated initializer.

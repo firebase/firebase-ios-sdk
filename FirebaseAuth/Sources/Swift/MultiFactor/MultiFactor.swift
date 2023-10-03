@@ -66,6 +66,57 @@ import Foundation
     public func enroll(with assertion: MultiFactorAssertion,
                        displayName: String?,
                        completion: ((Error?) -> Void)?) {
+      // TODO: Refactor classes so this duplicated code isn't necessary for phone and totp.
+      if assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID {
+        guard let totpAssertion = assertion as? TOTPMultiFactorAssertion else {
+          fatalError("Auth Internal Error: Failed to find TOTPMultiFactorAssertion")
+        }
+        switch totpAssertion.secretOrID {
+        case .enrollmentID: fatalError("Missing secret in totpAssertion")
+        case let .secret(secret):
+          guard let user = user, let auth = user.auth else {
+            fatalError("Internal Auth error: failed to get user enrolling in MultiFactor")
+          }
+          let finalizeMFATOTPRequestInfo =
+            AuthProtoFinalizeMFATOTPEnrollmentRequestInfo(sessionInfo: secret.sessionInfo,
+                                                          verificationCode: totpAssertion
+                                                            .oneTimePassword)
+          let request = FinalizeMFAEnrollmentRequest(idToken: self.user?.rawAccessToken(),
+                                                     displayName: displayName,
+                                                     totpVerificationInfo: finalizeMFATOTPRequestInfo,
+                                                     requestConfiguration: user
+                                                       .requestConfiguration)
+          Task {
+            do {
+              let response = try await AuthBackend.post(with: request)
+              do {
+                let user = try await auth.completeSignIn(withAccessToken: response.idToken,
+                                                         accessTokenExpirationDate: nil,
+                                                         refreshToken: response.refreshToken,
+                                                         anonymous: false)
+                try auth.updateCurrentUser(user, byForce: false, savingToDisk: true)
+                if let completion {
+                  DispatchQueue.main.async {
+                    completion(nil)
+                  }
+                }
+              } catch {
+                DispatchQueue.main.async {
+                  if let completion {
+                    completion(error)
+                  }
+                }
+              }
+            } catch {
+              if let completion {
+                completion(error)
+              }
+            }
+          }
+        }
+      } else if assertion.factorID != PhoneMultiFactorInfo.PhoneMultiFactorID {
+        return
+      }
       let phoneAssertion = assertion as? PhoneMultiFactorAssertion
       guard let credential = phoneAssertion?.authCredential else {
         fatalError("Internal Error: Missing credential")
@@ -81,7 +132,7 @@ import Foundation
         let request = FinalizeMFAEnrollmentRequest(
           idToken: self.user?.rawAccessToken(),
           displayName: displayName,
-          verificationInfo: finalizeMFAPhoneRequestInfo,
+          phoneVerificationInfo: finalizeMFAPhoneRequestInfo,
           requestConfiguration: user.requestConfiguration
         )
 
@@ -218,8 +269,13 @@ import Foundation
       self.init()
       var multiFactorInfoArray: [MultiFactorInfo] = []
       for enrollment in mfaEnrollments {
-        let multiFactorInfo = PhoneMultiFactorInfo(proto: enrollment)
-        multiFactorInfoArray.append(multiFactorInfo)
+        if enrollment.phoneInfo != nil {
+          let multiFactorInfo = PhoneMultiFactorInfo(proto: enrollment)
+          multiFactorInfoArray.append(multiFactorInfo)
+        } else if enrollment.totpInfo != nil {
+          let multiFactorInfo = TOTPMultiFactorInfo(proto: enrollment)
+          multiFactorInfoArray.append(multiFactorInfo)
+        }
       }
       enrolledFactors = multiFactorInfoArray
     }
@@ -240,8 +296,10 @@ import Foundation
     }
 
     public required init?(coder: NSCoder) {
+      let classes = [NSArray.self, MultiFactorInfo.self, PhoneMultiFactorInfo.self,
+                     TOTPMultiFactorInfo.self]
       let enrolledFactors = coder
-        .decodeObject(forKey: kEnrolledFactorsCodingKey) as? [MultiFactorInfo]
+        .decodeObject(of: classes, forKey: kEnrolledFactorsCodingKey) as? [MultiFactorInfo]
       self.enrolledFactors = enrolledFactors
       // Do not decode `user` weak property.
     }

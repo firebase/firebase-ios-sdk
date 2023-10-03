@@ -17,44 +17,44 @@ import Foundation
 /** @class FIRVerifyAssertionResponse
     @brief Represents the response from the emailLinkSignin endpoint.
  */
-public class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
+class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
   override public required init() {}
 
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */
-  @objc(IDToken) public var idToken: String?
+  var idToken: String?
 
   /** @property email
    @brief The email returned by the IdP.
    */
-  public var email: String?
+  var email: String?
 
   /** @property refreshToken
    @brief The refreshToken returned by the server.
    */
-  public var refreshToken: String?
+  var refreshToken: String?
 
   /** @property approximateExpirationDate
    @brief The approximate expiration date of the access token.
    */
-  public var approximateExpirationDate: Date?
+  var approximateExpirationDate: Date?
 
   /** @property isNewUser
    @brief Flag indicating that the user signing in is a new user and not a returning user.
    */
-  public var isNewUser: Bool = false
+  var isNewUser: Bool = false
 
   /** @property MFAPendingCredential
        @brief An opaque string that functions as proof that the user has successfully passed the first
       factor check.
    */
-  public var MFAPendingCredential: String?
+  var mfaPendingCredential: String?
 
   /** @property MFAInfo
        @brief Info on which multi-factor authentication providers are enabled.
    */
-  public var MFAInfo: [AuthProtoMFAEnrollment]?
+  var mfaInfo: [AuthProtoMFAEnrollment]?
 
   public func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
@@ -72,8 +72,8 @@ public class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
         let enrollment = AuthProtoMFAEnrollment(dictionary: entry)
         mfaInfo.append(enrollment)
       }
-      MFAInfo = mfaInfo
+      self.mfaInfo = mfaInfo
     }
-    MFAPendingCredential = dictionary["mfaPendingCredential"] as? String
+    mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
   }
 }

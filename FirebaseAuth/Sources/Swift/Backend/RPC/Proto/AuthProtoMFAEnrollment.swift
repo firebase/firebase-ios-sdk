@@ -14,26 +14,24 @@
 
 import Foundation
 
-@objc(FIRAuthProtoMFAEnrollment) public class AuthProtoMFAEnrollment: NSObject, AuthProto {
-  @objc public var phoneInfo: String?
-
-  @objc public var mfaEnrollmentID: String?
-
-  @objc public var displayName: String?
-
-  @objc public var enrolledAt: Date?
-
-  public var dictionary: [String: Any]
+class AuthProtoMFAEnrollment: NSObject, AuthProto {
+  let phoneInfo: String?
+  let totpInfo: NSObject?
+  let mfaEnrollmentID: String?
+  let displayName: String?
+  let enrolledAt: Date?
 
   public required init(dictionary: [String: AnyHashable]) {
-    self.dictionary = dictionary
     phoneInfo = dictionary["phoneInfo"] as? String
+    totpInfo = dictionary["totpInfo"] as? NSObject
     mfaEnrollmentID = dictionary["mfaEnrollmentId"] as? String
     displayName = dictionary["displayName"] as? String
     if let enrolledAt = dictionary["enrolledAt"] as? String {
       let dateFormatter = DateFormatter()
       dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
       self.enrolledAt = dateFormatter.date(from: enrolledAt)
+    } else {
+      enrolledAt = nil
     }
   }
 }

@@ -25,18 +25,34 @@ private let kTenantIDKey = "tenantId"
 class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = FinalizeMFAEnrollmentResponse
 
-  var idToken: String?
+  let idToken: String?
 
-  var displayName: String?
+  let displayName: String?
 
-  var verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
+  var phoneVerificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?
+
+  var totpVerificationInfo: AuthProtoFinalizeMFATOTPEnrollmentRequestInfo?
 
   init(idToken: String?, displayName: String?,
-       verificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
+       phoneVerificationInfo: AuthProtoFinalizeMFAPhoneRequestInfo?,
        requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
     self.displayName = displayName
-    self.verificationInfo = verificationInfo
+    self.phoneVerificationInfo = phoneVerificationInfo
+    super.init(
+      endpoint: kFinalizeMFAEnrollmentEndPoint,
+      requestConfiguration: requestConfiguration,
+      useIdentityPlatform: true,
+      useStaging: false
+    )
+  }
+
+  init(idToken: String?, displayName: String?,
+       totpVerificationInfo: AuthProtoFinalizeMFATOTPEnrollmentRequestInfo?,
+       requestConfiguration: AuthRequestConfiguration) {
+    self.idToken = idToken
+    self.displayName = displayName
+    self.totpVerificationInfo = totpVerificationInfo
     super.init(
       endpoint: kFinalizeMFAEnrollmentEndPoint,
       requestConfiguration: requestConfiguration,
@@ -52,8 +68,10 @@ class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     }
     if let displayName = displayName {
       body["displayName"] = displayName
-      if let verificationInfo = verificationInfo {
-        body["phoneVerificationInfo"] = verificationInfo.dictionary
+      if let phoneVerificationInfo {
+        body["phoneVerificationInfo"] = phoneVerificationInfo.dictionary
+      } else if let totpVerificationInfo {
+        body["totpVerificationInfo"] = totpVerificationInfo.dictionary
       }
     }
 

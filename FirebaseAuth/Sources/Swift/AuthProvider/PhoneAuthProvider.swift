@@ -269,7 +269,7 @@ import FirebaseCore
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: auth.requestConfiguration)
           let response = try await AuthBackend.post(with: request)
-          return response.enrollmentResponse?.sessionInfo
+          return response.phoneSessionInfo?.sessionInfo
         case .recaptcha:
           let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
                                               MFAEnrollmentID: session.multiFactorInfo?.uid,

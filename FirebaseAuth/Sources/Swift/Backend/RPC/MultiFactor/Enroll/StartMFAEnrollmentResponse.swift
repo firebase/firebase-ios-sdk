@@ -14,21 +14,20 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class StartMFAEnrollmentResponse: AuthRPCResponse {
   required init() {}
 
+  private(set) var phoneSessionInfo: AuthProtoStartMFAPhoneResponseInfo?
+  private(set) var totpSessionInfo: AuthProtoStartMFATOTPEnrollmentResponseInfo?
+
   func setFields(dictionary: [String: AnyHashable]) throws {
     if let data = dictionary["phoneSessionInfo"] as? [String: AnyHashable] {
-      enrollmentResponse = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
+      phoneSessionInfo = AuthProtoStartMFAPhoneResponseInfo(dictionary: data)
+    } else if let data = dictionary["totpSessionInfo"] as? [String: AnyHashable] {
+      totpSessionInfo = AuthProtoStartMFATOTPEnrollmentResponseInfo(dictionary: data)
     } else {
-      fatalError()
-      // XXX TODO: throw something. original code does not strictly follow
-      // obj-c error conventions. returning 'false' should be accompanied by an error, but
-      // in the code there was none. importing this into swift would throw a built-in 'error
-      // missing' error
-      // throw xxx
+      throw AuthErrorUtils.unexpectedResponse(deserializedResponse: dictionary)
     }
   }
-
-  var enrollmentResponse: AuthProtoStartMFAPhoneResponseInfo?
 }
