@@ -186,13 +186,16 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
-      run: terraform init
+      run: |
+        cd Firestore
+        terraform init
       continue-on-error: true
     - name: Terraform Apply
       run: |
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
-        terraform apply -var-file=Firestore/Example/App/project_info.json -auto-approve
-        rm Firestore/Example/App/project_info.json
+        cd Firestore
+        terraform apply -var-file=Example/App/project_info.json -auto-approve
+        rm Example/App/project_info.json
       continue-on-error: true
 
     - name: Setup build
