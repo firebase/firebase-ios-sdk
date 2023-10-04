@@ -269,7 +269,7 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
     FIRStartPasskeyEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
 /**
- @typedef FIRStartPasskeySinInResponseCallback
+ @typedef FIRStartPasskeySignInResponseCallback
  @brief The type of block used to return the result of a call to the StartPasskeySignIn
 endpoint.
  @param response The received response, if any.
@@ -485,7 +485,7 @@ typedef void (^FIRStartPasskeySignInResponseCallback)(
 + (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
 
-/** @fn startPasskeySignInt:callback:
+/** @fn startPasskeySignIn:callback:
     @brief Calls the startPasskeySignIn endpoint, which is responsible for receving the
    challenge that will later be consumed for platform key attestation.
     @param request The request parameters.
