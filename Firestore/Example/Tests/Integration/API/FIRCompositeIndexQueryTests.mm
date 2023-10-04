@@ -21,6 +21,12 @@
 
 using firebase::firestore::util::CreateAutoId;
 
+NS_ASSUME_NONNULL_BEGIN
+
+static NSString *const TEST_ID_FIELD = @"testId";
+static NSString *const TTL_FIELD = @"expireAt";
+static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-collection";
+
 /**
  * This FIRCompositeIndexQueryTests class is designed to facilitate integration
  * testing of Firestore queries that require composite indexes within a
@@ -38,14 +44,11 @@ using firebase::firestore::util::CreateAutoId;
 @property(nonatomic, strong) NSString *testId;
 @end
 
-static NSString *const TEST_ID_FIELD = @"testId";
-static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-collection";
-
 @implementation FIRCompositeIndexQueryTests
 
 - (void)setUp {
   [super setUp];
-  self.testId = [NSString stringWithFormat:@"test-id-%s", CreateAutoId().c_str()];
+  _testId = [NSString stringWithFormat:@"test-id-%s", CreateAutoId().c_str()];
 }
 
 #pragma mark - Test Helpers
@@ -56,36 +59,13 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 // Runs a test with specified documents in the COMPOSITE_INDEX_TEST_COLLECTION.
-- (FIRCollectionReference *)withCompositeIndexTestDocs:
+- (FIRCollectionReference *)withTestDocs:
     (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)docs {
   FIRCollectionReference *writer = [self testCollectionRef];
   // Use a different instance to write the documents
   [self writeAllDocuments:[self prepareTestDocuments:docs]
              toCollection:[self.firestore collectionWithPath:writer.path]];
   return self.testCollectionRef;
-}
-
-// Helper method to hash document keys and add test-specific fields for the provided documents.
-- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)prepareTestDocuments:
-    (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)docs {
-  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *result =
-      [NSMutableDictionary dictionaryWithCapacity:docs.count];
-  for (NSString *key in docs.allKeys) {
-    NSDictionary<NSString *, id> *doc = docs[key];
-    NSDictionary<NSString *, id> *updatedDoc = [self addTestSpecificFieldsToDoc:doc];
-    result[[self toHashedId:key]] = updatedDoc;
-  }
-  return [result copy];
-}
-
-// Adds test-specific fields to a document, including the testId and expiration date.
-- (NSDictionary<NSString *, id> *)addTestSpecificFieldsToDoc:(NSDictionary<NSString *, id> *)doc {
-  NSMutableDictionary<NSString *, id> *updatedDoc = [doc mutableCopy];
-  updatedDoc[TEST_ID_FIELD] = self.testId;
-  NSTimeInterval expirationTime =
-      [[FIRTimestamp timestamp] seconds] + 24 * 60 * 60;  // Expire test data after 24 hours
-  updatedDoc[@"expireAt"] = [FIRTimestamp timestampWithSeconds:expirationTime nanoseconds:0];
-  return [updatedDoc copy];
 }
 
 // Hash the document key with testId.
@@ -101,6 +81,40 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
   return hashedIds;
 }
 
+// Adds test-specific fields to a document, including the testId and expiration date.
+- (NSDictionary<NSString *, id> *)addTestSpecificFieldsToDoc:(NSDictionary<NSString *, id> *)doc {
+  NSMutableDictionary<NSString *, id> *updatedDoc = [doc mutableCopy];
+  updatedDoc[TEST_ID_FIELD] = self.testId;
+  int64_t expirationTime =
+      [[FIRTimestamp timestamp] seconds] + 24 * 60 * 60;  // Expire test data after 24 hours
+  updatedDoc[TTL_FIELD] = [FIRTimestamp timestampWithSeconds:expirationTime nanoseconds:0];
+  return [updatedDoc copy];
+}
+
+// Remove test-specific fields from a Firestore document.
+- (NSDictionary<NSString *, id> *)removeTestSpecificFieldsFromDoc:
+    (NSDictionary<NSString *, id> *)doc {
+  NSMutableDictionary<NSString *, id> *mutableDoc = [doc mutableCopy];
+  [mutableDoc removeObjectForKey:TEST_ID_FIELD];
+  [mutableDoc removeObjectForKey:TTL_FIELD];
+
+  // Update the document with the modified data.
+  return [mutableDoc copy];
+}
+
+// Helper method to hash document keys and add test-specific fields for the provided documents.
+- (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)prepareTestDocuments:
+    (NSDictionary<NSString *, NSDictionary<NSString *, id> *> *)docs {
+  NSMutableDictionary<NSString *, NSDictionary<NSString *, id> *> *result =
+      [NSMutableDictionary dictionaryWithCapacity:docs.count];
+  for (NSString *key in docs.allKeys) {
+    NSDictionary<NSString *, id> *doc = docs[key];
+    NSDictionary<NSString *, id> *updatedDoc = [self addTestSpecificFieldsToDoc:doc];
+    result[[self toHashedId:key]] = updatedDoc;
+  }
+  return [result copy];
+}
+
 // Asserts that the result of running the query while online (against the backend/emulator) is
 // the same as running it while offline. The expected document Ids are hashed to match the
 // actual document IDs created by the test helper.
@@ -110,21 +124,56 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
 }
 
 // Adds a filter on test id for a query.
-- (FIRQuery *)compositeIndexQuery:(FIRQuery *)query {
-  return [query queryWhereField:TEST_ID_FIELD isEqualTo:self.testId];
+- (FIRQuery *)query:(FIRQuery *)query_ {
+  return [query_ queryWhereField:TEST_ID_FIELD isEqualTo:self.testId];
+}
+
+// Get a document reference from a document key.
+- (FIRDocumentReference *)getDocRef:(FIRCollectionReference *)coll docId:(NSString *)docId {
+  NSString *hashedDocId = [self toHashedId:docId];
+  return [coll documentWithPath:hashedDocId];
 }
 
 // Adds a document to a Firestore collection with test-specific fields.
 - (FIRDocumentReference *)addDoc:(FIRCollectionReference *)collection
                             data:(NSDictionary<NSString *, id> *)data {
   NSDictionary<NSString *, id> *updatedData = [self addTestSpecificFieldsToDoc:data];
-  return [collection addDocumentWithData:updatedData];
+  return [self addDocumentRef:collection data:updatedData];
 }
 
 // Sets a document in Firestore with test-specific fields.
 - (void)setDoc:(FIRDocumentReference *)document data:(NSDictionary<NSString *, id> *)data {
   NSDictionary<NSString *, id> *updatedData = [self addTestSpecificFieldsToDoc:data];
-  return [document setData:updatedData];
+  return [self mergeDocumentRef:document data:updatedData];
+}
+
+// Update a document in Firestore with test-specific fields.
+- (void)updateDoc:(FIRDocumentReference *)document data:(NSDictionary<NSString *, id> *)data {
+  NSDictionary<NSString *, id> *updatedData = [self addTestSpecificFieldsToDoc:data];
+  [self updateDocumentRef:document data:updatedData];
+}
+
+// Delete a document from Firestore.
+- (void)deleteDoc:(FIRDocumentReference *)document {
+  [self deleteDocumentRef:document];
+}
+
+// Retrieve a single document from Firestore with test-specific fields removed.
+// TODO(composite-index-testing) Return sanitized DocumentSnapshot instead of its data.
+- (NSDictionary<NSString *, id> *)getDocSnapshotData:(FIRDocumentReference *)document {
+  FIRDocumentSnapshot *docSnapshot = [self readDocumentForRef:document];
+  return [self removeTestSpecificFieldsFromDoc:docSnapshot.data];
+}
+
+// Retrieve multiple documents from Firestore with test-specific fields removed.
+// TODO(composite-index-testing) Return sanitized QuerySnapshot instead of its data.
+- (NSArray<NSDictionary<NSString *, id> *> *)getQuerySnapshotData:(FIRQuery *)query {
+  FIRQuerySnapshot *querySnapshot = [self readDocumentSetForRef:query];
+  NSMutableArray<NSDictionary<NSString *, id> *> *result = [NSMutableArray array];
+  for (FIRDocumentSnapshot *doc in querySnapshot.documents) {
+    [result addObject:[self removeTestSpecificFieldsFromDoc:doc.data]];
+  }
+  return result;
 }
 
 #pragma mark - Test Cases
@@ -144,7 +193,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
  */
 
 - (void)testOrQueriesWithCompositeIndexes {
-  FIRCollectionReference *collRef = [self withCompositeIndexTestDocs:@{
+  FIRCollectionReference *collRef = [self withTestDocs:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
     @"doc2" : @{@"a" : @2, @"b" : @1},
     @"doc3" : @{@"a" : @3, @"b" : @2},
@@ -156,8 +205,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
     [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
                                                                           isEqualTo:@1]
   ]];
-  [self assertOnlineAndOfflineResultsMatch:[self compositeIndexQuery:[collRef
-                                                                         queryWhereFilter:filter1]]
+  [self assertOnlineAndOfflineResultsMatch:[self query:[collRef queryWhereFilter:filter1]]
                               expectedDocs:@[ @"doc5", @"doc2", @"doc3" ]];
 
   // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
@@ -165,8 +213,7 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
     [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
                                                                   isGreaterThan:@0]
   ]];
-  [self assertOnlineAndOfflineResultsMatch:[[self compositeIndexQuery:[collRef
-                                                                          queryWhereFilter:filter2]]
+  [self assertOnlineAndOfflineResultsMatch:[[self query:[collRef queryWhereFilter:filter2]]
                                                queryLimitedTo:2]
                               expectedDocs:@[ @"doc1", @"doc2" ]];
 
@@ -176,31 +223,27 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
     [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
                                                                   isGreaterThan:@0]
   ]];
-  [self
-      assertOnlineAndOfflineResultsMatch:[[[self
-                                             compositeIndexQuery:[collRef queryWhereFilter:filter3]]
-                                             queryLimitedToLast:2] queryOrderedByField:@"b"]
-                            expectedDocs:@[ @"doc3", @"doc4" ]];
+  [self assertOnlineAndOfflineResultsMatch:[[[self query:[collRef queryWhereFilter:filter3]]
+                                               queryLimitedToLast:2] queryOrderedByField:@"b"]
+                              expectedDocs:@[ @"doc3", @"doc4" ]];
 
   // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
   FIRFilter *filter4 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
   ]];
-  [self
-      assertOnlineAndOfflineResultsMatch:[[[self
-                                             compositeIndexQuery:[collRef queryWhereFilter:filter4]]
-                                             queryLimitedTo:1] queryOrderedByField:@"a"]
-                            expectedDocs:@[ @"doc5" ]];
+  [self assertOnlineAndOfflineResultsMatch:[[[self query:[collRef queryWhereFilter:filter4]]
+                                               queryLimitedTo:1] queryOrderedByField:@"a"]
+                              expectedDocs:@[ @"doc5" ]];
 
   // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
   FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
     [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
   ]];
-  [self
-      assertOnlineAndOfflineResultsMatch:[[[self
-                                             compositeIndexQuery:[collRef queryWhereFilter:filter5]]
-                                             queryLimitedToLast:1] queryOrderedByField:@"a"]
-                            expectedDocs:@[ @"doc2" ]];
+  [self assertOnlineAndOfflineResultsMatch:[[[self query:[collRef queryWhereFilter:filter5]]
+                                               queryLimitedToLast:1] queryOrderedByField:@"a"]
+                              expectedDocs:@[ @"doc2" ]];
 }
 
 @end
+
+NS_ASSUME_NONNULL_END
