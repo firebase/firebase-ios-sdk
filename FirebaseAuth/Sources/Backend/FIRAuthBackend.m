@@ -36,6 +36,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRDeleteAccountResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeyEnrollmentResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -687,6 +689,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback {
   [[self implementation] startPasskeyEnrollment:request callback:callback];
 }
+
++ (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+  [[self implementation] finalizePasskeyEnrollment:request callback:callback];
+}
 #endif
 
 + (void)revokeToken:(FIRRevokeTokenRequest *)request
@@ -1144,6 +1151,22 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
                  callback(response, nil);
                }];
 }
+
+- (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback {
+  FIRFinalizePasskeyEnrollmentResponse *response =
+      [[FIRFinalizePasskeyEnrollmentResponse alloc] init];
+  [self callWithRequest:request
+               response:response
+               callback:^(NSError *error) {
+                 if (error) {
+                   callback(nil, error);
+                   return;
+                 }
+                 callback(response, nil);
+               }];
+}
+
 #endif
 
 - (void)revokeToken:(FIRRevokeTokenRequest *)request

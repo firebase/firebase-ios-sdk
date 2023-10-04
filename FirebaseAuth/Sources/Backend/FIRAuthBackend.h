@@ -60,6 +60,8 @@
 @class FIRGetRecaptchaConfigResponse;
 @class FIRStartPasskeyEnrollmentRequest;
 @class FIRStartPasskeyEnrollmentResponse;
+@class FIRFinalizePasskeyEnrollmentRequest;
+@class FIRFinalizePasskeyEnrollmentResponse;
 @class FIRStartPasskeySignInRequest;
 @class FIRStartPasskeySignInResponse;
 
@@ -267,6 +269,17 @@ endpoint.
  */
 typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
     FIRStartPasskeyEnrollmentResponse *_Nullable response, NSError *_Nullable error);
+
+/**
+ @typedef FIRFinalizePasskeyEnrollmentResponseCallback
+ @brief The type of block used to return the result of a call to the startPasskeyEnrollment
+ endpoint.
+ @param response The received response, if any.
+ @param error The error which occurred, if any.
+ @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRFinalizePasskeyEnrollmentResponseCallback)(
+    FIRFinalizePasskeyEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
 /**
  @typedef FIRStartPasskeySignInResponseCallback
@@ -485,6 +498,14 @@ typedef void (^FIRStartPasskeySignInResponseCallback)(
 + (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
 
+/** @fn finalizePasskeyEnrollment:callback:
+    @brief Sends the platform created public info to the finalizePasskeyEnrollment endpoint.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback;
+
 /** @fn startPasskeySignIn:callback:
     @brief Calls the startPasskeySignIn endpoint, which is responsible for receving the
    challenge that will later be consumed for platform key attestation.
@@ -678,6 +699,16 @@ typedef void (^FIRStartPasskeySignInResponseCallback)(
  */
 - (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
+
+
+/** @fn finalizePasskeyEnrollment:callback:
+    @brief Calls the finalizePasskeyEnrollment endpoint, which is responsible for sending the
+   platform credential details to GCIP backend to exchange the access token and refresh token.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)finalizePasskeyEnrollment:(FIRFinalizePasskeyEnrollmentRequest *)request
+                         callback:(FIRFinalizePasskeyEnrollmentResponseCallback)callback;
 
 /** @fn startPasskeySignIn:callback:
     @brief Calls the startPasskeySignIn endpoint, which is responsible for receving the challange.
