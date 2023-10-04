@@ -60,6 +60,8 @@
 @class FIRGetRecaptchaConfigResponse;
 @class FIRStartPasskeyEnrollmentRequest;
 @class FIRStartPasskeyEnrollmentResponse;
+@class FIRStartPasskeySignInRequest;
+@class FIRStartPasskeySignInResponse;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
@@ -266,6 +268,17 @@ endpoint.
 typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
     FIRStartPasskeyEnrollmentResponse *_Nullable response, NSError *_Nullable error);
 
+/**
+ @typedef FIRStartPasskeySignInResponseCallback
+ @brief The type of block used to return the result of a call to the StartPasskeySignIn
+endpoint.
+ @param response The received response, if any.
+ @param error The error which occurred, if any.
+ @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRStartPasskeySignInResponseCallback)(
+    FIRStartPasskeySignInResponse *_Nullable response, NSError *_Nullable error);
+
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
     @remarks All callback blocks passed as method parameters are invoked asynchronously on the
@@ -471,6 +484,15 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
  */
 + (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
+
+/** @fn startPasskeySignIn:callback:
+    @brief Calls the startPasskeySignIn endpoint, which is responsible for receving the
+   challenge that will later be consumed for platform key attestation.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
+                  callback:(FIRStartPasskeySignInResponseCallback)callback;
 #endif
 
 /** @fn revokeToken:callback:
@@ -656,6 +678,14 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
  */
 - (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
+
+/** @fn startPasskeySignIn:callback:
+    @brief Calls the startPasskeySignIn endpoint, which is responsible for receving the challange.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
+                  callback:(FIRStartPasskeySignInResponseCallback)callback;
 #endif
 
 /** @fn revokeToken:callback:
