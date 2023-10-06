@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  @property refershToken
  @brief Refresh token for the authenticated user.
  */
-@property(nonatomic, copy, readonly) NSData *refreshToken;
+@property(nonatomic, copy, readonly) NSString *refreshToken;
 
 @end
 
