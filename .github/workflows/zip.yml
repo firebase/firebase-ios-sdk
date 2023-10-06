@@ -34,8 +34,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
-    - name: Xcode 13.3.1
-      run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
+    - name: Xcode 14.1
+      run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -57,8 +57,8 @@ jobs:
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v3
-    - name: Xcode 13.3.1
-      run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
+    - name: Xcode 14.1
+      run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
     - name: Build
       run: |
         cd ReleaseTooling
@@ -74,8 +74,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
-    - name: Xcode 13.3.1
-      run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
+    - name: Xcode 14.1
+      run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
@@ -444,8 +444,8 @@ jobs:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-12
     steps:
-      - name: Xcode 13.3.1
-        run: sudo xcode-select -s /Applications/Xcode_13.3.1.app/Contents/Developer
+      - name: Xcode 14.1
+        run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
       - uses: actions/checkout@v3
       - name: Get framework dir
         uses: actions/download-artifact@v1

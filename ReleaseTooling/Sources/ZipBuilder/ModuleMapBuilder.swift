@@ -46,6 +46,15 @@ struct ModuleMapBuilder {
       module * { export * }
 
       """
+
+      if module == "FirebaseFirestore" {
+        content += """
+          link framework "BoringSSL-GRPC"
+          link framework "gRPC-Core"
+          link framework "gRPC-C++"
+        """
+      }
+
       for framework in frameworks.sorted() {
         content += "  link framework " + framework + "\n"
       }
@@ -128,7 +137,14 @@ struct ModuleMapBuilder {
   /// to make sure we install the right version and from the right location.
   private func generate(framework: FrameworkInfo) {
     let podName = framework.versionedPod.name
-    let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
+    let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods).filter {
+      // Don't include Interop pods in the module map calculation since they shouldn't add anything
+      // and it uses the platform-independent version of the dependency list, which causes a crash
+      // for the iOS-only RecaptchaInterop pod when the subsequent code tries to `pod install` it
+      // for macOS. All this module code should go away when we switch to building dynamic
+      // frameworks.
+      !$0.name.hasSuffix("Interop")
+    }
 
     CocoaPodUtils.installPods(allSubspecList(framework: framework) + deps,
                               inDir: projectDir,

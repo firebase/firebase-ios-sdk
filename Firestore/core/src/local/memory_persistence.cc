@@ -138,6 +138,9 @@ ReferenceDelegate* MemoryPersistence::reference_delegate() {
 void MemoryPersistence::ReleaseOtherUserSpecificComponents(const std::string&) {
 }
 
+void MemoryPersistence::DeleteAllFieldIndexes() {
+}
+
 void MemoryPersistence::RunInternal(absl::string_view label,
                                     std::function<void()> block) {
   TransactionGuard guard(reference_delegate_.get(), label);

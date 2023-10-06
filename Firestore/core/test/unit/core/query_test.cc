@@ -65,10 +65,10 @@ TEST(QueryTest, Constructor) {
   const ResourcePath path{"rooms", "Firestore", "messages", "0001"};
   Query query(path);
 
-  ASSERT_EQ(1, query.order_bys().size());
+  ASSERT_EQ(1, query.normalized_order_bys().size());
   EXPECT_EQ(FieldPath::kDocumentKeyPath,
-            query.order_bys()[0].field().CanonicalString());
-  EXPECT_EQ(true, query.order_bys()[0].ascending());
+            query.normalized_order_bys()[0].field().CanonicalString());
+  EXPECT_EQ(true, query.normalized_order_bys()[0].ascending());
 
   ASSERT_EQ(0, query.explicit_order_bys().size());
 }
@@ -78,12 +78,13 @@ TEST(QueryTest, OrderBy) {
                    .AddingOrderBy(testutil::OrderBy(Field("length"),
                                                     Direction::Descending));
 
-  ASSERT_EQ(2, query.order_bys().size());
-  EXPECT_EQ("length", query.order_bys()[0].field().CanonicalString());
-  EXPECT_EQ(false, query.order_bys()[0].ascending());
+  ASSERT_EQ(2, query.normalized_order_bys().size());
+  EXPECT_EQ("length",
+            query.normalized_order_bys()[0].field().CanonicalString());
+  EXPECT_EQ(false, query.normalized_order_bys()[0].ascending());
   EXPECT_EQ(FieldPath::kDocumentKeyPath,
-            query.order_bys()[1].field().CanonicalString());
-  EXPECT_EQ(false, query.order_bys()[1].ascending());
+            query.normalized_order_bys()[1].field().CanonicalString());
+  EXPECT_EQ(false, query.normalized_order_bys()[1].ascending());
 
   ASSERT_EQ(1, query.explicit_order_bys().size());
   EXPECT_EQ("length", query.explicit_order_bys()[0].field().CanonicalString());
@@ -770,7 +771,7 @@ TEST(QueryTest, UniqueIds) {
 TEST(QueryTest, ImplicitOrderBy) {
   auto base_query = testutil::Query("foo");
   // Default is ascending
-  ASSERT_EQ(base_query.order_bys(),
+  ASSERT_EQ(base_query.normalized_order_bys(),
             std::vector<core::OrderBy>{
                 testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")});
 
@@ -778,20 +779,20 @@ TEST(QueryTest, ImplicitOrderBy) {
   ASSERT_EQ(
       base_query
           .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"))
-          .order_bys(),
+          .normalized_order_bys(),
       std::vector<OrderBy>{
           testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")});
   ASSERT_EQ(
       base_query
           .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc"))
-          .order_bys(),
+          .normalized_order_bys(),
       std::vector<OrderBy>{
           testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc")});
 
   ASSERT_EQ(
       base_query.AddingOrderBy(testutil::OrderBy("foo", "asc"))
           .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"))
-          .order_bys(),
+          .normalized_order_bys(),
       (std::vector<OrderBy>{
           testutil::OrderBy("foo", "asc"),
           testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
@@ -799,27 +800,27 @@ TEST(QueryTest, ImplicitOrderBy) {
   ASSERT_EQ(
       base_query.AddingOrderBy(testutil::OrderBy("foo", "asc"))
           .AddingOrderBy(testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc"))
-          .order_bys(),
+          .normalized_order_bys(),
       (std::vector<OrderBy>{
           testutil::OrderBy("foo", "asc"),
           testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
 
   // Inequality filters add order bys
-  ASSERT_EQ(
-      base_query.AddingFilter(testutil::Filter("foo", "<", 5)).order_bys(),
-      (std::vector<OrderBy>{
-          testutil::OrderBy("foo", "asc"),
-          testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("foo", "<", 5))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("foo", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc")}));
 
   // Descending order by applies to implicit key ordering
-  ASSERT_EQ(
-      base_query.AddingOrderBy(testutil::OrderBy("foo", "desc")).order_bys(),
-      (std::vector<OrderBy>{
-          testutil::OrderBy("foo", "desc"),
-          testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
+  ASSERT_EQ(base_query.AddingOrderBy(testutil::OrderBy("foo", "desc"))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("foo", "desc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc")}));
   ASSERT_EQ(base_query.AddingOrderBy(testutil::OrderBy("foo", "asc"))
                 .AddingOrderBy(testutil::OrderBy("bar", "desc"))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("foo", "asc"),
                 testutil::OrderBy("bar", "desc"),
@@ -827,10 +828,131 @@ TEST(QueryTest, ImplicitOrderBy) {
             }));
   ASSERT_EQ(base_query.AddingOrderBy(testutil::OrderBy("foo", "desc"))
                 .AddingOrderBy(testutil::OrderBy("bar", "asc"))
-                .order_bys(),
+                .normalized_order_bys(),
             (std::vector<OrderBy>{
                 testutil::OrderBy("foo", "desc"),
                 testutil::OrderBy("bar", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+}
+
+TEST(QueryTest, ImplicitOrderByInMultipleInequality) {
+  auto base_query = testutil::Query("foo");
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">=", 5))
+                .AddingFilter(testutil::Filter("aa", ">", 5))
+                .AddingFilter(testutil::Filter("b", "<=", 5))
+                .AddingFilter(testutil::Filter("A", ">=", 5))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("A", "asc"),
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("aa", "asc"),
+                testutil::OrderBy("b", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // numbers
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
+                .AddingFilter(testutil::Filter("1", ">", 5))
+                .AddingFilter(testutil::Filter("19", "<=", 5))
+                .AddingFilter(testutil::Filter("2", ">=", 5))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("1", "asc"),
+                testutil::OrderBy("19", "asc"),
+                testutil::OrderBy("2", "asc"),
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // nested fields
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
+                .AddingFilter(testutil::Filter("aa", ">", 5))
+                .AddingFilter(testutil::Filter("a.a", "<=", 5))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("a.a", "asc"),
+                testutil::OrderBy("aa", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // special characters
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
+                .AddingFilter(testutil::Filter("_a", ">", 5))
+                .AddingFilter(testutil::Filter("a.a", "<=", 5))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("_a", "asc"),
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("a.a", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // field name with dot
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
+                .AddingFilter(testutil::Filter("a.z", ">", 5))
+                .AddingFilter(testutil::Filter(("`a.a`"), "<=", 5))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("a.z", "asc"),
+                testutil::OrderBy(("`a.a`"), "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // composite filter
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("a", "<", 5))
+                .AddingFilter(
+                    AndFilters({OrFilters({testutil::Filter("b", ">=", 1),
+                                           testutil::Filter("c", "<=", 0)}),
+                                OrFilters({testutil::Filter("d", ">", 3),
+                                           testutil::Filter("e", "==", 2)})}))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("b", "asc"),
+                testutil::OrderBy("c", "asc"),
+                testutil::OrderBy("d", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // OrderBy
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("b", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">", 5))
+                .AddingFilter(testutil::Filter(("z"), "<=", 5))
+                .AddingOrderBy(testutil::OrderBy("z"))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("z", "asc"),
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("b", "asc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
+            }));
+
+  // last explicit order by direction
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("b", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">", 5))
+                .AddingOrderBy(testutil::OrderBy("z", "desc"))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("z", "desc"),
+                testutil::OrderBy("a", "desc"),
+                testutil::OrderBy("b", "desc"),
+                testutil::OrderBy(FieldPath::kDocumentKeyPath, "desc"),
+            }));
+
+  ASSERT_EQ(base_query.AddingFilter(testutil::Filter("b", "<", 5))
+                .AddingFilter(testutil::Filter("a", ">", 5))
+                .AddingOrderBy(testutil::OrderBy("z", "desc"))
+                .AddingOrderBy(testutil::OrderBy("c"))
+                .normalized_order_bys(),
+            (std::vector<OrderBy>{
+                testutil::OrderBy("z", "desc"),
+                testutil::OrderBy("c", "asc"),
+                testutil::OrderBy("a", "asc"),
+                testutil::OrderBy("b", "asc"),
                 testutil::OrderBy(FieldPath::kDocumentKeyPath, "asc"),
             }));
 }
@@ -915,6 +1037,58 @@ TEST(QueryTest, MatchesAllDocuments) {
 
   query = base_query.StartingAt(Bound::FromValue(Array("OAK"), true));
   EXPECT_FALSE(query.MatchesAllDocuments());
+}
+
+TEST(QueryTest, OrderByForAggregateAndNonAggregate) {
+  auto col = testutil::Query("coll");
+
+  // Build two identical queries
+  auto query1 = col.AddingFilter(testutil::Filter("foo", ">", 1));
+  auto query2 = col.AddingFilter(testutil::Filter("foo", ">", 1));
+
+  // Compute an aggregate and non-aggregate target from the queries
+  auto aggregateTarget = query1.ToAggregateTarget();
+  auto target = query2.ToTarget();
+
+  EXPECT_EQ(aggregateTarget.order_bys().size(), 0);
+
+  ASSERT_EQ(target.order_bys().size(), 2);
+  EXPECT_EQ(target.order_bys()[0].direction(), Direction::Ascending);
+  EXPECT_EQ(target.order_bys()[0].field().CanonicalString(), "foo");
+  EXPECT_EQ(target.order_bys()[1].direction(), Direction::Ascending);
+  EXPECT_EQ(target.order_bys()[1].field().CanonicalString(), "__name__");
+}
+
+TEST(QueryTest, GeneratedOrderBysNotAffectedByPreviouslyMemoizedTargets) {
+  auto col = testutil::Query("coll");
+
+  // Build two identical queries
+  auto query1 = col.AddingFilter(testutil::Filter("foo", ">", 1));
+  auto query2 = col.AddingFilter(testutil::Filter("foo", ">", 1));
+
+  // query1 - first to aggregate target, then to non-aggregate target
+  auto aggregateTarget1 = query1.ToAggregateTarget();
+  auto target1 = query1.ToTarget();
+
+  // query2 - first to aggregate target, then to non-aggregate target
+  auto target2 = query2.ToTarget();
+  auto aggregateTarget2 = query2.ToAggregateTarget();
+
+  EXPECT_EQ(aggregateTarget1.order_bys().size(), 0);
+
+  EXPECT_EQ(aggregateTarget2.order_bys().size(), 0);
+
+  ASSERT_EQ(target1.order_bys().size(), 2);
+  EXPECT_EQ(target1.order_bys()[0].direction(), Direction::Ascending);
+  EXPECT_EQ(target1.order_bys()[0].field().CanonicalString(), "foo");
+  EXPECT_EQ(target1.order_bys()[1].direction(), Direction::Ascending);
+  EXPECT_EQ(target1.order_bys()[1].field().CanonicalString(), "__name__");
+
+  ASSERT_EQ(target2.order_bys().size(), 2);
+  EXPECT_EQ(target2.order_bys()[0].direction(), Direction::Ascending);
+  EXPECT_EQ(target2.order_bys()[0].field().CanonicalString(), "foo");
+  EXPECT_EQ(target2.order_bys()[1].direction(), Direction::Ascending);
+  EXPECT_EQ(target2.order_bys()[1].field().CanonicalString(), "__name__");
 }
 
 }  // namespace core

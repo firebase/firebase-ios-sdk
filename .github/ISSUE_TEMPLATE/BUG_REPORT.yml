@@ -99,6 +99,7 @@ body:
         - watchOS
         - macOS
         - macCatalyst
+        - visionOS
         - App Extensions
         - All
         - N/A

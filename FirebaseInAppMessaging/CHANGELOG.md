@@ -1,3 +1,6 @@
+# 10.13.0
+- [fixed] Fix Firebase tvOS podspec dependency for In App Messaging. (#11569)
+
 # 10.10.0
 - [fixed] Crash on InApp message presentation when a CarPlay scene is active (#9376)
 

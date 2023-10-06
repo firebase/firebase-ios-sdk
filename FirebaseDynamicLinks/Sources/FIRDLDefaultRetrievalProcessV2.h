@@ -24,10 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Class to encapsulate logic related to retrieving pending dynamic link.
- In V2 changed comparing to FIRDLDefaultRetrievalProcess:
- - removed Java Script fingerprint and replaced by passing device parametres directly to endpoint;
- - added device model name to endpoint;
- - added handling of iPhone Apps running in compatibility mode on iPad.
  */
 @interface FIRDLDefaultRetrievalProcessV2 : NSObject <FIRDLRetrievalProcessProtocol>
 

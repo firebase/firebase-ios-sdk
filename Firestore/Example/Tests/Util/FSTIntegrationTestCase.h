@@ -33,6 +33,7 @@
 @class FIRFirestore;
 @class FIRFirestoreSettings;
 @class FIRQuery;
+@class FIRWriteBatch;
 @class FSTEventAccumulator;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -45,6 +46,9 @@ extern "C" {
 
 /** Returns the default Firestore project ID for testing. */
 + (NSString *)projectID;
+
+/** Returns the default Firestore database ID for testing. */
++ (NSString *)databaseID;
 
 + (bool)isRunningAgainstEmulator;
 
@@ -114,6 +118,8 @@ extern "C" {
 - (void)mergeDocumentRef:(FIRDocumentReference *)ref
                     data:(NSDictionary<NSString *, id> *)data
                   fields:(NSArray<id> *)fields;
+
+- (void)commitWriteBatch:(FIRWriteBatch *)batch;
 
 - (void)disableNetwork;
 

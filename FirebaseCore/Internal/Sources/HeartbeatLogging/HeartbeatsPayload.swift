@@ -122,10 +122,10 @@ extension HeartbeatsPayload {
   /// Convenience instance that represents an empty payload.
   static let emptyPayload = HeartbeatsPayload()
 
-  /// A default date formatter that uses `YYYY-MM-dd` format.
+  /// A default date formatter that uses `yyyy-MM-dd` format.
   public static let dateFormatter: DateFormatter = {
     let formatter = DateFormatter()
-    formatter.dateFormat = "YYYY-MM-dd"
+    formatter.dateFormat = "yyyy-MM-dd"
     formatter.locale = Locale(identifier: "en_US_POSIX")
     formatter.timeZone = TimeZone(secondsFromGMT: 0)
     return formatter

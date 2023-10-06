@@ -317,7 +317,7 @@
   XCTAssert(ptr != NULL);
 }
 
-#if !CLS_TARGET_OS_XR
+#if !CLS_TARGET_OS_VISION
 - (void)testReadArm64Section {
   NSString* path = [[self resourcePath] stringByAppendingPathComponent:@"armv7-armv7s-arm64.dylib"];
   struct FIRCLSMachOFile file;
@@ -340,7 +340,7 @@
 }
 #endif
 
-#if CLS_TARGET_OS_XR
+#if CLS_TARGET_OS_VISION
 
 - (void)testVisionProGetSlice {
   struct FIRCLSMachOSlice slice = FIRCLSMachOSliceGetCurrent();

@@ -639,13 +639,7 @@
     NSString* path = [NSString stringWithFormat:format, collectionGroup];
     [batch setData:@{@"x" : @2} forDocument:[self.db documentWithPath:path]];
   }
-
-  XCTestExpectation* expectation = [self expectationWithDescription:@"commit"];
-  [batch commitWithCompletion:^(NSError* error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self awaitExpectation:expectation];
+  [self commitWriteBatch:batch];
 
   FIRAggregateQuerySnapshot* snapshot =
       [self readSnapshotForAggregate:[[self.db collectionGroupWithID:collectionGroup] aggregate:@[

@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
-
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
-
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProviderFactory.h"
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
@@ -34,5 +30,3 @@
 }
 
 @end
-
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS

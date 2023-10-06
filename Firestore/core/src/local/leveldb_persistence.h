@@ -108,11 +108,19 @@ class LevelDbPersistence : public Persistence {
 
  private:
   friend class LevelDbOverlayMigrationManagerTest;
+  friend class LevelDbLocalStoreTest;
+  friend class LevelDbIndexManager;
+
   LevelDbPersistence(std::unique_ptr<leveldb::DB> db,
                      util::Path directory,
                      std::set<std::string> users,
                      LocalSerializer serializer,
                      const LruParams& lru_params);
+
+  /**
+   * The maximum number of operation per transaction.
+   */
+  static const size_t kMaxOperationPerTransaction = 1000U;
 
   /**
    * Ensures that the given directory exists.
@@ -128,6 +136,15 @@ class LevelDbPersistence : public Persistence {
       LevelDbMigrations::SchemaVersion schema_version,
       LocalSerializer serializer,
       const LruParams& lru_params);
+
+  void DeleteAllFieldIndexes() override;
+
+  /**
+   * Remove the database entry (if any) for all "key" starting with given
+   * prefix. It is a no-op if the key does not exist.
+   */
+  void DeleteEverythingWithPrefix(absl::string_view label,
+                                  const std::string& prefix);
 
   std::unique_ptr<leveldb::DB> db_;
 

@@ -19,8 +19,6 @@
 #import "FIRAppCheckAvailability.h"
 #import "FIRAppCheckProvider.h"
 
-#if FIR_DEVICE_CHECK_SUPPORTED_TARGETS
-
 @class FIRApp;
 @protocol FIRDeviceCheckAPIServiceProtocol;
 @protocol FIRDeviceCheckTokenGenerator;
@@ -46,5 +44,3 @@ NS_SWIFT_NAME(DeviceCheckProvider)
 @end
 
 NS_ASSUME_NONNULL_END
-
-#endif  // FIR_DEVICE_CHECK_SUPPORTED_TARGETS

@@ -23,21 +23,19 @@
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAPIService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/API/FIRAppAttestAttestationResponse.h"
+#import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/FIRAppAttestService.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestArtifactStorage.h"
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
-#import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
-
-#import "FirebaseAppCheck/Sources/AppAttestProvider/Errors/FIRAppAttestRejectionError.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
+#import "FirebaseAppCheck/Sources/Core/Utils/FIRAppCheckCryptoUtils.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 #import "SharedTestUtilities/AppCheckBackoffWrapperFake/FIRAppCheckBackoffWrapperFake.h"
-
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
 
 FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 @interface FIRAppAttestProvider (Tests)
@@ -1089,5 +1087,3 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
 }
 
 @end
-
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS

@@ -25,6 +25,7 @@
 #include "Firestore/core/src/local/leveldb_key.h"
 #include "Firestore/core/src/local/leveldb_persistence.h"
 #include "Firestore/core/src/local/local_serializer.h"
+#include "Firestore/core/src/local/query_context.h"
 #include "Firestore/core/src/model/document_key_set.h"
 #include "Firestore/core/src/model/model_fwd.h"
 #include "Firestore/core/src/model/mutable_document.h"
@@ -227,6 +228,16 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetDocumentsMatchingQuery(
     const model::IndexOffset& offset,
     absl::optional<size_t> limit,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
+  absl::optional<QueryContext> context;
+  return GetDocumentsMatchingQuery(query, offset, context, limit, mutated_docs);
+}
+
+MutableDocumentMap LevelDbRemoteDocumentCache::GetDocumentsMatchingQuery(
+    const core::Query& query,
+    const model::IndexOffset& offset,
+    absl::optional<QueryContext>& context,
+    absl::optional<size_t> limit,
+    const model::OverlayByDocumentKeyMap& mutated_docs) const {
   // Use the query path as a prefix for testing if a document matches the query.
 
   // Execute an index-free query and filter by read time. This is safe since
@@ -260,6 +271,12 @@ MutableDocumentMap LevelDbRemoteDocumentCache::GetDocumentsMatchingQuery(
         remote_map[document_key] = read_time;
       }
     }
+  }
+
+  if (context.has_value()) {
+    // The next step is going to check every document in remote_map, so it will
+    // go through total of remote_map.size() documents.
+    context.value().IncrementDocumentReadCount(remote_map.size());
   }
 
   return LevelDbRemoteDocumentCache::GetAllExisting(std::move(remote_map),

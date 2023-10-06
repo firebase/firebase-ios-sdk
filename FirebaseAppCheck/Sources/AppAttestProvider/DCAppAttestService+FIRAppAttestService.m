@@ -16,11 +16,6 @@
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/DCAppAttestService+FIRAppAttestService.h"
 
-// Currently DCAppAttestService is available on iOS only.
-#if FIR_APP_ATTEST_SUPPORTED_TARGETS
-
 @implementation DCAppAttestService (FIRAppAttestService)
 
 @end
-
-#endif  // FIR_APP_ATTEST_SUPPORTED_TARGETS

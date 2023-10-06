@@ -190,8 +190,18 @@ model::MutableDocumentMap WrappedRemoteDocumentCache::GetDocumentsMatchingQuery(
     const model::IndexOffset& offset,
     absl::optional<size_t> limit,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
-  auto result =
-      subject_->GetDocumentsMatchingQuery(query, offset, limit, mutated_docs);
+  absl::optional<QueryContext> context;
+  return GetDocumentsMatchingQuery(query, offset, context, limit, mutated_docs);
+}
+
+model::MutableDocumentMap WrappedRemoteDocumentCache::GetDocumentsMatchingQuery(
+    const core::Query& query,
+    const model::IndexOffset& offset,
+    absl::optional<QueryContext>& context,
+    absl::optional<size_t> limit,
+    const model::OverlayByDocumentKeyMap& mutated_docs) const {
+  auto result = subject_->GetDocumentsMatchingQuery(query, offset, context,
+                                                    limit, mutated_docs);
   query_engine_->documents_read_by_query_ += result.size();
   return result;
 }

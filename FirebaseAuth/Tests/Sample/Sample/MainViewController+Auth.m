@@ -29,8 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
     [StaticContentTableViewCell cellWithTitle:@"Sign in Anonymously"
                                       action:^{ [weakSelf signInAnonymously]; }],
     [StaticContentTableViewCell cellWithTitle:@"Sign out"
-                                      action:^{ [weakSelf signOut]; }]
-    ]];
+                                      action:^{ [weakSelf signOut]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Initialize Recaptcha Config"
+                                      action:^{ [weakSelf initializeRecaptchaConfig]; }],
+    [StaticContentTableViewCell cellWithTitle:@"Set Auth Domain"
+                                      action:^{ [weakSelf setAuthDomain]; }]
+  ]];
 }
 
 - (void)signInAnonymously {
@@ -71,6 +75,33 @@ NS_ASSUME_NONNULL_BEGIN
   [[AuthProviders facebook] signOut];
   [[AppManager auth] signOut:NULL];
 }
+
+- (void)initializeRecaptchaConfig {
+    [[AppManager auth] initializeRecaptchaConfigWithCompletion:^(NSError * _Nullable error) {
+        if (error) {
+            [self logFailure:@"Initializing Recaptcha config failed" error:error];
+        } else {
+            [self logSuccess:@"Initializing Recaptcha config succeeded."];
+        }
+    }];
+}
+
+- (void)setAuthDomain {
+  [self showTextInputPromptWithMessage:@"Auth Domain:"
+                       completionBlock:^(BOOL userPressedOK, NSString *_Nullable customAuthDomain) {
+    if (userPressedOK && customAuthDomain.length) {
+      FIRAuth *auth = [AppManager auth];
+      if(!auth) {
+        [self logFailedTest:@"Could not obtain auth object."];
+        return;
+      }
+      auth.customAuthDomain = customAuthDomain;
+      [self logSuccess:[NSString stringWithFormat:@"Successfully set auth domain to: %@", customAuthDomain]];
+    }
+    return;
+  }];
+}
+
 
 @end
 

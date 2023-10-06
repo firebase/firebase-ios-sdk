@@ -18,6 +18,7 @@ target 'AuthSample' do
   pod 'FBSDKLoginKit', '< 13'
   pod 'GoogleSignIn', '~> 6'
   pod 'GTMSessionFetcher/Core'
+  pod 'RecaptchaEnterprise', '~> 18.3'
 
   target 'Auth_ApiTests' do
     inherit! :search_paths
