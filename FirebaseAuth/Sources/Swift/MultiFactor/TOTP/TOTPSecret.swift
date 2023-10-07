@@ -13,7 +13,11 @@
 // limitations under the License.
 
 import Foundation
-@_implementationOnly import GoogleUtilities
+#if COCOAPODS
+  @_implementationOnly import GoogleUtilities
+#else
+  @_implementationOnly import GoogleUtilities_Environment
+#endif
 
 #if os(iOS)
   import UIKit
