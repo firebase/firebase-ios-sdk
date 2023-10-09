@@ -670,7 +670,7 @@
         if testMode {
           // Disable app verification.
           let settings = AuthSettings()
-          settings.appVerificationDisabledForTesting = true
+          settings.isAppVerificationDisabledForTesting = true
           auth.settings = settings
         }
         auth.notificationManager?.immediateCallbackForTestFaking = { forwardingNotification }

@@ -1096,7 +1096,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertTrue(userInfo.isNewUser)
       XCTAssertNil(userInfo.username)
       XCTAssertNil(userInfo.profile)
-      XCTAssertNil(userInfo.providerID)
+      XCTAssertEqual(userInfo.providerID, "")
       expectation.fulfill()
     }
     waitForExpectations(timeout: 5)
@@ -1158,7 +1158,7 @@ class AuthTests: RPCBaseTests {
       XCTAssertFalse(userInfo.isNewUser)
       XCTAssertNil(userInfo.username)
       XCTAssertNil(userInfo.profile)
-      XCTAssertNil(userInfo.providerID)
+      XCTAssertEqual(userInfo.providerID, "")
       XCTAssertNil(error)
       expectation.fulfill()
     }

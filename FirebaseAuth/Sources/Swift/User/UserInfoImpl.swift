@@ -23,13 +23,14 @@ class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
    */
   class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
-    guard let providerID = providerUserInfo.providerID else {
+    guard let providerID = providerUserInfo.providerID,
+          let userID = providerUserInfo.federatedID else {
       // This was a crash in ObjC implementation. Should providerID be not nullable?
       // federatedID is nil on initial Phone Auth.
-      fatalError("Missing providerID from GetAccountInfoResponseProviderUserInfo")
+      fatalError("Missing userID or providerID from GetAccountInfoResponseProviderUserInfo")
     }
     return UserInfoImpl(withProviderID: providerID,
-                        userID: providerUserInfo.federatedID,
+                        userID: userID,
                         displayName: providerUserInfo.displayName,
                         photoURL: providerUserInfo.photoURL,
                         email: providerUserInfo.email,
@@ -46,7 +47,7 @@ class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
       @param phoneNumber The user's phone number.
    */
   init(withProviderID providerID: String,
-       userID: String?,
+       userID: String,
        displayName: String?,
        photoURL: URL?,
        email: String?,
@@ -60,15 +61,10 @@ class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
   }
 
   var providerID: String
-
-  var uid: String?
-
+  var uid: String
   var displayName: String?
-
   var photoURL: URL?
-
   var email: String?
-
   var phoneNumber: String?
 
   // MARK: Secure Coding

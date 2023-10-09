@@ -21,21 +21,17 @@ import Foundation
   /** @property appVerificationDisabledForTesting
       @brief Flag to determine whether app verification should be disabled for testing or not.
    */
-  @objc public var appVerificationDisabledForTesting: Bool
-
-  @objc var isAppVerificationDisabledForTesting: Bool {
-    return appVerificationDisabledForTesting
-  }
+  @objc public var isAppVerificationDisabledForTesting: Bool
 
   override init() {
-    appVerificationDisabledForTesting = false
+    isAppVerificationDisabledForTesting = false
   }
 
   // MARK: NSCopying
 
   public func copy(with zone: NSZone? = nil) -> Any {
     let settings = AuthSettings()
-    settings.appVerificationDisabledForTesting = appVerificationDisabledForTesting
+    settings.isAppVerificationDisabledForTesting = isAppVerificationDisabledForTesting
     return settings
   }
 }
