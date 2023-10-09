@@ -19,10 +19,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- @class FIRFinalizePasskeyEnrollmentResponse
- @brief Represents the response from the startPasskeyEnrollment endpoint.
+ @class FIRFinalizePasskeySignInResponse
+ @brief Represents the response from the finalizePasskeySignIn endpoint.
  */
-@interface FIRFinalizePasskeyEnrollmentResponse : NSObject <FIRAuthRPCResponse>
+@interface FIRFinalizePasskeySignInResponse : NSObject <FIRAuthRPCResponse>
 
 /**
  @property idToken

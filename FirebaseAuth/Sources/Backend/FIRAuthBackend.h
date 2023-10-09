@@ -64,6 +64,8 @@
 @class FIRFinalizePasskeyEnrollmentResponse;
 @class FIRStartPasskeySignInRequest;
 @class FIRStartPasskeySignInResponse;
+@class FIRFinalizePasskeySignInRequest;
+@class FIRFinalizePasskeySignInResponse;
 
 @protocol FIRAuthBackendImplementation;
 @protocol FIRAuthBackendRPCIssuer;
@@ -272,7 +274,7 @@ typedef void (^FIRStartPasskeyEnrollmentResponseCallback)(
 
 /**
  @typedef FIRFinalizePasskeyEnrollmentResponseCallback
- @brief The type of block used to return the result of a call to the startPasskeyEnrollment
+ @brief The type of block used to return the result of a call to the finalizePasskeyEnrollment
  endpoint.
  @param response The received response, if any.
  @param error The error which occurred, if any.
@@ -291,6 +293,17 @@ endpoint.
  */
 typedef void (^FIRStartPasskeySignInResponseCallback)(
     FIRStartPasskeySignInResponse *_Nullable response, NSError *_Nullable error);
+
+/**
+ @typedef FIRFinalizePasskeySignInResponseCallback
+ @brief The type of block used to return the result of a call to the finalizePasskeySignIn
+ endpoint.
+ @param response The received response, if any.
+ @param error The error which occurred, if any.
+ @remarks One of response or error will be non-nil.
+ */
+typedef void (^FIRFinalizePasskeySignInResponseCallback)(
+    FIRFinalizePasskeySignInResponse *_Nullable response, NSError *_Nullable error);
 
 /** @class FIRAuthBackend
     @brief Simple static class with methods representing the backend RPCs.
@@ -514,6 +527,14 @@ typedef void (^FIRStartPasskeySignInResponseCallback)(
  */
 + (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
                   callback:(FIRStartPasskeySignInResponseCallback)callback;
+
+/** @fn finalizePasskeySignIn:callback:
+    @brief Sends the platform created public info to the finalizePasskeySignIn endpoint.
+    @param request The request parameters.
+    @param callback The callback.
+ */
++ (void)finalizePasskeySignIn:(FIRFinalizePasskeySignInRequest *)request
+                     callback:(FIRFinalizePasskeySignInResponseCallback)callback;
 #endif
 
 /** @fn revokeToken:callback:
@@ -700,7 +721,6 @@ typedef void (^FIRStartPasskeySignInResponseCallback)(
 - (void)startPasskeyEnrollment:(FIRStartPasskeyEnrollmentRequest *)request
                       callback:(FIRStartPasskeyEnrollmentResponseCallback)callback;
 
-
 /** @fn finalizePasskeyEnrollment:callback:
     @brief Calls the finalizePasskeyEnrollment endpoint, which is responsible for sending the
    platform credential details to GCIP backend to exchange the access token and refresh token.
@@ -717,6 +737,14 @@ typedef void (^FIRStartPasskeySignInResponseCallback)(
  */
 - (void)startPasskeySignIn:(FIRStartPasskeySignInRequest *)request
                   callback:(FIRStartPasskeySignInResponseCallback)callback;
+
+/** @fn finalizePasskeySignIn:callback:
+    @brief Sends the platform created public info to the finalizePasskeySignIn endpoint.
+    @param request The request parameters.
+    @param callback The callback.
+ */
+- (void)finalizePasskeySignIn:(FIRFinalizePasskeySignInRequest *)request
+                     callback:(FIRFinalizePasskeySignInResponseCallback)callback;
 #endif
 
 /** @fn revokeToken:callback:
