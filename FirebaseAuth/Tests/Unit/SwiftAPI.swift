@@ -44,11 +44,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func FIRAuthAdditionalUserInfo_h() async throws {
+  func FIRAuthAdditionalUserInfo_h(credential: AuthCredential) async throws {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
-    let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
-                                                             verificationCode: "code")
     let authDataResult = try await user.reauthenticate(with: credential)
     let additionalUserInfo = authDataResult.additionalUserInfo!
 

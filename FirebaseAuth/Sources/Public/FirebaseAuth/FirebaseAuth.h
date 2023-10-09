@@ -17,4 +17,5 @@
 #import <Foundation/Foundation.h>
 
 // TODO: restore other headers with typedefs and string constants for CocoaPods.
+#import "FIRAuth.h"
 #import "FIRMultiFactor.h"
