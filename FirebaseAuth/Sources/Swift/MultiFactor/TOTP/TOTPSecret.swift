@@ -13,6 +13,11 @@
 // limitations under the License.
 
 import Foundation
+#if COCOAPODS
+  @_implementationOnly import GoogleUtilities
+#else
+  @_implementationOnly import GoogleUtilities_Environment
+#endif
 
 #if os(iOS)
   import UIKit
@@ -56,9 +61,21 @@ import Foundation
      */
     @objc(openInOTPAppWithQRCodeURL:)
     public func openInOTPApp(withQRCodeURL qrCodeURL: String) {
-      if let url = URL(string: qrCodeURL),
-         UIApplication.shared.canOpenURL(url) {
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+      if GULAppEnvironmentUtil.isAppExtension() {
+        // iOS App extensions should not call [UIApplication sharedApplication], even if
+        // UIApplication responds to it.
+        return
+      }
+
+      // Using reflection here to avoid build errors in extensions.
+      let sel = NSSelectorFromString("sharedApplication")
+      guard UIApplication.responds(to: sel),
+            let rawApplication = UIApplication.perform(sel),
+            let application = rawApplication.takeUnretainedValue() as? UIApplication else {
+        return
+      }
+      if let url = URL(string: qrCodeURL), application.canOpenURL(url) {
+        application.open(url, options: [:], completionHandler: nil)
       } else {
         AuthLog.logError(code: "I-AUT000019",
                          message: "URL: \(qrCodeURL) cannot be opened")
