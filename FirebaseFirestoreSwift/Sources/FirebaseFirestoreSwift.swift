@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #warning(
-  "The `FirebaseFirestoreSwift` module is deprecated and will be removed in the future. All of the public API from `FirebaseFirestoreSwift` can now be accessed through the `FirebaseFirestore` module. To migrate, delete imports of `FirebaseFirestoreSwift` and remove the module as a dependency to your project. If applicable, any APIs namespaced with `FirebaseFirestoreSwift` can now be namespaced with `FirebaseFirestore`. Additionally, if applicable, `@testable import FirebaseFirestoreSwift` should be replaced with `@testable import FirebaseFirestore`."
+  "All of the public API from `FirebaseFirestoreSwift` can now be accessed through the `FirebaseFirestore` module. Therefore, the `FirebaseFirestoreSwift` module is deprecated and will be removed in the future. See https://firebase.google.com/docs/ios/swift-migration for migration instructions."
 )
 
 // The `@_exported` is needed to prevent breaking clients that are using
