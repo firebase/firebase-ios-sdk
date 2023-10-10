@@ -1,14 +1,9 @@
 # Unreleased
-- [deprecated] `FirebaseRemoteConfigSwift` has been deprecated, and will be
-  removed in a future release. All of the public API from
-  `FirebaseRemoteConfigSwift` can now be accessed through the
-  `FirebaseRemoteConfig` module. To migrate, delete imports of
-  `FirebaseRemoteConfigSwift` and remove the module as a dependency to your
-  project. If applicable, any APIs namespaced with
-  `FirebaseRemoteConfigSwift` can now be namespaced with
-  `FirebaseRemoteConfig`. Additionally, if applicable,
-  `@testable import FirebaseRemoteConfigSwift` should be replaced with
-  `@testable import FirebaseRemoteConfig`.
+- [deprecated] All of the public API from `FirebaseRemoteConfigSwift` can now
+  be accessed through the `FirebaseRemoteConfig` module. Therefore,
+  `FirebaseRemoteConfigSwift` has been deprecated, and will be removed in a
+  future release. See https://firebase.google.com/docs/ios/swift-migration for
+  migration instructions.
 
 # 10.1.0
 - [fixed] Fix CocoaPods release did not include the RemoteConfigProperty feature. (#10371)

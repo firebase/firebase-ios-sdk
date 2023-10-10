@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #warning(
-  "The `FirebaseRemoteConfigSwift` module is deprecated and will be removed in the future. All of the public API from `FirebaseRemoteConfigSwift` can now be accessed through the `FirebaseRemoteConfig` module. To migrate, delete imports of `FirebaseRemoteConfigSwift` and remove the module as a dependency to your project. If applicable, any APIs namespaced with `FirebaseRemoteConfigSwift` can now be namespaced with `FirebaseRemoteConfig`. Additionally, if applicable, `@testable import FirebaseRemoteConfigSwift` should be replaced with `@testable import FirebaseRemoteConfig`."
+  "All of the public API from `FirebaseRemoteConfigSwift` can now be accessed through the `FirebaseRemoteConfig` module. Therefore, the `FirebaseRemoteConfigSwift` module is deprecated and will be removed in the future. See https://firebase.google.com/docs/ios/swift-migration for migration instructions."
 )
 
 // The `@_exported` is needed to prevent breaking clients that are using
