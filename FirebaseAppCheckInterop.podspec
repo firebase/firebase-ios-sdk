@@ -26,5 +26,5 @@ Pod::Spec.new do |s|
   s.watchos.deployment_target = '6.0'
 
   s.source_files = 'FirebaseAppCheck/Interop/**/*.[hm]'
-  s.public_header_files = 'FirebaseAppCheck/Interop/Public/*.h'
+  s.public_header_files = 'FirebaseAppCheck/Interop/Public/FirebaseAppCheck/*.h'
 end
