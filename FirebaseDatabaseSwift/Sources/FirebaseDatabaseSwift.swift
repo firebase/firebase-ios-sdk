@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#warning("""
-The FirebaseDatabaseSwift module is deprecated and will be removed in
-the future. All of the public API from FirebaseDatabaseSwift can now be
-accessed through the FirebaseDatabase module. To migrate, delete imports
-of FirebaseDatabaseSwift and remove the module as a dependency to your
-project. If applicable, any APIs namespaced with `FirebaseDatabaseSwift`
-can now be namespaced with `FirebaseDatabase`. Additionally, if
-applicable, `@testable import FirebaseDatabaseSwift` should be replaced
-with `@testable import FirebaseDatabase`.
-""")
+#warning(
+  "All of the public API from `FirebaseDatabaseSwift` can now be accessed through the `FirebaseDatabase` module. Therefore, the `FirebaseDatabaseSwift` module is deprecated and will be removed in the future. See https://firebase.google.com/docs/ios/swift-migration for migration instructions."
+)
 
 // The `@_exported` is needed to prevent breaking clients that are using
 // types prefixed with the `FirebaseDatabase` namespace.

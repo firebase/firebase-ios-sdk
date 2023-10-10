@@ -1,14 +1,9 @@
 # Unreleased
-- [deprecated] `FirebaseDatabaseSwift` has been deprecated, and will be
-  removed in a future release. All of the public API from
-  `FirebaseDatabaseSwift` can now be accessed through the
-  `FirebaseDatabase` module. To migrate, delete imports of
-  `FirebaseDatabaseSwift` and remove the module as a dependency to your
-  project. If applicable, any APIs namespaced with
-  `FirebaseDatabaseSwift` can now be namespaced with
-  `FirebaseDatabase`. Additionally, if applicable,
-  `@testable import FirebaseDatabaseSwift` should be replaced with
-  `@testable import FirebaseDatabase`.
+- [deprecated] All of the public API from `FirebaseDatabaseSwift` can now
+  be accessed through the `FirebaseDatabase` module. Therefore,
+  `FirebaseDatabaseSwift` has been deprecated, and will be removed in a
+  future release. See https://firebase.google.com/docs/ios/swift-migration for
+  migration instructions.
 
 # 9.0.0
 - [added] **Breaking change:** `FirebaseDatabaseSwift` has exited beta and is
