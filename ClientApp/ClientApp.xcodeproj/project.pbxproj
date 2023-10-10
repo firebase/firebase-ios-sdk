@@ -496,7 +496,6 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-fcxx-modules",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ClientApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -541,7 +540,6 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-fcxx-modules",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ClientApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
