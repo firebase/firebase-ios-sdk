@@ -61,8 +61,10 @@ class PhoneMultiFactorTests: TestsBase {
               .enroll(with: assertion, displayName: kPhoneSecondFactorDisplayName) { error in
                 XCTAssertNil(error,
                              "Phone multi factor enroll failed. Error: \(error!.localizedDescription)")
-                XCTAssertEqual(Auth.auth().currentUser?.multiFactor.enrolledFactors.first?.displayName,
-                  kPhoneSecondFactorDisplayName)
+                XCTAssertEqual(
+                  Auth.auth().currentUser?.multiFactor.enrolledFactors.first?.displayName,
+                  kPhoneSecondFactorDisplayName
+                )
                 enrollExpectation.fulfill()
 
                 // Unenroll
