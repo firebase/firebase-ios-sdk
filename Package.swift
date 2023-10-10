@@ -1388,6 +1388,7 @@ func firestoreTarget() -> Target {
     return .target(
       name: "FirebaseFirestore",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
         .product(name: "nanopb", package: "nanopb"),
