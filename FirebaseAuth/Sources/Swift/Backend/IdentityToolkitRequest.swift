@@ -32,13 +32,13 @@ private let kIdentityPlatformStagingAPIHost =
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 open class IdentityToolkitRequest {
   /// Gets the RPC's endpoint.
-  public let endpoint: String
+  let endpoint: String
 
   /// Gets the client's API key used for the request.
-  public var apiKey: String
+  var apiKey: String
 
   /// The tenant ID of the request. nil if none is available.
-  public let tenantID: String?
+  let tenantID: String?
 
   let _requestConfiguration: AuthRequestConfiguration
 
@@ -46,8 +46,8 @@ open class IdentityToolkitRequest {
 
   let _useStaging: Bool
 
-  public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
-              useIdentityPlatform: Bool = false, useStaging: Bool = false) {
+  init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
+       useIdentityPlatform: Bool = false, useStaging: Bool = false) {
     self.endpoint = endpoint
     apiKey = requestConfiguration.apiKey
     _requestConfiguration = requestConfiguration
@@ -56,12 +56,12 @@ open class IdentityToolkitRequest {
     tenantID = requestConfiguration.auth?.tenantID
   }
 
-  public func containsPostBody() -> Bool {
+  func containsPostBody() -> Bool {
     true
   }
 
   /// Returns the request's full URL.
-  public func requestURL() -> URL {
+  func requestURL() -> URL {
     let apiProtocol: String
     let apiHostAndPathPrefix: String
     let urlString: String
@@ -97,7 +97,7 @@ open class IdentityToolkitRequest {
   }
 
   /// Returns the request's configuration.
-  public func requestConfiguration() -> AuthRequestConfiguration {
+  func requestConfiguration() -> AuthRequestConfiguration {
     _requestConfiguration
   }
 

@@ -1356,21 +1356,18 @@ extension User: NSSecureCoding {}
   /** @property requestConfiguration
       @brief A strong reference to a requestConfiguration instance associated with this user instance.
    */
-  // TODO: internal
-  @objc public var requestConfiguration: AuthRequestConfiguration
+  var requestConfiguration: AuthRequestConfiguration
 
   /** @var _tokenService
       @brief A secure token service associated with this user. For performing token exchanges and
           refreshing access tokens.
    */
-  // TODO: internal
-  @objc public var tokenService: SecureTokenService
+  var tokenService: SecureTokenService
 
   /** @property auth
       @brief A weak reference to a FIRAuth instance associated with this instance.
    */
-  // TODO: internal
-  @objc public weak var auth: Auth?
+  weak var auth: Auth?
 
   // MARK: Private functions
 

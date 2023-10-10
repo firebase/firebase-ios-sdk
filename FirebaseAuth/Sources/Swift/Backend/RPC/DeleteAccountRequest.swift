@@ -31,28 +31,26 @@ private let kIDTokenKey = "idToken"
 private let kLocalIDKey = "localId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
+class DeleteAccountRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = DeleteAccountResponse
 
   /** @var _accessToken
       @brief The STS Access Token of the authenticated user.
    */
-  public let accessToken: String
+  let accessToken: String
 
   /** @var _localID
       @brief The localID of the user.
    */
-  public let localID: String
+  let localID: String
 
-  @objc(initWithLocalID:accessToken:requestConfiguration:) public init(localID: String,
-                                                                       accessToken: String,
-                                                                       requestConfiguration: AuthRequestConfiguration) {
+  init(localID: String, accessToken: String, requestConfiguration: AuthRequestConfiguration) {
     self.localID = localID
     self.accessToken = accessToken
     super.init(endpoint: kDeleteAccountEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     [
       kIDTokenKey: accessToken,
       kLocalIDKey: localID,

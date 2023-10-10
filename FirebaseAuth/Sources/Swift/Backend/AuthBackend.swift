@@ -121,6 +121,7 @@ class AuthBackend: NSObject {
         )
       }
     #endif
+    request.httpMethod = requestConfiguration.httpMethod
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
       request.setValue(preferredLocalizations.first, forHTTPHeaderField: "Accept-Language")

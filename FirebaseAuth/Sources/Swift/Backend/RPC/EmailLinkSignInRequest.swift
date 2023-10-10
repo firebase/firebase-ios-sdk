@@ -45,30 +45,30 @@ private let kPostBodyKey = "postBody"
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
+class EmailLinkSignInRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = EmailLinkSignInResponse
 
-  public let email: String
+  let email: String
 
   /** @property oobCode
       @brief The OOB code used to complete the email link sign-in flow.
    */
-  public let oobCode: String
+  let oobCode: String
 
   /** @property IDToken
       @brief The ID Token code potentially used to complete the email link sign-in flow.
    */
 
-  @objc(IDToken) public var idToken: String?
+  var idToken: String?
 
-  public init(email: String, oobCode: String,
-              requestConfiguration: AuthRequestConfiguration) {
+  init(email: String, oobCode: String,
+       requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.oobCode = oobCode
     super.init(endpoint: kEmailLinkSigninEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [
       kEmailKey: email,
       kOOBCodeKey: oobCode,
