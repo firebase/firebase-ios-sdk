@@ -12,17 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#warning("""
-The `FirebaseInAppMessagingSwift` module is deprecated and will be removed in
-the future. All of the public API from `FirebaseInAppMessagingSwift` can now be
-accessed through the `FirebaseInAppMessaging` module. To migrate, delete
-imports of `FirebaseInAppMessagingSwift` and remove the module as a dependency
-to your project. If applicable, any APIs namespaced with
-`FirebaseInAppMessagingSwift` can now be namespaced with
-`FirebaseInAppMessaging`. Additionally, if applicable,
-`@testable import FirebaseInAppMessagingSwift` should be replaced with
-`@testable import FirebaseInAppMessaging`.
-""")
+#warning(
+  "All of the public API from `FirebaseInAppMessagingSwift` can now be accessed through the `FirebaseInAppMessaging` module. Therefore, the `FirebaseInAppMessagingSwift` module is deprecated and will be removed in the future. See https://firebase.google.com/docs/ios/swift-migration for migration instructions."
+)
 
 // The `@_exported` is needed to prevent breaking clients that are using
 // types prefixed with the `FirebaseInAppMessaging` namespace.
