@@ -75,7 +75,7 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var secureTokenNetworkError: NSError?
   var secureTokenErrorString: String?
 
-  func asyncPostToURL<T: AuthRPCRequest>(with request: T,
+  func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
                                          contentType: String,
                                          completionHandler: @escaping ((Data?, Error?) -> Void)) {

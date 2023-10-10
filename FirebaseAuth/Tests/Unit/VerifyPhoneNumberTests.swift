@@ -116,7 +116,7 @@ import XCTest
           "isNewUser": true,
         ])
       }
-      let rpcResponse = try await AuthBackend.post(with: makeVerifyPhoneNumberRequest())
+      let rpcResponse = try await AuthBackend.call(with: makeVerifyPhoneNumberRequest())
       XCTAssertEqual(rpcResponse.localID, kTestLocalID)
       XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
       let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)
@@ -135,7 +135,7 @@ import XCTest
         ])
       }
       do {
-        let _ = try await AuthBackend.post(with: makeVerifyPhoneNumberRequestWithTemporaryProof())
+        let _ = try await AuthBackend.call(with: makeVerifyPhoneNumberRequestWithTemporaryProof())
         XCTFail("Expected to throw")
       } catch {
         let rpcError = error as NSError

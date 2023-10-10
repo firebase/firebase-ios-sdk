@@ -107,7 +107,7 @@ class VerifyCustomTokenTests: RPCBaseTests {
         kIsNewUserKey: true,
       ])
     }
-    let rpcResponse = try await AuthBackend.post(with: makeVerifyCustomTokenRequest())
+    let rpcResponse = try await AuthBackend.call(with: makeVerifyCustomTokenRequest())
     XCTAssertEqual(rpcResponse.idToken, kTestIDToken)
     XCTAssertEqual(rpcResponse.refreshToken, kTestRefreshToken)
     let expiresIn = try XCTUnwrap(rpcResponse.approximateExpirationDate?.timeIntervalSinceNow)

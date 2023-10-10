@@ -65,7 +65,7 @@ import Foundation
     }
     self.providerID = providerID
     profile = aDecoder.decodeObject(
-      of: NSDictionary.self,
+      of: [NSDictionary.self, NSString.self],
       forKey: AdditionalUserInfo.profileCodingKey
     ) as? [String: Any]
     username = aDecoder.decodeObject(

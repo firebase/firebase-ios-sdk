@@ -752,7 +752,7 @@ extension User: NSSecureCoding {}
           request.accessToken = accessToken
           Task {
             do {
-              let response = try await AuthBackend.post(with: request)
+              let response = try await AuthBackend.call(with: request)
               guard let idToken = response.idToken,
                     let refreshToken = response.refreshToken,
                     let providerID = response.providerID else {
@@ -922,7 +922,7 @@ extension User: NSSecureCoding {}
         request.deleteProviders = [provider]
         Task {
           do {
-            let response = try await AuthBackend.post(with: request)
+            let response = try await AuthBackend.call(with: request)
             // We can't just use the provider info objects in SetAccountInfoResponse
             // because they don't have localID and email fields. Remove the specific
             // provider manually.
@@ -1063,7 +1063,7 @@ extension User: NSSecureCoding {}
         )
         Task {
           do {
-            let _ = try await AuthBackend.post(with: request)
+            let _ = try await AuthBackend.call(with: request)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
             self.signOutIfTokenIsInvalid(withError: error)
@@ -1144,7 +1144,7 @@ extension User: NSSecureCoding {}
                                            requestConfiguration: requestConfiguration)
         Task {
           do {
-            let _ = try await AuthBackend.post(with: request)
+            let _ = try await AuthBackend.call(with: request)
             try self.auth?.signOutByForce(withUserID: self.uid)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
@@ -1227,7 +1227,7 @@ extension User: NSSecureCoding {}
         )
         Task {
           do {
-            let _ = try await AuthBackend.post(with: request)
+            let _ = try await AuthBackend.call(with: request)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
             User.callInMainThreadWithError(callback: completion, error: error)
@@ -1307,7 +1307,7 @@ extension User: NSSecureCoding {}
       accessToken: accessToken2,
       requestConfiguration: user.requestConfiguration
     )
-    let response = try await AuthBackend.post(with: getAccountInfoRequest)
+    let response = try await AuthBackend.call(with: getAccountInfoRequest)
     user.isAnonymous = anonymous
     user.update(withGetAccountInfoResponse: response)
     return user
@@ -1409,7 +1409,7 @@ extension User: NSSecureCoding {}
                                                                 requestConfiguration: requestConfiguration)
               Task {
                 do {
-                  let accountInfoResponse = try await AuthBackend.post(with: getAccountInfoRequest)
+                  let accountInfoResponse = try await AuthBackend.call(with: getAccountInfoRequest)
                   if let users = accountInfoResponse.users {
                     for userAccountInfo in users {
                       // Set the account to non-anonymous if there are any providers, even if
@@ -1484,7 +1484,7 @@ extension User: NSSecureCoding {}
             changeBlock(user, setAccountInfoRequest)
             Task {
               do {
-                let accountInfoResponse = try await AuthBackend.post(with: setAccountInfoRequest)
+                let accountInfoResponse = try await AuthBackend.call(with: setAccountInfoRequest)
                 if let idToken = accountInfoResponse.idToken,
                    let refreshToken = accountInfoResponse.refreshToken {
                   let tokenService = SecureTokenService(
@@ -1558,7 +1558,7 @@ extension User: NSSecureCoding {}
                                           requestConfiguration: requestConfiguration)
       Task {
         do {
-          let accountInfoResponse = try await AuthBackend.post(with: request)
+          let accountInfoResponse = try await AuthBackend.call(with: request)
           self.update(withGetAccountInfoResponse: accountInfoResponse)
           if let error = self.updateKeychain() {
             callback(nil, error)
@@ -1644,7 +1644,7 @@ extension User: NSSecureCoding {}
           request.accessToken = accessToken
           Task {
             do {
-              let verifyResponse = try await AuthBackend.post(with: request)
+              let verifyResponse = try await AuthBackend.call(with: request)
               guard let idToken = verifyResponse.idToken,
                     let refreshToken = verifyResponse.refreshToken else {
                 fatalError("Internal Auth Error: missing token in internalUpdateOrLinkPhoneNumber")
@@ -1723,7 +1723,7 @@ extension User: NSSecureCoding {}
         request.idToken = accessToken
         Task {
           do {
-            let response = try await AuthBackend.post(with: request)
+            let response = try await AuthBackend.call(with: request)
             guard let idToken = response.idToken,
                   let refreshToken = response.refreshToken else {
               fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
@@ -1770,7 +1770,7 @@ extension User: NSSecureCoding {}
         request.accessToken = accessToken
         Task {
           do {
-            let response = try await AuthBackend.post(with: request)
+            let response = try await AuthBackend.call(with: request)
             guard let idToken = response.idToken,
                   let refreshToken = response.refreshToken else {
               fatalError("Internal Auth Error: missing token in link(withGameCredential")
@@ -1847,7 +1847,7 @@ extension User: NSSecureCoding {}
                                                         requestConfiguration: requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.post(with: getAccountInfoRequest)
+          let response = try await AuthBackend.call(with: getAccountInfoRequest)
           self.isAnonymous = false
           self.update(withGetAccountInfoResponse: response)
           if let error = self.updateKeychain() {

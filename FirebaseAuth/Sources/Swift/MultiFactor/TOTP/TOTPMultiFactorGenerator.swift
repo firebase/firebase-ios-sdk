@@ -49,7 +49,7 @@ import Foundation
                                               requestConfiguration: requestConfiguration)
       Task {
         do {
-          let response = try await AuthBackend.post(with: request)
+          let response = try await AuthBackend.call(with: request)
           if let totpSessionInfo = response.totpSessionInfo {
             let secret = TOTPSecret(secretKey: totpSessionInfo.sharedSecretKey,
                                     hashingAlgorithm: totpSessionInfo.hashingAlgorithm,
