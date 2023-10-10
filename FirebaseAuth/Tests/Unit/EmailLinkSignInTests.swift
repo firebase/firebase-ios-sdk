@@ -65,7 +65,7 @@ class EmailLinkSignInTests: RPCBaseTests {
       XCTAssertNil(requestDictionary[self.kIDTokenKey])
       try self.rpcIssuer?.respond(withJSON: [:]) // unblock the await
     }
-    let _ = try await AuthBackend.post(with: makeEmailLinkSignInRequest())
+    let _ = try await AuthBackend.call(with: makeEmailLinkSignInRequest())
   }
 
   /** @fn testEmailLinkRequestCreationOptional
@@ -87,7 +87,7 @@ class EmailLinkSignInTests: RPCBaseTests {
       XCTAssertEqual(requestDictionary[self.kIDTokenKey], kTestIDToken)
       try self.rpcIssuer?.respond(withJSON: [:]) // unblock the await
     }
-    let _ = try await AuthBackend.post(with: request)
+    let _ = try await AuthBackend.call(with: request)
   }
 
   func testEmailLinkSignInErrors() async throws {
@@ -115,7 +115,7 @@ class EmailLinkSignInTests: RPCBaseTests {
                                              "expiresIn": "\(kTestTokenExpirationTimeInterval)",
                                              "refreshToken": kTestRefreshToken])
     }
-    let response = try await AuthBackend.post(with: makeEmailLinkSignInRequest())
+    let response = try await AuthBackend.call(with: makeEmailLinkSignInRequest())
 
     XCTAssertEqual(response.idToken, kTestIDTokenResponse)
     XCTAssertEqual(response.email, kTestEmailResponse)

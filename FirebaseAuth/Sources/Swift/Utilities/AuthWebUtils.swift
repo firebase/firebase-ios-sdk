@@ -86,7 +86,7 @@ import Foundation
     }
 
     let request = GetProjectConfigRequest(requestConfiguration: requestConfiguration)
-    let response = try await AuthBackend.post(with: request)
+    let response = try await AuthBackend.call(with: request)
 
     // Look up an authorized domain ends with one of the supportedAuthDomains.
     // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")

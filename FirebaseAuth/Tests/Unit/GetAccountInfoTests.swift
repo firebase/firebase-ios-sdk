@@ -100,7 +100,7 @@ class GetAccountInfoTests: RPCBaseTests {
     rpcIssuer?.respondBlock = {
       try self.rpcIssuer?.respond(withJSON: ["users": usersIn])
     }
-    let rpcResponse = try await AuthBackend.post(with: makeGetAccountInfoRequest())
+    let rpcResponse = try await AuthBackend.call(with: makeGetAccountInfoRequest())
 
     let users = try XCTUnwrap(rpcResponse.users)
     XCTAssertGreaterThan(users.count, 0)

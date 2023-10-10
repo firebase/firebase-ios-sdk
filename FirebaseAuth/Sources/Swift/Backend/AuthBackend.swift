@@ -25,15 +25,15 @@ import FirebaseCoreInternal
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendRPCIssuer: NSObjectProtocol {
   /** @fn
-      @brief Asynchronously sends a POST request.
+      @brief Asynchronously sends a HTTP request.
       @param requestConfiguration The request to be made.
       @param URL The request URL.
       @param body Request body.
       @param contentType Content type of the body.
-      @param handler provided that handles POST response. Invoked asynchronously on the auth global
+      @param handler provided that handles HTTP response. Invoked asynchronously on the auth global
           work queue in the future.
    */
-  func asyncPostToURL<T: AuthRPCRequest>(with request: T,
+  func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
                                          contentType: String,
                                          completionHandler: @escaping ((Data?, Error?) -> Void))
@@ -53,7 +53,7 @@ class AuthBackendRPCIssuerImplementation: NSObject, AuthBackendRPCIssuer {
     fetcherService.reuseSession = false
   }
 
-  func asyncPostToURL<T: AuthRPCRequest>(with request: T,
+  func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
                                          contentType: String,
                                          completionHandler: @escaping ((Data?, Error?)
@@ -96,8 +96,8 @@ class AuthBackend: NSObject {
     return gBackendImplementation!
   }
 
-  class func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
-    return try await implementation().post(with: request)
+  class func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+    return try await implementation().call(with: request)
   }
 
   class func request(withURL url: URL,
@@ -147,7 +147,7 @@ class AuthBackend: NSObject {
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthBackendImplementation {
-  func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response
+  func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -157,8 +157,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     rpcIssuer = AuthBackendRPCIssuerImplementation()
   }
 
-  /** @fn postWithRequest:
-      @brief Calls the RPC using HTTP POST.
+  /** @fn call
+      @brief Calls the RPC using HTTP request.
       @remarks Possible error responses:
           @see FIRAuthInternalErrorCodeRPCRequestEncodingError
           @see FIRAuthInternalErrorCodeJSONSerializationError
@@ -170,8 +170,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param response The empty response to be filled.
       @param callback The callback for both success and failure.
    */
-  fileprivate func post<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
-    let response = try await postInternal(with: request)
+  fileprivate func call<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+    let response = try await callInternal(with: request)
     if let auth = request.requestConfiguration().auth,
        let mfaError = Self.generateMFAError(response: response, auth: auth) {
       throw mfaError
@@ -240,8 +240,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     }
   #endif
 
-  /** @fn postWithRequest:response:
-      @brief Calls the RPC using HTTP POST.
+  /** @fn call
+      @brief Calls the RPC using HTTP request.
       @remarks Possible error responses:
           @see FIRAuthInternalErrorCodeRPCRequestEncodingError
           @see FIRAuthInternalErrorCodeJSONSerializationError
@@ -253,7 +253,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       @param response The empty response to be filled.
       @param callback The callback for both success and failure.
    */
-  fileprivate func postInternal<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
+  fileprivate func callInternal<T: AuthRPCRequest>(with request: T) async throws -> T.Response {
     var bodyData: Data?
     if request.containsPostBody {
       var postBody: [String: AnyHashable]
@@ -288,7 +288,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     }
     return try await withCheckedThrowingContinuation { continuation in
       rpcIssuer
-        .asyncPostToURL(with: request, body: bodyData, contentType: "application/json") {
+        .asyncCallToURL(with: request, body: bodyData, contentType: "application/json") {
           data, error in
           // If there is an error with no body data at all, then this must be a
           // network error.

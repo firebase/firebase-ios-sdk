@@ -163,7 +163,7 @@ class VerifyPasswordTests: RPCBaseTests {
         kPhotoUrlKey: kTestPhotoUrl,
       ])
     }
-    let rpcResponse = try await AuthBackend.post(with: makeVerifyPasswordRequest())
+    let rpcResponse = try await AuthBackend.call(with: makeVerifyPasswordRequest())
     XCTAssertEqual(rpcResponse.email, kTestEmail)
     XCTAssertEqual(rpcResponse.localID, kTestLocalID)
     XCTAssertEqual(rpcResponse.displayName, kTestDisplayName)

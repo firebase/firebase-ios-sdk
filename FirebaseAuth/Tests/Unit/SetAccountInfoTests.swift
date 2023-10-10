@@ -212,7 +212,7 @@ class SetAccountInfoTests: RPCBaseTests {
          kExpiresInKey: kTestExpiresIn,
          kRefreshTokenKey: kTestRefreshToken])
     }
-    let response = try await AuthBackend.post(with: setAccountInfoRequest())
+    let response = try await AuthBackend.call(with: setAccountInfoRequest())
     XCTAssertEqual(response.providerUserInfo?.first?.photoURL?.absoluteString, kTestPhotoURL)
     XCTAssertEqual(response.idToken, kTestIDToken)
     XCTAssertEqual(response.refreshToken, kTestRefreshToken)
