@@ -1298,9 +1298,7 @@ func abseilDependency() -> Package.Dependency {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     packageInfo = (
       "https://github.com/firebase/abseil-cpp-SwiftPM.git",
-//      "0.20220623.0" ..< "0.20220624.0"
-      // Use older version because above newer version is broken. See #11788.
-      "0.20220203.1" ..< "0.20220204.0"
+      "0.20220623.0" ..< "0.20220624.0"
     )
   } else {
     packageInfo = (
