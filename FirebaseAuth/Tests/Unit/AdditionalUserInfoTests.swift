@@ -38,23 +38,6 @@ class AdditionalUserInfoTests: XCTestCase {
     XCTAssertTrue(userInfo.isNewUser)
   }
 
-  /** @fn testAdditionalUserInfoCreationWithStaticInitializer
-      @brief Tests successful creation of @c FIRAdditionalUserInfo with
-          @c userInfoWithVerifyAssertionResponse call.
-   */
-  func testAdditionalUserInfoCreationWithStaticInitializer() {
-    let response = VerifyAssertionResponse()
-    response.providerID = kProviderID
-    response.profile = kFakeProfile
-    response.username = kUserName
-    response.isNewUser = false
-    let userInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
-    XCTAssertEqual(userInfo.providerID, kProviderID)
-    XCTAssertEqual(userInfo.profile as? [String: String], kFakeProfile)
-    XCTAssertEqual(userInfo.username, kUserName)
-    XCTAssertFalse(userInfo.isNewUser)
-  }
-
   /** @fn testAdditionalUserInfoCoding
       @brief Tests successful archiving and unarchiving of @c FIRAdditionalUserInfo.
    */

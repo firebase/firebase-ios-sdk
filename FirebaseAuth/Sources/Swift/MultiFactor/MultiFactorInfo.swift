@@ -41,12 +41,12 @@ import Foundation
     /**
         @brief The second factor enrollment date.
      */
-    @objc public let enrollmentDate: Date?
+    @objc public let enrollmentDate: Date
 
     /**
         @brief The identifier of the second factor.
      */
-    @objc public let factorID: String?
+    @objc public let factorID: String
 
     init(proto: AuthProtoMFAEnrollment, factorID: String) {
       guard let uid = proto.mfaEnrollmentID else {
@@ -55,25 +55,25 @@ import Foundation
       self.uid = uid
       self.factorID = factorID
       displayName = proto.displayName
-      enrollmentDate = proto.enrolledAt
+      enrollmentDate = proto.enrolledAt ?? Date()
     }
 
     public required init?(coder: NSCoder) {
-      guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String
+      guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String,
+            let factorID = coder.decodeObject(of: [NSString.self],
+                                              forKey: kFactorIDCodingKey) as? String,
+            let enrollmentDate = coder.decodeObject(of: [NSDate.self],
+                                                    forKey: kEnrollmentDateCodingKey) as? Date
       else {
         return nil
       }
       self.uid = uid
-      factorID = coder.decodeObject(of: [NSString.self],
-                                    forKey: kFactorIDCodingKey) as? String
+      self.factorID = factorID
+      self.enrollmentDate = enrollmentDate
       displayName = coder.decodeObject(
         of: [NSString.self],
         forKey: kDisplayNameCodingKey
       ) as? String
-      enrollmentDate = coder.decodeObject(
-        of: [NSDate.self],
-        forKey: kEnrollmentDateCodingKey
-      ) as? Date
     }
   }
 

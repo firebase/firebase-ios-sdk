@@ -26,7 +26,7 @@ import Foundation
   /** @property uid
    @brief The provider's user ID for the user.
    */
-  var uid: String? { get }
+  var uid: String { get }
 
   /** @property displayName
    @brief The name of the user.

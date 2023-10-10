@@ -83,7 +83,7 @@ class SettingsViewController: UIViewController, DataSourceProviderDelegate {
       guard let settings = auth.settings else {
         fatalError("Unset auth.settings")
       }
-      settings.appVerificationDisabledForTesting = !settings.isAppVerificationDisabledForTesting
+      settings.isAppVerificationDisabledForTesting = !settings.isAppVerificationDisabledForTesting
     }
     updateUI()
   }

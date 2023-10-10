@@ -1560,10 +1560,7 @@ class UserTests: RPCBaseTests {
         XCTAssertEqual(tokenResult.signInProvider.lowercased(), EmailAuthProvider.id)
         XCTAssertEqual(tokenResult.claims["email"] as! String, emailMatch)
         XCTAssertEqual(tokenResult.claims["aud"] as! String, audMatch)
-
-        // TODO: is this right? The ObjC signInSecondFactor property was non-nil,
-        // but the test token is nil:
-        XCTAssertNil(tokenResult.signInSecondFactor)
+        XCTAssertEqual(tokenResult.signInSecondFactor, "")
         expectation.fulfill()
       }
     }

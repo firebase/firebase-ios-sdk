@@ -21,7 +21,7 @@ import Foundation
   /** @property APIKey
       @brief Returns the API key from the link. nil, if not provided.
    */
-  @objc public let apiKey: String?
+  @objc(APIKey) public let apiKey: String?
 
   /** @property operation
       @brief Returns the mode of oob action. The property will be of `FIRActionCodeOperation` type.

@@ -753,15 +753,18 @@ extension User: NSSecureCoding {}
           Task {
             do {
               let response = try await AuthBackend.post(with: request)
-              let additionalUserInfo = AdditionalUserInfo
-                .userInfo(verifyAssertionResponse: response)
+              guard let idToken = response.idToken,
+                    let refreshToken = response.refreshToken,
+                    let providerID = response.providerID else {
+                fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
+              }
+              let additionalUserInfo = AdditionalUserInfo(providerID: providerID,
+                                                          profile: response.profile,
+                                                          username: response.username,
+                                                          isNewUser: response.isNewUser)
               let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
               let result = AuthDataResult(withUser: self, additionalUserInfo: additionalUserInfo,
                                           credential: updatedOAuthCredential)
-              guard let idToken = response.idToken,
-                    let refreshToken = response.refreshToken else {
-                fatalError("Internal Auth Error: missing token in EmailLinkSignInResponse")
-              }
               self.updateTokenAndRefreshUser(idToken: idToken,
                                              refreshToken: refreshToken,
                                              accessToken: accessToken,
@@ -1137,17 +1140,12 @@ extension User: NSSecureCoding {}
         guard let requestConfiguration = self.auth?.requestConfiguration else {
           fatalError("Internal Error: Unexpected nil requestConfiguration.")
         }
-        guard let uid = self.uid else {
-          fatalError("Internal Error: Unexpected nil uid.")
-        }
-        let request = DeleteAccountRequest(localID: uid, accessToken: accessToken,
+        let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
                                            requestConfiguration: requestConfiguration)
         Task {
           do {
             let _ = try await AuthBackend.post(with: request)
-            if let uid = self.uid {
-              try self.auth?.signOutByForce(withUserID: uid)
-            }
+            try self.auth?.signOutByForce(withUserID: self.uid)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
             User.callInMainThreadWithError(callback: completion, error: error)
@@ -1322,7 +1320,7 @@ extension User: NSSecureCoding {}
   /** @property uid
       @brief The provider's user ID for the user.
    */
-  @objc public var uid: String?
+  @objc public var uid: String
 
   /** @property displayName
       @brief The name of the user.
@@ -1882,9 +1880,7 @@ extension User: NSSecureCoding {}
       code == AuthErrorCode.userTokenExpired.rawValue {
       AuthLog.logNotice(code: "I-AUT000016",
                         message: "Invalid user token detected, user is automatically signed out.")
-      if let uid {
-        try? auth?.signOutByForce(withUserID: uid)
-      }
+      try? auth?.signOutByForce(withUserID: uid)
     }
   }
 
@@ -1967,12 +1963,12 @@ extension User: NSSecureCoding {}
       @param result The result to pass to callback if there is no error.
       @param error The error to pass to callback.
    */
-  private class func callInMainThreadWithAuthDataResultAndError(callback: ((AuthDataResult?,
-                                                                            Error?) -> Void)?,
-                                                                complete: FIRAuthSerialTaskCompletionBlock? =
-                                                                  nil,
-                                                                result: AuthDataResult? = nil,
-                                                                error: Error? = nil) {
+  private class func callInMainThreadWithAuthDataResultAndError(callback: (
+    (AuthDataResult?, Error?) -> Void
+  )?,
+  complete: FIRAuthSerialTaskCompletionBlock? = nil,
+  result: AuthDataResult? = nil,
+  error: Error? = nil) {
     if let callback {
       DispatchQueue.main.async {
         if let complete {

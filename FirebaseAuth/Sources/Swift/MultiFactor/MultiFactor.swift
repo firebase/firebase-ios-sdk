@@ -23,7 +23,7 @@ import Foundation
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactor) public class MultiFactor: NSObject, NSSecureCoding {
-    @objc public var enrolledFactors: [MultiFactorInfo]?
+    @objc public var enrolledFactors: [MultiFactorInfo]
 
     /** @fn getSessionWithCompletion:
      @brief Get a session for a second factor enrollment operation.
@@ -280,7 +280,9 @@ import Foundation
       enrolledFactors = multiFactorInfoArray
     }
 
-    override init() {}
+    override init() {
+      enrolledFactors = []
+    }
 
     // MARK: - NSSecureCoding
 
@@ -300,7 +302,7 @@ import Foundation
                      TOTPMultiFactorInfo.self]
       let enrolledFactors = coder
         .decodeObject(of: classes, forKey: kEnrolledFactorsCodingKey) as? [MultiFactorInfo]
-      self.enrolledFactors = enrolledFactors
+      self.enrolledFactors = enrolledFactors ?? []
       // Do not decode `user` weak property.
     }
   }

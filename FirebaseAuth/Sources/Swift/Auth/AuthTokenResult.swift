@@ -86,7 +86,7 @@ private let kClaimsKey = "claims"
   /** @property signInSecondFactor
       @brief Stores sign-in second factor through which the token was obtained.
    */
-  @objc public var signInSecondFactor: String?
+  @objc public var signInSecondFactor: String
 
   /** @property claims
       @brief Stores the entire payload of claims found on the ID token. This includes the standard
@@ -165,7 +165,7 @@ private let kClaimsKey = "claims"
     self.authDate = authDate
     self.issuedAtDate = issuedAtDate
     self.signInProvider = signInProvider
-    self.signInSecondFactor = signInSecondFactor
+    self.signInSecondFactor = signInSecondFactor ?? ""
     self.claims = claims
   }
 }

@@ -773,7 +773,8 @@ extension Auth: AuthInterop {
             refreshToken: response.refreshToken,
             anonymous: true
           )
-          let additionalUserInfo = AdditionalUserInfo(providerID: nil,
+          // TODO: The ObjC implementation passed a nil providerID to the nonnull providerID
+          let additionalUserInfo = AdditionalUserInfo(providerID: "",
                                                       profile: nil,
                                                       username: nil,
                                                       isNewUser: true)
@@ -844,7 +845,8 @@ extension Auth: AuthInterop {
             refreshToken: response.refreshToken,
             anonymous: false
           )
-          let additionalUserInfo = AdditionalUserInfo(providerID: nil,
+          // TODO: The ObjC implementation passed a nil providerID to the nonnull providerID
+          let additionalUserInfo = AdditionalUserInfo(providerID: "",
                                                       profile: nil,
                                                       username: nil,
                                                       isNewUser: response.isNewUser)
@@ -1486,7 +1488,7 @@ extension Auth: AuthInterop {
     kAuthGlobalWorkQueue.sync {
       self.requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
       #if os(iOS)
-        self.settings?.appVerificationDisabledForTesting = true
+        self.settings?.isAppVerificationDisabledForTesting = true
       #endif
     }
   }
@@ -1591,6 +1593,12 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
+    @objc(APNSToken) public var apnsToken: Data? {
+      kAuthGlobalWorkQueue.sync {
+        self.tokenManager.token?.data
+      }
+    }
+
     @objc public func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
@@ -2122,7 +2130,10 @@ extension Auth: AuthInterop {
                                           .approximateExpirationDate,
                                         refreshToken: response.refreshToken,
                                         anonymous: false)
-    let additionalUserInfo = AdditionalUserInfo.userInfo(verifyAssertionResponse: response)
+    let additionalUserInfo = AdditionalUserInfo(providerID: providerID,
+                                                profile: response.profile,
+                                                username: response.username,
+                                                isNewUser: response.isNewUser)
     let updatedOAuthCredential = OAuthCredential(withVerifyAssertionResponse: response)
     return AuthDataResult(withUser: user,
                           additionalUserInfo: additionalUserInfo,

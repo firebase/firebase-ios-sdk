@@ -23,7 +23,7 @@ import Foundation
   /** @property providerID
       @brief The provider identifier.
    */
-  @objc public let providerID: String?
+  @objc public let providerID: String
 
   /** @property profile
       @brief Dictionary containing the additional IdP specific information.
@@ -45,15 +45,7 @@ import Foundation
     return isNewUser
   }
 
-  static func userInfo(verifyAssertionResponse: VerifyAssertionResponse)
-    -> AdditionalUserInfo {
-    return AdditionalUserInfo(providerID: verifyAssertionResponse.providerID,
-                              profile: verifyAssertionResponse.profile,
-                              username: verifyAssertionResponse.username,
-                              isNewUser: verifyAssertionResponse.isNewUser)
-  }
-
-  init(providerID: String?, profile: [String: Any]?, username: String?, isNewUser: Bool) {
+  init(providerID: String, profile: [String: Any]?, username: String?, isNewUser: Bool) {
     self.providerID = providerID
     self.profile = profile
     self.username = username
@@ -65,10 +57,13 @@ import Foundation
   }
 
   public required init?(coder aDecoder: NSCoder) {
-    providerID = aDecoder.decodeObject(
+    guard let providerID = aDecoder.decodeObject(
       of: NSString.self,
       forKey: AdditionalUserInfo.providerIDCodingKey
-    ) as String?
+    ) as? String else {
+      return nil
+    }
+    self.providerID = providerID
     profile = aDecoder.decodeObject(
       of: NSDictionary.self,
       forKey: AdditionalUserInfo.profileCodingKey
