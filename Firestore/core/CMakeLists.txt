@@ -267,6 +267,7 @@ if(APPLE)
     firestore_core PUBLIC
     "-framework Foundation"
     "-framework SystemConfiguration"
+    FirebaseAppCheckInterop
     FirebaseAuthInterop
     FirebaseCore
   )
