@@ -16,7 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 
-#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+@import FirebaseAppCheckInterop;
 
 #if __has_include(<FBLPromises/FBLPromises.h>)
 #import <FBLPromises/FBLPromises.h>

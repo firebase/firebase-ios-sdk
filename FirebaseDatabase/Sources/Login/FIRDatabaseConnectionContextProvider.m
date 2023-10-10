@@ -23,7 +23,7 @@
 #import "FirebaseDatabase/Sources/Api/Private/FIRDatabaseQuery_Private.h"
 #import "FirebaseDatabase/Sources/Utilities/FUtilities.h"
 
-#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+@import FirebaseAppCheckInterop;
 
 NS_ASSUME_NONNULL_BEGIN
 

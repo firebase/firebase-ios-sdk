@@ -17,7 +17,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+@import FirebaseAppCheckInterop;
 
 #pragma mark - FIRFakeAppCheckResult
 
