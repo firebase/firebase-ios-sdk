@@ -16,7 +16,7 @@
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIROAuthProvider.h"
 
-@import FirebaseAppCheckInterop;
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #include <CommonCrypto/CommonCrypto.h>
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRFacebookAuthProvider.h"
