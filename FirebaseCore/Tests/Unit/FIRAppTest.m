@@ -862,7 +862,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (NSNotificationName)appDidBecomeActiveNotificationName {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
   return UIApplicationDidBecomeActiveNotification;
 #elif TARGET_OS_OSX
   return NSApplicationDidBecomeActiveNotification;
