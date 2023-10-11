@@ -99,7 +99,8 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
   let isPrivate = file.range(of: "/Sources/Private/") != nil ||
     // Delete when FirebaseInstallations fixes directory structure.
     file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil ||
-    file.range(of: "FirebaseCore/Extension") != nil
+    file.range(of: "FirebaseCore/Extension") != nil ||
+    file.range(of: "FirebaseAppCheckInterop") != nil
 
   // Treat all files with names finishing on "Test" or "Tests" as files with tests.
   let isTestFile = file.contains("Test.m") || file.contains("Tests.m") ||
@@ -161,7 +162,10 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
         }
       } else if importFile.first == "<", !isPrivate, !isTestFile, !isBridgingHeader, !isPublic {
         // Verify that double quotes are always used for intra-module imports.
-        if importFileRaw.starts(with: "Firebase") {
+        if importFileRaw.starts(with: "Firebase"),
+           // Allow intra-module imports of FirebaseAppCheckInterop.
+           // TODO: Remove the FirebaseAppCheckInterop exception when it's moved to a separate repo.
+           importFile.range(of: "FirebaseAppCheckInterop/FirebaseAppCheckInterop.h") == nil {
           logger
             .importLog("Imports internal to the repo should use double quotes not \"<\"", file,
                        lineNum)
