@@ -112,7 +112,7 @@ function RunXcodebuild() {
   xcpretty_cmd=(xcpretty)
 
   result=0
-  xcodebuild "$@" | tee xcodebuild.log || result=$?
+  xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
 
   if [[ $result == 65 ]]; then
     ExportLogs "$@"
@@ -121,7 +121,7 @@ function RunXcodebuild() {
     sleep 5
 
     result=0
-    xcodebuild "$@" | tee xcodebuild.log || result=$?
+    xcodebuild "$@" | tee xcodebuild.log | "${xcpretty_cmd[@]}" || result=$?
   fi
 
   if [[ $result != 0 ]]; then
