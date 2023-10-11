@@ -98,7 +98,8 @@ private func checkFile(_ file: String, logger: ErrorLogger, inRepo repoURL: URL,
     file.range(of: "GDTCCTLibrary/Public/GDTCOREvent+GDTCCTSupport.h") == nil
   let isPrivate = file.range(of: "/Sources/Private/") != nil ||
     // Delete when FirebaseInstallations fixes directory structure.
-    file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil
+    file.range(of: "Source/Library/Private/FirebaseInstallationsInternal.h") != nil ||
+    file.range(of: "FirebaseCore/Extension") != nil
 
   // Treat all files with names finishing on "Test" or "Tests" as files with tests.
   let isTestFile = file.contains("Test.m") || file.contains("Tests.m") ||
