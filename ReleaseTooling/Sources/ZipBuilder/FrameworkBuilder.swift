@@ -547,11 +547,15 @@ struct FrameworkBuilder {
           }
         }
         do {
-          // Frameworks built from only Swift sources will contain only two
-          // headers: the CocoaPods-generated umbrella header and the
-          // Swift-generated Swift header. If the framework's `Headers`
+          // If this point is reached, the framework contains a Swift module,
+          // so it's built from either Swift sources or Swift & C Family
+          // Language sources. Frameworks built from only Swift sources will
+          // contain only two headers: the CocoaPods-generated umbrella header
+          // and the Swift-generated Swift header. If the framework's `Headers`
           // directory contains more than two resources, then it is assumed
-          // that the framework was built from mixed language sources.
+          // that the framework was built from mixed language sources because
+          // those additional headers are public headers for the C Family
+          // Language sources.
           let headersDir = destination.appendingPathComponent("Headers")
           let headers = try fileManager.contentsOfDirectory(
             at: headersDir,
