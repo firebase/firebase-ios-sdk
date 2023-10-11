@@ -2429,11 +2429,11 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                         FIRFacebookAuthProviderID);
                   XCTAssertNil(error);
 
-                  OCMExpect([self->_mockBackend getAccountInfo:[OCMArg any] callback:[OCMArg any]])
-                      .andCallBlock2(^(FIRGetAccountInfoRequest *_Nullable request,
-                                       FIRGetAccountInfoResponseCallback callback) {
-                        XCTAssertEqualObjects(request.APIKey, kAPIKey);
-                        XCTAssertEqualObjects(request.accessToken, kAccessToken);
+                  OCMExpect([self->_mockBackend signUpNewUser:[OCMArg any] callback:[OCMArg any]])
+                      .andCallBlock2(^(FIRSignUpNewUserRequest *_Nullable request,
+                                       FIRSignupNewUserCallback callback) {
+                        XCTAssertEqualObjects(request.email, kEmail);
+                        XCTAssertEqualObjects(request.password, kFakePassword);
                         dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
                           callback(nil, [FIRAuthErrorUtils tooManyRequestsErrorWithMessage:nil]);
                         });
