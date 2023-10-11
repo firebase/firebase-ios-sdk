@@ -1,3 +1,7 @@
+# 10.17.0
+- [changed] Replaced semantic imports (`@import FirebaseAppCheckInterop`) with umbrella header imports
+  (`#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>`) for ObjC++ compatibility (#11860).
+
 # 10.9.0
 - [feature] Added `limitedUseToken(completion:)` for obtaining limited-use tokens for
   protecting non-Firebase backends. (#11086)
