@@ -146,6 +146,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (FIRAuthDataResultCallback)signInFlowAuthDataResultCallbackByDecoratingCallback:
     (nullable FIRAuthDataResultCallback)callback;
 
+/** @fn internalCreateUserWithEmail:password:idToken:completion:
+    @brief Creates a new user account with the specified email address and password.
+    @param email The user's email address.
+    @param password The user's password.
+    @param idToken An optional identity token for the user.
+    @param completion Called when a user account has been successfully created or when an error
+        has occurred. Invoked asynchronously on the main thread in the future.
+    @remarks This method is intended for internal use within the sign-in flow. For external uses
+        or alternative account creation methods, please consult relevant documentation or methods.
+*/
 - (void)internalCreateUserWithEmail:(NSString *)email
                            password:(NSString *)password
                             idToken:(nullable NSString *)idToken
