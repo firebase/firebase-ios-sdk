@@ -37,7 +37,6 @@
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
@@ -1225,44 +1224,49 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 - (void)createUserWithEmail:(NSString *)email
                    password:(NSString *)password
                  completion:(nullable FIRAuthDataResultCallback)completion {
+  [self internalCreateUserWithEmail:email password:password idToken:nil completion:completion];
+}
+
+- (void)internalCreateUserWithEmail:(NSString *)email
+                           password:(NSString *)password
+                            idToken:(nullable NSString *)idToken
+                         completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
     FIRAuthDataResultCallback decoratedCallback =
         [self signInFlowAuthDataResultCallbackByDecoratingCallback:completion];
-    [self internalCreateUserWithEmail:email
-                             password:password
-                           completion:^(FIRSignUpNewUserResponse *_Nullable response,
-                                        NSError *_Nullable error) {
-                             if (error) {
-                               decoratedCallback(nil, error);
-                               return;
-                             }
-                             [self
-                                 completeSignInWithAccessToken:response.IDToken
-                                     accessTokenExpirationDate:response.approximateExpirationDate
-                                                  refreshToken:response.refreshToken
-                                                     anonymous:NO
-                                                      callback:^(FIRUser *_Nullable user,
-                                                                 NSError *_Nullable error) {
-                                                        if (error) {
-                                                          decoratedCallback(nil, error);
-                                                          return;
-                                                        }
-                                                        FIRAdditionalUserInfo *additionalUserInfo =
-                                                            [[FIRAdditionalUserInfo alloc]
-                                                                initWithProviderID:
-                                                                    FIREmailAuthProviderID
-                                                                           profile:nil
-                                                                          username:nil
-                                                                         isNewUser:YES];
-                                                        FIRAuthDataResult *authDataResult =
-                                                            user ? [[FIRAuthDataResult alloc]
-                                                                             initWithUser:user
-                                                                       additionalUserInfo:
-                                                                           additionalUserInfo]
-                                                                 : nil;
-                                                        decoratedCallback(authDataResult, error);
-                                                      }];
-                           }];
+    [self
+        signUpWithEmail:email
+               password:password
+                idToken:idToken
+             completion:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+               if (error) {
+                 decoratedCallback(nil, error);
+                 return;
+               }
+               [self completeSignInWithAccessToken:response.IDToken
+                         accessTokenExpirationDate:response.approximateExpirationDate
+                                      refreshToken:response.refreshToken
+                                         anonymous:NO
+                                          callback:^(FIRUser *_Nullable user,
+                                                     NSError *_Nullable error) {
+                                            if (error) {
+                                              decoratedCallback(nil, error);
+                                              return;
+                                            }
+                                            FIRAdditionalUserInfo *additionalUserInfo =
+                                                [[FIRAdditionalUserInfo alloc]
+                                                    initWithProviderID:FIREmailAuthProviderID
+                                                               profile:nil
+                                                              username:nil
+                                                             isNewUser:YES];
+                                            FIRAuthDataResult *authDataResult =
+                                                user ? [[FIRAuthDataResult alloc]
+                                                                 initWithUser:user
+                                                           additionalUserInfo:additionalUserInfo]
+                                                     : nil;
+                                            decoratedCallback(authDataResult, error);
+                                          }];
+             }];
   });
 }
 
@@ -1987,13 +1991,15 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
     @param password The password used to create the new Firebase user.
     @param completion Optionally; a block which is invoked when the request finishes.
  */
-- (void)internalCreateUserWithEmail:(NSString *)email
-                           password:(NSString *)password
-                         completion:(nullable FIRSignupNewUserCallback)completion {
+- (void)signUpWithEmail:(NSString *)email
+               password:(NSString *)password
+                idToken:(nullable NSString *)idToken
+             completion:(nullable FIRSignupNewUserCallback)completion {
   FIRSignUpNewUserRequest *request =
       [[FIRSignUpNewUserRequest alloc] initWithEmail:email
                                             password:password
                                          displayName:nil
+                                             idToken:idToken
                                 requestConfiguration:_requestConfiguration];
   if (![request.password length]) {
     completion(

@@ -38,6 +38,11 @@ static NSString *const kPasswordKey = @"password";
  */
 static NSString *const kDisplayNameKey = @"displayName";
 
+/** @var kIDToken
+    @brief The key for the "kIDToken" value in the request.
+ */
+static NSString *const kIDToken = @"idToken";
+
 /** @var kCaptchaResponseKey
     @brief The key for the "captchaResponse" value in the request.
  */
@@ -68,12 +73,14 @@ static NSString *const kTenantIDKey = @"tenantId";
 - (nullable instancetype)initWithEmail:(nullable NSString *)email
                               password:(nullable NSString *)password
                            displayName:(nullable NSString *)displayName
+                               idToken:(nullable NSString *)idToken
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration {
   self = [super initWithEndpoint:kSignupNewUserEndpoint requestConfiguration:requestConfiguration];
   if (self) {
     _email = [email copy];
     _password = [password copy];
     _displayName = [displayName copy];
+    _idToken = [idToken copy];
     _returnSecureToken = YES;
   }
   return self;
@@ -84,6 +91,7 @@ static NSString *const kTenantIDKey = @"tenantId";
   self = [self initWithEmail:nil
                     password:nil
                  displayName:nil
+                     idToken:nil
         requestConfiguration:requestConfiguration];
   return self;
 }
@@ -98,6 +106,9 @@ static NSString *const kTenantIDKey = @"tenantId";
   }
   if (_displayName) {
     postBody[kDisplayNameKey] = _displayName;
+  }
+  if (_idToken) {
+    postBody[kIDToken] = _idToken;
   }
   if (_captchaResponse) {
     postBody[kCaptchaResponseKey] = _captchaResponse;

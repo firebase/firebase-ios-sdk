@@ -16,6 +16,7 @@
 
 #import <Foundation/Foundation.h>
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
+#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
 
@@ -144,6 +145,11 @@ NS_ASSUME_NONNULL_BEGIN
 */
 - (FIRAuthDataResultCallback)signInFlowAuthDataResultCallbackByDecoratingCallback:
     (nullable FIRAuthDataResultCallback)callback;
+
+- (void)internalCreateUserWithEmail:(NSString *)email
+                           password:(NSString *)password
+                            idToken:(nullable NSString *)idToken
+                         completion:(nullable FIRAuthDataResultCallback)completion;
 
 @end
 

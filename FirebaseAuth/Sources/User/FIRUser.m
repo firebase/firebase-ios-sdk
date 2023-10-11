@@ -583,6 +583,17 @@ static void callInMainThreadWithAuthDataResultAndError(
 
 #pragma mark -
 
+- (void)linkEmail:(nullable NSString *)email
+         password:(nullable NSString *)password
+         callback:(nullable FIRAuthDataResultCallback)callback {
+  [self getIDTokenWithCompletion:^(NSString *_Nullable token, NSError *_Nullable error) {
+    [self.auth internalCreateUserWithEmail:email
+                                  password:password
+                                   idToken:token
+                                completion:callback];
+  }];
+}
+
 /** @fn updateEmail:password:callback:
     @brief Updates email address and/or password for the current user.
     @remarks May fail if there is already an email/password-based account for the same email
@@ -1098,15 +1109,9 @@ static void callInMainThreadWithAuthDataResultAndError(
       FIREmailPasswordAuthCredential *emailPasswordCredential =
           (FIREmailPasswordAuthCredential *)credential;
       if (emailPasswordCredential.password) {
-        [self updateEmail:emailPasswordCredential.email
-                 password:emailPasswordCredential.password
-                 callback:^(NSError *error) {
-                   if (error) {
-                     callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-                   } else {
-                     callInMainThreadWithAuthDataResultAndError(completion, result, nil);
-                   }
-                 }];
+        [self linkEmail:emailPasswordCredential.email
+               password:emailPasswordCredential.password
+               callback:completion];
       } else {
         [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                              NSError *_Nullable error) {
