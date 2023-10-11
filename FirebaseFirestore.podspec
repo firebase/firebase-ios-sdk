@@ -87,7 +87,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
 
-  s.dependency 'FirebaseAppCheckInterop', '~> 10.16'
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseCore', '~> 10.0'
 
   abseil_version = '~> 1.20220623.0'
