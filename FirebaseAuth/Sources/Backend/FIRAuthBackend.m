@@ -23,7 +23,7 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
-@import FirebaseAppCheckInterop;
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 

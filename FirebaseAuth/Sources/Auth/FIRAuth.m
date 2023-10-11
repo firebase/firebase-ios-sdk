@@ -22,7 +22,7 @@
 #import <UIKit/UIKit.h>
 #endif
 
-@import FirebaseAppCheckInterop;
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import <GoogleUtilities/GULAppDelegateSwizzler.h>
 #import <GoogleUtilities/GULAppEnvironmentUtil.h>

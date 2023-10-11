@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@import FirebaseAppCheckInterop;
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
