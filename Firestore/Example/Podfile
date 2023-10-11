@@ -61,6 +61,7 @@ def configure_local_pods()
   # FirebaseCore must always be a local pod so that CI builds that make changes
   # to its podspec can still function. See Firestore-*-xcodebuild in
   # scripts/install_prereqs.sh for more details.
+  pod 'FirebaseAppCheckInterop', :path => '../..'
   pod 'FirebaseCore', :path => '../..'
   pod 'FirebaseCoreInternal', :path => '../..'
   pod 'FirebaseCoreExtension',:path => '../..'

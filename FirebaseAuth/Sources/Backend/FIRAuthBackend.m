@@ -23,10 +23,10 @@
 #import <GTMSessionFetcher/GTMSessionFetcherService.h>
 #endif
 
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FirebaseAuth.h"
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"

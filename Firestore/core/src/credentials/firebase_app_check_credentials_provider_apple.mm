@@ -16,8 +16,8 @@
 
 #include "Firestore/core/src/credentials/firebase_app_check_credentials_provider_apple.h"
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 
 #include "Firestore/core/src/util/error_apple.h"
