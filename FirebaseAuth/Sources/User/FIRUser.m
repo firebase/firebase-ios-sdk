@@ -1111,7 +1111,9 @@ static void callInMainThreadWithAuthDataResultAndError(
       if (emailPasswordCredential.password) {
         [self linkEmail:emailPasswordCredential.email
                password:emailPasswordCredential.password
-               callback:completion];
+               callback:^(FIRAuthDataResult * _Nullable authResult, NSError * _Nullable error) {
+            callInMainThreadWithAuthDataResultAndError(completion, authResult, error);
+        }];
       } else {
         [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                              NSError *_Nullable error) {
