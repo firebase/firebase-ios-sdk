@@ -15,13 +15,11 @@
 		EA1269B829EDF98A00D79E66 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269B729EDF98A00D79E66 /* Assets.xcassets */; };
 		EA1269BC29EDF98A00D79E66 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269BB29EDF98A00D79E66 /* Preview Assets.xcassets */; };
 		EA501B1129F09594009C4DBC /* objcxx-header-import-test.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA501B1029F09593009C4DBC /* objcxx-header-import-test.mm */; };
-		EA501B1329F0960B009C4DBC /* objcxx-module-import-test.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA501B1229F0960B009C4DBC /* objcxx-module-import-test.mm */; };
 		EA5A62942A9914F300F5711A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA5A62932A9914F300F5711A /* Preview Assets.xcassets */; };
 		EA5A62992A99498500F5711A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EA1269B729EDF98A00D79E66 /* Assets.xcassets */; };
 		EA5A629A2A99498500F5711A /* swift-import-test.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA7DF54229EF20B9005664A7 /* swift-import-test.swift */; };
 		EA5A629B2A99498500F5711A /* objc-module-import-test.m in Sources */ = {isa = PBXBuildFile; fileRef = EA05C7DD29F08D4B00D1014F /* objc-module-import-test.m */; };
 		EA5A629C2A99498500F5711A /* ClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1269B329EDF98800D79E66 /* ClientApp.swift */; };
-		EA5A629D2A99498500F5711A /* objcxx-module-import-test.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA501B1229F0960B009C4DBC /* objcxx-module-import-test.mm */; };
 		EA5A629E2A99498500F5711A /* objcxx-header-import-test.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA501B1029F09593009C4DBC /* objcxx-header-import-test.mm */; };
 		EA5A629F2A99498500F5711A /* objc-header-import-test.m in Sources */ = {isa = PBXBuildFile; fileRef = EA05C7DF29F0911400D1014F /* objc-header-import-test.m */; };
 		EA5A62A02A99498500F5711A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1269B529EDF98800D79E66 /* ContentView.swift */; };
@@ -64,7 +62,6 @@
 		EA1269B929EDF98A00D79E66 /* ClientApp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClientApp.entitlements; sourceTree = "<group>"; };
 		EA1269BB29EDF98A00D79E66 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		EA501B1029F09593009C4DBC /* objcxx-header-import-test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objcxx-header-import-test.mm"; sourceTree = "<group>"; };
-		EA501B1229F0960B009C4DBC /* objcxx-module-import-test.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "objcxx-module-import-test.mm"; sourceTree = "<group>"; };
 		EA5A62892A9914F000F5711A /* ClientApp-CocoaPods.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ClientApp-CocoaPods.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA5A62912A9914F300F5711A /* ClientApp_CocoaPods.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClientApp_CocoaPods.entitlements; sourceTree = "<group>"; };
 		EA5A62932A9914F300F5711A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
@@ -195,7 +192,6 @@
 				EA05C7DD29F08D4B00D1014F /* objc-module-import-test.m */,
 				EA05C7DF29F0911400D1014F /* objc-header-import-test.m */,
 				EA501B1029F09593009C4DBC /* objcxx-header-import-test.mm */,
-				EA501B1229F0960B009C4DBC /* objcxx-module-import-test.mm */,
 				EA1269B529EDF98800D79E66 /* ContentView.swift */,
 				EA1269B729EDF98A00D79E66 /* Assets.xcassets */,
 			);
@@ -335,7 +331,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				EA1269B629EDF98800D79E66 /* ContentView.swift in Sources */,
-				EA501B1329F0960B009C4DBC /* objcxx-module-import-test.mm in Sources */,
 				EA05C7DE29F08D4B00D1014F /* objc-module-import-test.m in Sources */,
 				EA7DF54329EF20B9005664A7 /* swift-import-test.swift in Sources */,
 				EA05C7E029F0911400D1014F /* objc-header-import-test.m in Sources */,
@@ -351,7 +346,6 @@
 				EA5A629B2A99498500F5711A /* objc-module-import-test.m in Sources */,
 				EA5A629A2A99498500F5711A /* swift-import-test.swift in Sources */,
 				EA5A62A02A99498500F5711A /* ContentView.swift in Sources */,
-				EA5A629D2A99498500F5711A /* objcxx-module-import-test.mm in Sources */,
 				EA5A629E2A99498500F5711A /* objcxx-header-import-test.mm in Sources */,
 				EA5A629C2A99498500F5711A /* ClientApp.swift in Sources */,
 				EA5A629F2A99498500F5711A /* objc-header-import-test.m in Sources */,
@@ -502,7 +496,6 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-fcxx-modules",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ClientApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -547,7 +540,6 @@
 				MARKETING_VERSION = 1.0;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
-					"-fcxx-modules",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.google.firebase.ClientApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
