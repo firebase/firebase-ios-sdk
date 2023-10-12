@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
-
-@main
-struct ClientApp: App {
-  var body: some Scene {
-    WindowGroup {
-      ContentView()
-    }
-  }
-}
+import FirebaseAnalytics
+import FirebaseAnalyticsSwift
+#if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
+  import FirebaseInAppMessaging
+  import FirebaseInAppMessagingSwift
+#endif

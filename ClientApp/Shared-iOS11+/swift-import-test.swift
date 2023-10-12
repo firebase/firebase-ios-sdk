@@ -21,7 +21,6 @@
 // NOTE(ncooke3): `FirebaseABTesting` is not listed as a library.
 import FirebaseABTesting
 import FirebaseAnalytics
-import FirebaseAnalyticsSwift
 import FirebaseAppCheck
 #if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseAppDistribution
@@ -52,7 +51,6 @@ import FirebaseMLModelDownloader
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebasePerformance
   import FirebaseInAppMessaging
-  import FirebaseInAppMessagingSwift
 #endif
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
