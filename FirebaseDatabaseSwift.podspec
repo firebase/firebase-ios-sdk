@@ -28,5 +28,5 @@ Simplify your iOS development, grow your user base, and monetize more effectivel
     'FirebaseDatabaseSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseDatabase', '~> 10.16'
+  s.dependency 'FirebaseDatabase', '~> 10.17'
 end
