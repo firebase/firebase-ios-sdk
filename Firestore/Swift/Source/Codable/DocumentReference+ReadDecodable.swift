@@ -15,9 +15,7 @@
  */
 
 import Foundation
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
+import FirebaseFirestore
 
 public extension DocumentReference {
   /// Fetches and decodes the document referenced by this `DocumentReference`.

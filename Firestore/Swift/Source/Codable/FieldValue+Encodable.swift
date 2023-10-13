@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
+import FirebaseFirestore
 
 /** Extends FieldValue to conform to Encodable. */
 extension FieldValue: Encodable {

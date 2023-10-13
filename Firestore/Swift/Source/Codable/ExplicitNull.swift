@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
+import FirebaseFirestore
 
 /// Wraps an `Optional` field in a `Codable` object such that when the field
 /// has a `nil` value it will encode to a null value in Firestore. Normally,

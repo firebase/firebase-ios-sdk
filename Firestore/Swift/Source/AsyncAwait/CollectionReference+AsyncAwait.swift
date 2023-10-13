@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
+import FirebaseFirestore
 import Foundation
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
