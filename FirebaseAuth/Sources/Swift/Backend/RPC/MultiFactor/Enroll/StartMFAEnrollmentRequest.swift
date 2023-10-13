@@ -37,8 +37,7 @@ class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(
       endpoint: kStartMFAEnrollmentEndPoint,
       requestConfiguration: requestConfiguration,
-      useIdentityPlatform: true,
-      useStaging: false
+      useIdentityPlatform: true
     )
   }
 
@@ -50,8 +49,7 @@ class StartMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(
       endpoint: kStartMFAEnrollmentEndPoint,
       requestConfiguration: requestConfiguration,
-      useIdentityPlatform: true,
-      useStaging: false
+      useIdentityPlatform: true
     )
   }
 

@@ -38,8 +38,7 @@ class StartMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(
       endpoint: kStartMFASignInEndPoint,
       requestConfiguration: requestConfiguration,
-      useIdentityPlatform: true,
-      useStaging: false
+      useIdentityPlatform: true
     )
   }
 

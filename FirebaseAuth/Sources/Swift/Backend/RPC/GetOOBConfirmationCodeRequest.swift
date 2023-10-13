@@ -134,6 +134,21 @@ private let kVerifyBeforeUpdateEmailRequestTypeValue = "VERIFY_AND_CHANGE_EMAIL"
  */
 private let kTenantIDKey = "tenantId"
 
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
+private let kCaptchaResponseKey = "captchaResp"
+
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
+private let kClientType = "clientType"
+
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+private let kRecaptchaVersion = "recaptchaVersion"
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetOOBConfirmationCodeResponse
@@ -147,55 +162,65 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
       @brief The email of the user.
       @remarks For password reset.
    */
-  var email: String?
+  private(set) var email: String?
 
   /** @property updatedEmail
       @brief The new email to be updated.
       @remarks For verifyBeforeUpdateEmail.
    */
-  var updatedEmail: String?
+  private(set) var updatedEmail: String?
 
   /** @property accessToken
       @brief The STS Access Token of the authenticated user.
       @remarks For email change.
    */
-  var accessToken: String?
+  private(set) var accessToken: String?
 
   /** @property continueURL
       @brief This URL represents the state/Continue URL in the form of a universal link.
    */
-  var continueURL: String?
+  private(set) var continueURL: String?
 
   /** @property iOSBundleID
       @brief The iOS bundle Identifier, if available.
    */
-  var iOSBundleID: String?
+  private(set) var iOSBundleID: String?
 
   /** @property androidPackageName
       @brief The Android package name, if available.
    */
-  var androidPackageName: String?
+  private(set) var androidPackageName: String?
 
   /** @property androidMinimumVersion
       @brief The minimum Android version supported, if available.
    */
-  var androidMinimumVersion: String?
+  private(set) var androidMinimumVersion: String?
 
   /** @property androidInstallIfNotAvailable
       @brief Indicates whether or not the Android app should be installed if not already available.
    */
-  var androidInstallApp: Bool
+  private(set) var androidInstallApp: Bool
 
   /** @property handleCodeInApp
       @brief Indicates whether the action code link will open the app directly or after being
           redirected from a Firebase owned web widget.
    */
-  var handleCodeInApp: Bool
+  private(set) var handleCodeInApp: Bool
 
   /** @property dynamicLinkDomain
       @brief The Firebase Dynamic Link domain used for out of band code flow.
    */
-  var dynamicLinkDomain: String?
+  private(set) var dynamicLinkDomain: String?
+
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
+  var captchaResponse: String?
+
+  /** @property captchaResponse
+      @brief The reCAPTCHA version.
+   */
+  var recaptchaVersion: String?
 
   /** @fn initWithRequestType:email:APIKey:
       @brief Designated initializer.
@@ -323,12 +348,24 @@ class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
     if handleCodeInApp {
       body[kCanHandleCodeInAppKey] = true
     }
-    if let dynamicLinkDomain = dynamicLinkDomain {
+    if let dynamicLinkDomain {
       body[kDynamicLinkDomainKey] = dynamicLinkDomain
     }
-    if let tenantID = tenantID {
+    if let captchaResponse {
+      body[kCaptchaResponseKey] = captchaResponse
+    }
+    body[kClientType] = clientType
+    if let recaptchaVersion {
+      body[kRecaptchaVersion] = recaptchaVersion
+    }
+    if let tenantID {
       body[kTenantIDKey] = tenantID
     }
     return body
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
   }
 }

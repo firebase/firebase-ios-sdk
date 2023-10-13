@@ -393,6 +393,10 @@ import Foundation
    */
   case emailChangeNeedsVerification = 17090
 
+  /** Indicates that the request does not contain a client identifier.
+   */
+  case missingClientIdentifier = 17093
+
   /** Indicates that the nonce is missing or invalid.
    */
   case missingOrInvalidNonce = 17094
@@ -402,9 +406,41 @@ import Foundation
    */
   case blockingCloudFunctionError = 17105
 
-  /** Indicates an error for when the client identifier is missing.
+  /** Indicates that reCAPTCHA Enterprise integration is not enabled for this project.
    */
-  case missingClientIdentifier = 17993
+  case recaptchaNotEnabled = 17200
+
+  /** Indicates that the reCAPTCHA token is missing from the backend request.
+   */
+  case missingRecaptchaToken = 17201
+
+  /** Indicates that the reCAPTCHA token sent with the backend request is invalid.
+   */
+  case invalidRecaptchaToken = 17202
+
+  /** Indicates that the requested reCAPTCHA action is invalid.
+   */
+  case invalidRecaptchaAction = 17203
+
+  /** Indicates that the client type is missing from the request.
+   */
+  case missingClientType = 17204
+
+  /** Indicates that the reCAPTCHA version is missing from the request.
+   */
+  case missingRecaptchaVersion = 17205
+
+  /** Indicates that the reCAPTCHA version sent to the backend is invalid.
+   */
+  case invalidRecaptchaVersion = 17206
+
+  /** Indicates that the request type sent to the backend is invalid.
+   */
+  case invalidReqType = 17207
+
+  /** Indicates that the reCAPTCHA SDK is not linked to the app.
+   */
+  case recaptchaSDKNotLinked = 17208
 
   /** Indicates an error occurred while attempting to access the keychain.
    */
@@ -581,6 +617,24 @@ import Foundation
       return kFIRAuthErrorMessageUnsupportedTenantOperation
     case .blockingCloudFunctionError:
       return kFIRAuthErrorMessageBlockingCloudFunctionReturnedError
+    case .recaptchaNotEnabled:
+      return kFIRAuthErrorMessageRecaptchaNotEnabled
+    case .missingRecaptchaToken:
+      return kFIRAuthErrorMessageMissingRecaptchaToken
+    case .invalidRecaptchaToken:
+      return kFIRAuthErrorMessageInvalidRecaptchaToken
+    case .invalidRecaptchaAction:
+      return kFIRAuthErrorMessageInvalidRecaptchaAction
+    case .missingClientType:
+      return kFIRAuthErrorMessageMissingClientType
+    case .missingRecaptchaVersion:
+      return kFIRAuthErrorMessageMissingRecaptchaVersion
+    case .invalidRecaptchaVersion:
+      return kFIRAuthErrorMessageInvalidRecaptchaVersion
+    case .invalidReqType:
+      return kFIRAuthErrorMessageInvalidReqType
+    case .recaptchaSDKNotLinked:
+      return kFIRAuthErrorMessageRecaptchaSDKNotLinked
     }
   }
 
@@ -746,6 +800,24 @@ import Foundation
       return "ERROR_UNSUPPORTED_TENANT_OPERATION"
     case .blockingCloudFunctionError:
       return "ERROR_BLOCKING_CLOUD_FUNCTION_RETURNED_ERROR"
+    case .recaptchaNotEnabled:
+      return "ERROR_RECAPTCHA_NOT_ENABLED"
+    case .missingRecaptchaToken:
+      return "ERROR_MISSING_RECAPTCHA_TOKEN"
+    case .invalidRecaptchaToken:
+      return "ERROR_INVALID_RECAPTCHA_TOKEN"
+    case .invalidRecaptchaAction:
+      return "ERROR_INVALID_RECAPTCHA_ACTION"
+    case .missingClientType:
+      return "ERROR_MISSING_CLIENT_TYPE"
+    case .missingRecaptchaVersion:
+      return "ERROR_MISSING_RECAPTCHA_VERSION"
+    case .invalidRecaptchaVersion:
+      return "ERROR_INVALID_RECAPTCHA_VERSION"
+    case .invalidReqType:
+      return "ERROR_INVALID_REQ_TYPE"
+    case .recaptchaSDKNotLinked:
+      return "ERROR_RECAPTCHA_SDK_NOT_LINKED"
     }
   }
 }
@@ -840,12 +912,6 @@ private let kFIRAuthErrorMessageNetworkError =
  */
 private let kFIRAuthErrorMessageKeychainError =
   "An error occurred when accessing the keychain. The NSLocalizedFailureReasonErrorKey field in the NSError.userInfo dictionary will contain more information about the error encountered"
-
-/** @var kFIRAuthErrorMessageMissingClientIdentifier
-    @brief Message for @c FIRAuthErrorCodeMissingClientIdentifier error code.
- */
-private let kFIRAuthErrorMessageMissingClientIdentifier =
-  "The request does not contain any client identifier."
 
 /** @var kFIRAuthErrorMessageUserTokenExpired
     @brief Message for @c FIRAuthErrorCodeTokenExpired error code.
@@ -1198,6 +1264,12 @@ private let kFIRAuthErrorMessageDynamicLinkNotActivated =
 private let kFIRAuthErrorMessageRejectedCredential =
   "The request contains malformed or mismatching credentials."
 
+/** @var kFIRAuthErrorMessageMissingClientIdentifier
+    @brief Error message constant describing @c FIRAuthErrorCodeMissingClientIdentifier errors.
+ */
+private let kFIRAuthErrorMessageMissingClientIdentifier =
+  "The request does not contain a client identifier."
+
 /** @var kFIRAuthErrorMessageMissingOrInvalidNonce
     @brief Error message constant describing @c FIRAuthErrorCodeMissingOrInvalidNonce errors.
  */
@@ -1221,3 +1293,32 @@ private let kFIRAuthErrorMessageUnsupportedTenantOperation =
  */
 private let kFIRAuthErrorMessageBlockingCloudFunctionReturnedError =
   "Blocking cloud function returned an error."
+
+private let kFIRAuthErrorMessageRecaptchaNotEnabled =
+  "reCAPTCHA Enterprise is not enabled for this project."
+
+private let kFIRAuthErrorMessageMissingRecaptchaToken =
+  "The backend request is missing the reCAPTCHA verification token."
+
+private let kFIRAuthErrorMessageInvalidRecaptchaToken =
+  "The reCAPTCHA verification token is invalid or has expired."
+
+private let kFIRAuthErrorMessageInvalidRecaptchaAction =
+  "The reCAPTCHA verification failed due to an invalid action."
+
+private let kFIRAuthErrorMessageMissingClientType =
+  "The request is missing a client type or the client type is invalid."
+
+private let kFIRAuthErrorMessageMissingRecaptchaVersion =
+  "The request is missing the reCAPTCHA version parameter."
+
+private let kFIRAuthErrorMessageInvalidRecaptchaVersion =
+  "The request specifies an invalid version of reCAPTCHA."
+
+private let kFIRAuthErrorMessageInvalidReqType =
+  "The request is not supported or is invalid."
+
+// TODO(chuanr): point the link to GCIP doc once available.
+private let kFIRAuthErrorMessageRecaptchaSDKNotLinked =
+  "The reCAPTCHA SDK is not linked to your app. See " +
+  "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"

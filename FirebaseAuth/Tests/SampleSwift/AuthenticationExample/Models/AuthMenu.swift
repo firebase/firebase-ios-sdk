@@ -29,6 +29,7 @@ enum AuthMenu: String {
   case phoneNumber = "phone"
   case anonymous
   case custom
+  case initRecaptcha
 
   /// More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -62,6 +63,8 @@ enum AuthMenu: String {
       return "Anonymous Authentication"
     case .custom:
       return "Custom Auth System"
+    case .initRecaptcha:
+      return "Initialize reCAPTCHA Enterprise"
     }
   }
 
@@ -95,6 +98,8 @@ enum AuthMenu: String {
       self = .anonymous
     case "Custom Auth System":
       self = .custom
+    case "Initialize reCAPTCHA Enterprise":
+      self = .initRecaptcha
     default: return nil
     }
   }
@@ -143,8 +148,15 @@ extension AuthMenu: DataSourceProvidable {
     return Section(headerDescription: header, items: otherOptions)
   }
 
+  static var recaptchaSection: Section {
+    let image = UIImage(named: "firebaseIcon")
+    let header = "Initialize reCAPTCHA Enterprise"
+    let item = Item(title: initRecaptcha.name, hasNestedContent: false, image: image)
+    return Section(headerDescription: header, items: [item])
+  }
+
   static var sections: [Section] {
-    [settingsSection, providerSection, emailPasswordSection, otherSection]
+    [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection]
   }
 
   static var authLinkSections: [Section] {

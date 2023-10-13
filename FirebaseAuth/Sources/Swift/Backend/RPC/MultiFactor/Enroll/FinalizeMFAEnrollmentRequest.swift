@@ -42,8 +42,7 @@ class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(
       endpoint: kFinalizeMFAEnrollmentEndPoint,
       requestConfiguration: requestConfiguration,
-      useIdentityPlatform: true,
-      useStaging: false
+      useIdentityPlatform: true
     )
   }
 
@@ -56,8 +55,7 @@ class FinalizeMFAEnrollmentRequest: IdentityToolkitRequest, AuthRPCRequest {
     super.init(
       endpoint: kFinalizeMFAEnrollmentEndPoint,
       requestConfiguration: requestConfiguration,
-      useIdentityPlatform: true,
-      useStaging: false
+      useIdentityPlatform: true
     )
   }
 

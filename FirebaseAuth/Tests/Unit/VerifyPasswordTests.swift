@@ -50,15 +50,21 @@ class VerifyPasswordTests: RPCBaseTests {
     let kCaptchaChallengeKey = "captchaChallenge"
     let kTestCaptchaChallenge = "testCaptchaChallenge"
     let kCaptchaResponseKey = "captchaResponse"
-    let kTestCaptchaResponse = "captchaResponse"
+    let kTestCaptchaResponse = "testCaptchaResponse"
     let kSecureTokenKey = "returnSecureToken"
     let kTestPendingToken = "testPendingToken"
+    let kClientTypeKey = "clientType"
+    let kTestClientType = "testClientType"
+    let kRecaptchaVersionKey = "recaptchaVersion"
+    let kTestRecaptchaVersion = "testRecaptchaVersion"
     let kExpectedAPIURL =
       "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=APIKey"
     let request = makeVerifyPasswordRequest()
     request.pendingIDToken = kTestPendingToken
     request.captchaChallenge = kTestCaptchaChallenge
     request.captchaResponse = kTestCaptchaResponse
+    request.clientType = kTestClientType
+    request.recaptchaVersion = kTestRecaptchaVersion
     try await checkRequest(
       request: request,
       expected: kExpectedAPIURL,
@@ -69,6 +75,8 @@ class VerifyPasswordTests: RPCBaseTests {
     XCTAssertEqual(requestDictionary[kPasswordKey], kTestPassword)
     XCTAssertEqual(requestDictionary[kCaptchaChallengeKey], kTestCaptchaChallenge)
     XCTAssertEqual(requestDictionary[kCaptchaResponseKey], kTestCaptchaResponse)
+    XCTAssertEqual(requestDictionary[kClientTypeKey], kTestClientType)
+    XCTAssertEqual(requestDictionary[kRecaptchaVersionKey], kTestRecaptchaVersion)
     XCTAssertTrue(try XCTUnwrap(requestDictionary[kSecureTokenKey] as? Bool))
   }
 

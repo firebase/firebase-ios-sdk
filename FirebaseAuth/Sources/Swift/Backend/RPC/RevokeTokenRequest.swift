@@ -50,22 +50,22 @@ class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property providerID
       @brief The provider that issued the token to revoke.
    */
-  var providerID: String
+  private(set) var providerID: String
 
   /** @property tokenType
       @brief The type of the token to revoke.
    */
-  var tokenType: TokenType
+  private(set) var tokenType: TokenType
 
   /** @property token
       @brief The token to be revoked.
    */
-  var token: String
+  private(set) var token: String
 
   /** @property idToken
       @brief The ID Token associated with this credential.
    */
-  var idToken: String
+  private(set) var idToken: String
 
   enum TokenType: Int {
     case unspecified = 0, refreshToken = 1, accessToken = 2, authorizationCode = 3
@@ -87,8 +87,7 @@ class RevokeTokenRequest: IdentityToolkitRequest, AuthRPCRequest {
     self.idToken = idToken
     super.init(endpoint: kRevokeTokenEndpoint,
                requestConfiguration: requestConfiguration,
-               useIdentityPlatform: true,
-               useStaging: false)
+               useIdentityPlatform: true)
   }
 
   func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {

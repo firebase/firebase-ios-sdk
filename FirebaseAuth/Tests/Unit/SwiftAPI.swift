@@ -157,6 +157,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
       _ = auth.canHandleNotification([:])
     #endif
+    auth.revokeToken(withAuthorizationCode: "A")
+    auth.initializeRecaptchaConfig { _ in
+    }
     try auth.useUserAccessGroup("abc")
     let nilUser = try auth.getStoredUser(forAccessGroup: "def")
     // If nilUser is not optional, this will raise a compiler error.
@@ -195,6 +198,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
       actionCodeSettings: actionCodeSettings
     )
     _ = try await auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings)
+    try await auth.revokeToken(withAuthorizationCode: "string")
+    try await auth.initializeRecaptchaConfig()
   }
 
   #if !os(macOS)
@@ -292,6 +297,14 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.emailChangeNeedsVerification
     _ = AuthErrorCode.missingOrInvalidNonce
     _ = AuthErrorCode.missingClientIdentifier
+    _ = AuthErrorCode.recaptchaNotEnabled
+    _ = AuthErrorCode.missingRecaptchaToken
+    _ = AuthErrorCode.invalidRecaptchaToken
+    _ = AuthErrorCode.invalidRecaptchaAction
+    _ = AuthErrorCode.missingClientType
+    _ = AuthErrorCode.missingRecaptchaVersion
+    _ = AuthErrorCode.invalidRecaptchaVersion
+    _ = AuthErrorCode.invalidReqType
     _ = AuthErrorCode.keychainError
     _ = AuthErrorCode.internalError
     _ = AuthErrorCode.malformedJWT
