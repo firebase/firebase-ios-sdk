@@ -880,7 +880,10 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        "FirebaseRemoteConfig",
+        // Performance depends on the Obj-C target of FirebaseRemoteConfig to
+        // avoid including Swift code from the `FirebaseRemoteConfig` target
+        // that is unneeded.
+        "FirebaseRemoteConfigInternal",
         "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -944,7 +947,7 @@ let package = Package(
     // MARK: - Firebase Remote Config
 
     .target(
-      name: "FirebaseRemoteConfig",
+      name: "FirebaseRemoteConfigInternal",
       dependencies: [
         "FirebaseCore",
         "FirebaseABTesting",
@@ -959,7 +962,7 @@ let package = Package(
     ),
     .testTarget(
       name: "RemoteConfigUnit",
-      dependencies: ["FirebaseRemoteConfig", .product(name: "OCMock", package: "ocmock")],
+      dependencies: ["FirebaseRemoteConfigInternal", .product(name: "OCMock", package: "ocmock")],
       path: "FirebaseRemoteConfig/Tests/Unit",
       exclude: [
         // Need to be evaluated/ported to RC V2.
@@ -979,16 +982,24 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseRemoteConfig",
+      dependencies: [
+        "FirebaseRemoteConfigInternal",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseRemoteConfig/Swift"
+    ),
+    .target(
       name: "FirebaseRemoteConfigSwift",
       dependencies: [
         "FirebaseRemoteConfig",
-        "FirebaseSharedSwift",
       ],
       path: "FirebaseRemoteConfigSwift/Sources"
     ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
-      dependencies: ["FirebaseRemoteConfigSwift",
+      dependencies: ["FirebaseRemoteConfig",
+                     "FirebaseRemoteConfigSwift",
                      "RemoteConfigFakeConsoleObjC"],
       path: "FirebaseRemoteConfigSwift/Tests",
       exclude: [
