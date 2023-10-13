@@ -48,6 +48,8 @@ NSString* FIRCLSApplicationGetPlatform(void) {
   return @"tvos";
 #elif TARGET_OS_WATCH
   return @"ios";  // TODO: temporarily use iOS until Firebase can add watchos to the backend
+#elif defined(TARGET_OS_VISION) && TARGET_OS_VISION
+  return @"ios";  // TODO: temporarily use iOS until Firebase can add visionos to the backend
 #endif
 }
 
