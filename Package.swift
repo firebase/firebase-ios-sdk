@@ -556,7 +556,7 @@ let package = Package(
       ]
     ),
     .target(
-      name: "FirebaseDatabase",
+      name: "FirebaseDatabaseInternal",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseCore",
@@ -607,8 +607,13 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseDatabase",
+      dependencies: ["FirebaseDatabaseInternal", "FirebaseSharedSwift"],
+      path: "FirebaseDatabase/Swift/Sources"
+    ),
+    .target(
       name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase", "FirebaseSharedSwift"],
+      dependencies: ["FirebaseDatabase"],
       path: "FirebaseDatabaseSwift/Sources"
     ),
     .testTarget(
