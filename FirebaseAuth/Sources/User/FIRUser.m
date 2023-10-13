@@ -1116,6 +1116,7 @@ static void callInMainThreadWithAuthDataResultAndError(
           FIRSignupNewUserCallback signUpNewUserCallback = ^(
               FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
             if (error) {
+              [self signOutIfTokenIsInvalidWithError:error];
               callInMainThreadWithAuthDataResultAndError(completion, nil, error);
             } else {
               // Update the new token and refresh user info again.
@@ -1151,6 +1152,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                                                                          keychainError);
                               return;
                             }
+                            [self signOutIfTokenIsInvalidWithError:error];
                             callInMainThreadWithAuthDataResultAndError(completion, result, nil);
                           }];
               }];
