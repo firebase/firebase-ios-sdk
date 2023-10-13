@@ -19,7 +19,7 @@
 import PackageDescription
 import class Foundation.ProcessInfo
 
-let firebaseVersion = "10.16.0"
+let firebaseVersion = "10.17.0"
 
 let package = Package(
   name: "Firebase",
@@ -422,6 +422,7 @@ let package = Package(
     .target(
       name: "FirebaseAuth",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -1241,7 +1242,7 @@ let package = Package(
       exclude: [
         "CMakeLists.txt",
       ],
-      publicHeadersPath: ".",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -1341,9 +1342,9 @@ func grpcDependency() -> Package.Dependency {
   // If building Firestore from source, abseil will need to be built as source
   // as the headers in the binary version of abseil are unusable.
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
-    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.50.1" ..< "1.51.0")
+    packageInfo = ("https://github.com/grpc/grpc-ios.git", "1.49.1" ..< "1.50.0")
   } else {
-    packageInfo = ("https://github.com/google/grpc-binary.git", "1.50.1" ..< "1.51.0")
+    packageInfo = ("https://github.com/google/grpc-binary.git", "1.49.1" ..< "1.50.0")
   }
 
   return .package(url: packageInfo.url, packageInfo.range)
@@ -1387,6 +1388,7 @@ func firestoreTarget() -> Target {
     return .target(
       name: "FirebaseFirestore",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
         .product(name: "nanopb", package: "nanopb"),
@@ -1461,8 +1463,8 @@ func firestoreTarget() -> Target {
 
   return .binaryTarget(
     name: "FirebaseFirestore",
-    url: "https://dl.google.com/firebase/ios/bin/firestore/10.15.0/FirebaseFirestore.zip",
-    checksum: "67cffbd90c1c2a4bba40e1b8ded5f0d8cf530aebc4c0321406d616d3ac6d9865"
+    url: "https://dl.google.com/firebase/ios/bin/firestore/10.16.0/FirebaseFirestore.zip",
+    checksum: "0a6616a4bbf1adb2f0a502e9ad8e5ab144a8c4993a15bb4b795bae86b66ecab8"
   )
 }
 

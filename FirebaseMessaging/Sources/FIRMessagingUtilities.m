@@ -334,7 +334,8 @@ BOOL FIRMessagingIsProductionApp(void) {
 #if TARGET_OS_OSX || TARGET_OS_MACCATALYST
   NSString *path = [[[[NSBundle mainBundle] resourcePath] stringByDeletingLastPathComponent]
       stringByAppendingPathComponent:@"embedded.provisionprofile"];
-#elif TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH
+#elif TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_WATCH || \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
   NSString *path = [[[NSBundle mainBundle] bundlePath]
       stringByAppendingPathComponent:@"embedded.mobileprovision"];
 #endif

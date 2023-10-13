@@ -1,6 +1,9 @@
 source "https://rubygems.org"
 
+# cocoapods isn't needed for generating the Gemfile.lock, but is needed for the CI job
 gem "cocoapods"
 gem "octokit", "~> 4.19"
 gem "xcodeproj", "~> 1.21"
 gem "plist"
+# activesupport is locked because of https://github.com/CocoaPods/CocoaPods/issues/12081
+gem 'activesupport', '7.0.8'

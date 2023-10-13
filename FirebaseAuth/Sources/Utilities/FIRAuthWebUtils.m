@@ -84,6 +84,31 @@ NS_ASSUME_NONNULL_BEGIN
   return NO;
 }
 
++ (NSString *)extractDomain:(NSString *)urlString {
+  // Remove trailing slashes
+  urlString = [urlString
+      stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
+
+  // Check for the presence of a scheme (e.g., http:// or https://)
+  NSRange range = [urlString rangeOfString:@"http://" options:NSCaseInsensitiveSearch];
+  if (range.location != NSNotFound) {
+    urlString = [urlString stringByReplacingCharactersInRange:range withString:@""];
+  } else {
+    range = [urlString rangeOfString:@"https://" options:NSCaseInsensitiveSearch];
+    if (range.location != NSNotFound) {
+      urlString = [urlString stringByReplacingCharactersInRange:range withString:@""];
+    }
+  }
+
+  // Split the URL by "/"
+  NSArray *urlComponents = [urlString componentsSeparatedByString:@"/"];
+
+  // The domain is the first component after removing the scheme
+  NSString *domain = urlComponents[0];
+
+  return domain;
+}
+
 + (void)fetchAuthDomainWithRequestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
                                      completion:(FIRFetchAuthDomainCallback)completion {
   if (requestConfiguration.emulatorHostAndPort) {
@@ -104,22 +129,42 @@ NS_ASSUME_NONNULL_BEGIN
                   return;
                 }
                 // Look up an authorized domain ends with one of the supportedAuthDomains.
-                // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
-                // The searching ends once the first valid suportedAuthDomain is found.
+                // The searching ends once the first valid supportedAuthDomain is found.
                 NSString *authDomain;
-                for (NSString *domain in response.authorizedDomains) {
-                  for (NSString *suportedAuthDomain in [self supportedAuthDomains]) {
-                    NSInteger index = domain.length - suportedAuthDomain.length;
-                    if (index >= 2) {
-                      if ([domain hasSuffix:suportedAuthDomain] &&
-                          domain.length >= suportedAuthDomain.length + 2) {
-                        authDomain = domain;
-                        break;
-                      }
+                NSString *customAuthDomain = requestConfiguration.auth.customAuthDomain;
+                if (customAuthDomain) {
+                  customAuthDomain = [FIRAuthWebUtils extractDomain:customAuthDomain];
+                  BOOL isCustomAuthDomainAuthorized = NO;
+                  for (NSString *domain in response.authorizedDomains) {
+                    if ([customAuthDomain isEqualToString:domain]) {
+                      authDomain = customAuthDomain;
+                      isCustomAuthDomainAuthorized = YES;
+                      break;
                     }
                   }
-                  if (authDomain != nil) {
-                    break;
+                  if (!isCustomAuthDomainAuthorized) {
+                    NSError *customDomainError =
+                        [FIRAuthErrorUtils unauthorizedDomainErrorWithMessage:
+                                               @"Error while validating application identity: The "
+                                               @"configured custom domain is not allowlisted."];
+                    completion(nil, customDomainError);
+                    return;
+                  }
+                } else {
+                  for (NSString *domain in response.authorizedDomains) {
+                    for (NSString *supportedAuthDomain in [self supportedAuthDomains]) {
+                      NSInteger index = domain.length - supportedAuthDomain.length;
+                      if (index >= 2) {
+                        if ([domain hasSuffix:supportedAuthDomain] &&
+                            domain.length >= supportedAuthDomain.length + 2) {
+                          authDomain = domain;
+                          break;
+                        }
+                      }
+                    }
+                    if (authDomain != nil) {
+                      break;
+                    }
                   }
                 }
                 if (!authDomain.length) {

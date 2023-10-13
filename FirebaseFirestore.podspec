@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '10.16.0'
+  s.version          = '10.17.0'
   s.summary          = 'Google Cloud Firestore'
 
   s.description      = <<-DESC
@@ -44,7 +44,6 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   # version wins in the global header map. The benefit of keeping them here is
   # that "quick open" by filename in Xcode will continue to work.
   s.source_files = [
-    'FirebaseAppCheck/Interop/*.h',
     'FirebaseCore/Extension/*.h',
     'Firestore/Source/Public/FirebaseFirestore/*.h',
     'Firestore/Source/**/*.{m,mm}',
@@ -88,9 +87,10 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
     'Firestore/core/src/util/secure_random_openssl.cc'
   ]
 
+  s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseCore', '~> 10.0'
 
-  abseil_version = '~> 1.20211102.0'
+  abseil_version = '~> 1.20220623.0'
   s.dependency 'abseil/algorithm', abseil_version
   s.dependency 'abseil/base', abseil_version
   s.dependency 'abseil/container/flat_hash_map', abseil_version
@@ -100,7 +100,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
   s.dependency 'abseil/time', abseil_version
   s.dependency 'abseil/types', abseil_version
 
-  s.dependency 'gRPC-C++', '~> 1.44.0'
+  s.dependency 'gRPC-C++', '~> 1.49.1'
   s.dependency 'leveldb-library', '~> 1.22'
   s.dependency 'nanopb', '>= 2.30908.0', '< 2.30910.0'
 
