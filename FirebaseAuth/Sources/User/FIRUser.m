@@ -147,11 +147,6 @@ static NSString *const kTenantIDCodingKey = @"tenantID";
  */
 static NSString *const kMissingUsersErrorMessage = @"users";
 
-/** @var kMissingRecaptchaTokenErrorPrefix
-    @brief The prefix of the error message of missing recaptcha token during authenticating.
- */
-static NSString *const kMissingRecaptchaTokenErrorPrefix = @"MISSING_RECAPTCHA_TOKEN";
-
 /** @typedef CallbackWithError
     @brief The type for a callback block that only takes an error parameter.
  */
@@ -1085,6 +1080,109 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
+- (void)linkWithEmailPassword:(FIREmailPasswordAuthCredential *)credential
+                   authResult:(FIRAuthDataResult *)authResult
+                   completion:(nullable FIRAuthDataResultCallback)completion {
+  [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
+    FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
+    FIRSignUpNewUserRequest *request =
+        [[FIRSignUpNewUserRequest alloc] initWithEmail:credential.email
+                                              password:credential.password
+                                           displayName:nil
+                                               idToken:accessToken
+                                  requestConfiguration:requestConfiguration];
+    FIRSignupNewUserCallback signUpNewUserCallback = ^(FIRSignUpNewUserResponse *_Nullable response,
+                                                       NSError *_Nullable error) {
+      if (error) {
+        [self signOutIfTokenIsInvalidWithError:error];
+        callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+      } else {
+        // Update the new token and refresh user info again.
+        self->_tokenService = [[FIRSecureTokenService alloc]
+            initWithRequestConfiguration:requestConfiguration
+                             accessToken:response.IDToken
+               accessTokenExpirationDate:response.approximateExpirationDate
+                            refreshToken:response.refreshToken];
+
+        [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
+                                             NSError *_Nullable error) {
+          if (error) {
+            callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+            return;
+          }
+          FIRGetAccountInfoRequest *getAccountInfoRequest =
+              [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
+                                               requestConfiguration:requestConfiguration];
+          [FIRAuthBackend
+              getAccountInfo:getAccountInfoRequest
+                    callback:^(FIRGetAccountInfoResponse *_Nullable response,
+                               NSError *_Nullable error) {
+                      if (error) {
+                        [self signOutIfTokenIsInvalidWithError:error];
+                        callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                        return;
+                      }
+                      self.anonymous = NO;
+                      [self updateWithGetAccountInfoResponse:response];
+                      NSError *keychainError;
+                      if (![self updateKeychain:&keychainError]) {
+                        callInMainThreadWithAuthDataResultAndError(completion, nil, keychainError);
+                        return;
+                      }
+                      [self signOutIfTokenIsInvalidWithError:error];
+                      callInMainThreadWithAuthDataResultAndError(completion, authResult, nil);
+                    }];
+        }];
+      }
+    };
+
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
+    if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
+            enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
+      [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
+          injectRecaptchaFields:request
+                       provider:FIRAuthRecaptchaProviderPassword
+                         action:FIRAuthRecaptchaActionSignUpPassword
+                     completion:^(
+                         FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
+                       [FIRAuthBackend
+                           signUpNewUser:(FIRSignUpNewUserRequest *)requestWithRecaptchaToken
+                                callback:signUpNewUserCallback];
+                     }];
+    } else {
+      [FIRAuthBackend
+          signUpNewUser:request
+               callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
+                 if (!error) {
+                   signUpNewUserCallback(response, nil);
+                   return;
+                 }
+                 NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
+                 if (error.code == FIRAuthErrorCodeInternalError &&
+                     [[underlyingError.userInfo
+                         objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey][@"message"]
+                         hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
+                   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
+                       injectRecaptchaFields:request
+                                    provider:FIRAuthRecaptchaProviderPassword
+                                      action:FIRAuthRecaptchaActionSignUpPassword
+                                  completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
+                                                   *requestWithRecaptchaToken) {
+                                    [FIRAuthBackend signUpNewUser:(FIRSignUpNewUserRequest *)
+                                                                      requestWithRecaptchaToken
+                                                         callback:signUpNewUserCallback];
+                                  }];
+                 } else {
+                   signUpNewUserCallback(nil, error);
+                 }
+               }];
+    }
+#else
+[FIRAuthBackend signUpNewUser:request callback:signUpNewUserCallback];
+#endif
+  }];
+}
+
 - (void)linkWithCredential:(FIRAuthCredential *)credential
                 completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
@@ -1104,109 +1202,9 @@ static void callInMainThreadWithAuthDataResultAndError(
       FIREmailPasswordAuthCredential *emailPasswordCredential =
           (FIREmailPasswordAuthCredential *)credential;
       if (emailPasswordCredential.password) {
-        [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
-                                             NSError *_Nullable error) {
-          FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
-          FIRSignUpNewUserRequest *request =
-              [[FIRSignUpNewUserRequest alloc] initWithEmail:emailPasswordCredential.email
-                                                    password:emailPasswordCredential.password
-                                                 displayName:nil
-                                                     idToken:accessToken
-                                        requestConfiguration:requestConfiguration];
-          FIRSignupNewUserCallback signUpNewUserCallback = ^(
-              FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
-            if (error) {
-              [self signOutIfTokenIsInvalidWithError:error];
-              callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-            } else {
-              // Update the new token and refresh user info again.
-              self->_tokenService = [[FIRSecureTokenService alloc]
-                  initWithRequestConfiguration:requestConfiguration
-                                   accessToken:response.IDToken
-                     accessTokenExpirationDate:response.approximateExpirationDate
-                                  refreshToken:response.refreshToken];
-
-              [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
-                                                   NSError *_Nullable error) {
-                if (error) {
-                  callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-                  return;
-                }
-                FIRGetAccountInfoRequest *getAccountInfoRequest =
-                    [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
-                                                     requestConfiguration:requestConfiguration];
-                [FIRAuthBackend
-                    getAccountInfo:getAccountInfoRequest
-                          callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                                     NSError *_Nullable error) {
-                            if (error) {
-                              [self signOutIfTokenIsInvalidWithError:error];
-                              callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-                              return;
-                            }
-                            self.anonymous = NO;
-                            [self updateWithGetAccountInfoResponse:response];
-                            NSError *keychainError;
-                            if (![self updateKeychain:&keychainError]) {
-                              callInMainThreadWithAuthDataResultAndError(completion, nil,
-                                                                         keychainError);
-                              return;
-                            }
-                            [self signOutIfTokenIsInvalidWithError:error];
-                            callInMainThreadWithAuthDataResultAndError(completion, result, nil);
-                          }];
-              }];
-            }
-          };
-
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
-          if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
-                  enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
-            [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
-                injectRecaptchaFields:request
-                             provider:FIRAuthRecaptchaProviderPassword
-                               action:FIRAuthRecaptchaActionSignUpPassword
-                           completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
-                                            *requestWithRecaptchaToken) {
-                             [FIRAuthBackend
-                                 signUpNewUser:(FIRSignUpNewUserRequest *)requestWithRecaptchaToken
-                                      callback:signUpNewUserCallback];
-                           }];
-          } else {
-            [FIRAuthBackend
-                signUpNewUser:request
-                     callback:^(FIRSignUpNewUserResponse *_Nullable response,
-                                NSError *_Nullable error) {
-                       if (!error) {
-                         signUpNewUserCallback(response, nil);
-                         return;
-                       }
-                       NSError *underlyingError =
-                           [error.userInfo objectForKey:NSUnderlyingErrorKey];
-                       if (error.code == FIRAuthErrorCodeInternalError &&
-                           [[underlyingError.userInfo
-                               objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey][@"message"]
-                               hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
-                         [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
-                             injectRecaptchaFields:request
-                                          provider:FIRAuthRecaptchaProviderPassword
-                                            action:FIRAuthRecaptchaActionSignUpPassword
-                                        completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
-                                                         *requestWithRecaptchaToken) {
-                                          [FIRAuthBackend
-                                              signUpNewUser:(FIRSignUpNewUserRequest *)
-                                                                requestWithRecaptchaToken
-                                                   callback:signUpNewUserCallback];
-                                        }];
-                       } else {
-                         signUpNewUserCallback(nil, error);
-                       }
-                     }];
-          }
-#else
-  [FIRAuthBackend signUpNewUser:request callback:signUpNewUserCallback];
-#endif
-        }];
+        [self linkWithEmailPassword:emailPasswordCredential
+                         authResult:result
+                         completion:completion];
       } else {
         [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                              NSError *_Nullable error) {

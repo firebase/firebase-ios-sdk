@@ -68,7 +68,7 @@ static NSString *const kIDTokenKey = @"idToken";
 /** @var kTestIDToken
     @brief Testing id token.
  */
-static NSString *const kTestIDToken = @"IDToken";
+static NSString *const kTestIDToken = @"testIDToken";
 
 /** @var kPasswordKey
     @brief the name of the "password" property in the request.

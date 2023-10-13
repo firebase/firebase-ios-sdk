@@ -164,11 +164,6 @@ static NSString *const kVerifyAndChangeEmailRequestType = @"VERIFY_AND_CHANGE_EM
  */
 static NSString *const kRevertSecondFactorAdditionRequestType = @"REVERT_SECOND_FACTOR_ADDITION";
 
-/** @var kMissingRecaptchaTokenErrorPrefix
-    @brief The prefix of the error message of missing recaptcha token during authenticating.
- */
-static NSString *const kMissingRecaptchaTokenErrorPrefix = @"MISSING_RECAPTCHA_TOKEN";
-
 /** @var kMissingPasswordReason
     @brief The reason why the @c FIRAuthErrorCodeWeakPassword error is thrown.
     @remarks This error message will be localized in the future.
