@@ -15,9 +15,7 @@
  */
 
 import Foundation
-#if SWIFT_PACKAGE
-  @_exported import FirebaseFirestoreInternal
-#endif // SWIFT_PACKAGE
+import FirebaseFirestore
 
 public extension DocumentSnapshot {
   /// Retrieves all fields in a document and converts them to an instance of
