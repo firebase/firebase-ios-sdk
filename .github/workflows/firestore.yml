@@ -133,6 +133,7 @@ jobs:
 
     - name: Build and test
       run: |
+        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
