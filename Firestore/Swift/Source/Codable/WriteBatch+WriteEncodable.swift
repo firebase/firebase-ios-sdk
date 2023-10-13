@@ -15,7 +15,9 @@
  */
 
 import Foundation
-import FirebaseFirestore
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 
 public extension WriteBatch {
   /// Encodes an instance of `Encodable` and overwrites the encoded data
