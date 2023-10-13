@@ -621,11 +621,14 @@ let package = Package(
       dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
       path: "FirebaseDatabaseSwift/Tests/"
     ),
-    .binaryTarget(
-      name: "FirebaseSharedSwift",
-      url: "https://dl.google.com/firebase/ios/experimental/bin/sharedswift/10.16.0/FirebaseSharedSwift.zip",
-      checksum: "cfa32eb16ba8fafa7a443ab8f48e019794470bb358066d6c571df1531df02fe6"
-    ),
+    .target(
+       name: "FirebaseSharedSwift",
+       path: "FirebaseSharedSwift/Sources",
+       exclude: [
+         "third_party/FirebaseDataEncoder/LICENSE",
+         "third_party/FirebaseDataEncoder/METADATA",
+       ]
+     ),
     .testTarget(
       name: "FirebaseSharedSwiftTests",
       dependencies: ["FirebaseSharedSwift"],
@@ -1363,7 +1366,7 @@ func firestoreWrapperTarget() -> Target {
     name: "FirebaseFirestoreTarget",
     dependencies: [
       .target(
-        name: "FirebaseFirestore",
+        name: "FirebaseFirestoreInternal",
         condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
       ),
       .product(name: "abseil", package: "abseil-cpp-binary"),
@@ -1375,7 +1378,7 @@ func firestoreWrapperTarget() -> Target {
       "FirebaseSharedSwift",
       "leveldb",
     ],
-    path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap",
+    path: "Firestore/Swift/Source",
     linkerSettings: [
       .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
@@ -1495,10 +1498,15 @@ func firestoreTargets() -> [Target] {
   }
 
   return [
+    .target(
+        name: "FirebaseFirestoreInternal",
+        dependencies: ["FirebaseFirestore"],
+        path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
+    ),
     .binaryTarget(
       name: "FirebaseFirestore",
-      url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/10.16.0/FirebaseFirestore.zip",
-      checksum: "62f1ce3478de5ff9672644cd545e10ac0c39ed7c411661d0136ded28489b2c12"
+      url: "https://dl.google.com/firebase/ios/bin/firestore/10.16.0/FirebaseFirestore.zip",
+      checksum: "0a6616a4bbf1adb2f0a502e9ad8e5ab144a8c4993a15bb4b795bae86b66ecab8"
     ),
   ]
 }
