@@ -1234,6 +1234,7 @@
                                                                  isLessThanOrEqualTo:@1]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"doc6" ]));
 }
+
 - (void)testMultipleInequalityWithArrayMembership {
   // TODO(MIEQ): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
@@ -1640,6 +1641,49 @@
   ]];
   [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter]
                      matchesResult:@[ @"doc1", @"doc3" ]];
+}
+
+- (void)testMultipleInequalityRejectsIfDocumentKeyIsNotTheLastOrderByField {
+  // TODO(MIEQ): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because multiple inequality is "
+            "not supported yet.");
+
+  FIRCollectionReference *collRef = [self collectionRef];
+
+  FIRQuery *query = [[collRef queryWhereField:@"key" isNotEqualTo:@42]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
+
+  XCTestExpectation *queryCompletion = [self expectationWithDescription:@"query"];
+  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *results, NSError *error) {
+    XCTAssertNil(results);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+    [queryCompletion fulfill];
+  }];
+  [self awaitExpectations];
+}
+
+- (void)testMultipleInequalityRejectsIfDocumentKeyAppearsOnlyInEqualityFilter {
+  // TODO(MIEQ): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because multiple inequality is "
+            "not supported yet.");
+
+  FIRCollectionReference *collRef = [self collectionRef];
+
+  FIRQuery *query = [[collRef queryWhereField:@"key"
+                                 isNotEqualTo:@42] queryWhereFieldPath:[FIRFieldPath documentID]
+                                                             isEqualTo:@"doc1"];
+
+  XCTestExpectation *queryCompletion = [self expectationWithDescription:@"query"];
+  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *results, NSError *error) {
+    XCTAssertNil(results);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+    [queryCompletion fulfill];
+  }];
+  [self awaitExpectations];
 }
 
 - (void)testResumingAQueryShouldUseBloomFilterToAvoidFullRequery {
