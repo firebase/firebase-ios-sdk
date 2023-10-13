@@ -26,9 +26,11 @@
 #import "FirebaseDatabase/Sources/Realtime/FWebSocketConnection.h"
 #import "FirebaseDatabase/Sources/Utilities/FStringUtilities.h"
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV ||                                           \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
 #import <UIKit/UIKit.h>
-#endif // TARGET_OS_IOS || TARGET_OS_TV
+#endif // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) &&
+       // TARGET_OS_VISION)
 
 #if TARGET_OS_WATCH
 #import <Network/Network.h>
@@ -144,14 +146,16 @@ static NSString *const kGoogleAppIDHeader = @"X-Firebase-GMPID";
 
 // Targetted compilation is ONLY for testing. UIKit is weak-linked in actual
 // release build.
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV ||                                           \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
     Class uiDeviceClass = NSClassFromString(@"UIDevice");
     if (uiDeviceClass) {
         systemVersion = [uiDeviceClass currentDevice].systemVersion;
         deviceName = [uiDeviceClass currentDevice].model;
         hasUiDeviceClass = YES;
     }
-#endif // TARGET_OS_IOS || TARGET_OS_TV
+#endif // TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) &&
+       // TARGET_OS_VISION)
 
     if (!hasUiDeviceClass) {
         NSDictionary *systemVersionDictionary = [NSDictionary
