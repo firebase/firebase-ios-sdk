@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 
 /** Mark DocumentReference to conform to Codable. */
 

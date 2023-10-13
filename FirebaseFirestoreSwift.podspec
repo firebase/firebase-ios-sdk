@@ -31,12 +31,9 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.requires_arc            = true
   s.source_files = [
-    'Firestore/Swift/Source/**/*.swift',
+    'FirebaseFirestoreSwift/Sources/FirebaseFirestoreSwift.swift'
   ]
 
-  s.dependency 'FirebaseCore', '~> 10.0'
-  s.dependency 'FirebaseCoreExtension', '~> 10.0'
-  s.dependency 'FirebaseFirestore', '~> 10.0'
-  s.dependency 'FirebaseSharedSwift', '~> 10.0'
+  s.dependency 'FirebaseFirestore', '~> 10.17'
 
 end
