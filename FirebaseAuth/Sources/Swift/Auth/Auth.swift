@@ -1431,42 +1431,44 @@ extension Auth: AuthInterop {
     return false
   }
 
-  /** @fn initializeRecaptchaConfigWithCompletion:completion:
-      @brief Initializes reCAPTCHA using the settings configured for the project or
-      tenant.
+  #if os(iOS)
+    /** @fn initializeRecaptchaConfigWithCompletion:completion:
+        @brief Initializes reCAPTCHA using the settings configured for the project or
+        tenant.
 
-      If you change the tenant ID of the `Auth` instance, the configuration will be
-      reloaded.
-   */
-  @objc(initializeRecaptchaConfigWithCompletion:)
-  public func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
-    Task {
-      do {
-        try await initializeRecaptchaConfig()
-        if let completion {
-          completion(nil)
-        }
-      } catch {
-        if let completion {
-          completion(error)
+        If you change the tenant ID of the `Auth` instance, the configuration will be
+        reloaded.
+     */
+    @objc(initializeRecaptchaConfigWithCompletion:)
+    public func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
+      Task {
+        do {
+          try await initializeRecaptchaConfig()
+          if let completion {
+            completion(nil)
+          }
+        } catch {
+          if let completion {
+            completion(error)
+          }
         }
       }
     }
-  }
 
-  /** @fn initializeRecaptchaConfig
-      @brief Initializes reCAPTCHA using the settings configured for the project or
-      tenant.
+    /** @fn initializeRecaptchaConfig
+        @brief Initializes reCAPTCHA using the settings configured for the project or
+        tenant.
 
-      If you change the tenant ID of the `Auth` instance, the configuration will be
-      reloaded.
-   */
-  public func initializeRecaptchaConfig() async throws {
-    // Trigger recaptcha verification flow to initialize the recaptcha client and
-    // config. Recaptcha token will be returned.
-    let verifier = AuthRecaptchaVerifier.shared(auth: self)
-    let _ = try await verifier.verify(forceRefresh: true, action: AuthRecaptchaAction.defaultAction)
-  }
+        If you change the tenant ID of the `Auth` instance, the configuration will be
+        reloaded.
+     */
+    public func initializeRecaptchaConfig() async throws {
+      // Trigger recaptcha verification flow to initialize the recaptcha client and
+      // config. Recaptcha token will be returned.
+      let verifier = AuthRecaptchaVerifier.shared(auth: self)
+      _ = try await verifier.verify(forceRefresh: true, action: AuthRecaptchaAction.defaultAction)
+    }
+  #endif
 
   /** @fn addAuthStateDidChangeListener:
    @brief Registers a block as an "auth state did change" listener. To be invoked when:
@@ -2415,7 +2417,6 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
-
     private func wrapInjectRecaptcha<T: AuthRPCRequest>(request: T,
                                                         action: AuthRecaptchaAction,
                                                         _ callback: @escaping (
