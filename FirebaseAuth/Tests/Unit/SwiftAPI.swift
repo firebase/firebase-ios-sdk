@@ -156,10 +156,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
       _ = auth.canHandleNotification([:])
+      auth.initializeRecaptchaConfig { _ in
+      }
     #endif
     auth.revokeToken(withAuthorizationCode: "A")
-    auth.initializeRecaptchaConfig { _ in
-    }
     try auth.useUserAccessGroup("abc")
     let nilUser = try auth.getStoredUser(forAccessGroup: "def")
     // If nilUser is not optional, this will raise a compiler error.
@@ -183,6 +183,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let credential = try await provider.credential(with: nil)
       _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
       _ = try await auth.signIn(with: credential)
+      try await auth.initializeRecaptchaConfig()
     #endif
     _ = try await auth.signInAnonymously()
     _ = try await auth.signIn(withCustomToken: "abc")
@@ -199,7 +200,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     )
     _ = try await auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings)
     try await auth.revokeToken(withAuthorizationCode: "string")
-    try await auth.initializeRecaptchaConfig()
   }
 
   #if !os(macOS)
