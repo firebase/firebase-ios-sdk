@@ -178,7 +178,8 @@ jobs:
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
     - name: Install Google Service Account key
-      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
         google-service-account.json "$plist_secret"
         cat ./google-service-account.json
 
