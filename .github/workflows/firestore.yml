@@ -183,25 +183,23 @@ jobs:
         google-service-account.json "$plist_secret"
 
     # create composite indexes with Terraform
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
     - name: Authenticate Google Cloud SDK
       uses: google-github-actions/auth@v0
       with:
         credentials_json: ./google-service-account.json
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
       run: |
         cd Firestore
         terraform init
-      continue-on-error: true
     - name: Terraform Apply
       run: |
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         cd Firestore
         terraform apply -var-file=Example/App/project_info.json -auto-approve
-      continue-on-error: true
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
