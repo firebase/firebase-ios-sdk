@@ -194,7 +194,7 @@ jobs:
       run: |
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         cd Firestore
-        terraform apply -var-file=Example/App/project_info.json -auto-approve &> /dev/null
+        terraform apply -var-file=Example/App/project_info.json -auto-approve
       continue-on-error: true
 
     - name: Setup build
