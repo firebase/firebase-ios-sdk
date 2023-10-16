@@ -178,20 +178,18 @@ jobs:
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
     # create composite indexes with Terraform
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@main
     - name: Authenticate Google Cloud SDK
       run: |
-        # Install gcloud sdk
-        curl https://sdk.cloud.google.com > install.sh
-        bash install.sh --disable-prompts
-        echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
-        export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
-
-        # Activate the service account
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
         google-service-account.json "$plist_secret"
         gcloud auth activate-service-account --key-file google-service-account.json
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ./google-service-account.json
+    - uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ ./google-service-account.json}}
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
