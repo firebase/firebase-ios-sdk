@@ -186,7 +186,7 @@ jobs:
     - name: Authenticate Google Cloud SDK
       uses: google-github-actions/auth@v1
       with:
-        credentials_json: ./google-service-account.json
+        credentials_json: google-service-account.json
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
     - name: Setup Terraform
