@@ -181,7 +181,6 @@ jobs:
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
         Firestore/Example/App/GoogleServiceAccount.json "$plist_secret"
-        pwd
         cd Firestore/Example/App
         ls
 
