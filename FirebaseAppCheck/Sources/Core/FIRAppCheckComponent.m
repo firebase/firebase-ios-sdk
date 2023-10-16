@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-@import FirebaseAppCheckInterop;
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheck+Internal.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"

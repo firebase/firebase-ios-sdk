@@ -422,6 +422,7 @@ let package = Package(
     .target(
       name: "FirebaseAuth",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -555,7 +556,7 @@ let package = Package(
       ]
     ),
     .target(
-      name: "FirebaseDatabase",
+      name: "FirebaseDatabaseInternal",
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseCore",
@@ -606,8 +607,13 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseDatabase",
+      dependencies: ["FirebaseDatabaseInternal", "FirebaseSharedSwift"],
+      path: "FirebaseDatabase/Swift/Sources"
+    ),
+    .target(
       name: "FirebaseDatabaseSwift",
-      dependencies: ["FirebaseDatabase", "FirebaseSharedSwift"],
+      dependencies: ["FirebaseDatabase"],
       path: "FirebaseDatabaseSwift/Sources"
     ),
     .testTarget(
@@ -757,7 +763,7 @@ let package = Package(
     ),
 
     .target(
-      name: "FirebaseInAppMessaging",
+      name: "FirebaseInAppMessagingInternal",
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
@@ -787,9 +793,15 @@ let package = Package(
     ),
 
     .target(
+      name: "FirebaseInAppMessaging",
+      dependencies: ["FirebaseInAppMessagingInternal"],
+      path: "FirebaseInAppMessaging/Swift/Source"
+    ),
+
+    .target(
       name: "FirebaseInAppMessagingSwift",
       dependencies: ["FirebaseInAppMessaging"],
-      path: "FirebaseInAppMessaging/Swift/Source"
+      path: "FirebaseInAppMessagingSwift/Sources"
     ),
 
     .target(
@@ -893,7 +905,10 @@ let package = Package(
       dependencies: [
         "FirebaseCore",
         "FirebaseInstallations",
-        "FirebaseRemoteConfig",
+        // Performance depends on the Obj-C target of FirebaseRemoteConfig to
+        // avoid including Swift code from the `FirebaseRemoteConfig` target
+        // that is unneeded.
+        "FirebaseRemoteConfigInternal",
         "FirebaseSessions",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
@@ -957,7 +972,7 @@ let package = Package(
     // MARK: - Firebase Remote Config
 
     .target(
-      name: "FirebaseRemoteConfig",
+      name: "FirebaseRemoteConfigInternal",
       dependencies: [
         "FirebaseCore",
         "FirebaseABTesting",
@@ -972,7 +987,7 @@ let package = Package(
     ),
     .testTarget(
       name: "RemoteConfigUnit",
-      dependencies: ["FirebaseRemoteConfig", .product(name: "OCMock", package: "ocmock")],
+      dependencies: ["FirebaseRemoteConfigInternal", .product(name: "OCMock", package: "ocmock")],
       path: "FirebaseRemoteConfig/Tests/Unit",
       exclude: [
         // Need to be evaluated/ported to RC V2.
@@ -992,16 +1007,24 @@ let package = Package(
       ]
     ),
     .target(
+      name: "FirebaseRemoteConfig",
+      dependencies: [
+        "FirebaseRemoteConfigInternal",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseRemoteConfig/Swift"
+    ),
+    .target(
       name: "FirebaseRemoteConfigSwift",
       dependencies: [
         "FirebaseRemoteConfig",
-        "FirebaseSharedSwift",
       ],
       path: "FirebaseRemoteConfigSwift/Sources"
     ),
     .testTarget(
       name: "RemoteConfigFakeConsole",
-      dependencies: ["FirebaseRemoteConfigSwift",
+      dependencies: ["FirebaseRemoteConfig",
+                     "FirebaseRemoteConfigSwift",
                      "RemoteConfigFakeConsoleObjC"],
       path: "FirebaseRemoteConfigSwift/Tests",
       exclude: [
@@ -1155,7 +1178,8 @@ let package = Package(
         "FirebaseFirestoreTarget",
         "FirebaseFirestoreSwift",
         "FirebaseFunctions",
-        "FirebaseInAppMessaging",
+        .target(name: "FirebaseInAppMessaging",
+                condition: .when(platforms: [.iOS, .tvOS])),
         .target(name: "FirebaseInAppMessagingSwift",
                 condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
@@ -1193,7 +1217,8 @@ let package = Package(
         "FirebaseDynamicLinks",
         "FirebaseFirestoreTarget",
         "FirebaseFunctions",
-        "FirebaseInAppMessaging",
+        .target(name: "FirebaseInAppMessaging",
+                condition: .when(platforms: [.iOS, .tvOS])),
         "FirebaseInstallations",
         "FirebaseMessaging",
         .target(name: "FirebasePerformance",
@@ -1241,7 +1266,7 @@ let package = Package(
       exclude: [
         "CMakeLists.txt",
       ],
-      publicHeadersPath: ".",
+      publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
       ]
@@ -1387,6 +1412,7 @@ func firestoreTarget() -> Target {
     return .target(
       name: "FirebaseFirestore",
       dependencies: [
+        "FirebaseAppCheckInterop",
         "FirebaseCore",
         "leveldb",
         .product(name: "nanopb", package: "nanopb"),

@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import FirebaseDatabase
+#if SWIFT_PACKAGE
+  @_exported import FirebaseDatabaseInternal
+#endif // SWIFT_PACKAGE
 
 /// A property wrapper that marks an `Optional<Date>` field to be
 /// populated with a server timestamp. If a `Codable` object being written

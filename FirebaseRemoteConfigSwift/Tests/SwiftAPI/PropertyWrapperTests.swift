@@ -15,7 +15,7 @@
  */
 
 import FirebaseRemoteConfig
-import FirebaseRemoteConfigSwift
+
 import XCTest
 
 #if compiler(>=5.5.2) && canImport(_Concurrency)
