@@ -181,8 +181,8 @@ jobs:
     - name: Authenticate Google Cloud SDK
       run: |
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
-        Firestore/Example/App/GoogleServiceAccount.json "$plist_secret"
-        gcloud auth activate-service-account --key-file Firestore/Example/App/GoogleServiceAccount.json
+        google-service-account.json "$plist_secret"
+        gcloud auth activate-service-account --key-file google-service-account.json
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
