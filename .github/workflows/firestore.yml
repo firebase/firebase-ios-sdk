@@ -180,6 +180,13 @@ jobs:
     # create composite indexes with Terraform
     - name: Authenticate Google Cloud SDK
       run: |
+        # Install gcloud sdk
+        curl https://sdk.cloud.google.com > install.sh
+        bash install.sh --disable-prompts
+        echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
+        export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
+        
+        # Activate the service account 
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
         google-service-account.json "$plist_secret"
         gcloud auth activate-service-account --key-file google-service-account.json
