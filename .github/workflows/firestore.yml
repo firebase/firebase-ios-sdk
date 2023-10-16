@@ -189,7 +189,7 @@ jobs:
         GOOGLE_APPLICATION_CREDENTIALS: ./google-service-account.json
     - uses: google-github-actions/auth@v0
       with:
-        credentials_json: ${{ ./google-service-account.json}}
+        credentials_json: ./google-service-account.json
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
