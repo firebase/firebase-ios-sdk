@@ -183,12 +183,11 @@ jobs:
         google-service-account.json "$plist_secret"
 
     # create composite indexes with Terraform
-    - name: Authenticate Google Cloud SDK
-      uses: google-github-actions/auth@v1
-      with:
-        credentials_json: google-service-account.json
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
+    - name: Authenticate Google Cloud SDK
+      run: |
+        gcloud auth login --cred-file="google-service-account.json"
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
