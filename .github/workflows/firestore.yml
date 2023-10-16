@@ -185,10 +185,6 @@ jobs:
     # create composite indexes with Terraform
     - name: Set up Google Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
-    - name: Authenticate Google Cloud SDK
-      run: |
-        gcloud auth login --cred-file="google-service-account.json"
-        gcloud config set project ios-opensource-samples
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
