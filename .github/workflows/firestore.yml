@@ -190,6 +190,8 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
         google-service-account.json "$plist_secret"
         gcloud auth activate-service-account --key-file google-service-account.json
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ./google-service-account.json
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
     - name: Terraform Init
