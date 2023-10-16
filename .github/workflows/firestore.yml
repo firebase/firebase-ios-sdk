@@ -21,8 +21,8 @@ on:
     - cron:  '0 8 * * *'
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+    cancel-in-progress: true
 
 jobs:
   changes:
@@ -83,17 +83,17 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.11
+    - uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
 
-      - name: Setup check
-        run:  scripts/setup_check.sh
+    - name: Setup check
+      run:  scripts/setup_check.sh
 
-      - name: Run check
-        run:  scripts/check.sh --test-only
+    - name: Run check
+      run:  scripts/check.sh --test-only
 
 
   cmake:
@@ -111,30 +111,30 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Prepare ccache
-        uses: actions/cache@v3
-        with:
-          path: ${{ runner.temp }}/ccache
-          key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            firestore-ccache-${{ runner.os }}-
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          firestore-ccache-${{ runner.os }}-
 
-      - name: Cache Mint packages
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.MINT_PATH }}
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-          restore-keys: ${{ runner.os }}-mint-
+    - name: Cache Mint packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
 
-      - name: Setup build
-        run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
-      - name: Build and test
-        run: |
-          export CCACHE_DIR=${{ runner.temp }}/ccache
-          scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+    - name: Build and test
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   cmake-prod-db:
@@ -156,60 +156,56 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Prepare ccache
-        uses: actions/cache@v3
-        with:
-          path: ${{ runner.temp }}/ccache
-          key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          firestore-ccache-${{ matrix.databaseId }}-${{ runner.os }}-
 
-      - name: Cache Mint packages
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.MINT_PATH }}
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-          restore-keys: ${{ runner.os }}-mint-
+    - name: Cache Mint packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.MINT_PATH }}
+        key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: ${{ runner.os }}-mint-
 
-      - name: Install Secret GoogleService-Info.plist
-        run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
-          Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
+    - name: Install Secret GoogleService-Info.plist
+      run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
+        Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
-      - name: Install Secret Firestore Service Account key
-        run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
-          Firestore/Example/App/GoogleServiceAccount.json "$plist_secret"
+    # create composite indexes with Terraform
+    - name: Set up Cloud SDK
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ Firestore/Example/App/GoogleServiceAccount.json }}
+        export_environment_variables: true
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+    - name: Terraform Init
+      run: |
+        cd Firestore
+        terraform init
+      continue-on-error: true
+    - name: Terraform Apply
+      run: |
+        python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
+        cd Firestore
+        terraform apply -var-file=Example/App/project_info.json -auto-approve &> /dev/null
+        rm Example/App/project_info.json
+        rm Example/App/GoogleServiceAccount.json
+      continue-on-error: true
 
-      # create composite indexes with Terraform
-      - name: Set up Cloud SDK
-        uses: google-github-actions/auth@v0
-        with:
-          credentials_json: ${{ Firestore/Example/App/GoogleServiceAccount.json }}
-          export_environment_variables: true
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-      - name: Terraform Init
-        run: |
-          cd Firestore
-          terraform init
-        continue-on-error: true
-      - name: Terraform Apply
-        run: |
-          python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
-          cd Firestore
-          terraform apply -var-file=Example/App/project_info.json -auto-approve &> /dev/null
-          rm Example/App/project_info.json
-          rm Example/App/GoogleServiceAccount.json
-        continue-on-error: true
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
-      - name: Setup build
-        run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
-
-      - name: Build and test
-        run: |
-          export CCACHE_DIR=${{ runner.temp }}/ccache
-          scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+    - name: Build and test
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   sanitizers:
@@ -231,23 +227,23 @@ jobs:
       SANITIZERS: ${{ matrix.sanitizer }}
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Prepare ccache
-        uses: actions/cache@v3
-        with:
-          path: ${{ runner.temp }}/ccache
-          key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
-          restore-keys: |
-            ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
 
-      - name: Setup build
-        run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
-      - name: Build and test
-        run: |
-          export CCACHE_DIR=${{ runner.temp }}/ccache
-          scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+    - name: Build and test
+      run: |
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
   xcodebuild:
@@ -263,18 +259,18 @@ jobs:
         target: [iOS, tvOS, macOS]
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-        with:
-          cache_key: ${{ matrix.target }}
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.target }}
 
-      - uses: ruby/setup-ruby@v1
+    - uses: ruby/setup-ruby@v1
 
-      - name: Setup build
-        run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
-      - name: Build and test
-        run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+    - name: Build and test
+      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
 
   pod-lib-lint:
@@ -292,19 +288,19 @@ jobs:
         ]
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
-      - name: Setup Bundler
-        run: ./scripts/setup_bundler.sh
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
 
-      - name: Pod lib lint
-        # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
-        run: |
-          scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
-              --platforms=ios \
-              --allow-warnings \
-              --no-analyze
+    - name: Pod lib lint
+      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} \
+            --platforms=ios \
+            --allow-warnings \
+            --no-analyze
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
@@ -327,20 +323,20 @@ jobs:
         ]
 
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
-      - name: Setup Bundler
-        run: ./scripts/setup_bundler.sh
+    - uses: ruby/setup-ruby@v1
+    - name: Setup Bundler
+      run: ./scripts/setup_bundler.sh
 
-      - name: Pod lib lint
-        # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
-        run: |
-          scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
-              ${{ matrix.flags }} \
-              --platforms=${{ matrix.platforms }} \
-              --allow-warnings \
-              --no-analyze
+    - name: Pod lib lint
+      # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
+      run: |
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }}\
+            ${{ matrix.flags }} \
+            --platforms=${{ matrix.platforms }} \
+            --allow-warnings \
+            --no-analyze
 
   spm-source:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -352,16 +348,16 @@ jobs:
     env:
       FIREBASE_SOURCE_FIRESTORE: 1
     steps:
-      - uses: actions/checkout@v3
-      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-        with:
-          cache_key: ${{ matrix.os }}
-      - name: Initialize xcodebuild
-        run: scripts/setup_spm_tests.sh
-      - name: iOS Build Test
-        run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-      - name: Swift Build
-        run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: iOS Build Test
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
+    - name: Swift Build
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
 
   spm-binary:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -371,16 +367,16 @@ jobs:
     runs-on: macos-12
     needs: check
     steps:
-      - uses: actions/checkout@v3
-      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-        with:
-          cache_key: ${{ matrix.os }}
-      - name: Initialize xcodebuild
-        run: scripts/setup_spm_tests.sh
-      - name: iOS Build Test
-        run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
-      - name: Swift Build
-        run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: iOS Build Test
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore iOS spmbuildonly
+    - name: Swift Build
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift iOS spmbuildonly
 
   # TODO: Re-enable either in or after #11706.
   # spm-source-cron:
@@ -412,16 +408,16 @@ jobs:
       matrix:
         target: [tvOS, macOS, catalyst]
     steps:
-      - uses: actions/checkout@v3
-      - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-        with:
-          cache_key: ${{ matrix.os }}
-      - name: Initialize xcodebuild
-        run: scripts/setup_spm_tests.sh
-      - name: Build Test - Binary
-        run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
-      - name: Swift Build
-        run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
+    - uses: actions/checkout@v3
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: ${{ matrix.os }}
+    - name: Initialize xcodebuild
+      run: scripts/setup_spm_tests.sh
+    - name: Build Test - Binary
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestore ${{ matrix.target }} spmbuildonly
+    - name: Swift Build
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFirestoreSwift ${{ matrix.target }} spmbuildonly
 
   # A job that fails if any required job in the test matrix fails,
   # to be used as a required check for merging.
