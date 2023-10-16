@@ -32,8 +32,8 @@ import FirebaseMessaging
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebasePerformance
 
-  import FirebaseInAppMessaging
-  @testable import FirebaseInAppMessagingSwift
+  @testable import FirebaseInAppMessaging
+  import FirebaseInAppMessagingSwift
   import SwiftUI
 #endif
 import FirebaseRemoteConfig

@@ -429,6 +429,7 @@ struct FrameworkBuilder {
   /// Returns true to fail if building for Carthage and there are Swift modules.
   @discardableResult
   private func packageModuleMaps(inFrameworks frameworks: [URL],
+                                 frameworkName: String,
                                  moduleMapContents: String,
                                  destination: URL,
                                  buildingCarthage: Bool = false) -> Bool {
@@ -436,14 +437,14 @@ struct FrameworkBuilder {
     // Instead it use build options to specify them. For the zip build, we need the module maps to
     // include the dependent frameworks and libraries. Therefore we reconstruct them by parsing
     // the CocoaPods config files and add them here.
-    // Currently we only do the construction for Objective-C since Swift Module directories require
-    // several other files. See https://github.com/firebase/firebase-ios-sdk/pull/5040.
-    // Therefore, for Swift we do a simple copy of the Modules files from an Xcode build.
-    // This is sufficient for the testing done so far, but more testing is required to determine
-    // if dependent libraries and frameworks also may need to be added to the Swift module maps in
-    // some cases.
+    // In the case of a mixed language framework, not only are the Swift module
+    // files copied, but a `module.modulemap` is created by combining the given
+    // module map contents and a synthesized submodule that modularizes the
+    // generated Swift header.
     if makeSwiftModuleMap(thinFrameworks: frameworks,
+                          frameworkName: frameworkName,
                           destination: destination,
+                          moduleMapContents: moduleMapContents,
                           buildingCarthage: buildingCarthage) {
       return buildingCarthage
     }
@@ -468,7 +469,9 @@ struct FrameworkBuilder {
   /// URLs pointing to the frameworks containing architecture specific code.
   /// Returns true if there are Swift modules.
   private func makeSwiftModuleMap(thinFrameworks: [URL],
+                                  frameworkName: String,
                                   destination: URL,
+                                  moduleMapContents: String,
                                   buildingCarthage: Bool = false) -> Bool {
     let fileManager = FileManager.default
 
@@ -542,6 +545,44 @@ struct FrameworkBuilder {
             fatalError("Failed to get Modules directory contents - \(moduleDir):" +
               "\(error.localizedDescription)")
           }
+        }
+        do {
+          // If this point is reached, the framework contains a Swift module,
+          // so it's built from either Swift sources or Swift & C Family
+          // Language sources. Frameworks built from only Swift sources will
+          // contain only two headers: the CocoaPods-generated umbrella header
+          // and the Swift-generated Swift header. If the framework's `Headers`
+          // directory contains more than two resources, then it is assumed
+          // that the framework was built from mixed language sources because
+          // those additional headers are public headers for the C Family
+          // Language sources.
+          let headersDir = destination.appendingPathComponent("Headers")
+          let headers = try fileManager.contentsOfDirectory(
+            at: headersDir,
+            includingPropertiesForKeys: nil
+          )
+          if headers.count > 2 {
+            // It is assumed that the framework will always contain a
+            // `module.modulemap` (either CocoaPods generates it or a custom
+            // one was set in the podspec corresponding to the framework being
+            // processed) within the framework's `Modules` directory. The main
+            // module declaration within this `module.modulemap` should be
+            // replaced with the given module map contents that was computed to
+            // include frameworks and libraries that the framework slice
+            // depends on.
+            let newModuleMapContents = moduleMapContents + """
+            module \(frameworkName).Swift {
+              header "\(frameworkName)-Swift.h"
+              requires objc
+            }
+            """
+            let modulemapURL = destination.appendingPathComponents(["Modules", "module.modulemap"])
+            try newModuleMapContents.write(to: modulemapURL, atomically: true, encoding: .utf8)
+          }
+        } catch {
+          fatalError(
+            "Error while synthesizing a mixed language framework's module map: \(error.localizedDescription)"
+          )
         }
       } catch {
         fatalError("Error while enumerating files \(moduleDir): \(error.localizedDescription)")
@@ -641,6 +682,7 @@ struct FrameworkBuilder {
 
       // Use the appropriate moduleMaps
       packageModuleMaps(inFrameworks: [frameworkPath],
+                        frameworkName: framework,
                         moduleMapContents: moduleMapContents,
                         destination: platformFrameworkDir)
 

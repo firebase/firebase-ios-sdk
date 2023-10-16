@@ -16,7 +16,7 @@ if(NOT APPLE)
   return()
 endif()
 
-file(GLOB headers *.h)
+file(GLOB headers Public/FirebaseAppCheckInterop/*.h)
 firebase_ios_generate_dummy_source(FirebaseAppCheckInterop sources)
 
 firebase_ios_add_framework(

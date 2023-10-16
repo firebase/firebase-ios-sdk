@@ -157,6 +157,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activesupport (= 7.0.8)
   cocoapods (= 1.13.0)
   cocoapods-generate (= 2.0.1)
   danger (= 8.4.5)
