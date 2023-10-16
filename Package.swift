@@ -897,7 +897,7 @@ let package = Package(
     .target(
       name: "FirebasePerformanceTarget",
       dependencies: [.target(name: "FirebasePerformance",
-                             condition: .when(platforms: [.iOS, .tvOS]))],
+                             condition: .when(platforms: [.iOS, .tvOS, .firebaseVisionOS]))],
       path: "SwiftPM-PlatformExclude/FirebasePerformanceWrap"
     ),
     .target(
