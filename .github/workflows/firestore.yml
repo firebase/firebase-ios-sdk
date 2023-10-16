@@ -177,11 +177,6 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
-    - name: Install Secret Firestore Service Account key
-      run: |
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
-        Firestore/Example/App/GoogleServiceAccount.json "$plist_secret"
-
     # create composite indexes with Terraform
     - name: Set up Cloud SDK
       uses: google-github-actions/auth@v0
