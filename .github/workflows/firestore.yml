@@ -196,14 +196,14 @@ jobs:
         cd Firestore
         terraform init
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: google-service-account.json
+        GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
     - name: Terraform Apply
       run: |
         python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         cd Firestore
         terraform apply -var-file=Example/App/project_info.json -auto-approve
       env:
-        GOOGLE_APPLICATION_CREDENTIALS: google-service-account.json
+        GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
