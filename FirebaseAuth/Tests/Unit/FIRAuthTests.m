@@ -1854,7 +1854,7 @@ static NSString *const kUserID = @"dXNlcmlk";  // decode to "userid"
     @brief Tests the flow of a successful @c startPasskeySignInWithCompletion: call.
  */
 - (void)testStartPasskeySignInSuccess {
-  if (@available(iOS 15.0, *)) {
+  if (@available(iOS 15.0, tvOS 16.0, macOS 12.0, *)) {
     OCMExpect([_mockBackend startPasskeySignIn:[OCMArg any] callback:[OCMArg any]])
         .andCallBlock2(^(FIRStartPasskeySignInRequest *_Nullable request,
                          FIRStartPasskeySignInResponseCallback callback) {
@@ -1889,7 +1889,7 @@ static NSString *const kUserID = @"dXNlcmlk";  // decode to "userid"
     @brief Tests the flow of a failed @c startPasskeySignInWithCompletion: call.
  */
 - (void)testStartPasskeySignInFailure {
-  if (@available(iOS 15.0, *)) {
+  if (@available(iOS 15.0, tvOS 16.0, macOS 12.0, *)) {
     OCMExpect([_mockBackend startPasskeySignIn:[OCMArg any] callback:[OCMArg any]])
         .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
     XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
@@ -1988,7 +1988,7 @@ static NSString *const kUserID = @"dXNlcmlk";  // decode to "userid"
  */
 
 - (void)testFinalizePasskeySignInFailure {
-  if (@available(iOS 15.0, *)) {
+  if (@available(iOS 15.0, tvOS 16.0, macOS 12.0, *)) {
     OCMExpect([_mockBackend finalizePasskeySignIn:[OCMArg any] callback:[OCMArg any]])
         .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
     XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
