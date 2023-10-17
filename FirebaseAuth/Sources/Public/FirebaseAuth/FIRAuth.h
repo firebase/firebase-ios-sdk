@@ -27,8 +27,12 @@
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
 @class FIRUser;
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 @class ASAuthorizationPlatformPublicKeyCredentialAssertion;
 @class ASAuthorizationPlatformPublicKeyCredentialAssertionRequest;
+#endif
+
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 
@@ -580,6 +584,7 @@ NS_SWIFT_NAME(Auth)
                    completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                                  NSError *_Nullable error))completion;
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 /**
  @fn startPasskeySignInWithCompletion:
  @brief start sign in with passkey retrieving challenge from GCIP and create an assertion request.
@@ -611,6 +616,7 @@ NS_SWIFT_NAME(Auth)
                                                         NSError *_Nullable error))completion
     NS_SWIFT_NAME(finalizePasskeySignIn(with:completion:))
         API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+#endif
 
 /** @fn createUserWithEmail:password:completion:
     @brief Creates and, on success, signs in a user with the given email address and password.
