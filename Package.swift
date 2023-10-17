@@ -1365,7 +1365,7 @@ func firestoreWrapperTarget() -> Target {
   return .target(
     name: "FirebaseFirestoreTarget",
     dependencies: [.target(name: "FirebaseFirestore",
-                           condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+                           condition: .when(platforms: [.iOS, .tvOS, .macOS, .macCatalyst]))],
     path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
   )
 }
@@ -1513,7 +1513,7 @@ func firestoreTargets() -> [Target] {
     .binaryTarget(
       name: "FirebaseFirestoreBinary",
       url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/10.17.0/FirebaseFirestoreBinary.zip",
-      checksum: "a18524e56caf8770d51b67c9fa9519a29d3897eedf482349d22c9eea924e66f3"
+      checksum: "7a5031ff00bfb6d34603a632b9586b8db3157028f4d7551d863cf710971f2015"
     ),
   ]
 }
