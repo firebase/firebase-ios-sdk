@@ -95,18 +95,16 @@ If you want to switch back to running integration tests against the emulator:
 #### Setting Up the Environment:
 1. [Set up a `GoogleServices-Info.plist`](//github.com/firebase/firebase-ios-sdk#running-sample-apps)
    file in `Firestore/Example/App`.
-2. At root directory, decrypt `GoogleServices-Info.plist` into json file by running:
-`python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist`
-3. If not already logged in, authenticate with your Google Cloud Platform (GCP) account using
+2. If not already logged in, authenticate with your Google Cloud Platform (GCP) account using
    `gcloud auth application-default login`. You can check your logged-in accounts by running
    `gcloud auth list`.
-4. Create composite indexes by running:
+3. Create composite indexes by running:
     ```
     cd Firestore
     terraform init
-    terraform apply -var-file=Example/App/project_info.json -auto-approve
+    terraform apply -var="project_id=<your-project-id>" -auto-approve
     ```
-5. Run integration tests in Xcode as guided in "Running Integration Tests - against production".
+4. Run integration tests in Xcode as guided in "Running Integration Tests - against production".
 
 Note: If the index creation encounters issues, such as concurrent operations, consider running the
 index creation process again. Error messages indicating that indexes have already been created can
