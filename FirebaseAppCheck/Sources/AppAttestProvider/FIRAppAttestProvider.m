@@ -280,20 +280,21 @@ NS_ASSUME_NONNULL_BEGIN
                           do:^NSData *_Nullable {
                             return [FIRAppCheckCryptoUtils sha256HashFromData:challenge];
                           }]
-      .thenOn(
-          self.queue,
-          ^FBLPromise<NSData *> *(NSData *challengeHash) {
-            return [FBLPromise onQueue:self.queue
-                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-                  [self.appAttestService attestKey:keyID
-                                    clientDataHash:challengeHash
-                                 completionHandler:handler];
-                }];
-          })
-      .recoverOn(self.queue,
-                 ^id(NSError *error) {
-                   return [FIRAppCheckErrorUtil appAttestAttestKeyFailedWithError:error];
-                 })
+      .thenOn(self.queue,
+              ^FBLPromise<NSData *> *(NSData *challengeHash) {
+                return [FBLPromise onQueue:self.queue
+                           wrapObjectOrErrorCompletion:^(
+                               FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+                             [self.appAttestService attestKey:keyID
+                                               clientDataHash:challengeHash
+                                            completionHandler:handler];
+                           }]
+                    .recoverOn(self.queue, ^id(NSError *error) {
+                      return [FIRAppCheckErrorUtil appAttestAttestKeyFailedWithError:error
+                                                                               keyId:keyID
+                                                                      clientDataHash:challengeHash];
+                    });
+              })
       .thenOn(self.queue, ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSData *attestation) {
         FIRAppAttestKeyAttestationResult *result =
             [[FIRAppAttestKeyAttestationResult alloc] initWithKeyID:keyID
@@ -395,21 +396,22 @@ NS_ASSUME_NONNULL_BEGIN
                     // 1.2. Get the statement SHA256 hash.
                     return [FIRAppCheckCryptoUtils sha256HashFromData:[statementForAssertion copy]];
                   }]
-      .thenOn(
-          self.queue,
-          ^FBLPromise<NSData *> *(NSData *statementHash) {
-            // 2. Generate App Attest assertion.
-            return [FBLPromise onQueue:self.queue
-                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-                  [self.appAttestService generateAssertion:keyID
-                                            clientDataHash:statementHash
-                                         completionHandler:handler];
-                }];
-          })
-      .recoverOn(self.queue,
-                 ^id(NSError *error) {
-                   return [FIRAppCheckErrorUtil appAttestGenerateAssertionFailedWithError:error];
-                 })
+      .thenOn(self.queue,
+              ^FBLPromise<NSData *> *(NSData *statementHash) {
+                return [FBLPromise onQueue:self.queue
+                           wrapObjectOrErrorCompletion:^(
+                               FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+                             [self.appAttestService generateAssertion:keyID
+                                                       clientDataHash:statementHash
+                                                    completionHandler:handler];
+                           }]
+                    .recoverOn(self.queue, ^id(NSError *error) {
+                      return [FIRAppCheckErrorUtil
+                          appAttestGenerateAssertionFailedWithError:error
+                                                              keyId:keyID
+                                                     clientDataHash:statementHash];
+                    });
+              })
       // 3. Compose the result object.
       .thenOn(self.queue, ^FIRAppAttestAssertionData *(NSData *assertion) {
         return [[FIRAppAttestAssertionData alloc] initWithChallenge:challenge

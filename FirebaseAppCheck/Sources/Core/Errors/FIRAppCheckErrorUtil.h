@@ -55,9 +55,13 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)appAttestGenerateKeyFailedWithError:(NSError *)error;
 
-+ (NSError *)appAttestAttestKeyFailedWithError:(NSError *)error;
++ (NSError *)appAttestAttestKeyFailedWithError:(NSError *)error
+                                         keyId:(NSString *)keyId
+                                clientDataHash:(NSData *)clientDataHash;
 
-+ (NSError *)appAttestGenerateAssertionFailedWithError:(NSError *)error;
++ (NSError *)appAttestGenerateAssertionFailedWithError:(NSError *)error
+                                                 keyId:(NSString *)keyId
+                                        clientDataHash:(NSData *)clientDataHash;
 
 @end
 
