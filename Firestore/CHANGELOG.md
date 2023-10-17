@@ -1,3 +1,6 @@
+# 10.17.0
+- [feature] Add support for sum and average aggregate queries.
+
 # 10.16.0
 - [fixed] Fixed an issue where Firestore's binary SwiftPM distribution would
   not link properly when building a target for testing. This issue affected

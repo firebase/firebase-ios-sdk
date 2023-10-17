@@ -24,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FIRAggregateQuery (/* init */)
 
 - (instancetype)init NS_UNAVAILABLE;
-- (instancetype)initWithQueryAndAggregations:(FIRQuery *)query
-                                aggregations:(NSArray<FIRAggregateField *> *)aggregations
+- (instancetype)initWithQuery:(FIRQuery *)query
+              aggregateFields:(NSArray<FIRAggregateField *> *)aggregations
     NS_DESIGNATED_INITIALIZER;
 
 @end

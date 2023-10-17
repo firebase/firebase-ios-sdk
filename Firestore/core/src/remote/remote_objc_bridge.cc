@@ -278,7 +278,7 @@ DatastoreSerializer::EncodeAggregateQueryRequest(
     const std::vector<AggregateField>& aggregates,
     absl::flat_hash_map<std::string, std::string>& aliasMap) const {
   Message<google_firestore_v1_RunAggregationQueryRequest> result;
-  auto encodedTarget = serializer_.EncodeQueryTarget(query.ToTarget());
+  auto encodedTarget = serializer_.EncodeQueryTarget(query.ToAggregateTarget());
   result->parent = encodedTarget.parent;
   result->which_query_type =
       google_firestore_v1_RunAggregationQueryRequest_structured_aggregation_query_tag;  // NOLINT
