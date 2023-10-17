@@ -118,6 +118,30 @@
                      underlyingError:nil];
 }
 
+#pragma mark - App Attest
+
++ (NSError *)appAttestGenerateKeyFailedWithError:(NSError *)error {
+  return [self
+      appCheckErrorWithCode:FIRAppCheckAppAttestGenerateKeyFailed
+              failureReason:
+                  @"Failed to generate a new cryptographic key for use with the App Attest service."
+            underlyingError:error];
+}
+
++ (NSError *)appAttestAttestKeyFailedWithError:(NSError *)error {
+  return [self
+      appCheckErrorWithCode:FIRAppCheckAppAttestAttestKeyFailed
+              failureReason:@"Failed to attest the validity of the generated cryptographic key."
+            underlyingError:error];
+}
+
++ (NSError *)appAttestGenerateAssertionFailedWithError:(NSError *)error {
+  return [self appCheckErrorWithCode:FIRAppCheckAppAttestGenerateAssertionFailed
+                       failureReason:@"Failed to create a block of data that demonstrates the "
+                                     @"legitimacy of the app instance."
+                     underlyingError:error];
+}
+
 #pragma mark - Helpers
 
 + (NSError *)unknownErrorWithError:(NSError *)error {

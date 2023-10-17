@@ -34,6 +34,12 @@ typedef NS_ERROR_ENUM(FIRAppCheckErrorDomain, FIRAppCheckErrorCode){
     FIRAppCheckErrorCodeKeychain = 3,
 
     /// Selected app attestation provider is not supported on the current platform or OS version.
-    FIRAppCheckErrorCodeUnsupported = 4
+    FIRAppCheckErrorCodeUnsupported = 4,
+
+    FIRAppCheckAppAttestGenerateKeyFailed = 5,
+
+    FIRAppCheckAppAttestAttestKeyFailed = 6,
+
+    FIRAppCheckAppAttestGenerateAssertionFailed = 7
 
 } NS_SWIFT_NAME(AppCheckErrorCode);

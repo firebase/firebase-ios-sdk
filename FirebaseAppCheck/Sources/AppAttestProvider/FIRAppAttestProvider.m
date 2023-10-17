@@ -290,6 +290,10 @@ NS_ASSUME_NONNULL_BEGIN
                                  completionHandler:handler];
                 }];
           })
+      .recoverOn(self.queue,
+                 ^id(NSError *error) {
+                   return [FIRAppCheckErrorUtil appAttestAttestKeyFailedWithError:error];
+                 })
       .thenOn(self.queue, ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSData *attestation) {
         FIRAppAttestKeyAttestationResult *result =
             [[FIRAppAttestKeyAttestationResult alloc] initWithKeyID:keyID
@@ -402,6 +406,10 @@ NS_ASSUME_NONNULL_BEGIN
                                          completionHandler:handler];
                 }];
           })
+      .recoverOn(self.queue,
+                 ^id(NSError *error) {
+                   return [FIRAppCheckErrorUtil appAttestGenerateAssertionFailedWithError:error];
+                 })
       // 3. Compose the result object.
       .thenOn(self.queue, ^FIRAppAttestAssertionData *(NSData *assertion) {
         return [[FIRAppAttestAssertionData alloc] initWithChallenge:challenge
@@ -479,6 +487,10 @@ NS_ASSUME_NONNULL_BEGIN
              wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
                [self.appAttestService generateKeyWithCompletionHandler:handler];
              }]
+      .recoverOn(self.queue,
+                 ^id(NSError *error) {
+                   return [FIRAppCheckErrorUtil appAttestGenerateKeyFailedWithError:error];
+                 })
       .thenOn(self.queue, ^FBLPromise<NSString *> *(NSString *keyID) {
         return [self.keyIDStorage setAppAttestKeyID:keyID];
       });

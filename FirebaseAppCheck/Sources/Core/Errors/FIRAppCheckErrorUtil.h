@@ -51,6 +51,14 @@ void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer);
 
 + (NSError *)appAttestKeyIDNotFound;
 
+// MARK: - App Attest Errors
+
++ (NSError *)appAttestGenerateKeyFailedWithError:(NSError *)error;
+
++ (NSError *)appAttestAttestKeyFailedWithError:(NSError *)error;
+
++ (NSError *)appAttestGenerateAssertionFailedWithError:(NSError *)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
