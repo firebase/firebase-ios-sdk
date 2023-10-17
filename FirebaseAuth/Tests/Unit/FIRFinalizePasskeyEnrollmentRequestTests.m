@@ -77,7 +77,7 @@ static NSString *const kCredentialID = @"testCredentialID";
  @var kCredentialIDKey
  @brief credential ID field.
  */
-static NSString *const kCredentialIDKey = @"credentialId";
+static NSString *const kCredentialIDKey = @"id";
 
 /**
  @var kRawAttestationObject
@@ -101,7 +101,7 @@ static NSString *const kRawClientDataJSON = @"testRawClientDataJSON";
  @var kRawClientDataJSONKey
  @brief The key for the attestation object from the authenticator.
  */
-static NSString *const kRawClientDataJSONKey = @"clientDataJson";
+static NSString *const kRawClientDataJSONKey = @"clientDataJSON";
 
 /**
  @var kAuthRegistrationRespKey
@@ -113,7 +113,7 @@ static NSString *const kAuthRegistrationRespKey = @"authenticatorRegistrationRes
  @var kAuthAttestationRespKey
  @brief The key for attestation response from a FIDO authenticator.
  */
-static NSString *const kAuthAttestationRespKey = @"authenticatorAttestationResponse";
+static NSString *const kAuthAttestationRespKey = @"response";
 
 /**
  @class FIRFinalizePasskeyEnrollmentRequestTests

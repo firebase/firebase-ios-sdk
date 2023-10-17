@@ -46,6 +46,7 @@ static NSString *const kIDToken = @"idToken";
   if (self) {
     _IDToken = IDToken;
     self.useIdentityPlatform = YES;
+    self.useStaging = NO;
   }
 
   return self;

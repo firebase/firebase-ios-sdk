@@ -53,7 +53,7 @@ static NSString *const kAuthenticatorAuthRespKey = @"authenticatorAuthentication
  @var kAuthAssertionRespKey
  @brief The key for authentication assertion from the authenticator.
  */
-static NSString *const kAuthAssertionRespKey = @"authenticatorAssertionResponse";
+static NSString *const kAuthAssertionRespKey = @"response";
 
 /**
  @var kCredentialID
@@ -65,7 +65,7 @@ static NSString *const kCredentialID = @"testCredentialID";
  @var kCredentialIDKey
  @brief credential ID field.
  */
-static NSString *const kCredentialIDKey = @"credentialId";
+static NSString *const kCredentialIDKey = @"id";
 
 /**
  @var kRawClientDataJSON
@@ -77,7 +77,7 @@ static NSString *const kRawClientDataJSON = @"testRawClientDataJSON";
  @var kRawClientDataJSONKey
  @brief The key for the attestation object from the authenticator.
  */
-static NSString *const kRawClientDataJSONKey = @"clientDataJson";
+static NSString *const kRawClientDataJSONKey = @"clientDataJSON";
 
 /**
  @var kAuthenticatorData
