@@ -622,13 +622,13 @@ let package = Package(
       path: "FirebaseDatabaseSwift/Tests/"
     ),
     .target(
-       name: "FirebaseSharedSwift",
-       path: "FirebaseSharedSwift/Sources",
-       exclude: [
-         "third_party/FirebaseDataEncoder/LICENSE",
-         "third_party/FirebaseDataEncoder/METADATA",
-       ]
-     ),
+      name: "FirebaseSharedSwift",
+      path: "FirebaseSharedSwift/Sources",
+      exclude: [
+        "third_party/FirebaseDataEncoder/LICENSE",
+        "third_party/FirebaseDataEncoder/METADATA",
+      ]
+    ),
     .testTarget(
       name: "FirebaseSharedSwiftTests",
       dependencies: ["FirebaseSharedSwift"],
@@ -1364,26 +1364,9 @@ func firestoreWrapperTarget() -> Target {
 
   return .target(
     name: "FirebaseFirestoreTarget",
-    dependencies: [
-      .target(
-        name: "FirebaseFirestoreInternal",
-        condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
-      ),
-      .product(name: "abseil", package: "abseil-cpp-binary"),
-      .product(name: "gRPC-C++", package: "grpc-binary"),
-      .product(name: "nanopb", package: "nanopb"),
-      "FirebaseAppCheckInterop",
-      "FirebaseCore",
-      "FirebaseCoreExtension",
-      "FirebaseSharedSwift",
-      "leveldb",
-    ],
-    path: "Firestore/Swift/Source",
-    linkerSettings: [
-      .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
-      .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
-      .linkedLibrary("c++"),
-    ]
+    dependencies: [.target(name: "FirebaseFirestore",
+                           condition: .when(platforms: [.iOS, .tvOS, .macOS]))],
+    path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
   )
 }
 
@@ -1499,14 +1482,38 @@ func firestoreTargets() -> [Target] {
 
   return [
     .target(
-        name: "FirebaseFirestoreInternal",
-        dependencies: ["FirebaseFirestore"],
-        path: "SwiftPM-PlatformExclude/FirebaseFirestoreWrap"
+      name: "FirebaseFirestore",
+      dependencies: [
+        .target(
+          name: "FirebaseFirestoreInternal",
+          condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
+        ),
+        .product(name: "abseil", package: "abseil-cpp-binary"),
+        .product(name: "gRPC-C++", package: "grpc-binary"),
+        .product(name: "nanopb", package: "nanopb"),
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "leveldb",
+        "FirebaseSharedSwift",
+      ],
+      path: "Firestore/Swift/Source",
+      linkerSettings: [
+        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+        .linkedLibrary("c++"),
+      ]
+    ),
+    .target(
+      name: "FirebaseFirestoreInternal",
+      dependencies: ["FirebaseFirestoreBinary"],
+      path: "SwiftPM-FirebaseFirestoreInternal",
+      publicHeadersPath: "."
     ),
     .binaryTarget(
-      name: "FirebaseFirestore",
-      url: "https://dl.google.com/firebase/ios/bin/firestore/10.16.0/FirebaseFirestore.zip",
-      checksum: "0a6616a4bbf1adb2f0a502e9ad8e5ab144a8c4993a15bb4b795bae86b66ecab8"
+      name: "FirebaseFirestoreBinary",
+      url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/10.17.0/FirebaseFirestoreBinary.zip",
+      checksum: "a18524e56caf8770d51b67c9fa9519a29d3897eedf482349d22c9eea924e66f3"
     ),
   ]
 }
