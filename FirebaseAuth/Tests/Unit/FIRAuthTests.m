@@ -39,6 +39,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIREmailLinkSignInResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRFinalizePasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRGetOOBConfirmationCodeRequest.h"
@@ -53,6 +55,8 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInRequest.h"
+#import "FirebaseAuth/Sources/Backend/RPC/FIRStartPasskeySignInResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
@@ -77,6 +81,10 @@
 #import "FirebaseAuth/Sources/SystemService/FIRAuthNotificationManager.h"
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #endif  // TARGET_OS_IOS
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+#import <AuthenticationServices/AuthenticationServices.h>
+#endif
 
 /** @var kAPIKey
     @brief The fake API key.
@@ -277,6 +285,42 @@ static NSString *const kFakeRecaptchaResponse = @"RecaptchaResponse";
     @brief The fake recaptcha version.
  */
 static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
+
+/** @var kRpId
+    @brief The fake passkey relying party identifier.
+ */
+static NSString *const kRpId = @"fake.rp.id";
+
+/** @var kChallenge
+    @brief The fake passkey challenge.
+ */
+static NSString *const kChallenge = @"Y2hhbGxlbmdl";  // decode to "challenge"
+
+/** @var kCredentialID
+    @brief The fake passkey credentialID.
+ */
+static NSString *const kCredentialID = @"Y3JlZGVudGlhbGlk";  // decode to "credentialid"
+
+/** @var kClientDataJson
+    @brief The fake clientDataJson object
+ */
+static NSString *const kClientDataJson = @"Y2xpZW50ZGF0YWpzb24=";  // decode to "clientdatajson"
+
+/** @var kAuthenticatorData
+    @brief The fake authenticatorData object
+ */
+static NSString *const kAuthenticatorData =
+    @"YXV0aGVudGljYXRvcmRhdGE=";  // decode to "authenticatordata"
+
+/** @var kSignature
+    @brief The fake signature
+ */
+static NSString *const kSignature = @"c2lnbmF0dXJl";  // decode to "signature"
+
+/** @var kUserID
+    @brief The fake user ID / user handle
+ */
+static NSString *const kUserID = @"dXNlcmlk";  // decode to "userid"
 
 #if TARGET_OS_IOS
 /** @class FIRAuthAppDelegate
@@ -1804,6 +1848,181 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
   XCTAssertNil([FIRAuth auth].currentUser);
   OCMVerifyAll(_mockBackend);
 }
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+/** @fn testStartPasskeySignInSuccess
+    @brief Tests the flow of a successful @c startPasskeySignInWithCompletion: call.
+ */
+- (void)testStartPasskeySignInSuccess {
+  if (@available(iOS 15.0, *)) {
+    OCMExpect([_mockBackend startPasskeySignIn:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRStartPasskeySignInRequest *_Nullable request,
+                         FIRStartPasskeySignInResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockStartPasskeySignInResponse = OCMClassMock([FIRStartPasskeySignInResponse class]);
+            OCMStub([mockStartPasskeySignInResponse rpID]).andReturn(kRpId);
+            OCMStub([mockStartPasskeySignInResponse challenge]).andReturn(kChallenge);
+            callback(mockStartPasskeySignInResponse, nil);
+          });
+        });
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    [[FIRAuth auth] signOut:NULL];
+    [[FIRAuth auth]
+        startPasskeySignInWithCompletion:^(
+            ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+            NSError *_Nullable error) {
+          XCTAssertNil(error);
+          XCTAssertEqualObjects([[request challenge] base64EncodedStringWithOptions:0], kChallenge);
+          ASAuthorizationPlatformPublicKeyCredentialProvider *provider =
+              (ASAuthorizationPlatformPublicKeyCredentialProvider *)[request provider];
+          XCTAssertEqualObjects([provider relyingPartyIdentifier], kRpId);
+          [expectation fulfill];
+        }];
+
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(_mockBackend);
+  }
+}
+
+/** @fn testStartPasskeySignInFailure
+    @brief Tests the flow of a failed @c startPasskeySignInWithCompletion: call.
+ */
+- (void)testStartPasskeySignInFailure {
+  if (@available(iOS 15.0, *)) {
+    OCMExpect([_mockBackend startPasskeySignIn:[OCMArg any] callback:[OCMArg any]])
+        .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    [[FIRAuth auth] signOut:NULL];
+    [[FIRAuth auth]
+        startPasskeySignInWithCompletion:^(
+            ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+            NSError *_Nullable error) {
+          XCTAssertNil(request);
+          XCTAssertEqual(error.code, FIRAuthErrorCodeOperationNotAllowed);
+          XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
+          [expectation fulfill];
+        }];
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(_mockBackend);
+  }
+}
+
+// TODO @liubin uncomment this after expires_in changes
+/** @fn testFinalizePasskeySignInSuccess
+    @brief Tests the flow of a successful @c finalizePasskeySignInWithCompletion: call.
+ */
+/*
+- (void)testFinalizePasskeySignInAndRetrieveDataSuccess {
+  if (@available(iOS 15.0, *)) {
+    OCMExpect([_mockBackend finalizePasskeySignIn:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRFinalizePasskeySignInRequest *_Nullable request,
+                         FIRFinalizePasskeySignInResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+          XCTAssertEqualObjects(request.credentialID, kCredentialID);
+          XCTAssertEqualObjects(request.clientDataJson, kClientDataJson);
+          XCTAssertEqualObjects(request.authenticatorData, kAuthenticatorData);
+          XCTAssertEqualObjects(request.signature, kSignature);
+          XCTAssertEqualObjects(request.userID, kUserID);
+
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockFinalizePasskeySignInResponse =
+                OCMClassMock([FIRFinalizePasskeySignInResponse class]);
+            OCMStub([mockFinalizePasskeySignInResponse idToken]).andReturn(kAccessToken);
+            OCMStub([mockFinalizePasskeySignInResponse refreshToken]).andReturn(kRefreshToken);
+            callback(mockFinalizePasskeySignInResponse, nil);
+          });
+        });
+    OCMExpect([_mockBackend finalizePasskeySignIn:[OCMArg any] callback:[OCMArg any]])
+        .andCallBlock2(^(FIRFinalizePasskeySignInRequest *_Nullable request,
+                         FIRFinalizePasskeySignInResponseCallback callback) {
+          XCTAssertEqualObjects(request.APIKey, kAPIKey);
+          XCTAssertEqualObjects(request.credentialID, kCredentialID);
+          XCTAssertEqualObjects(request.clientDataJson, kClientDataJson);
+          XCTAssertEqualObjects(request.authenticatorData, kAuthenticatorData);
+          XCTAssertEqualObjects(request.signature, kSignature);
+          XCTAssertEqualObjects(request.userID, kUserID);
+
+          dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+            id mockFinalizePasskeySignInResponse =
+                OCMClassMock([FIRFinalizePasskeySignInResponse class]);
+            OCMStub([mockFinalizePasskeySignInResponse idToken]).andReturn(kAccessToken);
+            OCMStub([mockFinalizePasskeySignInResponse refreshToken]).andReturn(kRefreshToken);
+            callback(mockFinalizePasskeySignInResponse, nil);
+          });
+        });
+    [self expectGetAccountInfo];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    id mockPlatfromCredential =
+        OCMClassMock([ASAuthorizationPlatformPublicKeyCredentialAssertion class]);
+    OCMStub([mockPlatfromCredential credentialID])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kCredentialID options:0]);
+    OCMStub([mockPlatfromCredential rawClientDataJSON])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kClientDataJson options:0]);
+    OCMStub([mockPlatfromCredential signature])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kSignature options:0]);
+    OCMStub([mockPlatfromCredential userID])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kUserID options:0]);
+    OCMStub([mockPlatfromCredential rawAuthenticatorData])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kAuthenticatorData options:0]);
+
+    [[FIRAuth auth] signOut:NULL];
+    [[FIRAuth auth]
+        finalizePasskeySignInWithPlatformCredential:mockPlatfromCredential
+                                         completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                      NSError *_Nullable error) {
+                                           XCTAssertNil(error);
+                                           XCTAssertTrue([NSThread isMainThread]);
+                                           [self assertUser:authResult.user];
+                                           [expectation fulfill];
+                                         }];
+
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    [self assertUser:[FIRAuth auth].currentUser];
+    OCMVerifyAll(_mockBackend);
+  }
+}*/
+
+/** @fn testFinalizePasskeySignInFailure
+    @brief Tests the flow of a failed @c finalizePasskeySignInWithCompletion: call.
+ */
+
+- (void)testFinalizePasskeySignInFailure {
+  if (@available(iOS 15.0, *)) {
+    OCMExpect([_mockBackend finalizePasskeySignIn:[OCMArg any] callback:[OCMArg any]])
+        .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
+    XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+    id mockPlatfromCredential =
+        OCMClassMock([ASAuthorizationPlatformPublicKeyCredentialAssertion class]);
+    OCMStub([mockPlatfromCredential credentialID])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kCredentialID options:0]);
+    OCMStub([mockPlatfromCredential rawClientDataJSON])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kClientDataJson options:0]);
+    OCMStub([mockPlatfromCredential signature])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kSignature options:0]);
+    OCMStub([mockPlatfromCredential userID])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kUserID options:0]);
+    OCMStub([mockPlatfromCredential rawAuthenticatorData])
+        .andReturn([[NSData alloc] initWithBase64EncodedString:kAuthenticatorData options:0]);
+    [[FIRAuth auth] signOut:NULL];
+    [[FIRAuth auth]
+        finalizePasskeySignInWithPlatformCredential:mockPlatfromCredential
+                                         completion:^(FIRAuthDataResult *_Nullable authResult,
+                                                      NSError *_Nullable error) {
+                                           XCTAssertTrue([NSThread isMainThread]);
+                                           XCTAssertNil(authResult.user);
+                                           XCTAssertEqual(error.code,
+                                                          FIRAuthErrorCodeOperationNotAllowed);
+                                           XCTAssertNotNil(
+                                               error.userInfo[NSLocalizedDescriptionKey]);
+                                           [expectation fulfill];
+                                         }];
+    [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+    OCMVerifyAll(_mockBackend);
+  }
+}
+
+#endif  // #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
 
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 /** @fn testCreateUserWithEmailPasswordWithRecaptchaVerificationSuccess

@@ -26,6 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSString *)fir_base64URLEncodedStringWithOptions:(NSDataBase64EncodingOptions)options;
 
+/**
+ @fn fir_initWithBase64URLEncodedString:options:
+ @brief customized initializer to inititilaze a NSData type variable using base64url encoded string.
+ @param base64URLEncodedString base64(url safe) encoded string
+ @param options The base64 encoding options.
+ */
+- (id)fir_initWithBase64URLEncodedString:(NSString *)base64URLEncodedString
+                                 options:(NSDataBase64DecodingOptions)options;
 @end
 
 NS_ASSUME_NONNULL_END
