@@ -20,8 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class FIRFieldPath;
 
-// TODO(sum/avg) move this entire file to ../Public/FirebaseFirestore when the API can be public
-
 /**
  * Represents an aggregation that can be performed by Firestore.
  */
@@ -84,7 +82,7 @@ NS_SWIFT_NAME(AggregateField)
  * Create an `AggregateField` object that can be used to compute the average of
  * a specified field over a range of documents in the result set of a query.
  *
- * The result of an average operation will always be a 64-bit integer value, a double, or NaN.
+ * The result of an average operation will always be a double or NaN.
  *
  * - Averaging over zero documents or fields will result in a double value representing NaN.
  * - Averaging over NaN will result in a double value representing NaN.
@@ -99,7 +97,7 @@ NS_SWIFT_NAME(AggregateField)
  * Create an `AggregateField` object that can be used to compute the average of
  * a specified field over a range of documents in the result set of a query.
  *
- * The result of an average operation will always be a 64-bit integer value, a double, or NaN.
+ * The result of an average operation will always be a double or NaN.
  *
  * - Averaging over zero documents or fields will result in a double value representing NaN.
  * - Averaging over NaN will result in a double value representing NaN.

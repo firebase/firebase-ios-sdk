@@ -1508,14 +1508,14 @@
                                      [FIRAggregateField aggregateFieldForSumOfField:@"sort"],
                                      [FIRAggregateField aggregateFieldForAverageOfField:@"v"],
                                    ]]];
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:3L]);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"sort"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"sort"]]
           longValue],
       6L);
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"v"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"v"]],
       [NSNumber numberWithDouble:1.0]);
 }
 

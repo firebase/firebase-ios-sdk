@@ -37,13 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
   std::unique_ptr<AggregateQuery> _aggregateQuery;
 }
 
-- (instancetype)initWithQueryAndAggregations:(FIRQuery *)query
-                                aggregations:(NSArray<FIRAggregateField *> *)aggregations {
+- (instancetype)initWithQuery:(FIRQuery *)query
+              aggregateFields:(NSArray<FIRAggregateField *> *)aggregateFields {
   if (self = [super init]) {
     _query = query;
 
     std::vector<AggregateField> _aggregateFields;
-    for (FIRAggregateField *field in aggregations) {
+    for (FIRAggregateField *field in aggregateFields) {
       _aggregateFields.push_back([field createInternalValue]);
     }
 
