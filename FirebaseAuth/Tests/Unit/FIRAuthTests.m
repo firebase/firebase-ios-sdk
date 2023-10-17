@@ -138,11 +138,6 @@ static NSString *const kLocalID = @"LOCAL_ID";
  */
 static NSString *const kDisplayName = @"User Doe";
 
-/** @var kIDToken
-    @brief The fake id token.
- */
-static NSString *const kIDToken = @"IDToken";
-
 /** @var kFakeGivenName
     @brief The fake user given name.
  */
@@ -1823,7 +1818,6 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kEmail
                                             password:kFakePassword
                                          displayName:kDisplayName
-                                             idToken:kIDToken
                                 requestConfiguration:[FIRAuth auth].requestConfiguration];
   [constRequestWithRecaptchaToken injectRecaptchaFields:kFakeRecaptchaResponse
                                        recaptchaVersion:kFakeRecaptchaVersion];
@@ -1873,7 +1867,6 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kEmail
                                             password:kFakePassword
                                          displayName:kDisplayName
-                                             idToken:kIDToken
                                 requestConfiguration:[FIRAuth auth].requestConfiguration];
   [constRequestWithRecaptchaToken injectRecaptchaFields:kFakeRecaptchaResponse
                                        recaptchaVersion:kFakeRecaptchaVersion];
