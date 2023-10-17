@@ -193,9 +193,24 @@ jobs:
         terraform init
     - name: Terraform Apply
       run: |
-        python scripts/decrypt_project_info.py Firestore/Example/App/GoogleService-Info.plist
         cd Firestore
-        terraform apply -var-file=Example/App/project_info.json -auto-approve
+
+        # Define a temporary file to store the output
+        output_file=$(mktemp)
+
+        # Run terraform apply, redirect both stdout and stderr to the file
+        if ! terraform apply -var-file=../google-service-account.json -auto-approve  > "$output_file" 2>&1 ; then
+          cat "$output_file" >&2
+          if cat "$output_file" | grep -q "index already exists"; then
+            echo "===================================================================================" >&2
+            echo -e "\e[93m\e[1mTerraform apply failed due to index already exists; We can safely ignore this error.\e[0m" >&2
+            echo "===================================================================================" >&2
+          fi
+          exit 1
+        fi
+
+        # Clean up the temporary file
+        rm -f "$output_file"
       env:
         GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
       continue-on-error: true
