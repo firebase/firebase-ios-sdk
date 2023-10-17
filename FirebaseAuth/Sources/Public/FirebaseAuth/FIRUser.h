@@ -25,8 +25,6 @@
 @class FIRPhoneAuthCredential;
 @class FIRUserProfileChangeRequest;
 @class FIRUserMetadata;
-@class FIRFinalizePasskeyEnrollmentRequest;
-@class ASAuthorizationPlatformPublicKeyCredentialRegistration;
 @protocol FIRAuthUIDelegate;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -163,14 +161,6 @@ NS_SWIFT_NAME(User)
 - (void)updateEmail:(NSString *)email
          completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(updateEmail(to:completion:));
-
-- (void)startPasskeyEnrollmentWithCompletionRPC:
-    (nullable void (^)(NSError *_Nullable error))completion;
-
-- (void)finalizePasskeyEnrollmentWithName:(NSString *)name
-                       platformCredential:(ASAuthorizationPlatformPublicKeyCredentialRegistration *)
-                                              platformCredential
-                               completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.
