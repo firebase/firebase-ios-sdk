@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#import <TargetConditionals.h>
 #import <UIKit/UIKit.h>
 
 #import "FirebasePerformance/Sources/AppActivity/FPRScreenTraceTracker+Private.h"
@@ -68,9 +69,12 @@ void InstrumentViewDidAppear(FPRUIViewControllerInstrument *instrument,
 
     // This has to be called on the main thread and so it's done here instead of in
     // FPRScreenTraceTracker.
+    // TODO: Replace keyWindow usage (deprecated in iOS and unavailable in visionOS).
+#if !defined(TARGET_OS_VISION) || !TARGET_OS_VISION
     if ([((UIViewController *)_self).view isDescendantOfView:FPRSharedApplication().keyWindow]) {
       [[FPRScreenTraceTracker sharedInstance] viewControllerDidAppear:_self];
     }
+#endif
   }];
 }
 
