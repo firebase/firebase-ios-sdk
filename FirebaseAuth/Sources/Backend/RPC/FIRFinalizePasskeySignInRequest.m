@@ -39,19 +39,19 @@ static NSString *const kAuthenticatorAuthRespKey = @"authenticatorAuthentication
  @var kCredentialIDKey
  @brief The key for registered credential identifier.
  */
-static NSString *const kCredentialIDKey = @"credentialId";
+static NSString *const kCredentialIDKey = @"id";
 
 /**
  @var kAuthAssertionRespKey
  @brief The key for authentication assertion from the authenticator.
  */
-static NSString *const kAuthAssertionRespKey = @"authenticatorAssertionResponse";
+static NSString *const kAuthAssertionRespKey = @"response";
 
 /**
  @var kClientDataJsonKey
  @brief The key for CollectedClientData object from the authenticator.
  */
-static NSString *const kClientDataJsonKey = @"clientDataJson";
+static NSString *const kClientDataJsonKey = @"clientDataJSON";
 
 /**
  @var kAuthenticatorDataKey
@@ -83,6 +83,7 @@ static NSString *const kUserHandleKey = @"userHandle";
             requestConfiguration:requestConfiguration];
   if (self) {
     self.useIdentityPlatform = YES;
+    self.useStaging = NO;
     _credentialID = credentialID;
     _clientDataJson = clientDataJson;
     _authenticatorData = authenticatorData;

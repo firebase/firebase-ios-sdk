@@ -51,19 +51,19 @@ static NSString *const kNameKey = @"name";
  @var kCredentialIDKey
  @brief The key for registered credential identifier.
  */
-static NSString *const kCredentialIDKey = @"credentialId";
+static NSString *const kCredentialIDKey = @"id";
 
 /**
  @var kAuthAttestationRespKey
  @brief The key for attestation response from a FIDO authenticator.
  */
-static NSString *const kAuthAttestationRespKey = @"authenticatorAttestationResponse";
+static NSString *const kAuthAttestationRespKey = @"response";
 
 /**
  @var kClientDataJsonKey
  @brief The key for CollectedClientData object from the authenticator.
  */
-static NSString *const kClientDataJsonKey = @"clientDataJson";
+static NSString *const kClientDataJsonKey = @"clientDataJSON";
 
 /**
  @var kAttestationObject
@@ -83,6 +83,7 @@ static NSString *const kAttestationObject = @"attestationObject";
             requestConfiguration:requestConfiguration];
   if (self) {
     self.useIdentityPlatform = YES;
+    self.useStaging = NO;
     _IDToken = IDToken;
     _name = name;
     _credentialID = credentialID;

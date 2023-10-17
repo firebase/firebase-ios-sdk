@@ -39,6 +39,7 @@ static NSString *const kTenantIDKey = @"tenantId";
 
   if (self) {
     self.useIdentityPlatform = YES;
+    self.useStaging = NO;
   }
 
   return self;
