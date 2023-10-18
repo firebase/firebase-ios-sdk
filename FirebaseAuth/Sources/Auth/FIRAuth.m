@@ -1247,14 +1247,13 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                     return;
                   }
                   if (response) {
-                    NSData *dataChallenge =
-                        [[NSData alloc] fir_initWithBase64URLEncodedString:response.challenge
-                                                                   options:0];
+                    NSData *challengeInData =
+                    [[NSData alloc] initWithBase64EncodedString:response.challenge options:0];
                     ASAuthorizationPlatformPublicKeyCredentialProvider *provider =
                         [[ASAuthorizationPlatformPublicKeyCredentialProvider alloc]
                             initWithRelyingPartyIdentifier:response.rpID];
                     ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *request =
-                        [provider createCredentialAssertionRequestWithChallenge:dataChallenge];
+                        [provider createCredentialAssertionRequestWithChallenge:challengeInData];
 
                     completion(request, nil);
                   }

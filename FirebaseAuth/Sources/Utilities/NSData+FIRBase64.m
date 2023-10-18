@@ -28,27 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
   return string;
 }
 
-- (id)fir_initWithBase64URLEncodedString:(NSString *)base64URLEncodedString
-                                 options:(NSDataBase64DecodingOptions)options {
-  // Replace "_" with "/"
-  NSMutableString *base64String =
-      [[base64URLEncodedString stringByReplacingOccurrencesOfString:@"_"
-                                                         withString:@"/"] mutableCopy];
-
-  // Replace "-" with "+"
-  [base64String replaceOccurrencesOfString:@"-"
-                                withString:@"+"
-                                   options:kNilOptions
-                                     range:NSMakeRange(0, base64String.length)];
-
-  // Pad the base64String with "=" signs if the payload's length is not a multiple of 4.
-  while ((base64String.length % 4) != 0) {
-    [base64String appendFormat:@"="];
-  }
-
-  return [self initWithBase64EncodedString:base64String options:options];
-}
-
 @end
 
 NS_ASSUME_NONNULL_END
