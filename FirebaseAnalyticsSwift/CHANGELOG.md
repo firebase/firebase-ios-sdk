@@ -1,3 +1,10 @@
+# 10.17.0
+- [deprecated] All of the public API from `FirebaseAnalyticsSwift` can now
+  be accessed through the `FirebaseAnalytics` module. Therefore,
+  `FirebaseAnalyticsSwift` has been deprecated, and will be removed in a
+  future release. See https://firebase.google.com/docs/ios/swift-migration for
+  migration instructions.
+
 # 9.0.0
 - [added] **Breaking change:** `FirebaseAnalyticsSwift` has exited beta and is
   now generally available for use.
