@@ -98,13 +98,12 @@ If you want to switch back to running integration tests against the emulator:
 2. If not already logged in, authenticate with your Google Cloud Platform (GCP) account using
    `gcloud auth application-default login`. You can check your logged-in accounts by running
    `gcloud auth list`.
-3. Create composite indexes by running:
+3. Navigate to the `Firestore` directory, create composite indexes by running:
     ```
-    cd Firestore
     terraform init
     terraform apply -var="project_id=<your-project-id>" -auto-approve
     ```
-4. Run integration tests in Xcode as guided in "Running Integration Tests - against production".
+4. Run integration tests as guided in "Running Integration Tests - against production".
 
 Note: If the index creation encounters issues, such as concurrent operations, consider running the
 index creation process again. Error messages indicating that indexes have already been created can
