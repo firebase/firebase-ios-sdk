@@ -1,4 +1,4 @@
-# Unreleased
+# 10.17.0
 - [deprecated] All of the public API from `FirebaseInAppMessagingSwift` can now
   be accessed through the `FirebaseInAppMessaging` module. Therefore,
   `FirebaseInAppMessagingSwift` has been deprecated, and will be removed in a

@@ -1,4 +1,4 @@
-# Unreleased
+# 10.17.0
 - [feature] The `FirebaseDatabase` module now contains Firebase Database's
   Swift-only APIs that were previously only available via the
   `FirebaseDatabaseSwift` extension SDK. See the
