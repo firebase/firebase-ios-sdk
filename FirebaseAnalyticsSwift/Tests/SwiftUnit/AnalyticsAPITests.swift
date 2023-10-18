@@ -17,6 +17,7 @@
 // MARK: This file is used to evaluate the experience of using Analytics APIs in Swift.
 
 import Foundation
+import StoreKit
 import SwiftUI
 
 import FirebaseAnalyticsSwift
@@ -43,6 +44,16 @@ final class AnalyticsAPITests {
       }
     }
 
+    @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
+    @available(watchOS, unavailable)
+    func logTransactionUsage() async {
+      for await verificationResult in Transaction.all {
+        if case let .verified(transaction) = verificationResult {
+          Analytics.logTransaction(transaction)
+        }
+      }
+    }
+
     // MARK: - AppDelegate
 
     Analytics.handleEvents(forBackgroundURLSession: "session_id", completionHandler: {})
@@ -56,11 +67,15 @@ final class AnalyticsAPITests {
 
     // MARK: - Consent
 
-    Analytics.setConsent([.analyticsStorage: .granted, .adStorage: .denied])
+    Analytics.setConsent([.adPersonalization: .granted,
+                          .adStorage: .denied,
+                          .adUserData: .granted,
+                          .analyticsStorage: .denied])
 
     // MARK: - OnDeviceConversion
 
     Analytics.initiateOnDeviceConversionMeasurement(emailAddress: "test@gmail.com")
+    Analytics.initiateOnDeviceConversionMeasurement(phoneNumber: "+15555555555")
 
     // MARK: - EventNames
 
