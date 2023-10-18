@@ -201,7 +201,7 @@ jobs:
           cat "$output_file"
           if cat "$output_file" | grep -q "index already exists"; then
             echo "==================================================================================="
-            echo -e "\e[93m\e[1mTerraform apply failed due to index already exists; We can safely ignore this error.\e[0m"
+            echo "Terraform apply failed due to index already exists; We can safely ignore this error."
             echo "==================================================================================="
           fi
           exit 1

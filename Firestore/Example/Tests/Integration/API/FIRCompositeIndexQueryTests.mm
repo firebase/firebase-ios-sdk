@@ -186,10 +186,9 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
  * and setting test documents and running queries with ease, ensuring proper data
  * isolation and query construction.
  *
- * Please remember to update the main index configuration file (firestore_index_config.tf)
- * with any new composite indexes needed for the tests. This ensures synchronization with
- * other testing environments, including CI. You can generate the required index link by
- * clicking on the Firebase console link in the error message while running tests locally.
+ * To get started, please refer to the instructions provided in the README file. This will
+ * guide you through setting up your local testing environment and updating the Terraform
+ * configuration with any new composite indexes required for your testing scenarios.
  */
 
 - (void)testOrQueriesWithCompositeIndexes {
