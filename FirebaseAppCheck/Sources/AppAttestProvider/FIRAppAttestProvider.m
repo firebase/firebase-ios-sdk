@@ -140,7 +140,9 @@ NS_ASSUME_NONNULL_BEGIN
       sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
 
   FIRAppAttestKeyIDStorage *keyIDStorage =
-      [[FIRAppAttestKeyIDStorage alloc] initWithAppName:app.name appID:app.options.googleAppID];
+      [[FIRAppAttestKeyIDStorage alloc] initWithAppName:app.name
+                                                  appID:app.options.googleAppID
+                                            accessGroup:app.options.appGroupID];
 
   FIRAppCheckAPIService *APIService =
       [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession

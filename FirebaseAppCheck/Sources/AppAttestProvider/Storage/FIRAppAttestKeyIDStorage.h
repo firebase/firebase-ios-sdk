@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 @class FBLPromise<ValueType>;
+@class GULKeychainStorage;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,7 +54,14 @@ NS_ASSUME_NONNULL_BEGIN
  *  @param appID A Firebase App identifier (`FirebaseOptions.googleAppID`). The app ID will be used
  * as a part of the key to store the token for the storage instance.
  */
-- (instancetype)initWithAppName:(NSString *)appName appID:(NSString *)appID;
+- (instancetype)initWithAppName:(NSString *)appName
+                          appID:(NSString *)appID
+                    accessGroup:(nullable NSString *)accessGroup;
+
+- (instancetype)initWithAppName:(NSString *)appName
+                          appID:(NSString *)appID
+                keychainStorage:(GULKeychainStorage *)keychainStorage
+                    accessGroup:(nullable NSString *)accessGroup NS_DESIGNATED_INITIALIZER;
 
 @end
 

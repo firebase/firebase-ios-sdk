@@ -22,64 +22,91 @@
 #import "FBLPromises.h"
 #endif
 
+#import <GoogleUtilities/GULKeychainStorage.h>
+
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
-/// The `NSUserDefaults` suite name for the storage location of the app attest key ID.
-static NSString *const kKeyIDStorageDefaultsSuiteName = @"com.firebase.FIRAppAttestKeyIDStorage";
+static NSString *const kKeychainService = @"com.firebase.app_check.app_attest_key_id_storage";
 
 @interface FIRAppAttestKeyIDStorage ()
 
 @property(nonatomic, readonly) NSString *appName;
 @property(nonatomic, readonly) NSString *appID;
-
-/// The app attest key ID is stored using `NSUserDefaults` .
-@property(nonatomic, readonly) NSUserDefaults *userDefaults;
+@property(nonatomic, readonly) GULKeychainStorage *keychainStorage;
+@property(nonatomic, readonly, nullable) NSString *accessGroup;
 
 @end
 
 @implementation FIRAppAttestKeyIDStorage
 
-- (instancetype)initWithAppName:(NSString *)appName appID:(NSString *)appID {
+- (instancetype)initWithAppName:(NSString *)appName
+                          appID:(NSString *)appID
+                keychainStorage:(GULKeychainStorage *)keychainStorage
+                    accessGroup:(nullable NSString *)accessGroup {
   self = [super init];
   if (self) {
     _appName = [appName copy];
     _appID = [appID copy];
-    _userDefaults = [[NSUserDefaults alloc] initWithSuiteName:kKeyIDStorageDefaultsSuiteName];
+    _keychainStorage = keychainStorage;
+    _accessGroup = [accessGroup copy];
   }
   return self;
 }
 
+- (instancetype)initWithAppName:(NSString *)appName
+                          appID:(NSString *)appID
+                    accessGroup:(nullable NSString *)accessGroup {
+  GULKeychainStorage *keychainStorage =
+      [[GULKeychainStorage alloc] initWithService:kKeychainService];
+  return [self initWithAppName:appName
+                         appID:appID
+               keychainStorage:keychainStorage
+                   accessGroup:accessGroup];
+}
+
 - (nonnull FBLPromise<NSString *> *)setAppAttestKeyID:(nullable NSString *)keyID {
-  [self storeAppAttestKeyID:keyID];
-  return [FBLPromise resolvedWith:keyID];
+  if (keyID) {
+    return [self storeAppAttestKeyID:keyID].recover(^NSError *(NSError *error) {
+      return [FIRAppCheckErrorUtil keychainErrorWithError:error];
+    });
+  } else {
+    return [self.keychainStorage removeObjectForKey:[self keyIDStorageKey]
+                                        accessGroup:self.accessGroup]
+        .then(^id _Nullable(NSNull *_Nullable value) {
+          return nil;
+        })
+        .recover(^NSError *(NSError *error) {
+          return [FIRAppCheckErrorUtil keychainErrorWithError:error];
+        });
+  }
 }
 
 - (nonnull FBLPromise<NSString *> *)getAppAttestKeyID {
-  NSString *appAttestKeyID = [self appAttestKeyIDFromStorage];
-  if (appAttestKeyID) {
-    return [FBLPromise resolvedWith:appAttestKeyID];
-  } else {
-    NSError *error = [FIRAppCheckErrorUtil appAttestKeyIDNotFound];
-    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-    [rejectedPromise reject:error];
-    return rejectedPromise;
-  }
+  return [self.keychainStorage getObjectForKey:[self keyIDStorageKey]
+                                   objectClass:[NSString class]
+                                   accessGroup:self.accessGroup]
+      .then(^NSString *(id<NSSecureCoding> storedKeyID) {
+        NSString *keyID = (NSString *)storedKeyID;
+        if ([keyID isKindOfClass:[NSString class]]) {
+          return keyID;
+        } else {
+          return nil;
+        }
+      })
+      .recover(^NSError *(NSError *error) {
+        return [FIRAppCheckErrorUtil appAttestKeyIDNotFound];
+      });
 }
 
 #pragma mark - Helpers
 
-- (void)storeAppAttestKeyID:(nullable NSString *)keyID {
-  if (keyID) {
-    [self.userDefaults setObject:keyID forKey:[self keyIDStorageKey]];
-  } else {
-    [self.userDefaults removeObjectForKey:[self keyIDStorageKey]];
-  }
-}
-
-- (nullable NSString *)appAttestKeyIDFromStorage {
-  NSString *appAttestKeyID = nil;
-  appAttestKeyID = [self.userDefaults objectForKey:[self keyIDStorageKey]];
-  return appAttestKeyID;
+- (FBLPromise<NSString *> *)storeAppAttestKeyID:(nullable NSString *)keyID {
+  return [self.keychainStorage setObject:keyID
+                                  forKey:[self keyIDStorageKey]
+                             accessGroup:self.accessGroup]
+      .then(^id _Nullable(NSNull *_Nullable value) {
+        return keyID;
+      });
 }
 
 - (NSString *)keyIDStorageKey {

@@ -16,6 +16,10 @@
 
 #import <XCTest/XCTest.h>
 
+#import <OCMock/OCMock.h>
+
+#import <GoogleUtilities/GULKeychainStorage.h>
+
 #import "FBLPromise+Testing.h"
 
 #import "FirebaseAppCheck/Sources/AppAttestProvider/Storage/FIRAppAttestKeyIDStorage.h"
@@ -35,7 +39,9 @@
 
   self.appName = @"FIRAppAttestKeyIDStorageTestsApp";
   self.appID = @"app_id";
-  self.storage = [[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID];
+  self.storage = [[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName
+                                                             appID:self.appID
+                                                       accessGroup:nil];
 }
 
 - (void)tearDown {
@@ -48,7 +54,9 @@
 }
 
 - (void)testInitWithApp {
-  XCTAssertNotNil([[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName appID:self.appID]);
+  XCTAssertNotNil([[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName
+                                                              appID:self.appID
+                                                        accessGroup:nil]);
 }
 
 - (void)testSetAndGetAppAttestKeyID {
@@ -73,10 +81,29 @@
 }
 
 - (void)testGetAppAttestKeyID_WhenAppAttestKeyIDNotFoundError {
-  __auto_type getPromise = [self.storage getAppAttestKeyID];
+  // 1. Set up storage mock.
+  id mockKeychainStorage = OCMClassMock([GULKeychainStorage class]);
+  FIRAppAttestKeyIDStorage *keyIDStorage =
+      [[FIRAppAttestKeyIDStorage alloc] initWithAppName:self.appName
+                                                  appID:self.appID
+                                        keychainStorage:mockKeychainStorage
+                                            accessGroup:nil];
+
+  // 2. Create and expect keychain error.
+  NSError *gulsKeychainError = [NSError errorWithDomain:@"com.guls.keychain" code:-1 userInfo:nil];
+  OCMExpect([mockKeychainStorage getObjectForKey:[OCMArg any]
+                                     objectClass:[OCMArg any]
+                                     accessGroup:[OCMArg any]])
+      .andReturn([FBLPromise resolvedWith:gulsKeychainError]);
+
+  // 3. Get key ID and verify results.
+  __auto_type getPromise = [keyIDStorage getAppAttestKeyID];
   XCTAssert(FBLWaitForPromisesWithTimeout(0.5));
   XCTAssertNotNil(getPromise.error);
   XCTAssertEqualObjects(getPromise.error, [FIRAppCheckErrorUtil appAttestKeyIDNotFound]);
+
+  // 4. Verify storage mock.
+  OCMVerifyAll(mockKeychainStorage);
 }
 
 - (void)testSetGetAppAttestKeyIDPerApp {
@@ -105,9 +132,11 @@
                                                 appID2:(NSString *)appID2 {
   // Create two storages.
   FIRAppAttestKeyIDStorage *storage1 = [[FIRAppAttestKeyIDStorage alloc] initWithAppName:appName1
-                                                                                   appID:appID1];
+                                                                                   appID:appID1
+                                                                             accessGroup:nil];
   FIRAppAttestKeyIDStorage *storage2 = [[FIRAppAttestKeyIDStorage alloc] initWithAppName:appName2
-                                                                                   appID:appID2];
+                                                                                   appID:appID2
+                                                                             accessGroup:nil];
   // 1. Independently set app attest key IDs for the two storages.
   NSString *appAttestKeyID1 = @"app_attest_key_ID1";
   FBLPromise *setPromise1 = [storage1 setAppAttestKeyID:appAttestKeyID1];
