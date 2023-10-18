@@ -1,6 +1,3 @@
-# 10.17.0
-- [fixed] Fix a bug where anonymous account can't be linked with email password credential. (#11911)
-
 # 10.16.0
 - [added] Added custom auth domain support in recaptcha v2 authentication flows. (#7553)
 

@@ -60,16 +60,6 @@ static NSString *const kDisplayNameKey = @"displayName";
  */
 static NSString *const kTestDisplayName = @"DisplayName";
 
-/** @var kIDTokenKey
-    @brief the name of the "kIDTokenKey" property in the request.
- */
-static NSString *const kIDTokenKey = @"idToken";
-
-/** @var kTestIDToken
-    @brief Testing id token.
- */
-static NSString *const kTestIDToken = @"testIDToken";
-
 /** @var kPasswordKey
     @brief the name of the "password" property in the request.
  */
@@ -177,7 +167,6 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kTestEmail
                                             password:kTestPassword
                                          displayName:kTestDisplayName
-                                             idToken:kTestIDToken
                                 requestConfiguration:_requestConfiguration];
   [FIRAuthBackend
       signUpNewUser:request
@@ -201,7 +190,6 @@ static NSString *const kReturnSecureTokenKey = @"returnSecureToken";
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kTestEmail
                                             password:kTestPassword
                                          displayName:kTestDisplayName
-                                             idToken:kTestIDToken
                                 requestConfiguration:_requestConfiguration];
   request.captchaResponse = kTestCaptchaResponse;
   request.clientType = kTestClientType;
