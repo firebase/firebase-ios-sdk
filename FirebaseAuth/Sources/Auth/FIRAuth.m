@@ -1248,7 +1248,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
                   }
                   if (response) {
                     NSData *challengeInData =
-                    [[NSData alloc] initWithBase64EncodedString:response.challenge options:0];
+                        [[NSData alloc] initWithBase64EncodedString:response.challenge options:0];
                     ASAuthorizationPlatformPublicKeyCredentialProvider *provider =
                         [[ASAuthorizationPlatformPublicKeyCredentialProvider alloc]
                             initWithRelyingPartyIdentifier:response.rpID];
