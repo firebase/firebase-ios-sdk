@@ -1,4 +1,4 @@
-# Unreleased
+# 10.17.0
 - [feature] The `FirebaseRemoteConfig` module now contains Firebase Remote
   Config's Swift-only APIs that were previously only available via the
   `FirebaseRemoteConfigSwift` extension SDK. See the
