@@ -123,6 +123,7 @@
 + (NSError *)appAttestGenerateKeyFailedWithError:(NSError *)error {
   NSString *failureReason = @"Failed to generate a new cryptographic key for use with the App "
                             @"Attest service (`generateKeyWithCompletionHandler:`).";
+  // TODO(#11967): Add a new error code for this case (e.g., FIRAppCheckAppAttestGenerateKeyFailed).
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
                      underlyingError:error];
@@ -136,6 +137,7 @@
                                  @"key (`attestKey:clientDataHash:completionHandler:`); "
                                  @"keyId.length = %lu, clientDataHash.length = %lu",
                                  keyId.length, clientDataHash.length];
+  // TODO(#11967): Add a new error code for this case (e.g., FIRAppCheckAppAttestAttestKeyFailed).
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
                      underlyingError:error];
@@ -149,6 +151,7 @@
                        @"app instance (`generateAssertion:clientDataHash:completionHandler:`); "
                        @"keyId.length = %lu, clientDataHash.length = %lu.",
                        keyId.length, clientDataHash.length];
+  // TODO(#11967): Add error code for this case (e.g., FIRAppCheckAppAttestGenerateAssertionFailed).
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
                      underlyingError:error];
