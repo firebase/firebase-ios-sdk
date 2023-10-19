@@ -108,6 +108,9 @@ def sync_firestore(test_only)
       # Include fully qualified from the root of the repo
       '"${PODS_ROOT}/../../.."',
 
+      # Make public headers available as "FIRQuery.h"
+      '"${PODS_ROOT}/../../../Firestore/Source/Public/FirebaseFirestore"',
+
       # Generated protobuf and nanopb output expects to search relative to the
       # output path.
       '"${PODS_ROOT}/../../../Firestore/Protos/cpp"',
