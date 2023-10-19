@@ -46,12 +46,9 @@ final class AnalyticsAPITests {
 
     @available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, *)
     @available(watchOS, unavailable)
-    func logTransactionUsage() async {
-      for await verificationResult in Transaction.all {
-        if case let .verified(transaction) = verificationResult {
-          Analytics.logTransaction(transaction)
-        }
-      }
+    func logTransactionUsage() {
+      let transaction: StoreKit.Transaction! = nil
+      Analytics.logTransaction(transaction!)
     }
 
     // MARK: - AppDelegate
@@ -66,6 +63,24 @@ final class AnalyticsAPITests {
     Analytics.handleUserActivity(NSUserActivity(activityType: "editing"))
 
     // MARK: - Consent
+
+    _ = FirebaseAnalytics.ConsentType.RawValue()
+    let consentType: FirebaseAnalytics.ConsentType! = nil
+    switch consentType! {
+    case .adPersonalization: break
+    case .adStorage: break
+    case .adUserData: break
+    case .analyticsStorage: break
+    @unknown default: break
+    }
+
+    _ = FirebaseAnalytics.ConsentStatus.RawValue()
+    let consentStatus: FirebaseAnalytics.ConsentStatus! = nil
+    switch consentStatus! {
+    case .denied: break
+    case .granted: break
+    @unknown default: break
+    }
 
     Analytics.setConsent([.adPersonalization: .granted,
                           .adStorage: .denied,
