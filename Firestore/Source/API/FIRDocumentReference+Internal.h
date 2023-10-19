@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentReference.h"
+#import <FirebaseFirestoreInternal/FIRDocumentReference.h>
 
 #include <memory>
 

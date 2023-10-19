@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRSnapshotMetadata.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRSnapshotMetadata.h"
 
 #include <utility>
 

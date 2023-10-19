@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRLoadBundleTask.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRLoadBundleTask.h"
 
 #include <memory>
 

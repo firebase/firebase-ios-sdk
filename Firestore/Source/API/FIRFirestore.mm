@@ -27,7 +27,7 @@
 #import "FIRFirestoreSettings+Internal.h"
 #import "FIRPersistentCacheIndexManager+Internal.h"
 #import "FIRTransactionOptions+Internal.h"
-#import "FIRTransactionOptions.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRTransactionOptions.h"
 
 #import "FirebaseCore/Extension/FIRAppInternal.h"
 #import "FirebaseCore/Extension/FIRComponentContainer.h"

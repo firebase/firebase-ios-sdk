@@ -48,7 +48,9 @@ jobs:
               - 'FirebaseCore/Sources/Public'
 
               # Podspec
+              - 'FirebaseFirestoreInternal.podspec'
               - 'FirebaseFirestore.podspec'
+              - 'FirebaseFirestoreSwift.podspec'
 
               # CMake
               - '**CMakeLists.txt'
@@ -261,6 +263,7 @@ jobs:
     strategy:
       matrix:
         podspec: [
+          'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
           'FirebaseFirestoreSwift.podspec',
         ]
@@ -288,6 +291,7 @@ jobs:
     strategy:
       matrix:
         podspec: [
+          'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
           'FirebaseFirestoreSwift.podspec',
         ]

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFieldValue.h"
+#import <FirebaseFirestoreInternal/FIRFieldValue.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

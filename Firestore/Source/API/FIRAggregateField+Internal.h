@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateField.h"
-#import "FIRFieldPath.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRAggregateField.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRFieldPath.h"
 
 #include <string>
 #include "Firestore/core/src/model/aggregate_alias.h"

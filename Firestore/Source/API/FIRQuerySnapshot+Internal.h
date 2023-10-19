@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRQuerySnapshot.h"
+#import <FirebaseFirestoreInternal/FIRQuerySnapshot.h>
 
 #include <memory>
 

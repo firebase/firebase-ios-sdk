@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentChange.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRDocumentChange.h"
 
 #import <Foundation/Foundation.h>
 

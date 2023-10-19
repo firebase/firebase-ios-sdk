@@ -16,8 +16,8 @@
 
 #import "FIRAggregateQuerySnapshot+Internal.h"
 
-#import "FIRAggregateQuery.h"
-#import "FIRQuery.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRAggregateQuery.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRQuery.h"
 
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"

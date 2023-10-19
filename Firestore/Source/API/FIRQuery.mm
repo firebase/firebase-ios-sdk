@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#import "FIRQuery.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRQuery.h"
 
 #include <memory>
 #include <utility>
 #include <vector>
 
-#import "FIRDocumentReference.h"
-#import "FIRFirestoreErrors.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRDocumentReference.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRFirestoreErrors.h"
 
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRAggregateQuery+Internal.h"

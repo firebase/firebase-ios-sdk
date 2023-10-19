@@ -1374,7 +1374,7 @@ func firestoreTargets() -> [Target] {
   if ProcessInfo.processInfo.environment["FIREBASE_SOURCE_FIRESTORE"] != nil {
     return [
       .target(
-        name: "FirebaseFirestoreInternal",
+        name: "FirebaseFirestoreInternalWrapper",
         dependencies: [
           "FirebaseAppCheckInterop",
           "FirebaseCore",
@@ -1445,7 +1445,7 @@ func firestoreTargets() -> [Target] {
         dependencies: [
           "FirebaseCore",
           "FirebaseCoreExtension",
-          "FirebaseFirestoreInternal",
+          "FirebaseFirestoreInternalWrapper",
           "FirebaseSharedSwift",
         ],
         path: "Firestore",
@@ -1469,23 +1469,31 @@ func firestoreTargets() -> [Target] {
         ]
       ),
     ]
-  } else if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
-    // This is set when running `scripts/check_firestore_symbols.sh`.
-    return [
-      .binaryTarget(
-        name: "FirebaseFirestore",
-        // The `xcframework` should be moved to the root of the repo.
-        path: "FirebaseFirestore.xcframework"
-      ),
-    ]
   }
+
+  let firestoreInternalTarget: Target = {
+    if ProcessInfo.processInfo.environment["FIREBASECI_USE_LOCAL_FIRESTORE_ZIP"] != nil {
+      // This is set when running `scripts/check_firestore_symbols.sh`.
+      return .binaryTarget(
+        name: "FirebaseFirestoreInternal",
+        // The `xcframework` should be moved to the root of the repo.
+        path: "FirebaseFirestoreInternal.xcframework"
+      )
+    } else {
+      return .binaryTarget(
+        name: "FirebaseFirestoreInternal",
+        url: "https://github.com/ncooke3/binary-staging/releases/download/10.17.0/FirebaseFirestoreInternal.zip",
+        checksum: "d0c11c933b5b62d68f47c94acfb6cf7d7adf05dc3e81dea48a11ce320bef41e2"
+      )
+    }
+  }()
 
   return [
     .target(
       name: "FirebaseFirestore",
       dependencies: [
         .target(
-          name: "FirebaseFirestoreInternal",
+          name: "FirebaseFirestoreInternalWrapper",
           condition: .when(platforms: [.iOS, .macCatalyst, .tvOS, .macOS])
         ),
         .product(name: "abseil", package: "abseil-cpp-binary"),
@@ -1505,16 +1513,12 @@ func firestoreTargets() -> [Target] {
       ]
     ),
     .target(
-      name: "FirebaseFirestoreInternal",
-      dependencies: ["FirebaseFirestoreBinary"],
-      path: "SwiftPM-FirebaseFirestoreInternal",
+      name: "FirebaseFirestoreInternalWrapper",
+      dependencies: ["FirebaseFirestoreInternal"],
+      path: "FirebaseFirestoreInternal",
       publicHeadersPath: "."
     ),
-    .binaryTarget(
-      name: "FirebaseFirestoreBinary",
-      url: "https://dl.google.com/firebase/ios/experimental/bin/firestore/10.17.0/FirebaseFirestoreBinary.zip",
-      checksum: "7a5031ff00bfb6d34603a632b9586b8db3157028f4d7551d863cf710971f2015"
-    ),
+    firestoreInternalTarget,
   ]
 }
 

@@ -12,4 +12,4 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import <FirebaseFirestoreBinary/FIRTransactionOptions.h>
+#import <FirebaseFirestoreInternal/FIRCollectionReference.h>

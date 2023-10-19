@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateQuery.h"
-
-#import "FIRAggregateField.h"
-#import "FIRQuery.h"
+#import <FirebaseFirestoreInternal/FIRAggregateField.h>
+#import <FirebaseFirestoreInternal/FIRAggregateQuery.h>
+#import <FirebaseFirestoreInternal/FIRQuery.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

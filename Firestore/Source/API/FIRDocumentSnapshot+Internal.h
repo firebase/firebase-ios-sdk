@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDocumentSnapshot.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRDocumentSnapshot.h"
 
 #include <memory>
 

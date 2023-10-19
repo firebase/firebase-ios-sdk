@@ -62,8 +62,8 @@ end
 
 def sync_firestore(test_only)
   project = Xcodeproj::Project.open('Firestore/Example/Firestore.xcodeproj')
-  spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
-  swift_spec = Pod::Spec.from_file('FirebaseFirestoreSwift.podspec')
+  spec = Pod::Spec.from_file('FirebaseFirestoreInternal.podspec')
+  swift_spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
 
   # Enable warnings after opening the project to avoid the warnings in
   # xcodeproj itself
@@ -107,9 +107,6 @@ def sync_firestore(test_only)
     'HEADER_SEARCH_PATHS' => [
       # Include fully qualified from the root of the repo
       '"${PODS_ROOT}/../../.."',
-
-      # Make public headers available as "FIRQuery.h"
-      '"${PODS_ROOT}/../../../Firestore/Source/Public/FirebaseFirestore"',
 
       # Generated protobuf and nanopb output expects to search relative to the
       # output path.

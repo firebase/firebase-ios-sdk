@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRTransaction.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRTransaction.h"
 
 #include <memory>
 #include <utility>

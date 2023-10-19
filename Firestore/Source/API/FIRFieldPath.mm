@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFieldPath.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRFieldPath.h"
 
 #include <functional>
 #include <string>

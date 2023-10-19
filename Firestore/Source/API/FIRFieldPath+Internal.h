@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRFieldPath.h"
+#import <FirebaseFirestoreInternal/FIRFieldPath.h>
 
 #include "Firestore/core/src/model/model_fwd.h"
 

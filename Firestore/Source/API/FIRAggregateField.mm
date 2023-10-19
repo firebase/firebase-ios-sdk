@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRAggregateField.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRAggregateField.h"
 
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"

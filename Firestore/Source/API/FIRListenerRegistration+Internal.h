@@ -16,7 +16,7 @@
 
 #include <memory>
 
-#import "FIRListenerRegistration.h"
+#import "Firestore/Source/Public/FirebaseFirestore/FIRListenerRegistration.h"
 
 #include "Firestore/core/src/api/listener_registration.h"
 

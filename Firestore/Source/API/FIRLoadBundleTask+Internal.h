@@ -15,7 +15,7 @@
  */
 #include <memory>
 
-#import "FIRLoadBundleTask.h"
+#import <FirebaseFirestoreInternal/FIRLoadBundleTask.h>
 
 #include "Firestore/core/src/api/load_bundle_task.h"
 
