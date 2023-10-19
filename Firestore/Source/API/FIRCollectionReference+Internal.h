@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestoreInternal/FIRCollectionReference.h>
+#import "FIRCollectionReference.h"
 
 #include <memory>
 

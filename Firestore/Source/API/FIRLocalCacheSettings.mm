@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRLocalCacheSettings.h"
+#include "FIRLocalCacheSettings.h"
 #include <memory>
 #import "FIRLocalCacheSettings+Internal.h"
 #include "absl/memory/memory.h"

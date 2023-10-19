@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRTransactionOptions.h"
+#import "FIRTransactionOptions.h"
 
 #import <Foundation/Foundation.h>
 

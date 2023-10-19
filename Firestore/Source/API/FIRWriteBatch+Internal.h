@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRWriteBatch.h"
+#import "FIRWriteBatch.h"
 
 #import <Foundation/Foundation.h>
 

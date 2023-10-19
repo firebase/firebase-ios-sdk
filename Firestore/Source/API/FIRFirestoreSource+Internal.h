@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRFirestoreSource.h"
+#import "FIRFirestoreSource.h"
 
 namespace firebase {
 namespace firestore {

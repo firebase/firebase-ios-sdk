@@ -22,8 +22,8 @@
 #include <utility>
 #include <vector>
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRGeoPoint.h"
-#import "Firestore/Source/Public/FirebaseFirestore/FIRTimestamp.h"
+#import "FIRGeoPoint.h"
+#import "FIRTimestamp.h"
 
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
 #import "Firestore/Source/API/FIRFieldPath+Internal.h"

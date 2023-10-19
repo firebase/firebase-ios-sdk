@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#import "Firestore/Source/Public/FirebaseFirestore/FIRPersistentCacheIndexManager.h"
+#import "FIRPersistentCacheIndexManager.h"
 
 #import <Foundation/Foundation.h>
 

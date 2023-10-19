@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestoreInternal/FIRFirestore.h>
+#import "FIRFirestore.h"
 
 #include <memory>
 #include <string>

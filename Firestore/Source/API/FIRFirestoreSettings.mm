@@ -17,7 +17,7 @@
 // TODO(wuandy): Delete this once isPersistenceEnabled and cacheSizeBytes are removed.
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRFirestoreSettings.h"
+#import "FIRFirestoreSettings.h"
 #import <Foundation/NSObject.h>
 #import "FIRLocalCacheSettings+Internal.h"
 #include "Firestore/Source/Public/FirebaseFirestore/FIRLocalCacheSettings.h"

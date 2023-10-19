@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestoreInternal/FIRAggregateQuerySnapshot.h>
+#import "FIRAggregateQuerySnapshot.h"
 
-#import <FirebaseFirestoreInternal/FIRAggregateField.h>
-#import <FirebaseFirestoreInternal/FIRDocumentSnapshot.h>
+#import "FIRAggregateField.h"
+#import "FIRDocumentSnapshot.h"
 
 #include "Firestore/core/src/api/api_fwd.h"
 

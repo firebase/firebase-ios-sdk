@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import <FirebaseFirestoreInternal/FIRAggregateField.h>
-#import <FirebaseFirestoreInternal/FIRQuery.h>
+#import "FIRAggregateField.h"
+#import "FIRQuery.h"
 
 #include <memory>
 

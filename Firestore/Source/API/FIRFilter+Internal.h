@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRFilter.h"
+#import "FIRFilter.h"
 #include "Firestore/core/src/core/composite_filter.h"
 #include "Firestore/core/src/core/field_filter.h"
 

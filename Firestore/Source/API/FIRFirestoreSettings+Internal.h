@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "Firestore/Source/Public/FirebaseFirestore/FIRFirestoreSettings.h"
+#import "FIRFirestoreSettings.h"
 
 #import <Foundation/Foundation.h>
 
