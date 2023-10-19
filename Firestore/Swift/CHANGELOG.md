@@ -1,4 +1,4 @@
-# Unreleased
+# 10.17.0
 - [deprecated] All of the public API from `FirebaseFirestoreSwift` can now
   be accessed through the `FirebaseFirestore` module. Therefore,
   `FirebaseFirestoreSwift` has been deprecated, and will be removed in a
