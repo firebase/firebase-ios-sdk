@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseAppCheckInterop.podspec, FirebaseAppCheck.podspec]
-        target: [ios, tvos, macos]
+        target: [ios, tvos, macos, watchos]
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1

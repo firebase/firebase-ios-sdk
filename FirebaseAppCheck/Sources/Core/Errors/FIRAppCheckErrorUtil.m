@@ -136,7 +136,7 @@
       [NSString stringWithFormat:@"Failed to attest the validity of the generated cryptographic "
                                  @"key (`attestKey:clientDataHash:completionHandler:`); "
                                  @"keyId.length = %lu, clientDataHash.length = %lu",
-                                 keyId.length, clientDataHash.length];
+                                 (unsigned long)keyId.length, (unsigned long)clientDataHash.length];
   // TODO(#11967): Add a new error code for this case (e.g., FIRAppCheckAppAttestAttestKeyFailed).
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
@@ -150,7 +150,7 @@
       stringWithFormat:@"Failed to create a block of data that demonstrates the legitimacy of the "
                        @"app instance (`generateAssertion:clientDataHash:completionHandler:`); "
                        @"keyId.length = %lu, clientDataHash.length = %lu.",
-                       keyId.length, clientDataHash.length];
+                       (unsigned long)keyId.length, (unsigned long)clientDataHash.length];
   // TODO(#11967): Add error code for this case (e.g., FIRAppCheckAppAttestGenerateAssertionFailed).
   return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
                        failureReason:failureReason
