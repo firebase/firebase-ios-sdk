@@ -118,6 +118,45 @@
                      underlyingError:nil];
 }
 
+#pragma mark - App Attest
+
++ (NSError *)appAttestGenerateKeyFailedWithError:(NSError *)error {
+  NSString *failureReason = @"Failed to generate a new cryptographic key for use with the App "
+                            @"Attest service (`generateKeyWithCompletionHandler:`).";
+  // TODO(#11967): Add a new error code for this case (e.g., FIRAppCheckAppAttestGenerateKeyFailed).
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:error];
+}
+
++ (NSError *)appAttestAttestKeyFailedWithError:(NSError *)error
+                                         keyId:(NSString *)keyId
+                                clientDataHash:(NSData *)clientDataHash {
+  NSString *failureReason =
+      [NSString stringWithFormat:@"Failed to attest the validity of the generated cryptographic "
+                                 @"key (`attestKey:clientDataHash:completionHandler:`); "
+                                 @"keyId.length = %lu, clientDataHash.length = %lu",
+                                 (unsigned long)keyId.length, (unsigned long)clientDataHash.length];
+  // TODO(#11967): Add a new error code for this case (e.g., FIRAppCheckAppAttestAttestKeyFailed).
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:error];
+}
+
++ (NSError *)appAttestGenerateAssertionFailedWithError:(NSError *)error
+                                                 keyId:(NSString *)keyId
+                                        clientDataHash:(NSData *)clientDataHash {
+  NSString *failureReason = [NSString
+      stringWithFormat:@"Failed to create a block of data that demonstrates the legitimacy of the "
+                       @"app instance (`generateAssertion:clientDataHash:completionHandler:`); "
+                       @"keyId.length = %lu, clientDataHash.length = %lu.",
+                       (unsigned long)keyId.length, (unsigned long)clientDataHash.length];
+  // TODO(#11967): Add error code for this case (e.g., FIRAppCheckAppAttestGenerateAssertionFailed).
+  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
+                       failureReason:failureReason
+                     underlyingError:error];
+}
+
 #pragma mark - Helpers
 
 + (NSError *)unknownErrorWithError:(NSError *)error {

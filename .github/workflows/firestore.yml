@@ -48,7 +48,9 @@ jobs:
               - 'FirebaseCore/Sources/Public'
 
               # Podspec
+              - 'FirebaseFirestoreInternal.podspec'
               - 'FirebaseFirestore.podspec'
+              - 'FirebaseFirestoreSwift.podspec'
 
               # CMake
               - '**CMakeLists.txt'
@@ -178,6 +180,40 @@ jobs:
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
         Firestore/Example/App/GoogleService-Info.plist "$plist_secret"
 
+    - name: Install Google Service Account key
+      run: |
+        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore-integration.json.gpg \
+        google-service-account.json "$plist_secret"
+
+    # create composite indexes with Terraform
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+    - name: Terraform Init
+      run: |
+        cd Firestore
+        terraform init
+    - name: Terraform Apply
+      run: |
+        cd Firestore
+
+        # Define a temporary file, redirect both stdout and stderr to it
+        output_file=$(mktemp)
+        if ! terraform apply -var-file=../google-service-account.json -auto-approve > "$output_file" 2>&1 ; then
+          cat "$output_file"
+          if cat "$output_file" | grep -q "index already exists"; then
+            echo "==================================================================================="
+            echo "Terraform apply failed due to index already exists; We can safely ignore this error."
+            echo "==================================================================================="
+          fi
+          exit 1
+        fi
+        rm -f "$output_file"
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ../google-service-account.json
+      continue-on-error: true
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
@@ -265,6 +301,7 @@ jobs:
     strategy:
       matrix:
         podspec: [
+          'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
           'FirebaseFirestoreSwift.podspec',
         ]
@@ -292,6 +329,7 @@ jobs:
     strategy:
       matrix:
         podspec: [
+          'FirebaseFirestoreInternal.podspec',
           'FirebaseFirestore.podspec',
           'FirebaseFirestoreSwift.podspec',
         ]

@@ -91,6 +91,31 @@ If you want to switch back to running integration tests against the emulator:
   * Ensure that `GoogleServices-Info.plist` is in its default state (`git
     checkout Firestore/Example/App/GoogleServices-Info.plist`).
 
+### Testing composite index query against production
+#### Setting Up the Environment:
+1. [Set up a `GoogleServices-Info.plist`](//github.com/firebase/firebase-ios-sdk#running-sample-apps)
+   file in `Firestore/Example/App`.
+2. If not already logged in, authenticate with your Google Cloud Platform (GCP) account using
+   `gcloud auth application-default login`. You can check your logged-in accounts by running
+   `gcloud auth list`.
+3. Navigate to the `Firestore` directory, create composite indexes by running:
+    ```
+    terraform init
+    terraform apply -var="project_id=<your-project-id>" -auto-approve
+    ```
+4. Run integration tests as guided in "Running Integration Tests - against production".
+
+Note: If the index creation encounters issues, such as concurrent operations, consider running the
+index creation process again. Error messages indicating that indexes have already been created can
+be safely disregarded.
+
+#### Adding new composite index query tests
+1. To create a new composite index for local development, click on the provided link in the test
+   error message, which will direct you to the Firebase Console.
+2. Add the newly created composite index to the `firestore_index_config.tf` file. The "__name__"
+   field is not required to be explicitly added to the file, as the index creation will auto complete
+   it on behalf.
+
 ## Other tasks
 
 ### Building Protos

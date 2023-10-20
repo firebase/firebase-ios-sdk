@@ -246,6 +246,7 @@
 		23EFC681986488B033C2B318 /* leveldb_opener_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 75860CD13AF47EB1EA39EC2F /* leveldb_opener_test.cc */; };
 		2403890A78D7AB099754A18C /* bloom_filter.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 1E0C7C0DCD2790019E66D8CC /* bloom_filter.pb.cc */; };
 		2428E92E063EBAEA44BA5913 /* target_index_matcher_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */; };
+		242BC62992ACC1A5B142CD4A /* FIRCompositeIndexQueryTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65AF0AB593C3AD81A1F1A57E /* FIRCompositeIndexQueryTests.mm */; };
 		248DE4F56DD938F4DBCCF39B /* bundle_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6ECAF7DE28A19C69DF386D88 /* bundle_reader_test.cc */; };
 		24B75C63BDCD5551B2F69901 /* testing_hooks_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = A002425BC4FC4E805F4175B6 /* testing_hooks_test.cc */; };
 		24CB39421C63CD87242B31DF /* bundle_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 6ECAF7DE28A19C69DF386D88 /* bundle_reader_test.cc */; };
@@ -1050,6 +1051,7 @@
 		9CC32ACF397022BB7DF11B52 /* Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json in Resources */ = {isa = PBXBuildFile; fileRef = D22D4C211AC32E4F8B4883DA /* Validation_BloomFilterTest_MD5_500_0001_bloom_filter_proto.json */; };
 		9CE07BAAD3D3BC5F069D38FE /* grpc_streaming_reader_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B6D964922154AB8F00EB9CFB /* grpc_streaming_reader_test.cc */; };
 		9D71628E38D9F64C965DF29E /* FSTAPIHelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 5492E04E202154AA00B64F25 /* FSTAPIHelpers.mm */; };
+		9E1997789F19BF2E9029012E /* FIRCompositeIndexQueryTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65AF0AB593C3AD81A1F1A57E /* FIRCompositeIndexQueryTests.mm */; };
 		9E656F4FE92E8BFB7F625283 /* to_string_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = B696858D2214B53900271095 /* to_string_test.cc */; };
 		9EE1447AA8E68DF98D0590FF /* precondition_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 549CCA5520A36E1F00BCEB75 /* precondition_test.cc */; };
 		9EE81B1FB9B7C664B7B0A904 /* resume_token_spec_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 54DA12A41F315EE100DD57A1 /* resume_token_spec_test.json */; };
@@ -1318,6 +1320,7 @@
 		C9F96C511F45851D38EC449C /* status.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = 618BBE9920B89AAC00B5BCE7 /* status.pb.cc */; };
 		CA2392732BA7F8985699313D /* Validation_BloomFilterTest_MD5_1_1_membership_test_result.json in Resources */ = {isa = PBXBuildFile; fileRef = 3369AC938F82A70685C5ED58 /* Validation_BloomFilterTest_MD5_1_1_membership_test_result.json */; };
 		CA989C0E6020C372A62B7062 /* testutil.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54A0352820A3B3BD003E0143 /* testutil.cc */; };
+		CAEA2A42D3120B48C6EE39E8 /* FIRCompositeIndexQueryTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 65AF0AB593C3AD81A1F1A57E /* FIRCompositeIndexQueryTests.mm */; };
 		CAFB1E0ED514FEF4641E3605 /* log_test.cc in Sources */ = {isa = PBXBuildFile; fileRef = 54C2294E1FECABAE007D065B /* log_test.cc */; };
 		CB2C731116D6C9464220626F /* FIRQueryUnitTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF73B39D04D1760190E6B84A /* FIRQueryUnitTests.mm */; };
 		CB8BEF34CC4A996C7BE85119 /* persistence_testing.cc in Sources */ = {isa = PBXBuildFile; fileRef = 9113B6F513D0473AEABBAF1F /* persistence_testing.cc */; };
@@ -1890,6 +1893,7 @@
 		62E54B832A9E910A003347C8 /* IndexingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndexingTests.swift; sourceTree = "<group>"; };
 		63136A2371C0C013EC7A540C /* target_index_matcher_test.cc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.cpp; path = target_index_matcher_test.cc; sourceTree = "<group>"; };
 		64AA92CFA356A2360F3C5646 /* filesystem_testing.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = filesystem_testing.h; sourceTree = "<group>"; };
+		65AF0AB593C3AD81A1F1A57E /* FIRCompositeIndexQueryTests.mm */ = {isa = PBXFileReference; includeInIndex = 1; path = FIRCompositeIndexQueryTests.mm; sourceTree = "<group>"; };
 		67786C62C76A740AEDBD8CD3 /* FSTTestingHooks.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = FSTTestingHooks.h; sourceTree = "<group>"; };
 		69E6C311558EC77729A16CF1 /* Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS/Pods-Firestore_Example_iOS-Firestore_SwiftTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		6A7A30A2DB3367E08939E789 /* bloom_filter.pb.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = bloom_filter.pb.h; sourceTree = "<group>"; };
@@ -2995,6 +2999,7 @@
 				EF6C285029E462A200A7D4F1 /* FIRAggregateTests.mm */,
 				73866A9F2082B069009BB4FF /* FIRArrayTransformTests.mm */,
 				776530F066E788C355B78457 /* FIRBundlesTests.mm */,
+				65AF0AB593C3AD81A1F1A57E /* FIRCompositeIndexQueryTests.mm */,
 				129A369928CA555B005AE7E2 /* FIRCountTests.mm */,
 				5492E070202154D600B64F25 /* FIRCursorTests.mm */,
 				5492E06C202154D500B64F25 /* FIRDatabaseTests.mm */,
@@ -4523,6 +4528,7 @@
 				95ED06D2B0078D3CDB821B68 /* FIRArrayTransformTests.mm in Sources */,
 				DB3ADDA51FB93E84142EA90D /* FIRBundlesTests.mm in Sources */,
 				0500A324CEC854C5B0CF364C /* FIRCollectionReferenceTests.mm in Sources */,
+				CAEA2A42D3120B48C6EE39E8 /* FIRCompositeIndexQueryTests.mm in Sources */,
 				129A369C28CA555B005AE7E2 /* FIRCountTests.mm in Sources */,
 				EC160876D8A42166440E0B53 /* FIRCursorTests.mm in Sources */,
 				EA38690795FBAA182A9AA63E /* FIRDatabaseTests.mm in Sources */,
@@ -4762,6 +4768,7 @@
 				660E99DEDA0A6FC1CCB200F9 /* FIRArrayTransformTests.mm in Sources */,
 				AE068EDBC74AF27679CCB6DA /* FIRBundlesTests.mm in Sources */,
 				BA0BB02821F1949783C8AA50 /* FIRCollectionReferenceTests.mm in Sources */,
+				9E1997789F19BF2E9029012E /* FIRCompositeIndexQueryTests.mm in Sources */,
 				129A369B28CA555B005AE7E2 /* FIRCountTests.mm in Sources */,
 				A55266E6C986251D283CE948 /* FIRCursorTests.mm in Sources */,
 				7DD67E9621C52B790E844B16 /* FIRDatabaseTests.mm in Sources */,
@@ -5248,6 +5255,7 @@
 				73866AA12082B0A5009BB4FF /* FIRArrayTransformTests.mm in Sources */,
 				4B54FA587C7107973FD76044 /* FIRBundlesTests.mm in Sources */,
 				7BCC5973C4F4FCC272150E31 /* FIRCollectionReferenceTests.mm in Sources */,
+				242BC62992ACC1A5B142CD4A /* FIRCompositeIndexQueryTests.mm in Sources */,
 				129A369A28CA555B005AE7E2 /* FIRCountTests.mm in Sources */,
 				5492E079202154D600B64F25 /* FIRCursorTests.mm in Sources */,
 				5492E075202154D600B64F25 /* FIRDatabaseTests.mm in Sources */,
