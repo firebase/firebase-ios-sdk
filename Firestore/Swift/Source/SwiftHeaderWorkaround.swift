@@ -20,8 +20,8 @@
 
 // This is a trick to force generate a `FirebaseFirestore-Swift.h`
 // header that re-exports `FirebaseFirestoreInternal` for Objective-C
-// clients. It is important for the below code to reference a Remote
-// Config symbol defined in Objective-C as that will import the symbol's
+// clients. It is important for the below code to reference a Firestore
+// symbol defined in Objective-C as that will import the symbol's
 // module (`FirebaseFirestoreInternal`) in the generated header. This
 // allows Objective-C clients to import Firestore's Objective-C API
 // using `@import FirebaseFirestore;`. This API is not needed for Swift
