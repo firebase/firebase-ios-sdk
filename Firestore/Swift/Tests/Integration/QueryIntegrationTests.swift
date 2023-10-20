@@ -185,31 +185,6 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
                                matchesResult: ["doc3", "doc4", "doc6"])
   }
 
-  func testOrQueriesWithNotIn() throws {
-    // TODO(orquery): Enable this test against production when possible.
-    try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
-                  "Skip this test if running against production because it results in " +
-                    "a 'missing index' error. The Firestore Emulator, however, does serve these queries")
-
-    let collRef = collectionRef(
-      withDocuments: ["doc1": ["a": 1, "b": 0],
-                      "doc2": ["b": 1],
-                      "doc3": ["a": 3, "b": 2],
-                      "doc4": ["a": 1, "b": 3],
-                      "doc5": ["a": 1],
-                      "doc6": ["a": 2]]
-    )
-
-    // a==2 || b not-in [2,3]
-    // Has implicit orderBy b.
-    let filter = Filter.orFilter(
-      [Filter.whereField("a", isEqualTo: 2),
-       Filter.whereField("b", notIn: [2, 3])]
-    )
-    checkOnlineAndOfflineQuery(collRef.whereFilter(filter),
-                               matchesResult: ["doc1", "doc2"])
-  }
-
   func testOrQueriesWithArrayMembership() throws {
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": [0]],
@@ -238,10 +213,6 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testMultipleInOps() throws {
-    // TODO(orquery): Enable this test against production when possible.
-    try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
-                  "Skip this test if running against production because it's not yet supported.")
-
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": 0],
                       "doc2": ["b": 1],
@@ -270,10 +241,6 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
   }
 
   func testUsingInWithArrayContainsAny() throws {
-    // TODO(orquery): Enable this test against production when possible.
-    try XCTSkipIf(!FSTIntegrationTestCase.isRunningAgainstEmulator(),
-                  "Skip this test if running against production because it's not yet supported.")
-
     let collRef = collectionRef(
       withDocuments: ["doc1": ["a": 1, "b": [0]],
                       "doc2": ["b": [1]],
