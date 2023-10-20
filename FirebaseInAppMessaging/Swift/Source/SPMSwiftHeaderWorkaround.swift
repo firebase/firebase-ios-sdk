@@ -17,7 +17,7 @@
 
   // This is a trick to force generate a `FirebaseInAppMessaging-Swift.h`
   // header that re-exports `FirebaseInAppMessagingInternal` for Objective-C
-  // clients. It is important for the below code to reference a In App
+  // clients. It is important for the below code to reference an In App
   // Messaging symbol defined in Objective-C as that will import the symbol's
   // module (`FirebaseInAppMessagingInternal`) in the generated header. This
   // allows Objective-C clients to import In App Messaging's Objective-C API
