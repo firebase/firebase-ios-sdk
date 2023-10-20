@@ -64,24 +64,6 @@ final class AnalyticsAPITests {
 
     // MARK: - Consent
 
-    _ = FirebaseAnalytics.ConsentType.RawValue()
-    let consentType: FirebaseAnalytics.ConsentType! = nil
-    switch consentType! {
-    case .adPersonalization: break
-    case .adStorage: break
-    case .adUserData: break
-    case .analyticsStorage: break
-    @unknown default: break
-    }
-
-    _ = FirebaseAnalytics.ConsentStatus.RawValue()
-    let consentStatus: FirebaseAnalytics.ConsentStatus! = nil
-    switch consentStatus! {
-    case .denied: break
-    case .granted: break
-    @unknown default: break
-    }
-
     Analytics.setConsent([.adPersonalization: .granted,
                           .adStorage: .denied,
                           .adUserData: .granted,
