@@ -1,4 +1,4 @@
-# Unreleased
+# 10.17.0
 - [deprecated] All of the public API from `FirebaseRemoteConfigSwift` can now
   be accessed through the `FirebaseRemoteConfig` module. Therefore,
   `FirebaseRemoteConfigSwift` has been deprecated, and will be removed in a

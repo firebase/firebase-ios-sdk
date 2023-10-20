@@ -19,28 +19,11 @@
 import Foundation
 import SwiftUI
 
-@testable import FirebaseAnalyticsSwift
+import FirebaseAnalyticsSwift
+import SwiftUI
 import FirebaseAnalytics
 
 final class AnalyticsAPITests {
-  @available(iOS 13.0, *)
-  func loggedAnalyticsModifierUsage(viewModifier: LoggedAnalyticsModifier,
-                                    content: LoggedAnalyticsModifier.Content) {
-    let _: String = viewModifier.screenName
-    let _: String = viewModifier.screenClass
-    let _: [String: Any] = viewModifier.extraParameters
-    let _: any View = viewModifier.body(content: content)
-  }
-
-  @available(iOS 13.0, *)
-  func viewExtensionUsage(viewModifier: LoggedAnalyticsModifier, view: any View) {
-    let _: any View = view.analyticsScreen(
-      name: "name",
-      class: "class",
-      extraParameters: ["param": 1]
-    )
-  }
-
   func usage() {
     // MARK: - Analytics
 
@@ -54,24 +37,20 @@ final class AnalyticsAPITests {
     Analytics.setDefaultEventParameters(["default": 100])
 
     Analytics.sessionID { sessionID, error in }
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        Task {
-          let _: Int64? = try? await Analytics.sessionID()
-        }
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      Task {
+        let _: Int64? = try? await Analytics.sessionID()
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
 
     // MARK: - AppDelegate
 
     Analytics.handleEvents(forBackgroundURLSession: "session_id", completionHandler: {})
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        Task {
-          await Analytics.handleEvents(forBackgroundURLSession: "session_id")
-        }
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      Task {
+        await Analytics.handleEvents(forBackgroundURLSession: "session_id")
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
     Analytics.handleOpen(URL(string: "https://google.com")!)
     Analytics.handleUserActivity(NSUserActivity(activityType: "editing"))
 
@@ -203,5 +182,30 @@ final class AnalyticsAPITests {
       AnalyticsUserPropertyAllowAdPersonalizationSignals,
       AnalyticsUserPropertySignUpMethod,
     ]
+
+    // MARK: - Analytics + SwiftUI
+
+    @available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, *)
+    @available(watchOS, unavailable)
+    struct MyView: View {
+      let name: String
+      let klass: String
+      let extraParameters: [String: Any]
+
+      var body: some View {
+        Text("Hello, world!")
+          .analyticsScreen(name: name,
+                           class: klass,
+                           extraParameters: extraParameters)
+        Text("Hello, world!")
+          .analyticsScreen(name: name,
+                           extraParameters: extraParameters)
+        Text("Hello, world!")
+          .analyticsScreen(name: name,
+                           class: klass)
+        Text("Hello, world!")
+          .analyticsScreen(name: name)
+      }
+    }
   }
 }

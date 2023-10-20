@@ -43,8 +43,6 @@
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSetAccountInfoResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRSignInWithGameCenterResponse.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserRequest.h"
-#import "FirebaseAuth/Sources/Backend/RPC/FIRSignUpNewUserResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyAssertionResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRVerifyCustomTokenRequest.h"
@@ -63,9 +61,9 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthWebUtils.h"
 
 #if TARGET_OS_IOS
-#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
-#import "FirebaseAuth/Sources/Utilities/FIRAuthRecaptchaVerifier.h"
+
+#import "FirebaseAuth/Sources/AuthProvider/Phone/FIRPhoneAuthCredential_Internal.h"
 #endif
 
 NS_ASSUME_NONNULL_BEGIN
@@ -584,6 +582,7 @@ static void callInMainThreadWithAuthDataResultAndError(
 }
 
 #pragma mark -
+
 /** @fn updateEmail:password:callback:
     @brief Updates email address and/or password for the current user.
     @remarks May fail if there is already an email/password-based account for the same email
@@ -1080,109 +1079,6 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 
-- (void)linkWithEmailPassword:(FIREmailPasswordAuthCredential *)credential
-                   authResult:(FIRAuthDataResult *)authResult
-                   completion:(nullable FIRAuthDataResultCallback)completion {
-  [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken, NSError *_Nullable error) {
-    FIRAuthRequestConfiguration *requestConfiguration = self.auth.requestConfiguration;
-    FIRSignUpNewUserRequest *request =
-        [[FIRSignUpNewUserRequest alloc] initWithEmail:credential.email
-                                              password:credential.password
-                                           displayName:nil
-                                               idToken:accessToken
-                                  requestConfiguration:requestConfiguration];
-    FIRSignupNewUserCallback signUpNewUserCallback = ^(FIRSignUpNewUserResponse *_Nullable response,
-                                                       NSError *_Nullable error) {
-      if (error) {
-        [self signOutIfTokenIsInvalidWithError:error];
-        callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-      } else {
-        // Update the new token and refresh user info again.
-        self->_tokenService = [[FIRSecureTokenService alloc]
-            initWithRequestConfiguration:requestConfiguration
-                             accessToken:response.IDToken
-               accessTokenExpirationDate:response.approximateExpirationDate
-                            refreshToken:response.refreshToken];
-
-        [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
-                                             NSError *_Nullable error) {
-          if (error) {
-            callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-            return;
-          }
-          FIRGetAccountInfoRequest *getAccountInfoRequest =
-              [[FIRGetAccountInfoRequest alloc] initWithAccessToken:accessToken
-                                               requestConfiguration:requestConfiguration];
-          [FIRAuthBackend
-              getAccountInfo:getAccountInfoRequest
-                    callback:^(FIRGetAccountInfoResponse *_Nullable response,
-                               NSError *_Nullable error) {
-                      if (error) {
-                        [self signOutIfTokenIsInvalidWithError:error];
-                        callInMainThreadWithAuthDataResultAndError(completion, nil, error);
-                        return;
-                      }
-                      self.anonymous = NO;
-                      [self updateWithGetAccountInfoResponse:response];
-                      NSError *keychainError;
-                      if (![self updateKeychain:&keychainError]) {
-                        callInMainThreadWithAuthDataResultAndError(completion, nil, keychainError);
-                        return;
-                      }
-                      [self signOutIfTokenIsInvalidWithError:error];
-                      callInMainThreadWithAuthDataResultAndError(completion, authResult, nil);
-                    }];
-        }];
-      }
-    };
-
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
-    if ([[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
-            enablementStatusForProvider:FIRAuthRecaptchaProviderPassword]) {
-      [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
-          injectRecaptchaFields:request
-                       provider:FIRAuthRecaptchaProviderPassword
-                         action:FIRAuthRecaptchaActionSignUpPassword
-                     completion:^(
-                         FIRIdentityToolkitRequest<FIRAuthRPCRequest> *requestWithRecaptchaToken) {
-                       [FIRAuthBackend
-                           signUpNewUser:(FIRSignUpNewUserRequest *)requestWithRecaptchaToken
-                                callback:signUpNewUserCallback];
-                     }];
-    } else {
-      [FIRAuthBackend
-          signUpNewUser:request
-               callback:^(FIRSignUpNewUserResponse *_Nullable response, NSError *_Nullable error) {
-                 if (!error) {
-                   signUpNewUserCallback(response, nil);
-                   return;
-                 }
-                 NSError *underlyingError = [error.userInfo objectForKey:NSUnderlyingErrorKey];
-                 if (error.code == FIRAuthErrorCodeInternalError &&
-                     [[underlyingError.userInfo
-                         objectForKey:FIRAuthErrorUserInfoDeserializedResponseKey][@"message"]
-                         hasPrefix:kMissingRecaptchaTokenErrorPrefix]) {
-                   [[FIRAuthRecaptchaVerifier sharedRecaptchaVerifier:self.auth]
-                       injectRecaptchaFields:request
-                                    provider:FIRAuthRecaptchaProviderPassword
-                                      action:FIRAuthRecaptchaActionSignUpPassword
-                                  completion:^(FIRIdentityToolkitRequest<FIRAuthRPCRequest>
-                                                   *requestWithRecaptchaToken) {
-                                    [FIRAuthBackend signUpNewUser:(FIRSignUpNewUserRequest *)
-                                                                      requestWithRecaptchaToken
-                                                         callback:signUpNewUserCallback];
-                                  }];
-                 } else {
-                   signUpNewUserCallback(nil, error);
-                 }
-               }];
-    }
-#else
-[FIRAuthBackend signUpNewUser:request callback:signUpNewUserCallback];
-#endif
-  }];
-}
-
 - (void)linkWithCredential:(FIRAuthCredential *)credential
                 completion:(nullable FIRAuthDataResultCallback)completion {
   dispatch_async(FIRAuthGlobalWorkQueue(), ^{
@@ -1202,9 +1098,15 @@ static void callInMainThreadWithAuthDataResultAndError(
       FIREmailPasswordAuthCredential *emailPasswordCredential =
           (FIREmailPasswordAuthCredential *)credential;
       if (emailPasswordCredential.password) {
-        [self linkWithEmailPassword:emailPasswordCredential
-                         authResult:result
-                         completion:completion];
+        [self updateEmail:emailPasswordCredential.email
+                 password:emailPasswordCredential.password
+                 callback:^(NSError *error) {
+                   if (error) {
+                     callInMainThreadWithAuthDataResultAndError(completion, nil, error);
+                   } else {
+                     callInMainThreadWithAuthDataResultAndError(completion, result, nil);
+                   }
+                 }];
       } else {
         [self internalGetTokenWithCallback:^(NSString *_Nullable accessToken,
                                              NSError *_Nullable error) {

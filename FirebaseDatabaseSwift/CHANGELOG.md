@@ -1,4 +1,4 @@
-# Unreleased
+# 10.17.0
 - [deprecated] All of the public API from `FirebaseDatabaseSwift` can now
   be accessed through the `FirebaseDatabase` module. Therefore,
   `FirebaseDatabaseSwift` has been deprecated, and will be removed in a
