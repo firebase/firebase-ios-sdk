@@ -1482,8 +1482,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://github.com/ncooke3/binary-staging/releases/download/10.17.0/FirebaseFirestoreInternal.zip",
-        checksum: "d0c11c933b5b62d68f47c94acfb6cf7d7adf05dc3e81dea48a11ce320bef41e2"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/10.17.0/FirebaseFirestoreInternal.zip",
+        checksum: "9102f56ad70d97c8ad81b1047fc38bbbacde672eb86d861b19c454829210cd55"
       )
     }
   }()
