@@ -27,6 +27,12 @@
 @class FIRAuthDataResult;
 @class FIRAuthSettings;
 @class FIRUser;
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@class ASAuthorizationPlatformPublicKeyCredentialAssertion;
+@class ASAuthorizationPlatformPublicKeyCredentialAssertionRequest;
+#endif
+
 @protocol FIRAuthUIDelegate;
 @protocol FIRFederatedAuthProvider;
 
@@ -577,6 +583,40 @@ NS_SWIFT_NAME(Auth)
 - (void)signInWithCustomToken:(NSString *)token
                    completion:(nullable void (^)(FIRAuthDataResult *_Nullable authResult,
                                                  NSError *_Nullable error))completion;
+
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+/**
+ @fn startPasskeySignInWithCompletion:
+ @brief start sign in with passkey retrieving challenge from GCIP and create an assertion request.
+ @param completion Optionally; a block which creates a assertation request.
+
+ @remarks // TODO @liubinj add possible error codes
+
+ */
+- (void)startPasskeySignInWithCompletion:
+    (nullable void (^)(
+        ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+        NSError *_Nullable error))completion NS_SWIFT_NAME(startPasskeySignIn(completion:))
+        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+
+/**
+ @fn finalizePasskeySignInWithPlatformCredential:completion:
+ @brief finalize sign in with passkey with existing credential assertion.
+ @param platformCredential The existing credential  assertion created by device.
+ @param completion Optionally; a block which is invoked when the sign in with passkey flow finishes,
+ or is canceled. Invoked asynchronously on the main thread in the future.
+
+ @remarks // TODO @liubinj add possible error codes
+
+ */
+- (void)finalizePasskeySignInWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential
+                                         completion:(nullable void (^)(
+                                                        FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error))completion
+    NS_SWIFT_NAME(finalizePasskeySignIn(with:completion:))
+        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+#endif
 
 /** @fn createUserWithEmail:password:completion:
     @brief Creates and, on success, signs in a user with the given email address and password.
