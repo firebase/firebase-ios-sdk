@@ -25,7 +25,7 @@ if [[ ! -z "${JAVA_HOME_11_X64:-}" ]]; then
   export JAVA_HOME=$JAVA_HOME_11_X64
 fi
 
-VERSION='1.17.4'
+VERSION='1.18.2'
 FILENAME="cloud-firestore-emulator-v${VERSION}.jar"
 URL="https://storage.googleapis.com/firebase-preview-drop/emulator/${FILENAME}"
 

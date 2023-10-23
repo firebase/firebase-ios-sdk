@@ -135,6 +135,7 @@ jobs:
 
     - name: Build and test
       run: |
+        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
@@ -256,6 +257,7 @@ jobs:
 
     - name: Build and test
       run: |
+        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
@@ -284,7 +286,9 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+      run: |
+        export EXPERIMENTAL_MODE=true
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
 
   pod-lib-lint:
