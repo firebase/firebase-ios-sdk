@@ -72,10 +72,8 @@ jobs:
     strategy:
       matrix:
         os: [macos-12, macos-13]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
         target: [tvOS, macOS, catalyst, watchOS]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
