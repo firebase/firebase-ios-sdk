@@ -590,7 +590,7 @@ NS_SWIFT_NAME(Auth)
  @brief start sign in with passkey retrieving challenge from GCIP and create an assertion request.
  @param completion Optionally; a block which creates a assertation request.
 
- @remarks //TODO add possible error codes
+ @remarks // TODO @liubinj add possible error codes
 
  */
 - (void)startPasskeySignInWithCompletion:
@@ -606,7 +606,7 @@ NS_SWIFT_NAME(Auth)
  @param completion Optionally; a block which is invoked when the sign in with passkey flow finishes,
  or is canceled. Invoked asynchronously on the main thread in the future.
 
- @remarks //TODO add possible error codes
+ @remarks // TODO @liubinj add possible error codes
 
  */
 - (void)finalizePasskeySignInWithPlatformCredential:
