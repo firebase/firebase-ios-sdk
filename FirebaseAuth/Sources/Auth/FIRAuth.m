@@ -83,6 +83,11 @@
 #import "FirebaseAuth/Sources/Utilities/FIRAuthURLPresenter.h"
 #endif
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+@class ASAuthorizationPlatformPublicKeyCredentialAssertion;
+@class ASAuthorizationPlatformPublicKeyCredentialAssertionRequest;
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark-- Logger Service String.
@@ -2648,6 +2653,19 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
 
   user.auth = self;
   return user;
+}
+
+- (void)startPasskeySignInWithCompletion:
+    (nullable void (^)(
+        ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+        NSError *_Nullable error))completion {
+}
+
+- (void)finalizePasskeySignInWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential
+                                         completion:(nullable void (^)(
+                                                        FIRAuthDataResult *_Nullable result,
+                                                        NSError *_Nullable error))completion {
 }
 
 @end

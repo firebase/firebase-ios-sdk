@@ -896,6 +896,29 @@ NS_SWIFT_NAME(Auth)
                                             error:(NSError *_Nullable *_Nullable)outError
     __attribute__((swift_error(nonnull_error)));  // This method can return `nil` on success.
 
+#if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+/**
+ @fn startPasskeySignInWithCompletion
+ @brief create key assertion request for sign in
+ */
+- (void)startPasskeySignInWithCompletion:
+    (nullable void (^)(
+        ASAuthorizationPlatformPublicKeyCredentialAssertionRequest *_Nullable request,
+        NSError *_Nullable error))completion API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+
+/**
+ @fn finalizePasskeySignInWithPlatformCredential:completion
+ @brief sign in with passkey credential
+ */
+- (void)finalizePasskeySignInWithPlatformCredential:
+            (ASAuthorizationPlatformPublicKeyCredentialAssertion *)platformCredential
+                                         completion:(nullable void (^)(
+                                                        FIRAuthDataResult *_Nullable authResult,
+                                                        NSError *_Nullable error))completion
+    NS_SWIFT_NAME(finalizePasskeySignIn(with:completion:))
+        API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
+
+#endif
 @end
 
 NS_ASSUME_NONNULL_END
