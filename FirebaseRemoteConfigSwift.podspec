@@ -38,7 +38,6 @@ app update.
     'FirebaseRemoteConfigSwift/Sources/**/*.swift',
   ]
 
-  s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'FirebaseRemoteConfig', '~> 10.17'
 
   # Run Swift API tests on a real backend.
