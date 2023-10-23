@@ -249,6 +249,216 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
                               expectedDocs:@[ @"doc2" ]];
 }
 
+- (void)testCanRunAggregateCollectionGroupQuery {
+  NSString *collectionGroup = [[self testCollectionRef] collectionID];
+  NSArray *docPathFormats = @[
+    @"abc/123/%@/cg-doc1", @"abc/123/%@/cg-doc2", @"%@/cg-doc3", @"%@/cg-doc4",
+    @"def/456/%@/cg-doc5", @"%@/virtual-doc/nested-coll/not-cg-doc", @"x%@/not-cg-doc",
+    @"%@x/not-cg-doc", @"abc/123/%@x/not-cg-doc", @"abc/123/x%@/not-cg-doc", @"abc/%@"
+  ];
+
+  FIRWriteBatch *batch = self.db.batch;
+  for (NSString *format in docPathFormats) {
+    NSString *path = [NSString stringWithFormat:format, collectionGroup];
+    [batch setData:[self addTestSpecificFieldsToDoc:@{@"a" : @2}]
+        forDocument:[self.db documentWithPath:path]];
+  }
+  [self commitWriteBatch:batch];
+
+  FIRAggregateQuerySnapshot *snapshot = [self
+      readSnapshotForAggregate:[[self
+                                   compositeIndexQuery:[self.db
+                                                           collectionGroupWithID:collectionGroup]]
+                                   aggregate:@[
+                                     [FIRAggregateField aggregateFieldForCount],
+                                     [FIRAggregateField aggregateFieldForSumOfField:@"a"],
+                                     [FIRAggregateField aggregateFieldForAverageOfField:@"a"]
+                                   ]]];
+  // "cg-doc1", "cg-doc2", "cg-doc3", "cg-doc4", "cg-doc5",
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
+                 [NSNumber numberWithLong:5L]);
+  XCTAssertEqual(
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"a"]],
+      [NSNumber numberWithLong:10L]);
+  XCTAssertEqual(
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"a"]],
+      [NSNumber numberWithDouble:2.0]);
+}
+
+- (void)testCanPerformMaxAggregations {
+  FIRCollectionReference *testCollection = [self withTestDocs:@{
+    @"a" : @{
+      @"author" : @"authorA",
+      @"title" : @"titleA",
+      @"pages" : @100,
+      @"year" : @1980,
+      @"rating" : @5.0,
+    },
+    @"b" : @{
+      @"author" : @"authorB",
+      @"title" : @"titleB",
+      @"pages" : @50,
+      @"year" : @2020,
+      @"rating" : @4.0,
+    }
+  }];
+
+  // Max is 5, do not exceed
+  FIRAggregateQuerySnapshot *snapshot =
+      [self readSnapshotForAggregate:[[self compositeIndexQuery:testCollection] aggregate:@[
+              [FIRAggregateField aggregateFieldForCount],
+              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForSumOfField:@"year"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"rating"]
+            ]]];
+
+  // Assert
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
+                 [NSNumber numberWithLong:2L]);
+  XCTAssertEqual(
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]],
+      [NSNumber numberWithLong:150L]);
+  XCTAssertEqual(
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"year"]],
+      [NSNumber numberWithLong:4000L]);
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"pages"]],
+                 [NSNumber numberWithDouble:75.0]);
+  XCTAssertEqual([[snapshot valueForAggregateField:[FIRAggregateField
+                                                       aggregateFieldForAverageOfField:@"rating"]]
+                     doubleValue],
+                 4.5);
+}
+
+- (void)testPerformsAggregationsWhenNaNExistsForSomeFieldValues {
+  FIRCollectionReference *testCollection = [self withTestDocs:@{
+    @"a" : @{
+      @"author" : @"authorA",
+      @"title" : @"titleA",
+      @"pages" : @100,
+      @"year" : @1980,
+      @"rating" : @5
+    },
+    @"b" : @{
+      @"author" : @"authorB",
+      @"title" : @"titleB",
+      @"pages" : @50,
+      @"year" : @2020,
+      @"rating" : @4
+    },
+    @"c" : @{
+      @"author" : @"authorC",
+      @"title" : @"titleC",
+      @"pages" : @100,
+      @"year" : @1980,
+      @"rating" : [NSNumber numberWithFloat:NAN]
+    },
+    @"d" : @{
+      @"author" : @"authorD",
+      @"title" : @"titleD",
+      @"pages" : @50,
+      @"year" : @2020,
+      @"rating" : @0
+    }
+  }];
+
+  FIRAggregateQuerySnapshot *snapshot =
+      [self readSnapshotForAggregate:[[self compositeIndexQuery:testCollection] aggregate:@[
+              [FIRAggregateField aggregateFieldForSumOfField:@"rating"],
+              [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"rating"],
+              [FIRAggregateField aggregateFieldForAverageOfField:@"year"]
+            ]]];
+
+  // Sum
+  XCTAssertEqual(
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]],
+      [NSNumber numberWithDouble:NAN]);
+  XCTAssertEqual(
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
+          longValue],
+      300L);
+
+  // Average
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField
+                                                      aggregateFieldForAverageOfField:@"rating"]],
+                 [NSNumber numberWithDouble:NAN]);
+  XCTAssertEqual(
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"year"]]
+          doubleValue],
+      2000.0);
+}
+
+- (void)testPerformsAggregationWhenUsingArrayContainsAnyOperator {
+  FIRCollectionReference *testCollection = [self withTestDocs:@{
+    @"a" : @{
+      @"author" : @"authorA",
+      @"title" : @"titleA",
+      @"pages" : @100,
+      @"year" : @1980,
+      @"rating" : @[ @5, @1000 ]
+    },
+    @"b" : @{
+      @"author" : @"authorB",
+      @"title" : @"titleB",
+      @"pages" : @50,
+      @"year" : @2020,
+      @"rating" : @[ @4 ]
+    },
+    @"c" : @{
+      @"author" : @"authorC",
+      @"title" : @"titleC",
+      @"pages" : @100,
+      @"year" : @1980,
+      @"rating" : @[ @2222, @3 ]
+    },
+    @"d" : @{
+      @"author" : @"authorD",
+      @"title" : @"titleD",
+      @"pages" : @50,
+      @"year" : @2020,
+      @"rating" : @[ @0 ]
+    }
+  }];
+
+  FIRAggregateQuerySnapshot *snapshot = [self
+      readSnapshotForAggregate:[[self
+                                   compositeIndexQuery:[testCollection queryWhereField:@"rating"
+                                                                      arrayContainsAny:@[ @5, @3 ]]]
+                                   aggregate:@[
+                                     [FIRAggregateField aggregateFieldForSumOfField:@"rating"],
+                                     [FIRAggregateField aggregateFieldForSumOfField:@"pages"],
+                                     [FIRAggregateField aggregateFieldForAverageOfField:@"rating"],
+                                     [FIRAggregateField aggregateFieldForAverageOfField:@"pages"],
+                                     [FIRAggregateField aggregateFieldForCount]
+                                   ]]];
+
+  // Count
+  XCTAssertEqual(
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]] longValue], 2L);
+
+  // Sum
+  XCTAssertEqual(
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"rating"]]
+          longValue],
+      0L);
+  XCTAssertEqual(
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"pages"]]
+          longValue],
+      200L);
+
+  // Average
+  XCTAssertEqualObjects(
+      [snapshot
+          valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"rating"]],
+      [NSNull null]);
+  XCTAssertEqual(
+      [[snapshot valueForAggregateField:[FIRAggregateField
+                                            aggregateFieldForAverageOfField:@"pages"]] doubleValue],
+      100.0);
+}
+
 @end
 
 NS_ASSUME_NONNULL_END
