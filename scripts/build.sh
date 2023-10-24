@@ -137,15 +137,15 @@ function ExportLogs() {
   python "${scripts_dir}/xcresult_logs.py" "$@"
 }
 
-if [[ "$xcode_major" -lt 11 ]]; then
+if [[ "$xcode_major" -lt 15 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 7'
+    -destination 'platform=iOS Simulator,name=iPhone 14'
   )
 else
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 11'
+    -destination 'platform=iOS Simulator,name=iPhone 15'
   )
 fi
 
