@@ -2997,7 +2997,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
 
 /** @fn testlinkPhoneCredentialAlreadyExistsError
     @brief Tests the flow of @c linkWithCredential:completion:
-        call using a phoneAuthCredential and a credential already exisits error. In this case we
+        call using a phoneAuthCredential and a credential already exists error. In this case we
         should get a FIRAuthCredential in the error object.
  */
 - (void)testlinkPhoneCredentialAlreadyExistsError {
