@@ -189,6 +189,10 @@ static NSString *const COMPOSITE_INDEX_TEST_COLLECTION = @"composite-index-test-
  * To get started, please refer to the instructions provided in the README file. This will
  * guide you through setting up your local testing environment and updating the Terraform
  * configuration with any new composite indexes required for your testing scenarios.
+ *
+ * Note: Whenever feasible, make use of the current document fields (such as 'a,' 'b,' 'author,'
+ * 'title') to avoid introducing new composite indexes and surpassing the limit. Refer to the
+ * guidelines at https://firebase.google.com/docs/firestore/quotas#indexes for further information.
  */
 
 - (void)testOrQueriesWithCompositeIndexes {
