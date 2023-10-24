@@ -443,7 +443,9 @@ jobs:
   # to be used as a required check for merging.
   check-required-tests:
     runs-on: ubuntu-latest
-    if: always()
+    if: |
+      (github.repository == 'firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && ${{ !contains(github.event.head_commit.message, 'skip ci') }})
     name: Check all required Firestore tests results
     needs: [cmake, cmake-prod-db, xcodebuild, spm-source, spm-binary]
     steps:
