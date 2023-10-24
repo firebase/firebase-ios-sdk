@@ -683,11 +683,18 @@ case "$product-$platform-$method" in
 
   # Note that the combine tests require setting the minimum iOS and tvOS version to 13.0
   *-*-spm)
+    ifeq ($(origin RUNNER_TEMP),undefined)
+      DERIVED_DATA_PATH=.derivedData
+    else
+      DERIVED_DATA_PATH="$(RUNNER_TEMP)/derivedData"
+    endif
+
     RunXcodebuild \
       -scheme $product \
       "${xcb_flags[@]}" \
       IPHONEOS_DEPLOYMENT_TARGET=13.0 \
       TVOS_DEPLOYMENT_TARGET=13.0 \
+      "$(DERIVED_DATA_PATH)" \
       test
     ;;
 
