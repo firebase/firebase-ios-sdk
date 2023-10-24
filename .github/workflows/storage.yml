@@ -165,8 +165,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        # TODO: restore ios
-        target: [tvos, macos, watchos]
+        target: [ios, tvos, macos, watchos]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
@@ -190,6 +189,8 @@ jobs:
 #    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     strategy:
       matrix:
+        target: [ios, tvos, macos, watchos]
+        os: [macos-12, macos-13]
         include:
           - os: macos-12
             xcode: Xcode_14.2
