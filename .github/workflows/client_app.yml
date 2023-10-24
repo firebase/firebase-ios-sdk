@@ -53,4 +53,4 @@ jobs:
       - name: Prereqs
         run: scripts/install_prereqs.sh ClientApp iOS xcodebuild
       - name: Build
-        run: scripts/build.sh CocoaPodsClientApp iOS xcodebuild
+        run: scripts/build.sh ClientApp-CocoaPods iOS xcodebuild

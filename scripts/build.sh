@@ -706,7 +706,7 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  CocoaPodsClientApp-iOS-xcodebuild)
+  ClientApp-CocoaPods-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'ClientApp/ClientApp.xcworkspace' \
       -scheme "ClientApp-CocoaPods" \
