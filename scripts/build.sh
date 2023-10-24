@@ -706,10 +706,10 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  ClientApp-CocoaPods-iOS-xcodebuild)
+  ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'ClientApp/ClientApp.xcworkspace' \
-      -scheme "ClientApp-CocoaPods" \
+      -scheme $product \
       "${xcb_flags[@]}" \
       build
     ;;
