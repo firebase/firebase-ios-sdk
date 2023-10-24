@@ -698,18 +698,18 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  SwiftPMClientApp-*-xcodebuild)
+  ClientApp-iOS-xcodebuild | ClientApp-iOS13-iOS-xcodebuild)
     RunXcodebuild \
       -project 'ClientApp/ClientApp.xcodeproj' \
-      -scheme "ClientApp" \
+      -scheme $product \
       "${xcb_flags[@]}" \
       build
     ;;
 
-  CocoaPodsClientApp-iOS-xcodebuild)
+  ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'ClientApp/ClientApp.xcworkspace' \
-      -scheme "ClientApp-CocoaPods" \
+      -scheme $product \
       "${xcb_flags[@]}" \
       build
     ;;
