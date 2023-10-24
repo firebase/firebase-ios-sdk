@@ -489,7 +489,6 @@ static void callInMainThreadWithAuthDataResultAndError(
   _multiFactor = [[FIRMultiFactor alloc] initWithMFAEnrollments:user.MFAEnrollments];
   _multiFactor.user = self;
 #endif
-  _enrolledPasskeys = [user.enrolledPasskeys copy];
 }
 
 /** @fn executeUserUpdateWithChanges:callback:
