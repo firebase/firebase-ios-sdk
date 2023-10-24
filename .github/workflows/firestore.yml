@@ -453,6 +453,7 @@ jobs:
         if: needs.cmake.result == 'failure' || needs.cmake-prod-db.result == 'failure' || needs.xcodebuild.result == 'failure' || needs.spm.result == 'failure'
         run: exit 1
 
+# touch ci
 
   # Disable until FirebaseUI is updated to accept Firebase 9 and quickstart is updated to accept
   # Firebase UI 12
