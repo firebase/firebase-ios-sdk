@@ -56,4 +56,4 @@ jobs:
       - name: Prereqs
         run: scripts/install_prereqs.sh ClientApp iOS xcodebuild
       - name: Build
-        run: scripts/build.sh ${{ scheme }} iOS xcodebuild
+        run: scripts/build.sh ${{ matrix.scheme }} iOS xcodebuild
