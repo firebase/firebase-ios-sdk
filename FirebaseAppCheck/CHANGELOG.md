@@ -1,7 +1,5 @@
-# Unreleased
-- [fixed] Added invalid key error handling in App Attest key attestation. (#11986)
-
 # 10.17.0
+- [fixed] Added invalid key error handling in App Attest key attestation. (#11986)
 - [fixed] Replaced semantic imports (`@import FirebaseAppCheckInterop`) with umbrella header imports
   (`#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>`) for ObjC++ compatibility (#11916).
 
