@@ -16,6 +16,7 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/FIRAuthProtoMFAEnrollment.h"
+#import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPasskeyInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -128,6 +129,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, strong, readonly, nullable)
     NSArray<FIRAuthProtoMFAEnrollment *> *MFAEnrollments;
+
+/**
+ @property enrolledPasskeys
+ @brief A list of enrolled passkeys of the user.
+ */
+@property(nonatomic, strong, readonly, nullable) NSArray<FIRPasskeyInfo *> *enrolledPasskeys;
 
 /** @fn init
     @brief Please use initWithDictionary:
