@@ -23,8 +23,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
+          # Only one os to avoid contention in the integration tests.
+          # - os: macos-12
+          #   xcode: Xcode_14.2
           - os: macos-13
             xcode: xcode_15.0.1
     env:
