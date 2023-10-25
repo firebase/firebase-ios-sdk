@@ -100,5 +100,55 @@ locals {
         order      = "DESCENDING"
       },
     ]
+    index9 = [
+      {
+        field_path = "testId"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "pages"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "year"
+        order      = "ASCENDING"
+      },
+    ]
+    index10 = [
+      {
+        field_path = "testId"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "pages"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "rating"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "year"
+        order      = "ASCENDING"
+      },
+    ]
+    index11 = [
+      {
+        field_path   = "rating"
+        array_config = "CONTAINS"
+      },
+      {
+        field_path = "testId"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "pages"
+        order      = "ASCENDING"
+      },
+      {
+        field_path = "rating"
+        order      = "ASCENDING"
+      },
+    ]
   }
 }
