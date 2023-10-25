@@ -132,7 +132,6 @@ class SignUpNewUserTests: RPCBaseTests {
     let kPasswordKey = "password"
     let kCaptchaResponseKey = "captchaResponse"
     let kTestCaptchaResponse = "testCaptchaResponse"
-    let kTestPendingToken = "testPendingToken"
     let kClientTypeKey = "clientType"
     let kTestClientType = "testClientType"
     let kRecaptchaVersionKey = "recaptchaVersion"

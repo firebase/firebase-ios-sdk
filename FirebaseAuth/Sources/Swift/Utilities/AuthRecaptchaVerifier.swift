@@ -149,10 +149,12 @@
       let response = try await AuthBackend.call(with: request)
       AuthLog.logInfo(code: "TODO-CODE", message: "reCAPTCHA config retrieval succeeded.")
       // Response's site key is of the format projects/<project-id>/keys/<site-key>'
-      guard let siteKey = response.recaptchaKey?.components(separatedBy: "/")[3] else {
+      guard let keys = response.recaptchaKey?.components(separatedBy: "/"),
+            keys.count == 4 else {
         throw AuthErrorUtils.error(code: .recaptchaNotEnabled,
                                    message: "Invalid siteKey")
       }
+      let siteKey = keys[3]
       var enablementStatus: [String: Bool] = [:]
       if let enforcementState = response.enforcementState {
         for state in enforcementState {

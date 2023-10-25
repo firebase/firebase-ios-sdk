@@ -142,4 +142,9 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
     body[kClientType] = clientType
     return body
   }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
+  }
 }

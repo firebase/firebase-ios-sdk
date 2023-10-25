@@ -2448,15 +2448,14 @@ extension Auth: AuthInterop {
           if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
              nsError.code == AuthErrorCode.internalError.rawValue,
              let messages = underlyingError
-             .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as?
-             [String: AnyHashable],
+             .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable],
              let message = messages["message"] as? String,
              message.hasPrefix("MISSING_RECAPTCHA_TOKEN") {
-            try await recaptchaVerifier.injectRecaptchaFields(request: request,
-                                                              provider: AuthRecaptchaProvider
-                                                                .password,
-                                                              action: AuthRecaptchaAction
-                                                                .signInWithPassword)
+            try await recaptchaVerifier.injectRecaptchaFields(
+              request: request,
+              provider: AuthRecaptchaProvider.password,
+              action: AuthRecaptchaAction.signInWithPassword
+            )
           } else {
             throw error
           }
