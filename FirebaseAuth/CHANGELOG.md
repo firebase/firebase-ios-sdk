@@ -1,4 +1,4 @@
-# 10.17.0
+# 10.18.0
 - [fixed] Fix a bug where anonymous account can't be linked with email password credential. (#11911)
 
 # 10.16.0
