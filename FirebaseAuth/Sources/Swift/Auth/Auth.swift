@@ -1275,7 +1275,7 @@ extension Auth: AuthInterop {
       )
       #if os(iOS)
         self.wrapInjectRecaptcha(request: request,
-                                 action: AuthRecaptchaAction.signInWithPassword) { result, error in
+                                 action: AuthRecaptchaAction.getOobCode) { result, error in
           if let completion {
             DispatchQueue.main.async {
               completion(error)
