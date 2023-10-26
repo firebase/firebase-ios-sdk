@@ -296,14 +296,12 @@ case "$product-$platform-$method" in
         -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
         -scheme "Auth_ApiTests" \
         "${xcb_flags[@]}" \
-        build \
         test
 
       RunXcodebuild \
         -workspace 'FirebaseAuth/Tests/Sample/AuthSample.xcworkspace' \
         -scheme "SwiftApiTests" \
         "${xcb_flags[@]}" \
-        build \
         test
     fi
     ;;
@@ -323,7 +321,6 @@ case "$product-$platform-$method" in
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        build \
         test
     ;;
 
@@ -387,7 +384,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseMessaging-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
     fi
 
@@ -572,7 +568,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseStorage-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
     fi
 
@@ -583,7 +578,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseStorage-Unit-ObjCIntegration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
       fi
     ;;
@@ -603,7 +597,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseCombineSwift-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
       fi
     ;;
