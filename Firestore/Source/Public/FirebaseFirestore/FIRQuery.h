@@ -20,6 +20,7 @@
 #import "FIRListenerRegistration.h"
 
 @class FIRAggregateQuery;
+@class FIRAggregateField;
 @class FIRFieldPath;
 @class FIRFirestore;
 @class FIRFilter;
@@ -559,10 +560,27 @@ NS_SWIFT_NAME(Query)
  * the documents.
  *
  * Using this `AggregateQuery` to count the documents is efficient because only the final count,
- * not the documents' data, is downloaded. The query can even count the documents if the result
- * set would be prohibitively large to download entirely (e.g. thousands of documents).
+ * not the documents' data, is downloaded. This allows for counting document collections that would
+ * otherwise be too large to download (e.g. containing thousands of documents).
  */
 @property(nonatomic, readonly) FIRAggregateQuery *count;
+
+/**
+ * Creates and returns a new `AggregateQuery` that aggregates the documents in the result set
+ * of this query, without actually downloading the documents.
+ *
+ * Using an `AggregateQuery` to perform aggregations is efficient because only the final aggregation
+ * values, not the documents' data, is downloaded. This allows for aggregating document collections
+ * that would otherwise be too large to download (e.g. containing thousands of documents).
+ *
+ * @param aggregateFields Specifies the aggregate operations to perform on the result set of this
+ * query.
+ *
+ * @return An `AggregateQuery` encapsulating this `Query` and `AggregateField`s, which can be used
+ * to query the server for the aggregation results.
+ */
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregateFields
+    NS_SWIFT_NAME(aggregate(_:));
 
 @end
 

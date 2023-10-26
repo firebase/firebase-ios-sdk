@@ -432,8 +432,8 @@ std::string Query::Describe(Operator op) const {
 }
 
 AggregateQuery Query::Aggregate(
-    std::vector<AggregateField>&& aggregations) const {
-  return AggregateQuery(*this, std::move(aggregations));
+    std::vector<AggregateField>&& aggregateFields) const {
+  return AggregateQuery(*this, std::move(aggregateFields));
 }
 
 // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates

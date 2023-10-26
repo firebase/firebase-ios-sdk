@@ -125,6 +125,8 @@ extern "C" {
 
 - (void)enableNetwork;
 
+- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs;
+
 /**
  * "Blocks" the current thread/run loop until the block returns YES.
  * Should only be called on the main thread.

@@ -280,16 +280,21 @@ NS_ASSUME_NONNULL_BEGIN
                           do:^NSData *_Nullable {
                             return [FIRAppCheckCryptoUtils sha256HashFromData:challenge];
                           }]
-      .thenOn(
-          self.queue,
-          ^FBLPromise<NSData *> *(NSData *challengeHash) {
-            return [FBLPromise onQueue:self.queue
-                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-                  [self.appAttestService attestKey:keyID
-                                    clientDataHash:challengeHash
-                                 completionHandler:handler];
-                }];
-          })
+      .thenOn(self.queue,
+              ^FBLPromise<NSData *> *(NSData *challengeHash) {
+                return [FBLPromise onQueue:self.queue
+                           wrapObjectOrErrorCompletion:^(
+                               FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+                             [self.appAttestService attestKey:keyID
+                                               clientDataHash:challengeHash
+                                            completionHandler:handler];
+                           }]
+                    .recoverOn(self.queue, ^id(NSError *error) {
+                      return [FIRAppCheckErrorUtil appAttestAttestKeyFailedWithError:error
+                                                                               keyId:keyID
+                                                                      clientDataHash:challengeHash];
+                    });
+              })
       .thenOn(self.queue, ^FBLPromise<FIRAppAttestKeyAttestationResult *> *(NSData *attestation) {
         FIRAppAttestKeyAttestationResult *result =
             [[FIRAppAttestKeyAttestationResult alloc] initWithKeyID:keyID
@@ -317,6 +322,27 @@ NS_ASSUME_NONNULL_BEGIN
 
                 return [self attestKey:keyID challenge:challenge];
               })
+      .recoverOn(self.queue,
+                 ^id(NSError *error) {
+                   // If Apple rejected the key (DCErrorInvalidKey) then reset the attestation and
+                   // throw a specific error to signal retry (FIRAppAttestRejectionError).
+                   NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+                   if (underlyingError && [underlyingError.domain isEqualToString:DCErrorDomain] &&
+                       underlyingError.code == DCErrorInvalidKey) {
+                     FIRAppCheckDebugLog(
+                         kFIRLoggerAppCheckMessageCodeAttestationRejected,
+                         @"App Attest invalid key; the existing attestation will be reset.");
+
+                     // Reset the attestation.
+                     return [self resetAttestation].thenOn(self.queue, ^NSError *(id result) {
+                       // Throw the rejection error.
+                       return [[FIRAppAttestRejectionError alloc] init];
+                     });
+                   }
+
+                   // Otherwise just re-throw the error.
+                   return error;
+                 })
       .thenOn(self.queue,
               ^FBLPromise<NSArray *> *(FIRAppAttestKeyAttestationResult *result) {
                 // 3. Exchange the attestation to FAC token and pass the results to the next step.
@@ -391,17 +417,22 @@ NS_ASSUME_NONNULL_BEGIN
                     // 1.2. Get the statement SHA256 hash.
                     return [FIRAppCheckCryptoUtils sha256HashFromData:[statementForAssertion copy]];
                   }]
-      .thenOn(
-          self.queue,
-          ^FBLPromise<NSData *> *(NSData *statementHash) {
-            // 2. Generate App Attest assertion.
-            return [FBLPromise onQueue:self.queue
-                wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-                  [self.appAttestService generateAssertion:keyID
-                                            clientDataHash:statementHash
-                                         completionHandler:handler];
-                }];
-          })
+      .thenOn(self.queue,
+              ^FBLPromise<NSData *> *(NSData *statementHash) {
+                return [FBLPromise onQueue:self.queue
+                           wrapObjectOrErrorCompletion:^(
+                               FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
+                             [self.appAttestService generateAssertion:keyID
+                                                       clientDataHash:statementHash
+                                                    completionHandler:handler];
+                           }]
+                    .recoverOn(self.queue, ^id(NSError *error) {
+                      return [FIRAppCheckErrorUtil
+                          appAttestGenerateAssertionFailedWithError:error
+                                                              keyId:keyID
+                                                     clientDataHash:statementHash];
+                    });
+              })
       // 3. Compose the result object.
       .thenOn(self.queue, ^FIRAppAttestAssertionData *(NSData *assertion) {
         return [[FIRAppAttestAssertionData alloc] initWithChallenge:challenge
@@ -479,6 +510,10 @@ NS_ASSUME_NONNULL_BEGIN
              wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
                [self.appAttestService generateKeyWithCompletionHandler:handler];
              }]
+      .recoverOn(self.queue,
+                 ^id(NSError *error) {
+                   return [FIRAppCheckErrorUtil appAttestGenerateKeyFailedWithError:error];
+                 })
       .thenOn(self.queue, ^FBLPromise<NSString *> *(NSString *keyID) {
         return [self.keyIDStorage setAppAttestKeyID:keyID];
       });

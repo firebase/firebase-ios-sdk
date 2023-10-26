@@ -23,7 +23,7 @@
 #import "FirebaseAuth/Interop/FIRAuthInterop.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@import FirebaseAppCheckInterop;
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

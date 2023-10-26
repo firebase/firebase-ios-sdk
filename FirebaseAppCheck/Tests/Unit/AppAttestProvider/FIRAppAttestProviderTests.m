@@ -16,6 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
+#import <DeviceCheck/DeviceCheck.h>
 #import <OCMock/OCMock.h>
 #import "FBLPromise+Testing.h"
 
@@ -393,6 +394,10 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   NSError *attestationError = [NSError errorWithDomain:@"testGetTokenWhenKeyAttestationError"
                                                   code:0
                                               userInfo:nil];
+  NSError *expectedError =
+      [FIRAppCheckErrorUtil appAttestAttestKeyFailedWithError:attestationError
+                                                        keyId:existingKeyID
+                                               clientDataHash:self.randomChallengeHash];
   id attestCompletionArg = [OCMArg invokeBlockWithArgs:[NSNull null], attestationError, nil];
   OCMExpect([self.mockAppAttestService attestKey:existingKeyID
                                   clientDataHash:self.randomChallengeHash
@@ -411,7 +416,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         [completionExpectation fulfill];
 
         XCTAssertNil(token);
-        XCTAssertEqualObjects(error, attestationError);
+        XCTAssertEqualObjects(error, expectedError);
       }];
 
   [self waitForExpectations:@[ self.fakeBackoffWrapper.backoffExpectation, completionExpectation ]
@@ -422,7 +427,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   [self verifyAllMocks];
 
   // 9. Verify backoff error.
-  XCTAssertEqualObjects(self.fakeBackoffWrapper.operationError, attestationError);
+  XCTAssertEqualObjects(self.fakeBackoffWrapper.operationError, expectedError);
 }
 
 - (void)testGetToken_WhenUnregisteredKeyAndKeyAttestationExchangeError {
@@ -598,6 +603,75 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
   [self verifyAllMocks];
 }
 
+- (void)testGetToken_WhenExistingKeyIsRejectedByApple_ThenAttestationIsResetAndRetriedOnce_Success {
+  // 1. Expect FIRAppAttestService.isSupported.
+  [OCMExpect([self.mockAppAttestService isSupported]) andReturnValue:@(YES)];
+
+  // 2. Expect storage getAppAttestKeyID.
+  NSString *existingKeyID = @"existingKeyID";
+  OCMExpect([self.mockStorage getAppAttestKeyID])
+      .andReturn([FBLPromise resolvedWith:existingKeyID]);
+
+  // 3. Expect a stored artifact to be requested.
+  __auto_type rejectedPromise = [self rejectedPromiseWithError:[NSError errorWithDomain:self.name
+                                                                                   code:NSNotFound
+                                                                               userInfo:nil]];
+  OCMExpect([self.mockArtifactStorage getArtifactForKey:existingKeyID]).andReturn(rejectedPromise);
+
+  // 4. Expect random challenge to be requested.
+  OCMExpect([self.mockAPIService getRandomChallenge])
+      .andReturn([FBLPromise resolvedWith:self.randomChallenge]);
+
+  // 5. Expect the key to be attested with the challenge.
+  NSError *attestationError = [NSError errorWithDomain:DCErrorDomain
+                                                  code:DCErrorInvalidKey
+                                              userInfo:nil];
+  id attestCompletionArg = [OCMArg invokeBlockWithArgs:[NSNull null], attestationError, nil];
+  OCMExpect([self.mockAppAttestService attestKey:existingKeyID
+                                  clientDataHash:self.randomChallengeHash
+                               completionHandler:attestCompletionArg]);
+
+  // 6. Stored attestation to be reset.
+  [self expectAttestationReset];
+
+  // 7. Expect the App Attest key pair to be generated and attested.
+  NSString *newKeyID = @"newKeyID";
+  NSData *attestationData = [[NSUUID UUID].UUIDString dataUsingEncoding:NSUTF8StringEncoding];
+  [self expectAppAttestKeyGeneratedAndAttestedWithKeyID:newKeyID attestationData:attestationData];
+
+  // 8. Expect exchange request to be sent.
+  FIRAppCheckToken *FACToken = [[FIRAppCheckToken alloc] initWithToken:@"FAC token"
+                                                        expirationDate:[NSDate date]];
+  NSData *artifactData = [@"attestation artifact" dataUsingEncoding:NSUTF8StringEncoding];
+  __auto_type attestKeyResponse =
+      [[FIRAppAttestAttestationResponse alloc] initWithArtifact:artifactData token:FACToken];
+  OCMExpect([self.mockAPIService attestKeyWithAttestation:attestationData
+                                                    keyID:newKeyID
+                                                challenge:self.randomChallenge])
+      .andReturn([FBLPromise resolvedWith:attestKeyResponse]);
+
+  // 9. Expect the artifact received from Firebase backend to be saved.
+  OCMExpect([self.mockArtifactStorage setArtifact:artifactData forKey:newKeyID])
+      .andReturn([FBLPromise resolvedWith:artifactData]);
+
+  // 10. Call get token.
+  XCTestExpectation *completionExpectation =
+      [self expectationWithDescription:@"completionExpectation"];
+  [self.provider
+      getTokenWithCompletion:^(FIRAppCheckToken *_Nullable token, NSError *_Nullable error) {
+        [completionExpectation fulfill];
+
+        XCTAssertEqualObjects(token.token, FACToken.token);
+        XCTAssertEqualObjects(token.expirationDate, FACToken.expirationDate);
+        XCTAssertNil(error);
+      }];
+
+  [self waitForExpectations:@[ completionExpectation ] timeout:0.5 enforceOrder:YES];
+
+  // 11. Verify mocks.
+  [self verifyAllMocks];
+}
+
 #pragma mark - FAC token refresh (assertion)
 
 - (void)testGetToken_WhenKeyRegistered_Success {
@@ -671,6 +745,10 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
       [NSError errorWithDomain:@"testGetToken_WhenKeyRegisteredAndGenerateAssertionError"
                           code:0
                       userInfo:nil];
+  NSError *expectedError =
+      [FIRAppCheckErrorUtil appAttestGenerateAssertionFailedWithError:generateAssertionError
+                                                                keyId:existingKeyID
+                                                       clientDataHash:self.randomChallengeHash];
   id completionBlockArg = [OCMArg invokeBlockWithArgs:[NSNull null], generateAssertionError, nil];
   OCMExpect([self.mockAppAttestService
       generateAssertion:existingKeyID
@@ -690,7 +768,7 @@ FIR_APP_ATTEST_PROVIDER_AVAILABILITY
         [completionExpectation fulfill];
 
         XCTAssertNil(token);
-        XCTAssertEqualObjects(error, generateAssertionError);
+        XCTAssertEqualObjects(error, expectedError);
       }];
 
   [self waitForExpectations:@[ completionExpectation ] timeout:0.5];

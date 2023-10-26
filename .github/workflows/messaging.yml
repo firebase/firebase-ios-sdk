@@ -57,6 +57,7 @@ jobs:
 
     strategy:
       matrix:
+        podspec: [FirebaseMessagingInterop.podspec, FirebaseMessaging.podspec]
         target: [ios, tvos, macos --skip-tests, watchos --skip-tests] # skipping tests on mac because of keychain access
     steps:
     - uses: actions/checkout@v3
@@ -64,7 +65,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build and test
-      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseMessaging.podspec --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb ${{ matrix.podspec }} --platforms=${{ matrix.target }}
 
   spm:
     # Don't run on private repo unless it is a PR.

@@ -15,7 +15,12 @@
  */
 
 import Foundation
-import FirebaseFirestore
+
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 
 public extension CollectionReference {
   /// Encodes an instance of `Encodable` and adds a new document to this collection

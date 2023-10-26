@@ -32,25 +32,6 @@
 
 @implementation FIRQueryTests
 
-/**
- * Checks that running the query while online (against the backend/emulator) results in the same
- * documents as running the query while offline. It also checks that both online and offline
- * query result is equal to the expected documents.
- *
- * @param query The query to check.
- * @param expectedDocs Array of document keys that are expected to match the query.
- */
-- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs {
-  FIRQuerySnapshot *docsFromServer = [self readDocumentSetForRef:query
-                                                          source:FIRFirestoreSourceServer];
-  FIRQuerySnapshot *docsFromCache = [self readDocumentSetForRef:query
-                                                         source:FIRFirestoreSourceCache];
-
-  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
-                        FIRQuerySnapshotGetIDs(docsFromCache));
-  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromCache), expectedDocs);
-}
-
 - (void)testLimitQueries {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"a" : @{@"k" : @"a"},
@@ -911,62 +892,6 @@
                      matchesResult:@[ @"doc2" ]];
 }
 
-- (void)testOrQueriesWithCompositeIndexes {
-  // TODO(orquery): Enable this test against production when possible.
-  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
-            "Skip this test because prod testing with composite indexes is not supported yet.");
-
-  FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
-    @"doc1" : @{@"a" : @1, @"b" : @0},
-    @"doc2" : @{@"a" : @2, @"b" : @1},
-    @"doc3" : @{@"a" : @3, @"b" : @2},
-    @"doc4" : @{@"a" : @1, @"b" : @3},
-    @"doc5" : @{@"a" : @1, @"b" : @1}
-  }];
-
-  // with one inequality: a>2 || b==1.
-  FIRFilter *filter1 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isGreaterThan:@2], [FIRFilter filterWhereField:@"b"
-                                                                          isEqualTo:@1]
-  ]];
-  [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter1]
-                     matchesResult:@[ @"doc5", @"doc2", @"doc3" ]];
-
-  // Test with limits (implicit order by ASC): (a==1) || (b > 0) LIMIT 2
-  FIRFilter *filter2 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
-                                                                  isGreaterThan:@0]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[collRef queryWhereFilter:filter2] queryLimitedTo:2]
-                     matchesResult:@[ @"doc1", @"doc2" ]];
-
-  // Test with limits (explicit order by): (a==1) || (b > 0) LIMIT_TO_LAST 2
-  // Note: The public query API does not allow implicit ordering when limitToLast is used.
-  FIRFilter *filter3 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@1], [FIRFilter filterWhereField:@"b"
-                                                                  isGreaterThan:@0]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter3] queryLimitedToLast:2]
-                                       queryOrderedByField:@"b"]
-                     matchesResult:@[ @"doc3", @"doc4" ]];
-
-  // Test with limits (explicit order by ASC): (a==2) || (b == 1) ORDER BY a LIMIT 1
-  FIRFilter *filter4 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter4] queryLimitedTo:1]
-                                       queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc5" ]];
-
-  // Test with limits (explicit order by DESC): (a==2) || (b == 1) ORDER BY a LIMIT_TO_LAST 1
-  FIRFilter *filter5 = [FIRFilter orFilterWithFilters:@[
-    [FIRFilter filterWhereField:@"a" isEqualTo:@2], [FIRFilter filterWhereField:@"b" isEqualTo:@1]
-  ]];
-  [self checkOnlineAndOfflineQuery:[[[collRef queryWhereFilter:filter5] queryLimitedToLast:1]
-                                       queryOrderedByField:@"a"]
-                     matchesResult:@[ @"doc2" ]];
-}
-
 - (void)testOrQueriesWithIn {
   FIRCollectionReference *collRef = [self collectionRefWithDocuments:@{
     @"doc1" : @{@"a" : @1, @"b" : @0},
@@ -1234,6 +1159,7 @@
                                                                  isLessThanOrEqualTo:@1]];
   XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(snapshot), (@[ @"doc6" ]));
 }
+
 - (void)testMultipleInequalityWithArrayMembership {
   // TODO(MIEQ): Enable this test against production when possible.
   XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
@@ -1508,14 +1434,14 @@
                                      [FIRAggregateField aggregateFieldForSumOfField:@"sort"],
                                      [FIRAggregateField aggregateFieldForAverageOfField:@"v"],
                                    ]]];
-  XCTAssertEqual([snapshot valueForAggregation:[FIRAggregateField aggregateFieldForCount]],
+  XCTAssertEqual([snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForCount]],
                  [NSNumber numberWithLong:3L]);
   XCTAssertEqual(
-      [[snapshot valueForAggregation:[FIRAggregateField aggregateFieldForSumOfField:@"sort"]]
+      [[snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForSumOfField:@"sort"]]
           longValue],
       6L);
   XCTAssertEqual(
-      [snapshot valueForAggregation:[FIRAggregateField aggregateFieldForAverageOfField:@"v"]],
+      [snapshot valueForAggregateField:[FIRAggregateField aggregateFieldForAverageOfField:@"v"]],
       [NSNumber numberWithDouble:1.0]);
 }
 
@@ -1640,6 +1566,49 @@
   ]];
   [self checkOnlineAndOfflineQuery:[collRef queryWhereFilter:filter]
                      matchesResult:@[ @"doc1", @"doc3" ]];
+}
+
+- (void)testMultipleInequalityRejectsIfDocumentKeyIsNotTheLastOrderByField {
+  // TODO(MIEQ): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because multiple inequality is "
+            "not supported yet.");
+
+  FIRCollectionReference *collRef = [self collectionRef];
+
+  FIRQuery *query = [[collRef queryWhereField:@"key" isNotEqualTo:@42]
+      queryOrderedByFieldPath:[FIRFieldPath documentID]];
+
+  XCTestExpectation *queryCompletion = [self expectationWithDescription:@"query"];
+  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *results, NSError *error) {
+    XCTAssertNil(results);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+    [queryCompletion fulfill];
+  }];
+  [self awaitExpectations];
+}
+
+- (void)testMultipleInequalityRejectsIfDocumentKeyAppearsOnlyInEqualityFilter {
+  // TODO(MIEQ): Enable this test against production when possible.
+  XCTSkipIf(![FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test if running against production because multiple inequality is "
+            "not supported yet.");
+
+  FIRCollectionReference *collRef = [self collectionRef];
+
+  FIRQuery *query = [[collRef queryWhereField:@"key"
+                                 isNotEqualTo:@42] queryWhereFieldPath:[FIRFieldPath documentID]
+                                                             isEqualTo:@"doc1"];
+
+  XCTestExpectation *queryCompletion = [self expectationWithDescription:@"query"];
+  [query getDocumentsWithCompletion:^(FIRQuerySnapshot *results, NSError *error) {
+    XCTAssertNil(results);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, FIRFirestoreErrorCodeInvalidArgument);
+    [queryCompletion fulfill];
+  }];
+  [self awaitExpectations];
 }
 
 - (void)testResumingAQueryShouldUseBloomFilterToAvoidFullRequery {

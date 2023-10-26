@@ -296,14 +296,12 @@ case "$product-$platform-$method" in
         -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
         -scheme "ObjCApiTests" \
         "${xcb_flags[@]}" \
-        build \
         test
 
       RunXcodebuild \
         -workspace 'FirebaseAuth/Tests/SampleSwift/AuthenticationExample.xcworkspace' \
         -scheme "SwiftApiTests" \
         "${xcb_flags[@]}" \
-        build \
         test
 
       RunXcodebuild \
@@ -330,7 +328,6 @@ case "$product-$platform-$method" in
         -workspace 'FirebaseInAppMessaging/Tests/Integration/DefaultUITestApp/InAppMessagingDisplay-Sample.xcworkspace' \
         -scheme 'FiamDisplaySwiftExample' \
         "${xcb_flags[@]}" \
-        build \
         test
     ;;
 
@@ -394,7 +391,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseMessaging-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
     fi
 
@@ -579,7 +575,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseStorage-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
     fi
 
@@ -590,7 +585,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseStorage-Unit-ObjCIntegration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
       fi
     ;;
@@ -610,7 +604,6 @@ case "$product-$platform-$method" in
         -scheme "FirebaseCombineSwift-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        build \
         test
       fi
     ;;
@@ -705,18 +698,18 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  SwiftPMClientApp-*-xcodebuild)
+  ClientApp-iOS-xcodebuild | ClientApp-iOS13-iOS-xcodebuild)
     RunXcodebuild \
       -project 'ClientApp/ClientApp.xcodeproj' \
-      -scheme "ClientApp" \
+      -scheme $product \
       "${xcb_flags[@]}" \
       build
     ;;
 
-  CocoaPodsClientApp-iOS-xcodebuild)
+  ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
       -workspace 'ClientApp/ClientApp.xcworkspace' \
-      -scheme "ClientApp-CocoaPods" \
+      -scheme $product \
       "${xcb_flags[@]}" \
       build
     ;;

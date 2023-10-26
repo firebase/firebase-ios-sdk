@@ -92,7 +92,7 @@ NSString *const kFIRMessagingKeychainWildcardIdentifier = @"*";
   NSMutableDictionary *keychainQuery = [self keychainQueryForService:service account:account];
   NSMutableArray<NSData *> *results;
   keychainQuery[(__bridge id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
   keychainQuery[(__bridge id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
   keychainQuery[(__bridge id)kSecMatchLimit] = (__bridge id)kSecMatchLimitAll;
   // FIRMessagingKeychain should only take a query and return a result, will handle the query here.

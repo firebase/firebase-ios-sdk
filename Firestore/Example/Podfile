@@ -61,9 +61,12 @@ def configure_local_pods()
   # FirebaseCore must always be a local pod so that CI builds that make changes
   # to its podspec can still function. See Firestore-*-xcodebuild in
   # scripts/install_prereqs.sh for more details.
+  pod 'FirebaseFirestoreInternal', :path => '../..'
+  pod 'FirebaseAppCheckInterop', :path => '../..'
   pod 'FirebaseCore', :path => '../..'
   pod 'FirebaseCoreInternal', :path => '../..'
   pod 'FirebaseCoreExtension',:path => '../..'
+  pod 'FirebaseSharedSwift', :path => '../../'
 
   # Pull in local sources conditionally.
   maybe_local_pod 'FirebaseAuth'
@@ -115,7 +118,6 @@ if is_platform(:ios)
     target 'Firestore_IntegrationTests_iOS' do
       inherit! :search_paths
 
-      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
@@ -152,7 +154,6 @@ if is_platform(:osx)
     target 'Firestore_IntegrationTests_macOS' do
       inherit! :search_paths
 
-      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'
@@ -182,7 +183,6 @@ if is_platform(:tvos)
     target 'Firestore_IntegrationTests_tvOS' do
       inherit! :search_paths
 
-      pod 'FirebaseSharedSwift', :path => '../../'
       pod 'FirebaseFirestoreSwift', :path => '../../'
       pod 'GoogleBenchmark', :podspec => 'GoogleBenchmark.podspec'
       pod 'GoogleTest', :podspec => 'GoogleTest.podspec'

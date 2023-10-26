@@ -604,6 +604,25 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   [self awaitExpectation:expectation];
 }
 
+/**
+ * Checks that running the query while online (against the backend/emulator) results in the same
+ * documents as running the query while offline. It also checks that both online and offline
+ * query result is equal to the expected documents.
+ *
+ * @param query The query to check.
+ * @param expectedDocs Array of document keys that are expected to match the query.
+ */
+- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs {
+  FIRQuerySnapshot *docsFromServer = [self readDocumentSetForRef:query
+                                                          source:FIRFirestoreSourceServer];
+  FIRQuerySnapshot *docsFromCache = [self readDocumentSetForRef:query
+                                                         source:FIRFirestoreSourceCache];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
+                        FIRQuerySnapshotGetIDs(docsFromCache));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromCache), expectedDocs);
+}
+
 - (const std::shared_ptr<AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {
   return [firestore workerQueue];
 }
