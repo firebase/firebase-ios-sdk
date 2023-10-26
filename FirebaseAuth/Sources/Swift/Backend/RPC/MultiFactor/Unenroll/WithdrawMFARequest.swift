@@ -33,7 +33,9 @@ class WithdrawMFARequest: IdentityToolkitRequest, AuthRPCRequest {
        requestConfiguration: AuthRequestConfiguration) {
     self.idToken = idToken
     self.mfaEnrollmentID = mfaEnrollmentID
-    super.init(endpoint: kWithdrawMFAEndPoint, requestConfiguration: requestConfiguration)
+    super.init(endpoint: kWithdrawMFAEndPoint,
+               requestConfiguration: requestConfiguration,
+               useIdentityPlatform: true)
   }
 
   func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {

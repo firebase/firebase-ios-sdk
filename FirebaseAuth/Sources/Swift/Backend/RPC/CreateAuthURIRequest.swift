@@ -64,55 +64,55 @@ private let kTenantIDKey = "tenantId"
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
+class CreateAuthURIRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = CreateAuthURIResponse
 
   /** @property identifier
       @brief The email or federated ID of the user.
    */
-  public let identifier: String
+  let identifier: String
 
   /** @property continueURI
       @brief The URI to which the IDP redirects the user after the federated login flow.
    */
-  public let continueURI: String
+  let continueURI: String
 
   /** @property openIDRealm
       @brief Optional realm for OpenID protocol. The sub string "scheme://domain:port" of the param
           "continueUri" is used if this is not set.
    */
-  public var openIDRealm: String?
+  var openIDRealm: String?
 
   /** @property providerID
       @brief The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,
           live.net and yahoo.com. For other OpenID IdPs it's the OP identifier.
    */
-  public var providerID: String?
+  var providerID: String?
 
   /** @property clientID
       @brief The relying party OAuth client ID.
    */
-  public var clientID: String?
+  var clientID: String?
 
   /** @property context
       @brief The opaque value used by the client to maintain context info between the authentication
           request and the IDP callback.
    */
-  public var context: String?
+  var context: String?
 
   /** @property appID
       @brief The iOS client application's bundle identifier.
    */
-  public var appID: String?
+  var appID: String?
 
-  public init(identifier: String, continueURI: String,
-              requestConfiguration: AuthRequestConfiguration) {
+  init(identifier: String, continueURI: String,
+       requestConfiguration: AuthRequestConfiguration) {
     self.identifier = identifier
     self.continueURI = continueURI
     super.init(endpoint: kCreateAuthURIEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [
       kIdentifierKey: identifier,
       kContinueURIKey: continueURI,

@@ -30,47 +30,63 @@ private let kIdentityPlatformStagingAPIHost =
 
 /// Represents a request to an identity toolkit endpoint.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-open class IdentityToolkitRequest {
+class IdentityToolkitRequest {
   /// Gets the RPC's endpoint.
-  public let endpoint: String
+  let endpoint: String
 
   /// Gets the client's API key used for the request.
-  public var apiKey: String
+  var apiKey: String
 
   /// The tenant ID of the request. nil if none is available.
-  public let tenantID: String?
+  let tenantID: String?
 
-  let _requestConfiguration: AuthRequestConfiguration
+  /** @property useIdentityPlatform
+      @brief The toggle of using Identity Platform endpoints.
+   */
+  let useIdentityPlatform: Bool
 
-  let _useIdentityPlatform: Bool
+  /** @property useStaging
+      @brief The toggle of using staging endpoints.
+   */
+  let useStaging: Bool
 
-  let _useStaging: Bool
+  /** @property clientType
+      @brief The type of the client that the request sent from, which should be CLIENT_TYPE_IOS;
+   */
+  var clientType: String
 
-  public init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
-              useIdentityPlatform: Bool = false, useStaging: Bool = false) {
+  private let _requestConfiguration: AuthRequestConfiguration
+
+  init(endpoint: String, requestConfiguration: AuthRequestConfiguration,
+       useIdentityPlatform: Bool = false, useStaging: Bool = false) {
     self.endpoint = endpoint
     apiKey = requestConfiguration.apiKey
     _requestConfiguration = requestConfiguration
-    _useIdentityPlatform = useIdentityPlatform
-    _useStaging = useStaging
+    self.useIdentityPlatform = useIdentityPlatform
+    self.useStaging = useStaging
+    clientType = "CLIENT_TYPE_IOS"
     tenantID = requestConfiguration.auth?.tenantID
   }
 
-  public func containsPostBody() -> Bool {
+  func containsPostBody() -> Bool {
     true
   }
 
+  func queryParams() -> String {
+    return ""
+  }
+
   /// Returns the request's full URL.
-  public func requestURL() -> URL {
+  func requestURL() -> URL {
     let apiProtocol: String
     let apiHostAndPathPrefix: String
     let urlString: String
     let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort
-    if _useIdentityPlatform {
+    if useIdentityPlatform {
       if let emulatorHostAndPort = emulatorHostAndPort {
         apiProtocol = kHttpProtocol
         apiHostAndPathPrefix = "\(emulatorHostAndPort)/\(kIdentityPlatformAPIHost)"
-      } else if _useStaging {
+      } else if useStaging {
         apiHostAndPathPrefix = kIdentityPlatformStagingAPIHost
         apiProtocol = kHttpsProtocol
       } else {
@@ -83,7 +99,7 @@ open class IdentityToolkitRequest {
       if let emulatorHostAndPort = emulatorHostAndPort {
         apiProtocol = kHttpProtocol
         apiHostAndPathPrefix = "\(emulatorHostAndPort)/\(kFirebaseAuthAPIHost)"
-      } else if _useStaging {
+      } else if useStaging {
         apiProtocol = kHttpsProtocol
         apiHostAndPathPrefix = kFirebaseAuthStagingAPIHost
       } else {
@@ -93,11 +109,14 @@ open class IdentityToolkitRequest {
       urlString =
         "\(apiProtocol)//\(apiHostAndPathPrefix)/identitytoolkit/v3/relyingparty/\(endpoint)?key=\(apiKey)"
     }
-    return URL(string: urlString)!
+    guard let returnURL = URL(string: "\(urlString)\(queryParams())") else {
+      fatalError("Internal Auth error: Failed to generate URL for \(urlString)")
+    }
+    return returnURL
   }
 
   /// Returns the request's configuration.
-  public func requestConfiguration() -> AuthRequestConfiguration {
+  func requestConfiguration() -> AuthRequestConfiguration {
     _requestConfiguration
   }
 

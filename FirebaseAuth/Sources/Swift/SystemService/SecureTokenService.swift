@@ -30,11 +30,11 @@ private let kFiveMinutes = 5 * 60.0
     @brief A class represents a credential that proves the identity of the app.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRSecureTokenService) public class SecureTokenService: NSObject, NSSecureCoding {
+class SecureTokenService: NSObject, NSSecureCoding {
   /** @property requestConfiguration
       @brief The configuration for making requests to server.
    */
-  @objc public var requestConfiguration: AuthRequestConfiguration?
+  var requestConfiguration: AuthRequestConfiguration?
 
   /** @property accessToken
       @brief The cached access token.
@@ -42,18 +42,18 @@ private let kFiveMinutes = 5 * 60.0
           deserialization and sign-in events, and should not be used to retrieve the access token by
           anyone else.
    */
-  @objc public var accessToken: String
+  var accessToken: String
 
   /** @property refreshToken
       @brief The refresh token for the user, or @c nil if the user has yet completed sign-in flow.
       @remarks This property needs to be set manually after the instance is decoded from archive.
    */
-  @objc public var refreshToken: String?
+  var refreshToken: String?
 
   /** @property accessTokenExpirationDate
       @brief The expiration date of the cached access token.
    */
-  @objc public var accessTokenExpirationDate: Date?
+  var accessTokenExpirationDate: Date?
 
   /** @fn initWithRequestConfiguration:accessToken:accessTokenExpirationDate:refreshToken
       @brief Creates a @c FIRSecureTokenService with access and refresh tokens.
@@ -62,10 +62,10 @@ private let kFiveMinutes = 5 * 60.0
       @param accessTokenExpirationDate The approximate expiration date of the access token.
       @param refreshToken The STS refresh token.
    */
-  @objc public init(withRequestConfiguration requestConfiguration: AuthRequestConfiguration?,
-                    accessToken: String,
-                    accessTokenExpirationDate: Date?,
-                    refreshToken: String) {
+  init(withRequestConfiguration requestConfiguration: AuthRequestConfiguration?,
+       accessToken: String,
+       accessTokenExpirationDate: Date?,
+       refreshToken: String) {
     self.requestConfiguration = requestConfiguration
     self.accessToken = accessToken
     self.refreshToken = refreshToken

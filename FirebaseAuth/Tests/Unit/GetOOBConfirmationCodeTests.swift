@@ -69,6 +69,53 @@ class GetOOBConfirmationCodeTests: RPCBaseTests {
     }
   }
 
+  /** @fn testPasswordResetRequestOptionalFields
+      @brief Tests the encoding of a password reset request with optional fields.
+   */
+  func testPasswordResetRequestOptionalFields() async throws {
+    let kCaptchaResponseKey = "captchaResp"
+    let kTestCaptchaResponse = "testCaptchaResponse"
+    let kClientTypeKey = "clientType"
+    let kTestClientType = "testClientType"
+    let kRecaptchaVersionKey = "recaptchaVersion"
+    let kTestRecaptchaVersion = "testRecaptchaVersion"
+
+    for (request, requestType) in [
+      (getPasswordResetRequest, kPasswordResetRequestTypeValue),
+      (getSignInWithEmailRequest, kEmailLinkSignInTypeValue),
+      (getEmailVerificationRequest, kVerifyEmailRequestTypeValue),
+    ] {
+      let request = try request()
+      request.captchaResponse = kTestCaptchaResponse
+      request.clientType = kTestClientType
+      request.recaptchaVersion = kTestRecaptchaVersion
+
+      try await checkRequest(
+        request: request,
+        expected: kExpectedAPIURL,
+        key: "should_be_empty_dictionary",
+        value: nil
+      )
+      let decodedRequest = try XCTUnwrap(rpcIssuer.decodedRequest)
+      XCTAssertEqual(decodedRequest[kRequestTypeKey] as? String, requestType)
+      if requestType == kVerifyEmailRequestTypeValue {
+        XCTAssertEqual(decodedRequest[kAccessTokenKey] as? String, kTestAccessToken)
+      } else {
+        XCTAssertEqual(decodedRequest[kEmailKey] as? String, kTestEmail)
+      }
+      XCTAssertEqual(decodedRequest[kContinueURLKey] as? String, kContinueURL)
+      XCTAssertEqual(decodedRequest[kIosBundleIDKey] as? String, kIosBundleID)
+      XCTAssertEqual(decodedRequest[kAndroidPackageNameKey] as? String, kAndroidPackageName)
+      XCTAssertEqual(decodedRequest[kAndroidMinimumVersionKey] as? String, kAndroidMinimumVersion)
+      XCTAssertEqual(decodedRequest[kAndroidInstallAppKey] as? Bool, true)
+      XCTAssertEqual(decodedRequest[kCanHandleCodeInAppKey] as? Bool, true)
+      XCTAssertEqual(decodedRequest[kDynamicLinkDomainKey] as? String, kDynamicLinkDomain)
+      XCTAssertEqual(decodedRequest[kCaptchaResponseKey] as? String, kTestCaptchaResponse)
+      XCTAssertEqual(decodedRequest[kClientTypeKey] as? String, kTestClientType)
+      XCTAssertEqual(decodedRequest[kRecaptchaVersionKey] as? String, kTestRecaptchaVersion)
+    }
+  }
+
   func testGetOOBConfirmationCodeErrors() async throws {
     let kEmailNotFoundMessage = "EMAIL_NOT_FOUND: fake custom message"
     let kMissingEmailErrorMessage = "MISSING_EMAIL"

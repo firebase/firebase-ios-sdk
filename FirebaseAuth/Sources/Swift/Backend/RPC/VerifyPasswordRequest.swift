@@ -44,6 +44,16 @@ private let kCaptchaChallengeKey = "captchaChallenge"
  */
 private let kCaptchaResponseKey = "captchaResponse"
 
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
+private let kClientType = "clientType"
+
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+private let kRecaptchaVersion = "recaptchaVersion"
+
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -65,12 +75,12 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property email
       @brief The email of the user.
    */
-  var email: String
+  private(set) var email: String
 
   /** @property password
       @brief The password inputed by the user.
    */
-  var password: String
+  private(set) var password: String
 
   /** @property pendingIDToken
       @brief The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
@@ -87,11 +97,16 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
    */
   var captchaResponse: String?
 
+  /** @property captchaResponse
+      @brief The reCAPTCHA version.
+   */
+  var recaptchaVersion: String?
+
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
       @remarks The default value is @c YES .
    */
-  var returnSecureToken: Bool
+  private(set) var returnSecureToken: Bool
 
   init(email: String, password: String,
        requestConfiguration: AuthRequestConfiguration) {
@@ -106,21 +121,30 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
       kEmailKey: email,
       kPasswordKey: password,
     ]
-    if let pendingIDToken = pendingIDToken {
+    if let pendingIDToken {
       body[kPendingIDTokenKey] = pendingIDToken
     }
-    if let captchaChallenge = captchaChallenge {
+    if let captchaChallenge {
       body[kCaptchaChallengeKey] = captchaChallenge
     }
-    if let captchaResponse = captchaResponse {
+    if let captchaResponse {
       body[kCaptchaResponseKey] = captchaResponse
+    }
+    if let recaptchaVersion {
+      body[kRecaptchaVersion] = recaptchaVersion
     }
     if returnSecureToken {
       body[kReturnSecureTokenKey] = true
     }
-    if let tenantID = tenantID {
+    if let tenantID {
       body[kTenantIDKey] = tenantID
     }
+    body[kClientType] = clientType
     return body
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
   }
 }

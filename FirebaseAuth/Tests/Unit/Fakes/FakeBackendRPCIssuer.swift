@@ -69,11 +69,13 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
   var verifyPhoneNumberRequester: ((VerifyPhoneNumberRequest) -> Void)?
 
   var respondBlock: (() throws -> Void)?
+  var nextRespondBlock: (() throws -> Void)?
 
   var fakeGetAccountProviderJSON: [[String: AnyHashable]]?
   var fakeSecureTokenServiceJSON: [String: AnyHashable]?
   var secureTokenNetworkError: NSError?
   var secureTokenErrorString: String?
+  var recaptchaSiteKey = "unset recaptcha siteKey"
 
   func asyncCallToURL<T: AuthRPCRequest>(with request: T,
                                          body: Data?,
@@ -106,6 +108,12 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
        let json = fakeGetAccountProviderJSON {
       guard let _ = try? respond(withJSON: ["users": json]) else {
         fatalError("fakeGetAccountProviderJSON respond failed")
+      }
+      return
+    } else if let _ = request as? GetRecaptchaConfigRequest {
+      guard let _ = try? respond(withJSON: ["recaptchaKey": recaptchaSiteKey])
+      else {
+        fatalError("GetRecaptchaConfigRequest respond failed")
       }
       return
     } else if let _ = request as? SecureTokenRequest {
@@ -143,7 +151,8 @@ class FakeBackendRPCIssuer: NSObject, AuthBackendRPCIssuer {
       } catch {
         XCTFail("Unexpected exception in respondBlock")
       }
-      self.respondBlock = nil
+      self.respondBlock = nextRespondBlock
+      nextRespondBlock = nil
     }
   }
 

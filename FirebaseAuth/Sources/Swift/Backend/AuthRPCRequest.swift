@@ -33,11 +33,16 @@ protocol AuthRPCRequest {
 
   /// The request configuration.
   func requestConfiguration() -> AuthRequestConfiguration
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String)
 }
 
 // Default implementation of AuthRPCRequests. This produces similar behaviour to an optional method
 // in Obj-C.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension AuthRPCRequest {
-  public var containsPostBody: Bool { return true }
+  var containsPostBody: Bool { return true }
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    fatalError("Internal FirebaseAuth Error: unimplemented injectRecaptchaFields")
+  }
 }

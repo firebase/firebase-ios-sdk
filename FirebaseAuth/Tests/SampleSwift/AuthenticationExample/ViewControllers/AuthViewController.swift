@@ -87,6 +87,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .custom:
       performCustomAuthLoginFlow()
+
+    case .initRecaptcha:
+      performInitRecaptcha()
     }
   }
 
@@ -245,6 +248,17 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     AppManager.shared.auth().signIn(with: credential) { result, error in
       guard error == nil else { return self.displayError(error) }
       self.transitionToUserViewController()
+    }
+  }
+
+  private func performInitRecaptcha() {
+    Task {
+      do {
+        try await AppManager.shared.auth().initializeRecaptchaConfig()
+        print("Initializing Recaptcha config succeeded.")
+      } catch {
+        print("Initializing Recaptcha config failed: \(error).")
+      }
     }
   }
 

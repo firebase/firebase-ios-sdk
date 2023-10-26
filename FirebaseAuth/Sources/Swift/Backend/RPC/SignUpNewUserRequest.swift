@@ -34,6 +34,21 @@ private let kPasswordKey = "password"
  */
 private let kDisplayNameKey = "displayName"
 
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
+private let kCaptchaResponseKey = "captchaResponse"
+
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
+private let kClientType = "clientType"
+
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+private let kRecaptchaVersion = "recaptchaVersion"
+
 /** @var kReturnSecureTokenKey
     @brief The key for the "returnSecureToken" value in the request.
  */
@@ -51,17 +66,27 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   /** @property email
       @brief The email of the user.
    */
-  var email: String?
+  private(set) var email: String?
 
   /** @property password
       @brief The password inputed by the user.
    */
-  var password: String?
+  private(set) var password: String?
 
   /** @property displayName
       @brief The password inputed by the user.
    */
-  var displayName: String?
+  private(set) var displayName: String?
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
+
+  var captchaResponse: String?
+
+  /** @property captchaResponse
+      @brief The reCAPTCHA version.
+   */
+  var recaptchaVersion: String?
 
   /** @property returnSecureToken
       @brief Whether the response should return access token and refresh token directly.
@@ -98,6 +123,13 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
     if let displayName {
       postBody[kDisplayNameKey] = displayName
     }
+    if let captchaResponse {
+      postBody[kCaptchaResponseKey] = captchaResponse
+    }
+    postBody[kClientType] = clientType
+    if let recaptchaVersion {
+      postBody[kRecaptchaVersion] = recaptchaVersion
+    }
     if returnSecureToken {
       postBody[kReturnSecureTokenKey] = true
     }
@@ -105,5 +137,10 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
       postBody[kTenantIDKey] = tenantID
     }
     return postBody
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
   }
 }

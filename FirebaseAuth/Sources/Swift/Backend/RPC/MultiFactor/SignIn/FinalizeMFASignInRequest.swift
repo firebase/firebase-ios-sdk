@@ -35,8 +35,7 @@ class FinalizeMFASignInRequest: IdentityToolkitRequest, AuthRPCRequest {
     self.verificationInfo = verificationInfo
     super.init(endpoint: kFinalizeMFASignInEndPoint,
                requestConfiguration: requestConfiguration,
-               useIdentityPlatform: true,
-               useStaging: false)
+               useIdentityPlatform: true)
   }
 
   func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {

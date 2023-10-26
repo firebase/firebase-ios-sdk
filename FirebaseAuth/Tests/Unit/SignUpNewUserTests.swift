@@ -124,6 +124,37 @@ class SignUpNewUserTests: RPCBaseTests {
     )
   }
 
+  /** @fn testSignUpNewUserRequestOptionalFields
+      @brief Tests the encoding of a sign up new user request with optional fields.
+   */
+  func testSignUpNewUserRequestOptionalFields() async throws {
+    let kEmailKey = "email"
+    let kPasswordKey = "password"
+    let kCaptchaResponseKey = "captchaResponse"
+    let kTestCaptchaResponse = "testCaptchaResponse"
+    let kClientTypeKey = "clientType"
+    let kTestClientType = "testClientType"
+    let kRecaptchaVersionKey = "recaptchaVersion"
+    let kTestRecaptchaVersion = "testRecaptchaVersion"
+    let request = makeSignUpNewUserRequest()
+    request.captchaResponse = kTestCaptchaResponse
+    request.clientType = kTestClientType
+    request.recaptchaVersion = kTestRecaptchaVersion
+    try await checkRequest(
+      request: request,
+      expected: kExpectedAPIURL,
+      key: kEmailKey,
+      value: kTestEmail
+    )
+    let requestDictionary = try XCTUnwrap(rpcIssuer.decodedRequest as? [String: AnyHashable])
+    XCTAssertEqual(requestDictionary[kDisplayNameKey], kTestDisplayName)
+    XCTAssertEqual(requestDictionary[kPasswordKey], kTestPassword)
+    XCTAssertTrue(try XCTUnwrap(requestDictionary[kReturnSecureTokenKey] as? Bool))
+    XCTAssertEqual(requestDictionary[kCaptchaResponseKey], kTestCaptchaResponse)
+    XCTAssertEqual(requestDictionary[kClientTypeKey], kTestClientType)
+    XCTAssertEqual(requestDictionary[kRecaptchaVersionKey], kTestRecaptchaVersion)
+  }
+
   private func makeSignUpNewUserRequestAnonymous() -> SignUpNewUserRequest {
     return SignUpNewUserRequest(requestConfiguration: makeRequestConfiguration())
   }

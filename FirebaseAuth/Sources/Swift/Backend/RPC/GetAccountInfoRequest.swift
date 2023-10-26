@@ -30,25 +30,25 @@ private let kIDTokenKey = "idToken"
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/getAccountInfo
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
+class GetAccountInfoRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetAccountInfoResponse
 
   /** @property accessToken
       @brief The STS Access Token for the authenticated user.
    */
-  public let accessToken: String
+  let accessToken: String
 
   /** @fn initWithAccessToken:requestConfiguration
       @brief Designated initializer.
       @param accessToken The Access Token of the authenticated user.
       @param requestConfiguration An object containing configurations to be added to the request.
    */
-  public init(accessToken: String, requestConfiguration: AuthRequestConfiguration) {
+  init(accessToken: String, requestConfiguration: AuthRequestConfiguration) {
     self.accessToken = accessToken
     super.init(endpoint: kGetAccountInfoEndpoint, requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     return [kIDTokenKey: accessToken]
   }
 }

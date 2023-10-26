@@ -386,12 +386,18 @@ extension Auth: AuthInterop {
     if request.password.count == 0 {
       throw AuthErrorUtils.wrongPasswordError(message: nil)
     }
-    let response = try await AuthBackend.call(with: request)
-    return try await completeSignIn(withAccessToken: response.idToken,
-                                    accessTokenExpirationDate: response
-                                      .approximateExpirationDate,
-                                    refreshToken: response.refreshToken,
-                                    anonymous: false)
+    #if os(iOS)
+      let response = try await injectRecaptcha(request: request,
+                                               action: AuthRecaptchaAction.signInWithPassword)
+    #else
+      let response = try await AuthBackend.call(with: request)
+    #endif
+    return try await completeSignIn(
+      withAccessToken: response.idToken,
+      accessTokenExpirationDate: response.approximateExpirationDate,
+      refreshToken: response.refreshToken,
+      anonymous: false
+    )
   }
 
   /** @fn signInWithEmail:password:completion:
@@ -932,24 +938,51 @@ extension Auth: AuthInterop {
                                          password: password,
                                          displayName: nil,
                                          requestConfiguration: self.requestConfiguration)
-      Task {
-        do {
-          let response = try await AuthBackend.call(with: request)
-          let user = try await self.completeSignIn(
-            withAccessToken: response.idToken,
-            accessTokenExpirationDate: response.approximateExpirationDate,
-            refreshToken: response.refreshToken,
-            anonymous: false
-          )
-          let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
-                                                      profile: nil,
-                                                      username: nil,
-                                                      isNewUser: true)
-          decoratedCallback(AuthDataResult(withUser: user, additionalUserInfo: additionalUserInfo),
-                            nil)
-        } catch {
-          decoratedCallback(nil, error)
+
+      #if os(iOS)
+        self.wrapInjectRecaptcha(request: request,
+                                 action: AuthRecaptchaAction.signUpPassword) { response, error in
+          if let error {
+            DispatchQueue.main.async {
+              decoratedCallback(nil, error)
+            }
+            return
+          }
+          self.internalCreateUserWithEmail(request: request, inResponse: response,
+                                           decoratedCallback: decoratedCallback)
         }
+      #else
+        self.internalCreateUserWithEmail(request: request, decoratedCallback: decoratedCallback)
+      #endif
+    }
+  }
+
+  func internalCreateUserWithEmail(request: SignUpNewUserRequest,
+                                   inResponse: SignUpNewUserResponse? = nil,
+                                   decoratedCallback: @escaping (AuthDataResult?, Error?) -> Void) {
+    Task {
+      do {
+        var response: SignUpNewUserResponse
+        if let inResponse {
+          response = inResponse
+        } else {
+          response = try await AuthBackend.call(with: request)
+        }
+        let user = try await self.completeSignIn(
+          withAccessToken: response.idToken,
+          accessTokenExpirationDate: response.approximateExpirationDate,
+          refreshToken: response.refreshToken,
+          anonymous: false
+        )
+        let additionalUserInfo = AdditionalUserInfo(providerID: EmailAuthProvider.id,
+                                                    profile: nil,
+                                                    username: nil,
+                                                    isNewUser: true)
+        decoratedCallback(AuthDataResult(withUser: user,
+                                         additionalUserInfo: additionalUserInfo),
+                          nil)
+      } catch {
+        decoratedCallback(nil, error)
       }
     }
   }
@@ -1240,7 +1273,18 @@ extension Auth: AuthInterop {
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      self.wrapAsyncRPCTask(request, completion)
+      #if os(iOS)
+        self.wrapInjectRecaptcha(request: request,
+                                 action: AuthRecaptchaAction.getOobCode) { result, error in
+          if let completion {
+            DispatchQueue.main.async {
+              completion(error)
+            }
+          }
+        }
+      #else
+        self.wrapAsyncRPCTask(request, completion)
+      #endif
     }
   }
 
@@ -1297,13 +1341,28 @@ extension Auth: AuthInterop {
   @objc public func sendSignInLink(toEmail email: String,
                                    actionCodeSettings: ActionCodeSettings,
                                    completion: ((Error?) -> Void)? = nil) {
+    if !actionCodeSettings.handleCodeInApp {
+      fatalError("The handleCodeInApp flag in ActionCodeSettings must be true for Email-link " +
+        "Authentication.")
+    }
     kAuthGlobalWorkQueue.async {
       let request = GetOOBConfirmationCodeRequest.signInWithEmailLinkRequest(
         email,
         actionCodeSettings: actionCodeSettings,
         requestConfiguration: self.requestConfiguration
       )
-      self.wrapAsyncRPCTask(request, completion)
+      #if os(iOS)
+        self.wrapInjectRecaptcha(request: request,
+                                 action: AuthRecaptchaAction.getOobCode) { result, error in
+          if let completion {
+            DispatchQueue.main.async {
+              completion(error)
+            }
+          }
+        }
+      #else
+        self.wrapAsyncRPCTask(request, completion)
+      #endif
     }
   }
 
@@ -1371,6 +1430,45 @@ extension Auth: AuthInterop {
     }
     return false
   }
+
+  #if os(iOS)
+    /** @fn initializeRecaptchaConfigWithCompletion:completion:
+        @brief Initializes reCAPTCHA using the settings configured for the project or
+        tenant.
+
+        If you change the tenant ID of the `Auth` instance, the configuration will be
+        reloaded.
+     */
+    @objc(initializeRecaptchaConfigWithCompletion:)
+    public func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
+      Task {
+        do {
+          try await initializeRecaptchaConfig()
+          if let completion {
+            completion(nil)
+          }
+        } catch {
+          if let completion {
+            completion(error)
+          }
+        }
+      }
+    }
+
+    /** @fn initializeRecaptchaConfig
+        @brief Initializes reCAPTCHA using the settings configured for the project or
+        tenant.
+
+        If you change the tenant ID of the `Auth` instance, the configuration will be
+        reloaded.
+     */
+    public func initializeRecaptchaConfig() async throws {
+      // Trigger recaptcha verification flow to initialize the recaptcha client and
+      // config. Recaptcha token will be returned.
+      let verifier = AuthRecaptchaVerifier.shared(auth: self)
+      _ = try await verifier.verify(forceRefresh: true, action: AuthRecaptchaAction.defaultAction)
+    }
+  #endif
 
   /** @fn addAuthStateDidChangeListener:
    @brief Registers a block as an "auth state did change" listener. To be invoked when:
@@ -2260,9 +2358,8 @@ extension Auth: AuthInterop {
   }
 
   /** @fn signInFlowAuthDataResultCallbackByDecoratingCallback:
-       @brief Creates a FIRAuthDataResultCallback block which wraps another FIRAuthDataResultCallback;
-           trying to update the current user before forwarding it's invocations along to a subject
-           block.
+       @brief Creates a AuthDataResultCallback block which wraps another AuthDataResultCallback;
+           trying to update the current user before forwarding it's invocations along to a subject block.
        @param callback Called when the user has been updated or when an error has occurred. Invoked
            asynchronously on the main thread in the future.
        @return Returns a block that updates the current user.
@@ -2318,6 +2415,55 @@ extension Auth: AuthInterop {
       }
     }
   }
+
+  #if os(iOS)
+    private func wrapInjectRecaptcha<T: AuthRPCRequest>(request: T,
+                                                        action: AuthRecaptchaAction,
+                                                        _ callback: @escaping (
+                                                          (T.Response?, Error?) -> Void
+                                                        )) {
+      Task {
+        do {
+          let response = try await injectRecaptcha(request: request, action: action)
+          callback(response, nil)
+        } catch {
+          callback(nil, error)
+        }
+      }
+    }
+
+    private func injectRecaptcha<T: AuthRPCRequest>(request: T,
+                                                    action: AuthRecaptchaAction) async throws -> T
+      .Response {
+      let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: self)
+      if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) {
+        try await recaptchaVerifier.injectRecaptchaFields(request: request,
+                                                          provider: AuthRecaptchaProvider.password,
+                                                          action: action)
+      } else {
+        do {
+          return try await AuthBackend.call(with: request)
+        } catch {
+          let nsError = error as NSError
+          if let underlyingError = nsError.userInfo[NSUnderlyingErrorKey] as? NSError,
+             nsError.code == AuthErrorCode.internalError.rawValue,
+             let messages = underlyingError
+             .userInfo[AuthErrorUtils.userInfoDeserializedResponseKey] as? [String: AnyHashable],
+             let message = messages["message"] as? String,
+             message.hasPrefix("MISSING_RECAPTCHA_TOKEN") {
+            try await recaptchaVerifier.injectRecaptchaFields(
+              request: request,
+              provider: AuthRecaptchaProvider.password,
+              action: AuthRecaptchaAction.signInWithPassword
+            )
+          } else {
+            throw error
+          }
+        }
+      }
+      return try await AuthBackend.call(with: request)
+    }
+  #endif
 
   // MARK: Internal properties
 

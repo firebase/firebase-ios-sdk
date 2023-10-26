@@ -156,7 +156,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
       _ = auth.canHandleNotification([:])
+      auth.initializeRecaptchaConfig { _ in
+      }
     #endif
+    auth.revokeToken(withAuthorizationCode: "A")
     try auth.useUserAccessGroup("abc")
     let nilUser = try auth.getStoredUser(forAccessGroup: "def")
     // If nilUser is not optional, this will raise a compiler error.
@@ -180,6 +183,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let credential = try await provider.credential(with: nil)
       _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
       _ = try await auth.signIn(with: credential)
+      try await auth.initializeRecaptchaConfig()
     #endif
     _ = try await auth.signInAnonymously()
     _ = try await auth.signIn(withCustomToken: "abc")
@@ -195,6 +199,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       actionCodeSettings: actionCodeSettings
     )
     _ = try await auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings)
+    try await auth.revokeToken(withAuthorizationCode: "string")
   }
 
   #if !os(macOS)
@@ -292,6 +297,14 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.emailChangeNeedsVerification
     _ = AuthErrorCode.missingOrInvalidNonce
     _ = AuthErrorCode.missingClientIdentifier
+    _ = AuthErrorCode.recaptchaNotEnabled
+    _ = AuthErrorCode.missingRecaptchaToken
+    _ = AuthErrorCode.invalidRecaptchaToken
+    _ = AuthErrorCode.invalidRecaptchaAction
+    _ = AuthErrorCode.missingClientType
+    _ = AuthErrorCode.missingRecaptchaVersion
+    _ = AuthErrorCode.invalidRecaptchaVersion
+    _ = AuthErrorCode.invalidReqType
     _ = AuthErrorCode.keychainError
     _ = AuthErrorCode.internalError
     _ = AuthErrorCode.malformedJWT

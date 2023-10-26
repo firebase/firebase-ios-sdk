@@ -134,8 +134,23 @@ private let kVerifyBeforeUpdateEmailRequestTypeValue = "VERIFY_AND_CHANGE_EMAIL"
  */
 private let kTenantIDKey = "tenantId"
 
+/** @var kCaptchaResponseKey
+    @brief The key for the "captchaResponse" value in the request.
+ */
+private let kCaptchaResponseKey = "captchaResp"
+
+/** @var kClientType
+    @brief The key for the "clientType" value in the request.
+ */
+private let kClientType = "clientType"
+
+/** @var kRecaptchaVersion
+    @brief The key for the "recaptchaVersion" value in the request.
+ */
+private let kRecaptchaVersion = "recaptchaVersion"
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
+class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetOOBConfirmationCodeResponse
 
   /** @property requestType
@@ -147,55 +162,65 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
       @brief The email of the user.
       @remarks For password reset.
    */
-  public var email: String?
+  private(set) var email: String?
 
   /** @property updatedEmail
       @brief The new email to be updated.
       @remarks For verifyBeforeUpdateEmail.
    */
-  public var updatedEmail: String?
+  private(set) var updatedEmail: String?
 
   /** @property accessToken
       @brief The STS Access Token of the authenticated user.
       @remarks For email change.
    */
-  public var accessToken: String?
+  private(set) var accessToken: String?
 
   /** @property continueURL
       @brief This URL represents the state/Continue URL in the form of a universal link.
    */
-  public var continueURL: String?
+  private(set) var continueURL: String?
 
   /** @property iOSBundleID
       @brief The iOS bundle Identifier, if available.
    */
-  public var iOSBundleID: String?
+  private(set) var iOSBundleID: String?
 
   /** @property androidPackageName
       @brief The Android package name, if available.
    */
-  public var androidPackageName: String?
+  private(set) var androidPackageName: String?
 
   /** @property androidMinimumVersion
       @brief The minimum Android version supported, if available.
    */
-  public var androidMinimumVersion: String?
+  private(set) var androidMinimumVersion: String?
 
   /** @property androidInstallIfNotAvailable
       @brief Indicates whether or not the Android app should be installed if not already available.
    */
-  public var androidInstallApp: Bool
+  private(set) var androidInstallApp: Bool
 
   /** @property handleCodeInApp
       @brief Indicates whether the action code link will open the app directly or after being
           redirected from a Firebase owned web widget.
    */
-  public var handleCodeInApp: Bool
+  private(set) var handleCodeInApp: Bool
 
   /** @property dynamicLinkDomain
       @brief The Firebase Dynamic Link domain used for out of band code flow.
    */
-  public var dynamicLinkDomain: String?
+  private(set) var dynamicLinkDomain: String?
+
+  /** @property captchaResponse
+      @brief Response to the captcha.
+   */
+  var captchaResponse: String?
+
+  /** @property captchaResponse
+      @brief The reCAPTCHA version.
+   */
+  var recaptchaVersion: String?
 
   /** @fn initWithRequestType:email:APIKey:
       @brief Designated initializer.
@@ -231,9 +256,9 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
     )
   }
 
-  public static func passwordResetRequest(email: String,
-                                          actionCodeSettings: ActionCodeSettings?,
-                                          requestConfiguration: AuthRequestConfiguration) ->
+  static func passwordResetRequest(email: String,
+                                   actionCodeSettings: ActionCodeSettings?,
+                                   requestConfiguration: AuthRequestConfiguration) ->
     GetOOBConfirmationCodeRequest {
     Self(requestType: .passwordReset,
          email: email,
@@ -243,9 +268,9 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
          requestConfiguration: requestConfiguration)
   }
 
-  public static func verifyEmailRequest(accessToken: String,
-                                        actionCodeSettings: ActionCodeSettings?,
-                                        requestConfiguration: AuthRequestConfiguration) ->
+  static func verifyEmailRequest(accessToken: String,
+                                 actionCodeSettings: ActionCodeSettings?,
+                                 requestConfiguration: AuthRequestConfiguration) ->
     GetOOBConfirmationCodeRequest {
     Self(requestType: .verifyEmail,
          email: nil,
@@ -255,9 +280,9 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
          requestConfiguration: requestConfiguration)
   }
 
-  public static func signInWithEmailLinkRequest(_ email: String,
-                                                actionCodeSettings: ActionCodeSettings?,
-                                                requestConfiguration: AuthRequestConfiguration)
+  static func signInWithEmailLinkRequest(_ email: String,
+                                         actionCodeSettings: ActionCodeSettings?,
+                                         requestConfiguration: AuthRequestConfiguration)
     -> Self {
     Self(requestType: .emailLink,
          email: email,
@@ -267,10 +292,10 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
          requestConfiguration: requestConfiguration)
   }
 
-  public static func verifyBeforeUpdateEmail(accessToken: String,
-                                             newEmail: String,
-                                             actionCodeSettings: ActionCodeSettings?,
-                                             requestConfiguration: AuthRequestConfiguration)
+  static func verifyBeforeUpdateEmail(accessToken: String,
+                                      newEmail: String,
+                                      actionCodeSettings: ActionCodeSettings?,
+                                      requestConfiguration: AuthRequestConfiguration)
     -> Self {
     Self(requestType: .verifyBeforeUpdateEmail,
          email: nil,
@@ -280,67 +305,67 @@ public class GetOOBConfirmationCodeRequest: IdentityToolkitRequest, AuthRPCReque
          requestConfiguration: requestConfiguration)
   }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var body: [String: AnyHashable] = [
       kRequestTypeKey: requestType.value,
     ]
-
     // For password reset requests, we only need an email address in addition to the already
     // required fields.
     if case .passwordReset = requestType {
       body[kEmailKey] = email
     }
-
     // For verify email requests, we only need an STS Access Token in addition to the already
     // required fields.
     if case .verifyEmail = requestType {
       body[kIDTokenKey] = accessToken
     }
-
     // For email sign-in link requests, we only need an email address in addition to the already
     // required fields.
     if case .emailLink = requestType {
       body[kEmailKey] = email
     }
-
     // For email sign-in link requests, we only need an STS Access Token, a new email address in
     // addition to the already required fields.
     if case .verifyBeforeUpdateEmail = requestType {
       body[kNewEmailKey] = updatedEmail
       body[kIDTokenKey] = accessToken
     }
-
     if let continueURL = continueURL {
       body[kContinueURLKey] = continueURL
     }
-
     if let iOSBundleID = iOSBundleID {
       body[kIosBundleIDKey] = iOSBundleID
     }
-
     if let androidPackageName = androidPackageName {
       body[kAndroidPackageNameKey] = androidPackageName
     }
-
     if let androidMinimumVersion = androidMinimumVersion {
       body[kAndroidMinimumVersionKey] = androidMinimumVersion
     }
-
     if androidInstallApp {
       body[kAndroidInstallAppKey] = true
     }
-
     if handleCodeInApp {
       body[kCanHandleCodeInAppKey] = true
     }
-
-    if let dynamicLinkDomain = dynamicLinkDomain {
+    if let dynamicLinkDomain {
       body[kDynamicLinkDomainKey] = dynamicLinkDomain
     }
-    if let tenantID = tenantID {
+    if let captchaResponse {
+      body[kCaptchaResponseKey] = captchaResponse
+    }
+    body[kClientType] = clientType
+    if let recaptchaVersion {
+      body[kRecaptchaVersion] = recaptchaVersion
+    }
+    if let tenantID {
       body[kTenantIDKey] = tenantID
     }
-
     return body
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
   }
 }
