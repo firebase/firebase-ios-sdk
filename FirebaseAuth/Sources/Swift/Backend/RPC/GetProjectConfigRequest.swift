@@ -24,6 +24,7 @@ class GetProjectConfigRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = GetProjectConfigResponse
 
   init(requestConfiguration: AuthRequestConfiguration) {
+    requestConfiguration.httpMethod = "GET"
     super.init(endpoint: kGetProjectConfigEndPoint, requestConfiguration: requestConfiguration)
   }
 
