@@ -30,6 +30,7 @@ enum AuthMenu: String {
   case anonymous
   case custom
   case initRecaptcha
+  case customAuthDomain
 
   /// More intuitively named getter for `rawValue`.
   var id: String { rawValue }
@@ -65,6 +66,8 @@ enum AuthMenu: String {
       return "Custom Auth System"
     case .initRecaptcha:
       return "Initialize reCAPTCHA Enterprise"
+    case .customAuthDomain:
+      return "Set Custom Auth Domain"
     }
   }
 
@@ -100,6 +103,8 @@ enum AuthMenu: String {
       self = .custom
     case "Initialize reCAPTCHA Enterprise":
       self = .initRecaptcha
+    case "Set Custom Auth Domain":
+      self = .customAuthDomain
     default: return nil
     }
   }
@@ -155,8 +160,16 @@ extension AuthMenu: DataSourceProvidable {
     return Section(headerDescription: header, items: [item])
   }
 
+  static var customAuthDomainSection: Section {
+    let image = UIImage(named: "firebaseIcon")
+    let header = "Custom Auth Domain"
+    let item = Item(title: customAuthDomain.name, hasNestedContent: false, image: image)
+    return Section(headerDescription: header, items: [item])
+  }
+
   static var sections: [Section] {
-    [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection]
+    [settingsSection, providerSection, emailPasswordSection, otherSection, recaptchaSection,
+     customAuthDomainSection]
   }
 
   static var authLinkSections: [Section] {

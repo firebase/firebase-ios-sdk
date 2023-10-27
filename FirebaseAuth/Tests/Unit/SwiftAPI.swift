@@ -82,9 +82,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: String = auth.languageCode,
        let _: AuthSettings = auth.settings,
        let _: String = auth.userAccessGroup,
-       let _: String = auth.tenantID
-    // Future PR will add customAuthDomain
-    // let _ : String = auth.customAuthDomain
+       let _: String = auth.tenantID,
+       let _: String = auth.customAuthDomain
     {}
 
     #if os(iOS)

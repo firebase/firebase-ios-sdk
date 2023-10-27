@@ -77,6 +77,29 @@ import Foundation
     return false
   }
 
+  /** @fn extractDomain:urlString
+   @brief Strips url of scheme and path string to extract domain name
+   @param urlString URL string for domain
+   */
+  static func extractDomain(urlString: String) -> String? {
+    var domain = urlString
+
+    // Check for the presence of a scheme (e.g., http:// or https://)
+    if domain.prefix(7).caseInsensitiveCompare("http://") == .orderedSame {
+      domain = String(domain.dropFirst(7))
+    } else if domain.prefix(8).caseInsensitiveCompare("https://") == .orderedSame {
+      domain = String(domain.dropFirst(8))
+    }
+
+    // Remove trailing slashes
+    domain = (domain as NSString).standardizingPath as String
+
+    // Split the URL by "/". The domain is the first component after removing the scheme.
+    let urlComponents = domain.components(separatedBy: "/")
+
+    return urlComponents.first
+  }
+
   static func fetchAuthDomain(withRequestConfiguration requestConfiguration: AuthRequestConfiguration)
     async throws -> String {
     if let emulatorHostAndPort = requestConfiguration.emulatorHostAndPort {
@@ -92,6 +115,20 @@ import Foundation
     // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
     // The searching ends once the first valid suportedAuthDomain is found.
     var authDomain: String?
+
+    if let customAuthDomain = requestConfiguration.auth?.customAuthDomain {
+      if let customDomain = AuthWebUtils.extractDomain(urlString: customAuthDomain) {
+        for domain in response.authorizedDomains ?? [] {
+          if domain == customDomain {
+            return domain
+          }
+        }
+      }
+      throw AuthErrorUtils.unauthorizedDomainError(
+        message: "Error while validating application identity: The " +
+          "configured custom domain is not allowlisted."
+      )
+    }
     for domain in response.authorizedDomains ?? [] {
       for supportedAuthDomain in Self.supportedAuthDomains {
         let index = domain.count - supportedAuthDomain.count

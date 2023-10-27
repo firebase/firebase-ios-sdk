@@ -90,6 +90,9 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
 
     case .initRecaptcha:
       performInitRecaptcha()
+
+    case .customAuthDomain:
+      performCustomAuthDomainFlow()
     }
   }
 
@@ -260,6 +263,19 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
         print("Initializing Recaptcha config failed: \(error).")
       }
     }
+  }
+
+  private func performCustomAuthDomainFlow() {
+    let prompt = UIAlertController(title: nil, message: "Enter Custom Auth Domain For Auth:",
+                                   preferredStyle: .alert)
+    prompt.addTextField()
+    let okAction = UIAlertAction(title: "OK", style: .default) { action in
+      let domain = prompt.textFields?[0].text ?? ""
+      AppManager.shared.auth().customAuthDomain = domain
+      print("Successfully set auth domain to: \(domain)")
+    }
+    prompt.addAction(okAction)
+    present(prompt, animated: true)
   }
 
   // MARK: - Private Helpers
