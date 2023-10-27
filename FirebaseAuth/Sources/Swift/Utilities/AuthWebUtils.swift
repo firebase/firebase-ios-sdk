@@ -125,7 +125,8 @@ import Foundation
         }
       }
       throw AuthErrorUtils.unauthorizedDomainError(
-        message: "Error while validating application identity: The pod iconfigured custom domain is not allowlisted."
+        message: "Error while validating application identity: The " +
+          "configured custom domain is not allowlisted."
       )
     }
     for domain in response.authorizedDomains ?? [] {

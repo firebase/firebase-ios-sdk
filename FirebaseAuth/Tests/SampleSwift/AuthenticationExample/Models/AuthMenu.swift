@@ -67,7 +67,7 @@ enum AuthMenu: String {
     case .initRecaptcha:
       return "Initialize reCAPTCHA Enterprise"
     case .customAuthDomain:
-      return "Custom Auth Domain"
+      return "Set Custom Auth Domain"
     }
   }
 
@@ -103,7 +103,7 @@ enum AuthMenu: String {
       self = .custom
     case "Initialize reCAPTCHA Enterprise":
       self = .initRecaptcha
-    case "Custom Auth Domain":
+    case "Set Custom Auth Domain":
       self = .customAuthDomain
     default: return nil
     }
@@ -162,7 +162,7 @@ extension AuthMenu: DataSourceProvidable {
 
   static var customAuthDomainSection: Section {
     let image = UIImage(named: "firebaseIcon")
-    let header = "Set Custom Auth Domain"
+    let header = "Custom Auth Domain"
     let item = Item(title: customAuthDomain.name, hasNestedContent: false, image: image)
     return Section(headerDescription: header, items: [item])
   }
