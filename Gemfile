@@ -13,5 +13,5 @@ source 'https://rubygems.org'
 # gem 'xcodeproj', git: "https://github.com/CocoaPods/Xcodeproj.git", ref: "eeccae7275645753cbaf45d96fc4b23e4b8b3b9f"
 
 gem 'cocoapods', '1.14.2'
-gem 'cocoapods-generate', '2.0.1'
+gem 'cocoapods-generate', '2.2.4'
 gem 'danger', '8.4.5'
