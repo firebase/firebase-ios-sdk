@@ -38,7 +38,7 @@ class AuthenticationExampleUITests: XCTestCase {
 
   func testAuthOptions() {
     // There are 13 sign in methods, each with its own cell
-    XCTAssertEqual(app.tables.cells.count, 14)
+    XCTAssertEqual(app.tables.cells.count, 15)
   }
 
   func testAuthAnonymously() {

@@ -218,6 +218,13 @@ extension Auth: AuthInterop {
    */
   @objc public var tenantID: String?
 
+  /**
+   * @property customAuthDomain
+   * @brief The custom authentication domain used to handle all sign-in redirects. End-users will see
+   * this domain when signing in. This domain must be allowlisted in the Firebase Console.
+   */
+  @objc public var customAuthDomain: String?
+
   /** @fn updateCurrentUser:completion:
    @brief Sets the `currentUser` on the receiver to the provided user object.
    @param user The user object to be set as the current user of the calling Auth instance.
