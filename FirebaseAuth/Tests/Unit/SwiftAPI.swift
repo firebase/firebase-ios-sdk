@@ -83,7 +83,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
        let _: AuthSettings = auth.settings,
        let _: String = auth.userAccessGroup,
        let _: String = auth.tenantID,
-       let _ : String = auth.customAuthDomain
+       let _: String = auth.customAuthDomain
     {}
 
     #if os(iOS)
