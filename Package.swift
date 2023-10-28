@@ -300,12 +300,7 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseAnalyticsWrapper",
-      linkerSettings: [
-        .xcode14LinkedLibrary("sqlite3"),
-        .xcode14LinkedLibrary("c++"),
-        .xcode14LinkedLibrary("z"),
-        .linkedFramework("StoreKit"),
-      ]
+      linkerSettings: analyticsLinkerSettings
     ),
     .binaryTarget(
       name: "FirebaseAnalytics",
@@ -359,12 +354,7 @@ let package = Package(
         .product(name: "nanopb", package: "nanopb"),
       ],
       path: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
-      linkerSettings: [
-        .xcode14LinkedLibrary("sqlite3"),
-        .xcode14LinkedLibrary("c++"),
-        .xcode14LinkedLibrary("z"),
-        .linkedFramework("StoreKit"),
-      ]
+      linkerSettings: analyticsLinkerSettings
     ),
 
     .target(
@@ -375,9 +365,7 @@ let package = Package(
                  condition: .when(platforms: [.iOS])),
       ],
       path: "FirebaseAnalyticsOnDeviceConversionWrapper",
-      linkerSettings: [
-        .xcode14LinkedLibrary("c++"),
-      ]
+      linkerSettings: analyticsOnDeviceConversionLinkerSettings
     ),
 
     .target(
@@ -1431,14 +1419,7 @@ func firestoreTargets() -> [Target] {
           .define("PB_ENABLE_MALLOC", to: "1"),
           .define("FIRFirestore_VERSION", to: firebaseVersion),
         ],
-        linkerSettings: [
-          .linkedFramework(
-            "SystemConfiguration",
-            .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
-          ),
-          .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
-          .xcode14LinkedLibrary("c++"),
-        ]
+        linkerSettings: sourceFirestoreLinkerSettings
       ),
       .target(
         name: "FirebaseFirestore",
@@ -1506,11 +1487,7 @@ func firestoreTargets() -> [Target] {
         "FirebaseSharedSwift",
       ],
       path: "Firestore/Swift/Source",
-      linkerSettings: [
-        .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
-        .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
-        .xcode14LinkedLibrary("c++"),
-      ]
+      linkerSettings: firestoreLinkerSettings
     ),
     .target(
       name: "FirebaseFirestoreInternalWrapper",
@@ -1538,16 +1515,47 @@ extension Platform {
   }
 }
 
-extension LinkerSetting {
-    static func xcode14LinkedLibrary(_ library: String) -> PackageDescription.LinkerSetting {
-      #if swift(>=5.9)
-        // For Xcode 15, don't link the library or else there will be a
-        // duplicate libraries warning (see #11818).
-        return .linkedLibrary("")
-      #else
-        // TODO(Firebase 11): Remove when Xcode 14 support is dropped.
-        // Link the library for Xcode 14.
-        return .linkedLibrary(library)
-      #endif // swift(>=5.9)
-    }
-}
+#if swift(>=5.9)
+  // For Xcode 15, don't link the libraries that trigger a duplicate libraries
+  // warning (see #11818).
+  let firestoreLinkerSettings: [LinkerSetting] = [
+    .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+    .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+  ]
+  let sourceFirestoreLinkerSettings: [LinkerSetting] = [
+    .linkedFramework(
+      "SystemConfiguration",
+      .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
+    ),
+    .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
+  ]
+  let analyticsLinkerSettings: [LinkerSetting] = [
+    .linkedFramework("StoreKit"),
+  ]
+  let analyticsOnDeviceConversionLinkerSettings: [LinkerSetting] = []
+#else
+  // TODO(Firebase 11): Remove when Xcode 14 support is dropped.
+  // For Xcode 14, link all libraries that shouldn't be linked in Xcode 15.
+  let firestoreLinkerSettings: [LinkerSetting] = [
+    .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
+    .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
+    .linkedLibrary("c++"),
+  ]
+  let sourceFirestoreLinkerSettings: [LinkerSetting] = [
+    .linkedFramework(
+      "SystemConfiguration",
+      .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
+    ),
+    .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
+    .linkedLibrary("c++"),
+  ]
+  let analyticsLinkerSettings: [LinkerSetting] = [
+    .linkedLibrary("sqlite3"),
+    .linkedLibrary("c++"),
+    .linkedLibrary("z"),
+    .linkedFramework("StoreKit"),
+  ]
+  let analyticsOnDeviceConversionLinkerSettings: [LinkerSetting] = [
+    .linkedLibrary("c++"),
+  ]
+#endif // swift(>=5.9)
