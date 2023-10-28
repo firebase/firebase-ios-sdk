@@ -301,9 +301,9 @@ let package = Package(
       ],
       path: "FirebaseAnalyticsWrapper",
       linkerSettings: [
-        .linkedLibrary("sqlite3"),
-        .linkedLibrary("c++"),
-        .linkedLibrary("z"),
+        .xcode14LinkedLibrary("sqlite3"),
+        .xcode14LinkedLibrary("c++"),
+        .xcode14LinkedLibrary("z"),
         .linkedFramework("StoreKit"),
       ]
     ),
@@ -360,9 +360,9 @@ let package = Package(
       ],
       path: "FirebaseAnalyticsWithoutAdIdSupportWrapper",
       linkerSettings: [
-        .linkedLibrary("sqlite3"),
-        .linkedLibrary("c++"),
-        .linkedLibrary("z"),
+        .xcode14LinkedLibrary("sqlite3"),
+        .xcode14LinkedLibrary("c++"),
+        .xcode14LinkedLibrary("z"),
         .linkedFramework("StoreKit"),
       ]
     ),
@@ -376,7 +376,7 @@ let package = Package(
       ],
       path: "FirebaseAnalyticsOnDeviceConversionWrapper",
       linkerSettings: [
-        .linkedLibrary("c++"),
+        .xcode14LinkedLibrary("c++"),
       ]
     ),
 
@@ -1437,7 +1437,7 @@ func firestoreTargets() -> [Target] {
             .when(platforms: [.iOS, .macOS, .tvOS, .firebaseVisionOS])
           ),
           .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS, .firebaseVisionOS])),
-          .linkedLibrary("c++"),
+          .xcode14LinkedLibrary("c++"),
         ]
       ),
       .target(
@@ -1509,7 +1509,7 @@ func firestoreTargets() -> [Target] {
       linkerSettings: [
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
         .linkedFramework("UIKit", .when(platforms: [.iOS, .tvOS])),
-        .linkedLibrary("c++"),
+        .xcode14LinkedLibrary("c++"),
       ]
     ),
     .target(
@@ -1536,4 +1536,18 @@ extension Platform {
       return .iOS
     #endif // swift(>=5.9)
   }
+}
+
+extension LinkerSetting {
+    static func xcode14LinkedLibrary(_ library: String) -> PackageDescription.LinkerSetting {
+      #if swift(>=5.9)
+        // For Xcode 15, don't link the library or else there will be a
+        // duplicate libraries warning (see #11818).
+        return .linkedLibrary("")
+      #else
+        // TODO(Firebase 11): Remove when Xcode 14 support is dropped.
+        // Link the library for Xcode 14.
+        return .linkedLibrary(library)
+      #endif // swift(>=5.9)
+    }
 }
