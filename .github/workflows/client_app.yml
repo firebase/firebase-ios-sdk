@@ -49,13 +49,14 @@ jobs:
         matrix:
           #TODO(ncooke3): Add multi-platform support: tvOS, macOS, catalyst
           platform: [iOS]
+          scheme: [ClientApp, ClientApp-iOS13]
       steps:
         - uses: actions/checkout@v3
         - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
           with:
             cache_key: ${{ matrix.os }}
         - name: Build Client App –– ${{ matrix.platform }}
-          run: scripts/third_party/travis/retry.sh ./scripts/build.sh SwiftPMClientApp ${{ matrix.platform }} xcodebuild
+          run: scripts/third_party/travis/retry.sh ./scripts/build.sh ${{ matrix.scheme }} ${{ matrix.platform }} xcodebuild
 
   client-app-cocoapods:
     # Don't run on private repo unless it is a PR.
