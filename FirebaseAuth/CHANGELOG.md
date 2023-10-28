@@ -1,3 +1,6 @@
+# Unreleased
+- [added] Added host override support for IdentityToolKit and SecureToken api endpoints. (#11858)
+
 # 10.16.0
 - [added] Added custom auth domain support in recaptcha v2 authentication flows. (#7553)
 
