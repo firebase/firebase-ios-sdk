@@ -55,10 +55,10 @@ GEM
       public_suffix (~> 4.0)
       typhoeus (~> 1.0)
     cocoapods-deintegrate (1.0.5)
-    cocoapods-disable-podfile-validations (0.1.1)
+    cocoapods-disable-podfile-validations (0.2.0)
     cocoapods-downloader (2.0)
-    cocoapods-generate (2.0.1)
-      cocoapods-disable-podfile-validations (~> 0.1.1)
+    cocoapods-generate (2.2.5)
+      cocoapods-disable-podfile-validations (>= 0.1.1, < 0.3.0)
     cocoapods-plugins (1.0.0)
       nap
     cocoapods-search (1.0.1)
@@ -169,7 +169,7 @@ PLATFORMS
 
 DEPENDENCIES
   cocoapods (= 1.14.2)
-  cocoapods-generate (= 2.0.1)
+  cocoapods-generate (= 2.2.5)
   danger (= 8.4.5)
 
 BUNDLED WITH
