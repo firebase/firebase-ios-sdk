@@ -124,12 +124,12 @@ class TelemetryLogger {
   private let app: FirebaseApp
 
   /// Transport for Firelog events.
-  private let clearcutTransport: GDTCORTransport
+  private let cctTransport: GDTCORTransport
 
   /// Init logger, could be nil if unable to get event transport.
   init?(app: FirebaseApp) {
     self.app = app
-    guard let clearcutTransport = GDTCORTransport(
+    guard let cctTransport = GDTCORTransport(
       mappingID: mappingID,
       transformers: nil,
       target: GDTCORTarget.CCT
@@ -139,14 +139,14 @@ class TelemetryLogger {
                             messageCode: .telemetryInitError)
       return nil
     }
-    self.clearcutTransport = clearcutTransport
+    self.cctTransport = cctTransport
   }
 
   /// Log events to Firelog.
   private func logModelEvent(event: FirebaseMlLogEvent) {
-    let eventForTransport: GDTCOREvent = clearcutTransport.eventForTransport()
+    let eventForTransport: GDTCOREvent = cctTransport.eventForTransport()
     eventForTransport.dataObject = FBMLDataObject(event: event)
-    clearcutTransport.sendTelemetryEvent(eventForTransport)
+    cctTransport.sendTelemetryEvent(eventForTransport)
   }
 
   /// Log model deleted event to Firelog.
