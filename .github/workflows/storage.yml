@@ -194,13 +194,16 @@ jobs:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        target: [ios, tvos, macos, watchos, visionOS]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
             xcode: xcode_15.0.1
+        exclude:
+          - os: macos-12
+            target: visionOS
     runs-on: ${{ matrix.os }}
     needs: pod-lib-lint
     steps:
