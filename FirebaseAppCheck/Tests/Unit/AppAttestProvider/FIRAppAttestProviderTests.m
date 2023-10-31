@@ -16,7 +16,7 @@
 
 #import <XCTest/XCTest.h>
 
-#import <AppCheck/AppCheck.h>
+#import <AppCheckCore/AppCheckCore.h>
 #import <DeviceCheck/DeviceCheck.h>
 #import <OCMock/OCMock.h>
 
