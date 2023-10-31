@@ -42,16 +42,16 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
+        target: [iOS, tvOS, macOS, catalyst, watchOS, visionOS]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.0.1
-          - target: visionOS
-            os: macos-13
-            xcode: Xcode_15.0.1
+        exclude:
+          - os: macos-12
+            target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -81,7 +81,7 @@ jobs:
 
   core-cron-only:
     # Don't run on private repo.
-#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
 
     runs-on: macos-13
     strategy:
