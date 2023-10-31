@@ -1256,17 +1256,17 @@ let package = Package(
         "SharedTestUtilities",
         .product(name: "OCMock", package: "ocmock"),
       ],
-      path: "FirebaseAppCheck/Tests",
+      path: "FirebaseAppCheck/Tests/Unit",
       exclude: [
         // Swift tests are in the target `FirebaseAppCheckUnitSwift` since mixed language targets
-        // are not supported (as of Xcode 14.3).
-        "Unit/Swift",
+        // are not supported (as of Xcode 15.0).
+        "Swift",
       ],
       resources: [
         .process("Fixture"),
       ],
       cSettings: [
-        .headerSearchPath("../.."),
+        .headerSearchPath("../../.."),
       ]
     ),
     .testTarget(
