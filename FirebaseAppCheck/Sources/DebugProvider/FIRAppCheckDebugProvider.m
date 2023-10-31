@@ -22,7 +22,7 @@
 #import "FBLPromises.h"
 #endif
 
-@import AppCheckCore;
+#import <AppCheckCore/AppCheckCore.h>
 
 #import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"

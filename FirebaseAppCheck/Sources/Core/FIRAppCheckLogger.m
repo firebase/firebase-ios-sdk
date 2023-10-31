@@ -16,7 +16,7 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
-@import AppCheckCore;
+#import <AppCheckCore/AppCheckCore.h>
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 

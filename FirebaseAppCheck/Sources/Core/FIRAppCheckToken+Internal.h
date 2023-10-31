@@ -18,7 +18,7 @@
 
 #import <Foundation/Foundation.h>
 
-@import AppCheckCore;
+#import <AppCheckCore/AppCheckCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
