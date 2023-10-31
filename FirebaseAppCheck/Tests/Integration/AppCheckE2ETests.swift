@@ -16,139 +16,133 @@ import FirebaseAppCheck
 import FirebaseCore
 import XCTest
 
-// Tests that use the Keychain require a host app and Swift Package Manager does not support adding
-// a host app to test targets.
-#if !SWIFT_PACKAGE
+final class AppCheckE2ETests: XCTestCase {
+  let appName = "test_app_name"
+  var app: FirebaseApp!
 
-  final class AppCheckE2ETests: XCTestCase {
-    let appName = "test_app_name"
-    var app: FirebaseApp!
+  override func setUp() {
+    AppCheck.setAppCheckProviderFactory(TestAppCheckProviderFactory())
+    let options = FirebaseOptions(
+      googleAppID: "1:123456789:ios:abc123",
+      gcmSenderID: "123456789"
+    )
+    options.projectID = "test_project_id"
+    options.apiKey = "test_api_key"
+    FirebaseApp.configure(name: appName, options: options)
 
-    override func setUp() {
-      AppCheck.setAppCheckProviderFactory(TestAppCheckProviderFactory())
-      let options = FirebaseOptions(
-        googleAppID: "1:123456789:ios:abc123",
-        gcmSenderID: "123456789"
-      )
-      options.projectID = "test_project_id"
-      options.apiKey = "test_api_key"
-      FirebaseApp.configure(name: appName, options: options)
+    app = FirebaseApp.app(name: appName)
+  }
 
-      app = FirebaseApp.app(name: appName)
+  override func tearDown() {
+    let semaphore = DispatchSemaphore(value: 0)
+    app.delete { _ in
+      semaphore.signal()
     }
+    semaphore.wait()
+  }
 
-    override func tearDown() {
-      let semaphore = DispatchSemaphore(value: 0)
-      app.delete { _ in
-        semaphore.signal()
-      }
-      semaphore.wait()
-    }
+  func testInitAppCheck() throws {
+    let appCheck = AppCheck.appCheck(app: app)
 
-    func testInitAppCheck() throws {
-      let appCheck = AppCheck.appCheck(app: app)
+    XCTAssertNotNil(appCheck)
+  }
 
-      XCTAssertNotNil(appCheck)
-    }
+  func testInitAppCheckDebugProvider() throws {
+    let debugProvider = AppCheckDebugProvider(app: app)
 
-    func testInitAppCheckDebugProvider() throws {
-      let debugProvider = AppCheckDebugProvider(app: app)
+    XCTAssertNotNil(debugProvider)
+  }
 
-      XCTAssertNotNil(debugProvider)
-    }
+  func testInitAppCheckDebugProviderFactory() throws {
+    let debugProvider = AppCheckDebugProviderFactory().createProvider(with: app)
 
-    func testInitAppCheckDebugProviderFactory() throws {
-      let debugProvider = AppCheckDebugProviderFactory().createProvider(with: app)
+    XCTAssertNotNil(debugProvider)
+  }
 
-      XCTAssertNotNil(debugProvider)
-    }
+  @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
+  func testInitDeviceCheckProvider() throws {
+    let deviceCheckProvider = DeviceCheckProvider(app: app)
 
-    @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
-    func testInitDeviceCheckProvider() throws {
-      let deviceCheckProvider = DeviceCheckProvider(app: app)
+    XCTAssertNotNil(deviceCheckProvider)
+  }
 
-      XCTAssertNotNil(deviceCheckProvider)
-    }
+  @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
+  func testDeviceCheckProviderFactoryCreate() throws {
+    let deviceCheckProvider = DeviceCheckProviderFactory().createProvider(with: app)
 
-    @available(iOS 11.0, macOS 10.15, macCatalyst 13.0, tvOS 11.0, watchOS 9.0, *)
-    func testDeviceCheckProviderFactoryCreate() throws {
-      let deviceCheckProvider = DeviceCheckProviderFactory().createProvider(with: app)
+    XCTAssertNotNil(deviceCheckProvider)
+  }
 
-      XCTAssertNotNil(deviceCheckProvider)
-    }
+  @available(iOS 14.0, macOS 11.3, macCatalyst 14.5, tvOS 15.0, watchOS 9.0, *)
+  func testInitAppAttestProvider() throws {
+    let appAttestProvider = AppAttestProvider(app: app)
 
-    @available(iOS 14.0, macOS 11.3, macCatalyst 14.5, tvOS 15.0, watchOS 9.0, *)
-    func testInitAppAttestProvider() throws {
-      let appAttestProvider = AppAttestProvider(app: app)
+    XCTAssertNotNil(appAttestProvider)
+  }
 
-      XCTAssertNotNil(appAttestProvider)
-    }
-
-    // The following test is disabled on macOS since `token(forcingRefresh:handler:)` requires a
-    // provisioning profile to access the keychain to cache tokens.
-    // See go/firebase-macos-keychain-popups for more details.
-    #if !os(macOS) && !targetEnvironment(macCatalyst)
-      func testGetToken() throws {
-        guard let appCheck = AppCheck.appCheck(app: app) else {
-          XCTFail("AppCheck instance is nil.")
-          return
-        }
-
-        let expectation = XCTestExpectation()
-        appCheck.token(forcingRefresh: true) { token, error in
-          XCTAssertNil(error)
-          XCTAssertNotNil(token)
-          XCTAssertEqual(token?.token, TestAppCheckProvider.tokenValue)
-          expectation.fulfill()
-        }
-
-        wait(for: [expectation], timeout: 0.5)
-      }
-    #endif // !os(macOS) && !targetEnvironment(macCatalyst)
-
-    func testGetLimitedUseToken() throws {
+  // The following test is disabled on macOS since `token(forcingRefresh:handler:)` requires a
+  // provisioning profile to access the keychain to cache tokens.
+  // See go/firebase-macos-keychain-popups for more details.
+  #if !os(macOS) && !targetEnvironment(macCatalyst)
+    func testGetToken() throws {
       guard let appCheck = AppCheck.appCheck(app: app) else {
         XCTFail("AppCheck instance is nil.")
         return
       }
 
       let expectation = XCTestExpectation()
-      appCheck.limitedUseToken { token, error in
+      appCheck.token(forcingRefresh: true) { token, error in
         XCTAssertNil(error)
         XCTAssertNotNil(token)
-        XCTAssertEqual(token!.token, TestAppCheckProvider.limitedUseTokenValue)
+        XCTAssertEqual(token?.token, TestAppCheckProvider.tokenValue)
         expectation.fulfill()
       }
 
       wait(for: [expectation], timeout: 0.5)
     }
-  }
+  #endif // !os(macOS) && !targetEnvironment(macCatalyst)
 
-  class TestAppCheckProvider: NSObject, AppCheckProvider {
-    static let tokenValue = "TestToken"
-    static let limitedUseTokenValue = "TestLimitedUseToken"
-
-    func getToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
-      let token = AppCheckToken(
-        token: TestAppCheckProvider.tokenValue,
-        expirationDate: Date.distantFuture
-      )
-      handler(token, nil)
+  func testGetLimitedUseToken() throws {
+    guard let appCheck = AppCheck.appCheck(app: app) else {
+      XCTFail("AppCheck instance is nil.")
+      return
     }
 
-    func getLimitedUseToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
-      let token = AppCheckToken(
-        token: TestAppCheckProvider.limitedUseTokenValue,
-        expirationDate: Date.distantFuture
-      )
-      handler(token, nil)
+    let expectation = XCTestExpectation()
+    appCheck.limitedUseToken { token, error in
+      XCTAssertNil(error)
+      XCTAssertNotNil(token)
+      XCTAssertEqual(token!.token, TestAppCheckProvider.limitedUseTokenValue)
+      expectation.fulfill()
     }
+
+    wait(for: [expectation], timeout: 0.5)
+  }
+}
+
+class TestAppCheckProvider: NSObject, AppCheckProvider {
+  static let tokenValue = "TestToken"
+  static let limitedUseTokenValue = "TestLimitedUseToken"
+
+  func getToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
+    let token = AppCheckToken(
+      token: TestAppCheckProvider.tokenValue,
+      expirationDate: Date.distantFuture
+    )
+    handler(token, nil)
   }
 
-  class TestAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
-    func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
-      return TestAppCheckProvider()
-    }
+  func getLimitedUseToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
+    let token = AppCheckToken(
+      token: TestAppCheckProvider.limitedUseTokenValue,
+      expirationDate: Date.distantFuture
+    )
+    handler(token, nil)
   }
+}
 
-#endif // !SWIFT_PACKAGE
+class TestAppCheckProviderFactory: NSObject, AppCheckProviderFactory {
+  func createProvider(with app: FirebaseApp) -> AppCheckProvider? {
+    return TestAppCheckProvider()
+  }
+}

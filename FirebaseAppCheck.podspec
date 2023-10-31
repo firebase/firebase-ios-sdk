@@ -96,7 +96,6 @@ Pod::Spec.new do |s|
     }
     swift_unit_tests.source_files = [
       base_dir + 'Tests/Unit/Swift/**/*.swift',
-      base_dir + 'Tests/Unit/Swift/**/*.h',
     ]
   end
 
