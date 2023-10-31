@@ -188,7 +188,6 @@ jobs:
           - os: macos-13
             xcode: Xcode_15.0.1
     runs-on: ${{ matrix.os }}
-    needs: pod-lib-lint
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
