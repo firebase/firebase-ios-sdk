@@ -52,6 +52,7 @@ platform can be one of:
   tvOS
   watchOS
   catalyst
+  visionOS
 method can be one of:
   xcodebuild (default)
   cmake
@@ -170,6 +171,9 @@ tvos_flags=(
 watchos_flags=(
   -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
 )
+visionos_flags=(
+  -destination 'platform=visionOS Simulator'
+)
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
   -destination platform="macOS,variant=Mac Catalyst,arch=x86_64" TARGETED_DEVICE_FAMILY=2
@@ -204,6 +208,10 @@ case "$platform" in
 
   watchOS)
     xcb_flags=("${watchos_flags[@]}")
+    ;;
+
+  visionOS)
+    xcb_flags=("${visionos_flags[@]}")
     ;;
 
   catalyst)
