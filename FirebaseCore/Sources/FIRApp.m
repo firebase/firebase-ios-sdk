@@ -110,7 +110,12 @@ static NSMutableDictionary *sAllApps;
 static FIRApp *sDefaultApp;
 
 + (void)configure {
-  FIROptions *options = [FIROptions defaultOptions];
+  // The following should not compile if visionOS is properly being built.
+#if defined(TARGET_OS_VISION) && TARGET_OS_VISION
+  THIS SHOULD NOT COMPILE
+#endif  // defined(TARGET_OS_VISION) && TARGET_OS_VISION
+
+      FIROptions *options = [FIROptions defaultOptions];
   if (!options) {
 #if DEBUG
     [self findMisnamedGoogleServiceInfoPlist];
