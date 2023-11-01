@@ -182,9 +182,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git",
-             // TODO(andrewheard): Replace branch with version range before merging into `master`.
-             branch: "CocoaPods-0.1.0-alpha.9"),
+    .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
   ],
   targets: [
     .target(
