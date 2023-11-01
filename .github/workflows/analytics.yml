@@ -20,11 +20,12 @@ jobs:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
 
-    runs-on: macos-12
-
     strategy:
       matrix:
         target: [ios, tvos, macos]
+        os: [macos-12, macos-13]
+    runs-on: ${{ matrix.os }}
+
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
