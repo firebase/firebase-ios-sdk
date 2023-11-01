@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [iOS, tvOS, macOS, catalyst, watchOS]
+        target: [ios, tvos, macos, watchos]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
