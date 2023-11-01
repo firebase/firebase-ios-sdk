@@ -17,17 +17,17 @@ concurrency:
     cancel-in-progress: true
 
 jobs:
-  storage:
+  storage-integration-tests:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
         include:
-          # Only one os to avoid contention in the integration tests.
-          # - os: macos-12
-          #   xcode: Xcode_14.2
-          - os: macos-13
-            xcode: Xcode_15.0.1
+          # TODO: investigate integration test extreme flakiness on Xcode 15
+          - os: macos-12
+            xcode: Xcode_14.2
+          # - os: macos-13
+          #   xcode: Xcode_15.0.1
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: ${{ matrix.os }}
