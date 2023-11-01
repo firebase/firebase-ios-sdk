@@ -23,6 +23,7 @@ jobs:
 
     strategy:
       matrix:
+        podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
         target: [ios, tvos, macos, watchos]
         os: [macos-12, macos-13]
         include:

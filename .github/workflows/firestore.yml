@@ -323,8 +323,7 @@ jobs:
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
+#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: check
     strategy:
       matrix:
@@ -336,11 +335,19 @@ jobs:
         platforms: [
           'macos',
           'tvos',
+          'ios',
         ]
         flags: [
           '--use-static-frameworks',
           '',
         ]
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
@@ -348,6 +355,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -363,7 +372,16 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     needs: check
     env:
       FIREBASE_SOURCE_FIRESTORE: 1
@@ -372,6 +390,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
