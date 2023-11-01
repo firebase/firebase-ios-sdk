@@ -62,14 +62,13 @@ Pod::Spec.new do |s|
     }
     unit_tests.source_files = [
       base_dir + 'Tests/Unit/**/*.[mh]',
-      base_dir + 'Tests/Utils/**/*.[mh]',
       'SharedTestUtilities/AppCheckFake/*',
       'SharedTestUtilities/AppCheckBackoffWrapperFake/*',
       'SharedTestUtilities/Date/*',
       'SharedTestUtilities/URLSession/*',
     ]
 
-    unit_tests.resources = base_dir + 'Tests/Fixture/**/*'
+    unit_tests.resources = base_dir + 'Tests/Unit/Fixture/**/*'
     unit_tests.dependency 'OCMock'
     unit_tests.requires_app_host = true
   end
@@ -81,10 +80,8 @@ Pod::Spec.new do |s|
       :tvos => tvos_deployment_target
     }
     integration_tests.source_files = [
-      base_dir + 'Tests/Integration/**/*.[mh]',
-      base_dir + 'Tests/Integration/**/*.[mh]',
+      base_dir + 'Tests/Integration/**/*.swift',
     ]
-    integration_tests.resources = base_dir + 'Tests/Fixture/**/*'
     integration_tests.requires_app_host = true
   end
 
