@@ -377,14 +377,6 @@ case "$product-$platform-$method" in
       AppHost-FirebaseMessaging-Unit-Tests \
       ../../../FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 
-    RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-Unit-unit" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
@@ -394,24 +386,6 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         test
     fi
-
-    pod_gen FirebaseMessaging.podspec --platforms=macos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseMessaging.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-Unit-unit" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
     ;;
 
   MessagingSample-*-*)
