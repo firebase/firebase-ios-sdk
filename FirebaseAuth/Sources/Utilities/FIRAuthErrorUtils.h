@@ -23,6 +23,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/** @var kMissingRecaptchaTokenErrorPrefix
+    @brief The prefix of the error message of missing recaptcha token during authenticating.
+ */
+static NSString *const kMissingRecaptchaTokenErrorPrefix = @"MISSING_RECAPTCHA_TOKEN";
+
 /** @class FIRAuthErrorUtils
     @brief Utility class used to construct @c NSError instances.
  */

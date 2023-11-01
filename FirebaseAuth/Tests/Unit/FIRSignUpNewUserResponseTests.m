@@ -159,6 +159,7 @@ static const double kAllowedTimeDifference = 0.1;
       [[FIRSignUpNewUserRequest alloc] initWithEmail:kTestEmail
                                             password:kTestPassword
                                          displayName:kTestDisplayName
+                                             idToken:kTestIDToken
                                 requestConfiguration:_requestConfiguration];
 
   __block BOOL callbackInvoked;

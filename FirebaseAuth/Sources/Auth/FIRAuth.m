@@ -35,7 +35,6 @@
 #import "FirebaseAuth/Sources/AuthProvider/FIRAuthCredential_Internal.h"
 #import "FirebaseAuth/Sources/AuthProvider/GameCenter/FIRGameCenterAuthCredential.h"
 #import "FirebaseAuth/Sources/AuthProvider/OAuth/FIROAuthCredential_Internal.h"
-#import "FirebaseAuth/Sources/Backend/FIRAuthBackend.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthRequestConfiguration.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIRequest.h"
 #import "FirebaseAuth/Sources/Backend/RPC/FIRCreateAuthURIResponse.h"
@@ -164,11 +163,6 @@ static NSString *const kVerifyAndChangeEmailRequestType = @"VERIFY_AND_CHANGE_EM
            response.
  */
 static NSString *const kRevertSecondFactorAdditionRequestType = @"REVERT_SECOND_FACTOR_ADDITION";
-
-/** @var kMissingRecaptchaTokenErrorPrefix
-    @brief The prefix of the error message of missing recaptcha token during authenticating.
- */
-static NSString *const kMissingRecaptchaTokenErrorPrefix = @"MISSING_RECAPTCHA_TOKEN";
 
 /** @var kMissingPasswordReason
     @brief The reason why the @c FIRAuthErrorCodeWeakPassword error is thrown.
@@ -1994,6 +1988,7 @@ static NSMutableDictionary *gKeychainServiceNameForAppName;
       [[FIRSignUpNewUserRequest alloc] initWithEmail:email
                                             password:password
                                          displayName:nil
+                                             idToken:nil
                                 requestConfiguration:_requestConfiguration];
   if (![request.password length]) {
     completion(
