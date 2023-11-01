@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheck'
-  s.version          = '10.17.0'
+  s.version          = '10.18.0'
   s.summary          = 'Firebase App Check SDK.'
 
   s.description      = <<-DESC

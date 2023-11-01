@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseFirestore'
-  s.version          = '10.17.0'
+  s.version          = '10.18.0'
   s.summary          = 'Google Cloud Firestore'
   s.description      = <<-DESC
 Google Cloud Firestore is a NoSQL document database built for automatic scaling, high performance, and ease of application development.
