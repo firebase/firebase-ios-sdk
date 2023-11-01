@@ -62,9 +62,9 @@ struct PodspecsTester: ParsableCommand {
         return "--\(key)"
       }
     }.joined(separator: " ")
-    // TODO(andrewheard): Remove SpecsDev URL from sources before merging into `master`.
+    // TODO(andrewheard): Remove SpecsStaging URL from sources before merging into `master`.
     let command =
-      "pod spec lint \(spec) \(arguments) --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/"
+      "pod spec lint \(spec) \(arguments) --sources=https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/"
     print(command)
     let result = Shell.executeCommandFromScript(
       command,
