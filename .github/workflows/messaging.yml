@@ -82,16 +82,13 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        target: [iOS, watchOS, tvOS, macOS, catalyst, visionOS]
+        target: [iOS, watchOS, tvOS, macOS, catalyst]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.0.1
-        exclude:
-          - os: macos-12
-            target: visionOS
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
