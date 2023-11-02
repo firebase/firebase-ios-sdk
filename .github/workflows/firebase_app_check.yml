@@ -21,6 +21,7 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseAppCheckInterop.podspec, FirebaseAppCheck.podspec]
+        target: [ios, tvos, macos, watchos]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
