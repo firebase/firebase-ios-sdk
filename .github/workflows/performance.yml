@@ -124,14 +124,13 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        target: [iOS]
-        os: [macos-12, macos-13]
+        target: [iOS, tvOS]
+        os: [macos-12]
         include:
           - os: macos-12
             xcode: Xcode_14.2
-          #TODO: Xcode 15 tests are blocked by #11903
-          # - os: macos-13
-          #   xcode: Xcode_15.0.1
+          - os: macos-13
+            xcode: Xcode_15.0.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -143,33 +142,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh PerformanceUnit ${{ matrix.target }} spm
-
-  spm-cron:
-    # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    strategy:
-      matrix:
-        target: [tvOS]
-        os: [macos-12, macos-13]
-        include:
-          - os: macos-12
-            xcode: Xcode_14.2
-          #TODO: Xcode 15 tests are blocked by #11903
-          # - os: macos-13
-          #   xcode: Xcode_15.0.1
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v3
-    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
-      with:
-        cache_key: ${{ matrix.os }}
-    - name: Xcode
-      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Initialize xcodebuild
-      run: scripts/setup_spm_tests.sh
-    - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh PerformanceUnit ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh PerformanceUnit ${{ matrix.target }} spm --platforms=${{ matrix.target }}
 
   catalyst:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'

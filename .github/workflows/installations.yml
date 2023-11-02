@@ -23,7 +23,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     strategy:
       matrix:
-        target: [ios, tvos, macos, watchos]
+        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
+        target: [ios, tvos, macos --skip-tests, watchos]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
@@ -59,7 +60,7 @@ jobs:
     strategy:
       matrix:
         # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-        target: [ios, tvos, macos --skip-tests, watchos]
+        target: [iOS, tvOS, macOS, watchOS, catalyst]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
