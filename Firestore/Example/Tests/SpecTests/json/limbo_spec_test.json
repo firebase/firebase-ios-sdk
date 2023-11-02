@@ -8222,6 +8222,14 @@
         }
       },
       {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1001"
+        ]
+      },
+      {
         "watchSnapshot": {
           "targetIds": [
           ],
@@ -8278,22 +8286,7 @@
               "path": "collection"
             }
           }
-        ]
-      },
-      {
-        "watchCurrent": [
-          [
-            2
-          ],
-          "resume-token-1002"
-        ]
-      },
-      {
-        "watchSnapshot": {
-          "targetIds": [
-          ],
-          "version": 1002
-        },
+        ],
         "expectedState": {
           "activeLimboDocs": [
             "collection/a1",
@@ -8607,6 +8600,14 @@
             2
           ]
         }
+      },
+      {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1001"
+        ]
       },
       {
         "watchSnapshot": {
