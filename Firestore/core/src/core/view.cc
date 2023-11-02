@@ -282,11 +282,11 @@ ViewChange View::ApplyChanges(const ViewDocumentChanges& doc_changes,
 
   ApplyTargetChange(target_change);
   std::vector<LimboDocumentChange> limbo_changes = {};
-  if(!waitForRequeryResult) limbo_changes = UpdateLimboDocuments();
+  if (!waitForRequeryResult) limbo_changes = UpdateLimboDocuments();
 
-  // We are at synced state if there is no limbo docs are waiting to be resolved, view is current
-  // with the backend, and the query is not pending for full re-query result due to existence
-  // filter mismatch.
+  // We are at synced state if there is no limbo docs are waiting to be
+  // resolved, view is current with the backend, and the query is not pending
+  // for full re-query result due to existence filter mismatch.
   bool synced = limbo_documents_.empty() && current_ && !waitForRequeryResult;
   SyncState new_sync_state = synced ? SyncState::Synced : SyncState::Local;
   bool sync_state_changed = new_sync_state != sync_state_;
