@@ -31,8 +31,11 @@ jobs:
         include:
           - os: macos-12
             xcode: Xcode_14.2
+            test: spm
+          # The integration tests are slow and flaky on Xcode 15, so just build.
           - os: macos-13
             xcode: Xcode_15.0.1
+            test: spmbuildonly
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -46,7 +49,7 @@ jobs:
     - name: Functions Integration Test Server
       run: FirebaseFunctions/Backend/start.sh synchronous
     - name: iOS Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh Firebase-Package iOS ${{ matrix.test }}
 
   # Test iOS Device build since some Firestore dependencies build different files.
   iOS-Device:

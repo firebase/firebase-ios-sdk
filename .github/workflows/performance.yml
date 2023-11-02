@@ -142,7 +142,7 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh PerformanceUnit ${{ matrix.target }} spm --platforms=${{ matrix.target }}
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh PerformanceUnit ${{ matrix.target }} spm
 
   catalyst:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
