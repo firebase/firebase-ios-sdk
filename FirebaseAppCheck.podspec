@@ -44,9 +44,7 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
-  # TODO(andrewheard): Update version number before merging into `master`.
-  s.dependency 'AppCheckCore', '0.1.0-alpha.9'
-
+  s.dependency 'AppCheckCore', '~> 10.18'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
