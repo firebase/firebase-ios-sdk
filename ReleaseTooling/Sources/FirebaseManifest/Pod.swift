@@ -56,12 +56,9 @@ public struct Pod {
   }
 
   /// The Firebase pod does not support import validation with Xcode 12 because of the deprecated
-  /// ML pods not supporting the ARM Mac slice.
+  /// ML pods not supporting the ARM Mac slice. While all other pods support
+  // it, it is skipped to decrease the time it takes to stage and publish them.
   public func skipImportValidation() -> String {
-    if name == "Firebase" {
-      return "--skip-import-validation"
-    } else {
-      return ""
-    }
+    return "--skip-import-validation"
   }
 }
