@@ -296,7 +296,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-13
     needs: check
     strategy:
       matrix:
@@ -312,6 +312,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -346,6 +348,9 @@ jobs:
         exclude:
           - os: macos-13
             platforms: 'macos'
+        # Skip matrix cells covered by pod-lib-lint job.
+          - os: macos-13
+            platforms: 'ios'
         include:
           - os: macos-12
             xcode: Xcode_14.2
