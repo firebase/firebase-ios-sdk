@@ -325,7 +325,7 @@ jobs:
 
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
-#    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
+    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     needs: check
     strategy:
       matrix:
