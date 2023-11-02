@@ -61,6 +61,7 @@ jobs:
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
     - name: Build
+    #TODO: tests are not supported with Xcode 15 because the test spec depends on the iOS 8 GDCWebServer
       run: scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebasePerformance.podspec --skip-tests --platforms=${{ matrix.target }}
 
   quickstart:
@@ -112,15 +113,23 @@ jobs:
   spm:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
-    runs-on: macos-12
     strategy:
       matrix:
         target: [iOS]
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
@@ -128,16 +137,24 @@ jobs:
 
   spm-cron:
     # Don't run on private repo.
-    if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
+   # if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
     strategy:
       matrix:
         target: [tvOS]
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
