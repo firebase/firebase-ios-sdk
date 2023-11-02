@@ -63,7 +63,7 @@ struct PodspecsTester: ParsableCommand {
       }
     }.joined(separator: " ")
     let command =
-      "pod spec lint \(spec) \(arguments) --sources=https://github.com/firebase/SpecsTesting,https://cdn.cocoapods.org/"
+      "pod spec lint \(spec) \(arguments) --sources=https://github.com/firebase/SpecsTesting,https://github.com/firebase/SpecsStaging.git,https://cdn.cocoapods.org/"
     print(command)
     let result = Shell.executeCommandFromScript(
       command,
