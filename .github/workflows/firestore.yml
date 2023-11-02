@@ -342,15 +342,15 @@ jobs:
           '',
         ]
         os: [macos-12, macos-13]
+        # TODO: grpc and its dependencies don't build on Xcode 15 for macos because their minimum macos is lower than 10.11.
+        exclude:
+          - os: macos-13
+            platforms: 'macos'
         include:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.0.1
-        # TODO: grpc and its dependencies don't build on Xcode 15 for macos because their minimum macos is lower than 10.11.
-        exclude:
-          - os: macos-13
-            platforms: macos
     runs-on: ${{ matrix.os }}
 
     steps:
