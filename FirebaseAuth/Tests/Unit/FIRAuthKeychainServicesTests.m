@@ -80,7 +80,7 @@ static NSString *stringFromData(NSData *data) {
     @brief Creates a fake error object.
     @return a non-nil NSError instance.
  */
-static NSError *fakeError() {
+static NSError *fakeError(void) {
   return [NSError errorWithDomain:@"ERROR" code:-1 userInfo:nil];
 }
 

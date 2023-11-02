@@ -436,16 +436,6 @@ case "$product-$platform-$method" in
       build
     ;;
 
-  Database-*-unit)
-    pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
-    RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-Unit-unit" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-    ;;
-
   Database-*-integration)
     "${database_emulator}" start
     trap '"${database_emulator}" stop' ERR EXIT
