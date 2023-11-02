@@ -125,7 +125,6 @@ jobs:
     strategy:
       matrix:
         target: [iOS, tvOS]
-        os: [macos-12]
         include:
           - os: macos-12
             xcode: Xcode_14.2
