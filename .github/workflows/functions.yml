@@ -49,7 +49,8 @@ jobs:
     #   run: FirebaseFunctions/Backend/start.sh synchronous
     - name: Build and test
       run: |
-        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec  --test-specs=unit --platforms=${{ matrix.target }}
+        scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseFunctions.podspec \
+          --test-specs=unit --platforms=${{ matrix.target }}
 
   spm-integration:
     # Don't run on private repo unless it is a PR.
