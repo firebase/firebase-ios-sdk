@@ -187,7 +187,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 - (void)testGetToken_ServerUnreachableError {
   // 1. Create expected error and configure expectations.
-  NSError *serverError = [FIRAppCheckErrorUtil APIErrorWithNetworkError:[self internalError]];
+  NSError *serverError = [self appCheckCoreErrorWithCode:GACAppCheckErrorCodeServerUnreachable
+                                           failureReason:@"API request error."
+                                         underlyingError:[self internalError]];
+  NSError *publicServerError = [FIRAppCheckErrorUtil publicDomainErrorWithError:serverError];
 
   NSArray * /*[tokenNotification, getToken]*/ expectations =
       [self configuredExpectations_GetTokenWhenError_withError:serverError andToken:nil];
@@ -199,8 +202,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
                  [expectations.lastObject fulfill];
                  XCTAssertNil(token);
                  XCTAssertNotNil(error);
-                 XCTAssertEqualObjects(error, serverError);
+                 XCTAssertEqualObjects(error, publicServerError);
                  XCTAssertEqualObjects(error.domain, FIRAppCheckErrorDomain);
+                 XCTAssertEqual(error.code, FIRAppCheckErrorCodeServerUnreachable);
+                 XCTAssertEqualObjects(error.userInfo, serverError.userInfo);
                }];
 
   // 3. Wait for expectations and validate mocks.
@@ -210,8 +215,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 - (void)testGetToken_UnsupportedError {
   // 1. Create expected error and configure expectations.
-  NSError *providerError =
-      [FIRAppCheckErrorUtil unsupportedAttestationProvider:@"AppAttestProvider"];
+  NSError *providerError = [self appCheckCoreErrorWithCode:GACAppCheckErrorCodeUnsupported
+                                             failureReason:@"AppAttestProvider unsupported"
+                                           underlyingError:nil];
+  NSError *publicProviderError = [FIRAppCheckErrorUtil publicDomainErrorWithError:providerError];
 
   NSArray * /*[tokenNotification, getToken]*/ expectations =
       [self configuredExpectations_GetTokenWhenError_withError:providerError andToken:nil];
@@ -223,8 +230,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
                  [expectations.lastObject fulfill];
                  XCTAssertNil(token);
                  XCTAssertNotNil(error);
-                 XCTAssertEqualObjects(error, providerError);
+                 XCTAssertEqualObjects(error, publicProviderError);
                  XCTAssertEqualObjects(error.domain, FIRAppCheckErrorDomain);
+                 XCTAssertEqual(error.code, FIRAppCheckErrorCodeUnsupported);
+                 XCTAssertEqualObjects(error.userInfo, providerError.userInfo);
                }];
 
   // 3. Wait for expectations and validate mocks.
@@ -307,7 +316,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 - (void)testLimitedUseToken_WhenTokenGenerationErrors {
   // 1. Expect error when requesting token from app check provider.
-  NSError *providerError = [FIRAppCheckErrorUtil keychainErrorWithError:[self internalError]];
+  NSError *providerError = [self appCheckCoreErrorWithCode:GACAppCheckErrorCodeKeychain
+                                             failureReason:@"Keychain access error."
+                                           underlyingError:[self internalError]];
+  NSError *publicProviderError = [FIRAppCheckErrorUtil publicDomainErrorWithError:providerError];
   GACAppCheckTokenResult *expectedTokenResult =
       [[GACAppCheckTokenResult alloc] initWithError:providerError];
   id completionArg = [OCMArg invokeBlockWithArgs:expectedTokenResult, nil];
@@ -326,8 +338,10 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
         [getTokenExpectation fulfill];
         XCTAssertNotNil(error);
         XCTAssertNil(token.token);
-        XCTAssertEqualObjects(error, providerError);
+        XCTAssertEqualObjects(error, publicProviderError);
         XCTAssertEqualObjects(error.domain, FIRAppCheckErrorDomain);
+        XCTAssertEqual(error.code, FIRAppCheckErrorCodeKeychain);
+        XCTAssertEqualObjects(error.userInfo, providerError.userInfo);
       }];
 
   [self waitForExpectations:@[ notificationExpectation, getTokenExpectation ] timeout:0.5];
@@ -371,6 +385,16 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 - (NSError *)internalError {
   return [NSError errorWithDomain:@"com.internal.error" code:-1 userInfo:nil];
+}
+
+- (NSError *)appCheckCoreErrorWithCode:(GACAppCheckErrorCode)code
+                         failureReason:(nullable NSString *)failureReason
+                       underlyingError:(nullable NSError *)underlyingError {
+  NSMutableDictionary<NSErrorUserInfoKey, id> *userInfo = [NSMutableDictionary dictionary];
+  userInfo[NSUnderlyingErrorKey] = underlyingError;
+  userInfo[NSLocalizedFailureReasonErrorKey] = failureReason;
+
+  return [NSError errorWithDomain:GACAppCheckErrorDomain code:code userInfo:userInfo];
 }
 
 - (FIRAppCheckToken *)validToken {
