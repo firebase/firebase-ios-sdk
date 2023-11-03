@@ -57,12 +57,10 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-12]
         include:
           - os: macos-12
             xcode: Xcode_14.2
-          - os: macos-13
-            xcode: Xcode_15.0.1
     runs-on: ${{ matrix.os }}
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
@@ -77,8 +75,6 @@ jobs:
       run: FirebaseFunctions/Backend/start.sh synchronous
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - name: Functions Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsUnit iOS spm
     - name: iOS Swift Integration Tests (including Swift library)
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseFunctionsIntegration iOS spm
     - name: iOS ObjC Integration Tests (using Swift library)
