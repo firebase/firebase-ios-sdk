@@ -503,9 +503,9 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
         target_changes = it->second;
       }
 
-      auto found =
-          remote_event.target_mismatches().find(query_view->target_id());
-      if (found != remote_event.target_mismatches().end()) {
+      const auto& target_mismatches = remote_event.target_mismatches();
+      if (target_mismatches.find(query_view->target_id()) !=
+          target_mismatches.end()) {
         waitForRequeryResult = true;
       }
     }

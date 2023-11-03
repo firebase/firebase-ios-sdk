@@ -281,8 +281,8 @@ ViewChange View::ApplyChanges(const ViewDocumentChanges& doc_changes,
       });
 
   ApplyTargetChange(target_change);
-  std::vector<LimboDocumentChange> limbo_changes = {};
-  if (!waitForRequeryResult) limbo_changes = UpdateLimboDocuments();
+  std::vector<LimboDocumentChange> limbo_changes =
+      UpdateLimboDocuments(waitForRequeryResult);
 
   // We are at synced state if there is no limbo docs are waiting to be
   // resolved, view is current with the backend, and the query is not pending
@@ -375,9 +375,10 @@ void View::ApplyTargetChange(
 }
 
 /** Updates limbo_documents_ and returns any changes as LimboDocumentChanges. */
-std::vector<LimboDocumentChange> View::UpdateLimboDocuments() {
+std::vector<LimboDocumentChange> View::UpdateLimboDocuments(
+    bool waitForRequeryResult) {
   // We can only determine limbo documents when we're in-sync with the server.
-  if (!current_) {
+  if (waitForRequeryResult || !current_) {
     return {};
   }
 

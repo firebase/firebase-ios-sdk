@@ -220,7 +220,8 @@ class View {
   void ApplyTargetChange(
       const absl::optional<remote::TargetChange>& maybe_target_change);
 
-  std::vector<LimboDocumentChange> UpdateLimboDocuments();
+  std::vector<LimboDocumentChange> UpdateLimboDocuments(
+      bool waitForRequeryResult);
 
   Query query_;
 
