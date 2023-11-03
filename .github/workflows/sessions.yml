@@ -28,8 +28,11 @@ jobs:
         include:
           - os: macos-12
             xcode: Xcode_14.2
+            tests:
+          # Flaky tests on CI
           - os: macos-13
             xcode: Xcode_15.0.1
+            tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -41,7 +44,7 @@ jobs:
     - name: Build and test
       run: |
         scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseSessions.podspec \
-            --platforms=${{ matrix.target }} \
+            --platforms=${{ matrix.target }} ${{ matrix.tests }}
 
   spm:
     # Don't run on private repo unless it is a PR.

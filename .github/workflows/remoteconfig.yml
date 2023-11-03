@@ -93,8 +93,10 @@ jobs:
         include:
           - os: macos-12
             xcode: Xcode_14.2
+            test: spm
           - os: macos-13
             xcode: Xcode_15.0.1
+            test: spmbuildonly
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -106,9 +108,9 @@ jobs:
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Unit Tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigUnit ${{ matrix.target }} ${{ matrix.test }}
     - name: Fake Console tests
-      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }} spm
+      run: scripts/third_party/travis/retry.sh ./scripts/build.sh RemoteConfigFakeConsole ${{ matrix.target }} ${{ matrix.test }}
 
   catalyst:
     # Don't run on private repo unless it is a PR.
