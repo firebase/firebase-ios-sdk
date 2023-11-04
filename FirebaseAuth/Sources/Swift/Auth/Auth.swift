@@ -944,6 +944,7 @@ extension Auth: AuthInterop {
       let request = SignUpNewUserRequest(email: email,
                                          password: password,
                                          displayName: nil,
+                                         idToken: nil,
                                          requestConfiguration: self.requestConfiguration)
 
       #if os(iOS)
@@ -2439,8 +2440,8 @@ extension Auth: AuthInterop {
       }
     }
 
-    private func injectRecaptcha<T: AuthRPCRequest>(request: T,
-                                                    action: AuthRecaptchaAction) async throws -> T
+    func injectRecaptcha<T: AuthRPCRequest>(request: T,
+                                            action: AuthRecaptchaAction) async throws -> T
       .Response {
       let recaptchaVerifier = AuthRecaptchaVerifier.shared(auth: self)
       if recaptchaVerifier.enablementStatus(forProvider: AuthRecaptchaProvider.password) {
@@ -2461,7 +2462,7 @@ extension Auth: AuthInterop {
             try await recaptchaVerifier.injectRecaptchaFields(
               request: request,
               provider: AuthRecaptchaProvider.password,
-              action: AuthRecaptchaAction.signInWithPassword
+              action: action
             )
           } else {
             throw error

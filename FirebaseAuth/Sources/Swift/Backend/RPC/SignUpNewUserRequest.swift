@@ -34,6 +34,11 @@ private let kPasswordKey = "password"
  */
 private let kDisplayNameKey = "displayName"
 
+/** @var kIDToken
+    @brief The key for the "kIDToken" value in the request.
+ */
+private let kIDToken = "idToken"
+
 /** @var kCaptchaResponseKey
     @brief The key for the "captchaResponse" value in the request.
  */
@@ -77,6 +82,12 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
       @brief The password inputed by the user.
    */
   private(set) var displayName: String?
+
+  /** @property idToken
+      @brief he idToken of the user.
+   */
+  private(set) var idToken: String?
+
   /** @property captchaResponse
       @brief Response to the captcha.
    */
@@ -105,10 +116,12 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   init(email: String?,
        password: String?,
        displayName: String?,
+       idToken: String?,
        requestConfiguration: AuthRequestConfiguration) {
     self.email = email
     self.password = password
     self.displayName = displayName
+    self.idToken = idToken
     super.init(endpoint: kSignupNewUserEndpoint, requestConfiguration: requestConfiguration)
   }
 
@@ -122,6 +135,9 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
     }
     if let displayName {
       postBody[kDisplayNameKey] = displayName
+    }
+    if let idToken {
+      postBody[kIDToken] = idToken
     }
     if let captchaResponse {
       postBody[kCaptchaResponseKey] = captchaResponse

@@ -1676,6 +1676,88 @@ extension User: NSSecureCoding {}
     }
   #endif
 
+  private func link(withEmail email: String,
+                    password: String,
+                    authResult: AuthDataResult,
+                    _ completion: ((AuthDataResult?, Error?) -> Void)?) {
+    internalGetToken { accessToken, error in
+      guard let requestConfiguration = self.auth?.requestConfiguration else {
+        fatalError("Internal auth error: missing auth on User")
+      }
+      let request = SignUpNewUserRequest(email: email,
+                                         password: password,
+                                         displayName: nil,
+                                         idToken: accessToken,
+                                         requestConfiguration: requestConfiguration)
+      Task {
+        do {
+          #if os(iOS)
+            guard let auth = self.auth else {
+              fatalError("Internal Auth error: missing auth instance on user")
+            }
+            let response = try await auth.injectRecaptcha(request: request,
+                                                          action: AuthRecaptchaAction
+                                                            .signUpPassword)
+          #else
+            let response = try await AuthBackend.call(with: request)
+          #endif
+          guard let refreshToken = response.refreshToken,
+                let idToken = response.idToken else {
+            fatalError("Internal auth error: Invalid SignUpNewUserResponse")
+          }
+          // Update the new token and refresh user info again.
+          self.tokenService = SecureTokenService(
+            withRequestConfiguration: self.requestConfiguration,
+            accessToken: idToken,
+            accessTokenExpirationDate: response.approximateExpirationDate,
+            refreshToken: refreshToken
+          )
+
+          self.internalGetToken { accessToken, error in
+            if let error {
+              User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                              complete: nil, result: nil,
+                                                              error: error)
+              return
+            }
+            guard let accessToken else {
+              fatalError("Internal Auth Error: nil accessToken")
+            }
+            let getAccountInfoRequest = GetAccountInfoRequest(
+              accessToken: accessToken,
+              requestConfiguration: self.requestConfiguration
+            )
+            Task {
+              do {
+                let response = try await AuthBackend.call(with: getAccountInfoRequest)
+                self.isAnonymous = false
+                self.update(withGetAccountInfoResponse: response)
+                if let keychainError = self.updateKeychain() {
+                  User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                                  complete: nil, result: nil,
+                                                                  error: keychainError)
+                  return
+                }
+                User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                                complete: nil,
+                                                                result: authResult)
+              } catch {
+                self.signOutIfTokenIsInvalid(withError: error)
+                User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                                complete: nil, result: nil,
+                                                                error: error)
+              }
+            }
+          }
+        } catch {
+          self.signOutIfTokenIsInvalid(withError: error)
+          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
+                                                          complete: nil, result: nil, error: error)
+        }
+      }
+    }
+  }
+
   private func link(withEmailCredential emailCredential: EmailAuthCredential,
                     completion: ((AuthDataResult?, Error?) -> Void)?) {
     if hasEmailPasswordCredential {
@@ -1689,18 +1771,8 @@ extension User: NSSecureCoding {}
     }
     switch emailCredential.emailType {
     case let .password(password):
-      updateEmail(email: emailCredential.email, password: password) { error in
-        if let error {
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          result: nil,
-                                                          error: error)
-        } else {
-          let result = AuthDataResult(withUser: self, additionalUserInfo: nil)
-          User.callInMainThreadWithAuthDataResultAndError(callback: completion,
-                                                          result: result,
-                                                          error: nil)
-        }
-      }
+      let result = AuthDataResult(withUser: self, additionalUserInfo: nil)
+      link(withEmail: emailCredential.email, password: password, authResult: result, completion)
     case let .link(link):
       internalGetToken { accessToken, error in
         var queryItems = AuthWebUtils.parseURL(link)
