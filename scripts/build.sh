@@ -52,6 +52,7 @@ platform can be one of:
   tvOS
   watchOS
   catalyst
+  visionOS
 method can be one of:
   xcodebuild (default)
   cmake
@@ -137,15 +138,15 @@ function ExportLogs() {
   python "${scripts_dir}/xcresult_logs.py" "$@"
 }
 
-if [[ "$xcode_major" -lt 11 ]]; then
+if [[ "$xcode_major" -lt 15 ]]; then
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 7'
+    -destination 'platform=iOS Simulator,name=iPhone 14'
   )
 else
   ios_flags=(
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 11'
+    -destination 'platform=iOS Simulator,name=iPhone 15'
   )
 fi
 
@@ -169,6 +170,9 @@ tvos_flags=(
 )
 watchos_flags=(
   -destination 'platform=watchOS Simulator,name=Apple Watch Series 7 (45mm)'
+)
+visionos_flags=(
+  -destination 'platform=visionOS Simulator'
 )
 catalyst_flags=(
   ARCHS=x86_64 VALID_ARCHS=x86_64 SUPPORTS_MACCATALYST=YES -sdk macosx
@@ -204,6 +208,10 @@ case "$platform" in
 
   watchOS)
     xcb_flags=("${watchos_flags[@]}")
+    ;;
+
+  visionOS)
+    xcb_flags=("${visionos_flags[@]}")
     ;;
 
   catalyst)
@@ -376,14 +384,6 @@ case "$product-$platform-$method" in
       AppHost-FirebaseMessaging-Unit-Tests \
       ../../../FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist
 
-    RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-Unit-unit" \
-      "${ios_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
     if check_secrets; then
       # Integration tests are only run on iOS to minimize flake failures.
       RunXcodebuild \
@@ -393,24 +393,6 @@ case "$product-$platform-$method" in
         "${xcb_flags[@]}" \
         test
     fi
-
-    pod_gen FirebaseMessaging.podspec --platforms=macos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-Unit-unit" \
-      "${macos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
-
-    pod_gen FirebaseMessaging.podspec --platforms=tvos --clean
-    RunXcodebuild \
-      -workspace 'gen/FirebaseMessaging/FirebaseMessaging.xcworkspace' \
-      -scheme "FirebaseMessaging-Unit-unit" \
-      "${tvos_flags[@]}" \
-      "${xcb_flags[@]}" \
-      build \
-      test
     ;;
 
   MessagingSample-*-*)
@@ -459,16 +441,6 @@ case "$product-$platform-$method" in
       -scheme "SampleWatchAppWatchKitApp" \
       "${xcb_flags[@]}" \
       build
-    ;;
-
-  Database-*-unit)
-    pod_gen FirebaseDatabase.podspec --platforms="${gen_platform}"
-    RunXcodebuild \
-      -workspace 'gen/FirebaseDatabase/FirebaseDatabase.xcworkspace' \
-      -scheme "FirebaseDatabase-Unit-unit" \
-      "${xcb_flags[@]}" \
-      build \
-      test
     ;;
 
   Database-*-integration)

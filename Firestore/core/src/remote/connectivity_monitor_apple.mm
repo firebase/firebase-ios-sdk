@@ -18,7 +18,8 @@
 
 #if defined(__APPLE__)
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
 #import <UIKit/UIKit.h>
 #endif
 
@@ -49,7 +50,7 @@ NetworkStatus ToNetworkStatus(SCNetworkReachabilityFlags flags) {
     return NetworkStatus::Unavailable;
   }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
   if (flags & kSCNetworkReachabilityFlagsIsWWAN) {
     return NetworkStatus::AvailableViaCellular;
   }
@@ -112,7 +113,8 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
       return;
     }
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
     this->observer_ = [[NSNotificationCenter defaultCenter]
         addObserverForName:UIApplicationWillEnterForegroundNotification
                     object:nil
@@ -124,7 +126,8 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
   }
 
   ~ConnectivityMonitorApple() {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
     [[NSNotificationCenter defaultCenter] removeObserver:this->observer_];
 #endif
 
@@ -139,7 +142,8 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
     }
   }
 
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
   void OnEnteredForeground() {
     SCNetworkReachabilityFlags flags{};
     if (!SCNetworkReachabilityGetFlags(reachability_, &flags)) return;
@@ -167,7 +171,8 @@ class ConnectivityMonitorApple : public ConnectivityMonitor {
 
  private:
   SCNetworkReachabilityRef reachability_ = nil;
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || \
+    (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
   id<NSObject> observer_ = nil;
 #endif
 };

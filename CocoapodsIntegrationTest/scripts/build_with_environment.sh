@@ -27,7 +27,7 @@ function runXcodebuild() {
     -workspace 'CocoapodsIntegrationTest.xcworkspace'
     -scheme 'CocoapodsIntegrationTest'
     -sdk 'iphonesimulator'
-    -destination 'platform=iOS Simulator,name=iPhone 11'
+    -destination 'platform=iOS Simulator,name=iPhone 14'
     CODE_SIGNING_REQUIRED=NO
     clean
     build
