@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseFirestore/FIRQuery.h>
+#import <FirebaseFirestoreInternal/FIRQuery.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import <FirebaseFirestore/FIRListenerRegistration.h>
+#import <FirebaseFirestoreInternal/FIRListenerRegistration.h>
 
 @class FIRApp;
 @class FIRCollectionReference;
