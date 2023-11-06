@@ -1129,8 +1129,6 @@ static void callInMainThreadWithAuthDataResultAndError(
                         callInMainThreadWithAuthDataResultAndError(completion, nil, keychainError);
                         return;
                       }
-                      [self signOutIfTokenIsInvalidWithError:error];
-                      callInMainThreadWithAuthDataResultAndError(completion, authResult, nil);
                     }];
         }];
       }
