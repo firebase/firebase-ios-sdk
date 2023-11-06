@@ -16,12 +16,14 @@
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
+#import <DeviceCheck/DeviceCheck.h>
 #import <XCTest/XCTest.h>
 
 #import <AppCheckCore/AppCheckCore.h>
 
 @interface FIRAppCheckErrorUtilTests : XCTestCase
 
+@property(nonatomic) NSError *underlyingError;
 @property(nonatomic) NSDictionary<NSErrorUserInfoKey, id> *userInfo;
 
 @end
@@ -29,7 +31,24 @@
 @implementation FIRAppCheckErrorUtilTests
 
 - (void)setUp {
-  self.userInfo = @{NSLocalizedFailureReasonErrorKey : @"Failure reason"};
+  self.underlyingError = [NSError errorWithDomain:DCErrorDomain
+                                             code:DCErrorInvalidKey
+                                         userInfo:nil];
+  self.userInfo = @{
+    NSUnderlyingErrorKey : self.underlyingError,
+    NSLocalizedFailureReasonErrorKey : @"Sample Failure Reason"
+  };
+}
+
+- (void)testPublicDomainErrorForPublicError {
+  NSError *expectedError = [NSError errorWithDomain:FIRAppCheckErrorDomain
+                                               code:FIRAppCheckErrorCodeServerUnreachable
+                                           userInfo:self.userInfo];
+
+  NSError *publicError = [FIRAppCheckErrorUtil publicDomainErrorWithError:expectedError];
+
+  XCTAssertNotNil(publicError);
+  XCTAssertEqualObjects(expectedError, publicError);
 }
 
 - (void)testPublicDomainErrorForGACErrorUnknown {
@@ -39,6 +58,7 @@
 
   NSError *publicUnknownError = [FIRAppCheckErrorUtil publicDomainErrorWithError:unknownError];
 
+  XCTAssertNotNil(publicUnknownError);
   XCTAssertEqualObjects(publicUnknownError.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(publicUnknownError.code, FIRAppCheckErrorCodeUnknown);
   XCTAssertEqualObjects(unknownError.userInfo, self.userInfo);
@@ -52,6 +72,7 @@
 
   NSError *publicServerError = [FIRAppCheckErrorUtil publicDomainErrorWithError:serverError];
 
+  XCTAssertNotNil(publicServerError);
   XCTAssertEqualObjects(publicServerError.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(publicServerError.code, FIRAppCheckErrorCodeServerUnreachable);
   XCTAssertEqualObjects(serverError.userInfo, self.userInfo);
@@ -67,6 +88,7 @@
   NSError *publicInvalidConfigurationError =
       [FIRAppCheckErrorUtil publicDomainErrorWithError:invalidConfigurationError];
 
+  XCTAssertNotNil(publicInvalidConfigurationError);
   XCTAssertEqualObjects(publicInvalidConfigurationError.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(publicInvalidConfigurationError.code, FIRAppCheckErrorCodeInvalidConfiguration);
   XCTAssertEqualObjects(invalidConfigurationError.userInfo, self.userInfo);
@@ -81,6 +103,7 @@
 
   NSError *publicKeychainError = [FIRAppCheckErrorUtil publicDomainErrorWithError:keychainError];
 
+  XCTAssertNotNil(publicKeychainError);
   XCTAssertEqualObjects(publicKeychainError.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(publicKeychainError.code, FIRAppCheckErrorCodeKeychain);
   XCTAssertEqualObjects(keychainError.userInfo, self.userInfo);
@@ -95,6 +118,7 @@
   NSError *publicUnsupportedError =
       [FIRAppCheckErrorUtil publicDomainErrorWithError:unsupportedError];
 
+  XCTAssertNotNil(publicUnsupportedError);
   XCTAssertEqualObjects(publicUnsupportedError.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(publicUnsupportedError.code, FIRAppCheckErrorCodeUnsupported);
   XCTAssertEqualObjects(unsupportedError.userInfo, self.userInfo);
@@ -109,16 +133,35 @@
 
   NSError *publicUnknownError = [FIRAppCheckErrorUtil publicDomainErrorWithError:unknownError];
 
+  XCTAssertNotNil(publicUnknownError);
   XCTAssertEqualObjects(publicUnknownError.domain, FIRAppCheckErrorDomain);
   XCTAssertEqual(publicUnknownError.code, FIRAppCheckErrorCodeUnknown);
   XCTAssertEqual(publicUnknownError.localizedFailureReason, unknownError.localizedFailureReason);
 
+  // Verify that the unrecognized error is wrapped as an underlying error.
   NSError *underlyingError = publicUnknownError.userInfo[NSUnderlyingErrorKey];
   XCTAssertNotNil(underlyingError);
-  XCTAssertEqualObjects(underlyingError.domain, GACAppCheckErrorDomain);
-  XCTAssertEqual(underlyingError.code, unknownError.code);
-  XCTAssertEqualObjects(underlyingError.userInfo, unknownError.userInfo);
-  XCTAssertEqualObjects(underlyingError.userInfo, self.userInfo);
+  XCTAssertEqualObjects(underlyingError, unknownError);
+}
+
+- (void)testPublicDomainErrorForUnrecognizedDomainError {
+  // Error from an unrecognized domain (i.e., not FIRAppCheckErrorDomain or GACAppCheckErrorDomain).
+  NSError *unrecognizedError = [NSError errorWithDomain:DCErrorDomain
+                                                   code:DCErrorServerUnavailable
+                                               userInfo:self.userInfo];
+
+  NSError *publicUnknownError = [FIRAppCheckErrorUtil publicDomainErrorWithError:unrecognizedError];
+
+  XCTAssertNotNil(publicUnknownError);
+  XCTAssertEqualObjects(publicUnknownError.domain, FIRAppCheckErrorDomain);
+  XCTAssertEqual(publicUnknownError.code, FIRAppCheckErrorCodeUnknown);
+  XCTAssertEqual(publicUnknownError.localizedFailureReason,
+                 unrecognizedError.localizedFailureReason);
+
+  // Verify that the unrecognized error is wrapped as an underlying error.
+  NSError *underlyingError = publicUnknownError.userInfo[NSUnderlyingErrorKey];
+  XCTAssertNotNil(underlyingError);
+  XCTAssertEqualObjects(underlyingError, unrecognizedError);
 }
 
 @end
