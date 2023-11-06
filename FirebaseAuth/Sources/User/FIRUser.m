@@ -1129,6 +1129,7 @@ static void callInMainThreadWithAuthDataResultAndError(
                         callInMainThreadWithAuthDataResultAndError(completion, nil, keychainError);
                         return;
                       }
+                      callInMainThreadWithAuthDataResultAndError(completion, authResult, nil);
                     }];
         }];
       }
