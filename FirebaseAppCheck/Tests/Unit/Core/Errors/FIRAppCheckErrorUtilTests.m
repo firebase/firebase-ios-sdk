@@ -16,10 +16,12 @@
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
-#import <DeviceCheck/DeviceCheck.h>
 #import <XCTest/XCTest.h>
 
 #import <AppCheckCore/AppCheckCore.h>
+
+static NSString *const kTestErrorDomain = @"com.google.test.error-domain";
+static NSInteger kTestErrorCode = 42;
 
 @interface FIRAppCheckErrorUtilTests : XCTestCase
 
@@ -31,8 +33,8 @@
 @implementation FIRAppCheckErrorUtilTests
 
 - (void)setUp {
-  self.underlyingError = [NSError errorWithDomain:DCErrorDomain
-                                             code:DCErrorInvalidKey
+  self.underlyingError = [NSError errorWithDomain:kTestErrorDomain
+                                             code:kTestErrorCode
                                          userInfo:nil];
   self.userInfo = @{
     NSUnderlyingErrorKey : self.underlyingError,
@@ -146,8 +148,8 @@
 
 - (void)testPublicDomainErrorForUnrecognizedDomainError {
   // Error from an unrecognized domain (i.e., not FIRAppCheckErrorDomain or GACAppCheckErrorDomain).
-  NSError *unrecognizedError = [NSError errorWithDomain:DCErrorDomain
-                                                   code:DCErrorServerUnavailable
+  NSError *unrecognizedError = [NSError errorWithDomain:kTestErrorDomain
+                                                   code:kTestErrorCode
                                                userInfo:self.userInfo];
 
   NSError *publicUnknownError = [FIRAppCheckErrorUtil publicDomainErrorWithError:unrecognizedError];
