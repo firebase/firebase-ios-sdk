@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRAuthDataResult.h"
-#import "FIRMultiFactor.h"
-#import "FIRUserInfo.h"
+#import <FirebaseAuth/FIRAuth.h>
+#import <FirebaseAuth/FIRAuthDataResult.h>
+#import <FirebaseAuth/FIRMultiFactor.h>
+#import <FirebaseAuth/FIRUserInfo.h>
 
 @class FIRAuthTokenResult;
 @class FIRPhoneAuthCredential;

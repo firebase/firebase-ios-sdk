@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FDLURLComponents.h"
-#import "FIRDynamicLink.h"
-#import "FIRDynamicLinks.h"
-#import "FIRDynamicLinksCommon.h"
+#import <FirebaseDynamicLinks/FDLURLComponents.h>
+#import <FirebaseDynamicLinks/FIRDynamicLink.h>
+#import <FirebaseDynamicLinks/FIRDynamicLinks.h>
+#import <FirebaseDynamicLinks/FIRDynamicLinksCommon.h>

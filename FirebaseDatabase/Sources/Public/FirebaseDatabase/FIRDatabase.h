@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRDatabaseReference.h"
+#import <FirebaseDatabase/FIRDatabaseReference.h>
 #import <Foundation/Foundation.h>
 
 @class FIRApp;

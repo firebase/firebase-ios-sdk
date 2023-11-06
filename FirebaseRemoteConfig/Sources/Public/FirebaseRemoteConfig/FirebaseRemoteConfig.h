@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-#import "FIRRemoteConfig.h"
+#import <FirebaseRemoteConfig/FIRRemoteConfig.h>

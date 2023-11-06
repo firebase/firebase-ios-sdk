@@ -18,7 +18,7 @@
 
 @class FIRApp;
 
-#import "FIRInAppMessagingRendering.h"
+#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
 
 NS_ASSUME_NONNULL_BEGIN
 /**

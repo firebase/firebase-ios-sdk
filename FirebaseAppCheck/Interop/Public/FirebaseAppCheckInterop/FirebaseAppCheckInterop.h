@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheckInterop.h"
-#import "FIRAppCheckProtocol.h"
-#import "FIRAppCheckTokenResultInterop.h"
+#import <FirebaseAppCheckInterop/FIRAppCheckInterop.h>
+#import <FirebaseAppCheckInterop/FIRAppCheckProtocol.h>
+#import <FirebaseAppCheckInterop/FIRAppCheckTokenResultInterop.h>

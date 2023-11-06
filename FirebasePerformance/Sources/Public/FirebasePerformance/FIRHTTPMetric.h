@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRPerformanceAttributable.h"
+#import <FirebasePerformance/FIRPerformanceAttributable.h>
 
 // clang-format off
 // clang-format12 does a weird cascading indent of this enum.

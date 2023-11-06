@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#import "FIRAppCheck.h"
-#import "FIRAppCheckErrors.h"
-#import "FIRAppCheckProvider.h"
-#import "FIRAppCheckProviderFactory.h"
-#import "FIRAppCheckToken.h"
+#import <FirebaseAppCheck/FIRAppCheck.h>
+#import <FirebaseAppCheck/FIRAppCheckErrors.h>
+#import <FirebaseAppCheck/FIRAppCheckProvider.h>
+#import <FirebaseAppCheck/FIRAppCheckProviderFactory.h>
+#import <FirebaseAppCheck/FIRAppCheckToken.h>
 
 // Debug provider
-#import "FIRAppCheckDebugProvider.h"
-#import "FIRAppCheckDebugProviderFactory.h"
+#import <FirebaseAppCheck/FIRAppCheckDebugProvider.h>
+#import <FirebaseAppCheck/FIRAppCheckDebugProviderFactory.h>
 
 // DeviceCheck provider
-#import "FIRDeviceCheckProvider.h"
-#import "FIRDeviceCheckProviderFactory.h"
+#import <FirebaseAppCheck/FIRDeviceCheckProvider.h>
+#import <FirebaseAppCheck/FIRDeviceCheckProviderFactory.h>
 
 // App Attest provider.
-#import "FIRAppAttestProvider.h"
+#import <FirebaseAppCheck/FIRAppAttestProvider.h>

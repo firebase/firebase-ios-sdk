@@ -14,8 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRCrashlyticsReport.h"
-#import "FIRExceptionModel.h"
+#import <FirebaseCrashlytics/FIRCrashlyticsReport.h>
+#import <FirebaseCrashlytics/FIRExceptionModel.h>
 
 #if __has_include(<Crashlytics/Crashlytics.h>)
 #warning "FirebaseCrashlytics and Crashlytics are not compatible \

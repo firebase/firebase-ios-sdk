@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFederatedAuthProvider.h"
+#import <FirebaseAuth/FIRFederatedAuthProvider.h>
 
 @class FIRAuth;
 @class FIROAuthCredential;

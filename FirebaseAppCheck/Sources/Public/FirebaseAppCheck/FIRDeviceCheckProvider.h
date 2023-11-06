@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAppCheckAvailability.h"
-#import "FIRAppCheckProvider.h"
+#import <FirebaseAppCheck/FIRAppCheckAvailability.h>
+#import <FirebaseAppCheck/FIRAppCheckProvider.h>
 
 @class FIRApp;
 @protocol FIRDeviceCheckAPIServiceProtocol;

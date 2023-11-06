@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRPerformanceAttributable.h"
+#import <FirebasePerformance/FIRPerformanceAttributable.h>
 
 /**
  * FIRTrace objects contain information about a "Trace", which is a sequence of steps. Traces can be

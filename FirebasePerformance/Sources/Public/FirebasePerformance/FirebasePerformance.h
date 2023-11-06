@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRHTTPMetric.h"
-#import "FIRPerformance.h"
-#import "FIRPerformanceAttributable.h"
-#import "FIRTrace.h"
+#import <FirebasePerformance/FIRHTTPMetric.h>
+#import <FirebasePerformance/FIRPerformance.h>
+#import <FirebasePerformance/FIRPerformanceAttributable.h>
+#import <FirebasePerformance/FIRTrace.h>

@@ -16,8 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRFirestoreSource.h"
-#import "FIRListenerRegistration.h"
+#import <FirebaseFirestore/FIRFirestoreSource.h>
+#import <FirebaseFirestore/FIRListenerRegistration.h>
 
 @class FIRAggregateQuery;
 @class FIRAggregateField;

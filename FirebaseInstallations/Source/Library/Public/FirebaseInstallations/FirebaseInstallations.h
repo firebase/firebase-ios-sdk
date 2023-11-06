@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-#import "FIRInstallations.h"
-#import "FIRInstallationsAuthTokenResult.h"
-#import "FIRInstallationsErrors.h"
+#import <FirebaseInstallations/FIRInstallations.h>
+#import <FirebaseInstallations/FIRInstallationsAuthTokenResult.h>
+#import <FirebaseInstallations/FIRInstallationsErrors.h>

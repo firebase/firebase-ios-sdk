@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRInAppMessaging.h"
-#import "FIRInAppMessagingRendering.h"
+#import <FirebaseInAppMessaging/FIRInAppMessaging.h>
+#import <FirebaseInAppMessaging/FIRInAppMessagingRendering.h>
 
 #if __has_include(<FirebaseInAppMessagingDisplay/FirebaseInAppMessagingDisplay.h>)
 #warning The FirebaseInAppMessagingDisplay subspec is deprecated. Please remove FirebaseInAppMessagingDisplay from your Podfile (or delete the framework).

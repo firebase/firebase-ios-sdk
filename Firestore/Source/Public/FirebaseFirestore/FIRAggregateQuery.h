@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAggregateSource.h"
+#import <FirebaseFirestore/FIRAggregateSource.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

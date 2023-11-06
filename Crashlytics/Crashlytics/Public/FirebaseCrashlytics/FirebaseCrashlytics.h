@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRCrashlytics.h"
-#import "FIRCrashlyticsReport.h"
-#import "FIRExceptionModel.h"
-#import "FIRStackFrame.h"
+#import <FirebaseCrashlytics/FIRCrashlytics.h>
+#import <FirebaseCrashlytics/FIRCrashlyticsReport.h>
+#import <FirebaseCrashlytics/FIRExceptionModel.h>
+#import <FirebaseCrashlytics/FIRStackFrame.h>

@@ -12,5 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "FIRExperimentController.h"
-#import "FIRLifecycleEvents.h"
+#import <FirebaseABTesting/FIRExperimentController.h>
+#import <FirebaseABTesting/FIRLifecycleEvents.h>

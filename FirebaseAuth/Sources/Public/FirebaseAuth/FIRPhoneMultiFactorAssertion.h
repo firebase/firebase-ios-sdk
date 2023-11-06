@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRMultiFactorAssertion.h"
+#import <FirebaseAuth/FIRMultiFactorAssertion.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

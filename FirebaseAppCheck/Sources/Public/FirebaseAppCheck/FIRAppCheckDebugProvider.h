@@ -16,7 +16,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAppCheckProvider.h"
+#import <FirebaseAppCheck/FIRAppCheckProvider.h>
 
 @class FIRApp;
 @protocol FIRAppCheckDebugProviderAPIServiceProtocol;

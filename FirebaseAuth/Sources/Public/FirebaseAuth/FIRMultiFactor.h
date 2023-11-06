@@ -16,10 +16,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRMultiFactorAssertion.h"
-#import "FIRMultiFactorInfo.h"
-#import "FIRMultiFactorSession.h"
+#import <FirebaseAuth/FIRAuth.h>
+#import <FirebaseAuth/FIRMultiFactorAssertion.h>
+#import <FirebaseAuth/FIRMultiFactorInfo.h>
+#import <FirebaseAuth/FIRMultiFactorSession.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#import "FIRMultiFactor.h"
+#import <FirebaseAuth/FIRMultiFactor.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

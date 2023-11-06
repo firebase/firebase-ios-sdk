@@ -17,8 +17,8 @@
 #import <AvailabilityMacros.h>
 #import <Foundation/Foundation.h>
 
-#import "FIRAuthAPNSTokenType.h"
-#import "FIRAuthErrors.h"
+#import <FirebaseAuth/FIRAuthAPNSTokenType.h>
+#import <FirebaseAuth/FIRAuthErrors.h>
 
 @class FIRActionCodeSettings;
 @class FIRApp;

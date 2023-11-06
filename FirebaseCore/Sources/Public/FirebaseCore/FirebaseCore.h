@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#import "FIRApp.h"
-#import "FIRConfiguration.h"
-#import "FIRLoggerLevel.h"
-#import "FIROptions.h"
-#import "FIRVersion.h"
+#import <FirebaseCore/FIRApp.h>
+#import <FirebaseCore/FIRConfiguration.h>
+#import <FirebaseCore/FIRLoggerLevel.h>
+#import <FirebaseCore/FIROptions.h>
+#import <FirebaseCore/FIRVersion.h>

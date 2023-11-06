@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+#import <FirebaseAuth/FIRMultiFactorSession.h>
+#import <FirebaseAuth/FIRTOTPMultiFactorAssertion.h>
+#import <FirebaseAuth/FIRTOTPSecret.h>
 #import <Foundation/Foundation.h>
-#import "FIRMultiFactorSession.h"
-#import "FIRTOTPMultiFactorAssertion.h"
-#import "FIRTOTPSecret.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

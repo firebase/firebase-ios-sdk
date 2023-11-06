@@ -17,13 +17,13 @@
 #ifndef FirebaseDatabase_h
 #define FirebaseDatabase_h
 
-#import "FIRDataEventType.h"
-#import "FIRDataSnapshot.h"
-#import "FIRDatabase.h"
-#import "FIRDatabaseQuery.h"
-#import "FIRDatabaseReference.h"
-#import "FIRMutableData.h"
-#import "FIRServerValue.h"
-#import "FIRTransactionResult.h"
+#import <FirebaseDatabase/FIRDataEventType.h>
+#import <FirebaseDatabase/FIRDataSnapshot.h>
+#import <FirebaseDatabase/FIRDatabase.h>
+#import <FirebaseDatabase/FIRDatabaseQuery.h>
+#import <FirebaseDatabase/FIRDatabaseReference.h>
+#import <FirebaseDatabase/FIRMutableData.h>
+#import <FirebaseDatabase/FIRServerValue.h>
+#import <FirebaseDatabase/FIRTransactionResult.h>
 
 #endif /* FirebaseDatabase_h */
