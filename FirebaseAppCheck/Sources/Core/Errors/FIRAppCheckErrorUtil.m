@@ -22,7 +22,7 @@
 
 + (NSError *)publicDomainErrorWithError:(NSError *)error {
   if ([error.domain isEqualToString:GACAppCheckErrorDomain]) {
-    return [self appCheckErrorWithInternalError:error];
+    return [self publicDomainErrorWithGACError:error];
   } else if ([error.domain isEqualToString:FIRAppCheckErrorDomain]) {
     return error;
   }
@@ -30,9 +30,11 @@
   return [self unknownErrorWithError:error];
 }
 
-+ (NSError *)appCheckErrorWithInternalError:(NSError *)internalError {
+/// Converts an App Check Core error (`GACAppCheckErrorDomain`) to a public error
+/// (`FIRAppCheckErrorDomain`).
++ (NSError *)publicDomainErrorWithGACError:(NSError *)appCheckCoreError {
   FIRAppCheckErrorCode errorCode;
-  switch ((GACAppCheckErrorCode)internalError.code) {
+  switch ((GACAppCheckErrorCode)appCheckCoreError.code) {
     case GACAppCheckErrorCodeUnknown:
       errorCode = FIRAppCheckErrorCodeUnknown;
       break;
@@ -49,12 +51,12 @@
       errorCode = FIRAppCheckErrorCodeUnsupported;
       break;
     default:
-      return [self unknownErrorWithError:internalError];
+      return [self unknownErrorWithError:appCheckCoreError];
   }
 
   return [NSError errorWithDomain:FIRAppCheckErrorDomain
                              code:errorCode
-                         userInfo:internalError.userInfo];
+                         userInfo:appCheckCoreError.userInfo];
 }
 
 #pragma mark - Helpers
