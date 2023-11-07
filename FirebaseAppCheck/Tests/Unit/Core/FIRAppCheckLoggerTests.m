@@ -20,6 +20,9 @@
 
 #import <AppCheckCore/AppCheckCore.h>
 
+@interface FIRAppCheckLoggerTests : XCTestCase
+@end
+
 @implementation FIRAppCheckLoggerTests
 
 - (void)testGetGACAppCheckLogLevel_Error {
