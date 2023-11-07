@@ -185,5 +185,31 @@ static NSString *const kMessageCode = @"I-COR000001";
   XCTAssertEqual(FIRLoggerLevelDebug, ASL_LEVEL_DEBUG);
 }
 
+- (void)testFIRGetLoggerLevel {
+  FIRLoggerLevel loggerLevel = FIRGetLoggerLevel();
+
+  // The default logger level is FIRLoggerLevelNotice.
+  XCTAssertEqual(loggerLevel, FIRLoggerLevelNotice);
+}
+
+- (void)testFIRSetLoggerLevel {
+  FIRSetLoggerLevel(FIRLoggerLevelDebug);
+
+  FIRLoggerLevel loggerLevel = FIRGetLoggerLevel();
+
+  // The default logger level is FIRLoggerLevelNotice.
+  XCTAssertEqual(loggerLevel, FIRLoggerLevelDebug);
+}
+
+- (void)testFIRResetLogger_ResetsLoggerLevel {
+  FIRSetLoggerLevel(FIRLoggerLevelDebug);
+
+  FIRResetLogger();
+  FIRLoggerLevel loggerLevel = FIRGetLoggerLevel();
+
+  // The default logger level is FIRLoggerLevelNotice.
+  XCTAssertEqual(loggerLevel, FIRLoggerLevelNotice);
+}
+
 @end
 #endif
