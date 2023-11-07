@@ -14,7 +14,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRCrashlytics.h"
+#import <FirebaseCrashlytics/FIRCrashlytics.h>
 
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 

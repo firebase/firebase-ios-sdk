@@ -14,7 +14,8 @@
 
 #import <XCTest/XCTest.h>
 
-#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRExceptionModel.h"
+#import <FirebaseCrashlytics/FIRExceptionModel.h>
+//#import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRExceptionModel.h"
 #import "Crashlytics/Crashlytics/Public/FirebaseCrashlytics/FIRStackFrame.h"
 
 #import "Crashlytics/Crashlytics/Components/FIRCLSContext.h"
