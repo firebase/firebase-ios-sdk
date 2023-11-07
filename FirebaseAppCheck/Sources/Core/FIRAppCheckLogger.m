@@ -16,8 +16,6 @@
 
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
 
-#import <AppCheckCore/AppCheckCore.h>
-
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -38,11 +36,29 @@ NSString *const kFIRLoggerAppCheckMessageCodeDebugToken = @"I-FAA005001";
 NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions = @"I-FAA006001";
 
 #pragma mark - Log functions
+
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...) {
   va_list args_ptr;
   va_start(args_ptr, message);
   FIRLogBasic(FIRLoggerLevelDebug, kFIRLoggerAppCheck, messageCode, message, args_ptr);
   va_end(args_ptr);
+}
+
+#pragma mark - Helper functions
+
+GACAppCheckLogLevel FIRGetGACAppCheckLogLevel(void) {
+  FIRLoggerLevel loggerLevel = FIRGetLoggerLevel();
+  switch (loggerLevel) {
+    case FIRLoggerLevelError:
+      return GACAppCheckLogLevelError;
+    case FIRLoggerLevelWarning:
+    case FIRLoggerLevelNotice:
+      return GACAppCheckLogLevelWarning;
+    case FIRLoggerLevelInfo:
+      return GACAppCheckLogLevelInfo;
+    case FIRLoggerLevelDebug:
+      return GACAppCheckLogLevelDebug;
+  }
 }
 
 NS_ASSUME_NONNULL_END

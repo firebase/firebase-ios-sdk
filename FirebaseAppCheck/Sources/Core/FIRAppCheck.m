@@ -65,6 +65,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 #pragma mark - Internal
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
+  // Set the App Check Core logging level to the current equivalent Firebase logging level.
+  GACAppCheckLogger.logLevel = FIRGetGACAppCheckLogLevel();
+
   id<FIRAppCheckProviderFactory> providerFactory = [FIRAppCheck providerFactory];
 
   if (providerFactory == nil) {
