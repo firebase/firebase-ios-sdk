@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <AppCheckCore/AppCheckCore.h>
+
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 extern FIRLoggerService kFIRLoggerAppCheck;
@@ -34,3 +36,5 @@ FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageCodeDebugToken;
 FOUNDATION_EXPORT NSString *const kFIRLoggerAppCheckMessageDeviceCheckProviderIncompleteFIROptions;
 
 void FIRAppCheckDebugLog(NSString *messageCode, NSString *message, ...);
+
+GACAppCheckLogLevel FIRGetGACAppCheckLogLevel(void);

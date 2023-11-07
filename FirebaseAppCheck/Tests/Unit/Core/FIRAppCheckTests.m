@@ -37,6 +37,8 @@
 // The FAC token value returned when an error occurs.
 static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
+extern void FIRResetLogger(void);
+
 @interface FIRAppCheck (Tests) <FIRAppCheckInterop, GACAppCheckTokenDelegate>
 - (instancetype)initWithAppName:(NSString *)appName
                    appCheckCore:(GACAppCheck *)appCheckCore
@@ -66,6 +68,8 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
 - (void)setUp {
   [super setUp];
+
+  FIRResetLogger();
 
   self.appName = @"FIRAppCheckTests";
   self.mockAppCheckProvider = OCMStrictProtocolMock(@protocol(FIRAppCheckProvider));
@@ -112,13 +116,19 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
   [FIRAppCheck setAppCheckProviderFactory:mockProviderFactory];
 
-  // 3. Call init.
+  // 3. Set the Firebase logging level to Debug.
+  FIRSetLoggerLevel(FIRLoggerLevelDebug);
+
+  // 4. Call init.
   FIRAppCheck *appCheck = [[FIRAppCheck alloc] initWithApp:app];
   XCTAssert([appCheck isKindOfClass:[FIRAppCheck class]]);
 
-  // 4. Verify mocks.
+  // 5. Verify mocks.
   OCMVerifyAll(mockProviderFactory);
   OCMVerifyAll(mockProvider);
+
+  // 6. Verify that the App Check Core logging level is also Debug.
+  XCTAssertEqual(GACAppCheckLogger.logLevel, GACAppCheckLogLevelDebug);
 }
 
 - (void)testAppCheckInstanceForApp {
@@ -134,6 +144,9 @@ static NSString *const kDummyToken = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
   XCTAssertNotNil(app);
 
   XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
+
+  // Verify that the App Check Core logging level is the default (Warning).
+  XCTAssertEqual(GACAppCheckLogger.logLevel, GACAppCheckLogLevelWarning);
 }
 
 #pragma mark - Public Get Token
