@@ -16,6 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <AppCheckCore/AppCheckCore.h>
+
 @class FIRApp;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -23,20 +25,17 @@ NS_ASSUME_NONNULL_BEGIN
 FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledUserDefaultsPrefix;
 FOUNDATION_EXPORT NSString *const kFIRAppCheckTokenAutoRefreshEnabledInfoPlistKey;
 
-/// A collection of Firebase app check wide settings and parameters.
-@protocol FIRAppCheckSettingsProtocol <NSObject>
+/// Handles storing and updating the Firebase app check wide settings and parameters.
+@interface FIRAppCheckSettings : GACAppCheckSettings
 
 /// If Firebase app check token auto-refresh is allowed.
 @property(nonatomic, assign) BOOL isTokenAutoRefreshEnabled;
 
-@end
-
-/// Handles storing and updating the Firebase app check wide settings and parameters.
-@interface FIRAppCheckSettings : NSObject <FIRAppCheckSettingsProtocol>
-
 - (instancetype)initWithApp:(FIRApp *)firebaseApp
                 userDefault:(NSUserDefaults *)userDefaults
-                 mainBundle:(NSBundle *)mainBundle;
+                 mainBundle:(NSBundle *)mainBundle NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 @end
 

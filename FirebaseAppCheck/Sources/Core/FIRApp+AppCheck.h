@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,16 @@
  * limitations under the License.
  */
 
-#import "FirebaseAppCheck/Tests/Unit/Utils/FIRFakeTimer.h"
+#import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-@implementation FIRFakeTimer
+NS_ASSUME_NONNULL_BEGIN
 
-- (FIRTimerProvider)fakeTimerProvider {
-  return ^id<FIRAppCheckTimerProtocol> _Nullable(NSDate *fireDate, dispatch_queue_t queue,
-                                                 dispatch_block_t handler) {
-    self.handler = handler;
-    if (self.createHandler) {
-      self.createHandler(fireDate);
-    }
+@interface FIRApp (AppCheck)
 
-    return self;
-  };
-}
-
-- (void)invalidate {
-  if (self.invalidationHandler) {
-    self.invalidationHandler();
-  }
-}
+/// The resource name for the Firebase App in the format "projects/{project_id}/apps/{app_id}".
+/// See https://google.aip.dev/122 for more details about resource names.
+@property(nonatomic, readonly, copy) NSString *resourceName;
 
 @end
+
+NS_ASSUME_NONNULL_END

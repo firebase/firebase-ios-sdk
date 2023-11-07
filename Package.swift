@@ -182,6 +182,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
+    .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
   ],
   targets: [
     .target(
@@ -1223,6 +1224,7 @@ let package = Package(
             dependencies: [
               "FirebaseAppCheckInterop",
               "FirebaseCore",
+              .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
             ],
@@ -1262,9 +1264,6 @@ let package = Package(
         // are not supported (as of Xcode 15.0).
         "Swift",
       ],
-      resources: [
-        .process("Fixture"),
-      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1272,10 +1271,7 @@ let package = Package(
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
-      path: "FirebaseAppCheck/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ]
+      path: "FirebaseAppCheck/Tests/Unit/Swift"
     ),
 
     // MARK: Testing support
