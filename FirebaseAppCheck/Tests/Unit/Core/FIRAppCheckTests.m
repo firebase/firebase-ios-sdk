@@ -115,7 +115,7 @@ extern void FIRResetLogger(void);
   OCMExpect([mockProviderFactory createProviderWithApp:app]).andReturn(mockProvider);
 
   [FIRAppCheck setAppCheckProviderFactory:mockProviderFactory];
-  
+
   // 3. Set the Firebase logging level to Debug.
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
@@ -126,7 +126,7 @@ extern void FIRResetLogger(void);
   // 5. Verify mocks.
   OCMVerifyAll(mockProviderFactory);
   OCMVerifyAll(mockProvider);
-  
+
   // 6. Verify that the App Check Core logging level is also Debug.
   XCTAssertEqual(GACAppCheckLogger.logLevel, GACAppCheckLogLevelDebug);
 }
@@ -144,7 +144,7 @@ extern void FIRResetLogger(void);
   XCTAssertNotNil(app);
 
   XCTAssertNotNil([FIRAppCheck appCheckWithApp:app]);
-  
+
   // Verify that the App Check Core logging level is the default (Warning).
   XCTAssertEqual(GACAppCheckLogger.logLevel, GACAppCheckLogLevelWarning);
 }
