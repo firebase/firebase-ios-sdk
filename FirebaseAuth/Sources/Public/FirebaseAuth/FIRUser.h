@@ -132,7 +132,9 @@ NS_SWIFT_NAME(User)
 
 /** @fn updateEmail:completion:
     @brief Updates the email address for the user. On success, the cached user profile data is
-        updated.
+   updated. Throws "auth/operation-not-allowed" error when [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled.
     @remarks May fail if there is already an account with this email address that was created using
         email and password authentication.
 
@@ -160,7 +162,9 @@ NS_SWIFT_NAME(User)
  */
 - (void)updateEmail:(NSString *)email
          completion:(nullable void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(updateEmail(to:completion:));
+    NS_SWIFT_NAME(updateEmail(to:completion:))
+        DEPRECATED_MSG_ATTRIBUTE("Use verifyBeforeUpdateEmail() instead.");
+;
 
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.
