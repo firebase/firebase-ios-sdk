@@ -626,6 +626,10 @@ static NSString *const kFIRAuthErrorMessageRecaptchaSDKNotLinked =
     @"The reCAPTCHA SDK is not linked to your app. See "
     @"https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps";
 
+static NSString *const kFIRAuthErrorMessageInvalidLoginCredentials =
+    @"Login credentials invalid. It is possible that the email/password combination does not "
+    @"exist.";
+
 /** @var FIRAuthErrorDescription
     @brief The error descrioption, based on the error code.
     @remarks No default case so that we get a compiler warning if a new value was added to the enum.
@@ -810,6 +814,8 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidReqType;
     case FIRAuthErrorCodeRecaptchaSDKNotLinked:
       return kFIRAuthErrorMessageRecaptchaSDKNotLinked;
+    case FIRAuthErrorCodeInvalidLoginCredentials:
+      return kFIRAuthErrorMessageInvalidLoginCredentials;
   }
 }
 
@@ -997,6 +1003,8 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_REQ_TYPE";
     case FIRAuthErrorCodeRecaptchaSDKNotLinked:
       return @"ERROR_RECAPTCHA_SDK_NOT_LINKED";
+    case FIRAuthErrorCodeInvalidLoginCredentials:
+      return @"ERROR_INVALID_LOGIN_CREDENTIALS";
   }
 }
 

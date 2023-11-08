@@ -551,6 +551,12 @@ static NSString *const kMissingInvalidReqType = @"INVALID_REQ_TYPE";
  */
 static NSString *const kInvalidRecaptchaVersion = @"INVALID_RECAPTCHA_VERSION";
 
+/** @var kInvalidLoginCredentials
+    @brief This is the error message the server will respond with if the login credentails is
+   invalid. in the request.
+ */
+static NSString *const kInvalidLoginCredentials = @"INVALID_LOGIN_CREDENTIALS";
+
 /** @var gBackendImplementation
     @brief The singleton FIRAuthBackendImplementation instance to use.
  */
@@ -1638,6 +1644,11 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kRecaptchaNotEnabled]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeRecaptchaNotEnabled
+                                    message:serverErrorMessage];
+  }
+
+  if ([shortErrorMessage isEqualToString:kInvalidLoginCredentials]) {
+    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInvalidLoginCredentials
                                     message:serverErrorMessage];
   }
 
