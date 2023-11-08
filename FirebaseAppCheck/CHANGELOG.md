@@ -1,3 +1,7 @@
+# 10.18.0
+- [changed] Extracted core `FirebaseAppCheck` functionality into a new
+  [`AppCheckCore`](https://github.com/google/app-check) dependency. (#12067)
+
 # 10.17.0
 - [fixed] Added invalid key error handling in App Attest key attestation. (#11986)
 - [fixed] Replaced semantic imports (`@import FirebaseAppCheckInterop`) with umbrella header imports
