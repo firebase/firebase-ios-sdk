@@ -1136,10 +1136,15 @@ class UserTests: RPCBaseTests {
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
-        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
         self.rpcIssuer.respondBlock = {
+          let request = self.rpcIssuer?.request as? SignUpNewUserRequest
+          XCTAssertNotNil(request)
+          XCTAssertEqual(request?.email, self.kEmail)
+          XCTAssertEqual(request?.password, self.kFakePassword)
+          XCTAssertNil(request?.displayName)
           try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                                  "refreshToken": self.kRefreshToken])
+          self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1172,10 +1177,14 @@ class UserTests: RPCBaseTests {
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
-        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
         self.rpcIssuer.respondBlock = {
+          let request = self.rpcIssuer?.request as? SignUpNewUserRequest
+          XCTAssertNotNil(request)
+          XCTAssertEqual(request?.email, self.kEmail)
+          XCTAssertEqual(request?.password, self.kFakePassword)
           try self.rpcIssuer?.respond(withJSON: ["idToken": RPCBaseTests.kFakeAccessToken,
                                                  "refreshToken": self.kRefreshToken])
+          self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
                                                            password: self.kFakePassword)
@@ -1210,8 +1219,11 @@ class UserTests: RPCBaseTests {
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
-        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
         self.rpcIssuer.respondBlock = {
+          let request = self.rpcIssuer?.request as? SignUpNewUserRequest
+          XCTAssertNotNil(request)
+          XCTAssertEqual(request?.email, self.kEmail)
+          XCTAssertEqual(request?.password, self.kFakePassword)
           try self.rpcIssuer?.respond(serverErrorMessage: "TOO_MANY_ATTEMPTS_TRY_LATER")
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
@@ -1240,8 +1252,8 @@ class UserTests: RPCBaseTests {
     signInWithFacebookCredential { user in
       XCTAssertNotNil(user)
       do {
-        self.setFakeGetAccountProvider(withProviderID: EmailAuthProvider.id)
         self.rpcIssuer.respondBlock = {
+          XCTAssertNotNil(self.rpcIssuer?.request as? SignUpNewUserRequest)
           try self.rpcIssuer?.respond(serverErrorMessage: "TOKEN_EXPIRED")
         }
         let emailCredential = EmailAuthProvider.credential(withEmail: self.kEmail,
