@@ -84,7 +84,7 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   private(set) var displayName: String?
 
   /** @property idToken
-      @brief he idToken of the user.
+      @brief The idToken of the user.
    */
   private(set) var idToken: String?
 
