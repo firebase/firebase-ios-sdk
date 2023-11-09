@@ -402,7 +402,7 @@ NS_SWIFT_NAME(Auth)
 /** @fn signInWithEmail:password:completion:
     @brief Signs in using an email address and password. When [Email Enumeration
    Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-   is enabled, this method fails with "auth/invalid-credential" in case of an invalid
+   is enabled, this method fails with FIRAuthErrorCodeInvalidLoginCredentials in case of an invalid
    email/password.
 
     @param email The user's email address.

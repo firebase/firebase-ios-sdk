@@ -458,7 +458,7 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeRecaptchaSDKNotLinked = 17208,
 
-    /** Indicates that the long in credentials is invalid.
+    /** Indicates that the login credentials is invalid.
      */
     FIRAuthErrorCodeInvalidLoginCredentials = 17213,
 

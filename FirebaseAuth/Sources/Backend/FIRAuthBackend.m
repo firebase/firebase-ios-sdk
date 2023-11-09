@@ -552,7 +552,7 @@ static NSString *const kMissingInvalidReqType = @"INVALID_REQ_TYPE";
 static NSString *const kInvalidRecaptchaVersion = @"INVALID_RECAPTCHA_VERSION";
 
 /** @var kInvalidLoginCredentials
-    @brief This is the error message the server will respond with if the login credentails is
+    @brief This is the error message the server will respond with if the login credentials is
    invalid. in the request.
  */
 static NSString *const kInvalidLoginCredentials = @"INVALID_LOGIN_CREDENTIALS";

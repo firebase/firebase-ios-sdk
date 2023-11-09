@@ -434,7 +434,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
           });
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
                                   completion:^(NSArray<NSString *> *_Nullable signInMethods,
                                                NSError *_Nullable error) {
@@ -457,7 +457,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
       .andDispatchError2([FIRAuthErrorUtils tooManyRequestsErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
                                   completion:^(NSArray<NSString *> *_Nullable signInMethods,
                                                NSError *_Nullable error) {

@@ -770,7 +770,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                    });
                                                  });
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                              [user updateEmail:kNewEmail
                                                     completion:^(NSError *_Nullable error) {
                                                       XCTAssertNil(error);
@@ -833,7 +833,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                });
                                              });
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                          [user updateEmail:kNewEmail
                                                 completion:^(NSError *_Nullable error) {
                                                   XCTAssertNil(error);
@@ -869,7 +869,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                    .andDispatchError2([FIRAuthErrorUtils
                                                        invalidEmailErrorWithMessage:nil]);
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                                [user
                                                    updateEmail:kNewEmail
                                                     completion:^(NSError *_Nullable error) {
@@ -910,7 +910,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                    .andDispatchError2([FIRAuthErrorUtils
                                                        invalidUserTokenErrorWithMessage:nil]);
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Weverything"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                                                [user updateEmail:kNewEmail
                                                       completion:^(NSError *_Nullable error) {
                                                         XCTAssertTrue([NSThread isMainThread]);
