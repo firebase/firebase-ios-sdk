@@ -130,11 +130,16 @@ jobs:
         key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
         restore-keys: ${{ runner.os }}-mint-
 
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
       run: |
+        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
@@ -174,6 +179,10 @@ jobs:
         path: ${{ env.MINT_PATH }}
         key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
         restore-keys: ${{ runner.os }}-mint-
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
@@ -251,11 +260,16 @@ jobs:
         restore-keys: |
           ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
 
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
     - name: Build and test
       run: |
+        export EXPERIMENTAL_MODE=true
         export CCACHE_DIR=${{ runner.temp }}/ccache
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
@@ -284,7 +298,9 @@ jobs:
       run:  scripts/install_prereqs.sh Firestore ${{ matrix.target }} xcodebuild
 
     - name: Build and test
-      run:  scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
+      run: |
+        export EXPERIMENTAL_MODE=true
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ matrix.target }} xcodebuild
 
 
   pod-lib-lint:
@@ -292,7 +308,7 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    runs-on: macos-13
     needs: check
     strategy:
       matrix:
@@ -308,6 +324,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -320,7 +338,6 @@ jobs:
   # `pod lib lint` takes a long time so only run the other platforms and static frameworks build in the cron.
   pod-lib-lint-cron:
     if: github.event_name == 'schedule' && github.repository == 'Firebase/firebase-ios-sdk'
-    runs-on: macos-12
     needs: check
     strategy:
       matrix:
@@ -332,11 +349,26 @@ jobs:
         platforms: [
           'macos',
           'tvos',
+          'ios',
         ]
         flags: [
           '--use-static-frameworks',
           '',
         ]
+        os: [macos-12, macos-13]
+        # TODO: grpc and its dependencies don't build on Xcode 15 for macos because their minimum macos is lower than 10.11.
+        exclude:
+          - os: macos-13
+            platforms: 'macos'
+        # Skip matrix cells covered by pod-lib-lint job.
+          - os: macos-13
+            platforms: 'ios'
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v3
@@ -344,6 +376,8 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -359,7 +393,16 @@ jobs:
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
-    runs-on: macos-12
+    strategy:
+      matrix:
+        target: [iOS, tvOS, macOS]
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     needs: check
     env:
       FIREBASE_SOURCE_FIRESTORE: 1
@@ -368,6 +411,8 @@ jobs:
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test

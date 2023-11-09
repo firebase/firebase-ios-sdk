@@ -1,3 +1,6 @@
+# 10.18.0
+- [fixed] Fix a Xcode 15.1 build warning (#12027).
+
 # 10.17.0
 - [fixed] Fix a second Xcode 15 runtime warning (#11821).
 

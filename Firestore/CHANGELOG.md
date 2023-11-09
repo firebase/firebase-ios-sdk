@@ -1,3 +1,6 @@
+# 10.18.0
+- [fixed] Fix Firestore build for visionOS on Xcode 15.1. (#12023)
+
 # 10.17.0
 - [feature] Add support for sum and average aggregate queries.
 - [feature] The `FirebaseFirestore` module now contains Firebase Firestore's

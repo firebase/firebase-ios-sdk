@@ -12,8 +12,6 @@ source 'https://rubygems.org'
 # gem 'cocoapods-core', git: "https://github.com/CocoaPods/Core.git", ref: "f7cf05720eab935d7d50e35224d263952176fb53"
 # gem 'xcodeproj', git: "https://github.com/CocoaPods/Xcodeproj.git", ref: "eeccae7275645753cbaf45d96fc4b23e4b8b3b9f"
 
-gem 'cocoapods', '1.13.0'
-gem 'cocoapods-generate', '2.0.1'
+gem 'cocoapods', '1.14.2'
+gem 'cocoapods-generate', '2.2.5'
 gem 'danger', '8.4.5'
-# activesupport is locked because of https://github.com/CocoaPods/CocoaPods/issues/12081
-gem 'activesupport', '7.0.8'

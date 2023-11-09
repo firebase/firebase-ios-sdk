@@ -48,12 +48,11 @@ enum Push {
         switch destination {
         case .staging:
           return "pod repo push --skip-tests --use-json \(warningsOK) \(stagingLocation) " +
-            pod.skipImportValidation() + " \(pod.podspecName()) " +
+            "--skip-import-validation" + " \(pod.podspecName()) " +
             "--sources=\(stagingRepo).git,https://cdn.cocoapods.org"
         case .trunk:
           return "pod trunk push --skip-tests --synchronous \(warningsOK) " +
-            pod
-            .skipImportValidation() + " ~/.cocoapods/repos/\(stagingLocation)/\(pod.name)/" +
+            "--skip-import-validation" + " ~/.cocoapods/repos/\(stagingLocation)/\(pod.name)/" +
             "\(manifest.versionString(pod))/\(pod.name).podspec.json"
         }
       }()

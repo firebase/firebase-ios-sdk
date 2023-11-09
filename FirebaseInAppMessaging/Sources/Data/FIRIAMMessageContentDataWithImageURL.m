@@ -40,7 +40,7 @@ static NSInteger const SuccessHTTPStatusCode = 200;
 
 @implementation FIRIAMMessageContentDataWithImageURL
 - (instancetype)initWithMessageTitle:(nullable NSString *)title
-                         messageBody:(NSString *)body
+                         messageBody:(nullable NSString *)body
                     actionButtonText:(nullable NSString *)actionButtonText
            secondaryActionButtonText:(nullable NSString *)secondaryActionButtonText
                            actionURL:(nullable NSURL *)actionURL

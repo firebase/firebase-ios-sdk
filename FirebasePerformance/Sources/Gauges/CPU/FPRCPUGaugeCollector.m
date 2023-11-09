@@ -45,7 +45,7 @@
  *
  * @return Instance of FPRCPUGaugeData.
  */
-FPRCPUGaugeData *fprCollectCPUMetric() {
+FPRCPUGaugeData *fprCollectCPUMetric(void) {
   kern_return_t kernelReturnValue;
   mach_msg_type_number_t task_info_count;
   task_info_data_t taskInfo;

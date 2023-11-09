@@ -38,6 +38,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property(nonatomic, copy, nullable) NSString *displayName;
 
+/** @property idToken
+    @brief The idToken of the user.
+ */
+@property(nonatomic, copy, nullable) NSString *idToken;
+
 /** @property captchaResponse
     @brief Response to the captcha.
  */
@@ -74,6 +79,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithEmail:(nullable NSString *)email
                               password:(nullable NSString *)password
                            displayName:(nullable NSString *)displayName
+                               idToken:(nullable NSString *)idToken
                   requestConfiguration:(FIRAuthRequestConfiguration *)requestConfiguration
     NS_DESIGNATED_INITIALIZER;
 

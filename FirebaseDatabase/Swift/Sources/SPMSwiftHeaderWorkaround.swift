@@ -17,10 +17,10 @@
 
   // This is a trick to force generate a `FirebaseDatabase-Swift.h`
   // header that re-exports `FirebaseDatabaseInternal` for Objective-C
-  // clients. It is important for the below code to reference a Remote
-  // Config symbol defined in Objective-C as that will import the symbol's
+  // clients. It is important for the below code to reference a Database
+  // symbol defined in Objective-C as that will import the symbol's
   // module (`FirebaseDatabaseInternal`) in the generated header. This
-  // allows Objective-C clients to import Remote Config's Objective-C API
+  // allows Objective-C clients to import Database's Objective-C API
   // using `@import FirebaseDatabase;`. This API is not needed for Swift
   // clients and is therefore unavailable in a Swift context.
   @available(*, unavailable)

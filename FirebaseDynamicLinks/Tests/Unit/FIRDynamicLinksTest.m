@@ -132,7 +132,7 @@ static void SwizzleDynamicLinkNetworking(id linkResolver) {
                   withBlock:dynamicLinkNetworkingBlock];
 }
 
-static void SwizzleDynamicLinkNetworkingWithMock() {
+static void SwizzleDynamicLinkNetworkingWithMock(void) {
   id linkResolver = OCMPartialMock([[FIRDynamicLinkNetworking alloc] initWithAPIKey:kAPIKey
                                                                           URLScheme:kURLScheme]);
   [[linkResolver stub] resolveShortLink:OCMOCK_ANY FDLSDKVersion:@"1.0.0" completion:OCMOCK_ANY];
@@ -140,7 +140,7 @@ static void SwizzleDynamicLinkNetworkingWithMock() {
   SwizzleDynamicLinkNetworking(linkResolver);
 }
 
-static void UnswizzleDynamicLinkNetworking() {
+static void UnswizzleDynamicLinkNetworking(void) {
   [GULSwizzler unswizzleClass:[FIRDynamicLinks class]
                      selector:@selector(dynamicLinkNetworking)
               isClassSelector:NO];
