@@ -164,7 +164,6 @@ NS_SWIFT_NAME(User)
          completion:(nullable void (^)(NSError *_Nullable error))completion
     NS_SWIFT_NAME(updateEmail(to:completion:))
         DEPRECATED_MSG_ATTRIBUTE("Use verifyBeforeUpdateEmail() instead.");
-;
 
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.

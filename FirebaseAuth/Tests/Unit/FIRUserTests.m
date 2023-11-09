@@ -769,6 +769,8 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                      callback(mockSetAccountInfoResponse, nil);
                                                    });
                                                  });
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
                                              [user updateEmail:kNewEmail
                                                     completion:^(NSError *_Nullable error) {
                                                       XCTAssertNil(error);
@@ -777,6 +779,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                             kNewDisplayName);
                                                       [expectation fulfill];
                                                     }];
+#pragma clang diagnostic pop
                                            }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
@@ -829,6 +832,8 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                  callback(mockSetAccountInfoResponse, nil);
                                                });
                                              });
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
                                          [user updateEmail:kNewEmail
                                                 completion:^(NSError *_Nullable error) {
                                                   XCTAssertNil(error);
@@ -838,6 +843,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                   XCTAssertFalse(user.isAnonymous);
                                                   [expectation fulfill];
                                                 }];
+#pragma clang diagnostic pop
                                        }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
@@ -862,6 +868,8 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                    callback:[OCMArg any]])
                                                    .andDispatchError2([FIRAuthErrorUtils
                                                        invalidEmailErrorWithMessage:nil]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
                                                [user
                                                    updateEmail:kNewEmail
                                                     completion:^(NSError *_Nullable error) {
@@ -876,6 +884,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                      user);
                                                       [expectation fulfill];
                                                     }];
+#pragma clang diagnostic pop
                                              }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
@@ -900,6 +909,8 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                                    callback:[OCMArg any]])
                                                    .andDispatchError2([FIRAuthErrorUtils
                                                        invalidUserTokenErrorWithMessage:nil]);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
                                                [user updateEmail:kNewEmail
                                                       completion:^(NSError *_Nullable error) {
                                                         XCTAssertTrue([NSThread isMainThread]);
@@ -913,6 +924,7 @@ static NSString *const kFakeWebSignInUserInteractionFailureReason = @"fake_reaso
                                                         XCTAssertNil([FIRAuth auth].currentUser);
                                                         [expectation fulfill];
                                                       }];
+#pragma clang diagnostic pop
                                              }];
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);

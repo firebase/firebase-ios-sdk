@@ -433,6 +433,8 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
             });
           });
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
   [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
                                   completion:^(NSArray<NSString *> *_Nullable signInMethods,
                                                NSError *_Nullable error) {
@@ -442,6 +444,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
                                     XCTAssertNil(error);
                                     [expectation fulfill];
                                   }];
+#pragma clang diagnostic pop
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
@@ -453,6 +456,8 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
   OCMExpect([_mockBackend createAuthURI:[OCMArg any] callback:[OCMArg any]])
       .andDispatchError2([FIRAuthErrorUtils tooManyRequestsErrorWithMessage:nil]);
   XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
   [[FIRAuth auth] fetchSignInMethodsForEmail:kEmail
                                   completion:^(NSArray<NSString *> *_Nullable signInMethods,
                                                NSError *_Nullable error) {
@@ -462,6 +467,7 @@ static NSString *const kFakeRecaptchaVersion = @"RecaptchaVersion";
                                     XCTAssertNotNil(error.userInfo[NSLocalizedDescriptionKey]);
                                     [expectation fulfill];
                                   }];
+#pragma clang diagnostic pop
   [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
   OCMVerifyAll(_mockBackend);
 }
