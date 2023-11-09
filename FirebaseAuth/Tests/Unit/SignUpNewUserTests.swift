@@ -163,6 +163,7 @@ class SignUpNewUserTests: RPCBaseTests {
     return SignUpNewUserRequest(email: kTestEmail,
                                 password: kTestPassword,
                                 displayName: kTestDisplayName,
+                                idToken: nil,
                                 requestConfiguration: makeRequestConfiguration())
   }
 }
