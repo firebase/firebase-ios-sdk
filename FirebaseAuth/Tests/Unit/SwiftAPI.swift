@@ -253,7 +253,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = FacebookAuthProvider.credential(withAccessToken: "token")
   }
 
-  #if !os(macOS) && !os(watchOS)
+  #if os(iOS)
     func FIRFederatedAuthProvider_h() {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
