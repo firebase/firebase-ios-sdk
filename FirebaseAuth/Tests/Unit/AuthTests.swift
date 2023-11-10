@@ -1307,6 +1307,117 @@ class AuthTests: RPCBaseTests {
     XCTAssertNil(auth?.currentUser)
   }
 
+  #if os(iOS)
+    /** @fn testCreateUserWithEmailPasswordWithRecaptchaVerificationSuccess
+        @brief Tests the flow of a successful @c createUserWithEmail:password:completion: call.
+     */
+    func testCreateUserWithEmailPasswordWithRecaptchaVerificationSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let kTestRecaptchaKey = "projects/123/keys/456"
+      rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+      setFakeSecureTokenService()
+      setFakeGetAccountProvider()
+
+      // 1. Setup respond block to test and fake send request.
+      rpcIssuer.respondBlock = {
+        // 2. Validate the created Request instance.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? SignUpNewUserRequest)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.password, self.kFakePassword)
+        XCTAssertTrue(request.returnSecureToken)
+
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+
+        // 3. Send the response from the fake backend.
+        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                              "email": self.kEmail,
+                                              "isNewUser": true,
+                                              "refreshToken": self.kRefreshToken])
+      }
+      try auth?.signOut()
+      auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        self.assertUser(authResult?.user)
+        guard let userInfo = authResult?.additionalUserInfo else {
+          XCTFail("authResult.additionalUserInfo is missing")
+          return
+        }
+        XCTAssertTrue(userInfo.isNewUser)
+        XCTAssertNil(userInfo.username)
+        XCTAssertNil(userInfo.profile)
+        XCTAssertEqual(userInfo.providerID, EmailAuthProvider.id)
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
+      assertUser(auth?.currentUser)
+    }
+
+    /** @fn testCreateUserWithEmailPasswordWithRecaptchaVerificationFallbackSuccess
+        @brief Tests the flow of a successful @c createUserWithEmail:password:completion: call.
+     */
+    func testCreateUserWithEmailPasswordWithRecaptchaVerificationFallbackSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let kTestRecaptchaKey = "projects/123/keys/456"
+      rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+      setFakeSecureTokenService()
+      setFakeGetAccountProvider()
+
+      // 1. Setup respond block to test and fake send request.
+      rpcIssuer.respondBlock = {
+        // 2. Validate the created Request instance.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? SignUpNewUserRequest)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.password, self.kFakePassword)
+        XCTAssertTrue(request.returnSecureToken)
+
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+
+        // 3. Send the response from the fake backend.
+        try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
+      }
+      rpcIssuer.nextRespondBlock = {
+        // 4. Validate again the created Request instance after the recaptcha retry.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? SignUpNewUserRequest)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.password, self.kFakePassword)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        XCTAssertTrue(request.returnSecureToken)
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+        // 5. Send the response from the fake backend.
+        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                              "email": self.kEmail,
+                                              "isNewUser": true,
+                                              "refreshToken": self.kRefreshToken])
+      }
+
+      try auth?.signOut()
+      auth?.createUser(withEmail: kEmail, password: kFakePassword) { authResult, error in
+        // 4. After the response triggers the callback, verify the returned result.
+        XCTAssertTrue(Thread.isMainThread)
+        self.assertUser(authResult?.user)
+        guard let userInfo = authResult?.additionalUserInfo else {
+          XCTFail("authResult.additionalUserInfo is missing")
+          return
+        }
+        XCTAssertTrue(userInfo.isNewUser)
+        XCTAssertNil(userInfo.username)
+        XCTAssertNil(userInfo.profile)
+        XCTAssertEqual(userInfo.providerID, EmailAuthProvider.id)
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
+      assertUser(auth?.currentUser)
+    }
+  #endif
+
   /** @fn testCreateUserWithEmailPasswordSuccess
       @brief Tests the flow of a successful @c createUserWithEmail:password:completion: call.
    */
@@ -1406,6 +1517,80 @@ class AuthTests: RPCBaseTests {
     waitForExpectations(timeout: 5)
   }
 
+  #if os(iOS)
+    /** @fn testSendPasswordResetEmailWithRecaptchaSuccess
+        @brief Tests the flow of a successful @c sendPasswordResetWithEmail:completion: call.
+     */
+    func testSendPasswordResetEmailWithRecaptchaSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let kTestRecaptchaKey = "projects/123/keys/456"
+      rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+
+      // 1. Setup respond block to test and fake send request.
+      rpcIssuer.respondBlock = {
+        // 2. Validate the created Request instance.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+
+        // 3. Send the response from the fake backend.
+        _ = try self.rpcIssuer.respond(withJSON: [:])
+      }
+      auth?.sendPasswordReset(withEmail: kEmail) { error in
+        // 4. After the response triggers the callback, verify success.
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testSendPasswordResetEmailWithRecaptchaFallbackSuccess
+        @brief Tests the flow of a successful @c sendPasswordResetWithEmail:completion: call.
+     */
+    func testSendPasswordResetEmailWithRecaptchaFallbackSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let kTestRecaptchaKey = "projects/123/keys/456"
+      rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+
+      // 1. Setup respond block to test and fake send request.
+      rpcIssuer.respondBlock = {
+        // 2. Validate the created Request instance.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+
+        // 3. Send the response from the fake backend.
+        try self.rpcIssuer.respond(serverErrorMessage: "MISSING_RECAPTCHA_TOKEN")
+      }
+      rpcIssuer.nextRespondBlock = {
+        // 4. Validate again the created Request instance after the recaptcha retry.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+        // 5. Send the response from the fake backend.
+        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                              "email": self.kEmail,
+                                              "isNewUser": true,
+                                              "refreshToken": self.kRefreshToken])
+      }
+
+      auth?.sendPasswordReset(withEmail: kEmail) { error in
+        // 4. After the response triggers the callback, verify success.
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
+    }
+  #endif
+
   /** @fn testSendPasswordResetEmailSuccess
       @brief Tests the flow of a successful @c sendPasswordReset call.
    */
@@ -1448,6 +1633,86 @@ class AuthTests: RPCBaseTests {
     }
     waitForExpectations(timeout: 5)
   }
+
+  #if os(iOS)
+    /** @fn testSendSignInLinkToEmailWithRecaptchaSuccess
+        @brief Tests the flow of a successful @c sendSignInLinkToEmail:actionCodeSettings:  call.
+     */
+    func testSendSignInLinkToEmailWithRecaptchaSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let kTestRecaptchaKey = "projects/123/keys/456"
+      rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+
+      // 1. Setup respond block to test and fake send request.
+      rpcIssuer.respondBlock = {
+        // 2. Validate the created Request instance.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        XCTAssertEqual(request.continueURL, self.kContinueURL)
+        XCTAssertTrue(request.handleCodeInApp)
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+
+        // 3. Send the response from the fake backend.
+        _ = try self.rpcIssuer.respond(withJSON: [:])
+      }
+      auth?.sendSignInLink(toEmail: kEmail,
+                           actionCodeSettings: fakeActionCodeSettings()) { error in
+        // 4. After the response triggers the callback, verify success.
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
+    }
+
+    /** @fn testSendSignInLinkToEmailWithRecaptchaFallbackSuccess
+        @brief Tests the flow of a successful @c sendSignInLinkToEmail:actionCodeSettings:  call.
+     */
+    func testSendSignInLinkToEmailWithRecaptchaFallbackSuccess() throws {
+      let expectation = self.expectation(description: #function)
+      let kTestRecaptchaKey = "projects/123/keys/456"
+      rpcIssuer.recaptchaSiteKey = kTestRecaptchaKey
+
+      // 1. Setup respond block to test and fake send request.
+      rpcIssuer.respondBlock = {
+        // 2. Validate the created Request instance.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        XCTAssertEqual(request.continueURL, self.kContinueURL)
+        XCTAssertTrue(request.handleCodeInApp)
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+
+        // 3. Send the response from the fake backend.
+        _ = try self.rpcIssuer.respond(withJSON: [:])
+      }
+      rpcIssuer.nextRespondBlock = {
+        // 4. Validate again the created Request instance after the recaptcha retry.
+        let request = try XCTUnwrap(self.rpcIssuer.request as? GetOOBConfirmationCodeRequest)
+        XCTAssertEqual(request.email, self.kEmail)
+        XCTAssertEqual(request.apiKey, AuthTests.kFakeAPIKey)
+        request.injectRecaptchaFields(recaptchaResponse: AuthTests.kFakeRecaptchaResponse,
+                                      recaptchaVersion: AuthTests.kFakeRecaptchaVersion)
+        // 5. Send the response from the fake backend.
+        try self.rpcIssuer.respond(withJSON: ["idToken": AuthTests.kAccessToken,
+                                              "email": self.kEmail,
+                                              "isNewUser": true,
+                                              "refreshToken": self.kRefreshToken])
+      }
+
+      auth?.sendSignInLink(toEmail: kEmail,
+                           actionCodeSettings: fakeActionCodeSettings()) { error in
+        // 4. After the response triggers the callback, verify success.
+        XCTAssertTrue(Thread.isMainThread)
+        XCTAssertNil(error)
+        expectation.fulfill()
+      }
+      waitForExpectations(timeout: 5)
+    }
+  #endif
 
   /** @fn testSendSignInLinkToEmailSuccess
       @brief Tests the flow of a successful @c sendSignInLinkToEmail call.
