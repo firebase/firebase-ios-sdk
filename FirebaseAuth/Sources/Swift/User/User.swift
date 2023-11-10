@@ -589,9 +589,9 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func getIDToken(forcingRefresh forceRefresh: Bool = false) async throws -> String {
+  public func getIDToken() async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
-      self.getIDTokenForcingRefresh(forceRefresh) { tokenResult, error in
+      self.getIDTokenForcingRefresh(false) { tokenResult, error in
         if let tokenResult {
           continuation.resume(returning: tokenResult)
         } else if let error {
