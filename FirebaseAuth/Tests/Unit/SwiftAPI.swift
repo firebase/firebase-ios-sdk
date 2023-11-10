@@ -20,15 +20,80 @@ import XCTest
 import FirebaseAuth
 import FirebaseCore
 
+#if !os(macOS)
+  import UIKit
+#endif
+
 /// This file tests public methods and enums. Properties are not included.
 /// Each function maps to a public header file.
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthAPI_hOnlyTests: XCTestCase {
   // Each function corresponds with a public header.
   func FIRActionCodeSettings_h() {
     let codeSettings = FirebaseAuth.ActionCodeSettings()
+    // TODO: should this API be kept for backwards compatibility?
     codeSettings.setIOSBundleID("abc")
+    // codeSettings.iOSBundleID = "abc"
     codeSettings.setAndroidPackageName("name", installIfNotAvailable: true, minimumVersion: "10.0")
+    let _: Bool = codeSettings.handleCodeInApp
+    let _: Bool = codeSettings.androidInstallIfNotAvailable
+    if let _: URL = codeSettings.url,
+       let _: String = codeSettings.iOSBundleID,
+       let _: String = codeSettings.androidPackageName,
+       let _: String = codeSettings.androidMinimumVersion,
+       let _: String = codeSettings.dynamicLinkDomain {}
+  }
+
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRAuthAdditionalUserInfo_h(credential: AuthCredential) async throws {
+    let auth = FirebaseAuth.Auth.auth()
+    let user = auth.currentUser!
+    let authDataResult = try await user.reauthenticate(with: credential)
+    let additionalUserInfo = authDataResult.additionalUserInfo!
+
+    let _: String = additionalUserInfo.providerID
+    let _: Bool = additionalUserInfo.isNewUser
+    if let _: [String: Any] = additionalUserInfo.profile,
+       let _: String = additionalUserInfo.username {}
+  }
+
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func ActionCodeOperationTests() async throws {
+    let auth = FirebaseAuth.Auth.auth()
+    let info = try await auth.checkActionCode("code")
+    let _: ActionCodeOperation = info.operation
+    if let _: String = info.email,
+       let _: String = info.previousEmail {}
+  }
+
+  func ActionCodeURL() {
+    if let url = FirebaseAuth.ActionCodeURL(link: "string") {
+      let _: ActionCodeOperation = url.operation
+      if let _: String = url.apiKey,
+         let _: String = url.code,
+         let _: URL = url.continueURL,
+         let _: String = url.languageCode {}
+    }
+  }
+
+  func authProperties(auth: Auth) {
+    let _: Bool = auth.shareAuthStateAcrossDevices
+    if let _: FirebaseApp = auth.app,
+       let _: User = auth.currentUser,
+       let _: String = auth.languageCode,
+       let _: AuthSettings = auth.settings,
+       let _: String = auth.userAccessGroup,
+       let _: String = auth.tenantID,
+       let _: String = auth.customAuthDomain
+    {}
+
+    #if os(iOS)
+      if let _: Data = auth.apnsToken {}
+      // TODO: Should this be supported or should we always use
+      // setAPNSToken(_ token: Data, type: AuthAPNSTokenType)
+      // auth.apnsToken = Data()
+    #endif
   }
 
   func FIRAuth_h(credential: AuthCredential) throws {
@@ -43,16 +108,17 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     auth.signIn(withEmail: "abc@abc.com", link: "link") { result, error in
     }
-    auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
-    }
-    auth.signIn(with: credential) { result, error in
-    }
-    #if os(iOS) && !targetEnvironment(macCatalyst)
-      auth.initializeRecaptchaConfig { error in
+    #if os(iOS)
+      let provider = OAuthProvider(providerID: "abc")
+      auth.signIn(with: provider, uiDelegate: nil) { result, error in
+      }
+      provider.getCredentialWith(nil) { credential, error in
+        auth.signIn(with: credential!) { result, error in
+        }
+      }
+      auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
       }
     #endif
-    auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
-    }
     auth.signInAnonymously { result, error in
     }
     auth.signIn(withCustomToken: "abc") { result, error in
@@ -75,20 +141,23 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings) { error in
     }
     try auth.signOut()
-    auth.isSignIn(withEmailLink: "link")
+    _ = auth.isSignIn(withEmailLink: "link")
     let handle = auth.addStateDidChangeListener { auth, user in
     }
     auth.removeStateDidChangeListener(handle)
-    auth.addIDTokenDidChangeListener { auth, user in
+    _ = auth.addIDTokenDidChangeListener { auth, user in
     }
     auth.removeIDTokenDidChangeListener(handle)
     auth.useAppLanguage()
     auth.useEmulator(withHost: "myHost", port: 123)
     #if os(iOS)
-      auth.canHandle(URL(fileURLWithPath: "/my/path"))
+      _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
-      auth.canHandleNotification([:])
+      _ = auth.canHandleNotification([:])
+      auth.initializeRecaptchaConfig { _ in
+      }
     #endif
+    auth.revokeToken(withAuthorizationCode: "A")
     try auth.useUserAccessGroup("abc")
     let nilUser = try auth.getStoredUser(forAccessGroup: "def")
     // If nilUser is not optional, this will raise a compiler error.
@@ -108,7 +177,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
     _ = try await auth.signIn(with: credential)
-    #if os(iOS) && !targetEnvironment(macCatalyst)
+    #if os(iOS)
       try await auth.initializeRecaptchaConfig()
     #endif
     _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
@@ -126,12 +195,25 @@ class AuthAPI_hOnlyTests: XCTestCase {
       actionCodeSettings: actionCodeSettings
     )
     _ = try await auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings)
+    try await auth.revokeToken(withAuthorizationCode: "string")
   }
 
-  func FIRAuthAPNSTokenType_h() {
-    _ = AuthAPNSTokenType.unknown
-    _ = AuthAPNSTokenType.sandbox
-    _ = AuthAPNSTokenType.prod
+  #if !os(macOS)
+    func FIRAuthAPNSTokenType_h() {
+      _ = AuthAPNSTokenType.unknown
+      _ = AuthAPNSTokenType.sandbox
+      _ = AuthAPNSTokenType.prod
+    }
+  #endif
+
+  func authCredential(credential: AuthCredential) {
+    let _: String = credential.provider
+  }
+
+  func authDataResult(result: AuthDataResult) {
+    let _: User = result.user
+    if let _: AdditionalUserInfo = result.additionalUserInfo,
+       let _: AuthCredential = result.credential {}
   }
 
   func FIRAuthErrors_h() {
@@ -210,7 +292,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.unsupportedFirstFactor
     _ = AuthErrorCode.emailChangeNeedsVerification
     _ = AuthErrorCode.missingOrInvalidNonce
-
+    _ = AuthErrorCode.missingClientIdentifier
     _ = AuthErrorCode.recaptchaNotEnabled
     _ = AuthErrorCode.missingRecaptchaToken
     _ = AuthErrorCode.invalidRecaptchaToken
@@ -224,17 +306,34 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = AuthErrorCode.malformedJWT
   }
 
-  func FIRAuthUIDelegate_h() {
-    class AuthUIImpl: NSObject, AuthUIDelegate {
-      func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
-                   completion: (() -> Void)? = nil) {}
-
-      func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {}
-    }
-    let obj = AuthUIImpl()
-    obj.present(UIViewController(), animated: true) {}
-    obj.dismiss(animated: false) {}
+  func authSettings(settings: AuthSettings) {
+    let _: Bool = settings.isAppVerificationDisabledForTesting
+    settings.isAppVerificationDisabledForTesting = true
   }
+
+  func authTokenResult(result: AuthTokenResult) {
+    let _: String = result.token
+    let _: Date = result.expirationDate
+    let _: Date = result.authDate
+    let _: Date = result.issuedAtDate
+    let _: String = result.signInProvider
+    let _: String = result.signInSecondFactor
+    let _: [String: Any] = result.claims
+  }
+
+  #if !os(macOS) && !os(watchOS)
+    func FIRAuthUIDelegate_h() {
+      class AuthUIImpl: NSObject, AuthUIDelegate {
+        func present(_ viewControllerToPresent: UIViewController, animated flag: Bool,
+                     completion: (() -> Void)? = nil) {}
+
+        func dismiss(animated flag: Bool, completion: (() -> Void)? = nil) {}
+      }
+      let obj = AuthUIImpl()
+      obj.present(UIViewController(), animated: true) {}
+      obj.dismiss(animated: false) {}
+    }
+  #endif
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func FIRAuthUIDelegate_hAsync() async {
@@ -280,12 +379,12 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   #endif
 
-  func FIRGameCenterAuthProvider_h() {
-    GameCenterAuthProvider.getCredential { _, _ in
+  #if !os(watchOS)
+    func FIRGameCenterAuthProvider_h() {
+      GameCenterAuthProvider.getCredential { _, _ in
+      }
     }
-  }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRGameCenterAuthProvider_hAsync() async throws {
       _ = try await GameCenterAuthProvider.getCredential()
@@ -301,52 +400,111 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   #if os(iOS)
-    func FIRMultiFactor_h() {
-      let obj = MultiFactor()
+    func FIRMultiFactor_h(obj: MultiFactor) {
+      let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
+      let credential = provider.credential(withVerificationID: "id",
+                                           verificationCode: "code")
       obj.getSessionWithCompletion { _, _ in
       }
-      obj.enroll(with: MultiFactorAssertion(), displayName: "name") { _ in
-      }
-      obj.unenroll(with: MultiFactorInfo()) { _ in
+      obj
+        .enroll(with: PhoneMultiFactorGenerator.assertion(with: credential),
+                displayName: "name") { _ in
+        }
+      let mfi = obj.enrolledFactors[0]
+      obj.unenroll(with: mfi) { _ in
       }
       obj.unenroll(withFactorUID: "uid") { _ in
       }
+      let _: [MultiFactorInfo] = obj.enrolledFactors
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRMultiFactor_hAsync() async throws {
-      let obj = MultiFactor()
-      try await obj.session()
-      try await obj.enroll(with: MultiFactorAssertion(), displayName: "name")
-      try await obj.unenroll(with: MultiFactorInfo())
+    func FIRMultiFactor_hAsync(obj: MultiFactor) async throws {
+      let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
+      let credential = provider.credential(withVerificationID: "id",
+                                           verificationCode: "code")
+      _ = try await obj.session()
+      try await obj.enroll(
+        with: PhoneMultiFactorGenerator.assertion(with: credential),
+        displayName: "name"
+      )
+      let mfi = obj.enrolledFactors[0]
+      try await obj.unenroll(with: mfi)
       try await obj.unenroll(withFactorUID: "uid")
     }
 
-    func FIRMultiFactorResolver_h() {
-      let obj = MultiFactorResolver()
-      obj.resolveSignIn(with: MultiFactorAssertion()) { _, _ in
+    func multiFactorAssertion(assertion: MultiFactorAssertion) {
+      let _: String = assertion.factorID
+    }
+
+    func multiFactorInfo(mfi: MultiFactorInfo) {
+      let _: String = mfi.uid
+      let _: Date = mfi.enrollmentDate
+      let _: String = mfi.factorID
+      if let _: String = mfi.displayName {}
+    }
+
+    func FIRMultiFactorResolver_h(error: NSError) {
+      let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
+      let credential = provider.credential(withVerificationID: "id",
+                                           verificationCode: "code")
+      if let obj = error
+        .userInfo[AuthErrorUserInfoMultiFactorResolverKey] as? MultiFactorResolver {
+        obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential)) { _, _ in
+        }
+        let _: MultiFactorSession = obj.session
+        let _: [MultiFactorInfo] = obj.hints
+        let _: Auth = obj.auth
       }
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRMultiFactorResolver_hAsync() async throws {
-      let obj = MultiFactorResolver()
-      try await obj.resolveSignIn(with: MultiFactorAssertion())
+    func FIRMultiFactorResolver_hAsync(error: NSError) async throws {
+      let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
+      let credential = provider.credential(withVerificationID: "id",
+                                           verificationCode: "code")
+      if let obj = error
+        .userInfo[AuthErrorUserInfoMultiFactorResolverKey] as? MultiFactorResolver {
+        _ = try await obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential))
+      }
     }
   #endif
+
+  func oauthCredential(credential: OAuthCredential) {
+    if let _: String = credential.idToken,
+       let _: String = credential.accessToken,
+       let _: String = credential.secret {}
+  }
 
   func FIROAuthProvider_h() {
     let provider = OAuthProvider(providerID: "id", auth: FirebaseAuth.Auth.auth())
     _ = provider.providerID
-    _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToden", accessToken: "token")
-    _ = OAuthProvider.credential(withProviderID: "id", accessToken: "token")
-    _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce",
-                                 accessToken: "token")
-    _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
+    #if os(iOS)
+      _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToden", accessToken: "token")
+      _ = OAuthProvider.credential(withProviderID: "id", accessToken: "token")
+      _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce",
+                                   accessToken: "token")
+      _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
+      provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
+      }
+    #endif
+    let _: String = provider.providerID
+    if let _: [String] = provider.scopes,
+       let _: [String: String] = provider.customParameters {}
+  }
+
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIROAuthProvider_h() async throws {
+    let provider = OAuthProvider(providerID: "abc")
+    #if os(iOS)
+      provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
+      }
+      _ = try await provider.credential(with: provider as? AuthUIDelegate)
+    #endif
   }
 
   #if os(iOS)
-    func FIRPhoneAuthProvider_h() {
+    func FIRPhoneAuthProvider_h(mfi: PhoneMultiFactorInfo) {
       _ = PhoneAuthProvider.provider()
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
       provider.verifyPhoneNumber("123", uiDelegate: nil) { _, _ in
@@ -354,51 +512,57 @@ class AuthAPI_hOnlyTests: XCTestCase {
       provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil) { _, _ in
       }
       provider.verifyPhoneNumber(
-        with: PhoneMultiFactorInfo(),
+        with: mfi,
         uiDelegate: nil,
         multiFactorSession: nil
       ) { _, _ in
       }
       provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil) { _, _ in
       }
-      provider.credential(withVerificationID: "id", verificationCode: "code")
+      _ = provider.credential(withVerificationID: "id", verificationCode: "code")
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRPhoneAuthProvider_hAsync() async throws {
+    func FIRPhoneAuthProvider_hAsync(mfi: PhoneMultiFactorInfo) async throws {
       _ = PhoneAuthProvider.provider()
       let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
-      try await provider.verifyPhoneNumber("123", uiDelegate: nil)
-      try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
-      try await provider.verifyPhoneNumber(with: PhoneMultiFactorInfo(), uiDelegate: nil,
-                                           multiFactorSession: nil)
-      try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
+      _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil)
+      _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
+      _ = try await provider.verifyPhoneNumber(with: mfi, uiDelegate: nil,
+                                               multiFactorSession: nil)
+      _ = try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
     }
 
     func FIRPhoneMultiFactorGenerator_h() {
       let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
                                                                verificationCode: "code")
-      PhoneMultiFactorGenerator.assertion(with: credential)
+      _ = PhoneMultiFactorGenerator.assertion(with: credential)
     }
 
-    func FIRTOTPSecret_h() {
-      let obj = TOTPSecret()
-      obj.sharedSecretKey()
-      obj.generateQRCodeURL(withAccountName: "name", issuer: "issuer")
+    func phoneMultiFactorInfo(mfi: PhoneMultiFactorInfo) {
+      let _: String = mfi.phoneNumber
+    }
+
+    func FIRTOTPSecret_h(session: MultiFactorSession) async throws {
+      let obj = try await TOTPMultiFactorGenerator.generateSecret(with: session)
+      _ = obj.sharedSecretKey()
+      _ = obj.generateQRCodeURL(withAccountName: "name", issuer: "issuer")
       obj.openInOTPApp(withQRCodeURL: "url")
     }
 
-    func FIRTOTPMultiFactorGenerator_h() {
-      TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession()) { _, _ in
+    func FIRTOTPMultiFactorGenerator_h(session: MultiFactorSession, secret: TOTPSecret) {
+      TOTPMultiFactorGenerator.generateSecret(with: session) { _, _ in
       }
-      TOTPMultiFactorGenerator.assertionForEnrollment(with: TOTPSecret(), oneTimePassword: "code")
-      TOTPMultiFactorGenerator.assertionForSignIn(withEnrollmentID: "id",
-                                                  oneTimePassword: "code")
+      _ = TOTPMultiFactorGenerator.assertionForEnrollment(with: secret,
+                                                          oneTimePassword: "code")
+      _ = TOTPMultiFactorGenerator.assertionForSignIn(
+        withEnrollmentID: "id", oneTimePassword: "code"
+      )
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRTOTPMultiFactorGenerator_hAsync() async throws {
-      try await TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession())
+    func FIRTOTPMultiFactorGenerator_hAsync(session: MultiFactorSession) async throws {
+      _ = try await TOTPMultiFactorGenerator.generateSecret(with: session)
     }
   #endif
 
@@ -433,7 +597,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     user.getIDTokenResult(forcingRefresh: true) { _, _ in
     }
-    user.getIDTokenResult { _, _ in
+    user.getIDToken { _, _ in
     }
     user.getIDTokenForcingRefresh(true) { _, _ in
     }
@@ -456,6 +620,27 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     changeRequest.commitChanges { _ in
     }
+    let _: String = user.providerID
+    let _: String = user.uid
+    if let _: String = user.displayName,
+       let _: URL = user.photoURL,
+       let _: String = user.email,
+       let _: String = user.phoneNumber {}
+  }
+
+  func userProperties(user: User) {
+    let changeRequest = user.createProfileChangeRequest()
+    let _: Bool = user.isAnonymous
+    let _: Bool = user.isEmailVerified
+    let _: [UserInfo] = user.providerData
+    let _: UserMetadata = user.metadata
+    #if os(iOS)
+      let _: MultiFactor = user.multiFactor
+    #endif
+    if let _: String = user.refreshToken,
+       let _: String = user.tenantID,
+       let _: String = changeRequest.displayName,
+       let _: URL = changeRequest.photoURL {}
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -479,6 +664,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await user.getIDTokenResult()
     _ = try await user.getIDTokenResult(forcingRefresh: true)
     _ = try await user.getIDToken()
+    // TODO: Next line should not build in auth-swift branch.
+//    _ = try await user.getIDToken(forcingRefresh: false)
     _ = try await user.link(with: credential)
     _ = try await user.unlink(fromProvider: "abc")
     try await user.sendEmailVerification()
@@ -490,5 +677,19 @@ class AuthAPI_hOnlyTests: XCTestCase {
       actionCodeSettings: ActionCodeSettings()
     )
     try await changeRequest.commitChanges()
+  }
+
+  func userInfoProperties(userInfo: UserInfo) {
+    let _: String = userInfo.providerID
+    let _: String = userInfo.uid
+    if let _: String = userInfo.displayName,
+       let _: URL = userInfo.photoURL,
+       let _: String = userInfo.email,
+       let _: String = userInfo.phoneNumber {}
+  }
+
+  func userMetadataProperties(metadata: UserMetadata) {
+    if let _: Date = metadata.lastSignInDate,
+       let _: Date = metadata.creationDate {}
   }
 }
