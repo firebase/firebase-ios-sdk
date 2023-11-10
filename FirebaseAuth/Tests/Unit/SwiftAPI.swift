@@ -43,14 +43,13 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     auth.signIn(withEmail: "abc@abc.com", link: "link") { result, error in
     }
-    let provider = OAuthProvider(providerID: "abc")
     auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
     }
     auth.signIn(with: credential) { result, error in
     }
     #if os(iOS) && !targetEnvironment(macCatalyst)
-    auth.initializeRecaptchaConfig() { error in
-    }
+      auth.initializeRecaptchaConfig { error in
+      }
     #endif
     auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
     }
@@ -108,7 +107,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await auth.fetchSignInMethods(forEmail: "abc@abc.com")
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
-    let provider = OAuthProvider(providerID: "abc")
     _ = try await auth.signIn(with: credential)
     #if os(iOS) && !targetEnvironment(macCatalyst)
       try await auth.initializeRecaptchaConfig()
