@@ -186,7 +186,7 @@ import CommonCrypto
             the mobile web flow is completed.
      */
     @objc(getCredentialWithUIDelegate:completion:)
-    public func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
+    public func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
                                   completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
             AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
@@ -222,7 +222,7 @@ import CommonCrypto
                                                  callbackScheme: self.callbackScheme)
             }
             self.auth.authURLPresenter.present(headfulLiteURL,
-                                               uiDelegate: UIDelegate,
+                                               uiDelegate: uiDelegate,
                                                callbackMatcher: callbackMatcher) { callbackURL, error in
               if let error {
                 callbackOnMainThread(nil, error)
@@ -260,9 +260,9 @@ import CommonCrypto
         @return An `AuthCredential`.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    public func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+    public func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
-        getCredentialWith(UIDelegate) { credential, error in
+        getCredentialWith(uiDelegate) { credential, error in
           if let credential = credential {
             continuation.resume(returning: credential)
           } else {

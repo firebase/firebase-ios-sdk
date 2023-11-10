@@ -32,6 +32,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
   // Each function corresponds with a public header.
   func FIRActionCodeSettings_h() {
     let codeSettings = FirebaseAuth.ActionCodeSettings()
+    // Currently kept for backwards compatibility?
+    codeSettings.setIOSBundleID("abc")
     codeSettings.iOSBundleID = "abc"
     codeSettings.setAndroidPackageName("name", installIfNotAvailable: true, minimumVersion: "10.0")
     let _: Bool = codeSettings.handleCodeInApp
@@ -107,10 +109,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.signIn(withEmail: "abc@abc.com", link: "link") { result, error in
     }
     #if os(iOS)
-      let provider = OAuthProvider(
-        providerID: GoogleAuthProvider.id,
-        auth: FirebaseAuth.Auth.auth()
-      )
+      let provider = OAuthProvider(providerID: "abc")
       auth.signIn(with: provider, uiDelegate: nil) { result, error in
       }
       provider.getCredentialWith(nil) { credential, error in
@@ -172,15 +171,15 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func FIRAuth_hAsync() async throws {
+  func FIRAuth_hAsync(credential: AuthCredential) async throws {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     try await auth.updateCurrentUser(user)
     _ = try await auth.fetchSignInMethods(forEmail: "abc@abc.com")
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
-    let provider = OAuthProvider(providerID: "abc")
     #if os(iOS)
+      let provider = OAuthProvider(providerID: "abc")
       let credential = try await provider.credential(with: nil)
       _ = try await auth.signIn(with: credential)
       _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
@@ -351,8 +350,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = FacebookAuthProvider.credential(withAccessToken: "token")
   }
 
-  #if !os(macOS) && !os(watchOS)
-    func FIRFedederatedAuthProvider_h() {
+  #if os(iOS)
+    func FIRFederatedAuthProvider_h() {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
         @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
         func credential(with UIDelegate: AuthUIDelegate?) async throws -> FirebaseAuth
@@ -444,6 +443,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
       let credential = provider.credential(withVerificationID: "id",
                                            verificationCode: "code")
       if let obj = error
+        // TODO: AuthErrorUserInfoMultiFactorResolverKey
         .userInfo[AuthErrors.userInfoMultiFactorResolverKey] as? MultiFactorResolver {
         obj.resolveSignIn(with: PhoneMultiFactorGenerator.assertion(with: credential)) { _, _ in
         }
@@ -490,7 +490,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   func FIROAuthProvider_h() async throws {
-    let provider = OAuthProvider(providerID: GoogleAuthProvider.id, auth: FirebaseAuth.Auth.auth())
+    let provider = OAuthProvider(providerID: "abc")
     #if os(iOS)
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }
