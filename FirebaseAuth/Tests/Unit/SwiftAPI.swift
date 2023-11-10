@@ -31,7 +31,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     codeSettings.setAndroidPackageName("name", installIfNotAvailable: true, minimumVersion: "10.0")
   }
 
-  func FIRAuth_h() throws {
+  func FIRAuth_h(credential: AuthCredential) throws {
     let auth = FirebaseAuth.Auth.auth()
     let authApp = FirebaseAuth.Auth.auth(app: FirebaseApp.app()!)
     let user = auth.currentUser!
@@ -46,11 +46,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let provider = OAuthProvider(providerID: "abc")
     auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
     }
-    #if os(iOS)
-      provider.getCredentialWith(nil) { credential, error in
-        auth.signIn(with: credential!) { result, error in
-        }
-      }
+    auth.signIn(with: credential) { result, error in
+    }
+    #if os(iOS) && !targetEnvironment(macCatalyst)
+    auth.initializeRecaptchaConfig() { error in
+    }
     #endif
     auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil) { result, error in
     }
@@ -101,7 +101,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  func FIRAuth_hAsync() async throws {
+  func FIRAuth_hAsync(credential: AuthCredential) async throws {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     try await auth.updateCurrentUser(user)
@@ -109,9 +109,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
     let provider = OAuthProvider(providerID: "abc")
-    #if os(iOS)
-      let credential = try await provider.credential(with: nil)
-      _ = try await auth.signIn(with: credential)
+    _ = try await auth.signIn(with: credential)
+    #if os(iOS) && !targetEnvironment(macCatalyst)
       try await auth.initializeRecaptchaConfig()
     #endif
     _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
@@ -482,8 +481,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await user.getIDTokenResult()
     _ = try await user.getIDTokenResult(forcingRefresh: true)
     _ = try await user.getIDToken()
-    // TODO: the next line should fail in auth-swift branch.
-    //_ = try await user.getIDToken(forcingRefresh: false)
     _ = try await user.link(with: credential)
     _ = try await user.unlink(fromProvider: "abc")
     try await user.sendEmailVerification()
