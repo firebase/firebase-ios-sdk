@@ -91,40 +91,38 @@ class AuthAPI_hOnlyTests: XCTestCase {
     // If nilUser is not optional, this will raise a compiler error.
     // This condition does not need to execute, and may not if prior
     // functions throw.
-    if let value = nilUser {
+    if let _ = nilUser {
       XCTAssert(true)
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRAuth_hAsync() async throws {
-      let auth = FirebaseAuth.Auth.auth()
-      let user = auth.currentUser!
-      try await auth.updateCurrentUser(user)
-      _ = try await auth.fetchSignInMethods(forEmail: "abc@abc.com")
-      _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
-      _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
-      let provider = OAuthProvider(providerID: "abc")
-      let credential = try await provider.credential(with: nil)
-      _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
-      _ = try await auth.signIn(with: credential)
-      _ = try await auth.signInAnonymously()
-      _ = try await auth.signIn(withCustomToken: "abc")
-      _ = try await auth.createUser(withEmail: "email", password: "password")
-      _ = try await auth.confirmPasswordReset(withCode: "code", newPassword: "password")
-      _ = try await auth.checkActionCode("abc")
-      _ = try await auth.verifyPasswordResetCode("code")
-      _ = try await auth.applyActionCode("code")
-      _ = try await auth.sendPasswordReset(withEmail: "email")
-      let actionCodeSettings = ActionCodeSettings()
-      _ = try await auth.sendPasswordReset(
-        withEmail: "email",
-        actionCodeSettings: actionCodeSettings
-      )
-      _ = try await auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings)
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRAuth_hAsync() async throws {
+    let auth = FirebaseAuth.Auth.auth()
+    let user = auth.currentUser!
+    try await auth.updateCurrentUser(user)
+    _ = try await auth.fetchSignInMethods(forEmail: "abc@abc.com")
+    _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
+    _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
+    let provider = OAuthProvider(providerID: "abc")
+    let credential = try await provider.credential(with: nil)
+    _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
+    _ = try await auth.signIn(with: credential)
+    _ = try await auth.signInAnonymously()
+    _ = try await auth.signIn(withCustomToken: "abc")
+    _ = try await auth.createUser(withEmail: "email", password: "password")
+    _ = try await auth.confirmPasswordReset(withCode: "code", newPassword: "password")
+    _ = try await auth.checkActionCode("abc")
+    _ = try await auth.verifyPasswordResetCode("code")
+    _ = try await auth.applyActionCode("code")
+    _ = try await auth.sendPasswordReset(withEmail: "email")
+    let actionCodeSettings = ActionCodeSettings()
+    _ = try await auth.sendPasswordReset(
+      withEmail: "email",
+      actionCodeSettings: actionCodeSettings
+    )
+    _ = try await auth.sendSignInLink(toEmail: "email", actionCodeSettings: actionCodeSettings)
+  }
 
   func FIRAuthAPNSTokenType_h() {
     _ = AuthAPNSTokenType.unknown
@@ -234,19 +232,17 @@ class AuthAPI_hOnlyTests: XCTestCase {
     obj.dismiss(animated: false) {}
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRAuthUIDelegate_hAsync() async {
-      class AuthUIImpl: NSObject, AuthUIDelegate {
-        func present(_ viewControllerToPresent: UIViewController, animated flag: Bool) async {}
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRAuthUIDelegate_hAsync() async {
+    class AuthUIImpl: NSObject, AuthUIDelegate {
+      func present(_ viewControllerToPresent: UIViewController, animated flag: Bool) async {}
 
-        func dismiss(animated flag: Bool) async {}
-      }
-      let obj = AuthUIImpl()
-      await obj.present(UIViewController(), animated: true)
-      await obj.dismiss(animated: false)
+      func dismiss(animated flag: Bool) async {}
     }
-  #endif
+    let obj = AuthUIImpl()
+    await obj.present(UIViewController(), animated: true)
+    await obj.dismiss(animated: false)
+  }
 
   func FIREmailAuthProvider_h() {
     _ = EmailAuthProvider.credential(withEmail: "e@email.com", password: "password")
@@ -257,28 +253,28 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = FacebookAuthProvider.credential(withAccessToken: "token")
   }
 
-  func FIRFdederatedAuthProvider_h() {
-    class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
-      func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
-                             completion: ((AuthCredential?, Error?) -> Void)? = nil) {}
-    }
-    let obj = FederatedAuthImplementation()
-    obj.getCredentialWith(nil) { _, _ in
-    }
-  }
-
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRFedederatedAuthProvider_hAsync() async throws {
+  #if !os(macOS) && !os(watchOS)
+    func FIRFederatedAuthProvider_h() {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
-        func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
-          return FacebookAuthProvider.credential(withAccessToken: "token")
-        }
+        func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
+                               completion: ((AuthCredential?, Error?) -> Void)? = nil) {}
       }
       let obj = FederatedAuthImplementation()
-      try await _ = obj.credential(with: nil)
+      obj.getCredentialWith(nil) { _, _ in
+      }
     }
   #endif
+
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRFedederatedAuthProvider_hAsync() async throws {
+    class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
+      func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+        return FacebookAuthProvider.credential(withAccessToken: "token")
+      }
+    }
+    let obj = FederatedAuthImplementation()
+    try await _ = obj.credential(with: nil)
+  }
 
   func FIRGameCenterAuthProvider_h() {
     GameCenterAuthProvider.getCredential { _, _ in
@@ -312,16 +308,14 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRMultiFactor_hAsync() async throws {
-      let obj = MultiFactor()
-      try await obj.session()
-      try await obj.enroll(with: MultiFactorAssertion(), displayName: "name")
-      try await obj.unenroll(with: MultiFactorInfo())
-      try await obj.unenroll(withFactorUID: "uid")
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRMultiFactor_hAsync() async throws {
+    let obj = MultiFactor()
+    try await obj.session()
+    try await obj.enroll(with: MultiFactorAssertion(), displayName: "name")
+    try await obj.unenroll(with: MultiFactorInfo())
+    try await obj.unenroll(withFactorUID: "uid")
+  }
 
   func FIRMultiFactorResolver_h() {
     let obj = MultiFactorResolver()
@@ -329,13 +323,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRMultiFactorResolver_hAsync() async throws {
-      let obj = MultiFactorResolver()
-      try await obj.resolveSignIn(with: MultiFactorAssertion())
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRMultiFactorResolver_hAsync() async throws {
+    let obj = MultiFactorResolver()
+    try await obj.resolveSignIn(with: MultiFactorAssertion())
+  }
 
   func FIROAuthProvider_h() {
     let provider = OAuthProvider(providerID: "id", auth: FirebaseAuth.Auth.auth())
@@ -365,18 +357,16 @@ class AuthAPI_hOnlyTests: XCTestCase {
     provider.credential(withVerificationID: "id", verificationCode: "code")
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRPhoneAuthProvider_hAsync() async throws {
-      _ = PhoneAuthProvider.provider()
-      let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
-      try await provider.verifyPhoneNumber("123", uiDelegate: nil)
-      try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
-      try await provider.verifyPhoneNumber(with: PhoneMultiFactorInfo(), uiDelegate: nil,
-                                           multiFactorSession: nil)
-      try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRPhoneAuthProvider_hAsync() async throws {
+    _ = PhoneAuthProvider.provider()
+    let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
+    try await provider.verifyPhoneNumber("123", uiDelegate: nil)
+    try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
+    try await provider.verifyPhoneNumber(with: PhoneMultiFactorInfo(), uiDelegate: nil,
+                                         multiFactorSession: nil)
+    try await provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil)
+  }
 
   func FIRPhoneMultiFactorGenerator_h() {
     let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
@@ -399,12 +389,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
                                                 oneTimePassword: "code")
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRTOTPMultiFactorGenerator_hAsync() async throws {
-      try await TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession())
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRTOTPMultiFactorGenerator_hAsync() async throws {
+    try await TOTPMultiFactorGenerator.generateSecret(with: MultiFactorSession())
+  }
 
   func FIRTwitterAuthProvider_h() {
     _ = TwitterAuthProvider.credential(withToken: "token", secret: "secret")
@@ -459,36 +447,34 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func FIRUser_hAsync() async throws {
-      let auth = FirebaseAuth.Auth.auth()
-      let user = auth.currentUser!
-      let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
-                                                               verificationCode: "code")
-      let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
-      try await user.updateEmail(to: "email")
-      try await user.updatePassword(to: "password")
-      try await user.updatePhoneNumber(credential)
-      let changeRequest = user.createProfileChangeRequest()
-      try await user.reload()
-      try await user.reauthenticate(with: credential)
-      try await user.reauthenticate(with: provider as! FederatedAuthProvider, uiDelegate: nil)
-      try await user.getIDTokenResult()
-      try await user.getIDTokenResult(forcingRefresh: true)
-      try await user.getIDTokenResult()
-      try await user.link(with: credential)
-      try await user.link(with: provider as! FederatedAuthProvider, uiDelegate: nil)
-      try await user.unlink(fromProvider: "abc")
-      try await user.sendEmailVerification()
-      try await user.sendEmailVerification(with: ActionCodeSettings())
-      try await user.delete()
-      try await user.sendEmailVerification(beforeUpdatingEmail: "email")
-      try await user.sendEmailVerification(
-        beforeUpdatingEmail: "email",
-        actionCodeSettings: ActionCodeSettings()
-      )
-      try await changeRequest.commitChanges()
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func FIRUser_hAsync() async throws {
+    let auth = FirebaseAuth.Auth.auth()
+    let user = auth.currentUser!
+    let credential = PhoneAuthProvider.provider().credential(withVerificationID: "id",
+                                                             verificationCode: "code")
+    let provider = PhoneAuthProvider.provider(auth: FirebaseAuth.Auth.auth())
+    try await user.updateEmail(to: "email")
+    try await user.updatePassword(to: "password")
+    try await user.updatePhoneNumber(credential)
+    let changeRequest = user.createProfileChangeRequest()
+    try await user.reload()
+    try await user.reauthenticate(with: credential)
+    try await user.reauthenticate(with: provider as! FederatedAuthProvider, uiDelegate: nil)
+    try await user.getIDTokenResult()
+    try await user.getIDTokenResult(forcingRefresh: true)
+    try await user.getIDTokenResult()
+    try await user.link(with: credential)
+    try await user.link(with: provider as! FederatedAuthProvider, uiDelegate: nil)
+    try await user.unlink(fromProvider: "abc")
+    try await user.sendEmailVerification()
+    try await user.sendEmailVerification(with: ActionCodeSettings())
+    try await user.delete()
+    try await user.sendEmailVerification(beforeUpdatingEmail: "email")
+    try await user.sendEmailVerification(
+      beforeUpdatingEmail: "email",
+      actionCodeSettings: ActionCodeSettings()
+    )
+    try await changeRequest.commitChanges()
+  }
 }
