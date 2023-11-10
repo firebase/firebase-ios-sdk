@@ -44,6 +44,7 @@ Pod::Spec.new do |s|
   s.osx.weak_framework = 'DeviceCheck'
   s.tvos.weak_framework = 'DeviceCheck'
 
+  s.dependency 'AppCheckCore', '~> 10.18'
   s.dependency 'FirebaseAppCheckInterop', '~> 10.17'
   s.dependency 'FirebaseCore', '~> 10.0'
   s.dependency 'PromisesObjC', '~> 2.1'
@@ -93,7 +94,6 @@ Pod::Spec.new do |s|
     }
     swift_unit_tests.source_files = [
       base_dir + 'Tests/Unit/Swift/**/*.swift',
-      base_dir + 'Tests/Unit/Swift/**/*.h',
     ]
   end
 

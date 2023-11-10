@@ -14,60 +14,36 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
-
-#if __has_include(<FBLPromises/FBLPromises.h>)
-#import <FBLPromises/FBLPromises.h>
-#else
-#import "FBLPromises.h"
-#endif
+#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckAvailability.h"
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRDeviceCheckProvider.h"
 
-#import "FirebaseAppCheck/Sources/Core/APIService/FIRAppCheckAPIService.h"
-#import "FirebaseAppCheck/Sources/Core/Backoff/FIRAppCheckBackoffWrapper.h"
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
+#import <AppCheckCore/AppCheckCore.h>
+
+#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckLogger.h"
+#import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckValidator.h"
-#import "FirebaseAppCheck/Sources/DeviceCheckProvider/API/FIRDeviceCheckAPIService.h"
-#import "FirebaseAppCheck/Sources/DeviceCheckProvider/DCDevice+FIRDeviceCheckTokenGenerator.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckToken.h"
+#import "FirebaseAppCheck/Sources/Core/FIRHeartbeatLogger+AppCheck.h"
 
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRDeviceCheckProvider ()
-@property(nonatomic, readonly) id<FIRDeviceCheckAPIServiceProtocol> APIService;
-@property(nonatomic, readonly) id<FIRDeviceCheckTokenGenerator> deviceTokenGenerator;
-@property(nonatomic, readonly) id<FIRAppCheckBackoffWrapperProtocol> backoffWrapper;
 
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
-                    backoffWrapper:(id<FIRAppCheckBackoffWrapperProtocol>)backoffWrapper
-    NS_DESIGNATED_INITIALIZER;
+@property(nonatomic, readonly) GACDeviceCheckProvider *deviceCheckProvider;
 
 @end
 
 @implementation FIRDeviceCheckProvider
 
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService
-              deviceTokenGenerator:(id<FIRDeviceCheckTokenGenerator>)deviceTokenGenerator
-                    backoffWrapper:(id<FIRAppCheckBackoffWrapperProtocol>)backoffWrapper {
+- (instancetype)initWithDeviceCheckProvider:(GACDeviceCheckProvider *)deviceCheckProvider {
   self = [super init];
   if (self) {
-    _APIService = APIService;
-    _deviceTokenGenerator = deviceTokenGenerator;
-    _backoffWrapper = backoffWrapper;
+    _deviceCheckProvider = deviceCheckProvider;
   }
   return self;
-}
-
-- (instancetype)initWithAPIService:(id<FIRDeviceCheckAPIServiceProtocol>)APIService {
-  FIRAppCheckBackoffWrapper *backoffWrapper = [[FIRAppCheckBackoffWrapper alloc] init];
-  return [self initWithAPIService:APIService
-             deviceTokenGenerator:[DCDevice currentDevice]
-                   backoffWrapper:backoffWrapper];
 }
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
@@ -82,74 +58,42 @@ NS_ASSUME_NONNULL_BEGIN
     return nil;
   }
 
-  NSURLSession *URLSession = [NSURLSession
-      sessionWithConfiguration:[NSURLSessionConfiguration ephemeralSessionConfiguration]];
+  GACDeviceCheckProvider *deviceCheckProvider =
+      [[GACDeviceCheckProvider alloc] initWithServiceName:app.name
+                                             resourceName:app.resourceName
+                                                   APIKey:app.options.APIKey
+                                             requestHooks:@[ [app.heartbeatLogger requestHook] ]];
 
-  FIRAppCheckAPIService *APIService =
-      [[FIRAppCheckAPIService alloc] initWithURLSession:URLSession
-                                                 APIKey:app.options.APIKey
-                                                  appID:app.options.googleAppID
-                                        heartbeatLogger:app.heartbeatLogger];
-
-  FIRDeviceCheckAPIService *deviceCheckAPIService =
-      [[FIRDeviceCheckAPIService alloc] initWithAPIService:APIService
-                                                 projectID:app.options.projectID
-                                                     appID:app.options.googleAppID];
-
-  return [self initWithAPIService:deviceCheckAPIService];
+  return [self initWithDeviceCheckProvider:deviceCheckProvider];
 }
 
 #pragma mark - FIRAppCheckProvider
 
 - (void)getTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
                                          NSError *_Nullable error))handler {
-  [self.backoffWrapper
-      applyBackoffToOperation:^FBLPromise *_Nonnull {
-        return [self getTokenPromise];
-      }
-                 errorHandler:[self.backoffWrapper defaultAppCheckProviderErrorHandler]]
-      // Call the handler with either token or error.
-      .then(^id(FIRAppCheckToken *appCheckToken) {
-        handler(appCheckToken, nil);
-        return nil;
-      })
-      .catch(^void(NSError *error) {
-        handler(nil, error);
-      });
+  [self.deviceCheckProvider getTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
+                                                     NSError *_Nullable error) {
+    if (error) {
+      handler(nil, error);
+      return;
+    }
+
+    handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+  }];
 }
 
-- (FBLPromise<FIRAppCheckToken *> *)getTokenPromise {
-  // Get DeviceCheck token
-  return [self deviceToken]
-      // Exchange DeviceCheck token for FAC token.
-      .then(^FBLPromise<FIRAppCheckToken *> *(NSData *deviceToken) {
-        return [self.APIService appCheckTokenWithDeviceToken:deviceToken];
-      });
-}
+- (void)getLimitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable,
+                                                   NSError *_Nullable))handler {
+  [self.deviceCheckProvider
+      getLimitedUseTokenWithCompletion:^(GACAppCheckToken *_Nullable internalToken,
+                                         NSError *_Nullable error) {
+        if (error) {
+          handler(nil, error);
+          return;
+        }
 
-#pragma mark - DeviceCheck
-
-- (FBLPromise<NSData *> *)deviceToken {
-  return [self isDeviceCheckSupported].then(^FBLPromise<NSData *> *(NSNull *ignored) {
-    return [FBLPromise
-        wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-          [self.deviceTokenGenerator generateTokenWithCompletionHandler:handler];
-        }];
-  });
-}
-
-#pragma mark - Helpers
-
-/// Returns a resolved promise if DeviceCheck is supported and a rejected promise if it is not.
-- (FBLPromise<NSNull *> *)isDeviceCheckSupported {
-  if (self.deviceTokenGenerator.isSupported) {
-    return [FBLPromise resolvedWith:[NSNull null]];
-  } else {
-    NSError *error = [FIRAppCheckErrorUtil unsupportedAttestationProvider:@"DeviceCheckProvider"];
-    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-    [rejectedPromise reject:error];
-    return rejectedPromise;
-  }
+        handler([[FIRAppCheckToken alloc] initWithInternalToken:internalToken], nil);
+      }];
 }
 
 @end
