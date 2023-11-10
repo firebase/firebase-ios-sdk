@@ -151,8 +151,7 @@
       // Response's site key is of the format projects/<project-id>/keys/<site-key>'
       guard let keys = response.recaptchaKey?.components(separatedBy: "/"),
             keys.count == 4 else {
-        throw AuthErrorUtils.error(code: .recaptchaNotEnabled,
-                                   message: "Invalid siteKey")
+        throw AuthErrorUtils.error(code: .recaptchaNotEnabled, message: "Invalid siteKey")
       }
       let siteKey = keys[3]
       var enablementStatus: [String: Bool] = [:]
