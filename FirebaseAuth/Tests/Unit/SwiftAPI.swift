@@ -94,7 +94,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #endif
   }
 
-  func FIRAuth_h() throws {
+  func FIRAuth_h(credential: AuthCredential) throws {
     let auth = FirebaseAuth.Auth.auth()
     let authApp = FirebaseAuth.Auth.auth(app: FirebaseApp.app()!)
     let user = auth.currentUser!
@@ -155,8 +155,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
       _ = auth.canHandleNotification([:])
-      auth.initializeRecaptchaConfig { _ in
-      }
+      #if !targetEnvironment(macCatalyst)
+        auth.initializeRecaptchaConfig { _ in
+        }
+      #endif
     #endif
     auth.revokeToken(withAuthorizationCode: "A")
     try auth.useUserAccessGroup("abc")
@@ -181,9 +183,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
     #if os(iOS)
       let credential = try await provider.credential(with: nil)
       _ = try await auth.signIn(with: credential)
-      try await auth.initializeRecaptchaConfig()
+      _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
+      #if !targetEnvironment(macCatalyst)
+        try await auth.initializeRecaptchaConfig()
+      #endif
     #endif
-    _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
     _ = try await auth.signInAnonymously()
     _ = try await auth.signIn(withCustomToken: "abc")
     _ = try await auth.createUser(withEmail: "email", password: "password")

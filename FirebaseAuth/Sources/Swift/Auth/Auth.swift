@@ -1439,7 +1439,7 @@ extension Auth: AuthInterop {
     return false
   }
 
-  #if os(iOS)
+  #if os(iOS) && !targetEnvironment(macCatalyst)
     /** @fn initializeRecaptchaConfigWithCompletion:completion:
         @brief Initializes reCAPTCHA using the settings configured for the project or
         tenant.
