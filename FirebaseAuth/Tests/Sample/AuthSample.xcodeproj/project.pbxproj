@@ -58,7 +58,6 @@
 		DED400C2243E571500BF6D56 /* BYOAuthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DED400BC243E571500BF6D56 /* BYOAuthTests.m */; };
 		DED400C3243E571500BF6D56 /* FIRAuthE2eTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DED400BE243E571500BF6D56 /* FIRAuthE2eTests.m */; };
 		DED400C4243E571500BF6D56 /* FIRAuthE2eTestsBase.m in Sources */ = {isa = PBXBuildFile; fileRef = DED400BF243E571500BF6D56 /* FIRAuthE2eTestsBase.m */; };
-		DEF68E952799B9970064CC92 /* SwiftAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEF68E942799B9970064CC92 /* SwiftAPI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -181,7 +180,6 @@
 		DED400BD243E571500BF6D56 /* FIRAuthE2eTestsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FIRAuthE2eTestsBase.h; sourceTree = "<group>"; };
 		DED400BE243E571500BF6D56 /* FIRAuthE2eTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthE2eTests.m; sourceTree = "<group>"; };
 		DED400BF243E571500BF6D56 /* FIRAuthE2eTestsBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FIRAuthE2eTestsBase.m; sourceTree = "<group>"; };
-		DEF68E942799B9970064CC92 /* SwiftAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftAPI.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
