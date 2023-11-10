@@ -132,7 +132,7 @@ NS_SWIFT_NAME(User)
 
 /** @fn updateEmail:completion:
     @brief Updates the email address for the user. On success, the cached user profile data is
-   updated. Throws FIRAuthErrorCodeInvalidLoginCredentials error when [Email Enumeration
+   updated. Throws FIRAuthErrorCodeInvalidCredentials error when [Email Enumeration
    Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
    is enabled.
     @remarks May fail if there is already an account with this email address that was created using

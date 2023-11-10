@@ -814,8 +814,6 @@ static NSString *FIRAuthErrorDescription(FIRAuthErrorCode code) {
       return kFIRAuthErrorMessageInvalidReqType;
     case FIRAuthErrorCodeRecaptchaSDKNotLinked:
       return kFIRAuthErrorMessageRecaptchaSDKNotLinked;
-    case FIRAuthErrorCodeInvalidLoginCredentials:
-      return kFIRAuthErrorMessageInvalidLoginCredentials;
   }
 }
 
@@ -1003,8 +1001,6 @@ static NSString *const FIRAuthErrorCodeString(FIRAuthErrorCode code) {
       return @"ERROR_INVALID_REQ_TYPE";
     case FIRAuthErrorCodeRecaptchaSDKNotLinked:
       return @"ERROR_RECAPTCHA_SDK_NOT_LINKED";
-    case FIRAuthErrorCodeInvalidLoginCredentials:
-      return @"ERROR_INVALID_LOGIN_CREDENTIALS";
   }
 }
 

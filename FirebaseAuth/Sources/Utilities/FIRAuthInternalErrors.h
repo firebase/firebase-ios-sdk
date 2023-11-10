@@ -497,11 +497,6 @@ typedef NS_ENUM(NSInteger, FIRAuthInternalErrorCode) {
   FIRAuthInternalErrorCodeRecaptchaNotEnabled = FIRAuthPublicErrorCodeFlag |
                                                 FIRAuthErrorCodeRecaptchaNotEnabled,
 
-  /** Indicates that the login credentials is invalid.
-   */
-  FIRAuthInternalErrorCodeInvalidLoginCredentials = FIRAuthPublicErrorCodeFlag |
-                                                    FIRAuthErrorCodeInvalidLoginCredentials,
-
   /** Indicates that the recaptcha sdk is not linked to the app.
    */
   FIRAuthInternalErrorCodeRecaptchaSDKNotLinked = FIRAuthPublicErrorCodeFlag |

@@ -1410,7 +1410,8 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
   }
 
   if ([shortErrorMessage isEqualToString:kInvalidCredentialErrorMessage] ||
-      [shortErrorMessage isEqualToString:kInvalidPendingToken]) {
+      [shortErrorMessage isEqualToString:kInvalidPendingToken] ||
+      [shortErrorMessage isEqualToString:kInvalidLoginCredentials]) {
     return [FIRAuthErrorUtils invalidCredentialErrorWithMessage:serverDetailErrorMessage];
   }
 
@@ -1644,11 +1645,6 @@ static id<FIRAuthBackendImplementation> gBackendImplementation;
 
   if ([shortErrorMessage isEqualToString:kRecaptchaNotEnabled]) {
     return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeRecaptchaNotEnabled
-                                    message:serverErrorMessage];
-  }
-
-  if ([shortErrorMessage isEqualToString:kInvalidLoginCredentials]) {
-    return [FIRAuthErrorUtils errorWithCode:FIRAuthInternalErrorCodeInvalidLoginCredentials
                                     message:serverErrorMessage];
   }
 

@@ -458,10 +458,6 @@ typedef NS_ERROR_ENUM(FIRAuthErrorDomain, FIRAuthErrorCode){
      */
     FIRAuthErrorCodeRecaptchaSDKNotLinked = 17208,
 
-    /** Indicates that the login credentials is invalid.
-     */
-    FIRAuthErrorCodeInvalidLoginCredentials = 17213,
-
     /** Indicates an error occurred while attempting to access the keychain.
      */
     FIRAuthErrorCodeKeychainError = 17995,
