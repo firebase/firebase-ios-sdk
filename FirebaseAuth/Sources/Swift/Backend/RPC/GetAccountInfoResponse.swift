@@ -185,7 +185,7 @@ class GetAccountInfoResponseUser: NSObject {
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class GetAccountInfoResponse: AuthRPCResponse {
-  public required init() {}
+  required init() {}
 
   /** @property providerUserInfo
    @brief The requested users' profiles.

@@ -15,7 +15,7 @@
 import Foundation
 
 class AuthProtoStartMFATOTPEnrollmentRequestInfo: NSObject, AuthProto {
-  public required init(dictionary: [String: AnyHashable]) {
+  required init(dictionary: [String: AnyHashable]) {
     fatalError()
   }
 

@@ -17,7 +17,7 @@ import Foundation
     @brief Indicates the type of operation performed for RPCs that support the operation
         parameter.
  */
-@objc(FIRAuthOperationType) public enum AuthOperationType: Int {
+enum AuthOperationType: Int {
   /** Indicates that the operation type is uspecified.
    */
   case unspecified = 0

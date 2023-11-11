@@ -14,7 +14,7 @@
 
 import Foundation
 
-@objc(FIRAuthProto) public protocol AuthProto: NSObjectProtocol {
-  @objc init(dictionary: [String: AnyHashable])
+@objc protocol AuthProto: NSObjectProtocol {
+  init(dictionary: [String: AnyHashable])
   @objc optional var dictionary: [String: AnyHashable] { get }
 }

@@ -1894,7 +1894,7 @@ extension User: NSSecureCoding {}
                                          result: AuthDataResult,
                                          requestConfiguration: AuthRequestConfiguration,
                                          completion: ((AuthDataResult?, Error?) -> Void)?,
-                                         withTaskComplete complete: FIRAuthSerialTaskCompletionBlock? =
+                                         withTaskComplete complete: AuthSerialTaskCompletionBlock? =
                                            nil) {
     tokenService = SecureTokenService(
       withRequestConfiguration: requestConfiguration,
@@ -2035,7 +2035,7 @@ extension User: NSSecureCoding {}
   private class func callInMainThreadWithAuthDataResultAndError(callback: (
     (AuthDataResult?, Error?) -> Void
   )?,
-  complete: FIRAuthSerialTaskCompletionBlock? = nil,
+  complete: AuthSerialTaskCompletionBlock? = nil,
   result: AuthDataResult? = nil,
   error: Error? = nil) {
     if let callback {

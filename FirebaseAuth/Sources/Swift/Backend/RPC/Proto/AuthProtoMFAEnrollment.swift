@@ -21,7 +21,7 @@ class AuthProtoMFAEnrollment: NSObject, AuthProto {
   let displayName: String?
   let enrolledAt: Date?
 
-  public required init(dictionary: [String: AnyHashable]) {
+  required init(dictionary: [String: AnyHashable]) {
     phoneInfo = dictionary["phoneInfo"] as? String
     totpInfo = dictionary["totpInfo"] as? NSObject
     mfaEnrollmentID = dictionary["mfaEnrollmentId"] as? String

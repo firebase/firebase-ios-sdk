@@ -14,7 +14,7 @@
 
 import Foundation
 
-@objc(FIRSecureTokenRequestGrantType) enum SecureTokenRequestGrantType: Int {
+enum SecureTokenRequestGrantType: Int {
   case authorizationCode
   case refreshToken
 
@@ -96,7 +96,7 @@ class SecureTokenRequest: AuthRPCRequest {
   /** @property refreshToken
       @brief The client's refresh token.
    */
-  public var refreshToken: String?
+  var refreshToken: String?
 
   /** @property code
       @brief The client's authorization code (legacy Gitkit "ID Token").
@@ -106,15 +106,15 @@ class SecureTokenRequest: AuthRPCRequest {
   /** @property APIKey
       @brief The client's API Key.
    */
-  public let apiKey: String
+  let apiKey: String
 
   let _requestConfiguration: AuthRequestConfiguration
-  public func requestConfiguration() -> AuthRequestConfiguration {
+  func requestConfiguration() -> AuthRequestConfiguration {
     _requestConfiguration
   }
 
-  public static func authCodeRequest(code: String,
-                                     requestConfiguration: AuthRequestConfiguration)
+  static func authCodeRequest(code: String,
+                              requestConfiguration: AuthRequestConfiguration)
     -> SecureTokenRequest {
     SecureTokenRequest(
       grantType: .authorizationCode,
@@ -125,8 +125,8 @@ class SecureTokenRequest: AuthRPCRequest {
     )
   }
 
-  public static func refreshRequest(refreshToken: String,
-                                    requestConfiguration: AuthRequestConfiguration)
+  static func refreshRequest(refreshToken: String,
+                             requestConfiguration: AuthRequestConfiguration)
     -> SecureTokenRequest {
     SecureTokenRequest(
       grantType: .refreshToken,
@@ -147,7 +147,7 @@ class SecureTokenRequest: AuthRPCRequest {
     _requestConfiguration = requestConfiguration
   }
 
-  public func requestURL() -> URL {
+  func requestURL() -> URL {
     let urlString: String
     if let emulatorHostAndPort = _requestConfiguration.emulatorHostAndPort {
       urlString = "http://\(emulatorHostAndPort)/\(gAPIHost)/v1/token?key=\(apiKey)"
@@ -157,9 +157,9 @@ class SecureTokenRequest: AuthRPCRequest {
     return URL(string: urlString)!
   }
 
-  public func containsPostBody() -> Bool { true }
+  func containsPostBody() -> Bool { true }
 
-  public func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
     var postBody: [String: AnyHashable] = [
       kGrantTypeKey: grantType.value,
     ]

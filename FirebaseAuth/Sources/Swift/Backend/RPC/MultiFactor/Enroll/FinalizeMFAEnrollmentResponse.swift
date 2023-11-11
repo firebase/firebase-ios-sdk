@@ -16,7 +16,7 @@ import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class FinalizeMFAEnrollmentResponse: AuthRPCResponse {
-  public required init() {}
+  required init() {}
 
   private(set) var idToken: String?
   private(set) var refreshToken: String?

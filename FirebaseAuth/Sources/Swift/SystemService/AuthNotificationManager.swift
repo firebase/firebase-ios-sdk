@@ -159,7 +159,7 @@
         @param notification The notification in question.
         @return Whether or the notification has been handled.
      */
-    @objc(canHandleNotification:) public func canHandle(notification: [AnyHashable: Any]) -> Bool {
+    func canHandle(notification: [AnyHashable: Any]) -> Bool {
       var stringDictionary: [String: Any]?
       let data = notification[kNotificationDataKey]
       if let jsonString = data as? String {

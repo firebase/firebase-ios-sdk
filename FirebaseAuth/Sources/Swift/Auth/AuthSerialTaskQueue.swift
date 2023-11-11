@@ -14,14 +14,12 @@
 
 import Foundation
 
-typealias FIRAuthSerialTaskCompletionBlock = () -> Void
-typealias FIRAuthSerialTask = (_ complete: @escaping FIRAuthSerialTaskCompletionBlock)
-  -> Void
+typealias AuthSerialTaskCompletionBlock = () -> Void
 
 class AuthSerialTaskQueue: NSObject {
   private let dispatchQueue: DispatchQueue
 
-  @objc override public init() {
+  override init() {
     dispatchQueue = DispatchQueue(
       label: "com.google.firebase.auth.serialTaskQueue",
       target: kAuthGlobalWorkQueue
@@ -29,7 +27,8 @@ class AuthSerialTaskQueue: NSObject {
     super.init()
   }
 
-  func enqueueTask(_ task: @escaping FIRAuthSerialTask) {
+  func enqueueTask(_ task: @escaping ((_ complete: @escaping AuthSerialTaskCompletionBlock)
+      -> Void)) {
     dispatchQueue.async {
       self.dispatchQueue.suspend()
       task {

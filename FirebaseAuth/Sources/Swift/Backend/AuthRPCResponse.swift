@@ -14,7 +14,7 @@
 
 import Foundation
 
-public protocol AuthRPCResponse {
+protocol AuthRPCResponse {
   /// Bare initializer for a response.
   init()
 
@@ -36,7 +36,7 @@ public protocol AuthRPCResponse {
   func clientError(shortErrorMessage: String, detailedErrorMessage: String?) -> Error?
 }
 
-public extension AuthRPCResponse {
+extension AuthRPCResponse {
   // Default implementation.
   func clientError(shortErrorMessage: String, detailedErrorMessage: String? = nil) -> Error? {
     return nil
