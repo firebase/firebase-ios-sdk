@@ -32,9 +32,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
   // Each function corresponds with a public header.
   func FIRActionCodeSettings_h() {
     let codeSettings = FirebaseAuth.ActionCodeSettings()
-    // TODO: should this API be kept for backwards compatibility?
     codeSettings.setIOSBundleID("abc")
-    // codeSettings.iOSBundleID = "abc"
     codeSettings.setAndroidPackageName("name", installIfNotAvailable: true, minimumVersion: "10.0")
     let _: Bool = codeSettings.handleCodeInApp
     let _: Bool = codeSettings.androidInstallIfNotAvailable
@@ -154,8 +152,10 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
       auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
       _ = auth.canHandleNotification([:])
-      auth.initializeRecaptchaConfig { _ in
-      }
+      #if !targetEnvironment(macCatalyst)
+        auth.initializeRecaptchaConfig { _ in
+        }
+      #endif
     #endif
     auth.revokeToken(withAuthorizationCode: "A")
     try auth.useUserAccessGroup("abc")
@@ -177,7 +177,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
     _ = try await auth.signIn(with: credential)
-    #if os(iOS)
+    #if os(iOS) && !targetEnvironment(macCatalyst)
       try await auth.initializeRecaptchaConfig()
     #endif
     _ = try await auth.signIn(with: OAuthProvider(providerID: "abc"), uiDelegate: nil)
@@ -664,8 +664,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     _ = try await user.getIDTokenResult()
     _ = try await user.getIDTokenResult(forcingRefresh: true)
     _ = try await user.getIDToken()
-    // TODO: Next line should not build in auth-swift branch.
-//    _ = try await user.getIDToken(forcingRefresh: false)
     _ = try await user.link(with: credential)
     _ = try await user.unlink(fromProvider: "abc")
     try await user.sendEmailVerification()
