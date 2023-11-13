@@ -463,6 +463,7 @@ let package = Package(
         "FIRAuthKeychainServicesTests.m", // TODO: figure out SPM keychain testing
         "FIRAuthTests.m",
         "FIRUserTests.m",
+        "SwiftAPI.swift", // Only builds via CocoaPods testing until Swift source update.
       ],
       cSettings: [
         .headerSearchPath("../../.."),
