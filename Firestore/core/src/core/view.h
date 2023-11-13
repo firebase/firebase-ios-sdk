@@ -189,14 +189,15 @@ class View {
    * @param doc_changes The set of changes to make to the view's docs.
    * @param target_change A target change to apply for computing limbo docs and
    *     sync state.
-   * @param waitForRequeryResult - Whether the target is pending to run a full
-   *     re-query due to existence filter mismatch.
+   * @param targetIsPendingReset - Whether the target is pending to reset due to
+         existence filter mismatch. If not explicitly specified, it is treated
+         equivalently to `false`.
    * @return A new ViewChange with the given docs, changes, and sync state.
    */
   ViewChange ApplyChanges(
       const core::ViewDocumentChanges& doc_changes,
       const absl::optional<remote::TargetChange>& target_change,
-      bool waitForRequeryResult);
+      bool targetIsPendingReset);
 
   /**
    * Applies an OnlineState change to the view, potentially generating an
@@ -220,8 +221,7 @@ class View {
   void ApplyTargetChange(
       const absl::optional<remote::TargetChange>& maybe_target_change);
 
-  std::vector<LimboDocumentChange> UpdateLimboDocuments(
-      bool waitForRequeryResult);
+  std::vector<LimboDocumentChange> UpdateLimboDocuments();
 
   Query query_;
 

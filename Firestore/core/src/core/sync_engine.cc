@@ -495,7 +495,7 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     }
 
     absl::optional<TargetChange> target_changes;
-    bool waitForRequeryResult = false;
+    bool targetIsPendingReset = false;
     if (maybe_remote_event.has_value()) {
       const RemoteEvent& remote_event = maybe_remote_event.value();
       auto changes_iter =
@@ -507,12 +507,12 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
       auto mismatches_iter =
           remote_event.target_mismatches().find(query_view->target_id());
       if (mismatches_iter != remote_event.target_mismatches().end()) {
-        waitForRequeryResult = true;
+        targetIsPendingReset = true;
       }
     }
 
     ViewChange view_change = view.ApplyChanges(view_doc_changes, target_changes,
-                                               waitForRequeryResult);
+                                               targetIsPendingReset);
 
     UpdateTrackedLimboDocuments(view_change.limbo_changes(),
                                 query_view->target_id());
