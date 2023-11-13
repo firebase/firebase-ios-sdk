@@ -76,11 +76,11 @@ class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
   private static let kEmailCodingKey = "email"
   private static let kPhoneNumberCodingKey = "phoneNumber"
 
-  public static var supportsSecureCoding: Bool {
+  static var supportsSecureCoding: Bool {
     return true
   }
 
-  public func encode(with coder: NSCoder) {
+  func encode(with coder: NSCoder) {
     coder.encode(providerID, forKey: UserInfoImpl.kProviderIDCodingKey)
     coder.encode(uid, forKey: UserInfoImpl.kUserIDCodingKey)
     coder.encode(displayName, forKey: UserInfoImpl.kDisplayNameCodingKey)
@@ -89,7 +89,7 @@ class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
     coder.encode(phoneNumber, forKey: UserInfoImpl.kPhoneNumberCodingKey)
   }
 
-  public required convenience init?(coder: NSCoder) {
+  required convenience init?(coder: NSCoder) {
     guard let providerID = coder.decodeObject(of: [NSString.self],
                                               forKey: UserInfoImpl.kProviderIDCodingKey) as? String,
       let uid = coder.decodeObject(

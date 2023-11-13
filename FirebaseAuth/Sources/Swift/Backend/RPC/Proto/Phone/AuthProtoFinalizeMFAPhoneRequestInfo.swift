@@ -21,7 +21,7 @@ class AuthProtoFinalizeMFAPhoneRequestInfo: NSObject, AuthProto {
 
   var sessionInfo: String?
   var code: String?
-  @objc public init(sessionInfo: String?, verificationCode: String?) {
+  init(sessionInfo: String?, verificationCode: String?) {
     self.sessionInfo = sessionInfo
     code = verificationCode
   }

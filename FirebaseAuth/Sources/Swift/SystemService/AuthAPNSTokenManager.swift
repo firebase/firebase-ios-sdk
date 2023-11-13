@@ -26,7 +26,7 @@
   #endif // SWIFT_PACKAGE
 
   // Protocol to help with unit tests.
-  public protocol AuthAPNSTokenApplication {
+  protocol AuthAPNSTokenApplication {
     func registerForRemoteNotifications()
   }
 

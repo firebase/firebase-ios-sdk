@@ -112,11 +112,11 @@ class SecureTokenService: NSObject, NSSecureCoding {
   private static let kAccessTokenKey = "accessToken"
   private static let kAccessTokenExpirationDateKey = "accessTokenExpirationDate"
 
-  public static var supportsSecureCoding: Bool {
+  static var supportsSecureCoding: Bool {
     true
   }
 
-  public required convenience init?(coder: NSCoder) {
+  required convenience init?(coder: NSCoder) {
     guard let refreshToken = coder.decodeObject(of: [NSString.self],
                                                 forKey: Self.kRefreshTokenKey) as? String,
       let accessToken = coder.decodeObject(of: [NSString.self],
@@ -133,7 +133,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
               refreshToken: refreshToken)
   }
 
-  public func encode(with coder: NSCoder) {
+  func encode(with coder: NSCoder) {
     // The API key is encoded even it is not used in decoding to be compatible with previous
     // versions of the library.
     coder.encode(requestConfiguration?.apiKey, forKey: kAPIKeyCodingKey)

@@ -21,9 +21,9 @@
       @brief A class responsible for creating a WKWebView for use within Firebase Auth.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRAuthWebView) public class AuthWebView: UIView {
-    public lazy var webView: WKWebView = createWebView()
-    public lazy var spinner: UIActivityIndicatorView = createSpinner()
+  class AuthWebView: UIView {
+    lazy var webView: WKWebView = createWebView()
+    lazy var spinner: UIActivityIndicatorView = createSpinner()
 
     override init(frame: CGRect) {
       super.init(frame: frame)
@@ -49,9 +49,7 @@
       self.spinner = spinner
     }
 
-    // TODO: Should not be public
-
-    override public func layoutSubviews() {
+    override func layoutSubviews() {
       super.layoutSubviews()
       let height = bounds.size.height
       let width = bounds.size.width

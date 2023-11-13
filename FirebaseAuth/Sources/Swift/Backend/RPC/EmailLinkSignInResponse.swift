@@ -18,7 +18,7 @@ import Foundation
     @brief Represents the response from the emailLinkSignin endpoint.
  */
 class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
-  override public required init() {}
+  override required init() {}
 
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
@@ -56,7 +56,7 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
    */
   var mfaInfo: [AuthProtoMFAEnrollment]?
 
-  public func setFields(dictionary: [String: AnyHashable]) throws {
+  func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
     idToken = dictionary["idToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false

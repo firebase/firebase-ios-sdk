@@ -80,7 +80,7 @@
 
     // MARK: - View Lifecycle
 
-    override public func loadView() {
+    override func loadView() {
       let webView = AuthWebView(frame: UIScreen.main.bounds)
       webView.webView.navigationDelegate = self
       view = webView
@@ -92,7 +92,7 @@
       )
     }
 
-    override public func viewDidAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
       super.viewDidAppear(animated)
       webView?.webView.load(URLRequest(url: url))
     }
@@ -105,8 +105,8 @@
 
     // MARK: - WKNavigationDelegate
 
-    public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
-                        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
+                 decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
       let canHandleURL = delegate?.webViewController(
         self,
         canHandle: navigationAction.request.url ?? url
@@ -118,19 +118,19 @@
       }
     }
 
-    public func webView(_ webView: WKWebView,
-                        didStartProvisionalNavigation navigation: WKNavigation!) {
+    func webView(_ webView: WKWebView,
+                 didStartProvisionalNavigation navigation: WKNavigation!) {
       self.webView?.spinner.isHidden = false
       self.webView?.spinner.startAnimating()
     }
 
-    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
       self.webView?.spinner.isHidden = true
       self.webView?.spinner.stopAnimating()
     }
 
-    public func webView(_ webView: WKWebView, didFail navigation: WKNavigation!,
-                        withError error: Error) {
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!,
+                 withError error: Error) {
       if (error as NSError).domain == NSURLErrorDomain,
          (error as NSError).code == NSURLErrorCancelled {
         // It's okay for the page to be redirected before it is completely loaded.  See b/32028062 .

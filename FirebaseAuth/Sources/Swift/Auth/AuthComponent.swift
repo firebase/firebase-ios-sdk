@@ -18,7 +18,7 @@ import FirebaseCore
 import FirebaseCoreExtension
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthProvider) public protocol AuthProvider {
+@objc(FIRAuthProvider) protocol AuthProvider {
   @objc func auth() -> Auth
 }
 

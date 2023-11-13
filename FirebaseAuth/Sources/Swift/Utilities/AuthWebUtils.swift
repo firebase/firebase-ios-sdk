@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthWebUtils) public class AuthWebUtils: NSObject {
+class AuthWebUtils: NSObject {
   static func randomString(withLength length: Int) -> String {
     var randomString = ""
     for _ in 0 ..< length {
@@ -26,8 +26,8 @@ import Foundation
     return randomString
   }
 
-  @objc public static func isCallbackSchemeRegistered(forCustomURLScheme scheme: String,
-                                                      urlTypes: [[String: Any]]) -> Bool {
+  static func isCallbackSchemeRegistered(forCustomURLScheme scheme: String,
+                                         urlTypes: [[String: Any]]) -> Bool {
     let expectedCustomScheme = scheme.lowercased()
     for urlType in urlTypes {
       guard let urlTypeSchemes = urlType["CFBundleURLSchemes"] else {
@@ -155,8 +155,7 @@ import Foundation
     return nil
   }
 
-  @objc public static func dictionary(withHttpArgumentsString argString: String?)
-    -> [String: String] {
+  static func dictionary(withHttpArgumentsString argString: String?) -> [String: String] {
     guard let argString else {
       return [:]
     }
@@ -190,7 +189,7 @@ import Foundation
       .removingPercentEncoding ?? ""
   }
 
-  @objc public static func parseURL(_ urlString: String) -> [String: String] {
+  static func parseURL(_ urlString: String) -> [String: String] {
     let urlComponents = URLComponents(string: urlString)
     guard let linkURL = urlComponents?.query else {
       return [:]
