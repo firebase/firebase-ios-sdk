@@ -104,7 +104,6 @@ NS_ASSUME_NONNULL_BEGIN
                   return;
                 }
                 // Look up an authorized domain ends with one of the supportedAuthDomains.
-                // The sequence of supportedAuthDomains matters. ("firebaseapp.com", "web.app")
                 // The searching ends once the first valid suportedAuthDomain is found.
                 NSString *authDomain;
                 for (NSString *domain in response.authorizedDomains) {
