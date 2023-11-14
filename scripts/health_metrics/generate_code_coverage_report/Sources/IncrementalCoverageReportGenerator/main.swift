@@ -84,7 +84,8 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
   /// The output will have the file name, line execution counts and the xcresult bundle name.
   func createLineCoverageRecord(from coverageFile: URL, changedFile: String,
                                 lineCoverage: [LineCoverage]? = nil) -> [LineCoverage] {
-    // The indices of the array represent the (line index - 1), while the value is the execution counts.
+    // The indices of the array represent the (line index - 1), while the value is the execution
+    // counts.
     // Unexecutable lines, e.g. comments, will be nil here.
     var lineExecutionCounts: [Int?] = []
     do {
@@ -117,17 +118,21 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
     }
   }
 
-  /// This function is to get union of newly added file lines and lines execution counts, from a xcresult bundle.
-  /// Return an array of LineCoverage, which includes uncovered line indices of a file and its xcresult bundle source.
+  /// This function is to get union of newly added file lines and lines execution counts, from a
+  /// xcresult bundle.
+  /// Return an array of LineCoverage, which includes uncovered line indices of a file and its
+  /// xcresult bundle source.
   func getUncoveredFileLines(fromDiff changedFiles: [FileIncrementalChanges],
                              xcresultFile: URL,
                              archiveRootPath rootPath: String) -> [LineCoverage] {
     var uncoveredFiles: [LineCoverage] = []
     for change in changedFiles {
       let archiveFilePath = URL(string: rootPath)!.appendingPathComponent(change.file)
-      // tempOutputFile is a temp file, with the xcresult bundle name, including line execution counts of a file
+      // tempOutputFile is a temp file, with the xcresult bundle name, including line execution
+      // counts of a file
       let tempOutputFile = xcresultFile.deletingPathExtension()
-      // Fetch line execution report of a file from a xcresult bundle into a temp file, which has the same name as the xcresult bundle.
+      // Fetch line execution report of a file from a xcresult bundle into a temp file, which has
+      // the same name as the xcresult bundle.
       Shell.run(
         "\(Constants.xcovCommand) \(archiveFilePath.absoluteString) \(xcresultFile.path) > \(tempOutputFile.path)",
         displayCommand: true,
@@ -164,7 +169,8 @@ struct IncrementalCoverageReportGenerator: ParsableCommand {
   func run() throws {
     let enumerator = FileManager.default.enumerator(atPath: xcresultDir.path)
     var uncoveredFiles: [LineCoverage] = []
-    // Search xcresult bundles from xcresultDir and get union of `git diff` report and xccov output to generate a list of lineCoverage including files and their uncovered lines.
+    // Search xcresult bundles from xcresultDir and get union of `git diff` report and xccov output
+    // to generate a list of lineCoverage including files and their uncovered lines.
     while let file = enumerator?.nextObject() as? String {
       var isDir: ObjCBool = false
       let xcresultURL = xcresultDir.appendingPathComponent(file, isDirectory: true)

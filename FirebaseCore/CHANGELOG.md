@@ -1,3 +1,17 @@
+# Firebase 10.14.0
+- For developers building for visionOS, Xcode 15 beta 6 or later is required.
+
+# Firebase 10.13.0
+- For developers building for visionOS, Xcode 15 beta 5 or later is required.
+
+# Firebase 10.12.0
+- For developers building for visionOS, using products that use the Keychain
+  (e.g. FirebaseAuth) may fail to access the keychain on the visionOS
+  simulator. To work around this, add the Keychain Sharing capability to the
+  visionOS target and explicitly add a keychain group (e.g. the bundle ID).
+- Firebase's Swift Package Manager distribution does not support
+  Xcode 15 Beta 1. Please use Xcode 15 Beta 2 or later.
+
 # Firebase 10.11.0
 - [changed] Improved error reporting for misnamed configuration plist files (#11317).
 

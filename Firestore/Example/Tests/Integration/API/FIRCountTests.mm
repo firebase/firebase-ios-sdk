@@ -163,12 +163,7 @@
     [batch setData:@{@"x" : @"a"} forDocument:[self.db documentWithPath:path]];
   }
 
-  XCTestExpectation* expectation = [self expectationWithDescription:@"commit"];
-  [batch commitWithCompletion:^(NSError* error) {
-    XCTAssertNil(error);
-    [expectation fulfill];
-  }];
-  [self awaitExpectation:expectation];
+  [self commitWriteBatch:batch];
 
   FIRAggregateQuerySnapshot* snapshot =
       [self readSnapshotForAggregate:[[self.db collectionGroupWithID:collectionGroup] count]];

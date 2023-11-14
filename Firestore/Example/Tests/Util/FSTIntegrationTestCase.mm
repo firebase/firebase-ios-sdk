@@ -84,6 +84,7 @@ NS_ASSUME_NONNULL_BEGIN
 static const double kPrimingTimeout = 45.0;
 
 static NSString *defaultProjectId;
+static NSString *defaultDatabaseId = @"(default)";
 static FIRFirestoreSettings *defaultSettings;
 
 static bool runningAgainstEmulator = false;
@@ -186,6 +187,12 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
 
   defaultSettings = [[FIRFirestoreSettings alloc] init];
 
+  // Setup database id to use.
+  NSString *databaseId = [[NSProcessInfo processInfo] environment][@"TARGET_DATABASE_ID"];
+  if (databaseId) {
+    defaultDatabaseId = databaseId;
+  }
+
   // Check for a MobileHarness configuration, running against nightly or prod, which have live
   // SSL certs.
   NSString *project = [[NSProcessInfo processInfo] environment][@"PROJECT_ID"];
@@ -217,7 +224,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     defaultProjectId = project;
     defaultSettings.host = host;
 
-    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
+    NSLog(@"Integration tests running against %@/(%@:%@)", defaultSettings.host, defaultProjectId,
+          defaultDatabaseId);
     return;
   }
 
@@ -230,7 +238,8 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
       defaultSettings.host = host;
     }
 
-    NSLog(@"Integration tests running against %@/%@", defaultSettings.host, defaultProjectId);
+    NSLog(@"Integration tests running against %@/(%@:%@)", defaultSettings.host, defaultProjectId,
+          defaultDatabaseId);
     return;
   }
 
@@ -254,6 +263,13 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     [self setUpDefaults];
   }
   return defaultProjectId;
+}
+
++ (NSString *)databaseID {
+  if (!defaultDatabaseId) {
+    return @"(default)";
+  }
+  return defaultDatabaseId;
 }
 
 + (bool)isRunningAgainstEmulator {
@@ -282,8 +298,9 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   FIRSetLoggerLevel(FIRLoggerLevelDebug);
 
   std::string projectID = MakeString(app.options.projectID);
+  std::string databaseID = MakeString(defaultDatabaseId);
   FIRFirestore *firestore =
-      [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID)
+      [[FIRFirestore alloc] initWithDatabaseID:DatabaseId(projectID, databaseID)
                                 persistenceKey:MakeString(persistenceKey)
                        authCredentialsProvider:_fakeAuthCredentialsProvider
                    appCheckCredentialsProvider:_fakeAppCheckCredentialsProvider
@@ -412,9 +429,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
       XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
       [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
         [commitExpectation fulfill];
-        if (error != nil) {
-          XCTFail(@"WriteBatch commit failed: %@", error);
-        }
+        XCTAssertNil(error, @"WriteBatch commit failed: %@", error);
       }];
       [commits addObject:commitExpectation];
       writeBatch = nil;
@@ -426,9 +441,7 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
     XCTestExpectation *commitExpectation = [self expectationWithDescription:@"WriteBatch commit"];
     [writeBatch commitWithCompletion:^(NSError *_Nullable error) {
       [commitExpectation fulfill];
-      if (error != nil) {
-        XCTFail(@"WriteBatch commit failed: %@", error);
-      }
+      XCTAssertNil(error, @"WriteBatch commit failed: %@", error);
     }];
     [commits addObject:commitExpectation];
   }
@@ -570,6 +583,15 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   [self awaitExpectation:expectation];
 }
 
+- (void)commitWriteBatch:(FIRWriteBatch *)batch {
+  XCTestExpectation *expectation = [self expectationWithDescription:@"WriteBatch commit"];
+  [batch commitWithCompletion:^(NSError *_Nullable error) {
+    [expectation fulfill];
+    XCTAssertNil(error, @"WriteBatch commit should have succeeded, but it failed: %@", error);
+  }];
+  [self awaitExpectation:expectation];
+}
+
 - (void)disableNetwork {
   XCTestExpectation *expectation = [self expectationWithDescription:@"disableNetwork"];
   [self.db disableNetworkWithCompletion:[self completionForExpectation:expectation]];
@@ -580,6 +602,25 @@ class FakeAuthCredentialsProvider : public EmptyAuthCredentialsProvider {
   XCTestExpectation *expectation = [self expectationWithDescription:@"enableNetwork"];
   [self.db enableNetworkWithCompletion:[self completionForExpectation:expectation]];
   [self awaitExpectation:expectation];
+}
+
+/**
+ * Checks that running the query while online (against the backend/emulator) results in the same
+ * documents as running the query while offline. It also checks that both online and offline
+ * query result is equal to the expected documents.
+ *
+ * @param query The query to check.
+ * @param expectedDocs Array of document keys that are expected to match the query.
+ */
+- (void)checkOnlineAndOfflineQuery:(FIRQuery *)query matchesResult:(NSArray *)expectedDocs {
+  FIRQuerySnapshot *docsFromServer = [self readDocumentSetForRef:query
+                                                          source:FIRFirestoreSourceServer];
+  FIRQuerySnapshot *docsFromCache = [self readDocumentSetForRef:query
+                                                         source:FIRFirestoreSourceCache];
+
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromServer),
+                        FIRQuerySnapshotGetIDs(docsFromCache));
+  XCTAssertEqualObjects(FIRQuerySnapshotGetIDs(docsFromCache), expectedDocs);
 }
 
 - (const std::shared_ptr<AsyncQueue> &)queueForFirestore:(FIRFirestore *)firestore {

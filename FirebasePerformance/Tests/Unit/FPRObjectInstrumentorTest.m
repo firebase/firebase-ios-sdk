@@ -48,9 +48,9 @@
   XCTAssertTrue([[object class] isSubclassOfClass:[NSObject class]]);
   instrumentor = nil;
   XCTAssertNil(weakInstrumentor);
+  XCTAssertNotNil([(GULSwizzledObject *)object gul_objectSwizzler]);
   XCTAssertNoThrow([(GULSwizzledObject *)object gul_class]);
   XCTAssertEqual([object class], [(GULSwizzledObject *)object gul_class]);
-  XCTAssertNotNil([(GULSwizzledObject *)object gul_objectSwizzler]);
 }
 
 /** Tests copying a selector that already exists on the object doesn't work. */

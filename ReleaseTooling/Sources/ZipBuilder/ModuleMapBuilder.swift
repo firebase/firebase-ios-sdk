@@ -46,6 +46,15 @@ struct ModuleMapBuilder {
       module * { export * }
 
       """
+
+      if module == "FirebaseFirestoreInternal" {
+        content += """
+          link framework "BoringSSL-GRPC"
+          link framework "gRPC-Core"
+          link framework "gRPC-C++"
+        """
+      }
+
       for framework in frameworks.sorted() {
         content += "  link framework " + framework + "\n"
       }
@@ -121,12 +130,21 @@ struct ModuleMapBuilder {
 
   // MARK: - Internal Functions
 
-  /// Build a module map for a single framework. A CocoaPod install is run to extract the required frameworks
-  /// and libraries from the generated xcconfig. All previously installed dependent pods are put into the Podfile
+  /// Build a module map for a single framework. A CocoaPod install is run to extract the required
+  /// frameworks
+  /// and libraries from the generated xcconfig. All previously installed dependent pods are put
+  /// into the Podfile
   /// to make sure we install the right version and from the right location.
   private func generate(framework: FrameworkInfo) {
     let podName = framework.versionedPod.name
-    let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods)
+    let deps = CocoaPodUtils.transitiveVersionedPodDependencies(for: podName, in: allPods).filter {
+      // Don't include Interop pods in the module map calculation since they shouldn't add anything
+      // and it uses the platform-independent version of the dependency list, which causes a crash
+      // for the iOS-only RecaptchaInterop pod when the subsequent code tries to `pod install` it
+      // for macOS. All this module code should go away when we switch to building dynamic
+      // frameworks.
+      !$0.name.hasSuffix("Interop")
+    }
 
     CocoaPodUtils.installPods(allSubspecList(framework: framework) + deps,
                               inDir: projectDir,
@@ -142,7 +160,8 @@ struct ModuleMapBuilder {
       .moduleMapContents = makeModuleMap(forFramework: framework, withXcconfigFile: xcconfigFile)
   }
 
-  /// Convert a list of versioned pods to a list of versioned pods specified with all needed subspecs.
+  /// Convert a list of versioned pods to a list of versioned pods specified with all needed
+  /// subspecs.
   private func allSubspecList(framework: FrameworkInfo) -> [CocoaPodUtils.VersionedPod] {
     let name = framework.versionedPod.name
     let version = framework.versionedPod.version

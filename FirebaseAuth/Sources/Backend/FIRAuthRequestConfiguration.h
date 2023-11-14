@@ -16,7 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
+
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCRequest.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuth.h"
 
@@ -57,6 +58,11 @@ NS_ASSUME_NONNULL_BEGIN
     @brief The language code used in the request.
  */
 @property(nonatomic, copy, nullable) NSString *languageCode;
+
+/** @property HTTPMethod
+    @brief The HTTP method used in the request.
+ */
+@property(nonatomic, copy, nonnull) NSString *HTTPMethod;
 
 /** @property additionalFrameworkMarker
     @brief Additional framework marker that will be added as part of the header of every request.

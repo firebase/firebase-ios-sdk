@@ -3385,7 +3385,6 @@
     "describeName": "Listens:",
     "itName": "ExpectedCount in listen request should work after coming back online",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -12745,7 +12744,6 @@
     "describeName": "Listens:",
     "itName": "Resuming a query should specify expectedCount that does not include pending mutations",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,
@@ -12947,7 +12945,6 @@
     "describeName": "Listens:",
     "itName": "Resuming a query should specify expectedCount when adding the target",
     "tags": [
-      "no-ios"
     ],
     "config": {
       "numClients": 1,

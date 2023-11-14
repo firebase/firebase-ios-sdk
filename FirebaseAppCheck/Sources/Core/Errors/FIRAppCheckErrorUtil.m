@@ -16,106 +16,47 @@
 
 #import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckErrorUtil.h"
 
-#import <GoogleUtilities/GULKeychainUtils.h>
-
-#import "FirebaseAppCheck/Sources/Core/Errors/FIRAppCheckHTTPError.h"
-#import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
+#import <AppCheckCore/AppCheckCore.h>
 
 @implementation FIRAppCheckErrorUtil
 
 + (NSError *)publicDomainErrorWithError:(NSError *)error {
-  if ([error.domain isEqualToString:FIRAppCheckErrorDomain]) {
+  if ([error.domain isEqualToString:GACAppCheckErrorDomain]) {
+    return [self publicDomainErrorWithGACError:error];
+  } else if ([error.domain isEqualToString:FIRAppCheckErrorDomain]) {
     return error;
   }
 
   return [self unknownErrorWithError:error];
 }
 
-#pragma mark - Internal errors
-
-+ (NSError *)cachedTokenNotFound {
-  NSString *failureReason = [NSString stringWithFormat:@"Cached token not found."];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
-}
-
-+ (NSError *)cachedTokenExpired {
-  NSString *failureReason = [NSString stringWithFormat:@"Cached token expired."];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
-}
-
-+ (NSError *)keychainErrorWithError:(NSError *)error {
-  if ([error.domain isEqualToString:kGULKeychainUtilsErrorDomain]) {
-    NSString *failureReason = [NSString stringWithFormat:@"Keychain access error."];
-    return [self appCheckErrorWithCode:FIRAppCheckErrorCodeKeychain
-                         failureReason:failureReason
-                       underlyingError:error];
+/// Converts an App Check Core error (`GACAppCheckErrorDomain`) to a public error
+/// (`FIRAppCheckErrorDomain`).
++ (NSError *)publicDomainErrorWithGACError:(NSError *)appCheckCoreError {
+  FIRAppCheckErrorCode errorCode;
+  switch ((GACAppCheckErrorCode)appCheckCoreError.code) {
+    case GACAppCheckErrorCodeUnknown:
+      errorCode = FIRAppCheckErrorCodeUnknown;
+      break;
+    case GACAppCheckErrorCodeServerUnreachable:
+      errorCode = FIRAppCheckErrorCodeServerUnreachable;
+      break;
+    case GACAppCheckErrorCodeInvalidConfiguration:
+      errorCode = FIRAppCheckErrorCodeInvalidConfiguration;
+      break;
+    case GACAppCheckErrorCodeKeychain:
+      errorCode = FIRAppCheckErrorCodeKeychain;
+      break;
+    case GACAppCheckErrorCodeUnsupported:
+      errorCode = FIRAppCheckErrorCodeUnsupported;
+      break;
+    default:
+      return [self unknownErrorWithError:appCheckCoreError];
   }
 
-  return [self unknownErrorWithError:error];
-}
-
-+ (FIRAppCheckHTTPError *)APIErrorWithHTTPResponse:(NSHTTPURLResponse *)HTTPResponse
-                                              data:(nullable NSData *)data {
-  return [[FIRAppCheckHTTPError alloc] initWithHTTPResponse:HTTPResponse data:data];
-}
-
-+ (NSError *)APIErrorWithNetworkError:(NSError *)networkError {
-  NSString *failureReason = [NSString stringWithFormat:@"API request error."];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeServerUnreachable
-                       failureReason:failureReason
-                     underlyingError:networkError];
-}
-
-+ (NSError *)appCheckTokenResponseErrorWithMissingField:(NSString *)fieldName {
-  NSString *failureReason = [NSString
-      stringWithFormat:@"Unexpected app check token response format. Field `%@` is missing.",
-                       fieldName];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
-}
-
-+ (NSError *)appAttestAttestationResponseErrorWithMissingField:(NSString *)fieldName {
-  NSString *failureReason =
-      [NSString stringWithFormat:@"Unexpected attestation response format. Field `%@` is missing.",
-                                 fieldName];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
-}
-
-+ (NSError *)JSONSerializationError:(NSError *)error {
-  NSString *failureReason = [NSString stringWithFormat:@"JSON serialization error."];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:error];
-}
-
-+ (NSError *)unsupportedAttestationProvider:(NSString *)providerName {
-  NSString *failureReason = [NSString
-      stringWithFormat:
-          @"The attestation provider %@ is not supported on current platform and OS version.",
-          providerName];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnsupported
-                       failureReason:failureReason
-                     underlyingError:nil];
-}
-
-+ (NSError *)appAttestKeyIDNotFound {
-  NSString *failureReason = [NSString stringWithFormat:@"App attest key ID not found."];
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
-}
-
-+ (NSError *)errorWithFailureReason:(NSString *)failureReason {
-  return [self appCheckErrorWithCode:FIRAppCheckErrorCodeUnknown
-                       failureReason:failureReason
-                     underlyingError:nil];
+  return [NSError errorWithDomain:FIRAppCheckErrorDomain
+                             code:errorCode
+                         userInfo:appCheckCoreError.userInfo];
 }
 
 #pragma mark - Helpers
@@ -138,9 +79,3 @@
 }
 
 @end
-
-void FIRAppCheckSetErrorToPointer(NSError *error, NSError **pointer) {
-  if (pointer != NULL) {
-    *pointer = error;
-  }
-}

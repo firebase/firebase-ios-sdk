@@ -46,7 +46,7 @@ class SerializerTests: XCTestCase {
   func testEncodeInt() throws {
     let serializer = FUNSerializer()
     let one = NSNumber(1)
-    let dict = try XCTUnwrap(try serializer.encode(one) as? NSDictionary)
+    let dict = try XCTUnwrap(serializer.encode(one) as? NSDictionary)
     XCTAssertEqual("type.googleapis.com/google.protobuf.Int64Value", dict["@type"] as? String)
     XCTAssertEqual("1", dict["value"] as? String)
   }
@@ -73,7 +73,7 @@ class SerializerTests: XCTestCase {
   func testEncodeLong() throws {
     let serializer = FUNSerializer()
     let lowLong = NSNumber(-9_223_372_036_854_775_800)
-    let dict = try XCTUnwrap(try serializer.encode(lowLong) as? NSDictionary)
+    let dict = try XCTUnwrap(serializer.encode(lowLong) as? NSDictionary)
     XCTAssertEqual("type.googleapis.com/google.protobuf.Int64Value", dict["@type"] as? String)
     XCTAssertEqual("-9223372036854775800", dict["value"] as? String)
   }

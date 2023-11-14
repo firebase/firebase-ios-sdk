@@ -1,3 +1,14 @@
+# 10.17.0
+- [feature] The `FirebaseRemoteConfig` module now contains Firebase Remote
+  Config's Swift-only APIs that were previously only available via the
+  `FirebaseRemoteConfigSwift` extension SDK. See the
+  `FirebaseRemoteConfigSwift` release note from this release for more details.
+
+# 10.12.0
+- [fixed] Fix issue of real-time listeners not being properly removed. (#11458)
+- [fixed] Fix real-time fetches not being able to fetch the latest template due to an in-progress fetch. (#11465)
+- [changed] Internal improvements to support Remote Config real-time updates. (#11485)
+
 # 10.7.0
 - [feature] Added support for real-time config updates. Use the new `addOnConfigUpdateListener` API to get
   real-time updates. Existing [`fetch`](https://firebase.google.com/docs/reference/swift/firebaseremoteconfig/api/reference/Classes/RemoteConfig#fetch)

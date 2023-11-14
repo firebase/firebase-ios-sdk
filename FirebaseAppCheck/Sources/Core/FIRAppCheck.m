@@ -16,11 +16,8 @@
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheck.h"
 
-#if __has_include(<FBLPromises/FBLPromises.h>)
-#import <FBLPromises/FBLPromises.h>
-#else
-#import "FBLPromises.h"
-#endif
+#import <AppCheckCore/AppCheckCore.h>
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckErrors.h"
 #import "FirebaseAppCheck/Sources/Public/FirebaseAppCheck/FIRAppCheckProvider.h"
@@ -32,12 +29,7 @@
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckSettings.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckToken+Internal.h"
 #import "FirebaseAppCheck/Sources/Core/FIRAppCheckTokenResult.h"
-#import "FirebaseAppCheck/Sources/Core/Storage/FIRAppCheckStorage.h"
-#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefreshResult.h"
-#import "FirebaseAppCheck/Sources/Core/TokenRefresh/FIRAppCheckTokenRefresher.h"
-
-#import "FirebaseAppCheck/Interop/FIRAppCheckInterop.h"
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
+#import "FirebaseAppCheck/Sources/Core/FIRInternalAppCheckProvider.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -56,22 +48,16 @@ NSString *const kFIRAppCheckAppNameNotificationKey = @"FIRAppCheckAppNameNotific
 
 static id<FIRAppCheckProviderFactory> _providerFactory;
 
-static const NSTimeInterval kTokenExpirationThreshold = 5 * 60;  // 5 min.
-
 static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1IifQ==";
 
-@interface FIRAppCheck () <FIRAppCheckInterop>
+@interface FIRAppCheck () <FIRAppCheckInterop, GACAppCheckTokenDelegate>
 @property(class, nullable) id<FIRAppCheckProviderFactory> providerFactory;
 
 @property(nonatomic, readonly) NSString *appName;
-@property(nonatomic, readonly) id<FIRAppCheckProvider> appCheckProvider;
-@property(nonatomic, readonly) id<FIRAppCheckStorageProtocol> storage;
 @property(nonatomic, readonly) NSNotificationCenter *notificationCenter;
-@property(nonatomic, readonly) id<FIRAppCheckSettingsProtocol> settings;
+@property(nonatomic, readonly) FIRAppCheckSettings *settings;
+@property(nonatomic, readonly) GACAppCheck *appCheckCore;
 
-@property(nonatomic, readonly, nullable) id<FIRAppCheckTokenRefresherProtocol> tokenRefresher;
-
-@property(nonatomic, nullable) FBLPromise<FIRAppCheckToken *> *ongoingRetrieveOrRefreshTokenPromise;
 @end
 
 @implementation FIRAppCheck
@@ -79,6 +65,9 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 #pragma mark - Internal
 
 - (nullable instancetype)initWithApp:(FIRApp *)app {
+  // Set the App Check Core logging level to the current equivalent Firebase logging level.
+  GACAppCheckLogger.logLevel = FIRGetGACAppCheckLogLevel();
+
   id<FIRAppCheckProviderFactory> providerFactory = [FIRAppCheck providerFactory];
 
   if (providerFactory == nil) {
@@ -99,47 +88,40 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
     return nil;
   }
 
+  NSString *serviceName = [self serviceNameForApp:app];
+  NSString *resourceName = [self resourceNameForApp:app];
+  id<GACAppCheckProvider> appCheckCoreProvider =
+      [[FIRInternalAppCheckProvider alloc] initWithAppCheckProvider:appCheckProvider];
   FIRAppCheckSettings *settings =
       [[FIRAppCheckSettings alloc] initWithApp:app
                                    userDefault:[NSUserDefaults standardUserDefaults]
                                     mainBundle:[NSBundle mainBundle]];
-  FIRAppCheckTokenRefreshResult *refreshResult =
-      [[FIRAppCheckTokenRefreshResult alloc] initWithStatusNever];
-  FIRAppCheckTokenRefresher *tokenRefresher =
-      [[FIRAppCheckTokenRefresher alloc] initWithRefreshResult:refreshResult settings:settings];
 
-  FIRAppCheckStorage *storage = [[FIRAppCheckStorage alloc] initWithAppName:app.name
-                                                                      appID:app.options.googleAppID
-                                                                accessGroup:app.options.appGroupID];
+  GACAppCheck *appCheckCore = [[GACAppCheck alloc] initWithServiceName:serviceName
+                                                          resourceName:resourceName
+                                                      appCheckProvider:appCheckCoreProvider
+                                                              settings:settings
+                                                         tokenDelegate:self
+                                                   keychainAccessGroup:app.options.appGroupID];
 
   return [self initWithAppName:app.name
+                  appCheckCore:appCheckCore
               appCheckProvider:appCheckProvider
-                       storage:storage
-                tokenRefresher:tokenRefresher
             notificationCenter:NSNotificationCenter.defaultCenter
                       settings:settings];
 }
 
 - (instancetype)initWithAppName:(NSString *)appName
+                   appCheckCore:(GACAppCheck *)appCheckCore
                appCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider
-                        storage:(id<FIRAppCheckStorageProtocol>)storage
-                 tokenRefresher:(id<FIRAppCheckTokenRefresherProtocol>)tokenRefresher
              notificationCenter:(NSNotificationCenter *)notificationCenter
-                       settings:(id<FIRAppCheckSettingsProtocol>)settings {
+                       settings:(FIRAppCheckSettings *)settings {
   self = [super init];
   if (self) {
     _appName = appName;
-    _appCheckProvider = appCheckProvider;
-    _storage = storage;
-    _tokenRefresher = tokenRefresher;
+    _appCheckCore = appCheckCore;
     _notificationCenter = notificationCenter;
     _settings = settings;
-
-    __auto_type __weak weakSelf = self;
-    tokenRefresher.tokenRefreshHandler = ^(FIRAppCheckTokenRefreshCompletion _Nonnull completion) {
-      __auto_type strongSelf = weakSelf;
-      [strongSelf periodicTokenRefreshWithCompletion:completion];
-    };
   }
   return self;
 }
@@ -167,26 +149,28 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 - (void)tokenForcingRefresh:(BOOL)forcingRefresh
                  completion:(void (^)(FIRAppCheckToken *_Nullable token,
                                       NSError *_Nullable error))handler {
-  [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
-      .then(^id _Nullable(FIRAppCheckToken *token) {
-        handler(token, nil);
-        return token;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        handler(nil, [FIRAppCheckErrorUtil publicDomainErrorWithError:error]);
-      });
+  [self.appCheckCore
+      tokenForcingRefresh:forcingRefresh
+               completion:^(GACAppCheckTokenResult *result) {
+                 if (result.error) {
+                   handler(nil, [FIRAppCheckErrorUtil publicDomainErrorWithError:result.error]);
+                   return;
+                 }
+
+                 handler([[FIRAppCheckToken alloc] initWithInternalToken:result.token], nil);
+               }];
 }
 
 - (void)limitedUseTokenWithCompletion:(void (^)(FIRAppCheckToken *_Nullable token,
                                                 NSError *_Nullable error))handler {
-  [self limitedUseToken]
-      .then(^id _Nullable(FIRAppCheckToken *token) {
-        handler(token, nil);
-        return token;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        handler(nil, [FIRAppCheckErrorUtil publicDomainErrorWithError:error]);
-      });
+  [self.appCheckCore limitedUseTokenWithCompletion:^(GACAppCheckTokenResult *result) {
+    if (result.error) {
+      handler(nil, [FIRAppCheckErrorUtil publicDomainErrorWithError:result.error]);
+      return;
+    }
+
+    handler([[FIRAppCheckToken alloc] initWithInternalToken:result.token], nil);
+  }];
 }
 
 + (void)setAppCheckProviderFactory:(nullable id<FIRAppCheckProviderFactory>)factory {
@@ -219,33 +203,27 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
 
 - (void)getTokenForcingRefresh:(BOOL)forcingRefresh
                     completion:(FIRAppCheckTokenHandlerInterop)handler {
-  [self retrieveOrRefreshTokenForcingRefresh:forcingRefresh]
-      .then(^id _Nullable(FIRAppCheckToken *token) {
-        FIRAppCheckTokenResult *result = [[FIRAppCheckTokenResult alloc] initWithToken:token.token
-                                                                                 error:nil];
-        handler(result);
-        return result;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        FIRAppCheckTokenResult *result =
-            [[FIRAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
-        handler(result);
-      });
+  [self.appCheckCore
+      tokenForcingRefresh:forcingRefresh
+               completion:^(GACAppCheckTokenResult *internalResult) {
+                 FIRAppCheckToken *token =
+                     [[FIRAppCheckToken alloc] initWithInternalToken:internalResult.token];
+                 FIRAppCheckTokenResult *tokenResult =
+                     [[FIRAppCheckTokenResult alloc] initWithToken:token.token
+                                                             error:internalResult.error];
+
+                 handler(tokenResult);
+               }];
 }
 
 - (void)getLimitedUseTokenWithCompletion:(FIRAppCheckTokenHandlerInterop)handler {
-  [self limitedUseToken]
-      .then(^id _Nullable(FIRAppCheckToken *token) {
-        FIRAppCheckTokenResult *result = [[FIRAppCheckTokenResult alloc] initWithToken:token.token
-                                                                                 error:nil];
-        handler(result);
-        return result;
-      })
-      .catch(^(NSError *_Nonnull error) {
-        FIRAppCheckTokenResult *result =
-            [[FIRAppCheckTokenResult alloc] initWithToken:kDummyFACTokenValue error:error];
-        handler(result);
-      });
+  [self.appCheckCore limitedUseTokenWithCompletion:^(GACAppCheckTokenResult *internalResult) {
+    FIRAppCheckToken *token = [[FIRAppCheckToken alloc] initWithInternalToken:internalResult.token];
+    FIRAppCheckTokenResult *tokenResult =
+        [[FIRAppCheckTokenResult alloc] initWithToken:token.token error:internalResult.error];
+
+    handler(tokenResult);
+  }];
 }
 
 - (nonnull NSString *)tokenDidChangeNotificationName {
@@ -260,105 +238,12 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
   return kFIRAppCheckTokenNotificationKey;
 }
 
-#pragma mark - FAA token cache
+#pragma mark - GACAppCheckTokenDelegate
 
-- (FBLPromise<FIRAppCheckToken *> *)retrieveOrRefreshTokenForcingRefresh:(BOOL)forcingRefresh {
-  return [FBLPromise do:^id _Nullable {
-    if (self.ongoingRetrieveOrRefreshTokenPromise == nil) {
-      // Kick off a new operation only when there is not an ongoing one.
-      self.ongoingRetrieveOrRefreshTokenPromise =
-          [self createRetrieveOrRefreshTokenPromiseForcingRefresh:forcingRefresh]
-
-              // Release the ongoing operation promise on completion.
-              .then(^FIRAppCheckToken *(FIRAppCheckToken *token) {
-                self.ongoingRetrieveOrRefreshTokenPromise = nil;
-                return token;
-              })
-              .recover(^NSError *(NSError *error) {
-                self.ongoingRetrieveOrRefreshTokenPromise = nil;
-                return error;
-              });
-    }
-    return self.ongoingRetrieveOrRefreshTokenPromise;
-  }];
-}
-
-- (FBLPromise<FIRAppCheckToken *> *)createRetrieveOrRefreshTokenPromiseForcingRefresh:
-    (BOOL)forcingRefresh {
-  return [self getCachedValidTokenForcingRefresh:forcingRefresh].recover(
-      ^id _Nullable(NSError *_Nonnull error) {
-        return [self refreshToken];
-      });
-}
-
-- (FBLPromise<FIRAppCheckToken *> *)getCachedValidTokenForcingRefresh:(BOOL)forcingRefresh {
-  if (forcingRefresh) {
-    FBLPromise *rejectedPromise = [FBLPromise pendingPromise];
-    [rejectedPromise reject:[FIRAppCheckErrorUtil cachedTokenNotFound]];
-    return rejectedPromise;
-  }
-
-  return [self.storage getToken].then(^id(FIRAppCheckToken *_Nullable token) {
-    if (token == nil) {
-      return [FIRAppCheckErrorUtil cachedTokenNotFound];
-    }
-
-    BOOL isTokenExpiredOrExpiresSoon =
-        [token.expirationDate timeIntervalSinceNow] < kTokenExpirationThreshold;
-    if (isTokenExpiredOrExpiresSoon) {
-      return [FIRAppCheckErrorUtil cachedTokenExpired];
-    }
-
-    return token;
-  });
-}
-
-- (FBLPromise<FIRAppCheckToken *> *)refreshToken {
-  return [FBLPromise
-             wrapObjectOrErrorCompletion:^(FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-               [self.appCheckProvider getTokenWithCompletion:handler];
-             }]
-      .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
-        return [self.storage setToken:token];
-      })
-      .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
-        // TODO: Make sure the self.tokenRefresher is updated only once. Currently the timer will be
-        // updated twice in the case when the refresh triggered by self.tokenRefresher, but it
-        // should be fine for now as it is a relatively cheap operation.
-        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc]
-            initWithStatusSuccessAndExpirationDate:token.expirationDate
-                                    receivedAtDate:token.receivedAtDate];
-        [self.tokenRefresher updateWithRefreshResult:refreshResult];
-        [self postTokenUpdateNotificationWithToken:token];
-        return token;
-      });
-}
-
-- (FBLPromise<FIRAppCheckToken *> *)limitedUseToken {
-  return
-      [FBLPromise wrapObjectOrErrorCompletion:^(
-                      FBLPromiseObjectOrErrorCompletion _Nonnull handler) {
-        [self.appCheckProvider getTokenWithCompletion:handler];
-      }].then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
-        return token;
-      });
-}
-
-#pragma mark - Token auto refresh
-
-- (void)periodicTokenRefreshWithCompletion:(FIRAppCheckTokenRefreshCompletion)completion {
-  [self retrieveOrRefreshTokenForcingRefresh:NO]
-      .then(^id _Nullable(FIRAppCheckToken *_Nullable token) {
-        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc]
-            initWithStatusSuccessAndExpirationDate:token.expirationDate
-                                    receivedAtDate:token.receivedAtDate];
-        completion(refreshResult);
-        return nil;
-      })
-      .catch(^(NSError *error) {
-        __auto_type refreshResult = [[FIRAppCheckTokenRefreshResult alloc] initWithStatusFailure];
-        completion(refreshResult);
-      });
+- (void)tokenDidUpdate:(nonnull GACAppCheckToken *)token
+           serviceName:(nonnull NSString *)serviceName {
+  FIRAppCheckToken *appCheckToken = [[FIRAppCheckToken alloc] initWithInternalToken:token];
+  [self postTokenUpdateNotificationWithToken:appCheckToken];
 }
 
 #pragma mark - Token update notification
@@ -370,6 +255,17 @@ static NSString *const kDummyFACTokenValue = @"eyJlcnJvciI6IlVOS05PV05fRVJST1Iif
                                          kFIRAppCheckTokenNotificationKey : token.token,
                                          kFIRAppCheckAppNameNotificationKey : self.appName
                                        }];
+}
+
+#pragma mark - Helpers
+
+- (NSString *)serviceNameForApp:(FIRApp *)app {
+  return [NSString stringWithFormat:@"FirebaseApp:%@", app.name];
+}
+
+- (NSString *)resourceNameForApp:(FIRApp *)app {
+  return [NSString
+      stringWithFormat:@"projects/%@/apps/%@", app.options.projectID, app.options.googleAppID];
 }
 
 @end

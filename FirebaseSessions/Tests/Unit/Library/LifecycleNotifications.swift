@@ -24,7 +24,17 @@ import Dispatch
   import AppKit
 #elseif os(watchOS)
   import WatchKit
-#endif
+#endif // os(iOS) || os(tvOS)
+
+// swift(>=5.9) implies Xcode 15+
+// Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
+// TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
+// when Xcode 15 is the minimum supported by Firebase.
+#if swift(>=5.9)
+  #if os(visionOS)
+    import UIKit
+  #endif // os(visionOS)
+#endif // swift(>=5.9)
 
 extension XCTestCase {
   func postBackgroundedNotification() {
@@ -51,7 +61,17 @@ extension XCTestCase {
           object: nil
         )
       }
-    #endif
+    #endif // os(iOS) || os(tvOS)
+
+    // swift(>=5.9) implies Xcode 15+
+    // Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
+    // TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
+    // when Xcode 15 is the minimum supported by Firebase.
+    #if swift(>=5.9)
+      #if os(visionOS)
+        notificationCenter.post(name: UIApplication.didEnterBackgroundNotification, object: nil)
+      #endif // os(visionOS)
+    #endif // swift(>=5.9)
   }
 
   func postForegroundedNotification() {
@@ -78,6 +98,16 @@ extension XCTestCase {
           object: nil
         )
       }
-    #endif
+    #endif // os(iOS) || os(tvOS)
+
+    // swift(>=5.9) implies Xcode 15+
+    // Need to have this Swift version check to use os(visionOS) macro, VisionOS support.
+    // TODO: Remove this check and add `os(visionOS)` to the `os(iOS) || os(tvOS)` conditional above
+    // when Xcode 15 is the minimum supported by Firebase.
+    #if swift(>=5.9)
+      #if os(visionOS)
+        notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+      #endif // os(visionOS)
+    #endif // swift(>=5.9)
   }
 }

@@ -47,6 +47,7 @@ class IndexBackfiller {
 
  private:
   friend class IndexBackfillerTest;
+  friend class LocalStoreTestBase;
 
   /**
    * Writes entries for the provided collection group. Returns the number of
@@ -61,11 +62,11 @@ class IndexBackfiller {
                                   const LocalWriteResult& lookup_result) const;
 
   // For testing
-  void SetMaxDocumentsToProcess(int new_max) {
+  void SetMaxDocumentsToProcess(size_t new_max) {
     max_documents_to_process_ = new_max;
   }
 
-  int max_documents_to_process_;
+  size_t max_documents_to_process_;
 };
 
 }  // namespace local

@@ -28,7 +28,8 @@ public struct Pod {
   public let allowWarnings: Bool
   /// Set of platforms (e.g. "ios", "macos", or "tvos") to build this pod for.
   public let platforms: Set<String>
-  /// Whether or not the pod is planned for publicly releasing (as some pods are for internal/testing use).
+  /// Whether or not the pod is planned for publicly releasing (as some pods are for
+  /// internal/testing use).
   public let releasing: Bool
   /// Whether or not the pod is the top level pod in the zip distribution.
   public let zip: Bool

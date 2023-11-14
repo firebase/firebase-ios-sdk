@@ -62,8 +62,8 @@ end
 
 def sync_firestore(test_only)
   project = Xcodeproj::Project.open('Firestore/Example/Firestore.xcodeproj')
-  spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
-  swift_spec = Pod::Spec.from_file('FirebaseFirestoreSwift.podspec')
+  spec = Pod::Spec.from_file('FirebaseFirestoreInternal.podspec')
+  swift_spec = Pod::Spec.from_file('FirebaseFirestore.podspec')
 
   # Enable warnings after opening the project to avoid the warnings in
   # xcodeproj itself

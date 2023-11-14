@@ -50,13 +50,16 @@
 
 - (void)consentTests:(NSURL *)url {
   [FIRAnalytics setConsent:@{
-    FIRConsentTypeAnalyticsStorage : FIRConsentStatusGranted,
-    FIRConsentTypeAdStorage : FIRConsentStatusDenied
+    FIRConsentTypeAdPersonalization : FIRConsentStatusGranted,
+    FIRConsentTypeAdStorage : FIRConsentStatusDenied,
+    FIRConsentTypeAdUserData : FIRConsentStatusGranted,
+    FIRConsentTypeAnalyticsStorage : FIRConsentStatusDenied,
   }];
 }
 
 - (void)onDeviceConversionTests:(NSURL *)url {
   [FIRAnalytics initiateOnDeviceConversionMeasurementWithEmailAddress:@"a@.a.com"];
+  [FIRAnalytics initiateOnDeviceConversionMeasurementWithPhoneNumber:@"+15555555555"];
 }
 
 - (NSArray<NSString *> *)eventNames {

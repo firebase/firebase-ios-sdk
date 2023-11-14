@@ -16,13 +16,15 @@
 
 #import "FirebaseAuth/Sources/Backend/FIRAuthRPCResponse.h"
 #import "FirebaseAuth/Sources/Backend/RPC/Proto/Phone/FIRAuthProtoStartMFAPhoneResponseInfo.h"
+#import "FirebaseAuth/Sources/Backend/RPC/Proto/TOTP/FIRAuthProtoStartMFATOTPEnrollmentResponseInfo.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FIRStartMFAEnrollmentResponse : NSObject <FIRAuthRPCResponse>
-
 @property(nonatomic, copy, readonly, nullable)
-    FIRAuthProtoStartMFAPhoneResponseInfo *enrollmentResponse;
+    FIRAuthProtoStartMFAPhoneResponseInfo *phoneSessionInfo;
+@property(nonatomic, copy, readonly, nullable)
+    FIRAuthProtoStartMFATOTPEnrollmentResponseInfo *TOTPSessionInfo;
 
 @end
 

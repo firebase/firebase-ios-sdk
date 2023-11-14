@@ -27,15 +27,14 @@ import FirebaseDynamicLinks
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import FirebaseFunctions
-#if (os(iOS) || os(tvOS)) && !targetEnvironment(macCatalyst)
-  import FirebaseInAppMessaging
-  @testable import FirebaseInAppMessagingSwift
-  import SwiftUI
-#endif
 import FirebaseInstallations
 import FirebaseMessaging
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebasePerformance
+
+  @testable import FirebaseInAppMessaging
+  import FirebaseInAppMessagingSwift
+  import SwiftUI
 #endif
 import FirebaseRemoteConfig
 import FirebaseSessions

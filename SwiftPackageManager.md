@@ -99,4 +99,4 @@ Please provide any feedback via a [GitHub
 Issue](https://github.com/firebase/firebase-ios-sdk/issues/new?template=bug_report.md).
 
 See current open Swift Package Manager issues
-[here](https://github.com/firebase/firebase-ios-sdk/labels/Swift%20Package%20Manager).
+[here]([https://github.com/firebase/firebase-ios-sdk/labels/Swift%20Package%20Manager](https://github.com/firebase/firebase-ios-sdk/issues?q=is%3Aopen+label%3A%22Swift+Package+Manager%22+sort%3Acomments-desc)).

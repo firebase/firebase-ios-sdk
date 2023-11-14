@@ -35,10 +35,17 @@ typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable s
         API_UNAVAILABLE(macos, tvos, watchos);
 
 /**
-   @brief The string identifier for second factors. e.g. "phone".
+   @brief The string identifier for using phone as a second factor.
         This constant is available on iOS only.
 */
 extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID)
+    API_UNAVAILABLE(macos, tvos, watchos);
+
+/**
+   @brief The string identifier for using TOTP as a second factor.
+        This constant is available on iOS only.
+*/
+extern NSString *const _Nonnull FIRTOTPMultiFactorID NS_SWIFT_NAME(TOTPMultiFactorID)
     API_UNAVAILABLE(macos, tvos, watchos);
 
 /** @class FIRMultiFactor

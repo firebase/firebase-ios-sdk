@@ -43,8 +43,10 @@ struct Heartbeat: Codable, Equatable {
   /// An array of `TimePeriod`s that the heartbeat is tagged with. See `TimePeriod`.
   ///
   /// Heartbeats represent anonymous data points that measure SDK usage in moving averages for
-  /// various time periods. Because a single heartbeat can help calculate moving averages for multiple
-  /// time periods, this property serves to capture all the time periods that the heartbeat can represent in
+  /// various time periods. Because a single heartbeat can help calculate moving averages for
+  /// multiple
+  /// time periods, this property serves to capture all the time periods that the heartbeat can
+  /// represent in
   /// a moving average.
   let timePeriods: [TimePeriod]
 

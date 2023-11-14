@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import FirebaseFirestore
+#if SWIFT_PACKAGE
+  @_exported import FirebaseFirestoreInternalWrapper
+#else
+  @_exported import FirebaseFirestoreInternal
+#endif // SWIFT_PACKAGE
 
 /// Query predicates that can be used to filter results fetched by `FirestoreQuery`.
 ///

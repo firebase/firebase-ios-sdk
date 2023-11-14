@@ -485,11 +485,11 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (FIRAggregateQuery *)count {
   FIRAggregateField *countAF = [FIRAggregateField aggregateFieldForCount];
-  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:@[ countAF ]];
+  return [[FIRAggregateQuery alloc] initWithQuery:self aggregateFields:@[ countAF ]];
 }
 
-- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregations {
-  return [[FIRAggregateQuery alloc] initWithQueryAndAggregations:self aggregations:aggregations];
+- (FIRAggregateQuery *)aggregate:(NSArray<FIRAggregateField *> *)aggregateFields {
+  return [[FIRAggregateQuery alloc] initWithQuery:self aggregateFields:aggregateFields];
 }
 
 #pragma mark - Private Methods
@@ -587,7 +587,7 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   }
   const Document &document = *snapshot.internalDocument;
   const DatabaseId &databaseID = self.firestore.databaseID;
-  const std::vector<OrderBy> &order_bys = self.query.order_bys();
+  const std::vector<OrderBy> &order_bys = self.query.normalized_order_bys();
 
   SharedMessage<google_firestore_v1_ArrayValue> components{{}};
   components->values_count = CheckedSize(order_bys.size());

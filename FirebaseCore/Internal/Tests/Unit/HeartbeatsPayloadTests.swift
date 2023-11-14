@@ -27,13 +27,24 @@ class HeartbeatsPayloadTests: XCTestCase {
     )
   }
 
-  func testDateFormatterUses_YYYY_MM_dd_Format() throws {
+  func testDateFormatterUses_yyyy_MM_dd_Format() throws {
     // Given
     let date = Date(timeIntervalSince1970: 1_635_739_200) // 2021-11-01
     // When
     let dateString = HeartbeatsPayload.dateFormatter.string(from: date)
     // Then
     XCTAssertEqual(dateString, "2021-11-01")
+  }
+
+  func testDateFormatterDoesNotUseWeekYear() throws {
+    // Given
+    // The "week year" of `2018-12-31` is 2019, so we want to ensure that such
+    // dates are formatted using the "calendar year" (2018).
+    let date = Date(timeIntervalSince1970: 1_546_275_600) // 2018-12-31
+    // When
+    let dateString = HeartbeatsPayload.dateFormatter.string(from: date)
+    // Then
+    XCTAssertEqual(dateString, "2018-12-31")
   }
 
   func testEncodeAndDecode() throws {

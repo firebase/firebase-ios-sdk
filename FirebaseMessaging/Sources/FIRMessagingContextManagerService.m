@@ -209,57 +209,10 @@ typedef NS_ENUM(NSUInteger, FIRMessagingContextManagerMessageType) {
 }
 
 + (void)scheduleLocalNotificationForMessage:(NSDictionary *)message atDate:(NSDate *)date {
-  if (@available(macOS 10.14, iOS 10.0, watchOS 3.0, tvOS 10.0, *)) {
+  if (@available(macOS 10.14, *)) {
     [self scheduleiOS10LocalNotificationForMessage:message atDate:date];
     return;
   }
-#if TARGET_OS_IOS
-  NSDictionary *apsDictionary = message;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  UILocalNotification *notification = [[UILocalNotification alloc] init];
-#pragma clang diagnostic pop
-
-  // A great way to understand timezones and UILocalNotifications
-  // http://stackoverflow.com/questions/18424569/understanding-uilocalnotification-timezone
-  notification.timeZone = [NSTimeZone defaultTimeZone];
-  notification.fireDate = date;
-
-  // In the current solution all of the display stuff goes into a special "aps" dictionary
-  // being sent in the message.
-  if ([apsDictionary[kFIRMessagingContextManagerBodyKey] length]) {
-    notification.alertBody = apsDictionary[kFIRMessagingContextManagerBodyKey];
-  }
-  if (@available(iOS 8.2, *)) {
-    if ([apsDictionary[kFIRMessagingContextManagerTitleKey] length]) {
-      notification.alertTitle = apsDictionary[kFIRMessagingContextManagerTitleKey];
-    }
-  }
-
-  if (apsDictionary[kFIRMessagingContextManagerSoundKey]) {
-    notification.soundName = apsDictionary[kFIRMessagingContextManagerSoundKey];
-  }
-  if (apsDictionary[kFIRMessagingContextManagerBadgeKey]) {
-    notification.applicationIconBadgeNumber =
-        [apsDictionary[kFIRMessagingContextManagerBadgeKey] integerValue];
-  }
-  if (apsDictionary[kFIRMessagingContextManagerCategoryKey]) {
-    notification.category = apsDictionary[kFIRMessagingContextManagerCategoryKey];
-  }
-
-  NSDictionary *userInfo = [self parseDataFromMessage:message];
-  if (userInfo.count) {
-    notification.userInfo = userInfo;
-  }
-  UIApplication *application = [GULAppDelegateSwizzler sharedApplication];
-  if (!application) {
-    return;
-  }
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  [application scheduleLocalNotification:notification];
-#pragma clang diagnostic pop
-#endif
 }
 
 + (NSDictionary *)parseDataFromMessage:(NSDictionary *)message {

@@ -197,6 +197,7 @@ class RemoteStore : public TargetMetadataProvider,
       model::TargetId target_id) const override;
   absl::optional<local::TargetData> GetTargetDataForTarget(
       model::TargetId target_id) const override;
+  const model::DatabaseId& GetDatabaseId() const override;
 
   void RunAggregateQuery(const core::Query& query,
                          const std::vector<model::AggregateField>& aggregates,

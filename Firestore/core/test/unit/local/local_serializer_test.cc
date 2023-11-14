@@ -286,7 +286,10 @@ class LocalSerializerTest : public ::testing::Test {
         serializer.DecodeTargetData(&reader, *message);
 
     EXPECT_OK(reader.status());
-    EXPECT_EQ(target_data, actual_target_data);
+    // Set the expected_count in expected TargetData to null, as serializing
+    // a TargetData into local Target proto will drop the expected_count and
+    // the deserialized actual TargetData will not include expected_count.
+    EXPECT_EQ(target_data.WithExpectedCount(absl::nullopt), actual_target_data);
   }
 
   ByteString EncodeTargetData(local::LocalSerializer* localSerializer,
@@ -466,10 +469,46 @@ TEST_F(LocalSerializerTest, EncodesTargetData) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
+  TargetData target_data(
+      query.ToTarget(), target_id, sequence_number, QueryPurpose::Listen,
+      SnapshotVersion(version), SnapshotVersion(limbo_free_version),
+      ByteString(resume_token), /*expected_count=*/absl::nullopt);
+
+  ::firestore::client::Target expected;
+  expected.set_target_id(target_id);
+  expected.set_last_listen_sequence_number(sequence_number);
+  expected.mutable_snapshot_version()->set_nanos(1039000);
+  expected.mutable_last_limbo_free_snapshot_version()->set_nanos(1000000);
+  expected.set_resume_token(resume_token.data(), resume_token.size());
+  v1::Target::QueryTarget* query_proto = expected.mutable_query();
+
+  // Add expected collection.
+  query_proto->set_parent("projects/p/databases/d/documents");
+  v1::StructuredQuery::CollectionSelector from;
+  from.set_collection_id("room");
+  *query_proto->mutable_structured_query()->add_from() = std::move(from);
+
+  // Add default order_by.
+  v1::StructuredQuery::Order order;
+  order.mutable_field()->set_field_path(FieldPath::kDocumentKeyPath);
+  order.set_direction(v1::StructuredQuery::ASCENDING);
+  *query_proto->mutable_structured_query()->add_order_by() = std::move(order);
+
+  ExpectRoundTrip(target_data, expected);
+}
+
+TEST_F(LocalSerializerTest, EncodesTargetDataWillDropExpectedCount) {
+  core::Query query = Query("room");
+  TargetId target_id = 42;
+  ListenSequenceNumber sequence_number = 10;
+  SnapshotVersion version = testutil::Version(1039);
+  SnapshotVersion limbo_free_version = testutil::Version(1000);
+  ByteString resume_token = testutil::ResumeToken(1039);
+
   TargetData target_data(query.ToTarget(), target_id, sequence_number,
                          QueryPurpose::Listen, SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token));
+                         ByteString(resume_token), /*expected_count=*/1234);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);
@@ -530,10 +569,36 @@ TEST_F(LocalSerializerTest, EncodesTargetDataWithDocumentQuery) {
   SnapshotVersion limbo_free_version = testutil::Version(1000);
   ByteString resume_token = testutil::ResumeToken(1039);
 
+  TargetData target_data(
+      query.ToTarget(), target_id, sequence_number, QueryPurpose::Listen,
+      SnapshotVersion(version), SnapshotVersion(limbo_free_version),
+      ByteString(resume_token), /*expected_count=*/absl::nullopt);
+
+  ::firestore::client::Target expected;
+  expected.set_target_id(target_id);
+  expected.set_last_listen_sequence_number(sequence_number);
+  expected.mutable_snapshot_version()->set_nanos(1039000);
+  expected.mutable_last_limbo_free_snapshot_version()->set_nanos(1000000);
+  expected.set_resume_token(resume_token.data(), resume_token.size());
+  v1::Target::DocumentsTarget* documents_proto = expected.mutable_documents();
+  documents_proto->add_documents("projects/p/databases/d/documents/room/1");
+
+  ExpectRoundTrip(target_data, expected);
+}
+
+TEST_F(LocalSerializerTest,
+       EncodesTargetDataWithDocumentQueryWillDropExpectedCount) {
+  core::Query query = Query("room/1");
+  TargetId target_id = 42;
+  ListenSequenceNumber sequence_number = 10;
+  SnapshotVersion version = testutil::Version(1039);
+  SnapshotVersion limbo_free_version = testutil::Version(1000);
+  ByteString resume_token = testutil::ResumeToken(1039);
+
   TargetData target_data(query.ToTarget(), target_id, sequence_number,
                          QueryPurpose::Listen, SnapshotVersion(version),
                          SnapshotVersion(limbo_free_version),
-                         ByteString(resume_token));
+                         ByteString(resume_token), /*expected_count=*/1234);
 
   ::firestore::client::Target expected;
   expected.set_target_id(target_id);

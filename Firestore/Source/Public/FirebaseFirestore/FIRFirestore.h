@@ -28,6 +28,7 @@
 @class FIRTransaction;
 @class FIRTransactionOptions;
 @class FIRWriteBatch;
+@class FIRPersistentCacheIndexManager;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -103,7 +104,16 @@ NS_SWIFT_NAME(Firestore)
 #pragma mark - Configure FieldIndexes
 
 /**
- * This method is in preview. API signature and functionality are subject to change.
+ * A PersistentCacheIndexManager which you can config persistent cache indexes used for
+ * local query execution.
+ */
+@property(nonatomic, readonly, nullable)
+    FIRPersistentCacheIndexManager *persistentCacheIndexManager;
+
+/**
+ * NOTE: This preview method will be deprecated in a future major release. Consider using
+ * `PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to create
+ * cache indexes for queries running locally.
  *
  * Configures indexing for local query execution. Any previous index configuration is overridden.
  *
@@ -121,10 +131,15 @@ NS_SWIFT_NAME(Firestore)
  */
 - (void)setIndexConfigurationFromJSON:(NSString *)json
                            completion:(nullable void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(setIndexConfiguration(_:completion:));
+    NS_SWIFT_NAME(setIndexConfiguration(_:completion:)) DEPRECATED_MSG_ATTRIBUTE(
+        "Instead of creating cache indexes manually, consider using "
+        "`PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to "
+        "create cache indexes for queries running locally.");
 
 /**
- * This method is in preview. API signature and functionality are subject to change.
+ * NOTE: This preview method will be deprecated in a future major release. Consider using
+ * `PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to create
+ * cache indexes for queries running locally.
  *
  * Configures indexing for local query execution. Any previous index configuration is overridden.
  *
@@ -145,7 +160,10 @@ NS_SWIFT_NAME(Firestore)
  */
 - (void)setIndexConfigurationFromStream:(NSInputStream *)stream
                              completion:(nullable void (^)(NSError *_Nullable error))completion
-    NS_SWIFT_NAME(setIndexConfiguration(_:completion:));
+    NS_SWIFT_NAME(setIndexConfiguration(_:completion:)) DEPRECATED_MSG_ATTRIBUTE(
+        "Instead of creating cache indexes manually, consider using "
+        "`PersistentCacheIndexManager.enableIndexAutoCreation()` to let the SDK decide whether to "
+        "create cache indexes for queries running locally.");
 
 #pragma mark - Collections and Documents
 

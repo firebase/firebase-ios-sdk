@@ -38,6 +38,7 @@ __BEGIN_DECLS
 @class FIRCLSSettings;
 @class FIRCLSInstallIdentifierModel;
 @class FIRCLSFileManager;
+@class FIRCLSContextInitData;
 #endif
 
 typedef struct {
@@ -80,29 +81,13 @@ typedef struct {
   FIRCLSReadWriteContext* writable;
   FIRCLSAllocatorRef allocator;
 } FIRCLSContext;
-
-typedef struct {
-  const char* customBundleId;
-  const char* rootPath;
-  const char* previouslyCrashedFileRootPath;
-  const char* sessionId;
-  const char* appQualitySessionId;
-  const char* betaToken;
-  bool errorsEnabled;
-  bool customExceptionsEnabled;
-  uint32_t maxCustomExceptions;
-  uint32_t maxErrorLogSize;
-  uint32_t maxLogSize;
-  uint32_t maxKeyValues;
-} FIRCLSContextInitData;
-
 #ifdef __OBJC__
 bool FIRCLSContextInitialize(FIRCLSContextInitData* initData, FIRCLSFileManager* fileManager);
-FIRCLSContextInitData FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
-                                                 FIRCLSSettings* settings,
-                                                 FIRCLSFileManager* fileManager,
-                                                 NSString* appQualitySessionId);
-bool FIRCLSContextRecordMetadata(NSString* rootPath, const FIRCLSContextInitData* initData);
+FIRCLSContextInitData* FIRCLSContextBuildInitData(FIRCLSInternalReport* report,
+                                                  FIRCLSSettings* settings,
+                                                  FIRCLSFileManager* fileManager,
+                                                  NSString* appQualitySessionId);
+bool FIRCLSContextRecordMetadata(NSString* rootPath, FIRCLSContextInitData* initData);
 #endif
 
 void FIRCLSContextBaseInit(void);

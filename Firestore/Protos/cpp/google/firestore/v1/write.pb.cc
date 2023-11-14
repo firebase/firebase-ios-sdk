@@ -31,6 +31,7 @@
 // @@protoc_insertion_point(includes)
 #include <google/protobuf/port_def.inc>
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_ArrayValue_google_2ffirestore_2fv1_2fdocument_2eproto;
+extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_BloomFilter_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fdocument_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<2> scc_info_Document_google_2ffirestore_2fv1_2fdocument_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fcommon_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_DocumentMask_google_2ffirestore_2fv1_2fcommon_2eproto;
 extern PROTOBUF_INTERNAL_EXPORT_google_2ffirestore_2fv1_2fwrite_2eproto ::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_DocumentTransform_google_2ffirestore_2fv1_2fwrite_2eproto;
@@ -171,8 +172,9 @@ static void InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite
   ::google::firestore::v1::ExistenceFilter::InitAsDefaultInstance();
 }
 
-::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<0> scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto =
-    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 0, 0, InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto}, {}};
+::PROTOBUF_NAMESPACE_ID::internal::SCCInfo<1> scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto =
+    {{ATOMIC_VAR_INIT(::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase::kUninitialized), 1, 0, InitDefaultsscc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto}, {
+      &scc_info_BloomFilter_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto.base,}};
 
 static void InitDefaultsscc_info_Write_google_2ffirestore_2fv1_2fwrite_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -285,6 +287,7 @@ const ::PROTOBUF_NAMESPACE_ID::uint32 TableStruct_google_2ffirestore_2fv1_2fwrit
   ~0u,  // no _weak_field_map_
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, target_id_),
   PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, count_),
+  PROTOBUF_FIELD_OFFSET(::google::firestore::v1::ExistenceFilter, unchanged_names_),
 };
 static const ::PROTOBUF_NAMESPACE_ID::internal::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) = {
   { 0, -1, sizeof(::google::firestore::v1::Write)},
@@ -310,7 +313,8 @@ static ::PROTOBUF_NAMESPACE_ID::Message const * const file_default_instances[] =
 
 const char descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto[] PROTOBUF_SECTION_VARIABLE(protodesc_cold) =
   "\n\037google/firestore/v1/write.proto\022\023googl"
-  "e.firestore.v1\032 google/firestore/v1/comm"
+  "e.firestore.v1\032&google/firestore/v1/bloo"
+  "m_filter.proto\032 google/firestore/v1/comm"
   "on.proto\032\"google/firestore/v1/document.p"
   "roto\032\037google/protobuf/timestamp.proto\"\355\002"
   "\n\005Write\022/\n\006update\030\001 \001(\0132\035.google.firesto"
@@ -348,15 +352,18 @@ const char descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto[] P
   "-\n\tread_time\030\004 \001(\0132\032.google.protobuf.Tim"
   "estamp\"m\n\016DocumentRemove\022\020\n\010document\030\001 \001"
   "(\t\022\032\n\022removed_target_ids\030\002 \003(\005\022-\n\tread_t"
-  "ime\030\004 \001(\0132\032.google.protobuf.Timestamp\"3\n"
+  "ime\030\004 \001(\0132\032.google.protobuf.Timestamp\"n\n"
   "\017ExistenceFilter\022\021\n\ttarget_id\030\001 \001(\005\022\r\n\005c"
-  "ount\030\002 \001(\005B\256\001\n\027com.google.firestore.v1B\n"
-  "WriteProtoP\001Z<google.golang.org/genproto"
-  "/googleapis/firestore/v1;firestore\242\002\004GCF"
-  "S\252\002\036Google.Cloud.Firestore.V1Beta1\312\002\036Goo"
-  "gle\\Cloud\\Firestore\\V1beta1b\006proto3"
+  "ount\030\002 \001(\005\0229\n\017unchanged_names\030\003 \001(\0132 .go"
+  "ogle.firestore.v1.BloomFilterB\256\001\n\027com.go"
+  "ogle.firestore.v1B\nWriteProtoP\001Z<google."
+  "golang.org/genproto/googleapis/firestore"
+  "/v1;firestore\242\002\004GCFS\252\002\036Google.Cloud.Fire"
+  "store.V1Beta1\312\002\036Google\\Cloud\\Firestore\\V"
+  "1beta1b\006proto3"
   ;
-static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps[3] = {
+static const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable*const descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps[4] = {
+  &::descriptor_table_google_2ffirestore_2fv1_2fbloom_5ffilter_2eproto,
   &::descriptor_table_google_2ffirestore_2fv1_2fcommon_2eproto,
   &::descriptor_table_google_2ffirestore_2fv1_2fdocument_2eproto,
   &::descriptor_table_google_2fprotobuf_2ftimestamp_2eproto,
@@ -374,8 +381,8 @@ static ::PROTOBUF_NAMESPACE_ID::internal::SCCInfoBase*const descriptor_table_goo
 static ::PROTOBUF_NAMESPACE_ID::internal::once_flag descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once;
 static bool descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized = false;
 const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto = {
-  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto, "google/firestore/v1/write.proto", 1835,
-  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps, 8, 3,
+  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_initialized, descriptor_table_protodef_google_2ffirestore_2fv1_2fwrite_2eproto, "google/firestore/v1/write.proto", 1934,
+  &descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_once, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_sccs, descriptor_table_google_2ffirestore_2fv1_2fwrite_2eproto_deps, 8, 4,
   schemas, file_default_instances, TableStruct_google_2ffirestore_2fv1_2fwrite_2eproto::offsets,
   file_level_metadata_google_2ffirestore_2fv1_2fwrite_2eproto, 8, file_level_enum_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto, file_level_service_descriptors_google_2ffirestore_2fv1_2fwrite_2eproto,
 };
@@ -2838,11 +2845,24 @@ void DocumentRemove::InternalSwap(DocumentRemove* other) {
 // ===================================================================
 
 void ExistenceFilter::InitAsDefaultInstance() {
+  ::google::firestore::v1::_ExistenceFilter_default_instance_._instance.get_mutable()->unchanged_names_ = const_cast< ::google::firestore::v1::BloomFilter*>(
+      ::google::firestore::v1::BloomFilter::internal_default_instance());
 }
 class ExistenceFilter::_Internal {
  public:
+  static const ::google::firestore::v1::BloomFilter& unchanged_names(const ExistenceFilter* msg);
 };
 
+const ::google::firestore::v1::BloomFilter&
+ExistenceFilter::_Internal::unchanged_names(const ExistenceFilter* msg) {
+  return *msg->unchanged_names_;
+}
+void ExistenceFilter::clear_unchanged_names() {
+  if (GetArenaNoVirtual() == nullptr && unchanged_names_ != nullptr) {
+    delete unchanged_names_;
+  }
+  unchanged_names_ = nullptr;
+}
 ExistenceFilter::ExistenceFilter()
   : ::PROTOBUF_NAMESPACE_ID::Message(), _internal_metadata_(nullptr) {
   SharedCtor();
@@ -2852,6 +2872,11 @@ ExistenceFilter::ExistenceFilter(const ExistenceFilter& from)
   : ::PROTOBUF_NAMESPACE_ID::Message(),
       _internal_metadata_(nullptr) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from._internal_has_unchanged_names()) {
+    unchanged_names_ = new ::google::firestore::v1::BloomFilter(*from.unchanged_names_);
+  } else {
+    unchanged_names_ = nullptr;
+  }
   ::memcpy(&target_id_, &from.target_id_,
     static_cast<size_t>(reinterpret_cast<char*>(&count_) -
     reinterpret_cast<char*>(&target_id_)) + sizeof(count_));
@@ -2859,9 +2884,10 @@ ExistenceFilter::ExistenceFilter(const ExistenceFilter& from)
 }
 
 void ExistenceFilter::SharedCtor() {
-  ::memset(&target_id_, 0, static_cast<size_t>(
+  ::PROTOBUF_NAMESPACE_ID::internal::InitSCC(&scc_info_ExistenceFilter_google_2ffirestore_2fv1_2fwrite_2eproto.base);
+  ::memset(&unchanged_names_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&count_) -
-      reinterpret_cast<char*>(&target_id_)) + sizeof(count_));
+      reinterpret_cast<char*>(&unchanged_names_)) + sizeof(count_));
 }
 
 ExistenceFilter::~ExistenceFilter() {
@@ -2870,6 +2896,7 @@ ExistenceFilter::~ExistenceFilter() {
 }
 
 void ExistenceFilter::SharedDtor() {
+  if (this != internal_default_instance()) delete unchanged_names_;
 }
 
 void ExistenceFilter::SetCachedSize(int size) const {
@@ -2887,6 +2914,10 @@ void ExistenceFilter::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  if (GetArenaNoVirtual() == nullptr && unchanged_names_ != nullptr) {
+    delete unchanged_names_;
+  }
+  unchanged_names_ = nullptr;
   ::memset(&target_id_, 0, static_cast<size_t>(
       reinterpret_cast<char*>(&count_) -
       reinterpret_cast<char*>(&target_id_)) + sizeof(count_));
@@ -2911,6 +2942,13 @@ const char* ExistenceFilter::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       case 2:
         if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 16)) {
           count_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint(&ptr);
+          CHK_(ptr);
+        } else goto handle_unusual;
+        continue;
+      // .google.firestore.v1.BloomFilter unchanged_names = 3;
+      case 3:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<::PROTOBUF_NAMESPACE_ID::uint8>(tag) == 26)) {
+          ptr = ctx->ParseMessage(_internal_mutable_unchanged_names(), ptr);
           CHK_(ptr);
         } else goto handle_unusual;
         continue;
@@ -2952,6 +2990,14 @@ failure:
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteInt32ToArray(2, this->_internal_count(), target);
   }
 
+  // .google.firestore.v1.BloomFilter unchanged_names = 3;
+  if (this->has_unchanged_names()) {
+    target = stream->EnsureSpace(target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
+      InternalWriteMessage(
+        3, _Internal::unchanged_names(this), target, stream);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields(), target, stream);
@@ -2967,6 +3013,13 @@ size_t ExistenceFilter::ByteSizeLong() const {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
+
+  // .google.firestore.v1.BloomFilter unchanged_names = 3;
+  if (this->has_unchanged_names()) {
+    total_size += 1 +
+      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
+        *unchanged_names_);
+  }
 
   // int32 target_id = 1;
   if (this->target_id() != 0) {
@@ -3013,6 +3066,9 @@ void ExistenceFilter::MergeFrom(const ExistenceFilter& from) {
   ::PROTOBUF_NAMESPACE_ID::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.has_unchanged_names()) {
+    _internal_mutable_unchanged_names()->::google::firestore::v1::BloomFilter::MergeFrom(from._internal_unchanged_names());
+  }
   if (from.target_id() != 0) {
     _internal_set_target_id(from._internal_target_id());
   }
@@ -3042,6 +3098,7 @@ bool ExistenceFilter::IsInitialized() const {
 void ExistenceFilter::InternalSwap(ExistenceFilter* other) {
   using std::swap;
   _internal_metadata_.Swap(&other->_internal_metadata_);
+  swap(unchanged_names_, other->unchanged_names_);
   swap(target_id_, other->target_id_);
   swap(count_, other->count_);
 }

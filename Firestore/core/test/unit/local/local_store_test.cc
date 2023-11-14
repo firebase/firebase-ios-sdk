@@ -26,6 +26,7 @@
 #include "Firestore/core/src/bundle/named_query.h"
 #include "Firestore/core/src/core/field_filter.h"
 #include "Firestore/core/src/credentials/user.h"
+#include "Firestore/core/src/local/index_backfiller.h"
 #include "Firestore/core/src/local/local_view_changes.h"
 #include "Firestore/core/src/local/local_write_result.h"
 #include "Firestore/core/src/local/persistence.h"
@@ -152,7 +153,8 @@ RemoteEvent ExistenceFilterEvent(TargetId target_id,
   remote::FakeTargetMetadataProvider metadata_provider;
   metadata_provider.SetSyncedKeys(synced_keys, target_data);
 
-  ExistenceFilter existence_filter{remote_count};
+  ExistenceFilter existence_filter{remote_count,
+                                   /*bloom_filter=*/absl::nullopt};
   WatchChangeAggregator aggregator{&metadata_provider};
   ExistenceFilterWatchChange existence_filter_watch_change{existence_filter,
                                                            target_id};
@@ -211,6 +213,10 @@ void LocalStoreTestBase::NotifyLocalViewChanges(LocalViewChanges changes) {
 
 void LocalStoreTestBase::BackfillIndexes() {
   local_store_.Backfill();
+}
+
+void LocalStoreTestBase::SetBackfillerMaxDocumentsToProcess(size_t new_max) {
+  local_store_.index_backfiller()->SetMaxDocumentsToProcess(new_max);
 }
 
 void LocalStoreTestBase::UpdateViews(int target_id, bool from_cache) {
@@ -272,6 +278,22 @@ QueryResult LocalStoreTestBase::ExecuteQuery(const core::Query& query) {
   last_query_result_ =
       local_store_.ExecuteQuery(query, /* use_previous_results= */ true);
   return last_query_result_;
+}
+
+void LocalStoreTestBase::SetIndexAutoCreationEnabled(bool is_enabled) {
+  query_engine_.SetIndexAutoCreationEnabled(is_enabled);
+}
+
+void LocalStoreTestBase::DeleteAllIndexes() const {
+  local_store_.DeleteAllFieldIndexes();
+}
+
+void LocalStoreTestBase::SetMinCollectionSizeToAutoCreateIndex(size_t new_min) {
+  query_engine_.SetIndexAutoCreationMinCollectionSize(new_min);
+}
+
+void LocalStoreTestBase::SetRelativeIndexReadCostPerDocument(double new_cost) {
+  query_engine_.SetRelativeIndexReadCostPerDocument(new_cost);
 }
 
 void LocalStoreTestBase::ApplyBundledDocuments(

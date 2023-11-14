@@ -101,7 +101,8 @@ struct InitializeRelease {
     }
   }
 
-  /// Update the existing version to the given version by writing to a given string using the provided range.
+  /// Update the existing version to the given version by writing to a given string using the
+  /// provided range.
   /// - Parameters:
   ///   - contents: A reference to a String containing a version that will be updated.
   ///   - range: The range containing a version substring that will be updated.

@@ -15,14 +15,15 @@
  */
 
 #import <TargetConditionals.h>
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
+
+#import <FirebaseAppCheckInterop/FirebaseAppCheckInterop.h>
 
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRAuthSettings.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRMultiFactorResolver.h"
 #import "FirebaseAuth/Sources/Public/FirebaseAuth/FIRPhoneAuthProvider.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
-#import "FirebaseAppCheck/Interop/FIRAppCheckTokenResultInterop.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuthGlobalWorkQueue.h"
 #import "FirebaseAuth/Sources/Auth/FIRAuth_Internal.h"
 #import "FirebaseAuth/Sources/Backend/FIRAuthBackend+MultiFactor.h"
@@ -528,7 +529,7 @@ extern NSString *const FIRPhoneMultiFactorID;
                                                   } else {
                                                     if (callback) {
                                                       callback(
-                                                          response.enrollmentResponse.sessionInfo,
+                                                          response.phoneSessionInfo.sessionInfo,
                                                           nil);
                                                     }
                                                   }
@@ -789,4 +790,4 @@ extern NSString *const FIRPhoneMultiFactorID;
 
 NS_ASSUME_NONNULL_END
 
-#endif
+#endif  // TARGET_OS_IOS && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)

@@ -29,3 +29,7 @@ google.firestore.v1.Write.update_mask proto3:false
 
 # update_time should not be set for deletes.
 google.firestore.v1.WriteResult.update_time proto3:false
+
+# `unchanged_names` field might not be set if ListenRequest doesn't have
+# `expected_count` field.
+google.firestore.v1.ExistenceFilter.unchanged_names proto3:false

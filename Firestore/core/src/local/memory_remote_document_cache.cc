@@ -19,6 +19,7 @@
 #include "Firestore/core/src/core/query.h"
 #include "Firestore/core/src/local/memory_lru_reference_delegate.h"
 #include "Firestore/core/src/local/memory_persistence.h"
+#include "Firestore/core/src/local/query_context.h"
 #include "Firestore/core/src/local/sizer.h"
 #include "Firestore/core/src/model/document.h"
 #include "Firestore/core/src/model/overlay.h"
@@ -87,6 +88,16 @@ MutableDocumentMap MemoryRemoteDocumentCache::GetAll(const std::string&,
 MutableDocumentMap MemoryRemoteDocumentCache::GetDocumentsMatchingQuery(
     const core::Query& query,
     const model::IndexOffset& offset,
+    absl::optional<size_t> limit,
+    const model::OverlayByDocumentKeyMap& mutated_docs) const {
+  absl::optional<QueryContext> context;
+  return GetDocumentsMatchingQuery(query, offset, context, limit, mutated_docs);
+}
+
+MutableDocumentMap MemoryRemoteDocumentCache::GetDocumentsMatchingQuery(
+    const core::Query& query,
+    const model::IndexOffset& offset,
+    absl::optional<QueryContext>&,
     absl::optional<size_t>,
     const model::OverlayByDocumentKeyMap& mutated_docs) const {
   MutableDocumentMap results;

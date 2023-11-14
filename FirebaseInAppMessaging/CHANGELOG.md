@@ -1,3 +1,13 @@
+# 10.17.0
+- [deprecated] All of the public API from `FirebaseInAppMessagingSwift` can now
+  be accessed through the `FirebaseInAppMessaging` module. Therefore,
+  `FirebaseInAppMessagingSwift` has been deprecated, and will be removed in a
+  future release. See https://firebase.google.com/docs/ios/swift-migration for
+  migration instructions.
+
+# 10.13.0
+- [fixed] Fix Firebase tvOS podspec dependency for In App Messaging. (#11569)
+
 # 10.10.0
 - [fixed] Crash on InApp message presentation when a CarPlay scene is active (#9376)
 

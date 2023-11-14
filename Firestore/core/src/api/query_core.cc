@@ -277,7 +277,6 @@ Query Query::OrderBy(FieldPath field_path, bool descending) const {
 }
 
 Query Query::OrderBy(FieldPath field_path, Direction direction) const {
-  ValidateNewOrderByPath(field_path);
   if (query_.start_at()) {
     ThrowInvalidArgument(
         "Invalid query. You must not specify a starting point "
@@ -320,26 +319,6 @@ Query Query::EndAt(Bound bound) const {
 
 void Query::ValidateNewFieldFilter(const core::Query& query,
                                    const FieldFilter& field_filter) const {
-  if (field_filter.IsInequality()) {
-    const FieldPath* existing_inequality = query.InequalityFilterField();
-    const FieldPath& new_inequality = field_filter.field();
-
-    if (existing_inequality && *existing_inequality != new_inequality) {
-      ThrowInvalidArgument(
-          "Invalid Query. All where filters with an inequality (notEqual, "
-          "lessThan, lessThanOrEqual, greaterThan, or greaterThanOrEqual) "
-          "must be on the same field. But you have inequality filters on "
-          "'%s' and '%s'",
-          existing_inequality->CanonicalString(),
-          new_inequality.CanonicalString());
-    }
-
-    const FieldPath* first_order_by_field = query.FirstOrderByField();
-    if (first_order_by_field) {
-      ValidateOrderByField(*first_order_by_field, field_filter.field());
-    }
-  }
-
   Operator filter_op = field_filter.op();
   absl::optional<Operator> conflicting_op =
       query.FindOpInsideFilters(ConflictingOps(filter_op));
@@ -364,30 +343,6 @@ void Query::ValidateNewFilter(const Filter& filter) const {
   for (const auto& field_filter : filter.GetFlattenedFilters()) {
     ValidateNewFieldFilter(test_query, field_filter);
     test_query = test_query.AddingFilter(field_filter);
-  }
-}
-
-void Query::ValidateNewOrderByPath(const FieldPath& field_path) const {
-  if (!query_.FirstOrderByField()) {
-    // This is the first order by. It must match any inequality.
-    const FieldPath* inequality_field = query_.InequalityFilterField();
-    if (inequality_field) {
-      ValidateOrderByField(field_path, *inequality_field);
-    }
-  }
-}
-
-void Query::ValidateOrderByField(const FieldPath& order_by_field,
-                                 const FieldPath& inequality_field) const {
-  if (order_by_field != inequality_field) {
-    ThrowInvalidArgument(
-        "Invalid query. You have a where filter with an inequality "
-        "(notEqual, lessThan, lessThanOrEqual, greaterThan, or "
-        "greaterThanOrEqual) on field '%s' and so you must also use '%s' as "
-        "your first queryOrderedBy field, but your first queryOrderedBy is "
-        "currently on field '%s' instead.",
-        inequality_field.CanonicalString(), inequality_field.CanonicalString(),
-        order_by_field.CanonicalString());
   }
 }
 
@@ -477,8 +432,8 @@ std::string Query::Describe(Operator op) const {
 }
 
 AggregateQuery Query::Aggregate(
-    std::vector<AggregateField>&& aggregations) const {
-  return AggregateQuery(*this, std::move(aggregations));
+    std::vector<AggregateField>&& aggregateFields) const {
+  return AggregateQuery(*this, std::move(aggregateFields));
 }
 
 // TODO(b/280805906) Remove this count specific API after the c++ SDK migrates

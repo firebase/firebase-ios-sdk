@@ -12,8 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseInAppMessaging
 import SwiftUI
+
+#if SWIFT_PACKAGE
+  @_exported import FirebaseInAppMessagingInternal
+#endif // SWIFT_PACKAGE
 
 // MARK: Image-only messages.
 
@@ -44,7 +47,8 @@ struct ImageOnlyInAppMessageDisplayViewModifier<DisplayMessage: View>: ViewModif
 @available(iOSApplicationExtension, unavailable)
 @available(tvOSApplicationExtension, unavailable)
 public extension View {
-  /// Overrides the default display of an image only in-app message as defined on the Firebase console.
+  /// Overrides the default display of an image only in-app message as defined on the Firebase
+  /// console.
   func imageOnlyInAppMessage<Content: View>(closure: @escaping (InAppMessagingImageOnlyDisplay,
                                                                 InAppMessagingDisplayDelegate)
       -> Content)

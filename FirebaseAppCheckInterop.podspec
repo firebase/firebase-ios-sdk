@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'FirebaseAppCheckInterop'
-  s.version          = '10.11.0'
+  s.version          = '10.18.0'
   s.summary          = 'Interfaces that allow other Firebase SDKs to use AppCheck functionality.'
 
   s.description      = <<-DESC
@@ -25,6 +25,6 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '12.0'
   s.watchos.deployment_target = '6.0'
 
-  s.source_files = 'FirebaseAppCheck/Interop/*.[hm]'
-  s.public_header_files = 'FirebaseAppCheck/Interop/*.h'
+  s.source_files = 'FirebaseAppCheck/Interop/**/*.[hm]'
+  s.public_header_files = 'FirebaseAppCheck/Interop/Public/FirebaseAppCheckInterop/*.h'
 end

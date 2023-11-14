@@ -55,7 +55,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 + (void)logAppInfo:(NSNotification *)notification;
 + (BOOL)validateAppID:(NSString *)appID;
 + (BOOL)validateAppIDFormat:(NSString *)appID withVersion:(NSString *)version;
-+ (BOOL)validateAppIDFingerprint:(NSString *)appID withVersion:(NSString *)version;
++ (BOOL)validateBundleIDHashWithinAppID:(NSString *)appID forVersion:(NSString *)version;
 
 + (nullable NSNumber *)readDataCollectionSwitchFromPlist;
 + (nullable NSNumber *)readDataCollectionSwitchFromUserDefaultsForApp:(FIRApp *)app;
@@ -423,33 +423,34 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 #pragma mark - App ID v1
 
 - (void)testAppIDV1 {
-  // Missing separator between platform:fingerprint.
+  // Missing separator between platform:hashed bundle ID.
   XCTAssertFalse([FIRApp validateAppID:@"1:1337:iosdeadbeef"]);
 
   // Wrong platform "android".
   XCTAssertFalse([FIRApp validateAppID:@"1:1337:android:deadbeef"]);
 
-  // The fingerprint, aka 4th field, should only contain hex characters.
+  // The hashed bundle ID, aka 4th field, should only contain hex characters.
   XCTAssertFalse([FIRApp validateAppID:@"1:1337:ios:123abcxyz"]);
 
-  // The fingerprint, aka 4th field, is not tested in V1, so a bad value shouldn't cause a failure.
+  // The hashed bundle ID, aka 4th field, is not tested in V1, so a bad value shouldn't cause a
+  // failure.
   XCTAssertTrue([FIRApp validateAppID:@"1:1337:ios:deadbeef"]);
 }
 
 #pragma mark - App ID v2
 
 - (void)testAppIDV2 {
-  // Missing separator between platform:fingerprint.
+  // Missing separator between platform:hashed bundle ID.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios5e18052ab54fbfec"]);
 
   // Unknown versions may contain anything.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:123abcxyz"]);
   XCTAssertTrue([FIRApp validateAppID:@"2:thisdoesn'teven_m:a:t:t:e:r_"]);
 
-  // Known good fingerprint.
+  // Known good hashed bundle ID.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:5e18052ab54fbfec"]);
 
-  // Unknown fingerprint, not tested so shouldn't cause a failure.
+  // Unknown hashed bundle ID, not tested so shouldn't cause a failure.
   XCTAssertTrue([FIRApp validateAppID:@"2:1337:ios:deadbeef"]);
 }
 
@@ -571,36 +572,36 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
   XCTAssertFalse([FIRApp validateAppIDFormat:@"1:1337:ios:deadbeef:ab" withVersion:kGoodVersionV1]);
 }
 
-- (void)testAppIDFingerprintInvalid {
+- (void)testAppIDContainsInvalidBundleIDHash {
   OCMStub([self.appClassMock actualBundleID]).andReturn(@"com.google.bundleID");
-  // Some direct tests of the validateAppIDFingerprint:withVersion: method.
+  // Some direct tests of the validateBundleIDHashWithinAppID:forVersion: method.
   // Sanity checks first.
   NSString *const kGoodAppIDV1 = @"1:1337:ios:deadbeef";
   NSString *const kGoodVersionV1 = @"1";
-  XCTAssertTrue([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodVersionV1]);
+  XCTAssertTrue([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:kGoodVersionV1]);
 
   NSString *const kGoodAppIDV2 = @"2:1337:ios:5e18052ab54fbfec";
   NSString *const kGoodVersionV2 = @"2";
   XCTAssertTrue([FIRApp validateAppIDFormat:kGoodAppIDV2 withVersion:kGoodVersionV2]);
 
   // Nil or empty strings.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:nil]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:@""]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:nil withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"" withVersion:kGoodVersionV1]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:nil withVersion:nil]);
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:@"" withVersion:@""]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:nil]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:@""]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:nil forVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:@"" forVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:nil forVersion:nil]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:@"" forVersion:@""]);
 
   // App ID contains only the version prefix.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodVersionV1 withVersion:kGoodVersionV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodVersionV1 forVersion:kGoodVersionV1]);
   // The version is the entire app ID.
-  XCTAssertFalse([FIRApp validateAppIDFingerprint:kGoodAppIDV1 withVersion:kGoodAppIDV1]);
+  XCTAssertFalse([FIRApp validateBundleIDHashWithinAppID:kGoodAppIDV1 forVersion:kGoodAppIDV1]);
 }
 
 // Uncomment if you need to measure performance of [FIRApp validateAppID:].
 // It is commented because measures are heavily dependent on a build agent configuration,
 // so it cannot produce reliable resault on CI
-//- (void)testAppIDFingerprintPerfomance {
+//- (void)testAppIDValidationPerfomance {
 //  [self measureBlock:^{
 //    for (NSInteger i = 0; i < 100; ++i) {
 //      [self testAppIDPrefix];
@@ -861,7 +862,7 @@ NSString *const kFIRTestAppName2 = @"test-app-name-2";
 }
 
 - (NSNotificationName)appDidBecomeActiveNotificationName {
-#if TARGET_OS_IOS || TARGET_OS_TV
+#if TARGET_OS_IOS || TARGET_OS_TV || (defined(TARGET_OS_VISION) && TARGET_OS_VISION)
   return UIApplicationDidBecomeActiveNotification;
 #elif TARGET_OS_OSX
   return NSApplicationDidBecomeActiveNotification;

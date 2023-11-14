@@ -28,6 +28,7 @@ firebase_ios_framework_public_headers(FirebaseFirestore ${headers})
 
 target_link_libraries(
   FirebaseFirestore PUBLIC
+  FirebaseAppCheckInterop
   FirebaseAuthInterop
   FirebaseCore
   absl_strings

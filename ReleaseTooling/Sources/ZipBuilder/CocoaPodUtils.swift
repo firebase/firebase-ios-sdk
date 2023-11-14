@@ -136,8 +136,9 @@ enum CocoaPodUtils {
     let result = Shell.executeCommandFromScript("pod cache clean --all", outputToConsole: false)
     switch result {
     case let .error(code, _):
-      fatalError("Could not clean the pod cache, the command exited with \(code). Try running the" +
-        "command in Terminal to see what's wrong.")
+      fatalError("Could not clean the pod cache, the command exited with " +
+        "\(code). Try running the command in Terminal to see " +
+        "what's wrong.")
     case .success:
       // No need to do anything else, continue on.
       print("Successfully cleaned pod cache.")
@@ -163,7 +164,8 @@ enum CocoaPodUtils {
                                       localPodspecPath: localPodspecPath)
   }
 
-  /// Install an array of pods in a specific directory, returning a dictionary of PodInfo for each pod
+  /// Install an array of pods in a specific directory, returning a dictionary of PodInfo for each
+  /// pod
   /// that was installed.
   /// - Parameters:
   ///   - pods: List of VersionedPods to install
@@ -413,10 +415,12 @@ enum CocoaPodUtils {
   /// - Returns: A tuple of the framework and version, if it can be parsed.
   private static func detectVersion(fromLine input: String)
     -> (framework: String, version: String)? {
-    // Get the components of the line to parse them individually. Ignore any whitespace only Strings.
+    // Get the components of the line to parse them individually. Ignore any whitespace only
+    // Strings.
     let components = input.components(separatedBy: " ").filter { !$0.isEmpty }
 
-    // Expect three components: the `-`, the pod name, and the version in parens. This will filter out
+    // Expect three components: the `-`, the pod name, and the version in parens. This will filter
+    // out
     // dependencies that have version requirements like `(~> 3.2.1)` in it.
     guard components.count == 3 else { return nil }
 
@@ -490,8 +494,7 @@ enum CocoaPodUtils {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
         // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
-        // for all pods except Firebase and FirebaseCore. The Firebase Swift pods are not yet in the
-        // zip distribution.
+        // for all pods except Firebase and FirebaseCore.
         var podfileVersion = podVersion
         if pod.name.starts(with: "Firebase"),
            !pod.name.hasSuffix("Swift"),

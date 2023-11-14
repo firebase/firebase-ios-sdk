@@ -107,7 +107,7 @@ extension CarthageUtils {
 
       // Analytics includes all the Core frameworks and Firebase module, do extra work to package
       // it.
-      if product == "FirebaseAnalyticsSwift" {
+      if product == "FirebaseAnalytics" {
         createFirebaseFramework(version: firebaseVersion,
                                 inDir: fullPath,
                                 rootDir: packagedDir,
@@ -304,7 +304,8 @@ extension CarthageUtils {
   }
 
   /// Get the JSON filename for a product
-  /// Consider using just the product name post Firebase 7. The conditions are to handle Firebase 6 compatibility.
+  /// Consider using just the product name post Firebase 7. The conditions are to handle Firebase 6
+  /// compatibility.
   ///
   /// - Parameters:
   ///   - product: The name of the Firebase product.
