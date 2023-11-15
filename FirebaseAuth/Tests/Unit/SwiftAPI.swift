@@ -96,11 +96,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
   func FIRAuth_h(credential: AuthCredential) throws {
     let auth = FirebaseAuth.Auth.auth()
-    let authApp = FirebaseAuth.Auth.auth(app: FirebaseApp.app()!)
     let user = auth.currentUser!
     auth.updateCurrentUser(user) { _ in
-    }
-    authApp.fetchSignInMethods(forEmail: "abc@abc.com") { string, error in
     }
     auth.signIn(withEmail: "abc@abc.com", password: "password") { result, error in
     }
@@ -173,7 +170,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     try await auth.updateCurrentUser(user)
-    _ = try await auth.fetchSignInMethods(forEmail: "abc@abc.com")
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
     _ = try await auth.signIn(with: credential)
@@ -574,8 +570,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     let credential = GoogleAuthProvider.credential(withIDToken: "token", accessToken: "aToken")
-    user.updateEmail(to: "email") { _ in
-    }
     user.updatePassword(to: "password") { _ in
     }
     let changeRequest = user.createProfileChangeRequest()
@@ -648,7 +642,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     let credential = GoogleAuthProvider.credential(withIDToken: "token", accessToken: "aToken")
-    try await user.updateEmail(to: "email")
     try await user.updatePassword(to: "password")
     let changeRequest = user.createProfileChangeRequest()
     try await user.reload()
