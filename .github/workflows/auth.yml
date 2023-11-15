@@ -24,8 +24,7 @@ jobs:
     strategy:
       matrix:
         podspec: [FirebaseAuthInterop.podspec, FirebaseAuth.podspec]
-        # TODO: macos tests are blocked by https://github.com/erikdoe/ocmock/pull/532
-        target: [ios, tvos, macos --skip-tests, watchos]
+        target: [ios, tvos, macos, watchos]
         os: [macos-12, macos-13]
         include:
           - os: macos-12
