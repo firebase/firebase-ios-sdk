@@ -671,7 +671,7 @@ NS_SWIFT_NAME(Auth)
 
 /** @fn sendPasswordResetWithEmail:completion:
     @brief Initiates a password reset for the given email address. This method does not throw an
-   error when [Email Enumeration
+   error when there's no user account with the given email address and [Email Enumeration
    Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
    is enabled.
     @param email The email address of the user.
