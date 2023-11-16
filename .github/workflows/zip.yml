@@ -346,12 +346,13 @@ jobs:
       SDK: "Database"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-12]
         include:
           - os: macos-12
             xcode: Xcode_14.2
-          - os: macos-13
-            xcode: Xcode_15.0.1
+          # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
+          # - os: macos-13
+          #   xcode: Xcode_15.0.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -462,12 +463,13 @@ jobs:
       SDK: "Firestore"
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-12]
         include:
           - os: macos-12
             xcode: Xcode_14.2
-          - os: macos-13
-            xcode: Xcode_15.0.1
+          # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
+          # - os: macos-13
+          #   xcode: Xcode_15.0.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
