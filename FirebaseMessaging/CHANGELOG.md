@@ -1,3 +1,6 @@
+# 10.19.0
+- [changed] Adopt NSSecureCoding for internal classes. (#12075)
+
 # 10.12.0
 - [changed] Removing fiam scoped tokens set by old FIAM SDK(s) from keychain if exists (b/284207019).
 
