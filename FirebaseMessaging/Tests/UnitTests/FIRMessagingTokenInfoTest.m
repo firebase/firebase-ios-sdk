@@ -76,11 +76,16 @@ static BOOL const kAPNSSandbox = NO;
 // yields the same values for all the fields.
 - (void)testTokenInfoEncodingAndDecoding {
   FIRMessagingTokenInfo *info = self.validTokenInfo;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info];
-  FIRMessagingTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
-#pragma clang diagnostic pop
+  NSError *error;
+  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info
+                                          requiringSecureCoding:YES
+                                                          error:&error];
+  XCTAssertNil(error);
+  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingTokenInfo.class, NSDate.class ]];
+  FIRMessagingTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
+                                                                            fromData:archive
+                                                                               error:&error];
+  XCTAssertNil(error);
   XCTAssertEqualObjects(restoredInfo.authorizedEntity, info.authorizedEntity);
   XCTAssertEqualObjects(restoredInfo.scope, info.scope);
   XCTAssertEqualObjects(restoredInfo.token, info.token);
@@ -101,11 +106,16 @@ static BOOL const kAPNSSandbox = NO;
                                                         token:kToken
                                                    appVersion:nil
                                                 firebaseAppID:nil];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:sparseInfo];
-  FIRMessagingTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
-#pragma clang diagnostic pop
+  NSError *error;
+  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:sparseInfo
+                                          requiringSecureCoding:YES
+                                                          error:&error];
+  XCTAssertNil(error);
+  NSSet *classes = [[NSSet alloc] initWithArray:@[ FIRMessagingTokenInfo.class, NSDate.class ]];
+  FIRMessagingTokenInfo *restoredInfo = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes
+                                                                            fromData:archive
+                                                                               error:&error];
+  XCTAssertNil(error);
   XCTAssertEqualObjects(restoredInfo.authorizedEntity, sparseInfo.authorizedEntity);
   XCTAssertEqualObjects(restoredInfo.scope, sparseInfo.scope);
   XCTAssertEqualObjects(restoredInfo.token, sparseInfo.token);
