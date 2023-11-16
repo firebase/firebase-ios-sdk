@@ -76,11 +76,8 @@
   };
   FIRMessagingAPNSInfo *info =
       [[FIRMessagingAPNSInfo alloc] initWithTokenOptionsDictionary:validDictionary];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:info];
   FIRMessagingAPNSInfo *restoredInfo = [NSKeyedUnarchiver unarchiveObjectWithData:archive];
-#pragma clang diagnostic pop
   XCTAssertEqualObjects(info.deviceToken, restoredInfo.deviceToken);
   XCTAssertEqual(info.sandbox, restoredInfo.sandbox);
 }

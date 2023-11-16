@@ -70,6 +70,10 @@ static NSString *const kFIRInstanceIDAPNSInfoSandboxKey = @"sandbox";
 
 #pragma mark - NSCoding
 
++ (BOOL)supportsSecureCoding {
+  return YES;
+}
+
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
   id deviceToken = [aDecoder decodeObjectForKey:kFIRInstanceIDAPNSInfoTokenKey];
   if (![deviceToken isKindOfClass:[NSData class]]) {
