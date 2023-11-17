@@ -1,7 +1,6 @@
 AppCheckCore
 Firebase
 FirebaseABTesting
-FirebaseAnalyticsSwift
 FirebaseAppCheck
 FirebaseAppCheckInterop
 FirebaseAppDistribution
@@ -10,19 +9,15 @@ FirebaseAuthInterop
 FirebaseCore
 FirebaseCoreExtension
 FirebaseCoreInternal
-FirebaseDatabaseSwift
 FirebaseDynamicLinks
-FirebaseFirestoreSwift
 FirebaseFunctions
 FirebaseInAppMessaging
-FirebaseInAppMessagingSwift
 FirebaseInstallations
 FirebaseMLModelDownloader
 FirebaseMessaging
 FirebaseMessagingInterop
 FirebasePerformance
 FirebaseRemoteConfig
-FirebaseRemoteConfigSwift
 FirebaseSessions
 FirebaseStorage
 GTMSessionFetcher
