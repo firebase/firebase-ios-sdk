@@ -367,7 +367,7 @@
 
 - (void)FIRGoogleAuthProvider_h {
   __unused FIRAuthCredential *c = [FIRGoogleAuthProvider credentialWithIDToken:@"token"
-                                                          accessToken:@"token"];
+                                                                   accessToken:@"token"];
 }
 
 #if TARGET_OS_IOS
@@ -450,7 +450,7 @@
                                                    NSError *_Nullable error){
                                       }];
   __unused FIRPhoneAuthCredential *c = [provider credentialWithVerificationID:@"id"
-                                                    verificationCode:@"code"];
+                                                             verificationCode:@"code"];
 }
 
 - (void)FIRPhoneAuthProvider_h:(FIRPhoneAuthCredential *)credential {
@@ -480,7 +480,8 @@
 #endif
 
 - (void)FIRTwitterAuthProvider_h {
-  __unused FIRAuthCredential *c = [FIRTwitterAuthProvider credentialWithToken:@"token" secret:@"secret"];
+  __unused FIRAuthCredential *c = [FIRTwitterAuthProvider credentialWithToken:@"token"
+                                                                       secret:@"secret"];
 }
 
 - (void)FIRUser_h:(FIRUser *)user credential:(FIRAuthCredential *)credential {
