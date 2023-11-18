@@ -115,17 +115,16 @@
   [auth updateCurrentUser:[auth currentUser]
                completion:^(NSError *_Nullable error){
                }];
-  [auth fetchSignInMethodsForEmail:@"a@abc.com"
-                        completion:^(NSArray<NSString *> *_Nullable c, NSError *_Nullable e){
-                        }];
   [auth signInWithEmail:@"a@abc.com"
                password:@"pw"
              completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error){
              }];
+#if !TARGET_OS_WATCH
   [auth signInWithEmail:@"a@abc.com"
                    link:@"link"
              completion:^(FIRAuthDataResult *_Nullable authResult, NSError *_Nullable error){
              }];
+#endif
 #if TARGET_OS_IOS
   [auth signInWithProvider:provider
                 UIDelegate:nil
@@ -166,13 +165,18 @@
                 actionCodeSettings:settings
                         completion:^(NSError *_Nullable error){
                         }];
+#if TARGET_OS_WATCH
   [auth sendSignInLinkToEmail:@"email"
            actionCodeSettings:settings
                    completion:^(NSError *_Nullable error){
                    }];
+#endif
   NSError *error;
   [auth signOut:&error];
-  BOOL b = [auth isSignInWithEmailLink:@"email"];
+  BOOL b;
+#if TARGET_OS_WATCH
+  b = [auth isSignInWithEmailLink:@"email"];
+#endif
   FIRAuthStateDidChangeListenerHandle handle =
       [auth addAuthStateDidChangeListener:^(FIRAuth *_Nonnull auth, FIRUser *_Nullable user){
       }];
