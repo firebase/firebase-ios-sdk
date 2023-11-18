@@ -17,7 +17,7 @@
 @import FirebaseCore;
 @import FirebaseAuth;
 
-#if !TARGET_OS_MACOS && !TARGET_OS_WATCHOS
+#if !TARGET_OS_OSX && !TARGET_OS_WATCH
 @interface AuthUIImpl : NSObject <FIRAuthUIDelegate>
 - (void)dismissViewControllerAnimated:(BOOL)flag completion:(void (^_Nullable)(void))completion;
 - (void)presentViewController:(nonnull UIViewController *)viewControllerToPresent
@@ -61,7 +61,7 @@
   [codeSettings setAndroidPackageName:@"name" installIfNotAvailable:NO minimumVersion:@"1.1"];
   BOOL b = [codeSettings handleCodeInApp];
   b = [codeSettings androidInstallIfNotAvailable];
-  NSURL *u = [codeSettings URL];
+  __unused NSURL *u = [codeSettings URL];
   NSString *s = [codeSettings iOSBundleID];
   s = [codeSettings androidPackageName];
   s = [codeSettings androidMinimumVersion];
@@ -70,29 +70,29 @@
 
 - (void)FIRAuthAdditionalUserInfo_h:(FIRAdditionalUserInfo *)additionalUserInfo {
   NSString *s = [additionalUserInfo providerID];
-  BOOL b = [additionalUserInfo isNewUser];
-  NSDictionary<NSString *, NSObject *> *dict = [additionalUserInfo profile];
+  __unused BOOL b = [additionalUserInfo isNewUser];
+  __unused NSDictionary<NSString *, NSObject *> *dict = [additionalUserInfo profile];
   s = [additionalUserInfo username];
 }
 
 - (void)ActionCodeOperationTests:(FIRActionCodeInfo *)info {
-  FIRActionCodeOperation op = [info operation];
+  __unused FIRActionCodeOperation op = [info operation];
   NSString *s = [info email];
   s = [info previousEmail];
 }
 
 - (void)ActionCodeURL:(FIRActionCodeURL *)url {
-  FIRActionCodeOperation op = [url operation];
+  __unused FIRActionCodeOperation op = [url operation];
   NSString *s = [url APIKey];
   s = [url code];
-  NSURL *u = [url continueURL];
+  __unused NSURL *u = [url continueURL];
   s = [url languageCode];
 }
 
 - (void)authProperties:(FIRAuth *)auth {
-  BOOL b = [auth shareAuthStateAcrossDevices];
+  __unused BOOL b = [auth shareAuthStateAcrossDevices];
   [auth setShareAuthStateAcrossDevices:YES];
-  FIRUser *u = [auth currentUser];
+  __unused FIRUser *u = [auth currentUser];
   NSString *s = [auth languageCode];
   [auth setLanguageCode:s];
   FIRAuthSettings *settings = [auth settings];
@@ -103,7 +103,7 @@
   s = [auth customAuthDomain];
   [auth setCustomAuthDomain:s];
 #if TARGET_OS_IOS
-  NSData *d = [auth APNSToken];
+  __unused NSData *d = [auth APNSToken];
   auth.APNSToken = [[NSData alloc] init];
 #endif
 }
@@ -197,7 +197,7 @@
   [auth getStoredUserForAccessGroup:@"user" error:&error];
 }
 
-#if !TARGET_OS_MACOS
+#if !TARGET_OS_OSX
 - (void)FIRAuthAPNSTokenType_h {
   FIRAuthAPNSTokenType t = FIRAuthAPNSTokenTypeProd;
   t = FIRAuthAPNSTokenTypeSandbox;
@@ -210,9 +210,9 @@
 }
 
 - (void)authDataResult:(FIRAuthDataResult *)result {
-  FIRUser *u = [result user];
-  FIRAdditionalUserInfo *info = [result additionalUserInfo];
-  FIRAuthCredential *c = [result credential];
+  __unused FIRUser *u = [result user];
+  __unused FIRAdditionalUserInfo *info = [result additionalUserInfo];
+  __unused FIRAuthCredential *c = [result credential];
 }
 
 - (void)FIRAuthErrors_h {
@@ -319,10 +319,10 @@
   d = [result issuedAtDate];
   s = [result signInProvider];
   s = [result signInSecondFactor];
-  NSDictionary<NSString *, NSObject *> *dict = [result claims];
+  __unused NSDictionary<NSString *, NSObject *> *dict = [result claims];
 }
 
-#if !TARGET_OS_MACOS && !TARGET_OS_WATCHOS
+#if !TARGET_OS_OSX && !TARGET_OS_WATCH
 - (void)authTokenResult {
   AuthUIImpl *impl = [[AuthUIImpl alloc] init];
   [impl presentViewController:[[UIViewController alloc] init]
@@ -341,7 +341,7 @@
 }
 
 - (void)FIRFacebookAuthProvider_h {
-  FIRAuthCredential *c = [FIRFacebookAuthProvider credentialWithAccessToken:@"token"];
+  __unused FIRAuthCredential *c = [FIRFacebookAuthProvider credentialWithAccessToken:@"token"];
 }
 
 #if TARGET_OS_IOS
@@ -353,7 +353,7 @@
 }
 #endif
 
-#if !TARGET_OS_WATCHOS
+#if !TARGET_OS_WATCH
 - (void)FIRGameCenterAuthProvider_h {
   [FIRGameCenterAuthProvider getCredentialWithCompletion:^(FIRAuthCredential *_Nullable credential,
                                                            NSError *_Nullable error){
@@ -362,11 +362,11 @@
 #endif
 
 - (void)FIRGitHubAuthProvider_h {
-  FIRAuthCredential *c = [FIRGitHubAuthProvider credentialWithToken:@"token"];
+  __unused FIRAuthCredential *c = [FIRGitHubAuthProvider credentialWithToken:@"token"];
 }
 
 - (void)FIRGoogleAuthProvider_h {
-  FIRAuthCredential *c = [FIRGoogleAuthProvider credentialWithIDToken:@"token"
+  __unused FIRAuthCredential *c = [FIRGoogleAuthProvider credentialWithIDToken:@"token"
                                                           accessToken:@"token"];
 }
 
@@ -389,20 +389,20 @@
 }
 
 - (void)multiFactorAssertion:(FIRMultiFactorAssertion *)mfa {
-  NSString *s = [mfa factorID];
+  __unused NSString *s = [mfa factorID];
 }
 
 - (void)multiFactorInfo:(FIRMultiFactorInfo *)mfi {
   NSString *s = [mfi UID];
   s = [mfi factorID];
   s = [mfi displayName];
-  NSDate *d = [mfi enrollmentDate];
+  __unused NSDate *d = [mfi enrollmentDate];
 }
 
 - (void)multiFactorResolver:(FIRMultiFactorResolver *)mfr {
-  FIRMultiFactorSession *s = [mfr session];
-  NSArray<FIRMultiFactorInfo *> *hints = [mfr hints];
-  FIRAuth *auth = [mfr auth];
+  __unused FIRMultiFactorSession *s = [mfr session];
+  __unused NSArray<FIRMultiFactorInfo *> *hints = [mfr hints];
+  __unused FIRAuth *auth = [mfr auth];
 }
 #endif
 
@@ -428,9 +428,9 @@
                              completion:^(FIRAuthCredential *_Nullable credential,
                                           NSError *_Nullable error){
                              }];
-  NSString *s = [provider providerID];
-  NSArray<NSString *> *scopes = [provider scopes];
-  NSDictionary<NSString *, NSString *> *params = [provider customParameters];
+  __unused NSString *s = [provider providerID];
+  __unused NSArray<NSString *> *scopes = [provider scopes];
+  __unused NSDictionary<NSString *, NSString *> *params = [provider customParameters];
 }
 
 - (void)FIRPhoneAuthProvider_h:(FIRPhoneAuthProvider *)provider mfi:(FIRPhoneMultiFactorInfo *)mfi {
@@ -449,7 +449,7 @@
                                       completion:^(NSString *_Nullable verificationID,
                                                    NSError *_Nullable error){
                                       }];
-  FIRPhoneAuthCredential *c = [provider credentialWithVerificationID:@"id"
+  __unused FIRPhoneAuthCredential *c = [provider credentialWithVerificationID:@"id"
                                                     verificationCode:@"code"];
 }
 
@@ -458,7 +458,7 @@
 }
 
 - (void)phoneMultiFactorInfo:(FIRPhoneMultiFactorInfo *)info {
-  NSString *s = [info phoneNumber];
+  __unused NSString *s = [info phoneNumber];
 }
 
 - (void)FIRTOTPSecret_h:(FIRTOTPSecret *)secret {
@@ -480,7 +480,7 @@
 #endif
 
 - (void)FIRTwitterAuthProvider_h {
-  FIRAuthCredential *c = [FIRTwitterAuthProvider credentialWithToken:@"token" secret:@"secret"];
+  __unused FIRAuthCredential *c = [FIRTwitterAuthProvider credentialWithToken:@"token" secret:@"secret"];
 }
 
 - (void)FIRUser_h:(FIRUser *)user credential:(FIRAuthCredential *)credential {
@@ -564,10 +564,10 @@
 - (void)userProperties:(FIRUser *)user {
   BOOL b = [user isAnonymous];
   b = [user isEmailVerified];
-  NSArray<NSObject<FIRUserInfo> *> *userInfo = [user providerData];
-  FIRUserMetadata *meta = [user metadata];
+  __unused NSArray<NSObject<FIRUserInfo> *> *userInfo = [user providerData];
+  __unused FIRUserMetadata *meta = [user metadata];
 #if TARGET_OS_IOS
-  FIRMultiFactor *mf = [user multiFactor];
+  __unused FIRMultiFactor *mf = [user multiFactor];
 #endif
   NSString *s = [user refreshToken];
   s = [user tenantID];
@@ -585,7 +585,7 @@
   s = [userInfo displayName];
   s = [userInfo email];
   s = [userInfo phoneNumber];
-  NSURL *u = [userInfo photoURL];
+  __unused NSURL *u = [userInfo photoURL];
 }
 
 - (void)userMetadataProperties:(FIRUserMetadata *)metadata {
