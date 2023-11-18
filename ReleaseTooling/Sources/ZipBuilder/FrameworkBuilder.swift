@@ -49,11 +49,11 @@ struct FrameworkBuilder {
   /// - Parameter logsOutputDir: The path to the directory to place build logs.
   /// - Parameter setCarthage: Set Carthage diagnostics flag in build.
   /// - Parameter moduleMapContents: Module map contents for all frameworks in this pod.
-  /// - Returns: A path to the newly compiled frameworks, and Resources.
+  /// - Returns: A path to the newly compiled frameworks.
   func compileFrameworkAndResources(withName framework: String,
                                     logsOutputDir: URL? = nil,
                                     setCarthage: Bool,
-                                    podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL?) {
+                                    podInfo: CocoaPodUtils.PodInfo) -> [URL] {
     let fileManager = FileManager.default
     let outputDir = fileManager.temporaryDirectory(withName: "frameworks_being_built")
     let logsDir = logsOutputDir ?? fileManager.temporaryDirectory(withName: "build_logs")
@@ -74,8 +74,7 @@ struct FrameworkBuilder {
     }
 
     if dynamicFrameworks {
-      return (buildDynamicFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir),
-              nil)
+      return buildDynamicFrameworks(withName: framework, logsDir: logsDir, outputDir: outputDir)
     } else {
       return buildStaticFrameworks(
         withName: framework,
@@ -330,7 +329,7 @@ struct FrameworkBuilder {
                                      logsDir: URL,
                                      outputDir: URL,
                                      setCarthage: Bool,
-                                     podInfo: CocoaPodUtils.PodInfo) -> ([URL], URL) {
+                                     podInfo: CocoaPodUtils.PodInfo) -> [URL] {
     // Build every architecture and save the locations in an array to be assembled.
     let slicedFrameworks = buildFrameworksForAllPlatforms(withName: framework, logsDir: logsDir,
                                                           setCarthage: setCarthage)
@@ -387,15 +386,6 @@ struct FrameworkBuilder {
 
     // TODO: copy PrivateHeaders directory as well if it exists. SDWebImage is an example pod.
 
-    // Move all the Resources into .bundle directories in the destination Resources dir. The
-    // Resources live are contained within the folder structure:
-    // `projectDir/arch/Release-platform/FrameworkName`.
-    // The Resources are stored at the top-level of the .framework or .xcframework directory.
-    // For Firebase distributions, they are propagated one level higher in the final distribution.
-    let resourceContents = projectDir.appendingPathComponents([anyPlatform.buildName,
-                                                               anyPlatform.buildDirName,
-                                                               framework])
-
     guard let moduleMapContentsTemplate = podInfo.moduleMapContents else {
       fatalError("Module map contents missing for framework \(frameworkName)")
     }
@@ -421,7 +411,7 @@ struct FrameworkBuilder {
         """)
       }
     }
-    return (frameworks, resourceContents)
+    return frameworks
   }
 
   /// Parses CocoaPods config files or uses the passed in `moduleMapContents` to write the
@@ -669,6 +659,17 @@ struct FrameworkBuilder {
         fatalError("Could not create framework directory needed to build \(framework): \(error)")
       }
 
+      // Copy resource bundles (if any)
+      try? fileManager.contentsOfDirectory(
+        at: frameworkPath.deletingLastPathComponent(),
+        includingPropertiesForKeys: nil
+      )
+      .filter { $0.pathExtension == "bundle" }
+      .forEach { try! fileManager.copyItem(
+        at: $0,
+        to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
+      ) }
+
       // Copy the binary to the right location.
       let binaryName = frameworkPath.lastPathComponent.replacingOccurrences(of: ".framework",
                                                                             with: "")
@@ -695,11 +696,9 @@ struct FrameworkBuilder {
   /// - Parameter withName: The framework name.
   /// - Parameter frameworks: The grouped frameworks.
   /// - Parameter xcframeworksDir: Location at which to build the xcframework.
-  /// - Parameter resourceContents: Location of the resources for this xcframework.
   static func makeXCFramework(withName name: String,
                               frameworks: [URL],
-                              xcframeworksDir: URL,
-                              resourceContents: URL?) -> URL {
+                              xcframeworksDir: URL) -> URL {
     let xcframework = xcframeworksDir
       .appendingPathComponent(frameworkBuildName(name) + ".xcframework")
 
@@ -723,16 +722,6 @@ struct FrameworkBuilder {
 
     case .success:
       print("XCFramework for \(name) built successfully at \(xcframework).")
-    }
-    // xcframework resources are packaged at top of xcframework.
-    if let resourceContents = resourceContents {
-      let resourceDir = xcframework.appendingPathComponent("Resources")
-      do {
-        try ResourcesManager.moveAllBundles(inDirectory: resourceContents, to: resourceDir)
-      } catch {
-        fatalError("Could not move bundles into Resources directory while building \(name): " +
-          "\(error)")
-      }
     }
     return xcframework
   }

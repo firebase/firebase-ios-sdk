@@ -176,14 +176,12 @@ struct ZipBuilder {
     var carthageGoogleUtilitiesFrameworks: [URL] = []
     var podsBuilt: [String: CocoaPodUtils.PodInfo] = [:]
     var xcframeworks: [String: [URL]] = [:]
-    var resources: [String: URL] = [:]
 
     for platform in platforms {
       let projectDir = FileManager.default.temporaryDirectory(withName: "project-" + platform.name)
       CocoaPodUtils.podInstallPrepare(inProjectDir: projectDir, templateDir: paths.templateDir)
 
       let platformPods = podsToInstall.filter { $0.platforms.contains(platform.name) }
-
       CocoaPodUtils.installPods(platformPods,
                                 inDir: projectDir,
                                 platform: platform,
@@ -228,7 +226,7 @@ struct ZipBuilder {
           let builder = FrameworkBuilder(projectDir: projectDir,
                                          targetPlatforms: platform.platformTargets,
                                          dynamicFrameworks: dynamicFrameworks)
-          let (frameworks, resourceContents) =
+          let frameworks =
             builder.compileFrameworkAndResources(withName: podName,
                                                  logsOutputDir: paths.logsOutputDir,
                                                  setCarthage: false,
@@ -236,15 +234,12 @@ struct ZipBuilder {
           groupedFrameworks[podName] = (groupedFrameworks[podName] ?? []) + frameworks
 
           if includeCarthage, podName == "GoogleUtilities" {
-            let (cdFrameworks, _) = builder.compileFrameworkAndResources(withName: podName,
-                                                                         logsOutputDir: paths
-                                                                           .logsOutputDir,
-                                                                         setCarthage: true,
-                                                                         podInfo: podInfo)
+            let cdFrameworks = builder.compileFrameworkAndResources(withName: podName,
+                                                                    logsOutputDir: paths
+                                                                      .logsOutputDir,
+                                                                    setCarthage: true,
+                                                                    podInfo: podInfo)
             carthageGoogleUtilitiesFrameworks += cdFrameworks
-          }
-          if resourceContents != nil {
-            resources[podName] = resourceContents
           }
         } else if podsBuilt[podName] == nil {
           // Binary pods need to be collected once, since the platforms should already be merged.
@@ -274,8 +269,7 @@ struct ZipBuilder {
       let name = groupedFramework.key
       let xcframework = FrameworkBuilder.makeXCFramework(withName: name,
                                                          frameworks: groupedFramework.value,
-                                                         xcframeworksDir: xcframeworksDir,
-                                                         resourceContents: resources[name])
+                                                         xcframeworksDir: xcframeworksDir)
       xcframeworks[name] = [xcframework]
     }
     for (framework, paths) in xcframeworks {
@@ -296,8 +290,7 @@ struct ZipBuilder {
     let carthageGoogleUtilitiesXcframework = FrameworkBuilder.makeXCFramework(
       withName: "GoogleUtilities",
       frameworks: carthageGoogleUtilitiesFrameworks,
-      xcframeworksDir: xcframeworksCarthageDir,
-      resourceContents: nil
+      xcframeworksDir: xcframeworksCarthageDir
     )
     return (podsBuilt, xcframeworks, carthageGoogleUtilitiesXcframework)
   }
