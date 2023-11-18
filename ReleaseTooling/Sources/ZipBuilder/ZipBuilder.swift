@@ -609,6 +609,16 @@ struct ZipBuilder {
         try fileManager.copyItem(at: xcframework, to: destination)
         copiedFrameworkNames
           .append(xcframeworkName.replacingOccurrences(of: ".xcframework", with: ""))
+
+        // Move any resource bundles from within each xcframework to outside of it.
+        let resourcesDir = destination.appendingPathComponent("Resources")
+        if fileManager.directoryExists(at: resourcesDir) {
+          try fileManager.contentsOfDirectory(at: resourcesDir, includingPropertiesForKeys: nil)
+            .forEach {
+              try fileManager.copyItem(at: $0, to: dir.appendingPathComponent($0.lastPathComponent))
+            }
+          try fileManager.removeItem(at: resourcesDir)
+        }
       }
     }
 
