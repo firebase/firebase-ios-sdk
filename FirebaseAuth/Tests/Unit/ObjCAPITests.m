@@ -46,7 +46,6 @@
                          completion:(nullable void (^)(FIRAuthCredential *_Nullable,
                                                        NSError *_Nullable))completion {
 }
-
 @end
 #endif
 
@@ -165,7 +164,7 @@
                 actionCodeSettings:settings
                         completion:^(NSError *_Nullable error){
                         }];
-#if TARGET_OS_WATCH
+#if !TARGET_OS_WATCH
   [auth sendSignInLinkToEmail:@"email"
            actionCodeSettings:settings
                    completion:^(NSError *_Nullable error){
@@ -174,7 +173,7 @@
   NSError *error;
   [auth signOut:&error];
   __unused BOOL b;
-#if TARGET_OS_WATCH
+#if !TARGET_OS_WATCH
   b = [auth isSignInWithEmailLink:@"email"];
 #endif
   FIRAuthStateDidChangeListenerHandle handle =
@@ -458,7 +457,8 @@
 }
 
 - (void)FIRPhoneAuthProvider_h:(FIRPhoneAuthCredential *)credential {
-  FIRPhoneMultiFactorAssertion *a = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+  __unused FIRPhoneMultiFactorAssertion *a =
+      [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
 }
 
 - (void)phoneMultiFactorInfo:(FIRPhoneMultiFactorInfo *)info {
@@ -479,7 +479,7 @@
                                              NSError *_Nullable error){
                                 }];
   FIRTOTPMultiFactorAssertion *a =
-  [FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:@"pw"];
+      [FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:@"pw"];
   a = [FIRTOTPMultiFactorGenerator assertionForSignInWithEnrollmentID:@"id" oneTimePassword:@"pw"];
 }
 #endif
