@@ -173,7 +173,7 @@
 #endif
   NSError *error;
   [auth signOut:&error];
-  BOOL b;
+  __unused BOOL b;
 #if TARGET_OS_WATCH
   b = [auth isSignInWithEmailLink:@"email"];
 #endif
@@ -458,7 +458,7 @@
 }
 
 - (void)FIRPhoneAuthProvider_h:(FIRPhoneAuthCredential *)credential {
-  [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
+  FIRPhoneMultiFactorAssertion *a = [FIRPhoneMultiFactorGenerator assertionWithCredential:credential];
 }
 
 - (void)phoneMultiFactorInfo:(FIRPhoneMultiFactorInfo *)info {
@@ -478,8 +478,9 @@
                                 completion:^(FIRTOTPSecret *_Nullable secret,
                                              NSError *_Nullable error){
                                 }];
+  FIRTOTPMultiFactorAssertion *a =
   [FIRTOTPMultiFactorGenerator assertionForEnrollmentWithSecret:secret oneTimePassword:@"pw"];
-  [FIRTOTPMultiFactorGenerator assertionForSignInWithEnrollmentID:@"id" oneTimePassword:@"pw"];
+  a = [FIRTOTPMultiFactorGenerator assertionForSignInWithEnrollmentID:@"id" oneTimePassword:@"pw"];
 }
 #endif
 
@@ -489,9 +490,6 @@
 }
 
 - (void)FIRUser_h:(FIRUser *)user credential:(FIRAuthCredential *)credential {
-  [user updateEmail:@"email"
-         completion:^(NSError *_Nullable error){
-         }];
   [user updatePassword:@"pw"
             completion:^(NSError *_Nullable error){
             }];
