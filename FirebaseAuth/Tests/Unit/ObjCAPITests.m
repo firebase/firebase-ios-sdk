@@ -184,8 +184,7 @@
   [auth useAppLanguage];
   [auth useEmulatorWithHost:@"host" port:123];
 #if TARGET_OS_IOS
-  [auth canHandleURL:url];
-  [auth setAPNSToken:[[NSData alloc] init]];
+  b = [auth canHandleURL:url];
   [auth setAPNSToken:[[NSData alloc] init] type:FIRAuthAPNSTokenTypeProd];
   b = [auth canHandleNotification:@{}];
 #if !TARGET_OS_MACCATALYST && (!defined(TARGET_OS_VISION) || !TARGET_OS_VISION)
@@ -197,7 +196,7 @@
                               completion:^(NSError *_Nullable error){
                               }];
   [auth useUserAccessGroup:@"abc" error:&error];
-  [auth getStoredUserForAccessGroup:@"user" error:&error];
+  __unused FIRUser *u = [auth getStoredUserForAccessGroup:@"user" error:&error];
 }
 
 #if !TARGET_OS_OSX
