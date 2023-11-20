@@ -27,7 +27,7 @@ import Foundation
         @param completion Optionally; a block which is invoked asynchronously on the main thread when
             the mobile web flow is completed.
      */
-    @objc(getCredentialWithUIDelegate:completion:)
+    @objc optional
     func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
                            completion: ((AuthCredential?, Error?) -> Void)?)
 
@@ -37,6 +37,7 @@ import Foundation
         @param UIDelegate An optional UI delegate used to present the mobile web flow.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    @objc(getCredentialWithUIDelegate:completion:)
     func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential
   #endif
 }

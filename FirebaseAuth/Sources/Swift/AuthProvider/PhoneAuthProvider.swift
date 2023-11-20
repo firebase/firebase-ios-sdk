@@ -78,11 +78,10 @@ import FirebaseCore
      factor challenge.
      @param completion The callback to be invoked when the verification flow is finished.
      */
-
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
     public func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession session: MultiFactorSession? = nil,
+                                  multiFactorSession: MultiFactorSession? = nil,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: auth.mainBundleUrlTypes) else {
@@ -93,9 +92,11 @@ import FirebaseCore
       kAuthGlobalWorkQueue.async {
         Task {
           do {
-            let verificationID = try await self.internalVerify(phoneNumber: phoneNumber,
-                                                               uiDelegate: uiDelegate,
-                                                               multiFactorSession: session)
+            let verificationID = try await self.internalVerify(
+              phoneNumber: phoneNumber,
+              uiDelegate: uiDelegate,
+              multiFactorSession: multiFactorSession
+            )
             Auth.wrapMainAsync(callback: completion, withParam: verificationID, error: nil)
           } catch {
             Auth.wrapMainAsync(callback: completion, withParam: nil, error: error)
@@ -104,6 +105,16 @@ import FirebaseCore
       }
     }
 
+    /**
+     @brief Verify ownership of the second factor phone number by the current user.
+     @param phoneNumber The phone number to be verified.
+     @param uiDelegate An object used to present the SFSafariViewController. The object is retained
+     by this method until the completion block is executed.
+     @param multiFactorSession A session to identify the MFA flow. For enrollment, this identifies the user
+     trying to enroll. For sign-in, this identifies that the user already passed the first
+     factor challenge.
+     @returns The verification ID
+     */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     public func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil,
@@ -135,12 +146,12 @@ import FirebaseCore
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
     public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                   uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession session: MultiFactorSession?,
+                                  multiFactorSession: MultiFactorSession?,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
-      session?.multiFactorInfo = multiFactorInfo
+      multiFactorSession?.multiFactorInfo = multiFactorInfo
       verifyPhoneNumber(multiFactorInfo.phoneNumber,
                         uiDelegate: uiDelegate,
-                        multiFactorSession: session,
+                        multiFactorSession: multiFactorSession,
                         completion: completion)
     }
 
@@ -181,7 +192,7 @@ import FirebaseCore
 
     private func internalVerify(phoneNumber: String,
                                 uiDelegate: AuthUIDelegate?,
-                                multiFactorSession session: MultiFactorSession? = nil) async throws
+                                multiFactorSession: MultiFactorSession? = nil) async throws
       -> String? {
       guard phoneNumber.count > 0 else {
         throw AuthErrorUtils.missingPhoneNumberError(message: nil)
@@ -194,7 +205,7 @@ import FirebaseCore
       }
       return try await verifyClAndSendVerificationCode(toPhoneNumber: phoneNumber,
                                                        retryOnInvalidAppCredential: true,
-                                                       multiFactorSession: session,
+                                                       multiFactorSession: multiFactorSession,
                                                        uiDelegate: uiDelegate)
     }
 

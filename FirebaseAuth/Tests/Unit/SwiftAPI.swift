@@ -24,8 +24,7 @@ import FirebaseCore
   import UIKit
 #endif
 
-/// This file tests public methods and enums. Properties are not included.
-/// Each function maps to a public header file.
+/// This file tests public methods and enums.  Each function maps to a public header file.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthAPI_hOnlyTests: XCTestCase {
@@ -90,8 +89,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
     #if os(iOS)
       if let _: Data = auth.apnsToken {}
-      // TODO: Should this be supported or should we always use
-      // setAPNSToken(_ token: Data, type: AuthAPNSTokenType)
+      // TODO: This API was defined in the ObjC SDK, but seems to be a no-op.
       // auth.apnsToken = Data()
     #endif
   }
@@ -152,7 +150,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.useEmulator(withHost: "myHost", port: 123)
     #if os(iOS)
       _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
-      auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
+      auth.setAPNSToken(Data(), type: AuthAPNSTokenType.prod)
       _ = auth.canHandleNotification([:])
       #if !targetEnvironment(macCatalyst)
         auth.initializeRecaptchaConfig { _ in
@@ -351,11 +349,36 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   #if os(iOS)
+    func FIRFederatedAuthProvider_hO() {
+      class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
+        // TODO: Document this API breakage - needing to add this functon for classes implementing
+        // FederatedAuthProvider.
+        func credential(with UIDelegate: FirebaseAuth
+          .AuthUIDelegate?) async throws -> AuthCredential {
+          return FacebookAuthProvider.credential(withAccessToken: "token")
+        }
+        func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
+                               completion: ((AuthCredential?, Error?) -> Void)? = nil) {}
+      }
+      let obj = FederatedAuthImplementation()
+      obj.getCredentialWith(nil) { _, _ in
+      }
+    }
+
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+    func FIRFedederatedAuthProvider_hAsync() async throws {
+      class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
+        func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+          return FacebookAuthProvider.credential(withAccessToken: "token")
+        }
+      }
+      let obj = FederatedAuthImplementation()
+      try await _ = obj.credential(with: nil)
+    }
+
     func FIRFederatedAuthProvider_h() {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
-        @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-        func credential(with UIDelegate: AuthUIDelegate?) async throws -> FirebaseAuth
-          .AuthCredential {
+        func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
           return FacebookAuthProvider.credential(withAccessToken: "token")
         }
 
@@ -480,6 +503,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce",
                                    accessToken: "token")
       _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
+      _ = OAuthProvider.appleCredential(withIDToken: "idToken",
+                                        rawNonce: "nonce",
+                                        fullName: nil)
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }
     #endif

@@ -496,15 +496,14 @@ extension User: NSSecureCoding {}
                                uiDelegate: AuthUIDelegate?,
                                completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
-        provider.getCredentialWith(uiDelegate) { credential, error in
-          if let error {
+        Task {
+          do {
+            let credential = try await provider.credential(with: uiDelegate)
+            self.reauthenticate(with: credential, completion: completion)
+          } catch {
             if let completion {
               completion(nil, error)
             }
-            return
-          }
-          if let credential {
-            self.reauthenticate(with: credential, completion: completion)
           }
         }
       }
@@ -837,16 +836,14 @@ extension User: NSSecureCoding {}
                      uiDelegate: AuthUIDelegate?,
                      completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
-        provider.getCredentialWith(uiDelegate) { credential, error in
-          if let error {
+        Task {
+          do {
+            let credential = try await provider.credential(with: uiDelegate)
+            self.link(with: credential, completion: completion)
+          } catch {
             if let completion {
               completion(nil, error)
             }
-          } else {
-            guard let credential else {
-              fatalError("Failed to get credential for link withProvider")
-            }
-            self.link(with: credential, completion: completion)
           }
         }
       }

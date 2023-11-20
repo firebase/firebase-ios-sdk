@@ -560,25 +560,17 @@ extension Auth: AuthInterop {
                        uiDelegate: AuthUIDelegate?,
                        completion: ((AuthDataResult?, Error?) -> Void)?) {
       kAuthGlobalWorkQueue.async {
-        let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
-        provider.getCredentialWith(uiDelegate) { rawCredential, error in
-          if let error {
+        Task {
+          let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
+          do {
+            let credential = try await provider.credential(with: uiDelegate)
+            let authData = try await self.internalSignInAndRetrieveData(
+              withCredential: credential,
+              isReauthentication: false
+            )
+            decoratedCallback(authData, nil)
+          } catch {
             decoratedCallback(nil, error)
-            return
-          }
-          guard let credential = rawCredential else {
-            fatalError("Internal Auth Error: Failed to get a AuthCredential")
-          }
-          Task {
-            do {
-              let authData = try await self.internalSignInAndRetrieveData(
-                withCredential: credential,
-                isReauthentication: false
-              )
-              decoratedCallback(authData, nil)
-            } catch {
-              decoratedCallback(nil, error)
-            }
           }
         }
       }
@@ -1170,7 +1162,7 @@ extension Auth: AuthInterop {
    asynchronously on the main thread in the future.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc public func verifyPasswordResetCode(_ code: String) async throws -> String {
+  public func verifyPasswordResetCode(_ code: String) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
       self.verifyPasswordResetCode(code) { code, error in
         if let code {
@@ -1594,7 +1586,7 @@ extension Auth: AuthInterop {
     kAuthGlobalWorkQueue.sync {
       self.requestConfiguration.emulatorHostAndPort = "\(formattedHost):\(port)"
       #if os(iOS)
-        self.settings?.isAppVerificationDisabledForTesting = true
+        self.settings?.appVerificationDisabledForTesting = true
       #endif
     }
   }
@@ -1667,6 +1659,23 @@ extension Auth: AuthInterop {
    This case will return `nil`.
    Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
    */
+  @objc(getStoredUserForAccessGroup:error:)
+  public func __getStoredUser(forAccessGroup accessGroup: String?,
+                              error outError: NSErrorPointer) -> User? {
+    do {
+      return try getStoredUser(forAccessGroup: accessGroup)
+    } catch {
+      outError?.pointee = error as NSError
+      return nil
+    }
+  }
+
+  /** @fn getStoredUserForAccessGroup
+   @brief Get the stored user in the given accessGroup.
+   @note This API is not supported on tvOS when `shareAuthStateAcrossDevices` is set to `true`.
+   This case will return `nil`.
+   Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
+   */
   public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
     var user: User?
     if let accessGroup {
@@ -1717,7 +1726,7 @@ extension Auth: AuthInterop {
       }
     }
 
-    @objc public func canHandle(_ url: URL) -> Bool {
+    @objc(canHandleURL:) public func canHandle(_ url: URL) -> Bool {
       kAuthGlobalWorkQueue.sync {
         guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
           return false
