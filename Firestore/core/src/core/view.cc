@@ -246,16 +246,6 @@ bool View::ShouldWaitForSyncedDocument(const Document& new_doc,
           !new_doc->has_local_mutations());
 }
 
-ViewChange View::ApplyChanges(const ViewDocumentChanges& doc_changes) {
-  return ApplyChanges(doc_changes, {});
-}
-
-ViewChange View::ApplyChanges(
-    const ViewDocumentChanges& doc_changes,
-    const absl::optional<TargetChange>& target_change) {
-  return ApplyChanges(doc_changes, target_change, false);
-}
-
 ViewChange View::ApplyChanges(const ViewDocumentChanges& doc_changes,
                               const absl::optional<TargetChange>& target_change,
                               bool targetIsPendingReset) {
