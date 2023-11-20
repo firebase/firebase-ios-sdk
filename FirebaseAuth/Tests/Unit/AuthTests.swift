@@ -846,7 +846,8 @@ class AuthTests: RPCBaseTests {
   #if os(iOS)
     class FakeProvider: NSObject, FederatedAuthProvider {
       @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-      func credential(with UIDelegate: FirebaseAuth.AuthUIDelegate?) async throws -> AuthCredential {
+      func credential(with UIDelegate: FirebaseAuth.AuthUIDelegate?) async throws ->
+        FirebaseAuth.AuthCredential {
         let credential = OAuthCredential(withProviderID: GoogleAuthProvider.id,
                                          sessionID: kOAuthSessionID,
                                          OAuthResponseURLString: kOAuthRequestURI)
