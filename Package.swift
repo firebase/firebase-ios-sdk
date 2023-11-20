@@ -459,6 +459,7 @@ let package = Package(
         // TODO: these tests rely on a non-zero UIApplication.shared. They run from CocoaPods.
         "PhoneAuthProviderTests.swift",
         "AuthNotificationManagerTests.swift",
+        "ObjCAPITests.m", // Only builds via CocoaPods until mixed language or its own target.
       ]
     ),
     .target(

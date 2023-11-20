@@ -349,25 +349,11 @@ class AuthAPI_hOnlyTests: XCTestCase {
   }
 
   #if os(iOS)
-    func FIRFederatedAuthProvider_hO() {
-      class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
-        // TODO: Document this API breakage - needing to add this functon for classes implementing
-        // FederatedAuthProvider.
-        func credential(with UIDelegate: FirebaseAuth
-          .AuthUIDelegate?) async throws -> AuthCredential {
-          return FacebookAuthProvider.credential(withAccessToken: "token")
-        }
-        func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
-                               completion: ((AuthCredential?, Error?) -> Void)? = nil) {}
-      }
-      let obj = FederatedAuthImplementation()
-      obj.getCredentialWith(nil) { _, _ in
-      }
-    }
-
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func FIRFedederatedAuthProvider_hAsync() async throws {
       class FederatedAuthImplementation: NSObject, FederatedAuthProvider {
+        // TODO: Document this API breakage - needing to add this functon for classes implementing
+        // FederatedAuthProvider.
         func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
           return FacebookAuthProvider.credential(withAccessToken: "token")
         }
@@ -381,13 +367,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
         func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential {
           return FacebookAuthProvider.credential(withAccessToken: "token")
         }
-
-        func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
-                               completion: ((AuthCredential?, Error?) -> Void)? = nil) {}
       }
       let obj = FederatedAuthImplementation()
-      obj.getCredentialWith(nil) { _, _ in
-      }
       @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
       func FIRFedederatedAuthProvider_hAsync() async throws {
         let obj = FederatedAuthImplementation()
