@@ -51,8 +51,8 @@ static NSString *const kFirebasePerfErrorDomain = @"com.firebase.perf";
     FPRLogError(kFPRTraceNotCreated, @"Failed creating trace %@. Firebase is not configured.",
                 name);
     [NSException raise:kFirebasePerfErrorDomain
-                format:@"The default Firebase app has not yet been configured. Add [FirebaseApp "
-                       @"configure] to your application initialization."];
+                format:@"The default Firebase app has not yet been configured. Add "
+                       @"`FirebaseApp.configure()` to your application initialization."];
     return nil;
   }
   FIRTrace *trace = [[FIRTrace alloc] initWithName:name];
