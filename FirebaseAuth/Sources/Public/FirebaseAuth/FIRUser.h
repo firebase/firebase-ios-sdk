@@ -212,6 +212,15 @@ NS_SWIFT_NAME(User)
         API_AVAILABLE(macos(12.0), ios(15.0), tvos(16.0));
 #endif
 
+/**
+ @fn unenrollPasskeyWithCredentialID:completion
+ @brief To unenroll a passkey with platform credential.
+ @param credentialID the passkey credential ID to unenroll.
+ */
+- (void)unenrollPasskeyWithCredentialID:(NSString *)credentialID
+                             completion:(nullable void (^)(NSError *_Nullable error))completion
+    NS_SWIFT_NAME(unenrollPasskey(with:completion:));
+
 /** @fn updatePassword:completion:
     @brief Updates the password for the user. On success, the cached user profile data is updated.
 
