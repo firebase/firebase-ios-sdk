@@ -23,6 +23,17 @@
 #import "Interop/Analytics/Public/FIRAnalyticsInterop.h"
 
 @implementation FIRRemoteConfigComponent
+static FIRRemoteConfigComponent *_sharedDefaultAppRemoteConfigSingleton = nil;
+
++ (FIRRemoteConfigComponent *)sharedDefaultAppRemoteConfigSingletonWithDefaultApp:(FIRApp *)app {
+  @synchronized([FIRRemoteConfigComponent class]) {
+    if (!_sharedDefaultAppRemoteConfigSingleton) {
+      _sharedDefaultAppRemoteConfigSingleton = [[self alloc] initWithApp:app];
+    }
+    return _sharedDefaultAppRemoteConfigSingleton;
+  }
+  return nil;
+}
 
 /// Default method for retrieving a Remote Config instance, or creating one if it doesn't exist.
 - (FIRRemoteConfig *)remoteConfigForNamespace:(NSString *)remoteConfigNamespace {
@@ -60,6 +71,7 @@
     FIRApp *app = self.app;
     id<FIRAnalyticsInterop> analytics =
         app.isDefaultApp ? FIR_COMPONENT(FIRAnalyticsInterop, app.container) : nil;
+
     instance = [[FIRRemoteConfig alloc] initWithAppName:app.name
                                              FIROptions:app.options
                                               namespace:remoteConfigNamespace
@@ -95,6 +107,7 @@
 + (NSArray<FIRComponent *> *)componentsToRegister {
   FIRDependency *analyticsDep = [FIRDependency dependencyWithProtocol:@protocol(FIRAnalyticsInterop)
                                                            isRequired:NO];
+
   FIRComponent *rcProvider = [FIRComponent
       componentWithProtocol:@protocol(FIRRemoteConfigProvider)
         instantiationTiming:FIRInstantiationTimingAlwaysEager
@@ -102,9 +115,35 @@
               creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
                 // Cache the component so instances of Remote Config are cached.
                 *isCacheable = YES;
+                if (container.app.isDefaultApp) {
+                  return [FIRRemoteConfigComponent
+                      sharedDefaultAppRemoteConfigSingletonWithDefaultApp:container.app];
+                }
                 return [[FIRRemoteConfigComponent alloc] initWithApp:container.app];
               }];
-  return @[ rcProvider ];
+
+  // Crashlytics only works on default app, the only shared component between Provider and Interop
+  // is the component for default app
+  FIRComponent *rcInterop = [FIRComponent
+      componentWithProtocol:@protocol(FIRRemoteConfigInterop)
+        instantiationTiming:FIRInstantiationTimingAlwaysEager
+               dependencies:@[]
+              creationBlock:^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
+                // Cache the component so instances of Remote Config are cached.
+                *isCacheable = YES;
+                if (container.app.isDefaultApp) {
+                  return [FIRRemoteConfigComponent
+                      sharedDefaultAppRemoteConfigSingletonWithDefaultApp:container.app];
+                }
+                return nil;
+              }];
+  return @[ rcProvider, rcInterop ];
+}
+
+- (void)registerRolloutsStateSubscriber:(nonnull NSString *)nameSpace
+                             subscriber:(nullable id<FIRRolloutsStateSubscriber>)subscriber {
+  // adding the registered subscriber reference to the namespace instance
+  [self.instances[nameSpace] addRemoteConfigInteropSubscriber:subscriber];
 }
 
 @end

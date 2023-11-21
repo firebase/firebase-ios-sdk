@@ -58,6 +58,7 @@
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
 @import FirebaseSessions;
+@import FirebaseRemoteConfigInterop;
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
@@ -104,7 +105,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                     appInfo:(NSDictionary *)appInfo
               installations:(FIRInstallations *)installations
                   analytics:(id<FIRAnalyticsInterop>)analytics
-                   sessions:(id<FIRSessionsProvider>)sessions {
+                   sessions:(id<FIRSessionsProvider>)sessions
+               remoteConfig:(id<FIRRemoteConfigInterop>)remoteConfig {
   self = [super init];
 
   if (self) {
@@ -206,6 +208,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
   FIRDependency *sessionsDep =
       [FIRDependency dependencyWithProtocol:@protocol(FIRSessionsProvider)];
 
+  FIRDependency *remoteConfigDep =
+      [FIRDependency dependencyWithProtocol:@protocol(FIRRemoteConfigInterop)];
+
+  // break point on this also with rc creatioBlock and check the order
   FIRComponentCreationBlock creationBlock =
       ^id _Nullable(FIRComponentContainer *container, BOOL *isCacheable) {
     if (!container.app.isDefaultApp) {
@@ -215,6 +221,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     id<FIRSessionsProvider> sessions = FIR_COMPONENT(FIRSessionsProvider, container);
+    id<FIRRemoteConfigInterop> remoteConfig = FIR_COMPONENT(FIRRemoteConfigInterop, container);
 
     FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
 
@@ -224,13 +231,14 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                        appInfo:NSBundle.mainBundle.infoDictionary
                                  installations:installations
                                      analytics:analytics
-                                      sessions:sessions];
+                                      sessions:sessions
+                                  remoteConfig:remoteConfig];
   };
 
   FIRComponent *component =
       [FIRComponent componentWithProtocol:@protocol(FIRCrashlyticsInstanceProvider)
                       instantiationTiming:FIRInstantiationTimingEagerInDefaultApp
-                             dependencies:@[ analyticsDep, sessionsDep ]
+                             dependencies:@[ analyticsDep, sessionsDep, remoteConfigDep ]
                             creationBlock:creationBlock];
   return @[ component ];
 }

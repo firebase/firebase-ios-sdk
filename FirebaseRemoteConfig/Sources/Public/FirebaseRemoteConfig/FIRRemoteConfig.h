@@ -17,6 +17,7 @@
 #import <Foundation/Foundation.h>
 
 @class FIRApp;
+@protocol FIRRolloutsStateSubscriber;
 
 /// The Firebase Remote Config service default namespace, to be used if the API method does not
 /// specify a different namespace. Use the default namespace if configuring from the Google Firebase
@@ -150,6 +151,8 @@ NS_SWIFT_NAME(RemoteConfigValue)
 @property(nonatomic, readonly, nullable) id JSONValue NS_SWIFT_NAME(jsonValue);
 /// Identifies the source of the fetched value.
 @property(nonatomic, readonly) FIRRemoteConfigSource source;
+
+@property(nonatomic, readonly, nonnull) NSMutableArray<id<FIRRolloutsStateSubscriber>> *subscribers;
 @end
 
 #pragma mark - FIRRemoteConfigSettings
@@ -357,4 +360,5 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     (FIRRemoteConfigUpdateCompletion _Nonnull)listener
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
+- (void)addRemoteConfigInteropSubscriber:(nonnull id<FIRRolloutsStateSubscriber>)subscriber;
 @end

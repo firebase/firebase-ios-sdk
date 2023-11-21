@@ -22,6 +22,8 @@
 @class RCNConfigDBManager;
 @class RCNConfigFetch;
 @class RCNConfigRealtime;
+
+@protocol FIRRemoteConfigComponentDelegate;
 @protocol FIRAnalyticsInterop;
 
 NS_ASSUME_NONNULL_BEGIN

@@ -31,6 +31,8 @@
 #import "FirebaseRemoteConfig/Sources/RCNDevice.h"
 #import "FirebaseRemoteConfig/Sources/RCNPersonalization.h"
 
+@import FirebaseRemoteConfigInterop;
+
 /// Remote Config Error Domain.
 /// TODO: Rename according to obj-c style for constants.
 NSString *const FIRRemoteConfigErrorDomain = @"com.google.remoteconfig.ErrorDomain";
@@ -73,6 +75,7 @@ typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnu
   dispatch_queue_t _queue;
   NSString *_appName;
   NSMutableArray *_listeners;
+  NSMutableArray *_subscribers;
 }
 
 static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemoteConfig *> *>
@@ -175,6 +178,8 @@ static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemote
                                               options:options];
 
     [_settings loadConfigFromMetadataTable];
+
+    _subscribers = [[NSMutableArray alloc] init];
 
     if (analytics) {
       _listeners = [[NSMutableArray alloc] init];
@@ -611,6 +616,10 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 - (FIRConfigUpdateListenerRegistration *)addOnConfigUpdateListener:
     (void (^_Nonnull)(FIRRemoteConfigUpdate *update, NSError *_Nullable error))listener {
   return [self->_configRealtime addConfigUpdateListener:listener];
+}
+
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber {
+  [self->_subscribers addObject:subscriber];
 }
 
 @end
