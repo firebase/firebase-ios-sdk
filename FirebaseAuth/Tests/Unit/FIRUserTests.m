@@ -1072,7 +1072,7 @@ static NSString *const kAttestationObject =
   }
 }
 
-/** 
+/**
  @fn testStartPasskeyEnrollmentSuccess
  @brief Tests the flow of a successful @c unenrollPasskeyWithCredentialID:completion: call
  */
