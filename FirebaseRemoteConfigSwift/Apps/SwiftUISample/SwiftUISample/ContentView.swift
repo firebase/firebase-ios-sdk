@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
+import FirebaseAnalytics
+import FirebaseAnalyticsSwift
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
-import FirebaseAnalyticsSwift
-import FirebaseAnalytics
 import SwiftUI
 
 struct Recipe: Decodable {

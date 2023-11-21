@@ -48,7 +48,7 @@ import Foundation
 
   // MARK: - Internal APIs
 
-  internal convenience init(with dictionary: [String: Any], reference: StorageReference) {
+  convenience init(with dictionary: [String: Any], reference: StorageReference) {
     var prefixes = [StorageReference]()
     var items = [StorageReference]()
 
@@ -74,9 +74,9 @@ import Foundation
     self.init(withPrefixes: prefixes, items: items, pageToken: pageToken)
   }
 
-  internal init(withPrefixes prefixes: [StorageReference],
-                items: [StorageReference],
-                pageToken: String?) {
+  init(withPrefixes prefixes: [StorageReference],
+       items: [StorageReference],
+       pageToken: String?) {
     self.prefixes = prefixes
     self.items = items
     self.pageToken = pageToken

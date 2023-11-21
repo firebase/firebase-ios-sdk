@@ -20,9 +20,9 @@ import Foundation
 import StoreKit
 import SwiftUI
 
+import FirebaseAnalytics
 import FirebaseAnalyticsSwift
 import SwiftUI
-import FirebaseAnalytics
 
 final class AnalyticsAPITests {
   func usage() {

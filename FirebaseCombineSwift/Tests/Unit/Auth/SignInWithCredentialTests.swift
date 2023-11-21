@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import Combine
-import XCTest
 import FirebaseAuth
+import Foundation
+import XCTest
 
 class SignInWithCredentialTests: XCTestCase {
   override class func setUp() {
@@ -55,14 +55,12 @@ class SignInWithCredentialTests: XCTestCase {
   static let googleAccessToken = "GOOGLE_ACCESS_TOKEN"
   static let googleDisplayName = "Google Doe"
   static let googleEmail = "user@gmail.com"
-  static let googleProfile: [String: String] = {
-    [
-      "iss": "https://accounts.google.com\\",
-      "email": googleEmail,
-      "given_name": "User",
-      "family_name": "Doe",
-    ]
-  }()
+  static let googleProfile: [String: String] = [
+    "iss": "https://accounts.google.com\\",
+    "email": googleEmail,
+    "given_name": "User",
+    "family_name": "Doe",
+  ]
 
   static let verificationCode = "12345678"
   static let verificationID = "55432"

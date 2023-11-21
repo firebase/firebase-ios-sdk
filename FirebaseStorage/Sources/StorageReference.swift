@@ -627,9 +627,9 @@ import Foundation
   /**
    * The current path which points to an object in the Google Cloud Storage bucket.
    */
-  internal let path: StoragePath
+  let path: StoragePath
 
-  override internal init() {
+  override init() {
     storage = Storage.storage()
     let storageBucket = storage.app.options.storageBucket!
     path = StoragePath(with: storageBucket)

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import Firebase
+import SwiftUI
 
 @main
 struct CombineSampleApp: App {

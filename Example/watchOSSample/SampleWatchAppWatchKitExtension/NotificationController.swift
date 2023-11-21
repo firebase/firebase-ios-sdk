@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import WatchKit
 import Foundation
 import UserNotifications
+import WatchKit
 
 class NotificationController: WKUserNotificationInterfaceController {
   override init() {

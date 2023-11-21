@@ -18,8 +18,8 @@
 
 import Foundation
 
-import FirebaseCore
 import FirebaseAppCheck
+import FirebaseCore
 
 final class AppCheckAPITests {
   func usage() {

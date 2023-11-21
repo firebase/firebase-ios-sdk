@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import FirebaseMessaging
+import SwiftUI
 
 struct TopicView: View {
   @State private var topic: String = ""

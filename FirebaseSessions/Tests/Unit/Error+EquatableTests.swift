@@ -13,8 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 @testable import FirebaseSessions
+import XCTest
 
 /// This file and extension exist for ease of testing. Without this, you cannot use
 /// XCTAssertEqual on errors, which means you need to do switches whenever you

@@ -63,12 +63,12 @@ import Foundation
     }
   }
 
-  internal init(task: StorageTask,
-                state: StorageTaskState,
-                reference: StorageReference,
-                progress: Progress,
-                metadata: StorageMetadata? = nil,
-                error: NSError? = nil) {
+  init(task: StorageTask,
+       state: StorageTaskState,
+       reference: StorageReference,
+       progress: Progress,
+       metadata: StorageMetadata? = nil,
+       error: NSError? = nil) {
     self.task = task
     self.reference = reference
     self.progress = progress

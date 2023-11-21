@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import Foundation
 import FirebaseSharedSwift
+import Foundation
 import XCTest
 
 class FirebaseFirebaseDataEncoderTests: XCTestCase {

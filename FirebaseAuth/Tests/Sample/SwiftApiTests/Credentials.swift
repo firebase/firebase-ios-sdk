@@ -48,7 +48,7 @@ import Foundation
  The name of the test user for Facebook Login.
  */
 
-class Credentials {
+enum Credentials {
   static let kGoogleClientID = KGOOGLE_CLIENT_ID
   static let kGoogleTestAccountRefreshToken = KGOOGLE_TEST_ACCOUNT_REFRESH_TOKEN
   static let kGoogleUserName = KGOOGLE_USER_NAME

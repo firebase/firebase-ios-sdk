@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import FirebaseSharedSwift
+import Foundation
 
 // A `Callable` is reference to a particular Callable HTTPS trigger in Cloud Functions.
 public struct Callable<Request: Encodable, Response: Decodable> {

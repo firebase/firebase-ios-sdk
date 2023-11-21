@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+@testable import FirebaseAuthTestingSupport
 import Foundation
 import XCTest
-@testable import FirebaseAuthTestingSupport
 
 class PhoneAuthProviderFakeTests: XCTestCase {
   func testPhoneAuthProviderFakeConstructor() throws {

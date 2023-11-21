@@ -18,10 +18,10 @@
 // See go/firebase-macos-keychain-popups for more details.
 #if !targetEnvironment(macCatalyst) && !os(macOS)
 
-  import XCTest
   @testable import FirebaseCore
   @testable import FirebaseInstallations
   @testable import FirebaseMLModelDownloader
+  import XCTest
 
   extension UserDefaults {
     /// Returns a new cleared instance of user defaults.

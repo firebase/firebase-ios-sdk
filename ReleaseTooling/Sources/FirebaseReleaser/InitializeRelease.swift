@@ -19,7 +19,7 @@ import Foundation
 import FirebaseManifest
 import Utils
 
-struct InitializeRelease {
+enum InitializeRelease {
   static func setupRepo(gitRoot: URL) -> String {
     let manifest = FirebaseManifest.shared
     let branch = createVersionBranch(path: gitRoot, version: manifest.version)

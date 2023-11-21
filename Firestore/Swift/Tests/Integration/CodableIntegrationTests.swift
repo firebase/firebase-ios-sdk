@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import Foundation
 import FirebaseFirestore
 @testable import FirebaseFirestoreSwift
+import Foundation
 
 class CodableIntegrationTests: FSTIntegrationTestCase {
   private enum WriteFlavor {

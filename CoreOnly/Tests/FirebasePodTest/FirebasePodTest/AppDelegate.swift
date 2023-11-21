@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
 import Firebase
 // Verify that the following Firebase Swift APIs can be found.
 import FirebaseAnalyticsSwift
 import FirebaseFirestoreSwift
 import FirebaseInAppMessagingSwift
+import UIKit
 
 class CoreExists: FirebaseApp {}
 class AnalyticsExists: Analytics {}

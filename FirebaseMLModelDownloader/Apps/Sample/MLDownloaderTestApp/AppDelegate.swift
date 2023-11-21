@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
 import FirebaseCore
 import FirebaseMLModelDownloader
+import UIKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
