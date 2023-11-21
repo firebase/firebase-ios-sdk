@@ -175,7 +175,7 @@ class View {
    */
   ViewChange ApplyChanges(
       const core::ViewDocumentChanges& doc_changes,
-      const absl::optional<remote::TargetChange>& target_change = {},
+      const absl::optional<remote::TargetChange>& target_change = absl::nullopt,
       bool targetIsPendingReset = false);
 
   /**
