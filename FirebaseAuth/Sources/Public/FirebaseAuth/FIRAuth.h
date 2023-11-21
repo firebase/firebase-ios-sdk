@@ -397,7 +397,8 @@ NS_SWIFT_NAME(Auth)
                         completion:(nullable void (^)(NSArray<NSString *> *_Nullable,
                                                       NSError *_Nullable))completion
     DEPRECATED_MSG_ATTRIBUTE(
-        "This method returns an empty list when Email Enumeration Protection is enabled.");
+        "This method is deprecated and will be removed in a future release. This method returns an "
+        "empty list when Email Enumeration Protection is enabled.");
 
 /** @fn signInWithEmail:password:completion:
     @brief Signs in using an email address and password. When [Email Enumeration
