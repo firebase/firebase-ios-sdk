@@ -1659,6 +1659,7 @@ extension Auth: AuthInterop {
    This case will return `nil`.
    Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
    */
+  @available(*, unavailable)
   @objc(getStoredUserForAccessGroup:error:)
   public func __getStoredUser(forAccessGroup accessGroup: String?,
                               error outError: NSErrorPointer) -> User? {
