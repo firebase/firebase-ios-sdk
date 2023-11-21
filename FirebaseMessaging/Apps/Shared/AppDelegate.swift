@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
+import FirebaseAnalytics
 import FirebaseCore
 import FirebaseMessaging
-import FirebaseAnalytics
+import UIKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {

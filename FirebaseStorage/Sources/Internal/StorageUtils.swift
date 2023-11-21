@@ -30,8 +30,8 @@ import Foundation
 #endif // swift(>=5.9)
 
 class StorageUtils {
-  internal class func defaultRequestForReference(reference: StorageReference,
-                                                 queryParams: [String: String]? = nil)
+  class func defaultRequestForReference(reference: StorageReference,
+                                        queryParams: [String: String]? = nil)
     -> URLRequest {
     var components = URLComponents()
     components.scheme = reference.storage.scheme
@@ -60,7 +60,7 @@ class StorageUtils {
     return URLRequest(url: url)
   }
 
-  internal class func encodedURL(for path: StoragePath) -> String {
+  class func encodedURL(for path: StoragePath) -> String {
     let bucketString = "/b/\(GCSEscapedString(path.bucket))"
     var objectString: String
     if let objectName = path.object {
@@ -71,7 +71,7 @@ class StorageUtils {
     return "/v0\(bucketString)\(objectString)"
   }
 
-  internal class func GCSEscapedString(_ string: String) -> String {
+  class func GCSEscapedString(_ string: String) -> String {
     // This is the list at https://cloud.google.com/storage/docs/json_api/ without &, ; and +.
     let allowedSet =
       CharacterSet(
@@ -80,7 +80,7 @@ class StorageUtils {
     return string.addingPercentEncoding(withAllowedCharacters: allowedSet)!
   }
 
-  internal class func MIMETypeForExtension(_ fileExtension: String?) -> String {
+  class func MIMETypeForExtension(_ fileExtension: String?) -> String {
     guard let fileExtension = fileExtension else {
       return "application/octet-stream"
     }

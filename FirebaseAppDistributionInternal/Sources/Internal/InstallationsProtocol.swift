@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import FirebaseInstallations
+import Foundation
 
 // Wraps around the use of FIRInstallations in a protocol to be able to inject a fake one for
 // unit testing.
-internal protocol InstallationsProtocol {
+protocol InstallationsProtocol {
   func authToken(completion: @escaping (InstallationsAuthTokenResult?, Error?) -> Void)
   func installationID(completion: @escaping (String?, Error?) -> Void)
 }

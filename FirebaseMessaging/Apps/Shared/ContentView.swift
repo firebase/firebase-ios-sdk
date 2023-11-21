@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
 import Combine
-import SwiftUI
 import FirebaseCore
-import FirebaseMessaging
 import FirebaseInstallations
+import FirebaseMessaging
+import SwiftUI
+import UIKit
 
 struct ContentView: View {
   @EnvironmentObject var identity: Identity

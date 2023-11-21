@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import FirebaseManifest
 import Foundation
 import Utils
-import FirebaseManifest
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.

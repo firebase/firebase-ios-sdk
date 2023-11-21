@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import FirebaseCore
 import FirebaseSessions
+import SwiftUI
 
 @main
 class AppQualityDevAppApp: App {

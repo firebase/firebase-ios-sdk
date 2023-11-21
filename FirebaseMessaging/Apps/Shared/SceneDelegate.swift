@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import Combine
-import UIKit
-import SwiftUI
-import FirebaseMessaging
 import FirebaseInstallations
+import FirebaseMessaging
+import SwiftUI
+import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate, MessagingDelegate {
   var window: UIWindow?

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import Combine
+import FirebaseAuth
+import Foundation
 import GameKit
 import XCTest
-import FirebaseAuth
 
 class GameCenterAuthProviderTests: XCTestCase {
   override class func setUp() {

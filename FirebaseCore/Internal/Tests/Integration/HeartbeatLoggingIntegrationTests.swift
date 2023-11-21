@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 @testable import FirebaseCoreInternal
+import XCTest
 
 class HeartbeatLoggingIntegrationTests: XCTestCase {
   // 2021-11-01 @ 00:00:00 (EST)

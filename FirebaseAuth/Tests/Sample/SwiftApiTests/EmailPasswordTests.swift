@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import Foundation
 import FirebaseAuth
+import Foundation
 import XCTest
 
 class EmailPasswordTests: TestsBase {

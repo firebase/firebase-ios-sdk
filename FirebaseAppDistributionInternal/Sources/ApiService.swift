@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-import FirebaseInstallations
 import FirebaseCore
+import FirebaseInstallations
+import Foundation
 import UIKit
 
 // Avoids exposing internal APIs to Swift users

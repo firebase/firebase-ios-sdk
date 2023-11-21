@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import Combine
-import XCTest
 import FirebaseAuth
+import Foundation
+import XCTest
 
 class UpdateCurrentUserTests: XCTestCase {
   override class func setUp() {

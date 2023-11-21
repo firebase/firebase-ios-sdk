@@ -15,11 +15,11 @@
 import Foundation
 
 import Combine
+import FirebaseAppCheckInterop
+import FirebaseAuthInterop
 import FirebaseCore
 @testable import FirebaseFunctions
 import FirebaseFunctionsCombineSwift
-import FirebaseAuthInterop
-import FirebaseAppCheckInterop
 import FirebaseMessagingInterop
 import GTMSessionFetcherCore
 import XCTest

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import Foundation
 import FirebaseManifest
+import Foundation
 
 /// Misc. constants used in the build tool.
 enum Constants {

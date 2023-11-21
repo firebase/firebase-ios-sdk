@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import FirebaseCore
+import Foundation
 import GoogleDataTransport
 
 /// Extension to set Firebase app info.

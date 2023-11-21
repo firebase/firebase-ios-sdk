@@ -28,7 +28,7 @@ open class HTTPSCallableResult: NSObject {
    */
   @objc public let data: Any
 
-  internal init(data: Any) {
+  init(data: Any) {
     self.data = data
   }
 }
@@ -59,13 +59,13 @@ open class HTTPSCallable: NSObject {
    */
   @objc open var timeoutInterval: TimeInterval = 70
 
-  internal init(functions: Functions, name: String, options: HTTPSCallableOptions? = nil) {
+  init(functions: Functions, name: String, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
     self.options = options
     endpoint = .name(name)
   }
 
-  internal init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
+  init(functions: Functions, url: URL, options: HTTPSCallableOptions? = nil) {
     self.functions = functions
     self.options = options
     endpoint = .url(url)

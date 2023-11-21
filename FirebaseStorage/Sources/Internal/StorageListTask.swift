@@ -23,7 +23,7 @@ import Foundation
 /**
  * A Task that lists the entries under a {@link StorageReference}
  */
-internal class StorageListTask: StorageTask, StorageTaskManagement {
+class StorageListTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var taskCompletion: ((_: StorageListResult?, _: NSError?) -> Void)?
@@ -43,12 +43,12 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
    * @param previousPageToken An optional pageToken, used to resume a previous invocation.
    * @param completion The completion handler to be called with the FIRIMPLStorageListResult.
    */
-  internal init(reference: StorageReference,
-                fetcherService: GTMSessionFetcherService,
-                queue: DispatchQueue,
-                pageSize: Int64?,
-                previousPageToken: String?,
-                completion: ((_ listResult: StorageListResult?, _ error: NSError?) -> Void)?) {
+  init(reference: StorageReference,
+       fetcherService: GTMSessionFetcherService,
+       queue: DispatchQueue,
+       pageSize: Int64?,
+       previousPageToken: String?,
+       completion: ((_ listResult: StorageListResult?, _ error: NSError?) -> Void)?) {
     self.pageSize = pageSize
     self.previousPageToken = previousPageToken
     super.init(reference: reference, service: fetcherService, queue: queue)
@@ -66,7 +66,7 @@ internal class StorageListTask: StorageTask, StorageTaskManagement {
   /**
    * Prepares a task and begins execution.
    */
-  internal func enqueue() {
+  func enqueue() {
     if let completion = taskCompletion {
       taskCompletion = { (listResult: StorageListResult?, error: NSError?) in
         completion(listResult, error)

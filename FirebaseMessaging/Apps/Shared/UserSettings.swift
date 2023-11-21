@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import FirebaseCore
 import FirebaseMessaging
+import SwiftUI
 
 public final class UserSettings: ObservableObject {
   @Published public var isAutoInitEnabled: Bool = Messaging.messaging().isAutoInitEnabled {

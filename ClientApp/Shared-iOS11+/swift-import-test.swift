@@ -49,8 +49,8 @@ import FirebaseInstallations
 import FirebaseMessaging
 import FirebaseMLModelDownloader
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
-  import FirebasePerformance
   import FirebaseInAppMessaging
+  import FirebasePerformance
 #endif
 import FirebaseRemoteConfig
 import FirebaseRemoteConfigSwift
