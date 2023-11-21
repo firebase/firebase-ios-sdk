@@ -370,7 +370,7 @@ static NSTimeInterval const kLastSignInDateTimeIntervalInSeconds = 1505858583;
 /** @var kExpectationTimeout
     @brief The maximum time waiting for expectations to fulfill.
  */
-static const NSTimeInterval kExpectationTimeout = 20;
+static const NSTimeInterval kExpectationTimeout = 2;
 
 /** @var kPhoneInfo
     @brief The mock multi factor phone info.
