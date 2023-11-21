@@ -49,7 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
       [self passkeyEnroll];
     }
   }];
-  
 }
 
 - (void)passkeyEnroll {
@@ -92,7 +91,6 @@ NS_ASSUME_NONNULL_BEGIN
   } else {
     [self log:@"OS version is not supported for this action."];
   }
-  
 }
 
 - (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller API_AVAILABLE(ios(13.0)){
