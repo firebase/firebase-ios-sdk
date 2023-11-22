@@ -495,15 +495,24 @@ void SyncEngine::EmitNewSnapshotsAndNotifyLocalStore(
     }
 
     absl::optional<TargetChange> target_changes;
+    bool targetIsPendingReset = false;
     if (maybe_remote_event.has_value()) {
       const RemoteEvent& remote_event = maybe_remote_event.value();
-      auto it = remote_event.target_changes().find(query_view->target_id());
-      if (it != remote_event.target_changes().end()) {
-        target_changes = it->second;
+      auto changes_iter =
+          remote_event.target_changes().find(query_view->target_id());
+      if (changes_iter != remote_event.target_changes().end()) {
+        target_changes = changes_iter->second;
+      }
+
+      auto mismatches_iter =
+          remote_event.target_mismatches().find(query_view->target_id());
+      if (mismatches_iter != remote_event.target_mismatches().end()) {
+        targetIsPendingReset = true;
       }
     }
-    ViewChange view_change =
-        view.ApplyChanges(view_doc_changes, target_changes);
+
+    ViewChange view_change = view.ApplyChanges(view_doc_changes, target_changes,
+                                               targetIsPendingReset);
 
     UpdateTrackedLimboDocuments(view_change.limbo_changes(),
                                 query_view->target_id());
