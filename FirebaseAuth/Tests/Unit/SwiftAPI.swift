@@ -24,8 +24,7 @@ import FirebaseCore
   import UIKit
 #endif
 
-/// This file tests public methods and enums. Properties are not included.
-/// Each function maps to a public header file.
+/// This file tests public methods and enums. Each function maps to a public header file.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthAPI_hOnlyTests: XCTestCase {
@@ -88,9 +87,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
     #if os(iOS)
       if let _: Data = auth.apnsToken {}
-      // TODO: Should this be supported or should we always use
-      // setAPNSToken(_ token: Data, type: AuthAPNSTokenType)
-      // auth.apnsToken = Data()
+      auth.apnsToken = Data()
     #endif
   }
 
@@ -105,8 +102,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     #if os(iOS)
       let provider = OAuthProvider(providerID: "abc")
-      auth.signIn(with: provider, uiDelegate: nil) { result, error in
-      }
       provider.getCredentialWith(nil) { credential, error in
         auth.signIn(with: credential!) { result, error in
         }
@@ -147,7 +142,7 @@ class AuthAPI_hOnlyTests: XCTestCase {
     auth.useEmulator(withHost: "myHost", port: 123)
     #if os(iOS)
       _ = auth.canHandle(URL(fileURLWithPath: "/my/path"))
-      auth.setAPNSToken(Data(), type: AuthAPNSTokenType(rawValue: 2)!)
+      auth.setAPNSToken(Data(), type: AuthAPNSTokenType.prod)
       _ = auth.canHandleNotification([:])
       #if !targetEnvironment(macCatalyst)
         auth.initializeRecaptchaConfig { _ in
@@ -481,6 +476,9 @@ class AuthAPI_hOnlyTests: XCTestCase {
       _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce",
                                    accessToken: "token")
       _ = OAuthProvider.credential(withProviderID: "id", idToken: "idToken", rawNonce: "nonce")
+      _ = OAuthProvider.appleCredential(withIDToken: "idToken",
+                                        rawNonce: "nonce",
+                                        fullName: nil)
       provider.getCredentialWith(provider as? AuthUIDelegate) { credential, error in
       }
     #endif
@@ -512,8 +510,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
         uiDelegate: nil,
         multiFactorSession: nil
       ) { _, _ in
-      }
-      provider.verifyPhoneNumber("123", uiDelegate: nil, multiFactorSession: nil) { _, _ in
       }
       _ = provider.credential(withVerificationID: "id", verificationCode: "code")
     }
