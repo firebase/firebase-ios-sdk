@@ -22,8 +22,8 @@ import FirebaseCore
   import GTMSessionFetcherCore
 #endif
 
-import XCTest
 import SharedTestUtilities
+import XCTest
 
 class FunctionsTests: XCTestCase {
   var functions: Functions?

@@ -101,7 +101,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "ABTesting"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -116,6 +124,8 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v3
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -153,7 +163,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK:  "Authentication"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -167,6 +185,8 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FBSDKLoginKit FBSDKCoreKit FBSDKCoreKit_Basics FBAEMKit" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -197,7 +217,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Config"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -211,6 +239,8 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
 
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -239,7 +269,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Crashlytics"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -254,6 +292,8 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v3
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -304,7 +344,16 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Database"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
+          # - os: macos-13
+          #   xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -319,6 +368,8 @@ jobs:
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v3
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="FirebaseDatabaseUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDatabase/* \
@@ -350,7 +401,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "DynamicLinks"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -368,6 +427,8 @@ jobs:
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Update Environment Variable For DynamicLinks
@@ -400,7 +461,16 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Firestore"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
+          # - os: macos-13
+          #   xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -421,6 +491,8 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseFirestore/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/qs-firestore.plist.gpg \
         quickstart-ios/firestore/GoogleService-Info.plist "$plist_secret"
@@ -442,7 +514,7 @@ jobs:
     env:
       FRAMEWORK_DIR: "Firebase-actions-dir"
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
       - name: Xcode 14.1
         run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
@@ -476,7 +548,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "InAppMessaging"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -496,6 +576,8 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseInAppMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
@@ -523,7 +605,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Messaging"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -542,6 +632,8 @@ jobs:
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}ExampleSwift" scripts/setup_quickstart_framework.sh
     - name: Install Secret GoogleService-Info.plist
@@ -569,7 +661,15 @@ jobs:
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Storage"
-    runs-on: macos-12
+    strategy:
+      matrix:
+        os: [macos-12, macos-13]
+        include:
+          - os: macos-12
+            xcode: Xcode_14.2
+          - os: macos-13
+            xcode: Xcode_15.0.1
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Get framework dir
@@ -591,6 +691,8 @@ jobs:
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseStorage/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAuth/* \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseAnalytics/*
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup swift quickstart
       env:
         LEGACY: true

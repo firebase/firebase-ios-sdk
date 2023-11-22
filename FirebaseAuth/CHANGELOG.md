@@ -1,3 +1,6 @@
+# 10.19.0
+- [changed] Deprecate `updateEmail(to email: String)` and `fetchSignInMethods(forEmail email: String)`. (#12081)
+
 # 10.18.0
 - [fixed] Fix a bug where anonymous account can't be linked with email password credential. (#11911)
 

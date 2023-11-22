@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import FirebaseInAppMessaging
+import SwiftUI
 
 struct ContentView: View {
   @State private var analyticsEvent = ""

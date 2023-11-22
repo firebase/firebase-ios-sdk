@@ -16,10 +16,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import PackageDescription
 import class Foundation.ProcessInfo
+import PackageDescription
 
-let firebaseVersion = "10.18.0"
+let firebaseVersion = "10.19.0"
 
 let package = Package(
   name: "Firebase",
@@ -154,7 +154,7 @@ let package = Package(
     ),
     .package(
       url: "https://github.com/google/GoogleUtilities.git",
-      "7.11.0" ..< "8.0.0"
+      "7.12.1" ..< "8.0.0"
     ),
     .package(
       url: "https://github.com/google/gtm-session-fetcher.git",
@@ -182,6 +182,7 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
+    .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
   ],
   targets: [
     .target(
@@ -1219,6 +1220,7 @@ let package = Package(
             dependencies: [
               "FirebaseAppCheckInterop",
               "FirebaseCore",
+              .product(name: "AppCheckCore", package: "app-check"),
               .product(name: "FBLPromises", package: "Promises"),
               .product(name: "GULEnvironment", package: "GoogleUtilities"),
             ],
@@ -1258,9 +1260,6 @@ let package = Package(
         // are not supported (as of Xcode 15.0).
         "Swift",
       ],
-      resources: [
-        .process("Fixture"),
-      ],
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1268,10 +1267,7 @@ let package = Package(
     .testTarget(
       name: "FirebaseAppCheckUnitSwift",
       dependencies: ["FirebaseAppCheck"],
-      path: "FirebaseAppCheck/Tests/Unit/Swift",
-      cSettings: [
-        .headerSearchPath("../.."),
-      ]
+      path: "FirebaseAppCheck/Tests/Unit/Swift"
     ),
 
     // MARK: Testing support
@@ -1478,8 +1474,8 @@ func firestoreTargets() -> [Target] {
     } else {
       return .binaryTarget(
         name: "FirebaseFirestoreInternal",
-        url: "https://dl.google.com/firebase/ios/bin/firestore/10.17.0/FirebaseFirestoreInternal.zip",
-        checksum: "9102f56ad70d97c8ad81b1047fc38bbbacde672eb86d861b19c454829210cd55"
+        url: "https://dl.google.com/firebase/ios/bin/firestore/10.18.0/FirebaseFirestoreInternal.zip",
+        checksum: "182e4a8ef7648834a5c1b9442e3e1ac4b342e3174dd39e0e681ed7b3a6b1aca0"
       )
     }
   }()

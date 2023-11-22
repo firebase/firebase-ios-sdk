@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
+#import <AppCheckCore/AppCheckCore.h>
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FIRAppCheckCryptoUtils : NSObject
+@protocol FIRAppCheckProvider;
 
-+ (NSData *)sha256HashFromData:(NSData *)dataToHash;
+@interface FIRInternalAppCheckProvider : NSObject <GACAppCheckProvider>
+
+- (instancetype)initWithAppCheckProvider:(id<FIRAppCheckProvider>)appCheckProvider;
 
 @end
 

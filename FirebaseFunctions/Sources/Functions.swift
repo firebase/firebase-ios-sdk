@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
 import FirebaseCore
 import FirebaseMessagingInterop
 import FirebaseSharedSwift
+import Foundation
 #if COCOAPODS
   import GTMSessionFetcher
 #else
@@ -34,7 +34,7 @@ private enum Constants {
 }
 
 /// Cross SDK constants.
-internal enum FunctionsConstants {
+enum FunctionsConstants {
   static let defaultRegion = "us-central1"
 }
 
@@ -54,10 +54,10 @@ internal enum FunctionsConstants {
   private let contextProvider: FunctionsContextProvider
 
   /// The custom domain to use for all functions references (optional).
-  internal let customDomain: String?
+  let customDomain: String?
 
   /// The region to use for all function references.
-  internal let region: String
+  let region: String
 
   // MARK: - Public APIs
 
@@ -314,13 +314,13 @@ internal enum FunctionsConstants {
                                type: self)
   }
 
-  @objc internal init(projectID: String,
-                      region: String,
-                      customDomain: String?,
-                      auth: AuthInterop?,
-                      messaging: MessagingInterop?,
-                      appCheck: AppCheckInterop?,
-                      fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
+  @objc init(projectID: String,
+             region: String,
+             customDomain: String?,
+             auth: AuthInterop?,
+             messaging: MessagingInterop?,
+             appCheck: AppCheckInterop?,
+             fetcherService: GTMSessionFetcherService = GTMSessionFetcherService()) {
     self.projectID = projectID
     self.region = region
     self.customDomain = customDomain
@@ -332,9 +332,9 @@ internal enum FunctionsConstants {
   }
 
   /// Using the component system for initialization.
-  internal convenience init(app: FirebaseApp,
-                            region: String,
-                            customDomain: String?) {
+  convenience init(app: FirebaseApp,
+                   region: String,
+                   customDomain: String?) {
     // TODO: These are not optionals, but they should be.
     let auth = ComponentType<AuthInterop>.instance(for: AuthInterop.self, in: app.container)
     let messaging = ComponentType<MessagingInterop>.instance(for: MessagingInterop.self,
@@ -354,7 +354,7 @@ internal enum FunctionsConstants {
               appCheck: appCheck)
   }
 
-  internal func urlWithName(_ name: String) -> String {
+  func urlWithName(_ name: String) -> String {
     assert(!name.isEmpty, "Name cannot be empty")
 
     // Check if we're using the emulator
@@ -370,11 +370,11 @@ internal enum FunctionsConstants {
     return "https://\(region)-\(projectID).cloudfunctions.net/\(name)"
   }
 
-  internal func callFunction(name: String,
-                             withObject data: Any?,
-                             options: HTTPSCallableOptions?,
-                             timeout: TimeInterval,
-                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+  func callFunction(name: String,
+                    withObject data: Any?,
+                    options: HTTPSCallableOptions?,
+                    timeout: TimeInterval,
+                    completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     // Get context first.
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if
@@ -393,11 +393,11 @@ internal enum FunctionsConstants {
     }
   }
 
-  internal func callFunction(url: URL,
-                             withObject data: Any?,
-                             options: HTTPSCallableOptions?,
-                             timeout: TimeInterval,
-                             completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
+  func callFunction(url: URL,
+                    withObject data: Any?,
+                    options: HTTPSCallableOptions?,
+                    timeout: TimeInterval,
+                    completion: @escaping ((Result<HTTPSCallableResult, Error>) -> Void)) {
     // Get context first.
     contextProvider.getContext(options: options) { context, error in
       // Note: context is always non-nil since some checks could succeed, we're only failing if

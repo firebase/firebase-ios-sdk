@@ -52,40 +52,40 @@ import Foundation
   /**
    * State for the current task in progress.
    */
-  internal var state: StorageTaskState
+  var state: StorageTaskState
 
   /**
    * StorageMetadata for the task in progress, or nil if none present.
    */
-  internal var metadata: StorageMetadata?
+  var metadata: StorageMetadata?
 
   /**
    * Error which occurred during task execution, or nil if no error occurred.
    */
-  internal var error: NSError?
+  var error: NSError?
 
   /**
    * NSProgress object which tracks the progress of an observable task.
    */
-  internal var progress: Progress
+  var progress: Progress
 
   /**
    * Reference pointing to the location the task is being performed against.
    */
-  internal let reference: StorageReference
+  let reference: StorageReference
 
   /**
    * A serial queue for all storage operations.
    */
-  internal let dispatchQueue: DispatchQueue
+  let dispatchQueue: DispatchQueue
 
-  internal let fetcherService: GTMSessionFetcherService
+  let fetcherService: GTMSessionFetcherService
 
-  internal let baseRequest: URLRequest
+  let baseRequest: URLRequest
 
-  internal init(reference: StorageReference,
-                service: GTMSessionFetcherService,
-                queue: DispatchQueue) {
+  init(reference: StorageReference,
+       service: GTMSessionFetcherService,
+       queue: DispatchQueue) {
     self.reference = reference
     fetcherService = service
     fetcherService.maxRetryInterval = reference.storage.maxOperationRetryInterval

@@ -14,8 +14,8 @@
 
 import Foundation
 
-@testable import FirebaseStorage
 import FirebaseCore
+@testable import FirebaseStorage
 import GTMSessionFetcherCore
 
 import XCTest
@@ -23,7 +23,7 @@ import XCTest
 class StorageTestHelpers: XCTestCase {
   static var app: FirebaseApp!
 
-  internal func storage() -> Storage {
+  func storage() -> Storage {
     return Storage(app: FirebaseApp.app()!, bucket: "bucket")
   }
 
@@ -38,12 +38,12 @@ class StorageTestHelpers: XCTestCase {
     }
   }
 
-  internal func rootReference() -> StorageReference {
+  func rootReference() -> StorageReference {
     let path = StoragePath(with: "bucket")
     return StorageReference(storage: storage(), path: path)
   }
 
-  internal func waitForExpectation(test: XCTest) {
+  func waitForExpectation(test: XCTest) {
     waitForExpectations(timeout: 10) { error in
       if let error = error {
         print("Error \(error)")
@@ -51,7 +51,7 @@ class StorageTestHelpers: XCTestCase {
     }
   }
 
-  internal func successBlock(withMetadata metadata: StorageMetadata? = nil)
+  func successBlock(withMetadata metadata: StorageMetadata? = nil)
     -> GTMSessionFetcherTestBlock {
     var data: Data?
     if let metadata = metadata {
@@ -60,12 +60,12 @@ class StorageTestHelpers: XCTestCase {
     return block(forData: data, url: nil, statusCode: 200)
   }
 
-  internal func successBlock(withURL url: URL) -> GTMSessionFetcherTestBlock {
+  func successBlock(withURL url: URL) -> GTMSessionFetcherTestBlock {
     let data = "{}".data(using: .utf8)
     return block(forData: data, url: url, statusCode: 200)
   }
 
-  internal func unauthenticatedBlock() -> GTMSessionFetcherTestBlock {
+  func unauthenticatedBlock() -> GTMSessionFetcherTestBlock {
     let unauthenticatedString =
       "<html><body><p>User not authenticated. Authentication via Authorization header required. " +
       "Authorization Header does not match expected format of 'Authorization: Firebase " +
@@ -74,7 +74,7 @@ class StorageTestHelpers: XCTestCase {
     return block(forData: data, url: nil, statusCode: 401)
   }
 
-  internal func unauthorizedBlock() -> GTMSessionFetcherTestBlock {
+  func unauthorizedBlock() -> GTMSessionFetcherTestBlock {
     let unauthorizedString =
       "<html><body><p>User not authorized. Authentication via Authorization header required. " +
       "Authorization Header does not match expected format of 'Authorization: Firebase " +
@@ -83,13 +83,13 @@ class StorageTestHelpers: XCTestCase {
     return block(forData: data, url: nil, statusCode: 403)
   }
 
-  internal func notFoundBlock() -> GTMSessionFetcherTestBlock {
+  func notFoundBlock() -> GTMSessionFetcherTestBlock {
     let unauthenticatedString = "<html><body><p>Object not found.</p></body></html>"
     let data = unauthenticatedString.data(using: .utf8)
     return block(forData: data, url: nil, statusCode: 404)
   }
 
-  internal func invalidJSONBlock() -> GTMSessionFetcherTestBlock {
+  func invalidJSONBlock() -> GTMSessionFetcherTestBlock {
     let string = "This is not a JSON object"
     let data = string.data(using: .utf8)
     return block(forData: data, url: nil, statusCode: 200)
@@ -123,11 +123,11 @@ class StorageTestHelpers: XCTestCase {
 
   private let objectString = "https://firebasestorage.googleapis.com:443/v0/b/bucket/o/object"
 
-  internal func objectURL() -> URL {
+  func objectURL() -> URL {
     return URL(string: objectString)!
   }
 
-  internal func objectPath() -> StoragePath {
+  func objectPath() -> StoragePath {
     guard let path = try? StoragePath.path(string: objectString) else {
       fatalError("Failed to get StoragePath")
     }

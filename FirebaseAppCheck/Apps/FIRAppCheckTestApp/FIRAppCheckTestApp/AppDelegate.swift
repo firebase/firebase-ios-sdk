@@ -16,8 +16,8 @@
 
 import UIKit
 
-import FirebaseCore
 import FirebaseAppCheck
+import FirebaseCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

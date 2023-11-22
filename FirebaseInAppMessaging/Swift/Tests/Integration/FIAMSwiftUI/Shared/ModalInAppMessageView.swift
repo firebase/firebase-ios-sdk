@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import SwiftUI
 import FirebaseInAppMessaging
 import FirebaseInAppMessagingSwift
+import SwiftUI
 
 struct ModalInAppMessageView: View {
   var modalMessage: InAppMessagingModalDisplay

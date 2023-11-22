@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Combine
 import Firebase
 import FirebaseAuth
 import FirebaseAuthCombineSwift
-import Combine
 
 class UserInfoViewModel: ObservableObject {
   @Published var user: User?

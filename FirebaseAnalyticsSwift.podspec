@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name                    = 'FirebaseAnalyticsSwift'
-  s.version                 = '10.18.0'
+  s.version                 = '10.19.0'
   s.summary                 = 'Swift Extensions for Firebase Analytics'
 
   s.description      = <<-DESC

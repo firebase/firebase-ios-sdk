@@ -14,8 +14,8 @@
 
 import Foundation
 
-@testable import FirebaseStorage
 import FirebaseCore
+@testable import FirebaseStorage
 
 import XCTest
 

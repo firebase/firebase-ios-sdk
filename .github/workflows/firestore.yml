@@ -130,6 +130,10 @@ jobs:
         key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
         restore-keys: ${{ runner.os }}-mint-
 
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
+
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
 
@@ -175,6 +179,10 @@ jobs:
         path: ${{ env.MINT_PATH }}
         key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
         restore-keys: ${{ runner.os }}-mint-
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
 
     - name: Install Secret GoogleService-Info.plist
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/firestore.plist.gpg \
@@ -251,6 +259,10 @@ jobs:
         key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
           ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
 
     - name: Setup build
       run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
+import FirebaseManifest
 import Foundation
 import Utils
-import FirebaseManifest
 
 /// CocoaPod related utility functions. The enum type is used as a namespace here instead of having
 /// root functions, and no cases should be added to it.
@@ -494,8 +494,7 @@ enum CocoaPodUtils {
         podfile += "  pod '\(pod.name)', :path => '\(localURL.path)'"
       } else if let podVersion = pod.version {
         // To support Firebase patch versions in the Firebase zip distribution, allow patch updates
-        // for all pods except Firebase and FirebaseCore. The Firebase Swift pods are not yet in the
-        // zip distribution.
+        // for all pods except Firebase and FirebaseCore.
         var podfileVersion = podVersion
         if pod.name.starts(with: "Firebase"),
            !pod.name.hasSuffix("Swift"),

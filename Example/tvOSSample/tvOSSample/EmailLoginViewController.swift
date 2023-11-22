@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
 import FirebaseAuth
+import UIKit
 
 protocol EmailLoginDelegate {
   func emailLogin(_ controller: EmailLoginViewController, signedInAs user: User)

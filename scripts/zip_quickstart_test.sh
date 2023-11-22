@@ -36,7 +36,6 @@ xcodebuild \
 -scheme  ${SAMPLE}Example${SWIFT_SUFFIX} \
 -destination 'platform=iOS Simulator,name=iPhone 14' "SWIFT_VERSION=5.3" "OTHER_LDFLAGS=\$(OTHER_LDFLAGS) -ObjC" "FRAMEWORK_SEARCH_PATHS= \$(PROJECT_DIR)/Firebase/" HEADER_SEARCH_PATHS='$(PROJECT_DIR)/Firebase' \
 build \
-test \
 ) || EXIT_STATUS=$?
 
 exit $EXIT_STATUS

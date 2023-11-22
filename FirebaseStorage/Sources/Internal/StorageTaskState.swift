@@ -15,7 +15,7 @@
 /**
  * Enum representing the internal state of an upload or download task.
  */
-internal enum StorageTaskState {
+enum StorageTaskState {
   /**
    * Unknown task state
    */

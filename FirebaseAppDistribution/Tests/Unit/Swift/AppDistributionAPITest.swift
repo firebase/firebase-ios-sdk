@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 @testable import FirebaseAppDistribution
+import XCTest
 
 class AppDistributionAPITests: XCTestCase {
   @available(iOS 13.0.0, *)

@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
     - 'FirebaseSharedSwift**'
+    - '.github/workflows/shared-swift.yml'
     - 'Gemfile*'
 
   schedule:
@@ -45,6 +46,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
+        target: [iOS, tvOS, macOS, catalyst, watchOS]
         os: [macos-12, macos-13]
         include:
           - os: macos-12

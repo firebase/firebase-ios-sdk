@@ -1,4 +1,4 @@
-# Unreleased
+# 10.18.0
 - [fixed] Fix Firestore build for visionOS on Xcode 15.1. (#12023)
 
 # 10.17.0

@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import Foundation
-import UIKit
 import Photos
+import UIKit
 
 @objc(FIRFADInAppFeedback) open class InAppFeedback: NSObject {
   @objc(

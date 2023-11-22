@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FirebaseCore/Extension/FIRHeartbeatLogger.h"
 
-@class FBLPromise<Result>;
-@class FIRAppCheckToken;
-@protocol FIRAppCheckAPIServiceProtocol;
+#import <AppCheckCore/AppCheckCore.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol FIRDeviceCheckAPIServiceProtocol <NSObject>
+@interface FIRHeartbeatLogger (AppCheck)
 
-- (FBLPromise<FIRAppCheckToken *> *)appCheckTokenWithDeviceToken:(NSData *)deviceToken;
-
-@end
-
-@interface FIRDeviceCheckAPIService : NSObject <FIRDeviceCheckAPIServiceProtocol>
-
-- (instancetype)initWithAPIService:(id<FIRAppCheckAPIServiceProtocol>)APIService
-                         projectID:(NSString *)projectID
-                             appID:(NSString *)appID;
+/// Returns a closure that adds a heartbeat logging header to a `URLRequest`.
+- (GACAppCheckAPIRequestHook)requestHook;
 
 @end
 

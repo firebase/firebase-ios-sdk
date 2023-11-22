@@ -118,6 +118,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
     - name: Setup quickstart
       env:
         LEGACY: true

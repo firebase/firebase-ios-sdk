@@ -108,7 +108,7 @@ public let FunctionsErrorDetailsKey: String = "details"
  * - Parameter status An HTTP status code.
  * - Returns: The corresponding error code, or `FIRFunctionsErrorCodeUnknown` if none.
  */
-internal func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorCode {
+func FunctionsCodeForHTTPStatus(_ status: NSInteger) -> FunctionsErrorCode {
   switch status {
   case 200:
     return .OK
@@ -209,9 +209,9 @@ extension FunctionsErrorCode {
   }
 }
 
-internal func FunctionsErrorForResponse(status: NSInteger,
-                                        body: Data?,
-                                        serializer: FUNSerializer) -> NSError? {
+func FunctionsErrorForResponse(status: NSInteger,
+                               body: Data?,
+                               serializer: FUNSerializer) -> NSError? {
   // Start with reasonable defaults from the status code.
   var code = FunctionsCodeForHTTPStatus(status)
   var description = code.descriptionForErrorCode

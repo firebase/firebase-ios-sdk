@@ -101,14 +101,40 @@ final class AppCheckE2ETests: XCTestCase {
       wait(for: [expectation], timeout: 0.5)
     }
   #endif // !os(macOS) && !targetEnvironment(macCatalyst)
+
+  func testGetLimitedUseToken() throws {
+    guard let appCheck = AppCheck.appCheck(app: app) else {
+      XCTFail("AppCheck instance is nil.")
+      return
+    }
+
+    let expectation = XCTestExpectation()
+    appCheck.limitedUseToken { token, error in
+      XCTAssertNil(error)
+      XCTAssertNotNil(token)
+      XCTAssertEqual(token!.token, TestAppCheckProvider.limitedUseTokenValue)
+      expectation.fulfill()
+    }
+
+    wait(for: [expectation], timeout: 0.5)
+  }
 }
 
 class TestAppCheckProvider: NSObject, AppCheckProvider {
   static let tokenValue = "TestToken"
+  static let limitedUseTokenValue = "TestLimitedUseToken"
 
   func getToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
     let token = AppCheckToken(
       token: TestAppCheckProvider.tokenValue,
+      expirationDate: Date.distantFuture
+    )
+    handler(token, nil)
+  }
+
+  func getLimitedUseToken(completion handler: @escaping (AppCheckToken?, Error?) -> Void) {
+    let token = AppCheckToken(
+      token: TestAppCheckProvider.limitedUseTokenValue,
       expirationDate: Date.distantFuture
     )
     handler(token, nil)

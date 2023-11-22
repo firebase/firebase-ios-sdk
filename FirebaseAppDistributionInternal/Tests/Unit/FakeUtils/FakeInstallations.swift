@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
-@testable import FirebaseInstallations
 @testable import FirebaseAppDistributionInternal
+@testable import FirebaseInstallations
+import Foundation
 
 // This is needed because importing the setter from FIRInstallationsAuthTokenResultInternal.h in
 // the bridging error results in errors.

@@ -147,6 +147,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: ruby/setup-ruby@v1
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
@@ -173,8 +176,10 @@ jobs:
         include:
           - os: macos-12
             xcode: Xcode_14.2
+            tests: --test-specs=unit
           - os: macos-13
             xcode: Xcode_15.0.1
+            tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -187,7 +192,8 @@ jobs:
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Build and test
       run: |
-       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec --test-specs=unit --platforms=${{ matrix.target }}
+       scripts/third_party/travis/retry.sh scripts/pod_lib_lint.rb FirebaseStorage.podspec ${{ matrix.tests }} \
+         --platforms=${{ matrix.target }}
 
   storage-cron-only:
     # Don't run on private repo.

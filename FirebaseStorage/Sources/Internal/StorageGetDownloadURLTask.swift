@@ -23,15 +23,15 @@ import Foundation
 /**
  * Task which provides the ability to get a download URL for an object in Firebase Storage.
  */
-internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
+class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
   private var fetcher: GTMSessionFetcher?
   private var fetcherCompletion: ((Data?, NSError?) -> Void)?
   private var taskCompletion: ((_ downloadURL: URL?, _: Error?) -> Void)?
 
-  internal init(reference: StorageReference,
-                fetcherService: GTMSessionFetcherService,
-                queue: DispatchQueue,
-                completion: ((_: URL?, _: Error?) -> Void)?) {
+  init(reference: StorageReference,
+       fetcherService: GTMSessionFetcherService,
+       queue: DispatchQueue,
+       completion: ((_: URL?, _: Error?) -> Void)?) {
     super.init(reference: reference, service: fetcherService, queue: queue)
     taskCompletion = completion
   }
@@ -43,7 +43,7 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
   /**
    * Prepares a task and begins execution.
    */
-  internal func enqueue() {
+  func enqueue() {
     if let completion = taskCompletion {
       taskCompletion = { (url: URL?, error: Error?) in
         completion(url, error)
@@ -93,7 +93,7 @@ internal class StorageGetDownloadURLTask: StorageTask, StorageTaskManagement {
     }
   }
 
-  internal func downloadURLFromMetadataDictionary(_ dictionary: [String: Any]) -> URL? {
+  func downloadURLFromMetadataDictionary(_ dictionary: [String: Any]) -> URL? {
     let downloadTokens = dictionary["downloadTokens"]
     guard let downloadTokens = downloadTokens as? String,
           downloadTokens.count > 0 else {

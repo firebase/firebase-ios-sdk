@@ -14,8 +14,8 @@
 
 import Foundation
 
-@testable import FirebaseFunctions
 import FirebaseAuthInterop
+@testable import FirebaseFunctions
 import FirebaseMessagingInterop
 import XCTest
 

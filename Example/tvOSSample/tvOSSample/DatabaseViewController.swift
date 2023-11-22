@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
 import FirebaseDatabase
+import UIKit
 
 /// A class to demonstrate the Firebase Realtime Database API. This will show a number read
 /// from the Database and increase or decrease it based on the buttons pressed.

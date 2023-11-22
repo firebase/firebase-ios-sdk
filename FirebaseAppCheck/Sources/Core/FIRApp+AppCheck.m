@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-#import <Foundation/Foundation.h>
+#import "FirebaseAppCheck/Sources/Core/FIRApp+AppCheck.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation FIRApp (AppCheck)
 
-@interface FIRAppAttestRejectionError : NSError
-
-- (instancetype)init;
+- (NSString *)resourceName {
+  return [NSString
+      stringWithFormat:@"projects/%@/apps/%@", self.options.projectID, self.options.googleAppID];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

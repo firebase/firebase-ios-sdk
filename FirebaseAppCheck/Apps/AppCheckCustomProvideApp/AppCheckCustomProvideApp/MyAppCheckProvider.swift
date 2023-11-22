@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import Foundation
-import FirebaseCore
 import FirebaseAppCheck
+import FirebaseCore
+import Foundation
 
 class MyAppCheckProvider: NSObject, AppCheckProvider {
   func getToken(completion handler: @escaping AppCheckTokenHandler) {

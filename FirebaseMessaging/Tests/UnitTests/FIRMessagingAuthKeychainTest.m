@@ -101,16 +101,19 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                        // Now query the token and compare, they should not corrupt
                        // each other.
                        NSData *data1 = [weakKeychain dataForService:service account:account1];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                        FIRMessagingTokenInfo *tokenInfo1 =
-                           [NSKeyedUnarchiver unarchiveObjectWithData:data1];
+                           [NSKeyedUnarchiver unarchivedObjectOfClass:FIRMessagingTokenInfo.class
+                                                             fromData:data1
+                                                                error:&error];
+                       XCTAssertNil(error);
                        XCTAssertEqualObjects(kToken1, tokenInfo1.token);
 
                        NSData *data2 = [weakKeychain dataForService:service account:account2];
                        FIRMessagingTokenInfo *tokenInfo2 =
-                           [NSKeyedUnarchiver unarchiveObjectWithData:data2];
-#pragma clang diagnostic pop
+                           [NSKeyedUnarchiver unarchivedObjectOfClass:FIRMessagingTokenInfo.class
+                                                             fromData:data2
+                                                                error:&error];
+                       XCTAssertNil(error);
                        XCTAssertEqualObjects(kToken2, tokenInfo2.token);
                        // Also check the cache data.
                        XCTAssertEqual(weakKeychain.cachedKeychainData.count, 1);
@@ -175,11 +178,11 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                     // Now query the token and compare, they should not corrupt
                     // each other.
                     NSData *data1 = [weakKeychain dataForService:service1 account:account];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
                     FIRMessagingTokenInfo *tokenInfo1 =
-                        [NSKeyedUnarchiver unarchiveObjectWithData:data1];
-#pragma clang diagnostic pop
+                        [NSKeyedUnarchiver unarchivedObjectOfClass:FIRMessagingTokenInfo.class
+                                                          fromData:data1
+                                                             error:&error];
+                    XCTAssertNil(error);
                     XCTAssertEqualObjects(kToken1, tokenInfo1.token);
 
                     NSData *data2 = [weakKeychain dataForService:service2 account:account];
@@ -413,10 +416,12 @@ static NSString *const kBundleID2 = @"com.google.abtesting.dev";
                                                         token:token
                                                    appVersion:@"1.0"
                                                 firebaseAppID:kFirebaseAppID];
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-  return [NSKeyedArchiver archivedDataWithRootObject:tokenInfo];
-#pragma clang diagnostic pop
+  NSError *error;
+  NSData *archive = [NSKeyedArchiver archivedDataWithRootObject:tokenInfo
+                                          requiringSecureCoding:YES
+                                                          error:&error];
+  XCTAssertNil(error);
+  return archive;
 }
 @end
 

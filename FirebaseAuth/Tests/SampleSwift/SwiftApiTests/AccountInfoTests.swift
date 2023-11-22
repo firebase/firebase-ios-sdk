@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import XCTest
 import FirebaseAuth
+import XCTest
 
 class AccountInfoTests: TestsBase {
   /** The testing email address for testCreateAccountWithEmailAndPassword. */

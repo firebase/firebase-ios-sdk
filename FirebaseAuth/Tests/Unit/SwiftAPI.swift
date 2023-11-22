@@ -24,7 +24,7 @@ import FirebaseCore
   import UIKit
 #endif
 
-/// This file tests public methods and enums.  Each function maps to a public header file.
+/// This file tests public methods and enums. Each function maps to a public header file.
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthAPI_hOnlyTests: XCTestCase {
@@ -96,11 +96,8 @@ class AuthAPI_hOnlyTests: XCTestCase {
 
   func FIRAuth_h(credential: AuthCredential) throws {
     let auth = FirebaseAuth.Auth.auth()
-    let authApp = FirebaseAuth.Auth.auth(app: FirebaseApp.app()!)
     let user = auth.currentUser!
     auth.updateCurrentUser(user) { _ in
-    }
-    authApp.fetchSignInMethods(forEmail: "abc@abc.com") { string, error in
     }
     auth.signIn(withEmail: "abc@abc.com", password: "password") { result, error in
     }
@@ -108,8 +105,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     }
     #if os(iOS)
       let provider = OAuthProvider(providerID: "abc")
-      auth.signIn(with: provider, uiDelegate: nil) { result, error in
-      }
       provider.getCredentialWith(nil) { credential, error in
         auth.signIn(with: credential!) { result, error in
         }
@@ -173,7 +168,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     try await auth.updateCurrentUser(user)
-    _ = try await auth.fetchSignInMethods(forEmail: "abc@abc.com")
     _ = try await auth.signIn(withEmail: "abc@abc.com", password: "password")
     _ = try await auth.signIn(withEmail: "abc@abc.com", link: "link")
     #if os(iOS)
@@ -576,8 +570,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     let credential = GoogleAuthProvider.credential(withIDToken: "token", accessToken: "aToken")
-    user.updateEmail(to: "email") { _ in
-    }
     user.updatePassword(to: "password") { _ in
     }
     let changeRequest = user.createProfileChangeRequest()
@@ -650,7 +642,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
     let auth = FirebaseAuth.Auth.auth()
     let user = auth.currentUser!
     let credential = GoogleAuthProvider.credential(withIDToken: "token", accessToken: "aToken")
-    try await user.updateEmail(to: "email")
     try await user.updatePassword(to: "password")
     let changeRequest = user.createProfileChangeRequest()
     try await user.reload()

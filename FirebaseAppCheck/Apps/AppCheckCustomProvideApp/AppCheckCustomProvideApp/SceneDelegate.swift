@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import UIKit
 import SwiftUI
+import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?

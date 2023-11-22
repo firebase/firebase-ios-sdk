@@ -24,7 +24,7 @@ enum StoragePathError: Error {
  * This class also includes helper methods to parse those URI/Ls, as well as to
  * add and remove path segments.
  */
-internal class StoragePath: NSCopying, Equatable {
+class StoragePath: NSCopying, Equatable {
   // MARK: Class methods
 
   /**
@@ -53,7 +53,7 @@ internal class StoragePath: NSCopying, Equatable {
    * @return Returns an instance of StoragePath or nil if one can't be created.
    * @throws Throws an error if the string is not a valid gs:// URI.
    */
-  internal static func path(GSURI aURIString: String) throws -> StoragePath {
+  static func path(GSURI aURIString: String) throws -> StoragePath {
     if aURIString.starts(with: "gs://") {
       let bucketObject = aURIString.dropFirst("gs://".count)
       if bucketObject.contains("/") {
@@ -119,12 +119,12 @@ internal class StoragePath: NSCopying, Equatable {
   /**
    * The GCS bucket in the path.
    */
-  internal let bucket: String
+  let bucket: String
 
   /**
    * The GCS object in the path.
    */
-  internal let object: String?
+  let object: String?
 
   /**
    * Constructs an StoragePath object that represents the given bucket and object.
@@ -132,8 +132,8 @@ internal class StoragePath: NSCopying, Equatable {
    * @param object The name of the object.
    * @return An instance of StoragePath representing the @a bucket and @a object.
    */
-  internal init(with bucket: String,
-                object: String? = nil) {
+  init(with bucket: String,
+       object: String? = nil) {
     self.bucket = bucket
     if let object = object {
       self.object = StoragePath.standardizedPathForString(object)
@@ -146,7 +146,7 @@ internal class StoragePath: NSCopying, Equatable {
     return lhs.bucket == rhs.bucket && lhs.object == rhs.object
   }
 
-  internal func copy(with zone: NSZone? = nil) -> Any {
+  func copy(with zone: NSZone? = nil) -> Any {
     return StoragePath(with: bucket, object: object)
   }
 
@@ -157,7 +157,7 @@ internal class StoragePath: NSCopying, Equatable {
    * @param path String to append to the current path.
    * @return Returns a new instance of StoragePath with the new path appended.
    */
-  internal func child(_ path: String) -> StoragePath {
+  func child(_ path: String) -> StoragePath {
     if path.count == 0 {
       return copy() as! StoragePath
     }
@@ -175,7 +175,7 @@ internal class StoragePath: NSCopying, Equatable {
    * @return Returns a new instance of StoragePath pointing to the parent path,
    * or nil if the current path points to the root.
    */
-  internal func parent() -> StoragePath? {
+  func parent() -> StoragePath? {
     guard let object = object,
           object.count > 0 else {
       return nil
@@ -188,7 +188,7 @@ internal class StoragePath: NSCopying, Equatable {
    * Creates a new path based off of the root of the bucket.
    * @return Returns a new instance of StoragePath pointing to the root of the bucket.
    */
-  internal func root() -> StoragePath {
+  func root() -> StoragePath {
     return StoragePath(with: bucket)
   }
 
@@ -196,7 +196,7 @@ internal class StoragePath: NSCopying, Equatable {
    * Returns a GS URI representing the current path.
    * @return Returns a gs://bucket/path/to/object URI representing the current path.
    */
-  internal func stringValue() -> String {
+  func stringValue() -> String {
     return "gs://\(bucket)/\(object ?? "")"
   }
 }

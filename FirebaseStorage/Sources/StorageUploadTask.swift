@@ -192,16 +192,16 @@ import Foundation
   private var uploadMetadata: StorageMetadata
   private var uploadData: Data?
   // Hold completion in object to force it to be retained until completion block is called.
-  internal var completionMetadata: ((StorageMetadata?, Error?) -> Void)?
+  var completionMetadata: ((StorageMetadata?, Error?) -> Void)?
 
   // MARK: - Internal Implementations
 
-  internal init(reference: StorageReference,
-                service: GTMSessionFetcherService,
-                queue: DispatchQueue,
-                file: URL? = nil,
-                data: Data? = nil,
-                metadata: StorageMetadata) {
+  init(reference: StorageReference,
+       service: GTMSessionFetcherService,
+       queue: DispatchQueue,
+       file: URL? = nil,
+       data: Data? = nil,
+       metadata: StorageMetadata) {
     uploadMetadata = metadata
     uploadData = data
     super.init(reference: reference, service: service, queue: queue, file: file)
@@ -234,7 +234,7 @@ import Foundation
     )
   }
 
-  internal func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
+  func finishTaskWithStatus(status: StorageTaskStatus, snapshot: StorageTaskSnapshot) {
     fire(for: status, snapshot: snapshot)
     removeAllObservers()
     fetcherCompletion = nil

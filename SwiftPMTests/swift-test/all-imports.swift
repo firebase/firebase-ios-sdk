@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import Firebase
-import FirebaseCore
-import FirebaseAuth
 import FirebaseABTesting
 import FirebaseAppCheck
+import FirebaseAuth
+import FirebaseCore
+import Foundation
 #if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseAppDistribution
 #endif

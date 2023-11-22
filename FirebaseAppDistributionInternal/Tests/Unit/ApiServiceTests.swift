@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import XCTest
 import FirebaseCore
+import XCTest
 
-@testable import FirebaseInstallations
 @testable import FirebaseAppDistributionInternal
+@testable import FirebaseInstallations
 
 class ApiServiceTests: XCTestCase {
   override class func setUp() {

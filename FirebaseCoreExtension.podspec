@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
     s.name             = 'FirebaseCoreExtension'
-    s.version          = '10.18.0'
+    s.version          = '10.19.0'
     s.summary          = 'Extended FirebaseCore APIs for Firebase product SDKs'
 
     s.description      = <<-DESC

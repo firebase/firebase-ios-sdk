@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import Foundation
 import FirebaseManifest
+import Foundation
 
 /// Misc. constants used in the build tool.
 enum Constants {
@@ -408,7 +408,7 @@ struct ZipBuilder {
     do {
       // This returns the Analytics directory and a list of framework names that Analytics requires.
       /// Example: ["FirebaseInstallations, "GoogleAppMeasurement", "nanopb", <...>]
-      let (dir, frameworks) = try installAndCopyFrameworks(forPod: "FirebaseAnalyticsSwift",
+      let (dir, frameworks) = try installAndCopyFrameworks(forPod: "FirebaseAnalytics",
                                                            inFolder: "FirebaseAnalytics",
                                                            withInstalledPods: installedPods,
                                                            rootZipDir: zipDir,
@@ -420,7 +420,7 @@ struct ZipBuilder {
     }
 
     // Start the README dependencies string with the frameworks built in Analytics.
-    var metadataDeps = dependencyString(for: "FirebaseAnalyticsSwift",
+    var metadataDeps = dependencyString(for: "FirebaseAnalytics",
                                         in: analyticsDir,
                                         frameworks: analyticsFrameworks)
 
@@ -437,7 +437,7 @@ struct ZipBuilder {
       $0.key == "Google-Mobile-Ads-SDK" ||
         $0.key == "GoogleSignIn" ||
         (firebaseZipPods.contains($0.key) &&
-          $0.key != "FirebaseAnalyticsSwift" &&
+          $0.key != "FirebaseAnalytics" &&
           $0.key != "Firebase" &&
           podsToInstall.map { $0.name }.contains($0.key))
     }.sorted { $0.key < $1.key }

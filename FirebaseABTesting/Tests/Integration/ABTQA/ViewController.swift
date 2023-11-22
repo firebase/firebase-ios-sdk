@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import UIKit
 import FirebaseAnalytics
 import FirebaseRemoteConfig
+import UIKit
 
 class ViewController: UIViewController {
   @IBAction func fireAnalyticsEventButtonTapped(_ sender: Any) {
