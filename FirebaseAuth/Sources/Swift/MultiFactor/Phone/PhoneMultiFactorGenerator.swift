@@ -32,7 +32,7 @@ import Foundation
      */
     @objc(assertionWithCredential:)
     public class func assertion(with phoneAuthCredential: PhoneAuthCredential)
-      -> MultiFactorAssertion {
+      -> PhoneMultiFactorAssertion {
       let assertion = PhoneMultiFactorAssertion()
       assertion.authCredential = phoneAuthCredential
       return assertion

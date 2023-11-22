@@ -24,19 +24,9 @@ import Foundation
         @brief Used to obtain an auth credential via a mobile web flow.
             This method is available on iOS only.
         @param UIDelegate An optional UI delegate used to present the mobile web flow.
-        @param completion Optionally; a block which is invoked asynchronously on the main thread when
-            the mobile web flow is completed.
-     */
-    @objc(getCredentialWithUIDelegate:completion:)
-    func getCredentialWith(_ UIDelegate: AuthUIDelegate?,
-                           completion: ((AuthCredential?, Error?) -> Void)?)
-
-    /** @fn getCredentialWithUIDelegate:completion:
-        @brief Used to obtain an auth credential via a mobile web flow.
-            This method is available on iOS only.
-        @param UIDelegate An optional UI delegate used to present the mobile web flow.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+    @objc(getCredentialWithUIDelegate:completion:)
     func credential(with UIDelegate: AuthUIDelegate?) async throws -> AuthCredential
   #endif
 }

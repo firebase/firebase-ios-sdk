@@ -848,17 +848,12 @@ class AuthTests: RPCBaseTests {
       @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
       func credential(with UIDelegate: FirebaseAuth.AuthUIDelegate?) async throws ->
         FirebaseAuth.AuthCredential {
-        fatalError("Should not use this async method yet")
-      }
-
-      func getCredentialWith(_ UIDelegate: FirebaseAuth.AuthUIDelegate?,
-                             completion: ((FirebaseAuth.AuthCredential?, Error?) -> Void)?) {
         let credential = OAuthCredential(withProviderID: GoogleAuthProvider.id,
                                          sessionID: kOAuthSessionID,
                                          OAuthResponseURLString: kOAuthRequestURI)
         XCTAssertEqual(credential.OAuthResponseURLString, kOAuthRequestURI)
         XCTAssertEqual(credential.sessionID, kOAuthSessionID)
-        completion?(credential, nil)
+        return credential
       }
     }
 

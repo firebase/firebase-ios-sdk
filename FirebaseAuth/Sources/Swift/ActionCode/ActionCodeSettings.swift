@@ -35,7 +35,7 @@ import Foundation
   /** @property iOSBundleID
       @brief The iOS bundle ID, if available. The default value is the current app's bundle ID.
    */
-  public var iOSBundleID: String?
+  @objc public var iOSBundleID: String?
 
   /** @property androidPackageName
       @brief The Android package name, if available.
@@ -84,7 +84,7 @@ import Foundation
     androidMinimumVersion = minimumVersion
   }
 
-  @objc public func setIOSBundleID(_ bundleID: String) {
+  public func setIOSBundleID(_ bundleID: String) {
     iOSBundleID = bundleID
   }
 }
