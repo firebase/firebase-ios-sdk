@@ -17,8 +17,8 @@
   import Foundation
   import XCTest
 
-  import FirebaseCore
   @testable import FirebaseAuth
+  import FirebaseCore
   import SafariServices
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

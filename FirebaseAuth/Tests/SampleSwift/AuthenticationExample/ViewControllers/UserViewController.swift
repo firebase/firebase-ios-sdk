@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
-import FirebaseAuth
 import AuthenticationServices
 import CryptoKit
+import FirebaseAuth
+import UIKit
 
 class UserViewController: UIViewController, DataSourceProviderDelegate {
   var dataSourceProvider: DataSourceProvider<User>!

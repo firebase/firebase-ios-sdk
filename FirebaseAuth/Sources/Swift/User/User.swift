@@ -1999,7 +1999,7 @@ extension User: NSSecureCoding {}
       @param callback The callback to be called in main thread.
       @param error The error to pass to callback.
    */
-  internal class func callInMainThreadWithError(callback: ((Error?) -> Void)?, error: Error?) {
+  class func callInMainThreadWithError(callback: ((Error?) -> Void)?, error: Error?) {
     if let callback {
       DispatchQueue.main.async {
         callback(error)

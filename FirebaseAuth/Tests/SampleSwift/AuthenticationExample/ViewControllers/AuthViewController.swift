@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
+// For Sign in with Facebook
+import FBSDKLoginKit
+import FirebaseAuth
 // [START auth_import]
 import FirebaseCore
-import FirebaseAuth
-// [END auth_import]
-
 // For Sign in with Google
 // [START google_import]
 import GoogleSignIn
-// [END google_import]
-
-// For Sign in with Facebook
-import FBSDKLoginKit
+import UIKit
 
 // For Sign in with Apple
 import AuthenticationServices

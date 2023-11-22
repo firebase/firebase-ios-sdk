@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import Combine
 import FirebaseAuth
+import Foundation
 
 // Make this class discoverable from Objective-C. Don't instantiate directly.
 @objc(FIRCombineAuthLibrary) private class __CombineAuthLibrary: NSObject {}

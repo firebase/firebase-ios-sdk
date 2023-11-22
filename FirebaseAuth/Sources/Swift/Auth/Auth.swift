@@ -14,10 +14,10 @@
 
 import Foundation
 
-import FirebaseCore
-import FirebaseCoreExtension
 import FirebaseAppCheckInterop
 import FirebaseAuthInterop
+import FirebaseCore
+import FirebaseCoreExtension
 #if COCOAPODS
   @_implementationOnly import GoogleUtilities
 #else
@@ -385,8 +385,8 @@ extension Auth: AuthInterop {
    @remarks This is the internal counterpart of this method, which uses a callback that does not
    update the current user.
    */
-  internal func internalSignInUser(withEmail email: String,
-                                   password: String) async throws -> User {
+  func internalSignInUser(withEmail email: String,
+                          password: String) async throws -> User {
     let request = VerifyPasswordRequest(email: email,
                                         password: password,
                                         requestConfiguration: requestConfiguration)
@@ -1969,7 +1969,7 @@ extension Auth: AuthInterop {
     objc_sync_exit(Auth.self)
   }
 
-  internal func signOutByForce(withUserID userID: String) throws {
+  func signOutByForce(withUserID userID: String) throws {
     guard currentUser?.uid == userID else {
       return
     }
@@ -2177,8 +2177,8 @@ extension Auth: AuthInterop {
                                                    isReauthentication: false)
   }
 
-  internal func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
-                                              isReauthentication: Bool) async throws
+  func internalSignInAndRetrieveData(withCredential credential: AuthCredential,
+                                     isReauthentication: Bool) async throws
     -> AuthDataResult {
     if let emailCredential = credential as? EmailAuthCredential {
       // Special case for email/password credentials
@@ -2488,13 +2488,13 @@ extension Auth: AuthInterop {
   /** @property mainBundle
       @brief Allow tests to swap in an alternate mainBundle.
    */
-  internal var mainBundleUrlTypes: [[String: Any]]!
+  var mainBundleUrlTypes: [[String: Any]]!
 
   /** @property requestConfiguration
       @brief The configuration object comprising of parameters needed to make a request to Firebase
           Auth's backend.
    */
-  internal var requestConfiguration: AuthRequestConfiguration
+  var requestConfiguration: AuthRequestConfiguration
 
   #if os(iOS)
     /** @property tokenManager

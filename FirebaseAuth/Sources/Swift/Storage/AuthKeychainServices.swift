@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Foundation
 import FirebaseCoreExtension
+import Foundation
 
 /** @var kAccountPrefix
     @brief The prefix string for keychain item account attribute before the key.

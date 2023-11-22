@@ -29,7 +29,7 @@ class AuthKeychainServicesTests: XCTestCase {
   static let otherData = "OTHER_DATA"
 
   static var account: String {
-    Self.accountPrefix + Self.key
+    accountPrefix + key
   }
 
   var keychain: AuthKeychainServices!

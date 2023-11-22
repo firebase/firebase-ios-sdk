@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import XCTest
 import FirebaseAuth
+import XCTest
 
 let kNoSecondFactorUserEmail = "iosapitests+no_second_factor@gmail.com"
 let kNoSecondFactorUserPassword = "aaaaaa"

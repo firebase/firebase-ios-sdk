@@ -14,4 +14,4 @@
 
 import Foundation
 
-internal let kAuthGlobalWorkQueue = DispatchQueue(label: "com.google.firebase.auth.globalWorkQueue")
+let kAuthGlobalWorkQueue = DispatchQueue(label: "com.google.firebase.auth.globalWorkQueue")

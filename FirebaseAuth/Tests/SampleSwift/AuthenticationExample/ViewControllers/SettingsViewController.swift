@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import UIKit
 @testable import FirebaseAuth
 import FirebaseCore
+import UIKit
 
 /// Namespace for performable actions on a Auth Settings view
 enum SettingsAction: String {

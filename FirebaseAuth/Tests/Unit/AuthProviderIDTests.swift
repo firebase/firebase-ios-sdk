@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import FirebaseAuth
 import Foundation
 import XCTest
-import FirebaseAuth
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 final class AuthProviderIDTests: XCTestCase {

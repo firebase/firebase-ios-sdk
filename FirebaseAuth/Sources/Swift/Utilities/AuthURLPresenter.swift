@@ -15,9 +15,9 @@
 #if os(iOS)
 
   import Foundation
+  import SafariServices
   import UIKit
   import WebKit
-  import SafariServices
 
   /** @class AuthURLPresenter
       @brief A Class responsible for presenting URL via SFSafariViewController or WKWebView.
