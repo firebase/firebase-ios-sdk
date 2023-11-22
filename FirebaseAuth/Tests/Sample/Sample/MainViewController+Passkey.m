@@ -93,10 +93,10 @@ NS_ASSUME_NONNULL_BEGIN
   }
 }
 
-- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller API_AVAILABLE(ios(13.0)){
-
-    return self.view.window;
-}
+//- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller API_AVAILABLE(ios(13.0)){
+//
+//    return self.view.window;
+//}
 
 @end
 
