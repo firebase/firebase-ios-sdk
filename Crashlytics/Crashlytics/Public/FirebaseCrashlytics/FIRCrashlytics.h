@@ -16,7 +16,7 @@
 
 #import "FIRCrashlyticsReport.h"
 #import "FIRExceptionModel.h"
-
+@protocol FIRRolloutsStateSubscriber;
 #if __has_include(<Crashlytics/Crashlytics.h>)
 #warning "FirebaseCrashlytics and Crashlytics are not compatible \
 in the same app because including multiple crash reporters can \
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
  * we suggest using a wrapper class or a protocol extension.
  */
 NS_SWIFT_NAME(Crashlytics)
-@interface FIRCrashlytics : NSObject
+@interface FIRCrashlytics : NSObject <FIRRolloutsStateSubscriber>
 
 /** :nodoc: */
 - (instancetype)init NS_UNAVAILABLE;

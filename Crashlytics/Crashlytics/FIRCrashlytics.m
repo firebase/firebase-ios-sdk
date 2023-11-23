@@ -223,6 +223,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     id<FIRSessionsProvider> sessions = FIR_COMPONENT(FIRSessionsProvider, container);
     id<FIRRemoteConfigInterop> remoteConfig = FIR_COMPONENT(FIRRemoteConfigInterop, container);
 
+    if (remoteConfig) {
+      [remoteConfig registerRolloutsStateSubscriber:@"fire-cls" subscriber:self];
+    }
+
     FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
 
     *isCacheable = YES;
