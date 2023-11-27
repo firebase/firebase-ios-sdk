@@ -18,23 +18,34 @@ import PrivacyKit
 /// Provides an API to walk the client through the creation of a Privacy
 /// Manifest via a series of questions.
 final class PrivacyManifestWizard {
-  private let xcframework: URL
+  private let builder: PrivacyManifest.Builder
+  private var questionnaire: Questionnaire
 
-  init(xcframework: URL) {
-    self.xcframework = xcframework
+  static func makeWizard(xcframework: URL) -> Self {
+    let builder = PrivacyManifest.Builder()
+    let privacyQuestionnaire = Questionnaire.makePrivacyQuestionnaire(
+      for: xcframework,
+      with: builder
+    )
+    return Self(builder: builder, questionnaire: privacyQuestionnaire)
+  }
+
+  private init(builder: PrivacyManifest.Builder,
+               questionnaire: Questionnaire) {
+    self.builder = builder
+    self.questionnaire = questionnaire
   }
 
   func nextQuestion() -> String? {
-    // TODO(ncooke3): Implement.
-    nil
+    questionnaire.nextQuestion()?.question
   }
 
   func processAnswer(_ answer: String) throws {
-    // TODO(ncooke3): Implement.
+    try questionnaire.processAnswer(answer)
   }
 
   func createManifest() throws -> PrivacyManifest {
     // TODO(ncooke3): Implement.
-    return PrivacyManifest()
+    builder.build()!
   }
 }
