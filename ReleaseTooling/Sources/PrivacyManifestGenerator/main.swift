@@ -29,7 +29,7 @@ struct PrivacyManifestGenerator: ParsableCommand {
   }
 
   func run() throws {
-    let wizard = PrivacyManifestWizard(xcframework: xcframework)
+    let wizard = PrivacyManifestWizard.makeWizard(xcframework: xcframework)
 
     while let question = wizard.nextQuestion() {
       print(question)

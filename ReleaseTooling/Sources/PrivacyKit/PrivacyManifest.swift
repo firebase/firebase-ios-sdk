@@ -16,6 +16,14 @@ import Foundation
 
 /// Represents a Privacy Manifest as described in
 ///  https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
+//  TODO(ncooke3): Add example of Privacy Manifest.
 public struct PrivacyManifest {
   public init() {}
+  public class Builder {
+    public init() {}
+    public func build() -> PrivacyManifest? {
+      // TODO(ncooke3): Implement.
+      nil
+    }
+  }
 }
