@@ -41,6 +41,26 @@ NS_SWIFT_NAME(DeviceCheckProvider)
 /// required parameters.
 - (nullable instancetype)initWithApp:(FIRApp *)app;
 
+/* Jazzy doesn't generate documentation for protocol-inherited
+ * methods, so this is copied over from the protocol declaration.
+ */
+/// Returns a new Firebase App Check token.
+/// @param handler The completion handler. Make sure to call the handler with either a token
+/// or an error.
+- (void)getTokenWithCompletion:
+    (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
+    NS_SWIFT_NAME(getToken(completion:));
+
+/// Returns a new Firebase App Check token.
+/// When implementing this method for your custom provider, the token returned should be suitable
+/// for consumption in a limited-use scenario. If you do not implement this method, the
+/// getTokenWithCompletion will be invoked instead whenever a limited-use token is requested.
+/// @param handler The completion handler. Make sure to call the handler with either a token
+/// or an error.
+- (void)getLimitedUseTokenWithCompletion:
+    (void (^)(FIRAppCheckToken *_Nullable token, NSError *_Nullable error))handler
+    NS_SWIFT_NAME(getLimitedUseToken(completion:));
+
 @end
 
 NS_ASSUME_NONNULL_END
