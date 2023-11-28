@@ -266,7 +266,14 @@ pb_bytes_array_t *FIRMessagingEncodeString(NSString *string) {
   FIRMessagingMetricsLog *log =
       [[FIRMessagingMetricsLog alloc] initWithEventExtension:eventExtension];
 
-  GDTCOREvent *event = [transport eventForTransport];
+  GDTCOREvent *event;
+  if (info[kFIRMessagingProductID]) {
+    int32_t productID = [info[kFIRMessagingProductID] intValue];
+    GDTCORProductData *productData = [[GDTCORProductData alloc] initWithProductID:productID];
+    event = [transport eventForTransportWithProductData:productData];
+  } else {
+    event = [transport eventForTransport];
+  }
   event.dataObject = log;
   event.qosTier = GDTCOREventQoSFast;
 

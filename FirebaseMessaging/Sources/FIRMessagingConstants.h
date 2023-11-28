@@ -33,6 +33,7 @@ FOUNDATION_EXPORT NSString *const kFIRMessagingFID;
 FOUNDATION_EXPORT NSString *const kFIRMessagingAnalyticsComposerIdentifier;
 FOUNDATION_EXPORT NSString *const kFIRMessagingAnalyticsMessageLabel;
 FOUNDATION_EXPORT NSString *const kFIRMessagingAnalyticsComposerLabel;
+FOUNDATION_EXPORT NSString *const kFIRMessagingProductID;
 
 FOUNDATION_EXPORT NSString *const kFIRMessagingRemoteNotificationsProxyEnabledInfoPlistKey;
 FOUNDATION_EXPORT NSString *const kFIRMessagingSubDirectoryName;
