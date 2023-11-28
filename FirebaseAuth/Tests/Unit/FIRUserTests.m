@@ -1072,6 +1072,90 @@ static NSString *const kAttestationObject =
   }
 }
 
+/**
+ @fn testUnenrollPasskeySuccess
+ @brief Tests the flow of a successful @c unenrollPasskeyWithCredentialID:completion: call
+ */
+- (void)testUnenrollPasskeySuccess {
+  OCMExpect([_mockBackend setAccountInfo:[OCMArg any] callback:[OCMArg any]])
+      .andCallBlock2(^(FIRSetAccountInfoRequest *_Nullable request,
+                       FIRSetAccountInfoResponseCallback callback) {
+        XCTAssertEqualObjects(request.APIKey, kAPIKey);
+        XCTAssertEqualObjects(request.accessToken, kAccessToken);
+        XCTAssertEqualObjects(request.deletePasskeys, @[ kCredentialID ]);
+        dispatch_async(FIRAuthGlobalWorkQueue(), ^() {
+          id mockSetAccountInfoResponse = OCMClassMock([FIRSetAccountInfoResponse class]);
+          OCMStub([mockSetAccountInfoResponse refreshToken]).andReturn(kRefreshToken);
+          OCMStub([mockSetAccountInfoResponse IDToken]).andReturn(kAccessToken);
+          OCMStub([mockSetAccountInfoResponse approximateExpirationDate])
+              .andReturn([NSDate dateWithTimeIntervalSinceNow:kAccessTokenTimeToLive]);
+          callback(mockSetAccountInfoResponse, nil);
+        });
+      });
+  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+  OCMStub([mockGetAccountInfoResponseUser localID]).andReturn(kLocalID);
+  OCMStub([mockGetAccountInfoResponseUser email]).andReturn(kEmail);
+  OCMStub([mockGetAccountInfoResponseUser enrolledPasskeys]).andReturn(@[ kCredentialID ]);
+  [self expectGetAccountInfoWithMockUserInfoResponse:mockGetAccountInfoResponseUser];
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id mockSecureTokenService = OCMClassMock([FIRSecureTokenService class]);
+  OCMStub([mockSecureTokenService hasValidAccessToken]).andReturn(YES);
+  [self signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
+                                             completion:^(FIRUser *_Nonnull user) {
+                                               [user
+                                                   unenrollPasskeyWithCredentialID:kCredentialID
+                                                                        completion:^(
+                                                                            NSError
+                                                                                *_Nullable error) {
+                                                                          XCTAssertNil(error);
+                                                                          XCTAssertEqualObjects(
+                                                                              user.rawAccessToken,
+                                                                              kAccessToken);
+                                                                          XCTAssertEqualObjects(
+                                                                              user.refreshToken,
+                                                                              kRefreshToken);
+
+                                                                          [expectation fulfill];
+                                                                        }];
+                                             }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
+/**
+ @fn testUnenrollPasskeyFailure
+ @brief Tests the flow of a failed @c unenrollPasskeyWithCredentialID:completion: call
+ */
+- (void)testUnenrollPasskeyFailure {
+  OCMExpect([_mockBackend setAccountInfo:[OCMArg any] callback:[OCMArg any]])
+      .andDispatchError2([FIRAuthErrorUtils operationNotAllowedErrorWithMessage:nil]);
+  id mockGetAccountInfoResponseUser = OCMClassMock([FIRGetAccountInfoResponseUser class]);
+  XCTestExpectation *expectation = [self expectationWithDescription:@"callback"];
+  id mockSecureTokenService = OCMClassMock([FIRSecureTokenService class]);
+  OCMStub([mockSecureTokenService hasValidAccessToken]).andReturn(YES);
+  [self
+      signInWithEmailPasswordWithMockUserInfoResponse:mockGetAccountInfoResponseUser
+                                           completion:^(FIRUser *_Nonnull user) {
+                                             [user
+                                                 unenrollPasskeyWithCredentialID:kCredentialID
+                                                                      completion:^(
+                                                                          NSError
+                                                                              *_Nullable error) {
+                                                                        XCTAssertTrue([NSThread
+                                                                            isMainThread]);
+                                                                        XCTAssertEqual(
+                                                                            error.code,
+                                                                            FIRAuthErrorCodeOperationNotAllowed);
+                                                                        XCTAssertNotNil(
+                                                                            error.userInfo
+                                                                                [NSLocalizedDescriptionKey]);
+                                                                        [expectation fulfill];
+                                                                      }];
+                                           }];
+  [self waitForExpectationsWithTimeout:kExpectationTimeout handler:nil];
+  OCMVerifyAll(_mockBackend);
+}
+
 /** @fn testUpdateEmailAutoSignOut
     @brief Tests the flow of a failed @c updateEmail:completion: call that automatically signs out.
  */

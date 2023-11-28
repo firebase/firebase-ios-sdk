@@ -489,6 +489,7 @@ static void callInMainThreadWithAuthDataResultAndError(
   _multiFactor = [[FIRMultiFactor alloc] initWithMFAEnrollments:user.MFAEnrollments];
   _multiFactor.user = self;
 #endif
+  _enrolledPasskeys = [user.enrolledPasskeys copy];
 }
 
 /** @fn executeUserUpdateWithChanges:callback:
@@ -691,6 +692,48 @@ static void callInMainThreadWithAuthDataResultAndError(
   });
 }
 #endif  // #if TARGET_OS_IOS || TARGET_OS_TV || TARGET_OS_OSX || TARGET_OS_MACCATALYST
+
+- (void)unenrollPasskeyWithCredentialID:(NSString *)credentialID
+                             completion:(nullable void (^)(NSError *_Nullable error))completion {
+  dispatch_async(FIRAuthGlobalWorkQueue(), ^{
+    FIRSetAccountInfoRequest *request = [[FIRSetAccountInfoRequest alloc]
+        initWithRequestConfiguration:self->_auth.requestConfiguration];
+    request.deletePasskeys = @[ credentialID ];
+    request.accessToken = self.rawAccessToken;
+    [FIRAuthBackend
+        setAccountInfo:request
+              callback:^(FIRSetAccountInfoResponse *_Nullable response, NSError *_Nullable error) {
+                if (error) {
+                  callInMainThreadWithError(completion, error);
+                } else {
+                  [FIRAuth.auth
+                      completeSignInWithAccessToken:response.IDToken
+                          accessTokenExpirationDate:response.approximateExpirationDate
+                                       refreshToken:response.refreshToken
+                                          anonymous:NO
+                                           callback:^(FIRUser *_Nullable user,
+                                                      NSError *_Nullable error) {
+                                             FIRAuthDataResult *result =
+                                                 [[FIRAuthDataResult alloc] initWithUser:user
+                                                                      additionalUserInfo:nil];
+                                             FIRAuthDataResultCallback decoratedCallback = [FIRAuth
+                                                                                                .auth
+                                                 signInFlowAuthDataResultCallbackByDecoratingCallback:
+                                                     ^(FIRAuthDataResult *_Nullable authResult,
+                                                       NSError *_Nullable error) {
+                                                       if (error) {
+                                                         [[FIRAuth auth] signOut:NULL];
+                                                       }
+                                                       if (completion) {
+                                                         completion(error);
+                                                       }
+                                                     }];
+                                             decoratedCallback(result, error);
+                                           }];
+                }
+              }];
+  });
+}
 
 /** @fn updateEmail:password:callback:
     @brief Updates email address and/or password for the current user.
