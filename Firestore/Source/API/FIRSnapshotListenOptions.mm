@@ -21,13 +21,7 @@
 #include <cstdint>
 #include <string>
 
-// #include "Firestore/core/src/api/firestore.h"
-// #include "Firestore/core/src/util/exception.h"
-
 NS_ASSUME_NONNULL_BEGIN
-
-// using firebase::firestore::api::kDefaultTransactionMaxAttempts;
-// using firebase::firestore::util::ThrowInvalidArgument;
 
 @implementation FIRSnapshotListenOptions
 
