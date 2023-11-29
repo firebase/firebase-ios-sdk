@@ -191,7 +191,6 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
-// TODO MILA
 - (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
                                                      listener:(FIRQuerySnapshotBlock)listener {
   auto listenOptions = ListenOptions::FromIncludeMetadataChanges(false);
