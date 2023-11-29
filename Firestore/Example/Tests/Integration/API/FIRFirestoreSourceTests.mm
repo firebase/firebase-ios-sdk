@@ -746,7 +746,8 @@
 //  FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
 //  FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
 //
-//  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithSource:FIRListenSourceCache includeMetadataChanges:YES];
+//  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc]
+//  initWithSource:FIRListenSourceCache includeMetadataChanges:YES];
 //
 //  [query addSnapshotListenerWithOptions:options
 //                               listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
