@@ -40,6 +40,7 @@
 #import "UIViewController+Alerts.h"
 #import "UserInfoViewController.h"
 #import "UserTableViewCell.h"
+#import "MainViewController+Passkey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -252,6 +253,8 @@ static NSDictionary<NSString *, NSString *> *parseURL(NSString *urlString) {
       [weakSelf oobSection],
       // Auto Tests
       [weakSelf autoTestsSection],
+      // Passkey
+      [weakSelf passkeySection],
     ]];
 }
 
