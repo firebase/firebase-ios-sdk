@@ -186,7 +186,7 @@ public struct CollectedDataType: Encodable {
         return "Such as launch time, hang rate, or energy use."
       case .otherDiagnosticData:
         return "Any other data collected for the purposes of measuring " +
-          "technical diagnostics related to the app.""
+          "technical diagnostics related to the app."
       case .environmentScanning:
         return "Such as mesh, planes, scene classification, and/or image " +
           "detection of the user’s surroundings."
