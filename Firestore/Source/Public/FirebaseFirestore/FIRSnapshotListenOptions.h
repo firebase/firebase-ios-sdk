@@ -29,8 +29,9 @@ NS_SWIFT_NAME(SnapshotListenOptions)
 @property(nonatomic, readonly) FIRListenSource source;
 @property(nonatomic, readonly) BOOL includeMetadataChanges;
 
-- (instancetype)init:(FIRListenSource)source
-    includeMetadataChanges:(BOOL)includeMetadataChanges NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithSource:(FIRListenSource)source includeMetadataChanges:(BOOL)includeMetadataChanges NS_DESIGNATED_INITIALIZER;
 
 + (FIRSnapshotListenOptions *)defaultOptions;
 + (FIRSnapshotListenOptions *)optionsWithIncludeMetadataChanges:(BOOL)includeMetadataChanges;

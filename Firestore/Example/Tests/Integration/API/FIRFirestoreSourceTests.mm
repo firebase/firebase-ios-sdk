@@ -714,4 +714,44 @@
                                }];
 }
 
+//- (void)Demo_addSnapshotListenerWithMetadataChanges {
+//  FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
+//  FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
+//  FIRSnapshotListenOptions* options = [
+//      FIRSnapshotListenOptions optionsWithIncludeMetadataChanges:YES
+//  ];
+//
+//  [query addSnapshotListenerWithOptions:options
+//                               listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+//                                 XCTAssertNil(error);
+//                                 XCTAssertEqual(snapshot.count, 0);
+//                               }];
+//}
+//
+//- (void)Demo_addSnapshotListenerFromCache {
+//  FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
+//  FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
+//  FIRSnapshotListenOptions* options = [
+//      FIRSnapshotListenOptions optionsWithSource:FIRListenSourceCache
+//  ];
+//
+//  [query addSnapshotListenerWithOptions:options
+//                               listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+//                                 XCTAssertNil(error);
+//                                 XCTAssertEqual(snapshot.count, 0);
+//                               }];
+//}
+//
+//- (void)Demo_addSnapshotListenerFromCacheAndIncludeMetadataChanges {
+//  FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
+//  FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
+//
+//  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithSource:FIRListenSourceCache includeMetadataChanges:YES];
+//
+//  [query addSnapshotListenerWithOptions:options
+//                               listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+//                                 XCTAssertNil(error);
+//                                 XCTAssertEqual(snapshot.count, 0);
+//                               }];
+//}
 @end
