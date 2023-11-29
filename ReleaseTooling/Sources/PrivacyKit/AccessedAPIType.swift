@@ -57,23 +57,63 @@ public struct AccessedAPIType: Encodable {
     public var description: String {
       switch self {
       case ._DDA9_1:
-        "Declare this reason to display file timestamps to the person using the device. Information accessed for this reason, or any derived information, may not be sent off-device."
+        "Declare this reason to display file timestamps to the person using " +
+          "the device. Information accessed for this reason, or any derived " +
+          "information, may not be sent off-device."
       case ._C617_1:
-        "Declare this reason to access the timestamps of files inside the app container, app group container, or the app’s CloudKit container."
+        "Declare this reason to access the timestamps of files inside the " +
+          "app container, app group container, or the app’s CloudKit " +
+          "container."
       case ._3B52_1:
-        "Declare this reason to access the timestamps of files or directories that the user specifically granted access to, such as using a document picker view controller."
+        "Declare this reason to access the timestamps of files or " +
+          "directories that the user specifically granted access to, such " +
+          "as using a document picker view controller."
       case ._35F9_1:
-        "Declare this reason to access the system boot time in order to measure the amount of time that has elapsed between events that occurred within the app or to perform calculations to enable timers. Information accessed for this reason, or any derived information, may not be sent off-device. There is an exception for information about the amount of time that has elapsed between events that occurred within the app, which may be sent off-device."
+        "Declare this reason to access the system boot time in order to " +
+          "measure the amount of time that has elapsed between events that " +
+          "occurred within the app or to perform calculations to enable " +
+          "timers. Information accessed for this reason, or any derived " +
+          "information, may not be sent off-device. There is an exception " +
+          "for information about the amount of time that has elapsed " +
+          "between events that occurred within the app, which may be sent " +
+          "off-device."
       case ._85F4_1:
-        "Declare this reason to display disk space information to the person using the device. Disk space may be displayed in units of information (such as bytes) or units of time combined with a media type (such as minutes of HD video). Information accessed for this reason, or any derived information, may not be sent off-device."
+        "Declare this reason to display disk space information to the " +
+          "person using the device. Disk space may be displayed in units of " +
+          "information (such as bytes) or units of time combined with a " +
+          "media type (such as minutes of HD video). Information accessed " +
+          "for this reason, or any derived information, may not be sent " +
+          "off-device."
       case ._E174_1:
-        "Declare this reason to check whether there is sufficient disk space to write files, or to check whether the disk space is low so that the app can delete files when the disk space is low. The app must behave differently based on disk space in a way that is observable to users. Information accessed for this reason, or any derived information, may not be sent off-device. There is an exception that allows the app to avoid downloading files from a server when disk space is insufficient."
+        "Declare this reason to check whether there is sufficient disk " +
+          "space to write files, or to check whether the disk space is low " +
+          "so that the app can delete files when the disk space is low. The " +
+          "app must behave differently based on disk space in a way that is " +
+          "observable to users. Information accessed for this reason, or " +
+          "any derived information, may not be sent off-device. There is an " +
+          "exception that allows the app to avoid downloading files from a " +
+          "server when disk space is insufficient."
       case ._3EC4_1:
-        "Declare this reason if your app is a custom keyboard app, and you access this API category to determine the keyboards that are active on the device. Providing a systemwide custom keyboard to the user must be the primary functionality of the app. Information accessed for this reason, or any derived information, may not be sent off-device."
+        "Declare this reason if your app is a custom keyboard app, and you " +
+          "access this API category to determine the keyboards that are " +
+          "active on the device. Providing a systemwide custom keyboard to " +
+          "the user must be the primary functionality of the app. " +
+          "Information accessed for this reason, or any derived " +
+          "information, may not be sent off-device."
       case ._54BD_1:
-        "Declare this reason to access active keyboard information to present the correct customized user interface to the person using the device. The app must have text fields for entering or editing text and must behave differently based on active keyboards in a way that is observable to users. Information accessed for this reason, or any derived information, may not be sent off-device."
+        "Declare this reason to access active keyboard information to " +
+          "present the correct customized user interface to the person " +
+          "using the device. The app must have text fields for entering or " +
+          "editing text and must behave differently based on active " +
+          "keyboards in a way that is observable to users. Information " +
+          "accessed for this reason, or any derived information, may not be " +
+          "sent off-device."
       case ._CA92_1:
-        "Declare this reason to access user defaults to read and write information that is only accessible to the app itself. This reason does not permit reading information that was written by other apps or the system, or writing information that can be accessed by other apps."
+        "Declare this reason to access user defaults to read and write " +
+          "information that is only accessible to the app itself. This " +
+          "reason does not permit reading information that was written by " +
+          "other apps or the system, or writing information that can be " +
+          "accessed by other apps."
       }
     }
   }
