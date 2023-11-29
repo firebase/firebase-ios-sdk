@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#import <FirebaseFirestore/FIRSnapshotListenOptions.h>
 #import <FirebaseFirestore/FirebaseFirestore.h>
 
 #import <XCTest/XCTest.h>
@@ -698,6 +699,19 @@
                      [failedGetDocsCompletion fulfill];
                    }];
   [self awaitExpectations];
+}
+
+//
+- (void)Demo_addSnapshotListenerWithDefaultListenOptions {
+  FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
+  FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
+  FIRSnapshotListenOptions *options = [FIRSnapshotListenOptions defaultOptions];
+
+  [query addSnapshotListenerWithOptions:options
+                               listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
+                                 XCTAssertNil(error);
+                                 XCTAssertEqual(snapshot.count, 0);
+                               }];
 }
 
 @end

@@ -18,6 +18,7 @@
 
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
+#import "FIRSnapshotListenOptions.h"
 
 @class FIRAggregateQuery;
 @class FIRAggregateField;
@@ -103,6 +104,12 @@ NS_SWIFT_NAME(Query)
                                          listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
                                                             NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
+
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
+                          listener:(void (^)(FIRQuerySnapshot *_Nullable snapshot,
+                                             NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
 
 #pragma mark - Filtering Data
 /**

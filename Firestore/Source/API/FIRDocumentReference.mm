@@ -212,6 +212,13 @@ NS_ASSUME_NONNULL_BEGIN
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
+// TODO MILA
+- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
+                                                     listener:(FIRDocumentSnapshotBlock)listener {
+  ListenOptions listenOptions = ListenOptions::FromIncludeMetadataChanges(false);
+  return [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
+}
+
 - (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
                                                              listener:(FIRDocumentSnapshotBlock)
                                                                           listener {
