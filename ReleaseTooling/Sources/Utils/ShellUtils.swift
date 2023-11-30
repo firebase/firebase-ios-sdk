@@ -65,7 +65,10 @@ public extension Shell {
       let contents = """
       export PATH="/usr/local/bin:/usr/local/git/current/bin:$PATH"
       export LANG="en_US.UTF-8"
-      source ~/.bash_profile
+      BASH_PROFILE_PATH="~/.bash_profile"
+      if [ -f "$BASH_PROFILE_PATH" ]; then
+        source $BASH_PROFILE_PATH
+      fi
       \(command)
       """
       try contents.write(to: scriptPath, atomically: true, encoding: .utf8)
