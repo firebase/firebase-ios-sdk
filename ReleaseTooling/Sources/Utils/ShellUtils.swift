@@ -147,6 +147,17 @@ public extension Shell {
       print("----------------- COMMAND OUTPUT -----------------")
     }
     task.launch()
+    // If we are not outputting to the console, there is a possibility that
+    // the output pipe gets filled (e.g. when running a command that generates
+    // lots of output). In this scenario, the process will hang and
+    // `task.waitUntilExit()` will never return. To work around this issue,
+    // calling `outHandle.readDataToEndOfFile()` before `task.waitUntilExit()`
+    // will read from the pipe until the process ends.
+    var outData: Data!
+    if !outputToConsole {
+      outData = outHandle.readDataToEndOfFile()
+    }
+
     task.waitUntilExit()
     if outputToConsole { print("----------------- END COMMAND OUTPUT -----------------") }
 
@@ -154,7 +165,6 @@ public extension Shell {
     if outputToConsole {
       fullOutput = output.joined(separator: "\n")
     } else {
-      let outData = outHandle.readDataToEndOfFile()
       // Force unwrapping since we know it's UTF8 coming from the console.
       fullOutput = String(data: outData, encoding: .utf8)!
     }
