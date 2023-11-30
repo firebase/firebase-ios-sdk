@@ -25,6 +25,8 @@ public struct AccessedAPIType: Encodable {
     case userDefaults = "NSPrivacyAccessedAPICategoryUserDefaults"
 
     /// The possible reasons that this category of API may be accessed.
+    /// The below relationships are documented at
+    /// https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api
     public var possibleReasons: [Reason] {
       // TODO(ncooke3): It would be nice if reasons were scoped to categories
       // in a type-safe way.
