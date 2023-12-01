@@ -18,7 +18,7 @@ import Foundation
 /// https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_data_use_in_privacy_manifests
 public struct CollectedDataType: Encodable {
   /// The possible kinds of data types that can be collected.
-  public enum Kind: String, Encodable {
+  public enum Kind: String, CaseIterable, Encodable {
     case name = "NSPrivacyCollectedDataTypeName"
     case emailAddress = "NSPrivacyCollectedDataTypeEmailAddress"
     case phoneNumber = "NSPrivacyCollectedDataTypePhoneNumber"
@@ -55,7 +55,7 @@ public struct CollectedDataType: Encodable {
     case head = "NSPrivacyCollectedDataTypeHead"
     case otherDataTypes = "NSPrivacyCollectedDataTypeOtherDataTypes"
 
-    var shortDescription: String {
+    public var shortDescription: String {
       switch self {
       case .name: return "name"
       case .emailAddress: return "email address"
@@ -201,7 +201,7 @@ public struct CollectedDataType: Encodable {
   }
 
   /// The purposes for which the data type may be collected.
-  public enum Purpose: String, Encodable {
+  public enum Purpose: String, CaseIterable, Encodable {
     case thirdPartyAdvertising = "NSPrivacyCollectedDataTypePurposeThirdPartyAdvertising"
     case developerAdvertising = "NSPrivacyCollectedDataTypePurposeDeveloperAdvertising"
     case analytics = "NSPrivacyCollectedDataTypePurposeAnalytics"
@@ -209,7 +209,7 @@ public struct CollectedDataType: Encodable {
     case appFunctionality = "NSPrivacyCollectedDataTypePurposeAppFunctionality"
     case other = "NSPrivacyCollectedDataTypePurposeOther"
 
-    var shortDescription: String {
+    public var shortDescription: String {
       switch self {
       case .thirdPartyAdvertising: return "Third-party advertising"
       case .developerAdvertising: return "Developer’s advertising or marketing"
@@ -220,7 +220,7 @@ public struct CollectedDataType: Encodable {
       }
     }
 
-    var description: String {
+    public var description: String {
       switch self {
       case .thirdPartyAdvertising:
         return "Such as displaying third-party ads in your app, or sharing " +
@@ -263,5 +263,37 @@ public struct CollectedDataType: Encodable {
     case purposes = "NSPrivacyCollectedDataTypePurposes"
     case isLinkedToUser = "NSPrivacyCollectedDataTypeLinked"
     case isUsedToTrackUser = "NSPrivacyCollectedDataTypeTracking"
+  }
+
+  public enum BuilderError: Error {
+    case missingField
+  }
+
+  public class Builder {
+    public var kind: Kind?
+    /// It is **invalid** for there to be no purposes.
+    public var purposes: [Purpose]?
+    public var isLinkedToUser: Bool?
+    public var isUsedToTrackUser: Bool?
+
+    public init() {}
+
+    public func build() throws -> CollectedDataType {
+      guard
+        let kind = kind,
+        let purposes = purposes, purposes.count > 1,
+        let isLinkedToUser = isLinkedToUser,
+        let isUsedToTrackUser = isUsedToTrackUser
+      else {
+        throw BuilderError.missingField
+      }
+
+      return CollectedDataType(
+        kind: kind,
+        purposes: purposes,
+        isLinkedToUser: isLinkedToUser,
+        isUsedToTrackUser: isUsedToTrackUser
+      )
+    }
   }
 }

@@ -91,12 +91,35 @@ public struct PrivacyManifest: Encodable {
   public let collectedDataTypes: [CollectedDataType]
   public let accessedAPITypes: [AccessedAPIType]
 
+  public enum BuilderError: Error {
+    case missingField
+  }
+
   public class Builder {
+    public var usesDataForTracking: Bool?
+    public var trackingDomains: [String]?
+    /// It is **valid** for there to be no collected data types.
+    public var collectedDataTypes: [CollectedDataType.Builder] = []
+    /// It is **valid** for there to be no collected data types.
+    public var accessedAPITypes: [AccessedAPIType] = []
+
     public init() {}
-    // TODO(ncooke3): Either provide default values or throw an error.
-    public func build() -> PrivacyManifest? {
-      // TODO(ncooke3): Implement.
-      nil
+
+    public func build() throws -> PrivacyManifest {
+      guard
+        let usesDataForTracking = usesDataForTracking,
+        let trackingDomains = trackingDomains,
+        let collectedDataTypes = try? collectedDataTypes.map({ try $0.build() })
+      else {
+        throw BuilderError.missingField
+      }
+
+      return PrivacyManifest(
+        usesDataForTracking: usesDataForTracking,
+        trackingDomains: trackingDomains,
+        collectedDataTypes: collectedDataTypes,
+        accessedAPITypes: accessedAPITypes
+      )
     }
   }
 }

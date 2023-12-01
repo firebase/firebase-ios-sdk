@@ -41,11 +41,20 @@ final class PrivacyManifestWizard {
   }
 
   func processAnswer(_ answer: String) throws {
+    let trimmedAnswer = answer.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    let answer: Questionnaire.Answer = {
+      switch trimmedAnswer {
+      case "yes": return .bool(true)
+      case "no": return .bool(false)
+      default: return .string(trimmedAnswer)
+      }
+    }()
+
     try questionnaire.processAnswer(answer)
   }
 
   func createManifest() throws -> PrivacyManifest {
-    // TODO(ncooke3): Implement.
-    builder.build()!
+    try builder.build()
   }
 }

@@ -35,10 +35,17 @@ struct PrivacyManifestGenerator: ParsableCommand {
       print(question)
       if let answer = readLine() {
         try wizard.processAnswer(answer)
+        // Print one line buffer between question/answer pairs. This makes the
+        // output look nicer.
+        print("\n")
       }
     }
 
     let privacyManifest = try wizard.createManifest()
     print(privacyManifest)
+
+    // TODO(ncooke3): Implement options to configure what to do with manifest.
   }
 }
+
+PrivacyManifestGenerator.main()

@@ -56,7 +56,7 @@ let package = Package(
     ),
     .target(
       name: "PrivacyManifestGenerator",
-      dependencies: ["ArgumentParser", "PrivacyKit"]
+      dependencies: ["ArgumentParser", "PrivacyKit", "Utils"]
     ),
     .target(
       name: "PrivacyKit"

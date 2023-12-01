@@ -17,12 +17,22 @@ import Foundation
 /// A structure containing metadata about the usage of API that requires justification for use.
 /// https://developer.apple.com/documentation/bundleresources/privacy_manifest_files/describing_use_of_required_reason_api
 public struct AccessedAPIType: Encodable {
-  public enum Category: String, Encodable {
+  public enum Category: String, CaseIterable, Encodable {
     case fileTimestamp = "NSPrivacyAccessedAPICategoryFileTimestamp"
     case systemBootTime = "NSPrivacyAccessedAPICategorySystemBootTime"
     case diskSpace = "NSPrivacyAccessedAPICategoryDiskSpace"
     case activeKeyboards = "NSPrivacyAccessedAPICategoryActiveKeyboards"
     case userDefaults = "NSPrivacyAccessedAPICategoryUserDefaults"
+
+    public var description: String {
+      switch self {
+      case .fileTimestamp: return "File Timestamp"
+      case .systemBootTime: return "System Boot Time"
+      case .diskSpace: return "Disk Space"
+      case .activeKeyboards: return "Active Keyboards"
+      case .userDefaults: return "User Defaults"
+      }
+    }
 
     /// The possible reasons that this category of API may be accessed.
     /// The below relationships are documented at
@@ -36,6 +46,63 @@ public struct AccessedAPIType: Encodable {
       case .diskSpace: return [._85F4_1, ._E174_1]
       case .activeKeyboards: return [._3EC4_1, ._54BD_1]
       case .userDefaults: return [._CA92_1]
+      }
+    }
+
+    /// The symbols associated with this catergory that require a reason for use.
+    public var associatedSymbols: [String] {
+      switch self {
+      case .fileTimestamp:
+        return [
+          "NSFileCreationDate",
+          "NSFileModificationDate",
+          "NSURLContentModificationDateKey",
+          "NSURLCreationDateKey",
+          "getattrlist",
+          "getattrlistbulk",
+          "fgetattrlist",
+          "stat",
+          "fstat",
+          "fstatat",
+          "lstat",
+          "getattrlistat",
+          "creationDate",
+          "modificationDate",
+          "fileModificationDate",
+          "contentModificationDateKey",
+          "creationDateKey",
+        ]
+      case .systemBootTime:
+        return [
+          "systemUptime",
+          "mach_absolute_time",
+        ]
+      case .diskSpace:
+        return [
+          "NSURLVolumeAvailableCapacityKey",
+          "NSURLVolumeAvailableCapacityForImportantUsageKey",
+          "NSURLVolumeAvailableCapacityForOpportunisticUsageKey",
+          "NSURLVolumeTotalCapacityKey",
+          "NSFileSystemFreeSize",
+          "NSFileSystemSize",
+          "statfs",
+          "statvfs",
+          "fstatfs",
+          "fstatvfs",
+          "getattrlist",
+          "fgetattrlist",
+          "getattrlistat",
+          "volumeAvailableCapacityKey",
+          "volumeAvailableCapacityForImportantUsageKey",
+          "volumeAvailableCapacityForOpportunisticUsageKey",
+          "volumeTotalCapacityKey",
+          "systemFreeSize",
+          "systemSize",
+        ]
+      case .activeKeyboards:
+        return ["activeInputModes"]
+      case .userDefaults:
+        return ["NSUserDefaults", "UserDefaults"]
       }
     }
   }
@@ -122,6 +189,11 @@ public struct AccessedAPIType: Encodable {
 
   public let type: Category
   public let reasons: [Reason]
+
+  public init(type: Category, reasons: [Reason]) {
+    self.type = type
+    self.reasons = reasons
+  }
 
   private enum CodingKeys: String, CodingKey {
     case type = "NSPrivacyAccessedAPIType"
