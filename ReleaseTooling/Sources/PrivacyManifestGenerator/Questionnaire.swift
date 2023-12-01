@@ -91,6 +91,12 @@ struct Questionnaire {
   /// Calls the current question's answer handling closure with the given answer.
   /// - Parameter answer: The answer to pass to the current question's answer handling closure.
   mutating func processAnswer(_ answer: Answer) throws {
+    if
+      currentQuestion?.isSkippable == true,
+      case let .string(string) = answer,
+      string == "skip"
+    { return }
+
     do {
       try currentQuestion?.answerHandler(answer)
     } catch QuestionnaireError.endOfQuestionnaireSection {
