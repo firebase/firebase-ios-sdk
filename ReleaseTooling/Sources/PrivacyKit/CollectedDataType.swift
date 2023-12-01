@@ -281,7 +281,7 @@ public struct CollectedDataType: Encodable {
     public func build() throws -> CollectedDataType {
       guard
         let kind = kind,
-        let purposes = purposes, purposes.count > 1,
+        let purposes = purposes, purposes.count > 0,
         let isLinkedToUser = isLinkedToUser,
         let isUsedToTrackUser = isUsedToTrackUser
       else {
