@@ -97,15 +97,6 @@ jobs:
     - name: Run check
       run:  scripts/check.sh --test-only
 
-  build-clang:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup clang
-        uses: actions/setup-cpp@v2
-        with:
-          compiler: clang-13
-
   cmake:
     needs: check
     # Either a scheduled run from public repo, or a pull request with firestore changes.
@@ -118,6 +109,8 @@ jobs:
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
+      CC: clang
+      CXX: clang
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -168,6 +161,8 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       MINT_PATH: ${{ github.workspace }}/mint
       TARGET_DATABASE_ID: ${{ matrix.databaseId }}
+      CC: clang
+      CXX: clang
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -255,6 +250,8 @@ jobs:
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
+      CC: clang
+      CXX: clang
 
     steps:
     - uses: actions/checkout@v3
