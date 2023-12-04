@@ -109,8 +109,6 @@ jobs:
 
     env:
       MINT_PATH: ${{ github.workspace }}/mint
-      CC: clang
-      CXX: clang
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -161,8 +159,6 @@ jobs:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       MINT_PATH: ${{ github.workspace }}/mint
       TARGET_DATABASE_ID: ${{ matrix.databaseId }}
-      CC: clang
-      CXX: clang
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -250,8 +246,6 @@ jobs:
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
-      CC: clang
-      CXX: clang
 
     steps:
     - uses: actions/checkout@v3
