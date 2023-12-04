@@ -33,7 +33,7 @@ endmacro()
 
 if(CXX_CLANG OR CXX_GNU)
   if(WITH_ASAN)
-    set_environment(ASAN_OPTIONS "detect_leaks=0")
+    set(ASAN_OPTIONS "detect_leaks=0")
     add_to_compile_and_link_flags("-fsanitize=address")
   endif()
 
