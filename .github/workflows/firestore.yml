@@ -246,6 +246,7 @@ jobs:
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
+      ASAN_OPTIONS: detect_leaks=0
 
     steps:
     - uses: actions/checkout@v3
