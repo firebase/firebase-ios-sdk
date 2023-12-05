@@ -18,7 +18,7 @@ jobs:
       # The path of NOTICES based on the root dir of repo."
       NOTICES_PATH: "CoreOnly/NOTICES"
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get all pod names
       run: |
         cd "${GITHUB_WORKSPACE}/ReleaseTooling/"
