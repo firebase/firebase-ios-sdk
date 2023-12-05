@@ -53,7 +53,7 @@ app update.
   s.dependency 'FirebaseInstallations', '~> 10.0'
   s.dependency 'GoogleUtilities/Environment', '~> 7.8'
   s.dependency 'GoogleUtilities/NSData+zlib', '~> 7.8'
-  s.dependency 'FirebaseRemoteConfigInterop', '~> 10.0'
+  s.dependency 'FirebaseRemoteConfigInterop', '~> 10.20'
 
   s.test_spec 'unit' do |unit_tests|
     unit_tests.scheme = { :code_coverage => true }
