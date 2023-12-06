@@ -241,6 +241,12 @@ jobs:
       matrix:
         os: [macos-12, ubuntu-latest]
         sanitizer: [asan, tsan]
+        # Excluding TSAN on ubuntu because of the warnings it generates around schedule.cc.
+        # This could be due to Apple Clang provide additional support for synchronization
+        # on Apple platforms, which is what we primarily care about.
+        exclude:
+          - os: ubuntu-latest
+            sanitizer: tsan
 
     runs-on: ${{ matrix.os }}
 
