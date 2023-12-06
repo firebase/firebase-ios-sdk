@@ -105,7 +105,7 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.12'
+        python-version: '3.11'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh performance
     - name: Install Secret GoogleService-Info.plist
