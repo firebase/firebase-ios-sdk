@@ -120,7 +120,7 @@ jobs:
     - uses: ruby/setup-ruby@v1
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.12'
     - name: Setup quickstart
       env:
         LEGACY: true
@@ -133,7 +133,7 @@ jobs:
         LEGACY: true
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh ABTesting)
     - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing
