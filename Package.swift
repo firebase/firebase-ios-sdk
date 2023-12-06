@@ -86,6 +86,10 @@ let package = Package(
       targets: ["FirebaseDatabaseSwift"]
     ),
     .library(
+      name: "FirebaseDataConnect",
+      targets: ["FirebaseDataConnect"]
+    ),
+    .library(
       name: "FirebaseDynamicLinks",
       targets: ["FirebaseDynamicLinksTarget"]
     ),
@@ -137,6 +141,7 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
+
   ],
   dependencies: [
     .package(
@@ -188,7 +193,11 @@ let package = Package(
       url: "https://github.com/google/interop-ios-for-google-sdks.git",
       "100.0.0" ..< "101.0.0"
     ),
-    .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
+    .package(
+      url: "https://github.com/grpc/grpc-swift.git",
+        from: "1.19.1" //TODO: Constrain to a range at time of release
+    ),
   ],
   targets: [
     .target(
@@ -656,6 +665,22 @@ let package = Package(
       name: "FirebaseDatabaseSwiftTests",
       dependencies: ["FirebaseDatabase", "FirebaseDatabaseSwift"],
       path: "FirebaseDatabaseSwift/Tests/"
+    ),
+    .target(
+        name: "FirebaseDataConnect",
+        dependencies: [
+          .product(name: "GRPC", package: "grpc-swift"),
+          "FirebaseAuthInterop",
+          "FirebaseCore",
+          "FirebaseCoreExtension",
+          "FirebaseSharedSwift"
+        ],
+        path: "FirebaseDataConnect/Sources"
+    ),
+    .testTarget(
+        name: "FirebaseDataConnectTests",
+        dependencies: ["FirebaseDataConnect"],
+        path: "FirebaseDataConnect/Tests"
     ),
     .target(
       name: "FirebaseSharedSwift",

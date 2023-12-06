@@ -1,0 +1,101 @@
+// Adapted from http://google3/firebase/firemat/emulator/server/api/data_service.proto;rcl=586381894
+
+// API protos for the Firebase Data Connect Private API DataService.
+
+syntax = "proto3";
+
+package google.firebase.dataconnect.v1main;
+
+import "google/api/annotations.proto";
+import "google/protobuf/struct.proto";
+
+service DataService {
+  // REST API for executing a single pre-defined query.
+  // Use `operationSets/*/revisions/latest` to reference the most recent
+  // revision.
+  rpc ExecuteQuery(ExecuteQueryRequest) returns (ExecuteQueryResponse) {
+    option (google.api.http) = {
+      post: "/v0/{name=projects/*/locations/*/services/*/operationSets/*/revisions/*}:executeQuery"
+      body: "*"
+    };
+  }
+
+  // REST API for executing a single pre-defined mutation.
+  // Use `operationSets/*/revisions/latest` to reference the most recent
+  // revision.
+  rpc ExecuteMutation(ExecuteMutationRequest)
+      returns (ExecuteMutationResponse) {
+    option (google.api.http) = {
+      post: "/v0/{name=projects/*/locations/*/services/*/operationSets/*/revisions/*}:executeMutation"
+      body: "*"
+    };
+  }
+}
+
+message ExecuteQueryRequest {
+  // The resource name of the operation set revision that contains the query to
+  // execute, in the format:
+  // ```
+  // projects/{project}/locations/{location}/services/{service}/operationSets/{operation_set}/revisions/{revision}
+  // ```
+  // This is left empty when it is within StreamRequest.
+  string name = 1;
+
+  // The name of the GraphQL operation. See
+  // https://graphql.org/learn/queries/#operation-name for more context.
+  string operation_name = 2;
+
+  // Arbitrary JSON parameters (GraphQL variables) for the operation.
+  google.protobuf.Struct variables = 3;
+}
+
+message ExecuteMutationRequest {
+  // The resource name of the operation set revision that contains the mutation
+  // to execute, in the format:
+  // ```
+  // projects/{project}/locations/{location}/services/{service}/operationSets/{operation_set}/revisions/{revision}
+  // ```
+  // This is left empty when it is within StreamRequest.
+  string name = 1;
+
+  // The name of the GraphQL operation. See
+  // https://graphql.org/learn/queries/#operation-name for more context.
+  string operation_name = 2;
+
+  // Arbitrary JSON parameters (GraphQL variables) for the operation.
+  google.protobuf.Struct variables = 3;
+}
+
+message ExecuteQueryResponse {
+  google.protobuf.Struct data = 1;
+  repeated GraphqlError errors = 2;
+}
+
+message ExecuteMutationResponse {
+  google.protobuf.Struct data = 1;
+  repeated GraphqlError errors = 2;
+}
+
+message GraphqlError {
+  // Description of the error, intended for the developer.
+  string message = 1;
+
+  // The location in the query where the error occurred.
+  repeated SourceLocation locations = 2;
+
+  // The result field which could not be populated due to error.
+  google.protobuf.ListValue path = 3;
+
+  // Additional error information in error extensions.
+  GraphqlErrorExtensions extensions = 6;
+}
+
+message SourceLocation {
+  int32 line = 1;
+  int32 column = 2;
+}
+
+// An error that occurred while executing a GraphQL query.
+message GraphqlErrorExtensions {
+  string file = 1;
+}
