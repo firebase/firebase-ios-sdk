@@ -1541,6 +1541,7 @@ static NSString *UTCToLocal(NSString *utcTime) {
   if (![FIRApp isDefaultAppConfigured]) {
     XCTAssertNoThrow([FIRApp configureWithOptions:[self firstAppOptions]]);
   }
+  XCTAssertNoThrow([FIRRemoteConfig remoteConfig]);
   FIRRemoteConfig *config = [FIRRemoteConfig remoteConfig];
   XCTAssertNotNil(config);
 
