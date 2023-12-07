@@ -32,6 +32,7 @@
 
   // Clear out any apps that were called with `configure`.
   [FIRApp resetApps];
+  [FIRRemoteConfigComponent clearAllComponentInstances];
 }
 
 - (void)testRCInstanceCreationAndCaching {
@@ -93,7 +94,7 @@
 }
 
 - (void)testRegistersAsLibrary {
-  // Now compoment has two register, one is provider and another one is Interop
+  // Now component has two register, one is provider and another one is Interop
   XCTAssertEqual([FIRRemoteConfigComponent componentsToRegister].count, 2);
 
   // Configure a test FIRApp for fetching an instance of the FIRRemoteConfigProvider.

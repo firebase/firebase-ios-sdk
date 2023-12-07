@@ -18,7 +18,7 @@ import XCTest
 class MockRCInterop: RemoteConfigInterop {
   weak var subscriber: FirebaseRemoteConfigInterop.RolloutsStateSubscriber?
   func registerRolloutsStateSubscriber(_ subscriber: FirebaseRemoteConfigInterop
-    .RolloutsStateSubscriber?,
+    .RolloutsStateSubscriber,
     for namespace: String) {
     self.subscriber = subscriber
   }

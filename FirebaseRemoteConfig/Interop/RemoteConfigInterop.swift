@@ -16,6 +16,6 @@ import Foundation
 
 @objc(FIRRemoteConfigInterop)
 public protocol RemoteConfigInterop {
-  func registerRolloutsStateSubscriber(_ subscriber: RolloutsStateSubscriber?,
+  func registerRolloutsStateSubscriber(_ subscriber: RolloutsStateSubscriber,
                                        for namespace: String)
 }

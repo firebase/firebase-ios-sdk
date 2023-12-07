@@ -47,6 +47,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// Cached instances of Remote Config objects.
 @property(nonatomic, strong) NSMutableDictionary<NSString *, FIRRemoteConfig *> *instances;
 
+/// Clear all the component instances from the singleton which created previously, this is for
+/// testing only
++ (void)clearAllComponentInstances;
+
 /// Default method for retrieving a Remote Config instance, or creating one if it doesn't exist.
 - (FIRRemoteConfig *)remoteConfigForNamespace:(NSString *)remoteConfigNamespace;
 

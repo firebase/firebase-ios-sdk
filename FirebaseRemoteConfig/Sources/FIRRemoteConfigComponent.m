@@ -24,6 +24,9 @@
 
 @implementation FIRRemoteConfigComponent
 
+// Because Component now need to register two protocols (provider and interop), we need a way to
+// return the same component instance for both registered protocol, this singleton pattern allow us
+// to return the same component object for both registration callback.
 static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentInstances = nil;
 
 + (FIRRemoteConfigComponent *)getComponentForApp:(FIRApp *)app {
@@ -38,6 +41,12 @@ static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentIn
     return _componentInstances[app.name];
   }
   return nil;
+}
+
++ (void)clearAllComponentInstances {
+  @synchronized(_componentInstances) {
+    [_componentInstances removeAllObjects];
+  }
 }
 
 /// Default method for retrieving a Remote Config instance, or creating one if it doesn't exist.
@@ -137,7 +146,7 @@ static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentIn
 
 #pragma mark - Remote Config Interop Protocol
 
-- (void)registerRolloutsStateSubscriber:(id<FIRRolloutsStateSubscriber> _Nullable)subscriber
+- (void)registerRolloutsStateSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber
                                     for:(NSString * _Nonnull)namespace {
   // TODO(Themisw): Adding the registered subscriber reference to the namespace instance
   // [self.instances[namespace] addRemoteConfigInteropSubscriber:subscriber];
