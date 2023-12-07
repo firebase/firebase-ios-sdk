@@ -27,7 +27,6 @@ concurrency:
 
 jobs:
   check:
-    needs: changes
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
