@@ -492,11 +492,16 @@ let package = Package(
     ),
     .target(
       name: "FirebaseCrashlytics",
-      dependencies: ["FirebaseCore", "FirebaseInstallations", "FirebaseSessions",
-                     .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
-                     .product(name: "GULEnvironment", package: "GoogleUtilities"),
-                     .product(name: "FBLPromises", package: "Promises"),
-                     .product(name: "nanopb", package: "nanopb")],
+      dependencies: [
+        "FirebaseCore",
+        "FirebaseInstallations",
+        "FirebaseSessions",
+        "FirebaseRemoteConfigInterop",
+        .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
+        .product(name: "GULEnvironment", package: "GoogleUtilities"),
+        .product(name: "FBLPromises", package: "Promises"),
+        .product(name: "nanopb", package: "nanopb"),
+      ],
       path: "Crashlytics",
       exclude: [
         "run",
@@ -958,6 +963,7 @@ let package = Package(
         "FirebaseCore",
         "FirebaseABTesting",
         "FirebaseInstallations",
+        "FirebaseRemoteConfigInterop",
         .product(name: "GULNSData", package: "GoogleUtilities"),
       ],
       path: "FirebaseRemoteConfig/Sources",
@@ -983,6 +989,14 @@ let package = Package(
         .process("Defaults-testInfo.plist"),
         .process("TestABTPayload.txt"),
       ],
+      cSettings: [
+        .headerSearchPath("../../.."),
+      ]
+    ),
+    .testTarget(
+      name: "RemoteConfigSwiftUnit",
+      dependencies: ["FirebaseRemoteConfigInternal"],
+      path: "FirebaseRemoteConfig/Tests/SwiftUnit",
       cSettings: [
         .headerSearchPath("../../.."),
       ]
@@ -1027,6 +1041,15 @@ let package = Package(
       publicHeadersPath: ".",
       cSettings: [
         .headerSearchPath("../../../"),
+      ]
+    ),
+    // Internal headers only for consuming from other SDK.
+    .target(
+      name: "FirebaseRemoteConfigInterop",
+      path: "FirebaseRemoteConfig/Interop",
+      publicHeadersPath: ".",
+      cSettings: [
+        .headerSearchPath("../../"),
       ]
     ),
 
