@@ -27,9 +27,6 @@ concurrency:
 
 jobs:
   check:
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
     runs-on: macos-12
     steps:
     - uses: actions/checkout@v3
@@ -45,9 +42,6 @@ jobs:
       run:  scripts/check.sh --test-only
 
   cmake-prod-db:
-    # Either a scheduled run from public repo, or a pull request with firestore changes.
-    if: |
-      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule')
     needs: check
 
     strategy:
