@@ -230,7 +230,7 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
-  sanitizers:
+  sanitizers-mac:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -239,7 +239,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-12, ubuntu-latest]
+        os: [macos-12]
         sanitizer: [asan, tsan]
         # Excluding TSAN on ubuntu because of the warnings it generates around schedule.cc.
         # This could be due to Apple Clang provide additional support for synchronization
@@ -247,6 +247,51 @@ jobs:
         exclude:
           - os: ubuntu-latest
             sanitizer: tsan
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      SANITIZERS: ${{ matrix.sanitizer }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
+
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    - name: Build and test
+      run: |
+        export EXPERIMENTAL_MODE=true
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+
+
+  sanitizers-ubuntu:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    needs: check
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # Excluding TSAN on ubuntu because of the warnings it generates around schedule.cc.
+        # This could be due to Apple Clang provide additional support for synchronization
+        # on Apple platforms, which is what we primarily care about.
+        sanitizer: [asan]
 
     runs-on: ${{ matrix.os }}
 
