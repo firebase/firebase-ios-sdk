@@ -1,4 +1,4 @@
-# Merge the yml file to master branch for the cron job schedule to be effective.
+# Merge the yml file to main branch for the cron job schedule to be effective.
 # Reference: https://github.community/t/on-schedule-per-branch/17525
 name: performance
 

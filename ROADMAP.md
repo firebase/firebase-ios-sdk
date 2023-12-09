@@ -27,20 +27,20 @@ code to the Firebase repo.
 Thanks in large part to community contributions, we already have several Swift
 improvements:
 * Analytics
-  * Enabling [SwiftUI Screen tracking](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseAnalyticsSwift/CHANGELOG.md)
+  * Enabling [SwiftUI Screen tracking](https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseAnalyticsSwift/CHANGELOG.md)
    automated view logging for SwiftUI apps
 * Firestore and RTDB
   * Codable Support ([Firestore](https://github.com/firebase/firebase-ios-sdk/pull/3198),
-   [Database](https://github.com/firebase/firebase-ios-sdk/tree/master/FirebaseDatabaseSwift/Sources/Codable))
+   [Database](https://github.com/firebase/firebase-ios-sdk/tree/main/FirebaseDatabaseSwift/Sources/Codable))
    eliminated manual data processing
   * [Property wrappers](https://github.com/firebase/firebase-ios-sdk/pull/8408) for Firestore collections dramatically simplified client coding
 * Storage
   * Eliminated impossible states, provided new and improved async API usage via
-   [Result type](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/CHANGELOG.md)
-   and [async/await](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/CHANGELOG.md)
+   [Result type](https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseStorage/CHANGELOG.md)
+   and [async/await](https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseStorage/CHANGELOG.md)
    additions
 * ML Model Downloader
-  * Full [SDK implementation in Swift](https://github.com/firebase/firebase-ios-sdk/tree/master/FirebaseMLModelDownloader/Sources)
+  * Full [SDK implementation in Swift](https://github.com/firebase/firebase-ios-sdk/tree/main/FirebaseMLModelDownloader/Sources)
 * In App Messaging
   * Vastly simplified usage from SwiftUI with
    [SwiftUI modifiers](https://github.com/firebase/firebase-ios-sdk/pull/7496) to show messages and
@@ -80,7 +80,7 @@ Evaluate impact on Firebase APIs of the
 For example, Objective-C callback APIs that return a value do not get an
 async/await API automatically generated and an explicit function may need to be
 added. See these
-[Firebase Storage examples](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseStorage/Sources/AsyncAwait.swift).
+[Firebase Storage examples](https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseStorage/Sources/AsyncAwait.swift).
 
 ### Combine
 

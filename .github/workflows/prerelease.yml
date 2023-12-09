@@ -25,7 +25,7 @@ jobs:
       # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       local_repo: specstesting
-      podspec_repo_branch: master
+      podspec_repo_branch: main
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
@@ -161,7 +161,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
+      podspec_repo_branch: main
     steps:
     - uses: actions/checkout@v4
     - name: Get token
@@ -173,14 +173,14 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         # Update/create a nightly tag to the head of the master branch.
+         # Update/create a nightly tag to the head of the main branch.
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
     - name: Push updated podspecs
       run: |
         botaccess=`cat bot-access.txt`
         cd "${local_sdk_repo_dir}"
         # Changes in post submit tests will be fetched by getting diff between
-        # the HEAD and HEAD^ of the master branch.
+        # the HEAD and HEAD^ of the main branch.
         common_commit=$(git rev-parse HEAD^)
         git diff --name-only $common_commit remotes/origin/${podspec_repo_branch} > updated_files.txt
         updated_podspecs=()

@@ -326,8 +326,8 @@ For developers without write access, you'll need to create a fork of Firebase
 instead of a branch. Learn more about forking a repo [here][github-forks].
 
 ```console
-# Update your local master
-git checkout master
+# Update your local main
+git checkout main
 git pull
 
 # Create a development branch

@@ -27,7 +27,7 @@ jobs:
       # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       local_repo: specstesting
-      podspec_repo_branch: master
+      podspec_repo_branch: main
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
