@@ -26,10 +26,10 @@ pip install --upgrade pip
 pip install flake8
 pip install six
 
-# Using actions/checkout@v3 creates a shallow clone that's missing the master
+# Using actions/checkout@v3 creates a shallow clone that's missing the main
 # branch. If it's not present, add it.
-if ! git rev-parse origin/master >& /dev/null; then
-  git remote set-branches --add origin master
+if ! git rev-parse origin/main >& /dev/null; then
+  git remote set-branches --add origin main
   git fetch origin
 fi
 

@@ -82,7 +82,7 @@ def main():
   parser.add_argument('rev_or_files', nargs='*',
                       help='A single revision that specifies a point in time '
                            'from which to look for changes. Defaults to '
-                           'origin/master. Alternatively, a list of specific '
+                           'origin/main. Alternatively, a list of specific '
                            'files or git pathspecs to lint.')
   args = command_trace.parse_args(parser)
 
