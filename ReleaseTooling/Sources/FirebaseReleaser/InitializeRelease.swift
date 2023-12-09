@@ -35,7 +35,7 @@ enum InitializeRelease {
     let versionParts = version.split(separator: ".")
     let minorVersion = "\(versionParts[0]).\(versionParts[1])"
     let branch = "version-\(minorVersion)"
-    Shell.executeCommand("git checkout master", workingDir: path)
+    Shell.executeCommand("git checkout main", workingDir: path)
     Shell.executeCommand("git pull", workingDir: path)
     Shell.executeCommand("git checkout -b \(branch)", workingDir: path)
     return branch

@@ -256,7 +256,7 @@ typedef void (^FIRGetRecaptchaConfigResponseCallback)(
     @brief Simple static class with methods representing the backend RPCs.
     @remarks All callback blocks passed as method parameters are invoked asynchronously on the
         global work queue in the future. See
-        https://github.com/firebase/firebase-ios-sdk/tree/master/FirebaseAuth/Docs/threading.md
+        https://github.com/firebase/firebase-ios-sdk/tree/main/FirebaseAuth/Docs/threading.md
  */
 @interface FIRAuthBackend : NSObject
 
