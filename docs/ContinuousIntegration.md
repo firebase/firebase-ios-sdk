@@ -57,7 +57,7 @@ Build and run Firebase-wide tests with Swift Package Manager.
 ### Zip Distribution Testing
 [zip.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/zip.yml)
 
-Builds the zip distribution both from the tip of `master` and the current staged release distribution.
+Builds the zip distribution both from the tip of `main` and the current staged release distribution.
 The resulting distribution is then used to build and test several Firebase
 [QuickStarts](https://github.com/firebase/quickstart-ios).
 
@@ -81,7 +81,7 @@ will have tags `Cocoapods-X.Y.Z`. This is to mimic a real released candidate.
 #### Prerelease workflow
 [prerelease.yml](https://github.com/firebase/firebase-ios-sdk/tree/main/.github/workflows/prerelease.yml)
 
-The prerelease workflow is to test podspecs on the `master` branch, and create a testing repo. This is
+The prerelease workflow is to test podspecs on the `main` branch, and create a testing repo. This is
 to make sure podspecs are releasable, which means podspecs in the head can pass all tests and build
 up a candidate.
 
@@ -100,7 +100,7 @@ in the SDK repo. A job to run `pod spec lint` is added to SDK testing workflows,
 Analytics, Auth, Core, Crashlytics, Database, DynamicLinks, Firestore, Functions, GoogleUtilities,
 InAppMessaging, Installations, Messaging, MLModelDownloader, Performance, RemoteConfig and Storage.
 These jobs will be triggered in presubmit and run pod spec lint with a source of
-Firebase/SpecsTesting repo, which is updated to the head of master nightly in the prerelease
+Firebase/SpecsTesting repo, which is updated to the head of main nightly in the prerelease
 workflow.
 
 When these PRs are merged, then changed podspecs will be pod repo push to the Firebase/SpecsTesting
