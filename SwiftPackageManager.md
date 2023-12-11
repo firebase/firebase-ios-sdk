@@ -61,6 +61,8 @@ eg. `scripts/upload-symbols`, and make sure that the file is executable:
 This script can be used to manually upload dSYM files (for usage notes and
 additional instructions, run with the `--help` parameter).
 
+If you're getting `error: Could not get GOOGLE_APP_ID in Google Services file from build environment` on the Crashlytics run script step and you're using Xcode 15 and specifically `User Script Sandboxing = YES`, make sure to include all input files referenced [here](https://github.com/firebase/firebase-ios-sdk/pull/11463) in the Crashlytics run script.
+
 ---
 
 ### Alternatively, add Firebase to a `Package.swift` manifest
