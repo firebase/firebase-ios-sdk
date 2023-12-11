@@ -15,11 +15,7 @@
 name: firestore_nightly
 
 on:
-  pull_request:
   workflow_dispatch:
-  schedule:
-    # Run every day at 2am (PST) - cron uses UTC times
-    - cron:  '0 10 * * *'
 
 concurrency:
     group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
