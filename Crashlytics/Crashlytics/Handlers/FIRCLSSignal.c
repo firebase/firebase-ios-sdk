@@ -109,6 +109,8 @@ static void FIRCLSSignalInstallHandlers(FIRCLSSignalReadContext *roContext) {
 
 void FIRCLSSignalCheckHandlers(void) {
   if (_firclsContext.readonly->debuggerAttached) {
+    // Adding this log to remind user deattachs from the debugger. Besides FIRCLSSignal, this logic is on FIRCLSMachException and FIRCLSException as well. Only log once since the check is same.
+    FIRCLSSDKLog("[Crashlytics] App is attached to a debugger, to see the crash reports please deattach from the debugger, https://firebase.google.com/docs/crashlytics/get-started?platform=ios#force-test-crash");
     return;
   }
 
