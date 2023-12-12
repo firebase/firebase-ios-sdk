@@ -227,4 +227,31 @@
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
 }
 
+- (void)testFailWithGoodMessageIfMissingIndex {
+  XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
+            "Skip this test when running against the Firestore emulator because the Firestore "
+            "emulator does not use indexes and never fails with a 'missing index' error.");
+
+  FIRCollectionReference* testCollection = [self collectionRef];
+  FIRQuery* compositeIndexQuery = [[testCollection queryWhereField:@"field1" isEqualTo:@42] queryWhereField:@"field2" isLessThan:@99];
+  FIRAggregateQuery* compositeIndexCountQuery = [compositeIndexQuery count];
+
+  XCTestExpectation *queryCompletion = [self expectationWithDescription:@"query"];
+  [compositeIndexCountQuery aggregationWithSource:FIRAggregateSourceServer completion:^(FIRAggregateQuerySnapshot* snapshot, NSError* error) {
+    XCTAssertNotNil(error);
+    if (error) {
+      NSString* errorDescription = [error localizedDescription];
+      XCTAssertTrue([errorDescription.lowercaseString containsString:@"index"],
+        "The NSError should have contained the word 'index' (case-insensitive), but got: %@",
+        errorDescription);
+      XCTAssertTrue([errorDescription containsString:@"https://console.firebase.google.com"],
+        "The NSError should have contained the 'https://console.firebase.google.com', but got: %@",
+        errorDescription);
+    }
+    XCTAssertNil(snapshot);
+    [queryCompletion fulfill];
+  }];
+  [self awaitExpectations];
+}
+
 @end
