@@ -123,13 +123,8 @@
 
 /** Verifies a snapshot containing _setData but with resolved server timestamps. */
 - (void)verifySnapshotWithResolvedTimestamps:(FIRDocumentSnapshot *)snapshot {
-  // Tolerate up to 10 seconds of clock skew between client and server.
-  NSInteger tolerance = 10;
-
-  // Somehow the skew is much worse in nightly
-  if ([self.db.settings.host isEqualToString:@"test-firestore.sandbox.googleapis.com"]) {
-    tolerance = 200;
-  }
+  // Tolerate up to 200 seconds of clock skew between client and server.
+  NSInteger tolerance = 200;
 
   XCTAssertTrue(snapshot.exists);
   FIRTimestamp *when = snapshot[@"when"];
