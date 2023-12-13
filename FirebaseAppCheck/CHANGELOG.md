@@ -1,3 +1,8 @@
+# 10.19.1
+- [fixed] Fix bug in apps using both AppCheck and ARCore where AppCheck
+  unnecessarily tries to create tokens for the ARCore SDK. This results in
+  noisy logs containing harmless attestation errors.
+
 # 10.18.0
 - [changed] Extracted core `FirebaseAppCheck` functionality into a new
   [`AppCheckCore`](https://github.com/google/app-check) dependency. (#12067)
