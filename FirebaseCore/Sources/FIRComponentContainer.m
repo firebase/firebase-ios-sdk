@@ -20,6 +20,7 @@
 #import "FirebaseCore/Extension/FIRComponent.h"
 #import "FirebaseCore/Extension/FIRLibrary.h"
 #import "FirebaseCore/Extension/FIRLogger.h"
+#import "FirebaseCore/Extension/FIROptionsInternal.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -61,7 +62,18 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
 #pragma mark - Internal Initialization
 
 - (instancetype)initWithApp:(FIRApp *)app {
-  return [self initWithApp:app registrants:sFIRComponentRegistrants];
+  NSMutableSet<Class> *componentRegistrants = sFIRComponentRegistrants;
+  // If the app being created is for the ARCore SDK, remove the App Check
+  // component (if it exists) since it does not support App Check.
+  if ([self isAppForARCore:app]) {
+    Class klass = NSClassFromString(@"FIRAppCheckComponent");
+    if (klass && [sFIRComponentRegistrants containsObject:klass]) {
+      componentRegistrants = [componentRegistrants mutableCopy];
+      [componentRegistrants removeObject:klass];
+    }
+  }
+
+  return [self initWithApp:app registrants:componentRegistrants];
 }
 
 - (instancetype)initWithApp:(FIRApp *)app registrants:(NSMutableSet<Class> *)allRegistrants {
@@ -212,6 +224,26 @@ static NSMutableSet<Class> *sFIRComponentRegistrants;
   @synchronized(self) {
     [self.components removeAllObjects];
   }
+}
+
+#pragma mark - Helpers
+
+- (BOOL)isAppForARCore:(FIRApp *)app {
+  // First, check if the app name matches that of the one used by ARCore.
+  if ([app.name isEqualToString:@"ARCoreFIRApp"]) {
+    // Second, check if the app's gcmSenderID matches that of ARCore. This
+    // prevents false positives in the unlikely event a 3P Firebase app is
+    // named `ARCoreFIRApp`.
+    const char *p1 = "406756";
+    const char *p2 = "893798";
+    const char gcmSenderIDKey[27] = {p1[0],  p2[0],  p1[1],  p2[1],  p1[2],  p2[2], p1[3],
+                                     p2[3],  p1[4],  p2[4],  p1[5],  p2[5],  p1[6], p2[6],
+                                     p1[7],  p2[7],  p1[8],  p2[8],  p1[9],  p2[9], p1[10],
+                                     p2[10], p1[11], p2[11], p1[12], p2[12], '\0'};
+    NSString *gcmSenderID = [NSString stringWithUTF8String:gcmSenderIDKey];
+    return [app.options.GCMSenderID isEqualToString:gcmSenderID];
+  }
+  return NO;
 }
 
 @end
