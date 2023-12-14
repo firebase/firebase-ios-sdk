@@ -16,7 +16,7 @@
   </a>
 </p>
 
-# Firebase Apple Open Source Development
+# Firebase Apple Open Source Development!
 
 This repository contains the source code for all Apple platform Firebase SDKs except FirebaseAnalytics.
 
