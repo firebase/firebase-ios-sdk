@@ -227,7 +227,7 @@
   XCTAssertEqual(snapshot.count, [NSNumber numberWithLong:3L]);
 }
 
-- (void)testFailWithGoodMessageIfMissingIndex {
+- (void)testFailWithMessageWithConsoleLinkIfMissingIndex {
   XCTSkipIf([FSTIntegrationTestCase isRunningAgainstEmulator],
             "Skip this test when running against the Firestore emulator because the Firestore "
             "emulator does not use indexes and never fails with a 'missing index' error.");
