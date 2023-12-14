@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.19.1"
+let firebaseVersion = "10.20.0"
 
 let package = Package(
   name: "Firebase",
