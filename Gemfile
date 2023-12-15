@@ -1,4 +1,4 @@
-# To update, change version below, run bundle install, test,
+# To update, change version below, run bundle install, test test
 # commit Gemfile and Gemfile.lock.
 source 'https://rubygems.org'
 
