@@ -3,7 +3,7 @@ of source and binary CocoaPods.
 
 ## Introduction
 
-The current [Zip Builder](https://github.com/firebase/firebase-ios-sdk/tree/master/ZipBuilder)
+The current [Zip Builder](https://github.com/firebase/firebase-ios-sdk/tree/main/ZipBuilder)
 is Firebase specific. This is a proposal and initial plan to evolve the Zip Builder into a
 multi-purpose Apple binary framework creation tool.
 

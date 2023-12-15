@@ -465,7 +465,7 @@
 - [changed] Firestore no longer bundles a copy of the gRPC certificates, now
   that the gRPC-C++ CocoaPod includes them. CocoaPods users should be updated
   automatically. Carthage users should follow the [updated
-  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md)
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/main/Carthage.md)
   to get `gRPCCertificates.bundle` from the correct location.
 
 # 0.16.1

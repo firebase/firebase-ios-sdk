@@ -22,7 +22,7 @@
 # Pass a specific file or directory name to format just files found there
 #
 # Commonly
-# ./scripts/style.sh master
+# ./scripts/style.sh main
 
 # Set the environment variable FIR_CLANG_FORMAT_PATH to use a specific version
 # of clang-format, regardless of its order in the shell PATH.
