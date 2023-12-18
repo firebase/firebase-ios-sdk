@@ -23,6 +23,7 @@ concurrency:
 
 jobs:
 
+  # TODO(#12205) Update the build.sh script for this job from "test" instead of "build"
   messaging-integration-tests:
     # Don't run on private repo unless it is a PR.
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'

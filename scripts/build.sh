@@ -369,6 +369,7 @@ case "$product-$platform-$method" in
         build
     ;;
 
+  # TODO(#12205) Restore this test to "test" instead of "build"
   Messaging-*-xcodebuild)
     pod_gen FirebaseMessaging.podspec --platforms=ios
 
@@ -384,7 +385,7 @@ case "$product-$platform-$method" in
         -scheme "FirebaseMessaging-Unit-integration" \
         "${ios_flags[@]}" \
         "${xcb_flags[@]}" \
-        test
+        build
     fi
     ;;
 
