@@ -37,6 +37,8 @@ static NSString *const RCNFetchResponseKeyEntries = @"entries";
 static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentDescriptions";
 /// Key that includes data for Personalization metadata.
 static NSString *const RCNFetchResponseKeyPersonalizationMetadata = @"personalizationMetadata";
+/// Key that includes data for Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutMetadata = @"rolloutMetadata";
 /// Error key.
 static NSString *const RCNFetchResponseKeyError = @"error";
 /// Error code.
