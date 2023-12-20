@@ -173,6 +173,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
 
       _remoteConfigManager = [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig];
+
+      // TODO(themisw): Import "firebase" from the interop in the future.
       [remoteConfig registerRolloutsStateSubscriber:self for:@"firebase"];
     }
 

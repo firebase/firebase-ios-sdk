@@ -21,7 +21,7 @@ protocol CrashlyticsPersistentLog: NSObject {
 
 @objc(FIRCLSRemoteConfigManager)
 public class CrashlyticsRemoteConfigManager: NSObject {
-  public static let maxRolloutAssignment = 128
+  public static let maxRolloutAssignments = 128
   public static let maxParameterValueLength = 256
 
   var remoteConfig: RemoteConfigInterop
@@ -33,20 +33,25 @@ public class CrashlyticsRemoteConfigManager: NSObject {
   }
 
   @objc public func updateRolloutsState(rolloutsState: RolloutsState) {
-    rolloutAssignment = validateRolloutAssignment(assignments: Array(rolloutsState.assignments))
+    rolloutAssignment = normalizeRolloutAssignment(assignments: Array(rolloutsState.assignments))
   }
 }
 
 private extension CrashlyticsRemoteConfigManager {
-  func validateRolloutAssignment(assignments: [RolloutAssignment]) -> [RolloutAssignment] {
+  func normalizeRolloutAssignment(assignments: [RolloutAssignment]) -> [RolloutAssignment] {
     var validatedAssignments = assignments
-    if assignments.count > CrashlyticsRemoteConfigManager.maxRolloutAssignment {
+    if assignments.count > CrashlyticsRemoteConfigManager.maxRolloutAssignments {
+      debugPrint("Rollouts excess the maximum number of assignments can pass to Crashlytics")
       validatedAssignments =
-        Array(assignments[..<CrashlyticsRemoteConfigManager.maxRolloutAssignment])
+        Array(assignments[..<CrashlyticsRemoteConfigManager.maxRolloutAssignments])
     }
 
     _ = validatedAssignments.map { assignment in
       if assignment.parameterValue.count > CrashlyticsRemoteConfigManager.maxParameterValueLength {
+        debugPrint(
+          "Rollouts excess the maximum length of parameter value can pass to Crashlytics",
+          assignment.parameterValue
+        )
         let upperBound = String.Index(
           utf16Offset: CrashlyticsRemoteConfigManager.maxParameterValueLength,
           in: assignment.parameterValue
