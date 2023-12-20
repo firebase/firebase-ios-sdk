@@ -496,6 +496,7 @@ let package = Package(
         "FirebaseInstallations",
         "FirebaseSessions",
         "FirebaseRemoteConfigInterop",
+        "FirebaseCrashlyticsSwift",
         .product(name: "GoogleDataTransport", package: "GoogleDataTransport"),
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "FBLPromises", package: "Promises"),
@@ -513,6 +514,7 @@ let package = Package(
         "upload-symbols",
         "CrashlyticsInputFiles.xcfilelist",
         "third_party/libunwind/LICENSE",
+        "Crashlytics/Rollouts/",
       ],
       sources: [
         "Crashlytics/",
@@ -540,6 +542,19 @@ let package = Package(
         .linkedFramework("Security"),
         .linkedFramework("SystemConfiguration", .when(platforms: [.iOS, .macOS, .tvOS])),
       ]
+    ),
+    .target(
+      name: "FirebaseCrashlyticsSwift",
+      dependencies: ["FirebaseRemoteConfigInterop"],
+      path: "Crashlytics",
+      sources: [
+        "Crashlytics/Rollouts/",
+      ]
+    ),
+    .testTarget(
+      name: "FirebaseCrashlyticsSwiftUnit",
+      dependencies: ["FirebaseCrashlyticsSwift"],
+      path: "Crashlytics/UnitTestsSwift/"
     ),
     .testTarget(
       name: "FirebaseCrashlyticsUnit",
