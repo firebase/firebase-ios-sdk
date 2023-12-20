@@ -58,6 +58,12 @@
 #import <GoogleDataTransport/GoogleDataTransport.h>
 
 @import FirebaseSessions;
+@import FirebaseRemoteConfigInterop;
+#if SWIFT_PACKAGE
+@import FirebaseCrashlyticsSwift;
+#else  // Swift Package Manager
+#import "FirebaseCrashlytics/FirebaseCrashlytics-Swift.h"
+#endif  // Cocoapod
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
@@ -76,7 +82,10 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 @protocol FIRCrashlyticsInstanceProvider <NSObject>
 @end
 
-@interface FIRCrashlytics () <FIRLibrary, FIRCrashlyticsInstanceProvider, FIRSessionsSubscriber>
+@interface FIRCrashlytics () <FIRLibrary,
+                              FIRCrashlyticsInstanceProvider,
+                              FIRSessionsSubscriber,
+                              FIRRolloutsStateSubscriber>
 
 @property(nonatomic) BOOL didPreviouslyCrash;
 @property(nonatomic, copy) NSString *googleAppID;
@@ -91,6 +100,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 @property(nonatomic, strong) FIRCLSAnalyticsManager *analyticsManager;
 
+@property(nonatomic, strong) FIRCLSRemoteConfigManager *remoteConfigManager;
+
 // Dependencies common to each of the Controllers
 @property(nonatomic, strong) FIRCLSManagerData *managerData;
 
@@ -104,7 +115,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                     appInfo:(NSDictionary *)appInfo
               installations:(FIRInstallations *)installations
                   analytics:(id<FIRAnalyticsInterop>)analytics
-                   sessions:(id<FIRSessionsProvider>)sessions {
+                   sessions:(id<FIRSessionsProvider>)sessions
+               remoteConfig:(id<FIRRemoteConfigInterop>)remoteConfig {
   self = [super init];
 
   if (self) {
@@ -155,6 +167,15 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
       // It should also be made after managerData is initialized so
       // that the ContextManager can accept data
       [sessions registerWithSubscriber:self];
+    }
+
+    if (remoteConfig) {
+      FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
+
+      _remoteConfigManager = [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig];
+
+      // TODO(themisw): Import "firebase" from the interop in the future.
+      [remoteConfig registerRolloutsStateSubscriber:self for:@"firebase"];
     }
 
     _reportUploader = [[FIRCLSReportUploader alloc] initWithManagerData:_managerData];
@@ -215,6 +236,7 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
     id<FIRAnalyticsInterop> analytics = FIR_COMPONENT(FIRAnalyticsInterop, container);
     id<FIRSessionsProvider> sessions = FIR_COMPONENT(FIRSessionsProvider, container);
+    id<FIRRemoteConfigInterop> remoteConfig = FIR_COMPONENT(FIRRemoteConfigInterop, container);
 
     FIRInstallations *installations = [FIRInstallations installationsWithApp:container.app];
 
@@ -224,7 +246,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
                                        appInfo:NSBundle.mainBundle.infoDictionary
                                  installations:installations
                                      analytics:analytics
-                                      sessions:sessions];
+                                      sessions:sessions
+                                  remoteConfig:remoteConfig];
   };
 
   FIRComponent *component =
@@ -405,6 +428,12 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 - (FIRSessionsSubscriberName)sessionsSubscriberName {
   return FIRSessionsSubscriberNameCrashlytics;
+}
+
+#pragma mark - FIRRolloutsStateSubscriber
+- (void)rolloutsStateDidChange:(FIRRolloutsState *_Nonnull)rolloutsState {
+  [_remoteConfigManager updateRolloutsStateWithRolloutsState:rolloutsState];
+  // TODO(themisw): writing the rollout state change to persistence
 }
 
 @end
