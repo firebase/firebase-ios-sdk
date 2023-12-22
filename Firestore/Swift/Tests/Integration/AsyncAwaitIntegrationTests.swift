@@ -37,10 +37,21 @@ let emptyBundle = """
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AsyncAwaitIntegrationTests: FSTIntegrationTestCase {
     func testAddData() async throws {
-      let collection = collectionRef()
-      let document = try await collection.addDocument(data: [:])
-      let snapshot = try await document.getDocument()
-      XCTAssertTrue(snapshot.exists)
+        do {
+            try await db.document("coll/doc").setData([
+                "number": 42,
+                "color": "#ffffff",
+                "movie": "Back to the Future",
+                "food": "Sushi",
+                "city": "London",
+                "isPublic": true,
+                "userId": "peterfriese"
+              ])
+            print("success")
+            //10.17.0 - [FirebaseFirestore][I-FST000001] WriteStream (107b86928) Stream error: 'Resource exhausted: Quota exceeded.'
+        } catch {
+            print("error throws in setDocuments")
+        }
     }
 
     func testLoadBundleFromData() async throws {

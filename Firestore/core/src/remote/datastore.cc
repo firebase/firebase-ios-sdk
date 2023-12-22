@@ -390,13 +390,13 @@ bool Datastore::IsPermanentError(const Status& error) {
     case Error::kErrorCancelled:
     case Error::kErrorUnknown:
     case Error::kErrorDeadlineExceeded:
-    case Error::kErrorResourceExhausted:
     case Error::kErrorInternal:
     case Error::kErrorUnavailable:
       // Unauthenticated means something went wrong with our token and we need
       // to retry with new credentials which will happen automatically.
     case Error::kErrorUnauthenticated:
       return false;
+    case Error::kErrorResourceExhausted:
     case Error::kErrorInvalidArgument:
     case Error::kErrorNotFound:
     case Error::kErrorAlreadyExists:
