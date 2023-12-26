@@ -33,7 +33,7 @@ jobs:
             tests:
           # Flaky tests on CI
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
             tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
@@ -99,7 +99,7 @@ jobs:
             xcode: Xcode_14.2
             test: spm
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
             test: spmbuildonly
     runs-on: ${{ matrix.os }}
     steps:

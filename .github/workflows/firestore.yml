@@ -369,7 +369,7 @@ jobs:
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -411,7 +411,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -445,7 +445,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     needs: check
     env:

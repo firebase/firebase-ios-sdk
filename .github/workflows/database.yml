@@ -33,7 +33,7 @@ jobs:
             xcode: Xcode_14.2
             tests: --test-specs=unit
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
             tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
@@ -75,7 +75,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4

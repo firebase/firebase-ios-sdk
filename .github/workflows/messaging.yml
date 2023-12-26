@@ -50,7 +50,7 @@ jobs:
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
           FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
 #    - name: Xcode
-#      run: sudo xcode-select -s /Applications/xcode_15.0.1.app/Contents/Developer
+#      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: BuildAndTest
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
 
@@ -67,7 +67,7 @@ jobs:
             xcode: Xcode_14.2
             tests: --test-specs=unit
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
             tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
@@ -91,7 +91,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -132,7 +132,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -194,7 +194,7 @@ jobs:
             xcode: Xcode_14.2
             tests: --test-specs=unit
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
             tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
@@ -228,7 +228,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)
 
@@ -253,7 +253,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh SwiftUISample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh SwiftUISample iOS)
 
@@ -278,7 +278,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSampleStandaloneWatchApp watchOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSampleStandaloneWatchApp watchOS)
 

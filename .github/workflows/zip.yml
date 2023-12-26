@@ -108,7 +108,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -170,7 +170,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -224,7 +224,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -276,7 +276,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -352,7 +352,7 @@ jobs:
             xcode: Xcode_14.2
           # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
           # - os: macos-13
-          #   xcode: Xcode_15.0.1
+          #   xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -408,7 +408,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -469,7 +469,7 @@ jobs:
             xcode: Xcode_14.2
           # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
           # - os: macos-13
-          #   xcode: Xcode_15.0.1
+          #   xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -555,7 +555,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -612,7 +612,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -668,7 +668,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
