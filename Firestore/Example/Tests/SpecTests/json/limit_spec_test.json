@@ -5621,6 +5621,14 @@
         }
       },
       {
+        "watchCurrent": [
+          [
+            2
+          ],
+          "resume-token-1004"
+        ]
+      },
+      {
         "watchSnapshot": {
           "targetIds": [
           ],

@@ -18,7 +18,6 @@
 
 #include "Firestore/core/src/util/hard_assert.h"
 #include "Firestore/core/src/util/task.h"
-#include "absl/memory/memory.h"
 
 namespace firebase {
 namespace firestore {
@@ -29,7 +28,7 @@ Schedule::~Schedule() {
 }
 
 void Schedule::Clear() {
-  std::unique_lock<std::mutex> lock{mutex_};
+  std::lock_guard<std::mutex> lock{mutex_};
 
   for (Task* task : scheduled_) {
     task->Release();

@@ -16,7 +16,7 @@ Summarize which Firebase Options fields (and GoogleService-Info.plist attributes
 
 
 ## Rows (FirebaseOptions)
-See [FIROptions.m](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseCore/Sources/FIROptions.m) to see how the variables map
+See [FIROptions.m](https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseCore/Sources/FIROptions.m) to see how the variables map
 to GoogleService-Info.plist attributes.
 
 * *apiKey*: An API key used for authenticating requests from your Apple app

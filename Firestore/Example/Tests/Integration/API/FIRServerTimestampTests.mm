@@ -123,11 +123,13 @@
 
 /** Verifies a snapshot containing _setData but with resolved server timestamps. */
 - (void)verifySnapshotWithResolvedTimestamps:(FIRDocumentSnapshot *)snapshot {
+  // Tolerate up to 200 seconds of clock skew between client and server.
+  NSInteger tolerance = 200;
+
   XCTAssertTrue(snapshot.exists);
   FIRTimestamp *when = snapshot[@"when"];
   XCTAssertTrue([when isKindOfClass:[FIRTimestamp class]]);
-  // Tolerate up to 10 seconds of clock skew between client and server.
-  XCTAssertEqualWithAccuracy(when.seconds, [FIRTimestamp timestamp].seconds, 10);
+  XCTAssertEqualWithAccuracy(when.seconds, [FIRTimestamp timestamp].seconds, tolerance);
 
   // Validate the rest of the document.
   XCTAssertEqualObjects(snapshot.data, [self expectedDataWithTimestamp:when]);

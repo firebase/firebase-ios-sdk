@@ -77,8 +77,8 @@ binary "https://dl.google.com/dl/firebase/ios/carthage/FirebaseStorageBinary.jso
 
 - For Crashlytics, do the following steps to automatically upload your app's symbols so your app's crashes are symbolicated:
     - Download
-     [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/upload-symbols)
-     and [run](https://github.com/firebase/firebase-ios-sdk/raw/master/Crashlytics/run).
+     [upload-symbols](https://github.com/firebase/firebase-ios-sdk/raw/main/Crashlytics/upload-symbols)
+     and [run](https://github.com/firebase/firebase-ios-sdk/raw/main/Crashlytics/run).
      Note: please see the [discussion](https://github.com/firebase/firebase-ios-sdk/issues/4720#issuecomment-577213858)
      for details why it has to be done manually.
     - Put these in the directory where your `.xcodeproj` file lives, eg. `scripts/run` and `scripts/upload-symbols`
