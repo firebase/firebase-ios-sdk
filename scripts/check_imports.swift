@@ -34,7 +34,7 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM tests test module imports.
-    "ClientApp", // The ClientApp tests module imports.
+    "IntegrationTesting/ClientApp", // The ClientApp tests module imports.
     "FirebaseSessions/Protogen/", // Generated nanopb code with imports
   ] +
 

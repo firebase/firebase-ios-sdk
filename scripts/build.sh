@@ -666,7 +666,7 @@ case "$product-$platform-$method" in
 
   ClientApp-iOS-xcodebuild | ClientApp-iOS13-iOS-xcodebuild)
     RunXcodebuild \
-      -project 'ClientApp/ClientApp.xcodeproj' \
+      -project 'IntegrationTesting/ClientApp/ClientApp.xcodeproj' \
       -scheme $product \
       "${xcb_flags[@]}" \
       build
@@ -674,7 +674,7 @@ case "$product-$platform-$method" in
 
   ClientApp-CocoaPods*-iOS-xcodebuild)
     RunXcodebuild \
-      -workspace 'ClientApp/ClientApp.xcworkspace' \
+      -workspace 'IntegrationTesting/ClientApp/ClientApp.xcworkspace' \
       -scheme $product \
       "${xcb_flags[@]}" \
       build
