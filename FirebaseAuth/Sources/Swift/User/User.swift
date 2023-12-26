@@ -69,7 +69,9 @@ extension User: NSSecureCoding {}
 
   /** @fn updateEmail:completion:
       @brief Updates the email address for the user. On success, the cached user profile data is
-          updated.
+          updated. Returns AuthErrorCodeInvalidCredentials error when
+          [Email Enumeration Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+          is enabled.
       @remarks May fail if there is already an account with this email address that was created using
           email and password authentication.
 
@@ -95,6 +97,11 @@ extension User: NSSecureCoding {}
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
+  @available(
+    *,
+    deprecated,
+    message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
+  )
   @objc(updateEmail:completion:)
   public func updateEmail(to email: String, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
@@ -106,7 +113,9 @@ extension User: NSSecureCoding {}
 
   /** @fn updateEmail
       @brief Updates the email address for the user. On success, the cached user profile data is
-          updated.
+          updated. Throws AuthErrorCodeInvalidCredentials error when
+          [Email Enumeration Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+          is enabled.
       @remarks May fail if there is already an account with this email address that was created using
           email and password authentication.
 
@@ -131,6 +140,11 @@ extension User: NSSecureCoding {}
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
+  @available(
+    *,
+    deprecated,
+    message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
+  )
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   public func updateEmail(to email: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
