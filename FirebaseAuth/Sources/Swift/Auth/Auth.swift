@@ -284,7 +284,9 @@ extension Auth: AuthInterop {
 
   /** @fn fetchSignInMethodsForEmail:completion:
    @brief Fetches the list of all sign-in methods previously used for the provided email address.
-
+   This method returns an empty list when [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled, irrespective of the number of authentication methods available for the given email.
    @param email The email address for which to obtain a list of sign-in methods.
    @param completion Optionally; a block which is invoked when the list of sign in methods for the
    specified email address is ready or an error was encountered. Invoked asynchronously on the
@@ -296,6 +298,11 @@ extension Auth: AuthInterop {
 
    @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
    */
+  @available(
+    *,
+    deprecated,
+    message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
+  )
   @objc public func fetchSignInMethods(forEmail email: String,
                                        completion: (([String]?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
@@ -315,7 +322,9 @@ extension Auth: AuthInterop {
 
   /** @fn fetchSignInMethodsForEmail:completion:
    @brief Fetches the list of all sign-in methods previously used for the provided email address.
-
+   This method returns an empty list when [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled, irrespective of the number of authentication methods available for the given email.
    @param email The email address for which to obtain a list of sign-in methods.
 
    @remarks Possible error codes:
@@ -324,7 +333,11 @@ extension Auth: AuthInterop {
 
    @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
    */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(
+    *,
+    deprecated,
+    message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
+  )
   public func fetchSignInMethods(forEmail email: String) async throws -> [String] {
     return try await withCheckedThrowingContinuation { continuation in
       self.fetchSignInMethods(forEmail: email) { methods, error in
@@ -338,7 +351,10 @@ extension Auth: AuthInterop {
   }
 
   /** @fn signInWithEmail:password:completion:
-   @brief Signs in using an email address and password.
+   @brief Signs in using an email address and password.  When [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled, this method fails with FIRAuthErrorCodeInvalidCredentials in case of an invalid
+   email/password.
 
    @param email The user's email address.
    @param password The user's password.
@@ -377,7 +393,10 @@ extension Auth: AuthInterop {
   }
 
   /** @fn signInWithEmail:password:callback:
-   @brief Signs in using an email address and password.
+   @brief Signs in using an email address and password.  When [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled, this method fails with FIRAuthErrorCodeInvalidCredentials in case of an invalid
+   email/password.
    @param email The user's email address.
    @param password The user's password.
    @param callback A block which is invoked when the sign in finishes (or is cancelled.) Invoked
@@ -1216,7 +1235,10 @@ extension Auth: AuthInterop {
   }
 
   /** @fn sendPasswordResetWithEmail:completion:
-   @brief Initiates a password reset for the given email address.
+   @brief Initiates a password reset for the given email address. This method does not throw an
+   error when there's no user account with the given email address and [Email Enumeration
+   Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+   is enabled.
 
    @param email The email address of the user.
    @param completion Optionally; a block which is invoked when the request finishes. Invoked
@@ -1290,6 +1312,10 @@ extension Auth: AuthInterop {
 
   /** @fn sendPasswordResetWithEmail:actionCodeSetting:completion:
    @brief Initiates a password reset for the given email address and `ActionCodeSettings` object.
+   This method does not throw an
+      error when there's no user account with the given email address and [Email Enumeration
+      Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+      is enabled.
 
    @param email The email address of the user.
    @param actionCodeSettings An `ActionCodeSettings` object containing settings related to

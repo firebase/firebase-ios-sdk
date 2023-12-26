@@ -362,7 +362,6 @@ class AuthAPI_hOnlyTests: XCTestCase {
           return FacebookAuthProvider.credential(withAccessToken: "token")
         }
       }
-      let obj = FederatedAuthImplementation()
       @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
       func FIRFedederatedAuthProvider_hAsync() async throws {
         let obj = FederatedAuthImplementation()

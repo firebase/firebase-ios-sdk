@@ -482,6 +482,8 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
       .invalidCredentialError(message: serverDetailErrorMessage)
     case "INVALID_PENDING_TOKEN": return AuthErrorUtils
       .invalidCredentialError(message: serverDetailErrorMessage)
+    case "INVALID_LOGIN_CREDENTIALS": return AuthErrorUtils
+      .invalidCredentialError(message: serverDetailErrorMessage)
     case "INVALID_CUSTOM_TOKEN": return AuthErrorUtils
       .invalidCustomTokenError(message: serverDetailErrorMessage)
     case "CREDENTIAL_MISMATCH": return AuthErrorUtils
