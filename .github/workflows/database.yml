@@ -31,10 +31,10 @@ jobs:
         include:
           - os: macos-12
             xcode: Xcode_14.2
-            tests: --test-specs=unit
+            tests: --skip-tests
           - os: macos-13
             xcode: Xcode_15.1
-            tests: --skip-tests
+            tests: --test-specs=unit
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
