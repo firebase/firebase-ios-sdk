@@ -23,8 +23,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.1
     env:
