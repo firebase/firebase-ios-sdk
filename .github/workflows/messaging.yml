@@ -29,14 +29,12 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      # TODO: Investigate why PubSub integration tests fail with Xcode 15.0.1 on macos-13
-#    runs-on: macos-13
-    runs-on: macos-12
+    runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: integration
     - name: Configure test keychain
       run: scripts/configure_test_keychain.sh
     - uses: ruby/setup-ruby@v1
@@ -49,8 +47,8 @@ jobs:
         mkdir FirebaseMessaging/Tests/IntegrationTests/Resources
         scripts/decrypt_gha_secret.sh scripts/gha-encrypted/messaging-sample-plist.gpg \
           FirebaseMessaging/Tests/IntegrationTests/Resources/GoogleService-Info.plist "$plist_secret"
-#    - name: Xcode
-#      run: sudo xcode-select -s /Applications/xcode_15.0.1.app/Contents/Developer
+    - name: Xcode
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: BuildAndTest
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/build.sh Messaging all)
 
@@ -67,7 +65,7 @@ jobs:
             xcode: Xcode_14.2
             tests: --test-specs=unit
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
             tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
@@ -91,13 +89,13 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Xcode
@@ -113,7 +111,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: catalyst${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -132,7 +130,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -194,7 +192,7 @@ jobs:
             xcode: Xcode_14.2
             tests: --test-specs=unit
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
             tests: --skip-tests
     runs-on: ${{ matrix.os }}
     steps:
@@ -217,7 +215,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: sample${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -228,7 +226,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSample iOS)
 
@@ -242,7 +240,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: sample${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -253,7 +251,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh SwiftUISample iOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh SwiftUISample iOS)
 
@@ -267,7 +265,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: watch-sample${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -278,7 +276,7 @@ jobs:
     - name: Prereqs
       run: scripts/install_prereqs.sh MessagingSampleStandaloneWatchApp watchOS
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
     - name: Build
       run: ([ -z $plist_secret ] || scripts/build.sh MessagingSampleStandaloneWatchApp watchOS)
 
