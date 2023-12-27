@@ -3,7 +3,7 @@ name: cocoapods-integration
 on:
   pull_request:
     paths:
-    - 'CocoapodsIntegrationTest/**'
+    - 'IntegrationTesting/CocoapodsIntegrationTest/**'
     - '.github/workflows/cocoapods-integration.yml'
     - 'Gemfile*'
   schedule:
@@ -29,6 +29,6 @@ jobs:
       run: brew install coreutils
     - name: Build and test
       run: |
-        scripts/third_party/travis/retry.sh ./CocoapodsIntegrationTest/scripts/build_with_environment.sh \
-          --gemfile=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Gemfile \
-          --podfile=./CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Podfile
+        scripts/third_party/travis/retry.sh ./IntegrationTesting/CocoapodsIntegrationTest/scripts/build_with_environment.sh \
+          --gemfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Gemfile \
+          --podfile=./IntegrationTesting/CocoapodsIntegrationTest/TestEnvironments/Cocoapods_multiprojects_frameworks/Podfile
