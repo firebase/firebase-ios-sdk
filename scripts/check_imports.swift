@@ -28,7 +28,8 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "SymbolCollisionTest/", "/gen/",
-                       "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "IntegrationTesting/CocoapodsIntegrationTest/",
+                       "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
