@@ -12,6 +12,10 @@ import Foundation
 public enum DataConnectError: Error {
 
   //no firebase app specified. configure not complete
-  case appConfigure
+  case appNotConfigured
+
+  case grpcNotConfigured
+
+  case decodeFailed
 
 }

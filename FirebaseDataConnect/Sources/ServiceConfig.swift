@@ -17,6 +17,15 @@ public enum ServiceRegion: String {
 public struct ServiceConfig {
   public private(set) var serviceId: String
   public private(set) var location: ServiceRegion
+  public private(set) var connector: String
   public private(set) var revision: String
-  public private(set) var operationSet: String
+
+  public init(serviceId: String, location: ServiceRegion,  connector: String, revision: String) {
+    self.serviceId = serviceId
+    self.location = location
+    self.connector = connector
+    self.revision = revision
+
+  }
+
 }

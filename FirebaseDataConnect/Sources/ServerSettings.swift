@@ -14,4 +14,8 @@ public struct ServerSettings {
   public private(set) var port: Int
   public private(set) var sslEnabled: Bool
 
+  static var defaults: ServerSettings {
+    return ServerSettings(hostName: "firebasedataconnect.googleapis.com", port: 443, sslEnabled: true)
+  }
+
 }
