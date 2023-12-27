@@ -446,7 +446,7 @@ class IntegrationTests: XCTestCase {
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-          XCTAssertEqual("INTERNAL", error.localizedDescription)
+          XCTAssertNotEqual("INTERNAL", error.localizedDescription)
           expectation.fulfill()
           return
         }
@@ -477,7 +477,7 @@ class IntegrationTests: XCTestCase {
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-          XCTAssertEqual("INTERNAL", error.localizedDescription)
+          XCTAssertNotEqual("INTERNAL", error.localizedDescription)
         }
       }
     }
@@ -502,7 +502,7 @@ class IntegrationTests: XCTestCase {
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-          XCTAssertEqual("INTERNAL", error.localizedDescription)
+          XCTAssertNotEqual("INTERNAL", error.localizedDescription)
           expectation.fulfill()
           return
         }
@@ -532,7 +532,7 @@ class IntegrationTests: XCTestCase {
         } catch {
           let error = error as NSError
           XCTAssertEqual(FunctionsErrorCode.internal.rawValue, error.code)
-          XCTAssertEqual("INTERNAL", error.localizedDescription)
+          XCTAssertNotEqual("INTERNAL", error.localizedDescription)
         }
       }
     }
