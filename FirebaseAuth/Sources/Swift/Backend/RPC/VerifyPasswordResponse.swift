@@ -21,7 +21,7 @@ import Foundation
        - FIRAuthInternalErrorCodeEmailNotFound
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-class VerifyPasswordResponse: AuthRPCResponse {
+class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
   required init() {}
 
   /** @property localID
@@ -62,9 +62,23 @@ class VerifyPasswordResponse: AuthRPCResponse {
    */
   var photoURL: URL?
 
-  var mfaPendingCredential: String?
+  // MARK: - AuthMFAResponse
 
-  var mfaInfo: [AuthProtoMFAEnrollment]?
+  func mfaPendingCredential() -> String? {
+    return _mfaPendingCredential
+  }
+
+  func mfaInfo() -> [AuthProtoMFAEnrollment]? {
+    return _mfaInfo
+  }
+
+  func nilIDToken() -> Bool {
+    return idToken == nil
+  }
+
+  private var _mfaPendingCredential: String?
+
+  private var _mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     localID = dictionary["localId"] as? String
@@ -79,8 +93,8 @@ class VerifyPasswordResponse: AuthRPCResponse {
     photoURL = (dictionary["photoUrl"] as? String).flatMap { URL(string: $0) }
 
     if let mfaInfo = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
-      self.mfaInfo = mfaInfo.map { AuthProtoMFAEnrollment(dictionary: $0) }
+      _mfaInfo = mfaInfo.map { AuthProtoMFAEnrollment(dictionary: $0) }
     }
-    mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
+    _mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
   }
 }

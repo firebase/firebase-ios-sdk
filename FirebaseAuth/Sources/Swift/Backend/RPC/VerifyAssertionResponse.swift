@@ -18,7 +18,7 @@ import Foundation
  @brief Represents the response from the verifyAssertion endpoint.
  @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
  */
-class VerifyAssertionResponse: AuthRPCResponse {
+class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   required init() {}
 
   /** @property federatedID
@@ -201,9 +201,23 @@ class VerifyAssertionResponse: AuthRPCResponse {
    */
   var pendingToken: String?
 
-  var MFAPendingCredential: String?
+  // MARK: - AuthMFAResponse
 
-  var MFAInfo: [AuthProtoMFAEnrollment]?
+  func mfaPendingCredential() -> String? {
+    return _mfaPendingCredential
+  }
+
+  func mfaInfo() -> [AuthProtoMFAEnrollment]? {
+    return _mfaInfo
+  }
+
+  func nilIDToken() -> Bool {
+    return idToken == nil
+  }
+
+  private var _mfaPendingCredential: String?
+
+  private var _mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     federatedID = dictionary["federatedId"] as? String
@@ -267,10 +281,10 @@ class VerifyAssertionResponse: AuthRPCResponse {
     pendingToken = dictionary["pendingToken"] as? String
 
     if let mfaInfoDicts = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
-      MFAInfo = mfaInfoDicts.map {
+      _mfaInfo = mfaInfoDicts.map {
         AuthProtoMFAEnrollment(dictionary: $0)
       }
     }
-    MFAPendingCredential = dictionary["mfaPendingCredential"] as? String
+    _mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
   }
 }
