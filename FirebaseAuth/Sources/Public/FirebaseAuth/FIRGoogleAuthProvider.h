@@ -16,14 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRAuthErrors.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRMultiFactor.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+    @brief A string constant identifying the Google identity provider.
+ */
+extern NSString *const FIRGoogleAuthProviderID NS_SWIFT_NAME(GoogleAuthProviderID);
+
+/**
+    @brief A string constant identifying the Google sign-in method.
+ */
+extern NSString *const _Nonnull FIRGoogleAuthSignInMethod NS_SWIFT_NAME(GoogleAuthSignInMethod);
+
+NS_ASSUME_NONNULL_END

@@ -16,14 +16,4 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRAuthErrors.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRMultiFactor.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
+const NSNotificationName FIRAuthStateDidChangeNotification = @"FIRAuthStateDidChangeNotification";

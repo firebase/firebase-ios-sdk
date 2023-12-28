@@ -16,14 +16,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRAuthErrors.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRMultiFactor.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+    @brief A string constant identifying the GitHub identity provider.
+ */
+extern NSString *const FIRGitHubAuthProviderID NS_SWIFT_NAME(GitHubAuthProviderID);
+
+/**
+    @brief A string constant identifying the GitHub sign-in method.
+ */
+extern NSString *const _Nonnull FIRGitHubAuthSignInMethod NS_SWIFT_NAME(GitHubAuthSignInMethod);
+
+NS_ASSUME_NONNULL_END

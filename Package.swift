@@ -425,6 +425,7 @@ let package = Package(
       dependencies: [
         "FirebaseAppCheckInterop",
         "FirebaseAuthInterop",
+        "FirebaseAuthInternal",
         "FirebaseCore",
         "FirebaseCoreExtension",
         .product(name: "GULAppDelegateSwizzler", package: "GoogleUtilities"),
@@ -436,6 +437,17 @@ let package = Package(
       linkerSettings: [
         .linkedFramework("Security"),
         .linkedFramework("SafariServices", .when(platforms: [.iOS])),
+      ]
+    ),
+    .target(
+      name: "FirebaseAuthInternal",
+      path: "FirebaseAuth/Sources",
+      exclude: [
+        "Swift",
+      ],
+      publicHeadersPath: "Public",
+      cSettings: [
+        .headerSearchPath("../../"),
       ]
     ),
     // Internal headers only for consuming from Swift.
@@ -461,6 +473,7 @@ let package = Package(
         "PhoneAuthProviderTests.swift",
         "AuthNotificationManagerTests.swift",
         "ObjCAPITests.m", // Only builds via CocoaPods until mixed language or its own target.
+        "ObjCGlobalTests.m", // Only builds via CocoaPods until mixed language or its own target.
       ]
     ),
     .target(

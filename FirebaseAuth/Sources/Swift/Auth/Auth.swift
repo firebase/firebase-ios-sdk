@@ -29,6 +29,11 @@ import FirebaseCoreExtension
   import UIKit
 #endif
 
+// Export the deprecated Objective-C defined globals and typedefs.
+#if SWIFT_PACKAGE
+  @_exported import FirebaseAuthInternal
+#endif // SWIFT_PACKAGE
+
 #if os(iOS)
   @available(iOS 13.0, *)
   extension Auth: UISceneDelegate {

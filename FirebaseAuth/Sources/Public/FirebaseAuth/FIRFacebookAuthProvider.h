@@ -16,14 +16,18 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRAuthErrors.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRMultiFactor.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
+@class FIRAuthCredential;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+    @brief A string constant identifying the Facebook identity provider.
+ */
+extern NSString *const FIRFacebookAuthProviderID NS_SWIFT_NAME(FacebookAuthProviderID);
+
+/**
+    @brief A string constant identifying the Facebook sign-in method.
+ */
+extern NSString *const _Nonnull FIRFacebookAuthSignInMethod NS_SWIFT_NAME(FacebookAuthSignInMethod);
+
+NS_ASSUME_NONNULL_END

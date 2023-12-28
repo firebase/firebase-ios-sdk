@@ -38,14 +38,9 @@ private let kFIRAuthErrorMessageMalformedJWT =
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthErrorUtils: NSObject {
-  static let errorDomain = "FIRAuthErrorDomain"
   static let internalErrorDomain = "FIRAuthInternalErrorDomain"
   static let userInfoDeserializedResponseKey = "FIRAuthErrorUserInfoDeserializedResponseKey"
   static let userInfoDataKey = "FIRAuthErrorUserInfoDataKey"
-  static let userInfoEmailKey = "FIRAuthErrorUserInfoEmailKey"
-  static let userInfoUpdatedCredentialKey = "FIRAuthErrorUserInfoUpdatedCredentialKey"
-  static let userInfoNameKey = "FIRAuthErrorUserInfoNameKey"
-  static let userInfoMultiFactorResolverKey = "FIRAuthErrorUserInfoMultiFactorResolverKey"
 
   /** @var kServerErrorDetailMarker
       @brief This marker indicates that the server error message contains a detail error message which
@@ -64,9 +59,9 @@ class AuthErrorUtils: NSObject {
          localizedDescription == "" {
         errorUserInfo[NSLocalizedDescriptionKey] = publicCode.errorDescription
       }
-      errorUserInfo[userInfoNameKey] = publicCode.errorCodeString
+      errorUserInfo[AuthErrors.userInfoNameKey] = publicCode.errorCodeString
       return NSError(
-        domain: errorDomain,
+        domain: AuthErrors.domain,
         code: publicCode.rawValue,
         userInfo: errorUserInfo
       )
@@ -303,7 +298,7 @@ class AuthErrorUtils: NSObject {
   static func emailAlreadyInUseError(email: String?) -> Error {
     var userInfo: [String: Any]?
     if let email, !email.isEmpty {
-      userInfo = [userInfoEmailKey: email]
+      userInfo = [AuthErrors.userInfoEmailKey: email]
     }
     return error(code: .emailAlreadyInUse, userInfo: userInfo)
   }
@@ -313,10 +308,10 @@ class AuthErrorUtils: NSObject {
                                           email: String?) -> Error {
     var userInfo: [String: Any] = [:]
     if let credential {
-      userInfo[userInfoUpdatedCredentialKey] = credential
+      userInfo[AuthErrors.userInfoUpdatedCredentialKey] = credential
     }
     if let email, !email.isEmpty {
-      userInfo[userInfoEmailKey] = email
+      userInfo[AuthErrors.userInfoEmailKey] = email
     }
     if !userInfo.isEmpty {
       return error(code: .credentialAlreadyInUse, userInfo: userInfo)
@@ -510,10 +505,10 @@ class AuthErrorUtils: NSObject {
     -> Error {
     var userInfo: [String: Any] = [:]
     if let email {
-      userInfo[userInfoEmailKey] = email
+      userInfo[AuthErrors.userInfoEmailKey] = email
     }
     if let updatedCredential {
-      userInfo[userInfoUpdatedCredentialKey] = updatedCredential
+      userInfo[AuthErrors.userInfoUpdatedCredentialKey] = updatedCredential
     }
     return error(code: .accountExistsWithDifferentCredential, userInfo: userInfo)
   }
@@ -548,7 +543,7 @@ class AuthErrorUtils: NSObject {
       var userInfo: [String: Any] = [:]
       if let pendingCredential = pendingCredential, let hints = hints {
         let resolver = MultiFactorResolver(with: pendingCredential, hints: hints, auth: auth)
-        userInfo[userInfoMultiFactorResolverKey] = resolver
+        userInfo[AuthErrors.userInfoMultiFactorResolverKey] = resolver
       }
 
       return error(code: .secondFactorRequired, userInfo: userInfo)
