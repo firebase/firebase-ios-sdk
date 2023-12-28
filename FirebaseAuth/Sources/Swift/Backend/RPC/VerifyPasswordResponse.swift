@@ -45,7 +45,7 @@ class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
           access token from Secure Token Service, depending on whether @c returnSecureToken is set
           on the request.
    */
-  var idToken: String?
+  private var _idToken: String?
 
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
@@ -68,9 +68,7 @@ class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
 
   var mfaInfo: [AuthProtoMFAEnrollment]? { return _mfaInfo }
 
-  func nilIDToken() -> Bool {
-    return idToken == nil
-  }
+  var idToken: String? { return _idToken }
 
   private var _mfaPendingCredential: String?
 
@@ -80,7 +78,7 @@ class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
     localID = dictionary["localId"] as? String
     email = dictionary["email"] as? String
     displayName = dictionary["displayName"] as? String
-    idToken = dictionary["idToken"] as? String
+    _idToken = dictionary["idToken"] as? String
     if let expiresIn = dictionary["expiresIn"] as? String {
       approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
         .doubleValue)

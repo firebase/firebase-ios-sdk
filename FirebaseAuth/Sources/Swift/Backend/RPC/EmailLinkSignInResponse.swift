@@ -23,7 +23,7 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */
-  var idToken: String?
+  private var _idToken: String?
 
   /** @property email
    @brief The email returned by the IdP.
@@ -51,9 +51,7 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
 
   var mfaInfo: [AuthProtoMFAEnrollment]? { return _mfaInfo }
 
-  func nilIDToken() -> Bool {
-    return idToken == nil
-  }
+  var idToken: String? { return _idToken }
 
   /** @property MFAPendingCredential
        @brief An opaque string that functions as proof that the user has successfully passed the first
@@ -68,7 +66,7 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
-    idToken = dictionary["idToken"] as? String
+    _idToken = dictionary["idToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
     refreshToken = dictionary["refreshToken"] as? String
 

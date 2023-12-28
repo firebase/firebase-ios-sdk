@@ -24,5 +24,5 @@ protocol AuthMFAResponse {
   var mfaInfo: [AuthProtoMFAEnrollment]? { get }
 
   /// MFA is only done when the idToken is nil.
-  func nilIDToken() -> Bool
+  var idToken: String? { get }
 }

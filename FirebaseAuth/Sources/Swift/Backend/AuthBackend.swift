@@ -186,7 +186,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
   #if os(iOS)
     private class func generateMFAError(response: AuthRPCResponse, auth: Auth) -> Error? {
       if let mfaResponse = response as? AuthMFAResponse,
-         mfaResponse.nilIDToken(),
+         mfaResponse.idToken == nil,
          let enrollments = mfaResponse.mfaInfo {
         var info: [MultiFactorInfo] = []
         for enrollment in enrollments {
