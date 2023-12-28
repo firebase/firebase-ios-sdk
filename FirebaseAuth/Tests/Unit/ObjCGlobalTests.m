@@ -22,7 +22,7 @@
 @implementation ObjCAPIGlobalTests
 
 - (void)GlobalSymbolBuildTest {
-  NSNotificationName n = FIRAuthStateDidChangeNotification;
+  __unused NSNotificationName n = FIRAuthStateDidChangeNotification;
   NSString *s = FIRAuthErrorDomain;
   s = FIRAuthErrorUserInfoNameKey;
   s = FIRAuthErrorUserInfoEmailKey;
