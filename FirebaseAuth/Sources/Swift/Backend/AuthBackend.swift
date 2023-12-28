@@ -187,7 +187,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
     private class func generateMFAError(response: AuthRPCResponse, auth: Auth) -> Error? {
       if let mfaResponse = response as? AuthMFAResponse,
          mfaResponse.nilIDToken(),
-         let enrollments = mfaResponse.mfaInfo() {
+         let enrollments = mfaResponse.mfaInfo {
         var info: [MultiFactorInfo] = []
         for enrollment in enrollments {
           // check which MFA factors are enabled.
@@ -200,7 +200,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
           }
         }
         return AuthErrorUtils.secondFactorRequiredError(
-          pendingCredential: mfaResponse.mfaPendingCredential(),
+          pendingCredential: mfaResponse.mfaPendingCredential,
           hints: info,
           auth: auth
         )

@@ -47,13 +47,9 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
 
   // MARK: - AuthMFAResponse
 
-  func mfaPendingCredential() -> String? {
-    return _mfaPendingCredential
-  }
+  var mfaPendingCredential: String? { return _mfaPendingCredential }
 
-  func mfaInfo() -> [AuthProtoMFAEnrollment]? {
-    return _mfaInfo
-  }
+  var mfaInfo: [AuthProtoMFAEnrollment]? { return _mfaInfo }
 
   func nilIDToken() -> Bool {
     return idToken == nil

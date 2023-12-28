@@ -18,10 +18,10 @@ import Foundation
 protocol AuthMFAResponse {
   /// An opaque string that functions as proof that the user has successfully passed the first
   /// factor check.
-  func mfaPendingCredential() -> String?
+  var mfaPendingCredential: String? { get }
 
   /// Info on which multi-factor authentication providers are enabled.
-  func mfaInfo() -> [AuthProtoMFAEnrollment]?
+  var mfaInfo: [AuthProtoMFAEnrollment]? { get }
 
   /// MFA is only done when the idToken is nil.
   func nilIDToken() -> Bool
