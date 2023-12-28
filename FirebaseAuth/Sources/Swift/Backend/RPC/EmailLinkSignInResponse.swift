@@ -17,13 +17,13 @@ import Foundation
 /** @class FIRVerifyAssertionResponse
     @brief Represents the response from the emailLinkSignin endpoint.
  */
-class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
+class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
   override required init() {}
 
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */
-  var idToken: String?
+  private(set) var idToken: String?
 
   /** @property email
    @brief The email returned by the IdP.
@@ -45,16 +45,18 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse {
    */
   var isNewUser: Bool = false
 
+  // MARK: - AuthMFAResponse
+
   /** @property MFAPendingCredential
        @brief An opaque string that functions as proof that the user has successfully passed the first
       factor check.
    */
-  var mfaPendingCredential: String?
+  private(set) var mfaPendingCredential: String?
 
   /** @property MFAInfo
        @brief Info on which multi-factor authentication providers are enabled.
    */
-  var mfaInfo: [AuthProtoMFAEnrollment]?
+  private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String

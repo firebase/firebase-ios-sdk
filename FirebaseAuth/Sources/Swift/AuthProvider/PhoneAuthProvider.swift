@@ -274,14 +274,13 @@ import Foundation
       let startMFARequestInfo = AuthProtoStartMFAPhoneRequestInfo(phoneNumber: phoneNumber,
                                                                   codeIdentity: codeIdentity)
       do {
-        switch codeIdentity {
-        case .credential:
-          let request = StartMFAEnrollmentRequest(idToken: session.idToken,
+        if let idToken = session.idToken {
+          let request = StartMFAEnrollmentRequest(idToken: idToken,
                                                   enrollmentInfo: startMFARequestInfo,
                                                   requestConfiguration: auth.requestConfiguration)
           let response = try await AuthBackend.call(with: request)
           return response.phoneSessionInfo?.sessionInfo
-        case .recaptcha:
+        } else {
           let request = StartMFASignInRequest(MFAPendingCredential: session.mfaPendingCredential,
                                               MFAEnrollmentID: session.multiFactorInfo?.uid,
                                               signInInfo: startMFARequestInfo,
@@ -289,8 +288,6 @@ import Foundation
 
           let response = try await AuthBackend.call(with: request)
           return response.responseInfo?.sessionInfo
-        case .empty:
-          return nil
         }
       } catch {
         return try await handleVerifyErrorWithRetry(

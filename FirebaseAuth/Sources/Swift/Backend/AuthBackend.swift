@@ -185,18 +185,16 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
 
   #if os(iOS)
     private class func generateMFAError(response: AuthRPCResponse, auth: Auth) -> Error? {
-      if let mfaResponse = response as? EmailLinkSignInResponse,
+      if let mfaResponse = response as? AuthMFAResponse,
          mfaResponse.idToken == nil,
          let enrollments = mfaResponse.mfaInfo {
         var info: [MultiFactorInfo] = []
         for enrollment in enrollments {
           // check which MFA factors are enabled.
           if let _ = enrollment.phoneInfo {
-            info.append(MultiFactorInfo(proto: enrollment,
-                                        factorID: PhoneMultiFactorInfo.PhoneMultiFactorID))
+            info.append(PhoneMultiFactorInfo(proto: enrollment))
           } else if let _ = enrollment.totpInfo {
-            info.append(MultiFactorInfo(proto: enrollment,
-                                        factorID: PhoneMultiFactorInfo.TOTPMultiFactorID))
+            info.append(TOTPMultiFactorInfo(proto: enrollment))
           } else {
             AuthLog.logError(code: "I-AUT000021", message: "Multifactor type is not supported")
           }

@@ -21,7 +21,7 @@ import Foundation
        - FIRAuthInternalErrorCodeEmailNotFound
     @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
  */
-class VerifyPasswordResponse: AuthRPCResponse {
+class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
   required init() {}
 
   /** @property localID
@@ -45,7 +45,7 @@ class VerifyPasswordResponse: AuthRPCResponse {
           access token from Secure Token Service, depending on whether @c returnSecureToken is set
           on the request.
    */
-  var idToken: String?
+  private(set) var idToken: String?
 
   /** @property approximateExpirationDate
       @brief The approximate expiration date of the access token.
@@ -62,9 +62,11 @@ class VerifyPasswordResponse: AuthRPCResponse {
    */
   var photoURL: URL?
 
-  var mfaPendingCredential: String?
+  // MARK: - AuthMFAResponse
 
-  var mfaInfo: [AuthProtoMFAEnrollment]?
+  private(set) var mfaPendingCredential: String?
+
+  private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     localID = dictionary["localId"] as? String

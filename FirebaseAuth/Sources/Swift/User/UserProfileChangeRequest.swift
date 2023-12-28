@@ -65,7 +65,7 @@ import Foundation
    @param completion Optionally; the block invoked when the user profile change has been applied.
    Invoked asynchronously on the main thread in the future.
    */
-  @objc public func commitChanges(withCompletion completion: ((Error?) -> Void)? = nil) {
+  @objc public func commitChanges(completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       if self.consumed {
         fatalError("Internal Auth Error: commitChanges should only be called once.")

@@ -334,7 +334,7 @@ extension User: NSSecureCoding {}
 
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func reload(withCompletion completion: ((Error?) -> Void)? = nil) {
+  @objc public func reload(completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.getAccountInfoRefreshingCache { user, error in
         User.callInMainThreadWithError(callback: completion, error: error)
@@ -1023,7 +1023,7 @@ extension User: NSSecureCoding {}
    */
   @objc(sendEmailVerificationWithCompletion:)
   public func __sendEmailVerification(withCompletion completion: ((Error?) -> Void)?) {
-    sendEmailVerification(withCompletion: completion)
+    sendEmailVerification(completion: completion)
   }
 
   /** @fn sendEmailVerificationWithActionCodeSettings:completion:
@@ -1052,7 +1052,7 @@ extension User: NSSecureCoding {}
    */
   @objc(sendEmailVerificationWithActionCodeSettings:completion:)
   public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil,
-                                    withCompletion completion: ((Error?) -> Void)? = nil) {
+                                    completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken { accessToken, error in
         if let error {
@@ -1136,7 +1136,7 @@ extension User: NSSecureCoding {}
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
-  @objc public func delete(withCompletion completion: ((Error?) -> Void)? = nil) {
+  @objc public func delete(completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken { accessToken, error in
         if let error {
