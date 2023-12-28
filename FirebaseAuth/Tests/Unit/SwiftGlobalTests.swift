@@ -38,10 +38,12 @@ class SwiftGlobalTests: XCTestCase {
     let _: String = GitHubAuthSignInMethod
     let _: String = GoogleAuthProviderID
     let _: String = GoogleAuthSignInMethod
-    let _: String = PhoneMultiFactorID
-    let _: String = TOTPMultiFactorID
-    let _: String = PhoneAuthProviderID
-    let _: String = PhoneAuthSignInMethod
+    #if os(iOS)
+      let _: String = PhoneMultiFactorID
+      let _: String = TOTPMultiFactorID
+      let _: String = PhoneAuthProviderID
+      let _: String = PhoneAuthSignInMethod
+    #endif
     let _: String = TwitterAuthProviderID
     let _: String = TwitterAuthSignInMethod
   }

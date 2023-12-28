@@ -39,10 +39,12 @@
   s = FIRGitHubAuthSignInMethod;
   s = FIRGoogleAuthProviderID;
   s = FIRGoogleAuthSignInMethod;
+#if TARGET_OS_IOS
   s = FIRPhoneMultiFactorID;
   s = FIRTOTPMultiFactorID;
   s = FIRPhoneAuthProviderID;
   s = FIRPhoneAuthSignInMethod;
+#endif
   s = FIRTwitterAuthProviderID;
   s = FIRTwitterAuthSignInMethod;
 }
