@@ -23,7 +23,7 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
   /** @property IDToken
    @brief The ID token in the email link sign-in response.
    */
-  private var _idToken: String?
+  private(set) var idToken: String?
 
   /** @property email
    @brief The email returned by the IdP.
@@ -47,26 +47,20 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
 
   // MARK: - AuthMFAResponse
 
-  var mfaPendingCredential: String? { return _mfaPendingCredential }
-
-  var mfaInfo: [AuthProtoMFAEnrollment]? { return _mfaInfo }
-
-  var idToken: String? { return _idToken }
-
   /** @property MFAPendingCredential
        @brief An opaque string that functions as proof that the user has successfully passed the first
       factor check.
    */
-  private var _mfaPendingCredential: String?
+  private(set) var mfaPendingCredential: String?
 
   /** @property MFAInfo
        @brief Info on which multi-factor authentication providers are enabled.
    */
-  private var _mfaInfo: [AuthProtoMFAEnrollment]?
+  private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     email = dictionary["email"] as? String
-    _idToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     isNewUser = dictionary["isNewUser"] as? Bool ?? false
     refreshToken = dictionary["refreshToken"] as? String
 
@@ -80,8 +74,8 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
         let enrollment = AuthProtoMFAEnrollment(dictionary: entry)
         mfaInfo.append(enrollment)
       }
-      _mfaInfo = mfaInfo
+      self.mfaInfo = mfaInfo
     }
-    _mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
+    mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
   }
 }

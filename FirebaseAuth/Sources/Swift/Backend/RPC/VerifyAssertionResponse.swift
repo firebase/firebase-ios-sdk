@@ -97,7 +97,7 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
    access token from Secure Token Service, depending on whether @c returnSecureToken is set
    on the request.
    */
-  private var _idToken: String?
+  private(set) var idToken: String?
 
   /** @property approximateExpirationDate
    @brief The approximate expiration date of the access token.
@@ -203,15 +203,9 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
 
   // MARK: - AuthMFAResponse
 
-  var mfaPendingCredential: String? { return _mfaPendingCredential }
+  private(set) var mfaPendingCredential: String?
 
-  var mfaInfo: [AuthProtoMFAEnrollment]? { return _mfaInfo }
-
-  var idToken: String? { return _idToken }
-
-  private var _mfaPendingCredential: String?
-
-  private var _mfaInfo: [AuthProtoMFAEnrollment]?
+  private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
     federatedID = dictionary["federatedId"] as? String
@@ -229,7 +223,7 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
     fullName = dictionary["fullName"] as? String
     nickName = dictionary["nickName"] as? String
     displayName = dictionary["displayName"] as? String
-    _idToken = dictionary["idToken"] as? String
+    idToken = dictionary["idToken"] as? String
     if let expiresIn = dictionary["expiresIn"] as? String {
       approximateExpirationDate = Date(timeIntervalSinceNow: (expiresIn as NSString)
         .doubleValue)
@@ -275,10 +269,10 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
     pendingToken = dictionary["pendingToken"] as? String
 
     if let mfaInfoDicts = dictionary["mfaInfo"] as? [[String: AnyHashable]] {
-      _mfaInfo = mfaInfoDicts.map {
+      mfaInfo = mfaInfoDicts.map {
         AuthProtoMFAEnrollment(dictionary: $0)
       }
     }
-    _mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
+    mfaPendingCredential = dictionary["mfaPendingCredential"] as? String
   }
 }
