@@ -55,7 +55,8 @@ import Foundation
     override public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
 
     public required init?(coder: NSCoder) {
-      guard let phoneNumber = coder.decodeObject(forKey: kPhoneNumberCodingKey) as? NSString else {
+      guard let phoneNumber = coder.decodeObject(of: NSString.self,
+                                                 forKey: kPhoneNumberCodingKey) else {
         return nil
       }
       self.phoneNumber = phoneNumber as String
