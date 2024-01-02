@@ -464,6 +464,7 @@ let package = Package(
         "FIRAuthTests.m",
         "FIRUserTests.m",
         "SwiftAPI.swift", // Only builds via CocoaPods testing until Swift source update.
+        "SwiftGlobalTests.swift", // Only builds via CocoaPods testing until Swift source update.
       ],
       cSettings: [
         .headerSearchPath("../../.."),
