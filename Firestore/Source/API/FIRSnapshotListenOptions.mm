@@ -25,10 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRSnapshotListenOptions
 
-
+// private method
 - (instancetype)initPrivateWithSource:(FIRListenSource)source
-        includeMetadataChanges:(BOOL)includeMetadataChanges {
-  self = [super init];
+               includeMetadataChanges:(BOOL)includeMetadataChanges {
+  self = [self initWithDefaultOptions];
   if (self) {
     _source = source;
     _includeMetadataChanges = includeMetadataChanges;
@@ -37,18 +37,27 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)initWithDefaultOptions {
-    return [self initPrivateWithSource:FIRListenSourceDefault includeMetadataChanges:NO];
+  self = [super init];
+  if (self) {
+    _source = FIRListenSourceDefault;
+    _includeMetadataChanges = NO;
+  }
+  return self;
 }
 
-
 - (FIRSnapshotListenOptions *)withIncludeMetadataChanges:(BOOL)includeMetadataChanges {
-  return [[FIRSnapshotListenOptions alloc] initPrivateWithSource:self.source
-                                    includeMetadataChanges:includeMetadataChanges];
+  FIRSnapshotListenOptions *newOptions =
+      [[FIRSnapshotListenOptions alloc] initPrivateWithSource:self.source
+                                       includeMetadataChanges:includeMetadataChanges];
+  return newOptions;
 }
 
 - (FIRSnapshotListenOptions *)withSource:(FIRListenSource)source {
-  return [[FIRSnapshotListenOptions alloc] initPrivateWithSource:source
-                                    includeMetadataChanges:self.includeMetadataChanges];}
+  FIRSnapshotListenOptions *newOptions =
+      [[FIRSnapshotListenOptions alloc] initPrivateWithSource:source
+                                       includeMetadataChanges:self.includeMetadataChanges];
+  return newOptions;
+}
 
 @end
 

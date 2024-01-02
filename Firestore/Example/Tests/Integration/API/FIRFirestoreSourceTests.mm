@@ -701,8 +701,58 @@
   [self awaitExpectations];
 }
 
-//
-- (void)Demo_addSnapshotListenerWithDefaultListenOptions {
+// Document Reference
+- (void)DocumentReferenceDemo_addSnapshotListenerWithDefaultListenOptions {
+  FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+
+  [doc addSnapshotListenerWithOptions:options
+                             listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                               XCTAssertNil(error);
+                               XCTAssertTrue(snapshot.exists);
+                             }];
+}
+
+- (void)DocumentReferenceDemo_addSnapshotListenerWithMetadataChanges {
+  FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
+
+  [doc addSnapshotListenerWithOptions:optionsWithMetadata
+                             listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                               XCTAssertNil(error);
+                               XCTAssertTrue(snapshot.exists);
+                             }];
+}
+
+- (void)DocumentReferenceDemo_addSnapshotListenerFromCache {
+  FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *optionsFromCache = [options withSource:FIRListenSourceCache];
+
+  [doc addSnapshotListenerWithOptions:optionsFromCache
+                             listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                               XCTAssertNil(error);
+                               XCTAssertTrue(snapshot.exists);
+                             }];
+}
+
+- (void)DocumentReferenceDemo_addSnapshotListenerFromCacheAndIncludeMetadataChanges {
+  FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
+  FIRSnapshotListenOptions *optionsFromCacheAndWithMetadata =
+      [optionsWithMetadata withSource:FIRListenSourceCache];
+
+  [doc addSnapshotListenerWithOptions:optionsFromCacheAndWithMetadata
+                             listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
+                               XCTAssertNil(error);
+                               XCTAssertTrue(snapshot.exists);
+                             }];
+}
+
+// Query
+- (void)QueryDemo_addSnapshotListenerWithDefaultListenOptions {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
   FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
@@ -714,38 +764,39 @@
                                }];
 }
 
-void Demo_addSnapshotListenerWithMetadataChanges(FIRFirestore* db) {
+- (void)QueryDemo_addSnapshotListenerWithMetadataChanges {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
   FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
   FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
 
-  [query addSnapshotListenerWithOptions:options
+  [query addSnapshotListenerWithOptions:optionsWithMetadata
                                listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
                                  XCTAssertNil(error);
                                  XCTAssertEqual(snapshot.count, 0);
                                }];
 }
 
-void Demo_addSnapshotListenerFromCache(FIRFirestore* db) {
+- (void)QueryDemo_addSnapshotListenerFromCache {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
   FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
   FIRSnapshotListenOptions *optionsFromCache = [options withSource:FIRListenSourceCache];
 
-  [query addSnapshotListenerWithOptions:options
+  [query addSnapshotListenerWithOptions:optionsFromCache
                                listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
                                  XCTAssertNil(error);
                                  XCTAssertEqual(snapshot.count, 0);
                                }];
 }
 
-void Demo_addSnapshotListenerFromCache(FIRFirestore* db) {
+- (void)QueryDemo_addSnapshotListenerFromCacheAndIncludeMetadataChanges {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
   FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
   FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
-  FIRSnapshotListenOptions *optionsFromCacheAndWithMetadata = [optionsWithMetadata withSource:FIRListenSourceCache];
+  FIRSnapshotListenOptions *optionsFromCacheAndWithMetadata =
+      [optionsWithMetadata withSource:FIRListenSourceCache];
 
   [query addSnapshotListenerWithOptions:optionsFromCacheAndWithMetadata
                                listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
