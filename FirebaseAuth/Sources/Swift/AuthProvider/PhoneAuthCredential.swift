@@ -60,9 +60,9 @@ import Foundation
       as? String {
       credentialKind = .verification(verificationID, verificationCode)
       super.init(provider: PhoneAuthProvider.id)
-    } else if let temporaryProof = coder.decodeObject(forKey: "temporaryProof") as? String,
-              let phoneNumber = coder.decodeObject(forKey: "phoneNumber") as? String {
-      credentialKind = .phoneNumber(phoneNumber, temporaryProof)
+    } else if let temporaryProof = coder.decodeObject(of: NSString.self, forKey: "temporaryProof"),
+              let phoneNumber = coder.decodeObject(of: NSString.self, forKey: "phoneNumber") {
+      credentialKind = .phoneNumber(phoneNumber as String, temporaryProof as String)
       super.init(provider: PhoneAuthProvider.id)
     } else {
       return nil
