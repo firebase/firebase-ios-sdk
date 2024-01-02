@@ -31,13 +31,14 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
                        // TODO: Turn Combine back on without Auth includes.
                        "FirebaseCombineSwift/Tests/Unit/FirebaseCombine-unit-Bridging-Header.h",
                        "SymbolCollisionTest/", "/gen/",
-                       "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "IntegrationTesting/CocoapodsIntegrationTest/",
+                       "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM tests test module imports.
-    "ClientApp", // The ClientApp tests module imports.
+    "IntegrationTesting/ClientApp", // The ClientApp tests module imports.
     "FirebaseSessions/Protogen/", // Generated nanopb code with imports
   ] +
 

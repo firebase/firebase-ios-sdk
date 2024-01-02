@@ -62,16 +62,9 @@ public extension Shell {
       // Write the temporary script contents to the script's path. CocoaPods complains when LANG
       // isn't set in the environment, so explicitly set it here. The `/usr/local/git/current/bin`
       // is to allow the `sso` protocol if it's there.
-      // The user's .bash_profile, if it exists, is sourced to modify the
-      // shell's PATH with any configuration (e.g. adding Ruby to path)
-      // that may be needed to run the given command.
       let contents = """
       export PATH="/usr/local/bin:/usr/local/git/current/bin:$PATH"
       export LANG="en_US.UTF-8"
-      BASH_PROFILE_PATH="~/.bash_profile"
-      if [ -f "$BASH_PROFILE_PATH" ]; then
-        source $BASH_PROFILE_PATH
-      fi
       \(command)
       """
       try contents.write(to: scriptPath, atomically: true, encoding: .utf8)
