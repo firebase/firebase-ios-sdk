@@ -25,7 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @implementation FIRSnapshotListenOptions
 
-- (instancetype)initWithSource:(FIRListenSource)source
+
+- (instancetype)initPrivateWithSource:(FIRListenSource)source
         includeMetadataChanges:(BOOL)includeMetadataChanges {
   self = [super init];
   if (self) {
@@ -35,19 +36,19 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-+ (FIRSnapshotListenOptions *)defaultOptions {
-  return [[FIRSnapshotListenOptions alloc] initWithSource:FIRListenSourceDefault
-                                   includeMetadataChanges:NO];
+- (instancetype)initWithDefaultOptions {
+    return [self initPrivateWithSource:FIRListenSourceDefault includeMetadataChanges:NO];
 }
 
-+ (FIRSnapshotListenOptions *)optionsWithIncludeMetadataChanges:(BOOL)includeMetadataChanges {
-  return [[FIRSnapshotListenOptions alloc] initWithSource:FIRListenSourceDefault
-                                   includeMetadataChanges:includeMetadataChanges];
+
+- (FIRSnapshotListenOptions *)withIncludeMetadataChanges:(BOOL)includeMetadataChanges {
+  return [[FIRSnapshotListenOptions alloc] initPrivateWithSource:self.source
+                                    includeMetadataChanges:includeMetadataChanges];
 }
 
-+ (FIRSnapshotListenOptions *)optionsWithSource:(FIRListenSource)source {
-  return [[FIRSnapshotListenOptions alloc] initWithSource:source includeMetadataChanges:NO];
-}
+- (FIRSnapshotListenOptions *)withSource:(FIRListenSource)source {
+  return [[FIRSnapshotListenOptions alloc] initPrivateWithSource:source
+                                    includeMetadataChanges:self.includeMetadataChanges];}
 
 @end
 

@@ -30,13 +30,10 @@ NS_SWIFT_NAME(SnapshotListenOptions)
 @property(nonatomic, readonly) BOOL includeMetadataChanges;
 
 - (instancetype)init NS_UNAVAILABLE;
+- (instancetype)initWithDefaultOptions NS_DESIGNATED_INITIALIZER;
 
-- (instancetype)initWithSource:(FIRListenSource)source
-        includeMetadataChanges:(BOOL)includeMetadataChanges NS_DESIGNATED_INITIALIZER;
-
-+ (FIRSnapshotListenOptions *)defaultOptions;
-+ (FIRSnapshotListenOptions *)optionsWithIncludeMetadataChanges:(BOOL)includeMetadataChanges;
-+ (FIRSnapshotListenOptions *)optionsWithSource:(FIRListenSource)source;
+- (FIRSnapshotListenOptions *)withIncludeMetadataChanges:(BOOL)includeMetadataChanges;
+- (FIRSnapshotListenOptions *)withSource:(FIRListenSource)source;
 
 @end
 
