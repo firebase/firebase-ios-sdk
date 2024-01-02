@@ -16,14 +16,17 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRAuthErrors.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRMultiFactor.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
+@class FIRAuthCredential;
+
+NS_ASSUME_NONNULL_BEGIN
+
+/** @typedef FIRAuthCredentialCallback
+    @brief The type of block invoked when obtaining an auth credential.
+    @param credential The credential obtained.
+    @param error The error that occurred if any.
+ */
+typedef void (^FIRAuthCredentialCallback)(FIRAuthCredential *_Nullable credential,
+                                          NSError *_Nullable error)
+    NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.");
+
+NS_ASSUME_NONNULL_END

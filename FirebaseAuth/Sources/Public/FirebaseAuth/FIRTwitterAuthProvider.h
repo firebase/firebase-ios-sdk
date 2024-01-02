@@ -16,14 +16,15 @@
 
 #import <Foundation/Foundation.h>
 
-#import "FIRAuth.h"
-#import "FIRAuthErrors.h"
-#import "FIREmailAuthProvider.h"
-#import "FIRFacebookAuthProvider.h"
-#import "FIRFederatedAuthProvider.h"
-#import "FIRGameCenterAuthProvider.h"
-#import "FIRGitHubAuthProvider.h"
-#import "FIRGoogleAuthProvider.h"
-#import "FIRMultiFactor.h"
-#import "FIRPhoneAuthProvider.h"
-#import "FIRTwitterAuthProvider.h"
+NS_ASSUME_NONNULL_BEGIN
+
+/**
+    @brief A string constant identifying the Twitter identity provider.
+ */
+extern NSString *const FIRTwitterAuthProviderID NS_SWIFT_NAME(TwitterAuthProviderID);
+/**
+    @brief A string constant identifying the Twitter sign-in method.
+ */
+extern NSString *const _Nonnull FIRTwitterAuthSignInMethod NS_SWIFT_NAME(TwitterAuthSignInMethod);
+
+NS_ASSUME_NONNULL_END

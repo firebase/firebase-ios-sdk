@@ -37,6 +37,7 @@ supports email and password accounts, as well as several 3rd party authenticatio
   source = 'FirebaseAuth/Sources/'
   s.source_files = [
     source + 'Swift/**/*.swift',
+    source + 'ObjC/**/*.m', # Implementations for deprecated global symbols
     source + 'Public/FirebaseAuth/*.h'
   ]
   s.public_header_files = source + 'Public/FirebaseAuth/*.h'

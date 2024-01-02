@@ -17,9 +17,6 @@
 #import <Foundation/Foundation.h>
 
 @class FIRMultiFactorSession;
-@class FIRMultiFactorInfo;
-@class FIRMultiFactorAssertion;
-@class FIRAuthProtoMFAEnrollment;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,12 +31,18 @@ typedef void (^FIRMultiFactorSessionCallback)(FIRMultiFactorSession *_Nullable s
     NS_SWIFT_UNAVAILABLE("Use Swift's closure syntax instead.")
         API_UNAVAILABLE(macos, tvos, watchos);
 
-// TODO: get rid of extern
 /**
-   @brief The string identifier for second factors. e.g. "phone".
+   @brief The string identifier for using phone as a second factor.
         This constant is available on iOS only.
 */
-// extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID)
-//     API_UNAVAILABLE(macos, tvos, watchos);
+extern NSString *const _Nonnull FIRPhoneMultiFactorID NS_SWIFT_NAME(PhoneMultiFactorID)
+    API_UNAVAILABLE(macos, tvos, watchos);
+
+/**
+   @brief The string identifier for using TOTP as a second factor.
+        This constant is available on iOS only.
+*/
+extern NSString *const _Nonnull FIRTOTPMultiFactorID NS_SWIFT_NAME(TOTPMultiFactorID)
+    API_UNAVAILABLE(macos, tvos, watchos);
 
 NS_ASSUME_NONNULL_END
