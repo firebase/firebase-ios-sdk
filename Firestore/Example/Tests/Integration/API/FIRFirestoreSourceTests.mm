@@ -704,7 +704,7 @@
 // Document Reference
 - (void)DocumentReferenceDemo_addSnapshotListenerWithDefaultListenOptions {
   FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
 
   [doc addSnapshotListenerWithOptions:options
                              listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
@@ -715,7 +715,7 @@
 
 - (void)DocumentReferenceDemo_addSnapshotListenerWithMetadataChanges {
   FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
   FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
 
   [doc addSnapshotListenerWithOptions:optionsWithMetadata
@@ -727,7 +727,7 @@
 
 - (void)DocumentReferenceDemo_addSnapshotListenerFromCache {
   FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
   FIRSnapshotListenOptions *optionsFromCache = [options withSource:FIRListenSourceCache];
 
   [doc addSnapshotListenerWithOptions:optionsFromCache
@@ -739,7 +739,7 @@
 
 - (void)DocumentReferenceDemo_addSnapshotListenerFromCacheAndIncludeMetadataChanges {
   FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
   FIRSnapshotListenOptions *optionsFromCacheAndWithMetadata =
       [[options withIncludeMetadataChanges:YES] withSource:FIRListenSourceCache];
 
@@ -754,7 +754,7 @@
 - (void)QueryDemo_addSnapshotListenerWithDefaultListenOptions {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
 
   [query addSnapshotListenerWithOptions:options
                                listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
@@ -766,7 +766,7 @@
 - (void)QueryDemo_addSnapshotListenerWithMetadataChanges {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
   FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
 
   [query addSnapshotListenerWithOptions:optionsWithMetadata
@@ -779,7 +779,7 @@
 - (void)QueryDemo_addSnapshotListenerFromCache {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
   FIRSnapshotListenOptions *optionsFromCache = [options withSource:FIRListenSourceCache];
 
   [query addSnapshotListenerWithOptions:optionsFromCache
@@ -792,7 +792,7 @@
 - (void)QueryDemo_addSnapshotListenerFromCacheAndIncludeMetadataChanges {
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
-  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
+  FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] init];
   FIRSnapshotListenOptions *optionsFromCacheAndWithMetadata =
       [[options withIncludeMetadataChanges:YES] withSource:FIRListenSourceCache];
 

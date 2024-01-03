@@ -335,4 +335,52 @@ class QueryIntegrationTests: FSTIntegrationTestCase {
       matchesResult: ["doc6", "doc3"]
     )
   }
+
+  public func Demo_addSnapshotListenerCurrentMethod(db: Firestore) async throws {
+  let query = db.collection("cities").whereField("state", isEqualTo:"CA")
+  query.addSnapshotListener(includeMetadataChanges: true) { documentSnapshot, error in
+    // ...
+  }
+}
+
+public func Demo_addSnapshotListenerWithDefaultListenOptions(db: Firestore) async throws {
+  let query = db.collection("cities").whereField("state", isEqualTo:"CA")
+    let options = SnapshotListenOptions()
+
+    query.addSnapshotListener(options:options) { documentSnapshot, error in
+    // ...
+  }
+}
+
+public func Demo_addSnapshotListenerWithMetadataChanges(db: Firestore) async throws {
+  let query = db.collection("cities").whereField("state", isEqualTo:"CA")
+  let options = SnapshotListenOptions()
+    .withIncludeMetadataChanges(true)
+
+  query.addSnapshotListener(options:options) { documentSnapshot, error in
+    // ...
+  }
+}
+
+public func Demo_addSnapshotListenerFromCache(db: Firestore) async throws {
+  let query = db.collection("cities").whereField("state", isEqualTo:"CA")
+  let options = SnapshotListenOptions()
+    .withSource(.cache)
+
+  query.addSnapshotListener(options:options) { documentSnapshot, error in
+    // ...
+  }
+}
+
+public func Demo_addSnapshotListenerFromCacheAndIncludeMetadataChanges(db: Firestore) async throws {
+  let query = db.collection("cities").whereField("state", isEqualTo:"CA")
+  let options = SnapshotListenOptions()
+    .withSource(.cache) 
+    .withIncludeMetadataChanges(true)
+
+  query.addSnapshotListener(options:options) { documentSnapshot, error in
+    // ...
+  }
+}
+
 }

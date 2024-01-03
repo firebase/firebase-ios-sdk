@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 // private method
 - (instancetype)initPrivateWithSource:(FIRListenSource)source
                includeMetadataChanges:(BOOL)includeMetadataChanges {
-  self = [self initWithDefaultOptions];
+  self = [self init];
   if (self) {
     _source = source;
     _includeMetadataChanges = includeMetadataChanges;
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
   return self;
 }
 
-- (instancetype)initWithDefaultOptions {
+- (instancetype)init {
   self = [super init];
   if (self) {
     _source = FIRListenSourceDefault;
