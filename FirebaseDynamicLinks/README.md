@@ -2,6 +2,8 @@
 
 > [!IMPORTANT]
 > Firebase Dynamic Links is **deprecated** and should not be used in new projects. The service will shut down on August 25, 2025.
+>
+> Please see our Dynamic Links Deprecation FAQ documentation for more guidance.
 
 Firebase Dynamic Links are universal deep links that persist across app installs.
 For more info, see the [Firebase website](https://firebase.google.com/products/dynamic-links).
