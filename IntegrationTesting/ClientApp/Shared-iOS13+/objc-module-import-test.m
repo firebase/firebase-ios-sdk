@@ -12,10 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import FirebaseAnalytics
-import FirebaseAnalyticsSwift
-import FirebaseAuth
-#if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
-  import FirebaseInAppMessaging
-  import FirebaseInAppMessagingSwift
+// ‼️ NOTE: Changes should also be reflected in `objcxx-module-import-test.m`.
+
+#if !COCOAPODS
+// TODO(ncooke3): Figure out why this isn't working on CocoaPods.
+@import Firebase;
+#endif  // !COCOAPODS
+@import FirebaseABTesting;
+@import FirebaseAnalytics;
+@import FirebaseAuth;
+@import FirebaseCore;
+#if (TARGET_OS_IOS && !TARGET_OS_MACCATALYST) || TARGET_OS_TV
+@import FirebaseInAppMessaging;
 #endif
