@@ -139,32 +139,32 @@ open class HTTPSCallable: NSObject {
     call(nil, completion: completion)
   }
 
-    /**
-     * Executes this Callable HTTPS trigger asynchronously.
-     *
-     * The request to the Cloud Functions backend made by this method automatically includes a
-     * FCM token to identify the app instance. If a user is logged in with Firebase
-     * Auth, an auth ID token for the user is also automatically included.
-     *
-     * Firebase Cloud Messaging sends data to the Firebase backend periodically to collect information
-     * regarding the app instance. To stop this, see `Messaging.deleteData()`. It
-     * resumes with a new FCM Token the next time you call this method.
-     *
-     * - Parameter data Parameters to pass to the trigger.
-     * - Throws: An error if the Cloud Functions invocation failed.
-     * - Returns: The result of the call.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
-      return try await withCheckedThrowingContinuation { continuation in
-        // TODO(bonus): Use task to handle and cancellation.
-        self.call(data) { callableResult, error in
-          if let callableResult = callableResult {
-            continuation.resume(returning: callableResult)
-          } else {
-            continuation.resume(throwing: error!)
-          }
+  /**
+   * Executes this Callable HTTPS trigger asynchronously.
+   *
+   * The request to the Cloud Functions backend made by this method automatically includes a
+   * FCM token to identify the app instance. If a user is logged in with Firebase
+   * Auth, an auth ID token for the user is also automatically included.
+   *
+   * Firebase Cloud Messaging sends data to the Firebase backend periodically to collect information
+   * regarding the app instance. To stop this, see `Messaging.deleteData()`. It
+   * resumes with a new FCM Token the next time you call this method.
+   *
+   * - Parameter data Parameters to pass to the trigger.
+   * - Throws: An error if the Cloud Functions invocation failed.
+   * - Returns: The result of the call.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  open func call(_ data: Any? = nil) async throws -> HTTPSCallableResult {
+    return try await withCheckedThrowingContinuation { continuation in
+      // TODO(bonus): Use task to handle and cancellation.
+      self.call(data) { callableResult, error in
+        if let callableResult = callableResult {
+          continuation.resume(returning: callableResult)
+        } else {
+          continuation.resume(throwing: error!)
         }
       }
     }
+  }
 }

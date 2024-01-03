@@ -21,48 +21,48 @@ import XCTest
 
 let ConfigKeyForThisTestOnly = "PropertyWrapperDefaultConfigsTestsKey"
 
-  @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
-  class PropertyWrapperDefaultConfigsTests: XCTestCase {
-    struct Recipe: Decodable, Encodable {
-      var recipeName: String
-      var ingredients: [String]
-      var cookTime: Int
-    }
+@available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
+class PropertyWrapperDefaultConfigsTests: XCTestCase {
+  struct Recipe: Decodable, Encodable {
+    var recipeName: String
+    var ingredients: [String]
+    var cookTime: Int
+  }
 
-    static let defaultRecipe = Recipe(
-      recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
+  static let defaultRecipe = Recipe(
+    recipeName: "muffin", ingredients: ["flour", "sugar"], cookTime: 45
+  )
+
+  // MARK: - Test Remote Config default values with property wrapper
+
+  struct DefaultsValuesTester {
+    @RemoteConfigProperty(
+      key: ConfigKeyForThisTestOnly,
+      fallback: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
     )
+    var dictValue: Recipe
+  }
 
-    // MARK: - Test Remote Config default values with property wrapper
-
-    struct DefaultsValuesTester {
-      @RemoteConfigProperty(
-        key: ConfigKeyForThisTestOnly,
-        fallback: Recipe(recipeName: "test", ingredients: [], cookTime: 0)
-      )
-      var dictValue: Recipe
-    }
-
-    override class func setUp() {
-      if FirebaseApp.app() == nil {
-        let options = FirebaseOptions(googleAppID: "1:123:ios:123abc",
-                                      gcmSenderID: "correct_gcm_sender_id")
-        options.apiKey = "A23456789012345678901234567890123456789"
-        options.projectID = "Fake Project"
-        FirebaseApp.configure(options: options)
-      }
-    }
-
-    func testDefaultValues() async throws {
-      try? RemoteConfig.remoteConfig().setDefaults(
-        from: [ConfigKeyForThisTestOnly: PropertyWrapperDefaultConfigsTests.defaultRecipe]
-      )
-
-      let tester = await DefaultsValuesTester()
-      let dictValue = await tester.dictValue
-
-      XCTAssertEqual(dictValue.recipeName, "muffin")
-      XCTAssertEqual(dictValue.cookTime, 45)
-      XCTAssertEqual(dictValue.ingredients, ["flour", "sugar"])
+  override class func setUp() {
+    if FirebaseApp.app() == nil {
+      let options = FirebaseOptions(googleAppID: "1:123:ios:123abc",
+                                    gcmSenderID: "correct_gcm_sender_id")
+      options.apiKey = "A23456789012345678901234567890123456789"
+      options.projectID = "Fake Project"
+      FirebaseApp.configure(options: options)
     }
   }
+
+  func testDefaultValues() async throws {
+    try? RemoteConfig.remoteConfig().setDefaults(
+      from: [ConfigKeyForThisTestOnly: PropertyWrapperDefaultConfigsTests.defaultRecipe]
+    )
+
+    let tester = await DefaultsValuesTester()
+    let dictValue = await tester.dictValue
+
+    XCTAssertEqual(dictValue.recipeName, "muffin")
+    XCTAssertEqual(dictValue.cookTime, 45)
+    XCTAssertEqual(dictValue.ingredients, ["flour", "sugar"])
+  }
+}

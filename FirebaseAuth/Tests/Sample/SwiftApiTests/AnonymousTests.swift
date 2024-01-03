@@ -29,14 +29,14 @@ class AnonymousTests: TestsBase {
     deleteCurrentUser()
   }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func testUpdatingUsersEmailAsync() async throws {
-      try await signInAnonymouslyAsync()
-      if let isAnonymous = Auth.auth().currentUser?.isAnonymous {
-        XCTAssertTrue(isAnonymous)
-      } else {
-        XCTFail("Missing currentUser after anonymous sign in")
-      }
-      try await deleteCurrentUserAsync()
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func testUpdatingUsersEmailAsync() async throws {
+    try await signInAnonymouslyAsync()
+    if let isAnonymous = Auth.auth().currentUser?.isAnonymous {
+      XCTAssertTrue(isAnonymous)
+    } else {
+      XCTFail("Missing currentUser after anonymous sign in")
     }
+    try await deleteCurrentUserAsync()
+  }
 }

@@ -127,23 +127,23 @@ class CustomDelegate: NSObject, MessagingDelegate {
 func apiAsync() async throws {
   let messaging = Messaging.messaging()
   let topic = "cat_video"
-    try await messaging.subscribe(toTopic: topic)
+  try await messaging.subscribe(toTopic: topic)
 
+  try await messaging.unsubscribe(fromTopic: topic)
+
+  try await messaging.token()
+
+  try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
+
+  try await messaging.deleteToken()
+
+  try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
+
+  try await messaging.deleteData()
+
+  // Test new handling of errors
+  do {
     try await messaging.unsubscribe(fromTopic: topic)
-
-    try await messaging.token()
-
-    try await messaging.retrieveFCMToken(forSenderID: "fakeSenderID")
-
-    try await messaging.deleteToken()
-
-    try await messaging.deleteFCMToken(forSenderID: "fakeSenderID")
-
-    try await messaging.deleteData()
-
-    // Test new handling of errors
-    do {
-      try await messaging.unsubscribe(fromTopic: topic)
-    } catch MessagingError.timeout {
-    } catch {}
+  } catch MessagingError.timeout {
+  } catch {}
 }

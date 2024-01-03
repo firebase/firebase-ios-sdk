@@ -85,17 +85,17 @@ final class FunctionsAPITests: XCTestCase {
       }
     }
 
-      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
-        Task {
-          do {
-            let result = try await callableRef.call(data)
-            _ = result.data
-          } catch {
-            // ...
-          }
+    if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      // async/await is a Swift 5.5+ feature available on iOS 15+
+      Task {
+        do {
+          let result = try await callableRef.call(data)
+          _ = result.data
+        } catch {
+          // ...
         }
       }
+    }
 
     callableRef.call { result, error in
       if let result = result {
@@ -105,17 +105,17 @@ final class FunctionsAPITests: XCTestCase {
       }
     }
 
-      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
-        Task {
-          do {
-            let result = try await callableRef.call()
-            _ = result.data
-          } catch {
-            // ...
-          }
+    if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      // async/await is a Swift 5.5+ feature available on iOS 15+
+      Task {
+        do {
+          let result = try await callableRef.call()
+          _ = result.data
+        } catch {
+          // ...
         }
       }
+    }
 
     // MARK: - FunctionsErrorCode
 

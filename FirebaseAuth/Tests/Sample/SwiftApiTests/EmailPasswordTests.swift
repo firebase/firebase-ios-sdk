@@ -39,13 +39,13 @@ class EmailPasswordTests: TestsBase {
     deleteCurrentUser()
   }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func testCreateAccountWithEmailAndPasswordAsync() async throws {
-      let auth = Auth.auth()
-      try await auth.createUser(withEmail: kNewEmailToCreateUser, password: "password")
-      XCTAssertEqual(auth.currentUser?.email, kNewEmailToCreateUser, "Expected email doesn't match")
-      try await deleteCurrentUserAsync()
-    }
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func testCreateAccountWithEmailAndPasswordAsync() async throws {
+    let auth = Auth.auth()
+    try await auth.createUser(withEmail: kNewEmailToCreateUser, password: "password")
+    XCTAssertEqual(auth.currentUser?.email, kNewEmailToCreateUser, "Expected email doesn't match")
+    try await deleteCurrentUserAsync()
+  }
 
   func testSignInExistingUserWithEmailAndPassword() {
     let auth = Auth.auth()
@@ -61,12 +61,12 @@ class EmailPasswordTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func testSignInExistingUserWithEmailAndPasswordAsync() async throws {
-      let auth = Auth.auth()
-      try await auth.signIn(withEmail: kExistingEmailToSignIn, password: "password")
-      XCTAssertEqual(auth.currentUser?.email,
-                     kExistingEmailToSignIn,
-                     "Signed user does not match request.")
-    }
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func testSignInExistingUserWithEmailAndPasswordAsync() async throws {
+    let auth = Auth.auth()
+    try await auth.signIn(withEmail: kExistingEmailToSignIn, password: "password")
+    XCTAssertEqual(auth.currentUser?.email,
+                   kExistingEmailToSignIn,
+                   "Signed user does not match request.")
+  }
 }
