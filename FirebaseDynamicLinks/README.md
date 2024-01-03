@@ -1,10 +1,7 @@
 # Firebase Dynamic Links SDK for iOS
 
 > [!IMPORTANT]
-> If you are using the PaLM SDK for Swift, please see [Developers who use the PaLM SDK for Swift](#developers-who-use-the-palm-sdk-for-swift) for instructions.
-
-> [!DEPRECATION]
-> Firebase Dynamic Links is DEPRECATED and the service will be turned down August 25, 2025]
+> Firebase Dynamic Links is **DEPRECATED** and the service will be turned down August 25, 2025
 
 Firebase Dynamic Links are universal deep links that persist across app installs.
 For more info, see the [Firebase website](https://firebase.google.com/products/dynamic-links).
