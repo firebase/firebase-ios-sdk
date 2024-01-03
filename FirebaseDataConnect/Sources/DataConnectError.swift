@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 
-
-@available (macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public enum DataConnectError: Error {
-
-  //no firebase app specified. configure not complete
+  // no firebase app specified. configure not complete
   case appNotConfigured
 
   case grpcNotConfigured
 
-  //failed to decode results from server
+  // failed to decode results from server
   case decodeFailed
-
 }

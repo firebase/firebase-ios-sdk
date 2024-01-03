@@ -14,9 +14,8 @@
 
 import Foundation
 
-@available (macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public struct MutationRequest: OperationRequest {
-
   public var operationName: String
   public var variables: (any Codable)?
 
@@ -26,9 +25,8 @@ public struct MutationRequest: OperationRequest {
   }
 }
 
-@available (macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class MutationRef<ResultDataType: Codable>: OperationRef {
-
   var request: any OperationRequest
 
   var dataType: ResultDataType.Type
@@ -42,8 +40,10 @@ public class MutationRef<ResultDataType: Codable>: OperationRef {
   }
 
   public func execute() async throws -> OperationResult<ResultDataType> {
-    let results = try await grpcClient.executeMutation(request: request as! MutationRequest, resultType: ResultDataType.self)
+    let results = try await grpcClient.executeMutation(
+      request: request as! MutationRequest,
+      resultType: ResultDataType.self
+    )
     return results
   }
-
 }

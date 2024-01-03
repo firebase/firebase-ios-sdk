@@ -19,10 +19,8 @@ import NIOCore
 import NIOPosix
 import SwiftProtobuf
 
-
-@available (macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 class GrpcClient {
-
   private var projectId: String
 
   private let threadPoolSize = 1
@@ -31,22 +29,28 @@ class GrpcClient {
 
   private var serviceConfig: ServiceConfig
 
-  //projects/{project}/locations/{location}/services/{service}/operationSets/{operation_set}/revisions/{revision}
+  // projects/{project}/locations/{location}/services/{service}/operationSets/{operation_set}/revisions/{revision}
   private var connectorName: String = "" // Operation Set Full Qualified Name
 
   private lazy var client: Google_Firebase_Dataconnect_V1main_DataServiceAsyncClient? = {
     do {
       let group = PlatformSupport.makeEventLoopGroup(loopCount: threadPoolSize)
-      let channel = try GRPCChannelPool.with(target: .host(serverSettings.hostName, port: serverSettings.port), transportSecurity: serverSettings.sslEnabled ? .tls(GRPCTLSConfiguration.makeClientDefault(compatibleWith: group)) : .plaintext , eventLoopGroup: group)
+      let channel = try GRPCChannelPool.with(
+        target: .host(serverSettings.hostName, port: serverSettings.port),
+        transportSecurity: serverSettings
+          .sslEnabled ? .tls(GRPCTLSConfiguration.makeClientDefault(compatibleWith: group)) :
+          .plaintext,
+        eventLoopGroup: group
+      )
       print("Created Channel \(channel)")
       return Google_Firebase_Dataconnect_V1main_DataServiceAsyncClient(channel: channel)
 
     } catch {
-      //TODO: Convert to using logger
+      // TODO: Convert to using logger
       print("Error initing GRPC client \(error)")
       return nil
     }
-  } ()
+  }()
 
   init(projectId: String, serverSettings: ServerSettings, serviceConfig: ServiceConfig) {
     self.projectId = projectId
@@ -57,17 +61,22 @@ class GrpcClient {
   }
 
   private func createConnectorName() {
-    self.connectorName = "projects/\(projectId)/locations/\(serviceConfig.location.rawValue)/services/\(serviceConfig.serviceId)/operationSets/\(serviceConfig.connector)/revisions/r"
+    connectorName =
+      "projects/\(projectId)/locations/\(serviceConfig.location.rawValue)/services/\(serviceConfig.serviceId)/operationSets/\(serviceConfig.connector)/revisions/r"
   }
 
-  func executeQuery<ResultType: Codable>(request: QueryRequest, resultType: ResultType.Type) async throws -> OperationResult<ResultType> {
-
+  func executeQuery<ResultType: Codable>(request: QueryRequest,
+                                         resultType: ResultType
+                                           .Type) async throws -> OperationResult<ResultType> {
     guard let client else {
       throw DataConnectError.grpcNotConfigured
     }
 
     let codec = Codec()
-    let grpcRequest = try codec.createQueryRequestProto(connectorName: self.connectorName, request: request)
+    let grpcRequest = try codec.createQueryRequestProto(
+      connectorName: connectorName,
+      request: request
+    )
 
     print("calling execute query in grpcClient")
     let results = try await client.executeQuery(grpcRequest)
@@ -75,21 +84,25 @@ class GrpcClient {
 
     // Not doing error decoding here
     if let decodedResults = try codec.decode(result: results.data, asType: resultType) {
-      return OperationResult(data: decodedResults) 
+      return OperationResult(data: decodedResults)
     } else {
       // In future, set this as error in OperationResult
       throw DataConnectError.decodeFailed
     }
-
   }
 
-  func executeMutation<ResultType: Codable>(request: MutationRequest, resultType: ResultType.Type) async throws -> OperationResult<ResultType> {
+  func executeMutation<ResultType: Codable>(request: MutationRequest,
+                                            resultType: ResultType
+                                              .Type) async throws -> OperationResult<ResultType> {
     guard let client else {
       throw DataConnectError.grpcNotConfigured
     }
-    
+
     let codec = Codec()
-    let grpcRequest = try codec.createMutationRequestProto(connectorName: self.connectorName, request: request)
+    let grpcRequest = try codec.createMutationRequestProto(
+      connectorName: connectorName,
+      request: request
+    )
 
     let results = try await client.executeMutation(grpcRequest)
 
@@ -99,5 +112,4 @@ class GrpcClient {
       throw DataConnectError.decodeFailed
     }
   }
-
 }

@@ -12,13 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import Foundation
 
-
-@available (macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public struct QueryRequest: OperationRequest {
-
   public var operationName: String
   public var variables: (any Codable)?
 
@@ -28,10 +25,9 @@ public struct QueryRequest: OperationRequest {
   }
 }
 
-@available (macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 public class QueryRef<ResultDataType: Codable>: OperationRef, ObservableObject {
-
-  internal var request: OperationRequest
+  var request: OperationRequest
 
   private var dataType: ResultDataType.Type
 
@@ -49,8 +45,8 @@ public class QueryRef<ResultDataType: Codable>: OperationRef, ObservableObject {
     self.grpcClient = grpcClient
   }
 
-  //This call starts query execution and publishes data to data var
-  //In v0, it simply reloads query results
+  // This call starts query execution and publishes data to data var
+  // In v0, it simply reloads query results
   public func startObserving() async throws {
     try await reloadResults()
   }
@@ -59,11 +55,14 @@ public class QueryRef<ResultDataType: Codable>: OperationRef, ObservableObject {
   // and updates the published data var
   public func execute() async throws -> OperationResult<ResultDataType> {
     try await reloadResults()
-    return OperationResult(data: self.data!)
+    return OperationResult(data: data!)
   }
 
   private func reloadResults() async throws {
-    let results = try await grpcClient.executeQuery(request: request as! QueryRequest, resultType: ResultDataType.self)
+    let results = try await grpcClient.executeQuery(
+      request: request as! QueryRequest,
+      resultType: ResultDataType.self
+    )
     await updateData(data: results.data)
   }
 
@@ -72,5 +71,4 @@ public class QueryRef<ResultDataType: Codable>: OperationRef, ObservableObject {
   private func updateData(data: ResultDataType) {
     self.data = data
   }
-
 }

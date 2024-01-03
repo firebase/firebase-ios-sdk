@@ -196,7 +196,7 @@ let package = Package(
     .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
     .package(
       url: "https://github.com/grpc/grpc-swift.git",
-        from: "1.19.1" //TODO: Constrain to a range at time of release
+      from: "1.19.1" // TODO: Constrain to a range at time of release
     ),
   ],
   targets: [
@@ -667,20 +667,20 @@ let package = Package(
       path: "FirebaseDatabaseSwift/Tests/"
     ),
     .target(
-        name: "FirebaseDataConnect",
-        dependencies: [
-          .product(name: "GRPC", package: "grpc-swift"),
-          "FirebaseAuthInterop",
-          "FirebaseCore",
-          "FirebaseCoreExtension",
-          "FirebaseSharedSwift"
-        ],
-        path: "FirebaseDataConnect/Sources"
+      name: "FirebaseDataConnect",
+      dependencies: [
+        .product(name: "GRPC", package: "grpc-swift"),
+        "FirebaseAuthInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        "FirebaseSharedSwift",
+      ],
+      path: "FirebaseDataConnect/Sources"
     ),
     .testTarget(
-        name: "FirebaseDataConnectTests",
-        dependencies: ["FirebaseDataConnect"],
-        path: "FirebaseDataConnect/Tests"
+      name: "FirebaseDataConnectTests",
+      dependencies: ["FirebaseDataConnect"],
+      path: "FirebaseDataConnect/Tests"
     ),
     .target(
       name: "FirebaseSharedSwift",

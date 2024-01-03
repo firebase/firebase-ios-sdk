@@ -18,6 +18,4 @@ import Foundation
 
 import XCTest
 
-class IntegrationTests: XCTestCase {
-  
-}
+class IntegrationTests: XCTestCase {}
