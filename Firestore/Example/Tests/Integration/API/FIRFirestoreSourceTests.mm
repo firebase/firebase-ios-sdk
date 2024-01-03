@@ -740,9 +740,8 @@
 - (void)DocumentReferenceDemo_addSnapshotListenerFromCacheAndIncludeMetadataChanges {
   FIRDocumentReference *doc = [self.db documentWithPath:@"cities/SF"];
   FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
-  FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
   FIRSnapshotListenOptions *optionsFromCacheAndWithMetadata =
-      [optionsWithMetadata withSource:FIRListenSourceCache];
+      [[options withIncludeMetadataChanges:YES] withSource:FIRListenSourceCache];
 
   [doc addSnapshotListenerWithOptions:optionsFromCacheAndWithMetadata
                              listener:^(FIRDocumentSnapshot *snapshot, NSError *error) {
@@ -794,9 +793,8 @@
   FIRCollectionReference *collection = [self.db collectionWithPath:@"cities"];
   FIRQuery *query = [collection queryWhereField:@"state" isEqualTo:@ "CA"];
   FIRSnapshotListenOptions *options = [[FIRSnapshotListenOptions alloc] initWithDefaultOptions];
-  FIRSnapshotListenOptions *optionsWithMetadata = [options withIncludeMetadataChanges:YES];
   FIRSnapshotListenOptions *optionsFromCacheAndWithMetadata =
-      [optionsWithMetadata withSource:FIRListenSourceCache];
+      [[options withIncludeMetadataChanges:YES] withSource:FIRListenSourceCache];
 
   [query addSnapshotListenerWithOptions:optionsFromCacheAndWithMetadata
                                listener:^(FIRQuerySnapshot *snapshot, NSError *error) {
