@@ -1,12 +1,16 @@
+// Copyright 2024 Google LLC
 //
-//  File.swift
-//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Aashish Patil on 12/18/23.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
-
-import Foundation
-
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
 
@@ -39,7 +43,7 @@ class Codec {
     }
   }
 
-  func createInternalQuery(connectorName:String, request: QueryRequest) throws -> Google_Firebase_Dataconnect_V1main_ExecuteQueryRequest {
+  func createQueryRequestProto(connectorName:String, request: QueryRequest) throws -> Google_Firebase_Dataconnect_V1main_ExecuteQueryRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil
       if let variables = request.variables {
@@ -62,7 +66,7 @@ class Codec {
     }
   }
 
-  func createInternalMutation(connectorName: String, request: MutationRequest) throws -> Google_Firebase_Dataconnect_V1main_ExecuteMutationRequest {
+  func createMutationRequestProto(connectorName: String, request: MutationRequest) throws -> Google_Firebase_Dataconnect_V1main_ExecuteMutationRequest {
     do {
       var varStruct: Google_Protobuf_Struct? = nil
       if let variables = request.variables {

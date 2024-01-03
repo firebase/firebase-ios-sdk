@@ -1,9 +1,16 @@
+// Copyright 2024 Google LLC
 //
-//  File.swift
-//  
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Created by Aashish Patil on 12/5/23.
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 import Foundation
 
@@ -27,7 +34,7 @@ class GrpcClient {
   //projects/{project}/locations/{location}/services/{service}/operationSets/{operation_set}/revisions/{revision}
   private var connectorName: String = "" // Operation Set Full Qualified Name
 
-  lazy var client: Google_Firebase_Dataconnect_V1main_DataServiceAsyncClient? = {
+  private lazy var client: Google_Firebase_Dataconnect_V1main_DataServiceAsyncClient? = {
     do {
       let group = PlatformSupport.makeEventLoopGroup(loopCount: threadPoolSize)
       let channel = try GRPCChannelPool.with(target: .host(serverSettings.hostName, port: serverSettings.port), transportSecurity: serverSettings.sslEnabled ? .tls(GRPCTLSConfiguration.makeClientDefault(compatibleWith: group)) : .plaintext , eventLoopGroup: group)
@@ -60,7 +67,7 @@ class GrpcClient {
     }
 
     let codec = Codec()
-    let grpcRequest = try codec.createInternalQuery(connectorName: self.connectorName, request: request)
+    let grpcRequest = try codec.createQueryRequestProto(connectorName: self.connectorName, request: request)
 
     print("calling execute query in grpcClient")
     let results = try await client.executeQuery(grpcRequest)
@@ -82,7 +89,7 @@ class GrpcClient {
     }
     
     let codec = Codec()
-    let grpcRequest = try codec.createInternalMutation(connectorName: self.connectorName, request: request)
+    let grpcRequest = try codec.createMutationRequestProto(connectorName: self.connectorName, request: request)
 
     let results = try await client.executeMutation(grpcRequest)
 
