@@ -15,6 +15,9 @@
 import FirebaseAnalytics
 import FirebaseAnalyticsSwift
 import FirebaseAuth
+#if SWIFT_PACKAGE
+  import FirebaseAuthCombineSwift
+#endif // SWIFT_PACKAGE
 #if (os(iOS) && !targetEnvironment(macCatalyst)) || os(tvOS)
   import FirebaseInAppMessaging
   import FirebaseInAppMessagingSwift
