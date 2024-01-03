@@ -25,10 +25,6 @@ import FirebaseAppCheck
 #if os(iOS) && !targetEnvironment(macCatalyst)
   import FirebaseAppDistribution
 #endif
-import FirebaseAuth
-#if SWIFT_PACKAGE
-  import FirebaseAuthCombineSwift
-#endif // SWIFT_PACKAGE
 import FirebaseCore
 import FirebaseCrashlytics
 import FirebaseDatabase

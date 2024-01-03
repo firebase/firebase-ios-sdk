@@ -24,7 +24,6 @@
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 @import FirebaseAppDistribution;
 #endif
-@import FirebaseAuth;
 @import FirebaseCore;
 @import FirebaseCrashlytics;
 @import FirebaseDatabase;
