@@ -85,7 +85,6 @@ final class FunctionsAPITests: XCTestCase {
       }
     }
 
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
       if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -97,7 +96,6 @@ final class FunctionsAPITests: XCTestCase {
           }
         }
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 
     callableRef.call { result, error in
       if let result = result {
@@ -107,7 +105,6 @@ final class FunctionsAPITests: XCTestCase {
       }
     }
 
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
       if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
         // async/await is a Swift 5.5+ feature available on iOS 15+
         Task {
@@ -119,7 +116,6 @@ final class FunctionsAPITests: XCTestCase {
           }
         }
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 
     // MARK: - FunctionsErrorCode
 

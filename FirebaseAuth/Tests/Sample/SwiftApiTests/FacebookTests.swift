@@ -44,7 +44,6 @@ import XCTest
 //    deleteFacebookTestingAccountbyID(facebookAccountID)
 //  }
 //
-//  #if compiler(>=5.5.2) && canImport(_Concurrency)
 //    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    func testSignInWithFacebookAsync() async throws {
 //      let auth = Auth.auth()
@@ -60,7 +59,6 @@ import XCTest
 //      try await deleteCurrentUserAsync()
 //      try await deleteFacebookTestingAccountbyIDAsync(facebookAccountID)
 //    }
-//  #endif
 //
 //  func testLinkAnonymousAccountToFacebookAccount() throws {
 //    let auth = Auth.auth()
@@ -90,7 +88,6 @@ import XCTest
 //    deleteFacebookTestingAccountbyID(facebookAccountID)
 //  }
 //
-//  #if compiler(>=5.5.2) && canImport(_Concurrency)
 //    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    func testLinkAnonymousAccountToFacebookAccountAsync() async throws {
 //      let auth = Auth.auth()
@@ -111,7 +108,6 @@ import XCTest
 //      try await deleteCurrentUserAsync()
 //      try await deleteFacebookTestingAccountbyIDAsync(facebookAccountID)
 //    }
-//  #endif
 //
 //  /// Creates a Facebook testing account using Facebook Graph API and return a dictionary that
 //  /// constrains "id", "access_token", "login_url", "email" and "password" of the created account.
@@ -151,7 +147,6 @@ import XCTest
 //    return returnValue
 //  }
 //
-//  #if compiler(>=5.5.2) && canImport(_Concurrency)
 //    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    /// Creates a Facebook testing account using Facebook Graph API and return a dictionary that
 //    /// constains "id", "access_token", "login_url", "email" and "password" of the created
@@ -174,7 +169,6 @@ import XCTest
 //      }
 //      return returnValue
 //    }
-//  #endif
 //
 //  // ** Delete a Facebook testing account by account Id using Facebook Graph API. */
 //  func deleteFacebookTestingAccountbyID(_ accountID: String) {
@@ -195,7 +189,6 @@ import XCTest
 //    waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
 //  }
 //
-//  #if compiler(>=5.5.2) && canImport(_Concurrency)
 //    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 //    // ** Delete a Facebook testing account by account Id using Facebook Graph API. */
 //    func deleteFacebookTestingAccountbyIDAsync(_ accountID: String) async throws {
@@ -208,5 +201,4 @@ import XCTest
 //      fetcher.setRequestValue("text/plain", forHTTPHeaderField: "Content-Type")
 //      try await fetcher.beginFetch()
 //    }
-//  #endif
 // }

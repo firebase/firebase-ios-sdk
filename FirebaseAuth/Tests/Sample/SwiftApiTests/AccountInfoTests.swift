@@ -75,7 +75,6 @@ class AccountInfoTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 7, *)
     func testUpdatingUsersEmailAsync() async throws {
       let auth = Auth.auth()
@@ -99,5 +98,4 @@ class AccountInfoTests: TestsBase {
                      kNewUserEmail,
                      "Signed user does not match change.")
     }
-  #endif
 }

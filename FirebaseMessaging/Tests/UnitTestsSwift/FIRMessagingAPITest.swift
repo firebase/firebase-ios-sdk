@@ -127,7 +127,6 @@ class CustomDelegate: NSObject, MessagingDelegate {
 func apiAsync() async throws {
   let messaging = Messaging.messaging()
   let topic = "cat_video"
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     try await messaging.subscribe(toTopic: topic)
 
     try await messaging.unsubscribe(fromTopic: topic)
@@ -147,5 +146,4 @@ func apiAsync() async throws {
       try await messaging.unsubscribe(fromTopic: topic)
     } catch MessagingError.timeout {
     } catch {}
-  #endif
 }

@@ -18,7 +18,6 @@ import FirebaseRemoteConfig
 
 import XCTest
 
-#if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 14.0, macOS 11.0, macCatalyst 14.0, tvOS 14.0, watchOS 7.0, *)
   class PropertyWrapperTests: APITestBase {
     // MARK: - Test fetching Remote Config JSON values into struct property
@@ -296,4 +295,3 @@ import XCTest
       XCTAssertEqual(recipeValue?.cookTime, 45)
     }
   }
-#endif

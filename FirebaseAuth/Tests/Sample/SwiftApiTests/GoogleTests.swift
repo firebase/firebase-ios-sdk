@@ -37,7 +37,6 @@ class GoogleTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testSignInWithGoogleAsync() async throws {
       let auth = Auth.auth()
@@ -48,7 +47,6 @@ class GoogleTests: TestsBase {
                                                      accessToken: googleAccessToken)
       _ = try await auth.signIn(with: credential)
     }
-  #endif
 
   /// Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
   /// access token.
@@ -84,7 +82,6 @@ class GoogleTests: TestsBase {
     return returnValue
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     /// Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
     /// access token.
@@ -111,5 +108,4 @@ class GoogleTests: TestsBase {
       }
       return returnValue
     }
-  #endif
 }

@@ -270,7 +270,6 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
     /**
      * Asynchronously retrieves a long lived download URL with a revokable token.
      * This can be used to share the file with others, but can be revoked by a developer
@@ -286,7 +285,6 @@ import Foundation
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   /**
    * Asynchronously downloads the object at the current path to a specified system filepath.
@@ -398,7 +396,6 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
     /**
      * Lists all items (files) and prefixes (folders) under this StorageReference.
      *
@@ -419,7 +416,6 @@ import Foundation
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   /**
    * List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
@@ -514,7 +510,6 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
     /**
      * Retrieves metadata associated with an object at the current path.
      * - Throws: An error if the object metadata could not be retrieved.
@@ -528,7 +523,6 @@ import Foundation
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   /**
    * Updates the metadata associated with an object at the current path.
@@ -549,7 +543,6 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
     /**
      * Updates the metadata associated with an object at the current path.
      * - Parameter metadata A `StorageMetadata` object with the metadata to update.
@@ -564,7 +557,6 @@ import Foundation
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   // MARK: - Delete
 
@@ -582,7 +574,6 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
     /**
      * Deletes the object at the current path.
      * - Throws: An error if the delete operation failed.
@@ -599,7 +590,6 @@ import Foundation
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
 
   // MARK: - NSObject overrides
 

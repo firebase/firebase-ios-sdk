@@ -76,7 +76,6 @@ public extension DocumentReference {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     /// Fetches and decodes the document referenced by this `DocumentReference`.
     ///
     /// This allows users to retrieve a Firestore document and have it decoded
@@ -113,5 +112,4 @@ public extension DocumentReference {
                                with: serverTimestampBehavior,
                                decoder: decoder)
     }
-  #endif
 }

@@ -17,7 +17,6 @@ import FirebaseCore
 
 import XCTest
 
-#if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AsyncAwaitTests: APITestBase {
     func testFetchThenActivate() async throws {
@@ -131,4 +130,3 @@ import XCTest
                     "Remote config should have been deleted.")
     }
   }
-#endif

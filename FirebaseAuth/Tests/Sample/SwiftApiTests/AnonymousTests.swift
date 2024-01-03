@@ -29,7 +29,6 @@ class AnonymousTests: TestsBase {
     deleteCurrentUser()
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUpdatingUsersEmailAsync() async throws {
       try await signInAnonymouslyAsync()
@@ -40,5 +39,4 @@ class AnonymousTests: TestsBase {
       }
       try await deleteCurrentUserAsync()
     }
-  #endif
 }

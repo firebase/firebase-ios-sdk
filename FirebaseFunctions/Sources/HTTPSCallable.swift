@@ -139,7 +139,6 @@ open class HTTPSCallable: NSObject {
     call(nil, completion: completion)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     /**
      * Executes this Callable HTTPS trigger asynchronously.
      *
@@ -168,5 +167,4 @@ open class HTTPSCallable: NSObject {
         }
       }
     }
-  #endif // compiler(>=5.5.2) && canImport(_Concurrency)
 }

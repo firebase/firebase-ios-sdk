@@ -118,7 +118,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testDataAsync() async throws {
       let data = DataTestRequest(
@@ -147,7 +146,6 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(response, expected)
       }
     }
-  #endif
 
   func testScalar() {
     let byName = functions.httpsCallable(
@@ -175,7 +173,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testScalarAsync() async throws {
       let byName = functions.httpsCallable(
@@ -205,7 +202,6 @@ class IntegrationTests: XCTestCase {
       }
     }
 
-  #endif
 
   func testToken() {
     // Recreate functions with a token.
@@ -245,7 +241,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testTokenAsync() async throws {
       // Recreate functions with a token.
@@ -275,7 +270,6 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(data, [:])
       }
     }
-  #endif
 
   func testFCMToken() {
     let byName = functions.httpsCallable(
@@ -303,7 +297,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testFCMTokenAsync() async throws {
       let byName = functions.httpsCallable(
@@ -322,7 +315,6 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(data, [:])
       }
     }
-  #endif
 
   func testNull() {
     let byName = functions.httpsCallable(
@@ -350,7 +342,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testNullAsync() async throws {
       let byName = functions.httpsCallable(
@@ -369,7 +360,6 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(data, nil)
       }
     }
-  #endif
 
   func testMissingResult() {
     let byName = functions.httpsCallable(
@@ -401,7 +391,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testMissingResultAsync() async {
       let byName = functions.httpsCallable(
@@ -425,7 +414,6 @@ class IntegrationTests: XCTestCase {
         }
       }
     }
-  #endif
 
   func testUnhandledError() {
     let byName = functions.httpsCallable(
@@ -457,7 +445,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUnhandledErrorAsync() async {
       let byName = functions.httpsCallable(
@@ -481,7 +468,6 @@ class IntegrationTests: XCTestCase {
         }
       }
     }
-  #endif
 
   func testUnknownError() {
     let byName = functions.httpsCallable(
@@ -512,7 +498,6 @@ class IntegrationTests: XCTestCase {
     waitForExpectations(timeout: 5)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testUnknownErrorAsync() async {
       let byName = functions.httpsCallable(
@@ -536,7 +521,6 @@ class IntegrationTests: XCTestCase {
         }
       }
     }
-  #endif
 
   func testExplicitError() {
     let byName = functions.httpsCallable(
@@ -569,7 +553,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testExplicitErrorAsync() async {
       let byName = functions.httpsCallable(
@@ -595,7 +578,6 @@ class IntegrationTests: XCTestCase {
         }
       }
     }
-  #endif
 
   func testHttpError() {
     let byName = functions.httpsCallable(
@@ -626,7 +608,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testHttpErrorAsync() async {
       let byName = functions.httpsCallable(
@@ -649,7 +630,6 @@ class IntegrationTests: XCTestCase {
         }
       }
     }
-  #endif
 
   func testThrowError() {
     let byName = functions.httpsCallable(
@@ -681,7 +661,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testThrowErrorAsync() async {
       let byName = functions.httpsCallable(
@@ -705,7 +684,6 @@ class IntegrationTests: XCTestCase {
         }
       }
     }
-  #endif
 
   func testTimeout() {
     let byName = functions.httpsCallable(
@@ -738,7 +716,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testTimeoutAsync() async {
       var byName = functions.httpsCallable(
@@ -765,7 +742,6 @@ class IntegrationTests: XCTestCase {
         }
       }
     }
-  #endif
 
   func testCallAsFunction() {
     let data = DataTestRequest(
@@ -802,7 +778,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testCallAsFunctionAsync() async throws {
       let data = DataTestRequest(
@@ -832,7 +807,6 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(response, expected)
       }
     }
-  #endif
 
   func testInferredTypes() {
     let data = DataTestRequest(
@@ -867,7 +841,6 @@ class IntegrationTests: XCTestCase {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     func testInferredTyesAsync() async throws {
       let data = DataTestRequest(
@@ -894,7 +867,6 @@ class IntegrationTests: XCTestCase {
         XCTAssertEqual(response, expected)
       }
     }
-  #endif
 }
 
 private class AuthTokenProvider: AuthInterop {

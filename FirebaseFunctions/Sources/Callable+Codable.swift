@@ -109,7 +109,6 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     call(data, completion: completion)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
     /// Executes this Callable HTTPS trigger asynchronously.
     ///
     /// The data passed into the trigger must be of the generic `Request` type:
@@ -160,5 +159,4 @@ public struct Callable<Request: Encodable, Response: Decodable> {
     public func callAsFunction(_ data: Request) async throws -> Response {
       return try await call(data)
     }
-  #endif
 }

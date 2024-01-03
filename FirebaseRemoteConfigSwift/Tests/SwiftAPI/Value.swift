@@ -16,7 +16,6 @@ import FirebaseRemoteConfig
 
 import XCTest
 
-#if compiler(>=5.5.2) && canImport(_Concurrency)
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class ValueTests: APITestBase {
     func testFetchAndActivateAllTypes() async throws {
@@ -193,4 +192,3 @@ import XCTest
       XCTFail("Failed to throw unsupported Date error.")
     }
   }
-#endif
