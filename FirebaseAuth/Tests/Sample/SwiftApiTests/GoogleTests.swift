@@ -37,18 +37,16 @@ class GoogleTests: TestsBase {
     waitForExpectations(timeout: TestsBase.kExpectationsTimeout)
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func testSignInWithGoogleAsync() async throws {
-      let auth = Auth.auth()
-      let userInfoDict = try await getGoogleAccessTokenAsync()
-      let googleAccessToken: String = try XCTUnwrap(userInfoDict["access_token"] as? String)
-      let googleIDToken: String = try XCTUnwrap(userInfoDict["id_token"] as? String)
-      let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
-                                                     accessToken: googleAccessToken)
-      _ = try await auth.signIn(with: credential)
-    }
-  #endif
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func testSignInWithGoogleAsync() async throws {
+    let auth = Auth.auth()
+    let userInfoDict = try await getGoogleAccessTokenAsync()
+    let googleAccessToken: String = try XCTUnwrap(userInfoDict["access_token"] as? String)
+    let googleIDToken: String = try XCTUnwrap(userInfoDict["id_token"] as? String)
+    let credential = GoogleAuthProvider.credential(withIDToken: googleIDToken,
+                                                   accessToken: googleAccessToken)
+    _ = try await auth.signIn(with: credential)
+  }
 
   /// Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
   /// access token.
@@ -84,32 +82,30 @@ class GoogleTests: TestsBase {
     return returnValue
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    /// Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
-    /// access token.
-    /// Returns a dictionary that constains "access_token", "token_type", "expires_in" and sometimes
-    /// the "id_token". (The id_token is not guaranteed to be returned during a refresh exchange;
-    /// see https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse)
-    func getGoogleAccessTokenAsync() async throws -> [String: Any] {
-      let googleOauth2TokenServerUrl = "https://www.googleapis.com/oauth2/v4/token"
-      let bodyString = "client_id=\(Credentials.kGoogleClientID)&grant_type=refresh_token" +
-        "&refresh_token=\(Credentials.kGoogleTestAccountRefreshToken)"
-      let postData = bodyString.data(using: .utf8)
-      let service = GTMSessionFetcherService()
-      let fetcher = service.fetcher(withURLString: googleOauth2TokenServerUrl)
-      fetcher.bodyData = postData
-      fetcher.setRequestValue(
-        "application/x-www-form-urlencoded",
-        forHTTPHeaderField: "Content-Type"
-      )
-      let data = try await fetcher.beginFetch()
-      guard let returnValue = try JSONSerialization.jsonObject(with: data, options: [])
-        as? [String: Any] else {
-        XCTFail("Failed to serialize userInfo as a Dictionary")
-        fatalError()
-      }
-      return returnValue
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  /// Sends http request to Google OAuth2 token server to use refresh token to exchange for Google
+  /// access token.
+  /// Returns a dictionary that constains "access_token", "token_type", "expires_in" and sometimes
+  /// the "id_token". (The id_token is not guaranteed to be returned during a refresh exchange;
+  /// see https://openid.net/specs/openid-connect-core-1_0.html#RefreshTokenResponse)
+  func getGoogleAccessTokenAsync() async throws -> [String: Any] {
+    let googleOauth2TokenServerUrl = "https://www.googleapis.com/oauth2/v4/token"
+    let bodyString = "client_id=\(Credentials.kGoogleClientID)&grant_type=refresh_token" +
+      "&refresh_token=\(Credentials.kGoogleTestAccountRefreshToken)"
+    let postData = bodyString.data(using: .utf8)
+    let service = GTMSessionFetcherService()
+    let fetcher = service.fetcher(withURLString: googleOauth2TokenServerUrl)
+    fetcher.bodyData = postData
+    fetcher.setRequestValue(
+      "application/x-www-form-urlencoded",
+      forHTTPHeaderField: "Content-Type"
+    )
+    let data = try await fetcher.beginFetch()
+    guard let returnValue = try JSONSerialization.jsonObject(with: data, options: [])
+      as? [String: Any] else {
+      XCTFail("Failed to serialize userInfo as a Dictionary")
+      fatalError()
     }
-  #endif
+    return returnValue
+  }
 }
