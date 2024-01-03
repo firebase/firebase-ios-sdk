@@ -186,7 +186,7 @@ See the sections below for any special instructions for those components.
 For specific Firebase Auth development, refer to the [Auth Sample README](FirebaseAuth/Tests/Sample/README.md) for instructions about
 building and running the FirebaseAuth pod along with various samples and tests.
 
-### Firebase Database
+Firebase Dynamic Links is deprecated and should not be used in new projects. The service will shut down on August 25, 2025.
 
 The Firebase Database Integration tests can be run against a locally running Database Emulator
 or against a production instance.
@@ -198,6 +198,10 @@ To run against a production instance, provide a valid `GoogleServices-Info.plist
 `FirebaseDatabase/Tests/Resources/GoogleService-Info.plist`. Your Security Rule must be set to
 [public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
 running.
+
+### Firebase Dynamic Links
+
+Firebase Dynamic Links is **deprecated** and should not be used in new projects. The service will shut down on August 25, 2025.
 
 ### Firebase Performance Monitoring
 
