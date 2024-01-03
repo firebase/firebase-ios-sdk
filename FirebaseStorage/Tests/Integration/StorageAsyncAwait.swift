@@ -151,7 +151,7 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     let ref = storage.reference(withPath: "ios/public/" + fileName)
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
     let metadata = try await ref.putFileAsync(from: fileURL)
     XCTAssertEqual(fileName, metadata.name)
@@ -182,7 +182,7 @@ class StorageAsyncAwait: StorageIntegrationCommon {
     let ref = storage.reference(withPath: "ios/public/testSimplePutFile")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     try data.write(to: fileURL, options: .atomicWrite)
     var uploadedBytes: Int64 = -1
     let successMetadata = try await ref.putFileAsync(from: fileURL) { progress in
@@ -251,21 +251,21 @@ class StorageAsyncAwait: StorageIntegrationCommon {
   }
 
   func testAsyncWrite() async throws {
-    let ref = storage.reference(withPath: "ios/public/helloworld")
+    let ref = storage.reference(withPath: "ios/public/helloworld" + #function)
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
     _ = try await ref.putDataAsync(data)
     let url = try await ref.writeAsync(toFile: fileURL)
-    XCTAssertEqual(url.lastPathComponent, "hello.txt")
+    XCTAssertEqual(url.lastPathComponent, #function + "hello.txt")
   }
 
   func testSimpleGetFile() throws {
     let expectation = self.expectation(description: #function)
-    let ref = storage.reference(withPath: "ios/public/helloworld")
+    let ref = storage.reference(withPath: "ios/public/helloworld" + #function)
     let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-    let fileURL = tmpDirURL.appendingPathComponent("hello.txt")
+    let fileURL = tmpDirURL.appendingPathComponent(#function + "hello.txt")
     let data = try XCTUnwrap("Hello Swift World".data(using: .utf8), "Data construction failed")
 
     Task {
