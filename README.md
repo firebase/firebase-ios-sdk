@@ -186,7 +186,7 @@ See the sections below for any special instructions for those components.
 For specific Firebase Auth development, refer to the [Auth Sample README](FirebaseAuth/Tests/Sample/README.md) for instructions about
 building and running the FirebaseAuth pod along with various samples and tests.
 
-Firebase Dynamic Links is deprecated and should not be used in new projects. The service will shut down on August 25, 2025.
+### Firebase Database
 
 The Firebase Database Integration tests can be run against a locally running Database Emulator
 or against a production instance.
