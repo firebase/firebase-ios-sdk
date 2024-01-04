@@ -39,8 +39,6 @@ import Foundation
       return PhoneAuthProvider(auth: auth)
     }
 
-    // TODO: review/remove public objc
-
     /**
      @brief Starts the phone number authentication flow by sending a verification code to the
      specified phone number.

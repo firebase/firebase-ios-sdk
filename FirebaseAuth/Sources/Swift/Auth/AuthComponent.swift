@@ -23,7 +23,8 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthComponent) class AuthComponent: NSObject, Library, AuthProvider {
+@objc(FIRAuthComponent)
+class AuthComponent: NSObject, Library, AuthProvider, ComponentLifecycleMaintainer {
   // MARK: - Private Variables
 
   /// The app associated with all Auth instances in this container.
@@ -85,7 +86,7 @@ import Foundation
         try? keychain.removeData(forKey: userKey)
       }
       DispatchQueue.main.async {
-        // TODO: Move over to fire an event instead, once ready.
+        // TODO(ObjC): Move over to fire an event instead, once ready.
         NotificationCenter.default.post(name: Auth.authStateDidChangeNotification, object: nil)
       }
     }

@@ -535,13 +535,12 @@ class AuthErrorUtils: NSObject {
   }
 
   #if os(iOS)
-    // TODO(ncooke3): Address the optionality of these arguments.
     static func secondFactorRequiredError(pendingCredential: String?,
-                                          hints: [MultiFactorInfo]?,
+                                          hints: [MultiFactorInfo],
                                           auth: Auth)
       -> Error {
       var userInfo: [String: Any] = [:]
-      if let pendingCredential = pendingCredential, let hints = hints {
+      if let pendingCredential = pendingCredential {
         let resolver = MultiFactorResolver(with: pendingCredential, hints: hints, auth: auth)
         userInfo[AuthErrors.userInfoMultiFactorResolverKey] = resolver
       }
@@ -551,7 +550,7 @@ class AuthErrorUtils: NSObject {
   #endif // os(iOS)
 
   static func recaptchaSDKNotLinkedError() -> Error {
-    // TODO(chuanr): point the link to GCIP doc once available.
+    // TODO(chuanr, ObjC): point the link to GCIP doc once available.
     let message = "The reCAPTCHA SDK is not linked to your app. See " +
       "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"
     return error(code: .recaptchaSDKNotLinked, message: message)

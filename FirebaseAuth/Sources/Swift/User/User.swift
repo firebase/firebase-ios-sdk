@@ -302,12 +302,11 @@ extension User: NSSecureCoding {}
    */
   @objc(profileChangeRequest)
   public func createProfileChangeRequest() -> UserProfileChangeRequest {
-    var result: UserProfileChangeRequest?
+    var result: UserProfileChangeRequest!
     kAuthGlobalWorkQueue.sync {
       result = UserProfileChangeRequest(self)
     }
-    // TODO: Is there a way to do without force unwrap?
-    return result!
+    return result
   }
 
   /** @property refreshToken

@@ -55,7 +55,7 @@ class VerifyPhoneNumberResponse: AuthRPCResponse {
    */
   var approximateExpirationDate: Date?
 
-  // XXX TODO: What might this be?
+  // XXX TODO(ObjC): What might this be?
   func expectedKind() -> String? {
     nil
   }

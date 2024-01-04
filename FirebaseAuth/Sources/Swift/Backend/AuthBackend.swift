@@ -291,7 +291,7 @@ private class AuthBackendRPCImplementation: NSObject, AuthBackendImplementation 
               return
             } else {
               // TODO: this was ignored before
-              fatalError("Internal error")
+              fatalError("Auth Internal error: RPC call didn't return data or an error.")
             }
           }
           // Try to decode the HTTP response data which may contain either a

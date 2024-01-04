@@ -29,8 +29,7 @@ import Foundation
    */
   @objc public let creationDate: Date?
 
-  // TODO: Nothing public below here
-  @objc public init(withCreationDate creationDate: Date?, lastSignInDate: Date?) {
+  init(withCreationDate creationDate: Date?, lastSignInDate: Date?) {
     self.creationDate = creationDate
     self.lastSignInDate = lastSignInDate
   }
