@@ -41,17 +41,15 @@ import Foundation
   private let kUserCodingKey = "user"
   private let kCredentialCodingKey = "credential"
 
-  // TODO: All below here should be internal
-
   /** @fn initWithUser:additionalUserInfo:
    @brief Designated initializer.
    @param user The signed in user reference.
    @param additionalUserInfo The additional user info.
    @param credential The updated OAuth credential if available.
    */
-  @objc public init(withUser user: User,
-                    additionalUserInfo: AdditionalUserInfo?,
-                    credential: OAuthCredential? = nil) {
+  init(withUser user: User,
+       additionalUserInfo: AdditionalUserInfo?,
+       credential: OAuthCredential? = nil) {
     self.user = user
     self.additionalUserInfo = additionalUserInfo
     self.credential = credential

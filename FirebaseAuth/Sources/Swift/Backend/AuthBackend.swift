@@ -112,15 +112,9 @@ class AuthBackend: NSObject {
     request.setValue(clientVersion, forHTTPHeaderField: "X-Client-Version")
     request.setValue(Bundle.main.bundleIdentifier, forHTTPHeaderField: "X-Ios-Bundle-Identifier")
     request.setValue(requestConfiguration.appID, forHTTPHeaderField: "X-Firebase-GMPID")
-    // TODO: Enable for SPM. Can we directly call the Swift library?
-    #if COCOAPODS
-      if let heartbeatLogger = requestConfiguration.heartbeatLogger {
-        request.setValue(
-          FIRHeaderValueFromHeartbeatsPayload(heartbeatLogger.flushHeartbeatsIntoPayload()),
-          forHTTPHeaderField: "X-Firebase-Client"
-        )
-      }
-    #endif
+    if let heartbeatLogger = requestConfiguration.heartbeatLogger {
+      request.setValue(heartbeatLogger.headerValue(), forHTTPHeaderField: "X-Firebase-Client")
+    }
     request.httpMethod = requestConfiguration.httpMethod
     let preferredLocalizations = Bundle.main.preferredLocalizations
     if preferredLocalizations.count > 0 {
