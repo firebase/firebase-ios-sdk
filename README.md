@@ -199,6 +199,12 @@ To run against a production instance, provide a valid `GoogleServices-Info.plist
 [public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
 running.
 
+### Firebase Dynamic Links
+
+Firebase Dynamic Links is **deprecated** and should not be used in new projects. The service will shut down on August 25, 2025.
+
+Please see our [Dynamic Links Deprecation FAQ documentation](https://firebase.google.com/support/dynamic-links-faq) for more guidance.
+
 ### Firebase Performance Monitoring
 
 For specific Firebase Performance Monitoring development, see
