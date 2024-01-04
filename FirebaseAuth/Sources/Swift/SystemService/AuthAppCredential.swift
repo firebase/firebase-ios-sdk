@@ -24,21 +24,19 @@ private let kReceiptKey = "receipt"
  */
 private let kSecretKey = "secret"
 
-// TODO: Remove objc public after Sample app is replaced.
-
 /** @class FIRAuthAppCredential
     @brief A class represents a credential that proves the identity of the app.
  */
-@objc(FIRAuthAppCredential) public class AuthAppCredential: NSObject, NSSecureCoding {
+class AuthAppCredential: NSObject, NSSecureCoding {
   /** @property receipt
       @brief The server acknowledgement of receiving client's claim of identity.
    */
-  @objc public var receipt: String
+  var receipt: String
 
   /** @property secret
       @brief The secret that the client received from server via a trusted channel, if ever.
    */
-  @objc public var secret: String?
+  var secret: String?
 
   /** @fn initWithReceipt:secret:
       @brief Initializes the instance.
@@ -46,7 +44,7 @@ private let kSecretKey = "secret"
       @param secret The secret that the client received from server via a trusted channel, if ever.
       @return The initialized instance.
    */
-  @objc public init(receipt: String, secret: String?) {
+  init(receipt: String, secret: String?) {
     self.secret = secret
     self.receipt = receipt
   }

@@ -1318,7 +1318,7 @@ private let kFIRAuthErrorMessageInvalidRecaptchaVersion =
 private let kFIRAuthErrorMessageInvalidReqType =
   "The request is not supported or is invalid."
 
-// TODO(chuanr): point the link to GCIP doc once available.
+// TODO(chuanr, ObjC): point the link to GCIP doc once available.
 private let kFIRAuthErrorMessageRecaptchaSDKNotLinked =
   "The reCAPTCHA SDK is not linked to your app. See " +
   "https://cloud.google.com/recaptcha-enterprise/docs/instrument-ios-apps"

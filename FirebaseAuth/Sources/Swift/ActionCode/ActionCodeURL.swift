@@ -71,9 +71,7 @@ import Foundation
     languageCode = queryItems["languageCode"]
   }
 
-  // TODO: internal below here.
-
-  @objc public class func parseURL(_ urlString: String) -> [String: String] {
+  class func parseURL(_ urlString: String) -> [String: String] {
     guard let linkURL = URLComponents(string: urlString)?.query else {
       return [:]
     }

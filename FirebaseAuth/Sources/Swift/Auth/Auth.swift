@@ -93,7 +93,7 @@ extension Auth: AuthInterop {
           strongSelf.autoRefreshTokens = true
           strongSelf.scheduleAutoTokenRefresh()
 
-          #if os(iOS) || os(tvOS) // TODO: Is a similar mechanism needed on macOS?
+          #if os(iOS) || os(tvOS) // TODO(from ObjC): Is a similar mechanism needed on macOS?
             strongSelf.applicationDidBecomeActiveObserver =
               NotificationCenter.default.addObserver(
                 forName: UIApplication.didBecomeActiveNotification,
@@ -1593,7 +1593,10 @@ extension Auth: AuthInterop {
    @param listenerHandle The handle for the listener.
    */
   @objc public func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
-    // TODO: implement me
+    NotificationCenter.default.removeObserver(listenerHandle)
+    objc_sync_enter(Auth.self)
+    listenerHandles.remove(listenerHandle)
+    objc_sync_exit(Auth.self)
   }
 
   /** @fn useAppLanguage
@@ -1768,10 +1771,6 @@ extension Auth: AuthInterop {
     }
   #endif
 
-  // TODO: Need to manage breaking change for
-  // const NSNotificationName FIRAuthStateDidChangeNotification =
-  // @"FIRAuthStateDidChangeNotification";
-  // Move to FIRApp with other Auth notifications?
   public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
 
