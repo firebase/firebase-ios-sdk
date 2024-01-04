@@ -95,7 +95,7 @@ static BOOL sFIRInstallationsFirebaseDefaultAppConfigured = NO;
   // from the above Installations API call.
   [self addTeardownBlock:^{
     FBLWaitForPromisesWithTimeout(20);
-    XCTAssertNil(FIRHeaderValueFromHeartbeatsPayload([self.heartbeatLogger headerValue]));
+    XCTAssertNil([FIRApp.defaultApp.heartbeatLogger headerValue]);
   }];
 }
 
