@@ -93,7 +93,7 @@ extension Auth: AuthInterop {
           strongSelf.autoRefreshTokens = true
           strongSelf.scheduleAutoTokenRefresh()
 
-          #if os(iOS) || os(tvOS) // TODO(from ObjC): Is a similar mechanism needed on macOS?
+          #if os(iOS) || os(tvOS) // TODO(ObjC): Is a similar mechanism needed on macOS?
             strongSelf.applicationDidBecomeActiveObserver =
               NotificationCenter.default.addObserver(
                 forName: UIApplication.didBecomeActiveNotification,
