@@ -1,6 +1,8 @@
 # Unreleased
-- In preparation for supporting Privacy Manifests, remove `Info.plist` files
-  from static xcframeworks (#12243).
+- The following change only applies to those using a binary distribution of
+  a Firebase SDK(s). In preparation for supporting Privacy Manifests, each
+  platform framework directory within a static xcframewok no longer contains
+  an `Info.plist` file (#12243).
 
 # Firebase 10.14.0
 - For developers building for visionOS, Xcode 15 beta 6 or later is required.
