@@ -6,11 +6,10 @@ def shared_pods
   pod 'FirebaseInstallations', :path => '../../../'
   pod 'FirebaseCoreInternal', :path => '../../../'
   pod 'FirebaseCoreExtension', :path => '../../../'
-  pod 'FirebaseSessions', :path => '../../../'
   pod 'FirebaseRemoteConfigInterop', :path => '../../../'
 end
 
-target 'AppQualityDevApp_iOS' do
+target 'FeatureRolloutsTestApp_iOS' do
   platform :ios, '11.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
@@ -19,27 +18,7 @@ target 'AppQualityDevApp_iOS' do
   shared_pods
 end
 
-target 'AppQualityDevApp_Crashlytics_iOS' do
-  platform :ios, '11.0'
-
-  # Comment the next line if you don't want to use dynamic frameworks
-  use_frameworks!
-
-  shared_pods
-  pod 'FirebaseCrashlytics', :path => '../../../'
-end
-
-target 'AppQualityDevApp_Performance_iOS' do
-  platform :ios, '11.0'
-
-  # Comment the next line if you don't want to use dynamic frameworks
-  use_frameworks!
-
-  shared_pods
-  pod 'FirebasePerformance', :path => '../../../'
-end
-
-target 'AppQualityDevApp_CrashlyticsPerformance_iOS' do
+target 'FeatureRolloutsTestApp_Crashlytics_iOS' do
   platform :ios, '11.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
@@ -47,14 +26,26 @@ target 'AppQualityDevApp_CrashlyticsPerformance_iOS' do
 
   shared_pods
   pod 'FirebaseCrashlytics', :path => '../../../'
-  pod 'FirebasePerformance', :path => '../../../'
 end
 
-target 'AppQualityDevApp_macOS' do
-  platform :macos, '10.13'
+target 'FeatureRolloutsTestApp_RemoteConfig_iOS' do
+  platform :ios, '11.0'
 
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
   shared_pods
+  pod 'FirebaseRemoteConfig', :path => '../../../'
 end
+
+target 'FeatureRolloutsTestApp_CrashlyticsRemoteConfig_iOS' do
+  platform :ios, '11.0'
+
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  shared_pods
+  pod 'FirebaseCrashlytics', :path => '../../../'
+  pod 'FirebaseRemoteConfig', :path => '../../../'
+end
+
