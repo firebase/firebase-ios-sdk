@@ -172,7 +172,21 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes
                                                                forKey:kFIRInstanceIDAPNSInfoKey];
   if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
-    return nil;
+    // If the decoder fails to decode a FIRMessagingAPNSInfo, check if this was archived by a
+    // FirebaseMessaging 10.18.0 or earlier.
+    @try {
+      [NSKeyedUnarchiver setClass:[FIRMessagingAPNSInfo class]
+                     forClassName:@"FIRInstanceIDAPNSInfo"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      rawAPNSInfo = [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)rawAPNSInfo];
+#pragma clang diagnostic pop
+    } @catch (NSException *exception) {
+      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                             @"Could not parse raw APNS Info while parsing archived token info.");
+      rawAPNSInfo = nil;
+    } @finally {
+    }
   }
 
   id cacheTime = [aDecoder decodeObjectForKey:kFIRInstanceIDCacheTimeKey];
