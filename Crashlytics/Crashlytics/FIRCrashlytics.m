@@ -62,7 +62,7 @@
 #if SWIFT_PACKAGE
 @import FirebaseCrashlyticsSwift;
 #else  // Swift Package Manager
-#import "FirebaseCrashlytics/FirebaseCrashlytics-Swift.h"
+#import <FirebaseCrashlytics/FirebaseCrashlytics-Swift.h>
 #endif  // Cocoapod
 
 #if TARGET_OS_IPHONE
