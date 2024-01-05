@@ -23,19 +23,16 @@ jobs:
     strategy:
       matrix:
         include:
-          # TODO: investigate integration test extreme flakiness on Xcode 15
-          - os: macos-12
-            xcode: Xcode_14.2
-          # - os: macos-13
-          #   xcode: Xcode_15.0.1
+          - os: macos-13
+            xcode: Xcode_15.1
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: integration${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -65,10 +62,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.os }}
@@ -90,13 +87,13 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: spm-cron${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
     - name: Xcodes
       run: ls -l /Applications/Xcode*
     - name: Xcode
@@ -115,14 +112,14 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       LEGACY: true
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
@@ -145,11 +142,11 @@ jobs:
       LEGACY: true
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.11'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh storage
     - name: Install Secret GoogleService-Info.plist
@@ -160,7 +157,7 @@ jobs:
     - name: Build swift quickstart
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Storage swift)
     - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing
@@ -176,13 +173,13 @@ jobs:
         include:
           - os: macos-12
             xcode: Xcode_14.2
-            tests: --test-specs=unit
-          - os: macos-13
-            xcode: Xcode_15.0.1
             tests: --skip-tests
+          - os: macos-13
+            xcode: Xcode_15.1
+            tests: --test-specs=unit
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -206,11 +203,11 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     needs: pod-lib-lint
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

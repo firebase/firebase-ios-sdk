@@ -18,7 +18,7 @@
 // Utility script for verifying `import` and `include` syntax. This ensures a
 // consistent style as well as functionality across multiple package managers.
 
-// For more context, see https://github.com/firebase/firebase-ios-sdk/blob/master/HeadersImports.md.
+// For more context, see https://github.com/firebase/firebase-ios-sdk/blob/main/HeadersImports.md.
 
 import Foundation
 
@@ -28,13 +28,14 @@ let skipDirPatterns = ["/Sample/", "/Pods/",
                        "FirebaseDynamicLinks/Tests/Integration",
                        "FirebaseInAppMessaging/Tests/Integration/",
                        "SymbolCollisionTest/", "/gen/",
-                       "CocoapodsIntegrationTest/", "FirebasePerformance/Tests/TestApp/",
+                       "IntegrationTesting/CocoapodsIntegrationTest/",
+                       "FirebasePerformance/Tests/TestApp/",
                        "cmake-build-debug/", "build/", "ObjCIntegration/",
                        "FirebasePerformance/Tests/FIRPerfE2E/"] +
   [
     "CoreOnly/Sources", // Skip Firebase.h.
     "SwiftPMTests", // The SwiftPM tests test module imports.
-    "ClientApp", // The ClientApp tests module imports.
+    "IntegrationTesting/ClientApp", // The ClientApp tests module imports.
     "FirebaseSessions/Protogen/", // Generated nanopb code with imports
   ] +
 

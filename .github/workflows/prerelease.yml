@@ -25,12 +25,12 @@ jobs:
       # testing repo.
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       local_repo: specstesting
-      podspec_repo_branch: master
+      podspec_repo_branch: main
     outputs:
       matrix: ${{ steps.generate_matrix.outputs.matrix }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Generate matrix
       id: generate_matrix
       run: |
@@ -79,7 +79,7 @@ jobs:
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: FirebaseCore
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v3
       with:
         name: firebase-ios-sdk
@@ -121,7 +121,7 @@ jobs:
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
       targeted_pod: ${{ matrix.podspec }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: actions/download-artifact@v3
       with:
         name: firebase-ios-sdk
@@ -161,9 +161,9 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       local_repo: specstesting
       local_sdk_repo_dir: /tmp/test/firebase-ios-sdk
-      podspec_repo_branch: master
+      podspec_repo_branch: main
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get token
       run: |
          scripts/decrypt_gha_secret.sh scripts/gha-encrypted/oss-bot-access.txt.gpg \
@@ -173,14 +173,14 @@ jobs:
     - name: Update SpecsTesting repo setup
       run: |
          ossbotaccess=`cat oss-bot-access.txt`
-         # Update/create a nightly tag to the head of the master branch.
+         # Update/create a nightly tag to the head of the main branch.
          BOT_TOKEN="${ossbotaccess}" test_version="${nightly_version}" sdk_version_config="${GITHUB_WORKSPACE}/scripts/create_spec_repo/RC_firebase_sdk.textproto" local_sdk_repo_dir="${local_sdk_repo_dir}" podspec_repo_branch="${podspec_repo_branch}" scripts/release_testing_setup.sh prerelease_testing
     - name: Push updated podspecs
       run: |
         botaccess=`cat bot-access.txt`
         cd "${local_sdk_repo_dir}"
         # Changes in post submit tests will be fetched by getting diff between
-        # the HEAD and HEAD^ of the master branch.
+        # the HEAD and HEAD^ of the main branch.
         common_commit=$(git rev-parse HEAD^)
         git diff --name-only $common_commit remotes/origin/${podspec_repo_branch} > updated_files.txt
         updated_podspecs=()
@@ -212,7 +212,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -250,7 +250,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -284,7 +284,7 @@ jobs:
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -333,7 +333,7 @@ jobs:
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -369,7 +369,7 @@ jobs:
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -411,7 +411,7 @@ jobs:
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -447,7 +447,7 @@ jobs:
       LEGACY: true
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -487,7 +487,7 @@ jobs:
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -525,7 +525,7 @@ jobs:
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -561,7 +561,7 @@ jobs:
       bot_token_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -596,7 +596,7 @@ jobs:
       LEGACY: true
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \
@@ -632,7 +632,7 @@ jobs:
       testing_repo: "firebase-ios-sdk"
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Get token
       run: scripts/decrypt_gha_secret.sh scripts/gha-encrypted/bot-access.txt.gpg \

@@ -30,10 +30,10 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: package-release
     - name: Xcode 14.1
       run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
     - uses: ruby/setup-ruby@v1
@@ -56,7 +56,7 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Xcode 14.1
       run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
     - name: Build
@@ -70,10 +70,10 @@ jobs:
     needs: build
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: package-head
     - name: Xcode 14.1
       run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
     - uses: ruby/setup-ruby@v1
@@ -108,10 +108,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -123,7 +123,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup quickstart
@@ -170,10 +170,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -224,10 +224,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -276,10 +276,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -291,7 +291,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup quickstart
@@ -352,10 +352,10 @@ jobs:
             xcode: Xcode_14.2
           # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
           # - os: macos-13
-          #   xcode: Xcode_15.0.1
+          #   xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -367,7 +367,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup quickstart
@@ -408,10 +408,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -469,10 +469,10 @@ jobs:
             xcode: Xcode_14.2
           # TODO: Building FirebaseUI fails on Xcode 15 because it needs to sign the resources.
           # - os: macos-13
-          #   xcode: Xcode_15.0.1
+          #   xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -484,7 +484,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/NonFirebaseSDKs/* \
@@ -518,7 +518,7 @@ jobs:
     steps:
       - name: Xcode 14.1
         run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Get framework dir
         uses: actions/download-artifact@v1
         with:
@@ -532,7 +532,7 @@ jobs:
         run: |
           mkdir -p "${HOME}"/ios_frameworks/
           find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check linked Firestore.xcframework for unlinked symbols.
         run: |
           scripts/check_firestore_symbols.sh \
@@ -555,10 +555,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -570,7 +570,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
@@ -612,10 +612,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -627,7 +627,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseMessaging/* \
@@ -668,10 +668,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Get framework dir
       uses: actions/download-artifact@v1
       with:
@@ -683,7 +683,7 @@ jobs:
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
         find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup quickstart
       env:
         LEGACY: true

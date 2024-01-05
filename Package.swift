@@ -19,7 +19,7 @@
 import class Foundation.ProcessInfo
 import PackageDescription
 
-let firebaseVersion = "10.19.0"
+let firebaseVersion = "10.20.0"
 
 let package = Package(
   name: "Firebase",
@@ -464,6 +464,7 @@ let package = Package(
         "FIRAuthTests.m",
         "FIRUserTests.m",
         "SwiftAPI.swift", // Only builds via CocoaPods testing until Swift source update.
+        "SwiftGlobalTests.swift", // Only builds via CocoaPods testing until Swift source update.
       ],
       cSettings: [
         .headerSearchPath("../../.."),

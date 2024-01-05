@@ -1,3 +1,9 @@
+# Unreleased
+- The following change only applies to those using a binary distribution of
+  a Firebase SDK(s). In preparation for supporting Privacy Manifests, each
+  platform framework directory within a static xcframewok no longer contains
+  an `Info.plist` file (#12243).
+
 # Firebase 10.14.0
 - For developers building for visionOS, Xcode 15 beta 6 or later is required.
 
@@ -139,7 +145,7 @@
 - [fixed] Fixed platform availability checks in Swift Package Manager that may prevent code
   completion for Analytics APIs on macOS and tvOS. (#9032)
 - [added] Firebase now includes community supported Combine publishers. More details can be found
-  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/FirebaseCombineSwift/README.md). (#7295)
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/main/FirebaseCombineSwift/README.md). (#7295)
 
 # Firebase 8.9.0
 - [added] Firebase introduces beta support for tvOS, macOS, and Catalyst.
@@ -266,7 +272,7 @@
 
 # Firebase 6.31.0 FirebaseCore 6.10.1 -- M78
 - [added] Beta release of Swift Package Manager. Details
-  [here](https://github.com/firebase/firebase-ios-sdk/blob/master/SwiftPackageManager.md). (#3136)
+  [here](https://github.com/firebase/firebase-ios-sdk/blob/main/SwiftPackageManager.md). (#3136)
 - [changed] Firebase's dependencies on nanopb are updated from version 0.3.9.5 to
   version 0.3.9.6 (1.30906.0 in CocoaPods).
 
@@ -300,7 +306,7 @@
 - [fixed] Fixed Carthage installation failures involving `Protobuf.framework`.
   `Protobuf.framework` is now separately installable via adding
   `FirebaseProtobufBinary.json` to the Cartfile. Full details in the [Carthage usage
-  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md#carthage-usage).
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/main/Carthage.md#carthage-usage).
   (#5276)
 
 # v6.6.6 -- M68

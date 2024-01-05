@@ -51,18 +51,16 @@ final class InstallationsAPITests {
       }
     }
 
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
-        Task {
-          do {
-            try await Installations.installations().installationID()
-          } catch {
-            // ...
-          }
+    if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      // async/await is a Swift 5.5+ feature available on iOS 15+
+      Task {
+        do {
+          try await Installations.installations().installationID()
+        } catch {
+          // ...
         }
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
 
     // Retrieves an installation auth token
     Installations.installations().authToken { result, error in
@@ -73,18 +71,16 @@ final class InstallationsAPITests {
       }
     }
 
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
-        Task {
-          do {
-            _ = try await Installations.installations().authToken()
-          } catch {
-            // ...
-          }
+    if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      // async/await is a Swift 5.5+ feature available on iOS 15+
+      Task {
+        do {
+          _ = try await Installations.installations().authToken()
+        } catch {
+          // ...
         }
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
 
     // Retrieves an installation auth token with forcing refresh parameter
     Installations.installations().authTokenForcingRefresh(true) { result, error in
@@ -95,18 +91,16 @@ final class InstallationsAPITests {
       }
     }
 
-    #if compiler(>=5.5.2) && canImport(_Concurrency)
-      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
-        Task {
-          do {
-            _ = try await Installations.installations().authTokenForcingRefresh(true)
-          } catch {
-            // ...
-          }
+    if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      // async/await is a Swift 5.5+ feature available on iOS 15+
+      Task {
+        do {
+          _ = try await Installations.installations().authTokenForcingRefresh(true)
+        } catch {
+          // ...
         }
       }
-    #endif // compiler(>=5.5.2) && canImport(_Concurrency)
+    }
 
     // Delete installation data
     Installations.installations().delete { error in

@@ -25,10 +25,10 @@ jobs:
         # These need to be on a single line or else the formatting won't validate.
         pod: ["FirebaseAppDistribution", "FirebaseDynamicLinks", "FirebaseInAppMessaging", "FirebasePerformance"]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: cron-${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh
@@ -48,10 +48,10 @@ jobs:
         # These need to be on a single line or else the formatting won't validate.
         pod: ["FirebaseABTesting", "FirebaseAuth", "FirebaseCore", "FirebaseCrashlytics", "FirebaseDatabase", "FirebaseFirestore", "FirebaseFunctions", "FirebaseMessaging", "FirebaseRemoteConfig", "FirebaseStorage"]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: pods-${{ matrix.os }}
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

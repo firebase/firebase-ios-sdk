@@ -1,8 +1,6 @@
 # 10.19.0
-- [fixed] Fixed an issue in the local cache synchronization logic where all
-  locally-cached documents that matched a resumed query would be unnecessarily
-  re-downloaded; with the fix it now only downloads the documents that are known
-  to be out-of-sync. (#12044)
+- [fixed] Made an optimization to the synchronization logic for resumed queries
+  to only re-download locally-cached documents that are known to be out-of-sync. (#12044)
 
 # 10.18.0
 - [fixed] Fix Firestore build for visionOS on Xcode 15.1. (#12023)
@@ -467,7 +465,7 @@
 - [changed] Firestore no longer bundles a copy of the gRPC certificates, now
   that the gRPC-C++ CocoaPod includes them. CocoaPods users should be updated
   automatically. Carthage users should follow the [updated
-  instructions](https://github.com/firebase/firebase-ios-sdk/blob/master/Carthage.md)
+  instructions](https://github.com/firebase/firebase-ios-sdk/blob/main/Carthage.md)
   to get `gRPCCertificates.bundle` from the correct location.
 
 # 0.16.1

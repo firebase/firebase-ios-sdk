@@ -62,8 +62,8 @@ source snapshot or unreleased branch, use Podfile directives like the following:
 
 To access FirebaseFirestore via a branch:
 ```ruby
-pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
-pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'master'
+pod 'FirebaseCore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'main'
+pod 'FirebaseFirestore', :git => 'https://github.com/firebase/firebase-ios-sdk.git', :branch => 'main'
 ```
 
 To access FirebaseMessaging via a checked-out version of the firebase-ios-sdk repo:
@@ -146,7 +146,7 @@ For information about managing headers and imports, see [HeadersImports](Headers
 ### Code Formatting
 
 To ensure that the code is formatted consistently, run the script
-[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/master/scripts/check.sh)
+[./scripts/check.sh](https://github.com/firebase/firebase-ios-sdk/blob/main/scripts/check.sh)
 before creating a pull request (PR).
 
 GitHub Actions will verify that any code changes are done in a style-compliant
@@ -198,6 +198,12 @@ To run against a production instance, provide a valid `GoogleServices-Info.plist
 `FirebaseDatabase/Tests/Resources/GoogleService-Info.plist`. Your Security Rule must be set to
 [public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
 running.
+
+### Firebase Dynamic Links
+
+Firebase Dynamic Links is **deprecated** and should not be used in new projects. The service will shut down on August 25, 2025.
+
+Please see our [Dynamic Links Deprecation FAQ documentation](https://firebase.google.com/support/dynamic-links-faq) for more guidance.
 
 ### Firebase Performance Monitoring
 

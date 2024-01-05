@@ -9,7 +9,7 @@ on:
       - "*.podspec"
       - "scripts/install_prereqs.sh"
       - "scripts/build.sh"
-      - "ClientApp/**"
+      - "IntegrationTesting/ClientApp/**"
       - "Gemfile*"
   schedule:
     # Run every day at 12am (PST) - cron uses UTC times
@@ -32,7 +32,7 @@ jobs:
         platform: [iOS]
         scheme: [ClientApp, ClientApp-iOS13]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
         with:
           cache_key: ${{ matrix.os }}
@@ -51,7 +51,7 @@ jobs:
           platform: [iOS]
           scheme: [ClientApp, ClientApp-iOS13]
       steps:
-        - uses: actions/checkout@v3
+        - uses: actions/checkout@v4
         - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
           with:
             cache_key: ${{ matrix.os }}
@@ -66,7 +66,7 @@ jobs:
       matrix:
         scheme: [ClientApp-CocoaPods, ClientApp-CocoaPods-iOS13]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
         with:
           cache_key: ${{ matrix.os }}

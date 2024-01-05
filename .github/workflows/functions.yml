@@ -35,10 +35,10 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -65,10 +65,10 @@ jobs:
     env:
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Integration Test Server
@@ -93,13 +93,13 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -117,7 +117,7 @@ jobs:
     runs-on: macos-12
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh functions
@@ -143,11 +143,11 @@ jobs:
     runs-on: macos-12
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - uses: actions/setup-python@v4
       with:
-        python-version: '3.7'
+        python-version: '3.11'
     - name: Setup quickstart
       run: scripts/setup_quickstart.sh functions
     - name: install secret googleservice-info.plist
@@ -162,7 +162,7 @@ jobs:
       run: ([ -z $plist_secret ] ||
             scripts/third_party/travis/retry.sh scripts/test_quickstart_ftl.sh Functions swift)
     - id: ftl_test
-      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.2
+      uses: FirebaseExtended/github-actions/firebase-test-lab@v1.4
       with:
         credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_CREDENTIALS }}
         testapp_dir: quickstart-ios/build-for-testing
@@ -181,7 +181,7 @@ jobs:
         ]
     needs: pod-lib-lint
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: scripts/setup_bundler.sh

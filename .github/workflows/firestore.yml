@@ -85,7 +85,7 @@ jobs:
       (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
     runs-on: macos-12
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: actions/setup-python@v4
       with:
@@ -96,7 +96,6 @@ jobs:
 
     - name: Run check
       run:  scripts/check.sh --test-only
-
 
   cmake:
     needs: check
@@ -113,7 +112,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Prepare ccache
       uses: actions/cache@v3
@@ -163,7 +162,7 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Prepare ccache
       uses: actions/cache@v3
@@ -231,7 +230,7 @@ jobs:
         scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
 
 
-  sanitizers:
+  sanitizers-mac:
     # Either a scheduled run from public repo, or a pull request with firestore changes.
     if: |
       (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
@@ -240,7 +239,6 @@ jobs:
 
     strategy:
       matrix:
-        # TODO(b/260248007): Re-enable this once tsan passes on Linux
         os: [macos-12]
         sanitizer: [asan, tsan]
 
@@ -248,6 +246,52 @@ jobs:
 
     env:
       SANITIZERS: ${{ matrix.sanitizer }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Prepare ccache
+      uses: actions/cache@v3
+      with:
+        path: ${{ runner.temp }}/ccache
+        key: ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.sanitizer }}-firestore-ccache-${{ runner.os }}-
+
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.7'
+
+    - name: Setup build
+      run:  scripts/install_prereqs.sh Firestore ${{ runner.os }} cmake
+
+    - name: Build and test
+      run: |
+        export EXPERIMENTAL_MODE=true
+        export CCACHE_DIR=${{ runner.temp }}/ccache
+        scripts/third_party/travis/retry.sh scripts/build.sh Firestore ${{ runner.os }} cmake
+
+
+  sanitizers-ubuntu:
+    # Either a scheduled run from public repo, or a pull request with firestore changes.
+    if: |
+      (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') ||
+      (github.event_name == 'pull_request' && needs.changes.outputs.changed == 'true')
+    needs: check
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        # Excluding TSAN on ubuntu because of the warnings it generates around schedule.cc.
+        # This could be due to Apple Clang provide additional support for synchronization
+        # on Apple platforms, which is what we primarily care about.
+        sanitizer: [asan]
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      SANITIZERS: ${{ matrix.sanitizer }}
+      ASAN_OPTIONS: detect_leaks=0
 
     steps:
     - uses: actions/checkout@v3
@@ -287,7 +331,7 @@ jobs:
         target: [iOS, tvOS, macOS]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
         cache_key: ${{ matrix.target }}
@@ -319,13 +363,13 @@ jobs:
         ]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
       run: ./scripts/setup_bundler.sh
     - name: Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.1.app/Contents/Developer
+      run: sudo xcode-select -s /Applications/Xcode_15.1.app/Contents/Developer
 
     - name: Pod lib lint
       # TODO(#9565, b/227461966): Remove --no-analyze when absl is fixed.
@@ -367,11 +411,11 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: ruby/setup-ruby@v1
     - name: Setup Bundler
@@ -401,16 +445,16 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.0.1
+            xcode: Xcode_15.1
     runs-on: ${{ matrix.os }}
     needs: check
     env:
       FIREBASE_SOURCE_FIRESTORE: 1
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: spm${{ matrix.os }}-${{ matrix.xcode }}-${{ matrix.target }}
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Initialize xcodebuild
@@ -428,10 +472,10 @@ jobs:
     runs-on: macos-12
     needs: check
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: spm-binary
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: iOS Build Test
@@ -450,7 +494,7 @@ jobs:
   #   env:
   #     FIREBASE_SOURCE_FIRESTORE: 1
   #   steps:
-  #   - uses: actions/checkout@v3
+  #   - uses: actions/checkout@v4
   #   - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
   #     with:
   #       cache_key: ${{ matrix.os }}
@@ -469,10 +513,10 @@ jobs:
       matrix:
         target: [tvOS, macOS, catalyst]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
       with:
-        cache_key: ${{ matrix.os }}
+        cache_key: ${{ matrix.target }}
     - name: Initialize xcodebuild
       run: scripts/setup_spm_tests.sh
     - name: Build Test - Binary
@@ -505,7 +549,7 @@ jobs:
   #   needs: check
 
   #   steps:
-  #   - uses: actions/checkout@v3
+  #   - uses: actions/checkout@v4
   #   - name: Setup quickstart
   #     run: scripts/setup_quickstart.sh firestore
   #   - name: Install Secret GoogleService-Info.plist
