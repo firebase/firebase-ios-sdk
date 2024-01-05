@@ -175,6 +175,8 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
     // If the decoder fails to decode a FIRMessagingAPNSInfo, check if this was archived by a
     // FirebaseMessaging 10.18.0 or earlier.
+    // TODO(#12246) This block may be replaced with `rawAPNSInfo = nil` once we're confident all users
+    // have upgraded to at least 10.19.0. Perhaps, after privacy manifests have been required for awhile?
     @try {
       [NSKeyedUnarchiver setClass:[FIRMessagingAPNSInfo class]
                      forClassName:@"FIRInstanceIDAPNSInfo"];
