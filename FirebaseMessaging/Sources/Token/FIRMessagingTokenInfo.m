@@ -140,6 +140,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
 }
 
 - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
+  BOOL needsMigration = NO;
   // These value cannot be nil
 
   id authorizedEntity = [aDecoder decodeObjectForKey:kFIRInstanceIDAuthorizedEntityKey];
@@ -172,7 +173,25 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
   FIRMessagingAPNSInfo *rawAPNSInfo = [aDecoder decodeObjectOfClasses:classes
                                                                forKey:kFIRInstanceIDAPNSInfoKey];
   if (rawAPNSInfo && ![rawAPNSInfo isKindOfClass:[FIRMessagingAPNSInfo class]]) {
-    return nil;
+    // If the decoder fails to decode a FIRMessagingAPNSInfo, check if this was archived by a
+    // FirebaseMessaging 10.18.0 or earlier.
+    // TODO(#12246) This block may be replaced with `rawAPNSInfo = nil` once we're confident all
+    // users have upgraded to at least 10.19.0. Perhaps, after privacy manifests have been required
+    // for awhile?
+    @try {
+      [NSKeyedUnarchiver setClass:[FIRMessagingAPNSInfo class]
+                     forClassName:@"FIRInstanceIDAPNSInfo"];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+      rawAPNSInfo = [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)rawAPNSInfo];
+      needsMigration = YES;
+#pragma clang diagnostic pop
+    } @catch (NSException *exception) {
+      FIRMessagingLoggerInfo(kFIRMessagingMessageCodeTokenInfoBadAPNSInfo,
+                             @"Could not parse raw APNS Info while parsing archived token info.");
+      rawAPNSInfo = nil;
+    } @finally {
+    }
   }
 
   id cacheTime = [aDecoder decodeObjectForKey:kFIRInstanceIDCacheTimeKey];
@@ -189,6 +208,7 @@ static const NSTimeInterval kDefaultFetchTokenInterval = 7 * 24 * 60 * 60;  // 7
     _firebaseAppID = [firebaseAppID copy];
     _APNSInfo = [rawAPNSInfo copy];
     _cacheTime = cacheTime;
+    _needsMigration = needsMigration;
   }
   return self;
 }
