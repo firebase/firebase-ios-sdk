@@ -1566,8 +1566,7 @@ extension Auth: AuthInterop {
 
    @return A handle useful for manually unregistering the block as a listener.
    */
-  @objc public
-  func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  @objc open func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
     let handle = NotificationCenter.default.addObserver(
       forName: Auth.authStateDidChangeNotification,
