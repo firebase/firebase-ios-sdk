@@ -31,8 +31,6 @@ import Foundation
  + `FIRAuthErrorCodeInvalidUserToken`
  + `FIRAuthErrorCodeUserDisabled`
  */
-
-// TODO: Keep the original global strings as deprecated, at least for CocoaPods, like we do in Storage.
 @objc(FIRAuthErrors) open class AuthErrors: NSObject {
   @objc public static let domain: String = "FIRAuthErrorDomain"
 
