@@ -22,8 +22,8 @@ import Foundation
        This class is available on iOS only.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRMultiFactor) public class MultiFactor: NSObject, NSSecureCoding {
-    @objc public var enrolledFactors: [MultiFactorInfo]
+  @objc(FIRMultiFactor) open class MultiFactor: NSObject, NSSecureCoding {
+    @objc open var enrolledFactors: [MultiFactorInfo]
 
     /** @fn getSessionWithCompletion:
      @brief Get a session for a second factor enrollment operation.
@@ -31,7 +31,7 @@ import Foundation
      This is used to identify the current user trying to enroll a second factor.
      */
     @objc(getSessionWithCompletion:)
-    public func getSessionWithCompletion(_ completion: ((MultiFactorSession?, Error?) -> Void)?) {
+    open func getSessionWithCompletion(_ completion: ((MultiFactorSession?, Error?) -> Void)?) {
       let session = MultiFactorSession.sessionForCurrentUser
       if let completion {
         completion(session, nil)
@@ -44,7 +44,7 @@ import Foundation
      This is used to identify the current user trying to enroll a second factor.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func session() async throws -> MultiFactorSession {
+    open func session() async throws -> MultiFactorSession {
       return try await withCheckedThrowingContinuation { continuation in
         self.getSessionWithCompletion { session, error in
           if let session {
@@ -63,7 +63,7 @@ import Foundation
      @param completion The block invoked when the request is complete, or fails.
      */
     @objc(enrollWithAssertion:displayName:completion:)
-    public func enroll(with assertion: MultiFactorAssertion,
+    open func enroll(with assertion: MultiFactorAssertion,
                        displayName: String?,
                        completion: ((Error?) -> Void)?) {
       // TODO: Refactor classes so this duplicated code isn't necessary for phone and totp.
@@ -173,7 +173,7 @@ import Foundation
      @param completion The block invoked when the request is complete, or fails.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func enroll(with assertion: MultiFactorAssertion, displayName: String?) async throws {
+    open func enroll(with assertion: MultiFactorAssertion, displayName: String?) async throws {
       return try await withCheckedThrowingContinuation { continuation in
         self.enroll(with: assertion, displayName: displayName) { error in
           if let error {
@@ -191,7 +191,7 @@ import Foundation
      or fails.
      */
     @objc(unenrollWithInfo:completion:)
-    public func unenroll(with factorInfo: MultiFactorInfo,
+    open func unenroll(with factorInfo: MultiFactorInfo,
                          completion: ((Error?) -> Void)?) {
       unenroll(withFactorUID: factorInfo.uid, completion: completion)
     }
@@ -202,7 +202,7 @@ import Foundation
      or fails.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func unenroll(with factorInfo: MultiFactorInfo) async throws {
+    open func unenroll(with factorInfo: MultiFactorInfo) async throws {
       try await unenroll(withFactorUID: factorInfo.uid)
     }
 
@@ -212,7 +212,7 @@ import Foundation
      or fails.
      */
     @objc(unenrollWithFactorUID:completion:)
-    public func unenroll(withFactorUID factorUID: String,
+    open func unenroll(withFactorUID factorUID: String,
                          completion: ((Error?) -> Void)?) {
       guard let user = user, let auth = user.auth else {
         fatalError("Internal Auth error: failed to get user unenrolling in MultiFactor")
@@ -251,7 +251,7 @@ import Foundation
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func unenroll(withFactorUID factorUID: String) async throws {
+    open func unenroll(withFactorUID factorUID: String) async throws {
       return try await withCheckedThrowingContinuation { continuation in
         self.unenroll(withFactorUID: factorUID) { error in
           if let error {
@@ -292,7 +292,7 @@ import Foundation
       true
     }
 
-    public func encode(with coder: NSCoder) {
+    open func encode(with coder: NSCoder) {
       coder.encode(enrolledFactors, forKey: kEnrolledFactorsCodingKey)
       // Do not encode `user` weak property.
     }

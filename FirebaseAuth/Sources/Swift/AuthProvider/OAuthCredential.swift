@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIROAuthCredential) public class OAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIROAuthCredential) open class OAuthCredential: AuthCredential, NSSecureCoding {
   /** @property IDToken
       @brief The ID Token associated with this credential.
    */
@@ -103,7 +103,7 @@ import Foundation
 
   public static var supportsSecureCoding: Bool = true
 
-  public func encode(with coder: NSCoder) {
+  open func encode(with coder: NSCoder) {
     coder.encode(idToken, forKey: "IDToken")
     coder.encode(rawNonce, forKey: "rawNonce")
     coder.encode(accessToken, forKey: "accessToken")

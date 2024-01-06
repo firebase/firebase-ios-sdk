@@ -17,12 +17,12 @@ import Foundation
 /** @class AuthSettings
     @brief Determines settings related to an auth object.
  */
-@objc(FIRAuthSettings) public class AuthSettings: NSObject, NSCopying {
+@objc(FIRAuthSettings) open class AuthSettings: NSObject, NSCopying {
   /** @property appVerificationDisabledForTesting
       @brief Flag to determine whether app verification should be disabled for testing or not.
    */
-  @objc public var appVerificationDisabledForTesting: Bool
-  @objc public var isAppVerificationDisabledForTesting: Bool {
+  @objc open var appVerificationDisabledForTesting: Bool
+  @objc open var isAppVerificationDisabledForTesting: Bool {
     get {
       return appVerificationDisabledForTesting
     }
@@ -37,7 +37,7 @@ import Foundation
 
   // MARK: NSCopying
 
-  public func copy(with zone: NSZone? = nil) -> Any {
+  open func copy(with zone: NSZone? = nil) -> Any {
     let settings = AuthSettings()
     settings.appVerificationDisabledForTesting = appVerificationDisabledForTesting
     return settings

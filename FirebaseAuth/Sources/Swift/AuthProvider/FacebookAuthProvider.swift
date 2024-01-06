@@ -27,7 +27,7 @@ import Foundation
       @param accessToken The Access Token from Facebook.
       @return An AuthCredential containing the Facebook credentials.
    */
-  @objc public class func credential(withAccessToken accessToken: String) -> AuthCredential {
+  @objc open class func credential(withAccessToken accessToken: String) -> AuthCredential {
     return FacebookAuthCredential(withAccessToken: accessToken)
   }
 

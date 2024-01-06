@@ -21,7 +21,7 @@ import Foundation
        The identifier of this second factor is "phone".
        This class is available on iOS only.
    */
-  @objc(FIRPhoneMultiFactorInfo) public class PhoneMultiFactorInfo: MultiFactorInfo {
+  @objc(FIRPhoneMultiFactorInfo) open class PhoneMultiFactorInfo: MultiFactorInfo {
     /**
         @brief The string identifier for using phone as a second factor.
              This constant is available on iOS only.
@@ -37,7 +37,7 @@ import Foundation
     /**
         @brief This is the phone number associated with the current second factor.
      */
-    @objc public var phoneNumber: String
+    @objc open var phoneNumber: String
 
     init(proto: AuthProtoMFAEnrollment) {
       guard let phoneInfo = proto.phoneInfo else {
@@ -52,7 +52,7 @@ import Foundation
     private let kPhoneNumberCodingKey = "phoneNumber"
 
     private static var secureCodingWorkaround = true
-    override public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
+    override open class var supportsSecureCoding: Bool { return secureCodingWorkaround }
 
     public required init?(coder: NSCoder) {
       guard let phoneNumber = coder.decodeObject(of: NSString.self,
@@ -63,7 +63,7 @@ import Foundation
       super.init(coder: coder)
     }
 
-    override public func encode(with coder: NSCoder) {
+    override open func encode(with coder: NSCoder) {
       super.encode(with: coder)
       coder.encode(phoneNumber, forKey: kPhoneNumberCodingKey)
     }

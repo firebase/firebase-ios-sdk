@@ -27,11 +27,11 @@ import Foundation
    (Time-based One Time Password) second factor.
    This class is available on iOS only.
    */
-  @objc(FIRTOTPSecret) public class TOTPSecret: NSObject {
+  @objc(FIRTOTPSecret) open class TOTPSecret: NSObject {
     /**
      @brief Returns the shared secret key/seed used to generate time-based one-time passwords.
      */
-    @objc public func sharedSecretKey() -> String {
+    @objc open func sharedSecretKey() -> String {
       return secretKey
     }
 
@@ -45,7 +45,7 @@ import Foundation
      @returns A QRCode URL string.
      */
     @objc(generateQRCodeURLWithAccountName:issuer:)
-    public func generateQRCodeURL(withAccountName accountName: String,
+    open func generateQRCodeURL(withAccountName accountName: String,
                                   issuer: String) -> String {
       guard let hashingAlgorithm, codeLength > 0 else {
         return ""
@@ -60,7 +60,7 @@ import Foundation
      https://developer.apple.com/documentation/authenticationservices/securing_logins_with_icloud_keychain_verification_codes
      */
     @objc(openInOTPAppWithQRCodeURL:)
-    public func openInOTPApp(withQRCodeURL qrCodeURL: String) {
+    open func openInOTPApp(withQRCodeURL qrCodeURL: String) {
       if GULAppEnvironmentUtil.isAppExtension() {
         // iOS App extensions should not call [UIApplication sharedApplication], even if
         // UIApplication responds to it.

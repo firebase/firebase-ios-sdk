@@ -19,7 +19,7 @@ import Foundation
         action. It contains references to a `User` instance and a `AdditionalUserInfo` instance.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthDataResult) public class AuthDataResult: NSObject, NSSecureCoding {
+@objc(FIRAuthDataResult) open class AuthDataResult: NSObject, NSSecureCoding {
   /** @property user
       @brief The signed in user.
    */
@@ -59,7 +59,7 @@ import Foundation
     return true
   }
 
-  public func encode(with coder: NSCoder) {
+  open func encode(with coder: NSCoder) {
     coder.encode(user, forKey: kUserCodingKey)
     coder.encode(additionalUserInfo, forKey: kAdditionalUserInfoCodingKey)
     coder.encode(credential, forKey: kCredentialCodingKey)

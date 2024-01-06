@@ -21,11 +21,11 @@ import Foundation
        AuthCredential class.
        This class is available on iOS only.
    */
-  @objc(FIRMultiFactorAssertion) public class MultiFactorAssertion: NSObject {
+  @objc(FIRMultiFactorAssertion) open class MultiFactorAssertion: NSObject {
     /**
         @brief The second factor identifier for this opaque object asserting a second factor.
      */
-    @objc public var factorID: String
+    @objc open var factorID: String
 
     init(factorID: String) {
       self.factorID = factorID

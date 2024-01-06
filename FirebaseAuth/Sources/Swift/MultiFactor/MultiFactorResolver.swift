@@ -22,7 +22,7 @@ import Foundation
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorResolver)
-  public class MultiFactorResolver: NSObject {
+  open class MultiFactorResolver: NSObject {
     /**
         @brief The opaque session identifier for the current sign-in flow.
      */
@@ -46,7 +46,7 @@ import Foundation
          @param completion The block invoked when the request is complete, or fails.
      */
     @objc(resolveSignInWithAssertion:completion:)
-    public func resolveSignIn(with assertion: MultiFactorAssertion,
+    open func resolveSignIn(with assertion: MultiFactorAssertion,
                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
       var finalizedMFARequestInfo: AuthProto?
       if let totpAssertion = assertion as? TOTPMultiFactorAssertion {
@@ -104,7 +104,7 @@ import Foundation
          @param completion The block invoked when the request is complete, or fails.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func resolveSignIn(with assertion: MultiFactorAssertion) async throws -> AuthDataResult {
+    open func resolveSignIn(with assertion: MultiFactorAssertion) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
         self.resolveSignIn(with: assertion) { result, error in
           if let result {

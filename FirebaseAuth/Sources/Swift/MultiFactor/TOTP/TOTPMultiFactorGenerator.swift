@@ -23,7 +23,7 @@ import Foundation
    This class is available on iOS only.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRTOTPMultiFactorGenerator) public class TOTPMultiFactorGenerator: NSObject {
+  @objc(FIRTOTPMultiFactorGenerator) open class TOTPMultiFactorGenerator: NSObject {
     /**
      @fn generateSecretWithMultiFactorSession
      @brief Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a
@@ -33,7 +33,7 @@ import Foundation
      @param completion Completion block
      */
     @objc(generateSecretWithMultiFactorSession:completion:)
-    public class func generateSecret(with session: MultiFactorSession,
+    open class func generateSecret(with session: MultiFactorSession,
                                      completion: @escaping (TOTPSecret?, Error?) -> Void) {
       guard let currentUser = session.currentUser,
             let requestConfiguration = currentUser.auth?.requestConfiguration else {
@@ -72,7 +72,7 @@ import Foundation
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public class func generateSecret(with session: MultiFactorSession) async throws
+    open class func generateSecret(with session: MultiFactorSession) async throws
       -> TOTPSecret {
       return try await withCheckedThrowingContinuation { continuation in
         self.generateSecret(with: session) { secret, error in
@@ -93,7 +93,7 @@ import Foundation
      @param oneTimePassword one time password string.
      */
     @objc(assertionForEnrollmentWithSecret:oneTimePassword:)
-    public class func assertionForEnrollment(with secret: TOTPSecret,
+    open class func assertionForEnrollment(with secret: TOTPSecret,
                                              oneTimePassword: String) -> TOTPMultiFactorAssertion {
       return TOTPMultiFactorAssertion(secretOrID: SecretOrID.secret(secret),
                                       oneTimePassword: oneTimePassword)
@@ -107,7 +107,7 @@ import Foundation
       @param oneTimePassword one time password string.
      */
     @objc(assertionForSignInWithEnrollmentID:oneTimePassword:)
-    public class func assertionForSignIn(withEnrollmentID enrollmentID: String,
+    open class func assertionForSignIn(withEnrollmentID enrollmentID: String,
                                          oneTimePassword: String) -> TOTPMultiFactorAssertion {
       return TOTPMultiFactorAssertion(secretOrID: SecretOrID.enrollmentID(enrollmentID),
                                       oneTimePassword: oneTimePassword)

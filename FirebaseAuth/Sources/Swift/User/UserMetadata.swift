@@ -18,7 +18,7 @@ import Foundation
     @brief A data class representing the metadata corresponding to a Firebase user.
  */
 
-@objc(FIRUserMetadata) public class UserMetadata: NSObject, NSSecureCoding {
+@objc(FIRUserMetadata) open class UserMetadata: NSObject, NSSecureCoding {
   /** @property lastSignInDate
       @brief Stores the last sign in date for the corresponding Firebase user.
    */
@@ -43,7 +43,7 @@ import Foundation
     return true
   }
 
-  public func encode(with coder: NSCoder) {
+  open func encode(with coder: NSCoder) {
     coder.encode(creationDate, forKey: UserMetadata.kCreationDateCodingKey)
     coder.encode(lastSignInDate, forKey: UserMetadata.kLastSignInDateCodingKey)
   }

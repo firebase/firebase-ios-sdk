@@ -28,7 +28,7 @@ import Foundation
       @param password The user's password.
       @return An `AuthCredential` containing the email & password credential.
    */
-  @objc public class func credential(withEmail email: String, password: String) -> AuthCredential {
+  @objc open class func credential(withEmail email: String, password: String) -> AuthCredential {
     return EmailAuthCredential(withEmail: email, password: password)
   }
 
@@ -39,7 +39,7 @@ import Foundation
       @param link The email sign-in link.
       @return An `AuthCredential` containing the email & link credential.
    */
-  @objc public class func credential(withEmail email: String, link: String) -> AuthCredential {
+  @objc open class func credential(withEmail email: String, link: String) -> AuthCredential {
     return EmailAuthCredential(withEmail: email, link: link)
   }
 }
@@ -69,7 +69,7 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
 
   public static var supportsSecureCoding = true
 
-  public func encode(with coder: NSCoder) {
+  open func encode(with coder: NSCoder) {
     coder.encode(email, forKey: "email")
     switch emailType {
     case let .password(password): coder.encode(password, forKey: "password")

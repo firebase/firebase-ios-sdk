@@ -26,7 +26,7 @@ import Foundation
     /**
      @brief Returns an instance of `PhoneAuthProvider` for the default `Auth` object.
      */
-    @objc(provider) public class func provider() -> PhoneAuthProvider {
+    @objc(provider) open class func provider() -> PhoneAuthProvider {
       return PhoneAuthProvider(auth: Auth.auth())
     }
 
@@ -35,7 +35,7 @@ import Foundation
      @param auth The auth object to associate with the phone auth provider instance.
      */
     @objc(providerWithAuth:)
-    public class func provider(auth: Auth) -> PhoneAuthProvider {
+    open class func provider(auth: Auth) -> PhoneAuthProvider {
       return PhoneAuthProvider(auth: auth)
     }
 
@@ -57,7 +57,7 @@ import Foundation
      + `AuthErrorCodeMissingPhoneNumber` - Indicates that a phone number was not provided.
      */
     @objc(verifyPhoneNumber:UIDelegate:completion:)
-    public func verifyPhoneNumber(_ phoneNumber: String,
+    open func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
@@ -77,7 +77,7 @@ import Foundation
      @param completion The callback to be invoked when the verification flow is finished.
      */
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
-    public func verifyPhoneNumber(_ phoneNumber: String,
+    open func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession? = nil,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
@@ -114,7 +114,7 @@ import Foundation
      @returns The verification ID
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    public func verifyPhoneNumber(_ phoneNumber: String,
+    open func verifyPhoneNumber(_ phoneNumber: String,
                                   uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession? = nil) async throws
       -> String {
@@ -142,7 +142,7 @@ import Foundation
          @param completion The callback to be invoked when the verification flow is finished.
      */
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
-    public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
+    open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                   uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession?,
                                   completion: ((_: String?, _: Error?) -> Void)?) {
@@ -154,7 +154,7 @@ import Foundation
     }
 
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    public func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
+    open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
                                   uiDelegate: AuthUIDelegate? = nil,
                                   multiFactorSession: MultiFactorSession?) async throws -> String {
       return try await withCheckedThrowingContinuation { continuation in
@@ -181,7 +181,7 @@ import Foundation
             provided.
      */
     @objc(credentialWithVerificationID:verificationCode:)
-    public func credential(withVerificationID verificationID: String,
+    open func credential(withVerificationID verificationID: String,
                            verificationCode: String) -> PhoneAuthCredential {
       return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
                                  verificationID: verificationID,

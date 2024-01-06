@@ -19,7 +19,7 @@ import Foundation
         This class is available on iOS only.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRPhoneAuthCredential) public class PhoneAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRPhoneAuthCredential) open class PhoneAuthCredential: AuthCredential, NSSecureCoding {
   enum CredentialKind {
     case phoneNumber(_ phoneNumber: String, _ temporaryProof: String)
     case verification(_ id: String, _ code: String)
@@ -40,7 +40,7 @@ import Foundation
 
   public static var supportsSecureCoding = true
 
-  public func encode(with coder: NSCoder) {
+  open func encode(with coder: NSCoder) {
     switch credentialKind {
     case let .phoneNumber(phoneNumber, temporaryProof):
       coder.encode(phoneNumber, forKey: "phoneNumber")

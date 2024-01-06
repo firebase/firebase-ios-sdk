@@ -28,7 +28,7 @@ import Foundation
       @param secret The Twitter OAuth secret.
       @return An AuthCredential containing the Twitter credentials.
    */
-  @objc public class func credential(withToken token: String, secret: String) -> AuthCredential {
+  @objc open class func credential(withToken token: String, secret: String) -> AuthCredential {
     return TwitterAuthCredential(withToken: token, secret: secret)
   }
 

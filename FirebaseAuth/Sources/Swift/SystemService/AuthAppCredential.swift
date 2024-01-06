@@ -64,7 +64,7 @@ class AuthAppCredential: NSObject, NSSecureCoding {
     self.init(receipt: receipt, secret: secret)
   }
 
-  public func encode(with coder: NSCoder) {
+  open func encode(with coder: NSCoder) {
     coder.encode(receipt, forKey: kReceiptKey)
     coder.encode(secret, forKey: kSecretKey)
   }
