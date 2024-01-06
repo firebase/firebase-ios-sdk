@@ -64,8 +64,8 @@ import Foundation
      */
     @objc(enrollWithAssertion:displayName:completion:)
     open func enroll(with assertion: MultiFactorAssertion,
-                       displayName: String?,
-                       completion: ((Error?) -> Void)?) {
+                     displayName: String?,
+                     completion: ((Error?) -> Void)?) {
       // TODO: Refactor classes so this duplicated code isn't necessary for phone and totp.
       if assertion.factorID == PhoneMultiFactorInfo.TOTPMultiFactorID {
         guard let totpAssertion = assertion as? TOTPMultiFactorAssertion else {
@@ -192,7 +192,7 @@ import Foundation
      */
     @objc(unenrollWithInfo:completion:)
     open func unenroll(with factorInfo: MultiFactorInfo,
-                         completion: ((Error?) -> Void)?) {
+                       completion: ((Error?) -> Void)?) {
       unenroll(withFactorUID: factorInfo.uid, completion: completion)
     }
 
@@ -213,7 +213,7 @@ import Foundation
      */
     @objc(unenrollWithFactorUID:completion:)
     open func unenroll(withFactorUID factorUID: String,
-                         completion: ((Error?) -> Void)?) {
+                       completion: ((Error?) -> Void)?) {
       guard let user = user, let auth = user.auth else {
         fatalError("Internal Auth error: failed to get user unenrolling in MultiFactor")
       }

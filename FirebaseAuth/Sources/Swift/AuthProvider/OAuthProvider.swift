@@ -54,7 +54,7 @@ import Foundation
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
   @objc(providerWithProviderID:auth:) open class func provider(providerID: String,
-                                                                 auth: Auth) -> OAuthProvider {
+                                                               auth: Auth) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: auth)
   }
 
@@ -186,7 +186,7 @@ import Foundation
             the mobile web flow is completed.
      */
     open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
-                                  completion: ((AuthCredential?, Error?) -> Void)? = nil) {
+                                completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
             AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: urlTypes) else {

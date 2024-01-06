@@ -46,7 +46,7 @@ import Foundation
      */
     @objc(generateQRCodeURLWithAccountName:issuer:)
     open func generateQRCodeURL(withAccountName accountName: String,
-                                  issuer: String) -> String {
+                                issuer: String) -> String {
       guard let hashingAlgorithm, codeLength > 0 else {
         return ""
       }

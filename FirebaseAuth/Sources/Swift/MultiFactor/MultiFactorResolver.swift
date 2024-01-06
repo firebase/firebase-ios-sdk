@@ -47,7 +47,7 @@ import Foundation
      */
     @objc(resolveSignInWithAssertion:completion:)
     open func resolveSignIn(with assertion: MultiFactorAssertion,
-                              completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
       var finalizedMFARequestInfo: AuthProto?
       if let totpAssertion = assertion as? TOTPMultiFactorAssertion {
         switch totpAssertion.secretOrID {

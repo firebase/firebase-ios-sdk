@@ -58,8 +58,8 @@ import Foundation
      */
     @objc(verifyPhoneNumber:UIDelegate:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  completion: ((_: String?, _: Error?) -> Void)?) {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                completion: ((_: String?, _: Error?) -> Void)?) {
       verifyPhoneNumber(phoneNumber,
                         uiDelegate: uiDelegate,
                         multiFactorSession: nil,
@@ -78,9 +78,9 @@ import Foundation
      */
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession? = nil,
-                                  completion: ((_: String?, _: Error?) -> Void)?) {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession? = nil,
+                                completion: ((_: String?, _: Error?) -> Void)?) {
       guard AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: auth.mainBundleUrlTypes) else {
         fatalError(
@@ -115,8 +115,8 @@ import Foundation
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(_ phoneNumber: String,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession? = nil) async throws
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession? = nil) async throws
       -> String {
       return try await withCheckedThrowingContinuation { continuation in
         self.verifyPhoneNumber(phoneNumber,
@@ -143,9 +143,9 @@ import Foundation
      */
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession?,
-                                  completion: ((_: String?, _: Error?) -> Void)?) {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession?,
+                                completion: ((_: String?, _: Error?) -> Void)?) {
       multiFactorSession?.multiFactorInfo = multiFactorInfo
       verifyPhoneNumber(multiFactorInfo.phoneNumber,
                         uiDelegate: uiDelegate,
@@ -155,8 +155,8 @@ import Foundation
 
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
-                                  uiDelegate: AuthUIDelegate? = nil,
-                                  multiFactorSession: MultiFactorSession?) async throws -> String {
+                                uiDelegate: AuthUIDelegate? = nil,
+                                multiFactorSession: MultiFactorSession?) async throws -> String {
       return try await withCheckedThrowingContinuation { continuation in
         self.verifyPhoneNumber(with: multiFactorInfo,
                                uiDelegate: uiDelegate,
@@ -182,7 +182,7 @@ import Foundation
      */
     @objc(credentialWithVerificationID:verificationCode:)
     open func credential(withVerificationID verificationID: String,
-                           verificationCode: String) -> PhoneAuthCredential {
+                         verificationCode: String) -> PhoneAuthCredential {
       return PhoneAuthCredential(withProviderID: PhoneAuthProvider.id,
                                  verificationID: verificationID,
                                  verificationCode: verificationCode)

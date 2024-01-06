@@ -34,7 +34,7 @@ import Foundation
      */
     @objc(generateSecretWithMultiFactorSession:completion:)
     open class func generateSecret(with session: MultiFactorSession,
-                                     completion: @escaping (TOTPSecret?, Error?) -> Void) {
+                                   completion: @escaping (TOTPSecret?, Error?) -> Void) {
       guard let currentUser = session.currentUser,
             let requestConfiguration = currentUser.auth?.requestConfiguration else {
         let error = AuthErrorUtils.error(code: AuthErrorCode.internalError,
@@ -94,7 +94,7 @@ import Foundation
      */
     @objc(assertionForEnrollmentWithSecret:oneTimePassword:)
     open class func assertionForEnrollment(with secret: TOTPSecret,
-                                             oneTimePassword: String) -> TOTPMultiFactorAssertion {
+                                           oneTimePassword: String) -> TOTPMultiFactorAssertion {
       return TOTPMultiFactorAssertion(secretOrID: SecretOrID.secret(secret),
                                       oneTimePassword: oneTimePassword)
     }
@@ -108,7 +108,7 @@ import Foundation
      */
     @objc(assertionForSignInWithEnrollmentID:oneTimePassword:)
     open class func assertionForSignIn(withEnrollmentID enrollmentID: String,
-                                         oneTimePassword: String) -> TOTPMultiFactorAssertion {
+                                       oneTimePassword: String) -> TOTPMultiFactorAssertion {
       return TOTPMultiFactorAssertion(secretOrID: SecretOrID.enrollmentID(enrollmentID),
                                       oneTimePassword: oneTimePassword)
     }

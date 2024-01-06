@@ -77,8 +77,8 @@ import Foundation
           will try to install the app if not already available. Otherwise the web URL is used.
    */
   @objc open func setAndroidPackageName(_ androidPackageName: String,
-                                          installIfNotAvailable: Bool,
-                                          minimumVersion: String?) {
+                                        installIfNotAvailable: Bool,
+                                        minimumVersion: String?) {
     self.androidPackageName = androidPackageName
     androidInstallIfNotAvailable = installIfNotAvailable
     androidMinimumVersion = minimumVersion

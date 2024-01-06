@@ -29,7 +29,7 @@ import Foundation
       @return An AuthCredential containing the Google credentials.
    */
   @objc open class func credential(withIDToken IDToken: String,
-                                     accessToken: String) -> AuthCredential {
+                                   accessToken: String) -> AuthCredential {
     return GoogleAuthCredential(withIDToken: IDToken, accessToken: accessToken)
   }
 
