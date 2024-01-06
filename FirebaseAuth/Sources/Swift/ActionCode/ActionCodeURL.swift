@@ -17,7 +17,7 @@ import Foundation
 /** @class FIRActionCodeURL
     @brief This class will allow developers to easily extract information about out of band links.
  */
-@objc(FIRActionCodeURL) public class ActionCodeURL: NSObject {
+@objc(FIRActionCodeURL) open class ActionCodeURL: NSObject {
   /** @property APIKey
       @brief Returns the API key from the link. nil, if not provided.
    */

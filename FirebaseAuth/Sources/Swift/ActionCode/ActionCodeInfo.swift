@@ -17,7 +17,7 @@ import Foundation
 /** @class ActionCodeInfo
     @brief Manages information regarding action codes.
  */
-@objc(FIRActionCodeInfo) public class ActionCodeInfo: NSObject {
+@objc(FIRActionCodeInfo) open class ActionCodeInfo: NSObject {
   /**
       @brief The operation being performed.
    */
@@ -50,7 +50,6 @@ import Foundation
       @param requestType Request type returned in in the server response.
       @return The corresponding ActionCodeOperation for the supplied request type.
    */
-  @objc public
   class func actionCodeOperation(forRequestType requestType: String?) -> ActionCodeOperation {
     switch requestType {
     case "PASSWORD_RESET": return .passwordReset
