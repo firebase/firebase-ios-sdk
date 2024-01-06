@@ -63,7 +63,7 @@ import Foundation
       super.init(coder: coder)
     }
 
-    override open func encode(with coder: NSCoder) {
+    override public func encode(with coder: NSCoder) {
       super.encode(with: coder)
       coder.encode(phoneNumber, forKey: kPhoneNumberCodingKey)
     }

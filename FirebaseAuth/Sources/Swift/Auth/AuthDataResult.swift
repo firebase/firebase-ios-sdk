@@ -59,7 +59,7 @@ import Foundation
     return true
   }
 
-  open func encode(with coder: NSCoder) {
+  public func encode(with coder: NSCoder) {
     coder.encode(user, forKey: kUserCodingKey)
     coder.encode(additionalUserInfo, forKey: kAdditionalUserInfoCodingKey)
     coder.encode(credential, forKey: kCredentialCodingKey)

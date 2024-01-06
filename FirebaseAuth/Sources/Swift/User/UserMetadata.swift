@@ -43,7 +43,7 @@ import Foundation
     return true
   }
 
-  open func encode(with coder: NSCoder) {
+  public func encode(with coder: NSCoder) {
     coder.encode(creationDate, forKey: UserMetadata.kCreationDateCodingKey)
     coder.encode(lastSignInDate, forKey: UserMetadata.kLastSignInDateCodingKey)
   }

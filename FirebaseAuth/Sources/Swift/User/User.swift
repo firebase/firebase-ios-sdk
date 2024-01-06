@@ -1197,8 +1197,7 @@ extension User: NSSecureCoding {}
            email is complete, or fails.
    */
   @objc(sendEmailVerificationBeforeUpdatingEmail:completion:)
-  open func __sendEmailVerificationBeforeUpdating(email: String,
-                                                  completion: ((Error?) -> Void)?) {
+  open func __sendEmailVerificationBeforeUpdating(email: String, completion: ((Error?) -> Void)?) {
     sendEmailVerification(beforeUpdatingEmail: email, completion: completion)
   }
 
@@ -1211,8 +1210,7 @@ extension User: NSSecureCoding {}
            email is complete, or fails.
    */
   @objc open func sendEmailVerification(beforeUpdatingEmail email: String,
-                                        actionCodeSettings: ActionCodeSettings? =
-                                          nil,
+                                        actionCodeSettings: ActionCodeSettings? = nil,
                                         completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken { accessToken, error in
@@ -2075,7 +2073,7 @@ extension User: NSSecureCoding {}
 
   public static var supportsSecureCoding = true
 
-  open func encode(with coder: NSCoder) {
+  public func encode(with coder: NSCoder) {
     coder.encode(uid, forKey: kUserIDCodingKey)
     coder.encode(isAnonymous, forKey: kAnonymousCodingKey)
     coder.encode(hasEmailPasswordCredential, forKey: kHasEmailPasswordCredentialCodingKey)

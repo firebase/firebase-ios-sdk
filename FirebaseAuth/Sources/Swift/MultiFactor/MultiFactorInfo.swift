@@ -81,7 +81,7 @@ import Foundation
     private static var secureCodingWorkaround = true
     open class var supportsSecureCoding: Bool { return secureCodingWorkaround }
 
-    open func encode(with coder: NSCoder) {
+    public func encode(with coder: NSCoder) {
       coder.encode(uid, forKey: kUIDCodingKey)
       coder.encode(displayName, forKey: kDisplayNameCodingKey)
       coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)

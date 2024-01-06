@@ -82,7 +82,7 @@ import Foundation
     }
   }
 
-  open func encode(with aCoder: NSCoder) {
+  public func encode(with aCoder: NSCoder) {
     aCoder.encode(providerID, forKey: AdditionalUserInfo.providerIDCodingKey)
     aCoder.encode(profile, forKey: AdditionalUserInfo.profileCodingKey)
     aCoder.encode(username, forKey: AdditionalUserInfo.usernameCodingKey)

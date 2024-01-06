@@ -103,7 +103,7 @@ import Foundation
 
   public static var supportsSecureCoding: Bool = true
 
-  open func encode(with coder: NSCoder) {
+  public func encode(with coder: NSCoder) {
     coder.encode(idToken, forKey: "IDToken")
     coder.encode(rawNonce, forKey: "rawNonce")
     coder.encode(accessToken, forKey: "accessToken")

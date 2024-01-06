@@ -292,7 +292,7 @@ import Foundation
       true
     }
 
-    open func encode(with coder: NSCoder) {
+    public func encode(with coder: NSCoder) {
       coder.encode(enrolledFactors, forKey: kEnrolledFactorsCodingKey)
       // Do not encode `user` weak property.
     }

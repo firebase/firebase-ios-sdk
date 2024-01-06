@@ -40,7 +40,7 @@ import Foundation
 
   public static var supportsSecureCoding = true
 
-  open func encode(with coder: NSCoder) {
+  public func encode(with coder: NSCoder) {
     switch credentialKind {
     case let .phoneNumber(phoneNumber, temporaryProof):
       coder.encode(phoneNumber, forKey: "phoneNumber")
