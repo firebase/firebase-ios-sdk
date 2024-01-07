@@ -123,14 +123,14 @@ static NSString *const kFakeToken = @"NO_RECAPTCHA";
                                            });
                                      } else {
                                        FIRLogError(kFIRLoggerAuth, @"I-AUT000026",
-                                                   @"reCAPTCHA verification faled because "
+                                                   @"reCAPTCHA verification failed because "
                                                    @"reCAPTCHA SDK not linked.");
                                        completion(nil,
                                                   [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
                                      }
                                    } else {
                                      FIRLogError(kFIRLoggerAuth, @"I-AUT000026",
-                                                 @"reCAPTCHA verification faled because reCAPTCHA "
+                                                 @"reCAPTCHA verification failed because reCAPTCHA "
                                                  @"SDK not linked.");
                                      completion(nil,
                                                 [FIRAuthErrorUtils recaptchaSDKNotLinkedError]);
