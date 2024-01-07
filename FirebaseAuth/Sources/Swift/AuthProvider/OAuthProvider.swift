@@ -61,19 +61,10 @@ import Foundation
   /**
       @param providerID The provider ID of the IDP for which this auth provider instance will be
           configured.
-      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
-   */
-  @objc(providerWithProviderID:) public convenience init(providerID: String) {
-    self.init(providerID: providerID, auth: Auth.auth())
-  }
-
-  /**
-      @param providerID The provider ID of the IDP for which this auth provider instance will be
-          configured.
       @param auth The auth instance to be associated with the `OAuthProvider` instance.
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
-  @objc(providerWithProviderID:auth:) public init(providerID: String, auth: Auth) {
+  public init(providerID: String, auth: Auth = Auth.auth()) {
     if auth.requestConfiguration.emulatorHostAndPort == nil {
       if providerID == FacebookAuthProvider.id {
         fatalError("Sign in with Facebook is not supported via generic IDP; the Facebook TOS " +
