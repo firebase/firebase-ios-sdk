@@ -14,7 +14,7 @@
 
 import Foundation
 
-@objc(FIRAdditionalUserInfo) public class AdditionalUserInfo: NSObject, NSSecureCoding {
+@objc(FIRAdditionalUserInfo) open class AdditionalUserInfo: NSObject, NSSecureCoding {
   private static let providerIDCodingKey = "providerID"
   private static let profileCodingKey = "profile"
   private static let usernameCodingKey = "username"
@@ -41,7 +41,7 @@ import Foundation
   @objc public let isNewUser: Bool
 
   // Maintain newUser for Objective C API.
-  @objc public func newUser() -> Bool {
+  @objc open func newUser() -> Bool {
     return isNewUser
   }
 

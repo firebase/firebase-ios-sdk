@@ -37,7 +37,7 @@ import FirebaseCoreExtension
 #if os(iOS)
   @available(iOS 13.0, *)
   extension Auth: UISceneDelegate {
-    public func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+    open func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
       for urlContext in URLContexts {
         let _ = canHandle(urlContext.url)
       }
@@ -46,35 +46,35 @@ import FirebaseCoreExtension
 
   @available(iOS 13.0, *)
   extension Auth: UIApplicationDelegate {
-    public func application(_ application: UIApplication,
-                            didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+    open func application(_ application: UIApplication,
+                          didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
       setAPNSToken(deviceToken, type: .unknown)
     }
 
-    public func application(_ application: UIApplication,
-                            didFailToRegisterForRemoteNotificationsWithError error: Error) {
+    open func application(_ application: UIApplication,
+                          didFailToRegisterForRemoteNotificationsWithError error: Error) {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.cancel(withError: error)
       }
     }
 
-    public func application(_ application: UIApplication,
-                            didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-                            fetchCompletionHandler completionHandler:
-                            @escaping (UIBackgroundFetchResult) -> Void) {
+    open func application(_ application: UIApplication,
+                          didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+                          fetchCompletionHandler completionHandler:
+                          @escaping (UIBackgroundFetchResult) -> Void) {
       _ = canHandleNotification(userInfo)
       completionHandler(UIBackgroundFetchResult.noData)
     }
 
     // TODO(#11693): This deprecated API is temporarily needed for Phone Auth.
-    public func application(_ application: UIApplication,
-                            didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
+    open func application(_ application: UIApplication,
+                          didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
       _ = canHandleNotification(userInfo)
     }
 
-    public func application(_ application: UIApplication,
-                            open url: URL,
-                            options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool {
+    open func application(_ application: UIApplication,
+                          open url: URL,
+                          options: [UIApplication.OpenURLOptionsKey: Any]) -> Bool {
       return canHandle(url)
     }
   }
@@ -83,8 +83,8 @@ import FirebaseCoreExtension
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension Auth: AuthInterop {
   @objc(getTokenForcingRefresh:withCallback:)
-  public func getToken(forcingRefresh forceRefresh: Bool,
-                       completion callback: @escaping (String?, Error?) -> Void) {
+  open func getToken(forcingRefresh forceRefresh: Bool,
+                     completion callback: @escaping (String?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async { [weak self] in
       if let strongSelf = self {
         // Enable token auto-refresh if not already enabled.
@@ -134,7 +134,7 @@ extension Auth: AuthInterop {
     }
   }
 
-  public func getUserID() -> String? {
+  open func getUserID() -> String? {
     return currentUser?.uid
   }
 }
@@ -150,7 +150,7 @@ extension Auth: AuthInterop {
    @remarks The default Firebase app must have already been configured or an exception will be
    raised.
    */
-  @objc public class func auth() -> Auth {
+  @objc open class func auth() -> Auth {
     guard let defaultApp = FirebaseApp.app() else {
       fatalError("The default FirebaseApp instance must be configured before the default Auth " +
         "instance can be initialized. One way to ensure this is to call " +
@@ -167,7 +167,7 @@ extension Auth: AuthInterop {
    @param app The app for which to retrieve the associated `Auth` instance.
    @return The `Auth` instance associated with the given app.
    */
-  @objc public class func auth(app: FirebaseApp) -> Auth {
+  @objc open class func auth(app: FirebaseApp) -> Auth {
     return ComponentType<AuthProvider>.instance(for: AuthProvider.self, in: app.container) as! Auth
   }
 
@@ -187,7 +187,7 @@ extension Auth: AuthInterop {
 
    @remarks The string used to set this property must be a language code that follows BCP 47.
    */
-  @objc public var languageCode: String? {
+  @objc open var languageCode: String? {
     get {
       kAuthGlobalWorkQueue.sync {
         requestConfiguration.languageCode
@@ -203,7 +203,7 @@ extension Auth: AuthInterop {
   /** @property settings
    @brief Contains settings related to the auth object.
    */
-  @NSCopying @objc public var settings: AuthSettings?
+  @NSCopying @objc open var settings: AuthSettings?
 
   /** @property userAccessGroup
    @brief The current user access group that the Auth instance is using. Default is nil.
@@ -216,19 +216,19 @@ extension Auth: AuthInterop {
    have no effect. You should set shareAuthStateAcrossDevices to it's desired
    state and then set the userAccessGroup after.
    */
-  @objc public var shareAuthStateAcrossDevices: Bool = false
+  @objc open var shareAuthStateAcrossDevices: Bool = false
 
   /** @property tenantID
    @brief The tenant ID of the auth instance. nil if none is available.
    */
-  @objc public var tenantID: String?
+  @objc open var tenantID: String?
 
   /**
    * @property customAuthDomain
    * @brief The custom authentication domain used to handle all sign-in redirects. End-users will see
    * this domain when signing in. This domain must be allowlisted in the Firebase Console.
    */
-  @objc public var customAuthDomain: String?
+  @objc open var customAuthDomain: String?
 
   /** @fn updateCurrentUser:completion:
    @brief Sets the `currentUser` on the receiver to the provided user object.
@@ -236,7 +236,7 @@ extension Auth: AuthInterop {
    @param completion Optionally; a block invoked after the user of the calling Auth instance has
    been updated or an error was encountered.
    */
-  @objc public func updateCurrentUser(_ user: User?, completion: ((Error?) -> Void)? = nil) {
+  @objc open func updateCurrentUser(_ user: User?, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       guard let user else {
         let error = AuthErrorUtils.nullUserError(message: nil)
@@ -275,7 +275,7 @@ extension Auth: AuthInterop {
    been updated or an error was encountered.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func updateCurrentUser(_ user: User) async throws {
+  open func updateCurrentUser(_ user: User) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.updateCurrentUser(user) { error in
         if let error {
@@ -308,8 +308,8 @@ extension Auth: AuthInterop {
     deprecated,
     message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
   )
-  @objc public func fetchSignInMethods(forEmail email: String,
-                                       completion: (([String]?, Error?) -> Void)? = nil) {
+  @objc open func fetchSignInMethods(forEmail email: String,
+                                     completion: (([String]?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let request = CreateAuthURIRequest(identifier: email,
                                          continueURI: "http:www.google.com",
@@ -343,7 +343,7 @@ extension Auth: AuthInterop {
     deprecated,
     message: "`fetchSignInMethods` is deprecated and will be removed in a future release. This method returns an empty list when Email Enumeration Protection is enabled."
   )
-  public func fetchSignInMethods(forEmail email: String) async throws -> [String] {
+  open func fetchSignInMethods(forEmail email: String) async throws -> [String] {
     return try await withCheckedThrowingContinuation { continuation in
       self.fetchSignInMethods(forEmail: email) { methods, error in
         if let methods {
@@ -378,9 +378,9 @@ extension Auth: AuthInterop {
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func signIn(withEmail email: String,
-                           password: String,
-                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc open func signIn(withEmail email: String,
+                         password: String,
+                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       Task {
@@ -451,7 +451,7 @@ extension Auth: AuthInterop {
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
-  public func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
+  open func signIn(withEmail email: String, password: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(withEmail: email, password: password) { authData, error in
         if let authData {
@@ -481,9 +481,9 @@ extension Auth: AuthInterop {
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func signIn(withEmail email: String,
-                           link: String,
-                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc open func signIn(withEmail email: String,
+                         link: String,
+                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let credential = EmailAuthCredential(withEmail: email, link: link)
@@ -518,7 +518,7 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func signIn(withEmail email: String, link: String) async throws -> AuthDataResult {
+  open func signIn(withEmail email: String, link: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(withEmail: email, link: link) { result, error in
         if let result {
@@ -580,9 +580,9 @@ extension Auth: AuthInterop {
      @remarks See @c AuthErrors for a list of error codes that are common to all API methods.
      */
     @objc(signInWithProvider:UIDelegate:completion:)
-    public func signIn(with provider: FederatedAuthProvider,
-                       uiDelegate: AuthUIDelegate?,
-                       completion: ((AuthDataResult?, Error?) -> Void)?) {
+    open func signIn(with provider: FederatedAuthProvider,
+                     uiDelegate: AuthUIDelegate?,
+                     completion: ((AuthDataResult?, Error?) -> Void)?) {
       kAuthGlobalWorkQueue.async {
         Task {
           let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
@@ -648,8 +648,8 @@ extension Auth: AuthInterop {
     @available(macOS, unavailable)
     @available(watchOS, unavailable)
     @discardableResult
-    public func signIn(with provider: FederatedAuthProvider,
-                       uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+    open func signIn(with provider: FederatedAuthProvider,
+                     uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
         self.signIn(with: provider, uiDelegate: uiDelegate) { result, error in
           if let result {
@@ -701,8 +701,8 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods
    */
   @objc(signInWithCredential:completion:)
-  public func signIn(with credential: AuthCredential,
-                     completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  open func signIn(with credential: AuthCredential,
+                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       Task {
@@ -757,7 +757,7 @@ extension Auth: AuthInterop {
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
-  public func signIn(with credential: AuthCredential) async throws -> AuthDataResult {
+  open func signIn(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(with: credential) { result, error in
         if let result {
@@ -784,7 +784,7 @@ extension Auth: AuthInterop {
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc open func signInAnonymously(completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       if let currentUser = self.currentUser, currentUser.isAnonymous {
@@ -831,7 +831,7 @@ extension Auth: AuthInterop {
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
-  @objc public func signInAnonymously() async throws -> AuthDataResult {
+  @objc open func signInAnonymously() async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signInAnonymously { result, error in
         if let result {
@@ -859,8 +859,8 @@ extension Auth: AuthInterop {
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func signIn(withCustomToken token: String,
-                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc open func signIn(withCustomToken token: String,
+                         completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let decoratedCallback = self.signInFlowAuthDataResultCallback(byDecorating: completion)
       let request = VerifyCustomTokenRequest(token: token,
@@ -906,7 +906,7 @@ extension Auth: AuthInterop {
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
-  public func signIn(withCustomToken token: String) async throws -> AuthDataResult {
+  open func signIn(withCustomToken token: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.signIn(withCustomToken: token) { result, error in
         if let result {
@@ -940,9 +940,9 @@ extension Auth: AuthInterop {
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func createUser(withEmail email: String,
-                               password: String,
-                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  @objc open func createUser(withEmail email: String,
+                             password: String,
+                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     guard password.count > 0 else {
       if let completion {
         completion(nil, AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing password"))
@@ -1035,7 +1035,7 @@ extension Auth: AuthInterop {
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
-  public func createUser(withEmail email: String, password: String) async throws -> AuthDataResult {
+  open func createUser(withEmail email: String, password: String) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.createUser(withEmail: email, password: password) { result, error in
         if let result {
@@ -1066,8 +1066,8 @@ extension Auth: AuthInterop {
 
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func confirmPasswordReset(withCode code: String, newPassword: String,
-                                         completion: @escaping (Error?) -> Void) {
+  @objc open func confirmPasswordReset(withCode code: String, newPassword: String,
+                                       completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: newPassword,
@@ -1096,7 +1096,7 @@ extension Auth: AuthInterop {
    @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func confirmPasswordReset(withCode code: String, newPassword: String) async throws {
+  open func confirmPasswordReset(withCode code: String, newPassword: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
         if let error {
@@ -1115,8 +1115,8 @@ extension Auth: AuthInterop {
    @param completion Optionally; a block which is invoked when the request finishes. Invoked
    asynchronously on the main thread in the future.
    */
-  @objc public func checkActionCode(_ code: String,
-                                    completion: @escaping (ActionCodeInfo?, Error?) -> Void) {
+  @objc open func checkActionCode(_ code: String,
+                                  completion: @escaping (ActionCodeInfo?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = ResetPasswordRequest(oobCode: code,
                                          newPassword: nil,
@@ -1148,7 +1148,7 @@ extension Auth: AuthInterop {
    asynchronously on the main thread in the future.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func checkActionCode(_ code: String) async throws -> ActionCodeInfo {
+  open func checkActionCode(_ code: String) async throws -> ActionCodeInfo {
     return try await withCheckedThrowingContinuation { continuation in
       self.checkActionCode(code) { info, error in
         if let info {
@@ -1167,8 +1167,8 @@ extension Auth: AuthInterop {
    @param completion Optionally; a block which is invoked when the request finishes. Invoked
    asynchronously on the main thread in the future.
    */
-  @objc public func verifyPasswordResetCode(_ code: String,
-                                            completion: @escaping (String?, Error?) -> Void) {
+  @objc open func verifyPasswordResetCode(_ code: String,
+                                          completion: @escaping (String?, Error?) -> Void) {
     checkActionCode(code) { info, error in
       if let error {
         completion(nil, error)
@@ -1186,7 +1186,7 @@ extension Auth: AuthInterop {
    asynchronously on the main thread in the future.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func verifyPasswordResetCode(_ code: String) async throws -> String {
+  open func verifyPasswordResetCode(_ code: String) async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
       self.verifyPasswordResetCode(code) { code, error in
         if let code {
@@ -1208,7 +1208,7 @@ extension Auth: AuthInterop {
    @remarks This method will not work for out of band codes which require an additional parameter,
    such as password reset code.
    */
-  @objc public func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
+  @objc open func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
       request.oobCode = code
@@ -1227,7 +1227,7 @@ extension Auth: AuthInterop {
    such as password reset code.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func applyActionCode(_ code: String) async throws {
+  open func applyActionCode(_ code: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.applyActionCode(code) { error in
         if let error {
@@ -1259,8 +1259,8 @@ extension Auth: AuthInterop {
    sending update email.
 
    */
-  @objc public func sendPasswordReset(withEmail email: String,
-                                      completion: ((Error?) -> Void)? = nil) {
+  @objc open func sendPasswordReset(withEmail email: String,
+                                    completion: ((Error?) -> Void)? = nil) {
     sendPasswordReset(withEmail: email, actionCodeSettings: nil, completion: completion)
   }
 
@@ -1291,9 +1291,9 @@ extension Auth: AuthInterop {
    continue URL is not valid.
 
    */
-  @objc public func sendPasswordReset(withEmail email: String,
-                                      actionCodeSettings: ActionCodeSettings?,
-                                      completion: ((Error?) -> Void)? = nil) {
+  @objc open func sendPasswordReset(withEmail email: String,
+                                    actionCodeSettings: ActionCodeSettings?,
+                                    completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       let request = GetOOBConfirmationCodeRequest.passwordResetRequest(
         email: email,
@@ -1347,8 +1347,8 @@ extension Auth: AuthInterop {
 
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func sendPasswordReset(withEmail email: String,
-                                actionCodeSettings: ActionCodeSettings? = nil) async throws {
+  open func sendPasswordReset(withEmail email: String,
+                              actionCodeSettings: ActionCodeSettings? = nil) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
         if let error {
@@ -1369,9 +1369,9 @@ extension Auth: AuthInterop {
    @param completion Optionally; a block which is invoked when the request finishes. Invoked
    asynchronously on the main thread in the future.
    */
-  @objc public func sendSignInLink(toEmail email: String,
-                                   actionCodeSettings: ActionCodeSettings,
-                                   completion: ((Error?) -> Void)? = nil) {
+  @objc open func sendSignInLink(toEmail email: String,
+                                 actionCodeSettings: ActionCodeSettings,
+                                 completion: ((Error?) -> Void)? = nil) {
     if !actionCodeSettings.handleCodeInApp {
       fatalError("The handleCodeInApp flag in ActionCodeSettings must be true for Email-link " +
         "Authentication.")
@@ -1407,8 +1407,8 @@ extension Auth: AuthInterop {
    asynchronously on the main thread in the future.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func sendSignInLink(toEmail email: String,
-                             actionCodeSettings: ActionCodeSettings) async throws {
+  open func sendSignInLink(toEmail email: String,
+                           actionCodeSettings: ActionCodeSettings) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
         if let error {
@@ -1434,7 +1434,7 @@ extension Auth: AuthInterop {
    dictionary will contain more information about the error encountered.
 
    */
-  @objc(signOut:) public func signOut() throws {
+  @objc(signOut:) open func signOut() throws {
     try kAuthGlobalWorkQueue.sync {
       guard self.currentUser != nil else {
         return
@@ -1449,7 +1449,7 @@ extension Auth: AuthInterop {
    @param link The email sign-in link.
    @return Returns true when the link passed matches the expected format of an email sign-in link.
    */
-  @objc public func isSignIn(withEmailLink link: String) -> Bool {
+  @objc open func isSignIn(withEmailLink link: String) -> Bool {
     guard link.count > 0 else {
       return false
     }
@@ -1471,7 +1471,7 @@ extension Auth: AuthInterop {
         reloaded.
      */
     @objc(initializeRecaptchaConfigWithCompletion:)
-    public func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
+    open func initializeRecaptchaConfig(completion: ((Error?) -> Void)?) {
       Task {
         do {
           try await initializeRecaptchaConfig()
@@ -1493,7 +1493,7 @@ extension Auth: AuthInterop {
         If you change the tenant ID of the `Auth` instance, the configuration will be
         reloaded.
      */
-    public func initializeRecaptchaConfig() async throws {
+    open func initializeRecaptchaConfig() async throws {
       // Trigger recaptcha verification flow to initialize the recaptcha client and
       // config. Recaptcha token will be returned.
       let verifier = AuthRecaptchaVerifier.shared(auth: self)
@@ -1520,7 +1520,7 @@ extension Auth: AuthInterop {
    @return A handle useful for manually unregistering the block as a listener.
    */
   @objc(addAuthStateDidChangeListener:)
-  public func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  open func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
     var firstInvocation = true
     var previousUserID: String?
@@ -1540,7 +1540,7 @@ extension Auth: AuthInterop {
    @param listenerHandle The handle for the listener.
    */
   @objc(removeAuthStateDidChangeListener:)
-  public func removeStateDidChangeListener(_ listenerHandle: NSObjectProtocol) {
+  open func removeStateDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
     defer { objc_sync_exit(Auth.self) }
@@ -1566,8 +1566,7 @@ extension Auth: AuthInterop {
 
    @return A handle useful for manually unregistering the block as a listener.
    */
-  @objc public
-  func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
+  @objc open func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
     let handle = NotificationCenter.default.addObserver(
       forName: Auth.authStateDidChangeNotification,
@@ -1592,7 +1591,7 @@ extension Auth: AuthInterop {
 
    @param listenerHandle The handle for the listener.
    */
-  @objc public func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
+  @objc open func removeIDTokenDidChangeListener(_ listenerHandle: NSObjectProtocol) {
     NotificationCenter.default.removeObserver(listenerHandle)
     objc_sync_enter(Auth.self)
     listenerHandles.remove(listenerHandle)
@@ -1602,7 +1601,7 @@ extension Auth: AuthInterop {
   /** @fn useAppLanguage
    @brief Sets `languageCode` to the app's current language.
    */
-  @objc public func useAppLanguage() {
+  @objc open func useAppLanguage() {
     kAuthGlobalWorkQueue.sync {
       self.requestConfiguration.languageCode = Locale.preferredLanguages.first
     }
@@ -1611,7 +1610,7 @@ extension Auth: AuthInterop {
   /** @fn useEmulatorWithHost:port
    @brief Configures Firebase Auth to connect to an emulated host instead of the remote backend.
    */
-  @objc public func useEmulator(withHost host: String, port: Int) {
+  @objc open func useEmulator(withHost host: String, port: Int) {
     guard host.count > 0 else {
       fatalError("Cannot connect to empty host")
     }
@@ -1630,8 +1629,8 @@ extension Auth: AuthInterop {
    @param completion (Optional) the block invoked when the request to revoke the token is
    complete, or fails. Invoked asynchronously on the main thread in the future.
    */
-  @objc public func revokeToken(withAuthorizationCode authorizationCode: String,
-                                completion: ((Error?) -> Void)? = nil) {
+  @objc open func revokeToken(withAuthorizationCode authorizationCode: String,
+                              completion: ((Error?) -> Void)? = nil) {
     currentUser?.internalGetToken { idToken, error in
       if let error {
         Auth.wrapMainAsync(completion, error)
@@ -1653,7 +1652,7 @@ extension Auth: AuthInterop {
    complete, or fails. Invoked asynchronously on the main thread in the future.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
+  open func revokeToken(withAuthorizationCode authorizationCode: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.revokeToken(withAuthorizationCode: authorizationCode) { error in
         if let error {
@@ -1669,7 +1668,7 @@ extension Auth: AuthInterop {
    @brief Switch userAccessGroup and current user to the given accessGroup and the user stored in
    it.
    */
-  @objc public func useUserAccessGroup(_ accessGroup: String?) throws {
+  @objc open func useUserAccessGroup(_ accessGroup: String?) throws {
     // self.storedUserManager is initialized asynchronously. Make sure it is done.
     kAuthGlobalWorkQueue.sync {}
     return try internalUseUserAccessGroup(accessGroup)
@@ -1695,8 +1694,8 @@ extension Auth: AuthInterop {
    */
   @available(swift 1000.0) // Objective-C only API
   @objc(getStoredUserForAccessGroup:error:)
-  public func __getStoredUser(forAccessGroup accessGroup: String?,
-                              error outError: NSErrorPointer) -> User? {
+  open func __getStoredUser(forAccessGroup accessGroup: String?,
+                            error outError: NSErrorPointer) -> User? {
     do {
       return try getStoredUser(forAccessGroup: accessGroup)
     } catch {
@@ -1711,7 +1710,7 @@ extension Auth: AuthInterop {
    This case will return `nil`.
    Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
    */
-  public func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
+  open func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
     var user: User?
     if let accessGroup {
       #if os(tvOS)
@@ -1743,25 +1742,25 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
-    @objc(APNSToken) public var apnsToken: Data? {
+    @objc(APNSToken) open var apnsToken: Data? {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.token?.data
       }
     }
 
-    @objc public func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
+    @objc open func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
       }
     }
 
-    @objc public func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
+    @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
       kAuthGlobalWorkQueue.sync {
         self.notificationManager.canHandle(notification: userInfo)
       }
     }
 
-    @objc(canHandleURL:) public func canHandle(_ url: URL) -> Bool {
+    @objc(canHandleURL:) open func canHandle(_ url: URL) -> Bool {
       kAuthGlobalWorkQueue.sync {
         guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
           return false

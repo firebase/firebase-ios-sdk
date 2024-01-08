@@ -26,24 +26,24 @@ extension User: NSSecureCoding {}
     @remarks This class is thread-safe.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRUser) public class User: NSObject, UserInfo {
+@objc(FIRUser) open class User: NSObject, UserInfo {
   /** @property anonymous
       @brief Indicates the user represents an anonymous user.
    */
   @objc public private(set) var isAnonymous: Bool
-  @objc public func anonymous() -> Bool { return isAnonymous }
+  @objc open func anonymous() -> Bool { return isAnonymous }
 
   /** @property emailVerified
       @brief Indicates the email address associated with this user has been verified.
    */
   @objc public private(set) var isEmailVerified: Bool
-  @objc public func emailVerified() -> Bool { return isEmailVerified }
+  @objc open func emailVerified() -> Bool { return isEmailVerified }
 
   /** @property providerData
       @brief Profile data for each identity provider, if any.
       @remarks This data is cached on sign-in and updated when linking or unlinking.
    */
-  @objc public var providerData: [UserInfo] {
+  @objc open var providerData: [UserInfo] {
     return Array(providerDataRaw.values)
   }
 
@@ -103,7 +103,7 @@ extension User: NSSecureCoding {}
     message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
   )
   @objc(updateEmail:completion:)
-  public func updateEmail(to email: String, completion: ((Error?) -> Void)? = nil) {
+  open func updateEmail(to email: String, completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.updateEmail(email: email, password: nil) { error in
         User.callInMainThreadWithError(callback: completion, error: error)
@@ -146,7 +146,7 @@ extension User: NSSecureCoding {}
     message: "`updateEmail` is deprecated and will be removed in a future release. Use sendEmailVerification(beforeUpdatingEmail:) instead."
   )
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func updateEmail(to email: String) async throws {
+  open func updateEmail(to email: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.updateEmail(to: email) { error in
         if let error {
@@ -180,7 +180,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @objc(updatePassword:completion:)
-  public func updatePassword(to password: String, completion: ((Error?) -> Void)? = nil) {
+  open func updatePassword(to password: String, completion: ((Error?) -> Void)? = nil) {
     guard password.count > 0 else {
       if let completion {
         completion(AuthErrorUtils.weakPasswordError(serverResponseReason: "Missing Password"))
@@ -215,7 +215,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func updatePassword(to password: String) async throws {
+  open func updatePassword(to password: String) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.updatePassword(to: password) { error in
         if let error {
@@ -249,8 +249,8 @@ extension User: NSSecureCoding {}
         @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
      */
     @objc(updatePhoneNumberCredential:completion:)
-    public func updatePhoneNumber(_ credential: PhoneAuthCredential,
-                                  completion: ((Error?) -> Void)? = nil) {
+    open func updatePhoneNumber(_ credential: PhoneAuthCredential,
+                                completion: ((Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
         self.internalUpdateOrLinkPhoneNumber(credential: credential,
                                              isLinkOperation: false) { error in
@@ -279,7 +279,7 @@ extension User: NSSecureCoding {}
         @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    public func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws {
+    open func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws {
       return try await withCheckedThrowingContinuation { continuation in
         self.updatePhoneNumber(credential) { error in
           if let error {
@@ -301,7 +301,7 @@ extension User: NSSecureCoding {}
       @return An object which may be used to change the user's profile data atomically.
    */
   @objc(profileChangeRequest)
-  public func createProfileChangeRequest() -> UserProfileChangeRequest {
+  open func createProfileChangeRequest() -> UserProfileChangeRequest {
     var result: UserProfileChangeRequest!
     kAuthGlobalWorkQueue.sync {
       result = UserProfileChangeRequest(self)
@@ -313,7 +313,7 @@ extension User: NSSecureCoding {}
       @brief A refresh token; useful for obtaining new access tokens independently.
       @remarks This property should only be used for advanced scenarios, and is not typically needed.
    */
-  @objc public var refreshToken: String? {
+  @objc open var refreshToken: String? {
     var result: String?
     kAuthGlobalWorkQueue.sync {
       result = self.tokenService.refreshToken
@@ -333,7 +333,7 @@ extension User: NSSecureCoding {}
 
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
-  @objc public func reload(completion: ((Error?) -> Void)? = nil) {
+  @objc open func reload(completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.getAccountInfoRefreshingCache { user, error in
         User.callInMainThreadWithError(callback: completion, error: error)
@@ -354,7 +354,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func reload() async throws {
+  open func reload() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.reload { error in
         if let error {
@@ -402,8 +402,8 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc(reauthenticateWithCredential:completion:)
-  public func reauthenticate(with credential: AuthCredential,
-                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  open func reauthenticate(with credential: AuthCredential,
+                           completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       Task {
         do {
@@ -478,7 +478,7 @@ extension User: NSSecureCoding {}
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
-  public func reauthenticate(with credential: AuthCredential) async throws -> AuthDataResult {
+  open func reauthenticate(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.reauthenticate(with: credential) { result, error in
         if let result {
@@ -503,9 +503,9 @@ extension User: NSSecureCoding {}
             is canceled. Invoked asynchronously on the main thread in the future.
      */
     @objc(reauthenticateWithProvider:UIDelegate:completion:)
-    public func reauthenticate(with provider: FederatedAuthProvider,
-                               uiDelegate: AuthUIDelegate?,
-                               completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+    open func reauthenticate(with provider: FederatedAuthProvider,
+                             uiDelegate: AuthUIDelegate?,
+                             completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
         Task {
           do {
@@ -532,8 +532,8 @@ extension User: NSSecureCoding {}
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @discardableResult
-    public func reauthenticate(with provider: FederatedAuthProvider,
-                               uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+    open func reauthenticate(with provider: FederatedAuthProvider,
+                             uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
         self.reauthenticate(with: provider, uiDelegate: uiDelegate) { result, error in
           if let result {
@@ -555,7 +555,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc(getIDTokenWithCompletion:)
-  public func getIDToken(completion: ((String?, Error?) -> Void)?) {
+  open func getIDToken(completion: ((String?, Error?) -> Void)?) {
     // |getIDTokenForcingRefresh:completion:| is also a public API so there is no need to dispatch to
     // global work queue here.
     getIDTokenForcingRefresh(false, completion: completion)
@@ -575,8 +575,8 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc(getIDTokenForcingRefresh:completion:)
-  public func getIDTokenForcingRefresh(_ forceRefresh: Bool,
-                                       completion: ((String?, Error?) -> Void)?) {
+  open func getIDTokenForcingRefresh(_ forceRefresh: Bool,
+                                     completion: ((String?, Error?) -> Void)?) {
     getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
       if let completion {
         DispatchQueue.main.async {
@@ -599,7 +599,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func getIDToken() async throws -> String {
+  open func getIDToken() async throws -> String {
     return try await withCheckedThrowingContinuation { continuation in
       self.getIDTokenForcingRefresh(false) { tokenResult, error in
         if let tokenResult {
@@ -620,7 +620,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc(getIDTokenResultWithCompletion:)
-  public func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
+  open func getIDTokenResult(completion: ((AuthTokenResult?, Error?) -> Void)?) {
     getIDTokenResult(forcingRefresh: false) { tokenResult, error in
       if let completion {
         DispatchQueue.main.async {
@@ -644,8 +644,8 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @objc(getIDTokenResultForcingRefresh:completion:)
-  public func getIDTokenResult(forcingRefresh: Bool,
-                               completion: ((AuthTokenResult?, Error?) -> Void)?) {
+  open func getIDTokenResult(forcingRefresh: Bool,
+                             completion: ((AuthTokenResult?, Error?) -> Void)?) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken(forceRefresh: forcingRefresh) { token, error in
         var tokenResult: AuthTokenResult?
@@ -677,7 +677,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all API methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
+  open func getIDTokenResult(forcingRefresh forceRefresh: Bool = false) async throws
     -> AuthTokenResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.getIDTokenResult(forcingRefresh: forceRefresh) { tokenResult, error in
@@ -714,8 +714,8 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @objc(linkWithCredential:completion:)
-  public func link(with credential: AuthCredential,
-                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+  open func link(with credential: AuthCredential,
+                 completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       if self.providerDataRaw[credential.provider] != nil {
         User.callInMainThreadWithAuthDataResultAndError(
@@ -818,7 +818,7 @@ extension User: NSSecureCoding {}
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
-  public func link(with credential: AuthCredential) async throws -> AuthDataResult {
+  open func link(with credential: AuthCredential) async throws -> AuthDataResult {
     return try await withCheckedThrowingContinuation { continuation in
       self.link(with: credential) { result, error in
         if let result {
@@ -843,9 +843,9 @@ extension User: NSSecureCoding {}
             is canceled. Invoked asynchronously on the main thread in the future.
      */
     @objc(linkWithProvider:UIDelegate:completion:)
-    public func link(with provider: FederatedAuthProvider,
-                     uiDelegate: AuthUIDelegate?,
-                     completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
+    open func link(with provider: FederatedAuthProvider,
+                   uiDelegate: AuthUIDelegate?,
+                   completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
       kAuthGlobalWorkQueue.async {
         Task {
           do {
@@ -872,8 +872,8 @@ extension User: NSSecureCoding {}
      */
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     @discardableResult
-    public func link(with provider: FederatedAuthProvider,
-                     uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
+    open func link(with provider: FederatedAuthProvider,
+                   uiDelegate: AuthUIDelegate?) async throws -> AuthDataResult {
       return try await withCheckedThrowingContinuation { continuation in
         self.link(with: provider, uiDelegate: uiDelegate) { result, error in
           if let result {
@@ -904,8 +904,8 @@ extension User: NSSecureCoding {}
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
-  @objc public func unlink(fromProvider provider: String,
-                           completion: ((User?, Error?) -> Void)? = nil) {
+  @objc open func unlink(fromProvider provider: String,
+                         completion: ((User?, Error?) -> Void)? = nil) {
     taskQueue.enqueueTask { complete in
       let completeAndCallbackWithError = { error in
         complete()
@@ -990,7 +990,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func unlink(fromProvider provider: String) async throws -> User {
+  open func unlink(fromProvider provider: String) async throws -> User {
     return try await withCheckedThrowingContinuation { continuation in
       self.unlink(fromProvider: provider) { result, error in
         if let result {
@@ -1021,7 +1021,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @objc(sendEmailVerificationWithCompletion:)
-  public func __sendEmailVerification(withCompletion completion: ((Error?) -> Void)?) {
+  open func __sendEmailVerification(withCompletion completion: ((Error?) -> Void)?) {
     sendEmailVerification(completion: completion)
   }
 
@@ -1050,8 +1050,8 @@ extension User: NSSecureCoding {}
               continue URL is not valid.
    */
   @objc(sendEmailVerificationWithActionCodeSettings:completion:)
-  public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil,
-                                    completion: ((Error?) -> Void)? = nil) {
+  open func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil,
+                                  completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken { accessToken, error in
         if let error {
@@ -1107,8 +1107,7 @@ extension User: NSSecureCoding {}
               continue URL is not valid.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil) async throws
-  {
+  open func sendEmailVerification(with actionCodeSettings: ActionCodeSettings? = nil) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.sendEmailVerification(with: actionCodeSettings) { error in
         if let error {
@@ -1135,7 +1134,7 @@ extension User: NSSecureCoding {}
 
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
-  @objc public func delete(completion: ((Error?) -> Void)? = nil) {
+  @objc open func delete(completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken { accessToken, error in
         if let error {
@@ -1179,7 +1178,7 @@ extension User: NSSecureCoding {}
       @remarks See `AuthErrors` for a list of error codes that are common to all `User` methods.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func delete() async throws {
+  open func delete() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.delete { error in
         if let error {
@@ -1198,8 +1197,7 @@ extension User: NSSecureCoding {}
            email is complete, or fails.
    */
   @objc(sendEmailVerificationBeforeUpdatingEmail:completion:)
-  public func __sendEmailVerificationBeforeUpdating(email: String,
-                                                    completion: ((Error?) -> Void)?) {
+  open func __sendEmailVerificationBeforeUpdating(email: String, completion: ((Error?) -> Void)?) {
     sendEmailVerification(beforeUpdatingEmail: email, completion: completion)
   }
 
@@ -1211,10 +1209,9 @@ extension User: NSSecureCoding {}
        @param completion Optionally; the block invoked when the request to send the verification
            email is complete, or fails.
    */
-  @objc public func sendEmailVerification(beforeUpdatingEmail email: String,
-                                          actionCodeSettings: ActionCodeSettings? =
-                                            nil,
-                                          completion: ((Error?) -> Void)? = nil) {
+  @objc open func sendEmailVerification(beforeUpdatingEmail email: String,
+                                        actionCodeSettings: ActionCodeSettings? = nil,
+                                        completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       self.internalGetToken { accessToken, error in
         if let error {
@@ -1253,8 +1250,8 @@ extension User: NSSecureCoding {}
        @throws on failure.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  public func sendEmailVerification(beforeUpdatingEmail newEmail: String,
-                                    actionCodeSettings: ActionCodeSettings? = nil) async throws {
+  open func sendEmailVerification(beforeUpdatingEmail newEmail: String,
+                                  actionCodeSettings: ActionCodeSettings? = nil) async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.sendEmailVerification(beforeUpdatingEmail: newEmail,
                                  actionCodeSettings: actionCodeSettings) { error in
@@ -1267,11 +1264,11 @@ extension User: NSSecureCoding {}
     }
   }
 
-  @objc public func rawAccessToken() -> String {
+  @objc open func rawAccessToken() -> String {
     return tokenService.accessToken
   }
 
-  @objc public func accessTokenExpirationDate() -> Date? {
+  @objc open func accessTokenExpirationDate() -> Date? {
     return tokenService.accessTokenExpirationDate
   }
 
@@ -1321,35 +1318,35 @@ extension User: NSSecureCoding {}
     return user
   }
 
-  @objc public var providerID: String {
+  @objc open var providerID: String {
     return "Firebase"
   }
 
   /** @property uid
       @brief The provider's user ID for the user.
    */
-  @objc public var uid: String
+  @objc open var uid: String
 
   /** @property displayName
       @brief The name of the user.
    */
-  @objc public var displayName: String?
+  @objc open var displayName: String?
 
   /** @property photoURL
       @brief The URL of the user's profile photo.
    */
-  @objc public var photoURL: URL?
+  @objc open var photoURL: URL?
 
   /** @property email
       @brief The user's email address.
    */
-  @objc public var email: String?
+  @objc open var email: String?
 
   /** @property phoneNumber
       @brief A phone number associated with the user.
       @remarks This property is only available for users authenticated via phone number auth.
    */
-  @objc public var phoneNumber: String?
+  @objc open var phoneNumber: String?
 
   /** @var hasEmailPasswordCredential
       @brief Whether or not the user can be authenticated by using Firebase email and password.

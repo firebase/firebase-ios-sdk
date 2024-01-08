@@ -17,46 +17,46 @@ import Foundation
 /** @class FIRActionCodeSettings
     @brief Used to set and retrieve settings related to handling action codes.
  */
-@objc(FIRActionCodeSettings) public class ActionCodeSettings: NSObject {
+@objc(FIRActionCodeSettings) open class ActionCodeSettings: NSObject {
   /** @property URL
       @brief This URL represents the state/Continue URL in the form of a universal link.
       @remarks This URL can should be constructed as a universal link that would either directly open
           the app where the action code would be handled or continue to the app after the action code
           is handled by Firebase.
    */
-  @objc(URL) public var url: URL?
+  @objc(URL) open var url: URL?
 
   /** @property handleCodeInApp
       @brief Indicates whether the action code link will open the app directly or after being
           redirected from a Firebase owned web widget.
    */
-  @objc public var handleCodeInApp: Bool = false
+  @objc open var handleCodeInApp: Bool = false
 
   /** @property iOSBundleID
       @brief The iOS bundle ID, if available. The default value is the current app's bundle ID.
    */
-  @objc public var iOSBundleID: String?
+  @objc open var iOSBundleID: String?
 
   /** @property androidPackageName
       @brief The Android package name, if available.
    */
-  @objc public var androidPackageName: String?
+  @objc open var androidPackageName: String?
 
   /** @property androidMinimumVersion
       @brief The minimum Android version supported, if available.
    */
-  @objc public var androidMinimumVersion: String?
+  @objc open var androidMinimumVersion: String?
 
   /** @property androidInstallIfNotAvailable
       @brief Indicates whether the Android app should be installed on a device where it is not
          available.
    */
-  @objc public var androidInstallIfNotAvailable: Bool = false
+  @objc open var androidInstallIfNotAvailable: Bool = false
 
   /** @property dynamicLinkDomain
       @brief The Firebase Dynamic Link domain used for out of band code flow.
    */
-  @objc public var dynamicLinkDomain: String?
+  @objc open var dynamicLinkDomain: String?
 
   /** @fn
       @brief Sets the iOS bundle Id.
@@ -76,15 +76,15 @@ import Foundation
       @remarks If installIfNotAvailable is set to YES and the link is opened on an android device, it
           will try to install the app if not already available. Otherwise the web URL is used.
    */
-  @objc public func setAndroidPackageName(_ androidPackageName: String,
-                                          installIfNotAvailable: Bool,
-                                          minimumVersion: String?) {
+  @objc open func setAndroidPackageName(_ androidPackageName: String,
+                                        installIfNotAvailable: Bool,
+                                        minimumVersion: String?) {
     self.androidPackageName = androidPackageName
     androidInstallIfNotAvailable = installIfNotAvailable
     androidMinimumVersion = minimumVersion
   }
 
-  public func setIOSBundleID(_ bundleID: String) {
+  open func setIOSBundleID(_ bundleID: String) {
     iOSBundleID = bundleID
   }
 }

@@ -27,7 +27,7 @@ import Foundation
    @brief Safe public structure used to represent a second factor entity from a client perspective.
        This class is available on iOS only.
    */
-  @objc(FIRMultiFactorInfo) public class MultiFactorInfo: NSObject {
+  @objc(FIRMultiFactorInfo) open class MultiFactorInfo: NSObject {
     /**
         @brief The multi-factor enrollment ID.
      */
@@ -79,7 +79,7 @@ import Foundation
 
   extension MultiFactorInfo: NSSecureCoding {
     private static var secureCodingWorkaround = true
-    public class var supportsSecureCoding: Bool { return secureCodingWorkaround }
+    open class var supportsSecureCoding: Bool { return secureCodingWorkaround }
 
     public func encode(with coder: NSCoder) {
       coder.encode(uid, forKey: kUIDCodingKey)

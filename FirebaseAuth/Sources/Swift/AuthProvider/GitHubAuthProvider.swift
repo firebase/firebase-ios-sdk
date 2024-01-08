@@ -27,7 +27,7 @@ import Foundation
       @param token The GitHub OAuth access token.
       @return An AuthCredential containing the GitHub credentials.
    */
-  @objc public class func credential(withToken token: String) -> AuthCredential {
+  @objc open class func credential(withToken token: String) -> AuthCredential {
     return GitHubAuthCredential(withToken: token)
   }
 

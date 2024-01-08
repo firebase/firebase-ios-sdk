@@ -23,7 +23,7 @@ import Foundation
           This class is available on iOS only.
    */
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRMultiFactorSession) public class MultiFactorSession: NSObject {
+  @objc(FIRMultiFactorSession) open class MultiFactorSession: NSObject {
     /**
      @brief The ID token for an enroll flow. This has to be retrieved after recent authentication.
      */

@@ -18,7 +18,7 @@ import Foundation
     @brief A data class representing the metadata corresponding to a Firebase user.
  */
 
-@objc(FIRUserMetadata) public class UserMetadata: NSObject, NSSecureCoding {
+@objc(FIRUserMetadata) open class UserMetadata: NSObject, NSSecureCoding {
   /** @property lastSignInDate
       @brief Stores the last sign in date for the corresponding Firebase user.
    */

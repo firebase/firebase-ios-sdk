@@ -26,7 +26,7 @@ import Foundation
    (Time-based One Time Password) second factor.
    This class is available on iOS only.
    */
-  @objc(FIRTOTPMultiFactorAssertion) public class TOTPMultiFactorAssertion: MultiFactorAssertion {
+  @objc(FIRTOTPMultiFactorAssertion) open class TOTPMultiFactorAssertion: MultiFactorAssertion {
     let oneTimePassword: String
     let secretOrID: SecretOrID
 

@@ -15,7 +15,7 @@
 import Foundation
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIROAuthCredential) public class OAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIROAuthCredential) open class OAuthCredential: AuthCredential, NSSecureCoding {
   /** @property IDToken
       @brief The ID Token associated with this credential.
    */
@@ -41,14 +41,13 @@ import Foundation
   // private
   let rawNonce: String?
 
-  // TODO: Remove public objc
-  @objc public init(withProviderID providerID: String,
-                    idToken: String? = nil,
-                    rawNonce: String? = nil,
-                    accessToken: String? = nil,
-                    secret: String? = nil,
-                    fullName: PersonNameComponents? = nil,
-                    pendingToken: String? = nil) {
+  init(withProviderID providerID: String,
+       idToken: String? = nil,
+       rawNonce: String? = nil,
+       accessToken: String? = nil,
+       secret: String? = nil,
+       fullName: PersonNameComponents? = nil,
+       pendingToken: String? = nil) {
     self.idToken = idToken
     self.rawNonce = rawNonce
     self.accessToken = accessToken
@@ -60,9 +59,9 @@ import Foundation
     super.init(provider: providerID)
   }
 
-  @objc public init(withProviderID providerID: String,
-                    sessionID: String,
-                    OAuthResponseURLString: String) {
+  init(withProviderID providerID: String,
+       sessionID: String,
+       OAuthResponseURLString: String) {
     self.sessionID = sessionID
     self.OAuthResponseURLString = OAuthResponseURLString
     accessToken = nil

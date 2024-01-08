@@ -54,52 +54,52 @@ private let kClaimsKey = "claims"
     @brief A data class containing the ID token JWT string and other properties associated with the
     token including the decoded payload claims.
  */
-@objc(FIRAuthTokenResult) public class AuthTokenResult: NSObject {
+@objc(FIRAuthTokenResult) open class AuthTokenResult: NSObject {
   /** @property token
       @brief Stores the JWT string of the ID token.
    */
-  @objc public var token: String
+  @objc open var token: String
 
   /** @property expirationDate
       @brief Stores the ID token's expiration date.
    */
-  @objc public var expirationDate: Date
+  @objc open var expirationDate: Date
 
   /** @property authDate
       @brief Stores the ID token's authentication date.
       @remarks This is the date the user was signed in and NOT the date the token was refreshed.
    */
-  @objc public var authDate: Date
+  @objc open var authDate: Date
 
   /** @property issuedAtDate
       @brief Stores the date that the ID token was issued.
       @remarks This is the date last refreshed and NOT the last authentication date.
    */
-  @objc public var issuedAtDate: Date
+  @objc open var issuedAtDate: Date
 
   /** @property signInProvider
       @brief Stores sign-in provider through which the token was obtained.
       @remarks This does not necessarily map to provider IDs.
    */
-  @objc public var signInProvider: String
+  @objc open var signInProvider: String
 
   /** @property signInSecondFactor
       @brief Stores sign-in second factor through which the token was obtained.
    */
-  @objc public var signInSecondFactor: String
+  @objc open var signInSecondFactor: String
 
   /** @property claims
       @brief Stores the entire payload of claims found on the ID token. This includes the standard
           reserved claims as well as custom claims set by the developer via the Admin SDK.
    */
-  @objc public var claims: [String: Any]
+  @objc open var claims: [String: Any]
 
   /** @fn tokenResultWithToken:
        @brief Parse a token string to a structured token.
        @param token The token string to parse.
        @return A structured token result.
    */
-  @objc public class func tokenResult(token: String) -> AuthTokenResult? {
+  @objc open class func tokenResult(token: String) -> AuthTokenResult? {
     let tokenStringArray = token.components(separatedBy: ".")
 
     // The JWT should have three parts, though we only use the second in this method.

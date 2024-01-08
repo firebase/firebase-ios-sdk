@@ -28,8 +28,8 @@ import Foundation
       @param accessToken The Access Token from Google.
       @return An AuthCredential containing the Google credentials.
    */
-  @objc public class func credential(withIDToken IDToken: String,
-                                     accessToken: String) -> AuthCredential {
+  @objc open class func credential(withIDToken IDToken: String,
+                                   accessToken: String) -> AuthCredential {
     return GoogleAuthCredential(withIDToken: IDToken, accessToken: accessToken)
   }
 

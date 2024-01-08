@@ -19,7 +19,7 @@ import Foundation
         action. It contains references to a `User` instance and a `AdditionalUserInfo` instance.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthDataResult) public class AuthDataResult: NSObject, NSSecureCoding {
+@objc(FIRAuthDataResult) open class AuthDataResult: NSObject, NSSecureCoding {
   /** @property user
       @brief The signed in user.
    */

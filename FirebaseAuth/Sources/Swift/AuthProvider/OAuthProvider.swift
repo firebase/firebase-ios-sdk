@@ -25,12 +25,12 @@ import Foundation
   /** @property scopes
       @brief Array used to configure the OAuth scopes.
    */
-  @objc public var scopes: [String]?
+  @objc open var scopes: [String]?
 
   /** @property customParameters
       @brief Dictionary used to configure the OAuth custom parameters.
    */
-  @objc public var customParameters: [String: String]?
+  @objc open var customParameters: [String: String]?
 
   /** @property providerID
       @brief The provider ID indicating the specific OAuth provider this OAuthProvider instance
@@ -43,7 +43,7 @@ import Foundation
           configured.
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
-  @objc(providerWithProviderID:) public class func provider(providerID: String) -> OAuthProvider {
+  @objc(providerWithProviderID:) open class func provider(providerID: String) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: Auth.auth())
   }
 
@@ -53,18 +53,9 @@ import Foundation
       @param auth The auth instance to be associated with the `OAuthProvider` instance.
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
-  @objc(providerWithProviderID:auth:) public class func provider(providerID: String,
-                                                                 auth: Auth) -> OAuthProvider {
+  @objc(providerWithProviderID:auth:) open class func provider(providerID: String,
+                                                               auth: Auth) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: auth)
-  }
-
-  /**
-      @param providerID The provider ID of the IDP for which this auth provider instance will be
-          configured.
-      @return An instance of `OAuthProvider` corresponding to the specified provider ID.
-   */
-  @objc(providerWithProviderID:) public convenience init(providerID: String) {
-    self.init(providerID: providerID, auth: Auth.auth())
   }
 
   /**
@@ -73,7 +64,7 @@ import Foundation
       @param auth The auth instance to be associated with the `OAuthProvider` instance.
       @return An instance of `OAuthProvider` corresponding to the specified provider ID.
    */
-  @objc(providerWithProviderID:auth:) public init(providerID: String, auth: Auth) {
+  public init(providerID: String, auth: Auth = Auth.auth()) {
     if auth.requestConfiguration.emulatorHostAndPort == nil {
       if providerID == FacebookAuthProvider.id {
         fatalError("Sign in with Facebook is not supported via generic IDP; the Facebook TOS " +
@@ -185,8 +176,8 @@ import Foundation
         @param completion Optionally; a block which is invoked asynchronously on the main thread when
             the mobile web flow is completed.
      */
-    public func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
-                                  completion: ((AuthCredential?, Error?) -> Void)? = nil) {
+    open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
+                                completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,
             AuthWebUtils.isCallbackSchemeRegistered(forCustomURLScheme: callbackScheme,
                                                     urlTypes: urlTypes) else {
@@ -259,7 +250,7 @@ import Foundation
      */
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     @objc(getCredentialWithUIDelegate:completion:)
-    public func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
+    open func credential(with uiDelegate: AuthUIDelegate?) async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
         getCredentialWith(uiDelegate) { credential, error in
           if let credential = credential {

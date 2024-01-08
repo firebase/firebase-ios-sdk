@@ -51,11 +51,11 @@ class AuthAppCredential: NSObject, NSSecureCoding {
 
   // MARK: NSSecureCoding
 
-  public static var supportsSecureCoding: Bool {
+  static var supportsSecureCoding: Bool {
     true
   }
 
-  public required convenience init?(coder: NSCoder) {
+  required convenience init?(coder: NSCoder) {
     guard let receipt = coder.decodeObject(of: [NSString.self], forKey: kReceiptKey) as? String
     else {
       return nil
@@ -64,7 +64,7 @@ class AuthAppCredential: NSObject, NSSecureCoding {
     self.init(receipt: receipt, secret: secret)
   }
 
-  public func encode(with coder: NSCoder) {
+  func encode(with coder: NSCoder) {
     coder.encode(receipt, forKey: kReceiptKey)
     coder.encode(secret, forKey: kSecretKey)
   }
