@@ -1119,15 +1119,11 @@
                                    "The NSError should have contained the word 'index' "
                                    "(case-insensitive), but got: %@",
                                    errorDescription);
-                     // TODO(b/316359394) Remove this check for the default databases once
-                     // cl/582465034 is rolled out to production.
-                     if ([[FSTIntegrationTestCase databaseID] isEqualToString:@"(default)"]) {
-                       XCTAssertTrue(
-                           [errorDescription containsString:@"https://console.firebase.google.com"],
-                           "The NSError should have contained the string "
-                           "'https://console.firebase.google.com', but got: %@",
-                           errorDescription);
-                     }
+                     XCTAssertTrue(
+                         [errorDescription containsString:@"https://console.firebase.google.com"],
+                         "The NSError should have contained the string "
+                         "'https://console.firebase.google.com', but got: %@",
+                         errorDescription);
                    }
                    XCTAssertNil(snapshot);
                    [queryCompletion fulfill];
