@@ -31,6 +31,7 @@
 #define RCNTableNameInternalMetadata "internal_metadata"
 #define RCNTableNameExperiment "experiment"
 #define RCNTableNamePersonalization "personalization"
+#define RCNTableNameRollout "rollout"
 
 static BOOL gIsNewDatabase;
 /// SQLite file name in versions 0, 1 and 2.
@@ -284,11 +285,14 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
       "create TABLE IF NOT EXISTS " RCNTableNamePersonalization
       " (_id INTEGER PRIMARY KEY, key INTEGER, value BLOB)";
 
+  static const char *createTableRollout = "create TABLE IF NOT EXISTS " RCNTableNameRollout
+                                          " (_id INTEGER PRIMARY KEY, key TEXT, value BLOB)";
+
   return [self executeQuery:createTableMain] && [self executeQuery:createTableMainActive] &&
          [self executeQuery:createTableMainDefault] && [self executeQuery:createTableMetadata] &&
          [self executeQuery:createTableInternalMetadata] &&
          [self executeQuery:createTableExperiment] &&
-         [self executeQuery:createTablePersonalization];
+         [self executeQuery:createTablePersonalization] && [self executeQuery:createTableRollout];
 }
 
 - (void)removeDatabaseOnDatabaseQueueAtPath:(NSString *)path {
@@ -618,6 +622,43 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   return YES;
 }
 
+- (void)insertRolloutTableWithKey:(NSString *)key
+                            value:(NSData *)serializedValue
+                completionHandler:(RCNDBCompletion)handler {
+  dispatch_async(_databaseOperationQueue, ^{
+    BOOL success = [self insertExperimentTableWithKey:key value:serializedValue];
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(success, nil);
+      });
+    }
+  });
+}
+
+- (BOOL)insertRolloutTableWithKey:(NSString *)key value:(NSData *)dataValue {
+  RCN_MUST_NOT_BE_MAIN_THREAD();
+  const char *SQL =
+      "INSERT OR REPLACE INTO " RCNTableNameRollout
+      " (_id, key, value) values ((SELECT _id from " RCNTableNameRollout " WHERE key = ?), ?, ?)";
+  sqlite3_stmt *statement = [self prepareSQL:SQL];
+  if (!statement) {
+    return NO;
+  }
+  if (![self bindStringToStatement:statement index:1 string:key]) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
+  if (sqlite3_bind_blob(statement, 2, dataValue.bytes, (int)dataValue.length, NULL) != SQLITE_OK) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
+  if (sqlite3_step(statement) != SQLITE_DONE) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+  sqlite3_finalize(statement);
+  return YES;
+}
+
 #pragma mark - update
 
 - (void)updateMetadataWithOption:(RCNUpdateOption)option
@@ -867,6 +908,73 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
                                     length:sqlite3_column_bytes(statement, 0)];
     if (experimentData) {
       [results addObject:experimentData];
+    }
+  }
+
+  sqlite3_finalize(statement);
+  return results;
+}
+
+- (void)loadRolloutWithCompletionHandler:(RCNDBCompletion)handler {
+  __weak RCNConfigDBManager *weakSelf = self;
+  dispatch_async(_databaseOperationQueue, ^{
+    RCNConfigDBManager *strongSelf = weakSelf;
+    if (!strongSelf) {
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        handler(NO, [NSMutableDictionary new]);
+      });
+      return;
+    }
+    NSArray *activeRollout = [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyActiveMetadata];
+    NSArray *fetchedRollout =
+        [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyFetchedMetadata];
+
+    if (handler) {
+      dispatch_async(dispatch_get_main_queue(), ^{
+        handler(
+            YES, @{
+              @RCNRolloutTableKeyActiveMetadata : [activeRollout copy],
+              @RCNRolloutTableKeyFetchedMetadata : [fetchedRollout copy]
+            });
+      });
+    }
+  });
+}
+
+- (NSArray *)loadRolloutTableFromKey:(NSString *)key {
+  RCN_MUST_NOT_BE_MAIN_THREAD();
+  const char *SQL = "SELECT value FROM " RCNTableNameRollout " WHERE key = ?";
+  sqlite3_stmt *statement = [self prepareSQL:SQL];
+  if (!statement) {
+    return nil;
+  }
+  NSArray *params = @[ key ];
+  [self bindStringsToStatement:statement stringArray:params];
+  NSMutableArray *results = [self loadValuesFromStatement:statement];
+  // There should be only one entry in this table.
+  if (results.count != 1) {
+    return nil;
+  }
+  NSArray *rollout;
+  // Convert from NSData to NSArray
+  if (results[0]) {
+    NSError *error;
+    rollout = [NSJSONSerialization JSONObjectWithData:results[0] options:0 error:&error];
+  }
+  if (!rollout) {
+    rollout = [[NSArray alloc] init];
+  }
+  return rollout;
+}
+
+- (NSMutableArray *)loadValuesFromStatement:(sqlite3_stmt *)statement {
+  NSMutableArray *results = [[NSMutableArray alloc] init];
+  NSData *value;
+  while (sqlite3_step(statement) == SQLITE_ROW) {
+    value = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 0)
+                           length:sqlite3_column_bytes(statement, 0)];
+    if (value) {
+      [results addObject:value];
     }
   }
 

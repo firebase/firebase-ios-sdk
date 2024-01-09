@@ -38,6 +38,10 @@
   /// Pending Personalization metadata that is latest data from server that might or might not be
   /// applied.
   NSDictionary *_fetchedPersonalization;
+  /// Active Rollout metadata that is currently used.
+  NSArray *_activeRollout;
+  /// Pending Rollout metadata that is latest data from server that might or might not be applied.
+  NSArray *_fetchedRollout;
   /// DBManager
   RCNConfigDBManager *_DBManager;
   /// Current bundle identifier;
@@ -80,6 +84,8 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     _defaultConfig = [[NSMutableDictionary alloc] init];
     _activePersonalization = [[NSDictionary alloc] init];
     _fetchedPersonalization = [[NSDictionary alloc] init];
+    _activeRollout = [[NSArray alloc] init];
+    _fetchedRollout = [[NSArray alloc] init];
     _bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
     if (!_bundleIdentifier) {
       FIRLogNotice(kFIRLoggerRemoteConfig, @"I-RCN000038",
@@ -134,6 +140,14 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     self->_activePersonalization = [activePersonalization copy];
     dispatch_group_leave(self->_dispatch_group);
   }];
+
+  dispatch_group_enter(_dispatch_group);
+  [_DBManager
+      loadRolloutWithCompletionHandler:^(BOOL success, NSDictionary<NSString *, id> *result) {
+        self->_fetchedRollout = [result[@RCNRolloutTableKeyFetchedMetadata] copy];
+        self->_activeRollout = [result[@RCNRolloutTableKeyActiveMetadata] copy];
+        dispatch_group_leave(self->_dispatch_group);
+      }];
 }
 
 /// Update the current config result to main table.
