@@ -63,7 +63,7 @@ final class AppCheckAPITests {
     }
 
     // Get token (async/await)
-    if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+    if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
       // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
@@ -95,7 +95,7 @@ final class AppCheckAPITests {
       }
 
       // Get token (async/await)
-      if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+      if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
         // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
         Task {
           do {
@@ -166,7 +166,7 @@ final class AppCheckAPITests {
             }
           }
           // Get token (async/await)
-          if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
+          if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
             // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
             Task {
               do {
