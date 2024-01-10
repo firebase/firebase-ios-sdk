@@ -622,11 +622,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   return YES;
 }
 
-- (void)insertRolloutTableWithKey:(NSString *)key
-                            value:(NSData *)serializedValue
-                completionHandler:(RCNDBCompletion)handler {
+- (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
+                                    value:(NSArray *)value
+                        completionHandler:(RCNDBCompletion)handler {
   dispatch_async(_databaseOperationQueue, ^{
-    BOOL success = [self insertExperimentTableWithKey:key value:serializedValue];
+    BOOL success = [self insertOrUpdateRolloutTableWithKey:key value:value];
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{
         handler(success, nil);
@@ -635,8 +635,12 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   });
 }
 
-- (BOOL)insertRolloutTableWithKey:(NSString *)key value:(NSData *)dataValue {
+- (BOOL)insertOrUpdateRolloutTableWithKey:(NSString *)key value:(NSArray *)arrayValue {
   RCN_MUST_NOT_BE_MAIN_THREAD();
+  NSError *error;
+  NSData *dataValue = [NSJSONSerialization dataWithJSONObject:arrayValue
+                                                      options:NSJSONWritingPrettyPrinted
+                                                        error:&error];
   const char *SQL =
       "INSERT OR REPLACE INTO " RCNTableNameRollout
       " (_id, key, value) values ((SELECT _id from " RCNTableNameRollout " WHERE key = ?), ?, ?)";
@@ -648,7 +652,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
   }
 
-  if (sqlite3_bind_blob(statement, 2, dataValue.bytes, (int)dataValue.length, NULL) != SQLITE_OK) {
+  if (![self bindStringToStatement:statement index:2 string:key]) {
+    return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
+  }
+
+  if (sqlite3_bind_blob(statement, 3, dataValue.bytes, (int)dataValue.length, NULL) != SQLITE_OK) {
     return [self logErrorWithSQL:SQL finalizeStatement:statement returnValue:NO];
   }
 
@@ -893,7 +901,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 - (NSMutableArray<NSData *> *)loadExperimentTableFromKey:(NSString *)key {
   RCN_MUST_NOT_BE_MAIN_THREAD();
 
-  NSMutableArray *results = [[NSMutableArray alloc] init];
   const char *SQL = "SELECT value FROM " RCNTableNameExperiment " WHERE key = ?";
   sqlite3_stmt *statement = [self prepareSQL:SQL];
   if (!statement) {
@@ -902,16 +909,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
   NSArray *params = @[ key ];
   [self bindStringsToStatement:statement stringArray:params];
-  NSData *experimentData;
-  while (sqlite3_step(statement) == SQLITE_ROW) {
-    experimentData = [NSData dataWithBytes:(char *)sqlite3_column_blob(statement, 0)
-                                    length:sqlite3_column_bytes(statement, 0)];
-    if (experimentData) {
-      [results addObject:experimentData];
-    }
-  }
-
-  sqlite3_finalize(statement);
+  NSMutableArray *results = [self loadValuesFromStatement:statement];
   return results;
 }
 
@@ -926,8 +924,14 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
       return;
     }
     NSArray *activeRollout = [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyActiveMetadata];
+    if (!activeRollout) {
+      activeRollout = [[NSArray alloc] init];
+    }
     NSArray *fetchedRollout =
         [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyFetchedMetadata];
+    if (!fetchedRollout) {
+      fetchedRollout = [[NSArray alloc] init];
+    }
 
     if (handler) {
       dispatch_async(dispatch_get_main_queue(), ^{

@@ -117,9 +117,9 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 ///                   RCNConfigDefines.h.
 /// @param value      The value that rollout metadata array.
 /// @param handler    The callback.
-- (void)insertRolloutTableWithKey:(NSString *)key
-                            value:(NSData *)value
-                completionHandler:(RCNDBCompletion)handler;
+- (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
+                                    value:(NSArray *)value
+                        completionHandler:(RCNDBCompletion)handler;
 
 /// Clear the record of given namespace and package name
 /// before updating the table.

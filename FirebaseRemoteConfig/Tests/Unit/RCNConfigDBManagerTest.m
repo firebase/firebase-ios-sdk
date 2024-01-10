@@ -587,6 +587,120 @@
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 
+- (void)testWriteAndLoadFetchedAndActiveRollout {
+  XCTestExpectation *writeAndLoadFetchedRolloutExpectation =
+      [self expectationWithDescription:@"Write and load rollout in database successfully"];
+
+  NSArray *fetchedRollout = @[
+    @{
+      @"rollout_id" : @"1",
+      @"variant_id" : @"B",
+      @"affected_parameter_keys" : @[ @"key_1", @"key_2" ]
+    },
+    @{
+      @"rollout_id" : @"2",
+      @"variant_id" : @"1",
+      @"affected_parameter_keys" : @[ @"key_1", @"key_3" ]
+    }
+  ];
+
+  NSArray *activeRollout = @[
+    @{
+      @"rollout_id" : @"1",
+      @"variant_id" : @"B",
+      @"affected_parameter_keys" : @[ @"key_1", @"key_2" ]
+    },
+    @{
+      @"rollout_id" : @"3",
+      @"variant_id" : @"a",
+      @"affected_parameter_keys" : @[ @"key_1", @"key_3" ]
+    }
+  ];
+
+  RCNDBCompletion writeFetchedRolloutCompletion = ^(BOOL success, NSDictionary *result) {
+    XCTAssertTrue(success);
+    RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *rolloutResults) {
+      XCTAssertTrue(success);
+      XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
+      XCTAssertEqualObjects(fetchedRollout, rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
+      XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
+      XCTAssertEqualObjects(activeRollout, rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
+
+      [writeAndLoadFetchedRolloutExpectation fulfill];
+    };
+    [self->_DBManager loadRolloutWithCompletionHandler:readCompletion];
+  };
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
+                                          value:fetchedRollout
+                              completionHandler:nil];
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
+                                          value:activeRollout
+                              completionHandler:writeFetchedRolloutCompletion];
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
+- (void)testUpdateAndLoadRollout {
+  XCTestExpectation *updateAndLoadFetchedRolloutExpectation =
+      [self expectationWithDescription:@"Update and load rollout in database successfully"];
+
+  NSArray *fetchedRollout = @[ @{
+    @"rollout_id" : @"1",
+    @"variant_id" : @"B",
+    @"affected_parameter_keys" : @[ @"key_1", @"key_2" ]
+  } ];
+
+  NSArray *updatedFetchedRollout = @[
+    @{
+      @"rollout_id" : @"1",
+      @"variant_id" : @"B",
+      @"affected_parameter_keys" : @[ @"key_1", @"key_2" ]
+    },
+    @{
+      @"rollout_id" : @"2",
+      @"variant_id" : @"1",
+      @"affected_parameter_keys" : @[ @"key_1", @"key_3" ]
+    }
+  ];
+
+  RCNDBCompletion writeFetchedRolloutCompletion = ^(BOOL success, NSDictionary *result) {
+    XCTAssertTrue(success);
+    RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *rolloutResults) {
+      XCTAssertTrue(success);
+      XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
+      XCTAssertEqualObjects(updatedFetchedRollout,
+                            rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
+
+      [updateAndLoadFetchedRolloutExpectation fulfill];
+    };
+    [self->_DBManager loadRolloutWithCompletionHandler:readCompletion];
+  };
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
+                                          value:fetchedRollout
+                              completionHandler:nil];
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
+                                          value:updatedFetchedRollout
+                              completionHandler:writeFetchedRolloutCompletion];
+
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+- (void)testLoadEmptyRollout {
+  XCTestExpectation *updateAndLoadFetchedRolloutExpectation =
+      [self expectationWithDescription:@"Load empty rollout in database successfully"];
+  NSArray *emptyResult = [[NSArray alloc] init];
+  RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *rolloutResults) {
+    XCTAssertTrue(success);
+    XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
+    XCTAssertEqualObjects(emptyResult, rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
+    XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
+    XCTAssertEqualObjects(emptyResult, rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
+
+    [updateAndLoadFetchedRolloutExpectation fulfill];
+  };
+  [self->_DBManager loadRolloutWithCompletionHandler:readCompletion];
+  [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
+}
+
 - (void)testUpdateAndloadLastFetchStatus {
   XCTestExpectation *updateAndLoadMetadataExpectation = [self
       expectationWithDescription:@"Update and load last fetch status in database successfully."];
