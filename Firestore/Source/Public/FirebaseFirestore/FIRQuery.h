@@ -560,8 +560,8 @@ NS_SWIFT_NAME(Query)
  * the documents.
  *
  * Using this `AggregateQuery` to count the documents is efficient because only the final count, not
- * the documents' data, is downloaded. The `AggregateQuery` can count the documents if the result
- * set would be prohibitively large to download entirely (thousands of documents).
+ * the documents' data, is downloaded. The `AggregateQuery` can count the documents in cases where
+ * the result set is prohibitively large to download entirely (thousands of documents).
  */
 @property(nonatomic, readonly) FIRAggregateQuery *count;
 
@@ -571,8 +571,8 @@ NS_SWIFT_NAME(Query)
  *
  * Using an `AggregateQuery` to perform aggregations is efficient because only the final aggregation
  * values, not the documents' data, is downloaded. The returned `AggregateQuery` can perform
- * aggregations of the documents if the result set would be prohibitively large to download entirely
- * (thousands of documents).
+ * aggregations of the documents in cases where the result set is prohibitively large to download
+ * entirely (thousands of documents).
  *
  * @param aggregateFields Specifies the aggregate operations to perform on the result set of this
  * query.
