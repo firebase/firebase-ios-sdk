@@ -22,8 +22,9 @@ public class RolloutAssignment: NSObject {
   @objc public var parameterKey: String
   @objc public var parameterValue: String
 
-  public init(rolloutId: String, variantId: String, templateVersion: Int64, parameterKey: String,
-              parameterValue: String) {
+  @objc public init(rolloutId: String, variantId: String, templateVersion: Int64,
+                    parameterKey: String,
+                    parameterValue: String) {
     self.rolloutId = rolloutId
     self.variantId = variantId
     self.templateVersion = templateVersion
@@ -37,7 +38,7 @@ public class RolloutAssignment: NSObject {
 public class RolloutsState: NSObject {
   @objc public var assignments: Set<RolloutAssignment> = Set()
 
-  public init(assignmentList: [RolloutAssignment]) {
+  @objc public init(assignmentList: [RolloutAssignment]) {
     for assignment in assignmentList {
       assignments.insert(assignment)
     }
