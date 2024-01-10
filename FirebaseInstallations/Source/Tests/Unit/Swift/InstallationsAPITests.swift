@@ -52,7 +52,7 @@ final class InstallationsAPITests {
     }
 
     if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           try await Installations.installations().installationID()
@@ -72,7 +72,7 @@ final class InstallationsAPITests {
     }
 
     if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           _ = try await Installations.installations().authToken()
@@ -92,7 +92,7 @@ final class InstallationsAPITests {
     }
 
     if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           _ = try await Installations.installations().authTokenForcingRefresh(true)
@@ -111,7 +111,7 @@ final class InstallationsAPITests {
 
     #if swift(>=5.5)
       if #available(iOS 13.0, macOS 11.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-        // async/await is a Swift 5.5+ feature available on iOS 15+
+        // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
         Task {
           do {
             _ = try await Installations.installations().delete()
