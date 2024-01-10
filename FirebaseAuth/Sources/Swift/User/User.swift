@@ -1369,10 +1369,21 @@ extension User: NSSecureCoding {}
    */
   var tokenService: SecureTokenService
 
+  private weak var _auth: Auth?
   /** @property auth
       @brief A weak reference to a FIRAuth instance associated with this instance.
    */
-  weak var auth: Auth?
+  weak var auth: Auth? {
+    set {
+      _auth = newValue
+      guard let requestConfiguration = auth?.requestConfiguration else {
+        fatalError("Firebase Auth Internal Error: nil requestConfiguration when initializing User")
+      }
+      tokenService.requestConfiguration = requestConfiguration
+      self.requestConfiguration = requestConfiguration
+    }
+    get { return _auth }
+  }
 
   // MARK: Private functions
 
@@ -2102,8 +2113,8 @@ extension User: NSSecureCoding {}
             of: NSString.self,
             forKey: kFirebaseAppIDCodingKey
           ) as? String,
-          let tokenService = coder.decodeObject(forKey: kTokenServiceCodingKey)
-          as? SecureTokenService else {
+          let tokenService = coder.decodeObject(of: SecureTokenService.self,
+                                                forKey: kTokenServiceCodingKey) else {
       return nil
     }
     let anonymous = coder.decodeBool(forKey: kAnonymousCodingKey)
@@ -2112,7 +2123,7 @@ extension User: NSSecureCoding {}
       of: NSString.self,
       forKey: kDisplayNameCodingKey
     ) as? String
-    let photoURL = coder.decodeObject(forKey: kPhotoURLCodingKey) as? URL
+    let photoURL = coder.decodeObject(of: NSURL.self, forKey: kPhotoURLCodingKey) as? URL
     let email = coder.decodeObject(of: NSString.self, forKey: kEmailCodingKey) as? String
     let phoneNumber = coder.decodeObject(
       of: NSString.self,
@@ -2120,10 +2131,10 @@ extension User: NSSecureCoding {}
     ) as? String
     let emailVerified = coder.decodeBool(forKey: kEmailVerifiedCodingKey)
     let providerData = coder.decodeObject(forKey: kProviderDataKey) as? [String: UserInfoImpl]
-    let metadata = coder.decodeObject(forKey: kMetadataCodingKey) as? UserMetadata
+    let metadata = coder.decodeObject(of: UserMetadata.self, forKey: kMetadataCodingKey)
     let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
     #if os(iOS)
-      let multiFactor = coder.decodeObject(forKey: kMultiFactorCodingKey) as? MultiFactor
+      let multiFactor = coder.decodeObject(of: MultiFactor.self, forKey: kMultiFactorCodingKey)
     #endif
     self.tokenService = tokenService
     uid = userID
