@@ -30,6 +30,7 @@ private let kFiveMinutes = 5 * 60.0
     @brief A class represents a credential that proves the identity of the app.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@objc(FIRSecureTokenService) // objc Needed for decoding old versions
 class SecureTokenService: NSObject, NSSecureCoding {
   /** @property requestConfiguration
       @brief The configuration for making requests to server.
@@ -126,7 +127,7 @@ class SecureTokenService: NSObject, NSSecureCoding {
     let accessTokenExpirationDate = coder.decodeObject(
       of: [NSDate.self], forKey: Self.kAccessTokenExpirationDateKey
     ) as? Date
-    // TODO: the nil matches the ObjC implementation, but doesn't seem right.
+    // requestConfiguration is filled in after User is set by Auth.protectedDataInitialization.
     self.init(withRequestConfiguration: nil,
               accessToken: accessToken,
               accessTokenExpirationDate: accessTokenExpirationDate,

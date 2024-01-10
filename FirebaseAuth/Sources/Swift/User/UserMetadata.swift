@@ -18,6 +18,7 @@ import Foundation
     @brief A data class representing the metadata corresponding to a Firebase user.
  */
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserMetadata) open class UserMetadata: NSObject, NSSecureCoding {
   /** @property lastSignInDate
       @brief Stores the last sign in date for the corresponding Firebase user.
@@ -50,9 +51,9 @@ import Foundation
 
   public required convenience init?(coder: NSCoder) {
     let creationDate = coder.decodeObject(of: [NSDate.self],
-                                          forKey: UserMetadata.kCreationDateCodingKey) as? Date
+                                          forKey: UserMetadata.kCreationDateCodingKey)
     let lastSignInDate = coder.decodeObject(of: [NSDate.self],
-                                            forKey: UserMetadata.kLastSignInDateCodingKey) as? Date
-    self.init(withCreationDate: creationDate, lastSignInDate: lastSignInDate)
+                                            forKey: UserMetadata.kLastSignInDateCodingKey)
+    self.init(withCreationDate: creationDate as? Date, lastSignInDate: lastSignInDate as? Date)
   }
 }
