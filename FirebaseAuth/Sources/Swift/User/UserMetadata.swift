@@ -51,9 +51,9 @@ import Foundation
 
   public required convenience init?(coder: NSCoder) {
     let creationDate = coder.decodeObject(of: [NSDate.self],
-                                          forKey: UserMetadata.kCreationDateCodingKey) as? Date
+                                          forKey: UserMetadata.kCreationDateCodingKey)
     let lastSignInDate = coder.decodeObject(of: [NSDate.self],
-                                            forKey: UserMetadata.kLastSignInDateCodingKey) as? Date
-    self.init(withCreationDate: creationDate, lastSignInDate: lastSignInDate)
+                                            forKey: UserMetadata.kLastSignInDateCodingKey)
+    self.init(withCreationDate: creationDate as? Date, lastSignInDate: lastSignInDate as? Date)
   }
 }

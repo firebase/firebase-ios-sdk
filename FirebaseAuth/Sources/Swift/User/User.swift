@@ -2130,7 +2130,9 @@ extension User: NSSecureCoding {}
       forKey: kPhoneNumberCodingKey
     ) as? String
     let emailVerified = coder.decodeBool(forKey: kEmailVerifiedCodingKey)
-    let providerData = coder.decodeObject(forKey: kProviderDataKey) as? [String: UserInfoImpl]
+    let classes = [NSDictionary.self, NSString.self, UserInfoImpl.self]
+    let providerData = coder.decodeObject(of: classes, forKey: kProviderDataKey)
+      as? [String: UserInfoImpl]
     let metadata = coder.decodeObject(of: UserMetadata.self, forKey: kMetadataCodingKey)
     let tenantID = coder.decodeObject(of: NSString.self, forKey: kTenantIDCodingKey) as? String
     #if os(iOS)
