@@ -45,6 +45,18 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
     return rollouts
   }()
 
+  let singleRollout: RolloutsState = {
+    let assignment1 = RolloutAssignment(
+      rolloutId: "rollout_1",
+      variantId: "control",
+      templateVersion: 1,
+      parameterKey: "my_feature",
+      parameterValue: "这是themis的测试数据，输入中文" // check unicode
+    )
+    let rollouts = RolloutsState(assignmentList: [assignment1])
+    return rollouts
+  }()
+
   let rcInterop = RemoteConfigConfigMock()
 
   func testRemoteConfigManagerProperlyProcessRolloutsState() throws {
@@ -60,5 +72,16 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
         )
       }
     }
+  }
+
+  func testRemoteConfigManagerGenerateEncodedRolloutAssignmentsJson() throws {
+    let expectedString =
+      "[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":\"e8bf99e698af7468656d6973e79a84e6b58be8af95e695b0e68daeefbc8ce8be93e585a5e4b8ade69687\",\"rollout_id\":\"726f6c6c6f75745f31\",\"template_version\":1,\"variant_id\":\"636f6e74726f6c\"}]"
+
+    let rcManager = CrashlyticsRemoteConfigManager(remoteConfig: rcInterop)
+    rcManager.updateRolloutsState(rolloutsState: singleRollout)
+
+    let string = rcManager.getRolloutAssignmentsEncodedJson()
+    XCTAssertEqual(string, expectedString)
   }
 }
