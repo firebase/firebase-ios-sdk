@@ -1,6 +1,6 @@
-# Unreleased
+# Firebase 10.20.0
 - The following change only applies to those using a binary distribution of
-  a Firebase SDK(s). In preparation for supporting Privacy Manifests, each
+  a Firebase SDK(s): In preparation for supporting Privacy Manifests, each
   platform framework directory within a static xcframewok no longer contains
   an `Info.plist` file (#12243).
 
