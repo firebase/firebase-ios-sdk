@@ -25,7 +25,7 @@ public class CrashlyticsRemoteConfigManager: NSObject {
   public static let maxParameterValueLength = 256
 
   var remoteConfig: RemoteConfigInterop
-  public private(set) var rolloutAssignment: [RolloutAssignment] = []
+  @objc public private(set) var rolloutAssignment: [RolloutAssignment] = []
   weak var persistenceDelegate: CrashlyticsPersistentLog?
 
   @objc public init(remoteConfig: RemoteConfigInterop) {
@@ -34,6 +34,24 @@ public class CrashlyticsRemoteConfigManager: NSObject {
 
   @objc public func updateRolloutsState(rolloutsState: RolloutsState) {
     rolloutAssignment = normalizeRolloutAssignment(assignments: Array(rolloutsState.assignments))
+  }
+
+  @objc public func getRolloutAssignmentsEncodedJson() -> String? {
+    let contentEncodedRolloutAssignments = rolloutAssignment.map { assignment in
+      EncodedRolloutAssignment(assignment: assignment)
+    }
+
+    let encoder = JSONEncoder()
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    encoder.outputFormatting = .sortedKeys
+    let encodeData = try? encoder.encode(contentEncodedRolloutAssignments)
+    if let data = encodeData, let returnString = String(data: data, encoding: .utf8) {
+      return returnString
+    }
+
+    // TODO(themisw): Hook into core logging functions
+    debugPrint("Failed to serialize rollouts", encodeData ?? "nil")
+    return nil
   }
 }
 
