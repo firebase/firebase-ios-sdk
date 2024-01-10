@@ -113,7 +113,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           let /* dataSnapshot */ _: DataSnapshot = try await DatabaseQuery().getData()
@@ -137,7 +137,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         // observeSingleEvent(of eventType:)
         let _: (DataSnapshot, String?) = await DatabaseQuery()
@@ -207,7 +207,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // setValue(_ value:)
@@ -227,7 +227,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // setValue(_ value:andPriority priority:)
@@ -249,7 +249,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           let /* ref */ _: DatabaseReference = try await DatabaseReference().removeValue()
@@ -269,7 +269,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // setPriority(_ priority:)
@@ -290,7 +290,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // updateChildValues(_ values:)
@@ -344,7 +344,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         // observeSingleEvent(of eventType:)
         let _: (DataSnapshot, String?) = await DatabaseReference()
@@ -376,7 +376,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           let /* dataSnapshot */ _: DataSnapshot = try await DatabaseReference().getData()
@@ -418,7 +418,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // onDisconnectSetValue(_ value:)
@@ -440,7 +440,7 @@ final class DatabaseAPITests {
       }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // onDisconnectSetValue(_ value:andPriority priority:)
@@ -464,7 +464,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           let /* ref */ _: DatabaseReference = try await DatabaseReference()
@@ -485,7 +485,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // onDisconnectUpdateChildValues(_ values:)
@@ -507,7 +507,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           let /* ref */ _: DatabaseReference = try await DatabaseReference()
@@ -537,7 +537,7 @@ final class DatabaseAPITests {
     }
 
     if #available(iOS 13.0, macOS 10.15, macCatalyst 13.0, tvOS 13.0, watchOS 7.0, *) {
-      // async/await is a Swift 5.5+ feature available on iOS 15+
+      // async/await is a Swift Concurrency feature available on iOS 13+ and macOS 10.15+
       Task {
         do {
           // runTransactionBlock(_ block:)
