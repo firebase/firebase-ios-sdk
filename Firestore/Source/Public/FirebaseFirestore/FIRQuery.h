@@ -556,7 +556,7 @@ NS_SWIFT_NAME(Query)
 #pragma mark - Aggregation
 
 /**
- * A query that counts the documents in the result set of this query, without actually downloading
+ * A query that counts the documents in the result set of this query without actually downloading
  * the documents.
  *
  * Using this `AggregateQuery` to count the documents is efficient because only the final count, not
@@ -567,7 +567,7 @@ NS_SWIFT_NAME(Query)
 
 /**
  * Creates and returns a new `AggregateQuery` that aggregates the documents in the result set
- * of this query, without actually downloading the documents.
+ * of this query without actually downloading the documents.
  *
  * Using an `AggregateQuery` to perform aggregations is efficient because only the final aggregation
  * values, not the documents' data, is downloaded. The returned `AggregateQuery` can perform
