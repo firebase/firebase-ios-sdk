@@ -17,7 +17,7 @@ import Foundation
 #if os(iOS)
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-extension MultiFactor: NSSecureCoding {}
+  extension MultiFactor: NSSecureCoding {}
   /** @class FIRMultiFactor
    @brief The interface defining the multi factor related properties and operations pertaining to a
        user.
