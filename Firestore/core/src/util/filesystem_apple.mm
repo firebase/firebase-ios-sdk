@@ -22,6 +22,7 @@
 
 #include "Firestore/core/src/util/path.h"
 #include "Firestore/core/src/util/statusor.h"
+#include "Firestore/core/src/util/string_format.h"
 #include "absl/strings/str_cat.h"
 
 namespace firebase {
@@ -88,6 +89,24 @@ Path Filesystem::TempDir() {
   }
 
   return Path::FromUtf8("/tmp");
+}
+
+Status Filesystem::IsDirectory(const Path& path) {
+  NSFileManager* file_manager = NSFileManager.defaultManager;
+  NSString* ns_path_str = path.ToNSString();
+  BOOL is_directory = NO;
+
+  if (![file_manager fileExistsAtPath:ns_path_str isDirectory:&is_directory]) {
+    return Status{Error::kErrorNotFound, path.ToUtf8String()};
+  }
+
+  if (!is_directory) {
+    return Status{Error::kErrorFailedPrecondition,
+                  StringFormat("Path %s exists but is not a directory",
+                               path.ToUtf8String())};
+  }
+
+  return Status::OK();
 }
 
 }  // namespace util
