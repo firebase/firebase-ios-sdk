@@ -918,9 +918,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
-      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(NO, [NSMutableDictionary new]);
-      });
       return;
     }
     NSArray *activeRollout = [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyActiveMetadata];
