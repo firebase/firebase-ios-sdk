@@ -48,12 +48,12 @@ class UserInfoImpl: NSObject, UserInfo {
       @param email The user's email address.
       @param phoneNumber The user's phone number.
    */
-  init(withProviderID providerID: String,
-       userID: String,
-       displayName: String?,
-       photoURL: URL?,
-       email: String?,
-       phoneNumber: String?) {
+  private init(withProviderID providerID: String,
+               userID: String,
+               displayName: String?,
+               photoURL: URL?,
+               email: String?,
+               phoneNumber: String?) {
     self.providerID = providerID
     uid = userID
     self.displayName = displayName

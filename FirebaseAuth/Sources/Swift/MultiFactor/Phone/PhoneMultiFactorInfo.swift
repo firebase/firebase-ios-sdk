@@ -51,9 +51,7 @@ import Foundation
 
     private let kPhoneNumberCodingKey = "phoneNumber"
 
-    // Workaround Cannot override mutable property with read-only property 'supportsSecureCoding'
-    private static var secureCodingWorkaround = true
-    override open class var supportsSecureCoding: Bool { return secureCodingWorkaround }
+    override public class var supportsSecureCoding: Bool { return true }
 
     public required init?(coder: NSCoder) {
       guard let phoneNumber = coder.decodeObject(of: NSString.self,

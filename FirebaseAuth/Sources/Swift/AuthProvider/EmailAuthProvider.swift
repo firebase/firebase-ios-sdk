@@ -69,9 +69,9 @@ import Foundation
 
   // MARK: Secure Coding
 
-  public static var supportsSecureCoding = true
+  static var supportsSecureCoding = true
 
-  public func encode(with coder: NSCoder) {
+  func encode(with coder: NSCoder) {
     coder.encode(email, forKey: "email")
     switch emailType {
     case let .password(password): coder.encode(password, forKey: "password")
@@ -79,7 +79,7 @@ import Foundation
     }
   }
 
-  public required init?(coder: NSCoder) {
+  required init?(coder: NSCoder) {
     guard let email = coder.decodeObject(of: NSString.self, forKey: "email") as? String else {
       return nil
     }

@@ -44,11 +44,11 @@ import Foundation
   private static let kReceiptKey = "receipt"
   private static let kSecretKey = "secret"
 
-  public static var supportsSecureCoding: Bool {
+  static var supportsSecureCoding: Bool {
     true
   }
 
-  public required convenience init?(coder: NSCoder) {
+  required convenience init?(coder: NSCoder) {
     guard let receipt = coder.decodeObject(of: NSString.self,
                                            forKey: AuthAppCredential.kReceiptKey) as? String
     else {
@@ -59,7 +59,7 @@ import Foundation
     self.init(receipt: receipt, secret: secret)
   }
 
-  public func encode(with coder: NSCoder) {
+  func encode(with coder: NSCoder) {
     coder.encode(receipt, forKey: AuthAppCredential.kReceiptKey)
     coder.encode(secret, forKey: AuthAppCredential.kSecretKey)
   }
