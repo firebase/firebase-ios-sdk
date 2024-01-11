@@ -16,11 +16,8 @@ import Foundation
 
 #if os(iOS)
   private let kUIDCodingKey = "uid"
-
   private let kDisplayNameCodingKey = "displayName"
-
   private let kEnrollmentDateCodingKey = "enrollmentDate"
-
   private let kFactorIDCodingKey = "factorID"
 
   /** @class FIRMultiFactorInfo

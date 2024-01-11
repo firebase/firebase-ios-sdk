@@ -45,7 +45,7 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class EmailAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIREmailPasswordAuthCredential) class EmailAuthCredential: AuthCredential, NSSecureCoding {
   let email: String
 
   enum EmailType {
@@ -66,6 +66,8 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
     emailType = .link(link)
     super.init(provider: EmailAuthProvider.id)
   }
+
+  // MARK: Secure Coding
 
   public static var supportsSecureCoding = true
 

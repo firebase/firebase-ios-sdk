@@ -14,7 +14,9 @@
 
 import Foundation
 
-class UserInfoImpl: NSObject, UserInfo, NSSecureCoding {
+extension UserInfoImpl: NSSecureCoding {}
+
+class UserInfoImpl: NSObject, UserInfo {
   /** @fn userInfoWithGetAccountInfoResponseProviderUserInfo:
       @brief A convenience factory method for constructing a @c FIRUserInfo instance from data
           returned by the getAccountInfo endpoint.

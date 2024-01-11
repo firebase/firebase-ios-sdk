@@ -39,7 +39,7 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class TwitterAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIRTwitterAuthCredential) class TwitterAuthCredential: AuthCredential, NSSecureCoding {
   let token: String
   let secret: String
 
@@ -54,7 +54,9 @@ class TwitterAuthCredential: AuthCredential, NSSecureCoding {
     request.providerOAuthTokenSecret = secret
   }
 
-  static var supportsSecureCoding = true
+  // MARK: Secure Coding
+
+  public static var supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {
     coder.encode(token, forKey: "token")

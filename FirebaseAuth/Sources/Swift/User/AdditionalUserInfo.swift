@@ -14,12 +14,8 @@
 
 import Foundation
 
-@objc(FIRAdditionalUserInfo) open class AdditionalUserInfo: NSObject, NSSecureCoding {
-  private static let providerIDCodingKey = "providerID"
-  private static let profileCodingKey = "profile"
-  private static let usernameCodingKey = "username"
-  private static let newUserKey = "newUser"
-
+extension AdditionalUserInfo: NSSecureCoding {}
+@objc(FIRAdditionalUserInfo) open class AdditionalUserInfo: NSObject {
   /** @property providerID
       @brief The provider identifier.
    */
@@ -51,6 +47,13 @@ import Foundation
     self.username = username
     self.isNewUser = isNewUser
   }
+
+  // MARK: Secure Coding
+
+  private static let providerIDCodingKey = "providerID"
+  private static let profileCodingKey = "profile"
+  private static let usernameCodingKey = "username"
+  private static let newUserKey = "newUser"
 
   public static var supportsSecureCoding: Bool {
     return true

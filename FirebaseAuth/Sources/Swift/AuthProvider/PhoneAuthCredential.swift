@@ -38,6 +38,8 @@ import Foundation
     super.init(provider: providerID)
   }
 
+  // MARK: Secure Coding
+
   public static var supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {

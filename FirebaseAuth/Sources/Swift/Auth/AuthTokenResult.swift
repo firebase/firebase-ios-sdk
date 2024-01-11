@@ -14,42 +14,6 @@
 
 import Foundation
 
-/** @var kExpirationDateKey
-    @brief The key used to encode the expirationDate property for NSSecureCoding.
- */
-// XXX TODO: TYPO IN ORIGINAL KEY. TO FIX OR NOT?
-private let kExpirationDateKey = "expiratinDate"
-
-/** @var kTokenKey
-    @brief The key used to encode the token property for NSSecureCoding.
- */
-private let kTokenKey = "token"
-
-/** @var kAuthDateKey
-    @brief The key used to encode the authDate property for NSSecureCoding.
- */
-private let kAuthDateKey = "authDate"
-
-/** @var kIssuedDateKey
-    @brief The key used to encode the issuedDate property for NSSecureCoding.
- */
-private let kIssuedDateKey = "issuedDate"
-
-/** @var kSignInProviderKey
-    @brief The key used to encode the signInProvider property for NSSecureCoding.
- */
-private let kSignInProviderKey = "signInProvider"
-
-/** @var kSignInSecondFactorKey
- @brief The key used to encode the signInSecondFactor property for NSSecureCoding.
- */
-private let kSignInSecondFactorKey = "signInSecondFactor"
-
-/** @var kClaimsKey
-    @brief The key used to encode the claims property for NSSecureCoding.
- */
-private let kClaimsKey = "claims"
-
 /** @class FIRAuthTokenResult
     @brief A data class containing the ID token JWT string and other properties associated with the
     token including the decoded payload claims.
@@ -181,29 +145,3 @@ struct JWT: Decodable {
   let iat: Date
   let firebase: FirebasePayload
 }
-
-/*
- @implementation FIRAuthTokenResult
-
- + (nullable FIRAuthTokenResult *)tokenResultWithToken:(NSString *)token {
-
- }
-
- #pragma mark - NSSecureCoding
-
- + (BOOL)supportsSecureCoding {
-   return YES;
- }
-
- - (nullable instancetype)initWithCoder:(NSCoder *)aDecoder {
-   NSString *token = [aDecoder decodeObjectOfClass:[NSDate class] forKey:kTokenKey];
-   return [FIRAuthTokenResult tokenResultWithToken:token];
- }
-
- - (void)encodeWithCoder:(NSCoder *)aCoder {
-   [aCoder encodeObject:_token forKey:kTokenKey];
- }
-
- @end
-
- */
