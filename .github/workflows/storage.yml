@@ -22,10 +22,10 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
+        language: [Swift, ObjC]
         include:
           - os: macos-13
             xcode: Xcode_15.1
-          - language: [Swift, ObjC]
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
     runs-on: ${{ matrix.os }}
