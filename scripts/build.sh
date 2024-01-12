@@ -526,7 +526,7 @@ case "$product-$platform-$method" in
       test
     ;;
 
-  StoragSwift-*-xcodebuild)
+  StorageSwift-*-xcodebuild)
     pod_gen FirebaseStorage.podspec --platforms=ios
 
     # Add GoogleService-Info.plist to generated Test Wrapper App.
