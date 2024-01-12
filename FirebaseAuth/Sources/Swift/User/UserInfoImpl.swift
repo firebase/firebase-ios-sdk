@@ -16,7 +16,7 @@ import Foundation
 
 extension UserInfoImpl: NSSecureCoding {}
 
-class UserInfoImpl: NSObject, UserInfo {
+@objc(FIRUserInfoImpl) class UserInfoImpl: NSObject, UserInfo {
   /** @fn userInfoWithGetAccountInfoResponseProviderUserInfo:
       @brief A convenience factory method for constructing a @c FIRUserInfo instance from data
           returned by the getAccountInfo endpoint.
@@ -25,14 +25,12 @@ class UserInfoImpl: NSObject, UserInfo {
    */
   class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
-    guard let providerID = providerUserInfo.providerID,
-          let userID = providerUserInfo.federatedID else {
+    guard let providerID = providerUserInfo.providerID else {
       // This was a crash in ObjC implementation. Should providerID be not nullable?
-      // federatedID is nil on initial Phone Auth.
-      fatalError("Missing userID or providerID from GetAccountInfoResponseProviderUserInfo")
+      fatalError("Missing providerID from GetAccountInfoResponseProviderUserInfo")
     }
     return UserInfoImpl(withProviderID: providerID,
-                        userID: userID,
+                        userID: providerUserInfo.federatedID,
                         displayName: providerUserInfo.displayName,
                         photoURL: providerUserInfo.photoURL,
                         email: providerUserInfo.email,
@@ -49,7 +47,7 @@ class UserInfoImpl: NSObject, UserInfo {
       @param phoneNumber The user's phone number.
    */
   private init(withProviderID providerID: String,
-               userID: String,
+               userID: String?,
                displayName: String?,
                photoURL: URL?,
                email: String?,
@@ -63,7 +61,7 @@ class UserInfoImpl: NSObject, UserInfo {
   }
 
   var providerID: String
-  var uid: String
+  var uid: String?
   var displayName: String?
   var photoURL: URL?
   var email: String?
