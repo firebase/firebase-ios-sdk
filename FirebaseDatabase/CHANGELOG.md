@@ -84,7 +84,7 @@
   high precision to be stored correctly in our persistence layer. (#4108)
 
 # 6.1.1
-- [fixed] Fixed an iOS 13 crash that occured in our WebSocket error handling. (#3950)
+- [fixed] Fixed an iOS 13 crash that occurred in our WebSocket error handling. (#3950)
 
 # 6.1.0
 - [fixed] Fix Catalyst Build issue. (#3512)
