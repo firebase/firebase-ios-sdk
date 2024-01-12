@@ -91,15 +91,14 @@ extension UserInfoImpl: NSSecureCoding {}
 
   required convenience init?(coder: NSCoder) {
     guard let providerID = coder.decodeObject(of: [NSString.self],
-                                              forKey: UserInfoImpl.kProviderIDCodingKey) as? String,
-      let uid = coder.decodeObject(
-        of: [NSString.self],
-        forKey: UserInfoImpl.kUserIDCodingKey
-      ) as? String
+                                              forKey: UserInfoImpl.kProviderIDCodingKey) as? String
     else {
       return nil
     }
-
+    let uid = coder.decodeObject(
+      of: [NSString.self],
+      forKey: UserInfoImpl.kUserIDCodingKey
+    ) as? String
     let displayName = coder.decodeObject(
       of: [NSString.self],
       forKey: UserInfoImpl.kDisplayNameCodingKey
