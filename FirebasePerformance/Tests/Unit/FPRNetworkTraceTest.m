@@ -237,7 +237,7 @@
   NSDictionary<NSString *, NSNumber *> *states = [trace checkpointStates];
   XCTAssertEqual(states.count, 1);
 
-  // Validate if the first checkpoint occured before the second checkpoint time.
+  // Validate if the first checkpoint occurred before the second checkpoint time.
   XCTAssertLessThan(firstCheckpointTime, secondCheckpointTime);
   // Validate if the time has not changed even after rec checkpointing.
   XCTAssertEqual(firstInitiatedTime, secondInitiatedTime);
