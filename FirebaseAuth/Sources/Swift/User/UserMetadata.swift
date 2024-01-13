@@ -19,7 +19,10 @@ import Foundation
  */
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRUserMetadata) open class UserMetadata: NSObject, NSSecureCoding {
+extension UserMetadata: NSSecureCoding {}
+
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@objc(FIRUserMetadata) open class UserMetadata: NSObject {
   /** @property lastSignInDate
       @brief Stores the last sign in date for the corresponding Firebase user.
    */

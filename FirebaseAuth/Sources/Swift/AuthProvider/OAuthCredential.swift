@@ -117,7 +117,8 @@ import Foundation
     accessToken = coder.decodeObject(of: NSString.self, forKey: "accessToken") as? String
     pendingToken = coder.decodeObject(of: NSString.self, forKey: "pendingToken") as? String
     secret = coder.decodeObject(of: NSString.self, forKey: "secret") as? String
-    fullName = coder.decodeObject(forKey: "fullName") as? PersonNameComponents
+    fullName = coder.decodeObject(of: NSPersonNameComponents.self, forKey: "fullName")
+      as? PersonNameComponents
     OAuthResponseURLString = nil
     sessionID = nil
     super.init(provider: OAuthProvider.id)

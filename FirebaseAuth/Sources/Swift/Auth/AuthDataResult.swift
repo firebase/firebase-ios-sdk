@@ -14,12 +14,15 @@
 
 import Foundation
 
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+extension AuthDataResult: NSSecureCoding {}
+
 /** @class AuthDataResult
     @brief Helper object that contains the result of a successful sign-in, link and reauthenticate
         action. It contains references to a `User` instance and a `AdditionalUserInfo` instance.
  */
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-@objc(FIRAuthDataResult) open class AuthDataResult: NSObject, NSSecureCoding {
+@objc(FIRAuthDataResult) open class AuthDataResult: NSObject {
   /** @property user
       @brief The signed in user.
    */
@@ -37,10 +40,6 @@ import Foundation
    */
   @objc public let credential: OAuthCredential?
 
-  private let kAdditionalUserInfoCodingKey = "additionalUserInfo"
-  private let kUserCodingKey = "user"
-  private let kCredentialCodingKey = "credential"
-
   /** @fn initWithUser:additionalUserInfo:
    @brief Designated initializer.
    @param user The signed in user reference.
@@ -55,9 +54,13 @@ import Foundation
     self.credential = credential
   }
 
-  public static var supportsSecureCoding: Bool {
-    return true
-  }
+  // MARK: Secure Coding
+
+  private let kAdditionalUserInfoCodingKey = "additionalUserInfo"
+  private let kUserCodingKey = "user"
+  private let kCredentialCodingKey = "credential"
+
+  public static var supportsSecureCoding = true
 
   public func encode(with coder: NSCoder) {
     coder.encode(user, forKey: kUserCodingKey)
@@ -66,12 +69,12 @@ import Foundation
   }
 
   public required init?(coder: NSCoder) {
-    guard let user = coder.decodeObject(forKey: kUserCodingKey) as? User else {
+    guard let user = coder.decodeObject(of: User.self, forKey: kUserCodingKey) else {
       return nil
     }
     self.user = user
-    additionalUserInfo = coder.decodeObject(forKey: kAdditionalUserInfoCodingKey)
-      as? AdditionalUserInfo
-    credential = coder.decodeObject(forKey: kCredentialCodingKey) as? OAuthCredential
+    additionalUserInfo = coder.decodeObject(of: AdditionalUserInfo.self,
+                                            forKey: kAdditionalUserInfoCodingKey)
+    credential = coder.decodeObject(of: OAuthCredential.self, forKey: kCredentialCodingKey)
   }
 }

@@ -15,13 +15,7 @@
 import Foundation
 
 #if os(iOS)
-  private let kUIDCodingKey = "uid"
-
-  private let kDisplayNameCodingKey = "displayName"
-
-  private let kEnrollmentDateCodingKey = "enrollmentDate"
-
-  private let kFactorIDCodingKey = "factorID"
+  extension MultiFactorInfo: NSSecureCoding {}
 
   /** @class FIRMultiFactorInfo
    @brief Safe public structure used to represent a second factor entity from a client perspective.
@@ -58,6 +52,22 @@ import Foundation
       enrollmentDate = proto.enrolledAt ?? Date()
     }
 
+    // MARK: NSSecureCoding
+
+    private let kUIDCodingKey = "uid"
+    private let kDisplayNameCodingKey = "displayName"
+    private let kEnrollmentDateCodingKey = "enrollmentDate"
+    private let kFactorIDCodingKey = "factorID"
+
+    public class var supportsSecureCoding: Bool { return true }
+
+    public func encode(with coder: NSCoder) {
+      coder.encode(uid, forKey: kUIDCodingKey)
+      coder.encode(displayName, forKey: kDisplayNameCodingKey)
+      coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
+      coder.encode(factorID, forKey: kFactorIDCodingKey)
+    }
+
     public required init?(coder: NSCoder) {
       guard let uid = coder.decodeObject(of: [NSString.self], forKey: kUIDCodingKey) as? String,
             let factorID = coder.decodeObject(of: [NSString.self],
@@ -74,18 +84,6 @@ import Foundation
         of: [NSString.self],
         forKey: kDisplayNameCodingKey
       ) as? String
-    }
-  }
-
-  extension MultiFactorInfo: NSSecureCoding {
-    private static var secureCodingWorkaround = true
-    open class var supportsSecureCoding: Bool { return secureCodingWorkaround }
-
-    public func encode(with coder: NSCoder) {
-      coder.encode(uid, forKey: kUIDCodingKey)
-      coder.encode(displayName, forKey: kDisplayNameCodingKey)
-      coder.encode(enrollmentDate, forKey: kEnrollmentDateCodingKey)
-      coder.encode(factorID, forKey: kFactorIDCodingKey)
     }
   }
 #endif

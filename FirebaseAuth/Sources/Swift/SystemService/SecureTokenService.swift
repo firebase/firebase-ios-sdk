@@ -14,16 +14,6 @@
 
 import Foundation
 
-/** @var kReceiptKey
-    @brief The key used to encode the receipt property for NSSecureCoding.
- */
-private let kReceiptKey = "receipt"
-
-/** @var kSecretKey
-    @brief The key used to encode the secret property for NSSecureCoding.
- */
-private let kSecretKey = "secret"
-
 private let kFiveMinutes = 5 * 60.0
 
 /** @class FIRAuthAppCredential

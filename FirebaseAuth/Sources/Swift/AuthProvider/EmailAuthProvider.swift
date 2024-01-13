@@ -45,7 +45,7 @@ import Foundation
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-class EmailAuthCredential: AuthCredential, NSSecureCoding {
+@objc(FIREmailPasswordAuthCredential) class EmailAuthCredential: AuthCredential, NSSecureCoding {
   let email: String
 
   enum EmailType {
@@ -67,9 +67,11 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
     super.init(provider: EmailAuthProvider.id)
   }
 
-  public static var supportsSecureCoding = true
+  // MARK: Secure Coding
 
-  public func encode(with coder: NSCoder) {
+  static var supportsSecureCoding = true
+
+  func encode(with coder: NSCoder) {
     coder.encode(email, forKey: "email")
     switch emailType {
     case let .password(password): coder.encode(password, forKey: "password")
@@ -77,7 +79,7 @@ class EmailAuthCredential: AuthCredential, NSSecureCoding {
     }
   }
 
-  public required init?(coder: NSCoder) {
+  required init?(coder: NSCoder) {
     guard let email = coder.decodeObject(of: NSString.self, forKey: "email") as? String else {
       return nil
     }

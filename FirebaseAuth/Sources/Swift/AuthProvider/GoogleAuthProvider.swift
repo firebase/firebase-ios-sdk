@@ -55,6 +55,8 @@ import Foundation
     request.providerAccessToken = accessToken
   }
 
+  // MARK: Secure Coding
+
   static var supportsSecureCoding = true
 
   func encode(with coder: NSCoder) {

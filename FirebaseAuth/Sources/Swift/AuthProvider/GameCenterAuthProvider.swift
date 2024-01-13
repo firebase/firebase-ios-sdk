@@ -133,7 +133,8 @@
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  class GameCenterAuthCredential: AuthCredential, NSSecureCoding {
+  @objc(FIRGameCenterAuthCredential) class GameCenterAuthCredential: AuthCredential,
+    NSSecureCoding {
     let playerID: String
     let teamPlayerID: String?
     let gamePlayerID: String?
@@ -168,6 +169,8 @@
       super.init(provider: GameCenterAuthProvider.id)
     }
 
+    // MARK: Secure Coding
+
     static var supportsSecureCoding = true
 
     func encode(with coder: NSCoder) {
@@ -191,7 +194,7 @@
               of: NSString.self,
               forKey: "gamePlayerID"
             ) as? String,
-            let timestamp = coder.decodeObject(forKey: "timestamp") as? UInt64,
+            let timestamp = coder.decodeObject(of: NSNumber.self, forKey: "timestamp") as? UInt64,
             let displayName = coder.decodeObject(
               of: NSString.self,
               forKey: "displayName"

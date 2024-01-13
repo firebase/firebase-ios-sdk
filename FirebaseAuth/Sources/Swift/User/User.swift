@@ -1142,17 +1142,20 @@ extension User: NSSecureCoding {}
           return
         }
         guard let accessToken else {
-          fatalError("Internal Error: Both error and accessToken are nil.")
+          fatalError("Auth Internal Error: Both error and accessToken are nil.")
         }
         guard let requestConfiguration = self.auth?.requestConfiguration else {
-          fatalError("Internal Error: Unexpected nil requestConfiguration.")
+          fatalError("Auth Internal Error: Unexpected nil requestConfiguration.")
         }
-        let request = DeleteAccountRequest(localID: self.uid, accessToken: accessToken,
+        guard let uid = self.uid else {
+          fatalError("Auth Internal Error: uid is nil.")
+        }
+        let request = DeleteAccountRequest(localID: uid, accessToken: accessToken,
                                            requestConfiguration: requestConfiguration)
         Task {
           do {
             let _ = try await AuthBackend.call(with: request)
-            try self.auth?.signOutByForce(withUserID: self.uid)
+            try self.auth?.signOutByForce(withUserID: uid)
             User.callInMainThreadWithError(callback: completion, error: nil)
           } catch {
             User.callInMainThreadWithError(callback: completion, error: error)
@@ -1325,7 +1328,7 @@ extension User: NSSecureCoding {}
   /** @property uid
       @brief The provider's user ID for the user.
    */
-  @objc open var uid: String
+  @objc open var uid: String?
 
   /** @property displayName
       @brief The name of the user.
@@ -1958,6 +1961,9 @@ extension User: NSSecureCoding {}
       @param error The error from the server.
    */
   private func signOutIfTokenIsInvalid(withError error: Error) {
+    guard let uid else {
+      return
+    }
     let code = (error as NSError).code
     if code == AuthErrorCode.userNotFound.rawValue ||
       code == AuthErrorCode.userDisabled.rawValue ||
@@ -2082,7 +2088,9 @@ extension User: NSSecureCoding {}
   private let kMultiFactorCodingKey = "multiFactor"
   private let kTenantIDCodingKey = "tenantID"
 
-  public static var supportsSecureCoding = true
+  public static var supportsSecureCoding: Bool {
+    return true
+  }
 
   public func encode(with coder: NSCoder) {
     coder.encode(uid, forKey: kUserIDCodingKey)

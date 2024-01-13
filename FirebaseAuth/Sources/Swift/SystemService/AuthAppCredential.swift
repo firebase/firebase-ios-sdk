@@ -14,20 +14,10 @@
 
 import Foundation
 
-/** @var kReceiptKey
-    @brief The key used to encode the receipt property for NSSecureCoding.
- */
-private let kReceiptKey = "receipt"
-
-/** @var kSecretKey
-    @brief The key used to encode the secret property for NSSecureCoding.
- */
-private let kSecretKey = "secret"
-
 /** @class FIRAuthAppCredential
     @brief A class represents a credential that proves the identity of the app.
  */
-class AuthAppCredential: NSObject, NSSecureCoding {
+@objc(FIRAuthAppCredential) class AuthAppCredential: NSObject, NSSecureCoding {
   /** @property receipt
       @brief The server acknowledgement of receiving client's claim of identity.
    */
@@ -51,21 +41,26 @@ class AuthAppCredential: NSObject, NSSecureCoding {
 
   // MARK: NSSecureCoding
 
+  private static let kReceiptKey = "receipt"
+  private static let kSecretKey = "secret"
+
   static var supportsSecureCoding: Bool {
     true
   }
 
   required convenience init?(coder: NSCoder) {
-    guard let receipt = coder.decodeObject(of: [NSString.self], forKey: kReceiptKey) as? String
+    guard let receipt = coder.decodeObject(of: NSString.self,
+                                           forKey: AuthAppCredential.kReceiptKey) as? String
     else {
       return nil
     }
-    let secret = coder.decodeObject(of: [NSString.self], forKey: kSecretKey) as? String
+    let secret = coder.decodeObject(of: NSString.self,
+                                    forKey: AuthAppCredential.kSecretKey) as? String
     self.init(receipt: receipt, secret: secret)
   }
 
   func encode(with coder: NSCoder) {
-    coder.encode(receipt, forKey: kReceiptKey)
-    coder.encode(secret, forKey: kSecretKey)
+    coder.encode(receipt, forKey: AuthAppCredential.kReceiptKey)
+    coder.encode(secret, forKey: AuthAppCredential.kSecretKey)
   }
 }
