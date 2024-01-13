@@ -139,13 +139,6 @@ extension Auth: AuthInterop {
   }
 }
 
-// This prevents FIRComponentContainer from warning when instantiating from the protocol.
-extension Auth: AuthProvider {
-  func auth() -> Auth {
-    return self
-  }
-}
-
 /** @class Auth
     @brief Manages authentication for Firebase apps.
     @remarks This class is thread-safe.
@@ -175,7 +168,7 @@ extension Auth: AuthProvider {
    @return The `Auth` instance associated with the given app.
    */
   @objc open class func auth(app: FirebaseApp) -> Auth {
-    return ComponentType<AuthProvider>.instance(for: AuthProvider.self, in: app.container) as! Auth
+    return ComponentType<AuthProvider>.instance(for: AuthProvider.self, in: app.container).auth()
   }
 
   /** @property app
