@@ -139,6 +139,13 @@ extension Auth: AuthInterop {
   }
 }
 
+// This prevents FIRComponentContainer from warning when instantiating from the protocol.
+extension Auth: AuthProvider {
+  func auth() -> Auth {
+    return self
+  }
+}
+
 /** @class Auth
     @brief Manages authentication for Firebase apps.
     @remarks This class is thread-safe.
