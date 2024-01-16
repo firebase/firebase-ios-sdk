@@ -16,9 +16,3 @@
 #if TARGET_OS_WATCH
 #warning "Firebase Firestore does not support watchOS"
 #endif
-
-#if (defined(TARGET_OS_VISION) && TARGET_OS_VISION) && FIREBASE_BINARY_FIRESTORE
-#warning "Firebase Firestore's binary SPM distribution does not support \
-          visionOS. See workaround documented in the 10.12.0 release notes: \
-          https://firebase.google.com/support/release-notes/ios#version_10120_-_july_11_2023"
-#endif
