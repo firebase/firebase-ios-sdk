@@ -85,7 +85,7 @@ NS_ASSUME_NONNULL_BEGIN
                                completion(nil, error);
                              }
                            } else {
-                             [self->auth
+                             [self.auth
                                  completeSignInWithAccessToken:response.IDToken
                                      accessTokenExpirationDate:nil
                                                   refreshToken:response.refreshToken
@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
                                                                       initWithUser:user
                                                                 additionalUserInfo:nil];
                                                         FIRAuthDataResultCallback
-                                                            decoratedCallback = [self->auth
+                                                            decoratedCallback = [self.auth
                                                                 signInFlowAuthDataResultCallbackByDecoratingCallback:
                                                                     completion];
                                                         decoratedCallback(result, error);
