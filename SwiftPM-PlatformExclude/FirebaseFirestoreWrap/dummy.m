@@ -19,6 +19,9 @@
 
 #if (defined(TARGET_OS_VISION) && TARGET_OS_VISION) && FIREBASE_BINARY_FIRESTORE
 #warning "Firebase Firestore's binary SPM distribution does not support \
-visionOS. See workaround documented in the 10.12.0 release notes: \
-https://firebase.google.com/support/release-notes/ios#version_10120_-_july_11_2023"
+visionOS. To enable the source distribution, quit Xcode and open the desired \
+project from the command line with the FIREBASE_SOURCE_FIRESTORE environment \
+variable: `open --env FIREBASE_SOURCE_FIRESTORE /path/to/project.xcodeproj`. \
+To go back to using the binary distribution of Firestore, quit Xcode and open \
+Xcode like normal, without the environment variable."
 #endif
