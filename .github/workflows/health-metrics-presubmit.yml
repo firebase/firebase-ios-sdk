@@ -54,54 +54,6 @@ jobs:
             ./scripts/health_metrics/get_updated_files.sh
           fi
 
-  binary_size_metrics:
-    needs: check
-    # Prevent the job from being triggered in fork.
-    # always() will trigger this job when `needs` are skipped in a `merge` pull_request event.
-    if: always() && github.event.pull_request.head.repo.full_name == github.repository && ((github.event.action != 'closed' &&  github.event.pull_request.base.ref == 'main') || github.event.pull_request.merged)
-    runs-on: macos-12
-    strategy:
-      matrix:
-        target: [iOS]
-    steps:
-    - uses: actions/checkout@v4
-    - name: Access to Metrics Service
-      run: |
-        # Install gcloud sdk
-        curl https://sdk.cloud.google.com > install.sh
-        bash install.sh --disable-prompts
-        echo "${HOME}/google-cloud-sdk/bin/" >> $GITHUB_PATH
-        export PATH="${HOME}/google-cloud-sdk/bin/:${PATH}"
-
-        # Activate the service account for Metrics Service.
-        scripts/decrypt_gha_secret.sh scripts/gha-encrypted/metrics_service_access.json.gpg \
-        metrics-access.json "${{ env.METRICS_SERVICE_SECRET }}"
-        gcloud auth activate-service-account --key-file metrics-access.json
-    - name: Build and test
-      run: |
-        FirebaseABTesting=${{ needs.check.outputs.abtesting_run_job }} \
-        FirebaseAnalytics=${{ needs.check.outputs.analytics_run_job }} \
-        FirebaseAppCheck=${{ needs.check.outputs.appcheck_run_job }} \
-        FirebaseAppDistribution=${{ needs.check.outputs.appdistribution_run_job }} \
-        FirebaseAuth=${{ needs.check.outputs.auth_run_job }} \
-        FirebaseCrashlytics=${{ needs.check.outputs.crashlytics_run_job }} \
-        FirebaseDatabase=${{ needs.check.outputs.database_run_job }} \
-        FirebaseDynamicLinks=${{ needs.check.outputs.dynamiclinks_run_job }} \
-        FirebaseFirestore=${{ needs.check.outputs.firestore_run_job }} \
-        FirebaseFunctions=${{ needs.check.outputs.functions_run_job}} \
-        FirebaseInAppMessaging=${{ needs.check.outputs.inappmessaging_run_job }} \
-        FirebaseInstallations=${{ needs.check.outputs.installations_run_job }} \
-        FirebaseMessaging=${{ needs.check.outputs.messaging_run_job}} \
-        FirebasePerformance=${{ needs.check.outputs.performance_run_job }} \
-        FirebaseRemoteConfig=${{ needs.check.outputs.remoteconfig_run_job }} \
-        FirebaseStorage=${{ needs.check.outputs.storage_run_job }} \
-        ./scripts/health_metrics/create_binary_size_report.sh
-      env:
-        PULL_REQUEST_NUM: ${{ github.event.pull_request.number }}
-        BASE_COMMIT: ${{ needs.check.outputs.target_branch_head }}
-        POSTSUBMIT: ${{ github.event.pull_request.merged }}
-        SOURCE_BRANCH: ${{ github.base_ref }}
-
   pod-lib-lint-abtesting:
     needs: check
     # Don't run on private repo unless it is a PR.
