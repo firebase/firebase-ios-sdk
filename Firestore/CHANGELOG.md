@@ -1,6 +1,6 @@
 # Unreleased
 - Add warning when trying to build Firestore's binary SPM distribution for
-  visionOS (#12279). See Firestore's 10.12.0 release note for supported
+  visionOS (#12279). See Firestore's 10.12.0 release note for a supported
   workaround.
 
 # 10.19.0
