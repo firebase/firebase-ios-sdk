@@ -913,35 +913,6 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   return results;
 }
 
-- (void)loadRolloutMetadataWithCompletionHandler:(RCNDBCompletion)handler {
-  __weak RCNConfigDBManager *weakSelf = self;
-  dispatch_async(_databaseOperationQueue, ^{
-    RCNConfigDBManager *strongSelf = weakSelf;
-    if (!strongSelf) {
-      return;
-    }
-    NSArray *activeRollout = [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyActiveMetadata];
-    if (!activeRollout) {
-      activeRollout = [[NSArray alloc] init];
-    }
-    NSArray *fetchedRollout =
-        [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyFetchedMetadata];
-    if (!fetchedRollout) {
-      fetchedRollout = [[NSArray alloc] init];
-    }
-
-    if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
-        handler(
-            YES, @{
-              @RCNRolloutTableKeyActiveMetadata : [activeRollout copy],
-              @RCNRolloutTableKeyFetchedMetadata : [fetchedRollout copy]
-            });
-      });
-    }
-  });
-}
-
 - (NSArray *)loadRolloutTableFromKey:(NSString *)key {
   RCN_MUST_NOT_BE_MAIN_THREAD();
   const char *SQL = "SELECT value FROM " RCNTableNameRollout " WHERE key = ?";
@@ -989,7 +960,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(NO, [NSMutableDictionary new], [NSMutableDictionary new], nil);
+        handler(NO, [NSMutableDictionary new], [NSMutableDictionary new], nil, nil);
       });
       return;
     }
@@ -1022,7 +993,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 
     if (handler) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(YES, fetchedPersonalization, activePersonalization, nil);
+        handler(YES, fetchedPersonalization, activePersonalization, nil, nil);
       });
     }
   });
@@ -1096,7 +1067,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     RCNConfigDBManager *strongSelf = weakSelf;
     if (!strongSelf) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        handler(NO, [NSDictionary new], [NSDictionary new], [NSDictionary new]);
+        handler(NO, [NSDictionary new], [NSDictionary new], [NSDictionary new], [NSDictionary new]);
       });
       return;
     }
@@ -1109,12 +1080,26 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
     __block NSDictionary *defaultConfig =
         [strongSelf loadMainTableWithBundleIdentifier:bundleIdentifier
                                            fromSource:RCNDBSourceDefault];
+
+    __block NSArray *fetchedRolloutMetadata =
+        [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyFetchedMetadata];
+    __block NSArray *activeRolloutMetadata =
+        [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyActiveMetadata];
+
     if (handler) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         fetchedConfig = fetchedConfig ? fetchedConfig : [[NSDictionary alloc] init];
         activeConfig = activeConfig ? activeConfig : [[NSDictionary alloc] init];
         defaultConfig = defaultConfig ? defaultConfig : [[NSDictionary alloc] init];
-        handler(YES, fetchedConfig, activeConfig, defaultConfig);
+        fetchedRolloutMetadata =
+            fetchedRolloutMetadata ? fetchedRolloutMetadata : [[NSArray alloc] init];
+        activeRolloutMetadata =
+            activeRolloutMetadata ? activeRolloutMetadata : [[NSArray alloc] init];
+        NSDictionary *rolloutMetadata = @{
+          @RCNRolloutTableKeyActiveMetadata : [activeRolloutMetadata copy],
+          @RCNRolloutTableKeyFetchedMetadata : [fetchedRolloutMetadata copy]
+        };
+        handler(YES, fetchedConfig, activeConfig, defaultConfig, rolloutMetadata);
       });
     }
   });

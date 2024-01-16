@@ -83,8 +83,8 @@
                            BOOL loadSuccess,
                            NSDictionary<NSString *, NSDictionary<NSString *, id> *> *fetchedConfig,
                            NSDictionary<NSString *, NSDictionary<NSString *, id> *> *activeConfig,
-                           NSDictionary<NSString *, NSDictionary<NSString *, id> *>
-                               *defaultConfig) {
+                           NSDictionary<NSString *, NSDictionary<NSString *, id> *> *defaultConfig,
+                           NSDictionary *unusedRolloutMetadata) {
                          XCTAssertTrue(loadSuccess);
                          NSString *fullyQualifiedNamespace =
                              [NSString stringWithFormat:@"%@:%@", namespace_p, kFIRDefaultAppName];
@@ -125,18 +125,19 @@
       XCTAssertTrue(success);
       if (count == 100) {
         // check DB read correctly
-        [self->_DBManager loadMainWithBundleIdentifier:bundleIdentifier
-                                     completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                                         NSDictionary *activeConfig,
-                                                         NSDictionary *defaultConfig) {
-                                       NSMutableDictionary *res = [fetchedConfig mutableCopy];
-                                       XCTAssertTrue(success);
-                                       FIRRemoteConfigValue *value = res[namespace_p][@"key100"];
-                                       XCTAssertEqualObjects(value.stringValue, @"value100");
-                                       if (success) {
-                                         [loadConfigContentExpectation fulfill];
-                                       }
-                                     }];
+        [self->_DBManager
+            loadMainWithBundleIdentifier:bundleIdentifier
+                       completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
+                                           NSDictionary *activeConfig, NSDictionary *defaultConfig,
+                                           NSDictionary *unusedRolloutMetadata) {
+                         NSMutableDictionary *res = [fetchedConfig mutableCopy];
+                         XCTAssertTrue(success);
+                         FIRRemoteConfigValue *value = res[namespace_p][@"key100"];
+                         XCTAssertEqualObjects(value.stringValue, @"value100");
+                         if (success) {
+                           [loadConfigContentExpectation fulfill];
+                         }
+                       }];
       }
     };
     NSString *value = [NSString stringWithFormat:@"value%d", i];
@@ -382,7 +383,8 @@
     [self->_DBManager
         loadMainWithBundleIdentifier:bundleIdentifier
                    completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                       NSDictionary *activeConfig, NSDictionary *defaultConfig) {
+                                       NSDictionary *activeConfig, NSDictionary *defaultConfig,
+                                       NSDictionary *unusedRolloutMetadata) {
                      NSMutableDictionary *res = [activeConfig mutableCopy];
                      XCTAssertTrue(success);
                      FIRRemoteConfigValue *value = res[namespaceToDelete][@"keyToDelete"];
@@ -403,7 +405,8 @@
     [self->_DBManager
         loadMainWithBundleIdentifier:bundleIdentifier
                    completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                       NSDictionary *activeConfig, NSDictionary *defaultConfig) {
+                                       NSDictionary *activeConfig, NSDictionary *defaultConfig,
+                                       NSDictionary *unusedRolloutMetadata) {
                      NSMutableDictionary *res = [activeConfig mutableCopy];
                      XCTAssertTrue(success);
                      FIRRemoteConfigValue *value2 = res[namespaceToKeep][@"keyToRetain"];
@@ -591,6 +594,8 @@
   XCTestExpectation *writeAndLoadFetchedRolloutExpectation =
       [self expectationWithDescription:@"Write and load rollout in database successfully"];
 
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+
   NSArray *fetchedRollout = @[
     @{
       @"rollout_id" : @"1",
@@ -617,25 +622,28 @@
     }
   ];
 
-  RCNDBCompletion writeFetchedRolloutCompletion = ^(BOOL success, NSDictionary *result) {
+  RCNDBCompletion writeRolloutCompletion = ^(BOOL success, NSDictionary *result) {
     XCTAssertTrue(success);
-    RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *rolloutResults) {
+    RCNDBLoadCompletion loadCompletion = ^(
+        BOOL success, NSDictionary *unusedFetchedConfig, NSDictionary *unusedActiveConfig,
+        NSDictionary *unusedDefaultConfig, NSDictionary *rolloutMetadata) {
       XCTAssertTrue(success);
-      XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
-      XCTAssertEqualObjects(fetchedRollout, rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
-      XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
-      XCTAssertEqualObjects(activeRollout, rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
+      XCTAssertNotNil(rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata]);
+      XCTAssertEqualObjects(fetchedRollout, rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata]);
+      XCTAssertNotNil(rolloutMetadata[@RCNRolloutTableKeyActiveMetadata]);
+      XCTAssertEqualObjects(activeRollout, rolloutMetadata[@RCNRolloutTableKeyActiveMetadata]);
 
       [writeAndLoadFetchedRolloutExpectation fulfill];
     };
-    [self->_DBManager loadRolloutMetadataWithCompletionHandler:readCompletion];
+    [self->_DBManager loadMainWithBundleIdentifier:bundleIdentifier
+                                 completionHandler:loadCompletion];
   };
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
                                           value:fetchedRollout
                               completionHandler:nil];
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
                                           value:activeRollout
-                              completionHandler:writeFetchedRolloutCompletion];
+                              completionHandler:writeRolloutCompletion];
 
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
@@ -643,6 +651,8 @@
 - (void)testUpdateAndLoadRollout {
   XCTestExpectation *updateAndLoadFetchedRolloutExpectation =
       [self expectationWithDescription:@"Update and load rollout in database successfully"];
+
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
 
   NSArray *fetchedRollout = @[ @{
     @"rollout_id" : @"1",
@@ -663,41 +673,50 @@
     }
   ];
 
-  RCNDBCompletion writeFetchedRolloutCompletion = ^(BOOL success, NSDictionary *result) {
+  RCNDBCompletion writeRolloutCompletion = ^(BOOL success, NSDictionary *result) {
     XCTAssertTrue(success);
-    RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *rolloutResults) {
-      XCTAssertTrue(success);
-      XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
-      XCTAssertEqualObjects(updatedFetchedRollout,
-                            rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
+    RCNDBLoadCompletion loadCompletion =
+        ^(BOOL success, NSDictionary *unusedFetchedConfig, NSDictionary *unusedActiveConfig,
+          NSDictionary *unusedDefaultConfig, NSDictionary *rolloutMetadata) {
+          XCTAssertTrue(success);
+          XCTAssertNotNil(rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata]);
+          XCTAssertEqualObjects(updatedFetchedRollout,
+                                rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata]);
 
-      [updateAndLoadFetchedRolloutExpectation fulfill];
-    };
-    [self->_DBManager loadRolloutMetadataWithCompletionHandler:readCompletion];
+          [updateAndLoadFetchedRolloutExpectation fulfill];
+        };
+    [self->_DBManager loadMainWithBundleIdentifier:bundleIdentifier
+                                 completionHandler:loadCompletion];
   };
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
                                           value:fetchedRollout
                               completionHandler:nil];
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
                                           value:updatedFetchedRollout
-                              completionHandler:writeFetchedRolloutCompletion];
+                              completionHandler:writeRolloutCompletion];
 
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 - (void)testLoadEmptyRollout {
   XCTestExpectation *updateAndLoadFetchedRolloutExpectation =
       [self expectationWithDescription:@"Load empty rollout in database successfully"];
-  NSArray *emptyResult = [[NSArray alloc] init];
-  RCNDBCompletion readCompletion = ^(BOOL success, NSDictionary *rolloutResults) {
-    XCTAssertTrue(success);
-    XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
-    XCTAssertEqualObjects(emptyResult, rolloutResults[@RCNRolloutTableKeyFetchedMetadata]);
-    XCTAssertNotNil(rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
-    XCTAssertEqualObjects(emptyResult, rolloutResults[@RCNRolloutTableKeyActiveMetadata]);
 
-    [updateAndLoadFetchedRolloutExpectation fulfill];
-  };
-  [self->_DBManager loadRolloutMetadataWithCompletionHandler:readCompletion];
+  NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+
+  NSArray *emptyResult = [[NSArray alloc] init];
+
+  RCNDBLoadCompletion loadCompletion =
+      ^(BOOL success, NSDictionary *unusedFetchedConfig, NSDictionary *unusedActiveConfig,
+        NSDictionary *unusedDefaultConfig, NSDictionary *rolloutMetadata) {
+        XCTAssertTrue(success);
+        XCTAssertNotNil(rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata]);
+        XCTAssertEqualObjects(emptyResult, rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata]);
+        XCTAssertNotNil(rolloutMetadata[@RCNRolloutTableKeyActiveMetadata]);
+        XCTAssertEqualObjects(emptyResult, rolloutMetadata[@RCNRolloutTableKeyActiveMetadata]);
+
+        [updateAndLoadFetchedRolloutExpectation fulfill];
+      };
+  [self->_DBManager loadMainWithBundleIdentifier:bundleIdentifier completionHandler:loadCompletion];
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 

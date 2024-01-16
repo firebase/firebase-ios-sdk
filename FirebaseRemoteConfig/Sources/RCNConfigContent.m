@@ -121,33 +121,30 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   _isDatabaseLoadAlreadyInitiated = true;
 
   dispatch_group_enter(_dispatch_group);
-  [_DBManager
-      loadMainWithBundleIdentifier:_bundleIdentifier
-                 completionHandler:^(BOOL success, NSDictionary *fetchedConfig,
-                                     NSDictionary *activeConfig, NSDictionary *defaultConfig) {
-                   self->_fetchedConfig = [fetchedConfig mutableCopy];
-                   self->_activeConfig = [activeConfig mutableCopy];
-                   self->_defaultConfig = [defaultConfig mutableCopy];
-                   dispatch_group_leave(self->_dispatch_group);
-                 }];
+  [_DBManager loadMainWithBundleIdentifier:_bundleIdentifier
+                         completionHandler:^(
+                             BOOL success, NSDictionary *fetchedConfig, NSDictionary *activeConfig,
+                             NSDictionary *defaultConfig, NSDictionary *rolloutMetadata) {
+                           self->_fetchedConfig = [fetchedConfig mutableCopy];
+                           self->_activeConfig = [activeConfig mutableCopy];
+                           self->_defaultConfig = [defaultConfig mutableCopy];
+                           self->_fetchedRolloutMetadata =
+                               [rolloutMetadata[@RCNRolloutTableKeyFetchedMetadata] copy];
+                           self->_activeRolloutMetadata =
+                               [rolloutMetadata[@RCNRolloutTableKeyActiveMetadata] copy];
+                           dispatch_group_leave(self->_dispatch_group);
+                         }];
 
   // TODO(karenzeng): Refactor personalization to be returned in loadMainWithBundleIdentifier above
   dispatch_group_enter(_dispatch_group);
-  [_DBManager loadPersonalizationWithCompletionHandler:^(
-                  BOOL success, NSDictionary *fetchedPersonalization,
-                  NSDictionary *activePersonalization, NSDictionary *defaultConfig) {
-    self->_fetchedPersonalization = [fetchedPersonalization copy];
-    self->_activePersonalization = [activePersonalization copy];
-    dispatch_group_leave(self->_dispatch_group);
-  }];
-
-  dispatch_group_enter(_dispatch_group);
-  [_DBManager loadRolloutMetadataWithCompletionHandler:^(BOOL success,
-                                                         NSDictionary<NSString *, id> *result) {
-    self->_fetchedRolloutMetadata = [result[@RCNRolloutTableKeyFetchedMetadata] copy];
-    self->_activeRolloutMetadata = [result[@RCNRolloutTableKeyActiveMetadata] copy];
-    dispatch_group_leave(self->_dispatch_group);
-  }];
+  [_DBManager
+      loadPersonalizationWithCompletionHandler:^(
+          BOOL success, NSDictionary *fetchedPersonalization, NSDictionary *activePersonalization,
+          NSDictionary *defaultConfig, NSDictionary *rolloutMetadata) {
+        self->_fetchedPersonalization = [fetchedPersonalization copy];
+        self->_activePersonalization = [activePersonalization copy];
+        dispatch_group_leave(self->_dispatch_group);
+      }];
 }
 
 /// Update the current config result to main table.
