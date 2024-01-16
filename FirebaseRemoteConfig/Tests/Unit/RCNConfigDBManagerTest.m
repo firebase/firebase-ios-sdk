@@ -628,7 +628,7 @@
 
       [writeAndLoadFetchedRolloutExpectation fulfill];
     };
-    [self->_DBManager loadRolloutWithCompletionHandler:readCompletion];
+    [self->_DBManager loadRolloutMetadataWithCompletionHandler:readCompletion];
   };
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
                                           value:fetchedRollout
@@ -673,7 +673,7 @@
 
       [updateAndLoadFetchedRolloutExpectation fulfill];
     };
-    [self->_DBManager loadRolloutWithCompletionHandler:readCompletion];
+    [self->_DBManager loadRolloutMetadataWithCompletionHandler:readCompletion];
   };
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
                                           value:fetchedRollout
@@ -697,7 +697,7 @@
 
     [updateAndLoadFetchedRolloutExpectation fulfill];
   };
-  [self->_DBManager loadRolloutWithCompletionHandler:readCompletion];
+  [self->_DBManager loadRolloutMetadataWithCompletionHandler:readCompletion];
   [self waitForExpectationsWithTimeout:_expectionTimeout handler:nil];
 }
 

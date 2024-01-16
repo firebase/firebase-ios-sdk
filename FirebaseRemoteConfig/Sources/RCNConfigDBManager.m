@@ -913,7 +913,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   return results;
 }
 
-- (void)loadRolloutWithCompletionHandler:(RCNDBCompletion)handler {
+- (void)loadRolloutMetadataWithCompletionHandler:(RCNDBCompletion)handler {
   __weak RCNConfigDBManager *weakSelf = self;
   dispatch_async(_databaseOperationQueue, ^{
     RCNConfigDBManager *strongSelf = weakSelf;

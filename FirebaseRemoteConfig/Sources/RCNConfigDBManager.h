@@ -78,9 +78,11 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 /// Load Personalization from table.
 /// @param handler    The callback when reading from DB is complete.
 - (void)loadPersonalizationWithCompletionHandler:(RCNDBLoadCompletion)handler;
+
 /// Load Rollout metadata from table
 /// @param handler   The callback when reading from DB is complete.
-- (void)loadRolloutWithCompletionHandler:(RCNDBCompletion)handler;
+- (void)loadRolloutMetadataWithCompletionHandler:(RCNDBCompletion)handler;
+
 /// Insert a record in metadata table.
 /// @param columnNameToValue The column name and its value to be inserted in metadata table.
 /// @param handler           The callback.
@@ -113,8 +115,8 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 - (BOOL)insertOrUpdatePersonalizationConfig:(NSDictionary *)metadata fromSource:(RCNDBSource)source;
 
 /// Insert rollout metadata in rollout table.
-/// @param key        The key of rollout metadata belongs to, which are defined in
-///                   RCNConfigDefines.h.
+/// @param key        The string as a key of rollout metadata belongs to, which indicates whether
+/// the metadata is fetched or active and defined in RCNConfigDefines.h.
 /// @param value      The value that rollout metadata array.
 /// @param handler    The callback.
 - (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
