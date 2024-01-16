@@ -1,3 +1,8 @@
+# Unreleased
+- Add warning when trying to build Firestore's binary SPM distribution for
+  visionOS (#12279). See Firestore's 10.12.0 release note for supported
+  workaround.
+
 # 10.19.0
 - [fixed] Made an optimization to the synchronization logic for resumed queries
   to only re-download locally-cached documents that are known to be out-of-sync. (#12044)
