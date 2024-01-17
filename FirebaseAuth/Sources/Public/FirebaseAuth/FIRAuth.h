@@ -377,7 +377,7 @@ NS_SWIFT_NAME(Auth)
                completion:(nullable void (^)(NSError *_Nullable error))completion;
 
 /** @fn fetchSignInMethodsForEmail:completion:
-    @brief Fetches the list of all sign-in methods previously used for the provided email address.
+    @brief [Deprecated] Fetches the list of all sign-in methods previously used for the provided email address.
    This method returns an empty list when [Email Enumeration
    Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
    is enabled, irrespective of the number of authentication methods available for the given email.
