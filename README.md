@@ -251,7 +251,7 @@ Where supported, visionOS works as expected with the exception of Firestore via 
 Manager where it is required to use the source distribution.
 
 To enable the Firestore source distribution, quit Xcode and open the desired
-project from the command line with the FIREBASE_SOURCE_FIRESTORE environment
+project from the command line with the `FIREBASE_SOURCE_FIRESTORE` environment
 variable: `open --env FIREBASE_SOURCE_FIRESTORE /path/to/project.xcodeproj`.
 To go back to using the binary distribution of Firestore, quit Xcode and open
 Xcode like normal, without the environment variable.
