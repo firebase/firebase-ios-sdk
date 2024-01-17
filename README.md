@@ -248,7 +248,7 @@ in Firebase's documentation.
 ### visionOS
 
 Where supported, visionOS works as expected with the exception of Firestore via Swift Package
-Manager where it is required to use the source distribution. 
+Manager where it is required to use the source distribution.
 
 To enable the Firestore source distribution, quit Xcode and open the desired
 project from the command line with the FIREBASE_SOURCE_FIRESTORE environment
