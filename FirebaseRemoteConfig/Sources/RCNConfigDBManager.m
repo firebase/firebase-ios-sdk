@@ -628,7 +628,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   dispatch_async(_databaseOperationQueue, ^{
     BOOL success = [self insertOrUpdateRolloutTableWithKey:key value:value];
     if (handler) {
-      dispatch_async(dispatch_get_main_queue(), ^{
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         handler(success, nil);
       });
     }
