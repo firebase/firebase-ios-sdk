@@ -24,7 +24,7 @@ helpFunction()
   echo ""
   echo "Usage: $0 -e (prod/autopush*) -p (platform)"
   echo -e "\tEvent upload environment - prod (or) autopush. Default: autopush"
-  echo -c "\tRecreate the Xcode project from scratch. Default: Reuse same XCode project"
+  echo -c "\tRecreate the Xcode project from scratch. Default: Reuse same Xcode project"
   exit 1 # Exit script after printing help
 }
 
@@ -67,7 +67,7 @@ if [ -z "$clean" ]
 then
   pod gen "$DIR/FirebasePerformance.podspec" --local-sources="$DIR/" --auto-open --gen-directory="$DIR/gen" --platforms="$platform"
 else
-  echo "\nCreating a fresh Fireperf XCode project."
+  echo "\nCreating a fresh Fireperf Xcode project."
   rm -f "$DIR/FirebasePerformance/ProtoSupport/*.[hm]"
   protoc --proto_path="$DIR/FirebasePerformance/ProtoSupport/" --objc_out="$DIR/FirebasePerformance/ProtoSupport/" "$DIR/FirebasePerformance/ProtoSupport/perf_metric.proto"
   pod gen "$DIR/FirebasePerformance.podspec" --local-sources="$DIR/" --auto-open --gen-directory="$DIR/gen" --platforms="$platform" --clean
