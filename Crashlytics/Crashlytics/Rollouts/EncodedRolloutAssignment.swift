@@ -15,6 +15,16 @@
 import FirebaseRemoteConfigInterop
 import Foundation
 
+@objc(FIRCLSEncodedRolloutsState)
+class EncodedRolloutsState: NSObject, Codable {
+  @objc public private(set) var rollouts: [EncodedRolloutAssignment]
+
+  @objc public init(assignments: [EncodedRolloutAssignment]) {
+    rollouts = assignments
+    super.init()
+  }
+}
+
 @objc(FIRCLSEncodedRolloutAssignment)
 class EncodedRolloutAssignment: NSObject, Codable {
   @objc public private(set) var rolloutId: String

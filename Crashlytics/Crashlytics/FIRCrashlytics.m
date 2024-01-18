@@ -31,6 +31,7 @@
 #import "Crashlytics/Crashlytics/Helpers/FIRCLSDefines.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSProfiling.h"
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSUtility.h"
+#import "Crashlytics/Crashlytics/Models/FIRCLSExecutionIdentifierModel.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSFileManager.h"
 #import "Crashlytics/Crashlytics/Models/FIRCLSSettings.h"
 #import "Crashlytics/Crashlytics/Settings/Models/FIRCLSApplicationIdentifierModel.h"
@@ -47,6 +48,7 @@
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSNotificationManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportManager.h"
 #import "Crashlytics/Crashlytics/Controllers/FIRCLSReportUploader.h"
+#import "Crashlytics/Crashlytics/Controllers/FIRCLSRolloutsPersistenceManager.h"
 #import "Crashlytics/Crashlytics/Private/FIRCLSExistingReportManager_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRCLSOnDemandModel_Private.h"
 #import "Crashlytics/Crashlytics/Private/FIRExceptionModel_Private.h"
@@ -172,7 +174,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     if (remoteConfig) {
       FIRCLSDebugLog(@"Registering RemoteConfig SDK subscription for rollouts data");
 
-      _remoteConfigManager = [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig];
+      FIRCLSRolloutsPersistenceManager *persistenceManager =
+          [[FIRCLSRolloutsPersistenceManager alloc] initWithFileManager:_fileManager];
+      _remoteConfigManager =
+          [[FIRCLSRemoteConfigManager alloc] initWithRemoteConfig:remoteConfig
+                                              persistenceDelegate:persistenceManager];
 
       // TODO(themisw): Import "firebase" from the interop in the future.
       [remoteConfig registerRolloutsStateSubscriber:self for:@"firebase"];
@@ -400,11 +406,13 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  FIRCLSUserLoggingRecordError(error, userInfo);
+  NSString *rolloutsInfo = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
+  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfo);
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
-  FIRCLSExceptionRecordModel(exceptionModel);
+  NSString *rolloutsInfo = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
+  FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfo);
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
@@ -432,8 +440,11 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 #pragma mark - FIRRolloutsStateSubscriber
 - (void)rolloutsStateDidChange:(FIRRolloutsState *_Nonnull)rolloutsState {
-  [_remoteConfigManager updateRolloutsStateWithRolloutsState:rolloutsState];
-  // TODO(themisw): writing the rollout state change to persistence
+  if (!_remoteConfigManager) {
+    FIRCLSDebugLog(@"rolloutsStateDidChange gets called without init the rc manager.");
+    return;
+  }
+  NSString *currenReportID = _managerData.executionIDModel.executionID;
+  [_remoteConfigManager updateRolloutsStateWithRolloutsState:rolloutsState reportID:currenReportID];
 }
-
 @end

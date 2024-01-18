@@ -25,6 +25,10 @@ class RemoteConfigConfigMock: RemoteConfigInterop {
     for namespace: String) {}
 }
 
+class PersistanceManagerMock: CrashlyticsPersistenceLog {
+  func updateRolloutsStateToPersistence(rollouts: Data, reportID: String) {}
+}
+
 final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
   let rollouts: RolloutsState = {
     let assignment1 = RolloutAssignment(
@@ -60,8 +64,11 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
   let rcInterop = RemoteConfigConfigMock()
 
   func testRemoteConfigManagerProperlyProcessRolloutsState() throws {
-    let rcManager = CrashlyticsRemoteConfigManager(remoteConfig: rcInterop)
-    rcManager.updateRolloutsState(rolloutsState: rollouts)
+    let rcManager = CrashlyticsRemoteConfigManager(
+      remoteConfig: rcInterop,
+      persistenceDelegate: PersistanceManagerMock()
+    )
+    rcManager.updateRolloutsState(rolloutsState: rollouts, reportID: "12R")
     XCTAssertEqual(rcManager.rolloutAssignment.count, 2)
 
     for assignment in rollouts.assignments {
@@ -78,10 +85,33 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
     let expectedString =
       "[{\"parameter_key\":\"6d795f66656174757265\",\"parameter_value\":\"e8bf99e698af7468656d6973e79a84e6b58be8af95e695b0e68daeefbc8ce8be93e585a5e4b8ade69687\",\"rollout_id\":\"726f6c6c6f75745f31\",\"template_version\":1,\"variant_id\":\"636f6e74726f6c\"}]"
 
-    let rcManager = CrashlyticsRemoteConfigManager(remoteConfig: rcInterop)
-    rcManager.updateRolloutsState(rolloutsState: singleRollout)
+    let rcManager = CrashlyticsRemoteConfigManager(
+      remoteConfig: rcInterop,
+      persistenceDelegate: PersistanceManagerMock()
+    )
+    rcManager.updateRolloutsState(rolloutsState: singleRollout, reportID: "456")
 
-    let string = rcManager.getRolloutAssignmentsEncodedJson()
+    let string = rcManager.getRolloutAssignmentsEncodedJsonString()
     XCTAssertEqual(string, expectedString)
+  }
+
+  func testMutiThreadsUpdateRolloutAssignments() throws {
+    let rcManager = CrashlyticsRemoteConfigManager(
+      remoteConfig: rcInterop,
+      persistenceDelegate: PersistanceManagerMock()
+    )
+    DispatchQueue.main.async { [weak self] in
+      if let singleRollout = self?.singleRollout {
+        rcManager.updateRolloutsState(rolloutsState: singleRollout, reportID: "456")
+        XCTAssertEqual(rcManager.rolloutAssignment.count, 1)
+      }
+    }
+
+    DispatchQueue.main.async { [weak self] in
+      if let rollouts = self?.rollouts {
+        rcManager.updateRolloutsState(rolloutsState: rollouts, reportID: "456")
+        XCTAssertEqual(rcManager.rolloutAssignment.count, 2)
+      }
+    }
   }
 }
