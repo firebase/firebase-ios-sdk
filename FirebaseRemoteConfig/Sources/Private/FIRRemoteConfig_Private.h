@@ -78,6 +78,8 @@ NS_ASSUME_NONNULL_BEGIN
                   configContent:(RCNConfigContent *)configContent
                       analytics:(nullable id<FIRAnalyticsInterop>)analytics;
 
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
+
 @end
 
 NS_ASSUME_NONNULL_END
