@@ -112,8 +112,8 @@ typedef void (^RCNDBLoadCompletion)(BOOL success,
 - (BOOL)insertOrUpdatePersonalizationConfig:(NSDictionary *)metadata fromSource:(RCNDBSource)source;
 
 /// Insert rollout metadata in rollout table.
-/// @param key        The string as a key of rollout metadata belongs to, which indicates whether
-/// the metadata is fetched or active and defined in RCNConfigDefines.h.
+/// @param key        Key indicating whether rollout metadata is fetched or active and defined in
+/// RCNConfigDefines.h.
 /// @param value      The value that rollout metadata array.
 /// @param handler    The callback.
 - (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
