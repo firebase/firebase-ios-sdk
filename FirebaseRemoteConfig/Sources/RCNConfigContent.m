@@ -280,6 +280,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     [self handleUpdateStateForConfigNamespace:currentNamespace
                                   withEntries:response[RCNFetchResponseKeyEntries]];
     [self handleUpdatePersonalization:response[RCNFetchResponseKeyPersonalizationMetadata]];
+    [self handleUpdateRolloutFetchedMetadata:response[RCNFetchResponseKeyRolloutMetadata]];
     return;
   }
 }
@@ -288,6 +289,15 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   _activePersonalization = _fetchedPersonalization;
   [_DBManager insertOrUpdatePersonalizationConfig:_activePersonalization
                                        fromSource:RCNDBSourceActive];
+}
+
+- (FIRRolloutsState *)activateRolloutMetdata {
+  _activeRolloutMetadata = _fetchedRolloutMetadata;
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
+                                          value:_activeRolloutMetadata
+                              completionHandler:nil];
+  // TODO: convert metadata to RolloutsState
+  return [[FIRRolloutsState alloc] init];
 }
 
 #pragma mark State handling
@@ -353,6 +363,16 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   [_DBManager insertOrUpdatePersonalizationConfig:metadata fromSource:RCNDBSourceFetched];
 }
 
+- (void)handleUpdateRolloutFetchedMetadata:(NSArray<NSDictionary *> *)metadata {
+  if (!metadata) {
+    return;
+  }
+  _fetchedRolloutMetadata = metadata;
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
+                                          value:metadata
+                              completionHandler:nil];
+}
+
 #pragma mark - getter/setter
 - (NSDictionary *)fetchedConfig {
   /// If this is the first time reading the fetchedConfig, we might still be reading it from the
@@ -387,6 +407,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return @{
     RCNFetchResponseKeyEntries : _activeConfig[FIRNamespace],
     RCNFetchResponseKeyPersonalizationMetadata : _activePersonalization
+    // TODO: ???
   };
 }
 
@@ -412,6 +433,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 // Compare fetched config with active config and output what has changed
 - (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
   // TODO: handle diff in experiment metadata
+  // TODO: (doudounan) handle diff in rollout metadata?
 
   FIRRemoteConfigUpdate *configUpdate;
   NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];

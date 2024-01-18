@@ -357,4 +357,6 @@ typedef void (^FIRRemoteConfigUpdateCompletion)(FIRRemoteConfigUpdate *_Nullable
     (FIRRemoteConfigUpdateCompletion _Nonnull)listener
     NS_SWIFT_NAME(addOnConfigUpdateListener(remoteConfigUpdateCompletion:));
 
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber> _Nonnull)subscriber;
+
 @end

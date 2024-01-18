@@ -45,6 +45,8 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 /// Notification when config is successfully activated
 const NSNotificationName FIRRemoteConfigActivateNotification =
     @"FIRRemoteConfigActivateNotification";
+static NSString *const RolloutsStateDidChangeNotificationName =
+    @"RolloutsStateDidChangeNotification";
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -77,6 +79,8 @@ typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnu
 
 static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemoteConfig *> *>
     *RCInstances;
+
+FIRRolloutsState *_rolloutsState;
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithApp:(FIRApp *_Nonnull)firebaseApp {
   return [FIRRemoteConfig remoteConfigWithFIRNamespace:FIRNamespaceGoogleMobilePlatform
@@ -329,6 +333,12 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
+
+    _rolloutsState = [strongSelf->_configContent activateRolloutMetdata];
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:RolloutsStateDidChangeNotificationName
+                      object:self];
+
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
@@ -611,6 +621,20 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 - (FIRConfigUpdateListenerRegistration *)addOnConfigUpdateListener:
     (void (^_Nonnull)(FIRRemoteConfigUpdate *update, NSError *_Nullable error))listener {
   return [self->_configRealtime addConfigUpdateListener:listener];
+}
+
+#pragma mark - Rollout
+
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber {
+  //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subscriber) name:
+  //    RolloutsStateDidChangeNotificationName object:nil];
+  [[NSNotificationCenter defaultCenter]
+      addObserverForName:RolloutsStateDidChangeNotificationName
+                  object:nil
+                   queue:nil
+              usingBlock:^(NSNotification *_Nonnull notification) {
+                [subscriber rolloutsStateDidChange:_rolloutsState];
+              }];
 }
 
 @end
