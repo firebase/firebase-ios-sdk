@@ -39,9 +39,9 @@
   /// applied.
   NSDictionary *_fetchedPersonalization;
   /// Active Rollout metadata that is currently used.
-  NSArray *_activeRolloutMetadata;
+  NSArray<NSDictionary *> *_activeRolloutMetadata;
   /// Pending Rollout metadata that is latest data from server that might or might not be applied.
-  NSArray *_fetchedRolloutMetadata;
+  NSArray<NSDictionary *> *_fetchedRolloutMetadata;
   /// DBManager
   RCNConfigDBManager *_DBManager;
   /// Current bundle identifier;

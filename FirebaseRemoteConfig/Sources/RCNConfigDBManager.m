@@ -623,7 +623,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
 }
 
 - (void)insertOrUpdateRolloutTableWithKey:(NSString *)key
-                                    value:(NSArray *)value
+                                    value:(NSArray<NSDictionary *> *)value
                         completionHandler:(RCNDBCompletion)handler {
   dispatch_async(_databaseOperationQueue, ^{
     BOOL success = [self insertOrUpdateRolloutTableWithKey:key value:value];
@@ -635,7 +635,8 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   });
 }
 
-- (BOOL)insertOrUpdateRolloutTableWithKey:(NSString *)key value:(NSArray *)arrayValue {
+- (BOOL)insertOrUpdateRolloutTableWithKey:(NSString *)key
+                                    value:(NSArray<NSDictionary *> *)arrayValue {
   RCN_MUST_NOT_BE_MAIN_THREAD();
   NSError *error;
   NSData *dataValue = [NSJSONSerialization dataWithJSONObject:arrayValue
@@ -913,7 +914,7 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   return results;
 }
 
-- (NSArray *)loadRolloutTableFromKey:(NSString *)key {
+- (NSArray<NSDictionary *> *)loadRolloutTableFromKey:(NSString *)key {
   RCN_MUST_NOT_BE_MAIN_THREAD();
   const char *SQL = "SELECT value FROM " RCNTableNameRollout " WHERE key = ?";
   sqlite3_stmt *statement = [self prepareSQL:SQL];
@@ -932,6 +933,11 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
   if (results[0]) {
     NSError *error;
     rollout = [NSJSONSerialization JSONObjectWithData:results[0] options:0 error:&error];
+    if (!rollout) {
+      FIRLogError(kFIRLoggerRemoteConfig, @"I-RCN000011",
+                  @"Failed to convert NSData to NSAarry for Rollout Metadata with error %@.",
+                  error);
+    }
   }
   if (!rollout) {
     rollout = [[NSArray alloc] init];
@@ -1081,9 +1087,9 @@ static NSArray *RemoteConfigMetadataTableColumnsInOrder(void) {
         [strongSelf loadMainTableWithBundleIdentifier:bundleIdentifier
                                            fromSource:RCNDBSourceDefault];
 
-    __block NSArray *fetchedRolloutMetadata =
+    __block NSArray<NSDictionary *> *fetchedRolloutMetadata =
         [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyFetchedMetadata];
-    __block NSArray *activeRolloutMetadata =
+    __block NSArray<NSDictionary *> *activeRolloutMetadata =
         [strongSelf loadRolloutTableFromKey:@RCNRolloutTableKeyActiveMetadata];
 
     if (handler) {
