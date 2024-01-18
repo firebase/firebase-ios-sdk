@@ -44,7 +44,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(justSmallDelay * NSEC_PER_SEC)),
                  dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                    self.isLoadMainCompleted = YES;
-                   handler(YES, nil, nil, nil);
+                   handler(YES, nil, nil, nil, nil);
                  });
 }
 - (void)loadPersonalizationWithCompletionHandler:(RCNDBLoadCompletion)handler {
@@ -53,7 +53,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(justOtherSmallDelay * NSEC_PER_SEC)),
                  dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                    self.isLoadPersonalizationCompleted = YES;
-                   handler(YES, nil, nil, nil);
+                   handler(YES, nil, nil, nil, nil);
                  });
 }
 @end
