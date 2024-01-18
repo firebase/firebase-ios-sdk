@@ -237,7 +237,7 @@ To receive push notifications, follow the steps above and run the app on a physi
 
 ## Building with Firebase on Apple platforms
 
-Firebase 8.9.0 introduced official beta support for macOS, Catalyst, and tvOS. visionOS and watchOS
+Firebase provides official beta support for macOS, Catalyst, and tvOS. visionOS and watchOS
 are community supported. Thanks to community contributions for many of the multi-platform PRs.
 
 At this time, most of Firebase's products are available across Apple platforms. There are still
