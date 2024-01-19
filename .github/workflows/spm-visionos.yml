@@ -22,11 +22,25 @@ jobs:
 
     strategy:
       matrix:
-        scheme: [FirebaseAppCheck, FirebaseAuth]
-        target: [visionOS]
+        scheme: [
+            FirebaseAppCheck,
+            FirebaseAuth,
+            FirebaseCrashlytics,
+            FirebaseDatabase,
+            FirebaseFunctions,
+            FirebaseInstallations,
+            FirebaseMessaging,
+            FirebaseMLModelDownloader,
+            FirebasePerformance,
+            FirebaseRemoteConfig,
+            FirebaseStorage
+        ]
     runs-on: macos-13
     steps:
     - uses: actions/checkout@v4
+    - uses: mikehardy/buildcache-action@c87cea0ccd718971d6cc39e672c4f26815b6c126
+      with:
+        cache_key: visionOS-SPM-build
     - name: Xcode
       run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
     - name: Initialize xcodebuild
