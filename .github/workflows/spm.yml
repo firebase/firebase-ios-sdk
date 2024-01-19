@@ -34,7 +34,7 @@ jobs:
             test: spm
           # The integration tests are slow and flaky on Xcode 15, so just build.
           - os: macos-13
-            xcode: Xcode_15.1
+            xcode: Xcode_15.2
             test: spmbuildonly
     runs-on: ${{ matrix.os }}
     steps:
@@ -62,7 +62,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.1
+            xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
@@ -89,7 +89,7 @@ jobs:
           - os: macos-12
             xcode: Xcode_14.2
           - os: macos-13
-            xcode: Xcode_15.1
+            xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
