@@ -3,7 +3,7 @@ name: spm-visionos
 on:
   pull_request:
     paths:
-    - '.github/workflows/spm.yml'
+    - '.github/workflows/spm-visionos.yml'
     - 'Package.swift'
     - '.swiftpm/*'
     - 'scripts/build.sh'
