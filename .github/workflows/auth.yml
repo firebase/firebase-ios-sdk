@@ -32,7 +32,7 @@ jobs:
             xcode: Xcode_14.2
             tests: --skip-tests
           - os: macos-13
-            xcode: Xcode_15.1
+            xcode: Xcode_15.2
             tests:
     runs-on: ${{ matrix.os }}
     steps:
@@ -98,7 +98,7 @@ jobs:
             xcode: Xcode_14.2
             test: spm
           - os: macos-13
-            xcode: Xcode_15.1
+            xcode: Xcode_15.2
             test: spmbuildonly
     runs-on: ${{ matrix.os }}
     steps:
