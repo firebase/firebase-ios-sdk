@@ -199,6 +199,12 @@ To run against a production instance, provide a valid `GoogleServices-Info.plist
 [public](https://firebase.google.com/docs/database/security/quickstart) while your tests are
 running.
 
+### Firebase Dynamic Links
+
+Firebase Dynamic Links is **deprecated** and should not be used in new projects. The service will shut down on August 25, 2025.
+
+Please see our [Dynamic Links Deprecation FAQ documentation](https://firebase.google.com/support/dynamic-links-faq) for more guidance.
+
 ### Firebase Performance Monitoring
 
 For specific Firebase Performance Monitoring development, see
@@ -231,13 +237,24 @@ To receive push notifications, follow the steps above and run the app on a physi
 
 ## Building with Firebase on Apple platforms
 
-Firebase 8.9.0 introduced official beta support for macOS, Catalyst, and tvOS. watchOS continues
-to be community supported. Thanks to community contributions for many of the multi-platform PRs.
+Firebase provides official beta support for macOS, Catalyst, and tvOS. visionOS and watchOS
+are community supported. Thanks to community contributions for many of the multi-platform PRs.
 
 At this time, most of Firebase's products are available across Apple platforms. There are still
-a few gaps, especially on watchOS. For details about the current support matrix, see
+a few gaps, especially on visionOS and watchOS. For details about the current support matrix, see
 [this chart](https://firebase.google.com/docs/ios/learn-more#firebase_library_support_by_platform)
 in Firebase's documentation.
+
+### visionOS
+
+Where supported, visionOS works as expected with the exception of Firestore via Swift Package
+Manager where it is required to use the source distribution.
+
+To enable the Firestore source distribution, quit Xcode and open the desired
+project from the command line with the `FIREBASE_SOURCE_FIRESTORE` environment
+variable: `open --env FIREBASE_SOURCE_FIRESTORE /path/to/project.xcodeproj`.
+To go back to using the binary distribution of Firestore, quit Xcode and open
+Xcode like normal, without the environment variable.
 
 ### watchOS
 Thanks to contributions from the community, many of Firebase SDKs now compile, run unit tests, and

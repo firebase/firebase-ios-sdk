@@ -270,23 +270,21 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Asynchronously retrieves a long lived download URL with a revokable token.
-     * This can be used to share the file with others, but can be revoked by a developer
-     * in the Firebase Console.
-     * - Throws: An error if the download URL could not be retrieved.
-     * - Returns: The URL on success.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func downloadURL() async throws -> URL {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.downloadURL { result in
-          continuation.resume(with: result)
-        }
+  /**
+   * Asynchronously retrieves a long lived download URL with a revokable token.
+   * This can be used to share the file with others, but can be revoked by a developer
+   * in the Firebase Console.
+   * - Throws: An error if the download URL could not be retrieved.
+   * - Returns: The URL on success.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func downloadURL() async throws -> URL {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.downloadURL { result in
+        continuation.resume(with: result)
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
 
   /**
    * Asynchronously downloads the object at the current path to a specified system filepath.
@@ -398,28 +396,26 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Lists all items (files) and prefixes (folders) under this StorageReference.
-     *
-     * This is a helper method for calling list() repeatedly until there are no more results.
-     * Consistency of the result is not guaranteed if objects are inserted or removed while this
-     * operation is executing. All results are buffered in memory.
-     *
-     * `listAll()` is only available for projects using Firebase Rules Version 2.
-     *
-     * - Throws: An error if the list operation failed.
-     * - Returns: All items and prefixes under the current `StorageReference`.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func listAll() async throws -> StorageListResult {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.listAll { result in
-          continuation.resume(with: result)
-        }
+  /**
+   * Lists all items (files) and prefixes (folders) under this StorageReference.
+   *
+   * This is a helper method for calling list() repeatedly until there are no more results.
+   * Consistency of the result is not guaranteed if objects are inserted or removed while this
+   * operation is executing. All results are buffered in memory.
+   *
+   * `listAll()` is only available for projects using Firebase Rules Version 2.
+   *
+   * - Throws: An error if the list operation failed.
+   * - Returns: All items and prefixes under the current `StorageReference`.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func listAll() async throws -> StorageListResult {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.listAll { result in
+        continuation.resume(with: result)
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
 
   /**
    * List up to `maxResults` items (files) and prefixes (folders) under this StorageReference.
@@ -514,21 +510,19 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Retrieves metadata associated with an object at the current path.
-     * - Throws: An error if the object metadata could not be retrieved.
-     * - Returns: The object metadata on success.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func getMetadata() async throws -> StorageMetadata {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.getMetadata { result in
-          continuation.resume(with: result)
-        }
+  /**
+   * Retrieves metadata associated with an object at the current path.
+   * - Throws: An error if the object metadata could not be retrieved.
+   * - Returns: The object metadata on success.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func getMetadata() async throws -> StorageMetadata {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.getMetadata { result in
+        continuation.resume(with: result)
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
 
   /**
    * Updates the metadata associated with an object at the current path.
@@ -549,22 +543,20 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Updates the metadata associated with an object at the current path.
-     * - Parameter metadata A `StorageMetadata` object with the metadata to update.
-     * - Throws: An error if the metadata update operation failed.
-     * - Returns: The object metadata on success.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func updateMetadata(_ metadata: StorageMetadata) async throws -> StorageMetadata {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.updateMetadata(metadata) { result in
-          continuation.resume(with: result)
-        }
+  /**
+   * Updates the metadata associated with an object at the current path.
+   * - Parameter metadata A `StorageMetadata` object with the metadata to update.
+   * - Throws: An error if the metadata update operation failed.
+   * - Returns: The object metadata on success.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func updateMetadata(_ metadata: StorageMetadata) async throws -> StorageMetadata {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.updateMetadata(metadata) { result in
+        continuation.resume(with: result)
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
 
   // MARK: - Delete
 
@@ -582,24 +574,22 @@ import Foundation
     task.enqueue()
   }
 
-  #if compiler(>=5.5) && canImport(_Concurrency)
-    /**
-     * Deletes the object at the current path.
-     * - Throws: An error if the delete operation failed.
-     */
-    @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
-    open func delete() async throws {
-      return try await withCheckedThrowingContinuation { continuation in
-        self.delete { error in
-          if let error = error {
-            continuation.resume(throwing: error)
-          } else {
-            continuation.resume()
-          }
+  /**
+   * Deletes the object at the current path.
+   * - Throws: An error if the delete operation failed.
+   */
+  @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
+  open func delete() async throws {
+    return try await withCheckedThrowingContinuation { continuation in
+      self.delete { error in
+        if let error = error {
+          continuation.resume(throwing: error)
+        } else {
+          continuation.resume()
         }
       }
     }
-  #endif // compiler(>=5.5) && canImport(_Concurrency)
+  }
 
   // MARK: - NSObject overrides
 

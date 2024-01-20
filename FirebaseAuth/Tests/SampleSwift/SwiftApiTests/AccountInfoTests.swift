@@ -79,7 +79,6 @@ class AccountInfoTests: TestsBase {
     let auth = Auth.auth()
     do {
       _ = try await auth.createUser(withEmail: kOldUserEmail, password: "password")
-
       XCTFail("Did not get error for recreating a user")
     } catch {
       XCTAssertEqual((error as NSError).code,

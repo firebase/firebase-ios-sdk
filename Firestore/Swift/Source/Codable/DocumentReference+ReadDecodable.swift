@@ -76,42 +76,40 @@ public extension DocumentReference {
     }
   }
 
-  #if compiler(>=5.5.2) && canImport(_Concurrency)
-    /// Fetches and decodes the document referenced by this `DocumentReference`.
-    ///
-    /// This allows users to retrieve a Firestore document and have it decoded
-    /// to an instance of caller-specified type as follows:
-    /// ```swift
-    /// do {
-    ///   let book = try await ref.getDocument(as: Book.self)
-    /// } catch {
-    ///   // Handle error
-    /// }
-    /// ```
-    ///
-    /// This method attempts to provide up-to-date data when possible by waiting
-    /// for data from the server, but it may return cached data or fail if you
-    /// are offline and the server cannot be reached. If `T` denotes
-    /// an optional type, the method returns a successful status with a value
-    /// of `nil` for non-existing documents.
-    ///
-    /// - Parameters:
-    ///   - as: A `Decodable` type to convert the document fields to.
-    ///   - serverTimestampBehavior: Configures how server timestamps that have
-    ///     not yet been set to their final value are returned from the
-    ///     snapshot.
-    ///   - decoder: The decoder to use to convert the document. Defaults to use
-    ///     the default decoder.
-    /// - Returns: This instance of the supplied `Decodable` type `T`.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-    func getDocument<T: Decodable>(as type: T.Type,
-                                   with serverTimestampBehavior: ServerTimestampBehavior =
-                                     .none,
-                                   decoder: Firestore.Decoder = .init()) async throws -> T {
-      let snapshot = try await getDocument()
-      return try snapshot.data(as: T.self,
-                               with: serverTimestampBehavior,
-                               decoder: decoder)
-    }
-  #endif
+  /// Fetches and decodes the document referenced by this `DocumentReference`.
+  ///
+  /// This allows users to retrieve a Firestore document and have it decoded
+  /// to an instance of caller-specified type as follows:
+  /// ```swift
+  /// do {
+  ///   let book = try await ref.getDocument(as: Book.self)
+  /// } catch {
+  ///   // Handle error
+  /// }
+  /// ```
+  ///
+  /// This method attempts to provide up-to-date data when possible by waiting
+  /// for data from the server, but it may return cached data or fail if you
+  /// are offline and the server cannot be reached. If `T` denotes
+  /// an optional type, the method returns a successful status with a value
+  /// of `nil` for non-existing documents.
+  ///
+  /// - Parameters:
+  ///   - as: A `Decodable` type to convert the document fields to.
+  ///   - serverTimestampBehavior: Configures how server timestamps that have
+  ///     not yet been set to their final value are returned from the
+  ///     snapshot.
+  ///   - decoder: The decoder to use to convert the document. Defaults to use
+  ///     the default decoder.
+  /// - Returns: This instance of the supplied `Decodable` type `T`.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  func getDocument<T: Decodable>(as type: T.Type,
+                                 with serverTimestampBehavior: ServerTimestampBehavior =
+                                   .none,
+                                 decoder: Firestore.Decoder = .init()) async throws -> T {
+    let snapshot = try await getDocument()
+    return try snapshot.data(as: T.self,
+                             with: serverTimestampBehavior,
+                             decoder: decoder)
+  }
 }

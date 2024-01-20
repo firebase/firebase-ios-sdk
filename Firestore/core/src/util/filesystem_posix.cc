@@ -130,6 +130,7 @@ Path Filesystem::TempDir() {
 }
 #endif  // !__APPLE__ && !_WIN32
 
+#if !__APPLE__
 Status Filesystem::IsDirectory(const Path& path) {
   struct stat buffer {};
   if (::stat(path.c_str(), &buffer)) {
@@ -165,6 +166,7 @@ Status Filesystem::IsDirectory(const Path& path) {
 
   return Status::OK();
 }
+#endif  // !__APPLE__
 
 StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   struct stat st {};

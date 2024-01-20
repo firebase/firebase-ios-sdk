@@ -231,19 +231,19 @@ void XCTestMethod(XCTestCase* self, SEL _cmd) {
 
   const testing::TestResult* result = testInfo->result();
   if (result->Passed()) {
-    // Let XCode know that the test ran and succeeded.
+    // Let Xcode know that the test ran and succeeded.
     XCTAssertTrue(true);
     return;
   } else if (result->Skipped()) {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130400 || \
     __TV_OS_VERSION_MAX_ALLOWED >= 130400 ||     \
     __MAC_OS_X_VERSION_MAX_ALLOWED >= 101504
-    // Let XCode know that the test was skipped.
+    // Let Xcode know that the test was skipped.
     XCTSkip();
 #endif
   }
 
-  // Test failed :-(. Record the failure such that XCode will navigate directly
+  // Test failed :-(. Record the failure such that Xcode will navigate directly
   // to the file:line.
   int parts = result->total_part_count();
   for (int i = 0; i < parts; i++) {

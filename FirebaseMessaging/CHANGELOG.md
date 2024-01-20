@@ -1,3 +1,7 @@
+# 10.20.0
+- [fixed] Fix 10.19.0 regression where the FCM registration token was nil at first app start
+  after update from 10.19.0 or earlier. (#12245)
+
 # 10.19.0
 - [changed] Adopt NSSecureCoding for internal classes. (#12075)
 
