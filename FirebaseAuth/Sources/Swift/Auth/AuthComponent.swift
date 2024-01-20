@@ -53,13 +53,16 @@ class AuthComponent: NSObject, Library, AuthProvider, ComponentLifecycleMaintain
                       dependencies: [appCheckInterop]) { container, isCacheable in
         guard let app = container.app else { return nil }
         isCacheable.pointee = true
-        return Auth(app: app)
+        let newComponent = AuthComponent(app: app)
+        // Set up instances early enough so User on keychain will be decoded.
+        newComponent.auth()
+        return newComponent
       }]
   }
 
   // MARK: - AuthProvider conformance
 
-  func auth() -> Auth {
+  @discardableResult func auth() -> Auth {
     os_unfair_lock_lock(&instancesLock)
 
     // Unlock before the function returns.

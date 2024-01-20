@@ -168,7 +168,7 @@ extension Auth: AuthInterop {
    @return The `Auth` instance associated with the given app.
    */
   @objc open class func auth(app: FirebaseApp) -> Auth {
-    return ComponentType<AuthProvider>.instance(for: AuthProvider.self, in: app.container) as! Auth
+    return ComponentType<AuthProvider>.instance(for: AuthProvider.self, in: app.container).auth()
   }
 
   /** @property app
