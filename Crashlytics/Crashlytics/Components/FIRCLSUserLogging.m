@@ -356,7 +356,7 @@ static void FIRCLSUserLoggingWriteError(FIRCLSFile *file,
                                         NSDictionary<NSString *, id> *additionalUserInfo,
                                         NSArray *addresses,
                                         uint64_t timestamp,
-                                        NSString *rolloutsInfo) {
+                                        NSString *rolloutsInfoJSON) {
   FIRCLSFileWriteSectionStart(file, "error");
   FIRCLSFileWriteHashStart(file);
   FIRCLSFileWriteHashEntryHexEncodedString(file, "domain", [[error domain] UTF8String]);
@@ -376,9 +376,9 @@ static void FIRCLSUserLoggingWriteError(FIRCLSFile *file,
   FIRCLSUserLoggingRecordErrorUserInfo(file, "extra_info", additionalUserInfo);
 
   // rollouts
-  if (rolloutsInfo) {
+  if (rolloutsInfoJSON) {
     FIRCLSFileWriteHashKey(file, "rollouts");
-    FIRCLSFileWriteStringUnquoted(file, [rolloutsInfo UTF8String]);
+    FIRCLSFileWriteStringUnquoted(file, [rolloutsInfoJSON UTF8String]);
     FIRCLSFileWriteHashEnd(file);
   }
 
@@ -388,7 +388,7 @@ static void FIRCLSUserLoggingWriteError(FIRCLSFile *file,
 
 void FIRCLSUserLoggingRecordError(NSError *error,
                                   NSDictionary<NSString *, id> *additionalUserInfo,
-                                  NSString *rolloutsInfo) {
+                                  NSString *rolloutsInfoJSON) {
   if (!error) {
     return;
   }
@@ -406,7 +406,7 @@ void FIRCLSUserLoggingRecordError(NSError *error,
       &_firclsContext.readonly->logging.errorStorage,
       &_firclsContext.writable->logging.activeErrorLogPath, ^(FIRCLSFile *file) {
         FIRCLSUserLoggingWriteError(file, error, additionalUserInfo, addresses, timestamp,
-                                    rolloutsInfo);
+                                    rolloutsInfoJSON);
       });
 }
 

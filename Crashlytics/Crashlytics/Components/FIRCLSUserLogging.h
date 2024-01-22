@@ -83,7 +83,7 @@ void FIRCLSUserLoggingWriteInternalKeyValue(NSString* key, NSString* value);
 
 void FIRCLSUserLoggingRecordError(NSError* error,
                                   NSDictionary<NSString*, id>* additionalUserInfo,
-                                  NSString* rolloutsInfo);
+                                  NSString* rolloutsInfoJSON);
 
 NSDictionary* FIRCLSUserLoggingGetCompactedKVEntries(FIRCLSUserLoggingKVStorage* storage,
                                                      bool decodeHex);

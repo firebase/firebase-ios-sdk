@@ -95,7 +95,7 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
     XCTAssertEqual(string, expectedString)
   }
 
-  func testMutiThreadsUpdateRolloutAssignments() throws {
+  func testMultiThreadsUpdateRolloutAssignments() throws {
     let rcManager = CrashlyticsRemoteConfigManager(
       remoteConfig: rcInterop,
       persistenceDelegate: PersistanceManagerMock()
@@ -113,5 +113,23 @@ final class CrashlyticsRemoteConfigManagerTests: XCTestCase {
         XCTAssertEqual(rcManager.rolloutAssignment.count, 2)
       }
     }
+  }
+
+  func testMultiThreadsReadAndWriteRolloutAssignments() throws {
+    let rcManager = CrashlyticsRemoteConfigManager(
+      remoteConfig: rcInterop,
+      persistenceDelegate: PersistanceManagerMock()
+    )
+    rcManager.updateRolloutsState(rolloutsState: singleRollout, reportID: "456")
+
+    DispatchQueue.main.async { [weak self] in
+      if let rollouts = self?.rollouts {
+        let oldAssignments = rcManager.rolloutAssignment
+        rcManager.updateRolloutsState(rolloutsState: rollouts, reportID: "456")
+        XCTAssertEqual(rcManager.rolloutAssignment.count, 2)
+        XCTAssertEqual(oldAssignments.count, 1)
+      }
+    }
+    XCTAssertEqual(rcManager.rolloutAssignment.count, 1)
   }
 }

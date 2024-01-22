@@ -82,11 +82,11 @@ void FIRCLSExceptionInitialize(FIRCLSExceptionReadOnlyContext *roContext,
   rwContext->customExceptionCount = 0;
 }
 
-void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel, NSString *rolloutsInfo) {
+void FIRCLSExceptionRecordModel(FIRExceptionModel *exceptionModel, NSString *rolloutsInfoJSON) {
   const char *name = [[exceptionModel.name copy] UTF8String];
   const char *reason = [[exceptionModel.reason copy] UTF8String] ?: "";
   FIRCLSExceptionRecord(FIRCLSExceptionTypeCustom, name, reason, [exceptionModel.stackTrace copy],
-                        rolloutsInfo);
+                        rolloutsInfoJSON);
 }
 
 NSString *FIRCLSExceptionRecordOnDemandModel(FIRExceptionModel *exceptionModel,
@@ -176,7 +176,7 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
                           const char *name,
                           const char *reason,
                           NSArray<FIRStackFrame *> *frames,
-                          NSString *rolloutsInfo) {
+                          NSString *rolloutsInfoJSON) {
   FIRCLSFileWriteSectionStart(file, "exception");
 
   FIRCLSFileWriteHashStart(file);
@@ -197,9 +197,9 @@ void FIRCLSExceptionWrite(FIRCLSFile *file,
     FIRCLSFileWriteArrayEnd(file);
   }
 
-  if (rolloutsInfo) {
+  if (rolloutsInfoJSON) {
     FIRCLSFileWriteHashKey(file, "rollouts");
-    FIRCLSFileWriteStringUnquoted(file, [rolloutsInfo UTF8String]);
+    FIRCLSFileWriteStringUnquoted(file, [rolloutsInfoJSON UTF8String]);
     FIRCLSFileWriteHashEnd(file);
   }
 
@@ -212,7 +212,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
                            const char *name,
                            const char *reason,
                            NSArray<FIRStackFrame *> *frames,
-                           NSString *rolloutsInfo) {
+                           NSString *rolloutsInfoJSON) {
   if (!FIRCLSContextIsInitialized()) {
     return;
   }
@@ -243,7 +243,7 @@ void FIRCLSExceptionRecord(FIRCLSExceptionType type,
     FIRCLSUserLoggingWriteAndCheckABFiles(
         &_firclsContext.readonly->logging.customExceptionStorage,
         &_firclsContext.writable->logging.activeCustomExceptionPath, ^(FIRCLSFile *file) {
-          FIRCLSExceptionWrite(file, type, name, reason, frames, rolloutsInfo);
+          FIRCLSExceptionWrite(file, type, name, reason, frames, rolloutsInfoJSON);
         });
   }
 

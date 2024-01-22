@@ -406,13 +406,13 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 }
 
 - (void)recordError:(NSError *)error userInfo:(NSDictionary<NSString *, id> *)userInfo {
-  NSString *rolloutsInfo = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfo);
+  NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
+  FIRCLSUserLoggingRecordError(error, userInfo, rolloutsInfoJSON);
 }
 
 - (void)recordExceptionModel:(FIRExceptionModel *)exceptionModel {
-  NSString *rolloutsInfo = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
-  FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfo);
+  NSString *rolloutsInfoJSON = [_remoteConfigManager getRolloutAssignmentsEncodedJsonString];
+  FIRCLSExceptionRecordModel(exceptionModel, rolloutsInfoJSON);
 }
 
 - (void)recordOnDemandExceptionModel:(FIRExceptionModel *)exceptionModel {
