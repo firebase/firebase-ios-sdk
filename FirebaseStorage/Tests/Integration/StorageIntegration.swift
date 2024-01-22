@@ -265,55 +265,58 @@ class StorageResultTests: StorageIntegrationCommon {
     waitForExpectations()
   }
 
-  // TODO: Re-enable test before merging
-  //  func testPutFileLimitedChunk() throws {
-  //    defer {
-  //      // Reset since tests share storage instance.
-  //      storage.uploadChunkSizeBytes = Int64.max
-  //    }
-  //    let expectation = self.expectation(description: #function)
-  //    let putFileExpectation = self.expectation(description: "putFile")
-  //    let ref = storage.reference(withPath: "ios/public/testPutFilePauseResume")
-  //    let bundle = Bundle(for: StorageIntegrationCommon.self)
-  //    let filePath = try XCTUnwrap(bundle.path(forResource: "1mb", ofType: "dat"),
-  //                                 "Failed to get filePath")
-  //    let data = try XCTUnwrap(Data(contentsOf: URL(fileURLWithPath: filePath)),
-  //                             "Failed to load file")
-  //    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
-  //    let fileURL = tmpDirURL.appendingPathComponent("LargePutFile.txt")
-  //    var progressCount = 0
-  //
-  //    try data.write(to: fileURL, options: .atomicWrite)
-  //
-  //    // Limit the upload chunk size
-  //    storage.uploadChunkSizeBytes = 256_000
-  //
-  //    let task = ref.putFile(from: fileURL) { result in
-  //      XCTAssertGreaterThanOrEqual(progressCount, 4)
-  //      self.assertResultSuccess(result)
-  //      putFileExpectation.fulfill()
-  //    }
-  //
-  //    task.observe(StorageTaskStatus.success) { snapshot in
-  //      XCTAssertEqual(snapshot.description, "<State: Success>")
-  //      expectation.fulfill()
-  //    }
-  //
-  //    var uploadedBytes: Int64 = -1
-  //
-  //    task.observe(StorageTaskStatus.progress) { snapshot in
-  //      XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
-  //        snapshot.description.starts(with: "<State: Resume"))
-  //      guard let progress = snapshot.progress else {
-  //        XCTFail("Failed to get snapshot.progress")
-  //        return
-  //      }
-  //      progressCount = progressCount + 1
-  //      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
-  //      uploadedBytes = progress.completedUnitCount
-  //    }
-  //    waitForExpectations()
-  //  }
+  func testPutFileLimitedChunk() throws {
+    defer {
+      // Reset since tests share storage instance.
+      storage.uploadChunkSizeBytes = Int64.max
+    }
+    let expectation = self.expectation(description: #function)
+    let putFileExpectation = self.expectation(description: "putFile")
+    let ref = storage.reference(withPath: "ios/public/testPutFilePauseResume")
+    let bundle = Bundle(for: StorageIntegrationCommon.self)
+    let filePath = try XCTUnwrap(bundle.path(forResource: "1mb", ofType: "dat"),
+                                 "Failed to get filePath")
+    let data = try XCTUnwrap(Data(contentsOf: URL(fileURLWithPath: filePath)),
+                             "Failed to load file")
+    let tmpDirURL = URL(fileURLWithPath: NSTemporaryDirectory())
+    let fileURL = tmpDirURL.appendingPathComponent("LargePutFile.txt")
+    var progressCount = 0
+
+    try data.write(to: fileURL, options: .atomicWrite)
+
+    // Limit the upload chunk size
+    storage.uploadChunkSizeBytes = 256_000
+
+    let task = ref.putFile(from: fileURL) { result in
+      XCTAssertGreaterThanOrEqual(progressCount, 4)
+      self.assertResultSuccess(result)
+      putFileExpectation.fulfill()
+    }
+
+    defer {
+      task.removeAllObservers()
+    }
+
+    task.observe(StorageTaskStatus.success) { snapshot in
+      XCTAssertEqual(snapshot.description, "<State: Success>")
+      expectation.fulfill()
+    }
+
+    var uploadedBytes: Int64 = -1
+
+    task.observe(StorageTaskStatus.progress) { snapshot in
+      XCTAssertTrue(snapshot.description.starts(with: "<State: Progress") ||
+        snapshot.description.starts(with: "<State: Resume"))
+      guard let progress = snapshot.progress else {
+        XCTFail("Failed to get snapshot.progress")
+        return
+      }
+      progressCount = progressCount + 1
+      XCTAssertGreaterThanOrEqual(progress.completedUnitCount, uploadedBytes)
+      uploadedBytes = progress.completedUnitCount
+    }
+    waitForExpectations()
+  }
 
   func testPutFileTinyChunk() throws {
     defer {
@@ -343,6 +346,10 @@ class StorageResultTests: StorageIntegrationCommon {
       XCTAssertLessThanOrEqual(progressCount, 6)
       self.assertResultSuccess(result)
       putFileExpectation.fulfill()
+    }
+
+    defer {
+      task.removeAllObservers()
     }
 
     task.observe(StorageTaskStatus.success) { snapshot in
