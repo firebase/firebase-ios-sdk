@@ -8,6 +8,8 @@ target 'ClientApp-CocoaPods' do
   use_frameworks!
 
   pod 'FirebaseCore', :path => '../../'
+  pod 'FirebaseCoreInternal', :path => '../../'
+  pod 'FirebaseCoreExtension', :path => '../../'
   pod 'FirebaseInstallations', :path => '../../'
   pod 'FirebaseAnalytics' # Binary pods don't work with `:path`.
   pod 'FirebaseAnalyticsOnDeviceConversion', :path => '../../'
