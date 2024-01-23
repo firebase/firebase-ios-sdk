@@ -60,7 +60,8 @@ public class CrashlyticsRemoteConfigManager: NSObject {
   }
 
   /// Return string format: [{RolloutAssignment1}, {RolloutAssignment2}, {RolloutAssignment3}...]
-  /// This will get insert into each clsrcord for non-fatal events
+  /// This will get insert into each clsrcord for non-fatal events.
+  /// Return a string type because later `FIRCLSFileWriteStringUnquoted` takes string as input
   @objc public func getRolloutAssignmentsEncodedJsonString() -> String? {
     let encodeData = getRolloutAssignmentsEncodedJsonData()
     if let data = encodeData {
@@ -100,6 +101,8 @@ private extension CrashlyticsRemoteConfigManager {
     return validatedAssignments
   }
 
+  // Helper for later convert Data to String. Because `FIRCLSFileWriteStringUnquoted` takes string
+  // as input
   func getRolloutAssignmentsEncodedJsonData() -> Data? {
     let contentEncodedRolloutAssignments = rolloutAssignment.map { assignment in
       EncodedRolloutAssignment(assignment: assignment)
@@ -115,6 +118,7 @@ private extension CrashlyticsRemoteConfigManager {
   /// Return string format: {"rollouts": [{RolloutAssignment1}, {RolloutAssignment2},
   /// {RolloutAssignment3}...]}
   /// This will get stored in the separate rollouts.clsrecord
+  /// Return a data  type because later `[NSFileHandler writeData:]` takes data as input
   func getRolloutsStateEncodedJsonData() -> Data? {
     let contentEncodedRolloutAssignments = rolloutAssignment.map { assignment in
       EncodedRolloutAssignment(assignment: assignment)

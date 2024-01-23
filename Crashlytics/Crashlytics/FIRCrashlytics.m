@@ -444,7 +444,8 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
     FIRCLSDebugLog(@"rolloutsStateDidChange gets called without init the rc manager.");
     return;
   }
-  NSString *currenReportID = _managerData.executionIDModel.executionID;
-  [_remoteConfigManager updateRolloutsStateWithRolloutsState:rolloutsState reportID:currenReportID];
+  NSString *currentReportID = _managerData.executionIDModel.executionID;
+  [_remoteConfigManager updateRolloutsStateWithRolloutsState:rolloutsState
+                                                    reportID:currentReportID];
 }
 @end
