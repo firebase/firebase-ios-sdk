@@ -288,8 +288,8 @@ extension Auth: AuthInterop {
   }
 
   /** @fn fetchSignInMethodsForEmail:completion:
-   @brief Fetches the list of all sign-in methods previously used for the provided email address.
-   This method returns an empty list when [Email Enumeration
+   @brief [Deprecated] Fetches the list of all sign-in methods previously used for the provided
+   email address. This method returns an empty list when [Email Enumeration
    Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
    is enabled, irrespective of the number of authentication methods available for the given email.
    @param email The email address for which to obtain a list of sign-in methods.
@@ -326,8 +326,8 @@ extension Auth: AuthInterop {
   }
 
   /** @fn fetchSignInMethodsForEmail:completion:
-   @brief Fetches the list of all sign-in methods previously used for the provided email address.
-   This method returns an empty list when [Email Enumeration
+   @brief [Deprecated] Fetches the list of all sign-in methods previously used for the provided
+   email address. This method returns an empty list when [Email Enumeration
    Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
    is enabled, irrespective of the number of authentication methods available for the given email.
    @param email The email address for which to obtain a list of sign-in methods.

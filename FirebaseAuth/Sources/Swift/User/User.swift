@@ -68,8 +68,8 @@ extension User: NSSecureCoding {}
   #endif
 
   /** @fn updateEmail:completion:
-      @brief Updates the email address for the user. On success, the cached user profile data is
-          updated. Returns AuthErrorCodeInvalidCredentials error when
+      @brief [Deprecated] Updates the email address for the user. On success, the cached user
+          profile data is updated. Returns AuthErrorCodeInvalidCredentials error when
           [Email Enumeration Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
           is enabled.
       @remarks May fail if there is already an account with this email address that was created using
@@ -112,8 +112,8 @@ extension User: NSSecureCoding {}
   }
 
   /** @fn updateEmail
-      @brief Updates the email address for the user. On success, the cached user profile data is
-          updated. Throws AuthErrorCodeInvalidCredentials error when
+      @brief [Deprecated] Updates the email address for the user. On success, the cached user
+          profile data is updated. Returns AuthErrorCodeInvalidCredentials error when
           [Email Enumeration Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
           is enabled.
       @remarks May fail if there is already an account with this email address that was created using
