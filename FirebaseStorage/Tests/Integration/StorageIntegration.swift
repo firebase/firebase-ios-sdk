@@ -244,9 +244,6 @@ class StorageResultTests: StorageIntegrationCommon {
       self.assertResultSuccess(result)
       putFileExpectation.fulfill()
     }
-    defer {
-      task.removeAllObservers()
-    }
 
     task.observe(StorageTaskStatus.success) { snapshot in
       XCTAssertEqual(snapshot.description, "<State: Success>")
@@ -295,6 +292,7 @@ class StorageResultTests: StorageIntegrationCommon {
       self.assertResultSuccess(result)
       putFileExpectation.fulfill()
     }
+
     defer {
       task.removeAllObservers()
     }
@@ -349,6 +347,7 @@ class StorageResultTests: StorageIntegrationCommon {
       self.assertResultSuccess(result)
       putFileExpectation.fulfill()
     }
+
     defer {
       task.removeAllObservers()
     }
@@ -553,9 +552,6 @@ class StorageResultTests: StorageIntegrationCommon {
       switch result {
       case .success:
         let task = ref.write(toFile: fileURL)
-        defer {
-          task.removeAllObservers()
-        }
 
         task.observe(StorageTaskStatus.success) { snapshot in
           do {
@@ -598,9 +594,6 @@ class StorageResultTests: StorageIntegrationCommon {
       switch result {
       case .success:
         let task = ref.write(toFile: fileURL)
-        defer {
-          task.removeAllObservers()
-        }
 
         task.observe(StorageTaskStatus.success) { snapshot in
           XCTFail("Error processing success snapshot")
@@ -710,9 +703,6 @@ class StorageResultTests: StorageIntegrationCommon {
 
     let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
     let task = ref.write(toFile: fileURL)
-    defer {
-      task.removeAllObservers()
-    }
     var downloadedBytes: Int64 = 0
     var resumeAtBytes = 256 * 1024
 
@@ -752,9 +742,6 @@ class StorageResultTests: StorageIntegrationCommon {
 
     let fileURL = URL(fileURLWithPath: "\(NSTemporaryDirectory())/hello.txt")
     let task = ref.write(toFile: fileURL)
-    defer {
-      task.removeAllObservers()
-    }
     var downloadedBytes: Int64 = 0
     var resumeAtBytes = 256 * 1024
 
