@@ -109,6 +109,23 @@ Status Filesystem::IsDirectory(const Path& path) {
   return Status::OK();
 }
 
+StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
+  NSFileManager* file_manager = NSFileManager.defaultManager;
+  NSString* ns_path_str = path.ToNSString();
+  NSError* error = nil;
+
+  NSDictionary* attributes = [file_manager attributesOfItemAtPath:ns_path_str
+                                                            error:&error];
+
+  if (attributes == nil) {
+    return Status{Error::kErrorInternal, "attributesOfItemAtPath failed"}
+        .CausedBy(Status::FromNSError(error));
+  }
+
+  NSNumber* fileSizeNumber = [attributes objectForKey:NSFileSize];
+  return [fileSizeNumber longLongValue];
+}
+
 }  // namespace util
 }  // namespace firestore
 }  // namespace firebase
