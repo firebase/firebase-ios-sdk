@@ -133,6 +133,15 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
   XCTAssertEqual([manager lastFetchedTemplateVersion], @"1");
 }
 
+- (void)testUserDefaultsActiveTemplateVersionWriteAndRead {
+  RCNUserDefaultsManager* manager =
+      [[RCNUserDefaultsManager alloc] initWithAppName:AppName
+                                             bundleID:[NSBundle mainBundle].bundleIdentifier
+                                            namespace:FQNamespace1];
+  [manager setLastActiveTemplateVersion:@"1"];
+  XCTAssertEqual([manager lastActiveTemplateVersion], @"1");
+}
+
 - (void)testUserDefaultsRealtimeThrottleEndTimeWriteAndRead {
   RCNUserDefaultsManager* manager =
       [[RCNUserDefaultsManager alloc] initWithAppName:AppName
@@ -233,6 +242,12 @@ static NSString* const FQNamespace2 = @"testNamespace2:testApp";
   [manager2 setLastFetchedTemplateVersion:@"2"];
   XCTAssertEqualObjects([manager1 lastFetchedTemplateVersion], @"1");
   XCTAssertEqualObjects([manager2 lastFetchedTemplateVersion], @"2");
+
+  /// Active template version.
+  [manager1 setLastActiveTemplateVersion:@"1"];
+  [manager2 setLastActiveTemplateVersion:@"2"];
+  XCTAssertEqualObjects([manager1 lastActiveTemplateVersion], @"1");
+  XCTAssertEqualObjects([manager2 lastActiveTemplateVersion], @"2");
 }
 
 - (void)testUserDefaultsReset {

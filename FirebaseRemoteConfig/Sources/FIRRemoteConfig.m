@@ -18,6 +18,7 @@
 
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
+#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
@@ -655,12 +656,15 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
       }
     }
   }
-  FIRRolloutsState *rolloutsState =
-      [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
-  [[NSNotificationCenter defaultCenter]
-      postNotificationName:RolloutsStateDidChangeNotificationName
-                    object:self
-                  userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
+  if (rolloutsAssignments.count > 0) {
+    FIRRolloutsState *rolloutsState =
+        [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Send notification to Interop.");
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:RolloutsStateDidChangeNotificationName
+                      object:self
+                    userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
+  }
 }
 
 @end

@@ -406,7 +406,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return @{
     RCNFetchResponseKeyEntries : _activeConfig[FIRNamespace],
     RCNFetchResponseKeyPersonalizationMetadata : _activePersonalization
-    // TODO: ???
   };
 }
 
@@ -432,7 +431,6 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 // Compare fetched config with active config and output what has changed
 - (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace {
   // TODO: handle diff in experiment metadata
-  // TODO: (doudounan) handle diff in rollout metadata?
 
   FIRRemoteConfigUpdate *configUpdate;
   NSMutableSet<NSString *> *updatedKeys = [[NSMutableSet alloc] init];
