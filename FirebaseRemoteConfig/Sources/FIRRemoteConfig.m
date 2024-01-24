@@ -330,7 +330,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
-    NSString *activeVersionNumber = [_settings updateLastActiveTemplateVersion];
+    NSString *activeVersionNumber = [strongSelf->_settings updateLastActiveTemplateVersion];
     [strongSelf->_configContent activatePersonalization];
     NSArray<NSDictionary *> *activeRolloutMetadata =
         [strongSelf->_configContent activateRolloutMetdata];
@@ -647,7 +647,7 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
           FIRRolloutAssignment *assignment =
               [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
                                                     variantId:variantID
-                                              templateVersion:versionNumber
+                                              templateVersion:[versionNumber longLongValue]
                                                  parameterKey:key
                                                parameterValue:value.stringValue];
           [rolloutsAssignments addObject:assignment];
