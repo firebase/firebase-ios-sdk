@@ -123,7 +123,10 @@ StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
   }
 
   NSNumber* fileSizeNumber = [attributes objectForKey:NSFileSize];
-  return [fileSizeNumber longLongValue];
+
+  // Use brace initialization of the in64_t return value so that compilation
+  // will fail if the conversion from long long is narrowing.
+  return {[fileSizeNumber longLongValue]};
 }
 
 }  // namespace util
