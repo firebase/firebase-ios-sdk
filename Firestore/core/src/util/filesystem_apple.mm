@@ -118,7 +118,18 @@ StatusOr<int64_t> Filesystem::FileSize(const Path& path) {
                                                             error:&error];
 
   if (attributes == nil) {
-    return Status{Error::kErrorInternal, "attributesOfItemAtPath failed"}
+    if ([error.domain isEqualToString:NSCocoaErrorDomain]) {
+      switch (error.code) {
+        case NSFileReadNoSuchFileError:
+        case NSFileNoSuchFileError:
+          return Status{Error::kErrorNotFound, path.ToUtf8String()}.CausedBy(
+              Status::FromNSError(error));
+      }
+    }
+
+    return Status{Error::kErrorInternal,
+                  StringFormat("attributesOfItemAtPath failed for %s",
+                               path.ToUtf8String())}
         .CausedBy(Status::FromNSError(error));
   }
 
