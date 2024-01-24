@@ -18,7 +18,6 @@
 
 #import "FirebaseABTesting/Sources/Private/FirebaseABTestingInternal.h"
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
-#import "FirebaseRemoteConfig/Sources/FIRRemoteConfigComponent.h"
 #import "FirebaseRemoteConfig/Sources/Private/FIRRemoteConfig_Private.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigFetch.h"
 #import "FirebaseRemoteConfig/Sources/Private/RCNConfigSettings.h"
@@ -79,8 +78,6 @@ typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnu
 
 static NSMutableDictionary<NSString *, NSMutableDictionary<NSString *, FIRRemoteConfig *> *>
     *RCInstances;
-
-FIRRolloutsState *_rolloutsState;
 
 + (nonnull FIRRemoteConfig *)remoteConfigWithApp:(FIRApp *_Nonnull)firebaseApp {
   return [FIRRemoteConfig remoteConfigWithFIRNamespace:FIRNamespaceGoogleMobilePlatform
@@ -330,15 +327,14 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                                           toSource:RCNDBSourceActive
                                       forNamespace:self->_FIRNamespace];
     strongSelf->_settings.lastApplyTimeInterval = [[NSDate date] timeIntervalSince1970];
+
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
+    NSString *activeVersionNumber = [_settings updateLastActiveTemplateVersion];
     [strongSelf->_configContent activatePersonalization];
-
-    _rolloutsState = [strongSelf->_configContent activateRolloutMetdata];
-    [[NSNotificationCenter defaultCenter]
-        postNotificationName:RolloutsStateDidChangeNotificationName
-                      object:self];
-
+    NSArray<NSDictionary *> *activeRolloutMetadata =
+        [strongSelf->_configContent activateRolloutMetdata];
+    [self notifyRolloutsStateChange:activeRolloutMetadata versionNumber:activeVersionNumber];
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
@@ -626,15 +622,45 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 #pragma mark - Rollout
 
 - (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber {
-  //    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(subscriber) name:
-  //    RolloutsStateDidChangeNotificationName object:nil];
   [[NSNotificationCenter defaultCenter]
       addObserverForName:RolloutsStateDidChangeNotificationName
-                  object:nil
+                  object:self
                    queue:nil
               usingBlock:^(NSNotification *_Nonnull notification) {
-                [subscriber rolloutsStateDidChange:_rolloutsState];
+                FIRRolloutsState *rolloutsState =
+                    notification.userInfo[RolloutsStateDidChangeNotificationName];
+                [subscriber rolloutsStateDidChange:rolloutsState];
               }];
+}
+
+- (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata
+                    versionNumber:(NSString *)versionNumber {
+  NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
+  for (NSDictionary *metadata in rolloutMetadata) {
+    NSString *rolloutId = metadata[@"rollout_id"];
+    NSString *variantID = metadata[@"variant_id"];
+    NSArray<NSString *> *affectedParameterKeys = metadata[@"affected_parameter_keys"];
+    if (rolloutId && variantID && affectedParameterKeys) {
+      for (NSString *key in affectedParameterKeys) {
+        FIRRemoteConfigValue *value = [self configValueForKey:key];
+        if (value) {
+          FIRRolloutAssignment *assignment =
+              [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
+                                                    variantId:variantID
+                                              templateVersion:versionNumber
+                                                 parameterKey:key
+                                               parameterValue:value.stringValue];
+          [rolloutsAssignments addObject:assignment];
+        }
+      }
+    }
+  }
+  FIRRolloutsState *rolloutsState =
+      [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:RolloutsStateDidChangeNotificationName
+                    object:self
+                  userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
 }
 
 @end

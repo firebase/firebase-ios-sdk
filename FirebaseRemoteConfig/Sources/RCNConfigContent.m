@@ -291,13 +291,12 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                                        fromSource:RCNDBSourceActive];
 }
 
-- (FIRRolloutsState *)activateRolloutMetdata {
+- (NSArray<NSDictionary *> *)activateRolloutMetdata {
   _activeRolloutMetadata = _fetchedRolloutMetadata;
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
                                           value:_activeRolloutMetadata
                               completionHandler:nil];
-  // TODO: convert metadata to RolloutsState
-  return [[FIRRolloutsState alloc] init];
+  return _activeRolloutMetadata;
 }
 
 #pragma mark State handling
