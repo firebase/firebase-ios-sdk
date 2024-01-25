@@ -280,6 +280,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     [self handleUpdateStateForConfigNamespace:currentNamespace
                                   withEntries:response[RCNFetchResponseKeyEntries]];
     [self handleUpdatePersonalization:response[RCNFetchResponseKeyPersonalizationMetadata]];
+    [self handleUpdateRolloutFetchedMetadata:response[RCNFetchResponseKeyRolloutMetadata]];
     return;
   }
 }
@@ -288,6 +289,14 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   _activePersonalization = _fetchedPersonalization;
   [_DBManager insertOrUpdatePersonalizationConfig:_activePersonalization
                                        fromSource:RCNDBSourceActive];
+}
+
+- (NSArray<NSDictionary *> *)activateRolloutMetdata {
+  _activeRolloutMetadata = _fetchedRolloutMetadata;
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
+                                          value:_activeRolloutMetadata
+                              completionHandler:nil];
+  return _activeRolloutMetadata;
 }
 
 #pragma mark State handling
@@ -351,6 +360,16 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   }
   _fetchedPersonalization = metadata;
   [_DBManager insertOrUpdatePersonalizationConfig:metadata fromSource:RCNDBSourceFetched];
+}
+
+- (void)handleUpdateRolloutFetchedMetadata:(NSArray<NSDictionary *> *)metadata {
+  if (!metadata) {
+    return;
+  }
+  _fetchedRolloutMetadata = metadata;
+  [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata
+                                          value:metadata
+                              completionHandler:nil];
 }
 
 #pragma mark - getter/setter
