@@ -291,7 +291,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
                                        fromSource:RCNDBSourceActive];
 }
 
-- (NSArray<NSDictionary *> *)activateRolloutMetdata {
+- (NSArray<NSDictionary *> *)activateRolloutMetadata {
   _activeRolloutMetadata = _fetchedRolloutMetadata;
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyActiveMetadata
                                           value:_activeRolloutMetadata

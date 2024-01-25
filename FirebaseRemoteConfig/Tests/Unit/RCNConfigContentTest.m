@@ -491,7 +491,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
                                                                   rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
-  NSArray<NSDictionary *> *result = [_configContent activateRolloutMetdata];
+  NSArray<NSDictionary *> *result = [_configContent activateRolloutMetadata];
   XCTAssertEqualObjects(rolloutMetadata, result);
   FIRRemoteConfigValue *rcValue1 =
       [[FIRRemoteConfigValue alloc] initWithData:[value1 dataUsingEncoding:NSUTF8StringEncoding]
