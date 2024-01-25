@@ -480,12 +480,8 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   NSArray *rolloutMetadata = @[
     @{@"rollout_id" : rolloutId1, @"variant_id" : variantId1, @"affected_parameter_keys" : @[ key ]}
   ];
+  // variant_id changed
   NSArray *updatedRolloutMetadata = @[
-    @{
-      @"rollout_id" : rolloutId1,
-      @"variant_id" : variantId1,
-      @"affected_parameter_keys" : @[ key ]
-    },
     @{@"rollout_id" : rolloutId1, @"variant_id" : variantId2, @"affected_parameter_keys" : @[ key ]}
   ];
 
