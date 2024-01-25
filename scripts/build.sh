@@ -111,24 +111,9 @@ function RunXcodebuild() {
   echo xcodebuild "$@"
 
   result=0
-  xcodebuild "$@" | tee xcodebuild.log || result=$?
+  xcodebuild "$@"
 
-  if [[ $result == 65 ]]; then
-    ExportLogs "$@"
-
-    echo "xcodebuild exited with 65, retrying" 1>&2
-    sleep 5
-
-    result=0
-    xcodebuild "$@" | tee xcodebuild.log || result=$?
-  fi
-
-  if [[ $result != 0 ]]; then
-    echo "xcodebuild exited with $result" 1>&2
-
-    ExportLogs "$@"
-    return $result
-  fi
+  return 0
 }
 
 # Exports any logs output captured in the xcresult
