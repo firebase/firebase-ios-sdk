@@ -136,9 +136,8 @@
 /// indicates a server issue.
 - (void)updateRealtimeExponentialBackoffTime;
 
-/// Update last active template version from last fetched template version and return the active
-/// template version number.
-- (NSString *)updateLastActiveTemplateVersion;
+/// Update last active template version from last fetched template version.
+- (void)updateLastActiveTemplateVersion;
 
 /// Returns the difference between the Realtime backoff end time and the current time in a
 /// NSTimeInterval format.

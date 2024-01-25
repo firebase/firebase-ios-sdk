@@ -378,10 +378,9 @@ static const int kRCNExponentialBackoffMaximumInterval = 60 * 60 * 4;  // 4 hour
   [_DBManager insertMetadataTableWithValues:columnNameToValue completionHandler:nil];
 }
 
-- (NSString *)updateLastActiveTemplateVersion {
+- (void)updateLastActiveTemplateVersion {
   _lastActiveTemplateVersion = _lastFetchedTemplateVersion;
   [_userDefaultsManager setLastActiveTemplateVersion:_lastActiveTemplateVersion];
-  return _lastActiveTemplateVersion;
 }
 
 #pragma mark - fetch request
