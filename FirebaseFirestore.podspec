@@ -21,7 +21,7 @@ Google Cloud Firestore is a NoSQL document database built for automatic scaling,
 
   s.weak_framework = 'FirebaseFirestoreInternal'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.public_header_files = 'FirebaseFirestoreInternal/**/*.h'

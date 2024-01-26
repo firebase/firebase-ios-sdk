@@ -20,7 +20,7 @@ Firebase Dynamic Links are deep links that enhance user experience and increase 
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.source_files = [

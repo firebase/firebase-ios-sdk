@@ -29,7 +29,7 @@ Firebase Storage provides robust, secure file uploads and downloads from Firebas
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   s.source_files = [

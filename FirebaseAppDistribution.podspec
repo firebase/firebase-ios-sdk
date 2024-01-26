@@ -19,7 +19,7 @@ iOS SDK for App Distribution for Firebase.
 
   s.swift_version = '5.3'
 
-  s.cocoapods_version = '>= 1.4.0'
+  s.cocoapods_version = '>= 1.12.0'
   s.prefix_header_file = false
 
   base_dir = "FirebaseAppDistribution/Sources/"

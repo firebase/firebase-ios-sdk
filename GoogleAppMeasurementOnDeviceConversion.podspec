@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
         :http => 'https://dl.google.com/firebase/ios/analytics/4ab453c686c6aac4/GoogleAppMeasurementOnDeviceConversion-10.20.0.tar.gz'
     }
 
-    s.cocoapods_version = '>= 1.10.2'
+    s.cocoapods_version = '>= 1.12.0'
 
     s.ios.deployment_target  = '10.0'
 

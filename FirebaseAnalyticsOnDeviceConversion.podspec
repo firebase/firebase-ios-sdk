@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
       :tag => 'CocoaPods-' + s.version.to_s
     }
 
-    s.cocoapods_version = '>= 1.10.2'
+    s.cocoapods_version = '>= 1.12.0'
 
     s.dependency 'GoogleAppMeasurementOnDeviceConversion', '10.21.0'
 
