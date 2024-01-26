@@ -45,6 +45,8 @@ static NSString *const kRemoteConfigFetchTimeoutKey = @"_rcn_fetch_timeout";
 /// Notification when config is successfully activated
 const NSNotificationName FIRRemoteConfigActivateNotification =
     @"FIRRemoteConfigActivateNotification";
+static NSString *const RolloutsStateDidChangeNotificationName =
+    @"RolloutsStateDidChangeNotification";
 
 /// Listener for the get methods.
 typedef void (^FIRRemoteConfigListener)(NSString *_Nonnull, NSDictionary *_Nonnull);
@@ -330,7 +332,14 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
     // Update activeRolloutMetadata
-    [strongSelf->_configContent activateRolloutMetadata];
+    NSArray<NSDictionary *> *activeRolloutMetadata =
+        [strongSelf->_configContent activateRolloutMetadata];
+    if (activeRolloutMetadata && activeRolloutMetadata.count > 0) {
+      dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [self notifyRolloutsStateChange:activeRolloutMetadata
+                          versionNumber:strongSelf->_settings.lastFetchedTemplateVersion];
+      });
+    }
     // Update last active template version number in setting and userDefaults.
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
       [strongSelf->_settings updateLastActiveTemplateVersion];
@@ -617,6 +626,53 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
 - (FIRConfigUpdateListenerRegistration *)addOnConfigUpdateListener:
     (void (^_Nonnull)(FIRRemoteConfigUpdate *update, NSError *_Nullable error))listener {
   return [self->_configRealtime addConfigUpdateListener:listener];
+}
+
+#pragma mark - Rollout
+
+- (void)addRemoteConfigInteropSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber {
+  [[NSNotificationCenter defaultCenter]
+      addObserverForName:RolloutsStateDidChangeNotificationName
+                  object:self
+                   queue:nil
+              usingBlock:^(NSNotification *_Nonnull notification) {
+                FIRRolloutsState *rolloutsState =
+                    notification.userInfo[RolloutsStateDidChangeNotificationName];
+                [subscriber rolloutsStateDidChange:rolloutsState];
+              }];
+}
+
+- (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata
+                    versionNumber:(NSString *)versionNumber {
+  NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
+  for (NSDictionary *metadata in rolloutMetadata) {
+    NSString *rolloutId = metadata[@"rollout_id"];
+    NSString *variantID = metadata[@"variant_id"];
+    NSArray<NSString *> *affectedParameterKeys = metadata[@"affected_parameter_keys"];
+    if (rolloutId && variantID && affectedParameterKeys) {
+      for (NSString *key in affectedParameterKeys) {
+        FIRRemoteConfigValue *value = [self configValueForKey:key];
+        if (value) {
+          FIRRolloutAssignment *assignment =
+              [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
+                                                    variantId:variantID
+                                              templateVersion:[versionNumber longLongValue]
+                                                 parameterKey:key
+                                               parameterValue:value.stringValue];
+          [rolloutsAssignments addObject:assignment];
+        }
+      }
+    }
+  }
+  if (rolloutsAssignments.count > 0) {
+    FIRRolloutsState *rolloutsState =
+        [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
+    FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Send notification to Interop.");
+    [[NSNotificationCenter defaultCenter]
+        postNotificationName:RolloutsStateDidChangeNotificationName
+                      object:self
+                    userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
+  }
 }
 
 @end
