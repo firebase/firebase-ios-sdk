@@ -16,7 +16,7 @@ Pod::Spec.new do |s|
         :http => 'https://dl.google.com/firebase/ios/analytics/0199e7929b47e2d9/FirebaseAnalytics-10.20.0.tar.gz'
     }
 
-    s.cocoapods_version = '>= 1.10.0'
+    s.cocoapods_version = '>= 1.12.0'
     s.swift_version     = '5.3'
 
     s.ios.deployment_target  = '10.0'
