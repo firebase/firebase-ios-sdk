@@ -21,7 +21,6 @@
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 #import "FirebaseMessaging/Sources/FIRMessagingLogger.h"
 
-static const uint64_t kBytesToMegabytesDivisor = 1024 * 1024LL;
 NSString *const kFIRMessagingInstanceIDUserDefaultsKeyLocale =
     @"com.firebase.instanceid.user_defaults.locale";  // locale key stored in GULUserDefaults
 static NSString *const kFIRMessagingAPNSSandboxPrefix = @"s_";
