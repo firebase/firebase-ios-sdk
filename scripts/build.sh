@@ -108,7 +108,7 @@ source scripts/check_secrets.sh
 # Runs xcodebuild with the given flags, piping output to xcpretty
 # If xcodebuild fails with known error codes, retries once.
 function RunXcodebuild() {
-  echo xcodebuild "$@"
+  echo xcodebuild -verbose "$@"
 
   result=0
   xcodebuild "$@"
