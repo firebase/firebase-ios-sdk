@@ -635,6 +635,65 @@ struct FrameworkBuilder {
           "\(framework): \(error)")
       }
 
+      // TODO(ncooke3): ZipBuilder should fail if pod does not contain manifest.
+      // Idea: Add command flag with allowlist for pods that don't need a manifest
+
+      // Move any privacy manifest-containing resource bundles into the platform framework (if any).
+      try? fileManager.contentsOfDirectory(
+        at: frameworkPath.deletingLastPathComponent(),
+        includingPropertiesForKeys: nil
+      )
+      .filter { $0.pathExtension == "bundle" }
+      // TODO(ncooke3): Once the zip is built with Xcode 15, the following
+      // `filter` an be removed. The following block exists to preserve
+      // how resources (e.g. like FIAM's) are packaged for use in Xcode 14.
+      .filter { bundleURL in
+        // Bundle should contain only a `Info.plist` and a `PrivacyInfo.xcprivacy`.
+        if platform == .macOS || platform == .catalyst {
+          let bundleURL = bundleURL.appendingPathComponents(["Contents"])
+          let bundleContents = try? fileManager.contentsOfDirectory(
+            at: bundleURL,
+            includingPropertiesForKeys: nil
+          )
+          guard
+            let bundleContents = bundleContents,
+            Set(bundleContents.map(\.lastPathComponent)) == Set(["Info.plist", "Resources"])
+          else {
+            return false
+          }
+          let bundleResourcesContents = try? fileManager.contentsOfDirectory(
+            at: bundleURL.appendingPathComponents(["Resources"]),
+            includingPropertiesForKeys: nil
+          )
+          guard
+            let bundleResourcesContents = bundleResourcesContents,
+            bundleResourcesContents.map(\.lastPathComponent) == ["PrivacyInfo.xcprivacy"]
+          else {
+            return false
+          }
+        } else {
+          let bundleContents = try? fileManager.contentsOfDirectory(
+            at: bundleURL,
+            includingPropertiesForKeys: nil
+          )
+          guard
+            let bundleContents = bundleContents,
+            Set(bundleContents.map(\.lastPathComponent)) == Set([
+              "Info.plist",
+              "PrivacyInfo.xcprivacy",
+            ])
+          else {
+            return false
+          }
+        }
+
+        return true
+      }
+      .forEach { try! fileManager.moveItem(
+        at: $0,
+        to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
+      ) }
+
       // Headers from slice
       do {
         let headersSrc: URL = frameworkPath.appendingPathComponent("Headers")
