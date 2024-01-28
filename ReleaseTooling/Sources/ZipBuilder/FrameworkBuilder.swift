@@ -635,6 +635,34 @@ struct FrameworkBuilder {
           "\(framework): \(error)")
       }
 
+      // Move any privacy manifest-containing resource bundles into the
+      // platform framework.
+      try? fileManager.contentsOfDirectory(
+        at: frameworkPath.deletingLastPathComponent(),
+        includingPropertiesForKeys: nil
+      )
+      .filter { $0.pathExtension == "bundle" }
+      // TODO(ncooke3): Once the zip is built with Xcode 15, the following
+      // `filter` can be removed. The following block exists to preserve
+      // how resources (e.g. like FIAM's) are packaged for use in Xcode 14.
+      .filter { bundleURL in
+        let dirEnum = fileManager.enumerator(atPath: bundleURL.path)
+        var containsPrivacyManifest = false
+        while let relativeFilePath = dirEnum?.nextObject() as? String {
+          if relativeFilePath.hasSuffix("PrivacyInfo.xcprivacy") {
+            containsPrivacyManifest = true
+            break
+          }
+        }
+        return containsPrivacyManifest
+      }
+      // Bundles are moved rather than copied to prevent them from being
+      // packaged in a `Resources` directory at the root of the xcframework.
+      .forEach { try! fileManager.moveItem(
+        at: $0,
+        to: platformFrameworkDir.appendingPathComponent($0.lastPathComponent)
+      ) }
+
       // Headers from slice
       do {
         let headersSrc: URL = frameworkPath.appendingPathComponent("Headers")
