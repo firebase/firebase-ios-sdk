@@ -39,6 +39,12 @@ static NSString *const RCNFetchResponseKeyExperimentDescriptions = @"experimentD
 static NSString *const RCNFetchResponseKeyPersonalizationMetadata = @"personalizationMetadata";
 /// Key that includes data for Rollout metadata.
 static NSString *const RCNFetchResponseKeyRolloutMetadata = @"rolloutMetadata";
+/// Key that indicates rollout id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyRolloutID = @"rollout_id";
+/// Key that indicates variant id in Rollout metadata.
+static NSString *const RCNFetchResponseKeyVariantID = @"variant_id";
+/// Key that indicates affected parameter keys in Rollout Metadata.
+static NSString *const RCNFetchResponseKeyAffectedParameterKeys = @"affected_parameter_keys";
 /// Error key.
 static NSString *const RCNFetchResponseKeyError = @"error";
 /// Error code.

@@ -441,6 +441,8 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       _activeConfig[FIRNamespace] ? _activeConfig[FIRNamespace] : [[NSDictionary alloc] init];
   NSDictionary *fetchedP13n = _fetchedPersonalization;
   NSDictionary *activeP13n = _activePersonalization;
+  NSArray<NSDictionary *> *fetchedRolloutMetadata = _fetchedRolloutMetadata;
+  NSArray<NSDictionary *> *activeRolloutMetadata = _activeRolloutMetadata;
 
   // add new/updated params
   for (NSString *key in [fetchedConfig allKeys]) {
@@ -469,8 +471,50 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     }
   }
 
+  NSMutableDictionary<NSString *, NSMutableDictionary *> *fetchedRollout =
+      [self getParameterKeyToRolloutMetadataDic:fetchedRolloutMetadata];
+  NSMutableDictionary<NSString *, NSMutableDictionary *> *activeRollout =
+      [self getParameterKeyToRolloutMetadataDic:activeRolloutMetadata];
+
+  // add params with new/updated rollout metadata
+  for (NSString *key in [fetchedRollout allKeys]) {
+    if (activeRollout[key] == nil ||
+        ![activeRollout[key] isEqualToDictionary:fetchedRollout[key]]) {
+      [updatedKeys addObject:key];
+    }
+  }
+  // add params with deleted rollout metadata
+  for (NSString *key in [activeRollout allKeys]) {
+    if (fetchedRollout[key] == nil) {
+      [updatedKeys addObject:key];
+    }
+  }
+
   configUpdate = [[FIRRemoteConfigUpdate alloc] initWithUpdatedKeys:updatedKeys];
   return configUpdate;
+}
+
+- (NSMutableDictionary<NSString *, NSMutableDictionary *> *)getParameterKeyToRolloutMetadataDic:
+    (NSArray<NSDictionary *> *)rolloutMetadata {
+  NSMutableDictionary<NSString *, NSMutableDictionary *> *result =
+      [[NSMutableDictionary alloc] init];
+  for (NSDictionary *metadata in rolloutMetadata) {
+    NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
+    NSString *variantId = metadata[RCNFetchResponseKeyVariantID];
+    NSArray<NSString *> *affectedKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
+    if (rolloutId && variantId && affectedKeys) {
+      for (NSString *key in affectedKeys) {
+        if (result[key]) {
+          NSMutableDictionary *rolloutIdToVariantId = result[key];
+          [rolloutIdToVariantId setValue:variantId forKey:rolloutId];
+        } else {
+          NSMutableDictionary *rolloutIdToVariantId = [@{rolloutId : variantId} mutableCopy];
+          [result setValue:rolloutIdToVariantId forKey:key];
+        }
+      }
+    }
+  }
+  return result;
 }
 
 @end
