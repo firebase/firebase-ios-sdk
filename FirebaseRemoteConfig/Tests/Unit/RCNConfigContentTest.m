@@ -472,8 +472,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
 - (void)testConfigUpdate_rolloutMetadataUpdated_returnsKey {
   NSString *namespace = @"test_namespace";
   NSString *key = @"key1";
-  NSString *value1 = @"value1";
-  NSString *value2 = @"value2";
+  NSString *value = @"value";
   NSString *rolloutId1 = @"1";
   NSString *variantId1 = @"A";
   NSString *variantId2 = @"B";
@@ -486,27 +485,24 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   ];
 
   // Populate fetched config
-  NSMutableDictionary *fetchResponse = [self createFetchResponseWithConfigEntries:@{key : value1}
+  NSMutableDictionary *fetchResponse = [self createFetchResponseWithConfigEntries:@{key : value}
                                                                      p13nMetadata:nil
                                                                   rolloutMetadata:rolloutMetadata];
   [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
   // populate active config with the same content
   NSArray<NSDictionary *> *result = [_configContent activateRolloutMetadata];
   XCTAssertEqualObjects(rolloutMetadata, result);
-  FIRRemoteConfigValue *rcValue1 =
-      [[FIRRemoteConfigValue alloc] initWithData:[value1 dataUsingEncoding:NSUTF8StringEncoding]
+  FIRRemoteConfigValue *rcValue =
+      [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
                                           source:FIRRemoteConfigSourceRemote];
 
-  NSDictionary *namespaceToConfig = @{namespace : @{key : rcValue1}};
+  NSDictionary *namespaceToConfig = @{namespace : @{key : rcValue}};
   [_configContent copyFromDictionary:namespaceToConfig
                             toSource:RCNDBSourceActive
                         forNamespace:namespace];
   // New fetch response has updated rollout metadata
-  NSMutableDictionary *fetchResponse2 =
-      [self createFetchResponseWithConfigEntries:@{key : value2}
-                                    p13nMetadata:nil
-                                 rolloutMetadata:updatedRolloutMetadata];
-  [_configContent updateConfigContentWithResponse:fetchResponse2 forNamespace:namespace];
+  [fetchResponse setValue:updatedRolloutMetadata forKey:RCNFetchResponseKeyRolloutMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
 
   FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
 
