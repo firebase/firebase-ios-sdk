@@ -105,7 +105,7 @@ static NSInteger const kRCNFetchResponseHTTPStatusCodeGatewayTimeout = 504;
     _content = content;
     _fetchSession = [self newFetchSession];
     _options = options;
-    _templateVersionNumber = [self->_settings lastTemplateVersion];
+    _templateVersionNumber = [self->_settings lastFetchedTemplateVersion];
   }
   return self;
 }
