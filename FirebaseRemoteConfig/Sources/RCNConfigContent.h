@@ -65,6 +65,9 @@ typedef NS_ENUM(NSInteger, RCNDBSource) {
 /// Gets the active config and Personalization metadata.
 - (NSDictionary *)getConfigAndMetadataForNamespace:(NSString *)FIRNamespace;
 
+/// Sets the fetched rollout metadata to active and return the active rollout metadata.
+- (NSArray<NSDictionary *> *)activateRolloutMetadata;
+
 /// Returns the updated parameters between fetched and active config.
 - (FIRRemoteConfigUpdate *)getConfigUpdateForNamespace:(NSString *)FIRNamespace;
 
