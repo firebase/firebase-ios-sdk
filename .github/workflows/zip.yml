@@ -44,7 +44,7 @@ jobs:
          mkdir -p release_zip_dir
          sh -x scripts/build_zip.sh release_zip_dir \
            "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}"
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: Firebase-release-zip-zip
         # Zip the entire output directory since the builder adds subdirectories we don't know the
@@ -85,7 +85,7 @@ jobs:
          sh -x scripts/build_zip.sh \
            zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}" \
            build-head
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: Firebase-actions-dir
         # Zip the entire output directory since the builder adds subdirectories we don't know the
@@ -113,7 +113,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -148,7 +148,7 @@ jobs:
         LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_abtesting
@@ -175,7 +175,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -202,7 +202,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh authentiation
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_auth
@@ -229,7 +229,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -254,7 +254,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh config
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_config
@@ -281,7 +281,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -329,7 +329,7 @@ jobs:
         LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_crashlytics
@@ -357,7 +357,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -386,7 +386,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh database
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts database
@@ -413,7 +413,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -446,7 +446,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh dynamiclinks
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_dynamiclinks
@@ -474,7 +474,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -501,7 +501,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh firestore
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_firestore
@@ -520,7 +520,7 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
       - uses: actions/checkout@v4
       - name: Get framework dir
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: Firebase-actions-dir
       - uses: ruby/setup-ruby@v1
@@ -560,7 +560,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -590,7 +590,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh inappmessaging
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_ihappmessaging
@@ -617,7 +617,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -646,7 +646,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh messaging
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_messaging
@@ -673,7 +673,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -713,7 +713,7 @@ jobs:
         LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh storage
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_storage
