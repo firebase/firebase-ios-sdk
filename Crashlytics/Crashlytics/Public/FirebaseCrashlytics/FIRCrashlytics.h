@@ -14,6 +14,8 @@
 
 #import <Foundation/Foundation.h>
 
+#include <sys/mount.h>
+
 #import "FIRCrashlyticsReport.h"
 #import "FIRExceptionModel.h"
 
@@ -242,6 +244,28 @@ NS_SWIFT_NAME(Crashlytics)
  * This method only applies if automatic data collection is disabled.
  */
 - (void)deleteUnsentReports;
+
+
+/**
+ * Sets the function to be used for reading the remaining disk space on the device to support
+ * Apple Privacy Manifests.
+ *
+ * This method must be called before Crashlytics starts up so that Crashlytics has the disk space implementation during SDK startup.
+ *
+ * You can use this method by using the following code snippets:
+ * ```swift
+ * Crashlytics.setDiskSpaceImplementation(statfs)
+ * FirebaseApp.configure()
+ * ```
+ *
+ * ```objective-c
+ * #include <sys/mount.h>
+ * ...
+ * [FIRCrashlytics setDiskSpaceImplementation:statfs];
+ * [FIRApp configure];
+ * ```
+ */
++ (void)setDiskSpaceImplementation:(int (*) (const char *_Nullable, struct statfs *_Nullable))implementation;
 
 @end
 

@@ -52,6 +52,7 @@ static void FIRCLSHostWriteOSVersionInfo(FIRCLSFile* file);
 void FIRCLSHostInitialize(FIRCLSHostReadOnlyContext* roContext) {
   _firclsContext.readonly->host.pageSize = FIRCLSHostGetPageSize();
   _firclsContext.readonly->host.documentDirectoryPath = NULL;
+  _firclsContext.readonly->host.diskSpaceFunction = diskSpaceFunction;
 
   // determine where the document directory is mounted, so we can get file system statistics later
   NSArray* paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -186,12 +187,42 @@ void FIRCLSHostWriteDiskUsage(FIRCLSFile* file) {
 
   FIRCLSFileWriteHashStart(file);
 
-  if (statfs(_firclsContext.readonly->host.documentDirectoryPath, &tStats) == 0) {
+  FIRCLSFileWriteHashEntryUint64(file, "statfs_point", _firclsContext.readonly->host.diskSpaceFunction);
+
+
+  if (_firclsContext.readonly->host.diskSpaceFunction &&
+      _firclsContext.readonly->host.diskSpaceFunction(_firclsContext.readonly->host.documentDirectoryPath, &tStats) == 0) {
     FIRCLSFileWriteHashEntryUint64(file, "free", tStats.f_bavail * tStats.f_bsize);
     FIRCLSFileWriteHashEntryUint64(file, "total", tStats.f_blocks * tStats.f_bsize);
+
+    // TODO REMOVE
+    // TODO REMOVE
+    // TODO REMOVE
+    // TODO REMOVE
+    FIRCLSFileWriteHashEntryUint64(file, "wrote_using_statfs", 1);
+    // TODO REMOVE
+    // TODO REMOVE
+    // TODO REMOVE
+
+  } else {
+    FIRCLSFileWriteHashEntryUint64(file, "free", UINT64_MAX);
+    FIRCLSFileWriteHashEntryUint64(file, "total", UINT64_MAX);
+
+
+
+
+    // TODO REMOVE
+    // TODO REMOVE
+    // TODO REMOVE
+    // TODO REMOVE
+    FIRCLSFileWriteHashEntryUint64(file, "wrote_using_statfs", 0);
+    // TODO REMOVE
+    // TODO REMOVE
+    // TODO REMOVE
   }
 
   FIRCLSFileWriteHashEnd(file);
 
   FIRCLSFileWriteSectionEnd(file);
 }
+

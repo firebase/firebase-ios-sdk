@@ -16,12 +16,14 @@
 
 #include <mach/vm_types.h>
 #include <sys/cdefs.h>
+#include <sys/mount.h>
 
 #include "Crashlytics/Crashlytics/Helpers/FIRCLSFile.h"
 
 typedef struct {
   const char* documentDirectoryPath;
   vm_size_t pageSize;
+  int (*diskSpaceFunction) (const char *, struct statfs *);
 } FIRCLSHostReadOnlyContext;
 
 __BEGIN_DECLS

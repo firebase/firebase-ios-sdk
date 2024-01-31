@@ -63,6 +63,21 @@
 #import <UIKit/UIKit.h>
 #endif
 
+// This function pointer holds an optional pointer to statfs, which can be used
+// to get the disk remaining on the device. Apple Introduced Privacy Manifests,
+// so we cannot use this function by default. This function pointer can optionally
+// be set by developers if they want to continue using statfs, provided they follow
+// Apple's rules about Privacy Manifests.
+//
+// This is set as a global variable because it needs to be available before
+// Crashlytics starts up. Two reasons for this requirement:
+//   1) Crashlytics creates readonly memory in FIRCLSContext that can be accessed
+//      during a crash, so we can't write to it after startup. We're writing this
+//      function pointer to that readonly memory so we can read it during a crash
+//   2) Crashes can happen during startup, and we'd like to be able to capture disk
+//      space for those crashes if the developer provides this implementation to us
+int (*diskSpaceFunction) (const char *, struct statfs *);
+
 FIRCLSContext _firclsContext;
 dispatch_queue_t _firclsLoggingQueue;
 dispatch_queue_t _firclsBinaryImageQueue;
@@ -320,6 +335,13 @@ NSString *const FIRCLSGoogleTransportMappingID = @"1206";
 
 - (void)deleteUnsentReports {
   [self.reportManager deleteUnsentReports];
+}
+
++ (void)setDiskSpaceImplementation:(int (*) (const char *, struct statfs *))implementation {
+  if (_hasInitializedInstance) {
+    FIRCLSWarningLog(@"setDiskSpaceImplementation was called after Crashlytics was started up. This method must be called before FirebaseApp.configure()");
+  }
+  diskSpaceFunction = implementation;
 }
 
 #pragma mark - API: setUserID

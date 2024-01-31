@@ -17,6 +17,7 @@
 __BEGIN_DECLS
 
 extern FIRCLSContext _firclsContext;
+extern int (*diskSpaceFunction) (const char *, struct statfs *);
 extern dispatch_queue_t _firclsLoggingQueue;
 extern dispatch_queue_t _firclsBinaryImageQueue;
 extern dispatch_queue_t _firclsExceptionQueue;
