@@ -27,9 +27,4 @@ target 'AuthSample' do
   target 'SwiftApiTests' do
     inherit! :search_paths
   end
-
-  target 'Auth_E2eTests' do
-    inherit! :search_paths
-    pod 'EarlGrey'
-  end
 end
