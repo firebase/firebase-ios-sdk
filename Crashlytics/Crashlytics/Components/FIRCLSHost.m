@@ -187,38 +187,16 @@ void FIRCLSHostWriteDiskUsage(FIRCLSFile* file) {
 
   FIRCLSFileWriteHashStart(file);
 
-  FIRCLSFileWriteHashEntryUint64(file, "statfs_point", _firclsContext.readonly->host.diskSpaceFunction);
-
-
+  // Developers can optionally supply a function pointer to statfs
+  // that we can use here. Otherwise, set the disk space to 0 so the backend
+  // knows to hide this field in the crash report.
   if (_firclsContext.readonly->host.diskSpaceFunction &&
       _firclsContext.readonly->host.diskSpaceFunction(_firclsContext.readonly->host.documentDirectoryPath, &tStats) == 0) {
     FIRCLSFileWriteHashEntryUint64(file, "free", tStats.f_bavail * tStats.f_bsize);
     FIRCLSFileWriteHashEntryUint64(file, "total", tStats.f_blocks * tStats.f_bsize);
-
-    // TODO REMOVE
-    // TODO REMOVE
-    // TODO REMOVE
-    // TODO REMOVE
-    FIRCLSFileWriteHashEntryUint64(file, "wrote_using_statfs", 1);
-    // TODO REMOVE
-    // TODO REMOVE
-    // TODO REMOVE
-
   } else {
-    FIRCLSFileWriteHashEntryUint64(file, "free", UINT64_MAX);
-    FIRCLSFileWriteHashEntryUint64(file, "total", UINT64_MAX);
-
-
-
-
-    // TODO REMOVE
-    // TODO REMOVE
-    // TODO REMOVE
-    // TODO REMOVE
-    FIRCLSFileWriteHashEntryUint64(file, "wrote_using_statfs", 0);
-    // TODO REMOVE
-    // TODO REMOVE
-    // TODO REMOVE
+    FIRCLSFileWriteHashEntryUint64(file, "free", 0);
+    FIRCLSFileWriteHashEntryUint64(file, "total", 0);
   }
 
   FIRCLSFileWriteHashEnd(file);
