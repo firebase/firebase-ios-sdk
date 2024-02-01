@@ -44,7 +44,7 @@ jobs:
          mkdir -p release_zip_dir
          sh -x scripts/build_zip.sh release_zip_dir \
            "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git' }}"
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: Firebase-release-zip-zip
         # Zip the entire output directory since the builder adds subdirectories we don't know the
@@ -85,7 +85,7 @@ jobs:
          sh -x scripts/build_zip.sh \
            zip_output_dir "${{ github.event.inputs.custom_spec_repos || 'https://github.com/firebase/SpecsStaging.git,https://github.com/firebase/SpecsDev.git' }}" \
            build-head
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: Firebase-actions-dir
         # Zip the entire output directory since the builder adds subdirectories we don't know the
@@ -99,7 +99,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "ABTesting"
     strategy:
       matrix:
@@ -113,7 +112,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -122,7 +121,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -148,7 +147,7 @@ jobs:
         LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh abtesting
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_abtesting
@@ -161,7 +160,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK:  "Authentication"
     strategy:
       matrix:
@@ -175,7 +173,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -184,7 +182,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
@@ -202,7 +200,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh authentiation
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_auth
@@ -215,7 +213,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Config"
     strategy:
       matrix:
@@ -229,7 +226,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -238,7 +235,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
@@ -254,7 +251,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh config
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_config
@@ -267,7 +264,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Crashlytics"
     strategy:
       matrix:
@@ -281,7 +277,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -290,7 +286,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -329,7 +325,7 @@ jobs:
         LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh crashlytics
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_crashlytics
@@ -342,7 +338,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Database"
     strategy:
       matrix:
@@ -357,7 +352,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -366,7 +361,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -386,7 +381,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh database
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts database
@@ -399,7 +394,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "DynamicLinks"
     strategy:
       matrix:
@@ -413,7 +407,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -422,7 +416,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Objc Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
@@ -446,7 +440,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh dynamiclinks
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_dynamiclinks
@@ -459,7 +453,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Firestore"
     strategy:
       matrix:
@@ -474,7 +467,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -483,7 +476,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" scripts/setup_quickstart_framework.sh \
@@ -501,7 +494,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh firestore
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_firestore
@@ -512,7 +505,6 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-13
     steps:
@@ -520,7 +512,7 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_14.1.app/Contents/Developer
       - uses: actions/checkout@v4
       - name: Get framework dir
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: Firebase-actions-dir
       - uses: ruby/setup-ruby@v1
@@ -531,7 +523,7 @@ jobs:
       - name: Move frameworks
         run: |
           mkdir -p "${HOME}"/ios_frameworks/
-          find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+          find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
       - uses: actions/checkout@v4
       - name: Check linked Firestore.xcframework for unlinked symbols.
         run: |
@@ -546,7 +538,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "InAppMessaging"
     strategy:
       matrix:
@@ -560,7 +551,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -569,7 +560,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -590,7 +581,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh inappmessaging
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_ihappmessaging
@@ -603,7 +594,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Messaging"
     strategy:
       matrix:
@@ -617,7 +607,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -626,7 +616,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -646,7 +636,7 @@ jobs:
     - name: Remove data before upload
       if: ${{ failure() }}
       run: scripts/remove_data.sh messaging
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_messaging
@@ -659,7 +649,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Storage"
     strategy:
       matrix:
@@ -673,7 +662,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Get framework dir
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: Firebase-actions-dir
     - uses: ruby/setup-ruby@v1
@@ -682,7 +671,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       env:
@@ -713,7 +702,7 @@ jobs:
         LEGACY: true
       if: ${{ failure() }}
       run: scripts/remove_data.sh storage
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_storage

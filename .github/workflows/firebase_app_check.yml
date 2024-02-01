@@ -72,7 +72,7 @@ jobs:
       run: scripts/third_party/travis/retry.sh ./scripts/build.sh FirebaseAppCheckUnit iOS spm ${{ matrix.diagnostic }}
     - name: Upload raw logs if failed
       if: ${{ failure() }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: failure-xcodebuild-raw-logs
         path: xcodebuild.log

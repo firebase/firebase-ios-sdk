@@ -62,7 +62,7 @@ jobs:
         swift run podspecs-tester --git-root "${GITHUB_WORKSPACE}" --podspec ${PODSPEC} --skip-tests --temp-log-dir "${GITHUB_WORKSPACE}/specTestingLogs"
     - name: Upload Failed Testing Logs
       if: failure()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: specTestingLogs
         path: specTestingLogs/*.txt

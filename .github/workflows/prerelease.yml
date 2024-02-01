@@ -62,7 +62,7 @@ jobs:
       if: ${{ always() }}
       run: |
         rm -rf oss-bot-access.txt
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: firebase-ios-sdk
         path: |
@@ -80,7 +80,7 @@ jobs:
       targeted_pod: FirebaseCore
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
@@ -122,7 +122,7 @@ jobs:
       targeted_pod: ${{ matrix.podspec }}
     steps:
     - uses: actions/checkout@v4
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: firebase-ios-sdk
         path: ${{ env.local_sdk_repo_dir }}
@@ -234,7 +234,7 @@ jobs:
       env:
         LEGACY: true
       run: scripts/remove_data.sh config release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_abtesting
@@ -266,7 +266,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Authentication false)
     - name: Remove data before upload
       run: scripts/remove_data.sh authentication release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_auth
@@ -315,7 +315,7 @@ jobs:
       env:
         LEGACY: true
       run: scripts/remove_data.sh crashlytics release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_crashlytics
@@ -351,7 +351,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Database false swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh database release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_database
@@ -393,7 +393,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh DynamicLinks true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh dynamiclinks release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_dynamiclinks
@@ -428,7 +428,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Firestore false)
     - name: Remove data before upload
       run: scripts/remove_data.sh firestore release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_firestore
@@ -469,7 +469,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Functions true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh functions release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_functions
@@ -507,7 +507,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh InAppMessaging true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh inappmessaging release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_inappmessaging
@@ -545,7 +545,7 @@ jobs:
             scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Messaging false swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh messaging release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_messaging
@@ -577,7 +577,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Config true)
     - name: Remove data before upload
       run: scripts/remove_data.sh config release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_config
@@ -614,7 +614,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Storage true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh storage release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_storage
@@ -651,7 +651,7 @@ jobs:
       run: ([ -z $plist_secret ] || scripts/third_party/travis/retry.sh scripts/test_quickstart.sh Performance true swift)
     - name: Remove data before upload
       run: scripts/remove_data.sh performance release_testing
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
       with:
         name: quickstart_artifacts_performance
