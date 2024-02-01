@@ -122,7 +122,9 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        ls -l "${HOME}"
+        ls -l "${GITHUB_WORKSPACE}"
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -184,7 +186,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
@@ -238,7 +240,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
     - name: Setup Swift Quickstart
@@ -290,7 +292,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -366,7 +368,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
@@ -422,7 +424,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - name: Setup Objc Quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
                                                "${HOME}"/ios_frameworks/Firebase/FirebaseDynamicLinks/* \
@@ -483,7 +485,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" NON_FIREBASE_SDKS="SDWebImage FirebaseAuthUI FirebaseEmailAuthUI" scripts/setup_quickstart_framework.sh \
@@ -531,7 +533,7 @@ jobs:
       - name: Move frameworks
         run: |
           mkdir -p "${HOME}"/ios_frameworks/
-          find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+          find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
       - uses: actions/checkout@v4
       - name: Check linked Firestore.xcframework for unlinked symbols.
         run: |
@@ -569,7 +571,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -626,7 +628,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       run: SAMPLE="$SDK" TARGET="${SDK}Example" scripts/setup_quickstart_framework.sh \
@@ -682,7 +684,7 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        find "${GITHUB_WORKSPACE}/${FRAMEWORK_DIR}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
+        find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Setup quickstart
       env:
