@@ -89,7 +89,7 @@ View::View(Query query, DocumentKeySet remote_documents)
 }
 
 ComparisonResult View::Compare(const Document& lhs, const Document& rhs) const {
-  return document_set_.comparator().Compare(lhs, rhs);
+  return DocumentComparator.Compare(lhs, rhs);
 }
 
 ViewDocumentChanges View::ComputeDocumentChanges(

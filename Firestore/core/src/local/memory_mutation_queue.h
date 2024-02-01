@@ -90,7 +90,7 @@ class MemoryMutationQueue : public MutationQueue {
 
  private:
   using DocumentKeyReferenceSet =
-      immutable::SortedSet<DocumentKeyReference, DocumentKeyReference::ByKey>;
+      std::set<DocumentKeyReference, DocumentKeyReference::ByKey>;
 
   std::vector<model::MutationBatch> AllMutationBatchesWithIds(
       const std::set<model::BatchId>& batch_ids);
