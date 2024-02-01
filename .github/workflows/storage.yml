@@ -51,7 +51,7 @@ jobs:
           FirebaseStorage/Tests/Integration/Credentials.swift "$plist_secret"
     - name: Xcode
       run: sudo xcode-select -s /Applications/${{ matrix.xcode }}.app/Contents/Developer
-    - uses: nick-fields/retry@v4
+    - uses: nick-fields/retry@v3
       with:
         timeout_minutes: 30
         max_attempts: 3
