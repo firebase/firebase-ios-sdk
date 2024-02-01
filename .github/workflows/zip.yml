@@ -99,7 +99,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "ABTesting"
     strategy:
       matrix:
@@ -122,8 +121,6 @@ jobs:
     - name: Move frameworks
       run: |
         mkdir -p "${HOME}"/ios_frameworks/
-        ls -l "${HOME}"
-        ls -l "${GITHUB_WORKSPACE}"
         find "${GITHUB_WORKSPACE}" -name "Firebase*latest.zip" -exec unzip -d "${HOME}"/ios_frameworks/ {} +
     - uses: actions/checkout@v4
     - name: Xcode
@@ -163,7 +160,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK:  "Authentication"
     strategy:
       matrix:
@@ -217,7 +213,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Config"
     strategy:
       matrix:
@@ -269,7 +264,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Crashlytics"
     strategy:
       matrix:
@@ -344,7 +338,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Database"
     strategy:
       matrix:
@@ -401,7 +394,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "DynamicLinks"
     strategy:
       matrix:
@@ -461,7 +453,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Firestore"
     strategy:
       matrix:
@@ -514,7 +505,6 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     needs: package-head
     env:
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       FIREBASECI_USE_LATEST_GOOGLEAPPMEASUREMENT: 1
     runs-on: macos-13
     steps:
@@ -548,7 +538,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "InAppMessaging"
     strategy:
       matrix:
@@ -605,7 +594,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Messaging"
     strategy:
       matrix:
@@ -661,7 +649,6 @@ jobs:
     env:
       plist_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
       signin_secret: ${{ secrets.GHASecretsGPGPassphrase1 }}
-      FRAMEWORK_DIR: "Firebase-actions-dir"
       SDK: "Storage"
     strategy:
       matrix:
