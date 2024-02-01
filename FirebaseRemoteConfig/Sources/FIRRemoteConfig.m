@@ -331,19 +331,17 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // New config has been activated at this point
     FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Config activated.");
     [strongSelf->_configContent activatePersonalization];
+    // Update last active template version number in setting and userDefaults.
+    [strongSelf->_settings updateLastActiveTemplateVersion];
     // Update activeRolloutMetadata
     NSArray<NSDictionary *> *activeRolloutMetadata =
         [strongSelf->_configContent activateRolloutMetadata];
     if (activeRolloutMetadata && activeRolloutMetadata.count > 0) {
       dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [self notifyRolloutsStateChange:activeRolloutMetadata
-                          versionNumber:strongSelf->_settings.lastFetchedTemplateVersion];
+                          versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
       });
     }
-    // Update last active template version number in setting and userDefaults.
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [strongSelf->_settings updateLastActiveTemplateVersion];
-    });
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
