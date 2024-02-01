@@ -644,9 +644,9 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                     versionNumber:(NSString *)versionNumber {
   NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
   for (NSDictionary *metadata in rolloutMetadata) {
-    NSString *rolloutId = metadata[@"rollout_id"];
-    NSString *variantID = metadata[@"variant_id"];
-    NSArray<NSString *> *affectedParameterKeys = metadata[@"affected_parameter_keys"];
+    NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
+    NSString *variantID = metadata[RCNFetchResponseKeyVariantID];
+    NSArray<NSString *> *affectedParameterKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
     if (rolloutId && variantID && affectedParameterKeys) {
       for (NSString *key in affectedParameterKeys) {
         FIRRemoteConfigValue *value = [self configValueForKey:key];
