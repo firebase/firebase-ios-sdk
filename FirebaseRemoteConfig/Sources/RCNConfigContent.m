@@ -471,21 +471,21 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
     }
   }
 
-  NSMutableDictionary<NSString *, NSMutableDictionary *> *fetchedRollout =
-      [self getParameterKeyToRolloutMetadataDic:fetchedRolloutMetadata];
-  NSMutableDictionary<NSString *, NSMutableDictionary *> *activeRollout =
-      [self getParameterKeyToRolloutMetadataDic:activeRolloutMetadata];
+  NSDictionary<NSString *, NSDictionary *> *fetchedRollouts =
+      [self getParameterKeyToRolloutMetadata:fetchedRolloutMetadata];
+  NSDictionary<NSString *, NSDictionary *> *activeRollouts =
+      [self getParameterKeyToRolloutMetadata:activeRolloutMetadata];
 
   // add params with new/updated rollout metadata
-  for (NSString *key in [fetchedRollout allKeys]) {
-    if (activeRollout[key] == nil ||
-        ![activeRollout[key] isEqualToDictionary:fetchedRollout[key]]) {
+  for (NSString *key in [fetchedRollouts allKeys]) {
+    if (activeRollouts[key] == nil ||
+        ![activeRollouts[key] isEqualToDictionary:fetchedRollouts[key]]) {
       [updatedKeys addObject:key];
     }
   }
   // add params with deleted rollout metadata
-  for (NSString *key in [activeRollout allKeys]) {
-    if (fetchedRollout[key] == nil) {
+  for (NSString *key in [activeRollouts allKeys]) {
+    if (fetchedRollouts[key] == nil) {
       [updatedKeys addObject:key];
     }
   }
@@ -494,7 +494,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
   return configUpdate;
 }
 
-- (NSMutableDictionary<NSString *, NSMutableDictionary *> *)getParameterKeyToRolloutMetadataDic:
+- (NSDictionary<NSString *, NSDictionary *> *)getParameterKeyToRolloutMetadata:
     (NSArray<NSDictionary *> *)rolloutMetadata {
   NSMutableDictionary<NSString *, NSMutableDictionary *> *result =
       [[NSMutableDictionary alloc] init];
@@ -514,7 +514,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
       }
     }
   }
-  return result;
+  return [result copy];
 }
 
 @end
