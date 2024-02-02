@@ -34,6 +34,7 @@ pod-lib-lint-newsdk:
     - name: Build and test
       run: ./scripts/health_metrics/pod_test_code_coverage_report.sh FirebaseNewSDK "${{ matrix.target }}"
     - uses: actions/upload-artifact@v3
+      with:
         name: codecoverage
         path: /Users/runner/*.xcresult
 ```
