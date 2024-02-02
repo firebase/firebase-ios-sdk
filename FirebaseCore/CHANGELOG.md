@@ -1,3 +1,7 @@
+# Unreleased
+- [changed] Firebase now requires the Swift 5.7.1 toolchain or newer;
+  already included in Xcode 14.1+. (#12350)
+
 # Firebase 10.21.0
 - Firebase now requires at least CocoaPods version 1.12.0 to enable privacy
   manifest support.
