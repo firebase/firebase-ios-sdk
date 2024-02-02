@@ -493,7 +493,7 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
     @{
       RCNFetchResponseKeyRolloutID : rolloutId2,
       RCNFetchResponseKeyVariantID : variantId1,
-      RCNFetchResponseKeyAffectedParameterKeys : @[ key1, key2 ]
+      RCNFetchResponseKeyAffectedParameterKeys : @[ key2 ]
     },
   ];
   // Populate fetched config
