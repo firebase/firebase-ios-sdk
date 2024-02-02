@@ -183,6 +183,7 @@ let package = Package(
       "100.0.0" ..< "101.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
+    .package(url: "https://github.com/google/generative-ai-swift.git", "0.4.7" ..< "0.5.0"),
   ],
   targets: [
     .target(
@@ -429,6 +430,7 @@ let package = Package(
         .product(name: "GULEnvironment", package: "GoogleUtilities"),
         .product(name: "GTMSessionFetcherCore", package: "gtm-session-fetcher"),
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
+        .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
       ],
       path: "FirebaseAuth/Sources",
       publicHeadersPath: "Public",
