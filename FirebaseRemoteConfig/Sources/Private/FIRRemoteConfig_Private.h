@@ -17,7 +17,7 @@
 #import <FirebaseRemoteConfig/FIRRemoteConfig.h>
 #import "RCNConfigSettings.h"  // This import is needed to expose settings for the Swift API tests.
 
-@import FirebaseRemoteConfigInterop;
+// @import FirebaseRemoteConfigInterop;
 
 @class FIROptions;
 @class RCNConfigContent;
@@ -25,6 +25,7 @@
 @class RCNConfigFetch;
 @class RCNConfigRealtime;
 @protocol FIRAnalyticsInterop;
+@protocol FIRRolloutsStateSubscriber;
 
 NS_ASSUME_NONNULL_BEGIN
 
