@@ -21,5 +21,7 @@ struct ContentView: View {
   var body: some View {
     CrashButtonView()
       .padding()
+    RemoteConfigButtonView()
+      .padding()
   }
 }
