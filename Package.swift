@@ -1,4 +1,4 @@
-// swift-tools-version:5.9
+// swift-tools-version:5.6
 // The swift-tools-version declares the minimum version of Swift required to
 // build this package.
 
@@ -183,7 +183,7 @@ let package = Package(
       "100.0.0" ..< "101.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
-    .package(url: "https://github.com/google/generative-ai-swift.git", "0.4.7" ..< "0.5.0"),
+    .package(url: "https://github.com/google/generative-ai-swift.git", branch: "ah/supported-platforms"),
   ],
   targets: [
     .target(
