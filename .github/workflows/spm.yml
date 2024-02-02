@@ -27,12 +27,8 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
-            test: spm
-          # The integration tests are slow and flaky on Xcode 15, so just build.
           - os: macos-13
             xcode: Xcode_15.2
             test: spmbuildonly
@@ -57,10 +53,8 @@ jobs:
     if: (github.repository == 'Firebase/firebase-ios-sdk' && github.event_name == 'schedule') || github.event_name == 'pull_request'
     strategy:
       matrix:
-        os: [macos-12, macos-13]
+        os: [macos-13]
         include:
-          - os: macos-12
-            xcode: Xcode_14.2
           - os: macos-13
             xcode: Xcode_15.2
     runs-on: ${{ matrix.os }}
