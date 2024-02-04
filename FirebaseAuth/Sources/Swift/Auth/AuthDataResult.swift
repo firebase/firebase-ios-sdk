@@ -17,35 +17,26 @@ import Foundation
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension AuthDataResult: NSSecureCoding {}
 
-/** @class AuthDataResult
-    @brief Helper object that contains the result of a successful sign-in, link and reauthenticate
-        action. It contains references to a `User` instance and a `AdditionalUserInfo` instance.
- */
+/// Helper object that contains the result of a successful sign-in, link and reauthenticate
+///    action. It contains references to a `User` instance and a `AdditionalUserInfo` instance.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthDataResult) open class AuthDataResult: NSObject {
-  /** @property user
-      @brief The signed in user.
-   */
+  /// The signed in user.
   @objc public let user: User
 
-  /** @property additionalUserInfo
-      @brief If available contains the additional IdP specific information about signed in user.
-   */
+  /// If available contains the additional IdP specific information about signed in user.
   @objc public let additionalUserInfo: AdditionalUserInfo?
 
-  /** @property credential
-      @brief This property will be non-nil after a successful headful-lite sign-in via
-          `signIn(with:uiDelegate:completion:)`. May be used to obtain the accessToken and/or IDToken
-          pertaining to a recently signed-in user.
-   */
+  /// This property will be non-nil after a successful headful-lite sign-in via
+  ///    `signIn(with:uiDelegate:completion:)`. May be used to obtain the accessToken and/or IDToken
+  ///    pertaining to a recently signed-in user.
+
   @objc public let credential: OAuthCredential?
 
-  /** @fn initWithUser:additionalUserInfo:
-   @brief Designated initializer.
-   @param user The signed in user reference.
-   @param additionalUserInfo The additional user info.
-   @param credential The updated OAuth credential if available.
-   */
+  /// Designated initializer.
+  /// - Parameter user: The signed in user reference.
+  /// - Parameter additionalUserInfo: The additional user info.
+  /// - Parameter credential: The updated OAuth credential if available.
   init(withUser user: User,
        additionalUserInfo: AdditionalUserInfo?,
        credential: OAuthCredential? = nil) {

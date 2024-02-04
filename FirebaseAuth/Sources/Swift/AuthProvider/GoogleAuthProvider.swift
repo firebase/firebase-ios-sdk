@@ -14,23 +14,19 @@
 
 import Foundation
 
-/**
- @brief Utility class for constructing Google Sign In credentials.
- */
+/// Utility class for constructing Google Sign In credentials.
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGoogleAuthProvider) open class GoogleAuthProvider: NSObject {
   @objc public static let id = "google.com"
 
-  /**
-      @brief Creates an `AuthCredential` for a Google sign in.
-
-      @param IDToken The ID Token from Google.
-      @param accessToken The Access Token from Google.
-      @return An AuthCredential containing the Google credentials.
-   */
-  @objc open class func credential(withIDToken IDToken: String,
+  /// Creates an `AuthCredential` for a Google sign in.
+  /// - Parameter idToken: The ID Token from Google.
+  /// - Parameter accessToken: The Access Token from Google.
+  /// - Returns: An AuthCredential containing the Google credentials.
+  @objc open class func credential(withIDToken idToken: String,
                                    accessToken: String) -> AuthCredential {
-    return GoogleAuthCredential(withIDToken: IDToken, accessToken: accessToken)
+    return GoogleAuthCredential(withIDToken: idToken, accessToken: accessToken)
   }
 
   @available(*, unavailable)

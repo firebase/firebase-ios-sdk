@@ -16,43 +16,35 @@ import Foundation
 
 private let kFiveMinutes = 5 * 60.0
 
-/** @class FIRAuthAppCredential
-    @brief A class represents a credential that proves the identity of the app.
- */
+
+    /// A class represents a credential that proves the identity of the app.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRSecureTokenService) // objc Needed for decoding old versions
 class SecureTokenService: NSObject, NSSecureCoding {
-  /** @property requestConfiguration
-      @brief The configuration for making requests to server.
-   */
+  
+      /// The configuration for making requests to server.
   var requestConfiguration: AuthRequestConfiguration?
-
-  /** @property accessToken
-      @brief The cached access token.
-      @remarks This method is specifically for providing the access token to internal clients during
-          deserialization and sign-in events, and should not be used to retrieve the access token by
-          anyone else.
-   */
+  
+      /// The cached access token.
+  ///
+  ///  This method is specifically for providing the access token to internal clients during
+  /// deserialization and sign-in events, and should not be used to retrieve the access token by
+     ///     anyone else.
   var accessToken: String
-
-  /** @property refreshToken
-      @brief The refresh token for the user, or @c nil if the user has yet completed sign-in flow.
-      @remarks This property needs to be set manually after the instance is decoded from archive.
-   */
+  
+      /// The refresh token for the user, or `nil` if the user has yet completed sign-in flow.
+  ///
+  /// This property needs to be set manually after the instance is decoded from archive.
   var refreshToken: String?
-
-  /** @property accessTokenExpirationDate
-      @brief The expiration date of the cached access token.
-   */
+  
+      /// The expiration date of the cached access token.
   var accessTokenExpirationDate: Date?
-
-  /** @fn initWithRequestConfiguration:accessToken:accessTokenExpirationDate:refreshToken
-      @brief Creates a @c FIRSecureTokenService with access and refresh tokens.
-      @param requestConfiguration The configuration for making requests to server.
-      @param accessToken The STS access token.
-      @param accessTokenExpirationDate The approximate expiration date of the access token.
-      @param refreshToken The STS refresh token.
-   */
+  
+      /// Creates a `SecureTokenService` with access and refresh tokens.
+      /// - Parameter requestConfiguration: The configuration for making requests to server.
+      /// - Parameter accessToken: The STS access token.
+      /// - Parameter accessTokenExpirationDate: The approximate expiration date of the access token.
+      /// - Parameter refreshToken: The STS refresh token.
   init(withRequestConfiguration requestConfiguration: AuthRequestConfiguration?,
        accessToken: String,
        accessTokenExpirationDate: Date?,
@@ -64,13 +56,12 @@ class SecureTokenService: NSObject, NSSecureCoding {
     taskQueue = AuthSerialTaskQueue()
   }
 
-  /** @fn fetchAccessTokenForcingRefresh:callback:
-      @brief Fetch a fresh ephemeral access token for the ID associated with this instance. The token
-          received in the callback should be considered short lived and not cached.
-      @param forceRefresh Forces the token to be refreshed.
-      @param callback Callback block that will be called to return either the token or an error.
-          Invoked asyncronously on the auth global work queue in the future.
-   */
+      /// Fetch a fresh ephemeral access token for the ID associated with this instance. The token
+       ///   received in the callback should be considered short lived and not cached.
+  ///
+  ///    Invoked asyncronously on the auth global work queue in the future.
+      /// - Parameter forceRefresh: Forces the token to be refreshed.
+      /// - Parameter callback: Callback block that will be called to return either the token or an error.
   func fetchAccessToken(forcingRefresh forceRefresh: Bool,
                         callback: @escaping (String?, Error?, Bool) -> Void) {
     taskQueue.enqueueTask { complete in
@@ -139,17 +130,18 @@ class SecureTokenService: NSObject, NSSecureCoding {
 
   // MARK: Private methods
 
-  /** @fn requestAccessToken:
-      @brief Makes a request to STS for an access token.
-      @details This handles both the case that the token has not been granted yet and that it just
-          needs to be refreshed. The caller is responsible for making sure that this is occurring in
-          a @c _taskQueue task.
-      @Returns  token and Bool indicating if update occurred.
-      @remarks Because this method is guaranteed to only be called from tasks enqueued in
-          @c _taskQueue, we do not need any @synchronized guards around access to _accessToken/etc.
-          since only one of those tasks is ever running at a time, and those tasks are the only
-          access to and mutation of these instance variables.
-   */
+  
+      /// Makes a request to STS for an access token.
+  ///
+  /// This handles both the case that the token has not been granted yet and that it just
+  /// needs to be refreshed. The caller is responsible for making sure that this is occurring in
+  /// a  `_taskQueue` task.
+  ///
+  /// Because this method is guaranteed to only be called from tasks enqueued in
+  /// `_taskQueue`, we do not need any @synchronized guards around access to _accessToken/etc.
+ /// since only one of those tasks is ever running at a time, and those tasks are the only
+  /// access to and mutation of these instance variables.
+      /// - Returns: Token and Bool indicating if update occurred.
   private func requestAccessToken(retryIfExpired: Bool) async throws -> (String?, Bool) {
     // TODO: This was a crash in ObjC SDK, should it callback with an error?
     guard let refreshToken, let requestConfiguration else {

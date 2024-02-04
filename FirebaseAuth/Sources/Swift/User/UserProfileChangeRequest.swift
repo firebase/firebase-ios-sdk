@@ -14,16 +14,14 @@
 
 import Foundation
 
-/** @class UserProfileChangeRequest
-    @brief Represents an object capable of updating a user's profile data.
-    @remarks Properties are marked as being part of a profile update when they are set. Setting a
-        property value to nil is not the same as leaving the property unassigned.
- */
-@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+/// Represents an object capable of updating a user's profile data.
+///
+/// Properties are marked as being part of a profile update when they are set. Setting a
+/// property value to nil is not the same as leaving the property unassigned.
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserProfileChangeRequest) open class UserProfileChangeRequest: NSObject {
-  /** @property displayName
-   @brief The name of the user.
-   */
+
+  /// The name of the user.
   @objc open var displayName: String? {
     get { return _displayName }
     set(newDisplayName) {
@@ -39,9 +37,7 @@ import Foundation
 
   private var _displayName: String?
 
-  /** @property photoURL
-   @brief The URL of the user's profile photo.
-   */
+  /// The URL of the user's profile photo.
   @objc open var photoURL: URL? {
     get { return _photoURL }
     set(newPhotoURL) {
@@ -57,15 +53,13 @@ import Foundation
 
   private var _photoURL: URL?
 
-  /** @fn commitChangesWithCompletion:
-   @brief Commits any pending changes.
-   @remarks This method should only be called once. Once called, property values should not be
-   changed.
-
-   @param completion Optionally; the block invoked when the user profile change has been applied.
-   Invoked asynchronously on the main thread in the future.
-   */
-  @objc open func commitChanges(completion: ((Error?) -> Void)? = nil) {
+  /// Commits any pending changes.
+  ///
+  /// Invoked asynchronously on the main thread in the future.
+  ///
+  /// This method should only be called once.Once called, property values should not be changed.
+  /// - Parameter completion: Optionally; the block invoked when the user profile change has been applied.
+    @objc open func commitChanges(completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       if self.consumed {
         fatalError("Internal Auth Error: commitChanges should only be called once.")
@@ -107,14 +101,10 @@ import Foundation
     }
   }
 
-  /** @fn commitChanges
-   @brief Commits any pending changes.
-   @remarks This method should only be called once. Once called, property values should not be
-   changed.
-
-   @throws on error.
-   */
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  /// Commits any pending changes.
+  ///
+  /// This method should only be called once. Once called, property values should not be changed.
+    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func commitChanges() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.commitChanges { error in

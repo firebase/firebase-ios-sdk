@@ -14,51 +14,32 @@
 
 import Foundation
 
-/*
- @remarks Error Codes common to all API Methods:
-
- + `FIRAuthErrorCodeNetworkError`
- + `FIRAuthErrorCodeUserNotFound`
- + `FIRAuthErrorCodeUserTokenExpired`
- + `FIRAuthErrorCodeTooManyRequests`
- + `FIRAuthErrorCodeInvalidAPIKey`
- + `FIRAuthErrorCodeAppNotAuthorized`
- + `FIRAuthErrorCodeKeychainError`
- + `FIRAuthErrorCodeInternalError`
-
- @remarks Common error codes for `FIRUser` operations:
-
- + `FIRAuthErrorCodeInvalidUserToken`
- + `FIRAuthErrorCodeUserDisabled`
- */
+/// Error Codes common to all API Methods:
 @objc(FIRAuthErrors) open class AuthErrors: NSObject {
   @objc public static let domain: String = "FIRAuthErrorDomain"
 
   @objc public static let userInfoNameKey: String = "FIRAuthErrorUserInfoNameKey"
 
-  /**
-   @brief Errors with one of the following three codes:
-   - `FIRAuthErrorCodeAccountExistsWithDifferentCredential`
-   - `FIRAuthErrorCodeCredentialAlreadyInUse`
-   - `FIRAuthErrorCodeEmailAlreadyInUse`
-   may contain  an `NSError.userInfo` dictinary object which contains this key. The value
-   associated with this key is an NSString of the email address of the account that already
-   exists.
-   */
+  /// Error codes for Email operations
+  ///
+  /// Errors with one of the following three codes:
+  /// * `accountExistsWithDifferentCredential`
+  /// * `credentialAlreadyInUse`
+  /// * emailAlreadyInUse`
+  ///
+  /// may contain  an `NSError.userInfo` dictionary object which contains this key. The value
+  /// associated with this key is an NSString of the email address of the account that already
+  /// exists.
   @objc public static let userInfoEmailKey: String = "FIRAuthErrorUserInfoEmailKey"
 
-  /**
-   @brief The key used to read the updated Auth credential from the userInfo dictionary of the
-   NSError object returned. This is the updated auth credential the developer should use for
-   recovery if applicable.
-   */
+  /// The key used to read the updated Auth credential from the userInfo dictionary of the
+  /// NSError object returned. This is the updated auth credential the developer should use for
+  /// recovery if applicable.
   @objc public static let userInfoUpdatedCredentialKey: String =
     "FIRAuthErrorUserInfoUpdatedCredentialKey"
 
-  /**
-   @brief The key used to read the MFA resolver from the userInfo dictionary of the NSError object
-   returned when 2FA is required for sign-incompletion.
-   */
+  /// The key used to read the MFA resolver from the userInfo dictionary of the NSError object
+  /// returned when 2FA is required for sign-incompletion.
   @objc(FIRAuthErrorUserInfoMultiFactorResolverKey)
   public static let userInfoMultiFactorResolverKey: String =
     "FIRAuthErrorUserInfoMultiFactorResolverKey"

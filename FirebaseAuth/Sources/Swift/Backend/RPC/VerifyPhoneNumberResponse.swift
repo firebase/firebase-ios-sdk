@@ -17,42 +17,27 @@ import Foundation
 class VerifyPhoneNumberResponse: AuthRPCResponse {
   required init() {}
 
-  /** @property IDToken
-   @brief Either an authorization code suitable for performing an STS token exchange, or the
-   access token from Secure Token Service, depending on whether @c returnSecureToken is set
-   on the request.
-   */
-  var idToken: String?
+  /// Either an authorization code suitable for performing an STS token exchange, or the
+  /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
+  /// on the request.
+    var idToken: String?
 
-  /** @property refreshToken
-   @brief The refresh token from Secure Token Service.
-   */
+  /// The refresh token from Secure Token Service.
   var refreshToken: String?
 
-  /** @property localID
-   @brief The Firebase Auth user ID.
-   */
+  /// The Firebase Auth user ID.
   var localID: String?
 
-  /** @property phoneNumber
-   @brief The verified phone number.
-   */
+  /// The verified phone number.
   var phoneNumber: String?
 
-  /** @property temporaryProof
-   @brief The temporary proof code returned by the backend.
-   */
+  /// The temporary proof code returned by the backend.
   var temporaryProof: String?
 
-  /** @property isNewUser
-   @brief Flag indicating that the user signing in is a new user and not a returning user.
-   */
-
+  /// Flag indicating that the user signing in is a new user and not a returning user.
   var isNewUser: Bool = false
 
-  /** @property approximateExpirationDate
-   @brief The approximate expiration date of the access token.
-   */
+  /// The approximate expiration date of the access token.
   var approximateExpirationDate: Date?
 
   // XXX TODO(ObjC): What might this be?

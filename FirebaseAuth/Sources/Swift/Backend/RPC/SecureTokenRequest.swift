@@ -28,84 +28,54 @@ enum SecureTokenRequestGrantType: Int {
   }
 }
 
-/** @var kFIRSecureTokenServiceGetTokenURLFormat
-    @brief The format of the secure token service URLs. Requires string format substitution with
-        the client's API Key.
- */
+/// The format of the secure token service URLs. Requires string format substitution with
+///    the client's API Key.
 private let kFIRSecureTokenServiceGetTokenURLFormat = "https://%@/v1/token?key=%@"
 
-/** @var kFIREmulatorURLFormat
-    @brief The format of the emulated secure token service URLs. Requires string format substitution
-   with the emulator host, the gAPIHost, and the client's API Key.
- */
+/// The format of the emulated secure token service URLs. Requires string format substitution
+/// with the emulator host, the gAPIHost, and the client's API Key.
 private let kFIREmulatorURLFormat = "http://%@/%@/v1/token?key=%@"
 
-/** @var kFIRSecureTokenServiceGrantTypeRefreshToken
-    @brief The string value of the @c FIRSecureTokenRequestGrantTypeRefreshToken request type.
- */
+/// The string value of the @c FIRSecureTokenRequestGrantTypeRefreshToken request type.
 private let kFIRSecureTokenServiceGrantTypeRefreshToken = "refresh_token"
 
-/** @var kFIRSecureTokenServiceGrantTypeAuthorizationCode
-    @brief The string value of the @c FIRSecureTokenRequestGrantTypeAuthorizationCode request type.
- */
+/// The string value of the @c FIRSecureTokenRequestGrantTypeAuthorizationCode request type.
 private let kFIRSecureTokenServiceGrantTypeAuthorizationCode = "authorization_code"
 
-/** @var kGrantTypeKey
-    @brief The key for the "grantType" parameter in the request.
- */
+/// The key for the "grantType" parameter in the request.
 private let kGrantTypeKey = "grantType"
 
-/** @var kScopeKey
-    @brief The key for the "scope" parameter in the request.
- */
+/// The key for the "scope" parameter in the request.
 private let kScopeKey = "scope"
 
-/** @var kRefreshTokenKey
-    @brief The key for the "refreshToken" parameter in the request.
- */
+/// The key for the "refreshToken" parameter in the request.
 private let kRefreshTokenKey = "refreshToken"
 
-/** @var kCodeKey
-    @brief The key for the "code" parameter in the request.
- */
+/// The key for the "code" parameter in the request.
 private let kCodeKey = "code"
 
-/** @var gAPIHost
- @brief Host for server API calls.
- */
+/// Host for server API calls.
 private var gAPIHost = "securetoken.googleapis.com"
 
-/** @class FIRSecureTokenRequest
-    @brief Represents the parameters for the token endpoint.
- */
+/// Represents the parameters for the token endpoint.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class SecureTokenRequest: AuthRPCRequest {
   typealias Response = SecureTokenResponse
 
-  /** @property grantType
-      @brief The type of grant requested.
-      @see FIRSecureTokenRequestGrantType
-   */
+  /// The type of grant requested.
+  /// See FIRSecureTokenRequestGrantType
   var grantType: SecureTokenRequestGrantType
 
-  /** @property scope
-      @brief The scopes requested (a comma-delimited list of scope strings.)
-   */
+  /// The scopes requested (a comma-delimited list of scope strings).
   var scope: String?
 
-  /** @property refreshToken
-      @brief The client's refresh token.
-   */
+  /// The client's refresh token.
   var refreshToken: String?
 
-  /** @property code
-      @brief The client's authorization code (legacy Gitkit "ID Token").
-   */
+  /// The client's authorization code (legacy Gitkit "ID Token").
   var code: String?
 
-  /** @property APIKey
-      @brief The client's API Key.
-   */
+  /// The client's API Key.
   let apiKey: String
 
   let _requestConfiguration: AuthRequestConfiguration

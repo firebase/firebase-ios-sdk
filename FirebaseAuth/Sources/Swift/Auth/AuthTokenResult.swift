@@ -106,8 +106,8 @@ extension AuthTokenResult: NSSecureCoding {}
 
   /** @fn tokenResultWithToken:
        @brief Parse a token string to a structured token.
-       @param token The token string to parse.
-       @return A structured token result.
+       /// - Parameter token The token string to parse.
+       /// - Returns: A structured token result.
    */
   @objc open class func tokenResult(token: String) -> AuthTokenResult? {
     guard let payloadData = getTokenPayloadData(token),

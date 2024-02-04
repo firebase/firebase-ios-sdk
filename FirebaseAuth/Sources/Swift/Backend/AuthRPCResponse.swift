@@ -18,21 +18,18 @@ protocol AuthRPCResponse {
   /// Bare initializer for a response.
   init()
 
-  /** @fn setFieldsWithDictionary:error:
-      @brief Sets the response instance from the decoded JSON response.
-      @param dictionary The dictionary decoded from HTTP JSON response.
-      @param error An out field for an error which occurred constructing the request.
-      @return Whether the operation was successful or not.
-   */
+  /// Sets the response instance from the decoded JSON response.
+  /// - Parameter dictionary The dictionary decoded from HTTP JSON response.
+  /// - Parameter error An out field for an error which occurred constructing the request.
+  /// - Returns: Whether the operation was successful or not.
+
   func setFields(dictionary: [String: AnyHashable]) throws
 
-  /** @fn clientErrorWithshortErrorMessage:detailErrorMessage
-      @brief This optional method allows response classes to create client errors given a short error
-          message and a detail error message from the server.
-      @param shortErrorMessage The short error message from the server.
-      @param detailErrorMessage The detailed error message from the server.
-      @return A client error, if any.
-   */
+  /// This optional method allows response classes to create client errors given a short error
+  /// message and a detail error message from the server.
+  /// - Parameter shortErrorMessage: The short error message from the server.
+  /// - Parameter detailErrorMessage: The detailed error message from the server.
+  /// - Returns: A client error, if any.
   func clientError(shortErrorMessage: String, detailedErrorMessage: String?) -> Error?
 }
 

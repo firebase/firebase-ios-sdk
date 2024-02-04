@@ -17,52 +17,43 @@ import Foundation
 import FirebaseAppCheckInterop
 import FirebaseCoreExtension
 
-/** @class FIRAuthRequestConfiguration
-   @brief Defines configurations to be added to a request to Firebase Auth's backend.
- */
+/// Defines configurations to be added to a request to Firebase Auth's backend.
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class AuthRequestConfiguration: NSObject {
-  /** @property APIKey
-   @brief The Firebase Auth API key used in the request.
-   */
+  /// The Firebase Auth API key used in the request.
+
   let apiKey: String
 
-  /** @property LanguageCode
-   @brief The language code used in the request.
-   */
+  /// The language code used in the request.
+
   var languageCode: String?
 
-  /** @property appID
-      @brief The Firebase appID used in the request.
-   */
+  /// The Firebase appID used in the request.
+
   let appID: String
 
-  /** @property auth
-      @brief The FIRAuth instance used in the request.
-   */
+  /// The FIRAuth instance used in the request.
+
   weak var auth: Auth?
 
   /// The heartbeat logger used to add heartbeats to the corresponding request's header.
   var heartbeatLogger: FIRHeartbeatLoggerProtocol?
 
-  /** @property appCheck
-      @brief The appCheck is used to generate a token.
-   */
+  /// The appCheck is used to generate a token.
+
   var appCheck: AppCheckInterop?
 
-  /** @property HTTPMethod
-      @brief The HTTP method used in the request.
-   */
+  /// The HTTP method used in the request.
+
   var httpMethod: String
 
-  /** @property additionalFrameworkMarker
-   @brief Additional framework marker that will be added as part of the header of every request.
-   */
+  /// Additional framework marker that will be added as part of the header of every request.
+
   var additionalFrameworkMarker: String?
 
-  /** @property emulatorHostAndPort
-   @brief If set, the local emulator host and port to point to instead of the remote backend.
-   */
+  /// If set, the local emulator host and port to point to instead of the remote backend.
+
   var emulatorHostAndPort: String?
 
   init(apiKey: String,

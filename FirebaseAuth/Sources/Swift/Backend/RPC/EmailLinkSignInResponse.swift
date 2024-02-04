@@ -14,48 +14,34 @@
 
 import Foundation
 
-/** @class FIRVerifyAssertionResponse
-    @brief Represents the response from the emailLinkSignin endpoint.
- */
+/// Represents the response from the emailLinkSignin endpoint.
 class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
   override required init() {}
 
-  /** @property IDToken
-   @brief The ID token in the email link sign-in response.
-   */
+  /// The ID token in the email link sign-in response.
   private(set) var idToken: String?
 
-  /** @property email
-   @brief The email returned by the IdP.
-   */
+  /// The email returned by the IdP.
   var email: String?
 
-  /** @property refreshToken
-   @brief The refreshToken returned by the server.
-   */
+  /// The refreshToken returned by the server.
   var refreshToken: String?
 
-  /** @property approximateExpirationDate
-   @brief The approximate expiration date of the access token.
-   */
+  /// The approximate expiration date of the access token.
   var approximateExpirationDate: Date?
 
-  /** @property isNewUser
-   @brief Flag indicating that the user signing in is a new user and not a returning user.
-   */
+  /// Flag indicating that the user signing in is a new user and not a returning user.
   var isNewUser: Bool = false
 
   // MARK: - AuthMFAResponse
 
-  /** @property MFAPendingCredential
-       @brief An opaque string that functions as proof that the user has successfully passed the first
-      factor check.
-   */
+  /// An opaque string that functions as proof that the user has successfully passed the first
+  /// factor check.
+
   private(set) var mfaPendingCredential: String?
 
-  /** @property MFAInfo
-       @brief Info on which multi-factor authentication providers are enabled.
-   */
+  /// Info on which multi-factor authentication providers are enabled.
+
   private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {

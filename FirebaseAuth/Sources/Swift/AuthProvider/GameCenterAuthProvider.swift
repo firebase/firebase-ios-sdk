@@ -146,14 +146,14 @@
 
     /**
         @brief Designated initializer.
-        @param playerID The ID of the Game Center local player.
-        @param teamPlayerID The teamPlayerID of the Game Center local player.
-        @param gamePlayerID The gamePlayerID of the Game Center local player.
-        @param publicKeyURL The URL for the public encryption key.
-        @param signature The verification signature generated.
-        @param salt A random string used to compute the hash and keep it randomized.
-        @param timestamp The date and time that the signature was created.
-        @param displayName The display name of the Game Center player.
+        /// - Parameter playerID The ID of the Game Center local player.
+        /// - Parameter teamPlayerID The teamPlayerID of the Game Center local player.
+        /// - Parameter gamePlayerID The gamePlayerID of the Game Center local player.
+        /// - Parameter publicKeyURL The URL for the public encryption key.
+        /// - Parameter signature The verification signature generated.
+        /// - Parameter salt A random string used to compute the hash and keep it randomized.
+        /// - Parameter timestamp The date and time that the signature was created.
+        /// - Parameter displayName The display name of the Game Center player.
      */
     init(withPlayerID playerID: String, teamPlayerID: String?, gamePlayerID: String?,
          publicKeyURL: URL?, signature: Data?, salt: Data?,

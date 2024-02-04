@@ -14,9 +14,8 @@
 
 import Foundation
 
-/** @class AuthKeychainStorage
-    @brief Protocol to manage keychain updates. Tests can do a fake implementation.
- */
+/// Protocol to manage keychain updates. Tests can do a fake implementation.
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 protocol AuthKeychainStorage {
   func get(query: [String: Any], result: inout AnyObject?) -> OSStatus

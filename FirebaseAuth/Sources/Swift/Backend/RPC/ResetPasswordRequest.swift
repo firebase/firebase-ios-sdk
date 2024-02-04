@@ -14,46 +14,40 @@
 
 import Foundation
 
-/** @var kResetPasswordEndpoint
-    @brief The "resetPassword" endpoint.
- */
+/// The "resetPassword" endpoint.
+
 private let kResetPasswordEndpoint = "resetPassword"
 
-/** @var kOOBCodeKey
-    @brief The "resetPassword" key.
- */
+/// The "resetPassword" key.
+
 private let kOOBCodeKey = "oobCode"
 
-/** @var kCurrentPasswordKey
-    @brief The "newPassword" key.
- */
+/// The "newPassword" key.
+
 private let kCurrentPasswordKey = "newPassword"
 
-/** @var kTenantIDKey
-    @brief The key for the tenant id value in the request.
- */
+/// The key for the tenant id value in the request.
+
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class ResetPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = ResetPasswordResponse
 
-  /** @property oobCode
-      @brief The oobCode sent in the request.
-   */
+  /// The oobCode sent in the request.
+
   let oobCode: String
 
-  /** @property updatedPassword
-      @brief The new password sent in the request.
-   */
+  /// The new password sent in the request.
+
   let updatedPassword: String?
 
-  /** @fn initWithOobCode:newPassword:requestConfiguration:
-      @brief Designated initializer.
-      @param oobCode The OOB Code.
-      @param newPassword The new password.
-      @param requestConfiguration An object containing configurations to be added to the request.
-   */
+  /// Designated initializer.
+  /// - Parameter oobCode The OOB Code.
+  /// - Parameter newPassword The new password.
+  /// - Parameter requestConfiguration An object containing configurations to be added to the
+  /// request.
+
   init(oobCode: String, newPassword: String?,
        requestConfiguration: AuthRequestConfiguration) {
     self.oobCode = oobCode

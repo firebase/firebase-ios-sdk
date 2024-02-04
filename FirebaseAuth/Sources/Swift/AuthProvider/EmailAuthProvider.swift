@@ -14,31 +14,23 @@
 
 import Foundation
 
-/**
- @brief A concrete implementation of `AuthProvider` for Email & Password Sign In.
- */
+/// A concrete implementation of `AuthProvider` for Email & Password Sign In.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIREmailAuthProvider) open class EmailAuthProvider: NSObject {
   @objc public static let id = "password"
 
-  /**
-      @brief Creates an `AuthCredential` for an email & password sign in.
-
-      @param email The user's email address.
-      @param password The user's password.
-      @return An `AuthCredential` containing the email & password credential.
-   */
+  /// Creates an `AuthCredential` for an email & password sign in
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's password.
+  /// - Returns: An `AuthCredential` containing the email & password credential.
   @objc open class func credential(withEmail email: String, password: String) -> AuthCredential {
     return EmailAuthCredential(withEmail: email, password: password)
   }
 
-  /** @fn credentialWithEmail:Link:
-      @brief Creates an `AuthCredential` for an email & link sign in.
-
-      @param email The user's email address.
-      @param link The email sign-in link.
-      @return An `AuthCredential` containing the email & link credential.
-   */
+  /// Creates an `AuthCredential` for an email & link sign in.
+  /// - Parameter email The user's email address.
+  /// - Parameter link The email sign-in link.
+  /// - Returns: An `AuthCredential` containing the email & link credential.
   @objc open class func credential(withEmail email: String, link: String) -> AuthCredential {
     return EmailAuthCredential(withEmail: email, link: link)
   }

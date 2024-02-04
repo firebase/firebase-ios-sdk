@@ -14,19 +14,15 @@
 
 import Foundation
 
-/**
- @brief Utility class for constructing GitHub Sign In credentials.
- */
+/// Utility class for constructing GitHub Sign In credentials.
+
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRGitHubAuthProvider) open class GitHubAuthProvider: NSObject {
   @objc public static let id = "github.com"
 
-  /**
-      @brief Creates an `AuthCredential` for a GitHub sign in.
-
-      @param token The GitHub OAuth access token.
-      @return An AuthCredential containing the GitHub credentials.
-   */
+  /// Creates an `AuthCredential` for a GitHub sign in.
+  /// - Parameter token: The GitHub OAuth access token.
+  /// - Returns: An AuthCredential containing the GitHub credentials.
   @objc open class func credential(withToken token: String) -> AuthCredential {
     return GitHubAuthCredential(withToken: token)
   }

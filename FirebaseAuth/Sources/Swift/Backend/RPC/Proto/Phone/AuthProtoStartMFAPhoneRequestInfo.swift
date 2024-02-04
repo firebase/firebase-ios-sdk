@@ -14,24 +14,20 @@
 
 import Foundation
 
-/** @var kPhoneNumberKey
- @brief The key for the Phone Number parameter in the request.
- */
+/// The key for the Phone Number parameter in the request.
+
 private let kPhoneNumberKey = "phoneNumber"
 
-/** @var kReceiptKey
- @brief The key for the receipt parameter in the request.
- */
+/// The key for the receipt parameter in the request.
+
 private let kReceiptKey = "iosReceipt"
 
-/** @var kSecretKey
- @brief The key for the Secret parameter in the request.
- */
+/// The key for the Secret parameter in the request.
+
 private let kSecretKey = "iosSecret"
 
-/** @var kreCAPTCHATokenKey
- @brief The key for the reCAPTCHAToken parameter in the request.
- */
+/// The key for the reCAPTCHAToken parameter in the request.
+
 private let kreCAPTCHATokenKey = "recaptchaToken"
 
 class AuthProtoStartMFAPhoneRequestInfo: NSObject, AuthProto {

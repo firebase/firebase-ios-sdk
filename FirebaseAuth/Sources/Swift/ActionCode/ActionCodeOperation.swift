@@ -14,28 +14,19 @@
 
 import Foundation
 
-/**
-   @brief Operations which can be performed with action codes.
- */
+/// Operations which can be performed with action codes.
 @objc(FIRActionCodeOperation) public enum ActionCodeOperation: Int, @unchecked Sendable {
-  /** Action code for unknown operation. */
   case unknown = 0
 
-  /** Action code for password reset operation. */
   case passwordReset = 1
 
-  /** Action code for verify email operation. */
   case verifyEmail = 2
 
-  /** Action code for recover email operation. */
   case recoverEmail = 3
 
-  /** Action code for email link operation. */
   case emailLink = 4
 
-  /** Action code for verifying and changing email */
   case verifyAndChangeEmail = 5
 
-  /** Action code for reverting second factor addition */
   case revertSecondFactorAddition = 6
 }
