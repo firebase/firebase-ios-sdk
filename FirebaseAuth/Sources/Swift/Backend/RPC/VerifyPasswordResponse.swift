@@ -25,7 +25,7 @@ class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
   required init() {}
 
   /// The RP local ID if it's already been mapped to the IdP account identified by the federated ID.
-    var localID: String?
+  var localID: String?
 
   /// The email returned by the IdP. NOTE: The federated login user may not own the email.
   var email: String?
@@ -36,7 +36,7 @@ class VerifyPasswordResponse: AuthRPCResponse, AuthMFAResponse {
   /// Either an authorization code suitable for performing an STS token exchange, or the
   /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
   /// on the request.
-    private(set) var idToken: String?
+  private(set) var idToken: String?
 
   /// The approximate expiration date of the access token.
   var approximateExpirationDate: Date?

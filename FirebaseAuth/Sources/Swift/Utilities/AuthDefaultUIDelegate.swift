@@ -23,9 +23,9 @@
   #endif
 
   /// Class responsible for providing a default AuthUIDelegate.
-///
-/// This class should be used in the case that a UIDelegate was expected and necessary to
-/// continue a given flow, but none was provided.
+  ///
+  /// This class should be used in the case that a UIDelegate was expected and necessary to
+  /// continue a given flow, but none was provided.
   class AuthDefaultUIDelegate: NSObject, AuthUIDelegate {
     /// Returns a default AuthUIDelegate object.
     /// - Returns: The default AuthUIDelegate object.

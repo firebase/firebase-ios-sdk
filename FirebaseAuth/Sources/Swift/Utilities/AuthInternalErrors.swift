@@ -14,7 +14,6 @@
 
 import Foundation
 
-
 /// Bitmask value indicating the error represents a public error code when this bit is
 /// zeroed. Error codes which don't contain this flag will be wrapped in an `NSError` whose
 /// code is `AuthErrorCodeInternalError`.
@@ -30,7 +29,6 @@ enum SharedErrorCode {
 /// All errors are generated using an internal error code. These errors are automatically
 /// converted to the appropriate public version of the `NSError` by the methods in AuthErrorUtils.
 enum AuthInternalErrorCode: Int {
-
   /// Indicates a network error occurred (such as a timeout, interrupted connection, or
   /// unreachable host.)
   ///
@@ -40,14 +38,14 @@ enum AuthInternalErrorCode: Int {
   /// the network error which occurred.
   case networkError = 17020
 
-   /// Indicates an error encoding the RPC request.
+  /// Indicates an error encoding the RPC request.
   ///
   /// This is typically due to some sort of unexpected input value.
   ///
   /// See the `NSUnderlyingError` value in the `NSError.userInfo` dictionary for details.
   case RPCRequestEncodingError = 1
 
-   /// Indicates an error serializing an RPC request.
+  /// Indicates an error serializing an RPC request.
   ///
   /// This is typically due to some sort of unexpected input value.
   ///
@@ -57,9 +55,9 @@ enum AuthInternalErrorCode: Int {
   /// resulting error will be associated with the `NSUnderlyingError` key in the
   /// `NSError.userInfo` dictionary.
   case JSONSerializationError = 2
-  
-   /// Indicates an HTTP error occurred and the data returned either couldn't be deserialized
-   /// or couldn't be decoded.
+
+  /// Indicates an HTTP error occurred and the data returned either couldn't be deserialized
+  /// or couldn't be decoded.
   ///
   /// See the `NSUnderlyingError` value in the `NSError.userInfo` dictionary for details
   /// about the HTTP error which occurred.
@@ -72,21 +70,21 @@ enum AuthInternalErrorCode: Int {
   /// will contain values for the `NSUnderlyingErrorKey` and `AuthErrorUserInfoDataKey` keys.
   case unexpectedErrorResponse = 3
 
-   /// Indicates the HTTP response indicated the request was a successes, but the response
-   /// contains something other than a JSON-encoded dictionary, or the data type of the response
-   /// indicated it is different from the type of response we expected.
+  /// Indicates the HTTP response indicated the request was a successes, but the response
+  /// contains something other than a JSON-encoded dictionary, or the data type of the response
+  /// indicated it is different from the type of response we expected.
   ///
   /// See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary.
- /// If this key is present in the dictionary, it may contain an error from
- ///  @c NSJSONSerialization error (indicating the response received was of the wrong data type).
- ///
+  /// If this key is present in the dictionary, it may contain an error from
+  ///  @c NSJSONSerialization error (indicating the response received was of the wrong data type).
+  ///
   /// See the @c FIRAuthErrorUserInfoDeserializedResponseKey value in the @c NSError.userInfo
   /// dictionary. If the response could be deserialized, it's deserialized representation will
   /// be associated with this key. If the @c NSUnderlyingError value in the @c NSError.userInfo
   /// dictionary is @c nil, this indicates the JSON didn't represent a dictionary.
   case unexpectedResponse = 4
-  
-   /// Indicates an error decoding the RPC response.
+
+  /// Indicates an error decoding the RPC response.
   ///
   /// This is typically due to some sort of unexpected response value from the server.
   ///

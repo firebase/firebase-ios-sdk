@@ -59,7 +59,7 @@ class AuthUserDefaults {
   /// Clears all data from the storage.
   ///
   /// This method is only supposed to be called from tests.
-    func clear() {
-      storage.setPersistentDomain([:], forName: persistentDomainName)
-    }
+  func clear() {
+    storage.setPersistentDomain([:], forName: persistentDomainName)
+  }
 }

@@ -15,21 +15,20 @@
 import Foundation
 
 #if os(iOS)
-  
-   /// Extends the MultiFactorInfo class for phone number second factors.
-///
-/// The identifier of this second factor is "phone".
-///
-/// This class is available on iOS only.
+
+  /// Extends the MultiFactorInfo class for phone number second factors.
+  ///
+  /// The identifier of this second factor is "phone".
+  ///
+  /// This class is available on iOS only.
   @objc(FIRPhoneMultiFactorInfo) open class PhoneMultiFactorInfo: MultiFactorInfo {
-    
-        /// The string identifier for using phone as a second factor.
+    /// The string identifier for using phone as a second factor.
     @objc(FIRPhoneMultiFactorID) public static let PhoneMultiFactorID = "phone"
-    
-        /// The string identifier for using TOTP as a second factor.
+
+    /// The string identifier for using TOTP as a second factor.
     @objc(FIRTOTPMultiFactorID) public static let TOTPMultiFactorID = "totp"
 
-        /// This is the phone number associated with the current second factor.
+    /// This is the phone number associated with the current second factor.
     @objc open var phoneNumber: String
 
     init(proto: AuthProtoMFAEnrollment) {

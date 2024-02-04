@@ -20,7 +20,7 @@ class VerifyPhoneNumberResponse: AuthRPCResponse {
   /// Either an authorization code suitable for performing an STS token exchange, or the
   /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
   /// on the request.
-    var idToken: String?
+  var idToken: String?
 
   /// The refresh token from Secure Token Service.
   var refreshToken: String?

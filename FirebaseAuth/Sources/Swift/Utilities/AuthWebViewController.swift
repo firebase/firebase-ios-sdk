@@ -41,10 +41,10 @@
     /// - Parameter completion: A block to be called either synchronously if the presentation fails
     /// to start,
     /// or asynchronously in future on an unspecified thread once the presentation finishes.
-      func present(_ url: URL,
-                   uiDelegate: AuthUIDelegate?,
-                   callbackMatcher: @escaping (URL?) -> Bool,
-                   completion: @escaping (URL?, Error?) -> Void)
+    func present(_ url: URL,
+                 uiDelegate: AuthUIDelegate?,
+                 callbackMatcher: @escaping (URL?) -> Bool,
+                 completion: @escaping (URL?, Error?) -> Void)
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

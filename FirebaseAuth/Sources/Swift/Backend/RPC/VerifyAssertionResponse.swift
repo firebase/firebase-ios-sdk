@@ -28,21 +28,21 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   /// live.net and yahoo.com.If the "providerId" param is set to OpenID OP identifer other than
   /// the white listed IdPs the OP identifier is returned.If the "identifier" param is federated
   /// ID in the createAuthUri request.The domain part of the federated ID is returned.
-    var providerID: String?
+  var providerID: String?
 
   /// The RP local ID if it's already been mapped to the IdP account identified by the federated ID.
-    var localID: String?
+  var localID: String?
 
   /// The email returned by the IdP. NOTE: The federated login user may not own the email.
   var email: String?
 
   /// It's the identifier param in the createAuthUri request if the identifier is an email. It
   /// can be used to check whether the user input email is different from the asserted email.
-    var inputEmail: String?
+  var inputEmail: String?
 
   /// The original email stored in the mapping storage. It's returned when the federated ID is
   /// associated to a different email.
-    var originalEmail: String?
+  var originalEmail: String?
 
   /// The user approved request token for the OpenID OAuth extension.
   var oauthRequestToken: String?
@@ -68,7 +68,7 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   /// Either an authorization code suitable for performing an STS token exchange, or the
   /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
   /// on the request.
-    private(set) var idToken: String?
+  private(set) var idToken: String?
 
   /// The approximate expiration date of the access token.
   var approximateExpirationDate: Date?
@@ -93,7 +93,7 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
 
   /// The opaque value used by the client to maintain context info between the authentication
   /// request and the IDP callback.
-    var context: String?
+  var context: String?
 
   /// When action is 'map', contains the idps which can be used for confirmation.
   var verifiedProvider: [String]?
@@ -105,7 +105,7 @@ class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   var emailRecycled: Bool = false
 
   /// The value is true if the IDP is also the email provider. It means the user owns the email.
-    var emailVerified: Bool = false
+  var emailVerified: Bool = false
 
   /// Flag indicating that the user signing in is a new user and not a returning user.
   var isNewUser: Bool = false

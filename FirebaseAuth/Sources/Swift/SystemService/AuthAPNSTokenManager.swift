@@ -35,11 +35,10 @@
   /// A class to manage APNs token in memory.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthAPNSTokenManager: NSObject {
-
     /// The timeout for registering for remote notification.
     ///
     /// Only tests should access this property.
-      var timeout: TimeInterval = 5
+    var timeout: TimeInterval = 5
 
     /// Initializes the instance.
     /// - Parameter application: The  `UIApplication` to request the token from.
@@ -53,29 +52,29 @@
     /// token becomes available, or when timeout occurs, whichever happens earlier.
     ///
     /// This function is internal to make visible for tests.
-      func getTokenInternal(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
-        if let token = tokenStore {
-          callback(token, nil)
-          return
-        }
-        if pendingCallbacks.count > 0 {
-          pendingCallbacks.append(callback)
-          return
-        }
-        pendingCallbacks = [callback]
+    func getTokenInternal(callback: @escaping (AuthAPNSToken?, Error?) -> Void) {
+      if let token = tokenStore {
+        callback(token, nil)
+        return
+      }
+      if pendingCallbacks.count > 0 {
+        pendingCallbacks.append(callback)
+        return
+      }
+      pendingCallbacks = [callback]
 
-        DispatchQueue.main.async {
-          self.application.registerForRemoteNotifications()
-        }
-        let applicableCallbacks = pendingCallbacks
-        let deadline = DispatchTime.now() + timeout
-        kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
-          // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
-          if applicableCallbacks.count == self.pendingCallbacks.count {
-            self.callback(withToken: nil, error: nil)
-          }
+      DispatchQueue.main.async {
+        self.application.registerForRemoteNotifications()
+      }
+      let applicableCallbacks = pendingCallbacks
+      let deadline = DispatchTime.now() + timeout
+      kAuthGlobalWorkQueue.asyncAfter(deadline: deadline) {
+        // Only cancel if the pending callbacks remain the same, i.e., not triggered yet.
+        if applicableCallbacks.count == self.pendingCallbacks.count {
+          self.callback(withToken: nil, error: nil)
         }
       }
+    }
 
     func getToken() async throws -> AuthAPNSToken {
       return try await withCheckedThrowingContinuation { continuation in
@@ -93,25 +92,25 @@
     ///
     /// Setting a token with AuthAPNSTokenTypeUnknown will automatically converts it to
     /// a token with the automatically detected type.
-      var token: AuthAPNSToken? {
-        get {
-          tokenStore
-        }
-        set(setToken) {
-          guard let setToken else {
-            tokenStore = nil
-            return
-          }
-          var newToken = setToken
-          if setToken.type == AuthAPNSTokenType.unknown {
-            let detectedTokenType = isProductionApp() ? AuthAPNSTokenType.prod : AuthAPNSTokenType
-              .sandbox
-            newToken = AuthAPNSToken(withData: setToken.data, type: detectedTokenType)
-          }
-          tokenStore = newToken
-          callback(withToken: newToken, error: nil)
-        }
+    var token: AuthAPNSToken? {
+      get {
+        tokenStore
       }
+      set(setToken) {
+        guard let setToken else {
+          tokenStore = nil
+          return
+        }
+        var newToken = setToken
+        if setToken.type == AuthAPNSTokenType.unknown {
+          let detectedTokenType = isProductionApp() ? AuthAPNSTokenType.prod : AuthAPNSTokenType
+            .sandbox
+          newToken = AuthAPNSToken(withData: setToken.data, type: detectedTokenType)
+        }
+        tokenStore = newToken
+        callback(withToken: newToken, error: nil)
+      }
+    }
 
     /// Should only be written to in tests
     var tokenStore: AuthAPNSToken?

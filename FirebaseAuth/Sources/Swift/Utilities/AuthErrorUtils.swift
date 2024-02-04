@@ -19,12 +19,13 @@ import Foundation
 /// Error code that indicates that the client ID provided was invalid.
 private let kURLResponseErrorCodeInvalidClientID = "auth/invalid-oauth-client-id"
 
-/// Error code that indicates that a network request within the SFSafariViewController or WKWebView failed.
-  private let kURLResponseErrorCodeNetworkRequestFailed = "auth/network-request-failed"
+/// Error code that indicates that a network request within the SFSafariViewController or WKWebView
+/// failed.
+private let kURLResponseErrorCodeNetworkRequestFailed = "auth/network-request-failed"
 
 /// Error code that indicates that an internal error occurred within the
 /// SFSafariViewController or WKWebView failed.
-  private let kURLResponseErrorCodeInternalError = "auth/internal-error"
+private let kURLResponseErrorCodeInternalError = "auth/internal-error"
 
 private let kFIRAuthErrorMessageMalformedJWT =
   "Failed to parse JWT. Check the userInfo dictionary for the full token."
@@ -37,7 +38,7 @@ class AuthErrorUtils: NSObject {
 
   /// This marker indicates that the server error message contains a detail error message which
   /// should be used instead of the hardcoded client error message.
-    private static let kServerErrorDetailMarker = " : "
+  private static let kServerErrorDetailMarker = " : "
 
   static func error(code: SharedErrorCode, userInfo: [String: Any]? = nil) -> Error {
     switch code {

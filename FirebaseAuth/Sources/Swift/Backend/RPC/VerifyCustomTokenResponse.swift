@@ -22,7 +22,7 @@ class VerifyCustomTokenResponse: AuthRPCResponse {
   /// Either an authorization code suitable for performing an STS token exchange, or the
   /// access token from Secure Token Service, depending on whether `returnSecureToken` is set
   /// on the request.
-    var idToken: String?
+  var idToken: String?
 
   /// The approximate expiration date of the access token.
   var approximateExpirationDate: Date?

@@ -14,11 +14,11 @@
 
 #if !os(macOS)
   import Foundation
-  
-   /// The APNs token type for the app.
-///
-/// This enum is available on iOS, macOS Catalyst, tvOS, and watchOS only.
-   
+
+  /// The APNs token type for the app.
+  ///
+  /// This enum is available on iOS, macOS Catalyst, tvOS, and watchOS only.
+
   @objc(FIRAuthAPNSTokenType) public enum AuthAPNSTokenType: Int {
     /// Unknown token type.
     ///

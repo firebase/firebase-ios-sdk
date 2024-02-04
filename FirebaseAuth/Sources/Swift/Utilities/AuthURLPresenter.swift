@@ -29,47 +29,47 @@
     /// - Parameter completion: A block to be called either synchronously if the presentation fails
     /// to start,
     /// or asynchronously in future on an unspecified thread once the presentation finishes.
-      func present(_ url: URL,
-                   uiDelegate: AuthUIDelegate?,
-                   callbackMatcher: @escaping (URL?) -> Bool,
-                   completion: @escaping (URL?, Error?) -> Void) {
-        if isPresenting {
-          // Unable to start a new presentation on top of another.
-          // Invoke the new completion closure and leave the old one as-is
-          // to be invoked when the presentation finishes.
-          DispatchQueue.main.async {
-            completion(nil, AuthErrorUtils.webContextCancelledError(message: nil))
-          }
-          return
-        }
-        isPresenting = true
-        self.callbackMatcher = callbackMatcher
-        self.completion = completion
+    func present(_ url: URL,
+                 uiDelegate: AuthUIDelegate?,
+                 callbackMatcher: @escaping (URL?) -> Bool,
+                 completion: @escaping (URL?, Error?) -> Void) {
+      if isPresenting {
+        // Unable to start a new presentation on top of another.
+        // Invoke the new completion closure and leave the old one as-is
+        // to be invoked when the presentation finishes.
         DispatchQueue.main.async {
-          self.uiDelegate = uiDelegate ?? AuthDefaultUIDelegate.defaultUIDelegate()
-          #if targetEnvironment(macCatalyst)
-            self.webViewController = AuthWebViewController(url: url, delegate: self)
-            if let webViewController = self.webViewController {
-              let navController = UINavigationController(rootViewController: webViewController)
-              if let fakeUIDelegate = self.fakeUIDelegate {
-                fakeUIDelegate.present(navController, animated: true)
-              } else {
-                self.uiDelegate?.present(navController, animated: true)
-              }
-            }
-          #else
-            self.safariViewController = SFSafariViewController(url: url)
-            self.safariViewController?.delegate = self
-            if let safariViewController = self.safariViewController {
-              if let fakeUIDelegate = self.fakeUIDelegate {
-                fakeUIDelegate.present(safariViewController, animated: true)
-              } else {
-                self.uiDelegate?.present(safariViewController, animated: true)
-              }
-            }
-          #endif
+          completion(nil, AuthErrorUtils.webContextCancelledError(message: nil))
         }
+        return
       }
+      isPresenting = true
+      self.callbackMatcher = callbackMatcher
+      self.completion = completion
+      DispatchQueue.main.async {
+        self.uiDelegate = uiDelegate ?? AuthDefaultUIDelegate.defaultUIDelegate()
+        #if targetEnvironment(macCatalyst)
+          self.webViewController = AuthWebViewController(url: url, delegate: self)
+          if let webViewController = self.webViewController {
+            let navController = UINavigationController(rootViewController: webViewController)
+            if let fakeUIDelegate = self.fakeUIDelegate {
+              fakeUIDelegate.present(navController, animated: true)
+            } else {
+              self.uiDelegate?.present(navController, animated: true)
+            }
+          }
+        #else
+          self.safariViewController = SFSafariViewController(url: url)
+          self.safariViewController?.delegate = self
+          if let safariViewController = self.safariViewController {
+            if let fakeUIDelegate = self.fakeUIDelegate {
+              fakeUIDelegate.present(safariViewController, animated: true)
+            } else {
+              self.uiDelegate?.present(safariViewController, animated: true)
+            }
+          }
+        #endif
+      }
+    }
 
     /// Determines if a URL was produced by the currently presented URL.
     /// - Parameter url: The URL to handle.
@@ -116,9 +116,9 @@
 
     /// Whether or not some web-based content is being presented.
     ///
-    ///Accesses to this property are serialized on the global Auth work queue
+    /// Accesses to this property are serialized on the global Auth work queue
     /// and thus this variable should not be read or written outside of the work queue.
-      private var isPresenting: Bool = false
+    private var isPresenting: Bool = false
 
     /// The callback URL matcher for the current presentation, if one is active.
     private var callbackMatcher: ((URL) -> Bool)?
@@ -138,7 +138,7 @@
     /// and thus this variable should not be read or written outside of the work queue.
     ///
     /// This variable is also used as a flag to indicate a presentation is active.
-      var completion: ((URL?, Error?) -> Void)?
+    var completion: ((URL?, Error?) -> Void)?
 
     /// Test-only option to validate the calls to the uiDelegate.
     var fakeUIDelegate: AuthUIDelegate?

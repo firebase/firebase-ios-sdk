@@ -19,9 +19,9 @@ extension UserInfoImpl: NSSecureCoding {}
 @objc(FIRUserInfoImpl) class UserInfoImpl: NSObject, UserInfo {
   /// A convenience factory method for constructing a `UserInfo` instance from data
   /// returned by the getAccountInfo endpoint.
-    /// - Parameter providerUserInfo: Data returned by the getAccountInfo endpoint.
-    /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
-    class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
+  /// - Parameter providerUserInfo: Data returned by the getAccountInfo endpoint.
+  /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
+  class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
     guard let providerID = providerUserInfo.providerID else {
       // This was a crash in ObjC implementation. Should providerID be not nullable?

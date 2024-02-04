@@ -16,18 +16,17 @@ import Foundation
 
 #if os(iOS)
 
-   /// Extends the MultiFactorInfo class for time based one-time password second factors.
-///
-   /// The identifier of this second factor is "totp".
-///
-/// This class is available on iOS only.
+  /// Extends the MultiFactorInfo class for time based one-time password second factors.
+  ///
+  /// The identifier of this second factor is "totp".
+  ///
+  /// This class is available on iOS only.
   class TOTPMultiFactorInfo: MultiFactorInfo {
-    
-      /// This is the totp info for the second factor.
+    /// This is the totp info for the second factor.
     let totpInfo: NSObject?
 
-      /// Initialize the AuthProtoMFAEnrollment instance with proto.
-      /// - Parameter proto AuthProtoMFAEnrollment proto object.
+    /// Initialize the AuthProtoMFAEnrollment instance with proto.
+    /// - Parameter proto AuthProtoMFAEnrollment proto object.
     init(proto: AuthProtoMFAEnrollment) {
       totpInfo = proto.totpInfo
       super.init(proto: proto, factorID: PhoneMultiFactorInfo.TOTPMultiFactorID)

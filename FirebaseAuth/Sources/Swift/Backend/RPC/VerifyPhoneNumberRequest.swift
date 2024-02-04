@@ -47,21 +47,21 @@ private let kOperationKey = "operation"
 private let kTenantIDKey = "tenantId"
 
 extension AuthOperationType {
-    /// - Returns: The string value corresponding to the AuthOperationType.
-    var operationString: String {
-      switch self {
-      case .unspecified:
-        return "VERIFY_OP_UNSPECIFIED"
-      case .signUpOrSignIn:
-        return "SIGN_UP_OR_IN"
-      case .reauth:
-        return "REAUTH"
-      case .link:
-        return "LINK"
-      case .update:
-        return "UPDATE"
-      }
+  /// - Returns: The string value corresponding to the AuthOperationType.
+  var operationString: String {
+    switch self {
+    case .unspecified:
+      return "VERIFY_OP_UNSPECIFIED"
+    case .signUpOrSignIn:
+      return "SIGN_UP_OR_IN"
+    case .reauth:
+      return "REAUTH"
+    case .link:
+      return "LINK"
+    case .update:
+      return "UPDATE"
     }
+  }
 }
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -101,7 +101,8 @@ class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
   }
 
   /// Designated initializer.
-  /// - Parameter verificationID: The verification ID obtained from the response of `sendVerificationCode`.
+  /// - Parameter verificationID: The verification ID obtained from the response of
+  /// `sendVerificationCode`.
   /// - Parameter verificationCode: The verification code provided by the user.
   /// - Parameter operation: Indicates what operation triggered the verify phone number request.
   /// - Parameter requestConfiguration: An object containing configurations to be added to the

@@ -89,42 +89,42 @@ class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   /// The default value is `true`.
   private(set) var returnSecureToken: Bool = true
 
-    init(email: String, password: String,
-         requestConfiguration: AuthRequestConfiguration) {
-      self.email = email
-      self.password = password
-      super.init(endpoint: kVerifyPasswordEndpoint, requestConfiguration: requestConfiguration)
-    }
-
-    func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
-      var body: [String: AnyHashable] = [
-        kEmailKey: email,
-        kPasswordKey: password,
-      ]
-      if let pendingIDToken {
-        body[kPendingIDTokenKey] = pendingIDToken
-      }
-      if let captchaChallenge {
-        body[kCaptchaChallengeKey] = captchaChallenge
-      }
-      if let captchaResponse {
-        body[kCaptchaResponseKey] = captchaResponse
-      }
-      if let recaptchaVersion {
-        body[kRecaptchaVersion] = recaptchaVersion
-      }
-      if returnSecureToken {
-        body[kReturnSecureTokenKey] = true
-      }
-      if let tenantID {
-        body[kTenantIDKey] = tenantID
-      }
-      body[kClientType] = clientType
-      return body
-    }
-
-    func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
-      captchaResponse = recaptchaResponse
-      self.recaptchaVersion = recaptchaVersion
-    }
+  init(email: String, password: String,
+       requestConfiguration: AuthRequestConfiguration) {
+    self.email = email
+    self.password = password
+    super.init(endpoint: kVerifyPasswordEndpoint, requestConfiguration: requestConfiguration)
   }
+
+  func unencodedHTTPRequestBody() throws -> [String: AnyHashable] {
+    var body: [String: AnyHashable] = [
+      kEmailKey: email,
+      kPasswordKey: password,
+    ]
+    if let pendingIDToken {
+      body[kPendingIDTokenKey] = pendingIDToken
+    }
+    if let captchaChallenge {
+      body[kCaptchaChallengeKey] = captchaChallenge
+    }
+    if let captchaResponse {
+      body[kCaptchaResponseKey] = captchaResponse
+    }
+    if let recaptchaVersion {
+      body[kRecaptchaVersion] = recaptchaVersion
+    }
+    if returnSecureToken {
+      body[kReturnSecureTokenKey] = true
+    }
+    if let tenantID {
+      body[kTenantIDKey] = tenantID
+    }
+    body[kClientType] = clientType
+    return body
+  }
+
+  func injectRecaptchaFields(recaptchaResponse: String?, recaptchaVersion: String) {
+    captchaResponse = recaptchaResponse
+    self.recaptchaVersion = recaptchaVersion
+  }
+}

@@ -18,9 +18,8 @@ import Foundation
 ///
 /// Properties are marked as being part of a profile update when they are set. Setting a
 /// property value to nil is not the same as leaving the property unassigned.
-  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+@available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserProfileChangeRequest) open class UserProfileChangeRequest: NSObject {
-
   /// The name of the user.
   @objc open var displayName: String? {
     get { return _displayName }
@@ -58,8 +57,9 @@ import Foundation
   /// Invoked asynchronously on the main thread in the future.
   ///
   /// This method should only be called once.Once called, property values should not be changed.
-  /// - Parameter completion: Optionally; the block invoked when the user profile change has been applied.
-    @objc open func commitChanges(completion: ((Error?) -> Void)? = nil) {
+  /// - Parameter completion: Optionally; the block invoked when the user profile change has been
+  /// applied.
+  @objc open func commitChanges(completion: ((Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
       if self.consumed {
         fatalError("Internal Auth Error: commitChanges should only be called once.")
@@ -104,7 +104,7 @@ import Foundation
   /// Commits any pending changes.
   ///
   /// This method should only be called once. Once called, property values should not be changed.
-    @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
+  @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func commitChanges() async throws {
     return try await withCheckedThrowingContinuation { continuation in
       self.commitChanges { error in

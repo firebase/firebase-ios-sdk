@@ -15,27 +15,26 @@
 import Foundation
 
 #if os(iOS)
-  
-      /// Opaque object that identifies the current session to enroll a second factor or to
-      /// complete sign in when previously enrolled. Identifies the current session to enroll a second factor or to complete sign in when
-    /// previously enrolled. It contains additional context on the existing user, notably the confirmation
-   /// that the user passed the first factor challenge.
-///
-/// This class is available on iOS only.
+
+  /// Opaque object that identifies the current session to enroll a second factor or to
+  /// complete sign in when previously enrolled. Identifies the current session to enroll a second
+  /// factor or to complete sign in when previously enrolled. It contains additional context on the
+  ///  existing user, notably the confirmation that the user passed the first factor challenge.
+  ///
+  /// This class is available on iOS only.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRMultiFactorSession) open class MultiFactorSession: NSObject {
-    
-     /// The ID token for an enroll flow. This has to be retrieved after recent authentication.
+    /// The ID token for an enroll flow. This has to be retrieved after recent authentication.
     var idToken: String?
-    
-     /// The pending credential after an enrolled second factor user signs in successfully with the
-     /// first factor.
+
+    /// The pending credential after an enrolled second factor user signs in successfully with the
+    /// first factor.
     var mfaPendingCredential: String?
 
-     /// Multi factor info for the current user.
+    /// Multi factor info for the current user.
     var multiFactorInfo: MultiFactorInfo?
-    
-     /// Current user object.
+
+    /// Current user object.
     var currentUser: User?
 
     class var sessionForCurrentUser: MultiFactorSession {

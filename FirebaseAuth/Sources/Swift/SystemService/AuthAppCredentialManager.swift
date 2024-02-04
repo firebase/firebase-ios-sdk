@@ -29,7 +29,7 @@
     /// The maximum (but not necessarily the minimum) number of pending receipts to be kept.
     ///
     /// Only tests should access this property.
-      let maximumNumberOfPendingReceipts = 32
+    let maximumNumberOfPendingReceipts = 32
 
     init(withKeychain keychain: AuthKeychainServices) {
       keychainServices = keychain

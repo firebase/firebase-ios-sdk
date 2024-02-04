@@ -18,7 +18,7 @@ import Foundation
 /// The prefix string for keychain item account attribute before the key.
 ///
 /// A number "1" is encoded in the prefix in case we need to upgrade the scheme in future.
-  private let kAccountPrefix = "firebase_auth_1_"
+private let kAccountPrefix = "firebase_auth_1_"
 
 /// The utility class to manipulate data in iOS Keychain.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -102,7 +102,7 @@ final class AuthKeychainServices {
   /// been deleted.
   ///
   /// This dictionary is to avoid unnecessary keychain operations against legacy items.
-    private var legacyEntryDeletedForKey: Set<String> = []
+  private var legacyEntryDeletedForKey: Set<String> = []
 
   static func storage(identifier: String) -> Self {
     return Self(service: identifier)
@@ -240,9 +240,9 @@ final class AuthKeychainServices {
 
   /// Returns a keychain query of generic password without service field, which is used by
   /// previous version of this class .
-    /// - Parameter key: The key for the value being manipulated, used as the account field in the
-    /// query.
-    private func legacyGenericPasswordQuery(key: String) -> [String: Any] {
+  /// - Parameter key: The key for the value being manipulated, used as the account field in the
+  /// query.
+  private func legacyGenericPasswordQuery(key: String) -> [String: Any] {
     [
       kSecClass as String: kSecClassGenericPassword,
       kSecAttrAccount as String: key,

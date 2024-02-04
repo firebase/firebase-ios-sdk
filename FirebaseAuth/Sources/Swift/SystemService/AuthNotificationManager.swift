@@ -49,12 +49,12 @@
     /// The timeout for checking for notification forwarding.
     ///
     /// Only tests should access this property.
-      let timeout: TimeInterval
+    let timeout: TimeInterval
 
     /// Disable callback waiting for tests.
     ///
     /// Only tests should access this property.
-      var immediateCallbackForTestFaking: (() -> Bool)?
+    var immediateCallbackForTestFaking: (() -> Bool)?
 
     /// All pending callbacks while a check is being performed.
     private var pendingCallbacks: [(Bool) -> Void]?
@@ -71,53 +71,53 @@
       timeout = kProbingTimeout
     }
 
-      /// Checks whether or not remote notifications are being forwarded to this class.
-      /// - Parameter callback: The block to be called either immediately or in future once a result
-      /// is available.
-      func checkNotificationForwardingInternal(withCallback callback: @escaping (Bool) -> Void) {
-        if pendingCallbacks != nil {
-          pendingCallbacks?.append(callback)
-          return
-        }
-        if let getValueFunc = immediateCallbackForTestFaking {
-          callback(getValueFunc())
-          return
-        }
-        if hasCheckedNotificationForwarding {
-          callback(isNotificationBeingForwarded)
-          return
-        }
-        hasCheckedNotificationForwarding = true
-        pendingCallbacks = [callback]
+    /// Checks whether or not remote notifications are being forwarded to this class.
+    /// - Parameter callback: The block to be called either immediately or in future once a result
+    /// is available.
+    func checkNotificationForwardingInternal(withCallback callback: @escaping (Bool) -> Void) {
+      if pendingCallbacks != nil {
+        pendingCallbacks?.append(callback)
+        return
+      }
+      if let getValueFunc = immediateCallbackForTestFaking {
+        callback(getValueFunc())
+        return
+      }
+      if hasCheckedNotificationForwarding {
+        callback(isNotificationBeingForwarded)
+        return
+      }
+      hasCheckedNotificationForwarding = true
+      pendingCallbacks = [callback]
 
-        DispatchQueue.main.async {
-          let proberNotification = [self.kNotificationDataKey: [self.kNotificationProberKey:
-              "This fake notification should be forwarded to Firebase Auth."]]
-          if let delegate = self.application.delegate,
-             delegate
-             .responds(to: #selector(UIApplicationDelegate
-                 .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
-            delegate.application?(self.application,
-                                  didReceiveRemoteNotification: proberNotification) { _ in
-            }
-          } else if let delegate = self.application.delegate,
-                    delegate
-                    .responds(to: #selector(UIApplicationDelegate
-                        .application(_:didReceiveRemoteNotification:))) {
-            delegate.application?(self.application,
-                                  didReceiveRemoteNotification: proberNotification)
-          } else {
-            AuthLog.logWarning(
-              code: "I-AUT000015",
-              message: "The UIApplicationDelegate must handle " +
-                "remote notification for phone number authentication to work."
-            )
+      DispatchQueue.main.async {
+        let proberNotification = [self.kNotificationDataKey: [self.kNotificationProberKey:
+            "This fake notification should be forwarded to Firebase Auth."]]
+        if let delegate = self.application.delegate,
+           delegate
+           .responds(to: #selector(UIApplicationDelegate
+               .application(_:didReceiveRemoteNotification:fetchCompletionHandler:))) {
+          delegate.application?(self.application,
+                                didReceiveRemoteNotification: proberNotification) { _ in
           }
-          kAuthGlobalWorkQueue.asyncAfter(deadline: .now() + .seconds(Int(self.timeout))) {
-            self.callback()
-          }
+        } else if let delegate = self.application.delegate,
+                  delegate
+                  .responds(to: #selector(UIApplicationDelegate
+                      .application(_:didReceiveRemoteNotification:))) {
+          delegate.application?(self.application,
+                                didReceiveRemoteNotification: proberNotification)
+        } else {
+          AuthLog.logWarning(
+            code: "I-AUT000015",
+            message: "The UIApplicationDelegate must handle " +
+              "remote notification for phone number authentication to work."
+          )
+        }
+        kAuthGlobalWorkQueue.asyncAfter(deadline: .now() + .seconds(Int(self.timeout))) {
+          self.callback()
         }
       }
+    }
 
     func checkNotificationForwarding() async -> Bool {
       return await withCheckedContinuation { continuation in
