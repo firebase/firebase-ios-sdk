@@ -263,6 +263,7 @@ let package = Package(
       name: "FirebaseABTesting",
       dependencies: ["FirebaseCore"],
       path: "FirebaseABTesting/Sources",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
