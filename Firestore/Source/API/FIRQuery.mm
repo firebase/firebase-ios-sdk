@@ -191,6 +191,12 @@ int32_t SaturatedLimitValue(NSInteger limit) {
   return [self addSnapshotListenerInternalWithOptions:options listener:listener];
 }
 
+- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
+                                                     listener:(FIRQuerySnapshotBlock)listener {
+  auto listenOptions = ListenOptions::FromIncludeMetadataChanges(false);
+  return [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
+}
+
 - (id<FIRListenerRegistration>)addSnapshotListenerInternalWithOptions:(ListenOptions)internalOptions
                                                              listener:
                                                                  (FIRQuerySnapshotBlock)listener {

@@ -18,6 +18,7 @@
 
 #import "FIRFirestoreSource.h"
 #import "FIRListenerRegistration.h"
+#import "FIRSnapshotListenOptions.h"
 
 @class FIRCollectionReference;
 @class FIRDocumentSnapshot;
@@ -268,6 +269,23 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
                                      listener:(void (^)(FIRDocumentSnapshot *_Nullable snapshot,
                                                         NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(includeMetadataChanges:listener:));
+// clang-format on
+
+/**
+ * Attaches a listener for `DocumentSnapshot` events.
+ *
+ * @param options Sets snapshot listen options, including whether metadata-only changes should
+ *     trigger snapshot events, the source that listens to, the executor to use to call the
+ *     listener, or the activity to scope the listener to.
+ * @param listener The listener to attach.
+ *
+ * @return A `ListenerRegistration` that can be used to remove this listener.
+ */
+// clang-format off
+- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
+                                   (FIRSnapshotListenOptions *)options
+                                                     listener:(void (^)(FIRDocumentSnapshot *_Nullable snapshot,NSError *_Nullable error))listener
+    NS_SWIFT_NAME(addSnapshotListener(options:listener:));
 // clang-format on
 
 @end
