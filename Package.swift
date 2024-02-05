@@ -137,6 +137,10 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
+    .library(
+      name: "FirebaseVertexAI",
+      targets: ["FirebaseVertexAI"]
+    ),
   ],
   dependencies: [
     .package(
@@ -183,6 +187,10 @@ let package = Package(
       "100.0.0" ..< "101.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git", "10.18.0" ..< "11.0.0"),
+    .package(
+      url: "https://github.com/google/generative-ai-swift.git",
+      revision: "f59b91c7df6ae4d48ff85ab58e640b5084712fa6"
+    ),
   ],
   targets: [
     .target(
@@ -1346,6 +1354,19 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../.."),
       ]
+    ),
+
+    // MARK: - Firebase Vertex AI
+
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
+      ],
+      path: "FirebaseVertexAI/Sources"
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
