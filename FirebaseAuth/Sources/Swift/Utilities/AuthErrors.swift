@@ -48,7 +48,7 @@ import Foundation
 @objc(FIRAuthErrorCode) public enum AuthErrorCode: Int {
   /// Indicates a validation error with the custom token.
   case invalidCustomToken = 17000
-  
+
   /// Indicates the service account and the API key belong to different projects.
   case customTokenMismatch = 17002
 
@@ -93,9 +93,9 @@ import Foundation
   case invalidUserToken = 17017
 
   /// Indicates a network error occurred (such as a timeout interrupted connection or
-   /// unreachable host). These types of errors are often recoverable with a retry. The
-   /// `NSUnderlyingError` field in the `NSError.userInfo` dictionary will contain the error
-   /// encountered.
+  /// unreachable host). These types of errors are often recoverable with a retry. The
+  /// `NSUnderlyingError` field in the `NSError.userInfo` dictionary will contain the error
+  /// encountered.
   case networkError = 17020
 
   /// Indicates the saved token has expired for example the user may have changed account
@@ -106,7 +106,8 @@ import Foundation
   /// Indicates an invalid API key was supplied in the request.
   case invalidAPIKey = 17023
 
-  /// Indicates that an attempt was made to reauthenticate with a user which is not the current user.
+  /// Indicates that an attempt was made to reauthenticate with a user which is not the current
+  /// user.
   case userMismatch = 17024
 
   /// Indicates an attempt to link with a credential that has already been linked with a
@@ -126,7 +127,7 @@ import Foundation
   /// Indicates the OOB code is invalid.
   case invalidActionCode = 17030
 
-  /// Indicates that there are invalid parameters in the payload during a 
+  /// Indicates that there are invalid parameters in the payload during a
   /// "send password reset email" attempt.
   case invalidMessagePayload = 17031
 
@@ -207,7 +208,8 @@ import Foundation
   /// Indicates that the reCAPTCHA token is not valid.
   case captchaCheckFailed = 17056
 
-  /// Indicates that an attempt was made to present a new web context while one was already being presented.
+  /// Indicates that an attempt was made to present a new web context while one was already being
+  /// presented.
   case webContextAlreadyPresented = 17057
 
   /// Indicates that the URL presentation was cancelled prematurely by the user.

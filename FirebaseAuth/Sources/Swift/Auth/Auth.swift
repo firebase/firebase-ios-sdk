@@ -329,7 +329,7 @@ extension Auth: AuthInterop {
   ///
   /// When [Email Enumeration
   /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-  /// is enabled, this method fails with FIRAuthErrorCodeInvalidCredentials in case of an invalid
+  /// is enabled, this method fails with an error in case of an invalid
   /// email/password.
   ///
   /// Possible error codes:
@@ -343,8 +343,7 @@ extension Auth: AuthInterop {
   /// - Parameter email: The user's email address.
   /// - Parameter password: The user's password.
   /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
-  /// or is
-  /// canceled. Invoked asynchronously on the main thread in the future.
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          password: String,
                          completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -368,8 +367,7 @@ extension Auth: AuthInterop {
   ///
   /// When [Email Enumeration
   /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-  /// is enabled, this method fails with FIRAuthErrorCodeInvalidCredentials in case of an invalid
-  /// email/password.
+  /// is enabled, this method throws in case of an invalid email/password.
   ///
   /// Possible error codes:
   ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
@@ -1213,8 +1211,8 @@ extension Auth: AuthInterop {
   /// - Parameter email: The email address of the user.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   /// handling action codes.
-  /// - Parameter completion: Optionally; a block which is invoked when the request finishes. Invoked
-  /// asynchronously on the main thread in the future.
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func sendSignInLink(toEmail email: String,
                                  actionCodeSettings: ActionCodeSettings,
                                  completion: ((Error?) -> Void)? = nil) {

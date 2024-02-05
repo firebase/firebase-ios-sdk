@@ -62,8 +62,8 @@ import Foundation
     /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
     /// retained by this method until the completion block is executed.
     /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already passed the first
-    /// factor challenge.
+    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
+    /// passed the first factor challenge.
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumber:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(_ phoneNumber: String,
@@ -97,8 +97,8 @@ import Foundation
     /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
     /// retained by this method until the completion block is executed.
     /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already passed the first
-    /// factor challenge.
+    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
+    /// passed the first factor challenge.
     /// - Returns: The verification ID
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(_ phoneNumber: String,
@@ -123,8 +123,8 @@ import Foundation
     /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
     /// retained by this method until the completion block is executed.
     /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already passed the first
-    ///    factor challenge.
+    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
+    /// passed the first factor challenge.
     /// - Parameter completion: The callback to be invoked when the verification flow is finished.
     @objc(verifyPhoneNumberWithMultiFactorInfo:UIDelegate:multiFactorSession:completion:)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,
@@ -143,8 +143,8 @@ import Foundation
     /// - Parameter uiDelegate: An object used to present the SFSafariViewController. The object is
     /// retained by this method until the completion block is executed.
     /// - Parameter multiFactorSession: A session to identify the MFA flow. For enrollment, this
-    /// identifies the user trying to enroll. For sign-in, this identifies that the user already passed the first
-    /// factor challenge.
+    /// identifies the user trying to enroll. For sign-in, this identifies that the user already
+    /// passed the first factor challenge.
     /// - Returns: The verification ID.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open func verifyPhoneNumber(with multiFactorInfo: PhoneMultiFactorInfo,

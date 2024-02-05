@@ -27,7 +27,8 @@
     /// - Parameter url: The URL to present.
     /// - Parameter uiDelegate: The UI delegate to present view controller.
     /// - Parameter completion: A block to be called either synchronously if the presentation fails
-    /// to start, or asynchronously in future on an unspecified thread once the presentation finishes.
+    /// to start, or asynchronously in future on an unspecified thread once the presentation
+    /// finishes.
     func present(_ url: URL,
                  uiDelegate: AuthUIDelegate?,
                  callbackMatcher: @escaping (URL?) -> Bool,
@@ -125,7 +126,7 @@
     /// The SFSafariViewController used for the current presentation, if any.
     private var safariViewController: SFSafariViewController?
 
-    /// The FIRAuthWebViewController used for the current presentation, if any.
+    /// The `AuthWebViewController` used for the current presentation, if any.
     private var webViewController: AuthWebViewController?
 
     /// The UIDelegate used to present the SFSafariViewController.

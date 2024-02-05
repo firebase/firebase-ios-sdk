@@ -64,10 +64,9 @@ extension User: NSSecureCoding {}
 
   /// [Deprecated] Updates the email address for the user.
   ///
-  /// On success, the cached user
-  ///    profile data is updated. Returns AuthErrorCodeInvalidCredentials error when
-  ///    [Email Enumeration Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
-  ///      is enabled.
+  /// On success, the cached user profile data is updated. Returns an error when
+  /// [Email Enumeration Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+  /// is enabled.
   ///
   ///  May fail if there is already an account with this email address that was created using
   /// email and password authentication.
@@ -107,7 +106,7 @@ extension User: NSSecureCoding {}
 
   /// [Deprecated] Updates the email address for the user.
   ///
-  /// On success, the cached user profile data is updated. Returns AuthErrorCodeInvalidCredentials error when
+  /// On success, the cached user profile data is updated. Throws when
   /// [Email Enumeration Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
   /// is enabled.
   ///
@@ -251,8 +250,8 @@ extension User: NSSecureCoding {}
     ///    the user has not signed in recently enough. To resolve, reauthenticate the user by
     ///     calling `reauthenticate(with:)`.
     /// - Parameter phoneNumberCredential: The new phone number credential corresponding to the
-    /// phone number to be added to the Firebase account, if a phone number is already linked to the account
-    /// this new phone number will replace it.
+    /// phone number to be added to the Firebase account, if a phone number is already linked to the
+    /// account this new phone number will replace it.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
     open func updatePhoneNumber(_ credential: PhoneAuthCredential) async throws {
       return try await withCheckedThrowingContinuation { continuation in
@@ -294,7 +293,7 @@ extension User: NSSecureCoding {}
 
   /// Reloads the user's profile data from the server.
   ///
-  /// May fail with a `AuthErrorCodeRequiresRecentLogin` error code. In this case
+  /// May fail with an `AuthErrorCodeRequiresRecentLogin` error code. In this case
   /// you should call `reauthenticate(with:)` before re-invoking
   /// `updateEmail(to:)`.
   /// - Parameter completion: Optionally; the block invoked when the reload has finished. Invoked
@@ -309,7 +308,7 @@ extension User: NSSecureCoding {}
 
   /// Reloads the user's profile data from the server.
   ///
-  /// May fail with a `AuthErrorCodeRequiresRecentLogin` error code. In this case
+  /// May fail with an `AuthErrorCodeRequiresRecentLogin` error code. In this case
   /// you should call `reauthenticate(with:)` before re-invoking
   /// `updateEmail(to:)`.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -421,7 +420,8 @@ extension User: NSSecureCoding {}
   ///    reauthenticate with a user which is not the current user.
   /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
   /// - Parameter credential: A user-supplied credential, which will be validated by the server.
-  /// This can be a successful third-party identity provider sign-in, or an email address and password.
+  /// This can be a successful third-party identity provider sign-in, or an email address and
+  /// password.
   /// - Returns: The `AuthDataResult` after the reauthentication.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @discardableResult
@@ -744,7 +744,8 @@ extension User: NSSecureCoding {}
     /// This method is available on iOSonly.
     /// - Parameter provider: An instance of an auth provider used to initiate the link flow.
     /// - Parameter uiDelegate: Optionally an instance of a class conforming to the `AuthUIDelegate`
-    /// protocol used for presenting the web context. If nil, a default `AuthUIDelegate` will be used.
+    /// protocol used for presenting the web context. If nil, a default `AuthUIDelegate` will be
+    /// used.
     /// - Parameter completion: Optionally; a block which is invoked when the link flow finishes, or
     ///    is canceled. Invoked asynchronously on the main thread in the future.
     @objc(linkWithProvider:UIDelegate:completion:)
@@ -1207,7 +1208,7 @@ extension User: NSSecureCoding {}
 
   private weak var _auth: Auth?
 
-  /// A weak reference to a FIRAuth instance associated with this instance.
+  /// A weak reference to an `Auth` instance associated with this instance.
   weak var auth: Auth? {
     set {
       _auth = newValue

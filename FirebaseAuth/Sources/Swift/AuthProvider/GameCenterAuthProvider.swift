@@ -33,7 +33,7 @@
   @objc(FIRGameCenterAuthProvider) open class GameCenterAuthProvider: NSObject {
     @objc public static let id = "gc.apple.com"
 
-   /// Creates an `AuthCredential` for a Game Center sign in.
+    /// Creates an `AuthCredential` for a Game Center sign in.
     @objc open class func getCredential(completion: @escaping (AuthCredential?, Error?) -> Void) {
       /**
        Linking GameKit.framework without using it on macOS results in App Store rejection.
@@ -127,7 +127,7 @@
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRGameCenterAuthCredential) 
+  @objc(FIRGameCenterAuthCredential)
   class GameCenterAuthCredential: AuthCredential, NSSecureCoding {
     let playerID: String
     let teamPlayerID: String?
