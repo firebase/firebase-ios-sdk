@@ -78,8 +78,7 @@ class AuthWebUtils: NSObject {
   }
 
   /// Strips url of scheme and path string to extract domain name
-  /// - Parameter urlString URL string for domain
-
+  /// - Parameter urlString: URL string for domain
   static func extractDomain(urlString: String) -> String? {
     var domain = urlString
 

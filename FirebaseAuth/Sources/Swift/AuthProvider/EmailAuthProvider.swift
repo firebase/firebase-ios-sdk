@@ -28,8 +28,8 @@ import Foundation
   }
 
   /// Creates an `AuthCredential` for an email & link sign in.
-  /// - Parameter email The user's email address.
-  /// - Parameter link The email sign-in link.
+  /// - Parameter email: The user's email address.
+  /// - Parameter link: The email sign-in link.
   /// - Returns: An `AuthCredential` containing the email & link credential.
   @objc open class func credential(withEmail email: String, link: String) -> AuthCredential {
     return EmailAuthCredential(withEmail: email, link: link)

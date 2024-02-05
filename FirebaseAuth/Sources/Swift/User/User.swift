@@ -1300,12 +1300,10 @@ extension User: NSSecureCoding {}
   }
 
   /// Performs a setAccountInfo request by mutating the results of a getAccountInfo response,
-  ///    atomically in regards to other calls to this method.
-  /// - Parameter changeBlock: A block responsible for mutating a template @c
-  /// FIRSetAccountInfoRequest
+  /// atomically in regards to other calls to this method.
+  /// - Parameter changeBlock: A block responsible for mutating a template `SetAccountInfoRequest`
   /// - Parameter callback: A block to invoke when the change is complete. Invoked asynchronously on
-  /// the
-  ///    auth global work queue in the future.
+  /// the auth global work queue in the future.
   func executeUserUpdateWithChanges(changeBlock: @escaping (GetAccountInfoResponseUser,
                                                             SetAccountInfoRequest) -> Void,
                                     callback: @escaping (Error?) -> Void) {
@@ -1871,7 +1869,7 @@ extension User: NSSecureCoding {}
   }
 
   /// Calls a callback in main thread with user and error.
-  /// - Parameter callback The callback to be called in main thread.
+  /// - Parameter callback: The callback to be called in main thread.
   private class func callInMainThreadWithAuthDataResultAndError(callback: (
     (AuthDataResult?, Error?) -> Void
   )?,

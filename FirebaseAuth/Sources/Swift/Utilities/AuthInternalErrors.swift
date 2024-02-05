@@ -66,7 +66,7 @@ enum AuthInternalErrorCode: Int {
   /// contain a value for the key `AuthErrorUserInfoDeserializedResponseKey` which is the
   /// deserialized response value.
   ///
-  /// If the response could not be deserialized as JSON then the @c NSError.userInfo dictionary
+  /// If the response could not be deserialized as JSON then the `NSError.userInfo` dictionary
   /// will contain values for the `NSUnderlyingErrorKey` and `AuthErrorUserInfoDataKey` keys.
   case unexpectedErrorResponse = 3
 
@@ -74,11 +74,11 @@ enum AuthInternalErrorCode: Int {
   /// contains something other than a JSON-encoded dictionary, or the data type of the response
   /// indicated it is different from the type of response we expected.
   ///
-  /// See the @c NSUnderlyingError value in the @c NSError.userInfo dictionary.
+  /// See the `NSUnderlyingError` value in the `NSError.userInfo` dictionary.
   /// If this key is present in the dictionary, it may contain an error from
-  ///  @c NSJSONSerialization error (indicating the response received was of the wrong data type).
+  /// `NSJSONSerialization` error (indicating the response received was of the wrong data type).
   ///
-  /// See the @c FIRAuthErrorUserInfoDeserializedResponseKey value in the @c NSError.userInfo
+  /// See the `AuthErrorUserInfoDeserializedResponseKey` value in the `NSError.userInfo`
   /// dictionary. If the response could be deserialized, it's deserialized representation will
   /// be associated with this key. If the @c NSUnderlyingError value in the @c NSError.userInfo
   /// dictionary is @c nil, this indicates the JSON didn't represent a dictionary.

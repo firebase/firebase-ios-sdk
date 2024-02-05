@@ -201,7 +201,7 @@ import Foundation
     }
 
     /// Unenroll the given multi factor.
-    /// - Parameter completion The block invoked when the request to send the verification email is
+    /// - Parameter completion: The block invoked when the request to send the verification email is
     /// complete, or fails.
     @objc(unenrollWithFactorUID:completion:)
     open func unenroll(withFactorUID factorUID: String,

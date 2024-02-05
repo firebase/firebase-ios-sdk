@@ -68,7 +68,7 @@ extension AuthOperationType {
 class VerifyPhoneNumberRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyPhoneNumberResponse
 
-  /// The verification ID obtained from the response of @c sendVerificationCode.
+  /// The verification ID obtained from the response of `sendVerificationCode`.
   var verificationID: String?
 
   /// The verification code provided by the user.

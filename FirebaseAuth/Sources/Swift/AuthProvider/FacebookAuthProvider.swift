@@ -15,16 +15,13 @@
 import Foundation
 
 /// Utility class for constructing Facebook Sign In credentials.
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRFacebookAuthProvider) open class FacebookAuthProvider: NSObject {
   @objc public static let id = "facebook.com"
 
   /// Creates an `AuthCredential` for a Facebook sign in.
-
-  /// - Parameter accessToken The Access Token from Facebook.
-  /// - Returns: An AuthCredential containing the Facebook credentials.
-
+  /// - Parameter accessToken: The Access Token from Facebook.
+  /// - Returns: An `AuthCredential` containing the Facebook credentials.
   @objc open class func credential(withAccessToken accessToken: String) -> AuthCredential {
     return FacebookAuthCredential(withAccessToken: accessToken)
   }

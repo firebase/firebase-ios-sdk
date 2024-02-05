@@ -26,7 +26,7 @@ import Foundation
     let totpInfo: NSObject?
 
     /// Initialize the AuthProtoMFAEnrollment instance with proto.
-    /// - Parameter proto AuthProtoMFAEnrollment proto object.
+    /// - Parameter proto: AuthProtoMFAEnrollment proto object.
     init(proto: AuthProtoMFAEnrollment) {
       totpInfo = proto.totpInfo
       super.init(proto: proto, factorID: PhoneMultiFactorInfo.TOTPMultiFactorID)

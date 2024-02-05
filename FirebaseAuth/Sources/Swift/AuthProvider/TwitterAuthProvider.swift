@@ -15,17 +15,14 @@
 import Foundation
 
 /// Utility class for constructing Twitter Sign In credentials.
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRTwitterAuthProvider) open class TwitterAuthProvider: NSObject {
   @objc public static let id = "twitter.com"
 
   /// Creates an `AuthCredential` for a Twitter sign in.
-
-  /// - Parameter token The Twitter OAuth token.
-  /// - Parameter secret The Twitter OAuth secret.
+  /// - Parameter token: The Twitter OAuth token.
+  /// - Parameter secret: The Twitter OAuth secret.
   /// - Returns: An AuthCredential containing the Twitter credentials.
-
   @objc open class func credential(withToken token: String, secret: String) -> AuthCredential {
     return TwitterAuthCredential(withToken: token, secret: secret)
   }

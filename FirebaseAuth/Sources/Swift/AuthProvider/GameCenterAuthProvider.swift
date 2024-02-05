@@ -28,16 +28,12 @@
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   extension GameCenterAuthProvider: WarningWorkaround {}
 
-  /**
-   @brief A concrete implementation of `AuthProvider` for Game Center Sign In. Not available on watchOS.
-   */
+  /// A concrete implementation of `AuthProvider` for Game Center Sign In. Not available on watchOS.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRGameCenterAuthProvider) open class GameCenterAuthProvider: NSObject {
     @objc public static let id = "gc.apple.com"
 
-    /** @fn
-        @brief Creates an `AuthCredential` for a Game Center sign in.
-     */
+   /// Creates an `AuthCredential` for a Game Center sign in.
     @objc open class func getCredential(completion: @escaping (AuthCredential?, Error?) -> Void) {
       /**
        Linking GameKit.framework without using it on macOS results in App Store rejection.
@@ -92,7 +88,7 @@
             completion(nil, error)
           } else {
             /**
-             @c `localPlayer.alias` is actually the displayname needed, instead of
+             `localPlayer.alias` is actually the displayname needed, instead of
              `localPlayer.displayname`. For more information, check
              https://developer.apple.com/documentation/gamekit/gkplayer
              **/
@@ -110,9 +106,7 @@
         }
     }
 
-    /** @fn
-        @brief Creates an `AuthCredential` for a Game Center sign in.
-     */
+    /// Creates an `AuthCredential` for a Game Center sign in.
     @available(iOS 13, tvOS 13, macOS 10.15, watchOS 8, *)
     open class func getCredential() async throws -> AuthCredential {
       return try await withCheckedThrowingContinuation { continuation in
@@ -133,8 +127,8 @@
   }
 
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
-  @objc(FIRGameCenterAuthCredential) class GameCenterAuthCredential: AuthCredential,
-    NSSecureCoding {
+  @objc(FIRGameCenterAuthCredential) 
+  class GameCenterAuthCredential: AuthCredential, NSSecureCoding {
     let playerID: String
     let teamPlayerID: String?
     let gamePlayerID: String?
@@ -144,17 +138,14 @@
     let timestamp: UInt64
     let displayName: String
 
-    /**
-        @brief Designated initializer.
-        /// - Parameter playerID The ID of the Game Center local player.
-        /// - Parameter teamPlayerID The teamPlayerID of the Game Center local player.
-        /// - Parameter gamePlayerID The gamePlayerID of the Game Center local player.
-        /// - Parameter publicKeyURL The URL for the public encryption key.
-        /// - Parameter signature The verification signature generated.
-        /// - Parameter salt A random string used to compute the hash and keep it randomized.
-        /// - Parameter timestamp The date and time that the signature was created.
-        /// - Parameter displayName The display name of the Game Center player.
-     */
+    /// - Parameter playerID: The ID of the Game Center local player.
+    /// - Parameter teamPlayerID: The teamPlayerID of the Game Center local player.
+    /// - Parameter gamePlayerID: The gamePlayerID of the Game Center local player.
+    /// - Parameter publicKeyURL: The URL for the public encryption key.
+    /// - Parameter signature: The verification signature generated.
+    /// - Parameter salt: A random string used to compute the hash and keep it randomized.
+    /// - Parameter timestamp: The date and time that the signature was created.
+    /// - Parameter displayName: The display name of the Game Center player.
     init(withPlayerID playerID: String, teamPlayerID: String?, gamePlayerID: String?,
          publicKeyURL: URL?, signature: Data?, salt: Data?,
          timestamp: UInt64, displayName: String) {

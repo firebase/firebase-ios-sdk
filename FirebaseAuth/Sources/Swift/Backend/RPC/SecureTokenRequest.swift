@@ -36,10 +36,10 @@ private let kFIRSecureTokenServiceGetTokenURLFormat = "https://%@/v1/token?key=%
 /// with the emulator host, the gAPIHost, and the client's API Key.
 private let kFIREmulatorURLFormat = "http://%@/%@/v1/token?key=%@"
 
-/// The string value of the @c FIRSecureTokenRequestGrantTypeRefreshToken request type.
+/// The string value of the `SecureTokenRequestGrantTypeRefreshToken` request type.
 private let kFIRSecureTokenServiceGrantTypeRefreshToken = "refresh_token"
 
-/// The string value of the @c FIRSecureTokenRequestGrantTypeAuthorizationCode request type.
+/// The string value of the `SecureTokenRequestGrantTypeAuthorizationCode` request type.
 private let kFIRSecureTokenServiceGrantTypeAuthorizationCode = "authorization_code"
 
 /// The key for the "grantType" parameter in the request.

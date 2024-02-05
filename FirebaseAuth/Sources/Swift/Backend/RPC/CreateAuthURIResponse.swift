@@ -30,7 +30,7 @@ class CreateAuthURIResponse: AuthRPCResponse {
   /// True if the authUri is for user's existing provider.
   var forExistingProvider: Bool = false
 
-  /// A list of provider IDs the passed @c identifier could use to sign in with.
+  /// A list of provider IDs the passed identifier could use to sign in with.
   var allProviders: [String]?
 
   /// A list of sign-in methods available for the passed  identifier.

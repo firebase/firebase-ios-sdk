@@ -16,23 +16,20 @@
   import Foundation
 
   /// A data structure for an APNs token.
-
   class AuthAPNSToken: NSObject {
     let data: Data
     let type: AuthAPNSTokenType
 
     /// Initializes the instance.
-    /// - Parameter data The APNs token data.
-    /// - Parameter type The APNs token type.
+    /// - Parameter data: The APNs token data.
+    /// - Parameter type: The APNs token type.
     /// - Returns: The initialized instance.
-
     init(withData data: Data, type: AuthAPNSTokenType) {
       self.data = data
       self.type = type
     }
 
     /// The uppercase hexadecimal string form of the APNs token data.
-
     lazy var string: String = {
       let byteArray = [UInt8](data)
       var s = ""

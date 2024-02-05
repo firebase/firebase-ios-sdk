@@ -14,7 +14,7 @@
 
 import Foundation
 
-/// The "SingupNewUserEndpoint" endpoint.
+/// The "SignupNewUserEndpoint" endpoint.
 private let kSignupNewUserEndpoint = "signupNewUser"
 
 /// The key for the "email" value in the request.
@@ -75,9 +75,8 @@ class SignUpNewUserRequest: IdentityToolkitRequest, AuthRPCRequest {
   }
 
   /// Designated initializer.
-  /// - Parameter requestConfiguration An object containing configurations to be added to the
+  /// - Parameter requestConfiguration: An object containing configurations to be added to the
   /// request.
-
   init(email: String?,
        password: String?,
        displayName: String?,

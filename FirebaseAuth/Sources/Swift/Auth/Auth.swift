@@ -1213,7 +1213,7 @@ extension Auth: AuthInterop {
   /// - Parameter email: The email address of the user.
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   /// handling action codes.
-  /// - Parameter completion Optionally; a block which is invoked when the request finishes. Invoked
+  /// - Parameter completion: Optionally; a block which is invoked when the request finishes. Invoked
   /// asynchronously on the main thread in the future.
   @objc open func sendSignInLink(toEmail email: String,
                                  actionCodeSettings: ActionCodeSettings,
@@ -1841,9 +1841,8 @@ extension Auth: AuthInterop {
   }
 
   /// Schedules a task to automatically refresh tokens on the current user.
-  /// - Parameter delay" The delay in seconds after which the token refresh task should be scheduled
-  /// to be
-  /// executed.
+  /// - Parameter delay: The delay in seconds after which the token refresh task should be scheduled
+  /// to be executed.
   /// - Parameter retry: Flag to determine whether the invocation is a retry attempt or not.
   private func scheduleAutoTokenRefresh(withDelay delay: TimeInterval, retry: Bool) {
     guard let accessToken = currentUser?.rawAccessToken() else {
@@ -1895,10 +1894,8 @@ extension Auth: AuthInterop {
   /// initialization time. The only time the saveToDisk parameter should be set to NO is during
   /// class initialization time because the user was just read from disk.
   /// - Parameter user: The user to use as the current user (including nil, which is passed at sign
-  /// out
-  /// time.)
+  /// out time.)
   /// - Parameter saveToDisk: Indicates the method should persist the user data to disk.
-
   func updateCurrentUser(_ user: User?, byForce force: Bool,
                          savingToDisk saveToDisk: Bool) throws {
     if user == currentUser {
@@ -1960,10 +1957,10 @@ extension Auth: AuthInterop {
   }
 
   /// Completes a sign-in flow once we have access and refresh tokens for the user.
-  /// - Parameter accessToken The STS access token.
-  /// - Parameter accessTokenExpirationDate The approximate expiration date of the access token.
-  /// - Parameter refreshToken The STS refresh token.
-  /// - Parameter anonymous Whether or not the user is anonymous.
+  /// - Parameter accessToken: The STS access token.
+  /// - Parameter accessTokenExpirationDate: The approximate expiration date of the access token.
+  /// - Parameter refreshToken: The STS refresh token.
+  /// - Parameter anonymous: Whether or not the user is anonymous.
   @discardableResult
   func completeSignIn(withAccessToken accessToken: String?,
                       accessTokenExpirationDate: Date?,
@@ -1980,8 +1977,8 @@ extension Auth: AuthInterop {
   ///
   /// This is the internal counterpart of this method, which uses a callback that does not
   /// update the current user.
-  /// - Parameter email The user's email address.
-  /// - Parameter password The user's password.
+  /// - Parameter email: The user's email address.
+  /// - Parameter password: The user's password.
   private func internalSignInAndRetrieveData(withEmail email: String,
                                              password: String) async throws -> AuthDataResult {
     let credential = EmailAuthCredential(withEmail: email, password: password)
@@ -2070,8 +2067,8 @@ extension Auth: AuthInterop {
 
   #if os(iOS)
     /// Signs in using a phone credential.
-    /// - Parameter credential The Phone Auth credential used to sign in.
-    /// - Parameter operation The type of operation for which this sign-in attempt is initiated.
+    /// - Parameter credential: The Phone Auth credential used to sign in.
+    /// - Parameter operation: The type of operation for which this sign-in attempt is initiated.
     private func signIn(withPhoneCredential credential: PhoneAuthCredential,
                         operation: AuthOperationType) async throws -> VerifyPhoneNumberResponse {
       switch credential.credentialKind {
@@ -2099,7 +2096,7 @@ extension Auth: AuthInterop {
 
   #if !os(watchOS)
     /// Signs in using a game center credential.
-    /// - Parameter credential The Game Center Auth Credential used to sign in.
+    /// - Parameter credential: The Game Center Auth Credential used to sign in.
     private func signInAndRetrieveData(withGameCenterCredential credential: GameCenterAuthCredential) async throws
       -> AuthDataResult {
       guard let publicKeyURL = credential.publicKeyURL,
@@ -2134,8 +2131,8 @@ extension Auth: AuthInterop {
   #endif
 
   /// Signs in using an email and email sign-in link.
-  /// - Parameter email The user's email address.
-  /// - Parameter link The email sign-in link.
+  /// - Parameter email: The user's email address.
+  /// - Parameter link: The email sign-in link.
   private func internalSignInAndRetrieveData(withEmail email: String,
                                              link: String) async throws -> AuthDataResult {
     guard isSignIn(withEmailLink: link) else {
@@ -2182,8 +2179,7 @@ extension Auth: AuthInterop {
   ///    Typically invoked as part of the complete sign-in flow. For any other uses please
   /// consider alternative ways of updating the current user.
   /// - Parameter callback: Called when the user has been updated or when an error has occurred.
-  /// Invoked
-  ///    asynchronously on the main thread in the future.
+  /// Invoked asynchronously on the main thread in the future.
   /// - Returns: Returns a block that updates the current user.
   func signInFlowAuthDataResultCallback(byDecorating callback:
     ((AuthDataResult?, Error?) -> Void)?) -> (AuthDataResult?, Error?) -> Void {
@@ -2349,8 +2345,8 @@ extension Auth: AuthInterop {
   /// Key of user stored in the keychain. Prefixed with a Firebase app name.
   private let kUserKey = "_firebase_user"
 
-  /// Handles returned from @c NSNotificationCenter for blocks which are "auth state did
-  ///   change" notification listeners.
+  /// Handles returned from `NSNotificationCenter` for blocks which are "auth state did
+  /// change" notification listeners.
   ///
   /// Mutations should occur within a @syncronized(self) context.
   private var listenerHandles: NSMutableArray = []

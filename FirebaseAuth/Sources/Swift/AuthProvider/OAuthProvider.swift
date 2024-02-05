@@ -30,8 +30,7 @@ import Foundation
   @objc public let providerID: String
 
   /// - Parameter providerID: The provider ID of the IDP for which this auth provider instance will
-  /// be
-  /// configured.
+  /// be configured.
   /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
   @objc(providerWithProviderID:) open class func provider(providerID: String) -> OAuthProvider {
     return OAuthProvider(providerID: providerID, auth: Auth.auth())
@@ -237,7 +236,7 @@ import Foundation
   #endif
 
   /// Creates an `AuthCredential` for the Sign in with Apple OAuth 2 provider identified by ID
-  ///  token, raw nonce, and full name.This method is specific to the Sign in with Apple OAuth 2
+  /// token, raw nonce, and full name.This method is specific to the Sign in with Apple OAuth 2
   /// provider as this provider requires the full name to be passed explicitly.
   /// - Parameter idToken: The IDToken associated with the Sign in with Apple Auth credential being
   /// created.
@@ -361,7 +360,7 @@ import Foundation
   }
 
   /// Returns the SHA256 hash representation of a given string object.
-  /// - Parameter string The string for which a SHA256 hash is desired.
+  /// - Parameter string: The string for which a SHA256 hash is desired.
   /// - Returns: An hexadecimal string representation of the SHA256 hash.
   private func hash(forString string: String) -> String {
     guard let sessionIdData = string.data(using: .utf8) as? NSData else {

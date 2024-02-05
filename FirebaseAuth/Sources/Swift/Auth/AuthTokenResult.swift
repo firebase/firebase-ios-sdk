@@ -16,48 +16,34 @@ import Foundation
 
 extension AuthTokenResult: NSSecureCoding {}
 
-/** @class FIRAuthTokenResult
-    @brief A data class containing the ID token JWT string and other properties associated with the
-    token including the decoded payload claims.
- */
+/// A data class containing the ID token JWT string and other properties associated with the
+/// token including the decoded payload claims.
 @objc(FIRAuthTokenResult) open class AuthTokenResult: NSObject {
-  /** @property token
-   @brief Stores the JWT string of the ID token.
-   */
+
+   /// Stores the JWT string of the ID token.
   @objc open var token: String
 
-  /** @property expirationDate
-   @brief Stores the ID token's expiration date.
-   */
+   /// Stores the ID token's expiration date.
   @objc open var expirationDate: Date
 
-  /** @property authDate
-   @brief Stores the ID token's authentication date.
-   @remarks This is the date the user was signed in and NOT the date the token was refreshed.
-   */
+   /// Stores the ID token's authentication date.
+  ///
+  /// This is the date the user was signed in and NOT the date the token was refreshed.
   @objc open var authDate: Date
 
-  /** @property issuedAtDate
-   @brief Stores the date that the ID token was issued.
-   @remarks This is the date last refreshed and NOT the last authentication date.
-   */
+/// Stores the date that the ID token was issued.
+  ///
+  /// This is the date last refreshed and NOT the last authentication date.
   @objc open var issuedAtDate: Date
 
-  /** @property signInProvider
-   @brief Stores sign-in provider through which the token was obtained.
-   @remarks This does not necessarily map to provider IDs.
-   */
+  /// Stores sign-in provider through which the token was obtained.
   @objc open var signInProvider: String
 
-  /** @property signInSecondFactor
-   @brief Stores sign-in second factor through which the token was obtained.
-   */
+   /// Stores sign-in second factor through which the token was obtained.
   @objc open var signInSecondFactor: String
 
-  /** @property claims
-   @brief Stores the entire payload of claims found on the ID token. This includes the standard
-   reserved claims as well as custom claims set by the developer via the Admin SDK.
-   */
+   /// Stores the entire payload of claims found on the ID token. This includes the standard
+   /// reserved claims as well as custom claims set by the developer via the Admin SDK.
   @objc open var claims: [String: Any]
 
   private class func getTokenPayloadData(_ token: String) -> Data? {
@@ -68,12 +54,12 @@ extension AuthTokenResult: NSSecureCoding {}
       return nil
     }
 
-    // The token payload is always the second index of the array.
+    /// The token payload is always the second index of the array.
     let IDToken = tokenStringArray[1]
 
-    // Convert the base64URL encoded string to a base64 encoded string.
-    // Replace "_" with "/"
-    // Replace "-" with "+"
+    /// Convert the base64URL encoded string to a base64 encoded string.
+    /// * Replace "_" with "/"
+    /// * Replace "-" with "+"
     var tokenPayload = IDToken.replacingOccurrences(of: "_", with: "/")
       .replacingOccurrences(of: "-", with: "+")
 
@@ -104,11 +90,9 @@ extension AuthTokenResult: NSSecureCoding {}
     return jwt
   }
 
-  /** @fn tokenResultWithToken:
-       @brief Parse a token string to a structured token.
-       /// - Parameter token The token string to parse.
+  /// Parse a token string to a structured token.
+       /// - Parameter token: The token string to parse.
        /// - Returns: A structured token result.
-   */
   @objc open class func tokenResult(token: String) -> AuthTokenResult? {
     guard let payloadData = getTokenPayloadData(token),
           let claims = getTokenPayloadDictionary(payloadData),
