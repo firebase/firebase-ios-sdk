@@ -137,6 +137,10 @@ let package = Package(
       name: "FirebaseStorage",
       targets: ["FirebaseStorage"]
     ),
+    .library(
+      name: "FirebaseVertexAI",
+      targets: ["FirebaseVertexAI"]
+    ),
   ],
   dependencies: [
     .package(
@@ -172,7 +176,6 @@ let package = Package(
       url: "https://github.com/paulb777/ocmock.git",
       revision: "173955e93e6ee6999a10729ab67e4b4efdd1db6d"
     ),
-//    .package(
 //      url: "https://github.com/erikdoe/ocmock.git",
 //      revision: "c5eeaa6dde7c308a5ce48ae4d4530462dd3a1110"
 //    ),
@@ -189,6 +192,10 @@ let package = Package(
       "100.0.0" ..< "101.0.0"
     ),
     .package(url: "https://github.com/google/app-check.git", "10.19.0" ..< "11.0.0"),
+    .package(
+      url: "https://github.com/google/generative-ai-swift.git",
+      revision: "f59b91c7df6ae4d48ff85ab58e640b5084712fa6"
+    ),
   ],
   targets: [
     .target(
@@ -1357,6 +1364,19 @@ let package = Package(
       cSettings: [
         .headerSearchPath("../../.."),
       ]
+    ),
+
+    // MARK: - Firebase Vertex AI
+
+    .target(
+      name: "FirebaseVertexAI",
+      dependencies: [
+        "FirebaseAppCheckInterop",
+        "FirebaseCore",
+        "FirebaseCoreExtension",
+        .product(name: "GoogleGenerativeAI", package: "generative-ai-swift"),
+      ],
+      path: "FirebaseVertexAI/Sources"
     ),
   ] + firestoreTargets(),
   cLanguageStandard: .c99,
