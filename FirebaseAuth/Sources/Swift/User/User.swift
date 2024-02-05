@@ -353,6 +353,7 @@ extension User: NSSecureCoding {}
   /// password.
   /// - Parameter completion: Optionally; the block invoked when the re-authentication operation has
   /// finished. Invoked asynchronously on the main thread in the future.
+  @objc(reauthenticateWithCredential:completion:)
   open func reauthenticate(with credential: AuthCredential,
                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
