@@ -43,6 +43,9 @@ app update.
     'FirebaseRemoteConfig/Swift/**/*.swift',
   ]
   s.public_header_files = base_dir + 'Public/FirebaseRemoteConfig/*.h'
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseRemoteConfig/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
     'HEADER_SEARCH_PATHS' => '"${PODS_TARGET_SRCROOT}"'

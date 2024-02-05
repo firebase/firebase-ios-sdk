@@ -997,7 +997,8 @@ let package = Package(
         "FirebaseRemoteConfigInternal",
         "FirebaseSharedSwift",
       ],
-      path: "FirebaseRemoteConfig/Swift"
+      path: "FirebaseRemoteConfig/Swift",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
     ),
     .target(
       name: "FirebaseRemoteConfigSwift",
