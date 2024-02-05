@@ -45,6 +45,9 @@ device, and it is completely free.
     'FirebaseInstallations/Source/Library/Private/*.h',
   ]
   s.public_header_files = base_dir + 'Sources/Public/FirebaseMessaging/*.h'
+  s.resource_bundles = {
+    "#{s.module_name}_Privacy" => 'FirebaseMessaging/Sources/Resources/PrivacyInfo.xcprivacy'
+  }
   s.library = 'sqlite3'
   s.pod_target_xcconfig = {
     'GCC_C_LANGUAGE_STANDARD' => 'c99',
