@@ -434,6 +434,7 @@ let package = Package(
         .product(name: "RecaptchaInterop", package: "interop-ios-for-google-sdks"),
       ],
       path: "FirebaseAuth/Sources",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../"),
