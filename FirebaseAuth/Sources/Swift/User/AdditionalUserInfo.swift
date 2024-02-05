@@ -17,19 +17,15 @@ import Foundation
 extension AdditionalUserInfo: NSSecureCoding {}
 @objc(FIRAdditionalUserInfo) open class AdditionalUserInfo: NSObject {
   /// The provider identifier.
-
   @objc public let providerID: String
 
   /// Dictionary containing the additional IdP specific information.
-
   @objc public let profile: [String: Any]?
 
   /// username The name of the user.
-
   @objc public let username: String?
 
   /// Indicates whether or not the current user was signed in for the first time.
-
   @objc public let isNewUser: Bool
 
   // Maintain newUser for Objective C API.

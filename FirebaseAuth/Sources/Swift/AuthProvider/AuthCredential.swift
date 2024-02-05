@@ -15,7 +15,6 @@
 import Foundation
 
 /// Public representation of a credential.
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthCredential) open class AuthCredential: NSObject {
   @objc public let provider: String

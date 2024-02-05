@@ -15,19 +15,15 @@
 import Foundation
 
 /// The "verifyPassword" endpoint.
-
 private let kVerifyCustomTokenEndpoint = "verifyCustomToken"
 
 /// The key for the "token" value in the request.
-
 private let kTokenKey = "token"
 
 /// The key for the "returnSecureToken" value in the request.
-
 private let kReturnSecureTokenKey = "returnSecureToken"
 
 /// The key for the tenant id value in the request.
-
 private let kTenantIDKey = "tenantId"
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

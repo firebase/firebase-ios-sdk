@@ -15,35 +15,27 @@
 import Foundation
 
 /// The "verifyPhoneNumber" endpoint.
-
 private let kVerifyPhoneNumberEndPoint = "verifyPhoneNumber"
 
 /// The key for the verification ID parameter in the request.
-
 private let kVerificationIDKey = "sessionInfo"
 
 /// The key for the verification code parameter in the request.
-
 private let kVerificationCodeKey = "code"
 
 /// The key for the "ID Token" value in the request.
-
 private let kIDTokenKey = "idToken"
 
 /// The key for the temporary proof value in the request.
-
 private let kTemporaryProofKey = "temporaryProof"
 
 /// The key for the phone number value in the request.
-
 private let kPhoneNumberKey = "phoneNumber"
 
 /// The key for the operation value in the request.
-
 private let kOperationKey = "operation"
 
 /// The key for the tenant id value in the request.
-
 private let kTenantIDKey = "tenantId"
 
 extension AuthOperationType {

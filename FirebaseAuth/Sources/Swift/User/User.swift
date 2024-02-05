@@ -219,12 +219,11 @@ extension User: NSSecureCoding {}
     /// * `AuthErrorCodeRequiresRecentLogin` - Updating a user’s phone number is a security
     ///    sensitive operation that requires a recent login from the user. This error indicates
     ///    the user has not signed in recently enough. To resolve, reauthenticate the user by
-    ///     calling `reauthenticate(with:)`.
+    ///    calling `reauthenticate(with:)`.
     /// - Parameter phoneNumberCredential: The new phone number credential corresponding to the
-    /// phone number
-    ///   to be added to the Firebase account, if a phone number is already linked to the account
-    /// this
-    ///    new phone number will replace it.
+    /// phone number to be added to the Firebase account, if a phone number is already linked to the
+    /// account
+    /// this new phone number will replace it.
     /// - Parameter completion: Optionally; the block invoked when the user profile change has
     /// finished.
     @objc(updatePhoneNumberCredential:completion:)
@@ -240,7 +239,7 @@ extension User: NSSecureCoding {}
 
     /// Updates the phone number for the user. On success, the cached user profile data is updated.
     ///
-    ///  Invoked asynchronously on the main thread in the future.
+    /// Invoked asynchronously on the main thread in the future.
     ///
     /// This method is available on iOS only.
     ///
@@ -350,10 +349,10 @@ extension User: NSSecureCoding {}
   ///    reauthenticate with a user which is not the current user.
   /// * `AuthErrorCodeInvalidEmail` - Indicates the email address is malformed.
   /// - Parameter credential: A user-supplied credential, which will be validated by the server.
-  /// This can be
-  ///     a successful third-party identity provider sign-in, or an email address and password.
+  /// This can be a successful third-party identity provider sign-in, or an email address and
+  /// password.
   /// - Parameter completion: Optionally; the block invoked when the re-authentication operation has
-  ///      finished. Invoked asynchronously on the main thread in the future.
+  /// finished. Invoked asynchronously on the main thread in the future.
   open func reauthenticate(with credential: AuthCredential,
                            completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
     kAuthGlobalWorkQueue.async {
@@ -447,8 +446,7 @@ extension User: NSSecureCoding {}
     ///    protocol, used for presenting the web context. If nil, a default `AuthUIDelegate`
     ///    will be used.
     /// - Parameter completion: Optionally; a block which is invoked when the reauthenticate flow
-    /// finishes, or
-    ///    is canceled. Invoked asynchronously on the main thread in the future.
+    /// finishes, or is canceled. Invoked asynchronously on the main thread in the future.
     @objc(reauthenticateWithProvider:UIDelegate:completion:)
     open func reauthenticate(with provider: FederatedAuthProvider,
                              uiDelegate: AuthUIDelegate?,
@@ -911,8 +909,7 @@ extension User: NSSecureCoding {}
   ///    sending update email.
   /// * `AuthErrorCodeUserNotFound` - Indicates the user account was not found.
   /// - Parameter completion: Optionally; the block invoked when the request to send an email
-  /// verification
-  ///    is complete, or fails. Invoked asynchronously on the main thread in the future.
+  /// verification is complete, or fails. Invoked asynchronously on the main thread in the future.
   @objc(sendEmailVerificationWithCompletion:)
   open func __sendEmailVerification(withCompletion completion: ((Error?) -> Void)?) {
     sendEmailVerification(completion: completion)
@@ -1064,8 +1061,7 @@ extension User: NSSecureCoding {}
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   ///    handling action codes.
   /// - Parameter completion: Optionally; the block invoked when the request to send the
-  /// verification
-  ///    email is complete, or fails.
+  /// verification email is complete, or fails.
   @objc open func sendEmailVerification(beforeUpdatingEmail email: String,
                                         actionCodeSettings: ActionCodeSettings? = nil,
                                         completion: ((Error?) -> Void)? = nil) {
@@ -1384,8 +1380,7 @@ extension User: NSSecureCoding {}
 
   /// Gets the users' account data from the server, updating our local values.
   /// - Parameter callback: Invoked when the request to getAccountInfo has completed, or when an
-  /// error has
-  ///    been detected. Invoked asynchronously on the auth global work queue in the future.
+  /// error has been detected. Invoked asynchronously on the auth global work queue in the future.
   private func getAccountInfoRefreshingCache(callback: @escaping (GetAccountInfoResponseUser?,
                                                                   Error?) -> Void) {
     internalGetToken { token, error in
@@ -1457,10 +1452,8 @@ extension User: NSSecureCoding {}
     ///
     /// Invoked asynchronously on the global work queue in the future.
     /// - Parameter phoneAuthCredential: The new phone number credential corresponding to the phone
-    /// number
-    ///   to be added to the Firebase account, if a phone number is already linked to the account
-    /// this
-    /// new phone number will replace it.
+    /// number to be added to the Firebase account. If a phone number is already linked to the
+    /// account, this new phone number will replace it.
     /// - Parameter isLinkOperation: Boolean value indicating whether or not this is a link
     /// operation.
     /// - Parameter completion: Optionally; the block invoked when the user profile change has
@@ -1805,8 +1798,7 @@ extension User: NSSecureCoding {}
 
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
   /// - Parameter callback: The block to invoke when the token is available. Invoked asynchronously
-  /// on the
-  /// global work thread in the future.
+  /// on the  global work thread in the future.
   func internalGetToken(forceRefresh: Bool = false,
                         callback: @escaping (String?, Error?) -> Void) {
     tokenService.fetchAccessToken(forcingRefresh: forceRefresh) { token, error, tokenUpdated in

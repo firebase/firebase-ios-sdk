@@ -15,74 +15,57 @@
 import Foundation
 
 /// The "verifyPassword" endpoint.
-
 private let kVerifyPasswordEndpoint = "verifyPassword"
 
 /// The key for the "email" value in the request.
-
 private let kEmailKey = "email"
 
 /// The key for the "password" value in the request.
-
 private let kPasswordKey = "password"
 
 /// The key for the "pendingIdToken" value in the request.
-
 private let kPendingIDTokenKey = "pendingIdToken"
 
 /// The key for the "captchaChallenge" value in the request.
-
 private let kCaptchaChallengeKey = "captchaChallenge"
 
 /// The key for the "captchaResponse" value in the request.
-
 private let kCaptchaResponseKey = "captchaResponse"
 
 /// The key for the "clientType" value in the request.
-
 private let kClientType = "clientType"
 
 /// The key for the "recaptchaVersion" value in the request.
-
 private let kRecaptchaVersion = "recaptchaVersion"
 
 /// The key for the "returnSecureToken" value in the request.
-
 private let kReturnSecureTokenKey = "returnSecureToken"
 
 /// The key for the tenant id value in the request.
-
 private let kTenantIDKey = "tenantId"
 
 /// Represents the parameters for the verifyPassword endpoint.
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyPassword
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 class VerifyPasswordRequest: IdentityToolkitRequest, AuthRPCRequest {
   typealias Response = VerifyPasswordResponse
 
   /// The email of the user.
-
   private(set) var email: String
 
   /// The password inputed by the user.
-
   private(set) var password: String
 
   /// The GITKit token for the non-trusted IDP, which is to be confirmed by the user.
-
   var pendingIDToken: String?
 
   /// The captcha challenge.
-
   var captchaChallenge: String?
 
   /// Response to the captcha.
-
   var captchaResponse: String?
 
   /// The reCAPTCHA version.
-
   var recaptchaVersion: String?
 
   /// Whether the response should return access token and refresh token directly.

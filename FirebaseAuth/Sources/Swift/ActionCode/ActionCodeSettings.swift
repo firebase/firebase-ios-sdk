@@ -42,15 +42,15 @@ import Foundation
   /// The Firebase Dynamic Link domain used for out of band code flow.
   @objc open var dynamicLinkDomain: String?
 
-  /// Sets the iOS bundle Id.
+  /// Sets the iOS bundle ID.
   @objc override public init() {
     iOSBundleID = Bundle.main.bundleIdentifier
   }
 
   /// Sets the Android package name, the flag to indicate whether or not to install the app,
-  ///    and the minimum Android version supported.
+  /// and the minimum Android version supported.
   ///
-  ///    If `installIfNotAvailable` is set to `true` and the link is opened on an android device, it
+  /// If `installIfNotAvailable` is set to `true` and the link is opened on an android device, it
   /// will try to install the app if not already available. Otherwise the web URL is used.
   /// - Parameters:
   ///   - androidPackageName: The Android package name.
@@ -65,7 +65,7 @@ import Foundation
     androidMinimumVersion = minimumVersion
   }
 
-  /// Sets the iOS bundle Id.
+  /// Sets the iOS bundle ID.
   open func setIOSBundleID(_ bundleID: String) {
     iOSBundleID = bundleID
   }

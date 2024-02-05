@@ -15,11 +15,11 @@
 import Foundation
 
 /// Determines settings related to an auth object.
-
 @objc(FIRAuthSettings) open class AuthSettings: NSObject, NSCopying {
   /// Flag to determine whether app verification should be disabled for testing or not.
-
   @objc open var appVerificationDisabledForTesting: Bool
+
+  /// Flag to determine whether app verification should be disabled for testing or not.
   @objc open var isAppVerificationDisabledForTesting: Bool {
     get {
       return appVerificationDisabledForTesting

@@ -49,7 +49,6 @@ import Foundation
   /// be configured.
   /// - Parameter auth: The auth instance to be associated with the OAuthProvider instance.
   /// - Returns: An instance of OAuthProvider corresponding to the specified provider ID.
-
   public init(providerID: String, auth: Auth = Auth.auth()) {
     if auth.requestConfiguration.emulatorHostAndPort == nil {
       if providerID == FacebookAuthProvider.id {
@@ -143,13 +142,12 @@ import Foundation
   }
 
   #if os(iOS)
-
     /// Used to obtain an auth credential via a mobile web flow.
+    ///
     /// This method is available on iOS only.
     /// - Parameter uiDelegate: An optional UI delegate used to present the mobile web flow.
     /// - Parameter completion: Optionally; a block which is invoked asynchronously on the main
-    /// thread when
-    /// the mobile web flow is completed.
+    /// thread when the mobile web flow is completed.
     open func getCredentialWith(_ uiDelegate: AuthUIDelegate?,
                                 completion: ((AuthCredential?, Error?) -> Void)? = nil) {
       guard let urlTypes = auth.mainBundleUrlTypes,

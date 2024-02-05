@@ -248,8 +248,7 @@ extension Auth: AuthInterop {
   /// Sets the `currentUser` on the receiver to the provided user object.
   /// - Parameter user: The user object to be set as the current user of the calling Auth instance.
   /// - Parameter completion: Optionally; a block invoked after the user of the calling Auth
-  /// instance has
-  /// been updated or an error was encountered.
+  /// instance has been updated or an error was encountered.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   open func updateCurrentUser(_ user: User) async throws {
     return try await withCheckedThrowingContinuation { continuation in
@@ -273,9 +272,8 @@ extension Auth: AuthInterop {
   ///
   /// - Parameter email: The email address for which to obtain a list of sign-in methods.
   /// - Parameter completion: Optionally; a block which is invoked when the list of sign in methods
-  /// for the
-  /// specified email address is ready or an error was encountered. Invoked asynchronously on the
-  /// main thread in the future.
+  /// for the specified email address is ready or an error was encountered. Invoked asynchronously
+  /// on the main thread in the future.
   @available(
     *,
     deprecated,
@@ -517,8 +515,7 @@ extension Auth: AuthInterop {
     /// protocol, this is used for presenting the web context. If nil, a default AuthUIDelegate
     /// will be used.
     /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
-    /// or is
-    /// canceled. Invoked asynchronously on the main thread in the future.
+    /// or is canceled. Invoked asynchronously on the main thread in the future.
     @available(tvOS, unavailable)
     @available(macOS, unavailable)
     @available(watchOS, unavailable)
@@ -623,8 +620,7 @@ extension Auth: AuthInterop {
   /// * `AuthErrorCodeSessionExpired` - Indicates that the SMS code has expired.
   /// - Parameter credential: The credential supplied by the IdP.
   /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
-  /// or is
-  /// canceled. Invoked asynchronously on the main thread in the future.
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc(signInWithCredential:completion:)
   open func signIn(with credential: AuthCredential,
                    completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -829,8 +825,7 @@ extension Auth: AuthInterop {
   /// - Parameter email: The user's email address.
   /// - Parameter password: The user's desired password.
   /// - Parameter completion: Optionally; a block which is invoked when the sign up flow finishes,
-  /// or is
-  /// canceled. Invoked asynchronously on the main thread in the future.
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func createUser(withEmail email: String,
                              password: String,
                              completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -944,8 +939,7 @@ extension Auth: AuthInterop {
   /// - Parameter code: The reset code.
   ///  - Parameter newPassword: The new password.
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
-  /// Invoked
-  /// asynchronously on the main thread in the future.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func confirmPasswordReset(withCode code: String, newPassword: String,
                                        completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
@@ -1030,8 +1024,7 @@ extension Auth: AuthInterop {
   /// Checks the validity of a verify password reset code.
   /// - Parameter code: The password reset code to be verified.
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
-  /// Invoked
-  /// asynchronously on the main thread in the future.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func verifyPasswordResetCode(_ code: String,
                                           completion: @escaping (String?, Error?) -> Void) {
     checkActionCode(code) { info, error in
@@ -1065,8 +1058,7 @@ extension Auth: AuthInterop {
   /// such as password reset code.
   /// - Parameter code: The out of band code to be applied.
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
-  /// Invoked
-  /// asynchronously on the main thread in the future.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func applyActionCode(_ code: String, completion: @escaping (Error?) -> Void) {
     kAuthGlobalWorkQueue.async {
       let request = SetAccountInfoRequest(requestConfiguration: self.requestConfiguration)
@@ -1142,8 +1134,7 @@ extension Auth: AuthInterop {
   /// - Parameter actionCodeSettings: An `ActionCodeSettings` object containing settings related to
   /// handling action codes.
   /// - Parameter completion: Optionally; a block which is invoked when the request finishes.
-  /// Invoked
-  /// asynchronously on the main thread in the future.
+  /// Invoked asynchronously on the main thread in the future.
   @objc open func sendPasswordReset(withEmail email: String,
                                     actionCodeSettings: ActionCodeSettings?,
                                     completion: ((Error?) -> Void)? = nil) {
@@ -1337,8 +1328,7 @@ extension Auth: AuthInterop {
   /// the long-lived block. The block itself will be retained by `Auth` until it is
   /// unregistered or until the `Auth` instance is otherwise deallocated.
   /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
-  /// the main
-  /// thread, even for it's initial invocation after having been added as a listener.
+  /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
   @objc(addAuthStateDidChangeListener:)
   open func addStateDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
@@ -1379,8 +1369,7 @@ extension Auth: AuthInterop {
   /// the long-lived block. The block itself will be retained by `Auth` until it is
   /// unregistered or until the `Auth` instance is otherwise deallocated.
   /// - Parameter listener: The block to be invoked. The block is always invoked asynchronously on
-  /// the main
-  /// thread, even for it's initial invocation after having been added as a listener.
+  /// the main thread, even for it's initial invocation after having been added as a listener.
   /// - Returns: A handle useful for manually unregistering the block as a listener.
   @objc open func addIDTokenDidChangeListener(_ listener: @escaping (Auth, User?) -> Void)
     -> NSObjectProtocol {
@@ -1509,6 +1498,7 @@ extension Auth: AuthInterop {
   ///
   ///  This API is not supported on tvOS when `shareAuthStateAcrossDevices` is set to `true`.
   /// and will return `nil`.
+  ///
   /// Please refer to https://github.com/firebase/firebase-ios-sdk/issues/8878 for details.
   open func getStoredUser(forAccessGroup accessGroup: String?) throws -> User? {
     var user: User?

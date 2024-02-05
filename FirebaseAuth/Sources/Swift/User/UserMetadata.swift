@@ -15,18 +15,15 @@
 import Foundation
 
 /// A data class representing the metadata corresponding to a Firebase user.
-
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension UserMetadata: NSSecureCoding {}
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRUserMetadata) open class UserMetadata: NSObject {
   /// Stores the last sign in date for the corresponding Firebase user.
-
   @objc public let lastSignInDate: Date?
 
   /// Stores the creation date for the corresponding Firebase user.
-
   @objc public let creationDate: Date?
 
   init(withCreationDate creationDate: Date?, lastSignInDate: Date?) {

@@ -18,7 +18,6 @@
   import WebKit
 
   /// A class responsible for creating a WKWebView for use within Firebase Auth.
-
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   class AuthWebView: UIView {
     lazy var webView: WKWebView = createWebView()

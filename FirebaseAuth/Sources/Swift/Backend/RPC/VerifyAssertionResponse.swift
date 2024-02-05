@@ -16,12 +16,10 @@ import Foundation
 
 /// Represents the response from the verifyAssertion endpoint.
 /// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/verifyAssertion
-
 class VerifyAssertionResponse: AuthRPCResponse, AuthMFAResponse {
   required init() {}
 
   /// The unique ID identifies the IdP account.
-
   var federatedID: String?
 
   /// The IdP ID. For white listed IdPs it's a short domain name e.g. google.com, aol.com,

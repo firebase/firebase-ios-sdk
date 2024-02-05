@@ -15,7 +15,6 @@
 import Foundation
 
 /// Represents the response from the verifyCustomToken endpoint.
-
 class VerifyCustomTokenResponse: AuthRPCResponse {
   required init() {}
 

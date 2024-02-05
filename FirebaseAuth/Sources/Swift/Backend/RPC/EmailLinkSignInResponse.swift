@@ -37,11 +37,9 @@ class EmailLinkSignInResponse: NSObject, AuthRPCResponse, AuthMFAResponse {
 
   /// An opaque string that functions as proof that the user has successfully passed the first
   /// factor check.
-
   private(set) var mfaPendingCredential: String?
 
   /// Info on which multi-factor authentication providers are enabled.
-
   private(set) var mfaInfo: [AuthProtoMFAEnrollment]?
 
   func setFields(dictionary: [String: AnyHashable]) throws {
