@@ -1473,7 +1473,8 @@ func firestoreTargets() -> [Target] {
         ],
         sources: [
           "Swift/Source/",
-        ]
+        ],
+        resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       ),
     ]
   }
