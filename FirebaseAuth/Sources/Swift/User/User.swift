@@ -211,7 +211,7 @@ extension User: NSSecureCoding {}
   #if os(iOS)
     /// Updates the phone number for the user. On success, the cached user profile data is updated.
     ///
-    ///  Invoked asynchronously on the main thread in the future.
+    /// Invoked asynchronously on the main thread in the future.
     ///
     /// This method is available on iOS only.
     ///
@@ -220,10 +220,9 @@ extension User: NSSecureCoding {}
     ///    sensitive operation that requires a recent login from the user. This error indicates
     ///    the user has not signed in recently enough. To resolve, reauthenticate the user by
     ///    calling `reauthenticate(with:)`.
-    /// - Parameter phoneNumberCredential: The new phone number credential corresponding to the
+    /// - Parameter credential: The new phone number credential corresponding to the
     /// phone number to be added to the Firebase account, if a phone number is already linked to the
-    /// account
-    /// this new phone number will replace it.
+    /// account this new phone number will replace it.
     /// - Parameter completion: Optionally; the block invoked when the user profile change has
     /// finished.
     @objc(updatePhoneNumberCredential:completion:)
@@ -558,8 +557,9 @@ extension User: NSSecureCoding {}
   /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
   ///
   /// The authentication token will be refreshed (by making a network request) if it has
-  /// expired, or if `forceRefresh` is `true`.
-  /// - Parameter forceRefresh: Forces a token refresh. Useful if the token becomes invalid for some
+  /// expired, or if `forcingRefresh` is `true`.
+  /// - Parameter forcingRefresh: Forces a token refresh. Useful if the token becomes invalid for
+  /// some
   /// reason other than an expiration.
   /// - Parameter completion: Optionally; the block invoked when the token is available. Invoked
   /// asynchronously on the main thread in the future.
@@ -1452,7 +1452,7 @@ extension User: NSSecureCoding {}
     /// Updates the phone number for the user. On success, the cached user profile data is updated.
     ///
     /// Invoked asynchronously on the global work queue in the future.
-    /// - Parameter phoneAuthCredential: The new phone number credential corresponding to the phone
+    /// - Parameter credential: The new phone number credential corresponding to the phone
     /// number to be added to the Firebase account. If a phone number is already linked to the
     /// account, this new phone number will replace it.
     /// - Parameter isLinkOperation: Boolean value indicating whether or not this is a link
