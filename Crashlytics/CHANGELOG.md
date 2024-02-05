@@ -1,3 +1,6 @@
+# Unreleased
+- [changed] Removed calls to statfs in the Crashlytics SDK to comply with Apple Privacy Manifests. This change removes support for showing Disk Space Free in the Crashlytics console.
+
 # 10.16.0
 - [fixed] Fixed a memory leak regression when generating session events (#11725).
 
