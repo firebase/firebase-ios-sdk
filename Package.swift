@@ -801,6 +801,7 @@ let package = Package(
         .product(name: "GULUserDefaults", package: "GoogleUtilities"),
       ],
       path: "FirebaseInstallations/Source/Library",
+      resources: [.process("Resources/PrivacyInfo.xcprivacy")],
       publicHeadersPath: "Public",
       cSettings: [
         .headerSearchPath("../../../"),
