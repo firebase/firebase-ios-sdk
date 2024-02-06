@@ -192,13 +192,14 @@ extension AuthSettings: DataSourceProvidable {
 
     let half = (length - 3) / 2
     let startIndex = string.startIndex
-    let midIndex = string.index(startIndex, offsetBy: half)  // Ensure correct mid index
+    let midIndex = string.index(startIndex, offsetBy: half) // Ensure correct mid index
     let endIndex = string.index(startIndex, offsetBy: string.count - half)
 
-    return "\(string[startIndex..<midIndex])...\(string[endIndex...])"
+    return "\(string[startIndex ..< midIndex])...\(string[endIndex...])"
   }
 
-  func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool, completion: @escaping (Bool, String?) -> Void) {
+  func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool,
+                           completion: @escaping (Bool, String?) -> Void) {
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
     alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
@@ -214,12 +215,11 @@ extension AuthSettings: DataSourceProvidable {
 
     alertController.addTextField(configurationHandler: nil)
 
-      // Present the alert controller
-      // Make sure to present it from a view controller
-      // For example, if this code is inside a UIViewController, you can use `self.present(alertController, animated: true, completion: nil)`
+    // Present the alert controller
+    // Make sure to present it from a view controller
+    // For example, if this code is inside a UIViewController, you can use
+    // `self.present(alertController, animated: true, completion: nil)`
   }
-
-
 
   // TODO: Add ability to click and clear both of these fields.
   private var phoneAuthSection: Section {
@@ -246,7 +246,8 @@ extension AuthSettings: DataSourceProvidable {
     let tokenType = token.type == .prod ? "Production" : "Sandbox"
     let message = "token: \(token.string)\ntype: \(tokenType)"
 
-    self.showPromptWithTitle("Clear APNs Token?", message: message, showCancelButton: true) { (userPressedOK, userInput) in
+    showPromptWithTitle("Clear APNs Token?", message: message,
+                        showCancelButton: true) { userPressedOK, userInput in
       if userPressedOK {
         AppManager.shared.auth().tokenManager.token = nil
       }
@@ -263,19 +264,18 @@ extension AuthSettings: DataSourceProvidable {
     }
   }
 
-
   func clearAppCredential() {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
       let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
 
-      showPromptWithTitle("Clear App Credential?", message: message, showCancelButton: true) { (userPressedOK, _) in
+      showPromptWithTitle("Clear App Credential?", message: message,
+                          showCancelButton: true) { userPressedOK, _ in
         if userPressedOK {
           AppManager.shared.auth().appCredentialManager.clearCredential()
         }
       }
     }
   }
-
 
   private var languageSection: Section {
     let languageCode = AppManager.shared.auth().languageCode
