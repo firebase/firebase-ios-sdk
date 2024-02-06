@@ -78,8 +78,15 @@ class QueryEventSource {
    */
   virtual model::TargetId Listen(Query query) = 0;
 
+
+  virtual void ListenToRemoteStore(Query query) = 0;
+
+
   /** Stops listening to a query previously listened to via `Listen`. */
   virtual void StopListening(const Query& query) = 0;
+
+  virtual void StopListeningToRemoteStore(const Query& query) = 0;
+
 };
 
 /**
@@ -108,7 +115,10 @@ class SyncEngine : public remote::RemoteStoreCallback, public QueryEventSource {
     sync_engine_callback_ = callback;
   }
   model::TargetId Listen(Query query) override;
+  void ListenToRemoteStore(Query query) override;
   void StopListening(const Query& query) override;
+  void StopListeningToRemoteStore(const Query& query) override;
+
 
   /**
    * Initiates the write of local mutation batch which involves adding the

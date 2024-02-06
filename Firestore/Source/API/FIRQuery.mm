@@ -23,6 +23,7 @@
 #import "FIRDocumentReference.h"
 #import "FIRFirestoreErrors.h"
 
+#import "Firestore/Source/API/converters.h"
 #import "Firestore/Source/API/FIRAggregateField+Internal.h"
 #import "Firestore/Source/API/FIRAggregateQuery+Internal.h"
 #import "Firestore/Source/API/FIRDocumentReference+Internal.h"
@@ -69,6 +70,7 @@ using firebase::firestore::google_firestore_v1_ArrayValue;
 using firebase::firestore::google_firestore_v1_Value;
 using firebase::firestore::google_firestore_v1_Value_fields;
 using firebase::firestore::api::Firestore;
+using firebase::firestore::api::MakeListenSource;
 using firebase::firestore::api::Query;
 using firebase::firestore::api::QueryListenerRegistration;
 using firebase::firestore::api::QuerySnapshot;
@@ -193,7 +195,8 @@ int32_t SaturatedLimitValue(NSInteger limit) {
 
 - (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
                                                      listener:(FIRQuerySnapshotBlock)listener {
-  auto listenOptions = ListenOptions::FromIncludeMetadataChanges(false);
+  ListenOptions listenOptions =
+      ListenOptions::FromOptions(options.includeMetadataChanges, MakeListenSource(options.source));
   return [self addSnapshotListenerInternalWithOptions:listenOptions listener:listener];
 }
 

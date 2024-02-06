@@ -161,6 +161,12 @@ ViewSnapshot SyncEngine::InitializeViewAndComputeSnapshot(
   return view_change.snapshot().value();
 }
 
+void SyncEngine::ListenToRemoteStore(Query query) {
+  AssertCallbackExists("ListenToRemoteStore");
+  TargetData target_data = local_store_->AllocateTarget(query.ToTarget());
+  remote_store_->Listen(std::move(target_data));;
+}
+
 void SyncEngine::StopListening(const Query& query) {
   AssertCallbackExists("StopListening");
 
@@ -178,6 +184,22 @@ void SyncEngine::StopListening(const Query& query) {
     local_store_->ReleaseTarget(target_id);
     remote_store_->StopListening(target_id);
     RemoveAndCleanupTarget(target_id, Status::OK());
+  }
+}
+
+void SyncEngine::StopListeningToRemoteStore(const Query& query) {
+  AssertCallbackExists("stopListeningToRemoteStore");
+
+  auto query_view = query_views_by_query_[query];
+  HARD_ASSERT(query_view, "Trying to stop listening to a query not found");
+
+  TargetId target_id = query_view->target_id();
+  auto& queries = queries_by_target_[target_id];
+  queries.erase(std::remove(queries.begin(), queries.end(), query),
+                queries.end());
+
+  if (queries.empty()) {
+    remote_store_->StopListening(target_id);
   }
 }
 

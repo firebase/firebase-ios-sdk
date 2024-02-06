@@ -41,6 +41,7 @@ model::TargetId EventManager::AddQueryListener(
   auto inserted = queries_.emplace(query, QueryListenersInfo{});
   bool first_listen = inserted.second;
   QueryListenersInfo& query_info = inserted.first->second;
+  bool first_listen_to_remote_store = !query_info.has_remote_listeners() && listener->listens_to_remote_store();
 
   query_info.listeners.push_back(listener);
 
@@ -58,6 +59,8 @@ model::TargetId EventManager::AddQueryListener(
 
   if (first_listen) {
     query_info.target_id = query_event_source_->Listen(query);
+  } else if(first_listen_to_remote_store){
+    query_event_source_->ListenToRemoteStore(query);
   }
   return query_info.target_id;
 }
@@ -66,17 +69,23 @@ void EventManager::RemoveQueryListener(
     std::shared_ptr<core::QueryListener> listener) {
   const Query& query = listener->query();
   bool last_listen = false;
+  bool last_listen_to_remote_store = false;
 
   auto found_iter = queries_.find(query);
   if (found_iter != queries_.end()) {
     QueryListenersInfo& query_info = found_iter->second;
     query_info.Erase(listener);
     last_listen = query_info.listeners.empty();
+    last_listen_to_remote_store = !query_info.has_remote_listeners() && listener->listens_to_remote_store();
+
   }
 
   if (last_listen) {
     queries_.erase(found_iter);
     query_event_source_->StopListening(query);
+  } else if(last_listen_to_remote_store){
+    query_event_source_->StopListeningToRemoteStore(query);
+
   }
 }
 

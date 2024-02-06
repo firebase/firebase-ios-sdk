@@ -281,12 +281,11 @@ addSnapshotListenerWithIncludeMetadataChanges:(BOOL)includeMetadataChanges
  *
  * @return A `ListenerRegistration` that can be used to remove this listener.
  */
-// clang-format off
-- (id<FIRListenerRegistration>)addSnapshotListenerWithOptions:
-                                   (FIRSnapshotListenOptions *)options
-                                                     listener:(void (^)(FIRDocumentSnapshot *_Nullable snapshot,NSError *_Nullable error))listener
+- (id<FIRListenerRegistration>)
+    addSnapshotListenerWithOptions:(FIRSnapshotListenOptions *)options
+                          listener:(void (^)(FIRDocumentSnapshot *_Nullable snapshot,
+                                             NSError *_Nullable error))listener
     NS_SWIFT_NAME(addSnapshotListener(options:listener:));
-// clang-format on
 
 @end
 

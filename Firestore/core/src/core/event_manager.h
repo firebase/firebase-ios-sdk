@@ -29,13 +29,13 @@
 #include "Firestore/core/src/util/empty.h"
 #include "Firestore/core/src/util/status_fwd.h"
 #include "absl/types/optional.h"
+#include "Firestore/core/src/core/query_listener.h"
 
 namespace firebase {
 namespace firestore {
 namespace core {
 
 class QueryEventSource;
-class QueryListener;
 
 /**
  * EventManager is responsible for mapping queries to query event listeners.
@@ -95,6 +95,15 @@ class EventManager : public SyncEngineCallback {
 
     void set_view_snapshot(const absl::optional<ViewSnapshot>& snapshot) {
       snapshot_ = snapshot;
+    }
+
+    bool has_remote_listeners() {
+      for (const auto& listener : listeners) {
+        if (listener->listens_to_remote_store()) {
+          return true;
+        }
+      }
+      return false;
     }
 
    private:

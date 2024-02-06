@@ -61,7 +61,9 @@ class MockEventSource : public core::QueryEventSource {
  public:
   MOCK_METHOD1(SetCallback, void(core::SyncEngineCallback*));
   MOCK_METHOD1(Listen, model::TargetId(core::Query));
+  MOCK_METHOD1(ListenToRemoteStore, void(core::Query));
   MOCK_METHOD1(StopListening, void(const core::Query&));
+  MOCK_METHOD1(StopListeningToRemoteStore, void(const core::Query&));
 };
 
 TEST(EventManagerTest, HandlesManyListnersPerQuery) {
