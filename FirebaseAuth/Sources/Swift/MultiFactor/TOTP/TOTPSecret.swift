@@ -33,12 +33,12 @@ import Foundation
     }
 
     /// Returns a QRCode URL as described in
-    /// https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+    /// https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
     ///
     /// This can be displayed to the user as a QRCode to be scanned into a TOTP app like Google
     /// Authenticator.
-    /// - Parameter accountName: the name of the account/app.
-    /// - Parameter issuer: issuer of the TOTP(likely the app name).
+    /// - Parameter accountName: The name of the account/app.
+    /// - Parameter issuer: Issuer of the TOTP(likely the app name).
     /// - Returns: A QRCode URL string.
     @objc(generateQRCodeURLWithAccountName:issuer:)
     open func generateQRCodeURL(withAccountName accountName: String,

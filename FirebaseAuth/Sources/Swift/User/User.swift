@@ -52,7 +52,7 @@ extension User: NSSecureCoding {}
   /// Metadata associated with the Firebase user in question.
   @objc public private(set) var metadata: UserMetadata
 
-  /// The tenant ID of the current user. nil if none is available.
+  /// The tenant ID of the current user. `nil` if none is available.
   @objc public private(set) var tenantID: String?
 
   #if os(iOS)

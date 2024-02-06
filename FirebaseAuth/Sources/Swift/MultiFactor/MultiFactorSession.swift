@@ -17,9 +17,11 @@ import Foundation
 #if os(iOS)
 
   /// Opaque object that identifies the current session to enroll a second factor or to
-  /// complete sign in when previously enrolled. Identifies the current session to enroll a second
-  /// factor or to complete sign in when previously enrolled. It contains additional context on the
-  ///  existing user, notably the confirmation that the user passed the first factor challenge.
+  /// complete sign in when previously enrolled.
+  ///
+  /// Identifies the current session to enroll a second factor
+  /// or to complete sign in when previously enrolled. It contains additional context on the
+  /// existing user, notably the confirmation that the user passed the first factor challenge.
   ///
   /// This class is available on iOS only.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)

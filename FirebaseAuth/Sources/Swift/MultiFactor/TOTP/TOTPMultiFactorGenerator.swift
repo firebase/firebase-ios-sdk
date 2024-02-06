@@ -67,9 +67,10 @@ import Foundation
       }
     }
 
-    /// Creates a TOTP secret as part of enrolling a TOTP second factor. Used for generating a
-    /// QR code URL or inputting into a TOTP app. This method uses the auth instance corresponding
-    /// to the user in the multiFactorSession.
+    /// Creates a TOTP secret as part of enrolling a TOTP second factor.
+    ///
+    /// Used for generating a QR code URL or inputting into a TOTP app. This
+    /// method uses the auth instance correspondingto the user in the multiFactorSession.
     /// - Parameter session: The multiFactorSession instance.
     /// - Returns: The TOTP secret.
     @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
@@ -85,8 +86,9 @@ import Foundation
       }
     }
 
-    /// Initializes the MFA assertion to confirm ownership of the TOTP second factor. This assertion
-    /// is used to complete enrollment of TOTP as a second factor.
+    /// Initializes the MFA assertion to confirm ownership of the TOTP second factor.
+    ///
+    /// This assertion is used to complete enrollment of TOTP as a second factor.
     /// - Parameter secret: The TOTP secret.
     /// - Parameter oneTimePassword: One time password string.
     /// - Returns: The MFA assertion.
@@ -97,8 +99,9 @@ import Foundation
                                       oneTimePassword: oneTimePassword)
     }
 
-    /// Initializes the MFA assertion to confirm ownership of the TOTP second factor. This
-    /// assertion is used to complete signIn with TOTP as a second factor.
+    /// Initializes the MFA assertion to confirm ownership of the TOTP second factor.
+    ///
+    /// This assertion is used to complete signIn with TOTP as a second factor.
     /// - Parameter enrollmentID: The ID that identifies the enrolled TOTP second factor.
     /// - Parameter oneTimePassword: one time password string.
     /// - Returns: The MFA assertion.

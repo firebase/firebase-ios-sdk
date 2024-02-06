@@ -31,6 +31,7 @@
   /// A concrete implementation of `AuthProvider` for Game Center Sign In. Not available on watchOS.
   @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
   @objc(FIRGameCenterAuthProvider) open class GameCenterAuthProvider: NSObject {
+    /// A string constant identifying the Game Center identity provider.
     @objc public static let id = "gc.apple.com"
 
     /// Creates an `AuthCredential` for a Game Center sign in.

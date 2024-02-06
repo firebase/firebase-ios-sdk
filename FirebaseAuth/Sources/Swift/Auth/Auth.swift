@@ -82,9 +82,12 @@ import FirebaseCoreExtension
 
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 extension Auth: AuthInterop {
+  /// Retrieves the Firebase authentication token, possibly refreshing it if it has expired.
+  ///
+  /// This method is not for public use. It is for Firebase clients of AuthInterop.
   @objc(getTokenForcingRefresh:withCallback:)
-  open func getToken(forcingRefresh forceRefresh: Bool,
-                     completion callback: @escaping (String?, Error?) -> Void) {
+  public func getToken(forcingRefresh forceRefresh: Bool,
+                       completion callback: @escaping (String?, Error?) -> Void) {
     kAuthGlobalWorkQueue.async { [weak self] in
       if let strongSelf = self {
         // Enable token auto-refresh if not already enabled.
@@ -134,6 +137,9 @@ extension Auth: AuthInterop {
     }
   }
 
+  /// Get the current Auth user's UID. Returns nil if there is no user signed in.
+  ///
+  /// This method is not for public use. It is for Firebase clients of AuthInterop.
   open func getUserID() -> String? {
     return currentUser?.uid
   }
@@ -171,7 +177,9 @@ extension Auth: AuthInterop {
   /// Synchronously gets the cached current user, or null if there is none.
   @objc public internal(set) var currentUser: User?
 
-  /// The current user language code. This property can be set to the app's current language by
+  /// The current user language code.
+  ///
+  /// This property can be set to the app's current language by
   /// calling `useAppLanguage()`.
   ///
   /// The string used to set this property must be a language code that follows BCP 47.
@@ -191,7 +199,9 @@ extension Auth: AuthInterop {
   /// Contains settings related to the auth object.
   @NSCopying @objc open var settings: AuthSettings?
 
-  /// The current user access group that the Auth instance is using. Default is nil.
+  /// The current user access group that the Auth instance is using.
+  ///
+  /// Default is `nil`.
   @objc public internal(set) var userAccessGroup: String?
 
   /// Contains shareAuthStateAcrossDevices setting related to the auth object.
@@ -201,10 +211,11 @@ extension Auth: AuthInterop {
   /// state and then set the userAccessGroup after.
   @objc open var shareAuthStateAcrossDevices: Bool = false
 
-  /// The tenant ID of the auth instance. nil if none is available.
+  /// The tenant ID of the auth instance. `nil` if none is available.
   @objc open var tenantID: String?
 
-  /// The custom authentication domain used to handle all sign-in redirects. End-users will see
+  /// The custom authentication domain used to handle all sign-in redirects.
+  /// End-users will see
   /// this domain when signing in. This domain must be allowlisted in the Firebase Console.
   @objc open var customAuthDomain: String?
 
@@ -428,6 +439,7 @@ extension Auth: AuthInterop {
   }
 
   /// Signs in using an email address and email sign-in link.
+  ///
   /// Possible error codes:
   ///  * `AuthErrorCodeOperationNotAllowed` - Indicates that email and password
   /// accounts are not enabled. Enable them in the Auth section of the
@@ -439,8 +451,7 @@ extension Auth: AuthInterop {
   /// - Parameter email: The user's email address.
   /// - Parameter link: The email sign-in link.
   /// - Parameter completion: Optionally; a block which is invoked when the sign in flow finishes,
-  /// or is
-  /// canceled. Invoked asynchronously on the main thread in the future.
+  /// or is canceled. Invoked asynchronously on the main thread in the future.
   @objc open func signIn(withEmail email: String,
                          link: String,
                          completion: ((AuthDataResult?, Error?) -> Void)? = nil) {
@@ -1108,7 +1119,7 @@ extension Auth: AuthInterop {
     sendPasswordReset(withEmail: email, actionCodeSettings: nil, completion: completion)
   }
 
-  /// Initiates a password reset for the given email address and `ActionCodeSettings` object..
+  /// Initiates a password reset for the given email address and `ActionCodeSettings` object.
   ///
   /// This method does not throw an
   /// error when there's no user account with the given email address and [Email Enumeration
@@ -1159,7 +1170,7 @@ extension Auth: AuthInterop {
     }
   }
 
-  /// Initiates a password reset for the given email address and `ActionCodeSettings` object..
+  /// Initiates a password reset for the given email address and `ActionCodeSettings` object.
   ///
   /// This method does not throw an
   /// error when there's no user account with the given email address and [Email Enumeration
@@ -1532,24 +1543,63 @@ extension Auth: AuthInterop {
   }
 
   #if os(iOS)
+    /// The APNs token used for phone number authentication.
+    ///
+    /// The type of the token (production or sandbox) will be automatically
+    /// detected based on your provisioning profile.
+    ///
+    /// This property is available on iOS only.
+    ///
+    /// If swizzling is disabled, the APNs Token must be set for phone number auth to work,
+    /// by either setting this property or by calling `setAPNSToken(_:type:)`.
     @objc(APNSToken) open var apnsToken: Data? {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.token?.data
       }
     }
 
+    /// Sets the APNs token along with its type.
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, the APNs Token must be set for phone number auth to work,
+    /// by either setting calling this method or by setting the `APNSToken` property.
     @objc open func setAPNSToken(_ token: Data, type: AuthAPNSTokenType) {
       kAuthGlobalWorkQueue.sync {
         self.tokenManager.token = AuthAPNSToken(withData: token, type: type)
       }
     }
 
+    /// Whether the specific remote notification is handled by `Auth` .
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, related remote notifications must be forwarded to this method
+    /// for phone number auth to work.
+    /// - Parameter userInfo: A dictionary that contains information related to the
+    /// notification in question.
+    /// - Returns: Whether or the notification is handled. A return value of `true` means the
+    /// notification is for Firebase Auth so the caller should ignore the notification from further
+    /// processing, and `false` means the notification is for the app (or another library) so
+    /// the caller should continue handling this notification as usual.
     @objc open func canHandleNotification(_ userInfo: [AnyHashable: Any]) -> Bool {
       kAuthGlobalWorkQueue.sync {
         self.notificationManager.canHandle(notification: userInfo)
       }
     }
 
+    /// Whether the specific URL is handled by `Auth` .
+    ///
+    /// This method is available on iOS only.
+    ///
+    /// If swizzling is disabled, URLs received by the application delegate must be forwarded
+    /// to this method for phone number auth to work.
+    /// - Parameter url: The URL received by the application delegate from any of the openURL
+    /// method.
+    /// - Returns: Whether or the URL is handled. `true` means the URL is for Firebase Auth
+    /// so the caller should ignore the URL from further processing, and `false` means the
+    /// the URL is for the app (or another library) so the caller should continue handling
+    /// this URL as usual.
     @objc(canHandleURL:) open func canHandle(_ url: URL) -> Bool {
       kAuthGlobalWorkQueue.sync {
         guard let authURLPresenter = self.authURLPresenter as? AuthURLPresenter else {
@@ -1560,6 +1610,10 @@ extension Auth: AuthInterop {
     }
   #endif
 
+  /// The name of the `NSNotificationCenter` notification which is posted when the auth state
+  /// changes (for example, a new token has been produced, a user signs in or signs out).
+  ///
+  /// The object parameter of the notification is the sender `Auth` instance.
   public static let authStateDidChangeNotification =
     NSNotification.Name(rawValue: "FIRAuthStateDidChangeNotification")
 

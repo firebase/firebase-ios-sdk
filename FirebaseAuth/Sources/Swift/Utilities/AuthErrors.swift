@@ -16,8 +16,10 @@ import Foundation
 
 /// Error Codes common to all API Methods:
 @objc(FIRAuthErrors) open class AuthErrors: NSObject {
+  /// The Firebase Auth error domain.
   @objc public static let domain: String = "FIRAuthErrorDomain"
 
+  /// The name of the key for the error short string of an error code.
   @objc public static let userInfoNameKey: String = "FIRAuthErrorUserInfoNameKey"
 
   /// Error codes for Email operations
@@ -45,6 +47,7 @@ import Foundation
     "FIRAuthErrorUserInfoMultiFactorResolverKey"
 }
 
+/// Error codes used by Firebase Auth.
 @objc(FIRAuthErrorCode) public enum AuthErrorCode: Int {
   /// Indicates a validation error with the custom token.
   case invalidCustomToken = 17000

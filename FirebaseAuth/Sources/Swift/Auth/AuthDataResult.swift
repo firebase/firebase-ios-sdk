@@ -18,17 +18,21 @@ import Foundation
 extension AuthDataResult: NSSecureCoding {}
 
 /// Helper object that contains the result of a successful sign-in, link and reauthenticate
-/// action. It contains references to a `User` instance and a `AdditionalUserInfo` instance.
+/// action.
+///
+/// It contains references to a `User` instance and an `AdditionalUserInfo` instance.
 @available(iOS 13, tvOS 13, macOS 10.15, macCatalyst 13, watchOS 7, *)
 @objc(FIRAuthDataResult) open class AuthDataResult: NSObject {
   /// The signed in user.
   @objc public let user: User
 
-  /// If available contains the additional IdP specific information about signed in user.
+  /// If available, contains the additional IdP specific information about signed in user.
   @objc public let additionalUserInfo: AdditionalUserInfo?
 
   /// This property will be non-nil after a successful headful-lite sign-in via
-  /// `signIn(with:uiDelegate:completion:)`. May be used to obtain the accessToken and/or IDToken
+  /// `signIn(with:uiDelegate:completion:)`.
+  ///
+  /// May be used to obtain the accessToken and/or IDToken
   /// pertaining to a recently signed-in user.
   @objc public let credential: OAuthCredential?
 

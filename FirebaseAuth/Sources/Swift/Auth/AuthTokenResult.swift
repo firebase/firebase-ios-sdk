@@ -41,7 +41,9 @@ extension AuthTokenResult: NSSecureCoding {}
   /// Stores sign-in second factor through which the token was obtained.
   @objc open var signInSecondFactor: String
 
-  /// Stores the entire payload of claims found on the ID token. This includes the standard
+  /// Stores the entire payload of claims found on the ID token.
+  ///
+  /// This includes the standard
   /// reserved claims as well as custom claims set by the developer via the Admin SDK.
   @objc open var claims: [String: Any]
 

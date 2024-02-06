@@ -23,6 +23,7 @@ import Foundation
 
   /// The subclass of base class MultiFactorAssertion, used to assert ownership of a TOTP
   /// (Time-based One Time Password) second factor.
+  ///
   /// This class is available on iOS only.
   @objc(FIRTOTPMultiFactorAssertion) open class TOTPMultiFactorAssertion: MultiFactorAssertion {
     let oneTimePassword: String

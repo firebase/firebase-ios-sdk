@@ -19,8 +19,10 @@ import Foundation
   /// Returns the API key from the link. nil, if not provided.
   @objc(APIKey) public let apiKey: String?
 
-  /// Returns the mode of oob action. The property will be of `FIRActionCodeOperation` type.
-  /// It will return FIRActionCodeOperationUnknown if no oob action is provided.
+  /// Returns the mode of oob action.
+  ///
+  /// The property will be of `ActionCodeOperation` type.
+  /// It will return `.unknown` if no oob action is provided.
   @objc public let operation: ActionCodeOperation
 
   /// Returns the email action code from the link. nil, if not provided.
