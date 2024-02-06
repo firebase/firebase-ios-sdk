@@ -186,73 +186,74 @@ extension AuthSettings: DataSourceProvidable {
                       detailTitle: "Current Access Group")]
     return Section(headerDescription: "Keychain Access Groups", items: items)
   }
-  
+
   func truncatedString(string: String, length: Int) -> String {
     guard string.count > length else { return string }
-    
+
     let half = (length - 3) / 2
     let startIndex = string.startIndex
-    let midIndex = string.index(startIndex, offsetBy: half)  // Ensure correct mid index
+    let midIndex = string.index(startIndex, offsetBy: half) // Ensure correct mid index
     let endIndex = string.index(startIndex, offsetBy: string.count - half)
-    
-    return "\(string[startIndex..<midIndex])...\(string[endIndex...])"
+
+    return "\(string[startIndex ..< midIndex])...\(string[endIndex...])"
   }
 
-  func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool, completion: @escaping (Bool, String?) -> Void) {
+  func showPromptWithTitle(_ title: String, message: String, showCancelButton: Bool,
+                           completion: @escaping (Bool, String?) -> Void) {
     let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-    
+
     alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
       let userInput = alertController.textFields?.first?.text
       completion(true, userInput)
     }))
-    
+
     if showCancelButton {
       alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
         completion(false, nil)
       }))
     }
-    
+
     alertController.addTextField(configurationHandler: nil)
-    
-      // Present the alert controller
-      // Make sure to present it from a view controller
-      // For example, if this code is inside a UIViewController, you can use `self.present(alertController, animated: true, completion: nil)`
+
+    // Present the alert controller
+    // Make sure to present it from a view controller
+    // For example, if this code is inside a UIViewController, you can use
+    // `self.present(alertController, animated: true, completion: nil)`
   }
-  
-  
-  
+
   // TODO: Add ability to click and clear both of these fields.
   private var phoneAuthSection: Section {
     let items = [Item(title: APNSTokenString(), detailTitle: "APNs Token"),
                  Item(title: appCredentialString(), detailTitle: "App Credential")]
     return Section(headerDescription: "Phone Auth - TODO toggle off", items: items)
   }
-  
+
   func APNSTokenString() -> String {
     guard let token = AppManager.shared.auth().tokenManager.token else {
       return "No APNs token"
     }
-    
+
     let truncatedToken = truncatedString(string: token.string, length: 19)
     let tokenType = token.type == .prod ? "P" : "S"
     return "\(truncatedToken)(\(tokenType))"
   }
-  
+
   func clearAPNSToken() {
     guard let token = AppManager.shared.auth().tokenManager.token else {
       return
     }
-    
+
     let tokenType = token.type == .prod ? "Production" : "Sandbox"
     let message = "token: \(token.string)\ntype: \(tokenType)"
-    
-    self.showPromptWithTitle("Clear APNs Token?", message: message, showCancelButton: true) { (userPressedOK, userInput) in
+
+    showPromptWithTitle("Clear APNs Token?", message: message,
+                        showCancelButton: true) { userPressedOK, userInput in
       if userPressedOK {
         AppManager.shared.auth().tokenManager.token = nil
       }
     }
   }
-  
+
   func appCredentialString() -> String {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
       let truncatedReceipt = truncatedString(string: credential.receipt, length: 13)
@@ -262,20 +263,19 @@ extension AuthSettings: DataSourceProvidable {
       return "No App Credential"
     }
   }
-  
-  
+
   func clearAppCredential() {
     if let credential = AppManager.shared.auth().appCredentialManager.credential {
       let message = "receipt: \(credential.receipt)\nsecret: \(credential.secret)"
-      
-      showPromptWithTitle("Clear App Credential?", message: message, showCancelButton: true) { (userPressedOK, _) in
+
+      showPromptWithTitle("Clear App Credential?", message: message,
+                          showCancelButton: true) { userPressedOK, _ in
         if userPressedOK {
           AppManager.shared.auth().appCredentialManager.clearCredential()
         }
       }
     }
   }
-
 
   private var languageSection: Section {
     let languageCode = AppManager.shared.auth().languageCode
