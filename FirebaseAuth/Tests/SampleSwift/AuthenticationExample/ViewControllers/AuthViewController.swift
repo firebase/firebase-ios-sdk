@@ -71,7 +71,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
       performOAuthLoginFlow(for: provider)
 
     case .gameCenter:
-      performSignInWithGameCenter()
+      performGameCenterLoginFlow()
 
     case .emailPassword:
       performDemoEmailPasswordLoginFlow()
@@ -212,7 +212,7 @@ class AuthViewController: UIViewController, DataSourceProviderDelegate {
     }
   }
 
-  private func performSignInWithGameCenter() {
+  private func performGameCenterLoginFlow() {
     // Step 1: System Game Center Login
     GKLocalPlayer.local.authenticateHandler = { viewController, error in
       if let error = error {
