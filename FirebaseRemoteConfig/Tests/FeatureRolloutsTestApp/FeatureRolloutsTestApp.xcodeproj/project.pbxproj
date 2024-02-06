@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		61A5654706089C41A7398CF3 /* Pods_FeatureRolloutsTestApp_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FE5945D035CAAB3297D2CAC /* Pods_FeatureRolloutsTestApp_iOS.framework */; };
 		848D345C8969AF72BCC0E2E4 /* Pods_FeatureRolloutsTestApp_CrashlyticsRemoteConfig_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1729B0ED2CACB9C5A62A6F8C /* Pods_FeatureRolloutsTestApp_CrashlyticsRemoteConfig_iOS.framework */; };
+		951D70152B71AD9B00BE7EED /* RemoteConfigButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 951D70142B71AD9A00BE7EED /* RemoteConfigButtonView.swift */; };
+		951D70162B71AD9B00BE7EED /* RemoteConfigButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 951D70142B71AD9A00BE7EED /* RemoteConfigButtonView.swift */; };
 		AD11C57C978D52894BFDC47F /* Pods_FeatureRolloutsTestApp_RemoteConfig_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4E60230146BDE14D306856CB /* Pods_FeatureRolloutsTestApp_RemoteConfig_iOS.framework */; };
 		C427C4A32B4603F60088A488 /* FeatureRolloutsTestAppApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = C427C4A22B4603F60088A488 /* FeatureRolloutsTestAppApp.swift */; };
 		C427C4A52B4603F60088A488 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C427C4A42B4603F60088A488 /* ContentView.swift */; };
@@ -76,6 +78,7 @@
 		5472955122D0CE0A8A3CE4D5 /* Pods_FeatureRolloutsTestApp_Crashlytics_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_FeatureRolloutsTestApp_Crashlytics_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D30A6D1F2CE622B6D5D563F /* Pods-FeatureRolloutsTestApp_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FeatureRolloutsTestApp_iOS.debug.xcconfig"; path = "Target Support Files/Pods-FeatureRolloutsTestApp_iOS/Pods-FeatureRolloutsTestApp_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		8BA72854B19D7A9D9BE15E1D /* Pods-FeatureRolloutsTestApp_Crashlytics_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FeatureRolloutsTestApp_Crashlytics_iOS.release.xcconfig"; path = "Target Support Files/Pods-FeatureRolloutsTestApp_Crashlytics_iOS/Pods-FeatureRolloutsTestApp_Crashlytics_iOS.release.xcconfig"; sourceTree = "<group>"; };
+		951D70142B71AD9A00BE7EED /* RemoteConfigButtonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteConfigButtonView.swift; sourceTree = "<group>"; };
 		AF260B513E38B2528E7B13CC /* Pods-FeatureRolloutsTestApp_RemoteConfig_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-FeatureRolloutsTestApp_RemoteConfig_iOS.debug.xcconfig"; path = "Target Support Files/Pods-FeatureRolloutsTestApp_RemoteConfig_iOS/Pods-FeatureRolloutsTestApp_RemoteConfig_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		C427C49F2B4603F60088A488 /* FeatureRolloutsTestApp_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FeatureRolloutsTestApp_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C427C4A22B4603F60088A488 /* FeatureRolloutsTestAppApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRolloutsTestAppApp.swift; sourceTree = "<group>"; };
@@ -204,6 +207,7 @@
 			children = (
 				C49C48A02B47261000BC1456 /* GoogleService-Info.plist */,
 				C427C4A22B4603F60088A488 /* FeatureRolloutsTestAppApp.swift */,
+				951D70142B71AD9A00BE7EED /* RemoteConfigButtonView.swift */,
 				C49C489D2B4722C100BC1456 /* CrashButtonView.swift */,
 			);
 			path = Shared;
@@ -615,6 +619,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C49C48702B4704F300BC1456 /* FeatureRolloutsTestAppApp.swift in Sources */,
+				951D70162B71AD9B00BE7EED /* RemoteConfigButtonView.swift in Sources */,
 				C49C48992B4720AE00BC1456 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -623,6 +628,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				951D70152B71AD9B00BE7EED /* RemoteConfigButtonView.swift in Sources */,
 				C49C487A2B4704F500BC1456 /* FeatureRolloutsTestAppApp.swift in Sources */,
 				C49C489E2B4722C100BC1456 /* CrashButtonView.swift in Sources */,
 				C49C489C2B4720DD00BC1456 /* ContentView.swift in Sources */,
