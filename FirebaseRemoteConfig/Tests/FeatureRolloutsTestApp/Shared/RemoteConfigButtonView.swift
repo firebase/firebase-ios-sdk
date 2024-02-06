@@ -19,6 +19,7 @@ import Foundation
 import SwiftUI
 
 struct RemoteConfigButtonView: View {
+  @State private var turnOnRealTimeRC = false
   let rc = RemoteConfig.remoteConfig()
   @RemoteConfigProperty(key: "ios_rollouts", fallback: "unfetched") var iosRollouts: String
 
@@ -39,11 +40,11 @@ struct RemoteConfigButtonView: View {
           Text("Activate")
         }
         Text(iosRollouts)
+        Toggle("Turn on RealTime RC", isOn: $turnOnRealTimeRC).toggleStyle(.button).tint(.mint)
+          .onChange(of: self.turnOnRealTimeRC, perform: { value in
+            rc.addOnConfigUpdateListener { u, e in rc.activate() }
+          })
       }
-      // Uncomment this if test realtime rc
-//      .onAppear {
-//          rc.addOnConfigUpdateListener{u, e in rc.activate()};
-//      }
       .navigationTitle("Remote Config Example")
     }
   }
