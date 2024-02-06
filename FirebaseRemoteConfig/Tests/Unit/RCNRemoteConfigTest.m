@@ -33,6 +33,8 @@
 #import <GoogleUtilities/GULNSData+zlib.h>
 #import "FirebaseCore/Extension/FirebaseCoreInternal.h"
 
+@protocol FIRRolloutsStateSubscriber;
+
 @interface RCNConfigFetch (ForTest)
 - (instancetype)initWithContent:(RCNConfigContent *)content
                       DBManager:(RCNConfigDBManager *)DBManager
@@ -131,6 +133,7 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
   NSTimeInterval _checkCompletionTimeout;
   NSMutableArray<FIRRemoteConfig *> *_configInstances;
   NSMutableArray<NSDictionary<NSString *, NSString *> *> *_entries;
+  NSArray<NSDictionary *> *_rolloutMetadata;
   NSMutableArray<NSDictionary<NSString *, id> *> *_response;
   NSMutableArray<NSData *> *_responseData;
   NSMutableArray<NSURLResponse *> *_URLResponse;
@@ -260,7 +263,17 @@ typedef NS_ENUM(NSInteger, RCNTestRCInstance) {
                              updateCompletionHandler:nil];
     });
 
-    _response[i] = @{@"state" : @"UPDATE", @"entries" : _entries[i]};
+    _rolloutMetadata = @[ @{
+      RCNFetchResponseKeyRolloutID : @"1",
+      RCNFetchResponseKeyVariantID : @"0",
+      RCNFetchResponseKeyAffectedParameterKeys : @[ _entries[i].allKeys[0] ]
+    } ];
+
+    _response[i] = @{
+      @"state" : @"UPDATE",
+      @"entries" : _entries[i],
+      RCNFetchResponseKeyRolloutMetadata : _rolloutMetadata
+    };
 
     _responseData[i] = [NSJSONSerialization dataWithJSONObject:_response[i] options:0 error:nil];
 
@@ -1789,6 +1802,8 @@ static NSString *UTCToLocal(NSString *utcTime) {
   [[mockNotificationCenter expect] postNotificationName:@"RolloutsStateDidChangeNotification"
                                                  object:[OCMArg any]
                                                userInfo:[OCMArg any]];
+  id mockSubscriber = [OCMockObject mockForProtocol:@protocol(FIRRolloutsStateSubscriber)];
+  [[mockSubscriber expect] rolloutsStateDidChange:[OCMArg any]];
 
   XCTestExpectation *expectation = [self
       expectationWithDescription:[NSString

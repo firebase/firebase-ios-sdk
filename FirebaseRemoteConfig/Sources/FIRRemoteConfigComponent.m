@@ -148,8 +148,8 @@ static NSMutableDictionary<NSString *, FIRRemoteConfigComponent *> *_componentIn
 
 - (void)registerRolloutsStateSubscriber:(id<FIRRolloutsStateSubscriber>)subscriber
                                     for:(NSString * _Nonnull)namespace {
-  // TODO(Themisw): Adding the registered subscriber reference to the namespace instance
-  [self.instances[namespace] addRemoteConfigInteropSubscriber:subscriber];
+  FIRRemoteConfig *instance = [self remoteConfigForNamespace:namespace];
+  [instance addRemoteConfigInteropSubscriber:subscriber];
 }
 
 @end
