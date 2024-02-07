@@ -500,9 +500,9 @@ extension ModelInfoRetriever {
     request.setValue(bundleID, forHTTPHeaderField: ModelInfoRetriever.bundleIDHTTPHeader)
     request.setValue(token, forHTTPHeaderField: ModelInfoRetriever.fisTokenHTTPHeader)
     // Get model hash if local model info is available on device.
-    if let modelInfo = localModelInfo {
+    if let localModelInfo {
       request.setValue(
-        modelInfo.modelHash,
+        localModelInfo.modelHash,
         forHTTPHeaderField: ModelInfoRetriever.hashMatchHTTPHeader
       )
     }
@@ -511,7 +511,7 @@ extension ModelInfoRetriever {
 
   /// Parse error message from server response.
   private func getErrorFromResponse(_ data: Data?) -> String? {
-    if let data = data,
+    if let data,
        let responseJSON = try? JSONSerialization
        .jsonObject(with: data, options: []) as? [String: Any],
        let error = responseJSON["error"] as? [String: Any],

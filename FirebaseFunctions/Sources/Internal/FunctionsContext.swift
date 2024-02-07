@@ -60,7 +60,7 @@ class FunctionsContextProvider: NSObject {
     var error: Error?
     var limitedUseAppCheckToken: String?
 
-    if let auth = auth {
+    if let auth {
       dispatchGroup.enter()
 
       auth.getToken(forcingRefresh: false) { token, authError in
@@ -70,7 +70,7 @@ class FunctionsContextProvider: NSObject {
       }
     }
 
-    if let appCheck = appCheck {
+    if let appCheck {
       dispatchGroup.enter()
 
       if options?.requireLimitedUseAppCheckTokens == true {

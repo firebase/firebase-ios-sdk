@@ -119,7 +119,7 @@ final class AppCheckAPITests {
     // MARK: - AppCheckErrors
 
     AppCheck.appCheck().token(forcingRefresh: false) { _, error in
-      if let error = error {
+      if let error {
         switch error {
         case AppCheckErrorCode.unknown:
           break

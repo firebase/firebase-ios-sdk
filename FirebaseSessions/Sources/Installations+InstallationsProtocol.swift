@@ -24,9 +24,9 @@ protocol InstallationsProtocol {
 extension Installations: InstallationsProtocol {
   func installationID(completion: @escaping (Result<String, Error>) -> Void) {
     installationID { (installationID: String?, error: Error?) in
-      if let installationID = installationID {
+      if let installationID {
         completion(.success(installationID))
-      } else if let error = error {
+      } else if let error {
         completion(.failure(error))
       }
     }

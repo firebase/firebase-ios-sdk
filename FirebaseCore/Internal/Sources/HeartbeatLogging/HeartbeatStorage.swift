@@ -153,7 +153,7 @@ final class HeartbeatStorage: HeartbeatStorageProtocol {
   ///   - heartbeatsBundle: The heartbeats bundle to encode and save.
   ///   - storage: The storage container to write to.
   private func save(_ heartbeatsBundle: HeartbeatsBundle?, to storage: Storage) throws {
-    if let heartbeatsBundle = heartbeatsBundle {
+    if let heartbeatsBundle {
       let data = try heartbeatsBundle.encoded(using: encoder)
       try storage.write(data)
     } else {

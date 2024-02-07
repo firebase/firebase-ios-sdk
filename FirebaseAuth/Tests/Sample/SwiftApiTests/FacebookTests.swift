@@ -30,7 +30,7 @@ import XCTest
 //    let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
 //    let expectation = self.expectation(description: "Signing in with Facebook finished.")
 //    auth.signIn(with: credential) { result, error in
-//      if let error = error {
+//      if let error {
 //        XCTFail("Signing in with Facebook had error: \(error)")
 //      } else {
 //        XCTAssertEqual(auth.currentUser?.displayName, Credentials.kFacebookUserName)
@@ -69,7 +69,7 @@ import XCTest
 //    let credential = FacebookAuthProvider.credential(withAccessToken: facebookAccessToken)
 //    let expectation = self.expectation(description: "Facebook linking finished.")
 //    auth.currentUser?.link(with: credential, completion: { result, error in
-//      if let error = error {
+//      if let error {
 //        XCTFail("Link to Firebase error: \(error)")
 //      } else {
 //        guard let providers = (auth.currentUser?.providerData) else {
@@ -124,7 +124,7 @@ import XCTest
 //    fetcher.setRequestValue("text/plain", forHTTPHeaderField: "Content-Type")
 //    let expectation = self.expectation(description: "Creating Facebook account finished.")
 //    fetcher.beginFetch { data, error in
-//      if let error = error {
+//      if let error {
 //        let error = error as NSError
 //        if let message = String(data: error.userInfo["data"] as! Data, encoding: .utf8) {
 //          // May get transient errors here for too many api calls when tests run frequently.
@@ -181,7 +181,7 @@ import XCTest
 //    fetcher.setRequestValue("text/plain", forHTTPHeaderField: "Content-Type")
 //    let expectation = self.expectation(description: "Deleting Facebook account finished.")
 //    fetcher.beginFetch { data, error in
-//      if let error = error {
+//      if let error {
 //        XCTFail("Deleting Facebook account failed with error: \(error)")
 //      }
 //      expectation.fulfill()

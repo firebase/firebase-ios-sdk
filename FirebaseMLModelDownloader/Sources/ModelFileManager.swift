@@ -195,7 +195,7 @@ extension ModelFileManager {
     }
 
     static let availableStorage = { (error: String?) -> String in
-      if let error = error {
+      if let error {
         return "Failed to check storage capacity on device: \(error)"
       } else {
         return "Failed to check storage capacity on device."

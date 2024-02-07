@@ -86,7 +86,7 @@ public extension Auth {
   func updateCurrentUser(_ user: User) -> Future<Void, Error> {
     Future<Void, Error> { promise in
       self.updateCurrentUser(user) { error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
         } else {
           promise(.success(()))
@@ -117,9 +117,9 @@ public extension Auth {
   func signInAnonymously() -> Future<AuthDataResult, Error> {
     Future<AuthDataResult, Error> { promise in
       self.signInAnonymously { authDataResult, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let authDataResult = authDataResult {
+        } else if let authDataResult {
           promise(.success(authDataResult))
         }
       }
@@ -155,9 +155,9 @@ public extension Auth {
                   password: String) -> Future<AuthDataResult, Error> {
     Future<AuthDataResult, Error> { promise in
       self.createUser(withEmail: email, password: password) { authDataResult, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let authDataResult = authDataResult {
+        } else if let authDataResult {
           promise(.success(authDataResult))
         }
       }
@@ -189,9 +189,9 @@ public extension Auth {
               password: String) -> Future<AuthDataResult, Error> {
     Future<AuthDataResult, Error> { promise in
       self.signIn(withEmail: email, password: password) { authDataResult, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let authDataResult = authDataResult {
+        } else if let authDataResult {
           promise(.success(authDataResult))
         }
       }
@@ -224,9 +224,9 @@ public extension Auth {
               link: String) -> Future<AuthDataResult, Error> {
     Future<AuthDataResult, Error> { promise in
       self.signIn(withEmail: email, link: link) { authDataResult, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let authDataResult = authDataResult {
+        } else if let authDataResult {
           promise(.success(authDataResult))
         }
       }
@@ -249,7 +249,7 @@ public extension Auth {
                       actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
     Future<Void, Error> { promise in
       self.sendSignInLink(toEmail: email, actionCodeSettings: actionCodeSettings) { error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
         } else {
           promise(.success(()))
@@ -274,9 +274,9 @@ public extension Auth {
   func fetchSignInMethods(forEmail email: String) -> Future<[String], Error> {
     Future<[String], Error> { promise in
       self.fetchSignInMethods(forEmail: email) { signInMethods, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let signInMethods = signInMethods {
+        } else if let signInMethods {
           promise(.success(signInMethods))
         }
       }
@@ -309,7 +309,7 @@ public extension Auth {
                             newPassword: String) -> Future<Void, Error> {
     Future<Void, Error> { promise in
       self.confirmPasswordReset(withCode: code, newPassword: newPassword) { error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
         } else {
           promise(.success(()))
@@ -332,9 +332,9 @@ public extension Auth {
   func verifyPasswordResetCode(_ code: String) -> Future<String, Error> {
     Future<String, Error> { promise in
       self.verifyPasswordResetCode(code) { email, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let email = email {
+        } else if let email {
           promise(.success(email))
         }
       }
@@ -353,9 +353,9 @@ public extension Auth {
   func checkActionCode(code: String) -> Future<ActionCodeInfo, Error> {
     Future<ActionCodeInfo, Error> { promise in
       self.checkActionCode(code) { actionCodeInfo, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let actionCodeInfo = actionCodeInfo {
+        } else if let actionCodeInfo {
           promise(.success(actionCodeInfo))
         }
       }
@@ -376,7 +376,7 @@ public extension Auth {
   func applyActionCode(code: String) -> Future<Void, Error> {
     Future<Void, Error> { promise in
       self.applyActionCode(code) { error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
         } else {
           promise(.success(()))
@@ -405,7 +405,7 @@ public extension Auth {
   func sendPasswordReset(withEmail email: String) -> Future<Void, Error> {
     Future<Void, Error> { promise in
       self.sendPasswordReset(withEmail: email) { error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
         } else {
           promise(.success(()))
@@ -448,7 +448,7 @@ public extension Auth {
                          actionCodeSettings: ActionCodeSettings) -> Future<Void, Error> {
     Future<Void, Error> { promise in
       self.sendPasswordReset(withEmail: email, actionCodeSettings: actionCodeSettings) { error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
         } else {
           promise(.success(()))
@@ -506,9 +506,9 @@ public extension Auth {
                 uiDelegate: AuthUIDelegate?) -> Future<AuthDataResult, Error> {
       Future<AuthDataResult, Error> { promise in
         self.signIn(with: provider, uiDelegate: uiDelegate) { authDataResult, error in
-          if let error = error {
+          if let error {
             promise(.failure(error))
-          } else if let authDataResult = authDataResult {
+          } else if let authDataResult {
             promise(.success(authDataResult))
           }
         }
@@ -534,9 +534,9 @@ public extension Auth {
   func signIn(withCustomToken token: String) -> Future<AuthDataResult, Error> {
     Future<AuthDataResult, Error> { promise in
       self.signIn(withCustomToken: token) { authDataResult, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let authDataResult = authDataResult {
+        } else if let authDataResult {
           promise(.success(authDataResult))
         }
       }
@@ -583,9 +583,9 @@ public extension Auth {
   func signIn(with credential: AuthCredential) -> Future<AuthDataResult, Error> {
     Future<AuthDataResult, Error> { promise in
       self.signIn(with: credential) { authDataResult, error in
-        if let error = error {
+        if let error {
           promise(.failure(error))
-        } else if let authDataResult = authDataResult {
+        } else if let authDataResult {
           promise(.success(authDataResult))
         }
       }
