@@ -17,12 +17,10 @@ import Foundation
 extension UserInfoImpl: NSSecureCoding {}
 
 @objc(FIRUserInfoImpl) class UserInfoImpl: NSObject, UserInfo {
-  /** @fn userInfoWithGetAccountInfoResponseProviderUserInfo:
-      @brief A convenience factory method for constructing a @c FIRUserInfo instance from data
-          returned by the getAccountInfo endpoint.
-      @param providerUserInfo Data returned by the getAccountInfo endpoint.
-      @return A new instance of @c FIRUserInfo using data from the getAccountInfo endpoint.
-   */
+  /// A convenience factory method for constructing a `UserInfo` instance from data
+  /// returned by the getAccountInfo endpoint.
+  /// - Parameter providerUserInfo: Data returned by the getAccountInfo endpoint.
+  /// - Returns: A new instance of `UserInfo` using data from the getAccountInfo endpoint.
   class func userInfo(withGetAccountInfoResponseProviderUserInfo providerUserInfo: GetAccountInfoResponseProviderUserInfo)
     -> UserInfoImpl {
     guard let providerID = providerUserInfo.providerID else {
@@ -37,15 +35,13 @@ extension UserInfoImpl: NSSecureCoding {}
                         phoneNumber: providerUserInfo.phoneNumber)
   }
 
-  /** @fn initWithProviderID:userID:displayName:photoURL:email:
-      @brief Designated initializer.
-      @param providerID The provider identifier.
-      @param userID The unique user ID for the user (the value of the @c uid field in the token.)
-      @param displayName The name of the user.
-      @param photoURL The URL of the user's profile photo.
-      @param email The user's email address.
-      @param phoneNumber The user's phone number.
-   */
+  /// Designated initializer.
+  /// - Parameter providerID: The provider identifier.
+  /// - Parameter userID: The unique user ID for the user (the value of the uid field in the token.)
+  /// - Parameter displayName: The name of the user.
+  /// - Parameter photoURL: The URL of the user's profile photo.
+  /// - Parameter email: The user's email address.
+  /// - Parameter phoneNumber: The user's phone number.
   private init(withProviderID providerID: String,
                userID: String?,
                displayName: String?,

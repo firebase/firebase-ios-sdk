@@ -16,23 +16,17 @@ import Foundation
 
 #if os(iOS)
 
-  /**
-   @class FIRTotpMultiFactorInfo
-   @brief Extends the MultiFactorInfo class for time based one-time password second factors.
-          The identifier of this second factor is "totp".
-          This class is available on iOS only.
-   */
+  /// Extends the MultiFactorInfo class for time based one-time password second factors.
+  ///
+  /// The identifier of this second factor is "totp".
+  ///
+  /// This class is available on iOS only.
   class TOTPMultiFactorInfo: MultiFactorInfo {
-    /**
-      @brief This is the totp info for the second factor.
-     */
+    /// This is the totp info for the second factor.
     let totpInfo: NSObject?
 
-    /**
-      @fn initWithProto:
-      @brief Initilize the FIRAuthProtoMFAEnrollment instance with proto.
-      @param proto FIRAuthProtoMFAEnrollment proto object.
-     */
+    /// Initialize the AuthProtoMFAEnrollment instance with proto.
+    /// - Parameter proto: AuthProtoMFAEnrollment proto object.
     init(proto: AuthProtoMFAEnrollment) {
       totpInfo = proto.totpInfo
       super.init(proto: proto, factorID: PhoneMultiFactorInfo.TOTPMultiFactorID)
@@ -43,5 +37,4 @@ import Foundation
       fatalError("init(coder:) has not been implemented")
     }
   }
-
 #endif

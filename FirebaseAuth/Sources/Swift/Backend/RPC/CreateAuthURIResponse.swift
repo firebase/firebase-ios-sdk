@@ -14,40 +14,26 @@
 
 import Foundation
 
-/** @class FIRCreateAuthURIResponse
-    @brief Represents the parameters for the createAuthUri endpoint.
-    @see https://developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
- */
+/// Represents the parameters for the createAuthUri endpoint.
+/// See https: // developers.google.com/identity/toolkit/web/reference/relyingparty/createAuthUri
 
 class CreateAuthURIResponse: AuthRPCResponse {
-  /** @property authUri
-      @brief The URI used by the IDP to authenticate the user.
-   */
+  /// The URI used by the IDP to authenticate the user.
   var authURI: String?
 
-  /** @property registered
-      @brief Whether the user is registered if the identifier is an email.
-   */
+  /// Whether the user is registered if the identifier is an email.
   var registered: Bool = false
 
-  /** @property providerId
-      @brief The provider ID of the auth URI.
-   */
+  /// The provider ID of the auth URI.
   var providerID: String?
 
-  /** @property forExistingProvider
-      @brief True if the authUri is for user's existing provider.
-   */
+  /// True if the authUri is for user's existing provider.
   var forExistingProvider: Bool = false
 
-  /** @property allProviders
-      @brief A list of provider IDs the passed @c identifier could use to sign in with.
-   */
+  /// A list of provider IDs the passed identifier could use to sign in with.
   var allProviders: [String]?
 
-  /** @property signinMethods
-      @brief A list of sign-in methods available for the passed @c identifier.
-   */
+  /// A list of sign-in methods available for the passed  identifier.
   var signinMethods: [String]?
 
   /// Bare initializer.
