@@ -335,10 +335,10 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     [strongSelf->_settings updateLastActiveTemplateVersion];
     // Update activeRolloutMetadata
     [strongSelf->_configContent activateRolloutMetadata];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [self notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
-                        versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
-    });
+    // dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self notifyRolloutsStateChange:strongSelf->_configContent.activeRolloutMetadata
+                      versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
+    // });
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
@@ -635,23 +635,26 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                     notification.userInfo[RolloutsStateDidChangeNotificationName];
                 [subscriber rolloutsStateDidChange:rolloutsState];
               }];
-  // Pass active rollout metadata stored in persistence while app launched unless this is the first
-  // launch without any fetch and activate.
-  NSString *activeVersionNumber = self->_settings.lastActiveTemplateVersion;
-  NSArray<NSDictionary *> *activeRolloutMetadata = self->_configContent.activeRolloutMetadata;
-  [self notifyRolloutsStateChange:activeRolloutMetadata versionNumber:activeVersionNumber];
+  // Send active rollout metadata stored in persistence while app launched if there is activeConfig
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
+  NSDictionary<NSString *, NSDictionary *> *activeConfig = self->_configContent.activeConfig;
+  if (activeConfig[FQNamespace].count > 0) {
+    [self notifyRolloutsStateChange:self->_configContent.activeRolloutMetadata
+                      versionNumber:self->_settings.lastActiveTemplateVersion];
+  }
 }
 
 - (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata
                     versionNumber:(NSString *)versionNumber {
   NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
+  NSString *FQNamespace = [self fullyQualifiedNamespace:_FIRNamespace];
   for (NSDictionary *metadata in rolloutMetadata) {
     NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
     NSString *variantID = metadata[RCNFetchResponseKeyVariantID];
     NSArray<NSString *> *affectedParameterKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
     if (rolloutId && variantID && affectedParameterKeys) {
       for (NSString *key in affectedParameterKeys) {
-        FIRRemoteConfigValue *value = [self configValueForKey:key];
+        FIRRemoteConfigValue *value = self->_configContent.activeConfig[FQNamespace][key];
         if (value) {
           FIRRolloutAssignment *assignment =
               [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
