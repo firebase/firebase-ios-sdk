@@ -364,7 +364,7 @@ const NSTimeInterval kDatabaseLoadTimeoutSecs = 30.0;
 
 - (void)handleUpdateRolloutFetchedMetadata:(NSArray<NSDictionary *> *)metadata {
   if (!metadata) {
-    return;
+    metadata = [[NSArray alloc] init];
   }
   _fetchedRolloutMetadata = metadata;
   [_DBManager insertOrUpdateRolloutTableWithKey:@RCNRolloutTableKeyFetchedMetadata

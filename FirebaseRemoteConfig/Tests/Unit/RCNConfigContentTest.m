@@ -568,6 +568,49 @@ extern const NSTimeInterval kDatabaseLoadTimeoutSecs;
   XCTAssertTrue([[update updatedKeys] containsObject:key2]);
 }
 
+- (void)testConfigUpdate_rolloutMetadataDeletedAll_returnsKey {
+  NSString *namespace = @"test_namespace";
+  NSString *key = @"key";
+  NSString *value = @"value";
+  NSString *rolloutId1 = @"1";
+  NSString *variantId1 = @"A";
+  NSArray *rolloutMetadata = @[ @{
+    RCNFetchResponseKeyRolloutID : rolloutId1,
+    RCNFetchResponseKeyVariantID : variantId1,
+    RCNFetchResponseKeyAffectedParameterKeys : @[ key ]
+  } ];
+  // Populate fetched config
+  NSMutableDictionary *fetchResponse = [self createFetchResponseWithConfigEntries:@{key : value}
+                                                                     p13nMetadata:nil
+                                                                  rolloutMetadata:rolloutMetadata];
+  [_configContent updateConfigContentWithResponse:fetchResponse forNamespace:namespace];
+  // populate active config with the same content
+  NSArray<NSDictionary *> *result = [_configContent activateRolloutMetadata];
+  XCTAssertEqualObjects(rolloutMetadata, result);
+  FIRRemoteConfigValue *rcValue =
+      [[FIRRemoteConfigValue alloc] initWithData:[value dataUsingEncoding:NSUTF8StringEncoding]
+                                          source:FIRRemoteConfigSourceRemote];
+
+  NSDictionary *namespaceToConfig = @{namespace : @{key : rcValue}};
+  [_configContent copyFromDictionary:namespaceToConfig
+                            toSource:RCNDBSourceActive
+                        forNamespace:namespace];
+
+  // New fetch response has updated rollout metadata
+  NSMutableDictionary *updateFetchResponse =
+      [self createFetchResponseWithConfigEntries:@{key : value}
+                                    p13nMetadata:nil
+                                 rolloutMetadata:nil];
+  [_configContent updateConfigContentWithResponse:updateFetchResponse forNamespace:namespace];
+
+  FIRRemoteConfigUpdate *update = [_configContent getConfigUpdateForNamespace:namespace];
+  NSArray<NSDictionary *> *activeRollout = [_configContent activateRolloutMetadata];
+
+  XCTAssertTrue([update updatedKeys].count == 1);
+  XCTAssertTrue([[update updatedKeys] containsObject:key]);
+  XCTAssertTrue(activeRollout.count == 0);
+}
+
 - (void)testConfigUpdate_valueSourceChanged_returnsKey {
   NSString *namespace = @"test_namespace";
   NSString *existingParam = @"key1";

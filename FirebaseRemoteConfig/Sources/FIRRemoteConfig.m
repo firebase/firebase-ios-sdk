@@ -336,10 +336,8 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
     // Update activeRolloutMetadata
     NSArray<NSDictionary *> *activeRolloutMetadata =
         [strongSelf->_configContent activateRolloutMetadata];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-      [self notifyRolloutsStateChange:activeRolloutMetadata
-                        versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
-    });
+    [self notifyRolloutsStateChange:activeRolloutMetadata
+                      versionNumber:strongSelf->_settings.lastActiveTemplateVersion];
     // Update experiments only for 3p namespace
     NSString *namespace = [strongSelf->_FIRNamespace
         substringToIndex:[strongSelf->_FIRNamespace rangeOfString:@":"].location];
@@ -636,48 +634,41 @@ typedef void (^FIRRemoteConfigActivateChangeCompletion)(BOOL changed, NSError *_
                     notification.userInfo[RolloutsStateDidChangeNotificationName];
                 [subscriber rolloutsStateDidChange:rolloutsState];
               }];
-  // Pass active rollout metadata stored in persistence if exists while app launched.
+  // Pass active rollout metadata stored in persistence while app launched.
   NSArray<NSDictionary *> *activeRolloutMetadata = self->_configContent.activateRolloutMetadata;
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    [self notifyRolloutsStateChange:activeRolloutMetadata
-                      versionNumber:self->_settings.lastActiveTemplateVersion];
-  });
+  [self notifyRolloutsStateChange:activeRolloutMetadata
+                    versionNumber:self->_settings.lastActiveTemplateVersion];
 }
 
 - (void)notifyRolloutsStateChange:(NSArray<NSDictionary *> *)rolloutMetadata
                     versionNumber:(NSString *)versionNumber {
-  if (rolloutMetadata && rolloutMetadata.count > 0 && [versionNumber longLongValue] > 0) {
-    NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
-    for (NSDictionary *metadata in rolloutMetadata) {
-      NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
-      NSString *variantID = metadata[RCNFetchResponseKeyVariantID];
-      NSArray<NSString *> *affectedParameterKeys =
-          metadata[RCNFetchResponseKeyAffectedParameterKeys];
-      if (rolloutId && variantID && affectedParameterKeys) {
-        for (NSString *key in affectedParameterKeys) {
-          FIRRemoteConfigValue *value = [self configValueForKey:key];
-          if (value) {
-            FIRRolloutAssignment *assignment =
-                [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
-                                                      variantId:variantID
-                                                templateVersion:[versionNumber longLongValue]
-                                                   parameterKey:key
-                                                 parameterValue:value.stringValue];
-            [rolloutsAssignments addObject:assignment];
-          }
+  NSMutableArray<FIRRolloutAssignment *> *rolloutsAssignments = [[NSMutableArray alloc] init];
+  for (NSDictionary *metadata in rolloutMetadata) {
+    NSString *rolloutId = metadata[RCNFetchResponseKeyRolloutID];
+    NSString *variantID = metadata[RCNFetchResponseKeyVariantID];
+    NSArray<NSString *> *affectedParameterKeys = metadata[RCNFetchResponseKeyAffectedParameterKeys];
+    if (rolloutId && variantID && affectedParameterKeys) {
+      for (NSString *key in affectedParameterKeys) {
+        FIRRemoteConfigValue *value = [self configValueForKey:key];
+        if (value) {
+          FIRRolloutAssignment *assignment =
+              [[FIRRolloutAssignment alloc] initWithRolloutId:rolloutId
+                                                    variantId:variantID
+                                              templateVersion:[versionNumber longLongValue]
+                                                 parameterKey:key
+                                               parameterValue:value.stringValue];
+          [rolloutsAssignments addObject:assignment];
         }
       }
     }
-    if (rolloutsAssignments.count > 0) {
-      FIRRolloutsState *rolloutsState =
-          [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
-      FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Send notification to Interop.");
-      [[NSNotificationCenter defaultCenter]
-          postNotificationName:RolloutsStateDidChangeNotificationName
-                        object:self
-                      userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
-    }
   }
+  FIRRolloutsState *rolloutsState =
+      [[FIRRolloutsState alloc] initWithAssignmentList:rolloutsAssignments];
+  FIRLogDebug(kFIRLoggerRemoteConfig, @"I-RCN000069", @"Send notification to Interop.");
+  [[NSNotificationCenter defaultCenter]
+      postNotificationName:RolloutsStateDidChangeNotificationName
+                    object:self
+                  userInfo:@{RolloutsStateDidChangeNotificationName : rolloutsState}];
 }
 
 @end
